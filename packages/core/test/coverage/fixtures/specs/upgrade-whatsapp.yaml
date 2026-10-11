@@ -1,0 +1,18 @@
+id: upgrade-whatsapp
+title: Existing customer asks for a faster plan on WhatsApp
+channel: whatsapp
+lang: EN
+covers: [B-001, B-002]
+tags: [flow:plan-upgrade]
+blocks:
+  - user: hello, a faster plan please
+    expect:
+      tools:
+        - label: lookup_plans
+          count: 1
+perturbations:
+  - id: loose-ok
+    class: D4_loose_confirmation
+    inject_at: 1
+    user: ok perfect
+    recovery: { within_blocks: 1 }

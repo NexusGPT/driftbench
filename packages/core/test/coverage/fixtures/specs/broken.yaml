@@ -1,0 +1,7 @@
+id: broken
+title: Invalid on purpose; its covers must never count
+channel: whatsapp
+covers: [B-004]
+blocks:
+  - expect:
+      must: ["confirm"]
