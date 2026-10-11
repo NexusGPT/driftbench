@@ -442,42 +442,40 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 </section>
 <section id="pilot">
 <h2>Variance pilot</h2>
-<p>Pilot pilot-cae1ae0cdf67 on function:acme-random: 15 cells, up to 10 conversations per cell, 3 wordings, 5 repeats; 905 runs. Pass rate 58.2% [54.6%, 61.9%].</p>
+<p>Pilot pilot-d24f99408267 on function:acme-random: 13 cells, up to 10 conversations per cell, 3 wordings, 5 repeats; 1620 runs. Pass rate 15.9% [13.3%, 19.0%].</p>
 <div class="table-wrap"><table>
 <caption>Share of the variance per level (cell &gt; conversation &gt; wording &gt; repeat)</caption>
 <thead><tr><th scope="col">level</th><th scope="col">groups</th><th scope="col">share</th><th scope="col">interval</th><th scope="col">intraclass correlation</th></tr></thead>
 <tbody>
-<tr><td>cell</td><td class="num">15</td><td class="num">4.1%</td><td class="num">[1.3%, 13.8%]</td><td class="num">0.041</td></tr>
-<tr><td>conversation</td><td class="num">150</td><td class="num">5.3%</td><td class="num">[0.0%, 19.0%]</td><td class="num">0.094</td></tr>
-<tr><td>wording</td><td class="num">181</td><td class="num">21.9%</td><td class="num">[4.1%, 39.0%]</td><td class="num">0.313</td></tr>
-<tr><td>repeat</td><td class="num">905</td><td class="num">68.7%</td><td class="num">[54.4%, 78.0%]</td><td class="num"></td></tr>
+<tr><td>cell</td><td class="num">13</td><td class="num">0.4%</td><td class="num">[0.0%, 6.8%]</td><td class="num">0.004</td></tr>
+<tr><td>conversation</td><td class="num">127</td><td class="num">13.0%</td><td class="num">[3.5%, 18.7%]</td><td class="num">0.134</td></tr>
+<tr><td>wording</td><td class="num">324</td><td class="num">4.2%</td><td class="num">[0.0%, 12.0%]</td><td class="num">0.176</td></tr>
+<tr><td>repeat</td><td class="num">1620</td><td class="num">82.4%</td><td class="num">[74.9%, 90.1%]</td><td class="num"></td></tr>
 </tbody>
 </table></div>
 <ul class="stats">
-<li>Design effect 1.28 (cluster size 6.03, rho 0.056).</li>
-<li>Noise floor target 5.0%: run-to-run variance 0.1680, 517 repeats per block, 52 for a cell figure over 10 blocks.</li>
-<li>Blocks flipping between repeats: 183 of 319, mean flip rate 28.5%.</li>
-<li>Wording-sensitive cells (range above 20.0% and the F test at false discovery rate 0.05): behaviour=B-002, behaviour=B-005, behaviour=B-006, behaviour=B-010.</li>
+<li>Design effect 2.54 (cluster size 12.76, rho 0.131).</li>
+<li>Noise floor target 5.0%: run-to-run variance 0.1105, 340 repeats per block, 34 for a cell figure over 10 blocks.</li>
+<li>Blocks flipping between repeats: 1030 of 1682, mean flip rate 31.6%.</li>
+<li>Wording-sensitive cells (range above 20.0% and the F test at false discovery rate 0.05): none.</li>
 </ul>
 <div class="table-wrap"><table>
 <caption>Pilot cells</caption>
 <thead><tr><th scope="col">cell</th><th scope="col">conversations</th><th scope="col">runs</th><th scope="col">pass rate</th><th scope="col">wording range</th><th scope="col">wording</th><th scope="col">mean flip</th><th scope="col">allocated</th></tr></thead>
 <tbody>
-<tr><td class="mono">behaviour=-</td><td class="num">10</td><td class="num">55</td><td class="num">78.2% [64.0%, 90.8%]</td><td class="num">40.0%</td><td></td><td class="num">29.1%</td><td class="num">6</td></tr>
-<tr><td class="mono">behaviour=B-001</td><td class="num">10</td><td class="num">65</td><td class="num">73.8% [61.3%, 88.7%]</td><td class="num">40.0%</td><td></td><td class="num">25.8%</td><td class="num">6</td></tr>
-<tr><td class="mono">behaviour=B-002</td><td class="num">10</td><td class="num">60</td><td class="num">38.3% [20.0%, 58.2%]</td><td class="num">80.0%</td><td>flagged</td><td class="num">31.8%</td><td class="num">7</td></tr>
-<tr><td class="mono">behaviour=B-003</td><td class="num">10</td><td class="num">60</td><td class="num">46.7% [34.0%, 57.0%]</td><td class="num">60.0%</td><td></td><td class="num">39.1%</td><td class="num">7</td></tr>
-<tr><td class="mono">behaviour=B-004</td><td class="num">10</td><td class="num">55</td><td class="num">52.7% [31.7%, 74.0%]</td><td class="num">20.0%</td><td></td><td class="num">33.0%</td><td class="num">7</td></tr>
-<tr><td class="mono">behaviour=B-005</td><td class="num">10</td><td class="num">55</td><td class="num">60.0% [41.8%, 81.0%]</td><td class="num">80.0%</td><td>flagged</td><td class="num">21.0%</td><td class="num">7</td></tr>
-<tr><td class="mono">behaviour=B-006</td><td class="num">10</td><td class="num">60</td><td class="num">73.3% [58.1%, 87.0%]</td><td class="num">80.0%</td><td>flagged</td><td class="num">20.0%</td><td class="num">6</td></tr>
-<tr><td class="mono">behaviour=B-007</td><td class="num">10</td><td class="num">65</td><td class="num">55.4% [32.2%, 75.7%]</td><td class="num">60.0%</td><td></td><td class="num">26.4%</td><td class="num">7</td></tr>
-<tr><td class="mono">behaviour=B-008</td><td class="num">10</td><td class="num">60</td><td class="num">61.7% [44.8%, 78.3%]</td><td class="num">60.0%</td><td></td><td class="num">30.0%</td><td class="num">7</td></tr>
-<tr><td class="mono">behaviour=B-009</td><td class="num">10</td><td class="num">60</td><td class="num">33.3% [17.7%, 52.7%]</td><td class="num">20.0%</td><td></td><td class="num">39.1%</td><td class="num">6</td></tr>
-<tr><td class="mono">behaviour=B-010</td><td class="num">10</td><td class="num">55</td><td class="num">54.5% [38.0%, 72.0%]</td><td class="num">80.0%</td><td>flagged</td><td class="num">26.0%</td><td class="num">7</td></tr>
-<tr><td class="mono">behaviour=B-011</td><td class="num">10</td><td class="num">60</td><td class="num">75.0% [64.8%, 84.6%]</td><td class="num">40.0%</td><td></td><td class="num">22.7%</td><td class="num">6</td></tr>
-<tr><td class="mono">behaviour=B-012</td><td class="num">10</td><td class="num">65</td><td class="num">69.2% [52.6%, 87.7%]</td><td class="num">20.0%</td><td></td><td class="num">26.1%</td><td class="num">6</td></tr>
-<tr><td class="mono">behaviour=B-013</td><td class="num">10</td><td class="num">65</td><td class="num">53.8% [35.4%, 73.6%]</td><td class="num">60.0%</td><td></td><td class="num">28.7%</td><td class="num">7</td></tr>
-<tr><td class="mono">behaviour=B-014</td><td class="num">10</td><td class="num">65</td><td class="num">47.7% [33.6%, 61.8%]</td><td class="num">20.0%</td><td></td><td class="num">28.3%</td><td class="num">8</td></tr>
+<tr><td class="mono">behaviour=-</td><td class="num">10</td><td class="num">115</td><td class="num">28.7% [15.0%, 45.0%]</td><td class="num">40.0%</td><td></td><td class="num">27.8%</td><td class="num">32</td></tr>
+<tr><td class="mono">behaviour=B-001</td><td class="num">10</td><td class="num">135</td><td class="num">11.9% [5.3%, 20.0%]</td><td class="num">40.0%</td><td></td><td class="num">32.5%</td><td class="num">6</td></tr>
+<tr><td class="mono">behaviour=B-002</td><td class="num">10</td><td class="num">125</td><td class="num">16.8% [8.1%, 29.6%]</td><td class="num">80.0%</td><td></td><td class="num">34.7%</td><td class="num">6</td></tr>
+<tr><td class="mono">behaviour=B-003</td><td class="num">9</td><td class="num">115</td><td class="num">17.4% [8.8%, 29.8%]</td><td class="num">40.0%</td><td></td><td class="num">30.9%</td><td class="num">5</td></tr>
+<tr><td class="mono">behaviour=B-004</td><td class="num">10</td><td class="num">120</td><td class="num">20.8% [9.3%, 36.2%]</td><td class="num">80.0%</td><td></td><td class="num">32.9%</td><td class="num">6</td></tr>
+<tr><td class="mono">behaviour=B-005</td><td class="num">9</td><td class="num">95</td><td class="num">13.7% [3.7%, 27.8%]</td><td class="num">60.0%</td><td></td><td class="num">31.5%</td><td class="num">5</td></tr>
+<tr><td class="mono">behaviour=B-006</td><td class="num">10</td><td class="num">150</td><td class="num">11.3% [6.7%, 18.0%]</td><td class="num">40.0%</td><td></td><td class="num">30.2%</td><td class="num">6</td></tr>
+<tr><td class="mono">behaviour=B-007</td><td class="num">10</td><td class="num">140</td><td class="num">6.4% [2.1%, 12.1%]</td><td class="num">40.0%</td><td></td><td class="num">31.2%</td><td class="num">4</td></tr>
+<tr><td class="mono">behaviour=B-008</td><td class="num">10</td><td class="num">145</td><td class="num">16.6% [8.6%, 26.7%]</td><td class="num">60.0%</td><td></td><td class="num">29.5%</td><td class="num">6</td></tr>
+<tr><td class="mono">behaviour=B-009</td><td class="num">10</td><td class="num">130</td><td class="num">10.8% [6.2%, 15.6%]</td><td class="num">40.0%</td><td></td><td class="num">32.5%</td><td class="num">5</td></tr>
+<tr><td class="mono">behaviour=B-010</td><td class="num">9</td><td class="num">120</td><td class="num">13.3% [8.7%, 18.2%]</td><td class="num">40.0%</td><td></td><td class="num">33.1%</td><td class="num">5</td></tr>
+<tr><td class="mono">behaviour=B-011</td><td class="num">10</td><td class="num">115</td><td class="num">21.7% [12.3%, 32.4%]</td><td class="num">60.0%</td><td></td><td class="num">29.5%</td><td class="num">7</td></tr>
+<tr><td class="mono">behaviour=B-012</td><td class="num">10</td><td class="num">115</td><td class="num">21.7% [11.5%, 37.8%]</td><td class="num">60.0%</td><td></td><td class="num">36.3%</td><td class="num">7</td></tr>
 </tbody>
 </table></div>
 </section>

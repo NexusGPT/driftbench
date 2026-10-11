@@ -211,7 +211,9 @@ describe('readPilotReport', () => {
   it('reads a pilot report from its folder', () => {
     const report = readPilotReport(PILOT);
     expect(report.target).toMatchObject({ adapter: 'function', agent: 'acme-random' });
-    expect(report.analysis.cells.length).toBe(15);
+    expect(report.analysis.cells.length).toBe(13);
+    expect(report.design.cells).toBe(13);
+    expect(report.analysis.observations).toBe(1620);
   });
 
   it('refuses a missing file or a file that is not a pilot report', () => {
