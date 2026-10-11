@@ -160,13 +160,13 @@ Generator and system validators first, because they reuse the fault family the g
 
 ## 10. The executor loop (how a validator is driven to 100 percent)
 
-Direction: every execution runs its validator in a loop with the goal of 100 percent; executors run on Opus first and may fall back to Sonnet when tokens run out, so they log everything and hand over cleanly; between iterations the executor researches, looking for solutions to the problems it found.
+Direction: every execution runs its validator in a loop with the goal of 100 percent; executors run on Sonnet at medium effort (owner decision, 2026-10-11, to save tokens: the ladder is clear enough for it), with Opus held back for a stuck record, so they log everything and hand over cleanly; between iterations the executor researches, looking for solutions to the problems it found.
 
 ### 10.1 Definitions
 
 - 100 percent: every level of the ladder passes on every visible seed (1 to 20) and on the hidden seed. The exit code of `driftbench validate <component> --seeds 1..20 --hidden` is the top level.
 - An iteration: one run of the validator, one diagnosis, at most one research pass, one fix, one re-run, one commit, one journal row, one handover update. Never two fixes in one iteration.
-- The executor: a model session given the executor instruction and nothing else. Opus by default; Sonnet when the token budget line is crossed. Both read the same files and follow the same loop.
+- The executor: a model session given the executor instruction and nothing else. Sonnet at medium effort by default; Opus only after a stuck record (three iterations with no level change). Both read the same files and follow the same loop.
 
 ### 10.2 Files the loop keeps, all in the repository
 
@@ -188,11 +188,11 @@ Direction: every execution runs its validator in a loop with the goal of 100 per
 4. Fix one cause. Write or adjust the test that reproduces the item first and see it red, then make it green. Never edit the validator's ladder, thresholds, hidden seed or fault family: those files are the maintainer's, and CI refuses a change to them from an executor branch.
 5. Re-run on the same seed, then on seeds 1 to 20, then with the hidden seed. Record the delta per level.
 6. Commit with the ladder table in the message. Append the journal row. Rewrite the handover.
-7. Stop rules. 100 percent: write the final report and stop. No level change in three iterations: write a stuck record (the hypotheses tried, the research, the item that resists) and hand to the maintainer. Token budget line crossed: finish the iteration, rewrite the handover, stop; the next executor (Sonnet) starts from the files alone.
+7. Stop rules. 100 percent: write the final report and stop. No level change in three iterations: write a stuck record (the hypotheses tried, the research, the item that resists) and hand to the maintainer. Token budget line crossed: finish the iteration, rewrite the handover, stop; the next executor starts from the files alone.
 
 ### 10.4 The handover test
 
-A handover is proven, not assumed. After every third iteration the executor runs `driftbench validate <component> --brief --fresh` into a new session with no other context (the maintainer dispatches it) and checks that the fresh session reproduces the current level on the handover's seed within one iteration. A handover that fails this test is itself the next item to fix. The same test is what the Opus to Sonnet switch relies on.
+A handover is proven, not assumed. After every third iteration the executor runs `driftbench validate <component> --brief --fresh` into a new session with no other context (the maintainer dispatches it) and checks that the fresh session reproduces the current level on the handover's seed within one iteration. A handover that fails this test is itself the next item to fix. The same test is what a change of executor model relies on.
 
 ### 10.5 Anti-gaming
 
