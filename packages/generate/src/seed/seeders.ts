@@ -1132,5 +1132,61 @@ function metamorphicOnPaths(
       });
     }
   }
+  // Context families, CheckList's invariance over the context axes: one path walked with the same data
+  // values and each allowed value of a persona or channel axis. The relation: the same observed outcome.
+  const contextual = [...prepared.axes]
+    .sort((a, b) => a - b)
+    .filter((index) => ['persona', 'channel'].includes(prepared.space.dimensions[index]?.kind ?? ''));
+  const indexOf = (id: string) => prepared.space.dimensions.findIndex((dimension) => dimension.id === id);
+  for (const path of prepared.relations.paths) {
+    for (const axis of contextual) {
+      if (drafts.length >= context.max) break;
+      const dimension = prepared.space.dimensions[axis];
+      if (!dimension) continue;
+      const family = `gen-metamorphic-${pad(families + 1)}`;
+      const one = { preferred: [path], others: [] };
+      const base = scenarioDraft(prepared, context, `${family}-base`, 'metamorphic', '', [], one, {
+        rngLabel: family,
+      });
+      if (!('draft' in base)) continue;
+      const read = Object.keys(path.when ?? {}).map(indexOf);
+      const data = base.draft.cell.filter(([at]) => read.includes(at));
+      const members = dimension.values
+        .map((_, value) => value)
+        .filter((value) => prepared.feasibility.allowed([...data, [axis, value]]));
+      if (members.length < 2) continue;
+      const built = members.map((value, variant) =>
+        scenarioDraft(
+          prepared,
+          context,
+          `${family}-${variant + 1}`,
+          'metamorphic',
+          '',
+          [...data, [axis, value]],
+          one,
+          {
+            rngLabel: family,
+          },
+        ),
+      );
+      if (!built.every((entry) => 'draft' in entry)) continue;
+      families += 1;
+      values.push(`${path.id}@${dimension.id}`);
+      built.forEach((entry, variant) => {
+        if (!('draft' in entry)) return;
+        drafts.push({
+          ...entry.draft,
+          id: `${family}-${variant + 1}`,
+          title: `Metamorphic ${path.id} over ${dimension.id}, value ${variant + 1} of ${members.length}: ${entry.draft.title}`,
+          metamorphic: {
+            family,
+            variant: variant + 1,
+            of: members.length,
+            relation: 'same observed outcome',
+          },
+        });
+      });
+    }
+  }
   return { drafts, summary: { families, specs: drafts.length, values } };
 }

@@ -119,7 +119,7 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 186, incomplete: 82 });
+    expect(result.report.summary).toMatchObject({ complete: 216, incomplete: 82 });
   });
 
   it('walks a t-wise row whose behaviour no path of its own flows can carry on a path of another flow', () => {
@@ -153,7 +153,8 @@ describe('generate on the approved Acme map', () => {
     const family = (spec: Spec) =>
       (spec.metadata as { generated: { metamorphic?: { family: string } } }).generated.metamorphic?.family;
     const groups = new Map<string, Spec[]>();
-    for (const spec of result.all) {
+    // Phrasing families only: a context family varies a persona or a channel (its title says over).
+    for (const spec of result.all.filter((entry) => !(entry.title ?? '').includes(' over '))) {
       const name = family(spec);
       if (name) groups.set(name, [...(groups.get(name) ?? []), spec]);
     }
@@ -205,7 +206,7 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(186);
+    expect(result.complete).toHaveLength(216);
     for (const spec of result.complete) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;
       expect(
