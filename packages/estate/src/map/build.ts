@@ -78,6 +78,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     readAt: at,
     atoms,
     edges: graph.edges,
+    ...(raw.ignored?.chosen && raw.ignored.chosen.length > 0 ? { ignore: raw.ignored.chosen } : {}),
     ...(input.port
       ? { producedBy: { family: input.port.family, model: input.port.model ?? 'unknown', at } }
       : {}),

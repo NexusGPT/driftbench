@@ -98,7 +98,15 @@ describe('a full run and the bank summary', () => {
     expect(summary.rows.find((row) => row.id === 'a3')?.perSeed).toEqual(['pass', 'fail', 'pass']);
     const text = formatItems(summary, 'banked');
     expect(text).toContain('Bank of banked: 10 items in 3 families, 8 pass on every seed (score 0.8).');
-    expect(text).toContain('Family alpha: 3 items, 1 failing; per tier 1: 1, 2: 1, 3: 1');
+    expect(text).toContain(
+      'Failing: 2 items, 1 distinct causes (0 items name no cause and count as their own).',
+    );
+    expect(text).toContain(
+      'Family alpha: 3 items, 1 failing, 1 distinct failing causes; per tier 1: 1, 2: 1, 3: 1',
+    );
+    expect(summary.failingCauses).toBe(1);
+    expect(summary.failingCausesByFamily).toEqual({ alpha: 1, beta: 0, gamma: 1 });
+    expect(summary.rows.find((row) => row.id === 'a3')?.cause).toBe('the parser drops the last field');
     expect(text).toMatch(/a3\s+3\s+1 core\s+fixture\/a\s+pass\s+FAIL\s+pass/);
     expect(text).toMatch(/g4\s+5\s+2 deep\s+fixture\/g\s+FAIL\s+FAIL\s+FAIL/);
   });

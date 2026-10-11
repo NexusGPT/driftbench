@@ -1,5 +1,7 @@
 # driftbench docs
 
+![driftbench, an agent evaluation framework by Nexus: every exchange is a unit test, every number carries an interval, drift and recovery measured block by block.](../.github/readme/hero-light.webp)
+
 driftbench evaluates AI agents block by block. A block is one exchange with a conversational agent, or one step of a task done by a code-interpreter agent. Each block is a unit test with a Given, a When and a Then, and a spec is a succession of blocks. Both kinds of block share one model: the same runner, checks, judges and statistics.
 
 Every page says what exists today and what is not built yet, with the phase that delivers it when one is assigned.
@@ -39,6 +41,10 @@ Every page says what exists today and what is not built yet, with the phase that
 * [google](adapters/google.md): an agent on the Gemini API, through `@google/genai`.
 * [langgraph](adapters/langgraph.md): a LangGraph graph.
 * [Claude Code estates](adapters/claude-code.md): a Claude Code estate and its recorded sessions, read for the estate commands and `driftbench replay`.
+
+## Example scorecards
+
+* [Example scorecards](scorecards.md): the HTML scorecards `driftbench report` wrote from the Acme campaigns.
 
 ## Comparison
 
