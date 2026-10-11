@@ -431,7 +431,7 @@ function spreadSection(s: Spread): string {
   ];
   const q = s.quantiles;
   const quantiles = q
-    ? `<table class="compact"><caption>Cell pass rates, quantiles across ${count(s.cells.length, 'cell')}</caption><thead><tr>${['min', 'p10', 'p25', 'median', 'p75', 'p90', 'max'].map((h) => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody><tr>${[q.min, q.p10, q.p25, q.p50, q.p75, q.p90, q.max].map((v) => numCell(pct(v))).join('')}</tr></tbody></table>`
+    ? `<div class="table-wrap"><table class="compact"><caption>Cell pass rates, quantiles across ${count(s.cells.length, 'cell')}</caption><thead><tr>${['min', 'p10', 'p25', 'median', 'p75', 'p90', 'max'].map((h) => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody><tr>${[q.min, q.p10, q.p25, q.p50, q.p75, q.p90, q.max].map((v) => numCell(pct(v))).join('')}</tr></tbody></table></div>`
     : '';
   const noise = s.noise
     ? `<ul class="stats">
@@ -652,7 +652,7 @@ th{color:var(--muted);font-weight:500;white-space:nowrap}
 td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 .ci{color:var(--muted);font-size:12px}
 .mono,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
-td.mono{word-break:break-all}
+td.mono{overflow-wrap:anywhere;min-width:12ch}
 .evidence{white-space:pre-wrap;max-width:420px;word-break:break-word}
 .muted,.note{color:var(--muted)}.note{font-size:12px}
 .row-bad td{background:var(--bad-bg)}.row-warn td{background:var(--warn-bg)}.row-total td{font-weight:600}

@@ -33,7 +33,7 @@ th{color:var(--muted);font-weight:500;white-space:nowrap}
 td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 .ci{color:var(--muted);font-size:12px}
 .mono,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
-td.mono{word-break:break-all}
+td.mono{overflow-wrap:anywhere;min-width:12ch}
 .evidence{white-space:pre-wrap;max-width:420px;word-break:break-word}
 .muted,.note{color:var(--muted)}.note{font-size:12px}
 .row-bad td{background:var(--bad-bg)}.row-warn td{background:var(--warn-bg)}.row-total td{font-weight:600}
@@ -393,7 +393,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <section id="spread">
 <h2>Spread</h2>
 <p>Mode F, no generated cell in these specs: one golden is one cell. A cell rate takes its conversations as clusters when it holds two or more, else the Wilson interval over its runs. A cell is undecided when its interval straddles its reference minus the margin (15.0 points); the reference is the baseline cell rate when a baseline is given, else 100%.</p>
-<table class="compact"><caption>Cell pass rates, quantiles across 6 cells</caption><thead><tr><th scope="col">min</th><th scope="col">p10</th><th scope="col">p25</th><th scope="col">median</th><th scope="col">p75</th><th scope="col">p90</th><th scope="col">max</th></tr></thead><tbody><tr><td class="num">0.0%</td><td class="num">0.0%</td><td class="num">0.0%</td><td class="num">50.0%</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr></tbody></table>
+<div class="table-wrap"><table class="compact"><caption>Cell pass rates, quantiles across 6 cells</caption><thead><tr><th scope="col">min</th><th scope="col">p10</th><th scope="col">p25</th><th scope="col">median</th><th scope="col">p75</th><th scope="col">p90</th><th scope="col">max</th></tr></thead><tbody><tr><td class="num">0.0%</td><td class="num">0.0%</td><td class="num">0.0%</td><td class="num">50.0%</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr></tbody></table></div>
 <div class="table-wrap"><table>
 <caption>Five worst cells</caption>
 <thead><tr><th scope="col">cell</th><th scope="col">conversations</th><th scope="col">runs</th><th scope="col">pass rate</th><th scope="col">reference</th><th scope="col">against reference minus margin</th><th scope="col">wording range</th></tr></thead>
