@@ -679,9 +679,14 @@ export function boundarySeeder(
       const concrete: Record<string, unknown> = {};
       const effect = found !== undefined && sideEffecting.has(found.tool.name);
       if (effect && hasPaths(prepared)) {
-        // The value on a path that calls the tool on its move, when a path reads it.
+        // The value on a path that calls the tool on its move, when a path reads it; the spec records the
+        // concrete value as every boundary spec does.
         const built = boundaryScenario(prepared, context, id, dimension.id, value.id, target);
         if ('draft' in built) {
+          const shown = concreteValue((found as NonNullable<typeof found>).schema, partition);
+          if (shown.kind === 'value') built.draft.concrete = { [value.id]: shown.value };
+          else if (shown.kind === 'absent') built.draft.concrete = { [value.id]: '(absent)' };
+          toolValues += 1;
           drafts.push(built.draft);
           return;
         }
