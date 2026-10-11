@@ -4,6 +4,7 @@ import * as stats from '@driftbench/stats';
 import { defineLadder, type Ladder } from '../../ladder';
 import { CLUSTERED_COVERAGE, clusteredLevel } from './clustered';
 import { designsPath, readDesigns, type StatsDesigns } from './designs';
+import { POWER_GAP, powerLevel } from './power';
 import { type Row, referenceLevel, STATS_FIXTURES, type StatsImpl } from './reference';
 import { type PilotAnalyser, SHARES_RECOVERY, sharesLevel } from './shares';
 import { type CompletenessLine, UNSEEN_ERROR, unseenLevel } from './unseen';
@@ -22,6 +23,7 @@ export {
   type UnseenDesigns,
 } from './designs';
 export { clusterOutcomes, generator, normal, salt } from './draw';
+export { POWER_COMPONENT, POWER_GAP, powerLevel } from './power';
 export {
   REFERENCE_TOLERANCE,
   referenceCases,
@@ -69,6 +71,7 @@ export type StatsLadderOptions = {
  * Level 4: the pilot analysis puts at least 0.93 of the planted variance shares inside their bootstrap interval,
  * over 8 planted datasets. Level 5: above the class count the sample coverage estimates err by less than 10
  * percent on average, and below it the completeness line refuses the estimate with a warning on every draw.
+ * Level 6: at the minimum detectable effect, the simulated power is within 5 points of the power planned.
  */
 export function statsLadder(options: StatsLadderOptions = {}): Ladder {
   const s: StatsImpl = { ...stats, ...options.impl };
@@ -125,6 +128,15 @@ export function statsLadder(options: StatsLadderOptions = {}): Ladder {
         threshold: UNSEEN_ERROR,
         direction: 'atMost',
         compute: ({ seed, root }) => unseenLevel(seed, s, designs(root).unseen, options.completeness),
+      },
+      {
+        id: 'mde-power',
+        name: 'minimum detectable effect power',
+        metric:
+          '|predicted power - campaigns detecting the planted effect / campaigns simulated|, largest over the designs',
+        threshold: POWER_GAP,
+        direction: 'atMost',
+        compute: ({ seed, root }) => powerLevel(seed, s, designs(root).power),
       },
     ],
   });
