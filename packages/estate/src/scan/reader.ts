@@ -63,10 +63,27 @@ export type GuardDecl = {
   script?: string;
   /** True when the command finds its script from an anchor (the project folder), not the working folder. */
   anchored: boolean;
-  /** `estate` for a guard of the settings, else the name of the skill that declares it. */
+  /** The script the shell runs when it hands the guard's own script to it as an argument (a dispatcher). */
+  dispatcher?: string;
+  /** `estate` for a guard of the settings, `catalogue` for a catalogue check, else the declaring skill's name. */
   scope: string;
   timeout?: number;
+  /** A check a catalogue declares: its id, its enforcement state and the steps it watches. */
+  check?: CheckDecl;
   at: Located;
+};
+
+/** A catalogue entry read as a guard: the id it goes by and what the catalogue says about it. */
+export type CheckDecl = {
+  id: string;
+  /** The entry's own kind, as the catalogue writes it (a check, a judge, a nudge, ...). */
+  kind?: string;
+  /** Its enforcement state, as the catalogue writes it (enforce, observe, off, ...). */
+  state?: string;
+  /** What the check does or runs, as written. */
+  work?: string;
+  /** The steps of a step list the check belongs to. */
+  steps: string[];
 };
 
 export type PermissionDecl = {
@@ -89,11 +106,25 @@ export type RegistryRow = {
   event?: string;
   enforces: Array<{ id: string } | { quote: string }>;
   verdict?: string;
+  /** Its rollout or enforcement state, when the registry writes one. */
+  state?: string;
+  /** `catalogue` for a row the reader made from a catalogue entry; absent for a registry row. */
+  origin?: 'catalogue';
   at: Located;
 };
 
-/** One step of a step list. `anytime` steps may happen at any point; the others follow `next`. */
-export type StepDecl = { id: string; title?: string; next: string[]; anytime: boolean; at: Located };
+/**
+ * One step of a step list. `anytime` steps may happen at any point; the others follow `next`. A step of a
+ * named process carries the process, and its id and `next` are the ids the reader gave it in that process.
+ */
+export type StepDecl = {
+  id: string;
+  title?: string;
+  next: string[];
+  anytime: boolean;
+  process?: string;
+  at: Located;
+};
 
 /** A passage of prose a model splits into atoms: the body of an instruction file. */
 export type ProseChunk = { id: string; file: string; startLine: number; endLine: number; text: string };

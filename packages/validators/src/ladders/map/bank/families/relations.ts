@@ -400,6 +400,7 @@ export function relationItems(): BankItem[] {
       level: levelOf('relations'),
       component: BANK_COMPONENTS.accept,
       title: variant.title,
+      cause: `accept:relation-${variant.slug}`,
       build: (seed) => {
         const draw = drawFor(seed, `relations.${variant.slug}`);
         const ctx: Ctx = {

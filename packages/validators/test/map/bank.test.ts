@@ -4,7 +4,7 @@ import { BANK_MIN_FAMILY as MIN_FAMILY, measureHardness } from '../../src/hardne
 import { readJournal } from '../../src/journal';
 import { runLadder } from '../../src/ladder';
 import { expectedFacts, proposalFacts } from '../../src/ladders/map/bank/facts';
-import { bankByFamilyTier, bankShape, mapBank } from '../../src/ladders/map/bank/index';
+import { bankByFamilyTier, bankShape, distinctCauses, mapBank } from '../../src/ladders/map/bank/index';
 import {
   answerFor,
   asModelWrites,
@@ -67,6 +67,7 @@ describe('the map bank under section 12', () => {
         'schema-keywords',
         'prompt-containers',
         'hostile-inputs',
+        'adversarial',
         'styles',
         'style-pairs',
         'relations',
@@ -80,6 +81,18 @@ describe('the map bank under section 12', () => {
     );
   });
 
+  it('gives every item one cause written as <component>:<change>, and holds more than 110 distinct causes', () => {
+    for (const one of bank) expect(one.cause, one.id).toMatch(/^[a-z]+:[a-z0-9][a-z0-9+.-]*$/);
+    expect(new Set(bank.map((one) => one.cause)).size).toBeGreaterThan(110);
+    expect(
+      distinctCauses(bank, [
+        'schema-keywords.ref-defs',
+        'schema-keywords.ref-definitions',
+        'styles.markdown',
+      ]),
+    ).toEqual(['contract:rule-polarity', 'tools:local-ref']);
+  });
+
   it('generates the same cases on a repeat and different ones on another seed', () => {
     const one = item('styles.table');
     expect(JSON.stringify(one.generate(4))).toBe(JSON.stringify(one.generate(4)));
@@ -88,6 +101,43 @@ describe('the map bank under section 12', () => {
 });
 
 describe('the perfect model', () => {
+  it('misreads an entry whose context the request leaves out', () => {
+    const rule = (extra: Partial<Planted>): Planted =>
+      ({
+        type: 'value',
+        section: 'rules',
+        source: 'prompt.md',
+        quote: 'Never quote the old price.',
+        anchor: 'Never quote the old price.',
+        dimension: { id: 'rule', title: 'rules', kind: 'behaviour' },
+        value: { id: 'R-01', title: 'a rule' },
+        fields: { polarity: 'must_not', when: { channel: ['sms'] } },
+        ...extra,
+      }) as Planted;
+    const ask = (text: string) => ({
+      system: SYSTEM_PROMPT,
+      user: `SECTION: rules\n\n<<<SOURCE prompt.md (prompt)\n${text}\nSOURCE prompt.md>>>`,
+    });
+    const deprecated = rule({ silent: true, context: { anchor: '## Deprecated', ifMissing: 'report' } });
+    expect(
+      answerFor('rules', ask('## Deprecated\n- Never quote the old price.'), [deprecated]).dimensions,
+    ).toHaveLength(0);
+    expect(answerFor('rules', ask('- Never quote the old price.'), [deprecated]).dimensions).toHaveLength(1);
+    const scoped = rule({ context: { anchor: '### Only on sms', ifMissing: 'without-when' } });
+    const richer = SYSTEM_PROMPT.replace(
+      '"values": [{"id": "<value id>",',
+      '"values": [{"id": "<value id>", "when": {}, ',
+    );
+    const cut = answerFor('rules', { ...ask('- Never quote the old price.'), system: richer }, [scoped]);
+    expect(cut.dimensions[0]?.values[0]).not.toHaveProperty('when');
+    const whole = answerFor(
+      'rules',
+      { ...ask('### Only on sms\n- Never quote the old price.'), system: richer },
+      [scoped],
+    );
+    expect(whole.dimensions[0]?.values[0]).toHaveProperty('when');
+  });
+
   const value = (anchor: string, fields?: Record<string, unknown>): Planted => ({
     type: 'value',
     section: 'rules',
@@ -257,7 +307,7 @@ describe('the bank as a ladder', () => {
     expect(run.rows[1]?.pass).toBeNull();
     const ids = run.failing?.items.map((one) => one.id) ?? [];
     expect(ids).toEqual(expect.arrayContaining(['schema-keywords.enum', 'tool-formats.mcp']));
-    expect(run.failing?.items[0]?.detail).toMatch(/^\[[a-z-]+, tier [1-5]\] /);
+    expect(run.failing?.items[0]?.detail).toMatch(/^\[[a-z-]+, tier [1-5], cause [a-z]+:[a-z0-9+.-]+\] /);
   });
 });
 
@@ -274,7 +324,7 @@ describe('the hardness measurement', () => {
     const { rows, problems } = readJournal(ROOT, 'map');
     expect(problems).toEqual([]);
     const measured = measureHardness(rows);
-    expect(measured.iteration0).toMatchObject({ bankSize: 456, passing: 166 });
+    expect(measured.iteration0).toMatchObject({ bankSize: 546, passing: 192 });
     expect(measured.pilot).toMatchObject({ iterations: 10, complete: true });
     expect(measured.forecast).toBeGreaterThanOrEqual(100);
     expect(measured.gate.holds).toBe(true);

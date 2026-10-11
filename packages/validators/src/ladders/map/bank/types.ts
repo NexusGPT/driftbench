@@ -39,6 +39,11 @@ export type BankItem = {
   component: string;
   /** The capability, in one line. */
   title: string;
+  /**
+   * The one change that would make the item pass (docs/validators.md section 12.4, distinct causes), as
+   * `<component>:<change>`, such as `tools:multipleOf`. Items that share a cause count once.
+   */
+  cause: string;
   /** The seeded generator: the cases to extract on this seed. */
   generate(seed: number): Case[];
   /** The exact oracle: whether the runs hold what the generator planted. */

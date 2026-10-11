@@ -59,6 +59,30 @@ function tools(draw: Draw): { list: Tool[]; code: CodeEntry[] } {
   return { list, code };
 }
 
+/** A small TOML writer: tables, arrays of tables, and arrays of scalars, enough for tool schemas. */
+function toml(value: Record<string, unknown>): string {
+  const lines = ['# Tool schemas written by the map validator. Every name is fictional.'];
+  const scalar = (item: unknown) => JSON.stringify(item);
+  const isTable = (item: unknown) => item !== null && typeof item === 'object' && !Array.isArray(item);
+  const write = (table: Record<string, unknown>, path: string[], arrayItem: boolean) => {
+    if (path.length > 0) lines.push('', arrayItem ? `[[${path.join('.')}]]` : `[${path.join('.')}]`);
+    const nested: Array<[string, unknown]> = [];
+    for (const [key, item] of Object.entries(table)) {
+      const name = /^[A-Za-z0-9_-]+$/.test(key) ? key : JSON.stringify(key);
+      if (isTable(item) || (Array.isArray(item) && item.length > 0 && isTable(item[0])))
+        nested.push([name, item]);
+      else lines.push(`${name} = ${Array.isArray(item) ? `[${item.map(scalar).join(', ')}]` : scalar(item)}`);
+    }
+    for (const [name, item] of nested) {
+      if (Array.isArray(item))
+        for (const element of item) write(element as Record<string, unknown>, [...path, name], true);
+      else write(item as Record<string, unknown>, [...path, name], false);
+    }
+  };
+  write(value, [], false);
+  return `${lines.join('\n')}\n`;
+}
+
 const yaml = (value: unknown) =>
   `# Tool schemas written by the map validator. Every name is fictional.\n${stringify(value, { lineWidth: 0 })}`;
 
@@ -330,6 +354,256 @@ export const FORMATS: readonly Format[] = [
         ),
       }),
   },
+  {
+    slug: 'openapi-components-ref',
+    tier: 4,
+    title: 'an OpenAPI document whose bodies and responses $ref #/components/schemas',
+    write: (list) =>
+      yaml({
+        openapi: '3.0.3',
+        info: { title: 'Fictional desk API', version: '1.0.0' },
+        paths: Object.fromEntries(
+          list.map((tool) => [
+            `/${tool.name}`,
+            {
+              post: {
+                operationId: tool.name,
+                requestBody: {
+                  content: {
+                    'application/json': { schema: { $ref: `#/components/schemas/${tool.name}Input` } },
+                  },
+                },
+                responses: {
+                  '200': {
+                    description: 'ok',
+                    content: {
+                      'application/json': { schema: { $ref: `#/components/schemas/${tool.name}Output` } },
+                    },
+                  },
+                },
+              },
+            },
+          ]),
+        ),
+        components: {
+          schemas: Object.fromEntries(
+            list.flatMap((tool) => [
+              [`${tool.name}Input`, tool.input],
+              [`${tool.name}Output`, tool.output],
+            ]),
+          ),
+        },
+      }),
+  },
+  {
+    slug: 'openapi-query-parameters',
+    tier: 4,
+    title: 'an OpenAPI document whose inputs are query parameters, each with its schema and required flag',
+    write: (list) =>
+      yaml({
+        openapi: '3.0.3',
+        info: { title: 'Fictional desk API', version: '1.0.0' },
+        paths: Object.fromEntries(
+          list.map((tool) => {
+            const input = tool.input as { required: string[]; properties: Record<string, unknown> };
+            return [
+              `/${tool.name}`,
+              {
+                get: {
+                  operationId: tool.name,
+                  parameters: Object.entries(input.properties).map(([name, schema]) => ({
+                    in: 'query',
+                    name,
+                    required: input.required.includes(name),
+                    schema,
+                  })),
+                  responses: {
+                    '200': { description: 'ok', content: { 'application/json': { schema: tool.output } } },
+                  },
+                },
+              },
+            ];
+          }),
+        ),
+      }),
+  },
+  {
+    slug: 'openapi-shared-path',
+    tier: 4,
+    title: 'an OpenAPI path with two operations: one tool per operationId',
+    write: (list) =>
+      yaml({
+        openapi: '3.0.3',
+        info: { title: 'Fictional desk API', version: '1.0.0' },
+        paths: {
+          '/desk': Object.fromEntries(
+            list.map((tool, index) => [
+              index === 0 ? 'put' : 'post',
+              {
+                operationId: tool.name,
+                requestBody: { content: { 'application/json': { schema: tool.input } } },
+                responses: {
+                  '200': { description: 'ok', content: { 'application/json': { schema: tool.output } } },
+                },
+              },
+            ]),
+          ),
+        },
+      }),
+  },
+  {
+    slug: 'openapi-request-body-ref',
+    tier: 5,
+    title: 'an OpenAPI request body given as a $ref to #/components/requestBodies',
+    write: (list) =>
+      yaml({
+        openapi: '3.0.3',
+        info: { title: 'Fictional desk API', version: '1.0.0' },
+        paths: Object.fromEntries(
+          list.map((tool) => [
+            `/${tool.name}`,
+            {
+              post: {
+                operationId: tool.name,
+                requestBody: { $ref: `#/components/requestBodies/${tool.name}Body` },
+                responses: {
+                  '200': { description: 'ok', content: { 'application/json': { schema: tool.output } } },
+                },
+              },
+            },
+          ]),
+        ),
+        components: {
+          requestBodies: Object.fromEntries(
+            list.map((tool) => [
+              `${tool.name}Body`,
+              { content: { 'application/json': { schema: tool.input } } },
+            ]),
+          ),
+        },
+      }),
+  },
+  {
+    slug: 'openapi-response-ref',
+    tier: 5,
+    title: 'an OpenAPI 200 response given as a $ref to #/components/responses',
+    write: (list) =>
+      yaml({
+        openapi: '3.0.3',
+        info: { title: 'Fictional desk API', version: '1.0.0' },
+        paths: Object.fromEntries(
+          list.map((tool) => [
+            `/${tool.name}`,
+            {
+              post: {
+                operationId: tool.name,
+                requestBody: { content: { 'application/json': { schema: tool.input } } },
+                responses: { '200': { $ref: `#/components/responses/${tool.name}Ok` } },
+              },
+            },
+          ]),
+        ),
+        components: {
+          responses: Object.fromEntries(
+            list.map((tool) => [
+              `${tool.name}Ok`,
+              { description: 'ok', content: { 'application/json': { schema: tool.output } } },
+            ]),
+          ),
+        },
+      }),
+  },
+  {
+    slug: 'vertex-snake-case',
+    tier: 3,
+    title: 'Vertex function declarations under the snake case key function_declarations',
+    inputOnly: true,
+    write: (list) =>
+      yaml({
+        tools: [{ function_declarations: list.map((tool) => ({ name: tool.name, parameters: tool.input })) }],
+      }),
+  },
+  {
+    slug: 'toml',
+    tier: 3,
+    title: 'the tools as TOML: an array of tables with nested schema tables',
+    path: 'tools.toml',
+    write: (list) => toml({ tools: list.map((tool) => anthropic(tool)) }),
+  },
+  {
+    slug: 'jsonl',
+    tier: 3,
+    title: 'the tools as JSON lines, one tool per line',
+    path: 'tools.jsonl',
+    write: (list) => `${list.map((tool) => JSON.stringify(anthropic(tool))).join('\n')}\n`,
+  },
+  {
+    slug: 'langchain-args',
+    tier: 4,
+    title: 'tools with an args mapping of properties and no required list: every argument optional',
+    inputOnly: true,
+    // No required list: the two required properties of the base tools gain absent as well.
+    code: (drawn) => [
+      ...drawn,
+      ...['find_account.in.status', 'place_order.in.count'].map(
+        (dimension): CodeEntry => ({
+          type: 'value',
+          dimension,
+          kind: 'data',
+          value: `${dimension}.absent`,
+          role: 'detail',
+        }),
+      ),
+    ],
+    write: (list) =>
+      yaml({
+        tools: list.map((tool) => ({
+          name: tool.name,
+          description: 'A fictional tool.',
+          args: (tool.input as { properties: unknown }).properties,
+        })),
+      }),
+  },
+  {
+    slug: 'xml-descriptions',
+    tier: 4,
+    title: 'legacy XML tool descriptions (<tool_description>, <parameters>): every parameter optional',
+    path: 'tools.xml',
+    inputOnly: true,
+    code: () => [
+      ...['find_account.in.status', 'place_order.in.count'].flatMap((dimension): CodeEntry[] =>
+        ['present', 'absent'].map((partition) => ({
+          type: 'value',
+          dimension,
+          kind: 'data',
+          value: `${dimension}.${partition}`,
+          role: 'detail',
+        })),
+      ),
+      ...['true', 'false', 'absent'].map(
+        (partition): CodeEntry => ({
+          type: 'value',
+          dimension: 'find_account.in.urgent',
+          kind: 'data',
+          value: `find_account.in.urgent.${partition}`,
+          role: 'detail',
+        }),
+      ),
+    ],
+    write: (list) =>
+      `<tools>\n${list
+        .map((tool) => {
+          const properties = (tool.input as { properties: Record<string, { type: string }> }).properties;
+          const parameters = Object.entries(properties)
+            .map(
+              ([name, schema]) =>
+                `    <parameter><name>${name}</name><type>${schema.type}</type></parameter>`,
+            )
+            .join('\n');
+          return `<tool_description>\n  <tool_name>${tool.name}</tool_name>\n  <parameters>\n${parameters}\n  </parameters>\n</tool_description>`;
+        })
+        .join('\n')}\n</tools>\n`,
+  },
 ];
 
 export function formatItems(): BankItem[] {
@@ -341,6 +615,7 @@ export function formatItems(): BankItem[] {
       level: levelOf('structured'),
       component: BANK_COMPONENTS.tools,
       title: format.title,
+      cause: `tools:shape-${format.slug === 'gemini-nested' ? 'gemini' : format.slug}`,
       build: (seed) => {
         const draw = drawFor(seed, `tool-formats.${format.slug}`);
         const drawn = tools(draw);

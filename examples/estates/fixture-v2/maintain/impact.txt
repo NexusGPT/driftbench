@@ -1,4 +1,4 @@
-Impact of the estate diff ab256ba636f4 to 48cac5d0c4c3 on 8 live estate tests (0 retired before, 0 other specs).
+Impact of the estate diff be2e7a0919cb to a5c8cb21f4ae on 8 live estate tests (0 retired before, 0 other specs).
   Regenerate 5, re-approve 2, retire 1, new 2; 2 tests untouched, 24 atoms moved with the same quote.
 Regenerate:
   northwind-draft-pair (draft-pair.yaml): instruction.standing.never-send-a-supplier-email-without white space, instruction.standing.keep-an-unconfirmed-draft-unsent removed

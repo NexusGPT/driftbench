@@ -25,6 +25,8 @@ import { type BankItem, levelOf, type Tier } from '../types';
 type Expected = Array<{ path: string[]; partitions: string[] }>;
 type Case = {
   slug: string;
+  /** The one change that makes the item pass; `tools:<slug>` when absent. */
+  cause?: string;
   tier: Tier;
   title: string;
   /** The properties of the schema, their required list, extra keys of the object, and the expected dims. */
@@ -609,6 +611,311 @@ export const SCHEMA_CASES: readonly Case[] = [
       expected: [],
     }),
   },
+  // More keywords and forms (the hardness extension): each its own change in the pre-pass.
+  {
+    slug: 'unevaluated-properties',
+    tier: 4,
+    title: 'unevaluatedProperties false gives <tool>.<side>.unknown-key with sent, like a closed object',
+    make: (_d, name) => ({
+      properties: { [name]: { type: 'boolean' } },
+      required: [name],
+      extra: { unevaluatedProperties: false },
+      expected: [
+        { path: [name], partitions: ['true', 'false'] },
+        { path: ['unknown-key'], partitions: ['sent'] },
+      ],
+    }),
+  },
+  {
+    slug: 'unevaluated-items',
+    tier: 4,
+    title: 'unevaluatedItems false on a tuple adds extra-item',
+    make: one(
+      () => ({ type: 'array', prefixItems: [{ type: 'boolean' }], unevaluatedItems: false }),
+      () => [...ARRAY, 'extra-item'],
+    ),
+  },
+  {
+    slug: 'min-contains',
+    tier: 4,
+    title: 'minContains with contains adds below-min-contains and at-min-contains',
+    make: one(
+      (d) => ({
+        type: 'array',
+        items: { type: 'string' },
+        contains: { const: 'vip' },
+        minContains: range(d) + 1,
+      }),
+      () => [...ARRAY, 'has-match', 'no-match', 'below-min-contains', 'at-min-contains'],
+    ),
+  },
+  {
+    slug: 'property-names',
+    tier: 4,
+    title: 'propertyNames with a pattern gives <prop> values well-formed-key and malformed-key',
+    make: one(
+      () => ({
+        type: 'object',
+        additionalProperties: { type: 'string' },
+        propertyNames: { pattern: '^[a-z]+$' },
+      }),
+      () => ['well-formed-key', 'malformed-key'],
+    ),
+  },
+  {
+    slug: 'dependent-schemas',
+    tier: 4,
+    title: 'dependentSchemas that require another property give present-without-<other>',
+    make: (_d, name) => ({
+      properties: { [name]: { type: 'string', format: 'email' }, confirm: { type: 'boolean' } },
+      required: [],
+      extra: { dependentSchemas: { [name]: { required: ['confirm'] } } },
+      expected: [
+        { path: [name], partitions: ['well-formed', 'malformed', 'absent', 'present-without-confirm'] },
+        { path: ['confirm'], partitions: ['true', 'false', 'absent'] },
+      ],
+    }),
+  },
+  {
+    slug: 'read-only-input',
+    tier: 3,
+    title:
+      'a readOnly property gives no dimension in an input (a caller never sends it) and its partitions in an output',
+    make: (d, name) => ({
+      properties: {
+        [name]: { type: 'string', enum: members(d) },
+        created_at: { type: 'string', format: 'date-time', readOnly: true },
+      },
+      required: [name],
+      expected: [],
+    }),
+  },
+  {
+    slug: 'write-only-output',
+    tier: 3,
+    title:
+      'a writeOnly property gives no dimension in an output (a tool never returns it) and its partitions in an input',
+    make: (d, name) => ({
+      properties: {
+        [name]: { type: 'string', enum: members(d) },
+        secret_code: { type: 'string', pattern: '^[0-9]{4}$', writeOnly: true },
+      },
+      required: [name],
+      expected: [],
+    }),
+  },
+  {
+    slug: 'deprecated-property',
+    tier: 3,
+    title: 'a deprecated property gives no dimension: a generator does not exercise it',
+    make: (d, name) => ({
+      properties: {
+        [name]: { type: 'string', enum: members(d) },
+        old_code: { type: 'boolean', deprecated: true },
+      },
+      required: [name],
+      expected: [],
+    }),
+  },
+  {
+    slug: 'default',
+    tier: 3,
+    title: 'an optional property with a default adds at-default before absent',
+    make: (d, name) => ({
+      properties: { [name]: { type: 'integer', minimum: 1, default: range(d) + 1 } },
+      required: [],
+      expected: [{ path: [name], partitions: [...MIN, 'at-default', 'absent'] }],
+    }),
+  },
+  {
+    slug: 'const-object',
+    tier: 3,
+    title: 'a const that is an object gives the one value fixed',
+    make: one(
+      () => ({ type: 'object', const: { mode: 'test' } }),
+      () => ['fixed'],
+    ),
+  },
+  {
+    slug: 'enum-objects',
+    tier: 3,
+    title: 'an enum of objects gives member-1, member-2 and so on',
+    make: one(
+      () => ({ type: 'object', enum: [{ size: 1 }, { size: 2 }, { size: 3 }] }),
+      () => ['member-1', 'member-2', 'member-3'],
+    ),
+  },
+  {
+    slug: 'tuple-items-draft-04',
+    tier: 4,
+    title: 'draft-04 items given as a list are positions <array>.0 and <array>.1',
+    make: (d, name) => {
+      const list = members(d);
+      return {
+        properties: {
+          [name]: { type: 'array', items: [{ type: 'string', enum: list }, { type: 'boolean' }] },
+        },
+        required: [name],
+        expected: [
+          { path: [name], partitions: ARRAY },
+          { path: [name, '0'], partitions: list },
+          { path: [name, '1'], partitions: ['true', 'false'] },
+        ],
+      };
+    },
+  },
+  {
+    slug: 'additional-items',
+    tier: 4,
+    title: 'additionalItems false after a tuple adds extra-item',
+    make: one(
+      () => ({ type: 'array', items: [{ type: 'boolean' }], additionalItems: false }),
+      () => [...ARRAY, 'extra-item'],
+    ),
+  },
+  {
+    slug: 'ref-with-siblings',
+    tier: 4,
+    title: 'keywords beside a $ref apply with it (2020-12): the referenced partitions and the sibling bound',
+    make: (_d, name) => ({
+      properties: { [name]: { $ref: '#/$defs/Count', maximum: 50 } },
+      required: [name],
+      extra: { $defs: { Count: { type: 'integer', minimum: 1 } } },
+      expected: [{ path: [name], partitions: [...MIN, ...MAX] }],
+    }),
+  },
+  {
+    slug: 'ref-deep-pointer',
+    tier: 4,
+    title: 'a $ref pointing inside a definition (#/$defs/Order/properties/status) reads that schema',
+    make: (d, name) => {
+      const list = members(d);
+      return {
+        properties: { [name]: { $ref: '#/$defs/Order/properties/status' } },
+        required: [name],
+        extra: {
+          $defs: { Order: { type: 'object', properties: { status: { type: 'string', enum: list } } } },
+        },
+        expected: [{ path: [name], partitions: list }],
+      };
+    },
+  },
+  {
+    slug: 'ref-anchor',
+    tier: 5,
+    title: 'a $ref to a $anchor (#Status) reads the anchored schema',
+    make: (d, name) => {
+      const list = members(d);
+      return {
+        properties: { [name]: { $ref: '#Status' } },
+        required: [name],
+        extra: { $defs: { S: { $anchor: 'Status', type: 'string', enum: list } } },
+        expected: [{ path: [name], partitions: list }],
+      };
+    },
+  },
+  {
+    slug: 'one-of-consts',
+    tier: 3,
+    title: 'oneOf of consts reads like an enum: one value per const',
+    make: one(
+      () => ({
+        oneOf: [
+          { const: 'north', title: 'North' },
+          { const: 'south', title: 'South' },
+        ],
+      }),
+      () => ['north', 'south'],
+    ),
+  },
+  {
+    slug: 'x-nullable',
+    tier: 3,
+    title: 'the Swagger 2 vendor key x-nullable true adds null',
+    make: one(
+      (d) => ({ type: 'integer', minimum: range(d), 'x-nullable': true }),
+      () => [...MIN, 'null'],
+    ),
+  },
+  {
+    slug: 'items-ref',
+    tier: 4,
+    title: 'array items given as a $ref give <array>.item with the referenced enum',
+    make: (d, name) => {
+      const list = members(d);
+      return {
+        properties: { [name]: { type: 'array', items: { $ref: '#/$defs/Tag' } } },
+        required: [name],
+        extra: { $defs: { Tag: { type: 'string', enum: list } } },
+        expected: [
+          { path: [name], partitions: ARRAY },
+          { path: [name, 'item'], partitions: list },
+        ],
+      };
+    },
+  },
+  {
+    slug: 'one-of-object-children',
+    tier: 5,
+    title: 'oneOf of objects gives variant values and each variant property as <prop>.<variant>.<child>',
+    make: (_d, name) => ({
+      properties: {
+        [name]: {
+          oneOf: [
+            {
+              title: 'card',
+              type: 'object',
+              required: ['last_four'],
+              properties: { last_four: { type: 'string', pattern: '^[0-9]{4}$' } },
+            },
+            {
+              title: 'transfer',
+              type: 'object',
+              required: ['urgent'],
+              properties: { urgent: { type: 'boolean' } },
+            },
+          ],
+        },
+      },
+      required: [name],
+      expected: [
+        { path: [name], partitions: ['variant-card', 'variant-transfer'] },
+        { path: [name, 'card', 'last_four'], partitions: ['well-formed', 'malformed'] },
+        { path: [name, 'transfer', 'urgent'], partitions: ['true', 'false'] },
+      ],
+    }),
+  },
+  {
+    slug: 'all-of-required',
+    tier: 4,
+    title: 'a required list inside an allOf member makes its property required: no absent value',
+    make: (d, name) => ({
+      properties: { [name]: { type: 'string', enum: members(d) } },
+      required: [],
+      extra: { allOf: [{ required: [name] }] },
+      expected: [],
+    }),
+  },
+
+  {
+    slug: 'content-media-type',
+    tier: 3,
+    title: 'contentMediaType application/json gives well-formed and malformed',
+    make: one(
+      () => ({ type: 'string', contentMediaType: 'application/json' }),
+      () => ['well-formed', 'malformed'],
+    ),
+  },
+  {
+    slug: 'format-int32',
+    tier: 3,
+    title:
+      'format int32 with no bounds gives the edges of a 32-bit integer: at-int32-max and above-int32-max',
+    make: one(
+      () => ({ type: 'integer', format: 'int32' }),
+      () => ['at-int32-max', 'above-int32-max'],
+    ),
+  },
 ];
 
 /** The enum at a path of keys inside a schema object. */
@@ -691,6 +998,19 @@ function derivedExpected(
         { path: [name, 'children', 'item', 'label'], partitions: label },
       ];
     }
+    case 'read-only-input':
+      return [
+        { path: [name], partitions: property.enum as string[] },
+        ...(side === 'out' ? [{ path: ['created_at'], partitions: ['well-formed', 'malformed'] }] : []),
+      ];
+    case 'write-only-output':
+      return [
+        { path: [name], partitions: property.enum as string[] },
+        ...(side === 'in' ? [{ path: ['secret_code'], partitions: ['well-formed', 'malformed'] }] : []),
+      ];
+    case 'deprecated-property':
+    case 'all-of-required':
+      return [{ path: [name], partitions: property.enum as string[] }];
     default:
       throw new Error(`no expectation for ${slug}`);
   }
@@ -729,6 +1049,16 @@ export function schemaCase(item: Case, seed: number) {
   };
 }
 
+/** Keywords one change fixes together. */
+const SHARED_CAUSE: Record<string, string> = {
+  'exclusive-minimum-boolean': 'tools:draft-04-exclusive-bounds',
+  'exclusive-maximum-boolean': 'tools:draft-04-exclusive-bounds',
+  'format-without-type': 'tools:type-from-keywords',
+  'minimum-without-type': 'tools:type-from-keywords',
+  'ref-defs': 'tools:local-ref',
+  'ref-definitions': 'tools:local-ref',
+};
+
 export function schemaItems(): BankItem[] {
   return SCHEMA_CASES.map((item) =>
     mapItem({
@@ -738,6 +1068,7 @@ export function schemaItems(): BankItem[] {
       level: levelOf('structured'),
       component: BANK_COMPONENTS.tools,
       title: item.title,
+      cause: item.cause ?? SHARED_CAUSE[item.slug] ?? `tools:${item.slug}`,
       build: (seed) => {
         const built = schemaCase(item, seed);
         return {

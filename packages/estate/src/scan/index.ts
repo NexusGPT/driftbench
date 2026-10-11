@@ -1,7 +1,14 @@
 import { ClaudeCodeReader } from './claude-code';
 import type { EstateReader } from './reader';
 
-export { ClaudeCodeReader, scriptOf, splitList } from './claude-code';
+export {
+  ClaudeCodeReader,
+  type ClaudeCodeReaderOptions,
+  cutLines,
+  DEFAULT_CHUNK_CHARACTERS,
+  scriptOf,
+  splitList,
+} from './claude-code';
 export {
   AtomBuilder,
   chunkLines,
@@ -11,6 +18,7 @@ export {
   HAZARDS,
   namedPaths,
   registryRowOf,
+  registryRowsOf,
   resolveNamed,
   toolBase,
 } from './code';
@@ -32,14 +40,20 @@ export {
   estateRecordingPort,
   loadEstateRecording,
   PROSE_KINDS,
+  PROSE_SOURCES,
   PROSE_SYSTEM_PROMPT,
   type ProseAnswer,
+  type ProseInventory,
   type ProseRefusal,
+  type ProseSource,
   parseProseAnswer,
+  proseInventory,
+  proseInventoryLines,
   proseRequest,
   runChunk,
 } from './prose';
 export type {
+  CheckDecl,
   EstateFile,
   EstateReader,
   FileKind,
@@ -73,6 +87,7 @@ export {
   sha256,
   sliceLines,
   slug,
+  tolerantFields,
 } from './text';
 
 /** The runtimes the scanner can read, by the name the CLI takes. */

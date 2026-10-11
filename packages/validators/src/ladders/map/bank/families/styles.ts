@@ -54,9 +54,12 @@ function styledItem(meta: {
   size?: number;
   budgetMs?: number;
   parts?: Parts;
+  cause?: string;
+  render?: RenderStyled;
 }): BankItem {
   return mapItem({
     ...meta,
+    cause: meta.cause ?? styleCause(meta.styles, meta.extras),
     build: (seed) => {
       const built = styledCase(
         meta.id,
@@ -67,12 +70,33 @@ function styledItem(meta: {
           ...(meta.size ? { size: meta.size } : {}),
           ...(meta.extras ? { extras: meta.extras } : {}),
         },
-        {},
+        meta.render ?? {},
         meta.budgetMs,
       );
       return { case: built.item, code: built.code, parts: meta.parts ?? MAP };
     },
   });
+}
+
+/**
+ * The one change a styled item waits on: the most specific field its prompt states that the map cannot
+ * carry. Every styled rule has a polarity, so polarity is the cause of an item that states nothing more.
+ */
+export function styleCause(styles: readonly Style[], extras: Extras = {}): string {
+  if (extras.roles) return 'contract:dimension-role';
+  if (extras.weights) return 'contract:value-weight';
+  if (extras.required) return 'contract:value-required';
+  if (extras.toolOrder) return 'contract:relation-tool-order';
+  if (extras.routes) return 'contract:relation-route';
+  if (extras.replies) return 'contract:relation-reply-text';
+  if (extras.exceptions) return 'contract:rule-unless';
+  if (extras.limits) return 'contract:rule-limit';
+  if (extras.deadlines) return 'contract:rule-within';
+  if (extras.priorities) return 'contract:rule-priority';
+  if (extras.stageScope || extras.flowScope) return 'contract:rule-when';
+  if (styles.some((style) => style === 'conditional' || style === 'nested' || style === 'table'))
+    return 'contract:rule-when';
+  return 'contract:rule-polarity';
 }
 
 const STYLE_TIER: Record<Style, Tier> = {
@@ -281,6 +305,34 @@ export function semanticsItems(): BankItem[] {
     { replies: true },
     BANK_COMPONENTS.contract,
   );
+  add(
+    'unless',
+    4,
+    'a rule that holds except on one channel carries unless',
+    [['markdown'], ['table'], ['prose']],
+    { exceptions: true },
+  );
+  add(
+    'limit',
+    4,
+    'a rule that caps how often an action happens carries limit',
+    [['markdown'], ['numbered'], ['nested']],
+    { limits: true },
+  );
+  add(
+    'within',
+    4,
+    'a rule with a time limit carries within, in minutes',
+    [['markdown'], ['prose'], ['table']],
+    { deadlines: true },
+  );
+  add(
+    'priority',
+    4,
+    'a rule stated to come before every other rule carries priority first',
+    [['markdown'], ['numbered'], ['nested']],
+    { priorities: true },
+  );
   add('replaced-rule', 4, 'a later rule that replaces an earlier one carries the polarity it states', [
     ['precedence'],
     ['precedence', 'table'],
@@ -295,6 +347,9 @@ export function semanticsItems(): BankItem[] {
       title: item.title,
       styles: item.styles,
       ...(item.extras ? { extras: item.extras } : {}),
+      cause: /^(polarity|replaced-rule)/.test(item.slug)
+        ? 'contract:rule-polarity'
+        : styleCause(item.styles, item.extras),
     }),
   );
 }
@@ -345,6 +400,7 @@ export function constraintItems(): BankItem[] {
   return variants.map((styles) =>
     styledItem({
       id: `constraints.${styles.join('+')}`,
+      cause: `accept:constraints-${styles.join('+')}`,
       family: 'constraints',
       tier: styles.length > 1 ? 3 : 2,
       level: levelOf('relations'),
@@ -376,6 +432,8 @@ export function transformItems(): BankItem[] {
       const id = `transforms.${transform.slug}.${structure}`;
       out.push({
         id,
+        cause:
+          transform.slug === 'permute' ? 'contract:dimension-role' : `extract:transform-${transform.slug}`,
         family: 'transforms',
         tier: transform.tier,
         level: levelOf('metamorphic'),
@@ -438,6 +496,7 @@ export function compositionItems(): BankItem[] {
     const key = styles.join('+');
     out.push({
       id: `composition.additivity.${key}`,
+      cause: `extract:additivity-${key}`,
       family: 'composition',
       tier: 3,
       level: levelOf('composition'),
@@ -480,6 +539,7 @@ export function compositionItems(): BankItem[] {
     });
     out.push({
       id: `composition.unit.${key}`,
+      cause: `accept:unit-response-${key}`,
       family: 'composition',
       tier: 3,
       level: levelOf('composition'),
@@ -533,6 +593,7 @@ export function scaleItems(): BankItem[] {
         family: 'scale',
         tier: 4,
         level: levelOf('scale'),
+        cause: 'extract:chunk-requests',
         component: BANK_COMPONENTS.extract,
         title: `a 100k-character prompt in ${STYLE_TITLE[style]}, extracted in under 10 seconds`,
         styles: [style],
@@ -548,6 +609,7 @@ export function scaleItems(): BankItem[] {
         family: 'scale',
         tier: 5,
         level: levelOf('scale'),
+        cause: 'extract:chunk-requests',
         component: BANK_COMPONENTS.extract,
         title: `a 300k-character prompt in ${STYLE_TITLE[style]}, extracted in under 30 seconds`,
         styles: [style],
@@ -570,11 +632,94 @@ export function scaleItems(): BankItem[] {
         family: 'scale',
         tier: 5,
         level: levelOf('scale'),
+        cause: 'extract:chunk-requests',
         component: BANK_COMPONENTS.extract,
         title: `a 100k-character prompt that mixes ${styles.join(' and ')}, extracted in under 10 seconds`,
         styles,
         size: 100_000,
         budgetMs: 10_000,
+      }),
+    );
+  }
+  const boundaries: Array<{
+    slug: string;
+    cause: string;
+    title: string;
+    styles: Style[];
+    extras?: Extras;
+    render?: RenderStyled;
+  }> = [
+    {
+      slug: 'line-boundaries',
+      cause: 'extract:chunk-at-line-boundaries',
+      title: 'paragraphs of three rules on one line: a chunk never cuts a line',
+      styles: ['prose'],
+    },
+    {
+      slug: 'wrapped-sentences',
+      cause: 'extract:keep-wrapped-sentences-whole',
+      title: 'rules hard-wrapped at 72 columns: a chunk never cuts a sentence across its line breaks',
+      styles: ['prose'],
+      render: { wrapRules: 72 },
+    },
+    {
+      slug: 'heading-path',
+      cause: 'extract:carry-heading-path',
+      title: 'rules under channel headings: each chunk carries the heading its rules sit under',
+      styles: ['nested'],
+    },
+    {
+      slug: 'table-header',
+      cause: 'extract:repeat-table-header',
+      title: 'rule tables with an applies-to column: each chunk of a table carries its header',
+      styles: ['table'],
+    },
+    {
+      slug: 'deprecated-marker',
+      cause: 'extract:carry-deprecated-marker',
+      title: 'a long deprecated section: a chunk of it still says the rules are no longer in force',
+      styles: ['deprecated'],
+      extras: { manyTraps: true },
+    },
+    {
+      slug: 'replacements',
+      cause: 'extract:merge-replacements-across-chunks',
+      title: 'updates at the end replace rules many chunks earlier: the merge drops the replaced rules',
+      styles: ['precedence'],
+      extras: { manyTraps: true },
+    },
+    {
+      slug: 'question-answer',
+      cause: 'extract:keep-question-and-answer-together',
+      title: 'rules asked as a question on one line and answered on the next: a chunk keeps both',
+      styles: ['question'],
+      render: { qaLines: true },
+    },
+    {
+      slug: 'constraints-first',
+      cause: 'extract:defer-constraints-to-the-whole-map',
+      title:
+        'impossible cells stated before the kinds of customer they name: a constraint waits for its values',
+      styles: ['markdown'],
+      extras: { constraints: true },
+      render: { constraintsFirst: true },
+    },
+  ];
+  for (const boundary of boundaries) {
+    out.push(
+      styledItem({
+        id: `scale.chunk.${boundary.slug}`,
+        family: 'scale',
+        tier: 5,
+        level: levelOf('scale'),
+        component: BANK_COMPONENTS.extract,
+        title: `a 100k-character prompt, ${boundary.title}`,
+        styles: boundary.styles,
+        ...(boundary.extras ? { extras: boundary.extras } : {}),
+        ...(boundary.render ? { render: boundary.render } : {}),
+        size: 100_000,
+        budgetMs: 10_000,
+        cause: boundary.cause,
       }),
     );
   }
@@ -585,6 +730,7 @@ export function scaleItems(): BankItem[] {
         family: 'scale',
         tier: 5,
         level: levelOf('scale'),
+        cause: 'extract:chunk-requests',
         component: BANK_COMPONENTS.extract,
         title: `a 1M-character prompt (${styles.join(', ')}), more than one context window, extracted in under 120 seconds`,
         styles,

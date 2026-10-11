@@ -15,14 +15,64 @@ const FIRST: ReadonlyArray<{
   level: Parameters<typeof levelOf>[0];
   tier: Tier;
   component: string;
+  cause: string;
 }> = [
-  { index: 0, family: 'inventory-forms', level: 'structured', tier: 1, component: BANK_COMPONENTS.inventory },
-  { index: 1, family: 'styles', level: 'prose', tier: 2, component: BANK_COMPONENTS.contract },
-  { index: 2, family: 'styles', level: 'prose', tier: 2, component: BANK_COMPONENTS.accept },
-  { index: 3, family: 'constraints', level: 'relations', tier: 2, component: BANK_COMPONENTS.contract },
-  { index: 4, family: 'transforms', level: 'metamorphic', tier: 3, component: BANK_COMPONENTS.roles },
-  { index: 5, family: 'composition', level: 'composition', tier: 3, component: BANK_COMPONENTS.extract },
-  { index: 6, family: 'roles', level: 'semantics', tier: 3, component: BANK_COMPONENTS.roles },
+  {
+    index: 0,
+    family: 'inventory-forms',
+    level: 'structured',
+    tier: 1,
+    component: BANK_COMPONENTS.inventory,
+    cause: 'inventory:v1-structured',
+  },
+  {
+    index: 1,
+    family: 'styles',
+    level: 'prose',
+    tier: 2,
+    component: BANK_COMPONENTS.contract,
+    cause: 'contract:v1-prose-atoms',
+  },
+  {
+    index: 2,
+    family: 'styles',
+    level: 'prose',
+    tier: 2,
+    component: BANK_COMPONENTS.accept,
+    cause: 'accept:v1-precision',
+  },
+  {
+    index: 3,
+    family: 'constraints',
+    level: 'relations',
+    tier: 2,
+    component: BANK_COMPONENTS.contract,
+    cause: 'contract:v1-constraints',
+  },
+  {
+    index: 4,
+    family: 'transforms',
+    level: 'metamorphic',
+    tier: 3,
+    component: BANK_COMPONENTS.roles,
+    cause: 'contract:dimension-role',
+  },
+  {
+    index: 5,
+    family: 'composition',
+    level: 'composition',
+    tier: 3,
+    component: BANK_COMPONENTS.extract,
+    cause: 'extract:v1-composition',
+  },
+  {
+    index: 6,
+    family: 'roles',
+    level: 'semantics',
+    tier: 3,
+    component: BANK_COMPONENTS.roles,
+    cause: 'contract:dimension-role',
+  },
 ];
 
 export function firstVersionItems(): BankItem[] {
@@ -35,6 +85,7 @@ export function firstVersionItems(): BankItem[] {
       tier: first.tier,
       level: levelOf(first.level),
       component: first.component,
+      cause: first.cause,
       title: `the first map ladder's level ${first.index + 1} (${definition.name}): ${definition.metric}, at least ${definition.threshold}`,
       generate: () => [],
       check: () => ({ pass: false, detail: 'runs through run()' }),

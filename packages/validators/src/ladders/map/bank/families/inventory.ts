@@ -344,6 +344,7 @@ export function inventoryItems(): BankItem[] {
       level: levelOf('structured'),
       component: BANK_COMPONENTS.inventory,
       title: form.title,
+      cause: `inventory:${form.slug}`,
       build: (seed) => {
         const drawn = miniInventory(drawFor(seed, `inventory-forms.${form.slug}`));
         const inventory = form.shape ? form.shape(drawn, seed) : drawn;

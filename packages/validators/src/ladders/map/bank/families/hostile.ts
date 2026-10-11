@@ -304,6 +304,13 @@ export const HOSTILE: readonly Hostile[] = [
   },
 ];
 
+const HOSTILE_CAUSE: Record<string, string> = {
+  'decomposed-accents': 'quote:normalize-nfc',
+  'zero-width-space': 'quote:ignore-invisible-characters',
+  'soft-hyphen': 'quote:ignore-invisible-characters',
+  'direction-mark': 'quote:ignore-invisible-characters',
+};
+
 export function hostileItems(): BankItem[] {
   return HOSTILE.map((hostile) =>
     mapItem({
@@ -313,6 +320,7 @@ export function hostileItems(): BankItem[] {
       level: levelOf('prose'),
       component: BANK_COMPONENTS.quote,
       title: hostile.title,
+      cause: HOSTILE_CAUSE[hostile.slug] ?? `quote:${hostile.slug}`,
       build: (seed) => {
         const draw = drawFor(seed, `hostile-inputs.${hostile.slug}`);
         const made = hostile.make(draw.shuffle(PLAIN), seed);

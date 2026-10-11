@@ -1,0 +1,51 @@
+# Replays a code agent building the Acme price sheet. The workspace starts from the before folder and the
+# session leaves the after folder, both beside the transcript: the workbook is opened and read from there.
+# Every expectation holds. Fictional data.
+id: replay-price-sheet-build
+kind: task
+title: Build the Acme price sheet, reviewed by a helper
+target: { adapter: claude-code }
+workspace_seed: examples/estates/sessions/price-sheet-build/before
+stages: [plan, build_sheet, report]
+metadata:
+  replay:
+    session: price-sheet-build
+    before: price-sheet-build/before
+    after: price-sheet-build/after
+rules:
+  forbidden_tools: [WebFetch]
+  custom:
+    ordered:
+      pairs:
+        - { before: Read, after: Edit, key: file_path, reset: compaction }
+blocks:
+  - id: build
+    user: >
+      Build a price sheet from catalog.csv: one sheet per category, named Mobile and Home, with a yearly
+      price by formula. Save it as out/acme-price-sheet.xlsx and have the sheet reviewer check it.
+    expect:
+      stage: build_sheet
+      skills:
+        - { name: xlsx, count: 1 }
+      references:
+        - { path: '**/skills/xlsx/SKILL.md', count: 1 }
+        - { path: '**/skills/xlsx/reference/*.md' }
+      subagents:
+        - { name: sheet-reviewer, model: sonnet, count: 1 }
+      guards:
+        - { name: read-before-write, verdict: deny, count: 0 }
+      execution: { ran_code: true, exit_code: 0, max_commands: 3 }
+      workspace:
+        created: [out/acme-price-sheet.xlsx]
+        changed: [build_sheet.py]
+        deleted: []
+        others_untouched: true
+      artifacts:
+        - path: out/acme-price-sheet.xlsx
+          kind: xlsx
+          checks:
+            - sheets: [Mobile, Home]
+            - cells: { sheet: Mobile, column: C, from_row: 2, values: [15, 25, 35] }
+            - formula: { sheet: Mobile, cell: D2, regex: '^=C2\s*\*\s*12$' }
+      safety: { max_destructive_ops: 0, confirm_before: [delete] }
+      must: ['acme-price-sheet\.xlsx']

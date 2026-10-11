@@ -33,6 +33,14 @@ type Common = {
   quote: string;
   /** The text as it sits in the source file; it must be visible in the request for the entry to be reported. */
   anchor: string;
+  /** An entry a reader who sees its context does not report: a deprecated or a replaced rule. */
+  silent?: boolean;
+  /**
+   * Text the entry needs beside it in the same source block to be read right: a heading that scopes it, a
+   * table header, a "deprecated" marker, the update that replaces it. Without it the model misreads: it drops
+   * the entry, reports a silent one as live, or reports a rule without the condition the context gave.
+   */
+  context?: { anchor: string; ifMissing: 'drop' | 'report' | 'without-when' };
 };
 
 export type PlantedValue = Common & {
@@ -164,10 +172,21 @@ export function answerFor(section: Section, request: ModelRequest, planted: read
   const locate = locator(blocks);
   const seen = planted
     .filter((entry) => entry.section === section)
-    .map((entry) => ({ entry, at: locate(entry) }))
-    .filter(({ at }) => Number.isFinite(at))
-    .sort((a, b) => a.at - b.at)
-    .map(({ entry }) => entry);
+    .map((entry) => ({ entry, found: locate(entry) }))
+    .filter(({ found }) => found !== undefined)
+    .sort((a, b) => (a.found?.at ?? 0) - (b.found?.at ?? 0))
+    .flatMap(({ entry, found }) => {
+      const block = blocks[found?.block ?? 0] as { text: string };
+      const read = !entry.context || block.text.includes(entry.context.anchor);
+      if (read) return entry.silent ? [] : [entry];
+      const how = entry.context?.ifMissing;
+      if (how === 'drop') return [];
+      if (how === 'without-when' && entry.type === 'value' && entry.fields) {
+        const { when: _when, ...fields } = entry.fields;
+        return [{ ...entry, fields }];
+      }
+      return [entry];
+    });
   const write = asModelWrites;
 
   const dimensions: Array<Record<string, unknown> & { values: Array<Record<string, unknown>> }> = [];
@@ -224,10 +243,12 @@ export function answerFor(section: Section, request: ModelRequest, planted: read
 
 /**
  * Where each entry's anchor first appears in the request's source blocks (an offset over the blocks), or
- * Infinity when it is not visible. Entries come mostly in text order, so a search starts where the previous
+ * undefined when it is not visible. Entries come mostly in text order, so a search starts where the previous
  * one ended and falls back to the whole block.
  */
-function locator(blocks: Array<{ path: string; text: string }>): (entry: Planted) => number {
+function locator(
+  blocks: Array<{ path: string; text: string }>,
+): (entry: Planted) => { at: number; block: number } | undefined {
   const cursors = blocks.map(() => 0);
   const offsets: number[] = [];
   let total = 0;
@@ -243,9 +264,9 @@ function locator(blocks: Array<{ path: string; text: string }>): (entry: Planted
       if (at < 0) at = block.text.indexOf(entry.anchor);
       if (at >= 0) {
         cursors[index] = at;
-        return (offsets[index] as number) + at;
+        return { at: (offsets[index] as number) + at, block: index };
       }
     }
-    return Number.POSITIVE_INFINITY;
+    return undefined;
   };
 }

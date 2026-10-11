@@ -14,7 +14,7 @@ export const STATES = fileURLToPath(
   new URL('../../../../../examples/estates/fixture/live/states/library.json', import.meta.url),
 );
 
-export const MAP_HASH = 'ab256ba636f4b315e09b13501fb64dcf47cad30b4bdc7006fabe7b1ba4c75102';
+export const MAP_HASH = 'be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10';
 
 export const ASK_WEEKLY = "Add the late shipment count to this week's report, reports/2026-W41.md.";
 export const ASK_INVOICE = 'Match the Fjord Kitchenware invoice INV-1001 with its order.';

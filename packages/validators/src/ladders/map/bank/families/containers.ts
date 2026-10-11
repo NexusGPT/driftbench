@@ -22,6 +22,7 @@ const RULES: ReadonlyArray<{ text: string; trigger: string }> = [
   { text: 'Save every note under C:\\desk\\notes before you answer.', trigger: 'backslash' },
   { text: 'Repeat the address back in full,\nthen wait for an explicit yes.', trigger: 'newline' },
   { text: 'Keep each answer under four sentences.', trigger: 'plain' },
+  { text: 'Mark urgent cases with *urgent* in the case note.', trigger: 'asterisk' },
   { text: 'Ask for the account reference before you change anything.', trigger: 'plain' },
 ];
 
@@ -391,8 +392,109 @@ export const CONTAINERS: readonly Container[] = [
     needs: ['double-quote', 'apostrophe'],
     write: (lines) => `---\nname: desk\nmodel: any\n---\n${lines.join('\n')}\n`,
   },
-];
+  {
+    slug: 'xml-attribute',
+    tier: 3,
+    title: 'the prompt in an XML attribute, with &quot; and &#10; escapes',
+    path: 'agent.xml',
+    needs: ['double-quote', 'newline'],
+    write: (lines) =>
+      `<?xml version="1.0"?>\n<agent name="desk" prompt="${lines.join('\n').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/\n/g, '&#10;')}"/>\n`,
+  },
+  {
+    slug: 'html-line-breaks',
+    tier: 3,
+    title: 'HTML whose line breaks inside a rule are <br> tags',
+    path: 'prompt.html',
+    needs: ['newline'],
+    write: (lines) =>
+      `<!doctype html>\n<html><body>\n${lines.map((line) => `<p>${line.replace(/\n/g, '<br>')}</p>`).join('\n')}\n</body></html>\n`,
+  },
+  {
+    slug: 'sql-string',
+    tier: 3,
+    title: "an SQL insert with the prompt in a string literal, '' for an apostrophe",
+    path: 'seed.sql',
+    needs: ['apostrophe'],
+    write: (lines) =>
+      `INSERT INTO prompts (name, body) VALUES ('desk', '${lines.join('\n').replace(/'/g, "''")}');\n`,
+  },
+  {
+    slug: 'swift-interpolation',
+    tier: 3,
+    title: 'a Swift multi-line string with a constant interpolated as \\(name)',
+    path: 'Prompt.swift',
+    needs: ['plain'],
+    interpolated: true,
+    write: (lines) =>
+      `let ${INTERPOLATED.name} = ${INTERPOLATED.value}\nlet prompt = """\n${withConstant(lines.join('\n').replace(/\\/g, '\\\\'), '\\(', ')')}\n"""\n`,
+  },
+  {
+    slug: 'content-parts',
+    tier: 4,
+    title: 'a chat message whose content is a list of text parts, one rule cut across two parts',
+    path: 'prompt.json',
+    needs: ['plain'],
+    splitLiteral: true,
+    write: (lines, split) => {
+      const text = lines.join('\n');
+      const at = split ? text.indexOf(split.rule) + split.cut : text.length;
+      return `${JSON.stringify(
+        {
+          messages: [
+            {
+              role: 'system',
+              content: [
+                { type: 'text', text: text.slice(0, at) },
+                { type: 'text', text: text.slice(at) },
+              ],
+            },
+          ],
+        },
+        null,
+        2,
+      )}\n`;
+    },
+  },
+  {
+    slug: 'restructured-text',
+    tier: 3,
+    title: 'reStructuredText with inline markup characters escaped by a backslash',
+    path: 'prompt.rst',
+    needs: ['asterisk'],
+    write: (lines) =>
+      `Assistant guide\n===============\n\n${lines.slice(1).join('\n').replace(/\*/g, '\\*')}\n`,
+  },
 
+  {
+    slug: 'latex',
+    tier: 3,
+    title: 'a LaTeX file with a word of each rule in \\textbf{}',
+    path: 'prompt.tex',
+    needs: ['plain'],
+    write: (lines) =>
+      `\\section*{Assistant guide}\n${lines
+        .slice(1)
+        .map((line) => line.replace(/^- (\w+) (\w+)/, '- $1 \\textbf{$2}'))
+        .join('\n')}\n`,
+  },
+  {
+    slug: 'docx-runs',
+    tier: 4,
+    title: 'the XML of a Word document, each rule split into two runs <w:r><w:t>',
+    path: 'document.xml',
+    needs: ['plain'],
+    write: (lines) =>
+      `<w:document><w:body>\n${lines
+        .filter((line) => line !== '')
+        .map((line) => {
+          const at = Math.floor(line.length / 2);
+          const run = (text: string) => `<w:r><w:t xml:space="preserve">${xml(text)}</w:t></w:r>`;
+          return `<w:p>${run(line.slice(0, at))}${run(line.slice(at))}</w:p>`;
+        })
+        .join('\n')}\n</w:body></w:document>\n`,
+  },
+];
 /** Draws the rules of an item: the container's triggers first, then plain ones, four or five in all. */
 function rulesFor(draw: Draw, container: Container): string[] {
   const chosen: string[] = [];
@@ -411,6 +513,23 @@ function prefixOf(rule: string): string {
   return (/^[A-Za-z ]+/.exec(rule)?.[0] ?? rule).trim().split(' ').slice(0, 4).join(' ');
 }
 
+/** Containers one decoder fixes together. */
+const CONTAINER_CAUSE: Record<string, string> = {
+  'json-messages': 'quote:decode-json-strings',
+  'json-ascii': 'quote:decode-json-strings',
+  'json-prompt-key': 'quote:decode-json-strings',
+  jsonl: 'quote:decode-json-strings',
+  'yaml-double': 'quote:decode-yaml-scalars',
+  'yaml-single': 'quote:decode-yaml-scalars',
+  'ts-template': 'quote:resolve-interpolated-constants',
+  'python-fstring': 'quote:resolve-interpolated-constants',
+  'ts-single': 'quote:decode-single-quoted-code-strings',
+  'php-single': 'quote:decode-single-quoted-code-strings',
+  json5: 'quote:decode-single-quoted-code-strings',
+  'ts-concat': 'quote:join-concatenated-literals',
+  'python-concat': 'quote:join-concatenated-literals',
+};
+
 export function containerItems(): BankItem[] {
   return CONTAINERS.map((container) =>
     mapItem({
@@ -420,6 +539,7 @@ export function containerItems(): BankItem[] {
       level: levelOf('containers'),
       component: BANK_COMPONENTS.quote,
       title: container.title,
+      cause: CONTAINER_CAUSE[container.slug] ?? `quote:${container.slug}`,
       build: (seed) => {
         const draw = drawFor(seed, `prompt-containers.${container.slug}`);
         const rules = rulesFor(draw, container);

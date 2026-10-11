@@ -177,6 +177,14 @@ export type StyledRule = {
   /** Extra semantics the semantics family plants: a route or an exact reply. */
   route?: string;
   reply?: string;
+  /** A channel the rule does not hold on ("except on sms"). */
+  unless?: string;
+  /** The most times the action may happen in one conversation. */
+  limit?: number;
+  /** The minutes within which the action happens. */
+  within?: number;
+  /** True for a rule stated to come before every other rule. */
+  first?: boolean;
 };
 
 /** Semantics the semantics family adds on top of the styles. */
@@ -189,6 +197,12 @@ export type Extras = {
   stageScope?: boolean;
   flowScope?: boolean;
   constraints?: boolean;
+  /** Deprecated rules and replacements in proportion to the rules (15 and 10 percent), for prompts at scale. */
+  manyTraps?: boolean;
+  exceptions?: boolean;
+  limits?: boolean;
+  deadlines?: boolean;
+  priorities?: boolean;
   /** Declared roles for a second persona dimension (tone), for the roles family. */
   roles?: 'tone-axis' | 'type-axis';
 };
@@ -310,7 +324,8 @@ export function styledSpec(options: StyledOptions): StyledSpec {
   }
   let next = count;
   if (has(styles, 'deprecated')) {
-    for (let i = 0; i < 2; i++)
+    const deprecatedCount = extras.manyTraps ? Math.max(2, Math.floor(count * 0.15)) : 2;
+    for (let i = 0; i < deprecatedCount; i++)
       rules.push({
         id: id(next),
         n: start + next++,
@@ -323,7 +338,7 @@ export function styledSpec(options: StyledOptions): StyledSpec {
   if (has(styles, 'precedence')) {
     const olds = draw.subset(
       rules.filter((r) => r.status === 'live' && r.place === 'list' && !r.tool && !r.when),
-      Math.min(2, rules.length),
+      extras.manyTraps ? Math.max(2, Math.floor(count * 0.1)) : Math.min(2, rules.length),
     );
     for (const old of olds) {
       old.status = 'replaced';
@@ -369,6 +384,56 @@ export function styledSpec(options: StyledOptions): StyledSpec {
       place: 'list',
       status: 'live',
       route: draw.pick(TEAMS),
+    });
+  }
+  if (extras.exceptions) {
+    for (let i = 0; i < 2; i++) {
+      rules.push({
+        id: id(next),
+        n: start + next++,
+        polarity: 'must',
+        lang: 'en',
+        place: 'list',
+        status: 'live',
+        unless: draw.pick(inventory.channels),
+      });
+    }
+  }
+  if (extras.limits) {
+    for (let i = 0; i < 2; i++) {
+      rules.push({
+        id: id(next),
+        n: start + next++,
+        polarity: 'must_not',
+        lang: 'en',
+        place: 'list',
+        status: 'live',
+        limit: draw.int(2, 3),
+      });
+    }
+  }
+  if (extras.deadlines) {
+    for (let i = 0; i < 2; i++) {
+      rules.push({
+        id: id(next),
+        n: start + next++,
+        polarity: 'must',
+        lang: 'en',
+        place: 'list',
+        status: 'live',
+        within: draw.int(2, 9),
+      });
+    }
+  }
+  if (extras.priorities) {
+    rules.push({
+      id: id(next),
+      n: start + next++,
+      polarity: 'must_not',
+      lang: 'en',
+      place: 'list',
+      status: 'live',
+      first: true,
     });
   }
   if (extras.replies) {
@@ -449,6 +514,12 @@ export type RenderStyled = {
   extraDecoys?: number;
   /** The salt of the wording draws; the base wording by default. */
   wording?: string;
+  /** A question rule written as two lines, Q: and A:. */
+  qaLines?: boolean;
+  /** Rule paragraphs of a prose section wrapped at this many columns. */
+  wrapRules?: number;
+  /** The impossible cells stated before any other section. */
+  constraintsFirst?: boolean;
 };
 
 export type StyledRender = {
@@ -487,7 +558,7 @@ function conditionPrefix(rule: StyledRule): string {
 }
 
 /** The sentence that states a rule, in its language, place and phrasing. */
-function ruleSentence(rule: StyledRule, draw: Draw, split: boolean): string {
+function ruleSentence(rule: StyledRule, draw: Draw, split: boolean, qaLines = false): string {
   const action = actionOf(rule.n)[rule.lang];
   let sentence: string;
   if (rule.tool) {
@@ -497,6 +568,14 @@ function ruleSentence(rule: StyledRule, draw: Draw, split: boolean): string {
         : `At the ${rule.tool.stage} stage, call \`${rule.tool.name}\` before you ${action}.`;
   } else if (rule.route) {
     sentence = `Send every question about ${actionOf(rule.n).en.split(' ').slice(1, 4).join(' ')} to the ${rule.route}.`;
+  } else if (rule.unless) {
+    sentence = `Always ${action}, except on ${rule.unless}.`;
+  } else if (rule.limit) {
+    sentence = `Do not ${action} more than ${rule.limit} times in one conversation.`;
+  } else if (rule.within) {
+    sentence = `Always ${action} within ${rule.within} minutes.`;
+  } else if (rule.first) {
+    sentence = `Above every other rule, never ${action}.`;
   } else if (rule.reply) {
     sentence = `When you ${action}, reply exactly "${rule.reply}"`;
   } else if (rule.place === 'question') {
@@ -506,6 +585,7 @@ function ruleSentence(rule: StyledRule, draw: Draw, split: boolean): string {
       rule.lang === 'fr'
         ? `${lead}${lead ? "l'assistant" : "L'assistant"} doit-il ${action} ? ${rule.polarity === 'must' ? 'Oui, toujours.' : 'Non, jamais.'}`
         : `${lead}${lead ? 'should' : 'Should'} the assistant ${action}? ${rule.polarity === 'must' ? 'Yes, always.' : 'No, never.'}`;
+    if (qaLines) sentence = `Q: ${sentence.replace(/\? /, '?\nA: ').replace(' ? ', ' ?\nA: ')}`;
   } else {
     const prefix = conditionPrefix(rule);
     const form = polarityForm(rule, action, draw);
@@ -522,6 +602,28 @@ function lexify(text: string): string {
   for (const [word, synonym] of SYNONYMS)
     out = out.replace(new RegExp(`(?<![A-Za-z\`.])${word}(?![A-Za-z\`])`, 'g'), synonym);
   return out;
+}
+
+/** The words of an update that name the rule it replaces; unique per rule, so a reader can match them. */
+function updateMarker(old: StyledRule): string {
+  return `the earlier rule on "${actionOf(old.n)[old.lang]}" no longer holds`;
+}
+
+/** Text wrapped at a column by turning spaces into line breaks: every character keeps its place. */
+function wrapText(text: string, width: number): string {
+  const chars = [...text];
+  let column = 0;
+  let lastSpace = -1;
+  for (let i = 0; i < chars.length; i++) {
+    if (chars[i] === ' ') lastSpace = i;
+    column += 1;
+    if (column > width && lastSpace >= 0) {
+      chars[lastSpace] = '\n';
+      column = i - lastSpace;
+      lastSpace = -1;
+    }
+  }
+  return chars.join('');
 }
 
 const HEADINGS: Record<string, Text> = {
@@ -579,7 +681,11 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
     ...(spec.constraints.length > 0 ? ['constraints'] : []),
     'about',
   ];
-  const base = wording.shuffle(keys);
+  const shuffled = wording.shuffle(keys);
+  const base =
+    options.constraintsFirst && keys.includes('constraints')
+      ? ['constraints', ...shuffled.filter((key) => key !== 'constraints')]
+      : shuffled;
   const order = [
     ...(options.order === 'reversed' ? [...base].reverse() : base),
     ...(replacing.length > 0 ? ['updates'] : []),
@@ -602,47 +708,67 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
     if (structure === 'prose') return `${title}.\n\n`;
     return `## ${title}\n\n`;
   };
-  /** Writes entries in a structure; returns nothing, records anchors through `entry`. */
+  /**
+   * Writes entries in a structure. Returns, per entry text, the text as written (a wrapped paragraph changes
+   * spaces into line breaks) and the context the entry needs to be read right: its scope heading or table header.
+   */
   const block = (
     structure: Structure,
     number: number,
     entries: Array<{ text: string; scope?: string; column?: string }>,
     scopeLabel: (scope: string | undefined) => string,
-  ) => {
+    wrap?: number,
+  ): Map<string, { anchor: string; context?: string }> => {
+    const written = new Map<string, { anchor: string; context?: string }>();
     if (structure === 'table') {
-      out.push(`| # | ${entries[0]?.column ?? 'Entry'} | Applies to |\n|---|---|---|\n`);
+      const header = `| # | ${entries[0]?.column ?? 'Entry'} | Applies to (part ${number}) |`;
+      out.push(`${header}\n|---|---|---|\n`);
       for (const [index, entry] of entries.entries()) {
         out.push(`| ${index + 1} | ${entry.text} | ${entry.scope ?? 'all'} |\n`);
+        written.set(entry.text, { anchor: entry.text, context: header });
       }
       out.push('\n');
-      return;
+      return written;
     }
     if (structure === 'nested') {
       const scopes = [...new Set(entries.map((entry) => entry.scope))];
       for (const scope of scopes) {
-        out.push(`### ${scopeLabel(scope)}\n\n`);
-        for (const entry of entries.filter((candidate) => candidate.scope === scope))
+        const head = `### ${scopeLabel(scope)} (part ${number})`;
+        out.push(`${head}\n\n`);
+        for (const entry of entries.filter((candidate) => candidate.scope === scope)) {
           out.push(`- ${entry.text}\n`);
+          written.set(entry.text, { anchor: entry.text, context: head });
+        }
         out.push('\n');
       }
-      return;
+      return written;
     }
     if (structure === 'prose') {
       for (let i = 0; i < entries.length; i += 3) {
-        out.push(
-          `${entries
-            .slice(i, i + 3)
-            .map((entry) => (entry.scope ? `${scopeLabel(entry.scope)}: ${entry.text}` : entry.text))
-            .join(' ')}\n\n`,
+        const group = entries.slice(i, i + 3);
+        const parts = group.map((entry) =>
+          entry.scope ? `${scopeLabel(entry.scope)}: ${entry.text}` : entry.text,
         );
+        let paragraph = parts.join(' ');
+        if (wrap) paragraph = wrapText(paragraph, wrap);
+        let at = 0;
+        group.forEach((entry, index) => {
+          const part = parts[index] as string;
+          const start = at + part.length - entry.text.length;
+          written.set(entry.text, { anchor: paragraph.slice(start, start + entry.text.length) });
+          at += part.length + 1;
+        });
+        out.push(`${paragraph}\n\n`);
       }
-      return;
+      return written;
     }
     entries.forEach((entry, index) => {
       const text = entry.scope ? `${scopeLabel(entry.scope)}: ${entry.text}` : entry.text;
       out.push(structure === 'numbered' ? `${number}.${index + 1} ${text}\n` : `- ${text}\n`);
+      written.set(entry.text, { anchor: entry.text });
     });
     out.push('\n');
+    return written;
   };
   const value = (
     section: PlantedValue['section'],
@@ -666,9 +792,28 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
   const fieldsOf = (rule: StyledRule): Record<string, unknown> => ({
     polarity: rule.polarity,
     ...(rule.when ? { when: { [rule.when.dimension]: [rule.when.value] } } : {}),
+    ...(rule.unless ? { unless: { channel: [rule.unless] } } : {}),
+    ...(rule.limit ? { limit: rule.limit } : {}),
+    ...(rule.within ? { within: { minutes: rule.within } } : {}),
+    ...(rule.first ? { priority: 'first' } : {}),
   });
-  const plantRule = (rule: StyledRule, text: string) => {
-    planted.push(value('rules', ruleDimension, rule.id, actionOf(rule.n).en, text, fieldsOf(rule)));
+  const plantRule = (
+    rule: StyledRule,
+    text: string,
+    written?: { anchor: string; context?: string },
+    extra: Pick<PlantedValue, 'silent' | 'context'> = {},
+  ) => {
+    const entry = value('rules', ruleDimension, rule.id, actionOf(rule.n).en, text, fieldsOf(rule));
+    entry.anchor = written?.anchor ?? text;
+    const scoped = rule.when?.how === 'scope' && written?.context;
+    planted.push({
+      ...entry,
+      ...(scoped
+        ? { context: { anchor: written.context as string, ifMissing: 'without-when' as const } }
+        : {}),
+      ...extra,
+    });
+    if (extra.silent) return;
     if (rule.tool) {
       planted.push({
         type: 'relation',
@@ -817,7 +962,7 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
       const group = groups[Number(key.slice(6))] ?? [];
       const sentences = group.map((rule) => ({
         rule,
-        text: say(ruleSentence(rule, wording, options.split ?? false), rule.lang),
+        text: say(ruleSentence(rule, wording, options.split ?? false, options.qaLines ?? false), rule.lang),
       }));
       const entries = sentences.map(({ rule, text }) => ({
         text,
@@ -826,14 +971,28 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
           ? { scope: rule.when.dimension === 'flow' ? `refund flow` : rule.when.value }
           : {}),
       }));
-      block(structure, number, entries, (scope) =>
-        scope === undefined
-          ? 'Everywhere'
-          : scope === 'refund flow'
-            ? 'In the refund flow'
-            : `Only on ${scope}`,
+      const written = block(
+        structure,
+        number,
+        entries,
+        (scope) =>
+          scope === undefined
+            ? 'Everywhere'
+            : scope === 'refund flow'
+              ? 'In the refund flow'
+              : `Only on ${scope}`,
+        options.wrapRules,
       );
-      for (const { rule, text } of sentences) if (rule.status === 'live') plantRule(rule, text);
+      for (const { rule, text } of sentences) {
+        if (rule.status === 'live') plantRule(rule, text, written.get(text));
+        // A replaced rule is not in force; a reader who has not seen its update reports it.
+        if (rule.status === 'replaced') {
+          plantRule(rule, text, written.get(text), {
+            silent: true,
+            context: { anchor: updateMarker(rule), ifMissing: 'report' },
+          });
+        }
+      }
       if (Number(key.slice(6)) === 0 && spec.toolOrder) {
         const text = en(`Always call \`${spec.toolOrder.before}\` before \`${spec.toolOrder.after}\`.`);
         out.push(`${text}\n\n`);
@@ -860,12 +1019,22 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
         );
       }
     } else if (key === 'deprecated') {
-      block(
+      const marker = (HEADINGS.deprecated as Text).en;
+      const texts = deprecated.map((rule) => say(ruleSentence(rule, wording, false), rule.lang));
+      const written = block(
         structure === 'table' || structure === 'nested' ? 'markdown' : structure,
         number,
-        deprecated.map((rule) => ({ text: say(ruleSentence(rule, wording, false), rule.lang) })),
+        texts.map((text) => ({ text })),
         () => 'All',
       );
+      // A deprecated rule is not in force; a reader who has not seen the section heading reports it.
+      deprecated.forEach((rule, index) => {
+        const text = texts[index] as string;
+        plantRule(rule, text, written.get(text), {
+          silent: true,
+          context: { anchor: marker, ifMissing: 'report' },
+        });
+      });
     } else if (key === 'constraints') {
       for (const constraint of spec.constraints) {
         const text =
@@ -888,9 +1057,8 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
     } else if (key === 'updates') {
       for (const rule of replacing) {
         const old = spec.rules.find((candidate) => candidate.id === rule.replaces) as StyledRule;
-        const oldText = say(ruleSentence(old, wording, false), old.lang);
         const text = say(ruleSentence(rule, wording, options.split ?? false), rule.lang);
-        out.push(`${en(`Update: the earlier rule "${oldText}" no longer holds.`)} ${text}\n\n`);
+        out.push(`Update: ${updateMarker(old)}. ${text}\n\n`);
         plantRule(rule, text);
       }
     }

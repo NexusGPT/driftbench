@@ -29,6 +29,7 @@ export {
   type PilotFactors,
   type PilotMap,
   type PilotOptions,
+  type PilotPhrase,
   type PilotVariant,
   pilotFactors,
   stimulusText as pilotStimulusText,
