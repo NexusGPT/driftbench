@@ -115,3 +115,129 @@ describe('driftbench estate mutate', () => {
     expect(await readFile(join(stranger, 'notes.txt'), 'utf8')).toBe('keep me\n');
   });
 });
+
+const FAKE = join(FIXTURE, 'live/fake/claude.mjs');
+const STATES = join(FIXTURE, 'live/states/library.json');
+const LIVE = join(FIXTURE, 'generated/specs/live');
+
+/** One complete live spec per test type of the fixture's generated suite: the 14 of the proof. */
+const PROOF: Record<string, string> = {
+  guard_positive: 'guard_positive/estate.pairwise.296.yaml',
+  journey: 'journey/estate.journey.03.yaml',
+  misroute: 'misroute/estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker.yaml',
+  obligation: 'obligation/estate.obligation.instruction.standing.tell-the-user-about-a-late.yaml',
+  ordered_pair: 'ordered_pair/estate.ordered_pair.gate.standing.never-report-done-before-verify-passed.yaml',
+  outside_trigger:
+    'outside_trigger/estate.outside_trigger.instruction.standing.tell-the-user-about-a-late.yaml',
+  register_sample:
+    'register_sample/estate.register_sample.register.invoice-reconcile.one-closing-line-per-invoice.build.yaml',
+  route_near_miss:
+    'route_near_miss/estate.route_near_miss.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.yaml',
+  route_positive:
+    'route_positive/estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1.yaml',
+  skip_pressure: 'skip_pressure/estate.skip_pressure.gate.standing.read-a-file-before-editing-it.yaml',
+  stage_order: 'stage_order/estate.stage_order.stage.steps.stage-do-make-the-change.yaml',
+  stage_skip: 'stage_skip/estate.stage_skip.stage.steps.stage-verify-run-the-check-that.yaml',
+  tool_denied: 'tool_denied/estate.tool_denied.tool.settings.deny-webfetch.yaml',
+  twin: 'twin/estate.twin.instruction.standing.tell-the-user-about-a-late.yaml',
+};
+
+type RunJson = {
+  campaignId: string;
+  standIn: boolean;
+  pins: string[];
+  notes: string[];
+  runs: Array<{ spec: string; status: string; pass: boolean; failing: string[]; costUsd: number | null }>;
+  passed: number;
+  failed: number;
+};
+
+async function estateRun(estateRoot: string, specs: string[], ...extra: string[]) {
+  const store = join(await folder(), 'runs.db');
+  const result = await run([
+    'estate',
+    'run',
+    ...specs,
+    '--estate',
+    estateRoot,
+    '--runtime',
+    'claude-code',
+    '--command',
+    FAKE,
+    '--store',
+    store,
+    '--states',
+    STATES,
+    '--json',
+    ...extra,
+  ]);
+  return { ...result, store, json: result.out === '' ? undefined : (JSON.parse(result.out) as RunJson) };
+}
+
+describe('driftbench estate run', () => {
+  it('refuses a command that is not a stand-in unless the run is allowed to be billed', async () => {
+    const store = join(await folder(), 'runs.db');
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const base = ['estate', 'run', spec, '--estate', FIXTURE, '--runtime', 'claude-code', '--store', store];
+    const bare = await run(base);
+    expect(bare.code).toBe(2);
+    expect(bare.err).toContain('claude is not a stand-in');
+    const other = await run([...base, '--command', '/bin/echo']);
+    expect(other.code).toBe(2);
+    expect(other.err).toContain('billed');
+  });
+
+  it('refuses another runtime, an estate that is not a folder, and an estate that drifted from its map', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    expect((await estateRun(FIXTURE, [spec], '--runtime', 'nexus')).code).toBe(2);
+    expect((await estateRun(join(FIXTURE, 'nowhere'), [spec])).code).toBe(2);
+    const copy = join(await folder(), 'estate');
+    const { cp } = await import('node:fs/promises');
+    await cp(join(FIXTURE, 'CLAUDE.md'), join(copy, 'CLAUDE.md'));
+    await cp(join(FIXTURE, '.claude'), join(copy, '.claude'), { recursive: true });
+    await writeFile(join(copy, 'CLAUDE.md'), '# Another estate\n');
+    const drifted = await estateRun(copy, [spec], '--map', MAP);
+    expect(drifted.code).toBe(2);
+    expect(drifted.err).toContain('does not match the map');
+  });
+
+  it('runs specs through the fake command into the store, pinned to the map, with the cost the stream reports', async () => {
+    const specs = [PROOF.route_positive, PROOF.tool_denied].map((path) => join(LIVE, path ?? ''));
+    const result = await estateRun(FIXTURE, specs, '--map', MAP);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(1);
+    const original = await loadEstateMap(MAP);
+    expect(result.json?.pins).toEqual([original.ok ? original.map.hash : '']);
+    expect(result.json?.standIn).toBe(true);
+    expect(result.json?.runs.map((line) => [line.pass, line.failing, line.costUsd])).toEqual([
+      [true, [], 0],
+      [false, ['block 0: forbidden.WebFetch'], 0],
+    ]);
+    const { openStore } = await import('@driftbench/store');
+    const store = await openStore(result.store);
+    const runs = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
+    await store.close();
+    expect(runs).toHaveLength(2);
+    const guarded = runs.find(
+      (entry) =>
+        entry.specId === 'estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1',
+    );
+    expect(guarded?.blocks[0]?.observed.runtime?.skills?.map((skill) => skill.name)).toEqual([
+      'invoice-reconcile',
+    ]);
+  });
+
+  it('fails a spec of another map on a pinned copy, and notes an unpinned one', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const to = join(await folder(), 'mutant');
+    await run(['estate', 'mutate', MAP, '--atom', R7, '--invert', '--to', to]);
+    const pinned = await estateRun(to, [spec], '--map', join(to, 'map.yaml'));
+    expect(pinned.code).toBe(1);
+    expect(pinned.json?.runs[0]?.status).toBe('failed');
+    const unpinned = await estateRun(FIXTURE, [spec]);
+    expect(unpinned.code).toBe(0);
+    expect(unpinned.json?.notes).toContain(
+      'the estate copy is not pinned to a map hash; pass --map to pin it',
+    );
+  });
+});

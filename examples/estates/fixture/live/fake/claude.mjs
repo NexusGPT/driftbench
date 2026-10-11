@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @driftbench-stand-in: a fake headless runtime. No model call, no cost.
 /**
  * A FAKE headless runtime for the live runner's tests and proofs. It speaks the stream the live runner reads
  * (`-p <ask> --output-format stream-json --verbose [--resume <id>]`, or the ask on the input with
