@@ -147,7 +147,9 @@ function statements(db: DatabaseSync) {
     upsertUnit: db.prepare(
       `INSERT INTO units (adapter, metric, usd, samples, measured_at) VALUES (?, ?, ?, ?, ?)
        ON CONFLICT (adapter, metric) DO UPDATE SET usd = excluded.usd, samples = excluded.samples,
-         measured_at = excluded.measured_at`,
+         measured_at = excluded.measured_at
+       WHERE julianday(excluded.measured_at) >= julianday(units.measured_at)
+         OR julianday(units.measured_at) IS NULL`,
     ),
     selectUnits: db.prepare(
       'SELECT adapter, metric, usd, samples, measured_at FROM units ORDER BY adapter, metric',
