@@ -100,4 +100,17 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     });
     expect(partitions({ contentEncoding: 'base64' })).toEqual({ 't.x.in.p': ['well-formed', 'malformed'] });
   });
+
+  it('minProperties and maxProperties give their edges', () => {
+    expect(
+      partitions({
+        type: 'object',
+        minProperties: 1,
+        maxProperties: 3,
+        additionalProperties: { type: 'string' },
+      }),
+    ).toEqual({
+      't.x.in.p': ['below-min-properties', 'at-min-properties', 'at-max-properties', 'above-max-properties'],
+    });
+  });
 });
