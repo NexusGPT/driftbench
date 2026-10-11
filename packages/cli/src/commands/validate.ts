@@ -26,6 +26,7 @@ import {
   type Ladder,
   type LadderReport,
   ladderVersion,
+  loopFolder,
   measureHardness,
   PROTECTED_PATHS,
   parseSeeds,
@@ -252,7 +253,8 @@ function hardnessCommand(component: string, json: boolean, root: string, io: Io)
   }
   let hardness: ReturnType<typeof measureHardness>;
   try {
-    hardness = measureHardness(rows);
+    const auditPath = join(root, `${loopFolder(component)}/audit.md`);
+    hardness = measureHardness(rows, existsSync(auditPath) ? { audit: readFileSync(auditPath, 'utf8') } : {});
   } catch (cause) {
     io.err(`${journalFile(component)}: ${message(cause)}.\n`);
     return USAGE_EXIT;

@@ -13,6 +13,8 @@ import type { EstateMap } from '../schema';
  *   OVERSIZE            the standing instructions are over the ceiling
  *   UNANCHORED_GUARD    a guard command finds its script from the working folder, not an anchor
  *   MISSING_REFERENCE   a file a body names does not exist
+ *   AMBIGUOUS_REFERENCE a body names a file by an ending that several files share
+ *   EXTERNAL            a body names a path outside the estate (`~/`, `/`, or an external folder): information
  *   MISSING_SCRIPT      a guard command runs a script that does not exist
  *   REGISTRY_ROW        a guard has no row in the check registry
  *   REGISTRY_GUARD      a registry row names a guard the estate does not run
@@ -29,6 +31,8 @@ export const LINT_CODES = [
   'OVERSIZE',
   'UNANCHORED_GUARD',
   'MISSING_REFERENCE',
+  'AMBIGUOUS_REFERENCE',
+  'EXTERNAL',
   'MISSING_SCRIPT',
   'REGISTRY_ROW',
   'REGISTRY_GUARD',
@@ -36,11 +40,14 @@ export const LINT_CODES = [
 ] as const;
 export type LintCode = (typeof LINT_CODES)[number];
 
+/** Codes reported as information: counted and listed, never failing the lint. */
+export const INFORMATION: ReadonlySet<LintCode> = new Set(['UNENFORCED', 'EXTERNAL']);
+
 export type LintFinding = { code: LintCode; subject: string; message: string };
 
 export type LintResult = {
   findings: LintFinding[];
-  /** True when a finding other than UNENFORCED was found. */
+  /** True when a finding other than UNENFORCED and EXTERNAL (both information) was found. */
   failed: boolean;
   counts: Record<LintCode, number>;
 };
@@ -71,6 +78,23 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   }
   for (const id of analysis.missingReferences) {
     const atom = map.atoms.find((candidate) => candidate.id === id);
+    if (atom?.fields?.external === true) {
+      findings.push({
+        code: 'EXTERNAL',
+        subject: id,
+        message: `${atom.provenance.file}:${atom.provenance.startLine} names ${String(atom.fields.path)}, outside the estate`,
+      });
+      continue;
+    }
+    const candidates = atom?.fields?.candidates;
+    if (Array.isArray(candidates) && candidates.length > 1) {
+      findings.push({
+        code: 'AMBIGUOUS_REFERENCE',
+        subject: id,
+        message: `${atom?.provenance.file}:${atom?.provenance.startLine} names ${String(atom?.fields?.path)}, which several files could be: ${candidates.join(', ')}`,
+      });
+      continue;
+    }
     findings.push({
       code: 'MISSING_REFERENCE',
       subject: id,
@@ -125,5 +149,5 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
 
   const counts = Object.fromEntries(LINT_CODES.map((code) => [code, 0])) as Record<LintCode, number>;
   for (const finding of findings) counts[finding.code]++;
-  return { findings, failed: findings.some((finding) => finding.code !== 'UNENFORCED'), counts };
+  return { findings, failed: findings.some((finding) => !INFORMATION.has(finding.code)), counts };
 }

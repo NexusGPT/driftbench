@@ -57,6 +57,9 @@ export const JournalRowSchema = z
     bankSize: count,
     passing: count,
     failingByFamily: z.record(z.string().min(1), count),
+    failingCauses: count.optional(),
+    executor: z.enum(['builder', 'blind']).optional(),
+    failingWithoutCause: count.optional(),
     bankByFamilyTier: z
       .record(z.string().min(1), z.record(z.string().regex(/^([1-5]|none)$/), count))
       .optional(),
@@ -146,6 +149,38 @@ export const JournalRowSchema = z
         message: `failingByFamily sums to ${failing}, but bankSize minus passing is ${row.bankSize - row.passing}`,
       });
     }
+    const failingItems = row.bankSize - row.passing;
+    if (row.failingCauses !== undefined) {
+      if (row.failingCauses > failingItems) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingCauses'],
+          message: `failingCauses ${row.failingCauses} exceeds the ${failingItems} failing items`,
+        });
+      }
+      if (failingItems > 0 && row.failingCauses === 0) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingCauses'],
+          message: `${failingItems} items fail, so at least one cause does`,
+        });
+      }
+    }
+    if (row.failingWithoutCause !== undefined) {
+      if (row.failingCauses === undefined) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingWithoutCause'],
+          message: 'failingWithoutCause goes with failingCauses',
+        });
+      } else if (row.failingWithoutCause > row.failingCauses) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingWithoutCause'],
+          message: 'each item without a cause is one of the failingCauses, so it cannot exceed them',
+        });
+      }
+    }
     const perTier = row.bankByFamilyTier;
     const banked = Object.values(perTier ?? {})
       .flatMap((tiers) => Object.values(tiers))
@@ -179,6 +214,24 @@ export const JournalRowSchema = z
 
 export type JournalRow = z.infer<typeof JournalRowSchema>;
 
+/** Who ran an iteration: the builder lane (the default) or a blind executor of the audit (section 12.7). */
+export type Executor = 'builder' | 'blind';
+
+export function executorOf(row: Pick<JournalRow, 'executor'>): Executor {
+  return row.executor ?? 'builder';
+}
+
+/**
+ * The iterations the next row of an executor may carry. Each executor counts on its own: the builder from 0;
+ * the blind executor from 0 (its own baseline) or from 1 (it starts from the builder's iteration 0).
+ */
+export function nextIterations(previous: readonly JournalRow[], executor: Executor): number[] {
+  const own = previous.filter((row) => executorOf(row) === executor);
+  const last = own.at(-1);
+  if (last) return [last.iteration + 1];
+  return executor === 'blind' ? [0, 1] : [0];
+}
+
 /** The rows of a journal, and the lines that are not valid rows. An absent journal has no row. */
 export function readJournal(root: string, component: string): { rows: JournalRow[]; problems: string[] } {
   const path = join(root, journalFile(component));
@@ -202,9 +255,10 @@ export function readJournal(root: string, component: string): { rows: JournalRow
         problems.push(`${journalFile(component)}:${index + 1} ${rowIssues(parsed.error.issues).join('; ')}`);
     });
   rows.forEach((row, index) => {
-    if (row.iteration !== index) {
+    const allowed = nextIterations(rows.slice(0, index), executorOf(row));
+    if (!allowed.includes(row.iteration)) {
       problems.push(
-        `${journalFile(component)}: row ${index + 1} says iteration ${row.iteration}; rows count from iteration 0.`,
+        `${journalFile(component)}: row ${index + 1} (${executorOf(row)}) says iteration ${row.iteration}, not ${allowed.join(' or ')}.`,
       );
     }
   });
@@ -218,10 +272,13 @@ export function validateRow(
 ): { row: JournalRow } | { refused: string[] } {
   const parsed = JournalRowSchema.safeParse(value);
   if (!parsed.success) return { refused: rowIssues(parsed.error.issues) };
-  const next = previous.length;
-  if (parsed.data.iteration !== next) {
+  const executor = executorOf(parsed.data);
+  const allowed = nextIterations(previous, executor);
+  if (!allowed.includes(parsed.data.iteration)) {
     return {
-      refused: [`iteration must be ${next}, the next row of the journal, not ${parsed.data.iteration}`],
+      refused: [
+        `iteration must be ${allowed.join(' or ')}, the next ${executor} row of the journal, not ${parsed.data.iteration}`,
+      ],
     };
   }
   return { row: parsed.data };

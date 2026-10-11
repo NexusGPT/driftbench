@@ -1,0 +1,78 @@
+/* The driftbench brand on the VitePress default theme: the Nexus design system tokens of the README
+   figures (.github/readme/src/brand.css). Page #F6F8FB, ink #0E1116, blue #2F5FD0, Libre Caslon for
+   headings, Geist for text, and the #FF6600 spark as one small accent: the rule under the page title. */
+
+:root {
+  --nx-page: #f6f8fb;
+  --nx-card: #ffffff;
+  --nx-card-2: #eef1f6;
+  --nx-ink: #0e1116;
+  --nx-blue: #2f5fd0;
+  --nx-blue-soft: #eef3fb;
+  --nx-navy-ink: #1b2a44;
+  --nx-spark: #ff6600;
+
+  --vp-font-family-base:
+    "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --vp-font-family-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --vp-c-bg: var(--nx-page);
+  --vp-c-bg-alt: var(--nx-card-2);
+  --vp-c-bg-soft: var(--nx-card-2);
+  --vp-c-bg-elv: var(--nx-card);
+  --vp-sidebar-bg-color: var(--nx-card);
+  --vp-c-text-1: var(--nx-ink);
+  --vp-c-brand-1: var(--nx-blue);
+  --vp-c-brand-2: #244ca8;
+  --vp-c-brand-3: var(--nx-blue);
+  --vp-c-brand-soft: var(--nx-blue-soft);
+}
+
+.dark {
+  --vp-c-bg: #0e1116;
+  --vp-c-bg-alt: #161618;
+  --vp-c-bg-soft: #1b1d22;
+  --vp-c-bg-elv: #161618;
+  --vp-sidebar-bg-color: #161618;
+  --vp-c-text-1: #eef1f6;
+  --vp-c-brand-1: #7da0ec;
+  --vp-c-brand-2: #9ab6f1;
+  --vp-c-brand-3: #2f5fd0;
+  --vp-c-brand-soft: rgba(47, 95, 208, 0.18);
+}
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.VPNavBarTitle .title {
+  font-family: "Libre Caslon Display", Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.012em;
+}
+
+.vp-doc h1::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 3px;
+  margin-top: 12px;
+  border-radius: 2px;
+  background: var(--nx-spark);
+}
+
+.vp-doc img {
+  border-radius: 12px;
+}
+
+/* Wide tables and code scroll inside their own box, never the page. */
+.vp-doc table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.vp-doc td code,
+.vp-doc p code,
+.vp-doc li code {
+  overflow-wrap: anywhere;
+}

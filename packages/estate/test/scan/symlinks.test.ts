@@ -63,6 +63,7 @@ describe('the reader follows symbolic links', () => {
     expect(linked).toEqual([
       '.claude/skills/parcel-claims/SKILL.md',
       '.claude/skills/parcel-claims/references/claim-rules.md',
+      '.claude/skills/parcel-claims/references/notes.md',
       '.claude/skills/parcel-claims/references/supplier-languages.md',
       '.claude/skills/parcel-claims/scripts/track.sh',
     ]);
