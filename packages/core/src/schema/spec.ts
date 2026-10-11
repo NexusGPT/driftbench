@@ -110,7 +110,9 @@ export const GuardExpect = z
       .describe('The verdict the check must have given, such as pass or deny.'),
     count: Count.optional().describe('How many times the check fired.'),
   })
-  .describe('One runtime check that fired during the block: a hook, a guardrail, a policy.');
+  .describe(
+    'One runtime check that fired during the block, with its verdict. The adapter maps the runtime names.',
+  );
 export type GuardExpect = z.infer<typeof GuardExpect>;
 
 export const ExecutionExpect = z
@@ -193,7 +195,7 @@ export const Expect = z
     guards: z
       .array(GuardExpect)
       .optional()
-      .describe('The runtime checks that must have fired in the block, with their verdict.'),
+      .describe('The runtime checks expected in the block, with their verdict and count.'),
     execution: ExecutionExpect.optional().describe('What the agent runs.'),
     artifacts: z.array(ArtifactExpect).optional().describe('The files the block must produce.'),
     workspace: WorkspaceExpect.optional().describe('The workspace diff expected.'),
