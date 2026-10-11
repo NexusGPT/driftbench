@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Warns after a command that removed a file under ledger/."""
+# Runs the check W2 of the check registry.
 import json
 import sys
 

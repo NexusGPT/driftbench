@@ -134,6 +134,8 @@ export type Frontmatter = {
   bodyLine: number;
   /** Why the block could not be read, when it could not. */
   error?: string;
+  /** The strict parser's message, when the tolerant second pass read the block instead. */
+  tolerated?: string;
 };
 
 /** Reads a leading `---` YAML block. A file without one is all body. */
@@ -142,22 +144,67 @@ export function readFrontmatter(text: string): Frontmatter {
   if (lines[0]?.trim() !== '---') return { fields: {}, bodyLine: 1 };
   const close = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
   if (close < 0) return { fields: {}, bodyLine: 1, error: 'the frontmatter block is never closed' };
+  const block = lines.slice(1, close);
   try {
-    const parsed: unknown = parseYaml(lines.slice(1, close).join('\n'));
+    const parsed: unknown = parseYaml(block.join('\n'));
     const fields =
       parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)
         ? (parsed as Record<string, unknown>)
         : {};
     return { fields, startLine: 1, endLine: close + 1, bodyLine: close + 2 };
   } catch (cause) {
-    return {
-      fields: {},
-      startLine: 1,
-      endLine: close + 1,
-      bodyLine: close + 2,
-      error: cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause),
-    };
+    const message = cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
+    const fields = tolerantFields(block);
+    const place = { startLine: 1, endLine: close + 1, bodyLine: close + 2 };
+    return fields ? { fields, ...place, tolerated: message } : { fields: {}, ...place, error: message };
   }
+}
+
+/** A top-level key of a frontmatter block, at the start of its line. */
+const TOP_KEY = /^([A-Za-z0-9_][\w.-]*)\s*:(.*)$/;
+
+/**
+ * The tolerant second pass over a frontmatter block the YAML parser refused. The block is cut into its
+ * top-level entries (a key at the start of a line, with the indented or list lines under it), and each
+ * entry is parsed alone, so one bad line costs one field, not the block. An entry the parser still
+ * refuses keeps its text as a string: on one line, the value as written (a description holding `: ` is the
+ * usual case); over several lines, the lines joined. Undefined when the block holds no top-level key.
+ */
+export function tolerantFields(block: readonly string[]): Record<string, unknown> | undefined {
+  const entries: Array<{ key: string; lines: string[] }> = [];
+  for (const line of block) {
+    const match = TOP_KEY.exec(line);
+    if (match?.[1] !== undefined) entries.push({ key: match[1], lines: [line] });
+    else if (line.startsWith('#') && entries.length === 0) continue;
+    else entries[entries.length - 1]?.lines.push(line);
+  }
+  if (entries.length === 0) return undefined;
+  const fields: Record<string, unknown> = {};
+  for (const { key, lines } of entries) {
+    try {
+      const parsed: unknown = parseYaml(lines.join('\n'));
+      if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed) && key in parsed) {
+        fields[key] = (parsed as Record<string, unknown>)[key];
+        continue;
+      }
+    } catch {
+      // Kept as text below.
+    }
+    const first = TOP_KEY.exec(lines[0] ?? '')?.[2]?.trim() ?? '';
+    const rest = lines
+      .slice(1)
+      .map((line) => line.trim())
+      .filter((line) => line !== '');
+    const text = [first, ...rest].filter((part) => part !== '').join(rest.length > 0 ? '\n' : '');
+    fields[key] = unquote(text);
+  }
+  return fields;
+}
+
+/** A value without the one pair of quotes that wraps it whole. */
+function unquote(text: string): string {
+  const match = /^(["'])([\s\S]*)\1$/.exec(text);
+  return match?.[2] ?? text;
 }
 
 /** The line of a top-level frontmatter key, such as `name:`, and that line's trimmed text. */
