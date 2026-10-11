@@ -322,3 +322,43 @@ function roadmapCoverageItems(all: Method[]): BankItem[] {
   }
   return out;
 }
+
+/**
+ * Family `roadmap-purity`: each roadmap method leaves its arguments as it found them (no in-place sort or
+ * normalisation of the caller's arrays) and gives the same result twice on the same input.
+ */
+function roadmapPurityItems(all: Method[]): BankItem[] {
+  const out: BankItem[] = [];
+  for (const m of all) {
+    const first = m.cases[0];
+    if (!first) continue;
+    out.push({
+      id: `roadmap-purity.${m.name}`,
+      family: 'roadmap-purity',
+      tier: 2,
+      level: 'roadmap',
+      component: m.file,
+      check: ({ s }) => {
+        const fn = exported(s, m.name);
+        if (!fn)
+          return fail(
+            `packages/stats does not export ${m.name} (\`${m.signature}\`, in ${m.file}); once it exists, it must not change its arguments and must give the same result twice.`,
+          );
+        const args = structuredClone(first.args);
+        const before = JSON.stringify(args);
+        const a = attempt(() => (fn as (...x: unknown[]) => unknown)(...args));
+        const b = attempt(() => (fn as (...x: unknown[]) => unknown)(...args));
+        if (a.error || b.error)
+          return fail(`${m.name}(${argText(first.args)}) threw ${(a.error ?? b.error)?.message}`);
+        if (JSON.stringify(args) !== before)
+          return fail(
+            `${m.name} changed its arguments from ${before} to ${JSON.stringify(args)}; work on a copy.`,
+          );
+        return JSON.stringify(a.value) === JSON.stringify(b.value)
+          ? ok()
+          : fail(`${m.name} gave ${show(a.value)} then ${show(b.value)} on the same input.`);
+      },
+    });
+  }
+  return out;
+}

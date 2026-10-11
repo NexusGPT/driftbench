@@ -35,6 +35,9 @@ export async function runIsolated(
   return results;
 }
 
+/** The time a child process may take to load the bank before it runs its first item. */
+export const STARTUP_MS = 120_000;
+
 /** Child processes run side by side for one seed: the cores less one, at most 4. */
 export const DEFAULT_SHARDS = Math.max(1, Math.min(4, availableParallelism() - 1));
 
@@ -77,7 +80,18 @@ function runFrom(
         finish(index + 1);
       }, limit);
     };
-    arm(start);
+    // The item budget starts when the child says it starts the item; loading the bank has its own limit.
+    timer = setTimeout(() => {
+      const item = items[start];
+      if (item) {
+        results.set(item.id, {
+          pass: false,
+          detail: `the bank's child process did not start within ${STARTUP_MS} ms on seed ${seed}`,
+        });
+      }
+      child.kill('SIGKILL');
+      finish(start + 1);
+    }, STARTUP_MS);
     child.stdout.setEncoding('utf8');
     child.stdout.on('data', (chunk: string) => {
       buffer += chunk;
