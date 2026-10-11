@@ -1,4 +1,4 @@
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { basename, join, posix } from 'node:path';
 import type {
   EstateFile,
@@ -101,14 +101,42 @@ async function present(root: string, names: readonly string[]): Promise<string[]
   return found;
 }
 
-async function walk(root: string, folder: string, notes: ReadNote[]): Promise<string[]> {
+/**
+ * Every file under a folder, sorted by name. A symbolic link is followed to what it points at, a file or a
+ * folder, and read under the link's own path (the path the runtime loads it by). A link back to a folder
+ * the walk is already inside is a cycle: it is skipped with a note, as is a link that points at nothing.
+ */
+async function walk(
+  root: string,
+  folder: string,
+  notes: ReadNote[],
+  ancestors: ReadonlySet<string> = new Set(),
+): Promise<string[]> {
+  const real = await realpath(join(root, folder)).catch(() => undefined);
+  if (real === undefined) return [];
+  if (ancestors.has(real)) {
+    notes.push({ file: folder, message: 'skipped: a link back to a folder the walk is already inside' });
+    return [];
+  }
+  const inside = new Set(ancestors).add(real);
   const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
   const found: string[] = [];
   for (const entry of [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
     const path = posix.join(folder, entry.name);
-    if (entry.isDirectory()) {
-      if (!SKIP_DIRS.has(entry.name)) found.push(...(await walk(root, path, notes)));
-    } else if (entry.isFile()) {
+    let folderEntry = entry.isDirectory();
+    let fileEntry = entry.isFile();
+    if (entry.isSymbolicLink()) {
+      const target = await stat(join(root, path)).catch(() => undefined);
+      if (!target) {
+        notes.push({ file: path, message: 'skipped: a link that points at nothing' });
+        continue;
+      }
+      folderEntry = target.isDirectory();
+      fileEntry = target.isFile();
+    }
+    if (folderEntry) {
+      if (!SKIP_DIRS.has(entry.name)) found.push(...(await walk(root, path, notes, inside)));
+    } else if (fileEntry) {
       const info = await stat(join(root, path));
       if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
       else found.push(path);
