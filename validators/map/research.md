@@ -61,3 +61,15 @@ Sources read:
 What others do: a keyword constrains only its own instance type, so a schema with minimum and no type constrains numbers; a generator can treat the keyword as stating that type.
 
 What to try, and why: the tool pre-pass infers a property's type from its keywords when the schema states none, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
+
+## Iteration 6
+
+Question: packages/generate/src/extract/tools.ts: partitionsOf adds null for a type list with null even when the enum already listed null, so schema-keywords.type-null gains a duplicate null-2 value.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-validation section 6.1.2 (enum: the instance equals one of the values; null is a value)
+* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/research/testgen/dossier-specification.md (source 33: one case per partition, no duplicates within a class)
+
+What others do: an enum member null and a null type state the same partition; equivalence partitioning keeps one case per class.
+
+What to try, and why: the tool pre-pass gives null once when a nullable enum lists null, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
