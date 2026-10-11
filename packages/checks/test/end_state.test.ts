@@ -87,6 +87,36 @@ describe('end_state', () => {
     expect(diff.every((entry) => JSON.stringify(entry.observed) === '{"absent":true}')).toBe(true);
   });
 
+  it('mutation: the source holds a string or a list, not a mapping; every field fails, naming the type', async () => {
+    for (const [state, type] of [
+      ['ORD-222B51', 'a string'],
+      [[order], 'a list'],
+      [42, 'a number'],
+    ] as const) {
+      const verdicts = await run(
+        endState,
+        context(loose, last(loose), observed(placed), { endState: state }),
+      );
+      expect(failing(verdicts)).toEqual([
+        'end_state.type',
+        'end_state.plan_id',
+        'end_state.address_id',
+        'end_state.customer',
+        'end_state.port_number',
+      ]);
+      expect(verdict(verdicts, 'end_state.plan_id').evidence).toMatch(
+        new RegExp(
+          `^tool:order\\.create: the state read is ${type} \\(.*\\), not a mapping, so plan_id is absent`,
+        ),
+      );
+    }
+    expect(compareEndState(loose.end_state ?? 'none', 'ORD-222B51').diff[1]).toEqual({
+      field: 'plan_id',
+      expected: 'fiber-1000',
+      observed: { absent: true },
+    });
+  });
+
   it('writes a field missing from a read payload as { absent: true } in the diff', () => {
     const { address_id: _dropped, ...withoutAddress } = order;
     expect(compareEndState(loose.end_state ?? 'none', withoutAddress).diff).toEqual([
