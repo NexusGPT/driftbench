@@ -318,3 +318,52 @@ describe('estate generate on inputs that do not fit together', () => {
     );
   });
 });
+
+describe('the record and the seed', () => {
+  let input: EstateGenerateInput;
+  beforeAll(async () => {
+    input = await fixtureInputs();
+  });
+
+  it('records atoms, plan row, cell, seeder, seed and map hash on every spec', () => {
+    const result = generateEstateSuite(input, { seed: 7, paths: COMMITTED_PATHS });
+    const rows = new Map(input.plan.rows.map((row) => [row.id, row]));
+    for (const spec of specs(result).values()) {
+      const record = estate(spec);
+      const row = rows.get(String(record.planRow));
+      expect(row, spec.id).toBeDefined();
+      expect(record).toMatchObject({
+        atoms: row?.atomIds,
+        planRow: row?.id,
+        cell: row?.cell,
+        seeder: 'estate',
+        seed: 7,
+        mapHash: input.map.hash,
+        testType: row?.testType,
+        mode: row?.mode,
+      });
+    }
+  });
+
+  it('gives byte-identical files for the same inputs and seed', () => {
+    const first = generateEstateSuite(input, { seed: 3, paths: COMMITTED_PATHS });
+    const second = generateEstateSuite(structuredClone(input), { seed: 3, paths: COMMITTED_PATHS });
+    expect(second.files).toEqual(first.files);
+  });
+
+  it('draws other phrases with another seed, over the same specs', () => {
+    const one = generateEstateSuite(input, { seed: 1, paths: COMMITTED_PATHS });
+    const two = generateEstateSuite(input, { seed: 2, paths: COMMITTED_PATHS });
+    expect(two.files.map((file) => file.path)).toEqual(one.files.map((file) => file.path));
+    const asks = (result: EstateGenerateResult) =>
+      [...specs(result).values()].map(
+        (spec) => (spec.blocks[0]?.when as { user?: string } | undefined)?.user,
+      );
+    const changed = asks(one).filter((ask, index) => ask !== asks(two)[index]);
+    expect(changed.length).toBeGreaterThan(0);
+    // A replay spec asks with its session's recorded ask, whatever the seed.
+    expect(asks(two).filter((_, index) => [...specs(two).keys()][index]?.includes('.weekly-'))).toEqual(
+      Array(12).fill("Add the late shipment count to this week's report, reports/2026-W41.md."),
+    );
+  });
+});
