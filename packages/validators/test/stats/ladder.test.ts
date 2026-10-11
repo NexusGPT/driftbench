@@ -1,166 +1,82 @@
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import * as stats from '@driftbench/stats';
 import { describe, expect, it } from 'vitest';
 import { runLadder } from '../../src/ladder';
 import { registeredLadders } from '../../src/ladders/index';
-import {
-  readDesigns,
-  referenceCases,
-  referenceLevel,
-  STATS_FIXTURES,
-  statsLadder,
-  WILSON_DRAWS,
-  wilsonLevel,
-} from '../../src/ladders/stats/index';
-import { designsWith, SLOW } from './support';
+import { BANK_LEVELS, statsBank } from '../../src/ladders/stats/bank/index';
+import { runIsolated } from '../../src/ladders/stats/bank/isolate';
+import { STATS_LADDER_VERSION, statsLadder } from '../../src/ladders/stats/index';
+import { ROOT, SLOW } from './support';
 
-const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
-const fixtures = JSON.parse(readFileSync(new URL(`../../../../${STATS_FIXTURES}`, import.meta.url), 'utf8'));
+describe('the stats ladder, version 2', { timeout: SLOW }, () => {
+  const bank = statsBank(ROOT);
 
-const LEVELS = [
-  'reference-values',
-  'wilson-coverage',
-  'clustered-coverage',
-  'variance-shares',
-  'unseen-mass',
-  'mde-power',
-];
-
-/** The committed designs made small, so a run through every level stays quick. */
-const SMALL = designsWith((d) => {
-  d.clustered.draws = 120;
-  d.clustered.designs = [d.clustered.designs[0] as (typeof d.clustered.designs)[number]];
-  d.shares.datasets = 1;
-  d.unseen.draws = 20;
-  d.unseen.warningDraws = 3;
-  d.power.draws = 400;
-});
-
-/** Every reference case in the fixtures file, counted from the file itself. */
-function fixtureCount(): number {
-  const list = (value: unknown): number => (Array.isArray(value) ? value.length : 0);
-  let count = 0;
-  for (const group of ['special', 'intervals', 'reliability', 'paired', 'drift']) {
-    for (const value of Object.values(fixtures[group])) count += list(value);
-  }
-  count += list(fixtures.bootstrap.replay) + 1;
-  for (const group of [
-    'mcnemar',
-    'wilcoxon',
-    'benjaminiHochberg',
-    'mde',
-    'kappa',
-    'krippendorff',
-    'varianceComponents',
-    'neyman',
-    'repeatsForFloor',
-    'coverage',
-  ])
-    count += list(fixtures[group]);
-  return count;
-}
-
-describe('the stats ladder', { timeout: SLOW }, () => {
-  it(
-    'is registered with six levels and reaches level 6 of 6 on the current code',
-    async () => {
-      const ladder = registeredLadders().stats;
-      expect(ladder?.levels.map((level) => level.id)).toEqual(LEVELS);
-      expect(ladder?.levels.map((level) => level.direction ?? 'atLeast')).toEqual([
-        'atLeast',
-        'atLeast',
-        'atLeast',
-        'atLeast',
-        'atMost',
-        'atMost',
-      ]);
-      const run = await runLadder(ladder as NonNullable<typeof ladder>, { seed: 1, root: ROOT });
-      expect(run.rows.map((row) => row.pass)).toEqual([true, true, true, true, true, true]);
-      expect(run.level).toBe(6);
-      expect(run.failing).toBeNull();
-    },
-    SLOW,
-  );
-
-  it('compares every reference case of the fixtures file', () => {
-    expect(referenceCases(fixtures, stats)).toHaveLength(fixtureCount());
-    expect(referenceLevel(fixtures, stats)).toEqual({ value: 1, items: [] });
+  it('is a bank of at least 300 items, unique ids, no family under 20, every tier present', () => {
+    expect(STATS_LADDER_VERSION).toBe(2);
+    expect(bank.length).toBeGreaterThanOrEqual(300);
+    expect(new Set(bank.map((item) => item.id)).size).toBe(bank.length);
+    const families = new Map<string, number>();
+    for (const item of bank) families.set(item.family, (families.get(item.family) ?? 0) + 1);
+    const small = [...families].filter(([, count]) => count < 20);
+    expect(small).toEqual([]);
+    expect(new Set(bank.map((item) => item.tier))).toEqual(new Set([1, 2, 3, 4, 5]));
+    expect(new Set(bank.map((item) => item.level))).toEqual(new Set(BANK_LEVELS));
+    for (const item of bank) expect(item.component).toMatch(/^packages\/[a-z]+\/src/);
   });
 
-  it('names the fixture and the source file of a planted fault at level 1, and stops there', async () => {
+  it('keeps version 1 as its first items: the reference groups and the simulated designs', () => {
+    const ids = bank.map((item) => item.id);
+    expect(ids).toContain('reference.special.logGamma');
+    expect(ids).toContain('simulation.wilson-coverage.n20');
+    expect(ids).toContain('simulation.clustered.c80x8-rho0.2');
+    expect(ids).toContain('simulation.shares.pooled');
+    expect(ids).toContain('simulation.unseen.warning.s60-spread5');
+    expect(ids).toContain('simulation.power.n80-r3-p0.8');
+  });
+
+  it('is registered with seven levels of threshold 1', () => {
+    const ladder = registeredLadders().stats;
+    expect(ladder?.levels.map((level) => [level.id, level.threshold])).toEqual(
+      BANK_LEVELS.map((level) => [level, 1]),
+    );
+  });
+
+  it('stops at the first level with a failing item and names it, with its family and tier', async () => {
     const planted = statsLadder({
       impl: { logGamma: (x: number) => (x === 7 ? stats.logGamma(x) + 1e-4 : stats.logGamma(x)) },
+      filter: (item) => item.level === 'reference' || item.id.startsWith('degenerate.mean.'),
     });
     const run = await runLadder(planted, { seed: 1, root: ROOT });
     expect(run.level).toBe(0);
-    expect(run.rows.slice(1).map((row) => row.pass)).toEqual([null, null, null, null, null]);
-    expect(run.failing?.items).toHaveLength(1);
-    expect(run.failing?.items[0]).toMatchObject({
-      id: 'special.logGamma[3]',
-      component: 'packages/stats/src/special.ts',
-    });
-    expect(run.failing?.items[0]?.detail).toMatch(
-      /^logGamma\(7\): got 6\.57935\d+, expected 6\.579251212010101 \(diff 1\.00e-4, tolerance 1e-6\)$/,
-    );
+    expect(run.failing?.id).toBe('reference');
+    expect(run.failing?.items.map((item) => item.id)).toEqual(['reference.special.logGamma']);
+    expect(run.failing?.items[0]?.detail).toMatch(/^\[reference, tier 1\] 1 of \d+ cases differ/);
+    expect(run.rows.slice(1).every((row) => row.pass === null)).toBe(true);
   });
 
-  it('fails level 2 when the default Wilson interval is too narrow, naming each sample size', async () => {
-    const narrow = (k: number, n: number, z?: number) => stats.wilson(k, n, z ?? 1.6);
-    const planted = statsLadder({ impl: { wilson: narrow }, designs: SMALL });
-    const run = await runLadder(planted, { seed: 1, root: ROOT });
+  it('passes a level whose items all pass, in process', async () => {
+    const ladder = statsLadder({ inProcess: true, filter: (item) => item.level === 'reference' });
+    const run = await runLadder(ladder, { seed: 2, root: ROOT });
+    expect(run.rows[0]?.observed).toBe(1);
+    expect(run.level).toBe(BANK_LEVELS.length);
+  });
+
+  it('stops an item that does not finish and goes on with the next one', async () => {
+    const items = bank.filter(
+      (item) => item.id === 'degenerate.ksTest.nan-in-data' || item.id === 'degenerate.mean.empty',
+    );
+    const run = await runIsolated(items, 1, ROOT, () => 3_000, 1);
+    expect(run.get('degenerate.ksTest.nan-in-data')).toMatchObject({ pass: false });
+    expect(run.get('degenerate.ksTest.nan-in-data')?.detail).toMatch(
+      /^did not finish within 3000 ms on seed 1/,
+    );
+    expect(run.get('degenerate.mean.empty')).toMatchObject({ pass: true });
+  });
+
+  it('runs the registered bank on seed 1 and stops at the degenerate level', async () => {
+    const ladder = registeredLadders().stats as NonNullable<ReturnType<typeof registeredLadders>['stats']>;
+    const run = await runLadder(ladder, { seed: 1, root: ROOT });
+    expect(run.rows[0]?.pass).toBe(true);
+    expect(run.failing?.id).toBe('degenerate');
     expect(run.level).toBe(1);
-    expect(run.failing?.id).toBe('wilson-coverage');
-    expect(run.failing?.items.map((item) => item.id)).toEqual(['wilson-n20', 'wilson-n50', 'wilson-n200']);
-    expect(run.failing?.items[0]?.detail).toMatch(
-      new RegExp(`^estimator wilson, seed 1, n 20: \\d+ of ${WILSON_DRAWS} intervals contain the truth`),
-    );
-    expect(run.failing?.items[0]?.detail).toMatch(
-      /first misses: draw \d+: truth [\d.]+, estimate [\d.]+, interval \[/,
-    );
-  });
-
-  it('draws differently on each seed and the same on a repeat', () => {
-    const a = wilsonLevel(1, stats);
-    expect(wilsonLevel(1, stats)).toEqual(a);
-    expect(wilsonLevel(2, stats).value).not.toBe(a.value);
-  });
-
-  it('stops at level 3 when the bootstrap ignores the clusters, and runs nothing above it', async () => {
-    // Only on samples larger than any reference case (214 values), so level 1 still passes.
-    const ignoring: typeof stats.bootstrapCI = (values, options = {}) =>
-      stats.bootstrapCI(values, values.length > 300 ? { ...options, clusters: undefined } : options);
-    const run = await runLadder(statsLadder({ impl: { bootstrapCI: ignoring }, designs: SMALL }), {
-      seed: 1,
-      root: ROOT,
-    });
-    expect(run.level).toBe(2);
-    expect(run.failing?.id).toBe('clustered-coverage');
-    expect(run.failing?.items.map((item) => item.id)).toEqual(['clustered-c80x8-rho0.2']);
-    expect(run.rows.slice(3).map((row) => row.observed)).toEqual([null, null, null]);
-  });
-
-  it('stops at level 6 when the minimum detectable effect ignores the correlation of repeats', async () => {
-    // Only on a design no reference case has (n of 80), so level 1 still passes.
-    const optimistic: typeof stats.mde = (input) => stats.mde(input.n === 80 ? { ...input, rho: 0 } : input);
-    const run = await runLadder(statsLadder({ impl: { mde: optimistic }, designs: SMALL }), {
-      seed: 1,
-      root: ROOT,
-    });
-    expect(run.level).toBe(5);
-    expect(run.failing?.id).toBe('mde-power');
-    expect(run.failing?.items.map((item) => item.id)).toEqual(['power-n80-r3-p0.8']);
-  });
-
-  it('refuses a designs file that breaks the schema, naming the file and the field', () => {
-    const folder = mkdtempSync(join(tmpdir(), 'v-stats-'));
-    const path = join(folder, 'designs.json');
-    const broken = designsWith((d) => {
-      (d.clustered.designs[0] as { rho: number }).rho = 2;
-    });
-    writeFileSync(path, JSON.stringify(broken));
-    expect(() => readDesigns(path)).toThrow(`${path}: clustered.designs.0.rho`);
   });
 });

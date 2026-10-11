@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { availableParallelism } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import type { BankItem, ItemOutcome } from './item';
 
@@ -19,14 +20,23 @@ export async function runIsolated(
   seed: number,
   root: string,
   budget: (item: BankItem) => number = (item) => item.budgetMs ?? DEFAULT_ITEM_BUDGET_MS,
+  shards = DEFAULT_SHARDS,
 ): Promise<Map<string, ItemOutcome & { ms?: number }>> {
   const results = new Map<string, ItemOutcome & { ms?: number }>();
-  let next = 0;
-  while (next < items.length) {
-    next = await runFrom(next, items, seed, root, budget, results);
-  }
+  const count = Math.max(1, Math.min(shards, items.length));
+  // Round robin, so the heavy items of one level spread over the children.
+  const lists = Array.from({ length: count }, (_, k) => items.filter((_, i) => i % count === k));
+  await Promise.all(
+    lists.map(async (list) => {
+      let next = 0;
+      while (next < list.length) next = await runFrom(next, list, seed, root, budget, results);
+    }),
+  );
   return results;
 }
+
+/** Child processes run side by side for one seed: the cores less one, at most 4. */
+export const DEFAULT_SHARDS = Math.max(1, Math.min(4, availableParallelism() - 1));
 
 function runFrom(
   start: number,

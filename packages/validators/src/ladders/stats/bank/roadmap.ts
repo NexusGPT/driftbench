@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { exactCoverage, grid } from './analytic';
 import { attempt, type BankItem, exported, fail, ok, show, type Tier } from './item';
 
 /**
@@ -98,5 +99,226 @@ export function roadmapItems(root: string): BankItem[] {
       });
     });
   }
+  items.push(
+    ...roadmapDegenerateItems(methods(root)),
+    ...roadmapScaleItems(methods(root)),
+    ...roadmapCoverageItems(methods(root)),
+  );
   return items;
+}
+
+/** The arguments with every array emptied (top level and object fields); undefined when there is none. */
+function emptied(args: unknown[]): unknown[] | undefined {
+  let found = false;
+  const out = args.map((a) => {
+    if (Array.isArray(a)) {
+      found = true;
+      return [];
+    }
+    if (a && typeof a === 'object') {
+      const o: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(a)) {
+        if (Array.isArray(v)) {
+          found = true;
+          o[k] = [];
+        } else o[k] = v;
+      }
+      return o;
+    }
+    return a;
+  });
+  return found ? out : undefined;
+}
+
+/** The arguments with the first number met (depth first) replaced by `bad`; undefined when there is none. */
+function planted(args: unknown[], bad: number): unknown[] | undefined {
+  let done = false;
+  const walk = (v: unknown): unknown => {
+    if (done) return v;
+    if (typeof v === 'number') {
+      done = true;
+      return bad;
+    }
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === 'object')
+      return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, walk(x)]));
+    return v;
+  };
+  const out = args.map(walk);
+  return done ? out : undefined;
+}
+
+/**
+ * Family `roadmap-degenerate`: the degenerate-input contract (rule 1 of the degenerate level) applied to every
+ * roadmap method: no data, a NaN and an infinite value in the first number of its first case must throw a
+ * RangeError, never return a number built from them.
+ */
+function roadmapDegenerateItems(all: Method[]): BankItem[] {
+  const out: BankItem[] = [];
+  for (const m of all) {
+    const first = m.cases[0];
+    if (!first) continue;
+    const variants: Array<[string, unknown[] | undefined]> = [
+      ['empty', emptied(first.args)],
+      ['nan', planted(first.args, Number.NaN)],
+      ['infinity', planted(first.args, Number.POSITIVE_INFINITY)],
+    ];
+    for (const [kind, args] of variants) {
+      if (!args) continue;
+      out.push({
+        id: `roadmap-degenerate.${m.name}.${kind}`,
+        family: 'roadmap-degenerate',
+        tier: 2,
+        level: 'roadmap',
+        component: m.file,
+        check: ({ s }) => {
+          const call = `${m.name}(${argText(args)})`;
+          const fn = exported(s, m.name);
+          if (!fn) {
+            return fail(
+              `packages/stats does not export ${m.name} (signature \`${m.signature}\`, in ${m.file}); once it exists, ${call} must throw a RangeError (degenerate-input contract, rule 1: ${kind === 'empty' ? 'no data' : kind === 'nan' ? 'a NaN' : 'an infinite value'}).`,
+            );
+          }
+          const got = attempt(() => (fn as (...a: unknown[]) => unknown)(...structuredClone(args)));
+          if (got.error instanceof RangeError) return ok();
+          return fail(
+            `${call} must throw a RangeError (degenerate-input contract, rule 1); ${got.error ? `it threw ${got.error.name}: ${got.error.message}` : `it returned ${show(got.value)}`}. Add the check to ${m.name} in ${m.file}.`,
+          );
+        },
+      });
+    }
+  }
+  return out;
+}
+
+/** The arguments with every flat array (of numbers, strings or booleans) grown to `size` by repetition. */
+function grown(args: unknown[], size: number): unknown[] | undefined {
+  let found = false;
+  const flat = (v: unknown): v is unknown[] =>
+    Array.isArray(v) && v.length > 0 && v.every((x) => typeof x !== 'object' || x === null);
+  const grow = (v: unknown[]) => Array.from({ length: size }, (_, i) => v[i % v.length]);
+  const out = args.map((a) => {
+    if (flat(a)) {
+      found = true;
+      return grow(a);
+    }
+    if (a && typeof a === 'object' && !Array.isArray(a)) {
+      return Object.fromEntries(
+        Object.entries(a).map(([k, v]) => {
+          if (flat(v)) {
+            found = true;
+            return [k, grow(v)];
+          }
+          return [k, v];
+        }),
+      );
+    }
+    return a;
+  });
+  return found ? out : undefined;
+}
+
+const finite = (v: unknown): boolean =>
+  typeof v === 'number'
+    ? Number.isFinite(v)
+    : Array.isArray(v)
+      ? v.every(finite)
+      : v && typeof v === 'object'
+        ? Object.values(v).every(finite)
+        : true;
+
+/** Rows a scaled roadmap case reaches, and the time it may take. */
+export const ROADMAP_SCALE_ROWS = 100_000;
+export const ROADMAP_SCALE_BUDGET_MS = 2_000;
+
+/**
+ * Family `roadmap-scale`: each roadmap method whose first case takes flat arrays, with those arrays grown to
+ * 100000 values by repetition, finishes within 2 s and returns finite numbers (section 12.2, rule 4).
+ */
+function roadmapScaleItems(all: Method[]): BankItem[] {
+  const out: BankItem[] = [];
+  for (const m of all) {
+    const first = m.cases[0];
+    const args = first ? grown(first.args, ROADMAP_SCALE_ROWS) : undefined;
+    if (!args) continue;
+    out.push({
+      id: `roadmap-scale.${m.name}`,
+      family: 'roadmap-scale',
+      tier: 4,
+      level: 'roadmap',
+      component: m.file,
+      budgetMs: 60_000,
+      check: ({ s }) => {
+        const fn = exported(s, m.name);
+        if (!fn) {
+          return fail(
+            `packages/stats does not export ${m.name} (\`${m.signature}\`, in ${m.file}); once it exists, its first case with every array grown to ${ROADMAP_SCALE_ROWS} values by repetition must finish within ${ROADMAP_SCALE_BUDGET_MS} ms with finite numbers.`,
+          );
+        }
+        const start = performance.now();
+        const got = attempt(() => (fn as (...a: unknown[]) => unknown)(...args));
+        const ms = performance.now() - start;
+        if (got.error)
+          return fail(
+            `${m.name} on its first case grown to ${ROADMAP_SCALE_ROWS} values threw ${got.error.name}: ${got.error.message}`,
+          );
+        if (!finite(got.value))
+          return fail(
+            `${m.name} on its first case grown to ${ROADMAP_SCALE_ROWS} values returned non-finite numbers: ${show(got.value)}`,
+          );
+        return ms <= ROADMAP_SCALE_BUDGET_MS
+          ? ok()
+          : fail(
+              `${m.name} on its first case grown to ${ROADMAP_SCALE_ROWS} values took ${Math.round(ms)} ms, over ${ROADMAP_SCALE_BUDGET_MS} ms: avoid all-pairs loops and per-row copies.`,
+            );
+      },
+    });
+  }
+  return out;
+}
+
+/** The rate intervals of the roadmap whose exact coverage is scored, and the sizes. */
+const COVERED = ['agrestiCoull', 'jeffreys', 'wilsonContinuity', 'betaPosteriorInterval'];
+const SIZES = [5, 10, 20, 50, 100, 200, 500];
+
+/**
+ * Family `roadmap-coverage`: each roadmap rate interval, at n from 5 to 500, has an exact coverage averaged over
+ * p from 0.01 to 0.99 of at least 0.945 (each method averages 0.9489 or more there by scipy, section 12.2 rule 3).
+ */
+function roadmapCoverageItems(all: Method[]): BankItem[] {
+  const out: BankItem[] = [];
+  for (const name of COVERED) {
+    const m = all.find((x) => x.name === name);
+    if (!m) continue;
+    for (const n of SIZES) {
+      out.push({
+        id: `roadmap-coverage.${name}.n${n}`,
+        family: 'roadmap-coverage',
+        tier: 4,
+        level: 'roadmap',
+        component: m.file,
+        check: ({ s }) => {
+          const fn = exported(s, name);
+          if (!fn)
+            return fail(
+              `packages/stats does not export ${name} (\`${m.signature}\`, in ${m.file}); once it exists, its exact coverage at n ${n} averaged over p from 0.01 to 0.99 must reach 0.945. Definition: ${m.definition}.`,
+            );
+          const got = attempt(() =>
+            Array.from({ length: n + 1 }, (_, k) =>
+              (fn as (k: number, n: number) => { lower: number; upper: number })(k, n),
+            ),
+          );
+          if (got.error) return fail(`${name}(k, ${n}) threw ${got.error.name}: ${got.error.message}`);
+          const ivs = got.value as Array<{ lower: number; upper: number }>;
+          const mean = grid(0.01, 0.99, 197).reduce((a, p) => a + exactCoverage(ivs, n, p), 0) / 197;
+          return mean >= 0.945
+            ? ok()
+            : fail(
+                `${name}(k, ${n}) has exact coverage ${mean} averaged over p from 0.01 to 0.99; the method averages 0.9489 or more at every n from 5 to 500, bar 0.945. Definition: ${m.definition}.`,
+              );
+        },
+      });
+    }
+  }
+  return out;
 }

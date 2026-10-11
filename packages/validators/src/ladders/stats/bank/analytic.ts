@@ -231,7 +231,11 @@ function pmf(k: number, n: number, p: number): number {
   return Math.exp(logChoose(n, k) + k * Math.log(p) + (n - k) * Math.log(1 - p));
 }
 /** The exact coverage of an interval method at (n, p): the chance, over k ~ Binomial(n, p), that it holds p. */
-function exactCoverage(intervals: Array<{ lower: number; upper: number }>, n: number, p: number): number {
+export function exactCoverage(
+  intervals: Array<{ lower: number; upper: number }>,
+  n: number,
+  p: number,
+): number {
   let c = 0;
   for (let k = 0; k <= n; k += 1) {
     const ci = intervals[k] as { lower: number; upper: number };
@@ -239,7 +243,7 @@ function exactCoverage(intervals: Array<{ lower: number; upper: number }>, n: nu
   }
   return c;
 }
-const grid = (lo: number, hi: number, count: number) =>
+export const grid = (lo: number, hi: number, count: number) =>
   Array.from({ length: count }, (_, i) => lo + ((hi - lo) * i) / (count - 1));
 
 function binomialItems(): BankItem[] {
@@ -958,7 +962,7 @@ function varianceItems(): BankItem[] {
               );
             estimates.push(
               (
-                (got.value as { components: Array<{ estimate: number }> }).components[index] as {
+                (got.value as unknown as { components: Array<{ estimate: number }> }).components[index] as {
                   estimate: number;
                 }
               ).estimate,

@@ -365,6 +365,155 @@ function cases(): Case[] {
       expect: kind === 'throws' ? { kind: 'throws' } : { kind: 'nan-or-throws' },
     });
   }
+  // Infinite scalars, mismatched lengths, unsorted input, counts that are not counts: a RangeError.
+  const more: Array<[string, string, (s: StatsImpl) => unknown]> = [
+    ['wilson', 'wilson(3, Infinity)', (s) => s.wilson(3, Number.POSITIVE_INFINITY)],
+    ['clopperPearson', 'clopperPearson(3, Infinity)', (s) => s.clopperPearson(3, Number.POSITIVE_INFINITY)],
+    ['designEffect', 'designEffect(Infinity, 0.1)', (s) => s.designEffect(Number.POSITIVE_INFINITY, 0.1)],
+    [
+      'effectiveSampleSize',
+      'effectiveSampleSize(Infinity, 4, 0.1)',
+      (s) => s.effectiveSampleSize(Number.POSITIVE_INFINITY, 4, 0.1),
+    ],
+    [
+      'mde',
+      'mde({ n: Infinity, baselineRate: 0.8 })',
+      (s) => s.mde({ n: Number.POSITIVE_INFINITY, baselineRate: 0.8 }),
+    ],
+    [
+      'mde',
+      'mde({ n: 50, repeats: Infinity, baselineRate: 0.8 })',
+      (s) => s.mde({ n: 50, repeats: Number.POSITIVE_INFINITY, baselineRate: 0.8 }),
+    ],
+    [
+      'repeatsForFloor',
+      'repeatsForFloor({ variance: Infinity, floor: 0.05 })',
+      (s) => s.repeatsForFloor({ variance: Number.POSITIVE_INFINITY, floor: 0.05 }),
+    ],
+    [
+      'repeatsForFloor',
+      'repeatsForFloor({ variance: 0.2, floor: 0.05, blocks: Infinity })',
+      (s) => s.repeatsForFloor({ variance: 0.2, floor: 0.05, blocks: Number.POSITIVE_INFINITY }),
+    ],
+    [
+      'neymanAllocation',
+      'neymanAllocation({ sizes: [10, Infinity], sds: [1, 1], total: 10 })',
+      (s) => s.neymanAllocation({ sizes: [10, Number.POSITIVE_INFINITY], sds: [1, 1], total: 10 }),
+    ],
+    [
+      'cusum',
+      'cusum([1, 2, 3], { sd: Infinity })',
+      (s) => s.cusum([1, 2, 3], { sd: Number.POSITIVE_INFINITY }),
+    ],
+    ['cusum', 'cusum([1, 2, 3], { sd: -1 })', (s) => s.cusum([1, 2, 3], { sd: -1 })],
+    ['cusum', 'cusum([1, 2, 3], { sd: 1, k: -0.5 })', (s) => s.cusum([1, 2, 3], { sd: 1, k: -0.5 })],
+    ['cusum', 'cusum([1, 2, 3], { sd: 1, warmup: 0 })', (s) => s.cusum([1, 2, 3], { sd: 1, warmup: 0 })],
+    [
+      'pageHinkley',
+      'pageHinkley([1, 2, 3], { threshold: -1 })',
+      (s) => s.pageHinkley([1, 2, 3], { threshold: -1 }),
+    ],
+    [
+      'pageHinkley',
+      'pageHinkley([1, 2, 3], { delta: NaN })',
+      (s) => s.pageHinkley([1, 2, 3], { delta: Number.NaN }),
+    ],
+    [
+      'quantileSorted',
+      'quantileSorted([3, 1, 2], 0.5) (not sorted)',
+      (s) => s.quantileSorted([3, 1, 2], 0.5),
+    ],
+    [
+      'wilcoxonSignedRank',
+      'wilcoxonSignedRank([1, 2, 3], [1, 2])',
+      (s) => s.wilcoxonSignedRank([1, 2, 3], [1, 2]),
+    ],
+    [
+      'nonInferiority',
+      'nonInferiority({ baseline: [true, false], candidate: [true], margin: 0.05 })',
+      (s) => s.nonInferiority({ baseline: [true, false], candidate: [true], margin: 0.05 }),
+    ],
+    [
+      'nonInferiority',
+      'nonInferiority({ baseline: [true, false], candidate: [true, true], margin: -0.05 })',
+      (s) => s.nonInferiority({ baseline: [true, false], candidate: [true, true], margin: -0.05 }),
+    ],
+    [
+      'neymanAllocation',
+      'neymanAllocation({ sizes: [10, 20, 30], sds: [1, 1], total: 10 })',
+      (s) => s.neymanAllocation({ sizes: [10, 20, 30], sds: [1, 1], total: 10 }),
+    ],
+    ['hillNumbers', 'hillNumbers([3, 1.5, 2])', (s) => s.hillNumbers([3, 1.5, 2])],
+    ['goodTuring', 'goodTuring([3, -2, 2])', (s) => s.goodTuring([3, -2, 2])],
+    [
+      'varianceComponents',
+      'varianceComponents(rows with paths of different lengths)',
+      (s) =>
+        s.varianceComponents([
+          { value: 1, path: ['a', 'b', 'c'] },
+          { value: 0, path: ['a', 'b'] },
+        ]),
+    ],
+    [
+      'varianceComponents',
+      'varianceComponents(rows with value NaN)',
+      (s) =>
+        s.varianceComponents([
+          { value: Number.NaN, path: ['a', 'b', 'c'] },
+          { value: 0, path: ['a', 'b', 'd'] },
+        ]),
+    ],
+    [
+      'bootstrapCI',
+      'bootstrapCI([1, 2, 3], { clusters: [1, 2] })',
+      (s) => s.bootstrapCI([1, 2, 3], { clusters: [1, 2] }),
+    ],
+    [
+      'bootstrapCI',
+      'bootstrapCI([1, 2, 3], { iterations: 2.5 })',
+      (s) => s.bootstrapCI([1, 2, 3], { iterations: 2.5 }),
+    ],
+    [
+      'benjaminiHochberg',
+      'benjaminiHochberg([0.01, 0.2], 1.5)',
+      (s) => s.benjaminiHochberg([0.01, 0.2], 1.5),
+    ],
+    [
+      'krippendorffAlpha',
+      "krippendorffAlpha([[1, 2], [1, 2]], { level: 'ratio' as never })",
+      (s) =>
+        s.krippendorffAlpha(
+          [
+            [1, 2],
+            [1, 2],
+          ],
+          { level: 'ratio' as never },
+        ),
+    ],
+    [
+      'cohenKappa',
+      "cohenKappa(['a'], ['a'], { weights: 'cubic' as never })",
+      (s) => s.cohenKappa(['a'], ['a'], { weights: 'cubic' as never }),
+    ],
+    [
+      'ksTest',
+      "ksTest([1, 2], [3, 4], { method: 'magic' as never })",
+      (s) => s.ksTest([1, 2], [3, 4], { method: 'magic' as never }),
+    ],
+  ];
+  for (const [fn, text, run] of more) {
+    out.push({
+      fn,
+      name: `invalid-${text
+        .replace(/[^a-z0-9]+/gi, '-')
+        .toLowerCase()
+        .slice(0, 48)}`,
+      family: 'degenerate-domain',
+      tier: 2,
+      call: () => ({ text, run }),
+      expect: { kind: 'throws' },
+    });
+  }
   // Out of domain: a RangeError, or the scipy limit at the edge.
   const value = (want: string, test: (v: unknown) => boolean): Expect => ({ kind: 'value', want, test });
   const domain: Array<[string, string, (s: StatsImpl) => unknown, Expect]> = [
