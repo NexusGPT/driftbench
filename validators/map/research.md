@@ -49,3 +49,15 @@ Sources read:
 What others do: draft 6 turned exclusiveMinimum and exclusiveMaximum from booleans that modify minimum and maximum into numbers; tool files from older generators still carry the boolean form.
 
 What to try, and why: the tool pre-pass reads the draft-04 boolean exclusiveMinimum and exclusiveMaximum, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
+
+## Iteration 5
+
+Question: packages/generate/src/extract/tools.ts: typesOf returns no type for a property without type or properties, so a format or a minimum alone gives no partition; schema-keywords.format-without-type and minimum-without-type prove it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-validation sections 6.2 to 6.4 and 7.1 (each keyword applies to one instance type)
+* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/research/testgen/dossier-specification.md (source 6: Schemathesis reads the schema as written, edge cases included)
+
+What others do: a keyword constrains only its own instance type, so a schema with minimum and no type constrains numbers; a generator can treat the keyword as stating that type.
+
+What to try, and why: the tool pre-pass infers a property's type from its keywords when the schema states none, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
