@@ -53,6 +53,23 @@ describe('budget', () => {
     expect(verdict(over, 'budget.steps').outcome).toBe('fail');
   });
 
+  it('does not count the agent process (role agent) as a step', async () => {
+    const commands = Array.from({ length: 20 }, (_, index) => ({
+      command: `step ${index}`,
+      role: 'command' as const,
+      exitCode: 0,
+    }));
+    const agent = { command: 'acme-ops', role: 'agent' as const, exitCode: 0 };
+    const verdicts = await run(
+      budget,
+      context(task, 0, observed('Built.', [], { executions: [...commands, agent] })),
+    );
+    expect(verdict(verdicts, 'budget.steps')).toMatchObject({
+      outcome: 'pass',
+      evidence: '20 steps (0 tool calls, 20 commands), at most 20',
+    });
+  });
+
   it('sums segment costs when the block reports none, and is inconclusive when nothing reports a cost', async () => {
     const parts = observed(reply);
     parts.cost = {};

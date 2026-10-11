@@ -15,7 +15,7 @@ export {
   defaultRegistry,
   registerCheck,
 } from './checks/custom';
-export { compareEndState, type EndStateDiff, endState } from './checks/end_state';
+export { endState } from './checks/end_state';
 export { execution } from './checks/execution';
 export { forbidden } from './checks/forbidden';
 export { guards } from './checks/guards';

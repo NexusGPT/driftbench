@@ -1,4 +1,5 @@
 import { type Check, machineVerdict, type Observed, type Verdict } from '@driftbench/core';
+import { commandsOf } from '../support/executions';
 
 const NAME = 'budget';
 
@@ -7,7 +8,7 @@ const NAME = 'budget';
  *
  * A step is one action of the agent: a tool call or a command. A runtime that records a command both as a
  * tool call and as an execution would count it twice, so the steps are the larger of the two lists, not
- * their sum. The cost is `observed.cost.usd`, or the sum of the segment costs when only those are
+ * their sum. The agent's own process (an execution with role `agent`) is not a step. The cost is `observed.cost.usd`, or the sum of the segment costs when only those are
  * reported; with neither, the cost verdict is inconclusive and does not gate.
  */
 export const budget: Check = {
@@ -23,7 +24,7 @@ export const budget: Check = {
 
     if (limits.steps !== undefined) {
       const calls = observed.toolCalls.length;
-      const commands = observed.executions?.length ?? 0;
+      const commands = commandsOf(observed.executions ?? []).length;
       const steps = Math.max(calls, commands);
       verdicts.push(
         machineVerdict(

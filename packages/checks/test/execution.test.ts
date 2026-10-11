@@ -63,4 +63,47 @@ describe('execution', () => {
     const blind = await run(execution, context(task, 0, observed(built)));
     expect(blind.map((item) => item.outcome)).toEqual(['inconclusive', 'inconclusive', 'inconclusive']);
   });
+
+  describe('as the process adapter reports a block: the commands, then the agent process last (role agent)', () => {
+    const agent: ExecutionRecord = {
+      command: 'acme-ops --task driftbench-stimulus.txt',
+      role: 'agent',
+      exitCode: 0,
+    };
+    const reported = runs.map((record): ExecutionRecord => ({ ...record, role: 'command' }));
+
+    it('passes block 0 of acme-price-sheet: the agent process is neither code run nor a command', async () => {
+      const verdicts = await run(
+        execution,
+        context(task, 0, observed(built, [], { executions: [...reported, agent] })),
+      );
+      expect(outcomes(verdicts)).toEqual({
+        'execution.ran_code': 'pass',
+        'execution.exit_code': 'pass',
+        'execution.max_commands': 'pass',
+      });
+      expect(verdict(verdicts, 'execution.max_commands').evidence).toMatch(/^3 commands ran: /);
+    });
+
+    it('mutation: the agent reports no command; ran_code fails although the agent process ran', async () => {
+      const verdicts = await run(execution, context(task, 0, observed(built, [], { executions: [agent] })));
+      expect(verdict(verdicts, 'execution.ran_code')).toMatchObject({
+        outcome: 'fail',
+        evidence: 'ran_code true expected; no command ran; the agent process exited with 0',
+      });
+      expect(verdict(verdicts, 'execution.exit_code').evidence).toBe(
+        'the agent reported no command; the agent process exited with 0, 0 expected',
+      );
+    });
+
+    it('mutation: the last command fails while the agent process exits 0; exit_code reads the command', async () => {
+      const failed = [...reported.slice(0, 2), { ...(reported[2] as ExecutionRecord), exitCode: 2 }, agent];
+      const verdicts = await run(execution, context(task, 0, observed(built, [], { executions: failed })));
+      expect(verdict(verdicts, 'execution.exit_code')).toMatchObject({
+        outcome: 'fail',
+        evidence:
+          'the last command "python check_sheet.py out/acme-price-sheet.xlsx" exited with 2, 0 expected; the agent process exited with 0',
+      });
+    });
+  });
 });

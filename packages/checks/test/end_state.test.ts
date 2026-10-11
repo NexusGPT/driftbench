@@ -61,6 +61,12 @@ describe('end_state', () => {
     expect(verdict(extra, 'end_state.port_number').evidence).toBe(
       'tool:order.create port_number is "+12025550150", a field the exact end state does not list',
     );
+    expect(compareEndState(upgrade.end_state ?? 'none', { ...payload, port_number: '+12025550150' })).toEqual(
+      {
+        match: false,
+        diff: [{ field: 'port_number', expected: { absent: true }, observed: '+12025550150' }],
+      },
+    );
   });
 
   it('fails when nothing was read from the source', async () => {
@@ -71,19 +77,31 @@ describe('end_state', () => {
     expect(verdicts[0]?.evidence).toMatch(/^tool:order\.create: nothing was read/);
   });
 
-  it('none: acme-off-topic-return passes with nothing recorded and fails on a recorded order', async () => {
+  it('none: acme-off-topic-return passes on an empty payload list (source *), absent, null or empty', async () => {
     const spec = acme('acme-off-topic-return');
-    expect(outcomes(await run(endState, context(spec, last(spec), observed('ok'))))).toEqual({
-      'end_state.none': 'pass',
-    });
+    for (const recorded of [undefined, null, [], {}]) {
+      const verdicts = await run(endState, context(spec, last(spec), observed('ok'), { endState: recorded }));
+      expect(outcomes(verdicts), JSON.stringify(recorded)).toEqual({ 'end_state.none': 'pass' });
+    }
+  });
+
+  it('mutation: acme-off-topic-return records an order; end_state none fails and names the first payload', async () => {
+    const spec = acme('acme-off-topic-return');
+    const callback = { reason: 'callback', customer: { phone: '+12025550131' } };
     const submitted = await run(
       endState,
-      context(spec, last(spec), observed('ok'), { endState: { 'tool:order.create': order } }),
+      context(spec, last(spec), observed('ok'), { endState: [order, callback] }),
     );
     expect(outcomes(submitted)).toEqual({ 'end_state.none': 'fail' });
     expect(verdict(submitted, 'end_state.none').evidence).toMatch(
-      /^end_state is none, but the adapter recorded tool:order\.create \{"type":"new"/,
+      /^end_state is none, but the adapter recorded 2 payloads; the first: \{"type":"new","plan_id":"fiber-1000"/,
     );
+    expect(compareEndState('none', [order])).toEqual({
+      match: false,
+      diff: [{ field: '*', expected: [], observed: [order] }],
+    });
+    const empty = await run(endState, context(spec, last(spec), observed('ok'), { endState: [{}] }));
+    expect(outcomes(empty)).toEqual({ 'end_state.none': 'fail' });
   });
 
   it('a list of end states reads a record keyed by source', async () => {
@@ -102,8 +120,11 @@ describe('end_state', () => {
     });
   });
 
-  it('runs only on the last block of a T or F run', () => {
+  it('runs only on the last spec block of a T or F run, found by identity whatever the run position', () => {
     expect(endState.applies(context(loose, 1, observed('ok'), { endState: order }))).toBe(false);
+    expect(
+      endState.applies(context(loose, last(loose), observed('ok'), { blockIndex: last(loose) + 1 })),
+    ).toBe(true);
     expect(
       endState.applies(context(loose, last(loose), observed('ok'), { endState: order, mode: 'P' })),
     ).toBe(false);
