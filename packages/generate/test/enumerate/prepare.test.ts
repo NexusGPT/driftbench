@@ -21,6 +21,12 @@ describe('prepareMap', () => {
     expect(prepared.phrases.map((phrase) => phrase.text)).not.toContain('This is the branch desk.');
     expect(prepared.phrases.map((phrase) => phrase.text)).not.toContain('Sent from my mail.');
     expect(prepared.phrases).toHaveLength(7);
+    // The axis map, which coverage is counted on, drops them too.
+    const axis = prepared.axisMap.dimensions.find((dimension) => dimension.id === 'user');
+    expect(axis?.values.map((value) => value.id)).toEqual(['customer']);
+    expect(prepared.axisMap.constraints.map((entry) => entry.reason)).toEqual([
+      'the card flow never reaches help',
+    ]);
   });
 
   it('hashes what the seeders read, so an approval changes the hash', () => {
