@@ -5,7 +5,6 @@ import {
   BILLED_APPROVAL,
   bankShape,
   billedMode,
-  hardness,
   judgesBank,
   judgesLadderV2,
   LEVELS,
@@ -92,32 +91,9 @@ describe('the judges bank, ladder version 2', () => {
     expect(run.failing?.items.every((entry) => entry.id.startsWith('rubric/'))).toBe(true);
     expect(run.rows.slice(at + 1).every((row) => row.pass === null)).toBe(true);
     expect(run.rows.every((row) => row.threshold === 1)).toBe(true);
+    expect(judgesLadderV2({ api: witnessApi() }).version).toBe(2);
+    const banked = run.rows[at]?.bank ?? [];
+    expect(banked.length).toBe(judgesBank().filter((entry) => entry.level === 'rubric').length);
+    expect(banked.every((entry) => entry.family === 'rubric' && entry.tier !== undefined)).toBe(true);
   }, 120_000);
-
-  it('forecasts iterations from the pilot and holds the gate of section 12.4', () => {
-    const rows = [
-      { iteration: 0, score: 0.3, passing: 150, size: 500 },
-      ...Array.from({ length: 10 }, (_, i) => ({
-        iteration: i + 1,
-        score: (150 + 2 * (i + 1)) / 500,
-        passing: 150 + 2 * (i + 1),
-        size: 500,
-      })),
-    ];
-    const h = hardness(rows);
-    expect(h.fixedPerIteration).toBe(2);
-    expect(h.remaining).toBe(330);
-    expect(h.forecast).toBe(165);
-    expect(h.gate).toEqual({ forecast: true, score: true, holds: true });
-    const fast = hardness([
-      rows[0] as (typeof rows)[number],
-      { iteration: 1, score: 0.9, passing: 450, size: 500 },
-    ]);
-    expect(fast.gate.holds).toBe(false);
-    const stuck = hardness([
-      rows[0] as (typeof rows)[number],
-      { iteration: 1, score: 0.3, passing: 150, size: 500 },
-    ]);
-    expect(stuck.gate.forecast).toBe(false);
-  });
 });

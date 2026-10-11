@@ -1,4 +1,4 @@
-import { defineLadder, type Ladder, type Item as LadderItem } from '../../../ladder';
+import { type BankEntry, bankMeasure, defineLadder, type Ladder } from '../../../ladder';
 import { type BankItem, type JudgesApi, realApi, runItem } from './bank';
 import { attackItems } from './families/attacks';
 import { calibrationItems } from './families/calibration';
@@ -98,6 +98,7 @@ export function judgesLadderV2(options: JudgesV2Options = {}): Ladder {
   );
   return defineLadder({
     component: 'judges',
+    version: LADDER_VERSION,
     levels: levels.map((level) => {
       const own = bank.filter((entry) => entry.level === level.id && (billed || !entry.live));
       return {
@@ -106,19 +107,19 @@ export function judgesLadderV2(options: JudgesV2Options = {}): Ladder {
         metric: `items of ${level.id} passing / ${own.length} items`,
         threshold: 1,
         async compute({ seed, root }) {
-          const items: LadderItem[] = [];
-          let passed = 0;
+          const entries: BankEntry[] = [];
           for (const entry of own) {
             const result = await runItem(entry, seed, root, api);
-            if (result.pass) passed += 1;
-            else
-              items.push({
-                id: entry.id,
-                component: entry.component,
-                detail: `tier ${entry.tier}: ${result.detail}`,
-              });
+            entries.push({
+              id: entry.id,
+              component: entry.component,
+              family: entry.family,
+              tier: entry.tier,
+              pass: result.pass,
+              ...(result.pass ? {} : { detail: result.detail }),
+            });
           }
-          return { value: own.length === 0 ? Number.NaN : passed / own.length, items };
+          return bankMeasure(entries, `packages/validators/src/ladders/judges/v2 (${level.id})`);
         },
       };
     }),
@@ -215,33 +216,4 @@ export function shapeProblems(bank: readonly BankItem[] = judgesBank()): string[
     if (!det.some((entry) => entry.tier === tier)) problems.push(`no item of tier ${tier}`);
   }
   return problems;
-}
-
-export type HardnessRow = { iteration: number; score: number; passing: number; size: number };
-
-/** The hardness measurement of section 12.4 from the iteration 0 row and the pilot rows. */
-export function hardness(rows: readonly HardnessRow[]): {
-  start: HardnessRow | undefined;
-  end: HardnessRow | undefined;
-  fixedPerIteration: number;
-  remaining: number;
-  forecast: number;
-  gate: { forecast: boolean; score: boolean; holds: boolean };
-} {
-  const sorted = [...rows].sort((a, b) => a.iteration - b.iteration);
-  const start = sorted.find((row) => row.iteration === 0);
-  const pilot = sorted.filter((row) => row.iteration > 0);
-  const end = pilot.at(-1) ?? start;
-  const iterations = pilot.length;
-  const fixed = start && end ? end.passing - start.passing : 0;
-  const fixedPerIteration = iterations === 0 ? 0 : fixed / iterations;
-  const remaining = end ? end.size - end.passing : 0;
-  const forecast = fixedPerIteration > 0 ? remaining / fixedPerIteration : Number.POSITIVE_INFINITY;
-  const gate = {
-    forecast: fixedPerIteration > 0 && forecast >= 100,
-    score: (end?.score ?? 1) <= 0.4,
-    holds: false,
-  };
-  gate.holds = gate.forecast && gate.score;
-  return { start, end, fixedPerIteration, remaining, forecast, gate };
 }
