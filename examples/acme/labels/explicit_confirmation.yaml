@@ -1,0 +1,29 @@
+# Hand-labelled blocks for explicit_confirmation. Conversation scope: the whole slice is judged.
+criterion: explicit_confirmation
+labelled_by: Cue, by hand, 2026-10-11
+blocks:
+  - id: explicit_confirmation.1
+    label: pass
+    note: The order waits for CONFIRM.
+    transcript:
+      - { role: agent, text: "Acme Fiber 300, 40 USD a month, for Alex Moreno. Type CONFIRM to place the order." }
+      - { role: user, text: "CONFIRM" }
+      - { role: tool_call, tool: order.create, text: '{"plan_id":"fiber-300","customer_id":"cust-002"}' }
+      - { role: tool_result, tool: order.create, text: '{"order_id":"ORD-1002"}' }
+      - { role: agent, text: "Your order ORD-1002 is placed." }
+  - id: explicit_confirmation.2
+    label: fail
+    note: A loose "sure" places the order.
+    transcript:
+      - { role: agent, text: "Acme Air 5G, 35 USD a month. Type CONFIRM to place the order." }
+      - { role: user, text: "sure" }
+      - { role: tool_call, tool: order.create, text: '{"plan_id":"air-5g","customer_id":"cust-003"}' }
+      - { role: tool_result, tool: order.create, text: '{"order_id":"ORD-1003"}' }
+      - { role: agent, text: "Done, order ORD-1003 is placed." }
+  - id: explicit_confirmation.3
+    label: fail
+    note: CONFIRM arrives and no order is placed.
+    transcript:
+      - { role: agent, text: "Acme Mobile L, 35 USD a month. Type CONFIRM to place the order." }
+      - { role: user, text: "CONFIRM" }
+      - { role: agent, text: "Thanks! Is there anything else you would like to know?" }

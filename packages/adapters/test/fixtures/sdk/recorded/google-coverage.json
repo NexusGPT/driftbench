@@ -1,0 +1,418 @@
+{
+  "source": "@google/genai 2.28.0, models.generateContent, recorded 2026-10-11 through the real client with a fake fetch; REST bodies; fictional Acme values",
+  "exchanges": [
+    {
+      "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-fake-acme:generateContent",
+      "request": {
+        "contents": [
+          {
+            "parts": [
+              {
+                "text": "Hi, do you have home internet at 3 Orchard Way, Acmeville?"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "systemInstruction": {
+          "parts": [
+            {
+              "text": "You are the Acme Telecom sales assistant."
+            }
+          ],
+          "role": "user"
+        },
+        "tools": [
+          {
+            "functionDeclarations": [
+              {
+                "name": "catalog.search",
+                "description": "Plans of a category (mobile or home), the ones available at an address, and the customer plan.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "coverage.check",
+                "description": "Fiber and 5G coverage at a street address.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "port.check",
+                "description": "Whether a phone number can move to Acme.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "order.create",
+                "description": "Places an order: a new line, a home plan, an upgrade or a port.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "notify_sales",
+                "description": "Sends a lead to the sales team.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            ]
+          }
+        ],
+        "generationConfig": {}
+      },
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "functionCall": {
+                    "id": "fc_fake_1",
+                    "name": "coverage.check",
+                    "args": {
+                      "address": "3 Orchard Way, Acmeville"
+                    }
+                  },
+                  "thoughtSignature": "sig-fake-1"
+                }
+              ]
+            },
+            "finishReason": "STOP",
+            "index": 0
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 25,
+          "candidatesTokenCount": 35,
+          "totalTokenCount": 60
+        },
+        "modelVersion": "gemini-fake-acme",
+        "responseId": "resp-fake-1"
+      }
+    },
+    {
+      "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-fake-acme:generateContent",
+      "request": {
+        "contents": [
+          {
+            "parts": [
+              {
+                "text": "Hi, do you have home internet at 3 Orchard Way, Acmeville?"
+              }
+            ],
+            "role": "user"
+          },
+          {
+            "parts": [
+              {
+                "functionCall": {
+                  "args": {
+                    "address": "3 Orchard Way, Acmeville"
+                  },
+                  "id": "fc_fake_1",
+                  "name": "coverage.check"
+                },
+                "thoughtSignature": "sig-fake-1"
+              }
+            ],
+            "role": "model"
+          },
+          {
+            "parts": [
+              {
+                "functionResponse": {
+                  "id": "fc_fake_1",
+                  "name": "coverage.check",
+                  "response": {
+                    "output": {
+                      "found": true,
+                      "address_id": "addr-102",
+                      "address": "3 Orchard Way, Acmeville",
+                      "fiber_mbps": 300,
+                      "five_g": true
+                    }
+                  }
+                }
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "systemInstruction": {
+          "parts": [
+            {
+              "text": "You are the Acme Telecom sales assistant."
+            }
+          ],
+          "role": "user"
+        },
+        "tools": [
+          {
+            "functionDeclarations": [
+              {
+                "name": "catalog.search",
+                "description": "Plans of a category (mobile or home), the ones available at an address, and the customer plan.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "coverage.check",
+                "description": "Fiber and 5G coverage at a street address.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "port.check",
+                "description": "Whether a phone number can move to Acme.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "order.create",
+                "description": "Places an order: a new line, a home plan, an upgrade or a port.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "notify_sales",
+                "description": "Sends a lead to the sales team.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            ]
+          }
+        ],
+        "generationConfig": {}
+      },
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "functionCall": {
+                    "id": "fc_fake_2",
+                    "name": "catalog.search",
+                    "args": {
+                      "category": "home",
+                      "address_id": "addr-102"
+                    }
+                  },
+                  "thoughtSignature": "sig-fake-2"
+                }
+              ]
+            },
+            "finishReason": "STOP",
+            "index": 0
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 121,
+          "candidatesTokenCount": 36,
+          "totalTokenCount": 157
+        },
+        "modelVersion": "gemini-fake-acme",
+        "responseId": "resp-fake-2"
+      }
+    },
+    {
+      "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-fake-acme:generateContent",
+      "request": {
+        "contents": [
+          {
+            "parts": [
+              {
+                "text": "Hi, do you have home internet at 3 Orchard Way, Acmeville?"
+              }
+            ],
+            "role": "user"
+          },
+          {
+            "parts": [
+              {
+                "functionCall": {
+                  "args": {
+                    "address": "3 Orchard Way, Acmeville"
+                  },
+                  "id": "fc_fake_1",
+                  "name": "coverage.check"
+                },
+                "thoughtSignature": "sig-fake-1"
+              }
+            ],
+            "role": "model"
+          },
+          {
+            "parts": [
+              {
+                "functionResponse": {
+                  "id": "fc_fake_1",
+                  "name": "coverage.check",
+                  "response": {
+                    "output": {
+                      "found": true,
+                      "address_id": "addr-102",
+                      "address": "3 Orchard Way, Acmeville",
+                      "fiber_mbps": 300,
+                      "five_g": true
+                    }
+                  }
+                }
+              }
+            ],
+            "role": "user"
+          },
+          {
+            "parts": [
+              {
+                "functionCall": {
+                  "args": {
+                    "category": "home",
+                    "address_id": "addr-102"
+                  },
+                  "id": "fc_fake_2",
+                  "name": "catalog.search"
+                },
+                "thoughtSignature": "sig-fake-2"
+              }
+            ],
+            "role": "model"
+          },
+          {
+            "parts": [
+              {
+                "functionResponse": {
+                  "id": "fc_fake_2",
+                  "name": "catalog.search",
+                  "response": {
+                    "output": {
+                      "plans": [
+                        {
+                          "id": "fiber-300",
+                          "name": "Acme Fiber 300",
+                          "category": "home",
+                          "monthly_usd": 40,
+                          "speed_mbps": 300,
+                          "access": "fiber"
+                        },
+                        {
+                          "id": "air-5g",
+                          "name": "Acme Air 5G",
+                          "category": "home",
+                          "monthly_usd": 35,
+                          "speed_mbps": 200,
+                          "access": "5g"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "systemInstruction": {
+          "parts": [
+            {
+              "text": "You are the Acme Telecom sales assistant."
+            }
+          ],
+          "role": "user"
+        },
+        "tools": [
+          {
+            "functionDeclarations": [
+              {
+                "name": "catalog.search",
+                "description": "Plans of a category (mobile or home), the ones available at an address, and the customer plan.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "coverage.check",
+                "description": "Fiber and 5G coverage at a street address.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "port.check",
+                "description": "Whether a phone number can move to Acme.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "order.create",
+                "description": "Places an order: a new line, a home plan, an upgrade or a port.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "name": "notify_sales",
+                "description": "Sends a lead to the sales team.",
+                "parametersJsonSchema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            ]
+          }
+        ],
+        "generationConfig": {}
+      },
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "Hi, I'm the Acme Telecom sales assistant. Good news: 3 Orchard Way, Acmeville has fiber up to 300 Mbps. Plans available there: Acme Fiber 300, 300 Mbps for $40 a month; Acme Air 5G, up to 200 Mbps for $35 a month. Which one would you like: Acme Fiber 300 or Acme Air 5G?"
+                }
+              ]
+            },
+            "finishReason": "STOP",
+            "index": 0
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 248,
+          "candidatesTokenCount": 71,
+          "totalTokenCount": 319
+        },
+        "modelVersion": "gemini-fake-acme",
+        "responseId": "resp-fake-3"
+      }
+    }
+  ]
+}

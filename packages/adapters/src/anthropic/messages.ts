@@ -1,0 +1,137 @@
+import type { Message } from '@driftbench/core';
+import { outputText, type WireNames } from './common';
+
+/**
+ * The slice of the Anthropic Messages API the adapter speaks, mirrored from `@anthropic-ai/sdk` 0.133.0
+ * (`client.messages.create(body)`, a `Message` answer). Only the fields the adapter writes or reads are
+ * named; the real client and its types fit these shapes.
+ */
+
+export type AnthropicTextBlock = { type: 'text'; text: string };
+export type AnthropicToolUseBlock = { type: 'tool_use'; id: string; name: string; input: unknown };
+export type AnthropicToolResultBlock = {
+  type: 'tool_result';
+  tool_use_id: string;
+  content: string;
+  is_error?: boolean;
+};
+
+/** A block of a message the adapter sends: text, a tool call it replays, or a tool result. */
+export type AnthropicBlockParam = AnthropicTextBlock | AnthropicToolUseBlock | AnthropicToolResultBlock;
+
+export type AnthropicMessageParam = {
+  role: 'user' | 'assistant';
+  /** What the adapter writes is a list of blocks; an answer's own content goes back as it came. */
+  content: AnthropicBlockParam[] | readonly unknown[];
+};
+
+export type AnthropicToolParam = {
+  name: string;
+  description?: string;
+  input_schema: Record<string, unknown>;
+};
+
+/** The body of one `messages.create` call. */
+export type AnthropicCreateParams = {
+  model: string;
+  max_tokens: number;
+  messages: AnthropicMessageParam[];
+  system?: string;
+  tools?: AnthropicToolParam[];
+};
+
+/** The answer of one call: content blocks (text, tool_use, and others the adapter passes through), a stop reason, usage. */
+export type AnthropicMessage = {
+  id?: string;
+  type?: string;
+  role?: string;
+  model?: string;
+  content: readonly { type: string; text?: string; id?: string; name?: string; input?: unknown }[];
+  stop_reason: string | null;
+  usage?: { input_tokens?: number | null; output_tokens?: number | null } | null;
+};
+
+/** The client the adapter calls: `new Anthropic()` from `@anthropic-ai/sdk`, or a fake with the same shape. */
+export type AnthropicClientLike = {
+  messages: {
+    create(body: AnthropicCreateParams, options?: { signal?: AbortSignal }): PromiseLike<AnthropicMessage>;
+  };
+};
+
+/** Tool names the Messages API accepts: letters, digits, underscore and dash, 64 at most. */
+export const ANTHROPIC_NAME = /[a-zA-Z0-9_-]/;
+/** Tool use ids the Messages API accepts, the same characters. */
+const ID_CHARS = /[^a-zA-Z0-9_-]/g;
+
+/**
+ * The session history as Messages API messages, in the order things happened.
+ *
+ * - A system message joins the `system` text; the API takes no system role in the list.
+ * - A user message, and a `tool` message (a free tool note with no call id), become user text.
+ * - An assistant message with recorded tool calls becomes the assistant's `tool_use` blocks, then a user
+ *   message of `tool_result` blocks (the output as JSON text, an error with `is_error`), then the reply
+ *   text, when there is one.
+ * - Messages of the same role in a row merge into one, so roles alternate as the API expects; a user
+ *   message keeps its `tool_result` blocks first.
+ */
+export function toAnthropicMessages(
+  history: readonly Message[],
+  names: WireNames,
+): { messages: AnthropicMessageParam[]; system: string[] } {
+  const system: string[] = [];
+  const messages: { role: 'user' | 'assistant'; content: AnthropicBlockParam[] }[] = [];
+  let unnamed = 0;
+  const push = (role: 'user' | 'assistant', blocks: AnthropicBlockParam[]) => {
+    if (blocks.length === 0) return;
+    const last = messages.at(-1);
+    if (last?.role === role) last.content.push(...blocks);
+    else messages.push({ role, content: [...blocks] });
+  };
+  const text = (value: string): AnthropicTextBlock[] => (value === '' ? [] : [{ type: 'text', text: value }]);
+
+  for (const message of history) {
+    if (message.role === 'system') {
+      if (message.content !== '') system.push(message.content);
+      continue;
+    }
+    if (message.role === 'user' || message.role === 'tool') {
+      push('user', text(message.content));
+      continue;
+    }
+    const recorded = message.tool_calls ?? [];
+    if (recorded.length > 0) {
+      const ids = recorded.map((call) => toolUseId(call.id, ++unnamed));
+      push(
+        'assistant',
+        recorded.map((call, index) => ({
+          type: 'tool_use',
+          id: ids[index] as string,
+          name: names.wire(call.label),
+          input: call.input ?? {},
+        })),
+      );
+      push(
+        'user',
+        recorded.map(
+          (call, index): AnthropicToolResultBlock =>
+            call.error !== undefined
+              ? {
+                  type: 'tool_result',
+                  tool_use_id: ids[index] as string,
+                  content: call.error,
+                  is_error: true,
+                }
+              : { type: 'tool_result', tool_use_id: ids[index] as string, content: outputText(call.output) },
+        ),
+      );
+    }
+    push('assistant', text(message.content));
+  }
+  return { messages, system };
+}
+
+/** A recorded call id as a tool use id the API accepts; a call recorded with none gets one. */
+function toolUseId(id: string | undefined, n: number): string {
+  const cleaned = id?.replace(ID_CHARS, '_');
+  return cleaned === undefined || cleaned === '' ? `toolu_h${n}` : cleaned;
+}

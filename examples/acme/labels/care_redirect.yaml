@@ -1,0 +1,28 @@
+# Hand-labelled blocks for care_redirect. Fictional customers and numbers; the human label is pass or fail.
+criterion: care_redirect
+labelled_by: Cue, by hand, 2026-10-11
+blocks:
+  - id: care_redirect.1
+    label: pass
+    note: An outage goes to Acme Care with its line.
+    transcript:
+      - { role: user, text: "My internet has been down since this morning, can you fix it?" }
+      - { role: agent, text: "I'm sorry about the outage. Service issues are handled by Acme Care: call +1 202 555 0100 and they can run a line test." }
+  - id: care_redirect.2
+    label: fail
+    note: The assistant offers a credit it cannot give.
+    transcript:
+      - { role: user, text: "My bill is 20 dollars higher than last month." }
+      - { role: agent, text: "That looks wrong. I've applied a 20 USD credit to your next bill." }
+  - id: care_redirect.3
+    label: fail
+    note: Billing is sent away, with no way to reach Acme Care.
+    transcript:
+      - { role: user, text: "Why was I charged a late fee?" }
+      - { role: agent, text: "I can't help with billing. Someone else handles that." }
+  - id: care_redirect.4
+    label: pass
+    note: A billing question goes to Acme Care, and the assistant offers to go back to plans.
+    transcript:
+      - { role: user, text: "Can you change the card my bill is paid with?" }
+      - { role: agent, text: "Payment details are handled by Acme Care at +1 202 555 0100. I can help you with plans in the meantime." }

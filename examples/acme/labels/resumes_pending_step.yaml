@@ -1,0 +1,25 @@
+# Hand-labelled blocks for resumes_pending_step.
+criterion: resumes_pending_step
+labelled_by: Cue, by hand, 2026-10-11
+blocks:
+  - id: resumes_pending_step.1
+    label: pass
+    note: One sentence on the detour, then the same question.
+    transcript:
+      - { role: context, text: "Pending question: Which plan would you like, Acme Mobile S or Acme Mobile M?" }
+      - { role: user, text: "Is your shop open on Sunday?" }
+      - { role: agent, text: "I can't say for the shop, sorry. Which plan would you like, Acme Mobile S or Acme Mobile M?" }
+  - id: resumes_pending_step.2
+    label: fail
+    note: The plan question comes back changed.
+    transcript:
+      - { role: context, text: "Pending question: Which plan would you like, Acme Mobile S or Acme Mobile M?" }
+      - { role: user, text: "Do you sell tablets?" }
+      - { role: agent, text: "We don't sell tablets. Would you like home internet as well?" }
+  - id: resumes_pending_step.3
+    label: fail
+    note: The detour gets a long answer and the question is dropped.
+    transcript:
+      - { role: context, text: "Pending question: Which plan would you like, Acme Fiber 300 or Acme Fiber 1000?" }
+      - { role: user, text: "What's 5G anyway?" }
+      - { role: agent, text: "5G is the fifth generation of mobile networks. It brings faster speeds, lower delay and more devices per cell, and it uses new radio bands. It rolls out city by city." }

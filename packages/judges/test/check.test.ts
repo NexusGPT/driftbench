@@ -127,6 +127,26 @@ describe('judgeCheck', () => {
     expect(judges[0]?.requests[0]?.artifact).toBe('Mobile\nAcme Mobile S,15');
   });
 
+  it('judges a criterion calibration left unassigned, and never lets it gate', async () => {
+    const judges = [
+      ...['a', 'b', 'c'].map((id) => new FakeJudge(id, [FAIL], { cls: 'system1', family: 'lab-one' })),
+      ...['x', 'y', 'z'].map((id) => new FakeJudge(id, [FAIL], { cls: 'system2', family: 'lab-two' })),
+    ];
+    const c = createCouncil({
+      mode: 'hybrid',
+      judges,
+      agentFamily: 'none',
+      unassigned: [{ criterion: 'no_invented_data', reason: 'no class has 3 judges at the bar' }],
+    });
+    const [one, invented] = await judgeCheck(c).evaluate(
+      context(['one_question_per_turn@gating', 'no_invented_data@gating']),
+    );
+    expect(one).toMatchObject({ gating: true, outcome: 'fail' });
+    expect(invented).toMatchObject({ gating: false, outcome: 'fail' });
+    expect(invented?.evidence).toMatch(/^unassigned by calibration, not gating: no class has 3 judges/);
+    expect(Verdict.safeParse(invented).success).toBe(true);
+  });
+
   it('gives an inconclusive verdict, not a pass, for a criterion the spec does not define', async () => {
     const [verdict] = await judgeCheck(council(PASS, PASS).council).evaluate(context(['made_up@gating']));
     expect(verdict).toMatchObject({ id: 'judge.made_up', outcome: 'inconclusive', gating: true });

@@ -28,7 +28,7 @@ export { skills } from './checks/skills';
 export { stage } from './checks/stage';
 export { tools } from './checks/tools';
 export { workspace } from './checks/workspace';
-export { type DefaultChecksOptions, defaultChecks } from './defaults';
+export { type DefaultChecksOptions, defaultChecks, type JudgeCheckSource } from './defaults';
 export { type AssertionResult, checkAssertion } from './support/assert';
 export { countAllows, describeCount } from './support/count';
 export { DETECT_DEFAULTS, type DetectOptions, detect, toDetectorCode } from './support/language';

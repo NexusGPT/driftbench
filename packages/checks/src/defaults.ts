@@ -17,15 +17,25 @@ import { stage } from './checks/stage';
 import { tools } from './checks/tools';
 import { workspace } from './checks/workspace';
 
+/**
+ * What judges the criteria a block names: a council of @driftbench/judges (its `check()` makes the
+ * `judge` check), or any object that makes a check the same way. The checks package does not depend on
+ * the judges package; it only asks the council for its check.
+ */
+export type JudgeCheckSource = { check(): Check };
+
 export type DefaultChecksOptions = {
   /** Where `rules.custom` names are resolved. The default registry when absent. */
   registry?: CheckRegistry;
+  /** The judge council. Its check runs after every machine check. No council: no judge check. */
+  judges?: JudgeCheckSource;
 };
 
 /**
  * Every machine check, in the order the runner applies them: what the agent called, what it said, what its
  * runtime did, what it changed in its workspace, then budget, end state and the checks users register.
- * The list is new on each call; the checks themselves hold no state.
+ * With `judges`, the council's `judge` check comes last, so judge verdicts sit beside the machine
+ * verdicts and never replace one. The list is new on each call; the checks themselves hold no state.
  */
 export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
   return [
@@ -47,5 +57,6 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     budget,
     endState,
     createCustomCheck(options.registry ?? defaultRegistry),
+    ...(options.judges ? [options.judges.check()] : []),
   ];
 }
