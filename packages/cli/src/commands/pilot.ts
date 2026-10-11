@@ -326,6 +326,7 @@ async function buildDesign(options: DesignFlags, io: Io): Promise<PilotDesign | 
       agent: map.prepared.agent,
       hash: map.prepared.hash,
       phrasesOf: map.prepared.phrasesOf,
+      binds: map.prepared.relations.binds,
     },
     suite,
     pilotOptions,

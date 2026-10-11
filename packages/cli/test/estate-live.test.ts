@@ -125,7 +125,7 @@ const LIVE = join(FIXTURE, 'generated/specs/live');
 
 /** One complete live spec per test type of the fixture's generated suite: the 14 of the proof. */
 const PROOF: Record<string, string> = {
-  guard_positive: 'guard_positive/estate.pairwise.296.yaml',
+  guard_positive: 'guard_positive/estate.pairwise.0142.yaml',
   journey: 'journey/estate.journey.03.yaml',
   misroute: 'misroute/estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker.yaml',
   obligation: 'obligation/estate.obligation.instruction.standing.tell-the-user-about-a-late.yaml',

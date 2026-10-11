@@ -104,7 +104,7 @@ Creates a campaign over the specs, runs every cell and prints one line per cell,
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
-Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass  5 blocks
@@ -125,7 +125,7 @@ The command exits 0. A failing cell lists the gating verdicts that did not pass,
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --target function:acme
 Note: acme-price-sheet names the process adapter; --target runs it on function:acme.
-Campaign c-334a2d1abc96: 1 cell, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-334a2d1abc96: 1 cell, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✗ acme-price-sheet · function:acme · F · repeat 0  fail  block 0 must.0, block 0 stage.reached, block 0 skills.xlsx, block 0 guards.no_destructive_ops.pass, block 0 execution.ran_code, block 0 execution.exit_code, block 0 execution.max_commands, block 0 workspace.created, block 0 workspace.changed, block 0 workspace.deleted, block 0 workspace.others_untouched, block 0 artifacts.out/acme-price-sheet.xlsx, block 1 stage.reached, block 1 skills.xlsx, block 1 guards.no_destructive_ops.pass, block 1 execution.ran_code, block 1 execution.exit_code, block 1 workspace.created, block 1 workspace.changed, block 1 workspace.deleted, block 1 workspace.others_untouched, block 1 artifacts.out/acme-price-sheet.xlsx
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -135,7 +135,7 @@ That command exits 1. The execution and workspace verdicts are inconclusive and 
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml
-Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -161,7 +161,7 @@ The store needs Node.js 22.13 or newer, for `node:sqlite`.
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --mode T,F,P --repeats 2 --store modes.db
-Campaign c-9d34273e590c: 44 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-9d34273e590c: 44 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · T · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · T · repeat 1  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
@@ -415,7 +415,7 @@ Runs the cells of a stored campaign that have no completed run, and reuses the o
 
 ```
 $ pnpm -s driftbench campaign resume c-3e6aff180724 --store acme.db
-Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass (reused)  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass (reused)  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass (reused)  5 blocks
@@ -512,7 +512,7 @@ The campaign record stores a budget of 0 when none was given. `resume` reads a s
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --repeats 2 --budget-usd 0
-Campaign c-7572a9cb7069: 2 cells, 4 at a time. Budget $0.00. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-7572a9cb7069: 2 cells, 4 at a time. Budget $0.00. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ! acme-plan-upgrade · function:acme · F · repeat 0  stopped  not started: the campaign spent $0.00 of its $0.00 budget
 ! acme-plan-upgrade · function:acme · F · repeat 1  stopped  not started: the campaign spent $0.00 of its $0.00 budget
 2 cells: 0 pass, 0 fail, 0 failed, 2 stopped by the budget. Spent $0.00.
@@ -604,7 +604,7 @@ With `mode: 'T'`, it prints:
 
 For each step the driver gives, the runner:
 
-1. resolves the block's Given. In mode T it closes the open session and starts from the block's canonical Given; a step the driver injects fails the run;
+1. resolves the block's Given. In mode T it closes the open session and starts from the block's canonical Given; on an adapter with a sandbox it keeps the session, so the block starts from the workspace the block before left, and replaces the history with the canonical prefix, unless the block writes its own `given.world.workspace`; a step the driver injects fails the run;
 2. appends the block's user messages to the session history, and sends the block through the adapter, opening a session first when none is open;
 3. reads the block again through `trace` when the adapter offers it, and keeps that read;
 4. checks the Observed as JSON against the schema, the form the cache and the store keep, and appends the agent's reply to the history;
@@ -622,7 +622,7 @@ The run starts from the spec's `given`: its ledger, world and vars. A block's ow
 
 A block's `given.prefix` ends the open session: the next send opens a new one, whose history is that prefix.
 
-In mode T every block opens its own session from its canonical Given: the ledger, world and vars the spec writes up to that block, and a prefix of the earlier blocks as the spec writes them. See [run modes](concepts/run-modes.md#teacher-forced).
+In mode T every block opens its own session from its canonical Given: the ledger, world and vars the spec writes up to that block, and a prefix of the earlier blocks as the spec writes them. On an adapter with a sandbox, a block that writes no `given.world.workspace` of its own keeps the session of the block before, with the canonical prefix as its history, so a task step finds the files the step before made. See [run modes](concepts/run-modes.md#teacher-forced).
 
 The resolved Given of a block holds the prefix (the run's history before the block), the ledger, the world, the vars and the target, and `hash`: the first 12 hex characters of the SHA-256 of the canonical JSON of those five. The block record keeps it as `givenHash`. See [Given, When, Then](concepts/given-when-then.md).
 
@@ -671,7 +671,7 @@ On the command line the store is the cache. A second campaign over the same spec
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
-Campaign c-868fb474970f: 12 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-868fb474970f: 12 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass (replayed from the cache)  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass (replayed from the cache)  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass (replayed from the cache)  5 blocks

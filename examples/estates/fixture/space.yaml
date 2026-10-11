@@ -1,6 +1,6 @@
 # The space map of approved.yaml: the situation axes of an estate and its approved axis atoms by kind.
 # Written by driftbench estate map; approve atoms in the estate map and write it again rather than editing this file.
-version: ab256ba636f4
+version: be2e7a0919cb
 agent: northwind
 dimensions:
   - id: ask_class
@@ -102,6 +102,9 @@ dimensions:
       - { id: instruction.invoice-reconcile.run-the-reconcile-script-and-show, title: Run the reconcile script and show its summary }
       - { id: instruction.invoice-reconcile.never-change-an-invoice-amount-report, title: Never change an invoice amount; report the difference }
       - { id: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50, title: Dispatch the ledger auditor above 50.00 EUR of difference }
+      - { id: instruction.invoice-reconcile.a-line-matches-on-article-code, title: A line matches on article code and quantity }
+      - { id: instruction.invoice-reconcile.under-0-05-eur-per-unit, title: Under 0.05 EUR per unit is rounding }
+      - { id: instruction.invoice-reconcile.an-invoice-line-with-no-order, title: 'An invoice line with no order line is an extra charge, listed apart' }
       - { id: instruction.shipment-tracker.ask-for-the-tracking-number-when, title: Ask for the tracking number when none is given }
       - { id: instruction.shipment-tracker.always-pass-the-carrier-code-to, title: Always pass the carrier code to the tracking script }
       - { id: instruction.shipment-tracker.late-means-past-the-promised-date, title: Late means past the promised date with no delivery scan }

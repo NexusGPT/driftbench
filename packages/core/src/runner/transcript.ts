@@ -36,6 +36,8 @@ function transcriptBlock(block: BlockResult): TranscriptBlock {
             skills: runtime.skills?.map((skill) => skill.name),
             guards: runtime.guards?.map((guard) => ({ name: guard.name, verdict: guard.verdict })),
             stages: runtime.stages?.map((stage) => stage.name),
+            references: runtime.references?.map((reference) => reference.path),
+            subagents: runtime.subagents?.map((helper) => ({ name: helper.name, model: helper.model })),
           },
         }
       : {}),

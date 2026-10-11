@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-11T19:32:24.818Z
+readAt: 2026-10-11T21:32:48.610Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -2042,6 +2042,57 @@ atoms:
     evidence:
       - { type: text, must: [ matched ] }
     enforcement: []
+  - id: instruction.invoice-reconcile.a-line-matches-on-article-code
+    kind: instruction
+    title: A line matches on article code and quantity
+    provenance:
+      file: .claude/skills/invoice-reconcile/references/matching-rules.md
+      startLine: 3
+      endLine: 3
+      quote: An invoice line matches an order line when the article code and the quantity are equal.
+      hash: c463c6d513337a016e23851f16d2f3d40a7bbf6fb416e2369f97031763c2d73b
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: line_match }
+    enforcement: []
+    fields:
+      polarity: obligation
+  - id: instruction.invoice-reconcile.under-0-05-eur-per-unit
+    kind: instruction
+    title: Under 0.05 EUR per unit is rounding
+    provenance:
+      file: .claude/skills/invoice-reconcile/references/matching-rules.md
+      startLine: 4
+      endLine: 4
+      quote: A price difference under 0.05 EUR per unit is rounding, not a difference.
+      hash: f6bdf8e88d22af23cc4aa1f365d3670fe7532574465ad94838e3278a1692c409
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: rounding_tolerance, options: { per_unit: 0.05 } }
+    enforcement: []
+    fields:
+      polarity: obligation
+  - id: instruction.invoice-reconcile.an-invoice-line-with-no-order
+    kind: instruction
+    title: An invoice line with no order line is an extra charge, listed apart
+    provenance:
+      file: .claude/skills/invoice-reconcile/references/matching-rules.md
+      startLine: 5
+      endLine: 5
+      quote: "A line on the invoice with no order line is an extra charge: list it apart."
+      hash: 3a7e9ad13ddf4be595b65fbf8cde4e91078e907183cc8b7b131bc802c9345e75
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: extra_charges_listed }
+    enforcement: []
+    fields:
+      polarity: obligation
   - id: instruction.shipment-tracker.ask-for-the-tracking-number-when
     kind: instruction
     title: Ask for the tracking number when none is given
@@ -2421,5 +2472,5 @@ edges:
 producedBy:
   family: lane
   model: claude-opus-5-5 as the estate lane, by hand
-  at: 2026-10-11T19:32:24.818Z
-hash: 48cac5d0c4c389e8ceb8c3aef3e31c872108ce0da7ada13c65bfe7177f49375e
+  at: 2026-10-11T21:32:48.610Z
+hash: a5c8cb21f4aeca08a0f2235c66a11406a127c9e90844917eaa0d3a95ee4a0cb7
