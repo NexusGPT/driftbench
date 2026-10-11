@@ -8,3 +8,14 @@ export {
   PRIMARY_TYPE,
   targetDimension,
 } from './contract';
+export {
+  entryNodes,
+  JOURNEY_DEFAULTS,
+  JOURNEY_EDGE_KINDS,
+  type Journey,
+  type JourneyOptions,
+  type JourneyResult,
+  planJourneys,
+  START,
+  transitionId,
+} from './journeys';
