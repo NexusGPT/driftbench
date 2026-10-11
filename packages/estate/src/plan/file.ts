@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { isPlainObject } from '@driftbench/core';
 import { formatJson } from '@driftbench/generate';
-import { Document, isMap, isSeq, parseDocument, parse as parseYaml } from 'yaml';
+import { Document, isMap, isSeq, parseDocument } from 'yaml';
 import type { z } from 'zod';
 import { Plan } from '../schema';
 import type { PlanDetails } from './build';
@@ -58,13 +58,19 @@ export function summaryPathOf(planPath: string): string {
 }
 
 export function parsePlanText(text: string): PlanFileResult {
-  let raw: unknown;
+  const read = readPlanDocument(text);
+  return 'errors' in read ? { ok: false, errors: read.errors } : validatePlan(read.doc.toJS());
+}
+
+/** The YAML document of a plan file, kept for edits in place, or why it cannot be read. */
+function readPlanDocument(text: string): { doc: Document } | { errors: PlanIssue[] } {
   try {
-    raw = parseYaml(text, { uniqueKeys: true });
+    const doc = parseDocument(text, { uniqueKeys: true });
+    const first = doc.errors[0];
+    return first ? { errors: [issue('PLAN_PARSE', '', describe(first))] } : { doc };
   } catch (cause) {
-    return { ok: false, errors: [issue('PLAN_PARSE', '', describe(cause))] };
+    return { errors: [issue('PLAN_PARSE', '', describe(cause))] };
   }
-  return validatePlan(raw);
 }
 
 export function validatePlan(raw: unknown): PlanFileResult {
@@ -107,7 +113,9 @@ export type PlanApproveResult =
  * proposed and leaves struck rows struck. An unknown row id changes nothing. Comments and layout stay.
  */
 export function approvePlanRows(text: string, selection: PlanSelection): PlanApproveResult {
-  const before = parsePlanText(text);
+  const read = readPlanDocument(text);
+  if ('errors' in read) return { ok: false, errors: read.errors };
+  const before = validatePlan(read.doc.toJS());
   if (!before.ok) return before;
   const ids = selection.ids ?? [];
   const known = new Set(before.plan.rows.map((row) => row.id));
@@ -119,7 +127,7 @@ export function approvePlanRows(text: string, selection: PlanSelection): PlanApp
     };
   }
   const to = selection.strike === true ? 'struck' : 'approved';
-  const doc = parseDocument(text, { uniqueKeys: true });
+  const doc = read.doc;
   const changed: string[] = [];
   let unchanged = 0;
   const rows = doc.get('rows', true);
@@ -137,10 +145,7 @@ export function approvePlanRows(text: string, selection: PlanSelection): PlanApp
       }
     }
   }
-  const next = doc.toString({ lineWidth: 0 });
-  const after = parsePlanText(next);
-  if (!after.ok) return after;
-  return { ok: true, text: next, changed, unchanged };
+  return { ok: true, text: doc.toString({ lineWidth: 0 }), changed, unchanged };
 }
 
 function issue(code: PlanIssueCode, path: string, message: string): PlanIssue {

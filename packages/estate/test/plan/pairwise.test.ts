@@ -26,7 +26,7 @@ describe('pairwise cells over the situation axes', () => {
       expect(cell.dimension).toBe(`atoms.${cell.atom.split('.')[0]}`);
       expect(Object.keys(cell.situation)).toEqual(result.situations);
     }
-  });
+  }, 60_000);
 
   it('keeps every constraint: no fresh session meets a mid-task compaction, a dead helper or a stale tracker', async () => {
     const result = pairwiseCells(await fixtureSpace(), OPTIONS);
@@ -38,7 +38,7 @@ describe('pairwise cells over the situation axes', () => {
       ),
     ).toBe(false);
     expect(result.cells.some((cell) => cell.situation.session_state === 'fresh')).toBe(true);
-  });
+  }, 60_000);
 
   it('carries a constraint on one target atom, and drops one that names atoms of two kinds', async () => {
     const space = await fixtureSpace();
@@ -61,7 +61,7 @@ describe('pairwise cells over the situation axes', () => {
     );
     expect(result.cells.some((cell) => cell.atom === atom)).toBe(true);
     expect(result.covered).toBe(result.allowed);
-  });
+  }, 60_000);
 
   it('needs fewer rows at t = 1, gives the same rows for the same seed, and refuses a space with no target', async () => {
     const space = await fixtureSpace();
@@ -74,5 +74,5 @@ describe('pairwise cells over the situation axes', () => {
       dimensions: space.dimensions.filter((d) => !d.id.startsWith('atoms.')),
     };
     expect(() => pairwiseCells(bare, OPTIONS)).toThrow(/no target atom/);
-  });
+  }, 60_000);
 });

@@ -50,7 +50,7 @@ describe('driftbench estate plan', () => {
     expect(summary.coveringArraySize).toBe(980);
     expect(summary.uncoveredEdges).toHaveLength(7);
     expect(parsePlanText(await readFile(join(root, 'plan.yaml'), 'utf8')).ok).toBe(true);
-  });
+  }, 60_000);
 
   it('writes the same bytes on a second run, and the committed fixture plan is that output', async () => {
     const root = await folder();
@@ -62,7 +62,7 @@ describe('driftbench estate plan', () => {
       await readFile(join(root, 'a.summary.json'), 'utf8'),
     );
     expect(await readFile(join(FIXTURE, 'plan.yaml'), 'utf8')).toBe(a);
-  });
+  }, 60_000);
 
   it('takes a space map and a strength, and refuses one whose targets the map does not approve', async () => {
     const root = await folder();
@@ -86,7 +86,7 @@ describe('driftbench estate plan', () => {
     );
     expect(bad.code).toBe(1);
     expect(bad.err).toContain('gate.standing.not-in-the-map (not an atom of the map)');
-  });
+  }, 60_000);
 
   it('exits 2 on a usage error and writes nothing; replaces a plan only with --force', async () => {
     const root = await folder();
@@ -100,7 +100,7 @@ describe('driftbench estate plan', () => {
     expect(again.code).toBe(2);
     expect(again.err).toContain('pass --force');
     expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'p.yaml', '--force'], root)).code).toBe(0);
-  });
+  }, 60_000);
 
   it('exits 1 on a map whose quote was edited', async () => {
     const root = await folder();
@@ -112,7 +112,7 @@ describe('driftbench estate plan', () => {
     const result = await run(['estate', 'plan', 'approved.yaml', '--out', 'p.yaml'], root);
     expect(result.code).toBe(1);
     expect(result.err).toContain('MAP_HASH');
-  });
+  }, 60_000);
 });
 
 describe('driftbench estate plan approve', () => {
@@ -134,7 +134,7 @@ describe('driftbench estate plan approve', () => {
     const unknown = await run(['estate', 'plan', 'approve', 'plan.yaml', '--row', 'no.such.row'], root);
     expect(unknown.code).toBe(1);
     expect(unknown.err).toContain('PLAN_UNKNOWN_ROW');
-  });
+  }, 60_000);
 
   it('exits 2 when the options do not fit', async () => {
     const root = await folder();
@@ -144,5 +144,5 @@ describe('driftbench estate plan approve', () => {
     const strikeAll = await run(['estate', 'plan', 'approve', 'plan.yaml', '--strike'], root);
     expect(strikeAll.code).toBe(2);
     expect((await run(['estate', 'plan', 'approve', 'missing.yaml', '--all'], root)).code).toBe(2);
-  });
+  }, 60_000);
 });

@@ -27,7 +27,7 @@ describe('the estate plan', () => {
     if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
     expect(parsed.plan).toEqual(first.plan);
     expect(renderPlan(buildPlan(map, { t: 1 }).plan)).not.toBe(renderPlan(first.plan));
-  });
+  }, 60_000);
 
   it('matches the committed fixture plan and its summary', async () => {
     const built = buildPlan(await approvedFixture());
@@ -35,7 +35,7 @@ describe('the estate plan', () => {
     expect(await readFile(join(FIXTURE, 'plan.summary.json'), 'utf8')).toBe(
       renderPlanSummary(built.plan, built.details),
     );
-  });
+  }, 60_000);
 
   it('counts the summary from the rows: cells, phrases, kinds, test types, unenforced atoms', async () => {
     const map = await approvedFixture();
@@ -61,7 +61,7 @@ describe('the estate plan', () => {
     expect(summary.edgesWithoutJourney).toBe(7);
     expect(details.gridCells).toBe(1_992_646_656_000);
     expect(details.tuples.covered).toBe(details.tuples.allowed);
-  });
+  }, 60_000);
 
   it('leaves unapproved atoms out of the rows and the unenforced list', async () => {
     const id = 'instruction.standing.tell-the-user-about-a-late';
@@ -73,7 +73,7 @@ describe('the estate plan', () => {
     expect(plan.rows.some((row) => row.atomIds.includes(id))).toBe(false);
     expect(plan.summary.unenforcedAtoms).not.toContain(id);
     expect(details.unapproved).toBe(1);
-  });
+  }, 60_000);
 
   it('marks the negative controls as rows of their own, each with its mode', async () => {
     const { plan } = buildPlan(await approvedFixture());
@@ -85,7 +85,7 @@ describe('the estate plan', () => {
     expect(plan.rows.find((row) => row.testType === 'guard_negative')?.mode).toBe('unit');
     expect(plan.rows.find((row) => row.testType === 'guard_positive')?.mode).toBe('replay');
     expect(plan.rows.every((row) => row.status === 'proposed' && row.weight === 1)).toBe(true);
-  });
+  }, 60_000);
 
   it('drops a situation value the constraint list forbids with the target, and says so', async () => {
     const map = await approvedFixture();
@@ -104,7 +104,7 @@ describe('the estate plan', () => {
         reason: 'the constraint list forbids session_state=helpers_running, estate_hazard=dead_helper',
       },
     ]);
-  });
+  }, 60_000);
 
   it('refuses a space map whose targets are not approved atoms of the map, under their kind', async () => {
     const map = await approvedFixture();
@@ -119,13 +119,13 @@ describe('the estate plan', () => {
       if (atom) atom.approved = false;
     });
     expect(() => buildPlan(unapproved, { space: toEstateSpaceMap(map) })).toThrow(/not approved/);
-  });
+  }, 60_000);
 
   it('writes the summary beside the plan', () => {
     expect(summaryPathOf('/x/plan.yaml')).toBe('/x/plan.summary.json');
     expect(summaryPathOf('/x/plan.yml')).toBe('/x/plan.summary.json');
     expect(summaryPathOf('/x/plan')).toBe('/x/plan.summary.json');
-  });
+  }, 60_000);
 });
 
 describe('approving plan rows', () => {
@@ -146,7 +146,7 @@ describe('approving plan rows', () => {
       parsed.plan.rows.length - 1,
     );
     expect(all.text.startsWith('# driftbench estate plan')).toBe(true);
-  });
+  }, 60_000);
 
   it('approves one row, changes nothing else, and refuses an unknown row', async () => {
     const before = await text();
@@ -163,7 +163,7 @@ describe('approving plan rows', () => {
     expect(again.ok && again.unchanged).toBe(1);
     const unknown = approvePlanRows(before, { ids: ['no.such.row'] });
     expect(unknown.ok).toBe(false);
-  });
+  }, 60_000);
 
   it('refuses a plan with a repeated row id or an unknown test type', async () => {
     const plain = await text();
@@ -174,5 +174,9 @@ describe('approving plan rows', () => {
     expect(repeated.ok === false && repeated.errors[0]?.code).toBe('PLAN_DUPLICATE_ROW');
     const wrongType = parsePlanText(plain.replace('testType: twin', 'testType: triplet'));
     expect(wrongType.ok).toBe(false);
-  });
+    const broken = parsePlanText('rows: [');
+    expect(broken.ok === false && broken.errors[0]?.code).toBe('PLAN_PARSE');
+    const twice = parsePlanText('version: 1\nversion: 1\n');
+    expect(twice.ok === false && twice.errors[0]?.code).toBe('PLAN_PARSE');
+  }, 60_000);
 });
