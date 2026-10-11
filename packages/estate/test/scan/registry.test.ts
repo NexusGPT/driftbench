@@ -132,7 +132,8 @@ describe('the check registry, any column set', () => {
 
   it('reads the fixture registry: the first table by its guard column, the second by its ids', async () => {
     const raw = await new ClaudeCodeReader().read(FIXTURE);
-    expect(raw.registry.map((row) => [row.id, row.guard, row.state ?? ''])).toEqual([
+    const table = raw.registry.filter((row) => row.origin !== 'catalogue');
+    expect(table.map((row) => [row.id, row.guard, row.state ?? ''])).toEqual([
       ['G1', 'block-force-push.sh', ''],
       ['G2', 'read-before-edit.py', ''],
       ['G3', 'ledger-guard.py', ''],
@@ -141,6 +142,7 @@ describe('the check registry, any column set', () => {
       ['G6', 'supplier-send-guard.py', ''],
       ['W1', 'stop-word.sh', 'enforce'],
       ['W2', 'ledger-guard.py', 'observe'],
+      ['C2', 'C2', 'observe'],
     ]);
     expect(raw.registry.find((row) => row.id === 'W2')?.enforces).toEqual([
       { quote: 'move it to `ledger/archive/` instead' },

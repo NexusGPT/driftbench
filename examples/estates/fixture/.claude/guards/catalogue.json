@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "checks": [
+    {
+      "id": "C1",
+      "kind": "check",
+      "event": "PreToolUse",
+      "watches": ["Never promise the user a refund date"],
+      "work": "claim-window.py",
+      "step": "claim/file",
+      "status": "enforce"
+    },
+    {
+      "id": "C2",
+      "kind": "judge",
+      "event": "Stop",
+      "watches": "R9",
+      "work": "reads the last reply and counts its questions",
+      "status": "observe"
+    },
+    {
+      "id": "C3",
+      "kind": "nudge",
+      "event": "Stop",
+      "watches": ["R17"],
+      "work": "asks where a number in the reply was read",
+      "status": "off"
+    }
+  ]
+}
