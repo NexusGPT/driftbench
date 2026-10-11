@@ -311,6 +311,53 @@ describe('buildScenario', () => {
     expect(built.probe).toEqual({ classId: 'D8_tool_failure', stage: 'verify', tool: 'lookup' });
   });
 
+  it('stops the conversation at the failing turn, and expects no call after the failing tool in it', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases.push(phrase('stage_transition', 'help-to-verify', 'One more question about {account}.'));
+      draft.relations?.push(
+        {
+          kind: 'path',
+          id: 'balance-again',
+          flow: 'balance',
+          when: { account_state: ['found'] },
+          stages: ['greet', 'verify', 'help', 'verify'],
+          ...by,
+        },
+        {
+          kind: 'uses_tool',
+          subject: { dimension: 'flow', value: 'balance' },
+          tool: 'notify',
+          stage: 'verify',
+          to: 'help',
+          input: { reason: 'checked' },
+          ...by,
+        },
+      );
+    });
+    const walked = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-again'),
+      fixed: [],
+    });
+    if (!walked.ok) throw new Error(walked.reason);
+    expect(walked.blocks.map((block) => block.stage)).toEqual(['verify', 'help', 'verify']);
+    expect(walked.blocks[1]?.tools).toEqual([
+      { label: 'lookup', count: 1, input: { account: '4' } },
+      { label: 'notify', count: 1, input: { reason: 'checked' } },
+    ]);
+    const failed = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-again'),
+      fixed: [],
+      probe: { classId: 'D8_tool_failure' },
+    });
+    if (!failed.ok) throw new Error(failed.reason);
+    // The lookup fails at verify: the turn never reaches notify, and the third turn is never said.
+    expect(failed.blocks).toHaveLength(2);
+    expect(failed.blocks[1]?.tools).toEqual([
+      { label: 'lookup', count: 2, input: { account: '4' } },
+      { label: 'notify', count: 0 },
+    ]);
+  });
+
   it('forces one phrasing where its value is said, and draws everything else the same', () => {
     const prepared = prepare((draft) => {
       draft.phrases.push(phrase('stage_transition', 'greet-to-verify', 'Hello, my account please.'));
