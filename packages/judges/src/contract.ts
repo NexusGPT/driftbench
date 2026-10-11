@@ -81,18 +81,29 @@ export function inconclusive(reasoning: string): JudgeAnswer {
  * surrounded by prose. Anything else, an extra key included, is an unparsed inconclusive answer.
  */
 export function parseAnswerText(raw: string): JudgeResult {
-  const candidate = extractObject(raw);
-  if (candidate === undefined) {
+  const candidates = extractObjects(raw);
+  if (candidates.length === 0) {
     return { answer: inconclusive('unparseable answer: no JSON object found'), raw, unparsed: true };
   }
-  let value: unknown;
-  try {
-    value = JSON.parse(candidate);
-  } catch (cause) {
-    const why = cause instanceof Error ? cause.message : String(cause);
-    return { answer: inconclusive(`unparseable answer: ${why}`), raw, unparsed: true };
+  // Prose may hold brace pairs or an example object before the answer: the first object that meets the
+  // contract is the answer; when none does, the first problem is the reason.
+  let first: JudgeResult | undefined;
+  for (const candidate of candidates) {
+    let result: JudgeResult;
+    if (!candidate.includes(':')) {
+      result = { answer: inconclusive('unparseable answer: an object with no key'), raw, unparsed: true };
+    } else {
+      try {
+        result = parseAnswerValue(JSON.parse(candidate), raw);
+      } catch (cause) {
+        const why = cause instanceof Error ? cause.message : String(cause);
+        result = { answer: inconclusive(`unparseable answer: ${why}`), raw, unparsed: true };
+      }
+    }
+    if (!result.unparsed) return result;
+    first ??= result;
   }
-  return parseAnswerValue(value, raw);
+  return first as JudgeResult;
 }
 
 /** Validates an already decoded answer against the contract. */
@@ -108,14 +119,14 @@ export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(va
   };
 }
 
-/** The first balanced JSON object in a text, fences and prose around it ignored. */
-function extractObject(raw: string): string | undefined {
-  const start = raw.indexOf('{');
-  if (start < 0) return undefined;
+/** Every balanced top-level JSON object in a text, in order; fences and prose around them ignored. */
+function extractObjects(raw: string): string[] {
+  const out: string[] = [];
   let depth = 0;
+  let start = -1;
   let inString = false;
   let escaped = false;
-  for (let i = start; i < raw.length; i += 1) {
+  for (let i = 0; i < raw.length; i += 1) {
     const ch = raw[i];
     if (inString) {
       if (escaped) escaped = false;
@@ -123,14 +134,16 @@ function extractObject(raw: string): string | undefined {
       else if (ch === '"') inString = false;
       continue;
     }
-    if (ch === '"') inString = true;
-    else if (ch === '{') depth += 1;
-    else if (ch === '}') {
+    if (ch === '"' && depth > 0) inString = true;
+    else if (ch === '{') {
+      if (depth === 0) start = i;
+      depth += 1;
+    } else if (ch === '}' && depth > 0) {
       depth -= 1;
-      if (depth === 0) return raw.slice(start, i + 1);
+      if (depth === 0) out.push(raw.slice(start, i + 1));
     }
   }
-  return undefined;
+  return out;
 }
 
 /**

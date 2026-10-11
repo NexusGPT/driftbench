@@ -47,3 +47,17 @@ describe('the answer contract', () => {
     expect(outcomeFromProbability(0.7, { passAt: 0.8 })).toBe('inconclusive');
   });
 });
+
+describe('the answer contract after prose with braces', () => {
+  it('reads the first object that meets the contract, past brace pairs and an example object', () => {
+    expect(
+      parseAnswerText('Applying {rubric} to {data}: {"outcome":"fail","reasoning":"r"}').answer.outcome,
+    ).toBe('fail');
+    expect(
+      parseAnswerText(
+        'Format: {"outcome": "<pass or fail>", "reasoning": "<why>"}. Mine: {"outcome":"pass","reasoning":"ok"}',
+      ).answer.outcome,
+    ).toBe('pass');
+    expect(parseAnswerText('{"answer":{"outcome":"pass","reasoning":"r"}}').unparsed).toBe(true);
+  });
+});
