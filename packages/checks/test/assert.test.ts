@@ -56,13 +56,12 @@ describe('assertions: every form the spec allows', () => {
     }
   });
 
-  // Disagreements with core's matchAssertion, kept red on purpose and routed to the lead. Each passes
-  // here as long as core still disagrees; it fails, and asks to be turned back into it(), once core agrees.
-  it.fails('DISAGREES WITH CORE: nonempty refuses a blank string; core matchAssertion accepts "   "', () => {
+  // Core's matchAssertion owns these rules; the check only adds the evidence wording.
+  it('nonempty refuses a blank string; core agrees', () => {
     expect(checkAssertion('   ', { nonempty: true }).ok).toBe(false);
   });
 
-  it.fails('DISAGREES WITH CORE: nonempty refuses a mapping whose only key holds undefined; core accepts it', () => {
+  it('nonempty refuses a mapping whose only key holds undefined; core agrees', () => {
     expect(checkAssertion({ key: undefined }, { nonempty: true }).ok).toBe(false);
   });
 

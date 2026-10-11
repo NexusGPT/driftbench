@@ -108,8 +108,13 @@ function holds(value: unknown, expected: unknown): boolean {
   return deepEqual(value, expected);
 }
 
+/**
+ * Empty: nothing, a string with no visible character, an empty list, or a mapping none of whose keys
+ * holds a value. A blank summary is as empty as a missing one, so `{ nonempty: true }` refuses it.
+ */
 function isEmpty(value: unknown): boolean {
-  if (value === undefined || value === null || value === '') return true;
+  if (value === undefined || value === null) return true;
+  if (typeof value === 'string') return value.trim() === '';
   if (Array.isArray(value)) return value.length === 0;
-  return isRecord(value) && Object.keys(value).length === 0;
+  return isRecord(value) && Object.values(value).every((part) => part === undefined);
 }
