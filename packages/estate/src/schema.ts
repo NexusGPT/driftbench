@@ -3,7 +3,7 @@ import { z } from 'zod';
 /**
  * The estate contract (design note of 2026-10-11, "Testing a code-interpreter agent: the estate design").
  * An estate is everything that specifies a code-interpreter agent's behaviour: standing instructions, skills,
- * subagents, hooks, tools, settings, stages, output rules, the runtime's hazards and the estate's own invariants.
+ * subagents, guards, tools, settings, stages, output rules, the runtime's hazards and the estate's own invariants.
  * Each place that specifies behaviour is an atom with a quote and a hash. Atoms and edges form the estate graph.
  * A plan is derived from the approved map by code; tests are generated from the plan. Nothing here names a runtime:
  * Claude Code and Nexus are adapters that read their own files into these shapes.
@@ -17,7 +17,7 @@ export const AtomKind = z.enum([
   'reference',
   'script',
   'subagent',
-  'hook',
+  'guard',
   'tool',
   'setting',
   'stage',
@@ -51,7 +51,7 @@ export const EvidencePredicate = z.discriminatedUnion('type', [
   z.strictObject({
     type: z.literal('guard'),
     name: z.string().min(1),
-    verdict: z.string().min(1),
+    verdict: z.string().min(1).optional().describe('Without it, any verdict counts, as in the guards check'),
     min: z.number().int().min(0).optional(),
   }),
   z.strictObject({
@@ -106,11 +106,11 @@ export const Atom = z.strictObject({
   enforcement: z
     .array(z.string())
     .default([])
-    .describe('Ids of hooks or tests that already check it; empty means trusted'),
+    .describe('Ids of guards or tests that already check it; empty means trusted'),
   fields: z
     .record(z.string(), z.unknown())
     .optional()
-    .describe('Kind-specific structure read by code: a hook event, a tool schema, a brief field list'),
+    .describe('Kind-specific structure read by code: a guard event, a tool schema, a brief field list'),
 });
 export type Atom = z.infer<typeof Atom>;
 
@@ -139,6 +139,14 @@ export const EstateMap = z.strictObject({
   atoms: z.array(Atom),
   edges: z.array(Edge),
   space: z.string().optional().describe('Path of the exported space map of the situation axes'),
+  producedBy: z
+    .strictObject({
+      family: z.string().min(1).describe('The model family that split the prose, `code` when no model ran'),
+      model: z.string().min(1),
+      at: z.iso.datetime(),
+    })
+    .optional()
+    .describe('Who proposed the model atoms; code atoms say producedBy: code on the atom itself'),
   hash: z.string().min(1).describe('SHA-256 over the sorted atom hashes and edges'),
 });
 export type EstateMap = z.infer<typeof EstateMap>;
@@ -157,11 +165,11 @@ export const TestType = z.enum([
   'dispatch',
   'contract_alone',
   'stop_resume',
-  'hook_positive',
-  'hook_negative',
-  'hook_hostile',
-  'hook_speed',
-  'hook_register',
+  'guard_positive',
+  'guard_negative',
+  'guard_hostile',
+  'guard_speed',
+  'guard_register',
   'tool_boundary',
   'tool_denied',
   'tool_deferred',

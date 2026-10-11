@@ -121,6 +121,9 @@ importers:
       '@driftbench/core':
         specifier: workspace:*
         version: link:../core
+      '@driftbench/generate':
+        specifier: workspace:*
+        version: link:../generate
       '@driftbench/space':
         specifier: workspace:*
         version: link:../space
