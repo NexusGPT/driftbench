@@ -1,0 +1,22 @@
+# Replays a session where the agent edits a file before reading it: the ordered pair breaks and the guard
+# denies. The tests then fail. Fictional data.
+id: replay-gate-violated
+kind: task
+title: Write before read
+target: { adapter: claude-code }
+metadata:
+  replay: { session: gate-violated }
+rules:
+  forbidden_tools: [WebFetch]
+  custom:
+    ordered:
+      pairs:
+        - { before: Read, after: Edit, key: file_path, reset: compaction }
+blocks:
+  - user: Add a discount field to the invoice total in src/invoice.ts, then run the tests.
+    expect:
+      skills:
+        - { name: shop-build, count: { min: 1 } }
+      guards:
+        - { name: read-before-write, verdict: deny, count: 0 }
+      execution: { ran_code: true, exit_code: 0 }

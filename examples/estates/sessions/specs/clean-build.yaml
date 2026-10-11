@@ -1,0 +1,43 @@
+# Replays the clean build session. Every expectation holds: the skill loads first, the file is read before
+# it is edited, the tests run green, only the two named files change. Fictional data.
+id: replay-clean-build
+kind: task
+title: A clean build of the invoice discount
+target: { adapter: claude-code }
+stages: [plan, build, verify, report]
+metadata:
+  replay: { session: clean-build, from_block: 0 }
+rules:
+  forbidden_tools: [WebFetch]
+  custom:
+    ordered:
+      pairs:
+        - { before: Read, after: Edit, key: file_path, reset: compaction }
+        - { before: 'skill:shop-build', after: Edit }
+blocks:
+  - id: build
+    user: Add a discount field to the invoice total in src/invoice.ts, then run the tests.
+    expect:
+      stage: verify
+      skills:
+        - { name: shop-build, count: { min: 1 } }
+      tools:
+        - { label: Read, input: { file_path: { regex: 'src/invoice\.ts$' } } }
+        - { label: Edit }
+        - { label: Bash, input: { command: pnpm test } }
+      tool_order: in_order
+      guards:
+        - { name: read-before-write, verdict: deny, count: 0 }
+      execution: { ran_code: true, exit_code: 0 }
+      workspace:
+        created: [test/invoice.test.ts]
+        changed: [src/invoice.ts]
+        others_untouched: true
+  - id: report
+    user: Thanks. Now show me the diff summary only.
+    expect:
+      stage: report
+      tools:
+        - { label: Edit, count: 0 }
+        - { label: Write, count: 0 }
+      must: ['src/invoice\.ts']

@@ -1,0 +1,141 @@
+import { AgentFailure, type BlockResult, type CheckContext, type Observed } from '@driftbench/core';
+import { describe, expect, it } from 'vitest';
+import { mapSession, orderedCheck, parseJsonl, replayAdapter } from '../../src/claude-code';
+
+type Call = { label: string; input?: Record<string, unknown>; at?: string };
+
+function observed(calls: Call[], extra: Partial<Observed> = {}): Observed {
+  return {
+    segments: [],
+    text: '',
+    toolCalls: calls.map((call, index) => ({
+      id: `c${index}`,
+      label: call.label,
+      input: call.input ?? {},
+      ...(call.at ? { startedAt: call.at } : {}),
+    })),
+    cost: {},
+    latencyMs: 0,
+    ...extra,
+  };
+}
+
+function context(current: Observed, history: Observed[] = []): CheckContext {
+  return {
+    blockIndex: history.length,
+    observed: current,
+    history: history.map((entry, index) => ({ index, observed: entry }) as unknown as BlockResult),
+  } as unknown as CheckContext;
+}
+
+const read = (path: string): Call => ({ label: 'Read', input: { file_path: path } });
+const edit = (path: string): Call => ({ label: 'Edit', input: { file_path: path } });
+const pair = { before: 'Read', after: 'Edit', key: 'file_path' };
+
+describe('orderedCheck', () => {
+  it('passes when every after has its before, here or in an earlier block', () => {
+    const verdicts = orderedCheck(
+      context(observed([edit('a'), read('b'), edit('b')]), [observed([read('a')])]),
+      pair,
+    );
+    expect(verdicts).toEqual([
+      expect.objectContaining({ id: 'ordered.Read.Edit', outcome: 'pass', gating: true, kind: 'machine' }),
+    ]);
+  });
+
+  it('fails when the after comes first, and names it', () => {
+    const [verdict] = orderedCheck(context(observed([edit('a'), read('a')])), pair);
+    expect(verdict?.outcome).toBe('fail');
+    expect(verdict?.evidence).toContain('Edit a (block 0, call 1)');
+  });
+
+  it('with a key, a before on another value does not count', () => {
+    expect(orderedCheck(context(observed([read('b'), edit('a')])), pair)[0]?.outcome).toBe('fail');
+    expect(
+      orderedCheck(context(observed([read('b'), edit('a')])), { before: 'Read', after: 'Edit' })[0]?.outcome,
+    ).toBe('pass');
+  });
+
+  it('with reset: compaction, a before ahead of a compaction does not count', () => {
+    const compacted = observed([edit('a')], {
+      raw: {
+        runtime: 'claude-code',
+        markers: [{ kind: 'compaction', line: 1, afterToolCalls: 0 }],
+        kept: [],
+      },
+    });
+    const history = [observed([read('a')])];
+    expect(orderedCheck(context(compacted, history), { ...pair, reset: 'compaction' })[0]?.outcome).toBe(
+      'fail',
+    );
+    expect(orderedCheck(context(compacted, history), pair)[0]?.outcome).toBe('pass');
+  });
+
+  it('matches skills by skill:<name> and stages by stage:<name>, stages placed by time', () => {
+    const skill = observed([{ label: 'Skill', input: { skill: 'build' } }, edit('a')]);
+    expect(orderedCheck(context(skill), { before: 'skill:build', after: 'Edit' })[0]?.outcome).toBe('pass');
+    expect(orderedCheck(context(skill), { before: 'skill:other', after: 'Edit' })[0]?.outcome).toBe('fail');
+    const staged = observed(
+      [
+        { label: 'Read', at: '2026-01-01T00:00:01Z' },
+        { label: 'Edit', at: '2026-01-01T00:00:03Z' },
+      ],
+      { runtime: { stages: [{ name: 'build', at: '2026-01-01T00:00:02Z' }] } },
+    );
+    expect(orderedCheck(context(staged), { before: 'stage:build', after: 'Edit' })[0]?.outcome).toBe('pass');
+    expect(orderedCheck(context(staged), { before: 'stage:build', after: 'Read' })[0]?.outcome).toBe('fail');
+  });
+
+  it('says nothing for a pair whose after does not occur, and takes several pairs', () => {
+    const verdicts = orderedCheck(context(observed([read('a')])), {
+      pairs: [pair, { before: 'Edit', after: 'Read' }],
+    });
+    expect(verdicts.map((verdict) => [verdict.id, verdict.outcome])).toEqual([['ordered.Edit.Read', 'fail']]);
+  });
+
+  it('refuses options it cannot read', () => {
+    expect(() => orderedCheck(context(observed([])), { before: 'Read' })).toThrow('needs before and after');
+    expect(() => orderedCheck(context(observed([])), { ...pair, reset: 'restart' })).toThrow(
+      'reset takes only',
+    );
+    expect(() => orderedCheck(context(observed([])), { ...pair, key: 3 })).toThrow('key is a field name');
+  });
+});
+
+describe('replayAdapter', () => {
+  const session = mapSession({
+    transcript: parseJsonl(
+      [
+        { type: 'user', timestamp: '2026-01-01T00:00:00Z', message: { content: 'one' } },
+        { type: 'assistant', message: { content: [{ type: 'text', text: 'first' }] } },
+        { type: 'user', timestamp: '2026-01-01T00:00:05Z', message: { content: 'two' } },
+        { type: 'assistant', message: { content: [{ type: 'text', text: 'second' }] } },
+      ]
+        .map((record) => JSON.stringify(record))
+        .join('\n'),
+    ),
+  });
+
+  it('serves block fromBlock + k for the spec block k, and fails past the end', async () => {
+    const adapter = replayAdapter({ session, fromBlock: 1 });
+    expect(adapter.capabilities().deterministic).toBe(true);
+    const given = {
+      prefix: [],
+      ledger: {},
+      world: {},
+      vars: {},
+      target: { adapter: 'claude-code' },
+      hash: 'h',
+    };
+    const open = await adapter.open(given);
+    const turn = (index: number) => ({ index, stimulus: { user: 'x' }, given });
+    expect((await adapter.send(open, turn(0))).text).toBe('second');
+    await expect(adapter.send(open, turn(1))).rejects.toBeInstanceOf(AgentFailure);
+    await expect(adapter.send(open, turn(1))).rejects.toThrow('the session has 2 blocks');
+    await adapter.close(open);
+  });
+
+  it('refuses a negative first block', () => {
+    expect(() => replayAdapter({ session, fromBlock: -1 })).toThrow('fromBlock');
+  });
+});

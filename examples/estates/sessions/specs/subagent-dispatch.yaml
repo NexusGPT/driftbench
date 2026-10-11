@@ -1,0 +1,21 @@
+# Replays a session that dispatches a reviewer helper with a brief. The brief carries its fields and the
+# helper's own records are not counted as the agent's calls. Fictional data.
+id: replay-subagent-dispatch
+kind: task
+title: A helper dispatched with a brief
+target: { adapter: claude-code }
+metadata:
+  replay: { session: subagent-dispatch }
+blocks:
+  - user: Ask the reviewer to check src/invoice.ts and tell me what it finds.
+    expect:
+      tools:
+        - label: Agent
+          count: 1
+          input:
+            subagent_type: code-reviewer
+            prompt: { regex: '^Done when: ' }
+        - { label: Read, count: 0 }
+      guards:
+        - { name: brief-fields, verdict: allow, count: 1 }
+      must: ['line 2']

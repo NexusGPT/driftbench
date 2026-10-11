@@ -1,0 +1,247 @@
+import { copyFile, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { openStore } from '@driftbench/store';
+import { afterEach, describe, expect, it } from 'vitest';
+import { type Io, main } from '../src/index';
+
+const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const DIR = 'examples/estates/sessions';
+const NAMES = [
+  'clean-build',
+  'skill-skipped',
+  'forbidden-act',
+  'gate-violated',
+  'compaction-mid-task',
+  'subagent-dispatch',
+];
+const SESSIONS = NAMES.map((name) => `${DIR}/${name}.jsonl`);
+const LOGS = [
+  ...['clean-build', 'skill-skipped', 'forbidden-act', 'gate-violated', 'subagent-dispatch'].flatMap(
+    (name) => ['--decisions', `${DIR}/${name}.decisions.jsonl`],
+  ),
+  ...['clean-build', 'skill-skipped', 'gate-violated'].flatMap((name) => [
+    '--steps',
+    `${DIR}/${name}.steps.jsonl`,
+  ]),
+];
+
+async function cli(argv: string[], cwd = ROOT) {
+  let out = '';
+  let err = '';
+  const io: Io = {
+    out: (text) => {
+      out += text;
+    },
+    err: (text) => {
+      err += text;
+    },
+    cwd,
+  };
+  return { code: await main(argv, io), out, err };
+}
+
+type Run = {
+  spec: string;
+  session: string;
+  pass: boolean;
+  status: string;
+  failing: string[];
+  aligned: string;
+};
+
+async function replayJson(argv: string[], cwd = ROOT) {
+  const result = await cli([...argv, '--json'], cwd);
+  return {
+    ...result,
+    json: result.out ? (JSON.parse(result.out) as { runs: Run[]; notes: string[] }) : undefined,
+  };
+}
+
+const temp: string[] = [];
+async function tempDir(): Promise<string> {
+  const dir = await mkdtemp(join(tmpdir(), 'replay-cli-'));
+  temp.push(dir);
+  return dir;
+}
+afterEach(async () => {
+  for (const dir of temp.splice(0)) await rm(dir, { recursive: true });
+});
+
+describe('driftbench replay over the six fixture sessions', () => {
+  it('passes the clean, dispatch and control specs and fails each faulty one on its own verdict', async () => {
+    const { code, json, err } = await replayJson(['replay', ...SESSIONS, '--suite', `${DIR}/specs`, ...LOGS]);
+    expect(err).toBe('');
+    expect(code).toBe(1);
+    const byId = Object.fromEntries((json?.runs ?? []).map((run) => [run.spec, run]));
+    expect(Object.keys(byId).sort()).toEqual([
+      'replay-clean-build',
+      'replay-compaction-mid-task',
+      'replay-forbidden-act',
+      'replay-gate-violated',
+      'replay-negative-control',
+      'replay-skill-skipped',
+      'replay-subagent-dispatch',
+    ]);
+    expect(byId['replay-clean-build']).toMatchObject({ pass: true, status: 'completed', failing: [] });
+    expect(byId['replay-subagent-dispatch']).toMatchObject({ pass: true, failing: [] });
+    expect(byId['replay-negative-control']).toMatchObject({
+      pass: true,
+      failing: [],
+      session: 'gate-violated',
+    });
+    expect(byId['replay-skill-skipped']?.failing).toEqual([
+      'block 0: skills.shop-build',
+      'block 0: custom.ordered.skill_shop-build.Edit',
+    ]);
+    expect(byId['replay-forbidden-act']?.failing).toEqual(['block 0: forbidden.WebFetch']);
+    expect(byId['replay-gate-violated']?.failing).toEqual([
+      'block 0: guards.read-before-write.deny',
+      'block 0: execution.exit_code',
+      'block 0: custom.ordered.Read.Edit',
+    ]);
+    expect(byId['replay-compaction-mid-task']?.failing).toEqual(['block 1: custom.ordered.Read.Edit']);
+    expect(json?.notes).toEqual([]);
+  });
+
+  it('prints pass or fail per spec with the failing verdict ids', async () => {
+    const { code, out } = await cli(['replay', ...SESSIONS, '--suite', `${DIR}/specs`, ...LOGS]);
+    expect(code).toBe(1);
+    expect(out).toContain('✓ replay-clean-build  session clean-build from block 0 (metadata)');
+    expect(out).toContain(
+      '✗ replay-forbidden-act  session forbidden-act from block 0 (metadata)\n    failing: block 0: forbidden.WebFetch\n',
+    );
+    expect(out).toContain('7 specs replayed: 3 pass, 4 fail.');
+  });
+
+  it('stores every run in mode F with the cache off, under one replay campaign', async () => {
+    const dir = await tempDir();
+    const db = join(dir, 'runs.db');
+    const { json } = await replayJson([
+      'replay',
+      ...SESSIONS,
+      '--suite',
+      `${DIR}/specs`,
+      ...LOGS,
+      '--store',
+      db,
+    ]);
+    const store = await openStore(db);
+    try {
+      const runs = await store.listRuns();
+      expect(runs).toHaveLength(7);
+      expect(
+        runs.every((run) => run.mode === 'F' && run.cacheHit === false && run.status === 'completed'),
+      ).toBe(true);
+      expect(new Set(runs.map((run) => run.target.adapter))).toEqual(new Set(['claude-code']));
+      const failing = runs.filter((run) => run.blocks.some((block) => !block.pass)).map((run) => run.specId);
+      expect(failing.sort()).toEqual(
+        (json?.runs ?? [])
+          .filter((run) => !run.pass)
+          .map((run) => run.spec)
+          .sort(),
+      );
+    } finally {
+      await store.close();
+    }
+  });
+
+  it('a spec that expects guards with no decision log gets a note, and the guard is not seen', async () => {
+    const { json } = await replayJson([
+      'replay',
+      `${DIR}/gate-violated.jsonl`,
+      '--suite',
+      `${DIR}/specs/gate-violated.yaml`,
+    ]);
+    expect(json?.notes).toEqual([
+      'replay-gate-violated expects guards, but no decision log was given for gate-violated: no guard was seen',
+    ]);
+    expect(json?.runs[0]?.failing).not.toContain('block 0: guards.read-before-write.deny');
+  });
+});
+
+describe('driftbench replay: alignment', () => {
+  it('aligns a spec without a replay key by order, and skips a spec naming a session not given', async () => {
+    const dir = await tempDir();
+    await writeFile(
+      join(dir, 'a-positional.yaml'),
+      'id: positional\nkind: task\nblocks:\n  - user: anything\n    expect:\n      skills:\n        - { name: shop-build, count: 0 }\n',
+    );
+    await copyFile(join(ROOT, DIR, 'specs', 'clean-build.yaml'), join(dir, 'b-clean.yaml'));
+    const { code, json } = await replayJson(['replay', `${DIR}/skill-skipped.jsonl`, '--suite', dir]);
+    expect(code).toBe(0);
+    expect(json?.runs).toEqual([
+      expect.objectContaining({ spec: 'positional', session: 'skill-skipped', aligned: 'order', pass: true }),
+    ]);
+    expect(json?.notes).toEqual([
+      'replay-clean-build names the session clean-build, which was not given; skipped',
+    ]);
+  });
+
+  it('reads from_block: a spec starting at the second block sees only that block', async () => {
+    const dir = await tempDir();
+    await writeFile(
+      join(dir, 'second.yaml'),
+      [
+        'id: second-block',
+        'kind: task',
+        'metadata:',
+        '  replay: { session: clean-build, from_block: 1 }',
+        'blocks:',
+        '  - user: Thanks. Now show me the diff summary only.',
+        '    expect:',
+        '      tools:',
+        '        - { label: Bash, count: 1, input: { command: git diff --stat } }',
+        '',
+      ].join('\n'),
+    );
+    const { code, json } = await replayJson(['replay', `${DIR}/clean-build.jsonl`, '--suite', dir]);
+    expect(code).toBe(0);
+    expect(json?.runs[0]).toMatchObject({ spec: 'second-block', pass: true });
+  });
+
+  it('a spec longer than the session is a failed run that says why', async () => {
+    const dir = await tempDir();
+    await writeFile(
+      join(dir, 'long.yaml'),
+      'id: too-long\nkind: task\nmetadata:\n  replay: { session: subagent-dispatch }\nblocks:\n  - user: one\n  - user: two\n',
+    );
+    const { code, out } = await cli(['replay', `${DIR}/subagent-dispatch.jsonl`, '--suite', dir]);
+    expect(code).toBe(1);
+    expect(out).toContain('! too-long  session subagent-dispatch from block 0 (metadata)');
+    expect(out).toContain('the session has 1 block (0 to 0)');
+  });
+
+  it('refuses a malformed replay key, a log that names no session, and a suite with nothing aligned', async () => {
+    const dir = await tempDir();
+    await writeFile(
+      join(dir, 'bad.yaml'),
+      'id: bad\nkind: task\nmetadata:\n  replay: { session: clean-build, from: 1 }\nblocks:\n  - user: one\n',
+    );
+    const bad = await cli(['replay', `${DIR}/clean-build.jsonl`, '--suite', dir]);
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('bad: metadata.replay has unknown keys: from');
+
+    const orphan = await cli([
+      'replay',
+      `${DIR}/clean-build.jsonl`,
+      `${DIR}/skill-skipped.jsonl`,
+      '--suite',
+      `${DIR}/specs`,
+      '--decisions',
+      `${DIR}/gate-violated.decisions.jsonl`,
+    ]);
+    expect(orphan.code).toBe(2);
+    expect(orphan.err).toContain('its file name starts with no session name');
+
+    const none = await cli([
+      'replay',
+      `${DIR}/clean-build.jsonl`,
+      '--suite',
+      `${DIR}/specs/forbidden-act.yaml`,
+    ]);
+    expect(none.code).toBe(2);
+    expect(none.err).toContain('No spec is aligned with the sessions given');
+  });
+});

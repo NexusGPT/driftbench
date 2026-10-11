@@ -1,0 +1,20 @@
+# Replays a session where the agent fetches a web page during an offline task. Fails on the forbidden tool.
+# Fictional data.
+id: replay-forbidden-act
+kind: task
+title: A forbidden tool is called
+target: { adapter: claude-code }
+metadata:
+  replay: { session: forbidden-act }
+rules:
+  forbidden_tools: [WebFetch]
+  custom:
+    ordered:
+      pairs:
+        - { before: Read, after: Edit, key: file_path, reset: compaction }
+blocks:
+  - user: Add a discount field to the invoice total in src/invoice.ts, then run the tests.
+    expect:
+      skills:
+        - { name: shop-build, count: { min: 1 } }
+      execution: { ran_code: true, exit_code: 0 }
