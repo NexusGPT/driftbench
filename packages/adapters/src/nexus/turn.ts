@@ -7,8 +7,7 @@ import {
   type Segment,
   type ToolCall,
 } from '@driftbench/core';
-import { joinText, parseObserved } from '../function/shared';
-import { contentText, parseArguments } from '../http/chat';
+import { contentText, joinText, parseArguments, parseObserved } from '../shared';
 
 /**
  * Reading a Nexus agent turn into an Observed, from the two places the platform keeps it.

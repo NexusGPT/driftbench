@@ -12,12 +12,19 @@ import {
   type ToolCall,
   type Turn,
 } from '@driftbench/core';
-import { joinText, parseObserved, toolCallsOf } from '../function/shared';
+import {
+  excerpt,
+  type FetchLike,
+  type HttpReply,
+  joinText,
+  parseObserved,
+  sendRequest,
+  toolCallsOf,
+} from '../shared';
 import { type ChatMessage, isChatCompletion, readCompletion, toChatMessages } from './chat';
-import { excerpt, type FetchLike, type HttpReply, sendRequest } from './transport';
 
+export type { FetchLike } from '../shared';
 export type { ChatMessage, ChatToolCall } from './chat';
-export type { FetchLike } from './transport';
 
 /**
  * The http adapter: an agent behind an HTTP endpoint that speaks JSON.

@@ -14,41 +14,67 @@ import {
 import { describe, expect, it } from 'vitest';
 
 /**
- * The contract suite every adapter passes against the Acme Telecom agent (examples/acme).
+ * The contract suite every adapter passes.
  *
  *     adapterContract('http', () => httpAdapter({ url }), { brokenTransport: () => httpAdapter({ url: dead }) });
+ *     adapterContract('process', () => processAdapter(...), { brokenTransport, released, task: { ... } });
  *
- * `makeAdapter` builds an adapter that reaches the Acme agent, fresh for each test. The suite plays the
- * runner, which owns `session.history`: it appends the block's user message before `send` and the reply
- * after it, so at send time the history ends with the current user turn. What a capability rules out is
- * skipped, never failed.
+ * `makeAdapter` builds an adapter, fresh for each test. The suite plays the runner, which owns
+ * `session.history`: it appends the block's user message before `send` and the reply after it, so at send
+ * time the history ends with the current user turn. What a capability rules out is skipped, never failed.
+ *
+ * Two modes, one suite. A chat adapter reaches the Acme Telecom agent (examples/acme), and the suite holds
+ * the Acme chat with it, tool calls and end states included. An adapter that runs a code agent in a sandbox
+ * (the `sandbox` capability) and cannot hold that chat names a `task` instead: the suite runs the generic
+ * checks on the task's blocks and skips the Acme tool-call and end-state checks, saying why.
  *
  * What it holds an adapter to:
- * - `open` returns a session of the adapter for the Given; the history holds the prefix when the adapter
- *   seeds prefixes, and is empty when it does not (the runner then replays the prefix).
+ * - Its id is the name given; every capability is a boolean; `trace`, `endState` and `readArtifact` exist
+ *   when `trace`, `endState` and `sandbox` are declared. A task names a sandbox adapter.
+ * - `open` returns a session of the adapter for the Given, whose history is a copy of the prefix: the
+ *   messages so far. `seedPrefix` says whether the agent itself sees them.
  * - `send` returns an Observed that validates against the schema: every tool call is a `tool_call` segment
  *   followed by its `tool_result` segment, `toolCalls` lists them in the same order with the same outputs and
- *   errors, `text` is the text segments joined by a newline, and `cost` and `latencyMs` are present. The
- *   turn is whole: the Acme agent's two tool calls and its reply all arrive.
+ *   errors, `text` is the text segments joined by a newline, and `cost` and `latencyMs` are present.
+ *   Chat: the turn is whole, the Acme agent's two tool calls and its reply all arrive. Task: the block's
+ *   workspace diff and artifacts arrive, and `readArtifact` reads the produced file.
  * - `send` never appends to the history, and two sends on one session carry it forward.
- * - With `toolStubs`, an error forced in `world.tools` reaches the tool's `tool_result` segment.
- * - With `endState`, `tool:order.create` reads the last payload the order tool received, after the four
- *   blocks of an upgrade; a tool that received nothing reads undefined. Source `*` lists every payload in
- *   order as `{ tool, input }`: the order alone after the upgrade, an empty list when nothing was submitted.
- * - With `trace`, `trace` returns the same turn under the same rules. With `sandbox`, `readArtifact` exists.
+ * - Chat, with `toolStubs`: an error forced in `world.tools` reaches the tool's `tool_result` segment.
+ * - Chat, with `endState`: `tool:order.create` reads the last payload the order tool received, after the
+ *   four blocks of an upgrade; a tool that received nothing reads undefined. Source `*` lists every payload
+ *   in order as `{ tool, input }`: the order alone after the upgrade, an empty list when nothing was
+ *   submitted.
+ * - With `trace`, `trace` returns the same block under the same rules.
  * - `close` releases the session: a later `send` fails, and `released` (when given) confirms it.
  * - A transport failure throws AdapterTransportError, from `open` or from `send`.
  */
 
 export type AdapterFactory = () => AgentAdapter | Promise<AgentAdapter>;
 
+/** A task for an adapter that runs a code agent in a sandbox, in place of the Acme chat. */
+export type ContractTask = {
+  /** The workspace the agent starts in. */
+  workspace: NonNullable<WorldState['workspace']>;
+  /** The instruction of each block, in order. The first makes the agent write `produces`. */
+  instructions: readonly [string, string, ...string[]];
+  /** The file the first block creates, read back through `readArtifact`. */
+  produces: string;
+  /** How many history messages the agent says it received, read from its Observed. Proves the history reached it. */
+  historySeen?: (observed: Observed) => number | undefined;
+};
+
 export type ContractOptions = {
-  /** An adapter of the same kind whose transport fails: an endpoint that refuses connections, a fetch that throws. */
+  /**
+   * An adapter of the same kind whose transport fails: an endpoint that refuses connections, a fetch that
+   * throws, an agent command that is not there.
+   */
   brokenTransport: AdapterFactory;
   /** The target the Givens carry. Default `{ adapter: <name> }`. */
   target?: TargetRef;
   /** Confirms that what a closed session held is released: the store dropped, the conversation deleted. */
   released?: (session: Session) => boolean | Promise<boolean>;
+  /** For a sandbox adapter that cannot hold the Acme chat: the task its generic checks run. */
+  task?: ContractTask;
   /** Milliseconds a test may take. Default 20000. */
   timeoutMs?: number;
 };
@@ -165,7 +191,15 @@ export function expectWholeObserved(observed: Observed): void {
 export function adapterContract(name: string, makeAdapter: AdapterFactory, options: ContractOptions): void {
   const target = options.target ?? { adapter: name };
   const timeout = options.timeoutMs ?? 20_000;
-  const given = (world?: WorldState, prefix?: Message[]) => acmeGiven(target, world, prefix);
+  const task = options.task;
+  /** The Given of a block: the task's workspace in task mode, the bare Acme world otherwise. */
+  const given = (world: WorldState = {}, prefix?: Message[]) =>
+    acmeGiven(target, task ? { ...world, workspace: task.workspace } : world, prefix);
+  const firstText = task?.instructions[0] ?? COVERAGE_QUESTION;
+  const secondText = task?.instructions[1] ?? PLAN_CHOICE;
+  const chatOnly = (skip: (note?: string) => never, why: string) => {
+    if (task) skip(`task mode: ${name} runs a code agent in a sandbox, and ${why}`);
+  };
 
   /** Runs a test against an open session and closes it afterwards, also when the test fails. */
   async function withSession<T>(
@@ -209,15 +243,22 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
         typeof adapter.readArtifact === 'function' || !capabilities.sandbox,
         'readArtifact exists when the adapter owns a workspace',
       ).toBe(true);
+      if (task)
+        expect(capabilities.sandbox, 'a task names an adapter that runs its agent in a sandbox').toBe(true);
     });
 
     it(
-      'opens a session for the Given, with the prefix in its history when it seeds prefixes',
+      'opens a session for the Given, with a copy of the prefix in its history',
       async () => {
-        const prefix: Message[] = [
-          { role: 'user', content: COVERAGE_QUESTION },
-          { role: 'assistant', content: 'We cover 3 Orchard Way. Which plan would you like?' },
-        ];
+        const prefix: Message[] = task
+          ? [
+              { role: 'user', content: 'An earlier instruction.' },
+              { role: 'assistant', content: 'An earlier reply.' },
+            ]
+          : [
+              { role: 'user', content: COVERAGE_QUESTION },
+              { role: 'assistant', content: 'We cover 3 Orchard Way. Which plan would you like?' },
+            ];
         const start = given({}, prefix);
         const adapter = await makeAdapter();
         const session = await adapter.open(start);
@@ -226,13 +267,9 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
           expect(session.id).toMatch(/\S/);
           expect(session.target).toEqual(target);
           expect(session.given).toEqual(start);
-          if (adapter.capabilities().seedPrefix) {
-            expect(session.history).toEqual(prefix);
-            session.history.push({ role: 'user', content: 'one more' });
-            expect(start.prefix, 'the history is a copy: the Given stays as it was').toHaveLength(2);
-          } else {
-            expect(session.history, 'the runner replays the prefix itself').toEqual([]);
-          }
+          expect(session.history, 'the messages so far, the prefix included').toEqual(prefix);
+          session.history.push({ role: 'user', content: 'one more' });
+          expect(start.prefix, 'the history is a copy: the Given stays as it was').toHaveLength(2);
         } finally {
           await adapter.close(session);
         }
@@ -242,7 +279,8 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
 
     it(
       'sends a block and returns the whole turn: every segment and tool call, the text, cost and latency',
-      async () => {
+      async ({ skip }) => {
+        chatOnly(skip, 'the Acme chat and its tool calls do not apply');
         await withSession(async (adapter, session) => {
           const observed = await sendUser(adapter, session, COVERAGE_QUESTION, 0);
           expectWholeObserved(observed);
@@ -255,17 +293,49 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
     );
 
     it(
+      'sends a task block and returns its workspace diff and artifacts, and reads the produced file back',
+      async ({ skip }) => {
+        if (!task) return skip('chat mode: no task is named, and the whole-turn test checks the Acme chat');
+        await withSession(async (adapter, session) => {
+          const observed = await sendUser(adapter, session, task.instructions[0], 0);
+          expectWholeObserved(observed);
+          expect(observed.workspaceDiff, 'the workspace diff of the block').toBeDefined();
+          expect(observed.workspaceDiff?.created).toContain(task.produces);
+          const artifact = observed.artifacts?.find((entry) => entry.path === task.produces);
+          expect(artifact, `${task.produces} is an artifact of the block`).toBeDefined();
+          const bytes = await adapter.readArtifact?.(session, task.produces);
+          expect(bytes?.byteLength ?? 0, `readArtifact reads ${task.produces}`).toBeGreaterThan(0);
+          if (artifact?.bytes !== undefined) expect(bytes?.byteLength).toBe(artifact.bytes);
+        });
+      },
+      timeout,
+    );
+
+    it(
       'never appends to the history, and carries it forward over two sends',
       async () => {
         await withSession(async (adapter, session) => {
-          session.history.push({ role: 'user', content: COVERAGE_QUESTION });
+          session.history.push({ role: 'user', content: firstText });
           const before = structuredClone(session.history);
-          const first = await adapter.send(session, userTurn(0, COVERAGE_QUESTION, session.given));
+          const first = await adapter.send(session, userTurn(0, firstText, session.given));
           expect(session.history, 'send never appends to the history').toEqual(before);
+          expectWholeObserved(first);
           session.history.push(replyMessage(first));
 
-          const second = await converse(adapter, session, PLAN_CHOICE, 1);
+          const handed = session.history.length + 1;
+          const second = await converse(adapter, session, secondText, 1);
           expectWholeObserved(second);
+          if (task) {
+            if (task.historySeen) {
+              expect(task.historySeen(first), 'the agent received the history of the first block').toBe(
+                before.length,
+              );
+              expect(task.historySeen(second), 'the agent received the history of the second block').toBe(
+                handed,
+              );
+            }
+            return;
+          }
           expect(first.text.startsWith(GREETING)).toBe(true);
           expect(second.text.startsWith(GREETING), 'the agent knows it already greeted').toBe(false);
           expect(second.text).toContain('Acme Fiber 300');
@@ -281,6 +351,7 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
     it(
       'delivers a tool error forced in world.tools to the tool_result segment, when it honours tool stubs',
       async ({ skip }) => {
+        chatOnly(skip, 'its agent calls no Acme tool to force an error on');
         const adapter = await makeAdapter();
         if (!adapter.capabilities().toolStubs) skip('no toolStubs capability');
         const world: WorldState = { tools: { 'coverage.check': { error: 'coverage service unavailable' } } };
@@ -310,6 +381,7 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
     it(
       'reads the last payload order.create received through endState, when it reads end states',
       async ({ skip }) => {
+        chatOnly(skip, 'the end-state checks read the Acme order flow it does not hold');
         const adapter = await makeAdapter();
         if (!adapter.capabilities().endState || !adapter.endState) skip('no endState capability');
         const session = await adapter.open(given());
@@ -332,6 +404,7 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
     it(
       'lists no payload for source * when the conversation submitted nothing, when it reads end states',
       async ({ skip }) => {
+        chatOnly(skip, 'the end-state checks read the Acme order flow it does not hold');
         const adapter = await makeAdapter();
         if (!adapter.capabilities().endState || !adapter.endState) skip('no endState capability');
         const session = await adapter.open(given());
@@ -354,8 +427,8 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
         if (!adapter.capabilities().trace || !adapter.trace) skip('no trace capability');
         const session = await adapter.open(given());
         try {
-          const sent = await sendUser(adapter, session, COVERAGE_QUESTION, 0);
-          const traced = await adapter.trace?.(session, userTurn(0, COVERAGE_QUESTION, session.given));
+          const sent = await sendUser(adapter, session, firstText, 0);
+          const traced = await adapter.trace?.(session, userTurn(0, firstText, session.given));
           if (!traced) throw new Error('trace returned nothing');
           expectWholeObserved(traced);
           expect(traced.toolCalls.map((call) => call.label)).toEqual(
@@ -374,10 +447,10 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
       async () => {
         const adapter = await makeAdapter();
         const session = await adapter.open(given());
-        await converse(adapter, session, COVERAGE_QUESTION, 0);
+        await converse(adapter, session, firstText, 0);
         await adapter.close(session);
         if (options.released) expect(await options.released(session), 'released').toBe(true);
-        await expect(sendUser(adapter, session, PLAN_CHOICE, 1)).rejects.toThrow();
+        await expect(sendUser(adapter, session, secondText, 1)).rejects.toThrow();
       },
       timeout,
     );
@@ -394,9 +467,7 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
           expect(error).toBeInstanceOf(AdapterTransportError);
           return;
         }
-        await expect(sendUser(adapter, session, COVERAGE_QUESTION, 0)).rejects.toBeInstanceOf(
-          AdapterTransportError,
-        );
+        await expect(sendUser(adapter, session, firstText, 0)).rejects.toBeInstanceOf(AdapterTransportError);
         // close is always called, also after a failure: it resolves, or reports the same broken transport.
         await adapter
           .close(session)

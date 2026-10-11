@@ -9,9 +9,9 @@ import type {
   Turn,
   WorldState,
 } from '@driftbench/core';
-import { asAgentError, parseObserved, readSource, type ToolPayload } from './shared';
+import { asAgentError, parseObserved, readSource, type ToolPayload } from '../shared';
 
-export type { ToolPayload } from './shared';
+export type { ToolPayload } from '../shared';
 
 /**
  * The function adapter: an agent that is an async function in the same process. No network, no key.

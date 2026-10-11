@@ -1,5 +1,5 @@
 import { AdapterTransportError } from '@driftbench/core';
-import { describeError } from '../function/shared';
+import { describeError } from './observed';
 
 /** The part of `fetch` the adapters use, so a test can hand in its own. */
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
