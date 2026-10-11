@@ -1,4 +1,11 @@
-import { Feasibility, type PreparedMap, rngFor, stageGraph, walkGraph } from '@driftbench/generate';
+import {
+  EMPTY_RELATIONS,
+  Feasibility,
+  type PreparedMap,
+  rngFor,
+  stageGraph,
+  walkGraph,
+} from '@driftbench/generate';
 import { compileSpace, type SpaceMap } from '@driftbench/space';
 import type { Atom, Edge, EstateMap } from '../schema';
 
@@ -82,6 +89,7 @@ export function planJourneys(map: EstateMap, options: JourneyOptions = JOURNEY_D
     space: compiled,
     axisMap: space,
     axes: new Set([0, 1]),
+    relations: EMPTY_RELATIONS,
     feasibility: new Feasibility(compiled),
     phrases: [],
     phrasesOf: new Map(),
