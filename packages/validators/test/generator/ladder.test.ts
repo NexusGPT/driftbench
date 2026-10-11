@@ -71,7 +71,10 @@ describe('the generator bank', () => {
     expect(run.rows[0]).toMatchObject({ id: 'generate', pass: true, observed: 1 });
     if (run.failing) {
       for (const item of run.failing.items) {
-        expect(item.detail).toMatch(/^\[\w[\w-]*, tier [1-5]\] /);
+        // The frame's bank measure carries the family and the tier as fields of each failing item.
+        expect(item.family).toMatch(/^\w[\w-]*$/);
+        expect(item.tier).toBeGreaterThanOrEqual(1);
+        expect(item.tier).toBeLessThanOrEqual(5);
         expect(item.component).toMatch(/^packages\//);
       }
     }
@@ -97,7 +100,9 @@ describe('items with planted defects', () => {
       },
       noScale,
     );
-    const [graph, twise] = await evaluate(itemsOf('generate.bytes.graph', 'generate.bytes.twise'), data);
+    const results = await evaluate(itemsOf('generate.bytes.graph', 'generate.bytes.twise'), data);
+    const graph = results.find((result) => result.item.id === 'generate.bytes.graph');
+    const twise = results.find((result) => result.item.id === 'generate.bytes.twise');
     expect(graph?.verdict.pass).toBe(false);
     expect(graph?.verdict.detail).toMatch(/files differ between two runs/);
     expect(twise?.verdict.pass).toBe(true);
@@ -120,8 +125,11 @@ describe('items with planted defects', () => {
 
   it('kills a stage fault and names a text fault no Then reads', async () => {
     const data = new SeedData(1, { cheaters: [], faults: only('X3.skip', 'X2.fact-flip') }, noScale);
-    const [skip, flip] = await evaluate(itemsOf('fault.X3.skip', 'fault.X2.fact-flip'), data);
-    expect(skip?.verdict.pass).toBe(true);
+    // evaluate returns the items in bank order, so each is found by its id.
+    const results = await evaluate(itemsOf('fault.X3.skip', 'fault.X2.fact-flip'), data);
+    const skip = results.find((result) => result.item.id === 'fault.X3.skip');
+    const flip = results.find((result) => result.item.id === 'fault.X2.fact-flip');
+    expect(skip?.verdict.pass, skip?.verdict.detail).toBe(true);
     expect(flip?.verdict.pass).toBe(false);
     expect(flip?.verdict.detail).toMatch(/it lacks a must or must_not on the tool answer the reply states/);
   });
