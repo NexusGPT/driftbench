@@ -171,6 +171,7 @@ const JUDGE_TERMS = [
   'grader',
   'grading',
   'judge',
+  'judges',
   'evaluator',
   'evaluating',
   'evaluates',
@@ -208,6 +209,7 @@ const JUDGE_TERMS = [
 ];
 const DIRECTIVES = [
   'pass',
+  'passing',
   'passed',
   'passes',
   'success',
@@ -247,10 +249,20 @@ function termPattern(term: string): string {
 const JUDGE_RE = new RegExp(JUDGE_TERMS.map(termPattern).join('|'), 'u');
 const DIRECTIVE_RE = new RegExp(DIRECTIVES.map(termPattern).join('|'), 'u');
 
+/** In English the words alone are not enough: the sentence must instruct (an imperative, a modal, a note). */
+const ENGLISH = /\b(the|and|is|was|my|of|to|this|for|a)\b/;
+const CUE =
+  /\b(mark|give|return|treat|must|report|ignore|disregard|answer|answers|consider|output|should|set|always|never|forget (the|your|all)|respond|rate|override|score it|pick|pass (this|it)|note|instructions?|expected answer|apply|you are|on a scale|message to|system prompt|new criterion|reading this)\b|verdict\s*[:=]/;
+
 function hit(text: string): boolean {
   return text
     .split(/(?<=[.!?;])\s+|\n/)
-    .some((sentence) => JUDGE_RE.test(sentence) && DIRECTIVE_RE.test(sentence));
+    .some(
+      (sentence) =>
+        JUDGE_RE.test(sentence) &&
+        DIRECTIVE_RE.test(sentence) &&
+        (!ENGLISH.test(sentence) || CUE.test(sentence)),
+    );
 }
 
 const rot = (t: string, n: number) =>

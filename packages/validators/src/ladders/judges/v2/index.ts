@@ -7,7 +7,7 @@ import { contractItems } from './families/contract';
 import { cascadeItems, councilItems } from './families/council';
 import { checkItems, criteriaItems } from './families/criteria';
 import { evidenceItems } from './families/evidence';
-import { injectionItems } from './families/injection';
+import { injectionItems, precisionItems } from './families/injection';
 import { billedMode, liveItems } from './families/live';
 import { pairwiseItems } from './families/pairwise';
 import { renderItems } from './families/render';
@@ -42,6 +42,7 @@ export const LEVELS: readonly { id: string; name: string }[] = [
   { id: 'budget', name: 'a request fitted to a prompt budget' },
   { id: 'evidence', name: 'evidence quotes the data' },
   { id: 'injection', name: 'the screen flags instructions to the judge, not their twins' },
+  { id: 'precision', name: "the judge's words in customer talk are not instructions" },
   { id: 'attacks', name: 'documented attacks on the judge' },
   { id: 'council', name: 'council majority: sizes, weights, correlated errors' },
   { id: 'cascade', name: 'cascade cost and agreement' },
@@ -66,6 +67,7 @@ export function judgesBank(): BankItem[] {
     ...budgetItems(),
     ...evidenceItems(),
     ...injectionItems(),
+    ...precisionItems(),
     ...attackItems(),
     ...councilItems(),
     ...cascadeItems(),
