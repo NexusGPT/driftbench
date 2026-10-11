@@ -80,11 +80,23 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
 
+  packages/generate:
+    dependencies:
+      '@driftbench/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/judges: {}
 
   packages/report: {}
 
   packages/sandbox:
+    dependencies:
+      '@driftbench/core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/space:
     dependencies:
       '@driftbench/core':
         specifier: workspace:*
