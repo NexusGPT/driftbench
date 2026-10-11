@@ -224,6 +224,23 @@ box('lever.box', [LEVER.x, LEVER.y, 0], [LEVER.x + LEVER.w, LEVER.y + LEVER.d, 8
     Dots(k.corners(LEVER, 3).map(([x, y]) => at([x, y, 8])), { size: 0.45 }),
 });
 put('lever.knob', [LEVER_X.T, LEVER.y + 9, 14], `<g data-part="lever">${S(k.cylinder(LEVER_X.T, LEVER.y + 9, 1.3, 8, 10, P, 16), { tone: 'mid', crease: 'none' })}${S(G.sphereOf([LEVER_X.T, LEVER.y + 9, 20.9], 3, P, { steps: 28 }), { tone: 'hi' })}</g>`, [R.solid(A.cylinder(LEVER_X.T, LEVER.y + 9, 1.3, 8, 10, { name: 'lever.post' })), R.solid(A.ball([LEVER_X.T, LEVER.y + 9, 20.9], 3, { name: 'lever.knob' }))], { piece: 'lever', bias: 0.4 });
+// The golden rack beside the lever: the canonical Givens a teacher forced block starts from, one per block.
+const GOLD = { x: -262, y: 40, w: 66, d: 18, r: 2 };
+box('golden.rack', [GOLD.x, GOLD.y, 0], [GOLD.x + GOLD.w, GOLD.y + GOLD.d, 6], { tone: 'mid' }, {
+  r: 2,
+  steps: 4,
+  bevel: 0.5,
+  piece: 'lever',
+  inner: Ln(k.sideSeam(GOLD, 2.6, P, 4), { tone: 'faint' }),
+  extra: Dots(k.corners(GOLD, 2.4).map(([x, y]) => at([x, y, 6])), { size: 0.45 }),
+});
+for (let i = 0; i < 5; i++) {
+  const x = GOLD.x + 9 + i * 12;
+  const y = GOLD.y + 9;
+  post('golden.capsule', x, y, 6, 15, 4.4, { tone: 'hi' }, { piece: 'lever', inner: Ln(k.sideArc(x, y, 4.4, 10.4, P, 20), { tone: 'faint' }) });
+  post('golden.cap', x, y, 15, 16.8, 4.9, { tone: 'mid' }, { piece: 'lever', extra: Ln(k.ring(x, y, 2.6, 16.8, P, 20), { tone: 'lo' }) });
+}
+
 // ---------------------------------------------------------------- 01 the generation hopper over slot 0
 const X0 = SLOTS[0];
 const GUIDE = 23;
@@ -395,10 +412,9 @@ for (const y of [-10, 10]) post('gantry.guide', GX, y, 48, 70, 1.1, { tone: 'mid
 const PADS = M.CHECKS.map((name, i) => ({ name, x: 10.9 + (i % 3) * 3.8, y: -8.6 + Math.floor(i / 3) * 8 }));
 const HEAD_SVG = (() => {
   const out = [];
+  const pins = [...PADS].sort((a, b) => k.depthOf([a.x, a.y, 0], P) - k.depthOf([b.x, b.y, 0], P));
+  for (const pad of pins) out.push(S(k.cylinder(X3 + pad.x, pad.y, 0.6, 37, 7, P, 12), { tone: 'hi', crease: 'none' }));
   out.push(S(k.slabOf({ x: X3 + 8.4, y: -13, w: 12.6, d: 24.4, r: 1.2 }, 44, 4, P, 3, 0.4), { tone: 'mid' }));
-  for (const pad of PADS) {
-    out.push(S(k.cylinder(X3 + pad.x, pad.y, 0.6, 37, 7, P, 12), { tone: 'hi', crease: 'none' }));
-  }
   out.push(`<g data-part="flags">${PADS.map((pad) => `<g data-flag="${pad.name}">${S(k.slabOf({ x: X3 + pad.x - 0.8, y: pad.y - 1.4, w: 1.6, d: 2.8, r: 0.3 }, 48, 3, P, 1), { tone: 'hi' })}</g>`).join('')}</g>`);
   return out.join('');
 })();
@@ -480,7 +496,11 @@ box('console.cabinet', [CONSOLE.x, CONSOLE.y, 0], [CONSOLE.x + CONSOLE.w, CONSOL
   piece: 'console',
   bias: -3,
   inner: Ln(k.sideSeam(CONSOLE, 30, P, 4), { tone: 'faint' }),
-  extra: Dots(k.corners(CONSOLE, 4).map(([x, y]) => at([x, y, CONSOLE_H])), { size: 0.5 }),
+  extra:
+    Dots(k.corners(CONSOLE, 4).map(([x, y]) => at([x, y, CONSOLE_H])), { size: 0.5 }) +
+    Ln(Array.from({ length: 6 }, (_, i) => k.planOutline({ x: CONSOLE.x + 150 + i * 12, y: CONSOLE.y + 7, w: 3, d: 14, r: 1.5 }, CONSOLE_H, P, 3)).join(''), { tone: 'faint' }) +
+    Ln(path3([[CONSOLE.x + CONSOLE.w + 0.02, CONSOLE.y + 5, 40], [CONSOLE.x + CONSOLE.w + 0.02, CONSOLE.y + CONSOLE.d - 5, 40], [CONSOLE.x + CONSOLE.w + 0.02, CONSOLE.y + CONSOLE.d - 5, 96], [CONSOLE.x + CONSOLE.w + 0.02, CONSOLE.y + 5, 96]], true), { tone: 'faint' }) +
+    Dots([[CONSOLE.y + 8, 43], [CONSOLE.y + CONSOLE.d - 8, 43], [CONSOLE.y + 8, 93], [CONSOLE.y + CONSOLE.d - 8, 93]].map(([y, z]) => at([CONSOLE.x + CONSOLE.w + 0.02, y, z])), { size: 0.45 }),
 });
 const CHART = { x: CONSOLE.x + 10, w: 116, z0: 98, h: 44 };
 const DIAL = { x: CONSOLE.x + 160, z: 76, r: 24 };
@@ -553,7 +573,7 @@ const LIVE_LAYER = `<g data-part="beam"></g><g data-part="cars"></g>`;
 groups.splice(insertAt < 0 ? groups.length : insertAt, 0, LIVE_LAYER);
 
 const LABEL_TEXT =
-  'driftbench as a machine: an indexing test line on a cast bench. Blocks, each carrying its Given, When and Then, drop from a generation hopper fed by a prompt, a specification and past conversations, with a coverage pegboard and a validity gate. They index along a track through a deviation punch, the agent cell with a conversational adapter and a code interpreter adapter with its workspace drawer, a gantry of nine check pins, and a judge council of balances, then into the store. A mode lever couples or uncouples the blocks. At the back, a chart recorder traces drift and recovery, a dial shows the pass rate with its interval and the gate threshold, counters show passes, pass^3 and recoveries, and a CI gate arm lifts or holds.';
+  'driftbench as a machine: an indexing test line on a cast bench. Blocks, each carrying its Given, When and Then, drop from a generation hopper fed by a prompt, a specification and past conversations, with a coverage pegboard and a validity gate. They index along a track through a deviation punch, the agent cell with a conversational adapter and a code interpreter adapter with its workspace drawer, a gantry of nine check pins, and a judge council of balances, then into the store. A mode lever beside a rack of golden Givens couples or uncouples the blocks. At the back, a chart recorder traces drift and recovery, a dial shows the pass rate with its interval and the gate threshold, counters show passes, pass^3 and recoveries, and a CI gate arm lifts or holds.';
 const svg = k.figureSvg({ width: W, height: H, label: LABEL_TEXT, body: [...back, `<g class="an-line">${groups.join('')}</g>`] });
 
 // ---------------------------------------------------------------- data for the page
@@ -596,7 +616,7 @@ const LIVE = readFileSync(join(HERE, 'live.js'), 'utf8').replace('__DATA__', JSO
 
 const PIECES = [
   ['hopper', '01', 'Generation hopper', 'Blocks generated from a prompt, a specification or past conversations. The pegboard counts coverage; the gate rejects invalid blocks.'],
-  ['lever', '02', 'Mode lever', 'Teacher forced, free running or perturbed. Free running couples the blocks: what one block leaves rides into the next.'],
+  ['lever', '02', 'Mode lever and golden rack', 'Teacher forced starts every block from the golden rack. Free running couples the blocks: what one block leaves rides into the next. Perturbed adds the punch.'],
   ['punch', '03', 'Deviation punch', 'In perturbed mode it injects a deviation at a chosen block.'],
   ['agent', '04', 'Agent cell', 'The agent under test, through an adapter: a conversation, or a code interpreter task step with its workspace drawer.'],
   ['gantry', '05', 'Check pins', 'Nine machine checks first: tools, text, language, stage, guards, skills, artifacts, workspace, safety. A machine fail is final.'],
