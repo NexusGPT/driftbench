@@ -211,7 +211,10 @@ export interface PairedDifference {
  */
 export function pairedRateDifference(table: PairedTable, alpha = 0.05): PairedDifference {
   const { bothPass: a, regressed: b, improved: c, bothFail: d } = table;
-  for (const [name, v] of Object.entries(table)) assertCount(name, v as number);
+  assertCount('bothPass', a);
+  assertCount('regressed', b);
+  assertCount('improved', c);
+  assertCount('bothFail', d);
   assertProbability('alpha', alpha, true);
   const n = a + b + c + d;
   if (n === 0) throw new RangeError('pairedRateDifference: no pairs');
