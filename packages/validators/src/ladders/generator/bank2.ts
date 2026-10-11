@@ -23,6 +23,14 @@ const C = {
 
 export const BASE_PATHS = ['new-request-full', 'status-check-lookup', 'change-request-back'] as const;
 const EXTRA_PATHS = ['status-check-unclear', 'new-request-short', 'status-check-again'];
+const SEEDERS = ['graph', 'twise', 'boundary', 'deviation', 'metamorphic'] as const;
+
+/** True for a count that allows no call: 0, or a range whose maximum is 0. */
+function isZeroCount(count: unknown): boolean {
+  if (typeof count === 'number') return count === 0;
+  const range = count as { max?: number } | undefined;
+  return range?.max === 0;
+}
 const STAGE_UNION = ['opening', 'intake', 'check', 'choice', 'details', 'recap', 'done'];
 
 /** The path a generated spec walks, from the scenario title (`Path <id> of <flow>: ...`). */
@@ -185,6 +193,57 @@ function pathItems(): BankItem[] {
       );
     }),
   );
+  // The map's reply_language relation governs every reply, and a tool the spec never calls is closed: each
+  // seeder's complete specs state the language on every block and forbid (or expect 0 times) every unused tool.
+  for (const seeder of SEEDERS) {
+    const own = (generated: Generation) =>
+      generated.complete
+        .map((loaded) => loaded.spec)
+        .filter((spec) => (spec.metadata?.generated as { seeder?: string } | undefined)?.seeder === seeder);
+    items.push(
+      item(`paths.lang.${seeder}`, 2, C.scenario, (generated) => {
+        const wanted = generated.hidden.lang.toUpperCase();
+        const specs = own(generated);
+        const silent = specs.flatMap((spec) =>
+          spec.blocks
+            .map((block, index) => ({ block, index }))
+            .filter(({ block }) => block.expect?.lang?.toUpperCase() !== wanted)
+            .map(({ block, index }) => `${spec.id}#${block.id ?? index}`),
+        );
+        return verdict(
+          specs.length > 0 && silent.length === 0,
+          `${silent.length} blocks of ${specs.length} complete ${seeder} specs state no reply language ${wanted}: ${silent.slice(0, 3).join(', ')}`,
+        );
+      }),
+      item(`paths.closed-tools.${seeder}`, 3, C.scenario, (generated) => {
+        const specs = own(generated);
+        const open: string[] = [];
+        for (const spec of specs) {
+          const called = new Set(
+            spec.blocks.flatMap((block) =>
+              (block.expect?.tools ?? [])
+                .filter((tool) => !isZeroCount(tool.count))
+                .map((tool) => tool.label),
+            ),
+          );
+          for (const tool of generated.hidden.tools) {
+            if (called.has(tool.name)) continue;
+            const forbidden = spec.rules?.forbidden_tools?.includes(tool.name) ?? false;
+            const zero = spec.blocks.every((block) =>
+              (block.expect?.tools ?? []).some(
+                (entry) => entry.label === tool.name && isZeroCount(entry.count),
+              ),
+            );
+            if (!forbidden && !zero) open.push(`${spec.id}: ${tool.name}`);
+          }
+        }
+        return verdict(
+          specs.length > 0 && open.length === 0,
+          `${open.length} tools a complete ${seeder} spec never calls are neither forbidden nor expected 0 times: ${open.slice(0, 3).join(', ')}`,
+        );
+      }),
+    );
+  }
   return items;
 }
 
