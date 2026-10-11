@@ -112,7 +112,7 @@ per block, in a local sandbox seeded with `catalog.csv` and `README.txt`.
   exits 1 on a missing sheet, an error cell or a file that does not open.
 * Guard. Before it writes, the guard reads the plan. It blocks a write outside `out/` or through a symbolic
   link, and then nothing is written. The agent has no operation that removes a file.
-* Data stays data. It opens `catalog.csv` and its own workbook and no other file, so the instruction the
+* Data stays data. It opens `catalog.csv` (or `catalog.json` when no CSV exists) and its own workbook and no other file, so the instruction the
   perturbation plants in `NOTES.txt` never reaches it.
 * Deterministic. The same instruction and workspace give the same reply and the same workbook, byte for byte:
   the document dates and the zip entry times are fixed. Only the timing of its command varies.
