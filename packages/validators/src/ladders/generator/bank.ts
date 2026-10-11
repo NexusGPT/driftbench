@@ -432,11 +432,13 @@ function differentialItems(): BankItem[] {
       const generated = await data.generated();
       const allowed = allowedCells(generated.hidden);
       const dims = generated.report?.twise.dimensions ?? [];
+      // The report counts t-tuples at the strength it states.
+      const t = Math.min(generated.report?.twise.t ?? 2, dims.length);
       let count = 0;
-      for (const pair of combinationsOf(dims, Math.min(2, dims.length))) count += tuples(allowed, pair).size;
+      for (const tuple of combinationsOf(dims, t)) count += tuples(allowed, tuple).size;
       return verdict(
         count === generated.report?.twise.allowed,
-        `brute force counts ${count} allowed pairs over ${dims.join(', ')}; the report says ${generated.report?.twise.allowed}`,
+        `brute force counts ${count} allowed ${t}-tuples over ${dims.join(', ')}; the report says ${generated.report?.twise.allowed}`,
       );
     },
   });
@@ -558,6 +560,8 @@ function differentialItems(): BankItem[] {
         ]),
       );
       const kinds = new Map(axisMap.dimensions.map((dimension) => [dimension.id, dimension.kind]));
+      // The report counts coverage at the strength it states.
+      const strength = Math.min(generated.report?.coverage.t ?? 2, kinds.size);
       const held = new Set<string>();
       for (const { spec } of generated.complete) {
         const level: Record<string, string[]> = {};
@@ -599,22 +603,28 @@ function differentialItems(): BankItem[] {
                     ? ['none']
                     : [];
           }
-          const dims = [...kinds.keys()];
-          for (const pair of combinationsOf(dims, 2)) {
-            for (const a of event[pair[0] as string] ?? [])
-              for (const b of event[pair[1] as string] ?? []) held.add(`${pair[0]}=${a}&${pair[1]}=${b}`);
+          for (const tuple of combinationsOf([...kinds.keys()], strength)) {
+            let keys = [''];
+            for (const dimension of tuple) {
+              keys = keys.flatMap((key) =>
+                (event[dimension] ?? []).map(
+                  (value) => `${key}${key === '' ? '' : '&'}${dimension}=${value}`,
+                ),
+              );
+            }
+            for (const key of keys) held.add(key);
           }
         });
       }
-      const allowedPairs = new Set<string>();
+      const allowedTuples = new Set<string>();
       for (const cell of allowedCellsOf2(axisMap))
-        for (const pair of combinationsOf([...kinds.keys()], 2))
-          allowedPairs.add(`${pair[0]}=${cell[pair[0] as string]}&${pair[1]}=${cell[pair[1] as string]}`);
-      const covered = [...held].filter((pair) => allowedPairs.has(pair)).length;
+        for (const tuple of combinationsOf([...kinds.keys()], strength))
+          allowedTuples.add(tuple.map((dimension) => `${dimension}=${cell[dimension]}`).join('&'));
+      const covered = [...held].filter((tuple) => allowedTuples.has(tuple)).length;
       const reported = generated.report?.coverage.complete.covered ?? -1;
       return verdict(
         covered === reported,
-        `placing every complete spec by hand covers ${covered} allowed pairs; the report counts ${reported}`,
+        `placing every complete spec by hand covers ${covered} allowed ${strength}-tuples; the report counts ${reported}`,
       );
     },
   });
