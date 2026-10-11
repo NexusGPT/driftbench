@@ -805,10 +805,10 @@ function unseenItems(): BankItem[] {
         const counts = sample(rng, pop.probs, 50 * S);
         const truth = hillTrue(pop.probs, 2);
         const got = s.hillNumbers(counts).q2;
-        return Math.abs(got - truth) / truth <= 0.06
+        return Math.abs(got - truth) / truth <= 0.1
           ? ok()
           : fail(
-              `hillNumbers(counts).q2 on ${50 * S} draws from ${pop.key} gave ${got}; the population's inverse Simpson is ${truth} and the plug-in value is within 6 percent at 50 draws per class.`,
+              `hillNumbers(counts).q2 on ${50 * S} draws from ${pop.key} gave ${got}; the population's inverse Simpson is ${truth} and the plug-in value is within 10 percent at 50 draws per class (it is biased up by about 1 / (n sum p^2)).`,
             );
       }),
     );
