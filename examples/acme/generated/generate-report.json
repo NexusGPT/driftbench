@@ -1139,15 +1139,15 @@
       "t": 2,
       "specs": 216,
       "allowed": 840,
-      "covered": 679,
-      "share": 0.8083333333333333
+      "covered": 686,
+      "share": 0.8166666666666667
     },
     "all": {
       "t": 2,
       "specs": 298,
       "allowed": 840,
-      "covered": 700,
-      "share": 0.8333333333333334
+      "covered": 705,
+      "share": 0.8392857142857143
     },
     "baseline": {
       "label": "examples/acme/specs",

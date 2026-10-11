@@ -1,4 +1,4 @@
-import type { EndStateSpec, Rules, ToolExpect } from '@driftbench/core';
+import type { EndStateSpec, Expect, PerturbationSpec, Rules, ToolExpect } from '@driftbench/core';
 import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
 import { TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
@@ -56,6 +56,8 @@ export type Scenario =
       rules?: Rules;
       /** The probe as placed: its class, the stage it is said at, the tool that fails. */
       probe?: { classId: string; stage: string; tool?: string };
+      /** A deviation a perturbed run injects into the clean walk, with the recovery as its Then. */
+      perturbations?: PerturbationSpec[];
       title: string;
     }
   | { ok: false; reason: string };
@@ -314,6 +316,46 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     ...(probe?.classId === 'D7_silence_or_burst' ? { one_message_per_turn: true } : {}),
   };
 
+  // A clean walk declares one perturbation for mode P: a deviation class whose recovery keeps the
+  // conversation on the stage it reached, said before the turn that leaves that stage, with the recovery as
+  // its Then. The rest of the walk stays valid after it, so the perturbed run checks every later block too.
+  const perturbations: PerturbationSpec[] = [];
+  if (!probe && deviationKey !== undefined && prepared.deviation !== undefined) {
+    const options: Array<{ classId: string; index: number; expect: Expect; user: string }> = [];
+    for (const value of dimensions[prepared.deviation]?.values ?? []) {
+      const classId = value.id;
+      if (classId === TOOL_FAILURE) continue;
+      const own = recoveryFor(relations, classId, path.flow);
+      if (!own) continue;
+      for (let index = 1; index + 1 < path.stages.length; index += 1) {
+        const stage = path.stages[index] as string;
+        if (own.at && !own.at.includes(stage)) continue;
+        const after = stageAfter(own, stage);
+        if (after !== undefined && after !== stage) continue;
+        const said = { ...slots };
+        const phrase = choosePhrase(deviationKey, classId, contextOf(stage), said);
+        if (!phrase) continue;
+        const text = fillText(phrase.text, { ...said, ...(phrase.binds ?? {}) });
+        if (!text.ok) continue;
+        const expect = recoveryExpect(own, stage, { ...said, ...(phrase.binds ?? {}) }, inPlay, lang);
+        if (!expect) continue;
+        options.push({ classId, index, expect, user: text.value });
+      }
+    }
+    const chosen = pick(rng, options);
+    if (chosen) {
+      perturbations.push({
+        id: `p1-${chosen.classId}`,
+        class: chosen.classId as PerturbationSpec['class'],
+        inject_at: chosen.index,
+        user: chosen.user,
+        expect: chosen.expect,
+        // The map's recovery keeps the conversation where it was: the injected block itself recovers.
+        recovery: { within_blocks: 0, stage_after: chosen.expect.stage as string },
+      });
+    }
+  }
+
   let end: EndStateSpec | undefined;
   if (!truncated && path.end_state) {
     const filled = endState(path.end_state, slots);
@@ -330,7 +372,49 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     ...(end ? { endState: end } : {}),
     ...(Object.keys(rules).length > 0 ? { rules } : {}),
     ...(placed ? { probe: placed } : {}),
+    ...(perturbations.length > 0 ? { perturbations } : {}),
     title,
+  };
+}
+
+/**
+ * The Then of a recovery said at `stage`: the stage it stays on, its calls, every other tool in play 0 times,
+ * its guards and words, the reply language. Undefined when its words or calls read a slot nothing binds.
+ */
+function recoveryExpect(
+  recovery: Recovery,
+  stage: string,
+  slots: Record<string, string>,
+  inPlay: ReadonlySet<string>,
+  lang: string | undefined,
+): Expect | undefined {
+  const tools: ToolExpect[] = [];
+  for (const call of recovery.tools) {
+    const expected = toolExpect(call.tool, call.count, call.input, slots);
+    if (!expected.ok) return undefined;
+    tools.push(expected.value);
+  }
+  for (const label of inPlay)
+    if (!tools.some((tool) => tool.label === label)) tools.push({ label, count: 0 });
+  const words = (patterns: string[]) => {
+    const out: string[] = [];
+    for (const pattern of patterns) {
+      const filled = fillText(pattern, slots, true);
+      if (!filled.ok) return undefined;
+      out.push(filled.value);
+    }
+    return out;
+  };
+  const must = words(recovery.must);
+  const mustNot = words(recovery.mustNot);
+  if (!must || !mustNot) return undefined;
+  return {
+    stage: stageAfter(recovery, stage) ?? stage,
+    ...(tools.length > 0 ? { tools } : {}),
+    ...(recovery.guards.length > 0 ? { guards: recovery.guards } : {}),
+    ...(must.length > 0 ? { must } : {}),
+    ...(mustNot.length > 0 ? { must_not: mustNot } : {}),
+    ...(lang === undefined ? {} : { lang }),
   };
 }
 

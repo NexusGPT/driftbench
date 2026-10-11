@@ -11,7 +11,7 @@ tier: generated
 tags:
   - flow:upgrade
   - persona:existing-customer
-  - data:not-in-map
+  - data:5g-only
   - task:existing-workbook
 stages:
   - needs
@@ -107,6 +107,24 @@ end_state:
     type: upgrade
     customer_id: cust-001
     plan_id: mobile-l
+perturbations:
+  - id: p1-D3_contradiction
+    class: D3_contradiction
+    inject_at: 2
+    user: "Acme Mobile M. No, wait: Acme Mobile L."
+    expect:
+      stage: offer
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Which one
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: offer
 metadata:
   generated:
     by: driftbench generate
@@ -125,7 +143,7 @@ metadata:
       user_type: existing-customer
       plan_choice: names-one
       channel: whatsapp
-      coverage_result: not-in-map
+      coverage_result: 5g-only
       workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-identify

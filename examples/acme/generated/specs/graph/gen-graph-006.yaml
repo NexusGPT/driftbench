@@ -12,7 +12,7 @@ tags:
   - flow:new-home
   - persona:new-customer
   - data:no-service
-  - task:existing-workbook
+  - task:catalog-only
 stages:
   - needs
   - identify
@@ -97,6 +97,24 @@ end_state:
     customer:
       subset:
         phone: "+12025550131"
+perturbations:
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
+    inject_at: 1
+    user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: address
 metadata:
   generated:
     by: driftbench generate
@@ -115,7 +133,7 @@ metadata:
       coverage_result: no-service
       callback_phone: given
       channel: chat
-      workspace_start: existing-workbook
+      workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-address
         seeder: graph

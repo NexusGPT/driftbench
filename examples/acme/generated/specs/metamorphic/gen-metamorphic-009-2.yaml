@@ -11,8 +11,8 @@ tier: generated
 tags:
   - persona:existing-customer
   - flow:upgrade
-  - data:no-service
-  - task:catalog-only
+  - data:not-in-map
+  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -60,6 +60,22 @@ rules:
     - port.check
     - order.create
     - notify_sales
+perturbations:
+  - id: p1-D10_return
+    class: D10_return
+    inject_at: 1
+    user: ok, let's continue with the order.
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - We were|pick up where we left off
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: identify
 metadata:
   generated:
     by: driftbench generate
@@ -77,8 +93,8 @@ metadata:
       account_lookup: most-data
       channel: whatsapp
       flow: upgrade
-      coverage_result: no-service
-      workspace_start: catalog-only
+      coverage_result: not-in-map
+      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-identify
         seeder: metamorphic

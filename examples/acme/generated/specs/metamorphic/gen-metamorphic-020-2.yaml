@@ -5,14 +5,14 @@ id: gen-metamorphic-020-2
 version: badea3d3df7a
 kind: conversation
 title: "Metamorphic order-single-plan over user_type, value 2 of 3: : Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - data:5g-only
   - persona:new-customer
   - flow:order
-  - task:catalog-only
+  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -139,6 +139,26 @@ end_state:
       subset:
         name: Jo Okafor
         email: jo.okafor@example.com
+perturbations:
+  - id: p1-D1_off_topic
+    class: D1_off_topic
+    inject_at: 4
+    user: Are your stores open on Saturday?
+    expect:
+      stage: recap
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: recap
 metadata:
   generated:
     by: driftbench generate
@@ -157,8 +177,8 @@ metadata:
       customer_details: name-and-email
       user_type: new-customer
       flow: order
-      channel: chat
-      workspace_start: catalog-only
+      channel: whatsapp
+      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-address
         seeder: metamorphic

@@ -67,6 +67,22 @@ rules:
     - port.check
     - order.create
     - notify_sales
+perturbations:
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
+    inject_at: 1
+    user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: identify
 metadata:
   generated:
     by: driftbench generate

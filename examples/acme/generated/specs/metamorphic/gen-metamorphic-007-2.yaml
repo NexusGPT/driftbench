@@ -12,7 +12,7 @@ tags:
   - persona:existing-customer
   - flow:upgrade
   - data:fiber
-  - task:catalog-only
+  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -107,6 +107,25 @@ end_state:
     type: upgrade
     customer_id: cust-001
     plan_id: mobile-l
+perturbations:
+  - id: p1-D4_loose_confirmation
+    class: D4_loose_confirmation
+    inject_at: 3
+    user: yeah sounds good
+    expect:
+      stage: recap
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      guards:
+        - name: explicit_confirmation
+          verdict: block
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: recap
 metadata:
   generated:
     by: driftbench generate
@@ -126,7 +145,7 @@ metadata:
       channel: whatsapp
       flow: upgrade
       coverage_result: fiber
-      workspace_start: catalog-only
+      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-identify
         seeder: metamorphic

@@ -114,6 +114,24 @@ end_state:
     type: upgrade
     customer_id: cust-001
     plan_id: mobile-l
+perturbations:
+  - id: p1-D7_silence_or_burst
+    class: D7_silence_or_burst
+    inject_at: 4
+    user: hello?
+    expect:
+      stage: order_placed
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: order_placed
 metadata:
   generated:
     by: driftbench generate
