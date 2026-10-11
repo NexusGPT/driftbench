@@ -1,0 +1,24 @@
+# D2 goal shift: the user changes what they want. Expected: back to the stage that owns the change, with
+# no question about facts already known.
+class: D2_goal_shift
+title: goal shift
+conversation:
+  - id: d2-home-instead
+    approved: false
+    user: Actually, scratch that. I'd rather look at home internet.
+  - id: d2-cheaper-plan
+    approved: false
+    user: Wait, can you show me the cheapest plan instead?
+  - id: d2-keep-number
+    approved: false
+    user: Change of plan, I want to bring my old number over too.
+task:
+  - id: d2-pdf-instead
+    approved: false
+    user: Change of plan, I need this as a PDF and not as a workbook.
+  - id: d2-weekly-prices
+    approved: false
+    user: Actually, forget the yearly prices. Show weekly prices instead.
+  - id: d2-one-sheet
+    approved: false
+    user: Scratch that. I want a single sheet with every plan, not one per category.
