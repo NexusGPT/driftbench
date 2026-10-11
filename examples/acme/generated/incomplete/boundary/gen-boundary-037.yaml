@@ -20,11 +20,7 @@ blocks:
     expect:
       tools:
         - label: order.create
-          count:
-            min: 1
-          input:
-            customer:
-              nonempty: true
+          count: 0
       criteria:
         - needs-approved-phrase
 metadata:
