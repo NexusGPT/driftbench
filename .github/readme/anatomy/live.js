@@ -688,9 +688,9 @@ function readoutText() {
   const s = statsNow();
   const name = NAMES[state.mode];
   if (state.phase === 'generate') return state.generated ? `${name} · lever set, first block on the way` : `${name} · generating · coverage ${state.coverage} of ${D.coverage.flows * D.coverage.classes} cells · ${D.candidates.rejected} rejected`;
-  if (state.phase === 'decide') return `${name} · ${s.n} runs · ${s.rate.toFixed(2)} [${s.lo.toFixed(2)}, ${s.hi.toFixed(2)}] · gate ${s.gate === 'pass' ? 'lifts' : 'holds'}`;
+  if (state.phase === 'decide') return `${name} · ${s.n} runs · ${s.rate.toFixed(2)} [${s.lo.toFixed(2)},\u00a0${s.hi.toFixed(2)}] · gate ${s.gate === 'pass' ? 'lifts' : 'holds'}`;
   if (!s.n) return `${name} · first run on the line`;
-  const rate = `pass ${s.c} of ${s.n}, ${s.rate.toFixed(2)} [${s.lo.toFixed(2)}, ${s.hi.toFixed(2)}]`;
+  const rate = `pass ${s.c} of ${s.n}, ${s.rate.toFixed(2)} [${s.lo.toFixed(2)},\u00a0${s.hi.toFixed(2)}]`;
   if (state.mode === 'P') return `${name} · ${rate} · recovered ${s.recovered} of ${s.injected}`;
   return `${name} · ${rate} · pass^${D.model.k} ${s.passK === null ? 'n/a' : s.passK.toFixed(2)}`;
 }

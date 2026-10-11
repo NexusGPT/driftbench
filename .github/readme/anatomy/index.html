@@ -318,6 +318,29 @@ body.iso {
     font-size: 26px;
   }
 }
+/* On a phone the machine runs edge to edge: the drawing is scaled up and its empty corners are cropped. */
+@media (max-width: 560px) {
+  .an-frame .iso-plate {
+    overflow: hidden;
+    padding: 40px 0 70px;
+  }
+  .an-frame .iso-plate .iso-svg {
+    width: 116%;
+    margin: -10px -8% -12px;
+  }
+  .an-frame .iso-plate-corners {
+    inset: 14px 14px;
+  }
+  .an-frame .iso-plate-corner[data-corner="hint"] {
+    display: none;
+  }
+  .an-frame .iso-plate-corner[data-corner="readout"] {
+    left: 0;
+    white-space: normal;
+    text-align: right;
+    line-height: 1.45;
+  }
+}
 
 /* parts the live script drives */
 [data-lamp][data-on] .iso-top,
@@ -3272,9 +3295,9 @@ function readoutText() {
   const s = statsNow();
   const name = NAMES[state.mode];
   if (state.phase === 'generate') return state.generated ? `${name} · lever set, first block on the way` : `${name} · generating · coverage ${state.coverage} of ${D.coverage.flows * D.coverage.classes} cells · ${D.candidates.rejected} rejected`;
-  if (state.phase === 'decide') return `${name} · ${s.n} runs · ${s.rate.toFixed(2)} [${s.lo.toFixed(2)}, ${s.hi.toFixed(2)}] · gate ${s.gate === 'pass' ? 'lifts' : 'holds'}`;
+  if (state.phase === 'decide') return `${name} · ${s.n} runs · ${s.rate.toFixed(2)} [${s.lo.toFixed(2)},\u00a0${s.hi.toFixed(2)}] · gate ${s.gate === 'pass' ? 'lifts' : 'holds'}`;
   if (!s.n) return `${name} · first run on the line`;
-  const rate = `pass ${s.c} of ${s.n}, ${s.rate.toFixed(2)} [${s.lo.toFixed(2)}, ${s.hi.toFixed(2)}]`;
+  const rate = `pass ${s.c} of ${s.n}, ${s.rate.toFixed(2)} [${s.lo.toFixed(2)},\u00a0${s.hi.toFixed(2)}]`;
   if (state.mode === 'P') return `${name} · ${rate} · recovered ${s.recovered} of ${s.injected}`;
   return `${name} · ${rate} · pass^${D.model.k} ${s.passK === null ? 'n/a' : s.passK.toFixed(2)}`;
 }

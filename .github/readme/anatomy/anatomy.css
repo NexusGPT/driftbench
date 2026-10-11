@@ -205,6 +205,29 @@ body.iso {
     font-size: 26px;
   }
 }
+/* On a phone the machine runs edge to edge: the drawing is scaled up and its empty corners are cropped. */
+@media (max-width: 560px) {
+  .an-frame .iso-plate {
+    overflow: hidden;
+    padding: 40px 0 70px;
+  }
+  .an-frame .iso-plate .iso-svg {
+    width: 116%;
+    margin: -10px -8% -12px;
+  }
+  .an-frame .iso-plate-corners {
+    inset: 14px 14px;
+  }
+  .an-frame .iso-plate-corner[data-corner="hint"] {
+    display: none;
+  }
+  .an-frame .iso-plate-corner[data-corner="readout"] {
+    left: 0;
+    white-space: normal;
+    text-align: right;
+    line-height: 1.45;
+  }
+}
 
 /* parts the live script drives */
 [data-lamp][data-on] .iso-top,
