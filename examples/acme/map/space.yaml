@@ -86,5 +86,55 @@ constraints:
     reason: B-013 applies only on chat
   - forbid: { behaviour: B-014, channel: whatsapp }
     reason: B-014 applies only on chat
+  - forbid: { behaviour: B-001, user_type: new-customer }
+    reason: B-001 serves an existing customer
+  - forbid: { behaviour: B-001, user_type: sales-operations }
+    reason: B-001 serves an existing customer
+  - forbid: { behaviour: B-002, user_type: new-customer }
+    reason: B-002 serves an existing customer
+  - forbid: { behaviour: B-002, user_type: sales-operations }
+    reason: B-002 serves an existing customer
+  - forbid: { behaviour: B-003, user_type: existing-customer }
+    reason: B-003 belongs to the new-home flow, which is for a new customer
+  - forbid: { behaviour: B-003, user_type: sales-operations }
+    reason: B-003 belongs to the new-home flow, which is for a new customer
+  - forbid: { behaviour: B-004, user_type: existing-customer }
+    reason: B-004 belongs to the new-home flow, which is for a new customer
+  - forbid: { behaviour: B-004, user_type: sales-operations }
+    reason: B-004 belongs to the new-home flow, which is for a new customer
+  - forbid: { behaviour: B-005, user_type: existing-customer }
+    reason: B-005 belongs to the new-home flow, which is for a new customer
+  - forbid: { behaviour: B-005, user_type: sales-operations }
+    reason: B-005 belongs to the new-home flow, which is for a new customer
+  - forbid: { behaviour: B-011, user_type: existing-customer }
+    reason: B-011 belongs to the new-home flow, which is for a new customer
+  - forbid: { behaviour: B-011, user_type: sales-operations }
+    reason: B-011 belongs to the new-home flow, which is for a new customer
+  - forbid: { behaviour: B-006, user_type: existing-customer }
+    reason: B-006 belongs to the porting flow, which is for a new customer
+  - forbid: { behaviour: B-006, user_type: sales-operations }
+    reason: B-006 belongs to the porting flow, which is for a new customer
+  - forbid: { behaviour: B-007, user_type: existing-customer }
+    reason: B-007 belongs to the porting flow, which is for a new customer
+  - forbid: { behaviour: B-007, user_type: sales-operations }
+    reason: B-007 belongs to the porting flow, which is for a new customer
+  - forbid: { behaviour: B-008, user_type: sales-operations }
+    reason: B-008 belongs to the order flow, which is for a customer
+  - forbid: { behaviour: B-009, user_type: sales-operations }
+    reason: B-009 belongs to the order flow, which is for a customer
+  - forbid: { behaviour: B-010, user_type: sales-operations }
+    reason: B-010 belongs to the order flow, which is for a customer
+  - forbid: { behaviour: B-012, user_type: new-customer }
+    reason: B-012 belongs to the upgrade flow, which is for an existing customer
+  - forbid: { behaviour: B-012, user_type: sales-operations }
+    reason: B-012 belongs to the upgrade flow, which is for an existing customer
+  - forbid: { behaviour: B-013, user_type: existing-customer }
+    reason: B-013 is a sales operations task
+  - forbid: { behaviour: B-013, user_type: new-customer }
+    reason: B-013 is a sales operations task
+  - forbid: { behaviour: B-014, user_type: existing-customer }
+    reason: B-014 is a sales operations task
+  - forbid: { behaviour: B-014, user_type: new-customer }
+    reason: B-014 is a sales operations task
 prior:
   kind: declared

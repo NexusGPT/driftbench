@@ -1,14 +1,21 @@
 import { z } from 'zod';
 import type { ModelRequest } from '../model/port';
 import {
+  BindsRelation,
   DimensionId,
   DimensionKind,
   type DimensionKind as Kind,
   Lang,
+  PathRelation,
   type ProposalConstraint,
   type ProposalDimension,
+  RecoveryRelation,
+  ReplyLanguageRelation,
+  Slots,
   type SourceKind,
+  UsesToolRelation,
   ValueId,
+  When,
 } from './proposal';
 
 /**
@@ -18,7 +25,7 @@ import {
  * own, so one bad entry is refused without losing the rest.
  */
 
-export const SECTIONS = ['stages', 'rules', 'personas', 'data', 'phrases'] as const;
+export const SECTIONS = ['stages', 'rules', 'personas', 'data', 'phrases', 'relations'] as const;
 export type Section = (typeof SECTIONS)[number];
 
 /** The dimension kinds each section may propose. The phrases section proposes phrases only. */
@@ -28,6 +35,7 @@ export const SECTION_KINDS: Record<Section, readonly Kind[]> = {
   personas: ['persona', 'channel'],
   data: ['data', 'task'],
   phrases: [],
+  relations: [],
 };
 
 /** The longest quote the contract accepts from a model: a passage, never a file. */
@@ -53,10 +61,13 @@ Rules:
     {"forbid": {"<dimension id>": "<value id>", "<other dimension id>": "<value id>"}, "reason": "<why these values never occur together>", "source": "<path>", "quote": "<verbatim text>"}
   ],
   "phrases": [
-    {"dimension": "<dimension id>", "value": "<value id>", "text": "<one user message>", "lang": "<language tag such as en>", "source": "<path, only when the text is copied from a source>", "quote": "<the copied text, only with source>"}
+    {"dimension": "<dimension id>", "value": "<value id>", "text": "<one user message>", "lang": "<language tag such as en>", "when": {"<dimension id>": ["<value id>"]}, "binds": {"<slot>": "<value the text states>"}, "source": "<path, only when the text is copied from a source>", "quote": "<the copied text, only with source>"}
+  ],
+  "relations": [
+    {"kind": "<path, uses_tool, binds, recovery or reply_language>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
   ]
 }
-A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen.`;
+A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen. A phrase may hold {slot} where a value the cell binds goes, such as "It's {email}"; "when" and "binds" are optional. Relations come from the relations section only.`;
 
 const TASKS: Record<Section, string> = {
   stages: `List the stages the agent moves through, and the moves between them that the sources specify.
@@ -70,7 +81,14 @@ Dimension "deviation" (kind "deviation"): a deviation class the sources handle e
 Dimensions of kind "persona", such as "customer_type", "language" or "tone"; channels go in the dimension "channel" (kind "channel"). A value needs a quote that shows the agent treats that kind of user, or that channel, in its own way.`,
   data: `List the data cases the agent's behaviour depends on: the results a tool can return and how the next step changes with them (found or not found, eligible or not, empty lists, errors, answers the agent cannot read), the values a user gives that change the flow, and for a code agent the task settings (the files in the workspace, their formats and sizes, what the agent must leave untouched).
 Dimensions of kind "data" for data cases and of kind "task" for task settings. The tool schema dimensions already listed come from code: add only cases they do not hold.`,
-  phrases: `Propose user phrasings for the values listed above that a user expresses in a message, such as flows, deviation classes and kinds of users. One phrase is one user message, in the language of its "lang" tag. At most three phrases per value. When a source holds an example user message for a value, copy it and give its source and quote; otherwise leave source and quote out. Answer with phrases only: "dimensions" and "constraints" stay empty.`,
+  phrases: `Propose user phrasings for the values listed above that a user expresses in a message, such as flows, stage transitions, deviation classes and kinds of users. One phrase is one user message, in the language of its "lang" tag. At most three phrases per value. A phrase may hold {slot} for a value a data case binds (the relations section binds it), may say with "when" the cell values it fits (such as the flow or the stage it is said at), and may state slot values itself with "binds" (the plan it names). When a source holds an example user message for a value, copy it and give its source and quote; otherwise leave source and quote out. Answer with phrases only: "dimensions", "constraints" and "relations" stay empty.`,
+  relations: `List the relations the sources state between the values above, so code can derive what to check: which tool a flow calls, at which stage, with which arguments; the order of stages a flow passes; what the store holds at the end; how a flow recovers from a deviation class; the language of every reply. Answer with relations only. Each relation has "kind", "source", "quote" and the keys of its kind:
+- "path": "id", "flow" (a value of the flow dimension), "stages" (the stages in the order the conversation passes them), optional "when" (the cell values the branch needs, per dimension, as lists), optional "behaviours", optional "end_state" ({"source": "tool:<label>", "mode": "subset" or "exact", "expect": {"<field>": <assertion>}}).
+- "uses_tool": "subject" ({"dimension", "value"}: the flow or behaviour), "tool", "stage" (the stage the call is made at), optional "to" (only on the turn that reaches it), optional "when", optional "count", optional "input" ({"<argument>": <assertion>}).
+- "binds": "subject" (a data or persona value), "slots" ({"<slot>": "<concrete value>"}): the fictional values it stands for.
+- "recovery": "class" (a deviation class), "flows", optional "at" (the stages it is probed at), optional "tool" (the tool that fails, for D8_tool_failure), optional "stage_after" (a stage, or "pending" for the stage the conversation had reached), optional "must", "must_not" (patterns on the reply), "guards" ([{"name", "verdict"}]), "tools" ([{"tool", "count", "input"}]).
+- "reply_language": "subject" (the rule value), "lang" (the language tag every reply is in).
+An assertion is a value, or one of {"regex"}, {"contains"}, {"one_of"}, {"subset"}, {"absent": true}, {"nonempty": true}. A string may hold {slot} for a value the cell binds.`,
 };
 
 export type SourceText = { kind: SourceKind; path: string; text: string };
@@ -139,6 +157,7 @@ const Envelope = z.strictObject({
   dimensions: z.array(z.unknown()).default([]),
   constraints: z.array(z.unknown()).default([]),
   phrases: z.array(z.unknown()).default([]),
+  relations: z.array(z.unknown()).default([]),
 });
 export type Answer = z.infer<typeof Envelope>;
 
@@ -211,9 +230,27 @@ export const AnswerPhrase = z.strictObject({
   value: ValueId,
   text: z.string({ error: 'the text is missing' }).min(1).max(500),
   lang: Lang,
+  when: When.optional(),
+  binds: Slots.optional(),
   source: z.string().min(1).optional(),
   quote: z.string().optional(),
 });
+
+const answerEvidence = {
+  source: z.string({ error: SOURCE_REQUIRED }).min(1, { error: SOURCE_REQUIRED }),
+  quote: z.string({ error: QUOTE_REQUIRED }),
+};
+const strip = { evidence: true, produced_by: true, approved: true } as const;
+
+/** One relation as a model answers it: the proposal's relation with source and quote for its evidence. */
+export const AnswerRelation = z.discriminatedUnion('kind', [
+  PathRelation.omit(strip).extend(answerEvidence),
+  UsesToolRelation.omit(strip).extend(answerEvidence),
+  BindsRelation.omit(strip).extend(answerEvidence),
+  RecoveryRelation.omit(strip).extend(answerEvidence),
+  ReplyLanguageRelation.omit(strip).extend(answerEvidence),
+]);
+export type AnswerRelation = z.infer<typeof AnswerRelation>;
 
 /** The first problem zod found, as `path: message`, with plain words for unknown keys. */
 export function firstIssue(error: z.ZodError): string {
