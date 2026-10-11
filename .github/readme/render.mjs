@@ -5,8 +5,11 @@
 // dependencies. One time setup:
 //
 //   mkdir -p /tmp/driftbench-readme-tools && cd /tmp/driftbench-readme-tools
-//   npm init -y && npm install playwright@1.64.0 sharp@0.34.3
+//   npm init -y && npm install --include=optional playwright@1.64.0 sharp@0.34.3
 //   npx playwright install chromium
+//
+// --include=optional brings sharp's native binary for the platform, even when
+// the npm config omits optional packages. Playwright 1.64.0 drives Chromium 1248.
 //
 // Then, from the repo root:
 //
