@@ -52,6 +52,8 @@ export function follow(
   const cut = (hid: string) => options.mutant === hid;
   let uuid = 0;
   let parent: string | null = null;
+  /** Skills loaded so far in the session: a guard a skill declares runs only once its skill is loaded. */
+  const loaded = new Set<string>();
   const id = () => {
     uuid += 1;
     return `follower-${String(uuid).padStart(4, '0')}`;
@@ -112,9 +114,11 @@ export function follow(
         usage: { input_tokens: 10, output_tokens: 5 },
       });
       const callAt = clock;
+      if (step.call.label === 'Skill' && typeof step.call.input.skill === 'string')
+        loaded.add(step.call.input.skill);
       for (const guard of estate.guards.filter((candidate) => candidate.event === 'PreToolUse')) {
         if (!matches(guard.matcher, step.call.label)) continue;
-        const scoped = guard.scope === 'estate' || situationSkill(situation) === guard.scope;
+        const scoped = guard.scope === 'estate' || loaded.has(guard.scope);
         if (!scoped) continue;
         guardRow(guard, violates(guard, step.call) ? guard.verdict : 'allow', callAt + 250);
       }
@@ -149,10 +153,6 @@ export function follow(
   });
   const jsonl = (rows: readonly unknown[]) => rows.map((row) => `${JSON.stringify(row)}\n`).join('');
   return { transcript: jsonl(records), decisions: jsonl(decisions), steps: jsonl(steps) };
-}
-
-function situationSkill(situation: HiddenSituation | undefined): string | undefined {
-  return situation?.act.type === 'task' ? situation.act.skill : undefined;
 }
 
 /** A guard's matcher as the runtime reads it: alternatives of tool labels. */
@@ -307,7 +307,16 @@ function stepsFor(
         const skill = estate.skills.find((candidate) => candidate.topic.skill === guard.scope) as HiddenSkill;
         const script = skillPath(skill, `scripts/${skill.topic.script.file}`);
         return {
-          steps: [{ call: bash(`python3 ${script}`, 2, 'blocked: the script needs its arguments') }],
+          steps: [
+            {
+              call: {
+                label: 'Skill',
+                input: { skill: skill.topic.skill },
+                result: `Launching skill: ${skill.topic.skill}`,
+              },
+            },
+            { call: bash(`python3 ${script}`, 2, 'blocked: the script needs its arguments') },
+          ],
           reply: words(estate, cut, ['The script was blocked: it needs its arguments.']),
         };
       }
