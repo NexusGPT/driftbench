@@ -1,11 +1,12 @@
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AgentFailure } from '@driftbench/core';
+import { type AgentAdapter, AgentFailure, type Check } from '@driftbench/core';
 import { openStore } from '@driftbench/store';
 import { Command, CommanderError } from 'commander';
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
 import {
   acmeAdapter,
   dropsFirstToolCall,
@@ -13,11 +14,27 @@ import {
   pricedAcmeAdapter,
   realAcmeAdapter,
 } from '../../core/test/runner/support';
-import { type CampaignDeps, defaultDeps, registerCampaignCommands } from '../src/commands/campaign';
+import {
+  acmeFunctionAdapter,
+  type CampaignDeps,
+  defaultDeps,
+  registerCampaignCommands,
+  showTarget,
+} from '../src/commands/campaign';
 import { type Io, main } from '../src/index';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const SPECS = 'examples/acme/specs/conversations';
+const ACME = 'examples/acme/specs';
+const TASK = 'examples/acme/specs/tasks/price-sheet.yaml';
+/** The cells of the process target run a real code agent twice per cell: give them room. */
+const SLOW = 120_000;
+
+/** Folders the tests make, removed when the file is done. */
+const made: string[] = [];
+afterAll(async () => {
+  for (const dir of made) await rm(dir, { recursive: true, force: true });
+});
 
 /** Runs the CLI: through `main` with the interim build, or with the deps a test gives. */
 async function cli(argv: string[], deps?: Partial<CampaignDeps>) {
@@ -55,7 +72,26 @@ async function cli(argv: string[], deps?: Partial<CampaignDeps>) {
 }
 
 async function storePath(): Promise<string> {
-  return join(await mkdtemp(join(tmpdir(), 'driftbench-campaign-')), 'store.db');
+  return join(await tempFolder(), 'store.db');
+}
+
+async function tempFolder(): Promise<string> {
+  const dir = await mkdtemp(join(tmpdir(), 'driftbench-campaign-'));
+  made.push(dir);
+  return dir;
+}
+
+/** The real Acme sales assistant, failing for good on the porting spec. */
+async function salesWithPortingDown(): Promise<AgentAdapter> {
+  const adapter = await acmeFunctionAdapter();
+  const send = adapter.send.bind(adapter);
+  adapter.send = async (session, turn) => {
+    if (JSON.stringify(turn.stimulus).includes('keep my phone number')) {
+      throw new AgentFailure('the porting service is down');
+    }
+    return send(session, turn);
+  };
+  return adapter;
 }
 
 /** The Acme agent, failing for good on the porting spec. */
@@ -145,7 +181,6 @@ describe('driftbench campaign plan', () => {
   });
 
   it.each([
-    [['--repeats', '2'], 'Name at least one target with --target'],
     [['--target', 'function:acme', '--mode', 'T'], 'Mode T is planned, phase 3.'],
     [['--target', 'function:acme', '--mode', 'X'], 'Unknown mode "X".'],
     [
@@ -408,36 +443,17 @@ describe('driftbench campaign status and resume', () => {
     expect(err).toContain(`Cannot open the store at ${path}: store: `);
   });
 
-  it('needs the campaign id unless the store can list its campaigns, then takes the latest', async () => {
+  it('takes the latest campaign of the store, by its creation time, when status or resume names none', async () => {
     const path = await storePath();
-    await cli([
-      'campaign',
-      'run',
-      SPECS,
-      '--target',
-      'function:acme',
-      '--campaign',
-      'c-first',
-      '--store',
-      path,
-    ]);
-    const bare = await cli(['campaign', 'status', '--store', path]);
-    expect(bare.code).toBe(2);
-    expect(bare.err).toContain(
-      `Name the campaign: driftbench campaign status <campaignId> --store ${path}. campaign run prints the id; this store cannot list its campaigns.`,
-    );
+    const empty = await cli(['campaign', 'status', '--store', path]);
+    expect(empty.code).toBe(2);
+    expect(empty.err).toContain(`The store at ${path} holds no campaign.`);
 
-    // A store that lists its campaigns: status and resume take the latest one.
-    const listing = async (at: string | undefined) => {
-      const store = openStore(at ?? ':memory:');
-      return Object.assign(store, {
-        async listCampaigns() {
-          const first = await store.getCampaign('c-first');
-          const second = await store.getCampaign('c-second');
-          return [first, second].filter((campaign) => campaign !== undefined);
-        },
-      });
-    };
+    // Put first, created last: the creation time decides, not the order the store received them.
+    await cli(
+      ['campaign', 'run', SPECS, '--target', 'function:acme', '--campaign', 'c-first', '--store', path],
+      { now: () => new Date('2099-01-01T00:00:00.000Z') },
+    );
     await cli(
       [
         'campaign',
@@ -445,13 +461,22 @@ describe('driftbench campaign status and resume', () => {
         'examples/acme/specs/conversations/plan-upgrade.yaml',
         '--target',
         'function:acme',
-      ].concat(['--campaign', 'c-second', '--store', path]),
-      { now: () => new Date('2099-01-01T00:00:00.000Z') },
+        '--campaign',
+        'c-second',
+        '--store',
+        path,
+      ],
+      { now: () => new Date('2026-10-11T00:00:00.000Z') },
     );
-    const latest = await cli(['campaign', 'status', '--store', path], { openStore: listing });
+    const latest = await cli(['campaign', 'status', '--store', path]);
     expect(latest.code).toBe(0);
-    expect(latest.out).toContain('Campaign c-second, created 2099-01-01T00:00:00.000Z.');
-    expect(latest.out).toContain('1 cell: 1 pass, 0 fail, 0 failed.');
+    expect(latest.out).toContain('Campaign c-first, created 2099-01-01T00:00:00.000Z.');
+    expect(latest.out).toContain('6 cells: 6 pass, 0 fail, 0 failed.');
+
+    const resumed = await cli(['campaign', 'resume', '--store', path]);
+    expect(resumed.code).toBe(0);
+    expect(resumed.out).toContain('Campaign c-first: 6 cells, 4 at a time.');
+    expect(resumed.out).toContain('6 cells: 6 pass, 0 fail, 0 failed, 6 reused.');
   });
 
   it('notes a spec that names another adapter than --target', async () => {
@@ -470,5 +495,237 @@ describe('driftbench campaign status and resume', () => {
     const bare = await cli(['campaign', 'resume', 'c-none']);
     expect(bare.code).toBe(2);
     expect(bare.err).toContain("required option '--store <file>' not specified");
+  });
+});
+
+describe('each spec on its own target, without --target', () => {
+  it('plans the Acme specs on their own targets: the conversations on the sales assistant, the task on the ops agent', async () => {
+    const { code, out } = await cli(['campaign', 'plan', ACME, '--mode', 'F', '--repeats', '2']);
+    expect(code).toBe(0);
+    expect(out).toContain(
+      'Plan: 7 specs, each on its own target (function:acme-sales, process:acme-ops), mode F, 2 repeats: 14 cells, 56 blocks.',
+    );
+    const cells = out.split('\n').filter((line) => /^ {2}[0-9a-f]{16} /.test(line));
+    const task = cells.filter((line) => line.includes('acme-price-sheet'));
+    expect(task).toHaveLength(2);
+    for (const line of task) expect(line).toMatch(/ process:acme-ops +F +[01] +2$/);
+    expect(cells.filter((line) => line.includes(' function:acme-sales '))).toHaveLength(12);
+    expect(out).not.toContain('Note: ');
+    expect(out).toContain('Projected cost: $0.00 (function: no unit measured; process: no unit measured).');
+    expect(out).toContain(
+      'Minimum detectable effect, mode F: 52.9 points on a 50% pass rate, with 14 runs per arm',
+    );
+  });
+
+  it(
+    'runs all 14 cells and passes them through defaultChecks, the price sheet on process:acme-ops, then status takes that campaign',
+    async () => {
+      const path = await storePath();
+      const plan = await cli(['campaign', 'plan', ACME, '--repeats', '2', '--json']);
+      const { code, out } = await cli([
+        'campaign',
+        'run',
+        ACME,
+        '--mode',
+        'F',
+        '--repeats',
+        '2',
+        '--store',
+        path,
+      ]);
+      expect(code, out).toBe(0);
+      expect(out).toContain(
+        'Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+      );
+      expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks');
+      expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 1  pass  2 blocks');
+      expect(out).toContain('✓ acme-plan-upgrade · function:acme-sales · F · repeat 1  pass  5 blocks');
+      expect(out).toContain('14 cells: 14 pass, 0 fail, 0 failed. Spent $0.00.');
+
+      const store = openStore(path);
+      try {
+        const [campaign] = await store.listCampaigns();
+        // The campaign pins each spec's own target, so status and resume plan the same 14 cells.
+        expect(campaign?.targets).toEqual([
+          { adapter: 'function', agent: 'acme-sales' },
+          { adapter: 'process', agent: 'acme-ops' },
+        ]);
+        expect(campaign?.specs.find((spec) => spec.id === 'acme-price-sheet')?.target).toEqual({
+          adapter: 'process',
+          agent: 'acme-ops',
+        });
+        const planned = (JSON.parse(plan.out) as { cells: Array<{ cellId: string }> }).cells;
+        const runs = await store.listRuns({ campaignId: campaign?.campaignId ?? '' });
+        expect(new Set(runs.map((run) => run.runId))).toEqual(new Set(planned.map((cell) => cell.cellId)));
+
+        // The price sheet passed on what the checks read, the workbook through the xlsx reader included.
+        const sheets = runs.filter((run) => run.specId === 'acme-price-sheet');
+        expect(sheets).toHaveLength(2);
+        for (const run of sheets) {
+          const passed = run.blocks.map((block) =>
+            block.verdicts.filter((verdict) => verdict.outcome === 'pass').map((verdict) => verdict.id),
+          );
+          expect(passed[0]).toEqual(
+            expect.arrayContaining([
+              'must.0',
+              'stage.reached',
+              'skills.xlsx',
+              'guards.no_destructive_ops.pass',
+              'execution.ran_code',
+              'execution.exit_code',
+              'execution.max_commands',
+              'workspace.created',
+              'workspace.others_untouched',
+              'safety.max_destructive_ops',
+              'artifacts.out/acme-price-sheet.xlsx',
+              'artifacts.out/acme-price-sheet.xlsx.0.sheets',
+              'artifacts.out/acme-price-sheet.xlsx.1.header',
+              'artifacts.out/acme-price-sheet.xlsx.4.cells',
+              'artifacts.out/acme-price-sheet.xlsx.6.formula',
+              'artifacts.out/acme-price-sheet.xlsx.7.no_error_cells',
+            ]),
+          );
+          expect(passed[1]).toEqual(
+            expect.arrayContaining([
+              'stage.reached',
+              'workspace.changed',
+              'safety.confirm_before.overwrite',
+              'artifacts.out/acme-price-sheet.xlsx.0.sheets',
+              'artifacts.out/acme-price-sheet.xlsx.2.cells',
+              'artifacts.out/acme-price-sheet.xlsx.3.cells',
+            ]),
+          );
+          expect(run.blocks.map((block) => block.observed.sandbox)).toEqual([
+            { kind: 'local', isolation: 'weak' },
+            { kind: 'local', isolation: 'weak' },
+          ]);
+        }
+      } finally {
+        await store.close();
+      }
+
+      const status = await cli(['campaign', 'status', '--store', path]);
+      expect(status.code).toBe(0);
+      expect(status.out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 1  pass  2 blocks');
+      expect(status.out).toContain('14 cells: 14 pass, 0 fail, 0 failed.');
+    },
+    SLOW,
+  );
+
+  it(
+    'resumes the latest campaign without an id, each cell on the target its spec pinned',
+    async () => {
+      const path = await storePath();
+      const failing = await cli(['campaign', 'run', ACME, '--store', path], {
+        adapterFor: async (target, scope) =>
+          target.adapter === 'function' ? salesWithPortingDown() : defaultDeps.adapterFor(target, scope),
+      });
+      expect(failing.code).toBe(1);
+      expect(failing.out).toContain(
+        '! acme-number-porting · function:acme-sales · F · repeat 0  failed  send on block 0 failed: AgentFailure: the porting service is down',
+      );
+      expect(failing.out).toContain('7 cells: 6 pass, 0 fail, 1 failed.');
+
+      const asked: string[] = [];
+      const resumed = await cli(['campaign', 'resume', '--store', path], {
+        adapterFor: async (target, scope) => {
+          asked.push(showTarget(target));
+          return defaultDeps.adapterFor(target, scope);
+        },
+      });
+      expect(resumed.code, resumed.out).toBe(0);
+      expect(resumed.out).toContain(
+        '✓ acme-number-porting · function:acme-sales · F · repeat 0  pass  5 blocks',
+      );
+      expect(resumed.out).toContain(
+        '✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass (reused)  2 blocks',
+      );
+      expect(resumed.out).toContain('7 cells: 7 pass, 0 fail, 0 failed, 6 reused.');
+      expect(asked).toEqual(['function:acme-sales', 'process:acme-ops']);
+    },
+    SLOW,
+  );
+
+  it(
+    'runs the price sheet live in a later campaign on the same store, while the conversation replays from the cache',
+    async () => {
+      const path = await storePath();
+      const base = ['campaign', 'run', TASK, 'examples/acme/specs/conversations/plan-upgrade.yaml'];
+      expect((await cli([...base, '--campaign', 'c-first', '--store', path])).code).toBe(0);
+      const again = await cli([...base, '--campaign', 'c-second', '--store', path]);
+      expect(again.code, again.out).toBe(0);
+      expect(again.out).toContain(
+        '✓ acme-plan-upgrade · function:acme-sales · F · repeat 0  pass (replayed from the cache)  5 blocks',
+      );
+      expect(again.out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks');
+    },
+    SLOW,
+  );
+
+  it(
+    'keeps the sandboxes in one folder per campaign and removes it when the campaign closes',
+    async () => {
+      const folders: string[] = [];
+      const inside: number[] = [];
+      // A check that looks into the campaign folder while a block runs: the run's sandbox is there.
+      const peek: Check = {
+        name: 'peek',
+        applies: () => true,
+        async evaluate() {
+          inside.push(folders[0] === undefined ? -1 : (await readdir(folders[0])).length);
+          return [];
+        },
+      };
+      const { code } = await cli(['campaign', 'run', TASK], {
+        adapterFor: async (target, scope) => {
+          if (scope) folders.push(await scope.tempDir());
+          return defaultDeps.adapterFor(target, scope);
+        },
+        checks: [...defaultDeps.checks, peek],
+      });
+      expect(code).toBe(0);
+      expect(folders).toHaveLength(1);
+      expect(inside).toEqual([1, 1]);
+      expect(existsSync(folders[0] ?? '')).toBe(false);
+    },
+    SLOW,
+  );
+
+  it('exits 2 naming a spec that has no target of its own, and runs it with --target', async () => {
+    const dir = await tempFolder();
+    const spec = join(dir, 'untargeted.yaml');
+    await writeFile(
+      spec,
+      ['id: acme-untargeted', 'blocks:', '  - user: Hello', '    expect: { must: [Acme Telecom] }'].join(
+        '\n',
+      ),
+    );
+    for (const command of ['plan', 'run']) {
+      const { code, err } = await cli(['campaign', command, spec]);
+      expect(code).toBe(2);
+      expect(err).toContain(
+        'acme-untargeted names no target. Give the spec a target, or run with --target <adapter[:agent]>',
+      );
+    }
+    expect((await cli(['campaign', 'plan', spec, '--target', 'function:acme'])).code).toBe(0);
+  });
+
+  it('exits 2 naming the spec whose own target has no adapter', async () => {
+    const dir = await tempFolder();
+    const spec = join(dir, 'elsewhere.yaml');
+    await writeFile(
+      spec,
+      [
+        'id: acme-elsewhere',
+        'target: { adapter: http, agent: acme-web }',
+        'blocks:',
+        '  - user: Hello',
+        '    expect: { must: [Acme Telecom] }',
+      ].join('\n'),
+    );
+    const { code, err } = await cli(['campaign', 'run', spec]);
+    expect(code).toBe(2);
+    expect(err).toContain('No adapter is set up for http:acme-web, the target of acme-elsewhere.');
+    expect(err).toContain('process:acme-ops, the Acme ops agent');
   });
 });
