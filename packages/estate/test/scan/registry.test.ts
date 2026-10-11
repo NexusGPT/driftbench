@@ -140,9 +140,42 @@ describe('the check registry, any column set', () => {
       ['W2', 'block-force-push.sh', 'observe'],
       ['C2', 'C2', 'observe'],
       ['W3', 'claim-window.py', 'enforce'],
+      ['W4', 'claim-window.py', 'observe'],
+      ['W5', 'claim-window.py', 'observe'],
+      ['HANDBACK', 'claim-window.py', 'observe'],
+      ['STOP-WAKE', 'claim-window.py', 'observe'],
     ]);
     expect(raw.registry.find((row) => row.id === 'W2')?.enforces).toEqual([
       { quote: 'Never run `git push --force` on any branch' },
+    ]);
+  });
+
+  it('splits an id cell that names several checks, and keeps a cell of words as one id', async () => {
+    const root = await estate({
+      'CLAUDE.md': '# Rules\n',
+      '.claude/settings.json': SETTINGS,
+      '.claude/hooks/shell.py': '# Runs K1, G2, G3, G9, HANDBACK and STOP-WAKE.\nimport sys\n',
+      '.claude/hooks/reply.py': 'import sys\n',
+      '.claude/hooks/CHECK-REGISTRY.md': [
+        '| Id | Adapter | Fires when |',
+        '|---|---|---|',
+        '| `G2` `G3` `G9` | shell | R1 |',
+        '| HANDBACK` / `STOP-WAKE | shell | R1 |',
+        '| G2, G3 | shell | R1 |',
+        '| Reply length | `reply.py` | R2 |',
+        '',
+      ].join('\n'),
+    });
+    const raw = await new ClaudeCodeReader().read(root);
+    expect(raw.registry.map((row) => [row.id, row.guard, row.at.startLine])).toEqual([
+      ['G2', 'shell.py', 3],
+      ['G3', 'shell.py', 3],
+      ['G9', 'shell.py', 3],
+      ['HANDBACK', 'shell.py', 4],
+      ['STOP-WAKE', 'shell.py', 4],
+      ['G2', 'shell.py', 5],
+      ['G3', 'shell.py', 5],
+      ['Reply length', 'reply.py', 6],
     ]);
   });
 });
