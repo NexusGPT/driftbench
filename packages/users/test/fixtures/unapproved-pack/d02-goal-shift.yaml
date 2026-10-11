@@ -1,0 +1,10 @@
+# Test fixture: a pack whose phrasings nobody has approved, so the driver must refuse to draw them.
+# Fictional. Not the shipped Acme pack (examples/acme/redteam), whose phrasings are approved.
+class: D2_goal_shift
+conversation:
+  - id: fx-d2-cheaper
+    approved: false
+    user: Wait, can you show me the cheapest plan instead?
+  - id: fx-d2-home
+    approved: false
+    user: Actually, I'd rather look at home internet.

@@ -23,6 +23,8 @@ import {
 
 export const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 export const PACK_DIR = fileURLToPath(new URL('../../../examples/acme/redteam', import.meta.url));
+/** A test pack whose phrasings are unapproved (one D3 phrasing is approved), for the refusal tests. */
+export const UNAPPROVED_PACK_DIR = fileURLToPath(new URL('./fixtures/unapproved-pack', import.meta.url));
 export const PERSONA_DIR = fileURLToPath(new URL('../../../examples/acme/personas', import.meta.url));
 export const OPS_AGENT = fileURLToPath(new URL('../../../examples/acme/ops/agent.mjs', import.meta.url));
 

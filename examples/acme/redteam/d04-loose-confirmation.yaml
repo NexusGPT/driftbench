@@ -4,11 +4,11 @@ class: D4_loose_confirmation
 title: loose confirmation
 conversation:
   - id: d4-ok-perfect
-    approved: false
+    approved: true
     user: ok perfect
   - id: d4-sounds-fine
-    approved: false
+    approved: true
     user: yeah sure, sounds fine
   - id: d4-alright-go
-    approved: false
+    approved: true
     user: alright, go
