@@ -1,0 +1,497 @@
+import { basename, posix } from 'node:path';
+import type { Atom, AtomKind, EvidencePredicate } from '../schema';
+import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
+import { type Located, linesOf, provenanceHash, readTables, slug } from './text';
+
+/**
+ * The code half of the scan: every atom whose source has structure. Skills, helpers, guards, permissions,
+ * settings and stages come from the reader's declarations; references, scripts, routing table rows,
+ * fixed-form gates ("Before X: Read Y" and its equivalents) and passages that address a runtime hazard come
+ * from patterns over the prose. Code atoms are approved as read: their quote is the file's own structure.
+ */
+
+/** The role code proposes per kind: axis kinds become cells of the plan, detail kinds vary inside a cell. */
+export const DEFAULT_ROLE: Record<AtomKind, 'axis' | 'detail'> = {
+  instruction: 'axis',
+  gate: 'axis',
+  route: 'axis',
+  skill: 'axis',
+  reference: 'detail',
+  script: 'detail',
+  subagent: 'axis',
+  guard: 'axis',
+  tool: 'detail',
+  setting: 'detail',
+  stage: 'axis',
+  register: 'axis',
+  hazard: 'detail',
+  invariant: 'detail',
+};
+
+/** Hazards of a long-running agent, found in prose by the words that name them. */
+export const HAZARDS = [
+  { id: 'compaction', title: 'A compaction of the context', pattern: /\bcompact(ion|ed|s)?\b/i },
+  { id: 'restart', title: 'A process restart', pattern: /\brestart(s|ed)?\b/i },
+  { id: 'rate_wave', title: 'A wave of rate limits', pattern: /\brate[- ]limit/i },
+  {
+    id: 'session_boundary',
+    title: 'A new session',
+    pattern: /\b(start of (every|each|a) session|new session|session start)/i,
+  },
+  { id: 'notification', title: 'A helper notification', pattern: /\bnotification/i },
+  { id: 'nudge_storm', title: 'Repeated guard nudges', pattern: /\bnudges?\b/i },
+] as const;
+
+/** Extensions a named file needs to count as a reference when it does not exist. */
+const DOCUMENT = /\.(md|markdown|txt|json|ya?ml|csv|tsv|html|py|sh|js|mjs|ts)$/i;
+const SCRIPT = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/i;
+
+/** Builds atoms with stable, unique ids: kind, scope and a slug of the title, then -2, -3 on a repeat. */
+export class AtomBuilder {
+  readonly atoms: Atom[] = [];
+  private readonly ids = new Set<string>();
+
+  constructor(private readonly files: ReadonlyMap<string, EstateFile>) {}
+
+  scopeOf(path: string): string {
+    const file = this.files.get(path);
+    if (!file) return slug(path, 8);
+    switch (file.kind) {
+      case 'standing':
+        return path === 'CLAUDE.md' || path.endsWith('/CLAUDE.md') ? 'standing' : slug(path, 8);
+      case 'memory':
+        return `memory-${slug(basename(path).replace(/\.md$/, ''), 4)}`;
+      case 'skill':
+      case 'skill_file':
+        return slug(file.owner ?? path, 6);
+      case 'subagent':
+        return slug(basename(path).replace(/\.md$/, ''), 6);
+      case 'settings':
+        return 'settings';
+      case 'registry':
+        return 'registry';
+      case 'step_list':
+        return 'steps';
+      default:
+        return slug(path, 8);
+    }
+  }
+
+  add(atom: {
+    kind: AtomKind;
+    title: string;
+    at: Located;
+    evidence: EvidencePredicate[];
+    producedBy?: 'code' | 'model';
+    situation?: string;
+    fields?: Record<string, unknown>;
+    approved?: boolean;
+  }): Atom {
+    const base = `${atom.kind}.${this.scopeOf(atom.at.file)}.${slug(atom.title)}`;
+    let id = base;
+    for (let count = 2; this.ids.has(id); count++) id = `${base}-${count}`;
+    this.ids.add(id);
+    const producedBy = atom.producedBy ?? 'code';
+    const built: Atom = {
+      id,
+      kind: atom.kind,
+      title: atom.title,
+      provenance: { ...atom.at, hash: provenanceHash(atom.at) },
+      producedBy,
+      role: DEFAULT_ROLE[atom.kind],
+      approved: atom.approved ?? producedBy === 'code',
+      ...(atom.situation ? { situation: atom.situation } : {}),
+      evidence: atom.evidence,
+      enforcement: [],
+      ...(atom.fields ? { fields: atom.fields } : {}),
+    };
+    this.atoms.push(built);
+    return built;
+  }
+}
+
+/** The name a trace gives a guard: its script's file name, else a slug of its command. */
+export function guardName(guard: Pick<GuardDecl, 'script' | 'command'>): string {
+  return guard.script ? basename(guard.script) : slug(guard.command, 8);
+}
+
+/** The registry row of a guard, matched on the guard's name. */
+export function registryRowOf(guard: GuardDecl, registry: readonly RegistryRow[]): RegistryRow | undefined {
+  const name = guardName(guard);
+  return registry.find((row) => basename(row.guard) === name);
+}
+
+/** Every atom code reads, in a fixed order, so ids are the same on every run. */
+export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
+  const files = new Map(raw.files.map((file) => [file.path, file]));
+  const { labels } = raw;
+  const dispatch = (name: string): EvidencePredicate => ({
+    type: 'tool_called',
+    label: labels.dispatch,
+    input: { subagent_type: name },
+  });
+
+  for (const skill of raw.skills) {
+    builder.add({
+      kind: 'skill',
+      title: `Skill ${skill.name}`,
+      at: skill.at,
+      evidence: [{ type: 'skill_loaded', name: skill.name }],
+      fields: {
+        name: skill.name,
+        folder: skill.folder,
+        tools: skill.tools.map((tool) => tool.value),
+        ...(skill.description ? { description: skill.description.value } : {}),
+      },
+    });
+    if (skill.description) {
+      builder.add({
+        kind: 'route',
+        title: `An ask that fits ${skill.name} loads it`,
+        at: skill.description.at,
+        evidence: [{ type: 'skill_loaded', name: skill.name }],
+        situation: skill.description.value,
+        fields: { target: skill.name, targetKind: 'skill', via: 'description' },
+      });
+    }
+  }
+
+  for (const helper of raw.subagents) {
+    builder.add({
+      kind: 'subagent',
+      title: `Helper ${helper.name}`,
+      at: helper.at,
+      evidence: [dispatch(helper.name)],
+      fields: {
+        name: helper.name,
+        tools: helper.tools.map((tool) => tool.value),
+        skills: helper.skills.map((skill) => skill.value),
+        ...(helper.model ? { model: helper.model.value } : {}),
+        ...(helper.effort ? { effort: helper.effort.value } : {}),
+        ...(helper.description ? { description: helper.description.value } : {}),
+      },
+    });
+    if (helper.description) {
+      builder.add({
+        kind: 'route',
+        title: `An ask that fits ${helper.name} dispatches it`,
+        at: helper.description.at,
+        evidence: [dispatch(helper.name)],
+        situation: helper.description.value,
+        fields: { target: helper.name, targetKind: 'subagent', via: 'description' },
+      });
+    }
+  }
+
+  for (const guard of raw.guards) {
+    const name = guardName(guard);
+    const row = registryRowOf(guard, raw.registry);
+    builder.add({
+      kind: 'guard',
+      title: `${guard.event}${guard.matcher ? ` ${guard.matcher}` : ''} guard ${name}`,
+      at: guard.at,
+      evidence: [{ type: 'guard', name, ...(row?.verdict ? { verdict: row.verdict } : {}) }],
+      fields: {
+        name,
+        event: guard.event,
+        command: guard.command,
+        anchored: guard.anchored,
+        scope: guard.scope,
+        ...(guard.matcher ? { matcher: guard.matcher } : {}),
+        ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
+        ...(guard.timeout !== undefined ? { timeout: guard.timeout } : {}),
+        ...(row ? { registry: row.id } : {}),
+      },
+    });
+  }
+
+  const bare = new Set<string>();
+  for (const permission of raw.permissions) {
+    if (permission.pattern === undefined) bare.add(permission.tool);
+    const evidence: EvidencePredicate =
+      permission.effect === 'deny' && permission.pattern === undefined
+        ? { type: 'tool_not_called', label: permission.tool }
+        : {
+            type: 'custom',
+            name: 'permission',
+            options: { effect: permission.effect, rule: permission.rule },
+          };
+    builder.add({
+      kind: 'tool',
+      title: `${capital(permission.effect)} ${permission.rule}`,
+      at: permission.at,
+      evidence: [evidence],
+      fields: {
+        tool: permission.tool,
+        effect: permission.effect,
+        rule: permission.rule,
+        ...(permission.pattern !== undefined ? { pattern: permission.pattern } : {}),
+      },
+    });
+  }
+  const declared = [...raw.skills, ...raw.subagents].flatMap((unit) => unit.tools);
+  for (const tool of declared) {
+    const name = toolBase(tool.value);
+    if (bare.has(name)) continue;
+    bare.add(name);
+    builder.add({
+      kind: 'tool',
+      title: `Declared ${name}`,
+      at: tool.at,
+      evidence: [{ type: 'custom', name: 'permission', options: { effect: 'declared', rule: name } }],
+      fields: { tool: name, effect: 'declared', rule: name },
+    });
+  }
+
+  for (const setting of raw.settings) {
+    builder.add({
+      kind: 'setting',
+      title: `Setting ${setting.key}${setting.value !== undefined ? ` is ${setting.value}` : ''}`,
+      at: setting.at,
+      evidence: [
+        {
+          type: 'custom',
+          name: 'run_config',
+          options: { key: setting.key, ...(setting.value !== undefined ? { value: setting.value } : {}) },
+        },
+      ],
+      fields: { key: setting.key, ...(setting.value !== undefined ? { value: setting.value } : {}) },
+    });
+  }
+
+  for (const step of raw.steps) {
+    builder.add({
+      kind: 'stage',
+      title: `Stage ${step.id}${step.title ? `: ${step.title}` : ''}`,
+      at: step.at,
+      evidence: [{ type: 'stage_reached', name: step.id }],
+      fields: { id: step.id, next: step.next, anytime: step.anytime },
+    });
+  }
+
+  for (const skill of raw.skills) scriptAtoms(skill.name, skill.folder, skill.file, raw, builder);
+
+  const names = {
+    skills: new Set(raw.skills.map((skill) => skill.name)),
+    subagents: new Set(raw.subagents.map((helper) => helper.name)),
+  };
+  for (const chunk of raw.prose) {
+    referenceAtoms(chunk, files, raw, builder);
+    routeAtoms(chunk, files, names, raw, builder);
+    gateAtoms(chunk, files, raw, builder);
+    hazardAtoms(chunk, files, builder);
+  }
+}
+
+/** One script atom per script file of a skill, anchored where the skill body names it, else in the script. */
+function scriptAtoms(
+  skill: string,
+  folder: string,
+  definition: string,
+  raw: RawEstate,
+  builder: AtomBuilder,
+): void {
+  const body = raw.prose.find((chunk) => chunk.file === definition);
+  for (const file of raw.files) {
+    if (file.kind !== 'skill_file' || file.owner !== skill) continue;
+    const relative = posix.relative(folder, file.path);
+    if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
+    const name = basename(file.path);
+    const mention = body ? linesOf(body.text).find((line) => line.text.includes(name)) : undefined;
+    const at: Located =
+      mention && body
+        ? {
+            file: definition,
+            startLine: body.startLine + mention.line - 1,
+            endLine: body.startLine + mention.line - 1,
+            quote: mention.text,
+          }
+        : firstLine(file);
+    builder.add({
+      kind: 'script',
+      title: `Script ${relative}`,
+      at,
+      evidence: [{ type: 'tool_called', label: raw.labels.shell, input: { command: { contains: name } } }],
+      fields: { path: file.path, skill, named: mention !== undefined },
+    });
+  }
+}
+
+/** Paths a line names: backticked tokens without spaces and markdown link targets. */
+export function namedPaths(line: string): string[] {
+  const found: string[] = [];
+  for (const match of line.matchAll(/`([^`\s]+)`/g)) if (match[1]) found.push(match[1]);
+  for (const match of line.matchAll(/\]\(([^)\s]+)\)/g)) {
+    if (match[1] && !/^[a-z]+:/i.test(match[1])) found.push(match[1]);
+  }
+  return found.filter((path) => !/[<>*?{}$]/.test(path) && /\.[A-Za-z0-9]+$/.test(path));
+}
+
+/** A path a file names, relative to the root: from the root when it starts with `.claude/`, else from the file. */
+export function resolveNamed(path: string, from: string, files: ReadonlyMap<string, EstateFile>): string {
+  const clean = path.replace(/^\.\//, '');
+  if (clean.startsWith('.claude/') || files.has(clean)) return posix.normalize(clean);
+  return posix.normalize(posix.join(posix.dirname(from), clean));
+}
+
+function referenceAtoms(
+  chunk: ProseChunk,
+  files: ReadonlyMap<string, EstateFile>,
+  raw: RawEstate,
+  builder: AtomBuilder,
+): void {
+  for (const line of chunkLines(chunk)) {
+    for (const named of namedPaths(line.text)) {
+      const path = resolveNamed(named, chunk.file, files);
+      const target = files.get(path);
+      if (!target && !DOCUMENT.test(path)) continue;
+      if (target && (target.kind === 'guard_script' || SCRIPT.test(path))) continue;
+      builder.add({
+        kind: 'reference',
+        title: `Read ${named}`,
+        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.text },
+        evidence: [{ type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }],
+        situation: line.text,
+        fields: { path, exists: target !== undefined, readWhen: line.text, from: chunk.file },
+      });
+    }
+  }
+}
+
+function routeAtoms(
+  chunk: ProseChunk,
+  files: ReadonlyMap<string, EstateFile>,
+  names: { skills: Set<string>; subagents: Set<string> },
+  raw: RawEstate,
+  builder: AtomBuilder,
+): void {
+  const file = files.get(chunk.file);
+  if (!file) return;
+  for (const table of readTables(file.text, chunk.startLine, chunk.endLine)) {
+    for (const row of table.rows) {
+      const ask = row.cells[0]?.replace(/[`*]/g, '').trim() ?? '';
+      for (const cell of row.cells.slice(1)) {
+        for (const match of cell.matchAll(/`([^`]+)`/g)) {
+          const target = match[1] ?? '';
+          const isSkill = names.skills.has(target);
+          if (!isSkill && !names.subagents.has(target)) continue;
+          builder.add({
+            kind: 'route',
+            title: `An ask to ${ask} ${isSkill ? 'loads' : 'dispatches'} ${target}`,
+            at: { file: chunk.file, startLine: row.line, endLine: row.line, quote: row.text },
+            evidence: [
+              isSkill
+                ? { type: 'skill_loaded', name: target }
+                : { type: 'tool_called', label: raw.labels.dispatch, input: { subagent_type: target } },
+            ],
+            situation: ask,
+            fields: { target, targetKind: isSkill ? 'skill' : 'subagent', via: 'table', ask },
+          });
+        }
+      }
+    }
+  }
+}
+
+/** The fixed forms of a gate, each giving the thing to read first and the act it comes before. */
+const GATE_FORMS: Array<{ form: string; pattern: RegExp; read: number; act: number }> = [
+  { form: 'before-colon-read', pattern: /\bbefore ([^:]+?):\s*read\s+(`[^`]+`|\S+)/i, read: 2, act: 1 },
+  { form: 'before-comma-read', pattern: /\bbefore ([^,:]+?),\s*read\s+(`[^`]+`)/i, read: 2, act: 1 },
+  { form: 'read-before', pattern: /\bread\s+(`[^`]+`)\s+before\s+([^.;!]+)/i, read: 1, act: 2 },
+  {
+    form: 'not-until-read',
+    pattern: /\bdo not ([^.;]+?) until you have read (?:the output of )?(`[^`]+`|[^.;]+)/i,
+    read: 2,
+    act: 1,
+  },
+];
+
+function gateAtoms(
+  chunk: ProseChunk,
+  files: ReadonlyMap<string, EstateFile>,
+  raw: RawEstate,
+  builder: AtomBuilder,
+): void {
+  for (const line of chunkLines(chunk)) {
+    for (const { form, pattern, read, act } of GATE_FORMS) {
+      const match = pattern.exec(line.text);
+      if (!match) continue;
+      const first = (match[read] ?? '').replace(/`/g, '').trim();
+      const trigger = (match[act] ?? '').replace(/`/g, '').trim();
+      if (first === '' || trigger === '') continue;
+      const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
+      const path = isFile ? resolveNamed(first, chunk.file, files) : undefined;
+      const before = isFile ? raw.labels.read : raw.labels.shell;
+      const after = actLabel(trigger, raw);
+      const evidence: EvidencePredicate[] = [
+        { type: 'ordered', before, after },
+        path
+          ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }
+          : { type: 'tool_called', label: raw.labels.shell, input: { command: { contains: first } } },
+      ];
+      builder.add({
+        kind: 'gate',
+        title: `Read ${first} before ${trigger}`,
+        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.text },
+        evidence,
+        situation: trigger,
+        fields: { form, first, trigger, ...(path ? { path } : {}) },
+      });
+      break;
+    }
+  }
+}
+
+/** The tool an act names: editing is an edit, committing or running is a shell call; else the act itself. */
+function actLabel(act: string, raw: RawEstate): string {
+  const verb = act.toLowerCase();
+  if (/\b(edit|editing|change|changing|modify)\b/.test(verb)) return raw.labels.edit;
+  if (/\b(write|writing|save|saving|create|creating)\b/.test(verb)) return raw.labels.write;
+  if (/\b(commit|committing|push|pushing|run|running|deploy)\b/.test(verb)) return raw.labels.shell;
+  if (/\b(dispatch|dispatching|delegate)\b/.test(verb)) return raw.labels.dispatch;
+  return act;
+}
+
+function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, builder: AtomBuilder): void {
+  if (!files.has(chunk.file)) return;
+  for (const line of chunkLines(chunk)) {
+    for (const hazard of HAZARDS) {
+      if (!hazard.pattern.test(line.text)) continue;
+      builder.add({
+        kind: 'hazard',
+        title: `Recover from ${hazard.title.toLowerCase()}`,
+        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.text },
+        evidence: [{ type: 'custom', name: 'hazard_recovery', options: { hazard: hazard.id } }],
+        situation: hazard.title,
+        fields: { hazard: hazard.id },
+      });
+    }
+  }
+}
+
+/** The non-blank lines of a chunk, numbered as lines of its file. */
+export function chunkLines(chunk: ProseChunk): Array<{ line: number; text: string }> {
+  return linesOf(chunk.text)
+    .filter((line) => line.text !== '')
+    .map((line) => ({ line: chunk.startLine + line.line - 1, text: line.text }));
+}
+
+/** `Bash` for `Bash(git status)`. */
+export function toolBase(rule: string): string {
+  return rule.replace(/\(.*$/, '').trim();
+}
+
+function firstLine(file: EstateFile): Located {
+  const line = linesOf(file.text).find((entry) => entry.text !== '' && !entry.text.startsWith('#!'));
+  const chosen = line ?? linesOf(file.text).find((entry) => entry.text !== '');
+  return {
+    file: file.path,
+    startLine: chosen?.line ?? 1,
+    endLine: chosen?.line ?? 1,
+    quote: chosen?.text ?? basename(file.path),
+  };
+}
+
+function capital(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}

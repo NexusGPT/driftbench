@@ -1,0 +1,9 @@
+{
+  "steps": [
+    { "id": "plan", "title": "Restate the ask and list the files you will touch", "next": ["do"] },
+    { "id": "do", "title": "Make the change", "next": ["verify"] },
+    { "id": "verify", "title": "Run the check that proves the change", "next": ["report", "do"] },
+    { "id": "report", "title": "Tell the user what changed and what is next", "next": [] },
+    { "id": "note", "title": "Write a tracker note", "anytime": true }
+  ]
+}
