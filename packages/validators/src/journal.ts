@@ -32,14 +32,21 @@ const LevelMetric = z
   })
   .strict();
 
+/** The pilot of the hardness measurement is iterations 1 to PILOT_ITERATIONS (docs/validators.md 12.4). */
+export const PILOT_ITERATIONS = 10;
+
+const count = z.number().int().min(0);
+
 /**
- * One iteration of the executor loop (docs/validators.md section 10.2): iteration, model, seeds, command,
- * level before and after (overall and per seed), every level's metric, the failing items before, the
+ * One iteration of the executor loop (docs/validators.md sections 10.2 and 12.4): iteration (0 is the
+ * measurement before any fix, 1 to 10 the pilot, then onward), model, seeds, command, level before and after
+ * (overall and per seed), every level's metric, the bank after the iteration (its size, the items passing on
+ * every seed, the failing items per family, the items per family and tier), the failing items before, the
  * hypothesis, the research, the change, tests added, the result, duration and token estimate.
  */
 export const JournalRowSchema = z
   .object({
-    iteration: z.number().int().min(1),
+    iteration: z.number().int().min(0),
     at: z.iso.datetime(),
     model: z.string().min(1),
     seeds: z.array(z.string().regex(/^(\d+|hidden)$/)).min(1),
@@ -47,6 +54,10 @@ export const JournalRowSchema = z
     level: z.object({ before: level, after: level }).strict(),
     perSeed: z.array(SeedLevels).min(1),
     metrics: z.array(LevelMetric).min(1),
+    bankSize: count,
+    passing: count,
+    failingByFamily: z.record(z.string().min(1), count),
+    bankByFamilyTier: z.record(z.string().min(1), z.record(z.string().regex(/^([1-5]|none)$/), count)),
     failingBefore: z.array(z.string().min(1)),
     hypothesis: z.string().min(1),
     research: z
@@ -63,7 +74,7 @@ export const JournalRowSchema = z
       })
       .strict(),
     testsAdded: z.array(z.string().min(1)),
-    result: z.enum(['raised', 'unchanged', 'lowered', 'stuck']),
+    result: z.enum(['baseline', 'raised', 'unchanged', 'lowered', 'stuck']),
     durationMinutes: z.number().min(0),
     tokenEstimate: z.number().int().min(0),
   })
@@ -96,19 +107,62 @@ export const JournalRowSchema = z
         : row.level.after < row.level.before
           ? 'lowered'
           : undefined;
-    if (expected && row.result !== expected) {
+    if ((row.iteration === 0) !== (row.result === 'baseline')) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['result'],
+        message: 'iteration 0 is the baseline, and only iteration 0 is',
+      });
+    } else if (row.iteration === 0 && expected) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['level'],
+        message: 'the baseline changes nothing: before equals after',
+      });
+    } else if (row.iteration > 0 && expected && row.result !== expected) {
       ctx.addIssue({
         code: 'custom',
         path: ['result'],
         message: `the level moved, so result is ${expected}`,
       });
     }
-    if (!expected && (row.result === 'raised' || row.result === 'lowered')) {
+    if (row.iteration > 0 && !expected && (row.result === 'raised' || row.result === 'lowered')) {
       ctx.addIssue({
         code: 'custom',
         path: ['result'],
         message: 'the level did not move: unchanged or stuck',
       });
+    }
+    if (row.passing > row.bankSize) {
+      ctx.addIssue({ code: 'custom', path: ['passing'], message: 'passing cannot exceed bankSize' });
+    }
+    const failing = Object.values(row.failingByFamily).reduce((sum, value) => sum + value, 0);
+    if (failing !== row.bankSize - row.passing) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['failingByFamily'],
+        message: `failingByFamily sums to ${failing}, but bankSize minus passing is ${row.bankSize - row.passing}`,
+      });
+    }
+    const banked = Object.values(row.bankByFamilyTier)
+      .flatMap((tiers) => Object.values(tiers))
+      .reduce((sum, value) => sum + value, 0);
+    if (banked !== row.bankSize) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['bankByFamilyTier'],
+        message: `bankByFamilyTier sums to ${banked}, but bankSize is ${row.bankSize}`,
+      });
+    }
+    for (const [family, failed] of Object.entries(row.failingByFamily)) {
+      const size = Object.values(row.bankByFamilyTier[family] ?? {}).reduce((sum, value) => sum + value, 0);
+      if (failed > size) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingByFamily', family],
+          message: `${failed} failing in a family of ${size} items`,
+        });
+      }
     }
     const levels = row.metrics.map((metric) => metric.level);
     if (levels.some((value, index) => value !== index + 1)) {
@@ -145,8 +199,10 @@ export function readJournal(root: string, component: string): { rows: JournalRow
         problems.push(`${journalFile(component)}:${index + 1} ${rowIssues(parsed.error.issues).join('; ')}`);
     });
   rows.forEach((row, index) => {
-    if (row.iteration !== index + 1) {
-      problems.push(`${journalFile(component)}: row ${index + 1} says iteration ${row.iteration}.`);
+    if (row.iteration !== index) {
+      problems.push(
+        `${journalFile(component)}: row ${index + 1} says iteration ${row.iteration}; rows count from iteration 0.`,
+      );
     }
   });
   return { rows, problems };
@@ -159,7 +215,7 @@ export function validateRow(
 ): { row: JournalRow } | { refused: string[] } {
   const parsed = JournalRowSchema.safeParse(value);
   if (!parsed.success) return { refused: rowIssues(parsed.error.issues) };
-  const next = previous.length + 1;
+  const next = previous.length;
   if (parsed.data.iteration !== next) {
     return {
       refused: [`iteration must be ${next}, the next row of the journal, not ${parsed.data.iteration}`],
