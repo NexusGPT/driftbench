@@ -12,7 +12,7 @@ import {
   type ToolCall,
   type Turn,
 } from '@driftbench/core';
-import { joinText, parseObserved, stimulusMessages, toolCallsOf } from '../function/shared';
+import { joinText, parseObserved, toolCallsOf } from '../function/shared';
 import { type ChatMessage, isChatCompletion, readCompletion, toChatMessages } from './chat';
 import { excerpt, type FetchLike, type HttpReply, sendRequest } from './transport';
 
@@ -22,11 +22,11 @@ export type { FetchLike } from './transport';
 /**
  * The http adapter: an agent behind an HTTP endpoint that speaks JSON.
  *
- * Each block is one POST to `url` with the session id, the block index, the conversation so far plus the
- * block's user messages (in the OpenAI-compatible chat shape), the stimulus, the world, the vars and the
- * target. The endpoint answers with an Observed, or with an OpenAI-compatible chat completion. A completion
- * that asks for tools is answered from `world.tools` and posted again, round after round, until a
- * completion asks for none.
+ * Each block is one POST to `url` with the session id, the block index, the session history in the
+ * OpenAI-compatible chat shape (the runner has already ended it with the block's user messages), the
+ * stimulus, the world, the vars and the target. The endpoint answers with an Observed, or with an
+ * OpenAI-compatible chat completion. A completion that asks for tools is answered from `world.tools` and
+ * posted again, round after round, until a completion asks for none.
  *
  * Errors: no connection, a timeout, 408 or 429 is an AdapterTransportError, which the runner may retry; any
  * other failing status (5xx included) or a body of neither shape is an AgentFailure.
@@ -263,7 +263,7 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
         session: session.id,
         turn: turn.index,
         ...(session.target.agent === undefined ? {} : { model: session.target.agent }),
-        messages: toChatMessages([...session.history, ...stimulusMessages(turn.stimulus)]),
+        messages: toChatMessages(session.history),
         stimulus: turn.stimulus,
         world: turn.given.world,
         vars: turn.given.vars,
@@ -282,9 +282,16 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
       own(session);
       if (options.endStateUrl === undefined) throw new Error('the http adapter has no endStateUrl to read');
       const reply = await post(options.endStateUrl, { session: session.id, source });
-      if (reply.status === 404) return undefined;
-      const body = judge(reply, options.endStateUrl);
-      return body.state ?? undefined;
+      const state = reply.status === 404 ? undefined : (judge(reply, options.endStateUrl).state ?? undefined);
+      if (source !== '*') return state;
+      // Source * lists every payload; an endpoint that recorded nothing may answer 404 or no state.
+      if (state === undefined) return [];
+      if (!Array.isArray(state)) {
+        throw new AgentFailure(
+          `POST ${options.endStateUrl} answered a state that is not a list for source *`,
+        );
+      }
+      return state;
     },
 
     async close(session) {

@@ -9,15 +9,17 @@ import type {
   Turn,
   WorldState,
 } from '@driftbench/core';
-import { asAgentError, parseObserved, stimulusMessages, toolOfSource } from './shared';
+import { asAgentError, parseObserved, readSource, type ToolPayload } from './shared';
+
+export type { ToolPayload } from './shared';
 
 /**
  * The function adapter: an agent that is an async function in the same process. No network, no key.
  *
- * Each block calls the function with the whole conversation (the session history, then the block's user
- * messages), the block's world and vars, and the session's own state when `create` builds one. The
- * function returns an Observed, which the adapter validates. The history belongs to the runner: the
- * adapter reads it and never appends to it.
+ * Each block calls the function with the session history as it is (the runner has appended the block's
+ * user messages, so it ends with the current user turn), the block's world and vars, and the session's own
+ * state when `create` builds one. The function returns an Observed, which the adapter validates. The
+ * history belongs to the runner: the adapter reads it and never appends to it.
  */
 
 export const FUNCTION_ADAPTER_VERSION = '0.1.0';
@@ -30,15 +32,12 @@ export type AgentFunction<S = undefined> = (
   state: S,
 ) => Promise<Observed> | Observed;
 
-/** One payload a side-effecting tool accepted: the tool label and the input it received. */
-export type ToolPayload = { readonly tool: string; readonly input: unknown };
-
 export type FunctionAdapterOptions<S = undefined> = {
   /** The agent, called once per block. `createAcmeAgent().respond` fits as it is. */
   respond: AgentFunction<S>;
   /** Builds per-session state, such as a fresh store, so nothing leaks between conversations. */
   create?: (given: ResolvedGiven) => S | Promise<S>;
-  /** The payload log of the side-effecting tools, oldest first. Enables `endState('tool:<label>')`. */
+  /** The payload log of the side-effecting tools, oldest first. Enables `endState` for `tool:<label>` and `*`. */
   payloads?: (state: S) => readonly ToolPayload[];
   /** True when the same input gives the same output. Default false. */
   deterministic?: boolean;
@@ -94,11 +93,10 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
 
     async send(session, turn: Turn) {
       const state = own(session);
-      const messages = [...structuredClone(session.history), ...stimulusMessages(turn.stimulus)];
       let observed: Observed;
       try {
         observed = await options.respond(
-          messages,
+          structuredClone(session.history),
           structuredClone(turn.given.world),
           structuredClone(turn.given.vars),
           state.agent,
@@ -111,10 +109,16 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
 
     async endState(session, source) {
       const state = own(session);
-      const label = toolOfSource(source, id);
+      const read = readSource(source, id);
       if (!options.payloads) throw new Error('the function adapter was given no payload log to read');
-      const payload = [...options.payloads(state.agent)].reverse().find((entry) => entry.tool === label);
-      return payload === undefined ? undefined : structuredClone(payload.input);
+      const log = options.payloads(state.agent).map(
+        (entry): ToolPayload => ({
+          tool: entry.tool,
+          input: structuredClone(entry.input),
+        }),
+      );
+      if ('all' in read) return log;
+      return log.reverse().find((entry) => entry.tool === read.tool)?.input;
     },
 
     async close(session) {

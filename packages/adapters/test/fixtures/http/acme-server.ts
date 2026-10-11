@@ -9,7 +9,8 @@ import type { ChatMessage } from '../../../src/http/index';
  *
  * - `POST /turn` decodes the chat messages back into driftbench messages, runs the session's Acme agent (one
  *   store per session id) with the block's world, and answers with its Observed.
- * - `POST /end-state` answers `{ state }`, the last payload the named tool accepted, or 404.
+ * - `POST /end-state` answers `{ state }`: for `tool:<label>` the last payload that tool accepted, or 404;
+ *   for `*` every payload, in order, as `{ tool, input }`.
  * - `POST /close` drops the session's store.
  * - `POST /status/<code>` answers that status; `POST /not-json` answers text; `POST /silent` never answers.
  * - Any other path answers with the chat completions queued by `queueCompletion`, one per request.
@@ -31,7 +32,7 @@ export async function startAcmeServer(): Promise<AcmeHttpServer> {
   const completions: unknown[] = [];
   const hanging = new Set<ServerResponse>();
 
-  const server = createServer(async (request, response) => {
+  async function handle(request: IncomingMessage, response: ServerResponse): Promise<void> {
     const body = await readBody(request);
     const path = request.url ?? '/';
     requests.push({ path, headers: request.headers, body });
@@ -52,8 +53,12 @@ export async function startAcmeServer(): Promise<AcmeHttpServer> {
       return send(response, 200, observed);
     }
     if (path === '/end-state') {
+      const payloads = store(body.session).payloads;
+      if (body.source === '*') {
+        return send(response, 200, { state: payloads.map(({ tool, input }) => ({ tool, input })) });
+      }
       const label = /^tool:(.+)$/.exec(String(body.source))?.[1];
-      const payload = [...store(body.session).payloads].reverse().find((entry) => entry.tool === label);
+      const payload = [...payloads].reverse().find((entry) => entry.tool === label);
       return payload ? send(response, 200, { state: payload.input }) : send(response, 404, { error: 'none' });
     }
     if (path === '/close') {
@@ -65,7 +70,8 @@ export async function startAcmeServer(): Promise<AcmeHttpServer> {
     if (status) return send(response, Number(status), { error: `status ${status} on purpose` });
     if (path === '/not-json') {
       response.writeHead(200, { 'content-type': 'text/plain' });
-      return response.end('this is not json');
+      response.end('this is not json');
+      return;
     }
     if (path === '/silent') {
       hanging.add(response);
@@ -75,6 +81,13 @@ export async function startAcmeServer(): Promise<AcmeHttpServer> {
     return next === undefined
       ? send(response, 500, { error: 'no completion queued' })
       : send(response, 200, next);
+  }
+
+  // An agent that throws answers 500 with its message, as an endpoint would, instead of hanging.
+  const server = createServer((request, response) => {
+    handle(request, response).catch((error: unknown) =>
+      send(response, 500, { error: error instanceof Error ? error.message : String(error) }),
+    );
   });
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   const { port } = server.address() as AddressInfo;

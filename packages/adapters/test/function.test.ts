@@ -15,6 +15,7 @@ import {
   COVERAGE_QUESTION,
   converse,
   expectWholeObserved,
+  sendUser,
   UPGRADE_CONVERSATION,
   UPGRADE_PAYLOAD,
   userTurn,
@@ -70,13 +71,13 @@ describe('function adapter', () => {
       deterministic: false,
     });
     const session = await adapter.open(acmeGiven(target));
-    const observed = await adapter.send(session, userTurn(0, COVERAGE_QUESTION, session.given));
+    const observed = await sendUser(adapter, session, COVERAGE_QUESTION, 0);
     expect(observed.toolCalls.map((call) => call.label)).toEqual(['coverage.check', 'catalog.search']);
     expect(adapter.endState).toBeDefined();
     await expect(adapter.endState?.(session, 'tool:order.create')).rejects.toThrow(/no payload log/);
   });
 
-  it('hands the agent the history, then the block messages, the block world and vars, and its session state', async () => {
+  it('hands the agent the history as the runner left it, the block world and vars, and its session state', async () => {
     const seen: { messages: Message[]; world: WorldState; vars: Record<string, unknown>; state: string }[] =
       [];
     const adapter = functionAdapter<string>({
@@ -92,6 +93,8 @@ describe('function adapter', () => {
     ];
     const start = acmeGiven(target, {}, prefix);
     const session = await adapter.open(start);
+    // The runner appends a burst's messages before send; the adapter adds nothing of its own.
+    session.history.push({ role: 'user', content: 'one' }, { role: 'user', content: 'two' });
     const blockGiven = acmeGiven(target, { fixtures: { clock: '2026-01-15T10:00:00Z' } });
     await adapter.send(session, { index: 3, stimulus: { burst: ['one', 'two'] }, given: blockGiven });
     expect(seen[0]?.messages).toEqual([
@@ -102,13 +105,6 @@ describe('function adapter', () => {
     expect(seen[0]?.world).toEqual(blockGiven.world);
     expect(seen[0]?.vars).toEqual(blockGiven.vars);
     expect(seen[0]?.state).toBe(`state of ${start.hash}`);
-
-    await adapter.send(session, {
-      index: 4,
-      stimulus: { injection: { class: 'D1_off_topic', user: 'is the shop open?' } },
-      given: start,
-    });
-    expect(seen[1]?.messages.at(-1)).toEqual({ role: 'user', content: 'is the shop open?' });
   });
 
   it('keeps the history and the Given safe from an agent that mutates its arguments', async () => {
@@ -121,8 +117,11 @@ describe('function adapter', () => {
     });
     const start = acmeGiven(target, {}, [{ role: 'user', content: 'first' }]);
     const session = await adapter.open(start);
-    await adapter.send(session, userTurn(0, 'second', start));
-    expect(session.history).toEqual([{ role: 'user', content: 'first' }]);
+    await sendUser(adapter, session, 'second', 0, start);
+    expect(session.history).toEqual([
+      { role: 'user', content: 'first' },
+      { role: 'user', content: 'second' },
+    ]);
     expect(start.world).toEqual({});
   });
 
@@ -248,4 +247,22 @@ describe('the contract checks on an Observed', () => {
       (o as { latencyMs?: number }).latencyMs = undefined;
     }),
   );
+});
+
+describe('function adapter end states', () => {
+  it('lists every payload in order for source *, and the last one of a tool for tool:<label>', async () => {
+    const log = [
+      { tool: 'notify_sales', input: { reason: 'callback' } },
+      { tool: 'order.create', input: { plan_id: 'mobile-m' } },
+      { tool: 'order.create', input: { plan_id: 'mobile-l' } },
+    ];
+    const adapter = functionAdapter({ respond: () => reply('ok'), payloads: () => log });
+    const session = await adapter.open(acmeGiven(target));
+    const all = (await adapter.endState?.(session, '*')) as typeof log;
+    expect(all).toEqual(log);
+    expect(await adapter.endState?.(session, 'tool:order.create')).toEqual({ plan_id: 'mobile-l' });
+    const first = all[0]?.input as { reason: string };
+    first.reason = 'changed';
+    expect(log[0]?.input, 'the payloads are copies').toEqual({ reason: 'callback' });
+  });
 });

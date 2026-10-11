@@ -69,13 +69,22 @@ export function parseObserved(value: unknown, source: string): Observed {
   throw new AgentFailure(`${source} returned an invalid Observed: ${issues.join('; ')}`);
 }
 
-/** The tool label of an end-state source written `tool:<label>`. Any other source is a configuration error. */
-export function toolOfSource(source: string, adapter: string): string {
-  const label = /^tool:(.+)$/.exec(source)?.[1];
-  if (label === undefined) {
-    throw new Error(`the ${adapter} adapter reads end-state sources written tool:<label>, not "${source}"`);
+/** One payload a side-effecting tool received: the tool label and its input. Source `*` lists these. */
+export type ToolPayload = { readonly tool: string; readonly input: unknown };
+
+/**
+ * An end-state source: `tool:<label>` reads the last payload that tool received, `*` lists every payload in
+ * the order they were received. Any other source is a configuration error.
+ */
+export function readSource(source: string, adapter: string): { tool: string } | { all: true } {
+  if (source === '*') return { all: true };
+  const tool = /^tool:(.+)$/.exec(source)?.[1];
+  if (tool === undefined) {
+    throw new Error(
+      `the ${adapter} adapter reads end-state sources written tool:<label> or *, not "${source}"`,
+    );
   }
-  return label;
+  return { tool };
 }
 
 /** Passes the contract's two errors through and turns anything else into an AgentFailure. */

@@ -9,7 +9,7 @@ import {
   type Session,
   type TargetRef,
 } from '@driftbench/core';
-import { stimulusMessages, toolOfSource } from '../function/shared';
+import { readSource, stimulusMessages, type ToolPayload } from '../function/shared';
 import type { FetchLike } from '../http/transport';
 import { type Answer, createClient, DEFAULT_BASE_URL, type NexusClient } from './client';
 import {
@@ -30,7 +30,8 @@ import {
  * - `trace` reads the same turn whole from tracing: every text segment in order, every tool call with its
  *   input and output, tokens, cost and latency per segment. It waits for the platform to finish writing it.
  * - `endState('tool:<label>')` reads the payload the recording stub workflow named in
- *   `target.options.stubs[<label>]` received from this session's call of that tool.
+ *   `target.options.stubs[<label>]` received from this session's call of that tool; `endState('*')` lists
+ *   every payload the stubs received from this session's calls, in the order of the calls.
  * - `close` deletes the golden conversation.
  *
  * The key is read from NEXUS_API_KEY and the server from NEXUS_BASE_URL (default the public API). Neither
@@ -58,7 +59,7 @@ export type NexusAdapterOptions = {
   keepConversations?: boolean;
 };
 
-type Generated = { sessionId: string; candidate: Candidate; latencyMs: number };
+type Generated = { block: number; sessionId: string; candidate: Candidate; latencyMs: number };
 
 type NexusState = {
   readonly kind: 'nexus';
@@ -70,10 +71,11 @@ type NexusState = {
   closed: boolean;
   /** The block in flight, so a send the runner retries resumes where it stopped and never repeats a user turn. */
   progress?: { index: number; added: number; generated?: Generated; accepted: boolean };
-  /** The last block that completed. */
+  /** The last block that completed, and how many blocks completed. */
   last?: Generated;
-  /** Every tool call this session made, for matching a stub's payloads to this session. */
-  readonly calls: { label: string; input: unknown }[];
+  blocks: number;
+  /** Every tool call this session made, in order, for matching a stub's payloads to this session. */
+  calls: { block: number; label: string; input: unknown }[];
 };
 
 /** Executions read per page, and pages read at most, when matching a stub's payloads to a session. */
@@ -194,6 +196,28 @@ export function nexusAdapter(options: NexusAdapterOptions = {}): AgentAdapter {
     return all;
   }
 
+  /** The payloads a stub workflow received since the session opened, newest first: its executions' trigger data. */
+  async function* stubPayloads(state: NexusState, workflowId: string): AsyncGenerator<unknown> {
+    const since = new Date(Date.parse(state.openedAt) - CLOCK_MARGIN_MS).toISOString();
+    for (let page = 1; page <= EXECUTION_PAGES; page++) {
+      const listed = await api().get('/workflows/executions', {
+        workflowId,
+        startDate: since,
+        sortBy: 'createdAt',
+        order: 'desc',
+        limit: EXECUTION_PAGE,
+        page,
+      });
+      const executions = rows(listed, 'the execution list');
+      for (const execution of executions) {
+        const executionId = field(execution, 'id', 'an execution');
+        const detail = await api().get(`/workflows/executions/${encodeURIComponent(executionId)}`);
+        yield isPlainObject(detail.data) ? detail.data.triggerData : undefined;
+      }
+      if (executions.length < EXECUTION_PAGE) return;
+    }
+  }
+
   return {
     id,
     version: `${NEXUS_ADAPTER_VERSION}+${contentHash(baseUrl)}`,
@@ -220,6 +244,7 @@ export function nexusAdapter(options: NexusAdapterOptions = {}): AgentAdapter {
         stubs,
         openedAt: new Date().toISOString(),
         closed: false,
+        blocks: 0,
         calls: [],
       };
       return { id: conversationId, adapter: id, target, given, history: [], state };
@@ -242,6 +267,7 @@ export function nexusAdapter(options: NexusAdapterOptions = {}): AgentAdapter {
         const answer = await api().post(`${path}/generate`, undefined, generateTimeoutMs);
         const where = `POST ${path}/generate`;
         progress.generated = {
+          block: state.blocks + 1,
           sessionId: field(answer.data, 'sessionId', where),
           candidate: readCandidate(isPlainObject(answer.data) ? answer.data.candidate : undefined, where),
           latencyMs: Math.round(performance.now() - started),
@@ -254,8 +280,13 @@ export function nexusAdapter(options: NexusAdapterOptions = {}): AgentAdapter {
       }
       state.progress = undefined;
       state.last = generated;
+      state.blocks = generated.block;
       state.calls.push(
-        ...generated.candidate.toolCalls.map((call) => ({ label: call.name, input: call.input })),
+        ...generated.candidate.toolCalls.map((call) => ({
+          block: generated.block,
+          label: call.name,
+          input: call.input,
+        })),
       );
       return observedFromCandidate(generated.candidate, generated.latencyMs, {
         conversationId: state.conversationId,
@@ -275,37 +306,51 @@ export function nexusAdapter(options: NexusAdapterOptions = {}): AgentAdapter {
         traceIds: read.traceIds,
         generationIds: read.generations.map((generation) => generation.id),
       });
-      state.calls.push(...observed.toolCalls.map((call) => ({ label: call.label, input: call.input })));
+      // The traced calls replace the candidate's for that block: the same calls, read from the trace.
+      state.calls = [
+        ...state.calls.filter((call) => call.block !== last.block),
+        ...observed.toolCalls.map((call) => ({ block: last.block, label: call.label, input: call.input })),
+      ];
       return observed;
     },
 
     async endState(session, source) {
       const state = own(session);
-      const label = toolOfSource(source, id);
-      const workflowId = state.stubs[label];
-      if (workflowId === undefined) {
-        throw new Error(`no recording stub for tool ${label}: name its workflow id in target.options.stubs`);
-      }
-      const sent = state.calls.filter((call) => call.label === label);
-      if (sent.length === 0) return undefined;
-      const since = new Date(Date.parse(state.openedAt) - CLOCK_MARGIN_MS).toISOString();
-      for (let page = 1; page <= EXECUTION_PAGES; page++) {
-        const listed = await api().get('/workflows/executions', {
-          workflowId,
-          startDate: since,
-          sortBy: 'createdAt',
-          order: 'desc',
-          limit: EXECUTION_PAGE,
-          page,
-        });
-        const executions = rows(listed, 'the execution list');
-        for (const execution of executions) {
-          const executionId = field(execution, 'id', 'an execution');
-          const detail = await api().get(`/workflows/executions/${encodeURIComponent(executionId)}`);
-          const received = isPlainObject(detail.data) ? detail.data.triggerData : undefined;
-          if (sent.some((call) => carries(received, call.input))) return structuredClone(received);
+      const read = readSource(source, id);
+      if ('all' in read) {
+        // Each call of a stubbed tool claims the oldest payload it carries that no earlier call claimed.
+        const received = new Map<string, { payload: unknown; claimed: boolean }[]>();
+        const payloads: ToolPayload[] = [];
+        for (const call of state.calls) {
+          const workflowId = state.stubs[call.label];
+          if (workflowId === undefined) continue;
+          let list = received.get(call.label);
+          if (!list) {
+            list = [];
+            for await (const payload of stubPayloads(state, workflowId)) {
+              list.unshift({ payload, claimed: false });
+            }
+            received.set(call.label, list);
+          }
+          const entry = list.find(
+            (candidate) => !candidate.claimed && carries(candidate.payload, call.input),
+          );
+          if (!entry) continue;
+          entry.claimed = true;
+          payloads.push({ tool: call.label, input: structuredClone(entry.payload) });
         }
-        if (executions.length < EXECUTION_PAGE) break;
+        return payloads;
+      }
+      const workflowId = state.stubs[read.tool];
+      if (workflowId === undefined) {
+        throw new Error(
+          `no recording stub for tool ${read.tool}: name its workflow id in target.options.stubs`,
+        );
+      }
+      const sent = state.calls.filter((call) => call.label === read.tool);
+      if (sent.length === 0) return undefined;
+      for await (const payload of stubPayloads(state, workflowId)) {
+        if (sent.some((call) => carries(payload, call.input))) return structuredClone(payload);
       }
       return undefined;
     },

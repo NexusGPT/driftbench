@@ -391,6 +391,57 @@ describe('nexus adapter, against the fake platform', () => {
     const listed = fake.requests.filter((request) => request.path === '/workflows/executions').at(-1);
     expect(listed?.query).toMatchObject({ workflowId: STUB_ORDER, sortBy: 'createdAt', order: 'desc' });
     expect(Date.parse(listed?.query.startDate ?? '')).toBeLessThan(Date.now());
+    expect(await adapter.endState?.(unlimited, '*')).toEqual([
+      { tool: 'order.create', input: UPGRADE_PAYLOAD },
+    ]);
+    expect(await adapter.endState?.(medium, '*')).toEqual([
+      { tool: 'order.create', input: { ...UPGRADE_PAYLOAD, plan_id: 'mobile-m' } },
+    ]);
+  });
+
+  it('lists one payload per session for source *, when two sessions sent the same order and both were traced', async () => {
+    const fake = createFakeNexus({ apiKey: KEY, stubs });
+    const adapter = on(fake);
+    const first = await adapter.open(acmeGiven(target));
+    const second = await adapter.open(acmeGiven(target));
+    for (const session of [first, second]) {
+      for (const [index, text] of UPGRADE_CONVERSATION.entries()) {
+        await converse(adapter, session, text, index);
+        await adapter.trace?.(session, userTurn(index, text, session.given));
+      }
+    }
+    expect(fake.executions, 'the stub received the same payload twice').toHaveLength(2);
+    for (const session of [first, second]) {
+      expect(await adapter.endState?.(session, '*')).toEqual([
+        { tool: 'order.create', input: UPGRADE_PAYLOAD },
+      ]);
+    }
+  });
+
+  it('lists a payload for source * once, when a second identical call never reached the stub', async () => {
+    const fake = createFakeNexus({ apiKey: KEY, stubs });
+    const adapter = on(fake);
+    const session = await adapter.open(acmeGiven(target));
+    for (const [index, text] of UPGRADE_CONVERSATION.entries()) await converse(adapter, session, text, index);
+    const state = session.state as { calls: { block: number; label: string; input: unknown }[] };
+    state.calls.push({ block: 99, label: 'order.create', input: UPGRADE_PAYLOAD });
+    expect(await adapter.endState?.(session, '*')).toEqual([
+      { tool: 'order.create', input: UPGRADE_PAYLOAD },
+    ]);
+  });
+
+  it('lists each payload once for source *, after a trace read the same calls again', async () => {
+    const fake = createFakeNexus({ apiKey: KEY, stubs });
+    const adapter = on(fake);
+    const session = await adapter.open(acmeGiven(target));
+    for (const [index, text] of UPGRADE_CONVERSATION.entries()) {
+      await converse(adapter, session, text, index);
+      await adapter.trace?.(session, userTurn(index, text, session.given));
+      await adapter.trace?.(session, userTurn(index, text, session.given));
+    }
+    expect(await adapter.endState?.(session, '*')).toEqual([
+      { tool: 'order.create', input: UPGRADE_PAYLOAD },
+    ]);
   });
 
   it('reads undefined when the session never called the tool, and refuses a tool with no stub', async () => {
@@ -400,11 +451,14 @@ describe('nexus adapter, against the fake platform', () => {
       acmeGiven({ ...target, options: { stubs: { 'order.create': STUB_ORDER } } }),
     );
     await converse(adapter, session, COVERAGE_QUESTION, 0);
+    const reads = fake.requests.length;
     expect(await adapter.endState?.(session, 'tool:order.create')).toBeUndefined();
+    expect(await adapter.endState?.(session, '*')).toEqual([]);
+    expect(fake.requests.length, 'no call of a stubbed tool: nothing to read').toBe(reads);
     await expect(adapter.endState?.(session, 'tool:notify_sales')).rejects.toThrow(
       /no recording stub for tool notify_sales/,
     );
-    await expect(adapter.endState?.(session, 'payloads')).rejects.toThrow(/tool:<label>/);
+    await expect(adapter.endState?.(session, 'payloads')).rejects.toThrow(/tool:<label> or \*/);
   });
 
   it('maps platform failures: 503 and a dropped connection may be retried, 500 and 404 fail the block', async () => {

@@ -2,7 +2,7 @@ import { AdapterTransportError, AgentFailure, type Message, type Session } from 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { toChatMessages } from '../src/http/chat';
 import { httpAdapter } from '../src/http/index';
-import { acmeGiven, adapterContract, COVERAGE_QUESTION, converse, userTurn } from './contract';
+import { acmeGiven, adapterContract, COVERAGE_QUESTION, converse, sendUser, userTurn } from './contract';
 import { type AcmeHttpServer, deadUrl, fromChatMessages, startAcmeServer } from './fixtures/http/acme-server';
 
 let server: AcmeHttpServer;
@@ -42,7 +42,7 @@ describe('http adapter', () => {
     });
     const session = await adapter.open(given);
     await converse(adapter, session, COVERAGE_QUESTION, 0);
-    await adapter.send(session, userTurn(1, 'Acme Air 5G, please.', given));
+    await sendUser(adapter, session, 'Acme Air 5G, please.', 1);
     const request = lastRequest();
     expect(request?.headers.authorization).toBe('Bearer test-token-not-real');
     expect(request?.body).toMatchObject({
@@ -186,7 +186,7 @@ describe('http adapter', () => {
     };
     const start = acmeGiven(target, world);
     const adapter = httpAdapter({ url: `${server.base}/chat`, capabilities: { toolStubs: true } });
-    const observed = await adapter.send(await adapter.open(start), userTurn(0, 'hi', start));
+    const observed = await sendUser(adapter, await adapter.open(start), 'hi', 0, start);
     expect(observed.segments.map((segment) => segment.type)).toEqual([
       'text',
       'tool_call',
@@ -302,6 +302,21 @@ describe('http adapter', () => {
     const adapter = acme();
     const session = await adapter.open(given);
     expect(await adapter.endState?.(session, 'tool:order.create')).toBeUndefined();
+  });
+
+  it('reads source * as a list: an empty one when the endpoint recorded nothing, a failure when it is not a list', async () => {
+    const answering = (status: number, body: unknown) =>
+      httpAdapter({
+        url: 'http://agent.test/turn',
+        endStateUrl: 'http://agent.test/end-state',
+        fetch: async () => new Response(JSON.stringify(body), { status }),
+      });
+    const nothing = answering(404, { error: 'none' });
+    expect(await nothing.endState?.(await nothing.open(given), '*')).toEqual([]);
+    const empty = answering(200, {});
+    expect(await empty.endState?.(await empty.open(given), '*')).toEqual([]);
+    const wrong = answering(200, { state: { tool: 'order.create' } });
+    await expect(wrong.endState?.(await wrong.open(given), '*')).rejects.toThrow(/not a list for source \*/);
   });
 
   it('carries the url in its version, so two endpoints never share a cache entry', () => {

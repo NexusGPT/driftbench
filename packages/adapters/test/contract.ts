@@ -19,8 +19,9 @@ import { describe, expect, it } from 'vitest';
  *     adapterContract('http', () => httpAdapter({ url }), { brokenTransport: () => httpAdapter({ url: dead }) });
  *
  * `makeAdapter` builds an adapter that reaches the Acme agent, fresh for each test. The suite plays the
- * runner: it opens a session from a Given, sends blocks, and appends each stimulus and reply to the
- * session's history, the way the runner does. What a capability rules out is skipped, never failed.
+ * runner, which owns `session.history`: it appends the block's user message before `send` and the reply
+ * after it, so at send time the history ends with the current user turn. What a capability rules out is
+ * skipped, never failed.
  *
  * What it holds an adapter to:
  * - `open` returns a session of the adapter for the Given; the history holds the prefix when the adapter
@@ -29,11 +30,12 @@ import { describe, expect, it } from 'vitest';
  *   followed by its `tool_result` segment, `toolCalls` lists them in the same order with the same outputs and
  *   errors, `text` is the text segments joined by a newline, and `cost` and `latencyMs` are present. The
  *   turn is whole: the Acme agent's two tool calls and its reply all arrive.
- * - `send` leaves the history to the runner, and two sends on one session carry it forward.
+ * - `send` never appends to the history, and two sends on one session carry it forward.
  * - With `toolStubs`, an error forced in `world.tools` reaches the tool's `tool_result` segment.
  * - With `endState`, `tool:order.create` reads the last payload the order tool received, after the four
- *   blocks of an upgrade; a tool that received nothing reads undefined.
- * - With `trace`, `trace` returns the same turn under the same rules.
+ *   blocks of an upgrade; a tool that received nothing reads undefined. Source `*` lists every payload in
+ *   order as `{ tool, input }`: the order alone after the upgrade, an empty list when nothing was submitted.
+ * - With `trace`, `trace` returns the same turn under the same rules. With `sandbox`, `readArtifact` exists.
  * - `close` releases the session: a later `send` fails, and `released` (when given) confirms it.
  * - A transport failure throws AdapterTransportError, from `open` or from `send`.
  */
@@ -88,7 +90,19 @@ export function replyMessage(observed: Observed): Message {
   return { role: 'assistant', content: observed.text, tool_calls: toolCalls } as Message;
 }
 
-/** Sends one user message the way the runner does: send, then append the message and the reply. */
+/** Sends one user message the way the runner does: append it to the history, then send. */
+export async function sendUser(
+  adapter: AgentAdapter,
+  session: Session,
+  text: string,
+  index: number,
+  given: ResolvedGiven = session.given,
+): Promise<Observed> {
+  session.history.push({ role: 'user', content: text });
+  return adapter.send(session, userTurn(index, text, given));
+}
+
+/** One whole block the way the runner runs it: append the user message, send, append the reply. */
 export async function converse(
   adapter: AgentAdapter,
   session: Session,
@@ -96,8 +110,8 @@ export async function converse(
   index: number,
   given: ResolvedGiven = session.given,
 ): Promise<Observed> {
-  const observed = await adapter.send(session, userTurn(index, text, given));
-  session.history.push({ role: 'user', content: text }, replyMessage(observed));
+  const observed = await sendUser(adapter, session, text, index, given);
+  session.history.push(replyMessage(observed));
   return observed;
 }
 
@@ -191,6 +205,10 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
         typeof adapter.endState === 'function' || !capabilities.endState,
         'endState exists when declared',
       ).toBe(true);
+      expect(
+        typeof adapter.readArtifact === 'function' || !capabilities.sandbox,
+        'readArtifact exists when the adapter owns a workspace',
+      ).toBe(true);
     });
 
     it(
@@ -226,7 +244,7 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
       'sends a block and returns the whole turn: every segment and tool call, the text, cost and latency',
       async () => {
         await withSession(async (adapter, session) => {
-          const observed = await adapter.send(session, userTurn(0, COVERAGE_QUESTION, session.given));
+          const observed = await sendUser(adapter, session, COVERAGE_QUESTION, 0);
           expectWholeObserved(observed);
           expect(observed.toolCalls.map((call) => call.label)).toEqual(['coverage.check', 'catalog.search']);
           expect(observed.toolCalls[0]?.output).toMatchObject({ found: true, address_id: 'addr-102' });
@@ -237,13 +255,14 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
     );
 
     it(
-      'leaves the history to the runner, and carries it forward over two sends',
+      'never appends to the history, and carries it forward over two sends',
       async () => {
         await withSession(async (adapter, session) => {
+          session.history.push({ role: 'user', content: COVERAGE_QUESTION });
           const before = structuredClone(session.history);
           const first = await adapter.send(session, userTurn(0, COVERAGE_QUESTION, session.given));
           expect(session.history, 'send never appends to the history').toEqual(before);
-          session.history.push({ role: 'user', content: COVERAGE_QUESTION }, replyMessage(first));
+          session.history.push(replyMessage(first));
 
           const second = await converse(adapter, session, PLAN_CHOICE, 1);
           expectWholeObserved(second);
@@ -268,7 +287,7 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
         const start = given(world);
         const session = await adapter.open(start);
         try {
-          const observed = await adapter.send(session, userTurn(0, COVERAGE_QUESTION, start));
+          const observed = await sendUser(adapter, session, COVERAGE_QUESTION, 0, start);
           expectWholeObserved(observed);
           const results = observed.segments.filter(
             (segment) => segment.type === 'tool_result' && segment.label === 'coverage.check',
@@ -300,6 +319,27 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
           }
           expect(await adapter.endState?.(session, 'tool:order.create')).toEqual(UPGRADE_PAYLOAD);
           expect(await adapter.endState?.(session, 'tool:notify_sales')).toBeUndefined();
+          expect(await adapter.endState?.(session, '*'), 'source * lists every payload, in order').toEqual([
+            { tool: 'order.create', input: UPGRADE_PAYLOAD },
+          ]);
+        } finally {
+          await adapter.close(session);
+        }
+      },
+      timeout,
+    );
+
+    it(
+      'lists no payload for source * when the conversation submitted nothing, when it reads end states',
+      async ({ skip }) => {
+        const adapter = await makeAdapter();
+        if (!adapter.capabilities().endState || !adapter.endState) skip('no endState capability');
+        const session = await adapter.open(given());
+        try {
+          expect(await adapter.endState?.(session, '*'), 'nothing before the first block').toEqual([]);
+          await converse(adapter, session, COVERAGE_QUESTION, 0);
+          await converse(adapter, session, PLAN_CHOICE, 1);
+          expect(await adapter.endState?.(session, '*'), 'two blocks that place no order').toEqual([]);
         } finally {
           await adapter.close(session);
         }
@@ -314,9 +354,8 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
         if (!adapter.capabilities().trace || !adapter.trace) skip('no trace capability');
         const session = await adapter.open(given());
         try {
-          const turn = userTurn(0, COVERAGE_QUESTION, session.given);
-          const sent = await adapter.send(session, turn);
-          const traced = await adapter.trace?.(session, turn);
+          const sent = await sendUser(adapter, session, COVERAGE_QUESTION, 0);
+          const traced = await adapter.trace?.(session, userTurn(0, COVERAGE_QUESTION, session.given));
           if (!traced) throw new Error('trace returned nothing');
           expectWholeObserved(traced);
           expect(traced.toolCalls.map((call) => call.label)).toEqual(
@@ -335,10 +374,10 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
       async () => {
         const adapter = await makeAdapter();
         const session = await adapter.open(given());
-        await adapter.send(session, userTurn(0, COVERAGE_QUESTION, session.given));
+        await converse(adapter, session, COVERAGE_QUESTION, 0);
         await adapter.close(session);
         if (options.released) expect(await options.released(session), 'released').toBe(true);
-        await expect(adapter.send(session, userTurn(1, PLAN_CHOICE, session.given))).rejects.toThrow();
+        await expect(sendUser(adapter, session, PLAN_CHOICE, 1)).rejects.toThrow();
       },
       timeout,
     );
@@ -355,9 +394,9 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
           expect(error).toBeInstanceOf(AdapterTransportError);
           return;
         }
-        await expect(
-          adapter.send(session, userTurn(0, COVERAGE_QUESTION, session.given)),
-        ).rejects.toBeInstanceOf(AdapterTransportError);
+        await expect(sendUser(adapter, session, COVERAGE_QUESTION, 0)).rejects.toBeInstanceOf(
+          AdapterTransportError,
+        );
         // close is always called, also after a failure: it resolves, or reports the same broken transport.
         await adapter
           .close(session)
