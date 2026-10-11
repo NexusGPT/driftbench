@@ -241,7 +241,69 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
         produced_by: 'code',
       })),
     ),
+    dimension('rule', 'A rule the agent follows that the inventory does not name', 'behaviour', 'detail', [
+      {
+        id: spec.languageRule.id,
+        title: spec.languageRule.title,
+        evidence: { source: prompt, quote: spec.languageRule.quote },
+        produced_by: 'code',
+      },
+    ]),
   );
+  const common = { produced_by: 'code' as const, approved: true };
+  const relations: NonNullable<Proposal['relations']> = [
+    {
+      kind: 'reply_language',
+      subject: { dimension: 'rule', value: spec.languageRule.id },
+      lang: spec.lang,
+      evidence: { source: prompt, quote: spec.languageRule.quote },
+      ...common,
+    },
+    ...spec.paths.map((path) => ({
+      kind: 'path' as const,
+      id: path.id,
+      flow: path.flow,
+      ...(Object.keys(path.when).length > 0 ? { when: path.when } : {}),
+      stages: [...path.stages],
+      behaviours: [...(spec.flows.find((flow) => flow.id === path.flow)?.behaviours ?? [])],
+      ...(path.endState
+        ? { end_state: { source: `tool:${path.endState.tool}`, mode: 'subset' as const, expect: { ...path.endState.expect } } }
+        : {}),
+      evidence: { source: prompt, quote: path.quote },
+      ...common,
+    })),
+    ...spec.uses.map((use) => ({
+      kind: 'uses_tool' as const,
+      subject: { dimension: 'flow', value: use.flow },
+      tool: use.tool,
+      stage: use.from,
+      to: use.to,
+      input: { ...use.input },
+      evidence: { source: prompt, quote: use.quote },
+      ...common,
+    })),
+    ...spec.data
+      .filter((value) => value.binds !== undefined)
+      .map((value) => ({
+        kind: 'binds' as const,
+        subject: { dimension: value.dimension, value: value.id },
+        slots: { ...(value.binds as Record<string, string>) },
+        evidence: { source: tools, quote: value.quote },
+        ...common,
+      })),
+    ...spec.recoveries.map((recovery) => ({
+      kind: 'recovery' as const,
+      class: recovery.class,
+      flows: [...recovery.flows],
+      ...(recovery.tool ? { tool: recovery.tool } : {}),
+      stage_after: recovery.stageAfter,
+      ...(recovery.must ? { must: [...recovery.must] } : {}),
+      ...(recovery.mustNot ? { must_not: [...recovery.mustNot] } : {}),
+      ...(recovery.tools ? { tools: recovery.tools.map((tool) => ({ tool: tool.tool, count: tool.count })) } : {}),
+      evidence: { source: prompt, quote: recovery.quote },
+      ...common,
+    })),
+  ];
   return {
     version: 1,
     agent: spec.agent,
@@ -271,6 +333,7 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
       produced_by: 'model',
       approved: true,
     })),
+    relations,
   };
 }
 

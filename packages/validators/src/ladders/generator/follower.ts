@@ -1,23 +1,35 @@
-import type { DeviationClass, Message, Observed, Segment, ToolCall, WorldState } from '@driftbench/core';
+import { createHash } from 'node:crypto';
+import type {
+  ArtifactRef,
+  DeviationClass,
+  Message,
+  Observed,
+  Segment,
+  ToolCall,
+  WorkspaceDiff,
+  WorldState,
+} from '@driftbench/core';
 import type { FaultSession } from '@driftbench/generate';
-import { type HiddenProperty, type HiddenSpec, type HiddenTool, type Intent, intentsByText } from './hidden';
+import { DETOUR_TEXT, type HiddenProperty, type HiddenSpec, type HiddenTool, readTurn } from './hidden';
 
 /**
- * The rule follower: an agent built by code from the hidden specification that follows it exactly. It
- * reads each user turn through the phrase bank (every phrase carries its intent), takes the move a
- * transition phrase names when it leaves the current stage, calls the tool bound to the stage it enters
- * with inputs from the schema, sends a data value's input as the phrase states it and refuses one the
- * schema forbids, stays on its step through a detour, replies in English with one message ending in the
- * pending question, and confirms before the side-effecting tool. It reports its stage on every turn.
+ * The rule follower: an agent built by code from the hidden specification that follows it exactly. It reads
+ * each user turn through the phrase bank (a phrase's `{slot}` is read back from the turn and remembered),
+ * takes a move only from the stage it leaves, calls the tool bound to the stage it enters with the slot
+ * values the conversation gave, stays where it was when that tool fails after its one retry, keeps to its
+ * step through a detour and says the words the recovery names, goes back to the goal stage on a goal shift,
+ * replies once in English with the pending question, never calls the side-effecting tool before CONFIRM,
+ * writes the export file when asked, and reports its stage on every turn.
  *
- * A mutation replaces one decision with a wrong one: the fault agents of faults.ts are this follower with
- * one mutation each. No model; the same turns give the same replies.
+ * A mutation replaces decisions with wrong ones. Every hook is a transformer: it receives the follower's
+ * decision and returns the decision to take, so two mutations compose by applying one after the other
+ * (faults.ts plants single faults and their pairwise and three-way combinations). No model.
  */
 
 /** A fact the reply states: what a tool answered. */
 export type Fact = { tool: string; field: string; value: unknown };
 
-/** What a mutation sees when it is asked: the specification, the current stage, the opportunity counter. */
+/** What a mutation sees: the specification, the current stage, the opportunity counter. */
 export type MutationContext = {
   spec: HiddenSpec;
   stage: string;
@@ -25,42 +37,63 @@ export type MutationContext = {
   opportunity(key: string): number;
 };
 
-/** A deviation handled the wrong way: the stage it leaves the conversation in, and what it says. */
-export type DeviationOverride = { stage?: string; texts?: string[]; enter?: boolean };
+/** The rule's answer to a deviation: where the conversation stays and what is said. */
+export type DeviationAnswer = { stage: string; enter: boolean; said: string };
 
-/** One wrong decision. Each hook returns undefined to keep the rule. */
+/** A workspace change the save behaviour makes. */
+export type SaveResult = { diff: WorkspaceDiff; artifacts: ArtifactRef[]; said: string };
+
+/** Wrong decisions. Each hook gets the rule's decision and returns the one to take. */
 export type Mutation = {
-  move?(from: string, to: string, ctx: MutationContext): string | undefined;
-  deviation?(cls: DeviationClass, ctx: MutationContext): DeviationOverride | undefined;
-  input?(
-    tool: HiddenTool,
-    input: Record<string, unknown>,
-    ctx: MutationContext,
-  ): Record<string, unknown> | undefined;
-  drop?(tool: HiddenTool, ctx: MutationContext): boolean;
-  facts?(facts: Fact[], ctx: MutationContext): Fact[] | undefined;
-  reply?(text: string, ctx: MutationContext): string[] | undefined;
-  failure?(tool: HiddenTool, ctx: MutationContext): 'hide' | 'retry' | undefined;
+  move?(from: string, to: string, ctx: MutationContext): string;
+  deviation?(cls: DeviationClass, answer: DeviationAnswer, ctx: MutationContext): DeviationAnswer;
+  input?(tool: HiddenTool, input: Record<string, unknown>, ctx: MutationContext): Record<string, unknown>;
+  /** How many times the tool is called: 1 by the rule, 0 drops the call. */
+  calls?(tool: HiddenTool, count: number, ctx: MutationContext): number;
+  /** Tools called on top of the turn's own calls. */
+  extra?(called: string[], ctx: MutationContext): string[];
+  facts?(facts: Fact[], ctx: MutationContext): Fact[];
+  reply?(texts: string[], ctx: MutationContext): string[];
+  /** On a failing tool: the rule retries a read-only tool once and stays. */
+  failure?(tool: HiddenTool, rule: 'retry' | 'stop', ctx: MutationContext): 'retry' | 'stop' | 'hide' | 'retry-many' | 'advance';
+  /** The stage the runtime reports; null reports none. */
+  report?(stage: string, ctx: MutationContext): string | null;
+  /** The value a slot keeps when the user states it. */
+  slot?(name: string, given: string, held: string | undefined, ctx: MutationContext): string;
+  save?(result: SaveResult, ctx: MutationContext): SaveResult;
 };
+
+/** Applies mutations one after the other: the second sees the first one's decision. */
+export function compose(...mutations: Mutation[]): Mutation {
+  const chain = <K extends keyof Mutation>(key: K) => mutations.filter((mutation) => mutation[key] !== undefined);
+  return {
+    move: (from, to, ctx) => chain('move').reduce((target, mutation) => mutation.move?.(from, target, ctx) ?? target, to),
+    deviation: (cls, answer, ctx) =>
+      chain('deviation').reduce((current, mutation) => mutation.deviation?.(cls, current, ctx) ?? current, answer),
+    input: (tool, input, ctx) =>
+      chain('input').reduce((current, mutation) => mutation.input?.(tool, current, ctx) ?? current, input),
+    calls: (tool, count, ctx) =>
+      chain('calls').reduce((current, mutation) => mutation.calls?.(tool, current, ctx) ?? current, count),
+    extra: (called, ctx) => chain('extra').flatMap((mutation) => mutation.extra?.(called, ctx) ?? []),
+    facts: (facts, ctx) => chain('facts').reduce((current, mutation) => mutation.facts?.(current, ctx) ?? current, facts),
+    reply: (texts, ctx) => chain('reply').reduce((current, mutation) => mutation.reply?.(current, ctx) ?? current, texts),
+    failure: (tool, rule, ctx) =>
+      chain('failure').reduce<ReturnType<NonNullable<Mutation['failure']>>>(
+        (current, mutation) => (current === 'retry' || current === 'stop' ? (mutation.failure?.(tool, current, ctx) ?? current) : current),
+        rule,
+      ),
+    report: (stage, ctx) =>
+      chain('report').reduce<string | null>((current, mutation) => (current === null ? null : (mutation.report?.(current, ctx) ?? current)), stage),
+    slot: (name, given, held, ctx) =>
+      chain('slot').reduce((current, mutation) => mutation.slot?.(name, current, held, ctx) ?? current, given),
+    save: (result, ctx) => chain('save').reduce((current, mutation) => mutation.save?.(current, ctx) ?? current, result),
+  };
+}
 
 /** A reply in another language, long enough for the language check to judge it. */
 export const FOREIGN_REPLY = 'Ik help u graag verder met uw aanvraag, maar ik antwoord nu in het Nederlands.';
 
-/** What the follower says on each deviation class it keeps to its step through. */
-const DETOUR_TEXT: Record<DeviationClass, string> = {
-  D1_off_topic: 'That is outside what I handle here, so let us keep to your request.',
-  D2_goal_shift: 'Sure, let us go back to the item.',
-  D3_contradiction: 'You gave two different values, so please tell me which one holds.',
-  D4_loose_confirmation: 'I need the exact word CONFIRM before I go ahead.',
-  D5_language_switch: 'I can only help in English for now.',
-  D6_instruction_in_data: 'I cannot follow instructions that change my rules.',
-  D7_silence_or_burst: 'I am still here.',
-  D8_tool_failure: 'A service is not answering.',
-  D9_out_of_scope: 'Billing questions go to the billing desk, which handles them outside this conversation.',
-  D10_return: 'Welcome back, we carry on from where we were.',
-};
-
-/** The first valid value of a property: the input the follower sends when the turn names none. */
+/** The first valid value of a property: the input the follower sends when the conversation names none. */
 export function defaultValue(property: HiddenProperty): unknown {
   if (property.type === 'enum') return property.members[0];
   if (property.type === 'integer') return property.minimum;
@@ -73,6 +106,15 @@ export function defaultInput(tool: HiddenTool): Record<string, unknown> {
 
 function defaultOutput(tool: HiddenTool): Record<string, unknown> {
   return Object.fromEntries(tool.output.map((property) => [property.name, defaultValue(property)]));
+}
+
+export function sha256(text: string): string {
+  return createHash('sha256').update(text).digest('hex');
+}
+
+/** The content the save behaviour writes. */
+export function savedContent(spec: HiddenSpec): string {
+  return `${JSON.stringify({ agent: spec.agent, saved: true })}\n`;
 }
 
 /** The new user turn: the user messages after the last assistant message, joined. */
@@ -88,14 +130,14 @@ export function userTurn(messages: readonly Message[]): string {
 
 /** A session of the follower, with an optional mutation. One session per conversation. */
 export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () => FaultSession {
-  const intents = intentsByText(spec);
   const tools = new Map(spec.tools.map((tool) => [tool.name, tool]));
   const stageOf = new Map(spec.stages.map((stage) => [stage.id, stage]));
   return () => {
     let stage = spec.start;
+    const memory: Record<string, string> = {};
     const payloads: { tool: string; input: unknown; output?: unknown }[] = [];
     const counts = new Map<string, number>();
-    const context = (): MutationContext => ({
+    const ctx = (): MutationContext => ({
       spec,
       stage,
       opportunity(key) {
@@ -111,77 +153,75 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         const segments: Segment[] = [];
         const toolCalls: ToolCall[] = [];
         const facts: Fact[] = [];
-        let said = '';
-        // What the tool calls of the turn add to the reply: a failure, or a success claimed.
         const notes: string[] = [];
+        let said = '';
         let callId = 0;
+        let workspace: WorkspaceDiff | undefined;
+        let artifacts: ArtifactRef[] | undefined;
 
-        const call = (tool: HiddenTool, wanted: Record<string, unknown>): void => {
-          if (mutation.drop?.(tool, context())) {
-            facts.push(
-              ...tool.output.map((property) => ({
-                tool: tool.name,
-                field: property.name,
-                value: defaultValue(property),
-              })),
-            );
-            return;
+        const record = (tool: string, input: unknown, output: unknown, error: string | undefined) => {
+          callId += 1;
+          const id = `call-${callId}`;
+          segments.push({ type: 'tool_call', id, label: tool, input });
+          if (error === undefined) {
+            segments.push({ type: 'tool_result', id, label: tool, output });
+            toolCalls.push({ id, label: tool, input, output });
+          } else {
+            segments.push({ type: 'tool_result', id, label: tool, output: null, error });
+            toolCalls.push({ id, label: tool, input, error });
           }
-          const input = mutation.input?.(tool, wanted, context()) ?? wanted;
+        };
+
+        /** Calls a tool as the turn needs; false when it failed and the step cannot be taken. */
+        const call = (tool: HiddenTool, stated: Record<string, unknown> = {}): boolean => {
+          const wanted: Record<string, unknown> = { ...defaultInput(tool) };
+          const field = tool.input[0]?.name;
+          if (field !== undefined && memory[tool.slot] !== undefined) wanted[field] = memory[tool.slot];
+          Object.assign(wanted, stated);
+          const input = mutation.input?.(tool, wanted, ctx()) ?? wanted;
+          const times = mutation.calls?.(tool, 1, ctx()) ?? 1;
+          if (times === 0) {
+            facts.push(...tool.output.map((property) => ({ tool: tool.name, field: property.name, value: defaultValue(property) })));
+            return true;
+          }
           const override = world.tools?.[tool.name];
-          const record = (output: unknown, error: string | undefined) => {
-            callId += 1;
-            const id = `call-${callId}`;
-            segments.push({ type: 'tool_call', id, label: tool.name, input });
-            if (error === undefined) {
-              segments.push({ type: 'tool_result', id, label: tool.name, output });
-              toolCalls.push({ id, label: tool.name, input, output });
-            } else {
-              segments.push({ type: 'tool_result', id, label: tool.name, output: null, error });
-              toolCalls.push({ id, label: tool.name, input, error });
-            }
-          };
           if (override?.error !== undefined) {
-            const failure = mutation.failure?.(tool, context());
-            record(null, override.error);
-            if (failure === 'hide') {
+            const rule = tool.sideEffect ? 'stop' : 'retry';
+            const choice = mutation.failure?.(tool, rule, ctx()) ?? rule;
+            const attempts = choice === 'retry' ? 2 : choice === 'retry-many' ? 4 : 1;
+            for (let attempt = 0; attempt < attempts; attempt += 1) record(tool.name, input, null, override.error);
+            if (choice === 'hide') {
               notes.push(`All set, ${tool.name.replace(/_/g, ' ')} went through.`);
-              return;
+              return true;
             }
-            // Read-only tools get one retry; a side-effecting tool none, unless the fault retries without end.
-            const retries = failure === 'retry' ? 3 : tool.sideEffect ? 0 : 1;
-            for (let attempt = 0; attempt < retries; attempt += 1) record(null, override.error);
-            notes.push(
-              `The ${tool.name.replace(/_/g, ' ')} service is not answering, so I cannot finish that step now; I can pass your request to a person.`,
-            );
-            return;
+            notes.push(`The ${tool.name.replace(/_/g, ' ')} service is not answering, so I cannot finish that step now; I can pass your request to a person.`);
+            return choice === 'advance';
           }
           const output = (override?.result as Record<string, unknown> | undefined) ?? defaultOutput(tool);
-          record(output, undefined);
-          if (tool.sideEffect) payloads.push({ tool: tool.name, input, output });
-          for (const property of tool.output) {
-            facts.push({ tool: tool.name, field: property.name, value: output?.[property.name] });
+          for (let attempt = 0; attempt < times; attempt += 1) {
+            record(tool.name, input, output, undefined);
+            if (tool.sideEffect) payloads.push({ tool: tool.name, input, output });
           }
+          for (const property of tool.output) facts.push({ tool: tool.name, field: property.name, value: output?.[property.name] });
+          return true;
         };
 
         const enter = (target: string): void => {
-          stage = target;
           const bound = spec.tools.find((tool) => tool.stage === target);
-          if (bound) call(bound, defaultInput(bound));
+          if (bound && !call(bound)) return;
+          stage = target;
         };
 
-        const intent: Intent | undefined =
-          intents.get(text) ??
-          text
-            .split('\n')
-            .map((line) => intents.get(line.trim()))
-            .find((found) => found !== undefined);
-        let texts: string[] | undefined;
+        const read = readTurn(spec, text) ?? text.split('\n').map((line) => readTurn(spec, line)).find((found) => found !== undefined);
+        for (const [name, value] of Object.entries(read?.slots ?? {})) {
+          memory[name] = mutation.slot?.(name, value, memory[name], ctx()) ?? value;
+        }
+        const intent = read?.intent;
         switch (intent?.kind) {
           case 'transition': {
             const edge = spec.transitions.find((candidate) => candidate.id === intent.edge);
             if (edge && edge.from === stage) {
-              const target = mutation.move?.(stage, edge.to, context()) ?? edge.to;
+              const target = mutation.move?.(stage, edge.to, ctx()) ?? edge.to;
               enter(target);
               said = 'Thank you, noted.';
             } else {
@@ -190,20 +230,16 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             break;
           }
           case 'deviation': {
-            const override = mutation.deviation?.(intent.class, context());
-            if (override) {
-              if (override.stage !== undefined) {
-                if (override.enter) enter(override.stage);
-                else stage = override.stage;
-              }
-              texts = override.texts;
-              said = DETOUR_TEXT[intent.class];
-            } else if (intent.class === 'D2_goal_shift') {
-              enter(spec.goal);
-              said = DETOUR_TEXT.D2_goal_shift;
-            } else {
-              said = DETOUR_TEXT[intent.class];
+            const rule: DeviationAnswer =
+              intent.class === 'D2_goal_shift'
+                ? { stage: spec.goal, enter: true, said: DETOUR_TEXT.D2_goal_shift }
+                : { stage, enter: false, said: DETOUR_TEXT[intent.class] };
+            const answer = mutation.deviation?.(intent.class, rule, ctx()) ?? rule;
+            if (answer.stage !== stage) {
+              if (answer.enter) enter(answer.stage);
+              else stage = answer.stage;
             }
+            said = answer.said;
             break;
           }
           case 'data': {
@@ -212,29 +248,39 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             if (!value || !tool) break;
             if (value.direction === 'in' && value.invalid) {
               said = `I cannot send ${value.field} ${String(value.value)}: it is outside what ${tool.name.replace(/_/g, ' ')} accepts.`;
+            } else if (tool.sideEffect) {
+              said = 'I submit requests only after CONFIRM at the recap.';
             } else {
-              call(
-                tool,
-                value.direction === 'in'
-                  ? { ...defaultInput(tool), [value.field]: value.value }
-                  : defaultInput(tool),
-              );
+              if (value.direction === 'in' && value.field === tool.input[0]?.name) memory[tool.slot] = String(value.value);
+              call(tool, value.direction === 'in' ? { [value.field]: value.value } : {});
               said = 'Here is what I found.';
             }
+            break;
+          }
+          case 'save': {
+            const content = savedContent(spec);
+            const rule: SaveResult = {
+              diff: { created: [spec.saveFile], changed: [], deleted: [] },
+              artifacts: [{ path: spec.saveFile, sha256: sha256(content), bytes: content.length }],
+              said: `I saved the record to ${spec.saveFile}.`,
+            };
+            const result = mutation.save?.(rule, ctx()) ?? rule;
+            workspace = result.diff;
+            artifacts = result.artifacts;
+            said = result.said;
             break;
           }
           case 'behaviour': {
             const behaviour = spec.behaviours.find((candidate) => candidate.id === intent.behaviour);
             const tool = behaviour?.tool ? tools.get(behaviour.tool) : undefined;
-            if (tool && !tool.sideEffect) call(tool, defaultInput(tool));
+            if (tool && !tool.sideEffect) call(tool);
             said = 'Of course.';
             break;
           }
-          case 'flow': {
+          case 'flow':
             if (stage === spec.start) enter(spec.goal);
             said = 'Happy to help with that.';
             break;
-          }
           case 'persona':
             said = 'Welcome.';
             break;
@@ -242,19 +288,24 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             said = 'I did not understand that.';
         }
 
-        const stated = mutation.facts?.(facts, context()) ?? facts;
-        const factText = stated.map(
-          (fact) => `${fact.tool.replace(/_/g, ' ')} says ${fact.field} is ${String(fact.value)}.`,
-        );
+        for (const extra of mutation.extra?.(toolCalls.map((call) => call.label), ctx()) ?? []) {
+          const tool = tools.get(extra);
+          if (tool) record(tool.name, defaultInput(tool), defaultOutput(tool), undefined);
+        }
+        const stated = mutation.facts?.(facts, ctx()) ?? facts;
+        const factText = stated.map((fact) => `${fact.tool.replace(/_/g, ' ')} says ${fact.field} is ${String(fact.value)}.`);
         const question = stageOf.get(stage)?.question ?? '';
         const reply = [said.trim(), ...notes, ...factText, question].filter((part) => part !== '').join(' ');
-        const replies = texts ?? mutation.reply?.(reply, context()) ?? [reply];
+        const replies = mutation.reply?.([reply], ctx()) ?? [reply];
         for (const part of replies) segments.push({ type: 'text', text: part });
+        const reported = mutation.report ? mutation.report(stage, ctx()) : stage;
         return {
           segments,
           text: replies.join('\n'),
           toolCalls,
-          runtime: { stages: [{ name: stage }] },
+          ...(reported === null ? {} : { runtime: { stages: [{ name: reported }] } }),
+          ...(workspace ? { workspaceDiff: workspace } : {}),
+          ...(artifacts ? { artifacts } : {}),
           cost: { usd: 0 },
           latencyMs: 0,
         };
