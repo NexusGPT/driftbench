@@ -372,19 +372,17 @@ function readGuards(
   }
 }
 
-/** Words that open a shell test, not a program: a segment that starts with one runs no script. */
-const SHELL_TESTS = new Set(['[', '[[', 'test', 'true', 'false', ':']);
 const ENV_ASSIGNMENT = /^[A-Za-z_][A-Za-z0-9_]*=/;
 const OPERATORS = new Set(['||', '&&', ';', '|', '&']);
 
 /**
  * The script a command runs, relative to the root, and whether the shell finds it from an anchor. The
  * command is cut at `||`, `&&`, `;` and `|`; in each part, environment assignments (`ENV=1`) and an `env`
- * wrapper are passed over, a part that opens a shell test (`[ "$X" = 1 ]`) runs nothing, and an
- * interpreter (`python3`) runs the path after its flags. The first part that runs a path gives the script.
- * With the estate's files, a dispatcher is seen through: among that part's path arguments, the last one
- * that exists is the script (tried from the root, then from the folder of each earlier path and the folders
- * above it), and the path the shell runs is kept as the dispatcher.
+ * wrapper are passed over and an interpreter (`python3`) runs the path after its flags. A part whose program
+ * is not a path (a shell test such as `[ "$X" = 1 ]`, `echo`) runs no script. The first part that runs a
+ * path gives the script. With the estate's files, a dispatcher is seen through: among that part's path
+ * arguments, the last one that exists is the script (tried from the root, then from the folder of each
+ * earlier path and the folders above it), and the path the shell runs is kept as the dispatcher.
  */
 export function scriptOf(
   command: string,
@@ -429,7 +427,6 @@ function runPath(segment: readonly string[]): string | undefined {
     skip((word) => ENV_ASSIGNMENT.test(word) || word.startsWith('-'));
   }
   const head = words[index] ?? '';
-  if (SHELL_TESTS.has(head)) return undefined;
   if (INTERPRETERS.has(basename(head))) {
     index++;
     skip((word) => word.startsWith('-'));
