@@ -112,6 +112,9 @@ importers:
       '@driftbench/core':
         specifier: workspace:*
         version: link:../core
+      '@driftbench/space':
+        specifier: workspace:*
+        version: link:../space
       yaml:
         specifier: ^2.9.1
         version: 2.9.1
