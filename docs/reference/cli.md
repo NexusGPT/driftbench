@@ -1,6 +1,6 @@
 # CLI
 
-`driftbench` is the command line. Today it checks spec files: `spec validate`, `spec lint` and `spec coverage` work. Commands that run agents are planned, phase 1 and later.
+`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), and checks that an agent is deterministic (`smoke`). The campaign and smoke commands, their options, their output and their exit codes are on the [running](../running.md) page.
 
 ## Running it
 
@@ -11,7 +11,7 @@ pnpm install
 pnpm driftbench spec validate path/to/specs
 ```
 
-Relative paths are read from the folder where you type the command.
+Relative paths are read from the folder where you type the command. `pnpm -s driftbench` prints only what driftbench prints, without pnpm's own lines.
 
 The Acme example runs `spec validate`, `spec lint` and `spec coverage` on seven specs and an inventory: [`examples/acme`](../../examples/acme/README.md) shows the commands and their output.
 
@@ -47,7 +47,7 @@ An invalid spec lists every error with its path in the spec and its code:
     blocks.0.expect.stage  STAGE_UNKNOWN  stage "b" is not in the spec's stages
 ```
 
-The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash, not the spec's `version`, keys the cache of the runner (planned, phase 1); `version` is a free label.
+The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash, not the spec's `version`, is part of the runner's cache key and of every run id; `version` is a free label. See [running](../running.md#the-cache-and-replay).
 
 | Option | Effect |
 |---|---|
@@ -241,15 +241,27 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `--version` | print the version |
 | `--help` | print the usage of the program or of a command |
 
+## Campaigns and smoke
+
+These commands run specs on a target. Each has its options, its output and its exit codes on the [running](../running.md) page.
+
+| Command | Does |
+|---|---|
+| [`campaign plan`](../running.md#driftbench-campaign-plan) | expands specs, targets, modes and repeats into cells, projects their cost and prints the minimum detectable effect |
+| [`campaign run`](../running.md#driftbench-campaign-run) | runs every cell and prints pass or fail per cell |
+| [`campaign status`](../running.md#driftbench-campaign-status) | prints the state of every cell of a stored campaign |
+| [`campaign resume`](../running.md#driftbench-campaign-resume) | runs the cells of a stored campaign that have no completed run, and reuses the others |
+| [`smoke`](../running.md#driftbench-smoke) | runs one spec several times with the cache off and reports whether the transcripts differ |
+
 ## Planned commands
 
-Each lands in the phase shown.
+Each lands in the phase shown. `space` and `extract` are registered already: each prints that it is not available yet and exits 2.
 
 | Command | Does | Phase |
 |---|---|---|
-| `campaign plan`, `campaign run`, `campaign resume`, `campaign status` | run specs on targets, modes and repeats, with the run count and projected cost printed first | 1 |
-| `campaign plan` printing the minimum detectable effect | the smallest drop the chosen repeats can detect | 4 |
-| `smoke` | run a spec three times with the cache off and report whether the transcripts differ | 1 |
+| `campaign run --mode T`, `campaign run --mode P` | campaigns in teacher-forced and perturbed modes | 3 |
+| `space coverage`, `space complete` | the declared map of situations an agent can face, and the coverage counted on it | G |
+| `extract` | proposes the map of situations from a prompt and an inventory, for a person to approve | G |
 | `judge calibrate`, `judge assign` | test every judge on fixture pairs and hand labels, then write the assignment table | 2 |
 | `stats`, `compare --baseline --candidate` | statistics and the parity verdict | 4 |
 | `report scorecard`, `report diff`, `report junit` | the scorecard page, a run diff, JUnit XML | 4 |

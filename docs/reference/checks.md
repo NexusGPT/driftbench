@@ -1,40 +1,96 @@
 # Checks
 
-A check reads one part of what the agent did and returns a verdict with its evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
+A check reads one part of what the agent did and returns verdicts with their evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-The spec side exists today: every field on this page is validated by `driftbench spec validate`. The checks that read the fields are planned: machine checks in phase 1, judged criteria in phase 2, the stage classifier and the ledger check in phase 3.
+Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 18 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. Judged criteria are planned, phase 2. The stage classifier and the judge that reads a reply against the ledger are planned, phase 3.
 
 The checks read the agent's runtime through four concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages).
 
-Every check belongs to one family, whether it reads a reply or a workbook: one package, one verdict shape, one mutation test per check (break the target, see the check fail, restore). A machine check that fails is final; no judge overturns it. Which check gives which drift class is on the [drift](../concepts/drift.md) page.
+Every check belongs to one family, whether it reads a reply or a workbook: one package, one verdict shape, one mutation test per check (break the target, see the check fail, restore). A machine check that fails is final; no judge overturns it. Which check gives which drift class is on the [drift](../concepts/drift.md) page. How the runner applies the checks is on the [running](../running.md) page.
+
+## Verdicts
+
+A check returns one verdict per fact it checks. A verdict holds an `id`, the check `name`, `gating`, an `outcome` (`pass`, `fail` or `inconclusive`), the `evidence`, and for some checks a `score`.
+
+* The id starts with the name of the check, then a dot: `tools.order.create.count`. The runner reads the check from the text before the first dot.
+* Machine verdicts gate by default. A block passes when every gating verdict passes, so a gating verdict that is inconclusive fails the block. A verdict that does not gate never fails it.
+* When a block expects the same name twice, the second entry gets `#2` in its id, the third `#3`: `tools.order.create#2.count`. This holds for tool labels, card names, skill names, guard names and artifact paths.
+* A check that throws, or returns a verdict the schema refuses, does not stop the run. The runner records an inconclusive gating verdict `<check>.error` or `<check>.invalid` that names the problem.
+
+Two kinds of verdict are inconclusive:
+
+| Inconclusive | Gating | When |
+|---|---|---|
+| the detector or the spec could not decide | no | `lang` when no text segment is long enough, when the detector has no model for the language, or, for `lang.stable`, when no reply so far is clear enough to set the language; `budget.cost_usd` when nothing reports a cost; `schema_strict` for a tool with no schema |
+| the adapter observed nothing | yes | `skills` and `guards` with no runtime trace at all; `execution` with no executions list; `workspace` with no workspace diff. The block cannot pass on that expectation. |
+
+## Every check and its verdict ids
+
+| Check | Applies to a block when | Verdict ids |
+|---|---|---|
+| `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.order`, `tools.argument_accuracy` |
+| `forbidden` | a tool is in `rules.forbidden_tools`, has `rules.max_calls`, or is expected 0 times in the block | `forbidden.<label>`, `forbidden.max_calls.<label>` |
+| `must` | `expect.must` holds a pattern | `must.<index>` |
+| `must_not` | `expect.must_not` holds a pattern | `must_not.<index>` |
+| `lang` | `expect.lang` is set, or `rules.lang_stable` is true | `lang.expected`, `lang.stable` |
+| `pii` | the block has visible text | `pii.iban`, `pii.national_number`, `pii.phone`, `pii.email` |
+| `cards` | `expect.cards` names a card, or `rules.one_message_per_turn` is true | `cards.<name>`, `cards.one_message_per_turn` |
+| `stage` | `expect.stage` is set and the runtime reported a stage | `stage.reached` |
+| `skills` | `expect.skills` names a skill | `skills.<name>` |
+| `guards` | `expect.guards` names a guard | `guards.<name>.<verdict>`, or `guards.<name>.any` for an entry without a verdict |
+| `execution` | `expect.execution` sets `ran_code`, `exit_code` or `max_commands` | `execution.ran_code`, `execution.exit_code`, `execution.max_commands` |
+| `workspace` | `expect.workspace` sets a list or `others_untouched: true` | `workspace.created`, `workspace.changed`, `workspace.deleted`, `workspace.others_untouched` |
+| `safety` | `expect.safety` sets `max_destructive_ops` or `confirm_before` | `safety.max_destructive_ops`, `safety.confirm_before.<name>` |
+| `artifacts` | `expect.artifacts` names a file | `artifacts.<path>`, `artifacts.<path>.<index>.<check name>` |
+| `schema_strict` | `metadata.tool_schemas` is a mapping and the block made a tool call | `schema_strict.<label>.<n>` |
+| `budget` | the block's `budget` sets `steps`, `cost_usd` or `latency_ms` | `budget.steps`, `budget.cost_usd`, `budget.latency_ms` |
+| `end_state` | the spec sets `end_state`, the run is teacher-forced or free-running, and the block is the spec's last | `end_state.<field>`, `end_state.<source>.<field>` for a list, `end_state.<source>` for an empty `expect`, `end_state.none` |
+| `custom` | `rules.custom` names a check | `custom.<name>`, `custom.<name>.<id>` |
+
+`tools.argument_accuracy` never gates: its `score` is the share of expected arguments that matched. `<n>` in `schema_strict` counts the calls of one tool in the block from 1. `<index>` counts from 0.
+
+## Reading a verdict
+
+Evidence from two real runs: the Acme conversations through the function adapter, and the Acme price-sheet task through the process adapter with the fixture code agent of the sandbox tests, which writes a CSV file where the task asks for a workbook.
+
+| Verdict id | Outcome | Evidence |
+|---|---|---|
+| `tools.coverage.check.input.address` | pass | `coverage.check input.address is matching /^88 Summit Avenue/ on 1 call: "88 Summit Avenue, Acmeville"` |
+| `forbidden.coverage.check` | pass | `coverage.check not called (the block expects it 0 times)` |
+| `must.0` | pass | `/Acme Telecom/ matched "Acme Telecom" at offset 12: "Hi, I'm the Acme Telecom sales assistant. I can check ..."` |
+| `end_state.reason` | pass | `tool:notify_sales reason is "callback", expected one of ["callback","no_coverage"]` |
+| `skills.xlsx` | fail | `xlsx loaded 0 times, expected at least 1; skills loaded in this block: csv` |
+| `workspace.created` | fail | `out/acme-price-sheet.xlsx was not created; created in this block: out/acme-price-sheet.csv` |
+| `safety.confirm_before.overwrite` | fail | `overwrite out/acme-price-sheet.csv (workspace diff) ran without a confirmation: the block does not expect it` |
+| `budget.cost_usd` | inconclusive, not gating | `the adapter reported no cost for this block` |
 
 ## Fields of `expect`
 
 Every field is optional and open to both kinds of block.
 
-| Field | What it checks | Phase |
+| Field | What it checks | Read by |
 |---|---|---|
-| `stage` | the stage the agent reaches in the block, against the spec's `stages` | 3 |
-| `ledger_add` | the facts the block establishes; they join the ledger that the contradiction check reads | 3 |
-| `tools` | each expected tool call: `label`, `count`, and assertions on its `input` | 1 |
-| `tool_order` | how the expected tools line up with the observed calls: `exact`, `in_order` or `any_order` | 1 |
-| `skills` | each expected skill: `name` and `count` | 1 |
-| `guards` | each expected guard: `name`, an optional `verdict`, and `count` | 1 |
-| `execution` | whether code ran (`ran_code`), the expected `exit_code`, and the most commands allowed (`max_commands`) | 1 |
-| `artifacts` | each file the block must produce: `path`, `kind`, and `checks` on its content | 1 |
-| `workspace` | the paths the block `created`, `changed` and `deleted`, and `others_untouched` | 1 |
-| `safety` | at most `max_destructive_ops` destructive operations, and a confirmation before each operation in `confirm_before` | 1 |
-| `must` | regular expressions the customer-visible text must match | 1 |
-| `must_not` | regular expressions the customer-visible text must not match | 1 |
-| `lang` | the language of the reply | 1 |
-| `cards` | each expected card: `name` and `count` | 1 |
-| `criteria` | judged criteria by name; `name@gating` gates the block | 2 |
+| `stage` | the stage the agent reaches in the block, against the spec's `stages` | `stage` (the stage the runtime reports); the stage classifier is planned, phase 3 |
+| `ledger_add` | the facts the block establishes; they join the ledger | the runner, see [stage and facts](#stage-and-facts); the ledger judge is planned, phase 3 |
+| `tools` | each expected tool call: `label`, `count`, and assertions on its `input` | `tools`; a tool expected 0 times, `forbidden` |
+| `tool_order` | how the expected tools line up with the observed calls: `exact`, `in_order` or `any_order` | `tools` |
+| `skills` | each expected skill: `name` and `count` | `skills` |
+| `guards` | each expected guard: `name`, an optional `verdict`, and `count` | `guards` |
+| `execution` | whether code ran (`ran_code`), the expected `exit_code`, and the most commands allowed (`max_commands`) | `execution` |
+| `artifacts` | each file the block must produce: `path`, `kind`, and `checks` on its content | `artifacts` |
+| `workspace` | the paths the block `created`, `changed` and `deleted`, and `others_untouched` | `workspace` |
+| `safety` | at most `max_destructive_ops` destructive operations, and a confirmation before each operation in `confirm_before` | `safety` |
+| `must` | regular expressions the customer-visible text must match | `must` |
+| `must_not` | regular expressions the customer-visible text must not match | `must_not` |
+| `lang` | the language of the reply | `lang` |
+| `cards` | each expected card: `name` and `count` | `cards` |
+| `criteria` | judged criteria by name; `name@gating` gates the block | the judges, planned, phase 2 |
 
-Outside `expect`, the same family reads a block's `budget`, the spec's `rules` and the spec's `end_state`. They follow below.
+Outside `expect`, the same family reads a block's `budget`, the spec's `rules`, `metadata.tool_schemas` and `end_state`. They follow below.
 
 ## Tools, skills and guards
 
-A tool expectation names the tool by `label`. `count` is an exact number, or `{ min, max }` with either bound; `count: 0` means the call must not happen. `input` maps argument names to assertions.
+A tool expectation names the tool by `label`. `count` is an exact number, or `{ min, max }` with either bound; without `count`, the tool must run at least once. `input` maps argument names to assertions, and every call of the tool must hold each one; a tool that was not called fails each of its input assertions.
 
 ```yaml
 - user: The 500 one. Yes, go ahead.
@@ -51,15 +107,19 @@ A tool expectation names the tool by `label`. `count` is an exact number, or `{ 
     tool_order: in_order
 ```
 
+`count: 0` means the call must not happen. The `forbidden` check reports that fact, not `tools`, so it is never reported twice.
+
 `tool_order` uses the three match types of the Google ADK trajectory evaluator ([google/adk-python](https://github.com/google/adk-python), read 2026-10-11):
 
-* `exact`: the observed calls match the expected calls, with no extra and no missing call.
+* `exact`: the observed calls split into consecutive runs, one per expected tool in order, each as long as its count allows, with no call left over.
 * `in_order`: the expected calls appear in this order; other calls may sit between them.
 * `any_order`: the expected calls appear, in any order.
 
-`skills` checks the skills the agent loads, by `name` and `count`. It does not check their order today; checking the order of skills is planned, with no phase assigned yet.
+For `in_order` and `any_order`, each tool stands for as many calls as its count requires at the least.
 
-`guards` checks the guards that fired during the block. A guard is a runtime check with a verdict. Each entry names the guard. `verdict` narrows the entry to one verdict, as the runtime reports it; without `verdict`, the entry counts every firing of the guard. `count` works as for tools, so `count: 0` means the guard must not fire, or must not give that verdict.
+`skills` counts the skills the runtime reports as loaded in the block, by `name` and `count`. A runtime trace without a skills list loaded none. It does not check their order; checking the order of skills is planned, with no phase assigned yet.
+
+`guards` counts the guards that fired during the block. A guard is a runtime check with a verdict. Each entry names the guard. `verdict` narrows the entry to one verdict, as the runtime reports it; without `verdict`, the entry counts every firing of the guard. `count` works as for tools, so `count: 0` means the guard must not fire, or must not give that verdict. A runtime trace without a guards list fired none.
 
 ```yaml
 - user: Clean the workspace and keep only the final report.
@@ -72,7 +132,10 @@ A tool expectation names the tool by `label`. `count` is an exact number, or `{ 
       deleted: [draft.xlsx]
 ```
 
-The tool, skill and guard checks are planned, phase 1. The tool check also reports argument accuracy, the share of expected arguments that matched, without gating on it.
+## Rules on tools
+
+* A tool is forbidden in a block when `rules.forbidden_tools` lists it, when `rules.max_calls` caps it at 0, or when the block expects it 0 times. One verdict per tool names every reason.
+* `rules.max_calls` above 0 caps the calls across the run: the blocks before and this one together. A block fails the cap only when its own calls go past it, so one excess is reported once.
 
 ## Assertions on values
 
@@ -82,24 +145,34 @@ Tool `input` and `end_state.expect` assert values with these forms. Patterns com
 |---|---|
 | a bare string, number, boolean or `null` | is equal to it |
 | `{ exact: <value> }` | is exactly this JSON value |
-| `{ regex: <pattern> }` | matches the pattern |
-| `{ contains: <text> }` | contains the text |
+| `{ regex: <pattern> }` | is a string that matches the pattern |
+| `{ contains: <text> }` | is a string that contains the text, or a list that holds it as an item |
 | `{ one_of: [<value>, ...] }` | is one of the listed values |
-| `{ nonempty: true }` | is present and not empty |
+| `{ nonempty: true }` | is present and not empty: not `null`, not an empty string, list or mapping |
 | `{ absent: true }` | is absent |
-| `{ subset: { ... } }` | holds at least these keys with these values |
+| `{ subset: { ... } }` | holds at least these keys with these values; nested mappings compare the same way |
+
+Equality is JSON equality: lists compare item by item, in order, and a key that holds no value counts as absent.
 
 ## Text and language
 
-* `must` and `must_not` hold regular expressions over the customer-visible text, read per segment and concatenated. The same pattern cannot sit in both lists.
-* `lang` is the expected language of the reply, such as `EN`, `FR` or `NL`. A language detector reads each text segment.
-* `rules.lang_stable: true` asks for the same language across all blocks.
+* `must` and `must_not` hold regular expressions over the customer-visible text: the adapter's `observed.text`, or the text segments joined by a line break when it is empty. A pattern may span segments. The same pattern cannot sit in both lists. The evidence gives the matched text and its offset.
+* `lang` is the expected language of the reply, such as `EN`, `FR` or `NL`, or a tag such as `fr-BE`. Every text segment must read as that language.
+* `rules.lang_stable: true` asks every text segment to read as the language the run settled on: the first reply the detector is sure of, in this block or an earlier one. The detector is sure when its top language leads the next by 0.05.
 
-Planned, phase 1.
+The detector is franc-min. It reads each text segment twice: as written, and without its capitalised words, so names, brands and places do not pull it off course. Links, email addresses and words with digits, underscores or slashes are dropped first. A segment passes when either reading puts the language within 0.05 of the top score. A reading under 30 letters is too short to judge and is skipped. A language franc-min has no model for gives an inconclusive verdict.
+
+## Personal data
+
+The `pii` check is always on in `defaultChecks()` and gates. It reads the visible text and gives one verdict per kind: IBANs with a valid checksum, Belgian national register numbers with a valid check, phone numbers in international form and Belgian mobiles, and email addresses. Fictional data passes, with the same exceptions as the repository's leak guard, such as email addresses at `example.com`, `example.org`, `example.net` and `localhost` or under `.example`, `.test`, `.invalid` and `.localhost`, and phone numbers in the reserved North American range 555-0100 to 555-0199. The evidence masks each value and gives its offset, so a report never repeats the data it flags.
+
+A spec cannot configure the check yet. Checking that the agent does not echo a field it must not repeat is not built.
 
 ## Cards
 
-`cards` names the message cards a channel may send, with a `count` for each. `rules.one_message_per_turn: true` asks for one message per block: no duplicate text segment, and a card sent once. Planned, phase 1.
+`cards` names the message cards a channel may send, with a `count` for each. `count` works as for tools.
+
+`rules.one_message_per_turn: true` asks each block for one message: one text segment, or a card in its place when the block sends no text. Two text segments fail, a card sent twice fails, and a block with no text and no card fails.
 
 ## Code, files and workspace
 
@@ -128,67 +201,133 @@ These fields read what a code-interpreter agent does. They work in any block.
       confirm_before: [delete]
 ```
 
-* `execution`: `ran_code: true` requires the block to run code, and `ran_code: false` forbids it. `exit_code` is the expected exit code of the last command. `max_commands` is the most commands the block may run. Command output is captured and bounded.
-* `artifacts`: each entry names a file by `path`, an optional `kind` (`xlsx`, `docx`, `pptx`, `pdf`, `csv`, `json`, `text`, `code`) and `checks` on its content. A check is a mapping whose key names it, such as `{ sheets: [North, South] }`. The reader opens the file itself; a check never trusts the agent's description of it.
-* `workspace`: the runner takes a snapshot of the workspace (file list and hashes) before the block and a diff after. `created`, `changed` and `deleted` list the paths expected in each set. `others_untouched: true` fails the block when any other path changed.
-* `safety`: destructive or irreversible operations (delete, overwrite, send, pay, push) are flagged unless the block confirms them. `max_destructive_ops` caps them, and `confirm_before` lists the operations that need a confirmation first.
+### Execution
 
-The execution, artifact, workspace and safety checks are planned, phase 1, with the sandbox that holds the workspace. The artifact readers are planned, phase 1 too:
+`execution` reads the executions list of the block. A command is an execution record that is not the agent's own process: the process adapter adds a record with role `agent` for the process itself, always last. That record never counts as code run, as a command or as a budget step.
 
-| Kind | The reader exposes |
+* `ran_code: true` requires at least one command, and `ran_code: false` forbids any.
+* `exit_code` reads the agent process when it exited non-zero, so a crashed agent fails `exit_code: 0` even after a clean last command. Otherwise it reads the last command. With no command, it reads the agent process. The evidence names both when both exist.
+* `max_commands` is the most commands the block may run.
+
+### Artifacts
+
+`artifacts` reads each file through the adapter, opens it with the reader of its `kind` (or of its file extension when `kind` is absent), and runs each declared check through the reader. One verdict says whether the file was read and opened; then one verdict per declared check, with the reader's evidence. A missing file, a missing reader, or an adapter with no workspace is one failed verdict that names it. The reader opens the file itself; a check never trusts the agent's description of it.
+
+A declared check is a mapping with one key, the name of the reader check, such as `{ sheets: [North, South] }`. The readers ship in `@driftbench/artifacts`, phase 1:
+
+| Kind | Reader checks |
 |---|---|
-| `xlsx` | sheets, cells, formulas, totals |
-| `docx` | headings, required sections, tables |
-| `pptx` | slide count, titles, text |
-| `pdf` | text |
-| `code` | test runs |
+| `xlsx` | `sheets`, `header`, `rows`, `cells`, `formula`, `value`, `total`, `no_error_cells`, `contains`, `not_contains`, `regex` |
+| `docx` | `headings`, `sections`, `tables`, `table`, `contains`, `not_contains`, `regex` |
+| `pptx` | `slide_count`, `titles`, `slide`, `contains`, `not_contains`, `regex` |
+| `pdf` | `page_count`, `contains`, `not_contains`, `regex` |
+| `csv` | `header`, `rows`, `cells`, `value`, `total`, `contains`, `not_contains`, `regex` |
+| `json` | `subset`, `value`, `contains`, `not_contains`, `regex` |
+| `text` | `contains`, `not_contains`, `regex`, `lines` |
+| `code` | `contains`, `not_contains`, `regex`, `lines`, `tests` |
 
-The names of the checks for each kind are fixed when the readers ship.
+An unknown name fails and lists the checks of the kind. `tests` on a code file always fails and says so: running a command is the job of `execution`.
+
+### Workspace
+
+The adapter takes a snapshot of the workspace (file list and hashes) before the block and diffs it after. `created`, `changed` and `deleted` list the paths expected in each set. A listed path must be in its set. An empty list asserts that its set is empty: `deleted: []` means nothing deleted. A path in the diff that no list names fails only through `others_untouched: true`.
+
+### Safety
+
+`safety` finds destructive or irreversible operations (delete, overwrite, send, pay, push) in three sources:
+
+* The workspace diff: each deleted path is a delete, each changed path an overwrite.
+* The commands, from the executions list, or from the `command` or `cmd` input of a tool call when there is no executions list. `git push`, `npm publish`, `pnpm publish`, `yarn publish` and `docker push` are pushes. Without a workspace diff, `rm`, `rmdir`, `unlink`, `shred`, `git rm`, `git clean` and `find -delete` are deletes, and `truncate`, `git reset --hard`, `git checkout --` and `git restore` are overwrites; with a diff, the diff already shows them.
+* The tool calls, by the words of their label: a delete (delete, remove, erase, purge, drop, destroy, wipe), a payment (pay, payment, charge, refund, transfer, purchase, checkout, buy, or order with create, place or submit), a send (send, email, mail, sms, message, notify, reply, post), a push (push, deploy, publish, release, merge) or an overwrite (overwrite). A label that also names a read (get, list, search, read, fetch, find, lookup, check, status, view, query) is not destructive. A delete through a tool whose input names a path the diff already lists counts once.
+
+An operation the block's own expectations name is confirmed and does not count: a path in `workspace.deleted` or `workspace.changed`, or a tool in `tools` with a count above 0. `max_destructive_ops` caps the others. Each entry of `confirm_before` is an operation class (`delete`, `remove`, `overwrite`, `send`, `pay`, `payment`, `push`, `publish`) or a tool label, and fails when such an operation ran unconfirmed.
+
+## Strict tool schemas
+
+`schema_strict` checks every tool call against a strict schema. The schemas come from `metadata.tool_schemas`, a mapping from tool label to a JSON Schema, an OpenAI-style function with `parameters`, or an Anthropic-style tool with `input_schema`.
+
+```yaml
+metadata:
+  tool_schemas:
+    submit_order:
+      type: object
+      properties:
+        plan: { type: string }
+        email: { type: string }
+      required: [plan]
+```
+
+Strict means an object schema that declares `properties` refuses any other key, unless `additionalProperties` allows it: a key the schema does not declare is an invented parameter. The check also reads `type`, `enum`, `const`, `required`, the bounds on strings, numbers and lists, `pattern`, `items`, `nullable`, `anyOf`, `oneOf` and `allOf`. One verdict per call. A call to a tool with no schema is inconclusive and does not gate.
+
+## Custom checks
+
+A custom check is a TypeScript function registered by name. `rules.custom` maps each name to its options, and the function receives the block's context and those options. It returns one verdict, a list of them, or a promise of either; an empty list says nothing about the block.
+
+```ts
+import { defaultChecks, registerCheck } from '@driftbench/checks';
+import { machineVerdict } from '@driftbench/core';
+
+registerCheck('reply_length', (ctx, options) => {
+  const max = (options as { max_words: number }).max_words;
+  const words = ctx.observed.text.split(/\s+/).filter(Boolean).length;
+  return machineVerdict('reply_length', 'words', words <= max ? 'pass' : 'fail', `${words} words, at most ${max}`);
+});
+const checks = defaultChecks();
+```
+
+```yaml
+rules:
+  custom:
+    reply_length: { max_words: 80 }
+```
+
+`registerCheck` adds to the default registry; `defaultChecks({ registry })` takes another `CheckRegistry`. A name takes letters, digits, dots, underscores and hyphens, and is registered once. Every verdict is filed under `custom.<name>`: the check above gives `custom.reply_length.words`. A name nobody registered, a check that throws, or a value that is not a verdict gives a failed verdict that says so.
 
 ## Judged criteria
 
-`criteria` names criteria the spec defines, or criteria from a shared catalogue. `gating: true` on a definition gates every reference to it, and `name@gating` gates that one reference; a fail of a gating criterion fails the block. Judges, the council and calibration are on the [judges](../concepts/judges.md) page.
+`criteria` names criteria the spec defines, or criteria from a shared catalogue. `gating: true` on a definition gates every reference to it, and `name@gating` gates that one reference; a fail of a gating criterion fails the block. The runner does not judge criteria yet: until the judges ship, phase 2, a criterion gives no verdict and does not change whether a block passes. Judges, the council and calibration are on the [judges](../concepts/judges.md) page.
 
 ## Stage and facts
 
-* `stage` is checked by the stage classifier against the catalogue in `stages`. A name missing from `stages` is an error today (`STAGE_UNKNOWN`).
-* `ledger_add` adds facts to the ledger. The ledger check asks whether a later block contradicts one of them.
-
-Both checks are planned, phase 3.
+* `stage` reads the last stage the runtime reports in the block. A runtime that reports a stage only when it changes leaves some blocks without one: in a free-running or perturbed run, the last stage an earlier block reported still holds. When no stage was ever reported, the check does not apply. The stage classifier that labels the stage from the reply is planned, phase 3. A name missing from `stages` is an error (`STAGE_UNKNOWN`).
+* `ledger_add` adds facts to the ledger, which every later check sees. The runner records a ledger check per block: a fact the block adds with a value other than the one the ledger already holds is a contradiction, named with both values. It does not change whether the block passes. The judge that asks whether a reply contradicts the ledger is planned, phase 3.
 
 ## Budget
 
-`budget` on a block caps `steps` (the agent's steps in the block), `cost_usd` and `latency_ms`. The budget check is planned, phase 1; it reads cost and latency per segment from the adapter.
+`budget` on a block caps `steps`, `cost_usd` and `latency_ms`.
+
+* A step is a tool call or a command. A runtime that records a command both ways would count it twice, so the steps are the larger of the two counts, not their sum.
+* The cost is `observed.cost.usd`, or the sum of the segment costs when only those are reported. With neither, the cost verdict is inconclusive and does not gate.
+* The latency is `observed.latencyMs`.
 
 ## Rules for the whole spec
 
-| Field | What it checks |
-|---|---|
-| `max_calls` | the most calls per tool across the run; 0 forbids the tool |
-| `forbidden_tools` | tools that must never be called |
-| `lang_stable` | the reply language stays the same across blocks |
-| `one_message_per_turn` | one message per block: no duplicate text segment, a card sent once |
-| `custom` | reserved for checks that users register, planned, phase 1 |
+| Field | What it checks | Check |
+|---|---|---|
+| `max_calls` | the most calls per tool across the run; 0 forbids the tool | `forbidden` |
+| `forbidden_tools` | tools that must never be called | `forbidden` |
+| `lang_stable` | the reply language stays the same across blocks | `lang` |
+| `one_message_per_turn` | one message per block | `cards` |
+| `custom` | the registered checks to run on every block, with their options | `custom` |
 
-The rule checks are planned, phase 1. A block that expects a tool the rules forbid is already an error today (`TOOL_FORBIDDEN_EXPECTED`).
+A block that expects a tool the rules forbid is an error when the spec loads (`TOOL_FORBIDDEN_EXPECTED`).
 
 ## End state
 
-`end_state` compares the state of the world after the run with what the spec expects. It is one mapping, a list of them, or `none`. `none` asserts that nothing was submitted. A spec with no `end_state` has no end-state check.
+`end_state` compares the state of the world after the run with what the spec expects. It is one mapping, a list of them, or `none`. A spec with no `end_state` has no end-state check.
 
 * `source` names where the adapter reads the state, such as `tool:submit_order` for the payload that tool recorded.
-* `mode` is `subset` or `exact`.
+* `mode` is `subset` (the default) or `exact`. Exact mode also fails every field of the state the spec does not list.
 * `expect` maps fields to [assertions](#assertions-on-values).
 
-The check prints a diff field by field. Planned, phase 1.
+The check runs on the last spec block of a teacher-forced or free-running run, never in perturbed mode: a perturbed run may end elsewhere by design. One verdict per expected field, with the same ids whether or not anything was read.
 
-## Checks with no field of their own
+* A source that recorded nothing fails every expected field, `{ absent: true }` assertions included. A state that is not a mapping (a string, a number, a list) fails every expected field, and the evidence names its type.
+* An empty `expect` gives one verdict for the source: it passes when the source recorded anything, and fails when it recorded nothing.
+* For a list, the fields are named `<source>.<field>`.
+* `none` asserts that nothing was submitted. The runner reads the adapter's source `*`, the list of every recorded payload. The check passes when that list is empty, and fails with one verdict that names the first payload.
 
-All planned, phase 1.
-
-* `pii`: patterns of personal data per locale (identity numbers, bank accounts, phone numbers, email addresses) and the echo of fields that must not be repeated. How a spec configures it is not fixed yet.
-* `schema_strict`: tool inputs are checked against strict schemas, so an invented parameter is a schema violation.
-* `custom`: a TypeScript function `(ctx) => Verdict`, registered by name. `rules.custom` is reserved for these checks.
+The runner also writes the comparison into the run record, field by field. See [running](../running.md#end-state).
 
 ## The runtime battery
 

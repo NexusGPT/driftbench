@@ -5,7 +5,7 @@ Every block gets two kinds of verdict. They stay apart and are both reported.
 * Machine checks: deterministic, no model. A machine fail is a fail; no judge can overturn it. See [checks](../reference/checks.md).
 * Judged criteria: a model reads the block against a rubric and answers pass, fail or inconclusive.
 
-This page covers judged criteria. The judges are planned, phase 2. The criterion format exists today and `driftbench spec validate` checks it.
+This page covers judged criteria. The judges are planned, phase 2. The criterion format exists today and `driftbench spec validate` checks it. Until the judges ship, a run gives no verdict for a criterion, and a gating criterion does not change whether a block passes. See [running](../running.md).
 
 ## Criteria in a spec
 
@@ -41,7 +41,7 @@ A reference to a name the spec does not define is an error. A spec with no `crit
 
 ## Judging a task step
 
-For a task step, the judge reads the artifact itself: the text of the workbook, document, deck or PDF, as the artifact readers extract it. It never reads the agent's own description of the file. The same council and the same calibration apply. The readers are planned, phase 1; judging task blocks on their artifacts is planned, phase 2.
+For a task step, the judge reads the artifact itself: the text of the workbook, document, deck or PDF, as the artifact readers extract it. It never reads the agent's own description of the file. The same council and the same calibration apply. The readers ship in phase 1 (see [checks](../reference/checks.md#artifacts)); judging task blocks on their artifacts is planned, phase 2.
 
 ## The request and the answer
 

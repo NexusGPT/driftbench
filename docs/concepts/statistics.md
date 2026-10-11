@@ -1,10 +1,10 @@
 # Statistics
 
-One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. Everything on this page is planned, phase 4. Each function ships with reference values computed once in Python and committed as test fixtures.
+One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. Repeats and the minimum detectable effect of `campaign plan` are built, phase 1; everything else on this page is planned, phase 4. Each function ships with reference values computed once in Python and committed as test fixtures.
 
 ## Repeats
 
-A campaign runs each spec several times in each mode. With c passing runs out of n:
+A campaign runs each spec several times in each mode (`--repeats`; see [running](../running.md)). With c passing runs out of n:
 
 * pass^k is the probability that all k runs pass: `C(c, k) / C(n, k)`. This is the estimator of [arXiv 2406.12045](https://arxiv.org/pdf/2406.12045), as used by the `pass_k` reducer of inspect_ai.
 * pass@k is the probability that at least one of k runs passes, with the estimator of [arXiv 2107.03374](https://arxiv.org/pdf/2107.03374).
@@ -32,7 +32,7 @@ The candidate is non-inferior to the baseline when, for every gating criterion, 
 
 ## Before a campaign
 
-`campaign plan` prints the number of runs, the projected cost and the minimum detectable effect for the chosen repeats. If the effect is too large to be useful, the repeats go up before any money is spent.
+`campaign plan` prints the number of runs, the projected cost and the minimum detectable effect for the chosen repeats. If the effect is too large to be useful, the repeats go up before any money is spent. Today the effect treats runs as independent; the clustered version, with one conversation or one task as one cluster, is planned, phase 4. See [running](../running.md#the-minimum-detectable-effect).
 
 ## Over time
 
