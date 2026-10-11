@@ -16,7 +16,7 @@
 <p align="center">
   <a href="LICENSE"><img alt="license Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-2F5FD0?style=flat" /></a>
   <a href="#roadmap"><img alt="status pre alpha" src="https://img.shields.io/badge/status-pre--alpha-1B2A44?style=flat" /></a>
-  <img alt="language TypeScript" src="https://img.shields.io/badge/language-TypeScript-0E1116?style=flat" />
+  <img alt="language TypeScript" src="https://img.shields.io/badge/language-TypeScript-2F5FD0?style=flat" />
   <img alt="Node 22 or newer" src="https://img.shields.io/badge/node-22%2B-1B2A44?style=flat" />
   <a href="https://github.com/achammah/driftbench/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/achammah/driftbench/actions/workflows/ci.yml/badge.svg" /></a>
 </p>
@@ -52,16 +52,25 @@ id: acme.upgrade_plan
 version: "1"
 kind: conversation
 lang: EN
+criteria:
+  - name: one_question
+    rubric: The reply asks one question at most.
 blocks:
-  - when: { user: "Which plan has unlimited data? I want to keep my number." }
+  - when:
+      user: >
+        Which plan has unlimited data?
+        I want to keep my number.
     expect:
       step: plan
       tools:
-        - { label: catalog.search, count: 1 }
-      must: ["unlimited"]
-      must_not: ["as an AI"]
-      ledger_add: { keep_number: true }
-      criteria: [one_question@gating]
+        - label: catalog.search
+          count: 1
+      must: [unlimited]
+      must_not: [as an AI]
+      ledger_add:
+        keep_number: true
+      criteria:
+        - one_question@gating
 ```
 
 ---
@@ -73,19 +82,19 @@ blocks:
   <img alt="Four areas: scenarios and simulated users, checks and judges, drift and recovery, statistics and CI gates." src=".github/readme/areas-light.png" width="100%">
 </picture>
 
-- **[Scenarios and simulated users](#a-block-is-a-unit-test)**: YAML specs, scripted turns, simulated users with a persona and a goal, ten deviation classes to inject at any block. <sub>Phases 0, 1 and 3</sub>
-- **[Checks and judges](#judges-earn-their-criteria)**: machine checks on tools, text, language, personal data and end state, then a council of judges that earn each criterion. <sub>Phases 1 and 2</sub>
-- **[Drift and recovery](#drift-and-recovery)**: five drift classes, the first drift block, the drift rate, and the turns to recover after an injected deviation. <sub>Phase 3</sub>
-- **[Statistics and CI gates](#numbers-with-intervals)**: an interval on every rate, `pass^k`, paired tests, a noninferiority verdict and an exit code for CI. <sub>Phase 4</sub>
+- **[Scenarios and simulated users](#a-block-is-a-unit-test)**: YAML specs, scripted turns, simulated users with a persona and a goal, ten deviation classes to inject at any block. <sub>Phases&nbsp;0,&nbsp;1&nbsp;and&nbsp;3</sub>
+- **[Checks and judges](#judges-earn-their-criteria)**: machine checks on tools, text, language, personal data and end state, then a council of judges that earn each criterion. <sub>Phases&nbsp;1&nbsp;and&nbsp;2</sub>
+- **[Drift and recovery](#drift-and-recovery)**: five drift classes, the first drift block, the drift rate, and the turns to recover after an injected deviation. <sub>Phase&nbsp;3</sub>
+- **[Statistics and CI gates](#numbers-with-intervals)**: an interval on every rate, `pass^k`, paired tests, a noninferiority verdict and an exit code for CI. <sub>Phase&nbsp;4</sub>
 
 ## Things you can do with driftbench
 
-1. **Write a golden as blocks** and validate it with `driftbench spec validate`. <sub>Phase 0 · in progress</sub>
-2. **Run one golden three ways** on the same agent. Teacher forced against free running gives the compounding index. <sub>Phases 1 and 3 · planned</sub>
-3. **Inject a goal shift at block 4**, or a language switch, or an instruction hidden in data, and count the blocks the agent needs to come back. <sub>Phase 3 · planned</sub>
-4. **Let a cheap judge own a criterion** once it matches your hand labels as well as a chat model does. <sub>Phase 2 · planned</sub>
-5. **Gate a prompt change in CI**: noninferiority against the baseline, with a margin you set. <sub>Phase 4 · planned</sub>
-6. **Test a code interpreter agent on what it leaves behind**: the cells of a spreadsheet, the slides of a deck, the files it touched. <sub>Phase 5 · planned</sub>
+1. **Write a golden as blocks** and validate it with `driftbench spec validate`. <sub>Phase&nbsp;0&nbsp;·&nbsp;in&nbsp;progress</sub>
+2. **Run one golden three ways** on the same agent. Teacher forced against free running gives the compounding index. <sub>Phases&nbsp;1&nbsp;and&nbsp;3&nbsp;·&nbsp;planned</sub>
+3. **Inject a goal shift at block 4**, or a language switch, or an instruction hidden in data, and count the blocks the agent needs to come back. <sub>Phase&nbsp;3&nbsp;·&nbsp;planned</sub>
+4. **Let a cheap judge own a criterion** once it matches your hand labels as well as a chat model does. <sub>Phase&nbsp;2&nbsp;·&nbsp;planned</sub>
+5. **Gate a prompt change in CI**: noninferiority against the baseline, with a margin you set. <sub>Phase&nbsp;4&nbsp;·&nbsp;planned</sub>
+6. **Test a code interpreter agent on what it leaves behind**: the cells of a spreadsheet, the slides of a deck, the files it touched. <sub>Phase&nbsp;5&nbsp;·&nbsp;planned</sub>
 
 ---
 
@@ -130,11 +139,11 @@ A block holds everything the agent does between two user messages: text, cards, 
 </picture>
 <p align="center"><sub>Teacher forced isolates each block. Free running lets errors compound. Perturbed injects a deviation and measures the way back.</sub></p>
 
-| Mode | Prior context | What it isolates |
-|---|---|---|
-| **Teacher forced** | the golden's own earlier blocks | local accuracy, block by block |
-| **Free running** | the agent's own earlier replies | compounding: one wrong block poisons the next |
-| **Perturbed** | free running, plus a deviation at block k | recovery: whether it comes back, how fast, at what cost |
+| Mode, and where each block starts | What it isolates |
+|---|---|
+| **Teacher forced**<br/>from the golden's own earlier blocks | local accuracy, block by block |
+| **Free running**<br/>from the agent's own earlier replies | compounding: one wrong block poisons the next |
+| **Perturbed**<br/>free running, plus a deviation at block k | recovery: whether it comes back, how fast, at what cost |
 
 The gap between teacher forced and free running on the same golden is the **compounding index**. An agent can be right block by block and still fragile end to end. Only the free running run shows it.
 
@@ -201,7 +210,7 @@ The same runner covers agent harnesses through a runtime battery: hook replay wi
 
 All planned. Every adapter must pass the same contract suite.
 
-**Agents:** function · HTTP · OpenAI Agents · Anthropic · Google · LangGraph · process, for code agents in a sandbox · Nexus<br/>
+**Agents:** function · HTTP · OpenAI Agents · Anthropic · Google · LangGraph · Nexus · process, for code agents in a sandbox<br/>
 **Judges:** Jev · OpenAI Decisions API · OpenAI · Google · Anthropic · any HTTP endpoint<br/>
 **Reports:** HTML scorecard · run diff · JUnit XML · Markdown summary<br/>
 **CI:** exit codes on the verdict · GitHub Action<br/>
@@ -211,28 +220,28 @@ All planned. Every adapter must pass the same contract suite.
 
 driftbench builds on ideas other tools document well. What their docs describe as of 11 October 2026, and how driftbench takes each idea further:
 
-| Tool | Its docs describe | driftbench, by design |
-|---|---|---|
-| [LangWatch Scenario](https://langwatch.ai/scenario/advanced/how-judging-works/) | A judge that marks each criterion passed, failed or inconclusive | The same three outcomes, per block. Inconclusive is judged again and never counted. <sub>Phase 2</sub> |
-| [promptfoo](https://www.promptfoo.dev/docs/configuration/expected-outputs/) | Trajectory assertions: which tools ran, with which arguments, in which order | Tool checks on label, count, arguments and order, plus an end state check. <sub>Phase 1</sub> |
-| [DeepEval](https://deepeval.com/docs/conversation-simulator) | A conversation simulator that plays a user from a scenario and a persona | Simulated users with a goal, plus deviations injected at a chosen block. <sub>Phase 3</sub> |
-| [Inspect](https://inspect.aisi.org.uk/metrics.html) | Wilson intervals for binary scores, clustered standard errors, and a [scorer cascade](https://inspect.aisi.org.uk/multiple-scorers.html) that stops at the first scorer that settles a sample | Intervals on every rate with one conversation per cluster, paired tests, and judges that run cheapest first. <sub>Phases 2 and 4</sub> |
-| [Langfuse](https://langfuse.com/docs/evaluation/overview) | A GitHub Action that fails the job when a score violates your threshold | A noninferiority verdict with a margin, as an exit code. <sub>Phase 4</sub> |
-| [Opik](https://www.comet.com/docs/opik/evaluation/evaluate_threads) | An `evaluate_threads` function that scores whole conversation threads | Verdicts per block, then drift and recovery across them. <sub>Phase 3</sub> |
+| Tool, and what its docs describe | driftbench, by design |
+|---|---|
+| **[LangWatch Scenario](https://langwatch.ai/scenario/advanced/how-judging-works/)**<br/>A judge that marks each criterion passed, failed or inconclusive. | The same three outcomes, per block. Inconclusive is judged again and never counted. <sub>Phase&nbsp;2</sub> |
+| **[promptfoo](https://www.promptfoo.dev/docs/configuration/expected-outputs/)**<br/>Trajectory assertions: which tools ran, with which arguments, in which order. | Tool checks on label, count, arguments and order, plus an end state check. <sub>Phase&nbsp;1</sub> |
+| **[DeepEval](https://deepeval.com/docs/conversation-simulator)**<br/>A conversation simulator that plays a user from a scenario and a persona. | Simulated users with a goal, plus deviations injected at a chosen block. <sub>Phase&nbsp;3</sub> |
+| **[Inspect](https://inspect.aisi.org.uk/metrics.html)**<br/>Wilson intervals for binary scores, clustered standard errors, and a [scorer cascade](https://inspect.aisi.org.uk/multiple-scorers.html) that stops at the first scorer that settles a sample. | Intervals on every rate with one conversation per cluster, paired tests, and judges that run cheapest first. <sub>Phases&nbsp;2&nbsp;and&nbsp;4</sub> |
+| **[Langfuse](https://langfuse.com/docs/evaluation/overview)**<br/>A GitHub Action that fails the job when a score violates your threshold. | A noninferiority verdict with a margin, as an exit code. <sub>Phase&nbsp;4</sub> |
+| **[Opik](https://www.comet.com/docs/opik/evaluation/evaluate_threads)**<br/>A function that scores whole conversation threads. | Verdicts per block, then drift and recovery across them. <sub>Phase&nbsp;3</sub> |
 
 ---
 
 ## Roadmap
 
-| Phase | What it delivers | Status |
-|---|---|---|
-| **Phase 0** · Foundations | Monorepo and CI, spec schemas and loader, `spec validate`, the coverage tool, the Acme Telecom example, docs | In progress |
-| **Phase 1** · Runner, checks and store | Free running mode, scripted users, function, HTTP and Nexus adapters, machine checks, a SQLite store with cache and resume, cost and latency per segment | Planned |
-| **Phase 2** · Judge council | Judge clients, majority and cascade, fixture pairs, kappa, earned assignment | Planned |
-| **Phase 3** · Perturbation, drift and recovery | Simulated users, ten deviation classes, drift classes, recovery metrics, teacher forced mode | Planned |
-| **Phase 4** · Statistics, scorecard and CI gate | Intervals and paired tests, the noninferiority verdict, HTML scorecard, JUnit XML, `driftbench ci`, a GitHub Action | Planned |
-| **Phase 5** · Code agents and runtime battery | Sandbox, process adapter, artifact readers, workspace and safety checks, the runtime battery, more agent adapters | Planned |
-| **Phase 6** · First release | Docs site, comparison page, examples, version 0.1.0 on npm | Planned |
+| Phase and status | What it delivers |
+|---|---|
+| **Phase 0** · Foundations<br/>`in progress` | Monorepo and CI, a leak guard, spec schemas and loader, `spec validate`, the coverage tool, the Acme Telecom example, docs |
+| **Phase 1** · Runner, checks and store<br/>`planned` | Free running mode, scripted users, function, HTTP and Nexus adapters, machine checks, a SQLite store with cache and resume, cost and latency per segment |
+| **Phase 2** · Judge council<br/>`planned` | Judge clients, majority and cascade, fixture pairs, kappa, earned assignment |
+| **Phase 3** · Perturbation, drift and recovery<br/>`planned` | Simulated users, ten deviation classes, drift classes, recovery metrics, teacher forced mode |
+| **Phase 4** · Statistics, scorecard and CI gate<br/>`planned` | Intervals and paired tests, the noninferiority verdict, HTML scorecard, JUnit XML, `driftbench ci`, a GitHub Action |
+| **Phase 5** · Code agents and runtime battery<br/>`planned` | Sandbox, process adapter, artifact readers, workspace and safety checks, the runtime battery, more agent adapters |
+| **Phase 6** · First release<br/>`planned` | Docs site, comparison page, examples, version 0.1.0 on npm |
 
 ---
 
@@ -241,8 +250,8 @@ driftbench builds on ideas other tools document well. What their docs describe a
 Issues and pull requests are welcome. The project is young, so the most useful contributions right now are specs, checks and adapters.
 
 1. Fork the repo and run `pnpm install`.
-2. Make your change with its tests.
-3. Open a pull request. Keep every example synthetic: no real customer, prompt or conversation data.
+2. Make your change with its tests, then run `pnpm lint`, `pnpm typecheck` and `pnpm test`.
+3. Open a pull request. CI runs the same checks plus a leak guard. Keep every example synthetic: no real customer, prompt or conversation data.
 
 Questions and ideas go in [GitHub issues](https://github.com/achammah/driftbench/issues).
 
