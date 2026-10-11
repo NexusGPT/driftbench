@@ -1,0 +1,7 @@
+{
+  "sealed": true,
+  "note": "The holdout is gated like the rest and never run as an evaluation here. Score it once, with a fixed query budget, and report the dev-to-fresh gap.",
+  "seed": 1,
+  "share": 0.2,
+  "specs": []
+}
