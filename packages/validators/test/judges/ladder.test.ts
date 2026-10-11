@@ -17,6 +17,7 @@ import {
   judgesLadder,
   kappaWithInterval,
   loadPool,
+  TRANSFORMS_SOURCE,
 } from '../../src/ladders/judges/index';
 import { cassetteFile } from './record';
 import { answer, flip, oracle } from './scripted';
@@ -141,25 +142,40 @@ describe('the judges ladder', () => {
     );
   });
 
-  it('fails level 4 when a label-flipping edit changes nothing, pointing at the FAIL picture', async () => {
+  it('fails level 4 when a label-flipping edit does not break the criterion, pointing at the FAIL picture', async () => {
+    // A planted fault: the "changed number" changes the speed, which no criterion reads, so the label it
+    // claims (fail) is wrong and a good judge keeps its pass.
     const ladder = judgesLadder({
+      judges: () => [scriptedJudge('careful')],
       transforms: {
         'changed-number': {
           kind: 'changed-number',
           variants: 2,
           criterion: 'no_invented_data',
-          apply: (item) =>
-            item.label === 'pass' && item.criterion === 'no_invented_data'
-              ? [...item.request.transcript]
-              : undefined,
+          apply: (item) => {
+            if (item.label !== 'pass' || item.criterion !== 'no_invented_data') return undefined;
+            const entries = item.request.transcript;
+            const at = entries.map((entry) => entry.role).lastIndexOf('agent');
+            const reply = entries[at];
+            if (!reply || !/\d+ Mbps/.test(reply.text)) return undefined;
+            const text = reply.text.replace(
+              /(\d+) Mbps/,
+              (_all, speed: string) => `${Number(speed) + 1} Mbps`,
+            );
+            return entries.map((entry, index) => (index === at ? { ...entry, text } : entry));
+          },
         },
       },
     });
     const run = await runLadder(ladder, { seed: 1, root: ROOT });
     expect(run.level).toBe(3);
     expect(run.failing?.id).toBe('sensitivity');
+    expect(run.failing?.items.length).toBeGreaterThan(0);
     expect(run.failing?.items.every((item) => item.id.includes(':changed-number#'))).toBe(true);
     expect(run.failing?.items[0]?.component).toBe('examples/acme/criteria/no_invented_data.yaml (fail)');
+    expect(run.failing?.items[0]?.detail).toMatch(
+      /^changed-number edit, label pass to fail: verdict pass before, pass after; before ".*Mbps.*", after ".*Mbps.*"; rubric: /,
+    );
   });
 
   it('fails level 7 when the council members share their mistakes', async () => {
@@ -231,5 +247,24 @@ describe('the judges ladder', () => {
     expect(one.kappa).toBeCloseTo(0.75, 10);
     expect(one.lower).toBeLessThan(one.kappa);
     expect(one.upper).toBeGreaterThanOrEqual(one.kappa);
+  });
+});
+
+describe('a transform that plants nothing', () => {
+  it('fails its level with an item pointing at the transforms', async () => {
+    const ladder = judgesLadder({
+      transforms: {
+        injection: { kind: 'injection', variants: 2, apply: (item) => [...item.request.transcript] },
+      },
+    });
+    const run = await runLadder(ladder, { seed: 1, root: ROOT });
+    expect(run.level).toBe(4);
+    expect(run.failing?.items).toEqual([
+      {
+        id: 'no-edit:injection',
+        component: TRANSFORMS_SOURCE,
+        detail: 'no injection edit changed a hidden item on seed 1: the transform plants nothing',
+      },
+    ]);
   });
 });

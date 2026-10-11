@@ -288,7 +288,8 @@ export function seededEdit(
 
 function editOf(item: Item, transform: Transform, variant: number, bank: PhraseBank): Edit | undefined {
   const transcript = transform.apply(item, variant, bank);
-  if (!transcript) return undefined;
+  // An edit that changes nothing tests nothing: it is not asked, and a level left with no edit fails.
+  if (!transcript || JSON.stringify(transcript) === JSON.stringify(item.request.transcript)) return undefined;
   const flips = (FLIPPING as readonly string[]).includes(transform.kind);
   return { item, kind: transform.kind, variant, transcript, label: flips ? 'fail' : item.label };
 }

@@ -69,6 +69,9 @@ export const JUDGE_COMPONENTS = {
   council: 'packages/judges/src/council.ts',
 } as const;
 
+/** Where the transforms live: the component a level with no edit points at. */
+export const TRANSFORMS_SOURCE = 'packages/validators/src/ladders/judges/transforms.ts';
+
 export type JudgesLadderOptions = {
   /** The cassette of the judges under validation, relative to the root or absolute. */
   cassette?: string;
@@ -215,6 +218,13 @@ export function judgesLadder(options: JudgesLadderOptions = {}): Ladder {
           });
         }
       }
+    }
+    if (total === 0) {
+      items.push({
+        id: `no-edit:${kinds.join('+')}`,
+        component: TRANSFORMS_SOURCE,
+        detail: `no ${kinds.join(', ')} edit changed a hidden item on seed ${seed}: the transform plants nothing`,
+      });
     }
     return { value: total === 0 ? Number.NaN : held / total, items };
   };
