@@ -1,0 +1,153 @@
+{
+  "success": true,
+  "data": {
+    "id": "9e000000-0000-4000-8000-000000000003",
+    "traceId": "7ace0000-0000-4000-8000-000000000001",
+    "provider": "ANTHROPIC",
+    "modelName": "example-model-1",
+    "status": "COMPLETED",
+    "inputTokens": 1820,
+    "outputTokens": 152,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "reasoningTokens": null,
+    "costUsd": 0.0178,
+    "durationMs": 2650,
+    "thinkingDurationMs": 0,
+    "ttftMs": 640,
+    "streamDurationMs": 2530,
+    "taskId": null,
+    "taskName": null,
+    "nodeId": null,
+    "startedAt": "2026-01-15T10:00:05.600Z",
+    "completedAt": "2026-01-15T10:00:08.250Z",
+    "errorMessage": null,
+    "metadata": null,
+    "isAborted": false,
+    "temperature": null,
+    "finishReason": "end_turn",
+    "responseId": "msg_acme_0003",
+    "systemPrompt": "You are the Acme Telecom sales assistant. Check coverage before you offer a home plan.",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "text": "Hi, do you have home internet at 3 Orchard Way, Acmeville?",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "role": "assistant",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "",
+            "signature": "fictional-signature-for-tests"
+          },
+          {
+            "text": "Let me check what reaches 3 Orchard Way.",
+            "type": "text"
+          },
+          {
+            "id": "toolu_acme_coverage_0001",
+            "name": "coverage.check",
+            "type": "tool_use",
+            "input": {
+              "address": "3 Orchard Way, Acmeville"
+            }
+          }
+        ]
+      },
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "tool_result",
+            "content": [
+              {
+                "text": "{\"found\":true,\"address_id\":\"addr-102\",\"address\":\"3 Orchard Way, Acmeville\",\"fiber_mbps\":300,\"five_g\":true}",
+                "type": "text"
+              }
+            ],
+            "tool_use_id": "toolu_acme_coverage_0001"
+          }
+        ]
+      },
+      {
+        "role": "assistant",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "",
+            "signature": "fictional-signature-for-tests"
+          },
+          {
+            "id": "toolu_acme_catalog_0002",
+            "name": "catalog.search",
+            "type": "tool_use",
+            "input": {
+              "category": "home",
+              "address_id": "addr-102"
+            }
+          }
+        ]
+      },
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "tool_result",
+            "content": [
+              {
+                "text": "{\"plans\":[{\"id\":\"fiber-300\",\"name\":\"Acme Fiber 300\",\"category\":\"home\",\"monthly_usd\":40,\"speed_mbps\":300,\"access\":\"fiber\"},{\"id\":\"air-5g\",\"name\":\"Acme Air 5G\",\"category\":\"home\",\"monthly_usd\":35,\"speed_mbps\":200,\"access\":\"5g\"}]}",
+                "type": "text"
+              }
+            ],
+            "tool_use_id": "toolu_acme_catalog_0002"
+          }
+        ]
+      }
+    ],
+    "tools": [
+      {
+        "name": "coverage.check",
+        "description": "Checks whether Acme reaches an address, and how fast.",
+        "input_schema": {
+          "type": "object",
+          "required": ["address"],
+          "properties": {
+            "address": {
+              "type": "string",
+              "description": "The street address."
+            }
+          }
+        }
+      },
+      {
+        "name": "catalog.search",
+        "description": "Lists the Acme plans of a category, the ones available at an address.",
+        "input_schema": {
+          "type": "object",
+          "required": ["category"],
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "mobile or home."
+            },
+            "address_id": {
+              "type": "string",
+              "description": "An address id from coverage.check."
+            }
+          }
+        }
+      }
+    ],
+    "response": "Good news: 3 Orchard Way, Acmeville has fiber up to 300 Mbps. Plans available there: Acme Fiber 300, 300 Mbps for $40 a month; Acme Air 5G, up to 200 Mbps for $35 a month. Which one would you like: Acme Fiber 300 or Acme Air 5G?",
+    "responseJson": {
+      "role": "assistant",
+      "content": "Good news: 3 Orchard Way, Acmeville has fiber up to 300 Mbps. Plans available there: Acme Fiber 300, 300 Mbps for $40 a month; Acme Air 5G, up to 200 Mbps for $35 a month. Which one would you like: Acme Fiber 300 or Acme Air 5G?"
+    }
+  }
+}

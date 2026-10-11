@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "data": {
+    "id": "e7000000-0000-4000-8000-000000000001",
+    "workflowId": "f1000000-0000-4000-8000-000000000001",
+    "workflowName": "Acme order recorder (stub)",
+    "status": "COMPLETED",
+    "startedAt": "2026-01-15T10:01:02.000Z",
+    "completedAt": "2026-01-15T10:01:02.400Z",
+    "duration": 400,
+    "executionType": "run",
+    "parentNodeId": null,
+    "nodeStatusCounts": {
+      "completed": 3,
+      "failed": 0,
+      "pending": 0,
+      "running": 0,
+      "skipped": 0
+    },
+    "nodeExecutionStatusCounts": {
+      "completed": 3,
+      "failed": 0,
+      "pending": 0,
+      "running": 0,
+      "skipped": 0
+    },
+    "triggerType": "AGENT_INPUT",
+    "triggerData": {
+      "type": "upgrade",
+      "customer_id": "cust-001",
+      "plan_id": "mobile-l"
+    },
+    "error": null,
+    "outputData": "Recorded the order payload.",
+    "pollingToken": null
+  }
+}
