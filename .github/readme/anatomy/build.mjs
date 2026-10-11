@@ -649,8 +649,8 @@ console.log(`wrote index.html ${(page.length / 1024).toFixed(0)} KB · ${drawn.l
 
 // ---------------------------------------------------------------- the README hero: the same machine, with callouts
 // The hero frame is 1600 by HERO_H px. The machine is drawn at MS px per unit with its origin at MO; the callouts
-// are placed in machine units, so they move with it. Each callout: a dot on the part, a thin leader with one bend,
-// and a two line Geist Mono label on a short rule.
+// are placed in machine units, so they move with it. Each callout: a dot on the part, a short thin leader with one bend,
+// and a one line Geist Mono title on a short rule.
 const HERO_H = 900;
 const MS = 1.16;
 const MO = [470, 150];
@@ -662,7 +662,7 @@ const ANCHORS = {
   council: [X4 + 27, -50, 33],
   drift: [CHART.x + 52, FACE_Y + 2, CHART.z0 - 12],
   interval: [DIAL.x + 12, FACE_Y + 3.6, DIAL.z + 12],
-  gate: [GATE.x, GATE.y - 3.4, 30],
+  gate: [GATE.x + 3.4, GATE.y, 24],
 };
 if (process.argv.includes('--anchors')) for (const [name, p] of Object.entries(ANCHORS)) console.log(name, at(p).map(f2).join(' '));
 const CALLOUTS = JSON.parse(readFileSync(join(HERE, 'callouts.json'), 'utf8'));
@@ -672,9 +672,9 @@ const calloutSvg = CALLOUTS.map((c) => {
   const jx = c.join ?? ax;
   const bend = c.bend ? `L${f2(c.bend[0])} ${f2(c.bend[1])}` : `L${f2(jx)} ${f2(ay)}`;
   const path = `M${f2(ax)} ${f2(ay)}${bend}L${f2(jx)} ${f2(c.y)}M${f2(x0)} ${f2(c.y)}L${f2(x1)} ${f2(c.y)}`;
-  const tx = c.text === 'end' ? x1 - (c.inset ?? 0) : x0;
+  const tx = c.text === 'end' ? x1 - (c.inset ?? 0) : x0 + (c.inset ?? 0);
   const anchor = c.text === 'end' ? 'end' : 'start';
-  return `<g class="an-callout" data-callout="${c.id}"><path class="an-leader" d="${path}"/><circle class="an-pin-ring" cx="${f2(ax)}" cy="${f2(ay)}" r="4.6"/><circle class="an-pin" cx="${f2(ax)}" cy="${f2(ay)}" r="2.2"/><text class="an-callout-name" x="${f2(tx)}" y="${f2(c.y - 21)}" text-anchor="${anchor}">${c.name}</text><text class="an-callout-note" x="${f2(tx)}" y="${f2(c.y - 5)}" text-anchor="${anchor}">${c.note}</text></g>`;
+  return `<g class="an-callout" data-callout="${c.id}"><path class="an-leader" d="${path}"/><circle class="an-pin-ring" cx="${f2(ax)}" cy="${f2(ay)}" r="3.4"/><circle class="an-pin" cx="${f2(ax)}" cy="${f2(ay)}" r="1.6"/><text class="an-callout-name" x="${f2(tx)}" y="${f2(c.y - 4)}" text-anchor="${anchor}">${c.name}</text></g>`;
 }).join('');
 const VB = [-MO[0] / MS, -MO[1] / MS, 1600 / MS, HERO_H / MS].map(f2);
 const heroSvg = svg.replace(`viewBox="0 0 ${W} ${H}"`, `viewBox="${VB.join(' ')}"`).replace(/<\/svg>$/, `<g class="an-callouts">${calloutSvg}</g></svg>`);

@@ -111,7 +111,7 @@ body {
 .an-leader {
   fill: none;
   stroke: var(--anatomy-mid);
-  stroke-width: 1;
+  stroke-width: 0.8;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
@@ -125,11 +125,7 @@ body {
   vector-effect: non-scaling-stroke;
 }
 .an-callout-name {
-  font: 500 19px/1 var(--anatomy-mono);
-  letter-spacing: 0.08em;
+  font: 400 12.5px/1 var(--anatomy-mono);
+  letter-spacing: 0.06em;
   fill: var(--hero-ink);
-}
-.an-callout-note {
-  font: 400 16px/1 var(--anatomy-mono);
-  fill: var(--hero-soft);
 }
