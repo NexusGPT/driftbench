@@ -23,6 +23,14 @@
   },
   "dependencies": {
     "@driftbench/core": "workspace:*",
-    "commander": "^15.0.0"
+    "commander": "^15.0.0",
+    "@driftbench/users": "workspace:*",
+    "@driftbench/store": "workspace:*",
+    "@driftbench/adapters": "workspace:*",
+    "@driftbench/checks": "workspace:*",
+    "@driftbench/artifacts": "workspace:*",
+    "@driftbench/sandbox": "workspace:*",
+    "@driftbench/space": "workspace:*",
+    "@driftbench/generate": "workspace:*"
   }
 }
