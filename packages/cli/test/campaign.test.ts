@@ -517,6 +517,17 @@ describe('each spec on its own target, without --target', () => {
     );
   });
 
+  it('prices each adapter from its own blocks in a plan on the specs own targets', async () => {
+    const path = await storePath();
+    const store = openStore(path);
+    await store.putUnit({ adapter: 'function', metric: 'block', usd: 0.01, measuredAt: '2026-10-11' });
+    await store.close();
+    const { code, out } = await cli(['campaign', 'plan', ACME, '--repeats', '2', '--store', path]);
+    expect(code).toBe(0);
+    // 26 conversation blocks per repeat on the function adapter, 2 task blocks per repeat on the process one.
+    expect(out).toContain('Projected cost: $0.52 (function: 52 blocks at $0.01; process: no unit measured).');
+  });
+
   it(
     'runs all 14 cells and passes them through defaultChecks, the price sheet on process:acme-ops, then status takes that campaign',
     async () => {
