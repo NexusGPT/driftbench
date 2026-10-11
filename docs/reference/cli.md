@@ -13,6 +13,8 @@ pnpm driftbench spec validate path/to/specs
 
 Relative paths are read from the folder where you type the command.
 
+The Acme example runs `spec validate`, `spec lint` and `spec coverage` on seven specs and an inventory: [`examples/acme`](../../examples/acme/README.md) shows the commands and their output.
+
 ## Paths
 
 Every command takes one or more files or folders.

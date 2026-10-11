@@ -12,7 +12,6 @@ import { describe, expect, it } from 'vitest';
 import { DOCS, markdownFiles } from './check-links';
 
 const TOOLS = fileURLToPath(new URL('.', import.meta.url));
-const GENERATED = join('reference', 'spec.md');
 /** An en dash or an em dash, built from code points so no source file holds one. */
 const DASHES = new RegExp(`[${String.fromCharCode(0x2013, 0x2014)}]`);
 /**
@@ -88,12 +87,11 @@ describe('docs content', () => {
 
   it('keeps runtime-specific names under docs/adapters only, and the platform judge on its adapter page', async () => {
     const all = await pages();
-    // The generated reference carries the schema descriptions verbatim; tools/docs does not write them.
-    const written = all.filter((page) => !page.path.startsWith('adapters') && page.path !== GENERATED);
-    const found = written.flatMap((page) =>
+    const outside = all.filter((page) => !page.path.startsWith('adapters'));
+    const found = outside.flatMap((page) =>
       RUNTIME_NAMES.filter((name) => name.test(page.text)).map((name) => `${page.path}: ${name.source}`),
     );
-    expect(written.length).toBeGreaterThanOrEqual(11);
+    expect(outside.map((page) => page.path)).toContain(join('reference', 'spec.md'));
     expect(found).toEqual([]);
     const adapters = all
       .filter((page) => page.path.startsWith('adapters'))

@@ -59,7 +59,7 @@ A tool expectation names the tool by `label`. `count` is an exact number, or `{ 
 
 `skills` checks the skills the agent loads, by `name` and `count`. It does not check their order today; checking the order of skills is planned, with no phase assigned yet.
 
-`guards` checks the guards that fired during the block. A guard is a runtime check with a verdict. Each entry names the guard; `verdict` narrows it to one verdict, as the runtime reports it; `count` works as for tools, so `count: 0` means the guard must not fire, or must not give that verdict.
+`guards` checks the guards that fired during the block. A guard is a runtime check with a verdict. Each entry names the guard. `verdict` narrows the entry to one verdict, as the runtime reports it; without `verdict`, the entry counts every firing of the guard. `count` works as for tools, so `count: 0` means the guard must not fire, or must not give that verdict.
 
 ```yaml
 - user: Clean the workspace and keep only the final report.

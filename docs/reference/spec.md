@@ -247,7 +247,7 @@ The expected output and state delta of a block. Every field is optional.
 | `cards` | list of [CardExpect](#cardexpect) | no |  | The cards expected in the block. |
 | `criteria` | list of strings, each not empty | no |  | Judged criteria by name. name@gating makes a fail fail the block. |
 | `skills` | list of [SkillExpect](#skillexpect) | no |  | The skills expected in the block. |
-| `guards` | list of [GuardExpect](#guardexpect) | no |  | The runtime checks that must have fired in the block, with their verdict. |
+| `guards` | list of [GuardExpect](#guardexpect) | no |  | The runtime checks expected in the block, with their verdict and count. |
 | `execution` | [ExecutionExpect](#executionexpect) | no |  | What the agent runs. |
 | `artifacts` | list of [ArtifactExpect](#artifactexpect) | no |  | The files the block must produce. |
 | `workspace` | [WorkspaceExpect](#workspaceexpect) | no |  | The workspace diff expected. |
@@ -319,7 +319,7 @@ One expected skill.
 
 ## GuardExpect
 
-One runtime check that fired during the block: a hook, a guardrail, a policy.
+One runtime check that fired during the block, with its verdict. The adapter maps the runtime names.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
@@ -450,28 +450,34 @@ Run records, not specs, carry these classes: one or more on each failing block. 
 
 ## Inventory
 
+The behaviour inventory: every behaviour the agent must show, grouped into flows, and the deviation classes each flow must be perturbed with.
+
 The behaviour inventory is the file `driftbench spec coverage --inventory` reads. It lists the behaviours an agent must show and the flows that group them. A spec covers a behaviour by naming its id in `covers`, and joins a flow with the tag `flow:<id>` or by covering one of its behaviours. See [CLI](cli.md#driftbench-spec-coverage).
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `behaviours` | list of [InventoryBehaviour](#inventorybehaviour) | yes |  |  |
-| `flows` | list of [InventoryFlow](#inventoryflow) | yes |  |  |
-| `channels` | list of strings, each not empty, at least 1 item | no |  |  |
+| `behaviours` | list of [InventoryBehaviour](#inventorybehaviour) | yes |  | Every behaviour the agent must show. |
+| `flows` | list of [InventoryFlow](#inventoryflow) | yes |  | The flows that group the behaviours. |
+| `channels` | list of strings, each not empty, at least 1 item | no |  | The channel universe. Absent means the channels named by behaviours and specs, else default. |
 
 ## InventoryBehaviour
 
+One behaviour the agent must show.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `id` | string matching `^[A-Z]+-\d+$` | yes |  |  |
-| `title` | string | yes |  |  |
-| `kind` | `conversation` or `task` | no | `conversation` |  |
-| `channels` | list of strings, each not empty, at least 1 item | no |  |  |
+| `id` | string matching `^[A-Z]+-\d+$` | yes |  | The behaviour id, such as B-001. Specs name it in covers. |
+| `title` | string | yes |  | What the agent does. |
+| `kind` | `conversation` or `task` | no | `conversation` | task marks a code-interpreter behaviour. It is a row of the same matrix as the others. |
+| `channels` | list of strings, each not empty, at least 1 item | no |  | The channels where the behaviour applies. Absent means every channel. |
 
 ## InventoryFlow
 
+A flow: behaviours that run together, and the deviations it must be perturbed with.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `id` | string matching `^[a-z0-9][a-z0-9_-]*$` | yes |  |  |
-| `title` | string | yes |  |  |
-| `behaviours` | list of strings, each matching `^[A-Z]+-\d+$` | yes |  |  |
-| `deviations` | list of [DeviationClass](#deviationclass) | no |  | The ten deviation classes a perturbed run can inject. |
+| `id` | string matching `^[a-z0-9][a-z0-9_-]*$` | yes |  | The flow id, such as plan-upgrade. Specs join it with the tag flow:<id>. |
+| `title` | string | yes |  | What the flow does. |
+| `behaviours` | list of strings, each matching `^[A-Z]+-\d+$` | yes |  | The behaviours of the flow, by id. |
+| `deviations` | list of [DeviationClass](#deviationclass) | no |  | The deviation classes this flow must be perturbed with. Absent means none is required. |

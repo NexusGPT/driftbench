@@ -185,9 +185,8 @@ describe('spec reference generator', () => {
     expect(stimulus).toContain(String(core.Stimulus.description));
   });
 
-  it('describes every field of the spec part of the page', () => {
-    const { missing } = renderReference();
-    expect(missing.filter((field) => !field.startsWith('Inventory'))).toEqual([]);
+  it('describes every field on the page, from the schemas', () => {
+    expect(renderReference().missing).toEqual([]);
   });
 
   it('lists exactly the fields whose description cell is empty', async () => {
