@@ -172,7 +172,7 @@ function runFields(): BankItem[] {
     'fields/stage-observed',
     2,
     RUNNER,
-    'stageObserved is the last stage the block reported, and absent when it reported none',
+    'stageObserved is the last stage the block reported, and the stage still holding from an earlier block when it reported none (docs/concepts/drift.md)',
     async ({ seed }) => {
       const planted = plantedFlow(seed, 'stage-observed', 3);
       const behaviours = behavioursFor(planted);
@@ -190,7 +190,10 @@ function runFields(): BankItem[] {
           run.blocks[1]?.stageObserved === 'identify',
           `block 1 stageObserved ${run.blocks[1]?.stageObserved}`,
         ],
-        [run.blocks[2]?.stageObserved === undefined, `block 2 stageObserved ${run.blocks[2]?.stageObserved}`],
+        [
+          run.blocks[2]?.stageObserved === 'identify',
+          `block 2 stageObserved ${run.blocks[2]?.stageObserved}, expected identify carried from block 1`,
+        ],
       ]);
     },
   );

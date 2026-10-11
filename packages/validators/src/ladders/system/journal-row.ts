@@ -12,11 +12,23 @@
 import { readFileSync } from 'node:fs';
 
 type Row = { level: number; id: string; metric: string; threshold: number; observed: number | null };
-type SeedRun = { seed: number; hidden: boolean; level: number; rows: Row[]; failing: { items: { id: string }[] } | null };
+type SeedRun = {
+  seed: number;
+  hidden: boolean;
+  level: number;
+  rows: Row[];
+  failing: { items: { id: string }[] } | null;
+};
 type Report = {
   level: number;
   seeds: SeedRun[];
-  bank: { size: number; passing: number; failingByFamily: Record<string, number>; byFamilyTier: Record<string, Record<string, number>>; rows: { id: string; passEverySeed: boolean }[] };
+  bank: {
+    size: number;
+    passing: number;
+    failingByFamily: Record<string, number>;
+    byFamilyTier: Record<string, Record<string, number>>;
+    rows: { id: string; passEverySeed: boolean }[];
+  };
 };
 
 const args = process.argv.slice(2);
@@ -44,7 +56,11 @@ const row = {
   seeds: after.seeds.map(label),
   command: 'pnpm driftbench validate system --seeds 1..20 --hidden --items --json',
   level: { before: levelBefore, after: levelAfter },
-  perSeed: after.seeds.map((run, index) => ({ seed: label(run), before: before.seeds[index]?.level ?? 0, after: run.level })),
+  perSeed: after.seeds.map((run, index) => ({
+    seed: label(run),
+    before: before.seeds[index]?.level ?? 0,
+    after: run.level,
+  })),
   metrics: first(after).map((entry, index) => ({
     level: entry.level,
     id: entry.id,
@@ -62,7 +78,14 @@ const row = {
   research: null,
   change: { files: (option('--files') ?? '').split(',').filter(Boolean), commit: option('--commit') ?? null },
   testsAdded: (option('--tests') ?? '').split(';').filter(Boolean),
-  result: iteration === 0 ? 'baseline' : levelAfter > levelBefore ? 'raised' : levelAfter < levelBefore ? 'lowered' : 'unchanged',
+  result:
+    iteration === 0
+      ? 'baseline'
+      : levelAfter > levelBefore
+        ? 'raised'
+        : levelAfter < levelBefore
+          ? 'lowered'
+          : 'unchanged',
   durationMinutes: Number(option('--minutes') ?? '0'),
   tokenEstimate: Number(option('--tokens') ?? '0'),
 };
