@@ -208,7 +208,8 @@ export function renderQuestionnaire(map: IntakeMap, mapPath: string): string {
   const personaDimensions = map.dimensions.filter((dimension) => dimension.kind === 'persona');
   const list = (values: Array<{ id: string; title: string }>) =>
     values.map((value) => `#     ${value.id}: ${value.title}`);
-  const block = (value: unknown) => stringifyYaml(value, { lineWidth: 0 }).trimEnd();
+  const block = (value: unknown) =>
+    stringifyYaml(value, { lineWidth: 0, aliasDuplicateObjects: false }).trimEnd();
 
   const sections = [
     [

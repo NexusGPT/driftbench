@@ -1,0 +1,121 @@
+# driftbench intake interview for acme, answered by a fictional owner of the Acme Telecom sales assistant.
+# Written by hand by the intake lane from the questionnaire `driftbench intake interview` produces for the
+# approved map. Every person, address, email and phone number here is fictional: emails at example.com,
+# phones from +1 202 555 0100 to 0199, addresses from the Acme store.
+# Build the reference set from it with:
+#   pnpm driftbench intake from-interview examples/acme/reference/answers.yaml \
+#     --map examples/acme/map/approved.yaml --out examples/acme/reference \
+#     --replay examples/acme/reference/recorded.yaml --turns 30
+version: 1
+agent: acme
+map: ../map/approved.yaml
+
+# Q1. Personas. Who writes to the agent?
+personas:
+  - id: upgrader
+    description: An Acme mobile customer who keeps running out of data and wants a bigger plan, usually on the phone between two things.
+    share: 5
+    map: { user_type: existing-customer, first_message: step-by-step, plan_choice: names-one }
+    tone: Short messages in lower case, few full stops, sometimes a typo.
+    languages: [en]
+    channels: [chat, whatsapp]
+  - id: home-mover
+    description: Someone moving to Acmeville who needs home internet at the new address and is not an Acme customer yet.
+    share: 3
+    map: { user_type: new-customer, first_message: says-everything, plan_choice: names-one }
+    tone: Full sentences, polite, gives the address in the first message.
+    languages: [en, nl]
+    channels: [chat]
+  - id: switcher
+    description: A customer of another carrier who wants to move to Acme and keep their mobile number, and is unsure about the steps.
+    share: 2
+    map: { user_type: new-customer, first_message: step-by-step, plan_choice: asks-for-callback }
+    tone: Hesitant, asks a question back, would rather talk to a person.
+    languages: [en]
+    channels: [chat]
+
+# Q2. Intents. How often does each flow occur, and for whom?
+intents:
+  - { value: upgrade, share: 45, personas: [upgrader] }
+  - { value: new-home, share: 30, personas: [home-mover] }
+  - { value: porting, share: 20, personas: [switcher] }
+  # The recap and the order belong to every flow above: the recap stage is answered under each flow.
+  - { value: order, share: 0 }
+  # The price sheet is a task for the code agent, whose instructions come from its task family.
+  - { value: price-sheet, share: 0 }
+
+# Q3. Example interactions per stage: what a user writes next when the agent is at the stage.
+examples:
+  - stage: needs
+    intent: upgrade
+    persona: upgrader
+    turns: ['i need more data', 'can i upgrade my plan? always run out by the 20th']
+  - stage: identify
+    intent: upgrade
+    persona: upgrader
+    turns: ['sam.rivera@example.com', "it's morgan.diaz@example.com"]
+  - stage: offer
+    intent: upgrade
+    persona: upgrader
+    turns: ['the M one', 'Acme Mobile L please']
+  - stage: recap
+    intent: upgrade
+    persona: upgrader
+    turns: ['CONFIRM', 'confirm']
+  - stage: needs
+    intent: new-home
+    persona: home-mover
+    turns: ['Hi, do you have home internet at 3 Orchard Way, Acmeville?']
+  - stage: needs
+    intent: new-home
+    persona: home-mover
+    lang: nl
+    turns: ['Hallo, hebben jullie internet op Orchard Way 3 in Acmeville?']
+  - stage: address
+    intent: new-home
+    persona: home-mover
+    turns: ["It's 14 Harbor Road, Acmeville.", '88 Summit Avenue, Acmeville please']
+  - stage: offer
+    intent: new-home
+    persona: home-mover
+    turns: ['Acme Fiber 300 sounds right for us.']
+  - stage: details
+    intent: new-home
+    persona: home-mover
+    turns: ['Alex Moreau, alex.moreau@example.com']
+  - stage: needs
+    intent: porting
+    persona: switcher
+    turns: ['I want to switch to Acme and keep my number.']
+  - stage: port_number
+    intent: porting
+    persona: switcher
+    turns: ['+1 202 555 0165', 'it is 202-555-0160']
+  - stage: offer
+    intent: porting
+    persona: switcher
+    turns: ['Could someone call me to go through this?']
+  - stage: details
+    intent: porting
+    persona: switcher
+    turns: ['Robin Vale, robin.vale@example.com']
+
+# Q4. What do users never do or say?
+never:
+  - text: Users never paste a password or a card number into the chat.
+    match: [password, card number]
+  - text: Users never ask the assistant about other carriers' prices.
+    match: []
+
+# Q4b. Tone of all users.
+tone: Mostly short and practical; customers write like they text, rarely more than two sentences.
+
+# Q5. Languages.
+languages:
+  - { lang: en, share: 95, map: { language: english } }
+  - { lang: nl, share: 5, map: { language: other-language } }
+
+# Q6. Channels.
+channels:
+  - { value: chat, share: 70 }
+  - { value: whatsapp, share: 30 }

@@ -531,7 +531,7 @@ export function renderReferenceSet(set: ReferenceSet): string {
     `# driftbench reference set for ${set.agent}: user turns per cell, from the owner's interview.`,
     '# origin interview: the owner wrote the message; origin model: the model wrote it and code checked it.',
     '# No turn counts until a person approves it in approval.yaml.',
-    stringifyYaml(set, { lineWidth: 0 }),
+    stringifyYaml(set, { lineWidth: 0, aliasDuplicateObjects: false }),
   ].join('\n');
 }
 
@@ -561,7 +561,7 @@ export function renderApproval(set: ReferenceSet, reference: string): string {
     `# Approval of the reference set ${reference}. Read each turn: is it something a real user would write in`,
     '# this cell? Set approved: true on the turns you accept. Only approved turns count. Approve every turn with',
     '#   driftbench intake approve <this file> --all',
-    stringifyYaml(approval, { lineWidth: 0 }),
+    stringifyYaml(approval, { lineWidth: 0, aliasDuplicateObjects: false }),
   ].join('\n');
 }
 

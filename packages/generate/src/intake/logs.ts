@@ -434,7 +434,7 @@ export function intakeFiles(intake: LogIntake, source: { name: string; total: nu
     '# must_read: conversations where the second pass found what pass 1 missed, outside the sample.',
     stringifyYaml(
       { seed: intake.seed, sample: intake.spotCheck.map(entry), must_read: mustRead.map(entry) },
-      { lineWidth: 0 },
+      { lineWidth: 0, aliasDuplicateObjects: false },
     ),
   ].join('\n');
   const report = {
