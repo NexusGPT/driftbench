@@ -33,9 +33,9 @@ criteria:
 * `name` is how blocks refer to the criterion.
 * `rubric` is the question. It is written to have a binary answer.
 * `fail` and `pass` describe what a failing and a passing block look like.
-* `gating` marks the criterion as gating. In a block, `name@gating` makes a fail of that criterion fail the block.
+* `gating: true` on the definition gates every reference to the criterion. `name@gating` in a block gates that one reference. Either one makes the criterion gating there, and a fail of a gating criterion fails the block.
 * `scope` is `block` or `conversation`.
-* `judge_class` is `system1`, `system2` or `auto`.
+* `judge_class` is `system1`, `system2` or `auto`. With `auto`, calibration assigns the class per criterion, and a tie goes to system 1.
 
 A reference to a name the spec does not define is an error. A spec with no `criteria` list may name criteria from a shared catalogue; `spec lint` warns that they must come from there.
 
@@ -54,10 +54,10 @@ For a task step, the judge reads the artifact itself: the text of the workbook, 
 
 | Class | What it is | It takes |
 |---|---|---|
-| system 1 | a fixed binary question per criterion, one short answer, low variance, low cost | criteria whose evidence sits in the block itself: a tool used, a fact present, the language, one question per turn, the stage reached |
+| system 1 | a fixed binary question per criterion, one short answer, low variance, low cost; the OpenAI Decisions API is the public example | criteria whose evidence sits in the block itself: a tool used, a fact present, the language, one question per turn, the stage reached |
 | system 2 | a chat model with stored reasoning, from a model family other than the agent's | criteria that read across blocks: a contradiction with the ledger, flow drift, recovery |
 
-Planned clients: `jev` and `decisions-api` for system 1; `openai`, `google` and `anthropic` for system 2; `http` for any endpoint that returns the answer contract. Keys come from the environment, never from the repository.
+Planned clients: `openai-decisions`, the OpenAI Decisions API, for system 1; `openai`, `google` and `anthropic` for system 2; `http` for any endpoint that returns the answer contract. A judge that a platform offers is listed on the page of that platform's adapter. Keys come from the environment, never from the repository.
 
 ## The council
 

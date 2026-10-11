@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 import { DOCS, markdownFiles } from './check-links';
 
 const TOOLS = fileURLToPath(new URL('.', import.meta.url));
+const GENERATED = join('reference', 'spec.md');
 /** An en dash or an em dash, built from code points so no source file holds one. */
 const DASHES = new RegExp(`[${String.fromCharCode(0x2013, 0x2014)}]`);
 /**
@@ -85,15 +86,24 @@ describe('docs content', () => {
     expect(offending).toEqual([]);
   });
 
-  it('keeps runtime-specific names under docs/adapters only', async () => {
-    const found = (await pages())
-      .filter((page) => !page.path.startsWith('adapters'))
-      .flatMap((page) =>
-        RUNTIME_NAMES.filter((name) => name.test(page.text)).map((name) => `${page.path}: ${name.source}`),
-      );
+  it('keeps runtime-specific names under docs/adapters only, and the platform judge on its adapter page', async () => {
+    const all = await pages();
+    // The generated reference carries the schema descriptions verbatim; tools/docs does not write them.
+    const written = all.filter((page) => !page.path.startsWith('adapters') && page.path !== GENERATED);
+    const found = written.flatMap((page) =>
+      RUNTIME_NAMES.filter((name) => name.test(page.text)).map((name) => `${page.path}: ${name.source}`),
+    );
+    expect(written.length).toBeGreaterThanOrEqual(11);
     expect(found).toEqual([]);
-    const mapping = await readFile(join(DOCS, 'adapters', 'index.md'), 'utf8');
-    for (const name of ['hook', 'board', 'process step', 'guardrail']) expect(mapping).toContain(name);
+    const adapters = all
+      .filter((page) => page.path.startsWith('adapters'))
+      .map((page) => page.text)
+      .join('\n');
+    for (const name of ['hook', 'board.<op>', 'process step', 'guardrail', 'shell']) {
+      expect(adapters).toContain(name);
+    }
+    const jev = all.filter((page) => /\bjev\b/i.test(page.text)).map((page) => page.path);
+    expect(jev).toEqual([join('adapters', 'nexus.md')]);
   });
 
   it('loads every YAML example, and every whole spec lints clean', async () => {

@@ -57,110 +57,130 @@ The loader rewrites these forms before it validates a spec.
 
 ## Spec
 
+One golden conversation, or one task for a code agent, written as a succession of blocks.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes |  |  |
-| `version` | string | no |  |  |
-| `kind` | `conversation` or `task` | yes | `conversation`, set by the loader |  |
-| `title` | string | no |  |  |
-| `description` | string | no |  |  |
-| `channel` | string | no |  |  |
-| `lang` | string, 2 to 8 characters | no |  |  |
-| `tier` | string | no |  |  |
-| `tags` | list of strings | no |  |  |
-| `covers` | list of strings | no |  |  |
-| `target` | [TargetRef](#targetref) | no |  |  |
-| `given` | [GivenDefaults](#givendefaults) | no |  |  |
-| `stages` | list of strings, each not empty | no |  |  |
-| `criteria` | list of [CriterionDef](#criteriondef) | no |  |  |
-| `blocks` | list of [Block](#block), at least 1 item | yes |  |  |
-| `rules` | [Rules](#rules) | no |  |  |
-| `end_state` | [EndState](#endstate) | no |  |  |
-| `perturbations` | list of [Perturbation](#perturbation) | no |  |  |
-| `metadata` | map of string to any value | no |  |  |
+| `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes |  | The spec id: letters, digits, dots, underscores and hyphens. |
+| `version` | string | no |  | A free label. The content hash, not this label, is the cache key. |
+| `kind` | `conversation` or `task` | yes | `conversation`, set by the loader | conversation or task. The loader sets conversation when it is absent. |
+| `title` | string | no |  | A short title. |
+| `description` | string | no |  | A longer description. |
+| `channel` | string | no |  | The channel the conversation runs on, such as chat. |
+| `lang` | string, 2 to 8 characters | no |  | The declared language of the conversation. |
+| `tier` | string | no |  | A tier label, such as core or edge. |
+| `tags` | list of strings | no |  | Free tags. flow:<id> ties the spec to a flow of the behaviour inventory. |
+| `covers` | list of strings | no |  | Ids of the behaviours this spec covers, from a behaviour inventory. |
+| `target` | [TargetRef](#targetref) | no |  | The default agent. A run can override it. |
+| `given` | [GivenDefaults](#givendefaults) | no |  | Initial conditions for every block. |
+| `stages` | list of strings, each not empty | no |  | The stage catalogue of the flow. expect.stage and recovery.stage_after must name one of these. |
+| `criteria` | list of [CriterionDef](#criteriondef) | no |  | The judged criteria the blocks may reference. |
+| `blocks` | list of [Block](#block), at least 1 item | yes |  | The blocks, in order. At least one. |
+| `rules` | [Rules](#rules) | no |  | Rules for the whole conversation. |
+| `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
+| `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
+| `metadata` | map of string to any value | no |  | Free metadata. |
 
 ## TargetRef
 
+Which agent a spec runs against. The adapter decides what the other fields mean.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `adapter` | string, not empty | yes |  |  |
-| `agent` | string, not empty | no |  |  |
-| `variant` | string, not empty | no |  |  |
-| `deployment` | string, not empty | no |  |  |
-| `options` | map of string to any value | no |  |  |
+| `adapter` | string, not empty | yes |  | The adapter that reaches the agent, such as function, http, nexus or process. |
+| `agent` | string, not empty | no |  | The agent, as the adapter names it. |
+| `variant` | string, not empty | no |  | A variant of the agent, such as a prompt version. |
+| `deployment` | string, not empty | no |  | A deployment of the agent, as the adapter names it. |
+| `options` | map of string to any value | no |  | Adapter settings. Each adapter defines their names. |
 
 ## GivenDefaults
 
+Initial conditions set on the whole spec.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `ledger` | map of string to any value | no |  |  |
-| `world` | [WorldState](#worldstate) | no |  |  |
-| `vars` | map of string to any value | no |  |  |
+| `ledger` | map of string to any value | no |  | Facts the agent must hold from the start. |
+| `world` | [WorldState](#worldstate) | no |  | The world at the start. |
+| `vars` | map of string to any value | no |  | Runtime variables, such as the clock, the channel or the sender. |
 
 ## WorldState
 
+The world an agent acts on: tool overrides, a seeded store, a seeded workspace, free fixtures.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `tools` | map of string to [ToolOverride](#tooloverride) | no |  |  |
-| `store` | map of string to any value | no |  |  |
-| `workspace` | [WorldState workspace](#worldstate-workspace) | no |  |  |
-| `fixtures` | map of string to any value | no |  |  |
+| `tools` | map of string to [ToolOverride](#tooloverride) | no |  | Forced tool results and errors, by tool name. |
+| `store` | map of string to any value | no |  | A seeded store. |
+| `workspace` | [WorldState workspace](#worldstate-workspace) | no |  | The files the agent starts from. |
+| `fixtures` | map of string to any value | no |  | Free fixtures. |
 
 ## ToolOverride
 
+A forced result or error for one tool, from the block where it is set onwards.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `result` | JSON value | no |  |  |
-| `error` | string | no |  |  |
-| `latency_ms` | number, at least 0 | no |  |  |
+| `result` | JSON value | no |  | The result the tool returns. |
+| `error` | string | no |  | The error the tool returns. |
+| `latency_ms` | number, at least 0 | no |  | The latency the tool takes, in milliseconds. |
 
 ## WorldState workspace
 
+The files the agent starts from.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `from` | string, not empty | no |  |  |
-| `files` | map of string to string | no |  |  |
+| `from` | string, not empty | no |  | A folder the workspace starts from. |
+| `files` | map of string to string | no |  | Files the workspace starts with: path to content. |
 
 ## CriterionDef
 
+A judged criterion. Blocks reference it by name, with @gating when a fail fails the conversation.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `name` | string matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$` | yes |  |  |
-| `rubric` | string, not empty | yes |  |  |
-| `pass` | string | no |  |  |
-| `fail` | string | no |  |  |
-| `gating` | boolean | no |  |  |
-| `scope` | `block` or `conversation` | no |  |  |
-| `judge_class` | one of `system1`, `system2`, `auto` | no |  |  |
+| `name` | string matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$` | yes |  | The name blocks use to reference the criterion. |
+| `rubric` | string, not empty | yes |  | The question the judge answers with pass or fail. |
+| `pass` | string | no |  | What a passing block looks like. |
+| `fail` | string | no |  | What a failing block looks like. |
+| `gating` | boolean | no |  | True gates every reference to this criterion; a reference can also add @gating. |
+| `scope` | `block` or `conversation` | no |  | block judges one block; conversation judges the whole conversation. |
+| `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
 
 ## Block
 
+One block: a stimulus, its initial conditions and its expectations.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `id` | string, not empty | no |  |  |
-| `when` | [Stimulus](#stimulus) | yes |  |  |
-| `given` | [Given](#given) | no |  |  |
-| `expect` | [Expect](#expect) | no |  |  |
-| `budget` | [Budget](#budget) | no |  |  |
+| `id` | string, not empty | no |  | An id, unique in the spec. |
+| `when` | [Stimulus](#stimulus) | yes |  | The stimulus. |
+| `given` | [Given](#given) | no |  | Initial conditions for this block. |
+| `expect` | [Expect](#expect) | no |  | The expected output and state delta. |
+| `budget` | [Budget](#budget) | no |  | Limits for this block. |
 
 ## Stimulus
+
+What reaches the agent in one block: exactly one of user, burst or injection.
 
 Write a mapping with exactly one of these keys.
 
 | Key | Type | Description |
 |---|---|---|
-| `user` | string |  |
-| `burst` | list of strings, at least 2 items |  |
-| `injection` | [Stimulus injection](#stimulus-injection) |  |
+| `user` | string | One user message, or one instruction to a task agent. |
+| `burst` | list of strings, at least 2 items | Two or more messages that arrive together. |
+| `injection` | [Stimulus injection](#stimulus-injection) | A deviation written into the blocks, with its class. |
 
 ## Stimulus injection
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `class` | [DeviationClass](#deviationclass) | yes |  |  |
-| `user` | string | yes |  |  |
+| `class` | [DeviationClass](#deviationclass) | yes |  | The deviation class. |
+| `user` | string | yes |  | The message that carries the deviation. |
 
 ## DeviationClass
+
+The ten deviation classes a perturbed run can inject.
 
 Used by `when.injection.class` and `perturbations[].class`. Running a perturbation is planned, phase 3. See [recovery](../concepts/recovery.md).
 
@@ -179,61 +199,73 @@ Used by `when.injection.class` and `perturbations[].class`. Running a perturbati
 
 ## Given
 
+Initial conditions set on one block. A prefix lets the block start without replaying the ones before.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `prefix` | list of [Message](#message) | no |  |  |
-| `ledger` | map of string to any value | no |  |  |
-| `world` | [WorldState](#worldstate) | no |  |  |
-| `vars` | map of string to any value | no |  |  |
+| `prefix` | list of [Message](#message) | no |  | The messages before this block. Lets the block start without replaying the ones before. |
+| `ledger` | map of string to any value | no |  | Facts the agent must hold at this block. They merge into the ledger from here on. |
+| `world` | [WorldState](#worldstate) | no |  | Changes to the world from this block onwards. |
+| `vars` | map of string to any value | no |  | Runtime variables from this block onwards. |
 
 ## Message
 
+One message of a conversation prefix.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `role` | one of `user`, `assistant`, `system`, `tool` | yes |  |  |
-| `content` | string | yes |  |  |
-| `name` | string | no |  |  |
-| `tool_calls` | list of [PrefixToolCall](#prefixtoolcall) | no |  |  |
+| `role` | one of `user`, `assistant`, `system`, `tool` | yes |  | Who sent the message. |
+| `content` | string | yes |  | The text of the message. |
+| `name` | string | no |  | An optional sender name. |
+| `tool_calls` | list of [PrefixToolCall](#prefixtoolcall) | no |  | The tool calls the message made. |
 
 ## PrefixToolCall
 
+A tool call written in a spec prefix.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `id` | string | no |  |  |
-| `label` | string, not empty | yes |  |  |
-| `input` | JSON value | no |  |  |
-| `output` | JSON value | no |  |  |
-| `error` | string | no |  |  |
+| `id` | string | no |  | The id of the call. |
+| `label` | string, not empty | yes |  | The tool name. |
+| `input` | JSON value | no |  | The arguments of the call. |
+| `output` | JSON value | no |  | What the tool returned. |
+| `error` | string | no |  | The error the tool returned. |
 
 ## Expect
 
+The expected output and state delta of a block. Every field is optional.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `stage` | string, not empty | no |  |  |
-| `ledger_add` | map of string to any value | no |  |  |
-| `tools` | list of [ToolExpect](#toolexpect) | no |  |  |
-| `tool_order` | one of `exact`, `in_order`, `any_order` | no |  |  |
-| `must` | list of strings, each not empty | no |  |  |
-| `must_not` | list of strings, each not empty | no |  |  |
-| `lang` | string, 2 to 8 characters | no |  |  |
-| `cards` | list of [CardExpect](#cardexpect) | no |  |  |
-| `criteria` | list of strings, each not empty | no |  |  |
-| `skills` | list of [SkillExpect](#skillexpect) | no |  |  |
-| `guards` | list of [GuardExpect](#guardexpect) | no |  |  |
-| `execution` | [ExecutionExpect](#executionexpect) | no |  |  |
-| `artifacts` | list of [ArtifactExpect](#artifactexpect) | no |  |  |
-| `workspace` | [WorkspaceExpect](#workspaceexpect) | no |  |  |
-| `safety` | [SafetyExpect](#safetyexpect) | no |  |  |
+| `stage` | string, not empty | no |  | The stage the agent must reach after the block, one of the spec stages. |
+| `ledger_add` | map of string to any value | no |  | Facts the block establishes. They join the ledger. |
+| `tools` | list of [ToolExpect](#toolexpect) | no |  | The tool calls expected in the block. |
+| `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
+| `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
+| `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
+| `lang` | string, 2 to 8 characters | no |  | The language of the reply. |
+| `cards` | list of [CardExpect](#cardexpect) | no |  | The cards expected in the block. |
+| `criteria` | list of strings, each not empty | no |  | Judged criteria by name. name@gating makes a fail fail the block. |
+| `skills` | list of [SkillExpect](#skillexpect) | no |  | The skills expected in the block. |
+| `guards` | list of [GuardExpect](#guardexpect) | no |  | The runtime checks that must have fired in the block, with their verdict. |
+| `execution` | [ExecutionExpect](#executionexpect) | no |  | What the agent runs. |
+| `artifacts` | list of [ArtifactExpect](#artifactexpect) | no |  | The files the block must produce. |
+| `workspace` | [WorkspaceExpect](#workspaceexpect) | no |  | The workspace diff expected. |
+| `safety` | [SafetyExpect](#safetyexpect) | no |  | Limits on destructive operations. |
 
 ## ToolExpect
 
+One expected tool call.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `label` | string, not empty | yes |  |  |
-| `count` | [Count](#count) | no |  |  |
-| `input` | map of string to [Assertion](#assertion) | no |  |  |
+| `label` | string, not empty | yes |  | The tool name. |
+| `count` | [Count](#count) | no |  | How many calls are expected. 0 means the tool must not be called. |
+| `input` | map of string to [Assertion](#assertion) | no |  | Assertions on the arguments, by argument name. |
 
 ## Count
+
+An exact count, or a range with an optional min and max.
 
 Write one of these forms.
 
@@ -242,10 +274,12 @@ Write one of these forms.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `min` | integer, at least 0 | no |  |  |
-| `max` | integer, at least 0 | no |  |  |
+| `min` | integer, at least 0 | no |  | The fewest allowed. |
+| `max` | integer, at least 0 | no |  | The most allowed. |
 
 ## Assertion
+
+How one value is asserted. A bare string, number, boolean or null means exact equality.
 
 Write one of these forms.
 
@@ -257,87 +291,107 @@ Write one of these forms.
 
 | Key | Type | Description |
 |---|---|---|
-| `exact` | JSON value |  |
-| `regex` | string, not empty |  |
-| `contains` | string, not empty |  |
-| `one_of` | list of JSON values, at least 1 item |  |
-| `nonempty` | `true` |  |
-| `absent` | `true` |  |
-| `subset` | map of string to JSON value |  |
+| `exact` | JSON value | Equal to this JSON value. |
+| `regex` | string, not empty | A JavaScript regular expression source. Specs match text with the m flag. |
+| `contains` | string, not empty | Contains this text. |
+| `one_of` | list of JSON values, at least 1 item | Equal to one of these values. |
+| `nonempty` | `true` | Present and not empty. |
+| `absent` | `true` | Absent. |
+| `subset` | map of string to JSON value | Holds at least these keys with these values. |
 
 ## CardExpect
 
+One expected card.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `name` | string, not empty | yes |  |  |
-| `count` | [Count](#count) | no |  |  |
+| `name` | string, not empty | yes |  | The card name. |
+| `count` | [Count](#count) | no |  | How many times the card is sent. |
 
 ## SkillExpect
 
+One expected skill.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `name` | string, not empty | yes |  |  |
-| `count` | [Count](#count) | no |  |  |
+| `name` | string, not empty | yes |  | The skill name. |
+| `count` | [Count](#count) | no |  | How many times the skill is loaded. |
 
 ## GuardExpect
 
+One runtime check that fired during the block: a hook, a guardrail, a policy.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `name` | string, not empty | yes |  |  |
-| `verdict` | string, not empty | no |  |  |
-| `count` | [Count](#count) | no |  |  |
+| `name` | string, not empty | yes |  | The name of the check, as the adapter reports it. |
+| `verdict` | string, not empty | no |  | The verdict the check must have given, such as pass or deny. |
+| `count` | [Count](#count) | no |  | How many times the check fired. |
 
 ## ExecutionExpect
 
+What the agent runs in the block.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `ran_code` | boolean | no |  |  |
-| `exit_code` | integer | no |  |  |
-| `max_commands` | integer, at least 0 | no |  |  |
+| `ran_code` | boolean | no |  | True when the block must run code; false when it must not. |
+| `exit_code` | integer | no |  | The exit code of the last command. |
+| `max_commands` | integer, at least 0 | no |  | The most commands the block may run. |
 
 ## ArtifactExpect
 
+A file the block must produce.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `path` | string, not empty | yes |  |  |
-| `kind` | one of `xlsx`, `docx`, `pptx`, `pdf`, `csv`, `json`, `text`, `code` | no |  |  |
-| `checks` | list of maps of string to any value | no |  |  |
+| `path` | string, not empty | yes |  | The path of the file in the workspace. |
+| `kind` | one of `xlsx`, `docx`, `pptx`, `pdf`, `csv`, `json`, `text`, `code` | no |  | The file kind, which picks the reader. |
+| `checks` | list of maps of string to any value | no |  | Checks on the content of the file. |
 
 ## WorkspaceExpect
 
+The workspace diff of the block.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `created` | list of strings | no |  |  |
-| `changed` | list of strings | no |  |  |
-| `deleted` | list of strings | no |  |  |
-| `others_untouched` | boolean | no |  |  |
+| `created` | list of strings | no |  | Paths the block creates. |
+| `changed` | list of strings | no |  | Paths the block changes. |
+| `deleted` | list of strings | no |  | Paths the block deletes. |
+| `others_untouched` | boolean | no |  | True when no other path may change. |
 
 ## SafetyExpect
 
+Limits on destructive or irreversible operations.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `max_destructive_ops` | integer, at least 0 | no |  |  |
-| `confirm_before` | list of strings, each not empty | no |  |  |
+| `max_destructive_ops` | integer, at least 0 | no |  | The most destructive operations allowed. |
+| `confirm_before` | list of strings, each not empty | no |  | Operations that need a confirmation first, such as delete or send. |
 
 ## Budget
 
+Limits for one block.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `steps` | integer, at least 1 | no |  |  |
-| `cost_usd` | number, at least 0 | no |  |  |
-| `latency_ms` | number, at least 0 | no |  |  |
+| `steps` | integer, at least 1 | no |  | The most agent steps. |
+| `cost_usd` | number, at least 0 | no |  | The most cost, in US dollars. |
+| `latency_ms` | number, at least 0 | no |  | The most latency, in milliseconds. |
 
 ## Rules
 
+Rules that hold for the whole conversation.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `max_calls` | map of string to integer, at least 0 | no |  |  |
-| `forbidden_tools` | list of strings, each not empty | no |  |  |
-| `lang_stable` | boolean | no |  |  |
-| `one_message_per_turn` | boolean | no |  |  |
-| `custom` | map of string to any value | no |  |  |
+| `max_calls` | map of string to integer, at least 0 | no |  | The most calls per tool across the run. 0 forbids the tool. |
+| `forbidden_tools` | list of strings, each not empty | no |  | Tools that must never be called. |
+| `lang_stable` | boolean | no |  | True when the reply language must stay the same across blocks. |
+| `one_message_per_turn` | boolean | no |  | True when each block may send one message only. |
+| `custom` | map of string to any value | no |  | Reserved for user-registered checks (planned, phase 1). |
 
 ## EndState
+
+none asserts that nothing was submitted; a mapping or a list of mappings names what to check; absent means no end-state check.
 
 Write one of these forms.
 
@@ -347,34 +401,42 @@ Write one of these forms.
 
 ## EndStateSpec
 
+The expected end state of the world, read from a source the adapter knows, such as a tool payload.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `source` | string, not empty | yes |  |  |
-| `mode` | `subset` or `exact` | no |  |  |
-| `expect` | map of string to [Assertion](#assertion) | yes |  |  |
+| `source` | string, not empty | yes |  | Where the adapter reads the state, such as tool:submit_order. |
+| `mode` | `subset` or `exact` | no |  | subset compares the listed fields; exact compares the whole state. |
+| `expect` | map of string to [Assertion](#assertion) | yes |  | Assertions on fields of the state. |
 
 ## Perturbation
 
+A deviation inserted before block inject_at, counting from 0, when the spec runs in perturbed mode.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `id` | string, not empty | yes |  |  |
-| `class` | [DeviationClass](#deviationclass) | yes |  |  |
-| `inject_at` | integer, at least 0 | yes |  |  |
-| `user` | string | no |  |  |
-| `burst` | list of strings, at least 2 items | no |  |  |
-| `world` | [WorldState](#worldstate) | no |  |  |
-| `expect` | [Expect](#expect) | no |  |  |
-| `recovery` | [RecoveryExpect](#recoveryexpect) | no |  |  |
+| `id` | string, not empty | yes |  | An id, unique in the spec. |
+| `class` | [DeviationClass](#deviationclass) | yes |  | The deviation class. |
+| `inject_at` | integer, at least 0 | yes |  | The position: the deviation goes in before this block, counting from 0. |
+| `user` | string | no |  | The message the user sends. |
+| `burst` | list of strings, at least 2 items | no |  | Messages the user sends together. |
+| `world` | [WorldState](#worldstate) | no |  | A change to the world from this point, such as a tool forced to fail. |
+| `expect` | [Expect](#expect) | no |  | Expectations for the injected block. |
+| `recovery` | [RecoveryExpect](#recoveryexpect) | no |  | How the agent should come back. Without it, recovery is not measured. |
 
 ## RecoveryExpect
 
+How the agent should come back after an injected deviation.
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `within_blocks` | integer, at least 0 | yes |  |  |
-| `stage_after` | string, not empty | no |  |  |
-| `return_message` | string | no |  |  |
+| `within_blocks` | integer, at least 0 | yes |  | How many blocks the agent has to come back. |
+| `stage_after` | string, not empty | no |  | The stage the agent must be back at. |
+| `return_message` | string | no |  | A pattern the first in-flow reply after the deviation must match. |
 
 ## DriftClass
+
+The five drift classes a failing block can carry.
 
 Run records, not specs, carry these classes: one or more on each failing block. The drift engine that assigns them is planned, phase 3. See [drift](../concepts/drift.md).
 
@@ -412,4 +474,4 @@ The behaviour inventory is the file `driftbench spec coverage --inventory` reads
 | `id` | string matching `^[a-z0-9][a-z0-9_-]*$` | yes |  |  |
 | `title` | string | yes |  |  |
 | `behaviours` | list of strings, each matching `^[A-Z]+-\d+$` | yes |  |  |
-| `deviations` | list of [DeviationClass](#deviationclass) | no |  |  |
+| `deviations` | list of [DeviationClass](#deviationclass) | no |  | The ten deviation classes a perturbed run can inject. |

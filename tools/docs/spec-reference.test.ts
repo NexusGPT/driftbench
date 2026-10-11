@@ -17,6 +17,7 @@ import {
 import {
   checkValueLines,
   DEFAULT_OUT,
+  exportName,
   renderReference,
   run,
   schemaNames,
@@ -166,6 +167,27 @@ describe('spec reference generator', () => {
     const { markdown } = renderReference();
     expect(markdown).toContain('## Block\n');
     expect(markdown).not.toContain('## BlockSpec');
+  });
+
+  it('keeps the name of a schema a field describes, and takes the section text from the export', () => {
+    // `when: Stimulus.describe('The stimulus.')` holds a copy of Stimulus, not Stimulus itself.
+    const names = schemaNames({ ...core });
+    const described = core.Stimulus.describe('A field description.');
+    expect(names.get(described)).toBeUndefined();
+    expect(exportName(described, names)).toBe('Stimulus');
+    const { markdown } = renderReference();
+    expect(markdown).toContain('| `when` | [Stimulus](#stimulus) | yes |');
+    expect(markdown).toContain('| `class` | [DeviationClass](#deviationclass) | yes |');
+    const stimulus = markdown.slice(
+      markdown.indexOf('## Stimulus\n'),
+      markdown.indexOf('## Stimulus injection'),
+    );
+    expect(stimulus).toContain(String(core.Stimulus.description));
+  });
+
+  it('describes every field of the spec part of the page', () => {
+    const { missing } = renderReference();
+    expect(missing.filter((field) => !field.startsWith('Inventory'))).toEqual([]);
   });
 
   it('lists exactly the fields whose description cell is empty', async () => {

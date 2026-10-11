@@ -142,7 +142,7 @@ blocks:
 
 The task starts in a workspace that holds two CSV files. The first step expects the `xlsx` skill once, code that runs and exits with 0, no denial from the `workspace_boundary` guard, a workbook with one sheet per region, and no other file touched. A judged criterion checks that the reply states the totals the file holds. The second step changes the same workbook and touches nothing else.
 
-Both examples pass `driftbench spec lint --strict` today. A test in `tools/docs` runs them through the loader on every change.
+Both examples pass `driftbench spec lint --strict` today. A test in `tools/docs` runs them through the loader on every change. Seven complete specs, six conversations and one task, run against a deterministic example agent in [`examples/acme`](../../examples/acme/README.md).
 
 ## What a block records
 

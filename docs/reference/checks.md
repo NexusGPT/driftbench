@@ -57,7 +57,7 @@ A tool expectation names the tool by `label`. `count` is an exact number, or `{ 
 * `in_order`: the expected calls appear in this order; other calls may sit between them.
 * `any_order`: the expected calls appear, in any order.
 
-`skills` checks the skills the agent loads, by `name` and `count`.
+`skills` checks the skills the agent loads, by `name` and `count`. It does not check their order today; checking the order of skills is planned, with no phase assigned yet.
 
 `guards` checks the guards that fired during the block. A guard is a runtime check with a verdict. Each entry names the guard; `verdict` narrows it to one verdict, as the runtime reports it; `count` works as for tools, so `count: 0` means the guard must not fire, or must not give that verdict.
 
@@ -128,7 +128,7 @@ These fields read what a code-interpreter agent does. They work in any block.
       confirm_before: [delete]
 ```
 
-* `execution`: `ran_code` says code ran in the block, `exit_code` is the expected exit code, `max_commands` is the most commands the block may run. Command output is captured and bounded.
+* `execution`: `ran_code: true` requires the block to run code, and `ran_code: false` forbids it. `exit_code` is the expected exit code of the last command. `max_commands` is the most commands the block may run. Command output is captured and bounded.
 * `artifacts`: each entry names a file by `path`, an optional `kind` (`xlsx`, `docx`, `pptx`, `pdf`, `csv`, `json`, `text`, `code`) and `checks` on its content. A check is a mapping whose key names it, such as `{ sheets: [North, South] }`. The reader opens the file itself; a check never trusts the agent's description of it.
 * `workspace`: the runner takes a snapshot of the workspace (file list and hashes) before the block and a diff after. `created`, `changed` and `deleted` list the paths expected in each set. `others_untouched: true` fails the block when any other path changed.
 * `safety`: destructive or irreversible operations (delete, overwrite, send, pay, push) are flagged unless the block confirms them. `max_destructive_ops` caps them, and `confirm_before` lists the operations that need a confirmation first.
@@ -147,7 +147,7 @@ The names of the checks for each kind are fixed when the readers ship.
 
 ## Judged criteria
 
-`criteria` names criteria the spec defines, or criteria from a shared catalogue. `name@gating` makes a fail of that criterion fail the block. Judges, the council and calibration are on the [judges](../concepts/judges.md) page.
+`criteria` names criteria the spec defines, or criteria from a shared catalogue. `gating: true` on a definition gates every reference to it, and `name@gating` gates that one reference; a fail of a gating criterion fails the block. Judges, the council and calibration are on the [judges](../concepts/judges.md) page.
 
 ## Stage and facts
 
@@ -168,13 +168,13 @@ Both checks are planned, phase 3.
 | `forbidden_tools` | tools that must never be called |
 | `lang_stable` | the reply language stays the same across blocks |
 | `one_message_per_turn` | one message per block: no duplicate text segment, a card sent once |
-| `custom` | a free mapping |
+| `custom` | reserved for checks that users register, planned, phase 1 |
 
 The rule checks are planned, phase 1. A block that expects a tool the rules forbid is already an error today (`TOOL_FORBIDDEN_EXPECTED`).
 
 ## End state
 
-`end_state` compares the state of the world after the run with what the spec expects. It is one mapping, a list of them, or `none`.
+`end_state` compares the state of the world after the run with what the spec expects. It is one mapping, a list of them, or `none`. `none` asserts that nothing was submitted. A spec with no `end_state` has no end-state check.
 
 * `source` names where the adapter reads the state, such as `tool:submit_order` for the payload that tool recorded.
 * `mode` is `subset` or `exact`.
@@ -188,7 +188,7 @@ All planned, phase 1.
 
 * `pii`: patterns of personal data per locale (identity numbers, bank accounts, phone numbers, email addresses) and the echo of fields that must not be repeated. How a spec configures it is not fixed yet.
 * `schema_strict`: tool inputs are checked against strict schemas, so an invented parameter is a schema violation.
-* `custom`: a TypeScript function `(ctx) => Verdict`, registered by name.
+* `custom`: a TypeScript function `(ctx) => Verdict`, registered by name. `rules.custom` is reserved for these checks.
 
 ## The runtime battery
 

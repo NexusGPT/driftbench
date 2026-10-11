@@ -12,8 +12,10 @@ The same three parts hold for a conversational exchange and for a task step. See
 
 A spec sets Given in two places.
 
-* `given` at the top of the spec: defaults for every block. It holds `ledger`, `world` and `vars`.
-* `given` on a block: overrides for that block. It can also hold `prefix`, the messages that come before the block.
+* `given` at the top of the spec: the default for every block. It holds `ledger`, `world` and `vars`.
+* `given` on a block: the same three parts, plus `prefix`, the messages that come before the block.
+
+A block's `prefix` applies to that block only: the block starts in the middle of a conversation without replaying the blocks before it. The block's `ledger`, `world` and `vars` merge into the running state from that block onwards, in free-running and perturbed modes. In teacher-forced mode, every block starts from its own resolved Given. See [run modes](run-modes.md).
 
 | Part | What it holds | Example |
 |---|---|---|
@@ -26,8 +28,6 @@ A spec sets Given in two places.
 | `vars` | runtime variables | the clock, the channel, the sender |
 
 The facts grow block by block: `ledger_add` in a block's `expect` adds the facts that block establishes. The contradiction check reads them (planned, phase 3).
-
-A block's `prefix` lets it start in the middle of a conversation without replaying the blocks before it. Teacher-forced mode starts each block from such a prefix. See [run modes](run-modes.md).
 
 For a task step, Given includes the workspace. The runner takes a snapshot of it before the step and a diff after (planned, phase 1).
 

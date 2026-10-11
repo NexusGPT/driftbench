@@ -45,7 +45,7 @@ An invalid spec lists every error with its path in the spec and its code:
     blocks.0.expect.stage  STAGE_UNKNOWN  stage "b" is not in the spec's stages
 ```
 
-The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash.
+The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash, not the spec's `version`, keys the cache of the runner (planned, phase 1); `version` is a free label.
 
 | Option | Effect |
 |---|---|
@@ -97,9 +97,10 @@ Task behaviours and task specs are rows of the same matrices as conversations.
 
 The channels are the inventory's `channels`. Without them, they are every channel named by a behaviour or a valid spec, sorted; without any, the one channel `default`. `--channel` narrows the matrix to one channel, and then only specs on that channel, or on no channel, count. Invalid specs are listed and never count as coverage. Warnings never change the verdict.
 
-On the test fixture [`packages/core/test/coverage/fixtures`](../../packages/core/test/coverage/fixtures/inventory.yaml):
+On the test fixtures in [`packages/core/test/coverage/fixtures`](../../packages/core/test/coverage/fixtures/inventory.yaml), run from the repository root:
 
 ```
+$ pnpm driftbench spec coverage packages/core/test/coverage/fixtures/specs --inventory packages/core/test/coverage/fixtures/inventory.yaml
 Behaviours by channel
      id     kind          chat     whatsapp  title
   ✓  B-001  conversation  covered  covered   Greets the customer once and names the assistant
@@ -118,10 +119,12 @@ Warnings
   ! B-099  UNKNOWN_BEHAVIOUR  covered by stray, but the inventory has no behaviour B-099
 
 Invalid specs, not counted
-  ✗ specs/broken.yaml  blocks.0  BLOCK_STIMULUS_MISSING  a block needs `user`, `burst` or `when`
+  ✗ packages/core/test/coverage/fixtures/specs/broken.yaml  blocks.0  BLOCK_STIMULUS_MISSING  a block needs `user`, `burst` or `when`
 
 Coverage: 4 of 5 behaviours covered, 3 of 4 flow deviations covered.
 ```
+
+The command exits 1 here: B-004 is missing on whatsapp, and the usage-report flow misses D8_tool_failure.
 
 | Option | Effect |
 |---|---|

@@ -42,8 +42,7 @@ Phase 0 is in progress. These parts are built:
 * The run record schemas: the shapes the runner will write.
 * A leak guard that refuses personal data in the repository, and CI.
 * These docs, the generator of the spec reference, and a link checker.
-
-Also in phase 0, in progress: a synthetic example agent with conversation specs and a task spec.
+* The Acme Telecom example in [`examples/acme`](../examples/acme/README.md): a deterministic agent with tools and no model, six conversation specs, one task spec and a behaviour inventory.
 
 ## Roadmap
 

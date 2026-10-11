@@ -37,7 +37,7 @@ Run the same spec in T and in F mode. The compounding index is the T pass rate m
 These parts of the runner serve every mode. All are planned, phase 1.
 
 * Repeats: a campaign runs each spec several times in each chosen mode. One run proves nothing; [statistics](statistics.md) turns repeats into claims.
-* Cache: an observed block is reused when the spec version, the block, its Given, the target and the adapter version are the same. Teacher-forced runs and judge re-runs read from it.
+* Cache: an observed block is reused when the spec's content hash, the block, the hash of its Given, the target and the adapter version are the same. The spec's `version` is a free label and plays no part. Teacher-forced runs and judge re-runs read from it.
 * Budget: a hard stop on cost. A spec whose first two free-running repeats both fail a gating machine check stops early.
 * Determinism: a smoke command runs a spec three times with the cache off and reports whether the transcripts differ.
 * Resume: a campaign started again with the same id reuses the runs already done.

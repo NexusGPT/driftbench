@@ -52,20 +52,18 @@ Every adapter passes the same contract test suite against the synthetic example 
 
 ## Runtime vocabulary
 
-Specs and checks know four runtime concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages). Each runtime has its own names for them. The adapter that reads a runtime maps those names onto the four concepts, so no spec and no check uses a runtime's own vocabulary.
+Every adapter maps its runtime onto the four concepts that specs and checks know: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages). No spec and no check uses a runtime's own names; the mapping lives in the adapter.
 
-| Runtime | Its own name | Maps to | Read by |
-|---|---|---|---|
-| Claude Code, and harnesses built on it | a tool call | a tool | the process adapter, planned, phase 1; the transcript adapter of the runtime battery, planned, phase 4 |
-| Claude Code, and harnesses built on it | a write to a task board, such as the Nexus tracks board, through a CLI or a server tool | a tool: a board write is a tool call | the same |
-| Claude Code, and harnesses built on it | a skill read into the session | a skill | the same |
-| Claude Code, and harnesses built on it | a hook that ran, with its decision | a guard, with the decision as its verdict | the same |
-| Claude Code, and harnesses built on it | a process step the harness logs | a stage | the same |
-| An agent SDK | a guardrail that ran, with its result | a guard | the SDK adapters, planned, release phase |
-| A Nexus agent | a tool call, including a workflow, an AI task or a document search the agent calls as one of its skills | a tool | the nexus adapter, planned, phase 1 |
-| A Nexus agent | a step of the flow its prompt defines | a stage, named in the spec's `stages` | the nexus adapter, planned, phase 1 |
+* The first example is the Nexus runtime: its mapping is on the [nexus adapter](nexus.md#runtime-vocabulary) page.
+* A Claude Code harness is the second:
 
-A Nexus skill is something the agent calls, so it maps to a tool; a skill in driftbench is a capability the agent loads.
+| Claude Code harness | Maps to |
+|---|---|
+| a hook that ran, with its decision | a guard, with the decision as its verdict |
+| a skill it loads | a skill |
+| a shell command, or any other tool call | a tool call |
+
+The process adapter reads a Claude Code harness when the harness exposes these events (planned, phase 1), and so does the transcript adapter of the runtime battery (planned, phase 4). The guardrails of an agent SDK map to guards in the same way; the SDK adapters are planned, release phase.
 
 ## Choosing the agent in a spec
 

@@ -9,10 +9,25 @@ The nexus adapter reaches an agent on the Nexus platform. It is one adapter amon
 * `send` generates the agent's turn under the prompt variant named in `target.variant`, with the agent's tools live.
 * `trace` reads the whole turn from the platform's tracing: every text segment in order, every tool call with its input and output, tokens, cost and latency per segment. The block's text is built from these segments, so text the agent sends before a tool call is kept.
 * `endState` reads the payload a recording stub received. The stub stands in for a tool with side effects, so a run submits nothing for real, and the `end_state` check compares that payload with the spec.
-* Tool calls are tools, including the workflows, AI tasks and document searches the agent calls as its skills. The steps of the flow the agent's prompt defines are stages, named in the spec's `stages`. See [runtime vocabulary](index.md#runtime-vocabulary).
 * Emulator sessions serve manual checks.
 * In teacher-forced mode, the adapter can use the platform's own golden conversations. Planned, phase 3.
 * It passes the same contract tests as every adapter. See [adapters](index.md).
+
+## Runtime vocabulary
+
+The adapter maps the Nexus runtime onto the four concepts of driftbench. See [adapters](index.md#runtime-vocabulary).
+
+| Nexus | Maps to | Checked with |
+|---|---|---|
+| a tool call | a tool call | `expect.tools` |
+| a write to a board | a tool call labelled `board.<op>` | `expect.tools` |
+| a process step | a stage; the process is the spec's `stages` catalogue | `expect.stage` |
+| a hook that ran | a guard, with its verdict | `expect.guards` |
+| a skill | a skill | `expect.skills` |
+
+## Judge
+
+The Nexus platform also offers a system 1 judge, Jev. It is listed as the planned judge client `nexus-jev` (phase 2). See [judges](../concepts/judges.md).
 
 ## Target
 

@@ -67,7 +67,7 @@ perturbations:
 * `inject_at` counts from 0. The deviation goes in before block `inject_at`; a value equal to the number of blocks puts it after the last block. A larger value is an error.
 * `user` or `burst` is what the user sends. `world` changes the world from that point, such as a tool forced to fail. A perturbation needs at least one of the three.
 * `expect` holds the expectations for the injected block.
-* `recovery.within_blocks` is how many blocks the agent has to come back. `recovery.stage_after` is the stage it must be back at.
+* `recovery.within_blocks` is how many blocks the agent has to come back. `recovery.stage_after` is the stage it must be back at. `recovery.return_message` is a pattern that the agent's first in-flow reply after the deviation must match.
 * Without `recovery`, the deviation runs but its recovery is not measured, and `spec lint` warns.
 
 A block can also carry a deviation as its own stimulus: `when: { injection: { class, user } }`. It is then part of the script and runs whenever the spec runs.

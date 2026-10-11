@@ -136,6 +136,20 @@ export function schemaNames(exports: Record<string, unknown>): Map<unknown, stri
 }
 
 /**
+ * The export name of a schema. A field written `Stimulus.describe('...')` holds a clone of the export:
+ * zod's `.describe()` returns a copy whose `_zod.parent` is the schema it described, so the walk follows it.
+ */
+export function exportName(schema: unknown, names: Map<unknown, string>): string | undefined {
+  let current = schema;
+  for (let depth = 0; depth < 8 && current !== undefined && current !== null; depth += 1) {
+    const name = names.get(current);
+    if (name !== undefined) return name;
+    current = (current as { _zod?: { parent?: unknown } })._zod?.parent;
+  }
+  return undefined;
+}
+
+/**
  * JSON Schema of one zod schema, as an author writes it (`io: 'input'`: a field with a default is optional),
  * with the export name of every named part kept under `x-name`.
  */
@@ -145,7 +159,7 @@ export function toJsonSchema(schema: Schema, names: Map<unknown, string>): Node 
       target: 'draft-2020-12',
       io: 'input',
       override: (ctx: { zodSchema: unknown; jsonSchema: Node }) => {
-        const name = names.get(ctx.zodSchema);
+        const name = exportName(ctx.zodSchema, names);
         if (name !== undefined) ctx.jsonSchema[NAME] = name;
       },
     }),
@@ -270,7 +284,15 @@ class Page {
   readonly sections: string[] = [];
   readonly missing: string[] = [];
 
-  constructor(private readonly defs: Node) {}
+  /**
+   * @param defs the `$defs` of the root schema, for `z.json()` references
+   * @param typeDescriptions the description of each named schema, from its export: a field may hold a
+   *   described copy, whose own description belongs to the field, not to the type
+   */
+  constructor(
+    private readonly defs: Node,
+    private readonly typeDescriptions: Map<string, string>,
+  ) {}
 
   /** Renders a section, then the sections it links to, depth first. */
   emit(title: string, node: Node): void {
@@ -422,7 +444,7 @@ class Page {
 
   private section(title: string, node: Node, children: string[]): string {
     const lines = [`## ${title}`, ''];
-    const description = this.description(node);
+    const description = this.typeDescriptions.get(title) ?? this.description(node);
     if (description !== '') lines.push(description, '');
     const note = SECTION_NOTES[title];
     if (note !== undefined) lines.push(note, '');
@@ -437,8 +459,13 @@ class Page {
 /** The whole page, and the fields that have no description. */
 export function renderReference(): { markdown: string; missing: string[] } {
   const names = schemaNames({ ...core });
+  const typeDescriptions = new Map<string, string>();
+  for (const [schema, name] of names) {
+    const description = (schema as { description?: unknown }).description;
+    typeDescriptions.set(name, typeof description === 'string' ? description : '');
+  }
   const spec = toJsonSchema(core.Spec, names);
-  const page = new Page(asNode(spec.$defs));
+  const page = new Page(asNode(spec.$defs), typeDescriptions);
   page.emit('Spec', spec);
   page.emit('DriftClass', toJsonSchema(core.DriftClass, names));
   page.emit('Inventory', toJsonSchema(core.Inventory, names));
