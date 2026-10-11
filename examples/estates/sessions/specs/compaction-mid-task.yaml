@@ -1,0 +1,23 @@
+# Replays a session that compacts between reading the file and editing it. The read before the compaction
+# does not count, so the ordered pair breaks in the second block. Fictional data.
+id: replay-compaction-mid-task
+kind: task
+title: Edit after a compaction without a fresh read
+target: { adapter: claude-code }
+metadata:
+  replay: { session: compaction-mid-task }
+rules:
+  custom:
+    ordered: { before: Read, after: Edit, key: file_path, reset: compaction }
+blocks:
+  - user: Add a discount field to the invoice total in src/invoice.ts, then run the tests.
+    expect:
+      skills:
+        - { name: shop-build, count: 1 }
+      tools:
+        - { label: Read }
+  - user: Go on, and keep the old total as gross.
+    expect:
+      tools:
+        - { label: Edit }
+      execution: { exit_code: 0 }

@@ -1,0 +1,23 @@
+# Replays a session where the agent builds without loading the build skill. Fails on the skill check and on
+# the ordered pair skill then edit. Fictional data.
+id: replay-skill-skipped
+kind: task
+title: The build skill is never loaded
+target: { adapter: claude-code }
+metadata:
+  replay: { session: skill-skipped }
+rules:
+  forbidden_tools: [WebFetch]
+  custom:
+    ordered:
+      pairs:
+        - { before: Read, after: Edit, key: file_path, reset: compaction }
+        - { before: 'skill:shop-build', after: Edit }
+blocks:
+  - user: Add a discount field to the invoice total in src/invoice.ts, then run the tests.
+    expect:
+      skills:
+        - { name: shop-build, count: { min: 1 } }
+      guards:
+        - { name: read-before-write, verdict: deny, count: 0 }
+      execution: { ran_code: true, exit_code: 0 }

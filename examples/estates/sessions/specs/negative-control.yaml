@@ -1,0 +1,25 @@
+# A negative control on a faulty session: it checks only what the session did right, so it stays green.
+# A replay that failed everything on a faulty session would turn it red. Fictional data.
+id: replay-negative-control
+kind: task
+title: Look-alikes stay silent on a faulty session
+target: { adapter: claude-code }
+metadata:
+  replay: { session: gate-violated }
+rules:
+  forbidden_tools: [WebFetch, WebSearch]
+  custom:
+    ordered: { before: 'skill:shop-build', after: Edit }
+blocks:
+  - user: Add a discount field to the invoice total in src/invoice.ts, then run the tests.
+    expect:
+      skills:
+        - { name: shop-build, count: 1 }
+      guards:
+        - { name: offline-only, count: 0 }
+      tools:
+        - { label: Write, count: 0 }
+      must_not: ['WebFetch']
+      workspace:
+        changed: [src/invoice.ts]
+        others_untouched: true
