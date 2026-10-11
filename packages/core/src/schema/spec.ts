@@ -18,176 +18,347 @@ import {
  */
 
 /** What reaches the agent in one block. */
-export const Stimulus = z.union([
-  z.strictObject({ user: z.string() }),
-  z.strictObject({ burst: z.array(z.string()).min(2) }),
-  z.strictObject({ injection: z.strictObject({ class: DeviationClass, user: z.string() }) }),
-]);
+export const Stimulus = z
+  .union([
+    z.strictObject({ user: z.string() }).describe('One user message, or one instruction to a task agent.'),
+    z
+      .strictObject({ burst: z.array(z.string()).min(2) })
+      .describe('Two or more messages that arrive together.'),
+    z
+      .strictObject({
+        injection: z.strictObject({
+          class: DeviationClass.describe('The deviation class.'),
+          user: z.string().describe('The message that carries the deviation.'),
+        }),
+      })
+      .describe('A deviation written into the blocks, with its class.'),
+  ])
+  .describe('What reaches the agent in one block: exactly one of user, burst or injection.');
 export type Stimulus = z.infer<typeof Stimulus>;
 
 /** Initial conditions set on the whole spec. */
-export const GivenDefaults = z.strictObject({
-  ledger: z.record(z.string(), z.unknown()).optional(),
-  world: WorldState.optional(),
-  vars: z.record(z.string(), z.unknown()).optional(),
-});
+export const GivenDefaults = z
+  .strictObject({
+    ledger: z
+      .record(z.string(), z.unknown())
+      .optional()
+      .describe('Facts the agent must hold from the start.'),
+    world: WorldState.optional().describe('The world at the start.'),
+    vars: z
+      .record(z.string(), z.unknown())
+      .optional()
+      .describe('Runtime variables, such as the clock, the channel or the sender.'),
+  })
+  .describe('Initial conditions set on the whole spec.');
 
-/** Initial conditions set on one block. A prefix lets the block start without replaying the ones before. */
-export const GivenOverride = z.strictObject({
-  prefix: z.array(Message).optional(),
-  ledger: z.record(z.string(), z.unknown()).optional(),
-  world: WorldState.optional(),
-  vars: z.record(z.string(), z.unknown()).optional(),
-});
+/**
+ * Initial conditions set on one block. A prefix lets the block start without replaying the ones before;
+ * ledger, world and vars merge into the running state from this block onwards. In teacher-forced mode
+ * every block starts from its own resolved Given.
+ */
+export const GivenOverride = z
+  .strictObject({
+    prefix: z
+      .array(Message)
+      .optional()
+      .describe('The messages before this block. Lets the block start without replaying the ones before.'),
+    ledger: z
+      .record(z.string(), z.unknown())
+      .optional()
+      .describe('Facts the agent must hold at this block. They merge into the ledger from here on.'),
+    world: WorldState.optional().describe('Changes to the world from this block onwards.'),
+    vars: z.record(z.string(), z.unknown()).optional().describe('Runtime variables from this block onwards.'),
+  })
+  .describe(
+    'Initial conditions set on one block. A prefix lets the block start without replaying the ones before.',
+  );
 
-export const ToolExpect = z.strictObject({
-  label: z.string().min(1),
-  count: Count.optional(),
-  input: z.record(z.string(), Assertion).optional(),
-});
+export const ToolExpect = z
+  .strictObject({
+    label: z.string().min(1).describe('The tool name.'),
+    count: Count.optional().describe('How many calls are expected. 0 means the tool must not be called.'),
+    input: z
+      .record(z.string(), Assertion)
+      .optional()
+      .describe('Assertions on the arguments, by argument name.'),
+  })
+  .describe('One expected tool call.');
 export type ToolExpect = z.infer<typeof ToolExpect>;
 
-export const CardExpect = z.strictObject({ name: z.string().min(1), count: Count.optional() });
+export const CardExpect = z
+  .strictObject({
+    name: z.string().min(1).describe('The card name.'),
+    count: Count.optional().describe('How many times the card is sent.'),
+  })
+  .describe('One expected card.');
 
-export const SkillExpect = z.strictObject({ name: z.string().min(1), count: Count.optional() });
+export const SkillExpect = z
+  .strictObject({
+    name: z.string().min(1).describe('The skill name.'),
+    count: Count.optional().describe('How many times the skill is loaded.'),
+  })
+  .describe('One expected skill.');
 
 /** A runtime check that fired during the block: a hook, a guardrail, a policy. The adapter maps the runtime's own names. */
-export const GuardExpect = z.strictObject({
-  name: z.string().min(1),
-  verdict: z.string().min(1).optional(),
-  count: Count.optional(),
-});
+export const GuardExpect = z
+  .strictObject({
+    name: z.string().min(1).describe('The name of the check, as the adapter reports it.'),
+    verdict: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The verdict the check must have given, such as pass or deny.'),
+    count: Count.optional().describe('How many times the check fired.'),
+  })
+  .describe('One runtime check that fired during the block: a hook, a guardrail, a policy.');
 export type GuardExpect = z.infer<typeof GuardExpect>;
 
-export const ExecutionExpect = z.strictObject({
-  ran_code: z.boolean().optional(),
-  exit_code: z.number().int().optional(),
-  max_commands: z.number().int().min(0).optional(),
-});
+export const ExecutionExpect = z
+  .strictObject({
+    ran_code: z.boolean().optional().describe('True when the block must run code; false when it must not.'),
+    exit_code: z.number().int().optional().describe('The exit code of the last command.'),
+    max_commands: z.number().int().min(0).optional().describe('The most commands the block may run.'),
+  })
+  .describe('What the agent runs in the block.');
 
 /** One check on a produced file. The key names the check, for example `{ sheets: [North, South] }`. */
-export const ArtifactCheck = z.record(z.string(), z.unknown());
+export const ArtifactCheck = z
+  .record(z.string(), z.unknown())
+  .describe('One check on a produced file. The key names the check, for example { sheets: [North, South] }.');
 
-export const ArtifactExpect = z.strictObject({
-  path: z.string().min(1),
-  kind: z.enum(['xlsx', 'docx', 'pptx', 'pdf', 'csv', 'json', 'text', 'code']).optional(),
-  checks: z.array(ArtifactCheck).optional(),
-});
+export const ArtifactExpect = z
+  .strictObject({
+    path: z.string().min(1).describe('The path of the file in the workspace.'),
+    kind: z
+      .enum(['xlsx', 'docx', 'pptx', 'pdf', 'csv', 'json', 'text', 'code'])
+      .optional()
+      .describe('The file kind, which picks the reader.'),
+    checks: z.array(ArtifactCheck).optional().describe('Checks on the content of the file.'),
+  })
+  .describe('A file the block must produce.');
 
-export const WorkspaceExpect = z.strictObject({
-  created: z.array(z.string()).optional(),
-  changed: z.array(z.string()).optional(),
-  deleted: z.array(z.string()).optional(),
-  others_untouched: z.boolean().optional(),
-});
+export const WorkspaceExpect = z
+  .strictObject({
+    created: z.array(z.string()).optional().describe('Paths the block creates.'),
+    changed: z.array(z.string()).optional().describe('Paths the block changes.'),
+    deleted: z.array(z.string()).optional().describe('Paths the block deletes.'),
+    others_untouched: z.boolean().optional().describe('True when no other path may change.'),
+  })
+  .describe('The workspace diff of the block.');
 
-export const SafetyExpect = z.strictObject({
-  max_destructive_ops: z.number().int().min(0).optional(),
-  confirm_before: z.array(z.string().min(1)).optional(),
-});
+export const SafetyExpect = z
+  .strictObject({
+    max_destructive_ops: z
+      .number()
+      .int()
+      .min(0)
+      .optional()
+      .describe('The most destructive operations allowed.'),
+    confirm_before: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('Operations that need a confirmation first, such as delete or send.'),
+  })
+  .describe('Limits on destructive or irreversible operations.');
 
 /**
  * The expected output and state delta of a block. Every field is optional.
  * `stage` names the point of its own process the agent must reach; the spec declares the catalogue in `stages`.
  */
-export const Expect = z.strictObject({
-  stage: z.string().min(1).optional(),
-  ledger_add: z.record(z.string(), z.unknown()).optional(),
-  tools: z.array(ToolExpect).optional(),
-  tool_order: z.enum(['exact', 'in_order', 'any_order']).optional(),
-  must: z.array(Pattern).optional(),
-  must_not: z.array(Pattern).optional(),
-  lang: Lang.optional(),
-  cards: z.array(CardExpect).optional(),
-  criteria: z.array(z.string().min(1)).optional(),
-  skills: z.array(SkillExpect).optional(),
-  guards: z.array(GuardExpect).optional(),
-  execution: ExecutionExpect.optional(),
-  artifacts: z.array(ArtifactExpect).optional(),
-  workspace: WorkspaceExpect.optional(),
-  safety: SafetyExpect.optional(),
-});
+export const Expect = z
+  .strictObject({
+    stage: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The stage the agent must reach after the block, one of the spec stages.'),
+    ledger_add: z
+      .record(z.string(), z.unknown())
+      .optional()
+      .describe('Facts the block establishes. They join the ledger.'),
+    tools: z.array(ToolExpect).optional().describe('The tool calls expected in the block.'),
+    tool_order: z
+      .enum(['exact', 'in_order', 'any_order'])
+      .optional()
+      .describe('How the expected tools line up with the observed calls: exact, in_order or any_order.'),
+    must: z.array(Pattern).optional().describe('Patterns the visible text must match.'),
+    must_not: z.array(Pattern).optional().describe('Patterns the visible text must not match.'),
+    lang: Lang.optional().describe('The language of the reply.'),
+    cards: z.array(CardExpect).optional().describe('The cards expected in the block.'),
+    criteria: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('Judged criteria by name. name@gating makes a fail fail the block.'),
+    skills: z.array(SkillExpect).optional().describe('The skills expected in the block.'),
+    guards: z
+      .array(GuardExpect)
+      .optional()
+      .describe('The runtime checks that must have fired in the block, with their verdict.'),
+    execution: ExecutionExpect.optional().describe('What the agent runs.'),
+    artifacts: z.array(ArtifactExpect).optional().describe('The files the block must produce.'),
+    workspace: WorkspaceExpect.optional().describe('The workspace diff expected.'),
+    safety: SafetyExpect.optional().describe('Limits on destructive operations.'),
+  })
+  .describe('The expected output and state delta of a block. Every field is optional.');
 export type Expect = z.infer<typeof Expect>;
 
-export const BlockSpec = z.strictObject({
-  id: z.string().min(1).optional(),
-  when: Stimulus,
-  given: GivenOverride.optional(),
-  expect: Expect.optional(),
-  budget: Budget.optional(),
-});
+export const BlockSpec = z
+  .strictObject({
+    id: z.string().min(1).optional().describe('An id, unique in the spec.'),
+    when: Stimulus.describe('The stimulus.'),
+    given: GivenOverride.optional().describe('Initial conditions for this block.'),
+    expect: Expect.optional().describe('The expected output and state delta.'),
+    budget: Budget.optional().describe('Limits for this block.'),
+  })
+  .describe('One block: a stimulus, its initial conditions and its expectations.');
 export type BlockSpec = z.infer<typeof BlockSpec>;
 
 /** How the agent should come back after an injected deviation. */
-export const RecoveryExpect = z.strictObject({
-  within_blocks: z.number().int().min(0),
-  stage_after: z.string().min(1).optional(),
-  return_message: z.string().optional(),
-});
+export const RecoveryExpect = z
+  .strictObject({
+    within_blocks: z.number().int().min(0).describe('How many blocks the agent has to come back.'),
+    stage_after: z.string().min(1).optional().describe('The stage the agent must be back at.'),
+    return_message: z
+      .string()
+      .optional()
+      .describe('A pattern the first in-flow reply after the deviation must match.'),
+  })
+  .describe('How the agent should come back after an injected deviation.');
 
 /** A deviation inserted before block `inject_at` (0-based) when the spec runs in perturbed mode. */
-export const PerturbationSpec = z.strictObject({
-  id: z.string().min(1),
-  class: DeviationClass,
-  inject_at: z.number().int().min(0),
-  user: z.string().optional(),
-  burst: z.array(z.string()).min(2).optional(),
-  world: WorldState.optional(),
-  expect: Expect.optional(),
-  recovery: RecoveryExpect.optional(),
-});
+export const PerturbationSpec = z
+  .strictObject({
+    id: z.string().min(1).describe('An id, unique in the spec.'),
+    class: DeviationClass.describe('The deviation class.'),
+    inject_at: z
+      .number()
+      .int()
+      .min(0)
+      .describe('The position: the deviation goes in before this block, counting from 0.'),
+    user: z.string().optional().describe('The message the user sends.'),
+    burst: z.array(z.string()).min(2).optional().describe('Messages the user sends together.'),
+    world: WorldState.optional().describe(
+      'A change to the world from this point, such as a tool forced to fail.',
+    ),
+    expect: Expect.optional().describe('Expectations for the injected block.'),
+    recovery: RecoveryExpect.optional().describe(
+      'How the agent should come back. Without it, recovery is not measured.',
+    ),
+  })
+  .describe(
+    'A deviation inserted before block inject_at, counting from 0, when the spec runs in perturbed mode.',
+  );
 export type PerturbationSpec = z.infer<typeof PerturbationSpec>;
 
 /** Rules that hold for the whole conversation. */
-export const Rules = z.strictObject({
-  max_calls: z.record(z.string(), z.number().int().min(0)).optional(),
-  forbidden_tools: z.array(z.string().min(1)).optional(),
-  lang_stable: z.boolean().optional(),
-  one_message_per_turn: z.boolean().optional(),
-  custom: z.record(z.string(), z.unknown()).optional(),
-});
+export const Rules = z
+  .strictObject({
+    max_calls: z
+      .record(z.string(), z.number().int().min(0))
+      .optional()
+      .describe('The most calls per tool across the run. 0 forbids the tool.'),
+    forbidden_tools: z.array(z.string().min(1)).optional().describe('Tools that must never be called.'),
+    lang_stable: z
+      .boolean()
+      .optional()
+      .describe('True when the reply language must stay the same across blocks.'),
+    one_message_per_turn: z.boolean().optional().describe('True when each block may send one message only.'),
+    custom: z
+      .record(z.string(), z.unknown())
+      .optional()
+      .describe('Reserved for user-registered checks (planned, phase 1).'),
+  })
+  .describe('Rules that hold for the whole conversation.');
 
 /** The expected end state of the world, read from a source the adapter knows, such as a tool's recorded payload. */
-export const EndStateSpec = z.strictObject({
-  source: z.string().min(1),
-  mode: z.enum(['subset', 'exact']).optional(),
-  expect: z.record(z.string(), Assertion),
-});
-export const EndState = z.union([z.literal('none'), EndStateSpec, z.array(EndStateSpec).min(1)]);
+export const EndStateSpec = z
+  .strictObject({
+    source: z.string().min(1).describe('Where the adapter reads the state, such as tool:submit_order.'),
+    mode: z
+      .enum(['subset', 'exact'])
+      .optional()
+      .describe('subset compares the listed fields; exact compares the whole state.'),
+    expect: z.record(z.string(), Assertion).describe('Assertions on fields of the state.'),
+  })
+  .describe(
+    'The expected end state of the world, read from a source the adapter knows, such as a tool payload.',
+  );
+export const EndState = z
+  .union([z.literal('none'), EndStateSpec, z.array(EndStateSpec).min(1)])
+  .describe(
+    'none asserts that nothing was submitted; a mapping or a list of mappings names what to check; absent means no end-state check.',
+  );
 
 /** A judged criterion. Blocks reference it by name, with `@gating` when a fail fails the conversation. */
-export const CriterionDef = z.strictObject({
-  name: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_.-]*$/),
-  rubric: z.string().min(1),
-  pass: z.string().optional(),
-  fail: z.string().optional(),
-  gating: z.boolean().optional(),
-  scope: z.enum(['block', 'conversation']).optional(),
-  judge_class: z.enum(['system1', 'system2', 'auto']).optional(),
-});
+export const CriterionDef = z
+  .strictObject({
+    name: z
+      .string()
+      .regex(/^[A-Za-z0-9][A-Za-z0-9_.-]*$/)
+      .describe('The name blocks use to reference the criterion.'),
+    rubric: z.string().min(1).describe('The question the judge answers with pass or fail.'),
+    pass: z.string().optional().describe('What a passing block looks like.'),
+    fail: z.string().optional().describe('What a failing block looks like.'),
+    gating: z
+      .boolean()
+      .optional()
+      .describe('True gates every reference to this criterion; a reference can also add @gating.'),
+    scope: z
+      .enum(['block', 'conversation'])
+      .optional()
+      .describe('block judges one block; conversation judges the whole conversation.'),
+    judge_class: z
+      .enum(['system1', 'system2', 'auto'])
+      .optional()
+      .describe('system1, system2, or auto: calibration assigns the class, ties go to system1.'),
+  })
+  .describe(
+    'A judged criterion. Blocks reference it by name, with @gating when a fail fails the conversation.',
+  );
 export type CriterionDef = z.infer<typeof CriterionDef>;
 
-export const Spec = z.strictObject({
-  id: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/),
-  version: z.string().optional(),
-  kind: z.enum(['conversation', 'task']),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  channel: z.string().optional(),
-  lang: Lang.optional(),
-  tier: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  covers: z.array(z.string()).optional(),
-  target: TargetRef.optional(),
-  given: GivenDefaults.optional(),
-  stages: z.array(z.string().min(1)).optional(),
-  criteria: z.array(CriterionDef).optional(),
-  blocks: z.array(BlockSpec).min(1),
-  rules: Rules.optional(),
-  end_state: EndState.optional(),
-  perturbations: z.array(PerturbationSpec).optional(),
-  metadata: z.record(z.string(), z.unknown()).optional(),
-});
+export const Spec = z
+  .strictObject({
+    id: z
+      .string()
+      .regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/)
+      .describe('The spec id: letters, digits, dots, underscores and hyphens.'),
+    version: z
+      .string()
+      .optional()
+      .describe('A free label. The content hash, not this label, is the cache key.'),
+    kind: z
+      .enum(['conversation', 'task'])
+      .describe('conversation or task. The loader sets conversation when it is absent.'),
+    title: z.string().optional().describe('A short title.'),
+    description: z.string().optional().describe('A longer description.'),
+    channel: z.string().optional().describe('The channel the conversation runs on, such as chat.'),
+    lang: Lang.optional().describe('The declared language of the conversation.'),
+    tier: z.string().optional().describe('A tier label, such as core or edge.'),
+    tags: z
+      .array(z.string())
+      .optional()
+      .describe('Free tags. flow:<id> ties the spec to a flow of the behaviour inventory.'),
+    covers: z
+      .array(z.string())
+      .optional()
+      .describe('Ids of the behaviours this spec covers, from a behaviour inventory.'),
+    target: TargetRef.optional().describe('The default agent. A run can override it.'),
+    given: GivenDefaults.optional().describe('Initial conditions for every block.'),
+    stages: z
+      .array(z.string().min(1))
+      .optional()
+      .describe(
+        'The stage catalogue of the flow. expect.stage and recovery.stage_after must name one of these.',
+      ),
+    criteria: z.array(CriterionDef).optional().describe('The judged criteria the blocks may reference.'),
+    blocks: z.array(BlockSpec).min(1).describe('The blocks, in order. At least one.'),
+    rules: Rules.optional().describe('Rules for the whole conversation.'),
+    end_state: EndState.optional().describe('The expected end state of the world after the run.'),
+    perturbations: z.array(PerturbationSpec).optional().describe('Deviations to inject in perturbed mode.'),
+    metadata: z.record(z.string(), z.unknown()).optional().describe('Free metadata.'),
+  })
+  .describe('One golden conversation, or one task for a code agent, written as a succession of blocks.');
 export type Spec = z.infer<typeof Spec>;
 
 /** Short names used in the docs: a block, the conditions it starts from, and an injected deviation. */
