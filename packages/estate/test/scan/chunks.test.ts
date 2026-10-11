@@ -15,7 +15,9 @@ describe('skill reference files as prose', () => {
     const files = raw.prose.filter((chunk) => /\/(references|templates)\//.test(chunk.file));
     expect(files.map((chunk) => [chunk.id, chunk.startLine, chunk.endLine])).toEqual([
       ['.claude/skills/parcel-claims/references/claim-rules.md', 1, 11],
+      ['.claude/skills/parcel-claims/references/notes.md', 1, 3],
       ['.claude/skills/parcel-claims/references/supplier-languages.md', 1, 11],
+      ['.claude/skills/shipment-tracker/references/notes.md', 1, 3],
     ]);
     expect(raw.prose.some((chunk) => /\.(sh|py)$/.test(chunk.file))).toBe(false);
     expect(DEFAULT_CHUNK_CHARACTERS).toBe(20_000);
@@ -85,22 +87,22 @@ describe('skill reference files as prose', () => {
     const inventory = proseInventory(raw);
     expect(
       Object.fromEntries(Object.entries(inventory.bySource).map(([source, entry]) => [source, entry.chunks])),
-    ).toEqual({ standing: 1, memory: 2, skill: 2, reference: 2, subagent: 0, other: 0 });
+    ).toEqual({ standing: 1, memory: 2, skill: 2, reference: 4, subagent: 0, other: 0 });
     expect(inventory.characters).toBe(raw.prose.reduce((sum, chunk) => sum + chunk.text.length, 0));
     const answered = proseInventoryLines(inventory, true);
     expect(answered).toEqual([
-      `  Prose: 7 chunks, ${inventory.characters} characters (standing 1, memory 2, skill bodies 2, skill files 2).`,
+      `  Prose: 9 chunks, ${inventory.characters} characters (standing 1, memory 2, skill bodies 2, skill files 4).`,
     ]);
     const unanswered = proseInventoryLines(inventory, false);
     expect(unanswered[1]).toBe(
-      `  Unanswered prose chunks (no model call): 7, ${inventory.characters} characters.`,
+      `  Unanswered prose chunks (no model call): 9, ${inventory.characters} characters.`,
     );
     expect(unanswered).toContain(
       `    .claude/skills/parcel-claims/references/claim-rules.md  ${
         raw.prose.find((chunk) => chunk.file.endsWith('claim-rules.md'))?.text.length
       } characters`,
     );
-    expect(unanswered).toHaveLength(9);
+    expect(unanswered).toHaveLength(11);
     expect(proseInventoryLines(proseInventory({ ...raw, prose: [] }), false)).toEqual(['  Prose: none.']);
   });
 });

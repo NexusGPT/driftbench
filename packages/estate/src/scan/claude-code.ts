@@ -1,5 +1,6 @@
 import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { basename, join, posix } from 'node:path';
+import { parse as parseYaml } from 'yaml';
 import { guardName } from './code';
 import type {
   CheckDecl,
@@ -36,7 +37,6 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
 
 const STANDING = new Set(['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']);
 const SETTINGS = new Set(['.claude/settings.json', '.claude/settings.local.json']);
-const SKIP_DIRS = new Set(['node_modules', '.git']);
 const MAX_FILE_BYTES = 1024 * 1024;
 const INTERPRETERS = new Set([
   'python',
@@ -56,25 +56,93 @@ const ANCHORS = [/^\$\{?CLAUDE_PROJECT_DIR\}?\//, /^\$\{?CLAUDE_PLUGIN_ROOT\}?\/
 /** The most characters one prose chunk holds; a longer passage is cut into several chunks. */
 export const DEFAULT_CHUNK_CHARACTERS = 20_000;
 
+/**
+ * Paths no runtime loads, skipped by default. Each is matched like a `.gitignore` line: without a leading
+ * slash at any depth, `**` across folders, and a folder it matches is skipped whole.
+ */
+export const DEFAULT_IGNORE = [
+  '.git',
+  'node_modules',
+  '__pycache__',
+  '*.log',
+  'tests/fixtures',
+  'hooks/**/tests',
+  'hooks/**/test',
+  '.trash',
+  'skills/synced',
+] as const;
+
+/** The estate's own configuration file, at its root: `ignore:` lists more globs to skip. */
+export const ESTATE_CONFIG = 'driftbench.estate.yaml';
+
 export type ClaudeCodeReaderOptions = {
   /** The size budget of one prose chunk, in characters. Default `DEFAULT_CHUNK_CHARACTERS`. */
   chunkCharacters?: number;
+  /** More globs to skip, beside the defaults and the estate configuration's `ignore:` list. */
+  ignore?: readonly string[];
 };
+
+/** A glob of the ignore list and its test on a path relative to the root. */
+type IgnoreRule = { pattern: string; test: (path: string) => boolean };
+
+type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
+
+/** The estate configuration: more globs to skip, and path aliases (`REF` to one or more folders). */
+type EstateConfig = { ignore: string[]; aliases: Record<string, string[]>; externals?: string[] };
+
+/**
+ * Folders a named path may point into that lie outside the estate: the project an agent works on, a shared
+ * workspace. A path under one of them that the estate does not hold is external, not missing.
+ */
+export const DEFAULT_EXTERNALS = ['docs/', '_meta/'] as const;
+
+/** A `.gitignore`-like glob as a test on a relative path: the path or one of its folders matches. */
+export function ignoreRule(pattern: string): IgnoreRule {
+  const anchored = pattern.startsWith('/');
+  const body = pattern.replace(/^\/+/, '').replace(/\/+$/, '');
+  let source = '';
+  for (let index = 0; index < body.length; index++) {
+    const char = body[index] ?? '';
+    if (body.startsWith('**/', index)) {
+      source += '(?:[^/]+/)*';
+      index += 2;
+    } else if (body.startsWith('**', index)) {
+      source += '.*';
+      index += 1;
+    } else if (char === '*') source += '[^/]*';
+    else if (char === '?') source += '[^/]';
+    else source += char.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+  }
+  const regex = new RegExp(`${anchored ? '^' : '(?:^|/)'}${source}(?:/|$)`);
+  return { pattern, test: (path) => regex.test(path) };
+}
 
 export class ClaudeCodeReader implements EstateReader {
   readonly runtime = 'claude-code';
   private readonly budget: number;
+  private readonly ignore: readonly string[];
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
+    this.ignore = options.ignore ?? [];
   }
 
   async read(root: string): Promise<RawEstate> {
     const budget = this.budget;
     const notes: ReadNote[] = [];
+    const config = await readConfig(root, notes);
+    const chosen = [...new Set([...config.ignore, ...this.ignore])].filter(
+      (pattern) => !(DEFAULT_IGNORE as readonly string[]).includes(pattern),
+    );
+    const patterns = [...DEFAULT_IGNORE, ...chosen];
+    const ignored: Ignored = {
+      rules: [...new Set(patterns)].map(ignoreRule),
+      counts: new Map(),
+      paths: [],
+    };
     const paths = [
       ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md'])),
-      ...(await walk(root, '.claude', notes)),
+      ...(await walk(root, '.claude', notes, ignored)),
     ];
     const files: EstateFile[] = [];
     for (const path of paths) {
@@ -95,6 +163,17 @@ export class ClaudeCodeReader implements EstateReader {
       steps: [],
       prose: [],
       notes,
+      bases: ['.claude', '.claude/skills'],
+      ignored: {
+        patterns: ignored.rules.map((rule) => ({
+          pattern: rule.pattern,
+          files: ignored.counts.get(rule.pattern) ?? 0,
+        })),
+        paths: ignored.paths,
+        chosen,
+      },
+      aliases: { ...aliasTables(files, notes), ...config.aliases },
+      externals: config.externals ?? [...DEFAULT_EXTERNALS],
     };
     for (const file of files) {
       if (file.kind === 'settings') readSettings(file, estate);
@@ -132,20 +211,114 @@ async function present(root: string, names: readonly string[]): Promise<string[]
 }
 
 /**
+ * The estate configuration file, when it has one: `ignore:`, a list of globs; `aliases:`, a map from an
+ * alias (`REF`) to the folder or folders it stands for, relative to the root; and `externals:`, the folders
+ * outside the estate a path may name (they replace the defaults, `docs/` and `_meta/`).
+ */
+async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig> {
+  const config: EstateConfig = { ignore: [], aliases: {} };
+  const text = await readFile(join(root, ESTATE_CONFIG), 'utf8').catch(() => undefined);
+  if (text === undefined) return config;
+  let parsed: unknown;
+  try {
+    parsed = parseYaml(text);
+  } catch (cause) {
+    const message = cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
+    notes.push({ file: ESTATE_CONFIG, message: `not YAML: ${message}` });
+    return config;
+  }
+  if (!isRecord(parsed)) return config;
+  const list = parsed.ignore;
+  if (list !== undefined) {
+    if (Array.isArray(list) && list.every((item) => typeof item === 'string' && item.trim() !== '')) {
+      config.ignore = list.map((item: string) => item.trim());
+    } else notes.push({ file: ESTATE_CONFIG, message: 'ignore: must be a list of globs' });
+  }
+  const externals = parsed.externals;
+  if (externals !== undefined) {
+    if (
+      Array.isArray(externals) &&
+      externals.every((item) => typeof item === 'string' && item.trim() !== '')
+    ) {
+      config.externals = externals.map((item: string) => `${cleanFolder(item)}/`);
+    } else notes.push({ file: ESTATE_CONFIG, message: 'externals: must be a list of folders' });
+  }
+  const aliases = parsed.aliases;
+  if (aliases !== undefined) {
+    const entries = isRecord(aliases) ? Object.entries(aliases) : [];
+    const read = entries.map(([alias, target]) => [alias, typeof target === 'string' ? [target] : target]);
+    if (
+      entries.length > 0 &&
+      read.every(
+        ([, targets]) =>
+          Array.isArray(targets) && targets.length > 0 && targets.every((item) => typeof item === 'string'),
+      )
+    ) {
+      for (const [alias, targets] of read)
+        config.aliases[alias as string] = (targets as string[]).map(cleanFolder);
+    } else
+      notes.push({
+        file: ESTATE_CONFIG,
+        message: 'aliases: must map each alias to a folder or a list of folders',
+      });
+  }
+  return config;
+}
+
+/** A folder written in a table or the config, relative to the root, without `./` or a trailing slash. */
+function cleanFolder(folder: string): string {
+  return posix.normalize(folder.trim().replace(/^`|`$/g, '').replace(/^\.\//, '')).replace(/\/+$/, '');
+}
+
+/**
+ * Alias tables: a markdown file of the estate whose name holds "alias", with a table of an alias column
+ * (`Alias`, `Prefix`) and a folder column (`Path`, `Folder`, `Target`). `REF/a/b.md` then reads as
+ * `<folder>/a/b.md`.
+ */
+function aliasTables(files: readonly EstateFile[], notes: ReadNote[]): Record<string, string[]> {
+  const aliases: Record<string, string[]> = {};
+  for (const file of files) {
+    if (!/alias/i.test(basename(file.path)) || !/\.(md|markdown)$/i.test(file.path)) continue;
+    for (const table of readTables(file.text)) {
+      const alias = table.header.findIndex((cell) => /^(alias|prefix)(es)?$/i.test(strip(cell)));
+      const folder = table.header.findIndex((cell) =>
+        /^(path|folder|target|resolves to)s?$/i.test(strip(cell)),
+      );
+      if (alias < 0 || folder < 0) continue;
+      for (const row of table.rows) {
+        const name = strip(row.cells[alias] ?? '').replace(/\/+$/, '');
+        const target = strip(row.cells[folder] ?? '');
+        if (name === '' || target === '') {
+          notes.push({ file: file.path, message: `alias row at line ${row.line} has no alias or no folder` });
+          continue;
+        }
+        aliases[name] = [...(aliases[name] ?? []), cleanFolder(target)];
+      }
+    }
+  }
+  return aliases;
+}
+
+/**
  * Every file under a folder, sorted by name. A symbolic link is followed to what it points at, a file or a
  * folder, and read under the link's own path (the path the runtime loads it by). A link back to a folder
  * the walk is already inside is a cycle: it is skipped with a note, as is a link that points at nothing.
+ * A path the ignore list matches is not read: its files are counted under the first glob that matched.
  */
 async function walk(
   root: string,
   folder: string,
   notes: ReadNote[],
+  ignored: Ignored,
   ancestors: ReadonlySet<string> = new Set(),
+  ignoredBy?: string,
 ): Promise<string[]> {
   const real = await realpath(join(root, folder)).catch(() => undefined);
   if (real === undefined) return [];
   if (ancestors.has(real)) {
-    notes.push({ file: folder, message: 'skipped: a link back to a folder the walk is already inside' });
+    if (ignoredBy === undefined) {
+      notes.push({ file: folder, message: 'skipped: a link back to a folder the walk is already inside' });
+    }
     return [];
   }
   const inside = new Set(ancestors).add(real);
@@ -153,19 +326,23 @@ async function walk(
   const found: string[] = [];
   for (const entry of [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
     const path = posix.join(folder, entry.name);
+    const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
     let folderEntry = entry.isDirectory();
     let fileEntry = entry.isFile();
     if (entry.isSymbolicLink()) {
       const target = await stat(join(root, path)).catch(() => undefined);
       if (!target) {
-        notes.push({ file: path, message: 'skipped: a link that points at nothing' });
+        if (by === undefined) notes.push({ file: path, message: 'skipped: a link that points at nothing' });
         continue;
       }
       folderEntry = target.isDirectory();
       fileEntry = target.isFile();
     }
     if (folderEntry) {
-      if (!SKIP_DIRS.has(entry.name)) found.push(...(await walk(root, path, notes, inside)));
+      found.push(...(await walk(root, path, notes, ignored, inside, by)));
+    } else if (fileEntry && by !== undefined) {
+      ignored.counts.set(by, (ignored.counts.get(by) ?? 0) + 1);
+      ignored.paths.push(path);
     } else if (fileEntry) {
       const info = await stat(join(root, path));
       if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
@@ -562,28 +739,54 @@ function readRegistry(file: EstateFile, estate: RawEstate): void {
     const state = column(COLUMNS.state);
     for (const row of table.rows) {
       const cell = (index: number) => (index >= 0 ? strip(row.cells[index] ?? '') : '');
-      const rowId = cell(id) || cell(guard);
-      if (rowId === '') continue;
+      const ids = idsOf(row.cells[id] ?? '');
+      const rowIds = ids.length > 0 ? ids : [cell(guard)].filter((value) => value !== '');
       // The rule columns name rules, not guards: a guard is looked for in the other cells only.
       const others = row.cells.filter((_, index) => ![id, guard, enforces, watches].includes(index));
       const named = guardNamedIn(guard >= 0 ? [row.cells[guard] ?? '', ...others] : others, known);
-      const links = [
-        ...(enforces >= 0 ? parseEnforces(row.cells[enforces] ?? '') : []),
-        ...(watches >= 0 ? parseWatches(row.cells[watches] ?? '', rowId) : []),
-      ];
-      const entry: RegistryRow = {
-        id: rowId,
-        guard:
-          named ?? checkGuard(rowId, estate) ?? scriptHolding(rowId, estate, known) ?? (cell(guard) || rowId),
-        enforces: links,
-        at: { file: file.path, startLine: row.line, endLine: row.line, quote: row.text },
-      };
-      if (cell(event) !== '') entry.event = cell(event);
-      if (cell(verdict) !== '') entry.verdict = cell(verdict);
-      if (cell(state) !== '') entry.state = cell(state);
-      estate.registry.push(entry);
+      for (const rowId of rowIds) {
+        const links = [
+          ...(enforces >= 0 ? parseEnforces(row.cells[enforces] ?? '') : []),
+          ...(watches >= 0 ? parseWatches(row.cells[watches] ?? '', rowId) : []),
+        ];
+        const entry: RegistryRow = {
+          id: rowId,
+          guard:
+            named ??
+            checkGuard(rowId, estate) ??
+            scriptHolding(rowId, estate, known) ??
+            (cell(guard) || rowId),
+          enforces: links,
+          at: { file: file.path, startLine: row.line, endLine: row.line, quote: row.text },
+        };
+        if (cell(event) !== '') entry.event = cell(event);
+        if (cell(verdict) !== '') entry.verdict = cell(verdict);
+        if (cell(state) !== '') entry.state = cell(state);
+        estate.registry.push(entry);
+      }
     }
   }
+}
+
+/** One id token: a letter or digit first, then letters, digits and `_ . # -`. */
+const ID_TOKEN = /^[A-Za-z0-9][\w.#-]*$/;
+
+/**
+ * The ids an id cell holds. A cell such as `` `G2` `G3` `G9` `` or `` HANDBACK` / `STOP-WAKE `` names several
+ * checks: it is split on white space, commas, slashes and backticks, and each part is an id when every part
+ * looks like one (an id token with a digit, or in capitals). Any other cell is one id, as written.
+ */
+function idsOf(raw: string): string[] {
+  const whole = strip(raw);
+  if (whole === '') return [];
+  const parts = raw
+    .split(/[\s,/|`]+/)
+    .map((part) => strip(part))
+    .filter((part) => part !== '');
+  const several =
+    parts.length > 1 &&
+    parts.every((part) => ID_TOKEN.test(part) && (/\d/.test(part) || part === part.toUpperCase()));
+  return several ? [...new Set(parts)] : [whole];
 }
 
 /** The names the estate's guards go by: a script's file name, a check id. */

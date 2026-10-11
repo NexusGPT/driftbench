@@ -10,3 +10,4 @@ allowed-tools: Read, Bash(./scripts/track.sh *)
 - Write the claim in the supplier's language, from `references/supplier-languages.md`.
 - A claim follows `references/claim-rules.md`.
 - Never promise the user a refund date; the carrier sets it.
+- Open the claim with the wording in `REF/notes.md`.
