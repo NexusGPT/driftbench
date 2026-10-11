@@ -1,0 +1,18 @@
+{
+  "sealed": true,
+  "note": "The holdout is gated like the rest and never run as an evaluation here. Score it once, with a fixed query budget, and report the dev-to-fresh gap.",
+  "seed": 1,
+  "share": 0.2,
+  "specs": [
+    {
+      "id": "acme-off-topic-return",
+      "path": "holdout/conversations/off-topic-return.yaml",
+      "hash": "6f9799cd32c1"
+    },
+    {
+      "id": "acme-price-sheet",
+      "path": "holdout/tasks/price-sheet.yaml",
+      "hash": "9359c6a8382e"
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+# Gated by driftbench gate from conversations/number-porting.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: acme-number-porting
+version: "1"
+kind: conversation
+title: A new customer switches to Acme and keeps their number
+description: |
+  On WhatsApp, a new customer wants to keep their number. The assistant checks that the number can move before it promises anything, sells a mobile plan, and places the order with the number attached. The transfer record for the number is seeded in the store for this spec.
+channel: whatsapp
+lang: EN
+tier: core
+tags:
+  - flow:porting
+covers:
+  - B-006
+  - B-008
+target:
+  adapter: function
+  agent: acme-sales
+given:
+  ledger:
+    customer: new
+    lang: EN
+  world:
+    store:
+      port_numbers:
+        - number: "+12025550150"
+          eligible: true
+stages:
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+criteria:
+  - name: checks_before_promising
+    rubric: The reply says the number can move only after port.check returned it as eligible.
+    pass: The promise follows an eligible port.check result in the same block.
+    fail: The reply promises the transfer before port.check, or after a result that says no.
+    gating: true
+    judge_class: system1
+  - name: one_question_per_turn
+    rubric: The reply asks the customer at most one question.
+    judge_class: system1
+blocks:
+  - when:
+      user: Hi, I want to switch to Acme and keep my phone number.
+    expect:
+      stage: port_number
+      tools:
+        - label: port.check
+          count: 0
+      must:
+        - Acme Telecom
+        - Which number
+      must_not:
+        - can move
+      criteria:
+        - one_question_per_turn
+  - when:
+      user: It's +1 202 555 0150
+    expect:
+      criteria:
+        - checks_before_promising@gating
+        - one_question_per_turn
+  - when:
+      user: Mobile M please
+    expect:
+      stage: details
+      ledger_add:
+        plan_id: mobile-m
+      must:
+        - full name
+        - email address
+  - when:
+      user: Dana Brooks, dana.brooks@example.com
+    expect:
+      stage: recap
+      ledger_add:
+        name: Dana Brooks
+        email: dana.brooks@example.com
+      tools:
+        - label: order.create
+          count: 0
+      must:
+        - keeping \+1 202 555 0150
+        - CONFIRM
+  - when:
+      user: Confirm
+perturbations:
+  - id: spanish-line
+    class: D5_language_switch
+    inject_at: 2
+    user: ¿Tienen un plan más barato?
+    expect:
+      stage: offer
+      must:
+        - only help in English
+        - Which one would you like
+      must_not:
+        - ¿
+        - Tienen
+    recovery:
+      within_blocks: 0
+      stage_after: offer
+  - id: are-you-there
+    class: D7_silence_or_burst
+    inject_at: 3
+    burst:
+      - hello?
+      - are you still there?
+    expect:
+      stage: details
+      must:
+        - I'm here
+        - full name
+    recovery:
+      within_blocks: 0
+      stage_after: details
+metadata:
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: 0
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.6
+      - block: 1
+        status: rejected
+        stage: leakage
+        reason: expected-value-in-given
+      - block: 2
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.6
+      - block: 3
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.5
+      - block: 4
+        status: rejected
+        stage: leakage
+        reason: expected-value-in-given
+    dropped:
+      - "1: stage, ledger_add, tools, tool_order, must"
+      - "4: stage, tools, must"
+      - "rules: a block they apply to was rejected"
+      - "end_state: the last block was rejected"
