@@ -174,10 +174,20 @@ function numberPartitions(name: string, property: YAMLMap, add: Add): void {
     const value = plain(entry(property, key)?.value);
     return typeof value === 'number' ? value : undefined;
   };
-  const minimum = bound('minimum');
-  const maximum = bound('maximum');
-  const exclusiveMinimum = bound('exclusiveMinimum');
-  const exclusiveMaximum = bound('exclusiveMaximum');
+  // Draft-04 writes an exclusive bound as minimum or maximum with a boolean exclusiveMinimum or exclusiveMaximum.
+  const flag = (key: string) => plain(entry(property, key)?.value) === true;
+  let minimum = bound('minimum');
+  let maximum = bound('maximum');
+  let exclusiveMinimum = bound('exclusiveMinimum');
+  let exclusiveMaximum = bound('exclusiveMaximum');
+  if (flag('exclusiveMinimum') && minimum !== undefined) {
+    exclusiveMinimum = minimum;
+    minimum = undefined;
+  }
+  if (flag('exclusiveMaximum') && maximum !== undefined) {
+    exclusiveMaximum = maximum;
+    maximum = undefined;
+  }
   if (minimum !== undefined) {
     add('below-minimum', `${name} below its minimum ${minimum}`, 'minimum');
     add('at-minimum', `${name} at its minimum ${minimum}`, 'minimum');

@@ -45,4 +45,16 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       't.x.in.p': ['empty', 'one-item', 'several-items'],
     });
   });
+
+  it('reads the draft-04 boolean exclusiveMinimum and exclusiveMaximum as exclusive bounds', () => {
+    expect(partitions({ type: 'number', minimum: 2, exclusiveMinimum: true })).toEqual({
+      't.x.in.p': ['at-exclusive-minimum', 'above-exclusive-minimum'],
+    });
+    expect(partitions({ type: 'number', maximum: 9, exclusiveMaximum: true })).toEqual({
+      't.x.in.p': ['below-exclusive-maximum', 'at-exclusive-maximum'],
+    });
+    expect(partitions({ type: 'number', minimum: 2, exclusiveMinimum: false })).toEqual({
+      't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum'],
+    });
+  });
 });
