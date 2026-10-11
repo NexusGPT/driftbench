@@ -54,15 +54,18 @@ export const Segment = z.discriminatedUnion('type', [
 ]);
 export type Segment = z.infer<typeof Segment>;
 
-/** What an agent harness did around the model: skills, hooks, process steps, board operations. */
+/**
+ * What the agent's runtime did around the model: capabilities loaded, checks that fired, stages reached.
+ * Runtime-specific events (a harness hook, a process step, a board write) are mapped onto these by its adapter.
+ */
 export const RuntimeTrace = z.strictObject({
-  skillsLoaded: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
-  hooks: z
-    .array(z.strictObject({ check: z.string(), verdict: z.string(), at: z.string().optional() }))
+  skills: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
+  guards: z
+    .array(z.strictObject({ name: z.string(), verdict: z.string(), at: z.string().optional() }))
     .optional(),
-  steps: z.array(z.strictObject({ id: z.string(), at: z.string().optional() })).optional(),
-  boardOps: z.array(z.strictObject({ op: z.string(), at: z.string().optional() })).optional(),
+  stages: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
 });
+export type RuntimeTrace = z.infer<typeof RuntimeTrace>;
 
 export const Cost = z.strictObject({
   usd: z.number().nonnegative().optional(),
@@ -130,7 +133,7 @@ export const BlockResult = z.strictObject({
   givenHash: z.string().min(1),
   observed: Observed,
   verdicts: z.array(Verdict),
-  stepObserved: z.string().optional(),
+  stageObserved: z.string().optional(),
   ledgerCheck: z.strictObject({ ok: z.boolean(), contradictions: z.array(z.string()) }),
   drift: z.array(DriftClass),
   pass: z.boolean(),
