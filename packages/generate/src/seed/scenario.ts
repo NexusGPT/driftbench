@@ -424,6 +424,16 @@ function toolFailure(
   block.id = `b${chosen.index + 1}-${TOOL_FAILURE}`;
   block.given = { world: { tools: { [chosen.tool]: { error: TOOL_FAILURE_ERROR } } } };
   if (recovery.guards.length > 0) block.guards = recovery.guards;
+  // The words of the recovery: what the honest report must and must not say.
+  const words = (patterns: string[]) =>
+    patterns.flatMap((pattern) => {
+      const filled = fillText(pattern, {}, true);
+      return filled.ok ? [filled.value] : [];
+    });
+  const must = words(recovery.must);
+  const mustNot = words(recovery.mustNot);
+  if (must.length > 0) block.must = must;
+  if (mustNot.length > 0) block.must_not = mustNot;
   const deviation = prepared.space.dimensions[prepared.deviation ?? -1]?.index.get(TOOL_FAILURE);
   if (deviation !== undefined) block.carries = [[prepared.deviation as number, deviation], ...block.carries];
   blocks.splice(chosen.index + 1);
