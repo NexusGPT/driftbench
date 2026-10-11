@@ -59,6 +59,22 @@ rules:
     - port.check
     - order.create
     - notify_sales
+perturbations:
+  - id: p1-D7_silence_or_burst
+    class: D7_silence_or_burst
+    inject_at: 1
+    user: hello?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: address
 metadata:
   generated:
     by: driftbench generate

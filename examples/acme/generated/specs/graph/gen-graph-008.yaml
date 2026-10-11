@@ -107,6 +107,26 @@ end_state:
     customer:
       subset:
         phone: "+12025550131"
+perturbations:
+  - id: p1-D7_silence_or_burst
+    class: D7_silence_or_burst
+    inject_at: 3
+    user: hello?
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: callback
 metadata:
   generated:
     by: driftbench generate

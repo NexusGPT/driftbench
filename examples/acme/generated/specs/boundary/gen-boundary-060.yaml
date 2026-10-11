@@ -5,14 +5,14 @@ id: gen-boundary-060
 version: badea3d3df7a
 kind: conversation
 title: "Boundary value account_lookup=plan-not-in-catalog: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
   - flow:upgrade
   - persona:existing-customer
-  - data:fiber
-  - task:catalog-only
+  - data:no-service
+  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -60,6 +60,22 @@ rules:
     - port.check
     - order.create
     - notify_sales
+perturbations:
+  - id: p1-D7_silence_or_burst
+    class: D7_silence_or_burst
+    inject_at: 1
+    user: hello?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: identify
 metadata:
   generated:
     by: driftbench generate
@@ -76,9 +92,9 @@ metadata:
       account_lookup: plan-not-in-catalog
       flow: upgrade
       user_type: existing-customer
-      channel: whatsapp
-      coverage_result: fiber
-      workspace_start: catalog-only
+      channel: chat
+      coverage_result: no-service
+      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-identify
         seeder: boundary

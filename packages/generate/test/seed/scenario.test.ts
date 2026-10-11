@@ -613,8 +613,48 @@ describe('pilot iteration 8: a boundary value carried by a path', () => {
     });
     expect(onPath.length).toBeGreaterThan(0);
     for (const spec of onPath) {
-      const concrete = (spec.metadata?.generated as { concrete?: Record<string, unknown> }).concrete;
+      const concrete = (spec.metadata?.generated as { concrete?: Record<string, unknown> } | undefined)
+        ?.concrete;
       expect(Object.keys(concrete ?? {}), spec.id).toHaveLength(1);
     }
+  });
+});
+
+describe('pilot iteration 9: a clean walk declares a perturbation for mode P', () => {
+  it('injects a deviation whose recovery stays on the stage, with the recovery as its Then', () => {
+    const prepared = prepare();
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.perturbations).toEqual([
+      {
+        id: 'p1-D1_off_topic',
+        class: 'D1_off_topic',
+        inject_at: 1,
+        user: 'Are you open on Sunday?',
+        expect: {
+          stage: 'verify',
+          tools: [{ label: 'lookup', count: 0 }],
+          must: ['open Sunday', 'a.b'],
+          lang: 'EN',
+        },
+        recovery: { within_blocks: 0, stage_after: 'verify' },
+      },
+    ]);
+    // The walk itself is unchanged: the end state still holds after the perturbation.
+    expect(built.endState).toEqual({ source: 'tool:lookup', mode: 'subset', expect: { account: '4' } });
+  });
+
+  it('declares none on a walk that already probes a deviation', () => {
+    const prepared = prepare();
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D1_off_topic' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.perturbations).toBeUndefined();
   });
 });

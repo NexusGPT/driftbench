@@ -5,13 +5,13 @@ id: gen-graph-003
 version: badea3d3df7a
 kind: conversation
 title: "Stage path 3: Path upgrade-most-data of upgrade: needs > identify > closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
   - flow:upgrade
   - persona:existing-customer
-  - data:not-in-map
+  - data:no-service
   - task:catalog-only
 stages:
   - needs
@@ -60,6 +60,22 @@ rules:
     - port.check
     - order.create
     - notify_sales
+perturbations:
+  - id: p1-D7_silence_or_burst
+    class: D7_silence_or_burst
+    inject_at: 1
+    user: hello?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: identify
 metadata:
   generated:
     by: driftbench generate
@@ -76,8 +92,8 @@ metadata:
       flow: upgrade
       user_type: existing-customer
       account_lookup: most-data
-      channel: whatsapp
-      coverage_result: not-in-map
+      channel: chat
+      coverage_result: no-service
       workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-identify

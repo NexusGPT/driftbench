@@ -12,7 +12,7 @@ tags:
   - persona:new-customer
   - data:no-service
   - flow:new-home
-  - task:catalog-only
+  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -97,6 +97,24 @@ end_state:
     customer:
       subset:
         phone: "+12025550131"
+perturbations:
+  - id: p1-D10_return
+    class: D10_return
+    inject_at: 1
+    user: ok, let's continue with the order.
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - We were|pick up where we left off
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: address
 metadata:
   generated:
     by: driftbench generate
@@ -115,7 +133,7 @@ metadata:
       callback_phone: given
       channel: chat
       flow: new-home
-      workspace_start: catalog-only
+      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-address
         seeder: metamorphic

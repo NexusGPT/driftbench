@@ -5,7 +5,7 @@ id: gen-metamorphic-003-2
 version: badea3d3df7a
 kind: conversation
 title: "Metamorphic stage_transition=needs-to-identify, phrasing 2 of 2: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -107,6 +107,24 @@ end_state:
     type: upgrade
     customer_id: cust-001
     plan_id: mobile-l
+perturbations:
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
+    inject_at: 2
+    user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: offer
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: offer
 metadata:
   generated:
     by: driftbench generate
@@ -124,7 +142,7 @@ metadata:
       user_type: existing-customer
       account_lookup: found
       plan_choice: names-one
-      channel: chat
+      channel: whatsapp
       coverage_result: not-in-map
       workspace_start: catalog-only
     blocks:

@@ -11,8 +11,8 @@ tier: generated
 tags:
   - persona:existing-customer
   - flow:upgrade
-  - data:not-in-map
-  - task:catalog-only
+  - data:fiber
+  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -60,6 +60,22 @@ rules:
     - port.check
     - order.create
     - notify_sales
+perturbations:
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
+    inject_at: 1
+    user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: identify
 metadata:
   generated:
     by: driftbench generate
@@ -77,8 +93,8 @@ metadata:
       account_lookup: not-found
       channel: chat
       flow: upgrade
-      coverage_result: not-in-map
-      workspace_start: catalog-only
+      coverage_result: fiber
+      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-identify
         seeder: metamorphic

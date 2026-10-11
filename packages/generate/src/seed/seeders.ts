@@ -111,6 +111,7 @@ function scenarioDraft(
         path: path.id,
         ...(built.rules ? { rules: built.rules } : {}),
         ...(built.endState ? { end_state: built.endState } : {}),
+        ...(built.perturbations ? { perturbations: built.perturbations } : {}),
       },
     };
   }

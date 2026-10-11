@@ -12,7 +12,7 @@ tags:
   - data:5g-only
   - flow:order
   - persona:new-customer
-  - task:existing-workbook
+  - task:catalog-only
 stages:
   - needs
   - identify
@@ -139,6 +139,26 @@ end_state:
       subset:
         name: Jo Okafor
         email: jo.okafor@example.com
+perturbations:
+  - id: p1-D7_silence_or_burst
+    class: D7_silence_or_burst
+    inject_at: 4
+    user: hello?
+    expect:
+      stage: recap
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: recap
 metadata:
   generated:
     by: driftbench generate
@@ -158,7 +178,7 @@ metadata:
       channel: chat
       flow: order
       user_type: new-customer
-      workspace_start: existing-workbook
+      workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-address
         seeder: metamorphic
