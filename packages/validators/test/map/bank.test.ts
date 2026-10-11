@@ -61,7 +61,7 @@ describe('the map bank under section 12', () => {
     expect(STYLES).toEqual(expect.arrayContaining(['question', 'hidden-in-example']));
     const pairs = bank.filter((one) => one.family === 'style-pairs');
     expect(pairs).toHaveLength((STYLES.length * (STYLES.length - 1)) / 2);
-    expect(bank.filter((one) => one.id.startsWith('scale.100k.'))).toHaveLength(STYLES.length);
+    expect(bank.filter((one) => /^scale\.100k\.[a-z-]+$/.test(one.id))).toHaveLength(STYLES.length);
     expect(bank.filter((one) => one.id.includes('.v1-'))).toHaveLength(7);
     expect(new Set(bank.map((one) => one.family))).toEqual(
       new Set([

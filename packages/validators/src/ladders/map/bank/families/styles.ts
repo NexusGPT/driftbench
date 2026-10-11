@@ -199,6 +199,14 @@ export function semanticsItems(): BankItem[] {
     ['markdown'],
     ['negation'],
     ['prose', 'negation'],
+    ['table'],
+    ['nested'],
+    ['numbered', 'negation'],
+  ]);
+  add('polarity-traps', 3, 'the rules left after the traps carry their polarity', [
+    ['deprecated', 'negation'],
+    ['contradicting-example'],
+    ['hidden-in-example', 'negation'],
   ]);
   add('polarity-question', 3, 'a rule asked as a question carries the polarity of its answer', [
     ['question'],
@@ -209,10 +217,12 @@ export function semanticsItems(): BankItem[] {
     ['multilingual', 'negation'],
     ['multilingual', 'numbered'],
   ]);
-  add('when-channel', 3, 'a rule that holds on one channel carries when channel', [
+  add('when-channel', 3, 'a rule that holds on one channel or for one kind of customer carries when', [
     ['conditional'],
     ['conditional', 'numbered'],
     ['conditional', 'negation'],
+    ['conditional', 'prose'],
+    ['conditional', 'multilingual'],
   ]);
   add('when-scope-nested', 4, 'a rule under a channel heading carries when channel', [
     ['nested'],
@@ -289,34 +299,25 @@ export function semanticsItems(): BankItem[] {
   );
 }
 
-/** Roles: two persona dimensions, one declared axis, in every structure and both orders. */
+/** Roles: two persona dimensions, one declared axis, in every style and with either one declared. */
 export function roleItems(): BankItem[] {
   const out: BankItem[] = [];
-  const variants: Array<{ styles: Style[]; roles: 'tone-axis' | 'type-axis' }> = [];
-  for (const structure of STRUCTURES) {
-    variants.push({ styles: [structure], roles: 'tone-axis' }, { styles: [structure], roles: 'type-axis' });
-  }
-  for (const phrasing of ['multilingual', 'negation', 'conditional', 'question', 'deprecated'] as Style[]) {
-    variants.push(
-      { styles: [phrasing], roles: 'tone-axis' },
-      { styles: [phrasing, 'table'], roles: 'type-axis' },
-    );
-  }
-  for (const variant of variants) {
-    const id = `roles.${variant.styles.join('+')}.${variant.roles}`;
-    out.push(
-      styledItem({
-        id,
-        family: 'roles',
-        tier: variant.styles.length > 1 ? 4 : 3,
-        level: levelOf('semantics'),
-        component: BANK_COMPONENTS.roles,
-        title: `each dimension carries the role the prompt declares (${variant.roles === 'tone-axis' ? 'tone is the axis' : 'the kind of customer is the axis'}), in ${variant.styles.join(', ')}`,
-        styles: variant.styles,
-        extras: { roles: variant.roles },
-        parts: { roles: true, dimension: (id) => id === 'customer_type' || id === 'tone' },
-      }),
-    );
+  for (const style of STYLES) {
+    for (const roles of ['tone-axis', 'type-axis'] as const) {
+      out.push(
+        styledItem({
+          id: `roles.${style}.${roles}`,
+          family: 'roles',
+          tier: STYLE_TIER[style] >= 3 ? 4 : 3,
+          level: levelOf('semantics'),
+          component: BANK_COMPONENTS.roles,
+          title: `each dimension carries the role the prompt declares (${roles === 'tone-axis' ? 'tone is the axis' : 'the kind of customer is the axis'}), in ${STYLE_TITLE[style]}`,
+          styles: [style],
+          extras: { roles },
+          parts: { roles: true, dimension: (id) => id === 'customer_type' || id === 'tone' },
+        }),
+      );
+    }
   }
   return out;
 }
@@ -552,6 +553,28 @@ export function scaleItems(): BankItem[] {
         styles: [style],
         size: 300_000,
         budgetMs: 30_000,
+      }),
+    );
+  }
+  for (const styles of [
+    ['table', 'negation'],
+    ['nested', 'conditional'],
+    ['prose', 'question'],
+    ['multilingual', 'precedence'],
+    ['numbered', 'hidden-in-example'],
+    ['markdown', 'tool-reference'],
+  ] as Style[][]) {
+    out.push(
+      styledItem({
+        id: `scale.100k.${styles.join('+')}`,
+        family: 'scale',
+        tier: 5,
+        level: levelOf('scale'),
+        component: BANK_COMPONENTS.extract,
+        title: `a 100k-character prompt that mixes ${styles.join(' and ')}, extracted in under 10 seconds`,
+        styles,
+        size: 100_000,
+        budgetMs: 10_000,
       }),
     );
   }

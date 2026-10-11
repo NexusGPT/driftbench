@@ -288,6 +288,51 @@ export const FORMS: readonly Form[] = [
       ],
     }),
   },
+  {
+    slug: 'markdown-tables',
+    tier: 4,
+    title: 'an inventory kept as markdown tables of behaviours and flows',
+    path: 'inventory.md',
+    write: (inventory) =>
+      [
+        '# Behaviour inventory',
+        '',
+        `Channels: ${inventory.channels.join(', ')}`,
+        '',
+        '## Behaviours',
+        '',
+        '| id | title | channels |',
+        '|---|---|---|',
+        ...inventory.behaviours.map((b) => `| ${b.id} | ${b.title} | ${(b.channels ?? []).join(', ')} |`),
+        '',
+        '## Flows',
+        '',
+        '| id | title | behaviours | deviations |',
+        '|---|---|---|---|',
+        ...inventory.flows.map(
+          (f) => `| ${f.id} | ${f.title} | ${f.behaviours.join(', ')} | ${(f.deviations ?? []).join(', ')} |`,
+        ),
+        '',
+      ].join('\n'),
+  },
+  {
+    slug: 'csv',
+    tier: 4,
+    title: 'an inventory kept as one CSV with a section column',
+    path: 'inventory.csv',
+    write: (inventory) =>
+      [
+        'section,id,title,channels,behaviours,deviations',
+        `channels,,,${inventory.channels.join(' ')},,`,
+        ...inventory.behaviours.map(
+          (b) => `behaviour,${b.id},"${b.title}",${(b.channels ?? []).join(' ')},,`,
+        ),
+        ...inventory.flows.map(
+          (f) => `flow,${f.id},"${f.title}",,${f.behaviours.join(' ')},${(f.deviations ?? []).join(' ')}`,
+        ),
+        '',
+      ].join('\n'),
+  },
 ];
 
 export function inventoryItems(): BankItem[] {

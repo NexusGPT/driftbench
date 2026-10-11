@@ -194,6 +194,9 @@ export type Extras = {
 };
 
 export type StyledSpec = {
+  /** The seed and salt the specification was drawn from; the wording draws from them too. */
+  seed: number;
+  salt: string;
   styles: Style[];
   structures: Structure[];
   inventory: MiniInventory;
@@ -410,6 +413,8 @@ export function styledSpec(options: StyledOptions): StyledSpec {
       ]
     : undefined;
   return {
+    seed: options.seed,
+    salt: options.salt ?? '',
     styles,
     structures: [...new Set(structures)],
     inventory,
@@ -552,7 +557,10 @@ export function styledAtSize(
 
 /** Renders a styled specification into the prompt, the files and the planted entries. */
 export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): StyledRender {
-  const wording = drawFor(0, `wording:${spec.styles.join('+')}:${options.wording ?? ''}`);
+  const wording = drawFor(
+    spec.seed,
+    `wording:${spec.styles.join('+')}:${spec.salt}:${options.wording ?? ''}`,
+  );
   const live = spec.rules.filter((rule) => rule.status !== 'deprecated' && !rule.replaces);
   const replacing = spec.rules.filter((rule) => rule.replaces);
   const deprecated = spec.rules.filter((rule) => rule.status === 'deprecated');

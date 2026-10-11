@@ -69,6 +69,8 @@ type Format = {
   path?: string;
   /** Leaves out the output schemas (and their partitions) when true. */
   inputOnly?: boolean;
+  /** The expected tool entries when the shape cannot state everything the two tools hold. */
+  code?: (drawn: CodeEntry[]) => CodeEntry[];
   write(list: Tool[]): string;
 };
 
@@ -291,6 +293,43 @@ export const FORMATS: readonly Format[] = [
     write: (list) =>
       `// Tool schemas written by the map validator.\n${JSON.stringify({ tools: list.map((tool) => anthropic(tool)) }, null, 2).replace('"tools": [', '"tools": [ // two fictional tools')}\n`,
   },
+  {
+    slug: 'cohere-v1',
+    tier: 3,
+    title: 'Cohere parameter_definitions with str, int and bool types',
+    inputOnly: true,
+    code: (drawn) =>
+      drawn.filter((entry) => entry.type === 'value' && entry.dimension === 'find_account.in.urgent'),
+    write: (list) =>
+      yaml({
+        tools: list.map((tool) => ({
+          name: tool.name,
+          description: 'A fictional tool.',
+          parameter_definitions:
+            tool.name === 'findAccount'
+              ? {
+                  status: { type: 'str', description: 'The status.', required: true },
+                  urgent: { type: 'bool', description: 'Urgent or not.', required: false },
+                }
+              : { count: { type: 'int', description: 'How many.', required: true } },
+        })),
+      }),
+  },
+  {
+    slug: 'vercel-json-schema',
+    tier: 3,
+    title: 'tools by name with parameters wrapped as { jsonSchema }',
+    inputOnly: true,
+    write: (list) =>
+      yaml({
+        tools: Object.fromEntries(
+          list.map((tool) => [
+            tool.name,
+            { description: 'A fictional tool.', parameters: { jsonSchema: tool.input } },
+          ]),
+        ),
+      }),
+  },
 ];
 
 export function formatItems(): BankItem[] {
@@ -308,8 +347,10 @@ export function formatItems(): BankItem[] {
         const inventory = miniInventory(draw);
         const code = [
           ...inventoryCode(inventory),
-          ...drawn.code.filter(
-            (entry) => !format.inputOnly || !(entry.type === 'value' && entry.dimension.includes('.out.')),
+          ...(format.code ?? ((entries: CodeEntry[]) => entries))(
+            drawn.code.filter(
+              (entry) => !format.inputOnly || !(entry.type === 'value' && entry.dimension.includes('.out.')),
+            ),
           ),
         ];
         return {

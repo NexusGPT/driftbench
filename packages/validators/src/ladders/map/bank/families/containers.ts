@@ -307,6 +307,90 @@ export const CONTAINERS: readonly Container[] = [
     write: (lines) =>
       `{% if channel %}Channel: {{ channel }}{% endif %}\n${lines.join('\n')}\n{# the end of the template #}\n`,
   },
+  {
+    slug: 'go-interpreted',
+    tier: 2,
+    title: 'a Go interpreted string literal with escapes',
+    path: 'prompt.go',
+    needs: ['double-quote', 'newline'],
+    write: (lines) => `package agent\n\nconst Prompt = ${json(lines.join('\n'))}\n`,
+  },
+  {
+    slug: 'go-raw',
+    tier: 1,
+    title: 'a Go raw string literal in backquotes',
+    path: 'prompt.go',
+    needs: ['double-quote', 'backslash'],
+    write: (lines) => `package agent\n\nconst Prompt = \`${lines.join('\n')}\`\n`,
+  },
+  {
+    slug: 'csharp-verbatim',
+    tier: 3,
+    title: 'a C# verbatim string, "" for a quote',
+    path: 'Prompt.cs',
+    needs: ['double-quote'],
+    write: (lines) =>
+      `static class Agent {\n  public const string Prompt = @"${lines.join('\n').replace(/"/g, '""')}";\n}\n`,
+  },
+  {
+    slug: 'java-text-block',
+    tier: 2,
+    title: 'a Java text block',
+    path: 'Prompt.java',
+    needs: ['double-quote', 'apostrophe'],
+    write: (lines) =>
+      `class Prompt {\n  static final String TEXT = """\n${lines.join('\n').replace(/\\/g, '\\\\')}\n""";\n}\n`,
+  },
+  {
+    slug: 'rust-raw',
+    tier: 2,
+    title: 'a Rust raw string r#"..."#',
+    path: 'prompt.rs',
+    needs: ['double-quote', 'backslash'],
+    write: (lines) => `pub const PROMPT: &str = r#"${lines.join('\n')}"#;\n`,
+  },
+  {
+    slug: 'php-single',
+    tier: 2,
+    title: "a PHP single-quoted string with \\' escapes",
+    path: 'prompt.php',
+    needs: ['apostrophe'],
+    write: (lines) => `<?php\n$prompt = '${lines.join('\n').replace(/\\/g, '\\\\').replace(/'/g, "\\'")}';\n`,
+  },
+  {
+    slug: 'env-file',
+    tier: 3,
+    title: 'an environment file: one double-quoted value with \\n escapes',
+    path: '.env',
+    needs: ['double-quote', 'newline'],
+    write: (lines) => `MODEL=any\nSYSTEM_PROMPT=${json(lines.join('\n'))}\n`,
+  },
+  {
+    slug: 'properties',
+    tier: 3,
+    title: 'a Java properties file with \\n escapes and line continuations',
+    path: 'agent.properties',
+    needs: ['backslash', 'newline'],
+    write: (lines) =>
+      `prompt=${lines.map((line) => line.replace(/\\/g, '\\\\').replace(/\n/g, '\\n\\\n    ')).join('\\n\\\n    ')}\n`,
+  },
+  {
+    slug: 'json5',
+    tier: 3,
+    title: 'JSON5 with single-quoted strings and comments',
+    path: 'agent.json5',
+    needs: ['apostrophe'],
+    write: (lines) =>
+      `{\n  // the agent's prompt\n  prompt: '${lines.join('\n').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n')}',\n}\n`,
+  },
+  {
+    slug: 'front-matter',
+    tier: 1,
+    title: 'markdown with YAML front matter',
+    path: 'prompt.md',
+    needs: ['double-quote', 'apostrophe'],
+    write: (lines) => `---\nname: desk\nmodel: any\n---\n${lines.join('\n')}\n`,
+  },
 ];
 
 /** Draws the rules of an item: the container's triggers first, then plain ones, four or five in all. */
