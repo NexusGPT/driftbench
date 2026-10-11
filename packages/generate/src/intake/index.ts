@@ -1,2 +1,67 @@
-/** Owned by the intake lane. */
-export {};
+/**
+ * The reference set intake. Path (i): past conversations become a private, anonymised set. Path (ii): a
+ * structured interview, answered by the owner, becomes a reference set through the model port, validated
+ * against the map and approved turn by turn. Fidelity compares generated user turns with the set.
+ */
+export {
+  FAILURE_FLAGS,
+  gitWorkTreeOf,
+  type IntakeConversation,
+  type IntakeFiles,
+  intakeFiles,
+  intakeLogs,
+  LogConversation,
+  type LogIntake,
+  type LogIntakeOptions,
+  type ParsedConversation,
+  type ParseLogs,
+  parseLogs,
+  sampleIds,
+} from './logs';
+export {
+  dimensionOfKind,
+  forbiddenBy,
+  type IntakeDimension,
+  type IntakeMap,
+  type IntakeValue,
+  intentDimension,
+  loadIntakeMap,
+  type MapResult,
+} from './map';
+export {
+  type AnonymisedTurns,
+  anonymiseTurns,
+  CHECKER_PROMPT,
+  detectPass1,
+  detectPass2,
+  type Finding,
+  type FindingType,
+  IBAN_LENGTHS,
+  isFictionalEmail,
+  isFictionalPhone,
+  isValidBelgianNationalNumber,
+  isValidFrenchNir,
+  isValidIban,
+  luhn,
+  MODEL_TYPES,
+  mod97,
+  PASS1_TYPES,
+  PASS2_TYPES,
+  parseCheckerAnswer,
+  Redactor,
+  SECOND_PASSES,
+  type SecondPass,
+  type TurnText,
+} from './privacy';
+export {
+  charGrams,
+  type GramNeighbour,
+  type GramOptions,
+  type GramVector,
+  gramCosine,
+  gramTfidf,
+  leaderClusters,
+  nearestNeighbours,
+  normaliseText,
+  wordsOf,
+} from './text';
