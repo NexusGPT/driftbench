@@ -1,0 +1,13 @@
+# Version 1 test of the Northwind fixture: a late shipment is reported with a supplier email proposed. Fictional.
+id: northwind-late-shipment
+kind: task
+title: A late shipment is reported with a supplier email proposed
+target: { adapter: claude-code }
+metadata:
+  estate: { atoms: [instruction.standing.tell-the-user-about-a-late] }
+blocks:
+  - user: Where is the shipment for order NW-1077?
+    expect:
+      skills:
+        - { name: shipment-tracker, count: { min: 1 } }
+      must: [late]

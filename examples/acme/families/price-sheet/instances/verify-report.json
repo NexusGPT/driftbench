@@ -1,0 +1,718 @@
+{
+  "reference": "process:acme-ops",
+  "specs": 86,
+  "passed": 86,
+  "shipped": [
+    "i01",
+    "i02",
+    "i03",
+    "i04",
+    "i05",
+    "i06",
+    "i07",
+    "i08",
+    "i09",
+    "i10",
+    "i11",
+    "i12",
+    "i13",
+    "i14",
+    "i15",
+    "i16",
+    "i17",
+    "i18",
+    "i19",
+    "i20"
+  ],
+  "rejected": [],
+  "results": [
+    {
+      "file": "i01/base.yaml",
+      "specId": "acme-price-sheet-i01-base",
+      "instance": "i01",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i01/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i01-duplicate-line",
+      "instance": "i01",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i01/header-order.yaml",
+      "specId": "acme-price-sheet-i01-header-order",
+      "instance": "i01",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i01/unit-change.yaml",
+      "specId": "acme-price-sheet-i01-unit-change",
+      "instance": "i01",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i02/base.yaml",
+      "specId": "acme-price-sheet-i02-base",
+      "instance": "i02",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i02/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i02-duplicate-line",
+      "instance": "i02",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i02/header-order.yaml",
+      "specId": "acme-price-sheet-i02-header-order",
+      "instance": "i02",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i02/unit-change.yaml",
+      "specId": "acme-price-sheet-i02-unit-change",
+      "instance": "i02",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i03/base.yaml",
+      "specId": "acme-price-sheet-i03-base",
+      "instance": "i03",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i03/empty-cell.yaml",
+      "specId": "acme-price-sheet-i03-empty-cell",
+      "instance": "i03",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i03/header-order.yaml",
+      "specId": "acme-price-sheet-i03-header-order",
+      "instance": "i03",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i03/unit-change.yaml",
+      "specId": "acme-price-sheet-i03-unit-change",
+      "instance": "i03",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i04/base.yaml",
+      "specId": "acme-price-sheet-i04-base",
+      "instance": "i04",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i04/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i04-duplicate-line",
+      "instance": "i04",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i04/empty-cell.yaml",
+      "specId": "acme-price-sheet-i04-empty-cell",
+      "instance": "i04",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i04/header-order.yaml",
+      "specId": "acme-price-sheet-i04-header-order",
+      "instance": "i04",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i04/planted.yaml",
+      "specId": "acme-price-sheet-i04-planted",
+      "instance": "i04",
+      "variant": "planted",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i05/base.yaml",
+      "specId": "acme-price-sheet-i05-base",
+      "instance": "i05",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i05/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i05-duplicate-line",
+      "instance": "i05",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i05/header-order.yaml",
+      "specId": "acme-price-sheet-i05-header-order",
+      "instance": "i05",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i05/unit-change.yaml",
+      "specId": "acme-price-sheet-i05-unit-change",
+      "instance": "i05",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i06/base.yaml",
+      "specId": "acme-price-sheet-i06-base",
+      "instance": "i06",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i06/empty-cell.yaml",
+      "specId": "acme-price-sheet-i06-empty-cell",
+      "instance": "i06",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i06/header-order.yaml",
+      "specId": "acme-price-sheet-i06-header-order",
+      "instance": "i06",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i06/unit-change.yaml",
+      "specId": "acme-price-sheet-i06-unit-change",
+      "instance": "i06",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i07/base.yaml",
+      "specId": "acme-price-sheet-i07-base",
+      "instance": "i07",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i07/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i07-duplicate-line",
+      "instance": "i07",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i07/empty-cell.yaml",
+      "specId": "acme-price-sheet-i07-empty-cell",
+      "instance": "i07",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i07/unit-change.yaml",
+      "specId": "acme-price-sheet-i07-unit-change",
+      "instance": "i07",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i08/base.yaml",
+      "specId": "acme-price-sheet-i08-base",
+      "instance": "i08",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i08/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i08-duplicate-line",
+      "instance": "i08",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i08/empty-cell.yaml",
+      "specId": "acme-price-sheet-i08-empty-cell",
+      "instance": "i08",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i08/planted.yaml",
+      "specId": "acme-price-sheet-i08-planted",
+      "instance": "i08",
+      "variant": "planted",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i08/unit-change.yaml",
+      "specId": "acme-price-sheet-i08-unit-change",
+      "instance": "i08",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i09/base.yaml",
+      "specId": "acme-price-sheet-i09-base",
+      "instance": "i09",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i09/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i09-duplicate-line",
+      "instance": "i09",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i09/empty-cell.yaml",
+      "specId": "acme-price-sheet-i09-empty-cell",
+      "instance": "i09",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i09/unit-change.yaml",
+      "specId": "acme-price-sheet-i09-unit-change",
+      "instance": "i09",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i10/base.yaml",
+      "specId": "acme-price-sheet-i10-base",
+      "instance": "i10",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i10/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i10-duplicate-line",
+      "instance": "i10",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i10/empty-cell.yaml",
+      "specId": "acme-price-sheet-i10-empty-cell",
+      "instance": "i10",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i10/header-order.yaml",
+      "specId": "acme-price-sheet-i10-header-order",
+      "instance": "i10",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i11/base.yaml",
+      "specId": "acme-price-sheet-i11-base",
+      "instance": "i11",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i11/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i11-duplicate-line",
+      "instance": "i11",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i11/header-order.yaml",
+      "specId": "acme-price-sheet-i11-header-order",
+      "instance": "i11",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i11/unit-change.yaml",
+      "specId": "acme-price-sheet-i11-unit-change",
+      "instance": "i11",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i12/base.yaml",
+      "specId": "acme-price-sheet-i12-base",
+      "instance": "i12",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i12/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i12-duplicate-line",
+      "instance": "i12",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i12/empty-cell.yaml",
+      "specId": "acme-price-sheet-i12-empty-cell",
+      "instance": "i12",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i12/planted.yaml",
+      "specId": "acme-price-sheet-i12-planted",
+      "instance": "i12",
+      "variant": "planted",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i12/unit-change.yaml",
+      "specId": "acme-price-sheet-i12-unit-change",
+      "instance": "i12",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i13/base.yaml",
+      "specId": "acme-price-sheet-i13-base",
+      "instance": "i13",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i13/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i13-duplicate-line",
+      "instance": "i13",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i13/header-order.yaml",
+      "specId": "acme-price-sheet-i13-header-order",
+      "instance": "i13",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i13/planted.yaml",
+      "specId": "acme-price-sheet-i13-planted",
+      "instance": "i13",
+      "variant": "planted",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i13/unit-change.yaml",
+      "specId": "acme-price-sheet-i13-unit-change",
+      "instance": "i13",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i14/base.yaml",
+      "specId": "acme-price-sheet-i14-base",
+      "instance": "i14",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i14/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i14-duplicate-line",
+      "instance": "i14",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i14/header-order.yaml",
+      "specId": "acme-price-sheet-i14-header-order",
+      "instance": "i14",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i14/unit-change.yaml",
+      "specId": "acme-price-sheet-i14-unit-change",
+      "instance": "i14",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i15/base.yaml",
+      "specId": "acme-price-sheet-i15-base",
+      "instance": "i15",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i15/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i15-duplicate-line",
+      "instance": "i15",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i15/empty-cell.yaml",
+      "specId": "acme-price-sheet-i15-empty-cell",
+      "instance": "i15",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i15/header-order.yaml",
+      "specId": "acme-price-sheet-i15-header-order",
+      "instance": "i15",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i16/base.yaml",
+      "specId": "acme-price-sheet-i16-base",
+      "instance": "i16",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i16/empty-cell.yaml",
+      "specId": "acme-price-sheet-i16-empty-cell",
+      "instance": "i16",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i16/header-order.yaml",
+      "specId": "acme-price-sheet-i16-header-order",
+      "instance": "i16",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i16/unit-change.yaml",
+      "specId": "acme-price-sheet-i16-unit-change",
+      "instance": "i16",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i17/base.yaml",
+      "specId": "acme-price-sheet-i17-base",
+      "instance": "i17",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i17/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i17-duplicate-line",
+      "instance": "i17",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i17/header-order.yaml",
+      "specId": "acme-price-sheet-i17-header-order",
+      "instance": "i17",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i17/unit-change.yaml",
+      "specId": "acme-price-sheet-i17-unit-change",
+      "instance": "i17",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i18/base.yaml",
+      "specId": "acme-price-sheet-i18-base",
+      "instance": "i18",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i18/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i18-duplicate-line",
+      "instance": "i18",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i18/empty-cell.yaml",
+      "specId": "acme-price-sheet-i18-empty-cell",
+      "instance": "i18",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i18/planted.yaml",
+      "specId": "acme-price-sheet-i18-planted",
+      "instance": "i18",
+      "variant": "planted",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i18/unit-change.yaml",
+      "specId": "acme-price-sheet-i18-unit-change",
+      "instance": "i18",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i19/base.yaml",
+      "specId": "acme-price-sheet-i19-base",
+      "instance": "i19",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i19/empty-cell.yaml",
+      "specId": "acme-price-sheet-i19-empty-cell",
+      "instance": "i19",
+      "variant": "empty-cell",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i19/header-order.yaml",
+      "specId": "acme-price-sheet-i19-header-order",
+      "instance": "i19",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i19/planted.yaml",
+      "specId": "acme-price-sheet-i19-planted",
+      "instance": "i19",
+      "variant": "planted",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i19/unit-change.yaml",
+      "specId": "acme-price-sheet-i19-unit-change",
+      "instance": "i19",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i20/base.yaml",
+      "specId": "acme-price-sheet-i20-base",
+      "instance": "i20",
+      "variant": "base",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i20/duplicate-line.yaml",
+      "specId": "acme-price-sheet-i20-duplicate-line",
+      "instance": "i20",
+      "variant": "duplicate-line",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i20/header-order.yaml",
+      "specId": "acme-price-sheet-i20-header-order",
+      "instance": "i20",
+      "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i20/unit-change.yaml",
+      "specId": "acme-price-sheet-i20-unit-change",
+      "instance": "i20",
+      "variant": "unit-change",
+      "state": "pass",
+      "failing": []
+    }
+  ]
+}
