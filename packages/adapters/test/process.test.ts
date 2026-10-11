@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   AdapterTransportError,
+  type AgentAdapter,
   loadSpecFile,
   type Message,
   Observed,
@@ -82,6 +83,22 @@ function turn(index: number, user: string, from: ResolvedGiven, budget?: Turn['b
   return { index, stimulus: { user }, given: from, ...(budget === undefined ? {} : { budget }) };
 }
 
+/**
+ * Sends one block the way the runner does: the user turn joins the history before `send`, the reply
+ * after it. It also proves the adapter leaves the history alone.
+ */
+async function runnerSend(adapter: AgentAdapter, session: Session, next: Turn): Promise<Observed> {
+  const { stimulus } = next;
+  const users =
+    'user' in stimulus ? [stimulus.user] : 'burst' in stimulus ? stimulus.burst : [stimulus.injection.user];
+  session.history.push(...users.map((content): Message => ({ role: 'user', content })));
+  const handed = structuredClone(session.history);
+  const observed = await adapter.send(session, next);
+  expect(session.history).toEqual(handed);
+  session.history.push({ role: 'assistant', content: observed.text });
+  return observed;
+}
+
 /** A provider that records each sandbox it made and whether it was destroyed. */
 function tracked(provider: SandboxProvider) {
   const boxes: { sandbox: Sandbox; destroyed: boolean }[] = [];
@@ -129,6 +146,7 @@ describe('the process adapter', () => {
       endState: false,
       deterministic: false,
     });
+    expect(adapter.endState).toBeUndefined();
     expect(setup({ deterministic: true }).adapter.capabilities().deterministic).toBe(true);
   });
 
@@ -138,9 +156,13 @@ describe('the process adapter', () => {
     const session = await open(from);
     expect(await boxes[0]?.sandbox.listFiles()).toEqual(['README.txt', 'catalog.csv']);
 
-    const observed = await adapter.send(session, turn(0, 'Build a price sheet from catalog.csv.', from));
+    const observed = await runnerSend(
+      adapter,
+      session,
+      turn(0, 'Build a price sheet from catalog.csv.', from),
+    );
     expect(Observed.parse(observed)).toEqual(observed);
-    const reply = 'Wrote out/acme-price-sheet.csv with 6 plans. History: 0 messages.';
+    const reply = 'Wrote out/acme-price-sheet.csv with 6 plans. History: 1 message.';
     expect(observed.text).toBe(reply);
     expect(observed.segments).toEqual([{ type: 'text', text: reply }]);
     expect(observed.toolCalls).toEqual([]);
@@ -149,17 +171,14 @@ describe('the process adapter', () => {
       changed: [],
       deleted: [],
     });
-
-    const bytes = await adapter.readArtifact(session, 'out/acme-price-sheet.csv');
-    expect(Buffer.from(bytes).toString('utf8')).toBe(SHEET);
     expect(observed.artifacts).toEqual([
       { path: 'out/acme-price-sheet.csv', sha256: sha256(SHEET), bytes: Buffer.byteLength(SHEET) },
     ]);
 
     const [reported, agent, ...rest] = observed.executions ?? [];
     expect(rest).toEqual([]);
-    expect(reported).toMatchObject({ command: 'node --version', exitCode: 0 });
-    expect(agent).toMatchObject({ exitCode: 0, stderr: '' });
+    expect(reported).toMatchObject({ command: 'node --version', role: 'command', exitCode: 0 });
+    expect(agent).toMatchObject({ role: 'agent', exitCode: 0, stderr: '' });
     expect(agent?.command).toContain('code-agent.mjs');
     expect(Number.isNaN(Date.parse(agent?.startedAt ?? ''))).toBe(false);
     expect(observed.latencyMs).toBe(agent?.latencyMs);
@@ -168,7 +187,8 @@ describe('the process adapter', () => {
       guards: [{ name: 'no_destructive_ops', verdict: 'pass' }],
       stages: [{ name: 'build_sheet' }],
     });
-    expect(observed.raw).toEqual({ sandbox: { kind: 'local', isolation: 'weak' } });
+    expect(observed.sandbox).toEqual({ kind: 'local', isolation: 'weak' });
+    expect(observed.raw).toBeUndefined();
     // The protocol files sit in the workspace, yet never show in the diff or the artifacts.
     expect(await boxes[0]?.sandbox.listFiles()).toEqual(
       expect.arrayContaining([
@@ -179,18 +199,27 @@ describe('the process adapter', () => {
     );
   });
 
-  it('shows a rewritten file as changed in a second block, and hands the agent the history', async () => {
+  it('reads a produced file through the contract, bounded, and refuses a path outside the workspace', async () => {
     const { adapter, open } = setup();
     const from = given();
     const session = await open(from);
-    const first = await adapter.send(session, turn(0, 'Build a price sheet from catalog.csv.', from));
-    const history: Message[] = [
-      { role: 'user', content: 'Build a price sheet from catalog.csv.' },
-      { role: 'assistant', content: first.text },
-    ];
-    session.history.push(...history);
+    await runnerSend(adapter, session, turn(0, 'Build a price sheet from catalog.csv.', from));
+    const reader: AgentAdapter = adapter;
+    const bytes = await reader.readArtifact?.(session, 'out/acme-price-sheet.csv');
+    expect(bytes).toBeInstanceOf(Uint8Array);
+    expect(Buffer.from(bytes ?? new Uint8Array()).toString('utf8')).toBe(SHEET);
+    await expect(adapter.readArtifact(session, '../outside.txt')).rejects.toThrow(/leaves the workspace/);
+    await expect(adapter.readArtifact(session, 'out/missing.xlsx')).rejects.toThrow(/ENOENT/);
+    await adapter.close(session);
+    await expect(adapter.readArtifact(session, 'out/acme-price-sheet.csv')).rejects.toThrow(/closed/);
+  });
 
-    const second = await adapter.send(session, turn(1, 'Add a summary of the cheapest plans.', from));
+  it('shows a rewritten file as changed in a second block, and hands the agent the runner history', async () => {
+    const { adapter, open } = setup();
+    const from = given();
+    const session = await open(from);
+    const first = await runnerSend(adapter, session, turn(0, 'Build a price sheet from catalog.csv.', from));
+    const second = await runnerSend(adapter, session, turn(1, 'Add a summary of the cheapest plans.', from));
     expect(second.workspaceDiff).toEqual({ created: [], changed: ['out/acme-price-sheet.csv'], deleted: [] });
     expect(second.artifacts).toEqual([
       {
@@ -200,17 +229,30 @@ describe('the process adapter', () => {
       },
     ]);
     expect(second.artifacts?.[0]?.sha256).not.toBe(first.artifacts?.[0]?.sha256);
-    expect(second.text).toContain('History: 2 messages.');
     expect(second.runtime?.stages).toEqual([{ name: 'add_summary' }]);
     // Each block reports its own commands only.
     expect(second.executions).toHaveLength(2);
+    // The history the agent read ends with the current user turn, as the runner hands it over.
+    expect(second.text).toContain('History: 3 messages.');
+    const handed = JSON.parse(
+      Buffer.from(await adapter.readArtifact(session, processProtocolFiles.history)).toString('utf8'),
+    ) as Message[];
+    expect(handed).toEqual([
+      { role: 'user', content: 'Build a price sheet from catalog.csv.' },
+      { role: 'assistant', content: first.text },
+      { role: 'user', content: 'Add a summary of the cheapest plans.' },
+    ]);
   });
 
   it('shows the file a destructive agent deleted', async () => {
     const { adapter, open } = setup();
     const from = given();
     const session = await open(from);
-    const observed = await adapter.send(session, turn(0, 'Build the sheet, then delete README.txt.', from));
+    const observed = await runnerSend(
+      adapter,
+      session,
+      turn(0, 'Build the sheet, then delete README.txt.', from),
+    );
     expect(observed.workspaceDiff).toEqual({
       created: ['out/acme-price-sheet.csv'],
       changed: [],
@@ -219,12 +261,12 @@ describe('the process adapter', () => {
     expect(observed.runtime?.guards).toEqual([{ name: 'no_destructive_ops', verdict: 'fail' }]);
   });
 
-  it('reports a non-zero exit in the execution record instead of failing the block', async () => {
+  it('reports a non-zero exit in the agent record instead of failing the block', async () => {
     const { adapter, open } = setup();
     const from = given();
     const session = await open(from);
-    const observed = await adapter.send(session, turn(0, 'Build the sheet and exit 3.', from));
-    expect(observed.executions?.at(-1)?.exitCode).toBe(3);
+    const observed = await runnerSend(adapter, session, turn(0, 'Build the sheet and exit 3.', from));
+    expect(observed.executions?.at(-1)).toMatchObject({ role: 'agent', exitCode: 3 });
     expect(observed.workspaceDiff?.created).toEqual(['out/acme-price-sheet.csv']);
   });
 
@@ -243,7 +285,11 @@ describe('the process adapter', () => {
       const { adapter, open } = setup({ stimulus: 'file', args });
       const from = given();
       const session = await open(from);
-      const observed = await adapter.send(session, turn(0, 'Build a price sheet with a summary.', from));
+      const observed = await runnerSend(
+        adapter,
+        session,
+        turn(0, 'Build a price sheet with a summary.', from),
+      );
       expect(observed.text).toContain('Added a summary');
       expect(observed.executions?.at(-1)?.command).toMatch(/code-agent\.mjs driftbench-stimulus\.txt$/);
       expect(observed.workspaceDiff).toEqual({
@@ -264,7 +310,11 @@ describe('the process adapter', () => {
       'README.txt': README,
       'NOTES.txt': 'Fictional note planted by a perturbation.\n',
     });
-    const observed = await adapter.send(session, turn(0, 'Build a price sheet from catalog.csv.', injected));
+    const observed = await runnerSend(
+      adapter,
+      session,
+      turn(0, 'Build a price sheet from catalog.csv.', injected),
+    );
     expect(await readFile(join(folder(), 'NOTES.txt'), 'utf8')).toContain('planted by a perturbation');
     expect(await readFile(join(folder(), 'README.txt'), 'utf8')).toBe('edited during the run\n');
     expect(observed.workspaceDiff).toEqual({
@@ -279,10 +329,13 @@ describe('the process adapter', () => {
     const from = given();
     const session = await open(from);
     const started = Date.now();
-    const observed = await adapter.send(session, turn(0, 'sleep 5000 then build', from, { latencyMs: 300 }));
+    const observed = await runnerSend(
+      adapter,
+      session,
+      turn(0, 'sleep 5000 then build', from, { latencyMs: 300 }),
+    );
     expect(Date.now() - started).toBeLessThan(4000);
-    expect(observed.executions).toHaveLength(1);
-    expect(observed.executions?.[0]?.exitCode).toBe(124);
+    expect(observed.executions).toEqual([expect.objectContaining({ role: 'agent', exitCode: 124 })]);
     expect(observed.workspaceDiff).toEqual({ created: [], changed: [], deleted: [] });
   });
 
@@ -290,9 +343,9 @@ describe('the process adapter', () => {
     const { adapter, open } = setup();
     const from = given();
     const session = await open(from);
-    const observed = await adapter.send(session, turn(0, 'Build the sheet and garble the log.', from));
-    expect(observed.executions).toHaveLength(2);
-    expect(observed.raw).toMatchObject({ protocolErrors: ['driftbench-commands.jsonl line 2: not JSON'] });
+    const observed = await runnerSend(adapter, session, turn(0, 'Build the sheet and garble the log.', from));
+    expect(observed.executions?.map((record) => record.role)).toEqual(['command', 'agent']);
+    expect(observed.raw).toEqual({ protocolErrors: ['driftbench-commands.jsonl line 2: not JSON'] });
   });
 
   it('runs an agent that writes no protocol file: no runtime, only its own execution record', async () => {
@@ -308,12 +361,12 @@ describe('the process adapter', () => {
     const session = await open(from);
     process.env.DRIFTBENCH_TEST_SECRET = 'must not leak';
     try {
-      const observed = await adapter.send(session, turn(4, 'Write the request down.', from));
+      const observed = await runnerSend(adapter, session, turn(4, 'Write the request down.', from));
       expect(observed.text).toBe('north|4|');
       expect(observed.runtime).toBeUndefined();
-      expect(observed.executions).toEqual([expect.objectContaining({ exitCode: 0 })]);
+      expect(observed.executions).toEqual([expect.objectContaining({ role: 'agent', exitCode: 0 })]);
       expect(observed.workspaceDiff).toEqual({ created: ['request.txt'], changed: [], deleted: [] });
-      const leak = await adapter.send(session, turn(5, 'x', from));
+      const leak = await runnerSend(adapter, session, turn(5, 'x', from));
       expect(leak.text).toBe('north|5|');
     } finally {
       delete process.env.DRIFTBENCH_TEST_SECRET;
@@ -332,10 +385,10 @@ describe('the process adapter', () => {
     const kept = setup({ keep: true });
     const from = given();
     const keptSession = await kept.adapter.open(from);
-    const observed = await kept.adapter.send(keptSession, turn(0, 'Build a price sheet.', from));
+    const observed = await runnerSend(kept.adapter, keptSession, turn(0, 'Build a price sheet.', from));
     await kept.adapter.close(keptSession);
     const folder = kept.folder();
-    expect(observed.raw).toEqual({ sandbox: { kind: 'local', isolation: 'weak', kept: folder } });
+    expect(observed.sandbox).toEqual({ kind: 'local', isolation: 'weak', root: folder });
     expect(await readFile(join(folder, 'out', 'acme-price-sheet.csv'), 'utf8')).toBe(SHEET);
     await rm(folder, { recursive: true, force: true });
   });
@@ -360,14 +413,14 @@ describe('the process adapter', () => {
     const { adapter, open, folder } = setup();
 
     const session = await open(base);
-    const first = await adapter.send(session, {
+    const first = await runnerSend(adapter, session, {
       index: 0,
       stimulus: build.when,
       given: base,
       ...(latency === undefined ? {} : { budget: { latencyMs: latency } }),
     });
     expect(first.workspaceDiff).toEqual({ created: ['out/acme-price-sheet.csv'], changed: [], deleted: [] });
-    const second = await adapter.send(session, { index: 1, stimulus: summary.when, given: base });
+    const second = await runnerSend(adapter, session, { index: 1, stimulus: summary.when, given: base });
     expect(second.workspaceDiff).toEqual({ created: [], changed: ['out/acme-price-sheet.csv'], deleted: [] });
 
     // Perturbed mode: the injected block's world adds NOTES.txt, seeded before the agent runs.
@@ -377,7 +430,11 @@ describe('the process adapter', () => {
       world: { ...base.world, workspace: notes },
       hash: 'price-sheet-p',
     };
-    const observed = await adapter.send(perturbed, { index: 0, stimulus: build.when, given: injected });
+    const observed = await runnerSend(adapter, perturbed, {
+      index: 0,
+      stimulus: build.when,
+      given: injected,
+    });
     expect(await readFile(join(folder(1), 'NOTES.txt'), 'utf8')).toBe(notes.files?.['NOTES.txt']);
     expect(observed.workspaceDiff).toEqual({
       created: ['out/acme-price-sheet.csv'],
@@ -397,16 +454,26 @@ describe('the process adapter', () => {
     const from = given();
     const session = await adapter.open(from);
     try {
-      const observed = await adapter.send(session, turn(0, 'Build a price sheet from catalog.csv.', from));
+      const observed = await runnerSend(
+        adapter,
+        session,
+        turn(0, 'Build a price sheet from catalog.csv.', from),
+      );
       expect(Observed.parse(observed)).toEqual(observed);
       expect(observed.workspaceDiff).toEqual({
         created: ['out/acme-price-sheet.csv'],
         changed: [],
         deleted: [],
       });
-      expect(observed.executions?.map((record) => record.exitCode)).toEqual([0, 0]);
+      expect(observed.executions?.map((record) => [record.role, record.exitCode])).toEqual([
+        ['command', 0],
+        ['agent', 0],
+      ]);
       expect(observed.runtime?.stages).toEqual([{ name: 'build_sheet' }]);
-      expect(observed.raw).toEqual({ sandbox: { kind: 'docker', isolation: 'strong' } });
+      expect(observed.sandbox).toEqual({ kind: 'docker', isolation: 'strong' });
+      expect(
+        Buffer.from(await adapter.readArtifact(session, 'out/acme-price-sheet.csv')).toString('utf8'),
+      ).toBe(SHEET);
     } finally {
       await adapter.close(session);
     }
@@ -432,15 +499,22 @@ describe.runIf(dockerReady)(`the process adapter on docker with ${IMAGE}`, () =>
     const from = given({ 'catalog.csv': CATALOG, 'README.txt': README, 'agent.mjs': agent });
     const session = await adapter.open(from);
     try {
-      const observed = await adapter.send(session, turn(0, 'Build a price sheet from catalog.csv.', from));
+      const observed = await runnerSend(
+        adapter,
+        session,
+        turn(0, 'Build a price sheet from catalog.csv.', from),
+      );
       expect(observed.workspaceDiff).toEqual({
         created: ['out/acme-price-sheet.csv'],
         changed: [],
         deleted: [],
       });
       expect(observed.artifacts?.[0]?.sha256).toBe(sha256(SHEET));
-      expect(observed.executions?.at(-1)?.exitCode).toBe(0);
-      expect(observed.raw).toEqual({ sandbox: { kind: 'docker', isolation: 'strong' } });
+      expect(observed.executions?.at(-1)).toMatchObject({ role: 'agent', exitCode: 0 });
+      expect(observed.sandbox).toEqual({ kind: 'docker', isolation: 'strong' });
+      expect(
+        Buffer.from(await adapter.readArtifact(session, 'out/acme-price-sheet.csv')).toString('utf8'),
+      ).toBe(SHEET);
     } finally {
       await adapter.close(session);
     }

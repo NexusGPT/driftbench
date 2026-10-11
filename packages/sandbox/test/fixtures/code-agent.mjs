@@ -73,7 +73,7 @@ appendFileSync(runtimeFile, events.map((event) => `${JSON.stringify(event)}\n`).
 const parts = [`Wrote out/acme-price-sheet.csv with ${plans.length} plans.`];
 if (summary) parts.push('Added a summary of the cheapest plans.');
 if (destructive) parts.push('Deleted README.txt.');
-parts.push(`History: ${history.length} messages.`);
+parts.push(`History: ${history.length} ${history.length === 1 ? 'message' : 'messages'}.`);
 process.stdout.write(`${parts.join(' ')}\n`);
 
 const exit = /exit (\d+)/.exec(instruction);

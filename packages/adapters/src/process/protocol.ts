@@ -36,6 +36,7 @@ export function parseCommands(text: string, file: string): ParseResult<Execution
     } else {
       value.push({
         command,
+        role: 'command',
         exitCode,
         ...(startedAt === undefined ? {} : { startedAt }),
         ...(latencyMs === undefined ? {} : { latencyMs }),

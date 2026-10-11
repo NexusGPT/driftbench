@@ -26,9 +26,10 @@ import { shellLine, shellQuote } from './shell';
  * working folder is the workspace, seeded from `given.world.workspace`. The stimulus reaches it on stdin
  * (or in a file), its stdout is the reply, and the block returns an ordinary Observed: the workspace diff
  * between the snapshots before and after, every created or changed file as an artifact, the commands the
- * agent reports as execution records followed by one record for the agent process itself (always the
- * last), and the skills, guards and stages it reports. A non-zero exit is a fact in that last record, not
- * an AgentFailure. The same checks read it as any other block.
+ * agent reports as execution records (role `command`) followed by one record for the agent process itself
+ * (role `agent`, always the last), the skills, guards and stages it reports, and the sandbox it ran in. A
+ * non-zero exit is a fact in the agent record, not an AgentFailure. The same checks read it as any other
+ * block. The runner owns the session history; the adapter only hands it to the agent as a file.
  */
 
 /** Files the adapter keeps at the workspace root. They never appear in a diff or in the artifacts. */
@@ -37,7 +38,7 @@ export const processProtocolFiles = {
   commands: 'driftbench-commands.jsonl',
   /** The agent appends one JSON line per skill, guard or stage. Optional. */
   runtime: 'driftbench-runtime.jsonl',
-  /** The adapter writes the messages so far, as a JSON array, before each block. */
+  /** The adapter writes the session history, as a JSON array ending with the current user turn, before each block. */
   history: 'driftbench-history.json',
   /** The adapter writes the stimulus here in file mode. */
   stimulus: 'driftbench-stimulus.txt',
@@ -72,11 +73,8 @@ export type ProcessAdapterOptions = {
   deterministic?: boolean;
 };
 
-/** A process adapter also reads produced files, for the artifact checks. */
-export type ProcessAdapter = AgentAdapter & {
-  /** Reads one workspace file of an open session, bounded like every sandbox read. */
-  readArtifact(session: Session, path: string, maxBytes?: number): Promise<Uint8Array>;
-};
+/** A process adapter always reads produced files, for the artifact checks. */
+export type ProcessAdapter = AgentAdapter & Required<Pick<AgentAdapter, 'readArtifact'>>;
 
 type Workspace = NonNullable<WorldState['workspace']>;
 
@@ -211,6 +209,7 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
 
       const agentRecord: ExecutionRecord = {
         command: commandLine,
+        role: 'agent',
         exitCode: run.exitCode,
         stderr: run.stderr ?? '',
         ...(run.startedAt === undefined ? {} : { startedAt: run.startedAt }),
@@ -226,23 +225,25 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
         artifacts,
         workspaceDiff,
         executions: [...(reported ?? []), agentRecord],
+        // A kept sandbox names its folder on this machine, for inspection; a removed one names none.
+        sandbox: {
+          kind: sandbox.kind,
+          isolation: sandbox.isolation,
+          ...(options.keep ? { root: folderOf(sandbox) } : {}),
+        },
         cost: {},
         latencyMs: run.latencyMs ?? 0,
-        raw: {
-          sandbox: {
-            kind: sandbox.kind,
-            isolation: sandbox.isolation,
-            ...(options.keep ? { kept: folderOf(sandbox) } : {}),
-          },
-          ...(errors.length === 0 ? {} : { protocolErrors: errors.slice(0, MAX_PROTOCOL_ERRORS) }),
-        },
       };
       if (runtime !== undefined) observed.runtime = runtime;
+      if (errors.length > 0) observed.raw = { protocolErrors: errors.slice(0, MAX_PROTOCOL_ERRORS) };
       return observed;
     },
 
-    async readArtifact(session: Session, path: string, maxBytes?: number): Promise<Uint8Array> {
-      return stateOf(session).sandbox.readFile(path, maxBytes);
+    /** Reads a file the agent left in the workspace through the sandbox's bounded read (100 MB). */
+    async readArtifact(session: Session, path: string): Promise<Uint8Array> {
+      const state = stateOf(session);
+      if (state.closed) throw new Error('the process session is closed');
+      return state.sandbox.readFile(path);
     },
 
     /** Removes the sandbox, unless the adapter keeps it. Safe to call twice. */
