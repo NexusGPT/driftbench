@@ -261,6 +261,12 @@ function stringPartitions(name: string, property: YAMLMap, add: Add): void {
     const keyword = typeof format === 'string' ? 'format' : 'pattern';
     add('well-formed', `${name} is ${shaped}`, keyword);
     add('malformed', `${name} is not ${shaped}`, keyword);
+    return;
+  }
+  const encoding = plain(entry(property, 'contentEncoding')?.value);
+  if (typeof encoding === 'string') {
+    add('well-formed', `${name} is well-formed ${encoding}`, 'contentEncoding');
+    add('malformed', `${name} is not well-formed ${encoding}`, 'contentEncoding');
   }
 }
 
@@ -304,7 +310,7 @@ function typesOf(property: YAMLMap): string[] {
   // No type: the keywords say which type the schema constrains (JSON Schema validation, sections 6.2 to 6.4).
   const has = (keys: string[]) => keys.some((key) => entry(property, key) !== undefined);
   if (has(['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf'])) return ['number'];
-  if (has(['format', 'pattern', 'minLength', 'maxLength'])) return ['string'];
+  if (has(['format', 'pattern', 'minLength', 'maxLength', 'contentEncoding'])) return ['string'];
   if (has(['items', 'minItems', 'maxItems', 'uniqueItems'])) return ['array'];
   return [];
 }

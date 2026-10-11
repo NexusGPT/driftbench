@@ -93,4 +93,11 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum'],
     });
   });
+
+  it('contentEncoding gives well-formed and malformed', () => {
+    expect(partitions({ type: 'string', contentEncoding: 'base64' })).toEqual({
+      't.x.in.p': ['well-formed', 'malformed'],
+    });
+    expect(partitions({ contentEncoding: 'base64' })).toEqual({ 't.x.in.p': ['well-formed', 'malformed'] });
+  });
 });
