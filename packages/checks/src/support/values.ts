@@ -1,36 +1,10 @@
-/** Value helpers shared by the checks: equality, emptiness and how a value prints in evidence. */
+/**
+ * Value helpers shared by the checks: how a value prints in evidence, counts, keys. Equality and the
+ * assertion forms are core's (`deepEqual`, `matchAssertion`).
+ */
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
-
-/** JSON equality. A key that holds undefined counts as absent; arrays compare item by item, in order. */
-export function deepEqual(a: unknown, b: unknown): boolean {
-  if (Array.isArray(a) || Array.isArray(b)) {
-    return (
-      Array.isArray(a) &&
-      Array.isArray(b) &&
-      a.length === b.length &&
-      a.every((item, index) => deepEqual(item, b[index]))
-    );
-  }
-  if (isRecord(a) && isRecord(b)) {
-    const keys = definedKeys(a);
-    return keys.length === definedKeys(b).length && keys.every((key) => deepEqual(a[key], b[key]));
-  }
-  return a === b || (Number.isNaN(a) && Number.isNaN(b));
-}
-
-export function definedKeys(value: Record<string, unknown>): string[] {
-  return Object.keys(value).filter((key) => value[key] !== undefined);
-}
-
-/** Absent, null, a blank string, an empty list or an empty mapping. */
-export function isEmpty(value: unknown): boolean {
-  if (value === undefined || value === null) return true;
-  if (typeof value === 'string') return value.trim() === '';
-  if (Array.isArray(value)) return value.length === 0;
-  return isRecord(value) && definedKeys(value).length === 0;
 }
 
 const MAX_SHOWN = 120;

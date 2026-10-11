@@ -1,0 +1,10 @@
+[
+  { "id": "generation", "name": "TEST GENERATION", "note": "prompt, spec or past conversations", "y": -70, "rule": [248, 580] },
+  { "id": "agent", "name": "AGENT UNDER TEST", "note": "chat or code, one adapter", "y": -25, "rule": [396, 640] },
+  { "id": "checks", "name": "MACHINE CHECKS", "note": "nine, and a fail is final", "y": 20, "rule": [494, 740] },
+  { "id": "drift", "name": "DRIFT AND RECOVERY", "note": "pen off the line, then back", "y": 65, "rule": [630, 930] },
+  { "id": "interval", "name": "PASS RATE AND INTERVAL", "note": "0.38, between 0.14 and 0.69", "y": 112, "rule": [650, 940], "text": "end" },
+  { "id": "validity", "name": "VALIDITY GATE", "note": "invalid blocks never run", "y": 470, "rule": [-50, 202], "text": "end", "inset": 12 },
+  { "id": "council", "name": "JUDGE COUNCIL", "note": "system 1 and system 2, earned", "y": 556, "rule": [330, 639], "text": "end", "inset": 12 },
+  { "id": "gate", "name": "CI GATE", "note": "lifts only when noninferior", "y": 610, "rule": [560, 860], "text": "end", "inset": 12 }
+]

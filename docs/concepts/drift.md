@@ -1,6 +1,6 @@
 # Drift
 
-Drift is a block that goes wrong. driftbench looks for it on single blocks and across the succession of blocks, and names its class. The class names are fixed today in the schema (`DriftClass`). The engine that assigns them is planned, phase 3.
+Drift is a block that goes wrong. driftbench looks for it on single blocks and across the succession of blocks, and names its class. The class names are fixed in the schema (`DriftClass`). The runner assigns three of them today, from the checks that fail; the engine that assigns all five is planned, phase 3.
 
 ## Five drift classes
 
@@ -15,6 +15,10 @@ A failing block carries one class or more.
 | `X5_tool` | a tool call, a skill or a guard is missing, extra or repeated, or a call has wrong parameters | `submit_order` runs twice | the `xlsx` skill never loads, or a guard denies a command the step needed |
 
 ## How a class is assigned
+
+Today the runner gives a block a class by the checks its failing verdicts come from: `tools`, `forbidden`, `skills` and `guards` give `X5_tool`; `lang` and `cards` give `X4_format`; `stage`, which reads the stage the runtime reports, gives `X3_flow`. The other checks give no class yet. See [running](../running.md#drift).
+
+The engine of phase 3 assigns the classes this way:
 
 * The stage classifier labels the stage the agent reaches in the block: a system 1 judge, or a table of regular expressions per flow when the spec provides one. When the label differs from `expect.stage`, the block gets `X3_flow`. A runtime that reports its own stages lists them in the block's runtime trace, and that report is the observed stage; the classifier runs only when the trace carries none.
 * The ledger check asks a judge whether the block contradicts any fact in the ledger, and quotes the fact. A contradiction gives `X2_contradiction`.
@@ -35,7 +39,7 @@ Each run gets these metrics.
 | `longestClean` | the longest stretch of passing blocks |
 | `minOverBlocks` | true when every block passes; the run passes only then |
 
-The record shape (`Succession`) is defined today. Computing it is planned: phase 1 for pass and fail per block, phase 3 for the classes.
+The runner computes them on every run, phase 1, from whether each block passed, injected blocks included. A failing block counts as drift whatever its class. See [running](../running.md#the-run-record).
 
 One conversation, or one task, with a single wrong block fails `minOverBlocks`. The other metrics say where and how often it went wrong.
 

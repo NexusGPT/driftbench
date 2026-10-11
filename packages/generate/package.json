@@ -21,6 +21,7 @@
   "dependencies": {
     "@driftbench/core": "workspace:*",
     "zod": "^4.6.5",
-    "yaml": "^2.9.1"
+    "yaml": "^2.9.1",
+    "@driftbench/space": "workspace:*"
   }
 }
