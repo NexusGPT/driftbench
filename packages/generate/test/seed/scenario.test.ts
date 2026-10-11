@@ -588,3 +588,33 @@ describe('pilot iteration 7: invariance families over the context axes', () => {
     }
   });
 });
+
+describe('pilot iteration 8: a boundary value carried by a path', () => {
+  it('records its concrete value like every boundary spec', () => {
+    // The found path reads the account the lookup is sent: its tool input value is on a path.
+    const prepared = prepare((draft) => {
+      draft.relations = (draft.relations ?? []).map((relation) =>
+        relation.kind === 'path' && relation.id === 'balance-found'
+          ? {
+              ...relation,
+              when: { ...relation.when, 'lookup.in.account': ['lookup.in.account.at-min-length'] },
+            }
+          : relation,
+      );
+    });
+    const result = generateSuite(prepared, { seed: 1, mapPath: 'map.yaml', t: 2 });
+    const onPath = result.all.filter((spec) => {
+      const meta = spec.metadata?.generated as { seeder?: string } | undefined;
+      return (
+        meta?.seeder === 'boundary' &&
+        /Path \S+ of /.test(spec.title ?? '') &&
+        (spec.title ?? '').includes('lookup.in.')
+      );
+    });
+    expect(onPath.length).toBeGreaterThan(0);
+    for (const spec of onPath) {
+      const concrete = (spec.metadata?.generated as { concrete?: Record<string, unknown> }).concrete;
+      expect(Object.keys(concrete ?? {}), spec.id).toHaveLength(1);
+    }
+  });
+});
