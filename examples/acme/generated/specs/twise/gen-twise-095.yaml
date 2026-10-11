@@ -43,7 +43,7 @@ criteria:
 blocks:
   - id: b1-needs-to-identify
     when:
-      user: Hi, I already have an Acme plan and I need more data.
+      user: I keep running out of data, can I get a bigger plan?
     expect:
       stage: identify
       tools:

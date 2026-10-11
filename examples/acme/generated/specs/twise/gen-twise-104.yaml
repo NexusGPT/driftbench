@@ -4,7 +4,7 @@
 id: gen-twise-104
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 104 of 154: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D4_loose_confirmation at recap"
+title: "t-wise row 104 of 154: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D4_loose_confirmation at recap"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -12,7 +12,7 @@ tags:
   - persona:existing-customer
   - data:5g-only
   - task:catalog-only
-  - flow:order
+  - flow:upgrade
 covers:
   - B-010
 stages:
@@ -32,8 +32,8 @@ criteria:
     rubric: Report a failed tool honestly, invent none of its answer, and offer a fallback
     gating: false
     scope: conversation
-  - name: flow.order
-    rubric: Recap, explicit confirmation and order placement
+  - name: flow.upgrade
+    rubric: An existing customer moves to a plan with more data
     gating: false
     scope: conversation
   - name: deviation.D4_loose_confirmation
@@ -41,14 +41,12 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-address
+  - id: b1-needs-to-identify
     when:
-      user: Hello, I'm looking for home internet.
+      user: I keep running out of data, can I get a bigger plan?
     expect:
-      stage: address
+      stage: identify
       tools:
-        - label: coverage.check
-          count: 0
         - label: catalog.search
           count: 0
         - label: order.create
@@ -56,61 +54,40 @@ blocks:
       lang: EN
       criteria:
         - behaviour.B-010
-        - flow.order
-  - id: b2-address-to-offer
+        - flow.upgrade
+  - id: b2-identify-to-offer
     when:
-      user: The address is 88 Summit Avenue, Acmeville.
+      user: It's sam.rivera@example.com.
     expect:
       stage: offer
       tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 88 Summit Avenue, Acmeville
         - label: catalog.search
           count: 1
           input:
-            category: home
-            address_id: addr-103
+            category: mobile
+            customer_email: sam.rivera@example.com
         - label: order.create
           count: 0
       lang: EN
-  - id: b3-offer-to-details
+  - id: b3-offer-to-recap
     when:
-      user: Yes, that one.
-    expect:
-      stage: details
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b4-details-to-recap
-    when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: The unlimited one, please.
     expect:
       stage: recap
       tools:
-        - label: coverage.check
-          count: 0
         - label: catalog.search
           count: 0
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-D4_loose_confirmation
+  - id: b4-D4_loose_confirmation
     when:
       injection:
         class: D4_loose_confirmation
-        user: ok perfect
+        user: yeah sounds good
     expect:
       stage: recap
       tools:
-        - label: coverage.check
-          count: 0
         - label: catalog.search
           count: 0
         - label: order.create
@@ -121,7 +98,7 @@ blocks:
       lang: EN
       criteria:
         - deviation.D4_loose_confirmation
-  - id: b6-recap-to-order_placed
+  - id: b5-recap-to-order_placed
     when:
       user: CONFIRM
     expect:
@@ -130,26 +107,18 @@ blocks:
         - label: order.create
           count: 1
           input:
-            type: new
-            plan_id: air-5g
-            address_id: addr-103
-            customer:
-              subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
-        - label: coverage.check
-          count: 0
+            type: upgrade
+            customer_id: cust-001
+            plan_id: mobile-l
         - label: catalog.search
           count: 0
       lang: EN
-  - id: b7-order_placed-to-closing
+  - id: b6-order_placed-to-closing
     when:
       user: No, that's all. Thanks!
     expect:
       stage: closing
       tools:
-        - label: coverage.check
-          count: 0
         - label: catalog.search
           count: 0
         - label: order.create
@@ -157,19 +126,16 @@ blocks:
       lang: EN
 rules:
   forbidden_tools:
+    - coverage.check
     - port.check
     - notify_sales
 end_state:
   source: tool:order.create
   mode: subset
   expect:
-    type: new
-    plan_id: air-5g
-    address_id: addr-103
-    customer:
-      subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
+    type: upgrade
+    customer_id: cust-001
+    plan_id: mobile-l
 metadata:
   generated:
     by: driftbench generate
@@ -181,56 +147,46 @@ metadata:
       agent: acme
       version: "1"
       hash: badea3d3df7a
-    path: order-single-plan
+    path: upgrade-order
     cell:
       behaviour: B-010
       channel: whatsapp
       user_type: existing-customer
       coverage_result: 5g-only
       workspace_start: catalog-only
-      flow: order
-      plan_choice: loose-yes-to-single-offer
-      customer_details: name-and-email
+      flow: upgrade
+      account_lookup: found
+      plan_choice: names-one
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-needs-to-identify
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-address
-          stage: address
+          stage_transition: needs-to-identify
+          stage: identify
         phrase:
           dimension: stage_transition
-          value: needs-to-address
-      - block: b2-address-to-offer
+          value: needs-to-identify
+      - block: b2-identify-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: address-to-offer
-          coverage_result: 5g-only
+          stage_transition: identify-to-offer
+          account_lookup: found
           stage: offer
         phrase:
           dimension: stage_transition
-          value: address-to-offer
-      - block: b3-offer-to-details
+          value: identify-to-offer
+      - block: b3-offer-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
-        phrase:
-          dimension: stage_transition
-          value: offer-to-details
-      - block: b4-details-to-recap
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
+          stage_transition: offer-to-recap
           stage: recap
         phrase:
           dimension: stage_transition
-          value: details-to-recap
-      - block: b5-D4_loose_confirmation
+          value: offer-to-recap
+      - block: b4-D4_loose_confirmation
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -239,18 +195,17 @@ metadata:
         phrase:
           dimension: deviation
           value: D4_loose_confirmation
-      - block: b6-recap-to-order_placed
+      - block: b5-recap-to-order_placed
         seeder: twise
         cell:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
-          coverage_result: 5g-only
-          customer_details: name-and-email
+          account_lookup: found
           stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
-      - block: b7-order_placed-to-closing
+      - block: b6-order_placed-to-closing
         seeder: twise
         cell:
           spec: metadata.generated.cell

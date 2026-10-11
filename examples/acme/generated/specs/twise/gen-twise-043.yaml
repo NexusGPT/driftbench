@@ -4,7 +4,7 @@
 id: gen-twise-043
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 43 of 154: Path home-callback of new-home: needs > address > offer > callback > handover, D7_silence_or_burst at callback"
+title: "t-wise row 43 of 154: Path home-callback of new-home: needs > address > offer > callback > handover, D7_silence_or_burst at offer"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -43,7 +43,7 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Hello, I'm looking for home internet.
+      user: Do you have home internet where I live?
     expect:
       stage: address
       tools:
@@ -75,26 +75,13 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
-  - id: b3-offer-to-callback
-    when:
-      user: Can someone just call me back?
-    expect:
-      stage: callback
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b4-D7_silence_or_burst
+  - id: b3-D7_silence_or_burst
     when:
       injection:
         class: D7_silence_or_burst
         user: hello?
     expect:
-      stage: callback
+      stage: offer
       tools:
         - label: coverage.check
           count: 0
@@ -107,6 +94,19 @@ blocks:
       lang: EN
       criteria:
         - deviation.D7_silence_or_burst
+  - id: b4-offer-to-callback
+    when:
+      user: Can someone just call me back?
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
   - id: b5-callback-to-handover
     when:
       user: You can reach me on +1 202 555 0131.
@@ -179,7 +179,16 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-offer
-      - block: b3-offer-to-callback
+      - block: b3-D7_silence_or_burst
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: offer
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
+      - block: b4-offer-to-callback
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -188,15 +197,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-callback
-      - block: b4-D7_silence_or_burst
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: callback
-        phrase:
-          dimension: deviation
-          value: D7_silence_or_burst
       - block: b5-callback-to-handover
         seeder: twise
         cell:

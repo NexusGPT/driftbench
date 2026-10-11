@@ -4,7 +4,7 @@
 id: gen-twise-032
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 32 of 154: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D7_silence_or_burst at address"
+title: "t-wise row 32 of 154: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D7_silence_or_burst at handover"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -55,24 +55,7 @@ blocks:
       criteria:
         - behaviour.B-003
         - flow.new-home
-  - id: b2-D7_silence_or_burst
-    when:
-      injection:
-        class: D7_silence_or_burst
-        user: hello?
-    expect:
-      stage: address
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: notify_sales
-          count: 0
-      must:
-        - I'm here
-      lang: EN
-      criteria:
-        - deviation.D7_silence_or_burst
-  - id: b3-address-to-callback
+  - id: b2-address-to-callback
     when:
       user: The address is 7 Quarry Lane, Acmeville.
     expect:
@@ -85,7 +68,7 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
-  - id: b4-callback-to-handover
+  - id: b3-callback-to-handover
     when:
       user: You can reach me on +1 202 555 0131.
     expect:
@@ -101,6 +84,23 @@ blocks:
         - label: coverage.check
           count: 0
       lang: EN
+  - id: b4-D7_silence_or_burst
+    when:
+      injection:
+        class: D7_silence_or_burst
+        user: hello?
+    expect:
+      stage: handover
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+      criteria:
+        - deviation.D7_silence_or_burst
   - id: b5-handover-to-closing
     when:
       user: Great, thank you. Bye!
@@ -156,16 +156,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D7_silence_or_burst
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: address
-        phrase:
-          dimension: deviation
-          value: D7_silence_or_burst
-      - block: b3-address-to-callback
+      - block: b2-address-to-callback
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -175,7 +166,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-callback
-      - block: b4-callback-to-handover
+      - block: b3-callback-to-handover
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -186,6 +177,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: callback-to-handover
+      - block: b4-D7_silence_or_burst
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: handover
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
       - block: b5-handover-to-closing
         seeder: twise
         cell:

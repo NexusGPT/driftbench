@@ -89,7 +89,7 @@ blocks:
       lang: EN
   - id: b4-details-to-recap
     when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: Jo Okafor, jo.okafor@example.com
     expect:
       stage: recap
       tools:
@@ -121,7 +121,7 @@ blocks:
         - deviation.D2_goal_shift
   - id: b6-recap-to-order_placed
     when:
-      user: CONFIRM
+      user: Confirm
     expect:
       stage: order_placed
       tools:

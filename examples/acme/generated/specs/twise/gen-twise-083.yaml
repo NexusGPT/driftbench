@@ -108,7 +108,7 @@ blocks:
         - deviation.D5_language_switch
   - id: b5-details-to-recap
     when:
-      user: Jo Okafor, jo.okafor@example.com
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
       stage: recap
       tools:
@@ -121,7 +121,7 @@ blocks:
       lang: EN
   - id: b6-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:

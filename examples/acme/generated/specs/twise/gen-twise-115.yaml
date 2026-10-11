@@ -4,7 +4,7 @@
 id: gen-twise-115
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 115 of 154: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D4_loose_confirmation at recap"
+title: "t-wise row 115 of 154: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D4_loose_confirmation at recap"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -12,7 +12,7 @@ tags:
   - persona:new-customer
   - data:fiber
   - task:existing-workbook
-  - flow:new-home
+  - flow:order
 covers:
   - B-011
 stages:
@@ -32,8 +32,8 @@ criteria:
     rubric: Answer an off-topic question in one line and resume the pending step
     gating: false
     scope: conversation
-  - name: flow.new-home
-    rubric: A new customer asks for home internet at an address
+  - name: flow.order
+    rubric: Recap, explicit confirmation and order placement
     gating: false
     scope: conversation
   - name: deviation.D4_loose_confirmation
@@ -43,7 +43,7 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Hello, I'm looking for home internet.
+      user: Do you have home internet where I live?
     expect:
       stage: address
       tools:
@@ -56,7 +56,7 @@ blocks:
       lang: EN
       criteria:
         - behaviour.B-011
-        - flow.new-home
+        - flow.order
   - id: b2-address-to-offer
     when:
       user: The address is 14 Harbor Road, Acmeville.
@@ -90,7 +90,7 @@ blocks:
       lang: EN
   - id: b4-details-to-recap
     when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: Jo Okafor, jo.okafor@example.com
     expect:
       stage: recap
       tools:
@@ -105,7 +105,7 @@ blocks:
     when:
       injection:
         class: D4_loose_confirmation
-        user: yeah sounds good
+        user: ok perfect
     expect:
       stage: recap
       tools:
@@ -123,7 +123,7 @@ blocks:
         - deviation.D4_loose_confirmation
   - id: b6-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
@@ -168,14 +168,14 @@ metadata:
       agent: acme
       version: "1"
       hash: badea3d3df7a
-    path: home-order
+    path: order-named-plan
     cell:
       behaviour: B-011
       channel: whatsapp
       user_type: new-customer
       coverage_result: fiber
       workspace_start: existing-workbook
-      flow: new-home
+      flow: order
       plan_choice: names-one
       customer_details: name-and-email
     blocks:

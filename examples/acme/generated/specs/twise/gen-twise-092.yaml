@@ -99,7 +99,7 @@ blocks:
       lang: EN
   - id: b5-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
