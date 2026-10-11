@@ -1,7 +1,11 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import {
+  appendJournal,
   checkFloors,
+  checkHandover,
+  composeBrief,
+  EXECUTOR_FILE,
   FLOORS_FILE,
   type FloorsFile,
   findRoot,
@@ -9,16 +13,25 @@ import {
   formatLadder,
   type HeadReader,
   type HiddenSeed,
+  handoverFile,
+  handoverTemplate,
   hiddenSeed,
+  journalFile,
   type Ladder,
   type LadderReport,
   parseSeeds,
   raiseFloor,
   readFloors,
+  readHandover,
+  readJournal,
   registeredLadders,
+  researchFile,
+  researchTemplate,
   runSeeds,
   seedSpecs,
+  setLevelTable,
   writeFloors,
+  writeHandover,
 } from '@driftbench/validators';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -34,6 +47,10 @@ export type ValidateCommandOptions = {
   checkFloor?: boolean;
   raise?: string;
   evidence?: string;
+  brief?: boolean;
+  fresh?: boolean;
+  journal?: string;
+  checkHandover?: boolean;
 };
 
 /** What the command runs with. Tests pass their own ladders, root and commit reader. */
@@ -74,6 +91,10 @@ export function registerValidateCommand(
     .option('--check-floor', 'exit 1 when a run is below its floor in validators/floors.json, else 0')
     .option('--raise <component>', 'with floors: raise the floor of this component to [level]')
     .option('--evidence <json>', 'with floors --raise: the --json run that reaches the level')
+    .option('--brief', 'print validators/EXECUTOR.md with the live state of the loop embedded')
+    .option('--fresh', "with --brief: leave out the handover's hypotheses (the handover test)")
+    .option('--journal <row.json>', "append a validated journal row and rewrite the handover's level table")
+    .option('--check-handover', 'exit 1 when HANDOVER.md misses a section or disagrees with the journal')
     .action(async (component: string, level: string | undefined, options: ValidateCommandOptions) => {
       setExit(await validateCommand(component, options, io, deps, level));
     });
@@ -102,6 +123,21 @@ export async function validateCommand(
   }
   const chosen = select(component, ladders, io);
   if (!chosen) return USAGE_EXIT;
+  const modes = [options.brief, options.journal !== undefined, options.checkHandover, options.checkFloor];
+  if (modes.filter(Boolean).length > 1) {
+    io.err('Choose one of --brief, --journal, --check-handover and --check-floor.\n');
+    return USAGE_EXIT;
+  }
+  if (options.fresh && !options.brief) {
+    io.err('--fresh goes with --brief.\n');
+    return USAGE_EXIT;
+  }
+  if ((options.brief || options.journal !== undefined) && component === 'all') {
+    io.err('--brief and --journal take one component, not all.\n');
+    return USAGE_EXIT;
+  }
+  if (options.journal !== undefined) return journalCommand(component, options.journal, floors, root, io);
+  if (options.checkHandover) return handoverCheckCommand(chosen, root, io);
   const visible = parseSeeds(options);
   if (typeof visible === 'string') {
     io.err(`${visible}\n`);
@@ -111,6 +147,8 @@ export async function validateCommand(
   if (hidden?.note && !options.json) io.out(`Note: ${hidden.note}\n`);
   const reports: LadderReport[] = [];
   for (const ladder of chosen) reports.push(await runSeeds(ladder, seedSpecs(visible, hidden), root));
+  if (options.brief)
+    return briefCommand(reports[0] as LadderReport, hidden, floors, Boolean(options.fresh), deps, root, io);
   print(reports, component === 'all', hidden, floors, options, io);
   if (!options.checkFloor) return Math.min(...reports.map((report) => report.level));
   const tops = Object.fromEntries(
@@ -122,6 +160,90 @@ export async function validateCommand(
   for (const check of below)
     io.err(`${check.component} is at level ${check.level}, below its floor ${check.floor}.\n`);
   return below.length > 0 || (component === 'all' && problems.length > 0) ? 1 : 0;
+}
+
+/** `validate <component> --journal <row.json>`: appends a validated row and rewrites the handover's level table. */
+function journalCommand(component: string, path: string, floors: FloorsFile, root: string, io: Io): number {
+  let value: unknown;
+  try {
+    value = JSON.parse(readFileSync(resolve(io.cwd, path), 'utf8'));
+  } catch (cause) {
+    io.err(`Cannot read the journal row ${path}: ${message(cause)}\n`);
+    return USAGE_EXIT;
+  }
+  const result = appendJournal(root, component, value);
+  if ('refused' in result) {
+    io.err(`Refused: the row was not appended to ${journalFile(component)}.\n`);
+    for (const reason of result.refused) io.err(`  ${reason}\n`);
+    return 1;
+  }
+  const handover = readHandover(root, component) ?? handoverTemplate(component, floorOf(floors, component));
+  writeHandover(root, component, setLevelTable(handover, result.row));
+  const research = join(root, researchFile(component));
+  if (!existsSync(research)) writeFileSync(research, researchTemplate(component));
+  io.out(
+    `Appended iteration ${result.row.iteration} to ${journalFile(component)} and rewrote the level table of ${handoverFile(component)}.\n`,
+  );
+  return 0;
+}
+
+/** `validate <component|all> --check-handover`: every section present and the level table equal to the journal. */
+function handoverCheckCommand(ladders: Ladder[], root: string, io: Io): number {
+  let failed = false;
+  for (const ladder of ladders) {
+    const { rows, problems } = readJournal(root, ladder.component);
+    const text = readHandover(root, ladder.component);
+    const all = [...problems];
+    if (text === undefined) all.push(`${handoverFile(ladder.component)} is missing`);
+    else all.push(...checkHandover(text, rows.at(-1)));
+    if (all.length === 0) {
+      io.out(
+        `${handoverFile(ladder.component)}: every section present, the level table matches the journal.\n`,
+      );
+      continue;
+    }
+    failed = true;
+    io.err(`${handoverFile(ladder.component)}:\n`);
+    for (const problem of all) io.err(`  ${problem}\n`);
+  }
+  return failed ? 1 : 0;
+}
+
+/** `validate <component> --brief [--fresh]`: the executor instruction with the live state embedded. */
+function briefCommand(
+  report: LadderReport,
+  hidden: HiddenSeed | undefined,
+  floors: FloorsFile,
+  fresh: boolean,
+  deps: ValidateDeps,
+  root: string,
+  io: Io,
+): number {
+  const path = join(root, EXECUTOR_FILE);
+  if (!existsSync(path)) {
+    io.err(`${EXECUTOR_FILE} is missing: the brief has no instruction to embed the state in.\n`);
+    return USAGE_EXIT;
+  }
+  const { rows, problems } = readJournal(root, report.component);
+  for (const problem of problems) io.err(`Warning: ${problem}\n`);
+  io.out(
+    composeBrief({
+      component: report.component,
+      executor: readFileSync(path, 'utf8'),
+      report,
+      floor: floorOf(floors, report.component),
+      last: rows.at(-1),
+      handover: readHandover(root, report.component),
+      head: hidden?.head ?? headOf(root, deps),
+      fresh,
+    }),
+  );
+  return 0;
+}
+
+function headOf(root: string, deps: ValidateDeps): string | undefined {
+  const head = hiddenSeed(root, deps.readHead);
+  return head.source === 'head' ? head.head : undefined;
 }
 
 /** `validate floors --raise <component> <level> --evidence <json>`: rewrites the floors file, only upward. */

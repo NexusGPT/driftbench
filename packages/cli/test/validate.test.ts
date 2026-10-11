@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { plantedLadder } from '../../validators/test/support';
+import { journalRow, plantedLadder } from '../../validators/test/support';
 import { USAGE_EXIT, type ValidateDeps, validateCommand } from '../src/commands/validate';
 import type { Io } from '../src/io';
 
@@ -159,5 +159,75 @@ describe('driftbench validate floors', () => {
     ).toEqual({
       planted: 3,
     });
+  });
+});
+
+describe('driftbench validate loop files', () => {
+  it('--journal appends a valid row, writes the handover level table, and refuses a bad row', async () => {
+    const d = await deps();
+    const root = d.root as string;
+    await writeFile(join(root, 'row1.json'), JSON.stringify(journalRow(1)));
+    const ok = capture(root);
+    expect(await validateCommand('planted', { journal: 'row1.json' }, ok.io, d)).toBe(0);
+    expect(ok.output.out).toContain('Appended iteration 1 to validators/planted/journal.jsonl');
+    const handover = await readFile(join(root, 'validators/planted/HANDOVER.md'), 'utf8');
+    expect(handover).toContain('| 1 | 3 |\n| hidden | 3 |');
+    expect(await readFile(join(root, 'validators/planted/research.md'), 'utf8')).toContain('# Research');
+    const check = capture(root);
+    expect(await validateCommand('planted', { checkHandover: true }, check.io, d)).toBe(0);
+    await writeFile(join(root, 'bad.json'), JSON.stringify(journalRow(2, { result: 'lowered' })));
+    const bad = capture(root);
+    expect(await validateCommand('planted', { journal: 'bad.json' }, bad.io, d)).toBe(1);
+    expect(bad.output.err).toContain('result: the level moved, so result is raised');
+    const lines = (await readFile(join(root, 'validators/planted/journal.jsonl'), 'utf8')).trim().split('\n');
+    expect(lines).toHaveLength(1);
+  });
+
+  it('--check-handover exits 1 on a missing handover and on a table the journal contradicts', async () => {
+    const d = await deps();
+    const root = d.root as string;
+    const missing = capture(root);
+    expect(await validateCommand('planted', { checkHandover: true }, missing.io, d)).toBe(1);
+    expect(missing.output.err).toContain('validators/planted/HANDOVER.md is missing');
+    await writeFile(join(root, 'row1.json'), JSON.stringify(journalRow(1)));
+    await validateCommand('planted', { journal: 'row1.json' }, capture(root).io, d);
+    const path = join(root, 'validators/planted/HANDOVER.md');
+    await writeFile(path, (await readFile(path, 'utf8')).replace('| hidden | 3 |', '| hidden | 1 |'));
+    const stale = capture(root);
+    expect(await validateCommand('planted', { checkHandover: true }, stale.io, d)).toBe(1);
+    expect(stale.output.err).toContain('the level table says 1=3, hidden=1');
+  });
+
+  it('--brief prints EXECUTOR.md with the live state; --fresh leaves out the hypotheses', async () => {
+    const d = await deps([1]);
+    const root = d.root as string;
+    await mkdir(join(root, 'validators'), { recursive: true });
+    await writeFile(
+      join(root, 'validators/EXECUTOR.md'),
+      '# Executor instruction\n\nDrive <component> to 100 percent.\n',
+    );
+    await writeFile(join(root, 'row1.json'), JSON.stringify(journalRow(1)));
+    await validateCommand('planted', { journal: 'row1.json' }, capture(root).io, d);
+    const brief = capture(root);
+    const head = 'abcdef0123456789abcdef0123456789abcdef01';
+    expect(await validateCommand('planted', { brief: true }, brief.io, { ...d, readHead: () => head })).toBe(
+      0,
+    );
+    expect(brief.output.out).toContain('at commit abcdef012345');
+    expect(brief.output.out).toContain('Seed 1, level 2 second (second rung), 2 items:');
+    expect(brief.output.out).toContain('"hypothesis"');
+    expect(brief.output.out).toContain('## Hypotheses tried');
+    expect(brief.output.out).toContain('Drive planted to 100 percent.');
+    const fresh = capture(root);
+    expect(
+      await validateCommand('planted', { brief: true, fresh: true }, fresh.io, {
+        ...d,
+        readHead: () => head,
+      }),
+    ).toBe(0);
+    expect(fresh.output.out).not.toContain('## Hypotheses tried');
+    expect(fresh.output.out).not.toContain('"hypothesis"');
+    const usage = capture(root);
+    expect(await validateCommand('planted', { fresh: true }, usage.io, d)).toBe(USAGE_EXIT);
   });
 });

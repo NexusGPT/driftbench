@@ -4,6 +4,7 @@
  */
 export const packageName = '@driftbench/validators';
 
+export { type BriefInput, composeBrief, EXECUTOR_FILE } from './brief';
 export {
   checkFloors,
   FLOORS_FILE,
@@ -18,6 +19,29 @@ export {
   writeFloors,
 } from './floors';
 export { type FormatOptions, formatLadder, showNumber } from './format';
+export {
+  checkHandover,
+  HANDOVER_SECTIONS,
+  handoverFile,
+  handoverSection,
+  handoverTemplate,
+  levelTable,
+  parseLevelTable,
+  readHandover,
+  researchFile,
+  researchTemplate,
+  setLevelTable,
+  writeHandover,
+} from './handover';
+export {
+  appendJournal,
+  type JournalRow,
+  JournalRowSchema,
+  journalFile,
+  loopFolder,
+  readJournal,
+  validateRow,
+} from './journal';
 export {
   type Direction,
   defineLadder,
