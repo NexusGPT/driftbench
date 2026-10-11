@@ -5,6 +5,7 @@ import { functionAdapter } from '@driftbench/adapters';
 import { defaultChecks } from '@driftbench/checks';
 import {
   type AgentAdapter,
+  type Check,
   enterBlock,
   initialGiven,
   type LoadedSpec,
@@ -15,6 +16,7 @@ import {
   runSpec,
   type Spec,
   stimulusMessages,
+  type Verdict,
 } from '@driftbench/core';
 import {
   blockCell,
@@ -126,8 +128,37 @@ export type FaultRecord = {
 
 export type Runs = { blocks: BlockRun[]; faults: FaultRecord[]; errors: string[] };
 
+/**
+ * The language check, remembered. Detecting a language is most of a run's cost, and the `expect.lang` verdict
+ * depends only on the expected language and the block's text segments, so the same pair gives the same
+ * verdicts; a spec with `rules.lang_stable` also reads earlier blocks and is never remembered.
+ */
+const langVerdicts = new Map<string, Verdict[]>();
+
+function rememberLang(check: Check): Check {
+  return {
+    ...check,
+    evaluate(ctx) {
+      if (ctx.spec.rules?.lang_stable === true) return check.evaluate(ctx);
+      const texts = ctx.observed.segments.flatMap((segment) =>
+        segment.type === 'text' ? [segment.text] : [],
+      );
+      const key = JSON.stringify([ctx.expect.lang, texts]);
+      const known = langVerdicts.get(key);
+      if (known) return structuredClone(known);
+      const result = check.evaluate(ctx);
+      if (result instanceof Promise) return result;
+      langVerdicts.set(key, structuredClone(result));
+      return result;
+    },
+  };
+}
+
 export function runContext(): RunContext {
-  return { checks: defaultChecks(), driver: () => createScriptedDriver() };
+  return {
+    checks: defaultChecks().map((check) => (check.name === 'lang' ? rememberLang(check) : check)),
+    driver: () => createScriptedDriver(),
+  };
 }
 
 export function followerAdapter(session: () => FaultSession, version = 'rule-follower'): AgentAdapter {
@@ -299,7 +330,8 @@ export async function emulate(spec: Spec, session: FaultSession): Promise<string
     if (block.given?.prefix) history.splice(0, history.length, ...structuredClone(block.given.prefix));
     if (!block.when) return out;
     history.push(...stimulusMessages(block.when));
-    const observed = await session.respond(structuredClone(history), structuredClone(state.world));
+    // The follower and its faults never change what they are given, so nothing is copied.
+    const observed = await session.respond(history, state.world);
     history.push({ role: 'assistant', content: observed.text });
     out.push(projectObserved(observed));
   }

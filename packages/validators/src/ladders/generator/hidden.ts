@@ -889,9 +889,15 @@ export function hiddenSpec(seed: number): HiddenSpec {
 }
 
 /** A phrase text as a regular expression: each `{slot}` becomes a named group. */
+const patterns = new Map<string, RegExp>();
+
 export function phrasePattern(text: string): RegExp {
+  const known = patterns.get(text);
+  if (known) return known;
   const escaped = text.replace(/[.*+?^$()|[\]\\]/g, '\\$&');
-  return new RegExp(`^${escaped.replace(/\{([a-z][a-z0-9_]*)\}/g, '(?<$1>[A-Za-z0-9_.-]+)')}$`);
+  const pattern = new RegExp(`^${escaped.replace(/\{([a-z][a-z0-9_]*)\}/g, '(?<$1>[A-Za-z0-9_.-]+)')}$`);
+  patterns.set(text, pattern);
+  return pattern;
 }
 
 /** The intent a user turn expresses and the slot values it states; undefined when no phrase matches. */
