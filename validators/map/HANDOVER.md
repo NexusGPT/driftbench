@@ -9,17 +9,15 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 |---|---|
 <!-- level-table:end -->
 
-No executor iteration has run yet, so the table is empty. The V4 lane's own run (`pnpm driftbench validate map --seeds 1..20 --hidden`, at commit 8abd7e2, before the first executor) reached level 4 of 7 on seeds 1 to 20 and on the hidden seed: levels 1 to 4 pass at 1.0 on every seed, level 5 fails at 0.75 on every seed.
+No executor iteration has run yet. Iteration 0 of the bank (section 12.4), at commit 8ee9523: 166 of 456 items pass on seeds 1 to 20 and the hidden seed, a score of 0.364, level 0 of 8 on every seed. The measurement is the first row of `validators/map/bank.jsonl`.
 
 ## Floor
 
-None: `validators/floors.json` holds no floor for map, so CI reads it as 0. Level 1 holds on seeds 1 to 20 and the hidden seed; a floor rise is a maintainer commit of its own (`pnpm driftbench validate floors --raise map 4 --evidence <run.json>`).
+None: `validators/floors.json` holds no floor for map, so CI reads it as 0. Under section 12.5 the bank is ladder version 2 of map, and its floor starts at the level the pilot reaches.
 
 ## Open items
 
-Level 5 (metamorphic invariance), one item on every seed: `transform:permute`, pointing at `packages/generate/src/extract/space.ts`. The prompt with its sections in reverse order gives a map whose persona and data axes differ: `proposeRole` makes the first dimension of a kind that arrives an axis and the others details, and the answer contract (`packages/generate/src/extract/contract.ts`) carries no role, so the axis follows the order the sections appear in. The other three transforms (split rules, synonyms, decoys) leave the map unchanged.
-
-Level 7 (roles) will name the same cause once level 5 passes: the specification declares one axis per kind, stated in the prompt by the sentence "Each of these makes a different kind of conversation.", and the extractor has no field to carry it.
+Level 1 (structured files, 98 items) fails on every seed with 44 or 45 items: 30 schema keywords the tool pre-pass does not read (multipleOf, uniqueItems, minItems, draft-04 boolean bounds, formats and bounds with no type, oneOf, anyOf, allOf, $ref, deeper nesting, array items, prefixItems, contains, dependentRequired, if-then-else, not, additionalProperties and patternProperties, discriminators, recursive references, contentEncoding, minProperties and maxProperties, a doubled null), 12 tool file shapes it cannot read (Gemini, Bedrock, OpenAPI, Swagger, legacy functions, agent configs, stringified parameters, YAML streams, JSON with comments, Cohere, Vercel), and 3 inventory forms (a title longer than a quote, markdown tables, CSV). Each item names its convention in its title: the partition ids the pre-pass must give.
 
 ## Hypotheses tried
 
@@ -27,27 +25,29 @@ None yet. Each entry: the hypothesis, the evidence, and why it was rejected.
 
 ## Next actions
 
-1. Read the item of seed 1: `pnpm driftbench validate map --seed 1`. Write one sentence naming `proposeRole` and the missing role field.
-2. Fix one cause: let a model section state a role. Add an optional `role` to `AnswerDimension` in `packages/generate/src/extract/contract.ts`, ask for it in the dimension template of `SYSTEM_PROMPT` (`"role": "<axis or detail>"`), and use it in `acceptAnswer` instead of `proposeRole` when present. Write the test in `packages/generate/test/extract/` that reproduces the item first. The perfect model reads `SYSTEM_PROMPT`: once it shows a `"role":` key, it sends each dimension's declared role (`contractStatesRole` in `oracle.ts`), so no validator file changes.
-3. Re-run on seed 1, then `--seeds 1..20 --hidden`, and record the level per seed with `--journal`. Levels 6 and 7 are computed for the first time then. The V4 lane applied exactly this fix to a scratch copy (never committed; the edits are in `_captures/v-map/mutations/mutate.py`, entry `F`) and measured level 7 of 7 on seeds 1 to 20 and the hidden seed.
+1. Run `pnpm driftbench validate map --seed 1` and take the first item of level 1.
+2. Write one sentence: the component (`packages/generate/src/extract/tools.ts` for a schema keyword), the cause, the item.
+3. Fix that one keyword in the tool pre-pass with a test in `packages/generate/test/extract/tools.test.ts` that reproduces the item first, then run the bank (`pnpm tsx packages/validators/src/ladders/map/bank/cli.ts --run --record <n> --note "<what changed>"`) and append the journal row.
 
 ## Pitfalls
 
-* The extractor runs with no model: the perfect model is code that answers each section from the hidden specification and the rendered spans. A live run with a real model is a separate, billed run the owner approves; `mapLadder({ answerer })` takes a `ModelPort` for it, and nothing in the command wires it.
-* The perfect model lists dimensions in the order the prompt states them, as a model reading the prompt would. That is what makes the permute transform move the axes.
-* Level 6 runs 20 specifications derived from the seed (`mixSeed(seed, 1000 + i)`), four extractions each. It is the slowest level; it is not computed while level 5 fails.
-* A missed prose atom with no refusal points at the section request (`contract.ts`): nothing refused it, so the section answer never reported it.
+* The bank's perfect model is code: a model port that answers each section with what the request shows, writes only the keys the contract's answer template shows, and holds 16000 output and 200000 context tokens at four characters a token. A semantics item passes only after the contract template (`SYSTEM_PROMPT` in `packages/generate/src/extract/contract.ts`) shows the key it needs (`polarity`, `when`, `weight`, `required` on a value; `role` on a dimension; the relation kinds `tool_order`, `route`, `reply_text`).
+* Every styled item checks rule polarity, so the style, pair and scale families stay red until the map carries polarity; after that they show the next cause.
+* An item passes only when it passes on all 21 seeds; one seed is not evidence.
+* A full bank run takes about 70 seconds on 21 seeds; the ladder stops at the first failing level and takes about 2 seconds.
 
 ## How to run
 
 ```
+pnpm driftbench validate map --seed 1
 pnpm driftbench validate map --seeds 1..20 --hidden
-pnpm driftbench validate map --seed 1 --json
-pnpm driftbench validate map --brief
+pnpm tsx packages/validators/src/ladders/map/bank/cli.ts
+pnpm tsx packages/validators/src/ladders/map/bank/cli.ts --run --record <n> --note "<text>"
 pnpm vitest run packages/validators/test/map
 ```
 
 ## Fixtures
 
-* The hidden specification is drawn by `hiddenSpec(seed)` in `packages/validators/src/ladders/map/spec.ts`; the renderer is `render.ts`, the truth `truth.ts`, the perfect model `oracle.ts`, the transforms `transforms.ts`, the levels `levels.ts` with the fixed component table `MAP_COMPONENTS`.
-* `packages/validators/fixtures/map/seed-1/` and `seed-2/` hold what seeds 1 and 2 render to (prompt, inventory, tools, the recorded answers, the truth with every span); the fixture test compares them byte for byte.
+* The bank is `packages/validators/src/ladders/map/bank/`: `types.ts` (items and levels), `perfect.ts` (the perfect model), `facts.ts` (the oracle's facts), `run.ts`, `ladder.ts`, `hardness.ts`, `styled.ts` (fourteen prompt styles), and one file per family under `families/`.
+* The first ladder of section 2 is `first.ts`; its seven levels are items of the bank (`families/v1.ts`). Its fixtures for seeds 1 and 2 are in `packages/validators/fixtures/map/`.
+* The hardness rows are `validators/map/bank.jsonl`, iteration 0 first.
