@@ -110,15 +110,33 @@ export class AtomBuilder {
   }
 }
 
-/** The name a trace gives a guard: its script's file name, else a slug of its command. */
-export function guardName(guard: Pick<GuardDecl, 'script' | 'command'>): string {
+/** The name a trace gives a guard: a catalogue check's id, else its script's file name, else a slug of its command. */
+export function guardName(guard: Pick<GuardDecl, 'script' | 'command' | 'check'>): string {
+  if (guard.check) return guard.check.id;
   return guard.script ? basename(guard.script) : slug(guard.command, 8);
 }
 
-/** The registry row of a guard, matched on the guard's name. */
-export function registryRowOf(guard: GuardDecl, registry: readonly RegistryRow[]): RegistryRow | undefined {
+/** Every registry row that names a guard, matched on the guard's name, in registry order. */
+export function registryRowsOf(guard: GuardDecl, registry: readonly RegistryRow[]): RegistryRow[] {
   const name = guardName(guard);
-  return registry.find((row) => basename(row.guard) === name);
+  return registry.filter((row) => basename(row.guard) === name);
+}
+
+/**
+ * The registry row of a guard. When several rows name the guard (one guard script runs several checks),
+ * one row stands for them all: the first row's id, event, verdict and place, the first state written, and
+ * the rules every row enforces.
+ */
+export function registryRowOf(guard: GuardDecl, registry: readonly RegistryRow[]): RegistryRow | undefined {
+  const rows = registryRowsOf(guard, registry);
+  const [first, ...rest] = rows;
+  if (!first || rest.length === 0) return first;
+  const state = rows.find((row) => row.state !== undefined)?.state;
+  return {
+    ...first,
+    enforces: rows.flatMap((row) => row.enforces),
+    ...(state !== undefined ? { state } : {}),
+  };
 }
 
 /** Every atom code reads, in a fixed order, so ids are the same on every run. */
@@ -186,6 +204,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
   for (const guard of raw.guards) {
     const name = guardName(guard);
     const row = registryRowOf(guard, raw.registry);
+    const rows = registryRowsOf(guard, raw.registry).filter((entry) => entry.origin !== 'catalogue');
     builder.add({
       kind: 'guard',
       title: `${guard.event}${guard.matcher ? ` ${guard.matcher}` : ''} guard ${name}`,
@@ -201,6 +220,17 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
         ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
         ...(guard.timeout !== undefined ? { timeout: guard.timeout } : {}),
         ...(row ? { registry: row.id } : {}),
+        ...(rows.length > 1 ? { registryRows: rows.map((entry) => entry.id) } : {}),
+        ...(row?.state !== undefined ? { state: row.state } : {}),
+        ...(guard.check
+          ? {
+              check: guard.check.id,
+              ...(guard.check.kind !== undefined ? { checkKind: guard.check.kind } : {}),
+              ...(guard.check.state !== undefined ? { state: guard.check.state } : {}),
+              ...(guard.check.work !== undefined ? { work: guard.check.work } : {}),
+              ...(guard.check.steps.length > 0 ? { steps: guard.check.steps } : {}),
+            }
+          : {}),
       },
     });
   }

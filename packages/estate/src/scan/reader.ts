@@ -66,7 +66,22 @@ export type GuardDecl = {
   /** `estate` for a guard of the settings, else the name of the skill that declares it. */
   scope: string;
   timeout?: number;
+  /** A check a catalogue declares: its id, its enforcement state and the steps it watches. */
+  check?: CheckDecl;
   at: Located;
+};
+
+/** A catalogue entry read as a guard: the id it goes by and what the catalogue says about it. */
+export type CheckDecl = {
+  id: string;
+  /** The entry's own kind, as the catalogue writes it (a check, a judge, a nudge, ...). */
+  kind?: string;
+  /** Its enforcement state, as the catalogue writes it (enforce, observe, off, ...). */
+  state?: string;
+  /** What the check does or runs, as written. */
+  work?: string;
+  /** The steps of a step list the check belongs to. */
+  steps: string[];
 };
 
 export type PermissionDecl = {
@@ -89,6 +104,10 @@ export type RegistryRow = {
   event?: string;
   enforces: Array<{ id: string } | { quote: string }>;
   verdict?: string;
+  /** Its rollout or enforcement state, when the registry writes one. */
+  state?: string;
+  /** `catalogue` for a row the reader made from a catalogue entry; absent for a registry row. */
+  origin?: 'catalogue';
   at: Located;
 };
 

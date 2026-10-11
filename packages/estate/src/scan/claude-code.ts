@@ -1,5 +1,6 @@
 import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { basename, join, posix } from 'node:path';
+import { guardName } from './code';
 import type {
   EstateFile,
   EstateReader,
@@ -79,13 +80,15 @@ export class ClaudeCodeReader implements EstateReader {
       if (file.kind === 'settings') readSettings(file, estate);
       if (file.kind === 'skill') readSkill(file, estate);
       if (file.kind === 'subagent') readSubagent(file, estate);
-      if (file.kind === 'registry') readRegistry(file, estate);
       if (file.kind === 'step_list') readSteps(file, estate);
       if (file.kind === 'standing' || file.kind === 'memory') {
         const count = file.text.replace(/\n+$/, '').split('\n').length;
         addProse(estate, file, 1, count);
       }
     }
+    // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
+    // so every guard is known before a row is matched to one.
+    for (const file of files) if (file.kind === 'registry') readRegistry(file, estate);
     const scripts = new Set(estate.guards.flatMap((guard) => (guard.script ? [guard.script] : [])));
     for (const file of files) if (scripts.has(file.path)) file.kind = 'guard_script';
     return estate;
@@ -369,33 +372,120 @@ function readSubagent(file: EstateFile, estate: RawEstate): void {
   addProse(estate, file, subagent.body.startLine, subagent.body.endLine);
 }
 
+/** Header cells that name a registry table's columns. A table is a registry table by its first column. */
+const COLUMNS = {
+  id: /^(id|check id|code)$/i,
+  guard: /^(guards?|scripts?|checks?|hooks?|adapters?|handlers?|runs?)$/i,
+  enforces: /^(enforces|rules?)$/i,
+  watches: /^(fires when|fires on|watches|watch|triggers?)$/i,
+  event: /^events?$/i,
+  verdict: /^(verdict|mode)$/i,
+  state: /^(rollout|status|state)$/i,
+} as const;
+
+/** A row id: one token with a digit in it, such as `G6`, `AW4` or `check-12`. */
+const ROW_ID = /^[A-Za-z][\w.#-]*\d[\w.#-]*$/;
+
+/**
+ * Reads every table of a markdown check registry whose first column holds ids: a header `Id`, or a first
+ * cell that is one token with a digit in every row. The other columns are free text. A row names its guard
+ * by (in this order) a guard the estate runs, named in any cell; a catalogue check with the row's id; a
+ * guard script whose source holds the row's id; else the guard column as written; else the id. The rules
+ * it enforces come from an `Enforces` column (ids and quoted passages) and from a `Fires when` or
+ * `Watches` column (quoted passages and ids).
+ */
 function readRegistry(file: EstateFile, estate: RawEstate): void {
   if (file.path.endsWith('.json')) {
     readJsonRegistry(file, estate);
     return;
   }
+  const known = knownGuards(estate);
   for (const table of readTables(file.text)) {
-    const column = (pattern: RegExp) => table.header.findIndex((cell) => pattern.test(cell));
-    const id = column(/^id$/i);
-    const guard = column(/^(guard|script|check|hook)s?$/i);
-    const enforces = column(/^(enforces|rules?)$/i);
-    if (guard < 0 || enforces < 0) continue;
-    const event = column(/^event$/i);
-    const verdict = column(/^(verdict|mode)$/i);
+    const column = (pattern: RegExp, from = 0) =>
+      table.header.findIndex((cell, index) => index >= from && pattern.test(cell));
+    const firstIsId =
+      COLUMNS.id.test(table.header[0] ?? '') ||
+      (table.rows.length > 0 && table.rows.every((row) => ROW_ID.test(strip(row.cells[0] ?? ''))));
+    const legacyGuard = column(COLUMNS.guard);
+    const legacyEnforces = column(COLUMNS.enforces);
+    if (!firstIsId && (legacyGuard < 0 || legacyEnforces < 0)) continue;
+    const id = firstIsId ? 0 : column(COLUMNS.id);
+    const guard = column(COLUMNS.guard, firstIsId ? 1 : 0);
+    const enforces = column(COLUMNS.enforces);
+    const watches = column(COLUMNS.watches);
+    const event = column(COLUMNS.event);
+    const verdict = column(COLUMNS.verdict);
+    const state = column(COLUMNS.state);
     for (const row of table.rows) {
-      const name = strip(row.cells[guard] ?? '');
-      if (name === '') continue;
+      const cell = (index: number) => (index >= 0 ? strip(row.cells[index] ?? '') : '');
+      const rowId = cell(id) || cell(guard);
+      if (rowId === '') continue;
+      const others = row.cells.filter((_, index) => index !== id);
+      const named = guardNamedIn(guard >= 0 ? [row.cells[guard] ?? '', ...others] : others, known);
+      const links = [
+        ...(enforces >= 0 ? parseEnforces(row.cells[enforces] ?? '') : []),
+        ...(watches >= 0 ? parseWatches(row.cells[watches] ?? '', rowId) : []),
+      ];
       const entry: RegistryRow = {
-        id: strip(row.cells[id] ?? '') || name,
-        guard: name,
-        enforces: parseEnforces(row.cells[enforces] ?? ''),
+        id: rowId,
+        guard:
+          named ?? checkGuard(rowId, estate) ?? scriptHolding(rowId, estate, known) ?? (cell(guard) || rowId),
+        enforces: links,
         at: { file: file.path, startLine: row.line, endLine: row.line, quote: row.text },
       };
-      if (event >= 0 && row.cells[event]) entry.event = strip(row.cells[event] ?? '');
-      if (verdict >= 0 && row.cells[verdict]) entry.verdict = strip(row.cells[verdict] ?? '');
+      if (cell(event) !== '') entry.event = cell(event);
+      if (cell(verdict) !== '') entry.verdict = cell(verdict);
+      if (cell(state) !== '') entry.state = cell(state);
       estate.registry.push(entry);
     }
   }
+}
+
+/** The names the estate's guards go by: a script's file name, a check id. */
+function knownGuards(estate: RawEstate): Set<string> {
+  return new Set(estate.guards.map((guard) => guardName(guard)));
+}
+
+/** A known guard named in one of the cells: as a whole cell, a backticked token or a word of the cell. */
+function guardNamedIn(cells: readonly string[], known: ReadonlySet<string>): string | undefined {
+  for (const raw of cells) {
+    const cell = strip(raw);
+    const tokens = [cell, ...cell.split(/[\s,;|()]+/)].map((token) => strip(token)).filter(Boolean);
+    for (const token of tokens) {
+      if (known.has(token)) return token;
+      const base = basename(token);
+      if (base !== token && known.has(base)) return base;
+    }
+  }
+  return undefined;
+}
+
+/** The catalogue check of the same id, when the estate has one. */
+function checkGuard(id: string, estate: RawEstate): string | undefined {
+  return estate.guards.find((guard) => guard.check?.id === id)?.check?.id;
+}
+
+/** The guard whose script source holds the id as a word: a check that lives inside a guard script. */
+function scriptHolding(id: string, estate: RawEstate, known: ReadonlySet<string>): string | undefined {
+  const word = new RegExp(`(^|[^\\w])${escapeRegex(id)}([^\\w]|$)`);
+  for (const guard of estate.guards) {
+    if (!guard.script) continue;
+    const text = estate.files.find((file) => file.path === guard.script)?.text;
+    const name = guardName(guard);
+    if (text !== undefined && known.has(name) && word.test(text)) return name;
+  }
+  return undefined;
+}
+
+/** Free text that says when a check fires: the quoted passages it repeats, and rule ids other than its own. */
+function parseWatches(cell: string, own: string): RegistryRow['enforces'] {
+  const found: RegistryRow['enforces'] = [];
+  for (const match of cell.matchAll(/"([^"]+)"|\u201c([^\u201d]+)\u201d|\b([A-Z]{1,3}\d{1,3})\b/g)) {
+    const quote = match[1] ?? match[2];
+    if (quote !== undefined) found.push({ quote });
+    else if (match[3] !== undefined && match[3] !== own) found.push({ id: match[3] });
+  }
+  return found;
 }
 
 function readJsonRegistry(file: EstateFile, estate: RawEstate): void {

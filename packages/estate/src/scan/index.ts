@@ -11,6 +11,7 @@ export {
   HAZARDS,
   namedPaths,
   registryRowOf,
+  registryRowsOf,
   resolveNamed,
   toolBase,
 } from './code';
@@ -40,6 +41,7 @@ export {
   runChunk,
 } from './prose';
 export type {
+  CheckDecl,
   EstateFile,
   EstateReader,
   FileKind,
