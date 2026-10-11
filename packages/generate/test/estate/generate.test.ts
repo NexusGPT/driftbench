@@ -15,7 +15,6 @@ import {
   APPROVED_PLAN,
   FIXTURE_GENERATED,
   fixtureInputs,
-  HAND_GENERATED,
   HAND_PATHS,
   PLANNER_PATHS,
   PLANNER_PLAN,
@@ -413,15 +412,8 @@ describe('the record and the seed', () => {
   });
 });
 
-describe('the committed suites', () => {
-  it('holds the hand plan suite byte for byte as the generator writes it, seed 1', async () => {
-    const result = generateEstateSuite(await fixtureInputs(), { paths: HAND_PATHS });
-    const committed = await tree(HAND_GENERATED);
-    expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
-    for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
-  });
-
-  it("holds the planner's plan with every row approved and nothing else changed", async () => {
+describe('the committed suite', () => {
+  it("reads the planner's plan with every row approved and nothing else changed", async () => {
     const planner = (await readFile(PLANNER_PLAN, 'utf8')).split('\n');
     const approved = (await readFile(APPROVED_PLAN, 'utf8')).split('\n');
     // Three lines of note, then the planner's file with each status flipped to approved.
@@ -430,14 +422,16 @@ describe('the committed suites', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(planner.filter((line) => line.includes('status: approved'))).toEqual([]);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1338);
+    expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
+      [],
+    );
   });
 
-  it("holds the planner's plan suite byte for byte as the generator writes it, seed 1", async () => {
+  it("is byte for byte what the generator writes for the planner's plan, seed 1", async () => {
     const result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), { paths: PLANNER_PATHS });
     const committed = await tree(FIXTURE_GENERATED);
-    const own = Object.keys(committed).filter((path) => !path.startsWith('hand-plan/'));
-    expect(own.sort()).toEqual(result.files.map((file) => file.path).sort());
+    expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
       specs: 1338,

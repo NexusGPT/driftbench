@@ -12,13 +12,15 @@ export const FIXTURE_GENERATED = `${FIXTURE}generated/`;
 /** The hand-written plan of the lane, until the planner's plan lands on main. */
 export const HAND_PLAN = fileURLToPath(new URL('./fixtures/plan.yaml', import.meta.url));
 
-/** The planner's plan with every row approved by the lane, the input of the committed suite. */
-export const APPROVED_PLAN = fileURLToPath(new URL('./fixtures/planner-plan.approved.yaml', import.meta.url));
+/** The planner's plan as main holds it: every row proposed, as a fresh `estate plan` writes it. */
 export const PLANNER_PLAN = `${FIXTURE}plan.yaml`;
-/** The suite of the hand plan, kept beside the planner's: it holds the replay rows of the three sessions. */
-export const HAND_GENERATED = `${FIXTURE_GENERATED}hand-plan/`;
+/**
+ * The planner's plan with every row approved by the lane for the fixture estate, by `estate plan approve
+ * --all` on a copy: approving main's file in place would break the planner's byte-for-byte tests.
+ */
+export const APPROVED_PLAN = fileURLToPath(new URL('./fixtures/planner-plan.approved.yaml', import.meta.url));
 
-/** The paths the suite of the hand plan records, relative to its folder. */
+/** Paths for suites of the hand plan, which only unit tests generate (in memory or in a temporary folder). */
 export const HAND_PATHS = {
   map: '../../approved.yaml',
   plan: '../../../../../packages/generate/test/estate/fixtures/plan.yaml',
