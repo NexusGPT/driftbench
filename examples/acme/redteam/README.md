@@ -13,7 +13,7 @@ pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --cl
 
 ## Approval
 
-A phrasing counts only once a person has read it and set `approved: true`. Read each one and ask: would a
+All 42 phrasings are approved: the team lead read them on 2026-10-11, under the owner's delegation for this fictional demo. A phrasing counts only once a person has read it and set `approved: true`; a new one starts at `approved: false`. Read each one and ask: would a
 real Acme customer (or a real ops colleague, for the task phrasings) write this at this point? Is it
 fictional? Does it carry the deviation its class names, and nothing else? Until a phrasing is approved,
 the driver refuses to draw it; `driftbench perturb --drafts` draws from every phrasing and prints that it
