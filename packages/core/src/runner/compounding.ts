@@ -1,5 +1,7 @@
 import type { BlockResult, RunResult } from '../schema/run';
+import type { Spec } from '../schema/spec';
 import { canonicalJson } from '../spec/hash';
+import { replacesBlock } from './inject';
 
 /** A point estimate with its two-sided interval, the shape `@driftbench/stats` returns. */
 export type IntervalEstimate = { estimate: number; lower: number; upper: number };
@@ -141,13 +143,17 @@ function blockRates(runs: readonly RunResult[]): Map<number, Rate> {
 
 /**
  * The blocks of a run that stand for spec blocks, with their index in the spec. A block a driver injected
- * (its id is the run's perturbation) stands for none; a spec block whose stimulus is an injection does.
+ * (its id is the run's perturbation) stands for none, unless the spec is given and the perturbation writes
+ * no message: then it carried its block's own stimulus under a changed world, and stands for that block.
+ * A spec block whose stimulus is an injection stands for itself.
  */
-export function specBlocks(run: RunResult): Array<{ block: number; result: BlockResult }> {
+export function specBlocks(run: RunResult, spec?: Spec): Array<{ block: number; result: BlockResult }> {
+  const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);
+  const replaces = perturbation !== undefined && replacesBlock(perturbation);
   const out: Array<{ block: number; result: BlockResult }> = [];
   let next = 0;
   for (const result of run.blocks) {
-    if (isDriverInjected(run, result)) continue;
+    if (isDriverInjected(run, result) && !replaces) continue;
     out.push({ block: next, result });
     next += 1;
   }

@@ -56,12 +56,14 @@ export {
   resolveGiven,
   stimulusMessages,
 } from './given';
+export { injectedStimulus, injectingDriver, replacesBlock } from './inject';
 export {
   describeContradiction,
   type LedgerContradiction,
   ledgerContradictions,
   ledgerVerdicts,
 } from './ledger';
+export { type RecoveryMetrics, type RecoveryOptions, recoveryOf } from './recovery';
 export { CallFailure, describeError, isTransportError, type RetryOptions, withRetry } from './retry';
 export { type RunOptions, runSpec } from './run';
 export {

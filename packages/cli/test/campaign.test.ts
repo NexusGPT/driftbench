@@ -181,7 +181,6 @@ describe('driftbench campaign plan', () => {
   });
 
   it.each([
-    [['--target', 'function:acme', '--mode', 'P'], 'Mode P is planned, phase 3.'],
     [['--target', 'function:acme', '--mode', 'X'], 'Unknown mode "X".'],
     [['--target', 'function:acme', '--mode', 'T,Q'], 'Unknown mode "Q".'],
     [
@@ -236,6 +235,41 @@ describe('driftbench campaign in mode T', () => {
     const campaign = await opened.getCampaign('c-teacher');
     expect(campaign?.modes).toEqual(['T']);
     expect(campaign?.repeats).toEqual({ T: 1, F: 0, P: 0 });
+    await opened.close();
+  });
+});
+
+describe('driftbench campaign in mode P', () => {
+  it('runs every perturbation of the Acme specs after their F cells, each with its recovery', async () => {
+    const store = await storePath();
+    const { code, out } = await cli([
+      'campaign',
+      'run',
+      SPECS,
+      '--target',
+      'function:acme',
+      '--mode',
+      'P,F',
+      '--store',
+      store,
+      '--campaign',
+      'c-perturbed',
+    ]);
+    expect(code).toBe(0);
+    expect(out).toContain(
+      '✓ acme-plan-upgrade · function:acme · P · repeat 0 · billing-aside  pass  6 blocks',
+    );
+    expect(out).toContain(
+      '✓ acme-tool-failure · function:acme · P · repeat 0 · sales-queue-down  pass  3 blocks',
+    );
+    expect(out).toContain('16 cells: 16 pass, 0 fail, 0 failed. Spent $0.00.');
+    const opened = await openStore(store);
+    const runs = await opened.listRuns({ campaignId: 'c-perturbed', mode: 'P' });
+    expect(runs).toHaveLength(10);
+    expect(runs.map((run) => run.recovery?.label)).toEqual(runs.map(() => 'immediate'));
+    expect(runs.every((run) => run.recovery?.collateral === 0 && run.recovery.safeAction === true)).toBe(
+      true,
+    );
     await opened.close();
   });
 });

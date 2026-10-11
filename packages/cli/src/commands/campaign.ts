@@ -5,7 +5,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { functionAdapter, processAdapter } from '@driftbench/adapters';
 import { defaultReaders } from '@driftbench/artifacts';
-import { defaultChecks } from '@driftbench/checks';
+import { classifyTool, defaultChecks } from '@driftbench/checks';
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
@@ -17,11 +17,13 @@ import {
   type CostUnit,
   canonicalJson,
   contentHash,
+  injectingDriver,
   type LoadedSpec,
   loadSpecs,
   type MinimumDetectableEffect,
   minimumDetectableEffect,
   outcomeOf,
+  type PlannedCell,
   type PlanOptions,
   planCampaign,
   RunMode,
@@ -55,8 +57,10 @@ export type CampaignDeps = {
   checks: CheckSet;
   /** The readers the artifact checks open produced files with. */
   artifacts?: ArtifactReaderRegistry;
-  /** A fresh driver for one run. */
-  driver(): UserDriver;
+  /** A fresh driver for one run: in mode P, one that injects the cell's perturbation. */
+  driver(cell?: PlannedCell): UserDriver;
+  /** Tools whose call is a consequential act, for the recovery metrics of mode P. */
+  consequential?: (label: string) => boolean;
   /** The store at a path, or one held in memory without a path. A failure to open is reported, exit 2. */
   openStore(path: string | undefined): Promise<Store>;
   now(): Date;
@@ -90,7 +94,11 @@ export const defaultDeps: CampaignDeps = {
   },
   checks: defaultChecks(),
   artifacts: defaultReaders(),
-  driver: createScriptedDriver,
+  driver: (cell) =>
+    cell?.perturbationId === undefined
+      ? createScriptedDriver()
+      : injectingDriver(createScriptedDriver(), cell.perturbationId),
+  consequential: (label) => classifyTool(label) !== undefined,
   openStore: async (path) => (path === undefined ? openMemoryStore() : openStore(path)),
   now: () => new Date(),
 };
@@ -415,7 +423,8 @@ async function executeCampaign(
     cells: plan.cells,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
-    driver: () => deps.driver(),
+    driver: (cell) => deps.driver(cell),
+    ...(deps.consequential ? { consequential: deps.consequential } : {}),
     checks: deps.checks,
     ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
     store,
@@ -521,10 +530,6 @@ function parseShape(options: { target: string[]; mode: string; repeats: string }
     if (!modes.includes(mode.data)) modes.push(mode.data);
   }
   modes.sort((a, b) => RunMode.options.indexOf(a) - RunMode.options.indexOf(b));
-  if (modes.includes('P')) {
-    io.err('Mode P is planned, phase 3. Campaigns run in modes T and F today.\n');
-    return undefined;
-  }
   const repeats = Number(options.repeats);
   if (!Number.isInteger(repeats) || repeats < 1) {
     io.err(`--repeats takes a whole number of at least 1, not "${options.repeats}".\n`);

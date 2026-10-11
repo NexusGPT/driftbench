@@ -21,6 +21,7 @@ import {
   stimulusMessages,
 } from './given';
 import { describeContradiction, ledgerVerdicts } from './ledger';
+import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
 import { succession } from './succession';
@@ -56,6 +57,10 @@ export type RunOptions = {
   runId?: string;
   /** A guard against a driver that never stops. Default: 4 steps per spec block, at least 16. */
   maxSteps?: number;
+  /** Mode P: the free-running run of the same spec and target, for the collateral of the recovery. */
+  reference?: RunResult;
+  /** Mode P: more tools whose call is a consequential act, for the recovery's safe action and clarification. */
+  consequential?: (label: string) => boolean;
 };
 
 /**
@@ -118,6 +123,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     endState,
     sources: endStateSources(endState),
     signatures: stageSignatures(spec),
+    recovery: {
+      ...(options.reference ? { reference: options.reference } : {}),
+      ...(options.consequential ? { consequential: options.consequential } : {}),
+    },
   };
 
   const replayed = cache ? await execute(run, replayChannel(cache)) : undefined;
@@ -154,6 +163,7 @@ type RunContext = {
   sources: string[];
   /** The tools each stage of the spec's catalogue expects, for the step classifier. */
   signatures: Map<string, Set<string>>;
+  recovery: RecoveryOptions;
 };
 
 /** One step of the driver, resolved against the spec. */
@@ -354,6 +364,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
 
   const note = await channel.close();
   if (channel.replay && blocks.length === 0) return undefined;
+  const recovery =
+    run.mode === 'P'
+      ? recoveryOf(spec, { blocks, perturbationId: run.perturbationId }, run.recovery)
+      : undefined;
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
     runId: run.runId,
@@ -367,6 +381,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     ...(message ? { error: message } : {}),
     blocks,
     succession: succession(blocks),
+    ...(recovery ? { recovery } : {}),
     ...(endState ? { endState } : {}),
     cost: blocks.reduce((sum, block) => sum + blockCost(block.observed), 0),
     latencyMs: blocks.reduce((sum, block) => sum + block.observed.latencyMs, 0),
