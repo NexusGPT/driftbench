@@ -444,7 +444,8 @@ export async function specLevel(run: EstateRun): Promise<Measure> {
   for (const verdict of all.filter((candidate) => candidate.follower && !candidate.follower.pass)) {
     const follower = verdict.follower as NonNullable<SpecVerdict['follower']>;
     const first = follower.error ?? follower.failing[0] ?? 'no verdict failed, the run did not complete';
-    const check = /^block \d+: ([^:]+)/.exec(first)?.[1] ?? 'run';
+    // The check is the first part of the verdict id: `skills` of `skills.weekly-report`.
+    const check = /^block \d+: ([^.:]+)/.exec(first)?.[1] ?? 'run';
     const key = `${verdict.spec.record.testType}:${check}`;
     failed.set(key, [...(failed.get(key) ?? []), `${verdict.spec.record.id} (${first})`]);
   }

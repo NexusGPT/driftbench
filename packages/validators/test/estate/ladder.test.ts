@@ -1,0 +1,207 @@
+import { describe, expect, it } from 'vitest';
+import { runLadder } from '../../src/index';
+import {
+  allowedPairs,
+  atomLevel,
+  type EstateRun,
+  estateLadder,
+  estateRun,
+  lintLevel,
+  matchAtoms,
+  planLevel,
+  requiredRows,
+  specLevel,
+} from '../../src/ladders/estate/index';
+
+/** The seed 1 run with one part replaced: a fault planted in the component a level watches. */
+async function planted(change: (run: EstateRun) => EstateRun): Promise<EstateRun> {
+  return change(await estateRun(1));
+}
+
+describe('the estate ladder', () => {
+  it('has the seven levels of the design, in order', () => {
+    expect(estateLadder().levels.map((level) => level.id)).toEqual([
+      'atoms-and-edges',
+      'lint',
+      'plan',
+      'specs',
+      'agent-mutants',
+      'estate-mutants',
+      'hidden-seed',
+    ]);
+  });
+
+  it('reaches level 3 on seed 1 today and names the generator gaps at level 4', async () => {
+    const run = await runLadder(estateLadder(), { seed: 1 });
+    expect(run.rows.slice(0, 3).map((row) => [row.observed, row.pass])).toEqual([
+      [1, true],
+      [1, true],
+      [1, true],
+    ]);
+    expect(run.level).toBe(3);
+    expect(run.failing?.id).toBe('specs');
+    const ids = run.failing?.items.map((item) => item.id) ?? [];
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        'gap:needs-some-call-check',
+        'gap:needs-registered-check',
+        'gap:needs-static-runner',
+        'same-phrase:route_positive',
+      ]),
+    );
+    const some = run.failing?.items.find((item) => item.id === 'gap:needs-some-call-check');
+    expect(some?.component).toBe('packages/checks/src/checks/tools.ts');
+  });
+
+  it('stops at level 1 when the scan loses an atom, naming its hidden id and its line', async () => {
+    const lost = await planted((run) => {
+      const atoms = run.scanned.map.atoms.filter((atom) => atom.kind !== 'script');
+      return {
+        ...run,
+        scanned: {
+          ...run.scanned,
+          map: { ...run.scanned.map, atoms },
+          match: matchAtoms(run.rendered.atoms, atoms),
+        },
+      };
+    });
+    const ladder = await runLadder(estateLadder({ run: async () => lost }), { seed: 1 });
+    expect(ladder.level).toBe(0);
+    expect(ladder.rows[1]?.pass).toBeNull();
+    const missed = ladder.failing?.items.filter((item) => item.id.startsWith('atom-missed:script:')) ?? [];
+    expect(missed.length).toBeGreaterThan(0);
+    expect(missed[0]?.component).toBe('packages/estate/src/scan/code.ts');
+    expect(missed[0]?.detail).toMatch(
+      /^script \.claude\/skills\/.+ at .+SKILL\.md:\d+ was planted and not found: "\d\. Run `python3 scripts\//,
+    );
+  });
+
+  it('fails level 1 on an atom nobody planted, and on an edge the map lost', async () => {
+    const run = await estateRun(1);
+    const extra = {
+      ...(run.scanned.map.atoms[0] as EstateRun['scanned']['map']['atoms'][0]),
+      id: 'skill.x.invented',
+    };
+    const atoms = [
+      ...run.scanned.map.atoms,
+      { ...extra, provenance: { ...extra.provenance, startLine: 999 } },
+    ];
+    const withExtra = atomLevel({
+      ...run,
+      scanned: {
+        ...run.scanned,
+        map: { ...run.scanned.map, atoms },
+        match: matchAtoms(run.rendered.atoms, atoms),
+      },
+    });
+    expect(withExtra.value).toBeLessThan(1);
+    expect(withExtra.items.map((item) => item.id)).toEqual(['atom-extra:skill.x.invented']);
+
+    const edges = run.scanned.map.edges.filter((edge) => edge.kind !== 'cites' && edge.kind !== 'next');
+    const lost = atomLevel({ ...run, scanned: { ...run.scanned, map: { ...run.scanned.map, edges } } });
+    expect(lost.value).toBeLessThan(1);
+    expect(lost.items.length).toBeGreaterThan(0);
+    expect(lost.items.every((item) => item.id.startsWith('edge-missed:'))).toBe(true);
+    expect(lost.items.every((item) => item.component === 'packages/estate/src/graph/edges.ts')).toBe(true);
+    expect(lost.items.some((item) => item.id.includes('>next>'))).toBe(true);
+  });
+
+  it('fails level 2 when the lint misses a planted defect or finds one nobody planted', async () => {
+    const run = await estateRun(1);
+    expect(lintLevel(run)).toEqual({ value: 1, items: [] });
+    const missing = lintLevel({
+      ...run,
+      lint: { ...run.lint, findings: run.lint.findings.filter((finding) => finding.code !== 'REGISTRY_ROW') },
+    });
+    expect(missing.value).toBeLessThan(1);
+    expect(missing.items.map((item) => item.id)).toEqual(['lint-missed:REGISTRY_ROW:reply-length.py']);
+    const extra = lintLevel({
+      ...run,
+      lint: {
+        ...run.lint,
+        findings: [
+          ...run.lint.findings,
+          { code: 'ORPHAN', subject: 'notes/x.md', message: 'notes/x.md: nothing names it' },
+        ],
+      },
+    });
+    expect(extra.items.map((item) => item.id)).toEqual(['lint-extra:ORPHAN:notes/x.md']);
+  });
+
+  it('fails level 3 when a pairwise row or a mandatory row is missing', async () => {
+    const run = await estateRun(1);
+    expect(planLevel(run)).toEqual({ value: 1, items: [] });
+    const rows = run.plan.plan.rows;
+    const lastPairwise = rows.filter((row) => row.id.startsWith('pairwise.')).length;
+    const noPairs = planLevel({
+      ...run,
+      plan: {
+        ...run.plan,
+        plan: { ...run.plan.plan, rows: rows.filter((row) => !row.id.startsWith('pairwise.')) },
+      },
+    });
+    expect(lastPairwise).toBeGreaterThan(0);
+    expect(noPairs.value).toBeLessThan(1);
+    expect(noPairs.items[0]?.id).toBe('pairs-uncovered');
+    const noTwin = planLevel({
+      ...run,
+      plan: { ...run.plan, plan: { ...run.plan.plan, rows: rows.filter((row) => row.testType !== 'twin') } },
+    });
+    expect(noTwin.items.some((item) => item.id.endsWith(':twin'))).toBe(true);
+    expect(noTwin.items.find((item) => item.id.endsWith(':twin'))?.component).toBe(
+      'packages/estate/src/plan/contract.ts',
+    );
+  });
+
+  it('fails a complete spec whose expectation the rule follower does not meet, and a spec that does not load', async () => {
+    const run = await estateRun(1);
+    const target = run.specs.find(
+      (spec) =>
+        spec.record.complete && spec.record.testType === 'route_positive' && spec.text.includes('skills:'),
+    );
+    if (!target?.loaded) throw new Error('no complete route test');
+    const wrong = structuredClone(target);
+    const block = wrong.loaded?.spec.blocks[0];
+    if (!block?.expect?.skills?.[0]) throw new Error('no skill expectation');
+    block.expect.skills[0].count = 0;
+    const broken = structuredClone(target);
+    broken.loaded = undefined;
+    broken.errors = ['SPEC_PARSE: bad'];
+    const measure = await specLevel({
+      ...run,
+      specs: [wrong, broken, ...run.specs.filter((spec) => spec.record.id !== target.record.id).slice(0, 0)],
+    });
+    expect(measure.value).toBe(0);
+    expect(measure.items.map((item) => item.id).sort()).toEqual(
+      ['follower:route_positive:skills', `invalid:${target.record.id}`].sort(),
+    );
+  });
+
+  it('lists the allowed pairs by search, leaving out the forbidden and the ones no cell extends', () => {
+    const dimensions = [
+      { id: 'a', values: ['1', '2'] },
+      { id: 'b', values: ['x', 'y'] },
+      { id: 'c', values: ['p'] },
+    ];
+    const pairs = allowedPairs(dimensions, [
+      { a: '1', b: 'x' },
+      { b: 'y', c: 'p' },
+    ]);
+    const keys = pairs.map(([da, va, db, vb]) => `${da}${va}${db}${vb}`);
+    expect(keys).not.toContain('a1bx');
+    // b=y can never extend, since every cell holds c=p; a=1 with c=p can take neither b.
+    expect(keys.some((key) => key.includes('by'))).toBe(false);
+    expect(keys.sort()).toEqual(['a2bx', 'a2cp', 'bxcp']);
+  });
+
+  it('asks k positive asks per route and one register sample per ask class', () => {
+    const atom = { id: 'x', kind: 'route', fields: {} } as Parameters<typeof requiredRows>[0];
+    expect(requiredRows(atom, [])).toContainEqual({ type: 'route_positive', count: 3 });
+    expect(requiredRows({ ...atom, kind: 'register' }, ['build', 'chat'])).toEqual([
+      { type: 'register_sample', count: 2 },
+    ]);
+    expect(requiredRows({ ...atom, kind: 'tool', fields: { effect: 'deny' } }, [])).toEqual([
+      { type: 'tool_denied', count: 1 },
+    ]);
+  });
+});

@@ -115,3 +115,4 @@ export function estateLadder(options: EstateLadderOptions = {}): Ladder {
     ],
   });
 }
+export { FIXTURE_FOLDER, fixtureName, fixtureText } from './fixture';
