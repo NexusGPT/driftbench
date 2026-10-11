@@ -141,6 +141,7 @@ export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(va
  * quote at all is read again with its single quotes as double quotes, and a trailing comma is dropped.
  */
 function decode(candidate: string): unknown {
+  if (repeatsKey(candidate)) throw new SyntaxError('a key is given twice');
   try {
     return JSON.parse(candidate);
   } catch (cause) {
@@ -155,6 +156,30 @@ function decode(candidate: string): unknown {
     if (text === candidate) throw cause;
     return JSON.parse(text);
   }
+}
+
+/**
+ * Whether the object gives one top-level key twice. JSON.parse keeps the last value silently, so
+ * {"outcome":"fail","outcome":"pass"} would read as a pass; such an answer says two things and is refused.
+ */
+function repeatsKey(candidate: string): boolean {
+  const keys = new Set<string>();
+  let depth = 0;
+  for (let i = 0; i < candidate.length; i += 1) {
+    const ch = candidate[i];
+    if (ch === '"') {
+      let j = i + 1;
+      while (j < candidate.length && candidate[j] !== '"') j += candidate[j] === '\\' ? 2 : 1;
+      if (depth === 1 && /^\s*:/.test(candidate.slice(j + 1, j + 20))) {
+        const key = candidate.slice(i + 1, j);
+        if (keys.has(key)) return true;
+        keys.add(key);
+      }
+      i = j;
+    } else if (ch === '{' || ch === '[') depth += 1;
+    else if (ch === '}' || ch === ']') depth -= 1;
+  }
+  return false;
 }
 
 /** A model writing PASS or Fail means the outcome: the outcome is read without case or surrounding space. */

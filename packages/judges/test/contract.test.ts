@@ -128,3 +128,12 @@ describe('two answers', () => {
     ).toBe('a');
   });
 });
+
+describe('a key given twice', () => {
+  it('refuses an answer that gives the outcome twice', () => {
+    expect(parseAnswerText('{"outcome":"fail","outcome":"pass","reasoning":"r"}').unparsed).toBe(true);
+    expect(parseAnswerText('{"outcome":"pass","reasoning":"the \\"outcome\\": word"}').answer.outcome).toBe(
+      'pass',
+    );
+  });
+});
