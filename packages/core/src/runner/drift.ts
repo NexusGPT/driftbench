@@ -11,8 +11,9 @@ import type { Verdict } from '../schema/run';
  * - X2_contradiction: the runner's ledger check (`ledger`), tool inputs and reply facts against the ledger.
  * - X3_flow: the stage the runtime reports (`stage`) and the runner's step classifier (`flow`).
  * - X4_format: language, cards and one message per turn, and personal data echoed (`lang`, `cards`, `pii`).
- * - X5_tool: a missing, extra or mis-parametrised call, a forbidden tool, a skill or a guard, and a
- *   destructive operation over its limit (`tools`, `forbidden`, `skills`, `guards`, `safety`).
+ * - X5_tool: a missing, extra or mis-parametrised call, a forbidden tool, a skill, a guard, a file read
+ *   or a helper dispatched, and a destructive operation over its limit (`tools`, `forbidden`, `skills`,
+ *   `guards`, `references`, `subagents`, `safety`).
  *
  * A custom check's ids start with `custom`, so a custom check never takes a family's class by its name;
  * neither does an unknown family.
@@ -37,6 +38,8 @@ export const DRIFT_BY_FAMILY: Readonly<Record<string, DriftClass>> = {
   forbidden: 'X5_tool',
   skills: 'X5_tool',
   guards: 'X5_tool',
+  references: 'X5_tool',
+  subagents: 'X5_tool',
   safety: 'X5_tool',
 };
 
