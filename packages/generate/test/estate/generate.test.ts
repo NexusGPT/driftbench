@@ -436,9 +436,7 @@ describe('the committed suites', () => {
   it("holds the planner's plan suite byte for byte as the generator writes it, seed 1", async () => {
     const result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), { paths: PLANNER_PATHS });
     const committed = await tree(FIXTURE_GENERATED);
-    const own = Object.keys(committed).filter(
-      (path) => !path.startsWith('hand-plan/') && path !== 'plan.approved.yaml',
-    );
+    const own = Object.keys(committed).filter((path) => !path.startsWith('hand-plan/'));
     expect(own.sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({

@@ -1,6 +1,6 @@
-# A copy of ../plan.yaml with every row approved by the estate-tests lane, as a stand-in for the person
-# who approves the plan (the way approved.yaml stands in for the approval of the map). Written by
-# driftbench estate plan approve <copy> --all, with these three lines added. Fictional data only.
+# A copy of examples/estates/fixture/plan.yaml with every row approved by the estate-tests lane, as a
+# stand-in for the person who approves the plan (the way approved.yaml stands in for the approval of the
+# map). Written by driftbench estate plan approve <copy> --all, with these three lines added. Fictional data.
 # driftbench estate plan: what to test before any test text, derived by code from the approved map.
 # Each row names the atoms it exercises, its cell on the situation axes, its test type and run mode.
 # Rows come from three sources: the contract of each atom kind, journeys over the estate graph from

@@ -7,7 +7,7 @@
     "atoms": 122
   },
   "plan": {
-    "path": "plan.approved.yaml",
+    "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
     "rows": 1338,
     "approved": 1338,
     "proposed": 0,
