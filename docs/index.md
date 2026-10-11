@@ -18,6 +18,7 @@ Every page says what exists today and what is planned, with the phase that deliv
 
 * [Running](running.md): `runSpec`, campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), the determinism smoke test, the cache, the budget and the run record.
 * [Testing an estate](estate.md): how driftbench tests a code-interpreter agent as a whole estate (instructions, skills, subagents, guards, tools, settings): atoms, the estate graph, the plan, generated tests, replay and live runs, maintenance.
+* [Validators](validators.md): code that proves driftbench works: six ladders (map, generator, judges, system, estate, statistics) and the executor loop that drives each to 100 percent.
 
 ## Reference
 

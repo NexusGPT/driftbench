@@ -16,6 +16,7 @@ const packages = [
   'space',
   'generate',
   'estate',
+  'validators',
 ];
 
 export default defineConfig({
