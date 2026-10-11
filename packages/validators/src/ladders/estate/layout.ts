@@ -13,6 +13,7 @@ export const ROOT = '.claude';
 export const SETTINGS = `${ROOT}/settings.json`;
 export const STEPS = `${ROOT}/steps.json`;
 export const MEMORY = `${ROOT}/memory/MEMORY.md`;
+export const GUARDS_DIR = `${ROOT}/guards`;
 export const REGISTRY_MD = `${ROOT}/guards/CHECK-REGISTRY.md`;
 export const REGISTRY_JSON = `${ROOT}/guards/check-registry.json`;
 /** The anchor a guard command uses to find its script from the project folder, quoted and bare. */
