@@ -8,7 +8,7 @@ import {
   type Session,
 } from '@driftbench/core';
 import { localProvider } from '@driftbench/sandbox';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type ClaudeCodeLiveOptions, claudeCodeLiveAdapter } from '../../../src/claude-code/live';
 import {
   ASK_INVOICE,
@@ -21,6 +21,9 @@ import {
   scratch,
   turnOf,
 } from './support';
+
+// Each test starts sandboxes and processes; under a full parallel suite that takes more than the default.
+vi.setConfig({ testTimeout: 60_000 });
 
 /**
  * The live runner against the FAKE headless command of the Northwind fixture: no model call, no cost. The

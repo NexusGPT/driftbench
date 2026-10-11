@@ -3,8 +3,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@driftbench/estate';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Io, main } from '../src/index';
+
+// Each test starts sandboxes and processes; under a full parallel suite that takes more than the default.
+vi.setConfig({ testTimeout: 60_000 });
 
 /** `driftbench estate mutate` and `estate run` on the fictional Northwind fixture, with the fake headless command. */
 

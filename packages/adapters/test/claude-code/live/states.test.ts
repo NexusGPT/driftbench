@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { AdapterTransportError, type AgentAdapter, AgentFailure, type Observed } from '@driftbench/core';
 import { localProvider } from '@driftbench/sandbox';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   applySessionOps,
   type ClaudeCodeLiveOptions,
@@ -23,6 +23,9 @@ import {
   scratch,
   turnOf,
 } from './support';
+
+// Each test starts sandboxes and processes; under a full parallel suite that takes more than the default.
+vi.setConfig({ testTimeout: 60_000 });
 
 /**
  * Session states and estate deviations as runner operations, each run on the FAKE headless command: what
