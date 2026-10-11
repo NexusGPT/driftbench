@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  approvePlanRows,
   buildPlan,
   cellKey,
   PHRASE_NOTE,
@@ -124,5 +125,54 @@ describe('the estate plan', () => {
     expect(summaryPathOf('/x/plan.yaml')).toBe('/x/plan.summary.json');
     expect(summaryPathOf('/x/plan.yml')).toBe('/x/plan.summary.json');
     expect(summaryPathOf('/x/plan')).toBe('/x/plan.summary.json');
+  });
+});
+
+describe('approving plan rows', () => {
+  async function text(): Promise<string> {
+    return renderPlan(buildPlan(await approvedFixture()).plan);
+  }
+
+  it('approves every proposed row with all, and leaves struck rows struck', async () => {
+    const struck = approvePlanRows(await text(), { ids: ['journey.01'], strike: true });
+    if (!struck.ok) throw new Error('strike failed');
+    expect(struck.changed).toEqual(['journey.01']);
+    const all = approvePlanRows(struck.text, { all: true });
+    if (!all.ok) throw new Error('approve failed');
+    const parsed = parsePlanText(all.text);
+    if (!parsed.ok) throw new Error('invalid plan');
+    expect(parsed.plan.rows.find((row) => row.id === 'journey.01')?.status).toBe('struck');
+    expect(parsed.plan.rows.filter((row) => row.status === 'approved')).toHaveLength(
+      parsed.plan.rows.length - 1,
+    );
+    expect(all.text.startsWith('# driftbench estate plan')).toBe(true);
+  });
+
+  it('approves one row, changes nothing else, and refuses an unknown row', async () => {
+    const before = await text();
+    const result = approvePlanRows(before, {
+      ids: ['invariant.invariant.standing.no-file-of-the-estate-is'],
+    });
+    if (!result.ok) throw new Error('approve failed');
+    const changedLines = result.text.split('\n').filter((line, index) => line !== before.split('\n')[index]);
+    expect(changedLines).toHaveLength(1);
+    expect(changedLines[0]).toContain('status: approved');
+    const again = approvePlanRows(result.text, {
+      ids: ['invariant.invariant.standing.no-file-of-the-estate-is'],
+    });
+    expect(again.ok && again.unchanged).toBe(1);
+    const unknown = approvePlanRows(before, { ids: ['no.such.row'] });
+    expect(unknown.ok).toBe(false);
+  });
+
+  it('refuses a plan with a repeated row id or an unknown test type', async () => {
+    const plain = await text();
+    const lines = plain.split('\n');
+    const first = lines.findIndex((line) => line.startsWith('  - { id:'));
+    const doubled = [...lines.slice(0, first + 1), lines[first] ?? '', ...lines.slice(first + 1)].join('\n');
+    const repeated = parsePlanText(doubled);
+    expect(repeated.ok === false && repeated.errors[0]?.code).toBe('PLAN_DUPLICATE_ROW');
+    const wrongType = parsePlanText(plain.replace('testType: twin', 'testType: triplet'));
+    expect(wrongType.ok).toBe(false);
   });
 });

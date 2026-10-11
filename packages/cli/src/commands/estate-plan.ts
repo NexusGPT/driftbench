@@ -1,11 +1,13 @@
-import { mkdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import {
+  approvePlanRows,
   buildPlan,
   loadEstateMap,
   type Plan,
   type PlanDetails,
   PlanInputError,
+  parsePlanText,
   renderPlan,
   renderPlanSummary,
   summaryPathOf,
@@ -15,12 +17,14 @@ import type { Command } from 'commander';
 import type { Io } from '../io';
 
 export type EstatePlanOptions = { out?: string; t?: string; space?: string; k?: string; force?: boolean };
+export type EstatePlanApproveOptions = { all?: boolean; row?: string[]; strike?: boolean };
 
 /**
- * `driftbench estate plan <map>`: derive the test plan from an approved estate map (design section 4).
+ * `driftbench estate plan <map>`: derive the test plan from an approved estate map (design section 4), and
+ * `driftbench estate plan approve <plan>`: approve or strike its rows.
  */
 export function registerEstatePlanCommands(estate: Command, io: Io, setExit: (code: number) => void): void {
-  estate
+  const plan = estate
     .command('plan')
     .description(
       'Derive the test plan from an approved map: the contract per atom kind, journeys, pairwise cells',
@@ -36,6 +40,17 @@ export function registerEstatePlanCommands(estate: Command, io: Io, setExit: (co
     .option('--force', 'replace an existing plan; the approvals in it are lost')
     .action(async (path: string, options: EstatePlanOptions) => {
       setExit(await estatePlanCommand(path, options, io));
+    });
+
+  plan
+    .command('approve')
+    .description('List the plan rows by status, or approve them all, approve a row, or strike a row')
+    .argument('<plan>', 'the plan file')
+    .option('--all', 'approve every row still proposed')
+    .option('--row <id>', 'approve this row; repeat it', collect)
+    .option('--strike', 'strike the rows named with --row instead of approving them')
+    .action(async (path: string, options: EstatePlanApproveOptions) => {
+      setExit(await estatePlanApproveCommand(path, options, io));
     });
 }
 
@@ -144,6 +159,58 @@ export function planReport(plan: Plan, details: PlanDetails, out: string, summar
   return lines.join('\n');
 }
 
+/** Exit 0 after listing or changing statuses, 1 when the plan is invalid or names no such row, 2 on a usage error. */
+export async function estatePlanApproveCommand(
+  path: string,
+  options: EstatePlanApproveOptions,
+  io: Io,
+): Promise<number> {
+  const file = resolve(io.cwd, path);
+  if (!(await exists(file))) {
+    io.err(`Cannot find ${show(file, io)}.\n`);
+    return 2;
+  }
+  const rows = options.row ?? [];
+  if (options.all && rows.length > 0) {
+    io.err('error: --all cannot be used with --row\n');
+    return 2;
+  }
+  if (options.strike && rows.length === 0) {
+    io.err('error: --strike needs the rows to strike, named with --row\n');
+    return 2;
+  }
+  const text = await readFile(file, 'utf8');
+  const parsed = parsePlanText(text);
+  if (!parsed.ok) {
+    io.err(`✗ ${show(file, io)}\n${parsed.errors.map(issueLine).join('')}`);
+    return 1;
+  }
+  if (!options.all && rows.length === 0) {
+    const counts = { proposed: 0, approved: 0, struck: 0 };
+    for (const row of parsed.plan.rows) counts[row.status] += 1;
+    io.out(
+      `${show(file, io)}: ${parsed.plan.rows.length} rows, ${counts.proposed} proposed, ${counts.approved} approved, ${counts.struck} struck.\nApprove every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.\n`,
+    );
+    return 0;
+  }
+  const result = approvePlanRows(text, {
+    all: options.all === true,
+    ids: rows,
+    strike: options.strike === true,
+  });
+  if (!result.ok) {
+    io.err(`✗ ${show(file, io)}\n${result.errors.map(issueLine).join('')}`);
+    return 1;
+  }
+  if (!(await writeOut(file, result.text, io))) return 2;
+  const verb = options.strike ? 'Struck' : 'Approved';
+  const state = options.strike ? 'struck' : 'approved';
+  io.out(
+    `${verb} ${result.changed.length} ${result.changed.length === 1 ? 'row' : 'rows'} in ${show(file, io)}; ${result.unchanged} ${result.unchanged === 1 ? 'was' : 'were'} already ${state}.\n`,
+  );
+  return 0;
+}
+
 function wholeNumber(value: string, flag: string, io: Io): number | undefined {
   const n = Number(value);
   if (!Number.isInteger(n) || n < 1) {
@@ -166,6 +233,10 @@ async function writeOut(path: string, text: string, io: Io): Promise<boolean> {
 
 function issueLine(issue: { code: string; path: string; message: string }): string {
   return `  ${issue.path || '(file)'}  ${issue.code}  ${issue.message}\n`;
+}
+
+function collect(value: string, previous: string[] | undefined): string[] {
+  return [...(previous ?? []), value];
 }
 
 async function exists(path: string): Promise<boolean> {

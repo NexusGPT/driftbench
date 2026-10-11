@@ -114,3 +114,35 @@ describe('driftbench estate plan', () => {
     expect(result.err).toContain('MAP_HASH');
   });
 });
+
+describe('driftbench estate plan approve', () => {
+  it('lists the rows by status, strikes a row, approves the rest, and refuses an unknown row', async () => {
+    const root = await folder();
+    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
+    const list = await run(['estate', 'plan', 'approve', 'plan.yaml'], root);
+    expect(list.out).toContain('plan.yaml: 1338 rows, 1338 proposed, 0 approved, 0 struck.');
+    const strike = await run(
+      ['estate', 'plan', 'approve', 'plan.yaml', '--row', 'journey.01', '--strike'],
+      root,
+    );
+    expect(strike.code).toBe(0);
+    expect(strike.out).toContain('Struck 1 row in plan.yaml');
+    const all = await run(['estate', 'plan', 'approve', 'plan.yaml', '--all'], root);
+    expect(all.out).toContain('Approved 1337 rows in plan.yaml');
+    const after = await run(['estate', 'plan', 'approve', 'plan.yaml'], root);
+    expect(after.out).toContain('1338 rows, 0 proposed, 1337 approved, 1 struck.');
+    const unknown = await run(['estate', 'plan', 'approve', 'plan.yaml', '--row', 'no.such.row'], root);
+    expect(unknown.code).toBe(1);
+    expect(unknown.err).toContain('PLAN_UNKNOWN_ROW');
+  });
+
+  it('exits 2 when the options do not fit', async () => {
+    const root = await folder();
+    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
+    const both = await run(['estate', 'plan', 'approve', 'plan.yaml', '--all', '--row', 'journey.01'], root);
+    expect(both.code).toBe(2);
+    const strikeAll = await run(['estate', 'plan', 'approve', 'plan.yaml', '--strike'], root);
+    expect(strikeAll.code).toBe(2);
+    expect((await run(['estate', 'plan', 'approve', 'missing.yaml', '--all'], root)).code).toBe(2);
+  });
+});

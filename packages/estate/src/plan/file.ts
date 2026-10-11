@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { isPlainObject } from '@driftbench/core';
 import { formatJson } from '@driftbench/generate';
-import { Document, isMap, isSeq, parse as parseYaml } from 'yaml';
+import { Document, isMap, isSeq, parseDocument, parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
 import { Plan } from '../schema';
 import type { PlanDetails } from './build';
@@ -95,6 +95,52 @@ export async function loadPlan(path: string): Promise<LoadedPlan> {
   }
   const parsed = parsePlanText(text);
   return parsed.ok ? { ok: true, path, text, plan: parsed.plan } : { ok: false, path, errors: parsed.errors };
+}
+
+export type PlanSelection = { all?: boolean; ids?: readonly string[]; strike?: boolean };
+export type PlanApproveResult =
+  | { ok: true; text: string; changed: string[]; unchanged: number }
+  | { ok: false; errors: PlanIssue[] };
+
+/**
+ * Sets the status of the chosen rows: `approved`, or `struck` with `strike`. `all` approves every row still
+ * proposed and leaves struck rows struck. An unknown row id changes nothing. Comments and layout stay.
+ */
+export function approvePlanRows(text: string, selection: PlanSelection): PlanApproveResult {
+  const before = parsePlanText(text);
+  if (!before.ok) return before;
+  const ids = selection.ids ?? [];
+  const known = new Set(before.plan.rows.map((row) => row.id));
+  const unknown = ids.filter((id) => !known.has(id));
+  if (unknown.length > 0) {
+    return {
+      ok: false,
+      errors: unknown.map((id) => issue('PLAN_UNKNOWN_ROW', '', `row "${id}" is not in the plan`)),
+    };
+  }
+  const to = selection.strike === true ? 'struck' : 'approved';
+  const doc = parseDocument(text, { uniqueKeys: true });
+  const changed: string[] = [];
+  let unchanged = 0;
+  const rows = doc.get('rows', true);
+  if (isSeq(rows)) {
+    for (const item of rows.items) {
+      if (!isMap(item)) continue;
+      const id = String(item.get('id'));
+      const status = item.get('status') ?? 'proposed';
+      const chosen = ids.includes(id) || (selection.all === true && status === 'proposed');
+      if (!chosen) continue;
+      if (status === to) unchanged++;
+      else {
+        item.set('status', to);
+        changed.push(id);
+      }
+    }
+  }
+  const next = doc.toString({ lineWidth: 0 });
+  const after = parsePlanText(next);
+  if (!after.ok) return after;
+  return { ok: true, text: next, changed, unchanged };
 }
 
 function issue(code: PlanIssueCode, path: string, message: string): PlanIssue {

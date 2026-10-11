@@ -1,5 +1,4 @@
 /** The estate plan (design section 4): the contract per atom kind, journeys and pairwise cells. */
-
 export {
   buildPlan,
   cellKey,
@@ -20,12 +19,15 @@ export {
   targetDimension,
 } from './contract';
 export {
+  approvePlanRows,
   type LoadedPlan,
   loadPlan,
+  type PlanApproveResult,
   type PlanFileResult,
   type PlanIssue,
   type PlanIssueCode,
   PlanIssueCodes,
+  type PlanSelection,
   parsePlanText,
   renderPlan,
   renderPlanSummary,
