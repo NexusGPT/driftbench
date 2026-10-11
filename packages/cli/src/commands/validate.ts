@@ -2,6 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import {
   appendJournal,
+  bankSummary,
   checkFloors,
   checkHandover,
   composeBrief,
@@ -10,7 +11,10 @@ import {
   FLOORS_FILE,
   type FloorsFile,
   findRoot,
+  floorNote,
   floorOf,
+  formatHardness,
+  formatItems,
   formatLadder,
   gitChangedFiles,
   type HeadReader,
@@ -21,6 +25,8 @@ import {
   journalFile,
   type Ladder,
   type LadderReport,
+  ladderVersion,
+  measureHardness,
   PROTECTED_PATHS,
   parseSeeds,
   protectedChanges,
@@ -57,6 +63,9 @@ export type ValidateCommandOptions = {
   checkHandover?: boolean;
   branch?: string;
   base?: string;
+  items?: boolean;
+  hardness?: boolean;
+  ladderVersion?: string;
 };
 
 /** What the command runs with. Tests pass their own ladders, root and commit reader. */
@@ -99,6 +108,15 @@ export function registerValidateCommand(
     .option('--check-floor', 'exit 1 when a run is below its floor in validators/floors.json, else 0')
     .option('--raise <component>', 'with floors: raise the floor of this component to [level]')
     .option('--evidence <json>', 'with floors --raise: the --json run that reaches the level')
+    .option('--ladder-version <n>', 'with floors --raise: the ladder version the floor is for')
+    .option(
+      '--items',
+      'also list the whole bank per family and tier, pass or fail per seed, from the same run',
+    )
+    .option(
+      '--hardness',
+      'print the hardness measurement of docs/validators.md section 12.4 from the journal',
+    )
     .option('--brief', 'print validators/EXECUTOR.md with the live state of the loop embedded')
     .option('--fresh', "with --brief: leave out the handover's hypotheses (the handover test)")
     .option('--journal <row.json>', "append a validated journal row and rewrite the handover's level table")
@@ -134,20 +152,36 @@ export async function validateCommand(
   }
   const chosen = select(component, ladders, io);
   if (!chosen) return USAGE_EXIT;
-  const modes = [options.brief, options.journal !== undefined, options.checkHandover, options.checkFloor];
+  const modes = [
+    options.brief,
+    options.journal !== undefined,
+    options.checkHandover,
+    options.checkFloor,
+    options.hardness,
+  ];
   if (modes.filter(Boolean).length > 1) {
-    io.err('Choose one of --brief, --journal, --check-handover and --check-floor.\n');
+    io.err('Choose one of --brief, --journal, --check-handover, --check-floor and --hardness.\n');
+    return USAGE_EXIT;
+  }
+  if (
+    options.items &&
+    (options.brief || options.journal !== undefined || options.checkHandover || options.hardness)
+  ) {
+    io.err('--items goes with a run, not with --brief, --journal, --check-handover or --hardness.\n');
     return USAGE_EXIT;
   }
   if (options.fresh && !options.brief) {
     io.err('--fresh goes with --brief.\n');
     return USAGE_EXIT;
   }
-  if ((options.brief || options.journal !== undefined) && component === 'all') {
-    io.err('--brief and --journal take one component, not all.\n');
+  if ((options.brief || options.journal !== undefined || options.hardness) && component === 'all') {
+    io.err('--brief, --journal and --hardness take one component, not all.\n');
     return USAGE_EXIT;
   }
-  if (options.journal !== undefined) return journalCommand(component, options.journal, floors, root, io);
+  if (options.hardness) return hardnessCommand(component, Boolean(options.json), root, io);
+  if (options.journal !== undefined) {
+    return journalCommand(chosen[0] as Ladder, options.journal, floors, root, io);
+  }
   if (options.checkHandover) return handoverCheckCommand(chosen, root, io);
   const visible = parseSeeds(options);
   if (typeof visible === 'string') {
@@ -157,13 +191,18 @@ export async function validateCommand(
   const hidden = options.hidden ? hiddenSeed(root, deps.readHead) : undefined;
   if (hidden?.note && !options.json) io.out(`Note: ${hidden.note}\n`);
   const reports: LadderReport[] = [];
-  for (const ladder of chosen) reports.push(await runSeeds(ladder, seedSpecs(visible, hidden), root));
+  for (const ladder of chosen) {
+    reports.push(await runSeeds(ladder, seedSpecs(visible, hidden), root, { full: Boolean(options.items) }));
+  }
   if (options.brief)
     return briefCommand(reports[0] as LadderReport, hidden, floors, Boolean(options.fresh), deps, root, io);
   print(reports, component === 'all', hidden, floors, options, io);
   if (!options.checkFloor) return Math.min(...reports.map((report) => report.level));
   const tops = Object.fromEntries(
-    Object.entries(ladders).map(([name, ladder]) => [name, { top: ladder.levels.length }]),
+    Object.entries(ladders).map(([name, ladder]) => [
+      name,
+      { top: ladder.levels.length, version: ladderVersion(ladder) },
+    ]),
   );
   const { checks, problems } = checkFloors(reports, floors, tops);
   for (const problem of component === 'all' ? problems : []) io.err(`${problem}\n`);
@@ -203,8 +242,29 @@ function protectCommand(options: ValidateCommandOptions, deps: ValidateDeps, roo
   return 1;
 }
 
+/** `validate <component> --hardness`: the measurement of section 12.4 from the journal; exit 0 when the gate holds. */
+function hardnessCommand(component: string, json: boolean, root: string, io: Io): number {
+  const { rows, problems } = readJournal(root, component);
+  if (problems.length > 0) {
+    io.err(`${journalFile(component)} holds invalid rows:\n`);
+    for (const problem of problems) io.err(`  ${problem}\n`);
+    return USAGE_EXIT;
+  }
+  let hardness: ReturnType<typeof measureHardness>;
+  try {
+    hardness = measureHardness(rows);
+  } catch (cause) {
+    io.err(`${journalFile(component)}: ${message(cause)}.\n`);
+    return USAGE_EXIT;
+  }
+  if (json) io.out(`${JSON.stringify({ component, ...hardness }, null, 2)}\n`);
+  else io.out(formatHardness(component, hardness));
+  return hardness.gate.holds ? 0 : 1;
+}
+
 /** `validate <component> --journal <row.json>`: appends a validated row and rewrites the handover's level table. */
-function journalCommand(component: string, path: string, floors: FloorsFile, root: string, io: Io): number {
+function journalCommand(ladder: Ladder, path: string, floors: FloorsFile, root: string, io: Io): number {
+  const component = ladder.component;
   let value: unknown;
   try {
     value = JSON.parse(readFileSync(resolve(io.cwd, path), 'utf8'));
@@ -218,7 +278,9 @@ function journalCommand(component: string, path: string, floors: FloorsFile, roo
     for (const reason of result.refused) io.err(`  ${reason}\n`);
     return 1;
   }
-  const handover = readHandover(root, component) ?? handoverTemplate(component, floorOf(floors, component));
+  const handover =
+    readHandover(root, component) ??
+    handoverTemplate(component, floorOf(floors, component, ladderVersion(ladder)));
   writeHandover(root, component, setLevelTable(handover, result.row));
   const research = join(root, researchFile(component));
   if (!existsSync(research)) writeFileSync(research, researchTemplate(component));
@@ -272,7 +334,7 @@ function briefCommand(
       component: report.component,
       executor: readFileSync(path, 'utf8'),
       report,
-      floor: floorOf(floors, report.component),
+      floor: floorOf(floors, report.component, report.ladderVersion),
       last: rows.at(-1),
       handover: readHandover(root, report.component),
       head: hidden?.head ?? headOf(root, deps),
@@ -296,11 +358,13 @@ function floorsCommand(
   root: string,
   io: Io,
 ): number {
-  if (!options.raise || level === undefined || !options.evidence) {
-    const shown = Object.entries(floors.floors).map(([name, floor]) => `${name} = ${floor}`);
-    if (options.raise || level !== undefined || options.evidence) {
+  if (!options.raise || level === undefined || !options.evidence || !options.ladderVersion) {
+    const shown = Object.entries(floors.floors).map(
+      ([name, floor]) => `${name} = ${floor} (ladder version ${floors.ladderVersion[name] ?? 1})`,
+    );
+    if (options.raise || level !== undefined || options.evidence || options.ladderVersion) {
       io.err(
-        'Raise a floor with: driftbench validate floors --raise <component> <level> --evidence <json>.\n',
+        'Raise a floor with: driftbench validate floors --raise <component> <level> --ladder-version <n> --evidence <json>.\n',
       );
       return USAGE_EXIT;
     }
@@ -316,6 +380,11 @@ function floorsCommand(
     io.err(`The level is a whole number, not "${level}".\n`);
     return USAGE_EXIT;
   }
+  if (!/^\d+$/.test(options.ladderVersion) || Number(options.ladderVersion) < 1) {
+    io.err(`--ladder-version is a whole number of at least 1, not "${options.ladderVersion}".\n`);
+    return USAGE_EXIT;
+  }
+  const version = Number(options.ladderVersion);
   let evidence: unknown;
   try {
     evidence = JSON.parse(readFileSync(resolve(io.cwd, options.evidence), 'utf8'));
@@ -328,6 +397,8 @@ function floorsCommand(
     level: Number(level),
     evidence,
     top: ladder.levels.length,
+    ladderVersion: version,
+    registeredVersion: ladderVersion(ladder),
   });
   if ('refused' in result) {
     io.err(`Refused: ${result.refused}\n`);
@@ -335,7 +406,7 @@ function floorsCommand(
   }
   writeFloors(root, result.file);
   io.out(
-    `The floor of ${options.raise} rises from ${floorOf(floors, options.raise)} to ${level} in ${FLOORS_FILE}. Commit it on its own with the evidence run.\n`,
+    `The floor of ${options.raise} for ladder version ${version} rises from ${floorOf(floors, options.raise, version)} to ${level} in ${FLOORS_FILE}. Commit it on its own with the evidence run.\n`,
   );
   return 0;
 }
@@ -369,12 +440,25 @@ function print(
   io: Io,
 ): void {
   if (options.json) {
-    const shown = reports.map((report) => ({ ...report, ...(hidden ? { hiddenSeed: hidden } : {}) }));
+    const shown = reports.map((report) => ({
+      ...report,
+      ...(hidden ? { hiddenSeed: hidden } : {}),
+      ...(options.items ? { bank: bankSummary(report) } : {}),
+    }));
     io.out(`${JSON.stringify(all ? { reports: shown } : shown[0], null, 2)}\n`);
     return;
   }
   io.out(
-    reports.map((report) => formatLadder(report, { floor: floorOf(floors, report.component) })).join('\n'),
+    reports
+      .map((report) => {
+        const note = floorNote(floors, report.component, report.ladderVersion);
+        const table = formatLadder(report, {
+          floor: floorOf(floors, report.component, report.ladderVersion),
+          ...(note ? { floorNote: note } : {}),
+        });
+        return options.items ? `${table}\n${formatItems(bankSummary(report), report.component)}` : table;
+      })
+      .join('\n'),
   );
 }
 

@@ -1,0 +1,17 @@
+# A fictional new customer who wants to keep a phone number when moving to Acme. Plays the number porting spec.
+id: dana-porting
+name: Dana Brooks
+persona: >
+  A careful person switching carriers for the first time. Writes plainly, a little formally, and gives
+  personal details only when the assistant asks for them.
+goal: >
+  Get an Acme mobile plan in the middle of the range while keeping the current phone number, and place the
+  order.
+facts:
+  phone: '+1 202 555 0150'
+  email: dana.brooks@example.com
+reveal_when_asked:
+  phone: ['\bnumber\b']
+  email: ['e-?mail']
+stop_token: '###STOP###'
+spec: ../specs/conversations/number-porting.yaml

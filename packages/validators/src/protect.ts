@@ -4,12 +4,15 @@ import { execFileSync } from 'node:child_process';
 export const EXECUTOR_BRANCH_PREFIX = 'exec/';
 
 /**
- * The files an executor branch may not change: the validator code (its ladders, thresholds, the hidden seed
- * derivation and the frame that scores them), the floors, the executor instruction, the fault family, the
+ * The files an executor branch may not change: the validator code (its ladders and banks, thresholds, the
+ * hidden seed derivation, the bank, hardness and floor logic, and the frame that scores them), the bank
+ * fixtures and the validator's own tests, the floors, the executor instruction, the fault family, the
  * statistics reference fixtures, and the job that enforces all of this. A path ending in "/" covers its folder.
  */
 export const PROTECTED_PATHS = [
   'packages/validators/src/',
+  'packages/validators/fixtures/',
+  'packages/validators/test/',
   'validators/floors.json',
   'validators/EXECUTOR.md',
   'examples/acme/faults/',
