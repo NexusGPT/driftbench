@@ -5,6 +5,7 @@ import {
   approveAtoms,
   ClaudeCodeReader,
   estateRecordingPort,
+  INFORMATION,
   lintEstate,
   loadEstateMap,
   loadEstateRecording,
@@ -47,7 +48,7 @@ describe('the committed reader-cases outputs', () => {
     const result = lintEstate(map, raw);
     expect(
       result.findings
-        .filter((finding) => finding.code !== 'UNENFORCED')
+        .filter((finding) => !INFORMATION.has(finding.code))
         .map((finding) => [finding.code, finding.subject]),
     ).toEqual([
       ['ORPHAN', '.claude/skills/shipment-tracker/references/notes.md'],

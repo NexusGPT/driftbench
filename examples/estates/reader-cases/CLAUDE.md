@@ -23,3 +23,4 @@ A carrier claim and the month close follow their steps in `.claude/processes.jso
 
 The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
 Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
+When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.

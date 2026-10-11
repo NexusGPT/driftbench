@@ -161,7 +161,10 @@ describe('reference bases', () => {
     ]);
     expect(
       map.atoms
-        .filter((atom) => atom.kind === 'reference' && atom.fields?.exists === false)
+        .filter(
+          (atom) =>
+            atom.kind === 'reference' && atom.fields?.exists === false && atom.fields?.external !== true,
+        )
         .map((atom) => atom.fields?.candidates),
     ).toEqual([
       [

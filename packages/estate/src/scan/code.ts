@@ -385,7 +385,21 @@ export function resolveNamed(
 }
 
 /** Where a named path leads: one file, several candidates, or nowhere; and how it was found. */
-export type NamedTarget = { path: string; via: 'place' | 'alias' | 'suffix' | 'none'; candidates?: string[] };
+export type NamedTarget = {
+  path: string;
+  via: 'place' | 'alias' | 'suffix' | 'external' | 'none';
+  candidates?: string[];
+};
+
+/**
+ * True when a path as written points outside the estate: it starts with `~/` or `/`, or it starts with one
+ * of the external folders. Only the written form decides; a name is never guessed external.
+ */
+export function isExternal(path: string, externals: readonly string[] = []): boolean {
+  const clean = path.replace(/^\.\//, '');
+  if (clean.startsWith('~/') || clean.startsWith('/')) return true;
+  return externals.some((root) => clean.startsWith(root.endsWith('/') ? root : `${root}/`));
+}
 
 /**
  * A named path, resolved as `resolveNamed` does, then through the estate's aliases (`REF/a.md` as
@@ -402,6 +416,7 @@ export function locateNamed(
     skipped?: ReadonlySet<string>;
     aliases?: Readonly<Record<string, readonly string[]>>;
     byName?: ReadonlyMap<string, readonly string[]>;
+    externals?: readonly string[];
   } = {},
 ): NamedTarget {
   const skipped = options.skipped ?? new Set<string>();
@@ -409,6 +424,8 @@ export function locateNamed(
   const placed = resolveNamed(path, from, files, options.bases ?? [], skipped);
   if (known(placed)) return { path: placed, via: 'place' };
   const clean = path.replace(/^\.\//, '');
+  // A path written as outside the estate is not looked for by its ending: it names the outside, as written.
+  if (isExternal(clean, options.externals ?? [])) return { path: clean, via: 'external' };
   const [head, ...rest] = clean.split('/');
   const folders = head !== undefined && rest.length > 0 ? (options.aliases?.[head] ?? []) : [];
   for (const folder of folders) {
@@ -470,6 +487,7 @@ function referenceAtoms(
         skipped,
         aliases: raw.aliases ?? {},
         byName: names(raw, files, skipped),
+        externals: raw.externals ?? [],
       });
       const path = located.path;
       const target = files.get(path);
@@ -490,6 +508,7 @@ function referenceAtoms(
           ...(isSkipped ? { ignored: true } : {}),
           ...(located.via === 'alias' || located.via === 'suffix' ? { resolvedBy: located.via } : {}),
           ...(located.candidates ? { candidates: located.candidates } : {}),
+          ...(located.via === 'external' ? { external: true } : {}),
         },
       });
     }

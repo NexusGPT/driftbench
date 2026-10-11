@@ -214,7 +214,9 @@ describe('driftbench estate lint, approve and map', () => {
       'REGISTRY_ROW',
       'REGISTRY_GUARD',
       'UNENFORCED',
+      'EXTERNAL',
     ]);
+    expect(lint.out).toContain('  EXTERNAL    0 named paths outside the estate (information).');
 
     const pending = await run(['estate', 'approve', 'map.yaml'], root);
     expect(pending.code).toBe(0);

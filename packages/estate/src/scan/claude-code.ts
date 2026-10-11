@@ -88,7 +88,13 @@ type IgnoreRule = { pattern: string; test: (path: string) => boolean };
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
 
 /** The estate configuration: more globs to skip, and path aliases (`REF` to one or more folders). */
-type EstateConfig = { ignore: string[]; aliases: Record<string, string[]> };
+type EstateConfig = { ignore: string[]; aliases: Record<string, string[]>; externals?: string[] };
+
+/**
+ * Folders a named path may point into that lie outside the estate: the project an agent works on, a shared
+ * workspace. A path under one of them that the estate does not hold is external, not missing.
+ */
+export const DEFAULT_EXTERNALS = ['docs/', '_meta/'] as const;
 
 /** A `.gitignore`-like glob as a test on a relative path: the path or one of its folders matches. */
 export function ignoreRule(pattern: string): IgnoreRule {
@@ -167,6 +173,7 @@ export class ClaudeCodeReader implements EstateReader {
         chosen,
       },
       aliases: { ...aliasTables(files, notes), ...config.aliases },
+      externals: config.externals ?? [...DEFAULT_EXTERNALS],
     };
     for (const file of files) {
       if (file.kind === 'settings') readSettings(file, estate);
@@ -204,8 +211,9 @@ async function present(root: string, names: readonly string[]): Promise<string[]
 }
 
 /**
- * The estate configuration file, when it has one: `ignore:`, a list of globs, and `aliases:`, a map from an
- * alias (`REF`) to the folder or folders it stands for, relative to the root.
+ * The estate configuration file, when it has one: `ignore:`, a list of globs; `aliases:`, a map from an
+ * alias (`REF`) to the folder or folders it stands for, relative to the root; and `externals:`, the folders
+ * outside the estate a path may name (they replace the defaults, `docs/` and `_meta/`).
  */
 async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig> {
   const config: EstateConfig = { ignore: [], aliases: {} };
@@ -225,6 +233,15 @@ async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig
     if (Array.isArray(list) && list.every((item) => typeof item === 'string' && item.trim() !== '')) {
       config.ignore = list.map((item: string) => item.trim());
     } else notes.push({ file: ESTATE_CONFIG, message: 'ignore: must be a list of globs' });
+  }
+  const externals = parsed.externals;
+  if (externals !== undefined) {
+    if (
+      Array.isArray(externals) &&
+      externals.every((item) => typeof item === 'string' && item.trim() !== '')
+    ) {
+      config.externals = externals.map((item: string) => `${cleanFolder(item)}/`);
+    } else notes.push({ file: ESTATE_CONFIG, message: 'externals: must be a list of folders' });
   }
   const aliases = parsed.aliases;
   if (aliases !== undefined) {
