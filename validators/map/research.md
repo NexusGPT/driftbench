@@ -73,3 +73,15 @@ Sources read:
 What others do: an enum member null and a null type state the same partition; equivalence partitioning keeps one case per class.
 
 What to try, and why: the tool pre-pass gives null once when a nullable enum lists null, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
+
+## Iteration 7
+
+Question: packages/generate/src/extract/tools.ts: walk reads a property's keywords where it stands, so a property that is a $ref gives no partition; schema-keywords.ref-defs and ref-definitions prove it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-core section 8.2.3.1 ($ref) and 8.2.4 ($defs); draft-07 used definitions
+* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/research/testgen/dossier-specification.md (source 6: Schemathesis resolves references before generating)
+
+What others do: a $ref is replaced by the schema it points at before validation; Pydantic and OpenAPI tool schemas put shared enums in $defs or definitions, so a generator resolves them first.
+
+What to try, and why: the tool pre-pass reads a local $ref to $defs or definitions, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.

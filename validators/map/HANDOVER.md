@@ -30,7 +30,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 0 |
 <!-- level-table:end -->
 
-After pilot iteration 6 (commit c5d444e): level 0 of 8 on every seed. The bank (`validators/map/bank.jsonl`): 174 of 456 items pass on seeds 1 to 20 and the hidden seed, score 0.3816; iteration 0 was 166 of 456, score 0.364. Items fixed per iteration so far: 1.33; failing items left: 282; forecast 211.5 iterations.
+After pilot iteration 7 (commit ebf9a7a): level 0 of 8 on every seed. The bank (`validators/map/bank.jsonl`): 176 of 456 items pass on seeds 1 to 20 and the hidden seed, score 0.386; iteration 0 was 166 of 456, score 0.364. Items fixed per iteration so far: 1.43; failing items left: 280; forecast 196.0 iterations.
 
 ## Floor
 
@@ -38,7 +38,7 @@ None: `validators/floors.json` holds no floor for map, so CI reads it as 0. Unde
 
 ## Open items
 
-Level 1 (structured files) passes 61 of 98 items on every seed. Its failing items: inventory-forms.long-item, inventory-forms.markdown-tables, inventory-forms.csv, tool-formats.gemini, tool-formats.gemini-nested, tool-formats.bedrock, tool-formats.openapi, tool-formats.swagger, tool-formats.legacy-functions, tool-formats.agent-config, tool-formats.stringified-parameters, tool-formats.multi-document, tool-formats.jsonc, tool-formats.cohere-v1, tool-formats.vercel-json-schema, schema-keywords.min-max-properties, schema-keywords.content-encoding, schema-keywords.one-of, schema-keywords.any-of, schema-keywords.any-of-null, schema-keywords.all-of, schema-keywords.ref-defs, schema-keywords.ref-definitions, schema-keywords.depth-three, schema-keywords.array-of-objects, schema-keywords.array-items-enum, schema-keywords.prefix-items, schema-keywords.contains, schema-keywords.dependent-required, schema-keywords.dependencies, schema-keywords.if-then-else, schema-keywords.not, schema-keywords.closed-object, schema-keywords.additional-properties-schema, schema-keywords.pattern-properties, schema-keywords.discriminator, schema-keywords.recursive-ref. Each item's title names the partition ids the pre-pass must give.
+Level 1 (structured files) passes 63 of 98 items on every seed. Its failing items: inventory-forms.long-item, inventory-forms.markdown-tables, inventory-forms.csv, tool-formats.gemini, tool-formats.gemini-nested, tool-formats.bedrock, tool-formats.openapi, tool-formats.swagger, tool-formats.legacy-functions, tool-formats.agent-config, tool-formats.stringified-parameters, tool-formats.multi-document, tool-formats.jsonc, tool-formats.cohere-v1, tool-formats.vercel-json-schema, schema-keywords.min-max-properties, schema-keywords.content-encoding, schema-keywords.one-of, schema-keywords.any-of, schema-keywords.any-of-null, schema-keywords.all-of, schema-keywords.depth-three, schema-keywords.array-of-objects, schema-keywords.array-items-enum, schema-keywords.prefix-items, schema-keywords.contains, schema-keywords.dependent-required, schema-keywords.dependencies, schema-keywords.if-then-else, schema-keywords.not, schema-keywords.closed-object, schema-keywords.additional-properties-schema, schema-keywords.pattern-properties, schema-keywords.discriminator, schema-keywords.recursive-ref. Each item's title names the partition ids the pre-pass must give.
 
 ## Hypotheses tried
 
@@ -48,6 +48,7 @@ Level 1 (structured files) passes 61 of 98 items on every seed. Its failing item
 * Iteration 4: packages/generate/src/extract/tools.ts: numberPartitions reads exclusiveMinimum and exclusiveMaximum only as numbers, so a draft-04 schema (minimum with exclusiveMinimum true) gets inclusive bounds; schema-keywords.exclusive-minimum-boolean and exclusive-maximum-boolean prove it. Result: held; the item passes on every seed (commit 4dd67cc).
 * Iteration 5: packages/generate/src/extract/tools.ts: typesOf returns no type for a property without type or properties, so a format or a minimum alone gives no partition; schema-keywords.format-without-type and minimum-without-type prove it. Result: held; the item passes on every seed (commit 9234bdb).
 * Iteration 6: packages/generate/src/extract/tools.ts: partitionsOf adds null for a type list with null even when the enum already listed null, so schema-keywords.type-null gains a duplicate null-2 value. Result: held; the item passes on every seed (commit c5d444e).
+* Iteration 7: packages/generate/src/extract/tools.ts: walk reads a property's keywords where it stands, so a property that is a $ref gives no partition; schema-keywords.ref-defs and ref-definitions prove it. Result: held; the item passes on every seed (commit ebf9a7a).
 
 None was rejected: each iteration fixed the one keyword or shape its item named.
 
