@@ -5,7 +5,16 @@ import { fileURLToPath } from 'node:url';
 import { processAdapter } from '@driftbench/adapters';
 import { defaultReaders } from '@driftbench/artifacts';
 import { defaultChecks } from '@driftbench/checks';
-import { type Check, type CheckContext, loadSpecFile, type Spec } from '@driftbench/core';
+import {
+  type AgentAdapter,
+  type Check,
+  type CheckContext,
+  loadSpecFile,
+  type Message,
+  type Session,
+  type Spec,
+  type Turn,
+} from '@driftbench/core';
 import { localProvider } from '@driftbench/sandbox';
 import { createScriptedDriver } from '@driftbench/users';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -32,12 +41,21 @@ afterAll(async () => {
   await rm(parent, { recursive: true, force: true });
 });
 
-function opsAdapter() {
-  return processAdapter({
+/** The CLI's process target; `sent` records the history each send hands the agent. */
+function opsAdapter(): AgentAdapter & { sent: Message[][] } {
+  const inner = processAdapter({
     command: process.execPath,
     args: [OPS],
     provider: localProvider({ dir: parent }),
     deterministic: true,
+  });
+  const sent: Message[][] = [];
+  return Object.assign(Object.create(inner) as AgentAdapter, {
+    sent,
+    send(session: Session, turn: Turn) {
+      sent.push(structuredClone(session.history));
+      return inner.send(session, turn);
+    },
   });
 }
 
@@ -49,7 +67,15 @@ async function priceSheet(): Promise<Spec> {
 
 function spy(): Check & { seen: CheckContext[] } {
   const seen: CheckContext[] = [];
-  return { name: 'spy', seen, applies: () => true, evaluate: (ctx) => (seen.push(ctx), []) };
+  return {
+    name: 'spy',
+    seen,
+    applies: () => true,
+    evaluate: (ctx) => {
+      seen.push(ctx);
+      return [];
+    },
+  };
 }
 
 describe('mode T on a task', () => {
@@ -58,8 +84,9 @@ describe('mode T on a task', () => {
     async () => {
       const spec = await priceSheet();
       const watch = spy();
+      const adapter = opsAdapter();
       const run = await runSpec(spec, {
-        adapter: opsAdapter(),
+        adapter,
         driver: createScriptedDriver(),
         checks: [...defaultChecks(), watch],
         artifacts: defaultReaders(),
@@ -78,6 +105,15 @@ describe('mode T on a task', () => {
         canonicalGiven(spec, 0).prefix,
         canonicalGiven(spec, 1).prefix,
       ]);
+      // The kept session hands the agent the canonical prefix, not its own reply to the build step.
+      const user = (index: number) => {
+        const when = spec.blocks[index]?.when;
+        return when && 'user' in when ? when.user : '';
+      };
+      expect(adapter.sent[1]).toEqual([
+        ...canonicalGiven(spec, 1).prefix,
+        { role: 'user', content: user(1) },
+      ]);
     },
     SLOW,
   );
@@ -90,7 +126,14 @@ describe('mode T on a task', () => {
         ...spec,
         blocks: spec.blocks.map((block, index) =>
           index === 1
-            ? { ...block, given: { world: { workspace: { files: { 'catalog.csv': 'plan_id\n' } } } } }
+            ? {
+                ...block,
+                given: {
+                  world: {
+                    workspace: { files: { ...spec.given?.world?.workspace?.files, 'marker.txt': 'own\n' } },
+                  },
+                },
+              }
             : block,
         ),
       };
@@ -103,9 +146,10 @@ describe('mode T on a task', () => {
         repeat: 0,
       });
       expect(run.status, run.error).toBe('completed');
-      // A fresh workspace from the step's own Given holds no workbook to change.
+      // A fresh workspace from the step's own Given holds no workbook to change, and holds its own file.
       expect(run.blocks[1]?.observed.workspaceDiff?.changed).not.toContain('out/acme-price-sheet.xlsx');
       expect(run.blocks[1]?.pass).toBe(false);
+      expect(run.blocks[0]?.pass).toBe(true);
     },
     SLOW,
   );
