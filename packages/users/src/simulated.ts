@@ -168,7 +168,17 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
   };
 }
 
-function checkFamilies(options: SimulatedUserOptions): void {
+/**
+ * Refuses a model port of no known family, of the agent's family or of a judge's family: a model that plays
+ * the user (or the attacker) must not share a family with the agent it talks to or the judges that grade it.
+ */
+export function checkUserFamilies(
+  options: Pick<SimulatedUserOptions, 'port' | 'agentFamily' | 'judgeFamilies'>,
+): void {
+  checkFamilies(options);
+}
+
+function checkFamilies(options: Pick<SimulatedUserOptions, 'port' | 'agentFamily' | 'judgeFamilies'>): void {
   const own = family(options.port.family);
   if (own === '' || own === 'unknown') {
     throw new SimulatedUserError(
