@@ -19,9 +19,10 @@ const DRIFT_NAMES: Record<DriftClass, string> = {
  * The scorecard as one HTML file: inline styles, no script, no external asset, light and dark themes. The
  * same scorecard gives the same bytes.
  */
-export function renderHtml(card: Scorecard): string {
+export function renderHtml(card: Scorecard, options: RenderOptions = {}): string {
   const c = card.campaign;
   const sections = [
+    options.nav ?? '',
     header(card),
     summary(card),
     card.compare ? compareSection(card.compare) : '',
@@ -31,16 +32,29 @@ export function renderHtml(card: Scorecard): string {
     recoverySection(card),
     spreadSection(card.spread),
     card.pilot ? pilotSection(card.pilot) : '',
-    drilldownSection(card),
+    drilldownSection(card, options),
     methodSection(),
   ];
+  return renderPage(`Scorecard ${c.campaignId}`, sections);
+}
+
+/** How a page links out, for a server that serves the scorecard: the viewer of `driftbench view`. */
+export type RenderOptions = {
+  /** HTML placed first in the page, such as a navigation bar. */
+  nav?: string;
+  /** The address of a run's own page; each run in the drilldown then links to it. */
+  runHref?: (runId: string) => string;
+};
+
+/** A page of sections with the scorecard's style: one file, no script, no external asset, light and dark. */
+export function renderPage(title: string, sections: readonly string[]): string {
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="driftbench report">
-<title>Scorecard ${esc(c.campaignId)}</title>
+<title>${esc(title)}</title>
 <style>${STYLE}</style>
 </head>
 <body>
@@ -515,7 +529,7 @@ function verdictRow(v: Verdict): string {
  * One block of a run. Failing verdicts and every judged verdict carry their evidence and reasoning; the
  * machine verdicts that passed are listed by id only, so a long campaign stays a readable file.
  */
-function blockDetail(block: BlockDetail): string {
+function blockDetail(block: BlockDetail, extra = ''): string {
   const shown = block.verdicts.filter((v) => v.outcome !== 'pass' || v.kind === 'judge');
   const passed = block.verdicts.filter((v) => v.outcome === 'pass' && v.kind !== 'judge');
   const where = block.specBlock === undefined ? 'injected block' : `spec block ${block.specBlock}`;
@@ -533,13 +547,13 @@ function blockDetail(block: BlockDetail): string {
       ? `<details><summary>${esc(block.toolCalls.map((call) => call.label).join(', '))}</summary>${calls}</details>`
       : calls;
   const verdictHead = ['outcome', 'verdict', 'kind', 'gating', 'evidence', 'judge reasoning'];
-  return `<div class="block ${block.pass ? 'block-pass' : 'block-fail'}">
+  return `<div class="block ${block.pass ? 'block-pass' : 'block-fail'}" id="block-${block.index}">
 <p class="block-head"><span class="badge ${block.pass ? 'ok' : 'bad'}">${block.pass ? 'pass' : 'fail'}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
 ${block.stimulus === undefined ? '' : `<p class="label">User</p><pre class="msg">${esc(block.stimulus)}</pre>`}
 <p class="label">Agent</p><pre class="msg">${esc(block.text || '(no text)')}</pre>
 <p class="label">Tool calls</p>${tools}
 ${shown.length > 0 ? table('Verdicts with evidence: every one that did not pass, every judged one', verdictHead, shown.map(verdictRow)) : ''}
-${passed.length > 0 ? `<p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">${esc(passed.map((v) => v.id).join(', '))}</span></p>` : ''}
+${passed.length > 0 ? `<p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">${esc(passed.map((v) => v.id).join(', '))}</span></p>` : ''}${extra === '' ? '' : `\n${extra}`}
 </div>`;
 }
 
@@ -557,7 +571,7 @@ ${judged.length > 0 ? table('Judged verdicts', ['outcome', 'verdict', 'kind', 'g
 </div>`;
 }
 
-function runDetail(run: RunDetail): string {
+function runDetail(run: RunDetail, options: RenderOptions = {}): string {
   const name = [
     run.specId,
     run.target,
@@ -591,22 +605,53 @@ function runDetail(run: RunDetail): string {
         )
       : '';
   return `<details class="run ${run.pass ? 'run-pass' : 'run-fail'}" id="run-${esc(run.runId)}"${run.pass ? '' : ' open'}>
-<summary><span class="badge ${run.pass ? 'ok' : 'bad'}">${run.pass ? 'pass' : 'fail'}</span> <span class="mono">${esc(name)}</span></summary>
+<summary><span class="badge ${run.pass ? 'ok' : 'bad'}">${run.pass ? 'pass' : 'fail'}</span> <span class="mono">${esc(name)}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</summary>
 <p class="run-facts">${esc(facts.join(', '))}.${run.title ? ` ${esc(run.title)}.` : ''}</p>
 ${run.error ? `<p class="bad">${esc(run.error)}</p>` : ''}
 ${diff}
-${run.blocks.map(run.pass ? blockBrief : blockDetail).join('\n')}
+${run.blocks.map((block) => (run.pass ? blockBrief(block) : blockDetail(block))).join('\n')}
 </details>`;
 }
 
-function drilldownSection(card: Scorecard): string {
+function drilldownSection(card: Scorecard, options: RenderOptions = {}): string {
   const failing = card.drilldown.filter((run) => !run.pass).length;
   const passing = card.drilldown.length - failing;
   return `<section id="drilldown">
 <h2>Drilldown</h2>
 <p>Failing runs first, open and in full: each block with what the user sent, what the agent said and called, every verdict that did not pass and every judged verdict with its evidence and the judge's reasoning. Passing runs follow in brief. Shown: ${count(failing, 'failing run')} and ${count(passing, 'passing run')}.${card.omittedRuns > 0 ? ` ${count(card.omittedRuns, 'more run')} left out by the run limit.` : ''}</p>
-${card.drilldown.map(runDetail).join('\n')}
+${card.drilldown.map((run) => runDetail(run, options)).join('\n')}
 </section>`;
+}
+
+/** One run on its own: every block in full, each followed by `blockExtra` (the viewer's label form). */
+export function renderRun(run: RunDetail, blockExtra: (block: BlockDetail) => string = () => ''): string {
+  const name = [
+    run.specId,
+    run.target,
+    run.mode,
+    `repeat ${run.repeat}`,
+    ...(run.perturbationId ? [run.perturbationId] : []),
+  ].join(' · ');
+  const header = runDetail({ ...run, blocks: [] }).replace(
+    /<details class="run ([^"]*)"[^>]*>/,
+    '<details class="run $1" open>',
+  );
+  return `<section id="run">
+<h2 class="mono">${esc(name)}</h2>
+${header.replace('</details>', '')}
+${run.blocks.map((block) => blockDetail(block, blockExtra(block))).join('\n')}
+</details>
+</section>`;
+}
+
+/** The compare section of a scorecard, on its own. */
+export function renderCompare(compare: CompareResult): string {
+  return `${verdictBanner(compare)}\n${compareSection(compare)}`;
+}
+
+/** The spread section of a scorecard, on its own. */
+export function renderSpread(spread: Spread): string {
+  return spreadSection(spread);
 }
 
 function methodSection(): string {
@@ -668,7 +713,7 @@ details.run>summary{cursor:pointer}
 .badge.ok{background:var(--ok-bg);color:var(--ok)}.badge.bad{background:var(--bad-bg);color:var(--bad)}
 .block{border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:10px 0}
 .block-fail{border-left-color:var(--bad)}.block-pass{border-left-color:var(--ok)}
-.block-head{margin:0 0 4px}.passed{margin:6px 0;font-size:12px;word-break:break-word}.label{margin:6px 0 2px;color:var(--muted);font-size:12px}
+.block-head{margin:0 0 4px}a{color:var(--accent)}.open{font-size:12px;margin-left:6px}nav.top{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin:0 0 8px}nav.top a{text-decoration:none}.labels{border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}.labels form{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.labels select,.labels input,.labels button{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);max-width:100%}.labels input[name=note]{flex:1 1 180px;min-width:0}.saved{background:var(--ok-bg);color:var(--ok);border-radius:8px;padding:8px 12px}.passed{margin:6px 0;font-size:12px;word-break:break-word}.label{margin:6px 0 2px;color:var(--muted);font-size:12px}
 pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin:0;white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto}
 .call{margin:4px 0}.call p{margin:0 0 2px}
 @media (max-width:600px){main{padding:16px 16px 48px}section{padding:12px}.tile-value{font-size:18px}}
