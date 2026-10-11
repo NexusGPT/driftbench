@@ -142,6 +142,8 @@ const PROOF: Record<string, string> = {
   twin: 'twin/estate.twin.instruction.standing.tell-the-user-about-a-late.yaml',
 };
 
+const proofSpecs = () => Object.values(PROOF).map((path) => join(LIVE, path));
+
 type RunJson = {
   campaignId: string;
   standIn: boolean;
@@ -172,6 +174,29 @@ async function estateRun(estateRoot: string, specs: string[], ...extra: string[]
     ...extra,
   ]);
   return { ...result, store, json: result.out === '' ? undefined : (JSON.parse(result.out) as RunJson) };
+}
+
+/** Pass, fail or the run status per spec id. */
+function outcomes(json: RunJson | undefined): Record<string, string> {
+  return Object.fromEntries(
+    (json?.runs ?? []).map((line) => [
+      line.spec,
+      line.status === 'completed' ? (line.pass ? 'pass' : 'fail') : line.status,
+    ]),
+  );
+}
+
+/** The ids of the proof specs whose metadata names the atom. */
+async function specsOfAtom(atom: string): Promise<string[]> {
+  const { loadSpecFile } = await import('@driftbench/core');
+  const out: string[] = [];
+  for (const path of proofSpecs()) {
+    const loaded = await loadSpecFile(path);
+    if (!loaded.ok) throw new Error(path);
+    const estate = loaded.spec.metadata?.estate as { atoms?: string[] } | undefined;
+    if (estate?.atoms?.includes(atom)) out.push(loaded.spec.id);
+  }
+  return out.sort();
 }
 
 describe('driftbench estate run', () => {
@@ -240,4 +265,59 @@ describe('driftbench estate run', () => {
       'the estate copy is not pinned to a map hash; pass --map to pin it',
     );
   });
+});
+
+describe('the Northwind proof: 14 live specs on the fake command, and two estate mutants', () => {
+  const FAULTS = [
+    'estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker',
+    'estate.tool_denied.tool.settings.deny-webfetch',
+  ];
+  let clean: Record<string, string>;
+
+  it('runs the 14: the clean streams pass, the two planted faults fail on their own checks', async () => {
+    const result = await estateRun(FIXTURE, proofSpecs(), '--map', MAP);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(1);
+    clean = outcomes(result.json);
+    expect(Object.keys(clean)).toHaveLength(14);
+    const failing = Object.entries(clean)
+      .filter(([, outcome]) => outcome !== 'pass')
+      .map(([spec]) => spec)
+      .sort();
+    expect(failing).toEqual(FAULTS);
+    const byId = Object.fromEntries((result.json?.runs ?? []).map((line) => [line.spec, line.failing]));
+    expect(byId[FAULTS[0] ?? '']).toEqual(['block 0: skills.shipment-tracker']);
+    expect(byId[FAULTS[1] ?? '']).toEqual(['block 0: forbidden.WebFetch']);
+  }, 120_000);
+
+  it.each([
+    [R3, '--delete', ['estate.skip_pressure.gate.standing.read-a-file-before-editing-it'], []],
+    [
+      R7,
+      '--invert',
+      [
+        'estate.obligation.instruction.standing.tell-the-user-about-a-late',
+        'estate.twin.instruction.standing.tell-the-user-about-a-late',
+      ],
+      ['estate.outside_trigger.instruction.standing.tell-the-user-about-a-late'],
+    ],
+  ])(
+    'a mutant of %s (%s) turns its atom specs red, the rest as before',
+    async (atom, op, red, green) => {
+      const to = join(await folder(), 'mutant');
+      expect((await run(['estate', 'mutate', MAP, '--atom', atom, op, '--to', to])).code).toBe(0);
+      const result = await estateRun(to, proofSpecs());
+      expect(result.code).toBe(1);
+      const mutant = outcomes(result.json);
+      expect(await specsOfAtom(atom)).toEqual([...red, ...green].sort());
+      for (const spec of red) {
+        expect(clean[spec]).toBe('pass');
+        expect(mutant[spec]).toBe('fail');
+      }
+      for (const spec of green) expect(mutant[spec]).toBe('pass');
+      const others = Object.keys(clean).filter((spec) => !red.includes(spec));
+      for (const spec of others) expect(mutant[spec]).toBe(clean[spec]);
+    },
+    120_000,
+  );
 });
