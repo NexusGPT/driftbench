@@ -11,4 +11,18 @@ export {
   sealFromJson,
   specOfKey,
 } from './evidence';
+export {
+  BUDGET_FILE,
+  Budget,
+  type BudgetDecision,
+  inHoldout,
+  type OpenedSpec,
+  openBundle,
+  passRate,
+  type ScoreEntry,
+  SEALED_FILE,
+  SEALED_NOTE,
+  SealedBundle,
+  spendQuery,
+} from './holdout';
 export { coverElements, requiredLabel } from './space';
