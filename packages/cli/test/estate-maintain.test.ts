@@ -456,3 +456,44 @@ describe('driftbench estate diff with guard state', () => {
     expect(missing.code).toBe(2);
   });
 });
+
+describe('the fixture-v2 outputs', () => {
+  const V2 = 'examples/estates/fixture-v2';
+  const withoutWrote = (text: string) => text.replace(/^Wrote .*\n/m, '');
+
+  it('prints the committed diff of the first version against the second', async () => {
+    const result = await cli([
+      'estate',
+      'diff',
+      'examples/estates/fixture/approved.yaml',
+      `${V2}/map.yaml`,
+      '--old-guards',
+      `${V2}/maintain/guard-state.v1.yaml`,
+    ]);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    expect(result.out).toBe(withoutWrote(await readFile(join(ROOT, V2, 'maintain', 'diff.txt'), 'utf8')));
+  });
+
+  it('prints the committed impact and exits 1, and retires the removed rule test on --write', async () => {
+    const result = await cli(['estate', 'impact', `${V2}/maintain/diff.json`, '--tests', `${V2}/tests`]);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(1);
+    expect(result.out).toBe(withoutWrote(await readFile(join(ROOT, V2, 'maintain', 'impact.txt'), 'utf8')));
+
+    const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-v2-'));
+    await cp(join(ROOT, V2, 'tests'), join(root, 'tests'), { recursive: true });
+    await cp(join(ROOT, V2, 'maintain', 'diff.json'), join(root, 'diff.json'));
+    const written = await cli(['estate', 'impact', 'diff.json', '--tests', 'tests', '--write'], root);
+    expect(written.code).toBe(1);
+    const retired = await readFile(join(root, 'tests', 'unsent-draft.yaml'), 'utf8');
+    expect(retired).toContain(
+      '  retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed\n',
+    );
+    for (const name of ['supplier-yes', 'draft-pair', 'late-shipment']) {
+      expect(await readFile(join(root, 'tests', `${name}.yaml`), 'utf8')).toBe(
+        await readFile(join(ROOT, V2, 'tests', `${name}.yaml`), 'utf8'),
+      );
+    }
+  });
+});

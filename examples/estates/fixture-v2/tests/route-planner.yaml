@@ -1,0 +1,12 @@
+# Version 1 test of the Northwind fixture: planning the routes goes to the route planner. Fictional.
+id: northwind-route-planner
+kind: task
+title: Planning the routes goes to the route planner
+target: { adapter: claude-code }
+metadata:
+  estate: { atoms: [route.standing.an-ask-to-plan-the-delivery] }
+blocks:
+  - user: Plan the delivery routes for tomorrow.
+    expect:
+      tools:
+        - { label: Agent }

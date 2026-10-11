@@ -1,0 +1,26 @@
+Impact of the estate diff ab256ba636f4 to 48cac5d0c4c3 on 8 live estate tests (0 retired before, 0 other specs).
+  Regenerate 5, re-approve 2, retire 1, new 2; 2 tests untouched, 24 atoms moved with the same quote.
+Regenerate:
+  northwind-draft-pair (draft-pair.yaml): instruction.standing.never-send-a-supplier-email-without white space, instruction.standing.keep-an-unconfirmed-draft-unsent removed
+  northwind-late-shipment (late-shipment.yaml): instruction.standing.tell-the-user-about-a-late semantic
+  northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
+  northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
+  northwind-supplier-yes (supplier-yes.yaml): instruction.standing.never-send-a-supplier-email-without white space
+Re-approve, the meaning changed:
+  route.standing.an-ask-to-plan-the-delivery (route): | plan the delivery routes for the next two days | the `route-planner` agent |
+      tests: northwind-route-planner
+  instruction.standing.tell-the-user-about-a-late (instruction): When a shipment is late by more than one day, tell the user and propose a supplier email.
+      tests: northwind-late-shipment
+Retire:
+  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed [to write with --write]
+New atoms with no test:
+  instruction.standing.name-the-finance-lead-on-a (instruction) CLAUDE.md:26
+  instruction.standing.keep-a-credit-note-as-a (instruction) CLAUDE.md:27
+Guards whose enforcement state changed:
+  promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
+Needs a person: 4.
+  - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
+  - re-approve instruction.standing.tell-the-user-about-a-late: its meaning changed; 1 test waits
+  - approve the tests of the new atom instruction.standing.name-the-finance-lead-on-a: no test covers it yet
+  - approve the tests of the new atom instruction.standing.keep-a-credit-note-as-a: no test covers it yet
+Wrote examples/estates/fixture-v2/maintain/impact.json.

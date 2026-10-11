@@ -321,6 +321,14 @@ export async function writeRetirements(
   return results;
 }
 
+const WHY: Record<RegenerateWhy, string> = {
+  whitespace: 'white space',
+  semantic: 'semantic',
+  restated: 'restated',
+  removed: 'removed',
+  guard_state: 'guard state',
+};
+
 /** The impact as lines a person reads. */
 export function renderImpact(report: ImpactReport): string {
   const lines: string[] = [];
@@ -335,7 +343,7 @@ export function renderImpact(report: ImpactReport): string {
     lines.push('Regenerate:');
     for (const entry of report.regenerate) {
       lines.push(
-        `  ${entry.test} (${entry.file}): ${entry.atoms.map((item) => `${item.atom} ${item.why.replace('_', ' ')}`).join(', ')}`,
+        `  ${entry.test} (${entry.file}): ${entry.atoms.map((item) => `${item.atom} ${WHY[item.why]}`).join(', ')}`,
       );
     }
   }

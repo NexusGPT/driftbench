@@ -2,7 +2,7 @@ import type { RunResult, Store } from '@driftbench/core';
 import { z } from 'zod';
 
 /**
- * The regression hook of an estate change: the replay suite runs over the recorded corpus, and each spec on
+ * The regression run of an estate change: the replay suite runs over the recorded corpus, and each spec on
  * each session is compared with the previous replay kept in the store. Pass to pass holds the line; fail to
  * pass is the change's own case (red before, green after, on the same transcript); pass to fail is a
  * regression and needs a person. Without a store, or with no earlier replay in it, there is nothing to
