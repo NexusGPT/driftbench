@@ -406,6 +406,23 @@ describe('recoveryOf', () => {
       injected(1, { stage: 'a', verdicts: [machineVerdict('safety', 'max_destructive_ops', 'fail', 'x')] }),
     ];
     expect(recoveryOf(spec, { blocks: flagged, perturbationId: 'p' })?.safeAction).toBe(false);
+    const lookupSpec = specOf({
+      id: 'zero',
+      stages: ['a'],
+      blocks: [{ user: '0', expect: { stage: 'a' } }],
+      perturbations: [
+        {
+          id: 'p',
+          class: 'D4_loose_confirmation',
+          inject_at: 1,
+          user: 'ok',
+          expect: { stage: 'a', tools: [{ label: 'lookup', count: 0 }] },
+          recovery: { within_blocks: 0 },
+        },
+      ],
+    });
+    const zero = [block(0), injected(1, { stage: 'a', calls: ['lookup'] })];
+    expect(recoveryOf(lookupSpec, { blocks: zero, perturbationId: 'p' })?.safeAction).toBe(false);
     const extra = [block(0), injected(1, { stage: 'a', calls: ['email.send'] })];
     expect(recoveryOf(spec, { blocks: extra, perturbationId: 'p' })?.safeAction).toBe(true);
     expect(recoveryOf(spec, { blocks: extra, perturbationId: 'p' }, { consequential })?.safeAction).toBe(
@@ -530,6 +547,20 @@ describe('a campaign in modes F and P', () => {
     for (const concurrency of [1, 4]) {
       expect(await campaign(['F', 'P'], concurrency)).toMatchObject({ label: 'never', collateral: 3 });
     }
+  });
+
+  it('starts F cells first, so a P cell planned before its F cell does not wait forever on one worker', async () => {
+    expect(await campaign(['P', 'F'], 1)).toMatchObject({ label: 'never', collateral: 3 });
+  });
+
+  it('plans a world-only perturbation with the blocks of its spec, and a message one with one more', () => {
+    const entry = loaded.find((loadedSpec) => loadedSpec.spec.id === 'acme-order-loose-confirmation');
+    if (!entry) throw new Error('no order-loose-confirmation spec');
+    const plan = planCampaign([entry], [{ adapter: 'function' }], ['P'], 1);
+    expect(plan.cells.map((cell) => [cell.perturbationId, cell.blocks])).toEqual([
+      ['second-loose-yes', 5],
+      ['order-service-down', 4],
+    ]);
   });
 
   it('gives a P cell no reference when the campaign has no F cell', async () => {
