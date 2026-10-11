@@ -1,0 +1,41 @@
+/* Shared layout for the two agent kind cards shown side by side in the README. */
+#frame { width: 640px; padding: 4px; }
+.card {
+  border-radius: 24px;
+  background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
+  padding: 26px 28px 24px;
+  height: 470px;
+  display: flex; flex-direction: column;
+}
+.head { display: flex; align-items: center; justify-content: space-between; }
+.title { font-family: var(--serif); font-size: 36px; line-height: 1.05; color: var(--ink); margin: 10px 0 18px; }
+.ask {
+  align-self: flex-end; width: fit-content; margin-left: 110px;
+  font-size: 19px; line-height: 1.4; color: var(--ink);
+  background: var(--card-2); border: 1px solid var(--line-2);
+  padding: 12px 16px; border-radius: 18px 18px 4px 18px;
+}
+.work { margin-top: 14px; display: grid; gap: 8px; }
+.line {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 16px; color: var(--ink-2);
+}
+.line .tag {
+  font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint);
+  width: 74px; flex: none;
+}
+.line .val { padding: 5px 10px; border-radius: 9px; background: var(--card-2); border: 1px solid var(--line-2); }
+.line .ok { color: var(--pass); }
+.reply {
+  margin-top: 12px; width: fit-content; margin-right: 90px;
+  font-size: 19px; line-height: 1.4; color: var(--ink);
+  background: var(--blue-soft); border: 1px solid var(--blue-line);
+  padding: 12px 16px; border-radius: 18px 18px 18px 4px;
+}
+.checks { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; padding-top: 16px; border-top: 1px dashed var(--line); }
+.check {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--mono); font-size: 15px; color: var(--ink-2);
+  padding: 6px 11px; border-radius: 999px; background: var(--pass-soft);
+}
+.check svg { width: 14px; height: 14px; }

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench modes</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  #frame { position: relative; width: 1200px; padding: 4px; display: grid; grid-template-columns: 210px 1fr; column-gap: 54px; align-items: center; }
+  #wires { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+  .golden {
+    position: relative; z-index: 1;
+    border-radius: 22px; padding: 22px 22px 20px;
+    background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
+  }
+  .golden .name { font-family: var(--mono); font-size: 15px; color: var(--ink-2); margin: 10px 0 16px; }
+  .golden .stack { display: grid; gap: 8px; }
+  .golden .chip {
+    font-family: var(--mono); font-size: 14.5px; color: var(--ink-2);
+    padding: 9px 12px; border-radius: 10px; background: var(--card-2); border: 1px solid var(--line-2);
+    display: flex; justify-content: space-between;
+  }
+  .golden .chip span:last-child { color: var(--faint); }
+  .rows { display: grid; gap: 16px; position: relative; z-index: 1; }
+  .row {
+    display: grid; grid-template-columns: 262px 420px 1fr; align-items: center;
+    border-radius: 22px; padding: 20px 26px;
+    background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
+  }
+  .mode { font-family: var(--serif); font-size: 36px; line-height: 1; color: var(--ink); }
+  .desc { margin-top: 10px; font-size: 17px; line-height: 1.4; color: var(--muted); padding-right: 18px; }
+  .lane svg { display: block; width: 420px; height: 126px; overflow: visible; }
+  .yield .caps { font-size: 12.5px; }
+  .yield .what { margin-top: 8px; font-size: 21px; font-weight: 600; line-height: 1.25; color: var(--ink); }
+  .yield .how { margin-top: 4px; font-size: 16px; color: var(--muted); font-family: var(--mono); }
+</style>
+</head>
+<body>
+<div id="frame">
+  <svg id="wires"></svg>
+  <div class="golden" id="golden">
+    <div class="caps">Golden</div>
+    <div class="name">acme.upgrade_plan</div>
+    <div class="stack">
+      <div class="chip"><span>b1</span><span>greet</span></div>
+      <div class="chip"><span>b2</span><span>plan</span></div>
+      <div class="chip"><span>b3</span><span>identity</span></div>
+      <div class="chip"><span>b4</span><span>recap</span></div>
+    </div>
+  </div>
+
+  <div class="rows">
+    <div class="row" data-lane="teacher">
+      <div><div class="mode">Teacher forced</div><div class="desc">Each block starts from the golden's own past.</div></div>
+      <div class="lane"><svg viewBox="0 0 420 126"></svg></div>
+      <div class="yield"><div class="caps">Measures</div><div class="what">Local accuracy, block by block</div></div>
+    </div>
+    <div class="row" data-lane="free">
+      <div><div class="mode">Free running</div><div class="desc">The agent's own replies carry forward.</div></div>
+      <div class="lane"><svg viewBox="0 0 420 126"></svg></div>
+      <div class="yield"><div class="caps">Measures</div><div class="what">Compounding</div><div class="how">index = T minus F</div></div>
+    </div>
+    <div class="row" data-lane="perturbed">
+      <div><div class="mode">Perturbed</div><div class="desc">Free running, with a deviation injected at block k.</div></div>
+      <div class="lane"><svg viewBox="0 0 420 126"></svg></div>
+      <div class="yield"><div class="caps">Measures</div><div class="what">Recovery</div><div class="how">turns to recover</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (name, attrs, parent, text) => {
+    const n = document.createElementNS(ns, name);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    parent.appendChild(n);
+    return n;
+  };
+  const C = {
+    ink2: css('--ink-2'), faint: css('--faint'), line: css('--line'), card2: css('--card-2'),
+    pass: css('--pass'), passSoft: css('--pass-soft'), fail: css('--fail'), failSoft: css('--fail-soft'),
+    ember: css('--ember'), emberSoft: css('--ember-soft'), blue: css('--blue'), muted: css('--muted')
+  };
+  const BW = 60, BY = 32, xs = [16, 120, 224, 328];
+
+  function block(svg, i, state) {
+    const x = xs[i];
+    const fill = state === 'pass' ? C.passSoft : state === 'fail' ? C.failSoft : C.emberSoft;
+    const stroke = state === 'pass' ? C.line : state === 'fail' ? C.fail : C.ember;
+    el('rect', { x, y: BY, width: BW, height: BW, rx: 14, fill, stroke, 'stroke-width': state === 'pass' ? 1.2 : 1.6 }, svg);
+    el('text', { x: x + 10, y: BY + 19, 'font-family': 'JetBrains Mono, monospace', 'font-size': 13, fill: C.faint }, svg, 'b' + (i + 1));
+    const cx = x + BW / 2 + 6, cy = BY + BW / 2 + 6;
+    if (state === 'pass') {
+      el('path', { d: `M ${cx - 9} ${cy} l 6 6 l 12 -12`, fill: 'none', stroke: C.pass, 'stroke-width': 2.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
+    } else {
+      const col = state === 'fail' ? C.fail : C.ember;
+      el('path', { d: `M ${cx - 7} ${cy - 7} l 14 14 M ${cx + 7} ${cy - 7} l -14 14`, fill: 'none', stroke: col, 'stroke-width': 2.8, 'stroke-linecap': 'round' }, svg);
+    }
+  }
+  function chain(svg, colors) {
+    for (let i = 0; i < 3; i++) {
+      const x1 = xs[i] + BW + 6, x2 = xs[i + 1] - 8, y = BY + BW / 2;
+      const col = colors[i] || C.faint;
+      el('path', { d: `M ${x1} ${y} H ${x2}`, stroke: col, 'stroke-width': 2, fill: 'none', 'stroke-linecap': 'round' }, svg);
+      el('path', { d: `M ${x2 - 6} ${y - 5} L ${x2} ${y} L ${x2 - 6} ${y + 5}`, stroke: col, 'stroke-width': 2, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
+    }
+  }
+
+  const lanes = {};
+  document.querySelectorAll('.row').forEach((r) => { lanes[r.dataset.lane] = r.querySelector('svg'); });
+
+  // Teacher forced: every block is fed from the golden prefix, so a miss stays local.
+  {
+    const s = lanes.teacher;
+    el('path', { d: `M ${xs[0] + BW / 2} 8 H ${xs[3] + BW / 2}`, stroke: C.faint, 'stroke-width': 1.6, 'stroke-dasharray': '4 5', fill: 'none' }, s);
+    xs.forEach((x) => el('path', { d: `M ${x + BW / 2} 8 V ${BY - 4}`, stroke: C.faint, 'stroke-width': 1.6, 'stroke-dasharray': '3 4', fill: 'none' }, s));
+    ['pass', 'pass', 'fail', 'pass'].forEach((st, i) => block(s, i, st));
+    el('text', { x: xs[2] + BW / 2, y: BY + BW + 26, 'text-anchor': 'middle', 'font-size': 14.5, fill: C.muted }, s, 'stays local');
+  }
+  // Free running: the agent carries its own replies, so one miss can poison the next.
+  {
+    const s = lanes.free;
+    chain(s, [null, null, C.fail]);
+    ['pass', 'pass', 'fail', 'fail'].forEach((st, i) => block(s, i, st));
+    el('text', { x: (xs[2] + xs[3] + BW) / 2, y: BY + BW + 26, 'text-anchor': 'middle', 'font-size': 14.5, fill: C.muted }, s, 'one miss, then another');
+  }
+  // Perturbed: a deviation lands at block 2; the agent drifts, then comes back.
+  {
+    const s = lanes.perturbed;
+    chain(s, [null, null, null]);
+    ['pass', 'drift', 'pass', 'pass'].forEach((st, i) => block(s, i, st));
+    const bx = xs[1] + BW / 2;
+    el('path', { d: `M ${bx + 3} 2 L ${bx - 6} 15 L ${bx + 1} 15 L ${bx - 4} 25 L ${bx + 8} 10 L ${bx + 1} 10 L ${bx + 6} 2 Z`, fill: C.ember }, s);
+    el('text', { x: bx + 16, y: 18, 'font-size': 14.5, fill: C.ember, 'font-weight': 500 }, s, 'deviation');
+    const y = BY + BW + 11;
+    el('path', { d: `M ${xs[1] + 8} ${y - 5} V ${y} H ${xs[2] + BW - 8} V ${y - 5}`, stroke: C.blue, 'stroke-width': 1.8, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, s);
+    el('text', { x: (xs[1] + xs[2] + BW) / 2, y: y + 20, 'text-anchor': 'middle', 'font-size': 14.5, fill: C.muted }, s, 'back one block later');
+  }
+
+  // Wires from the golden to each mode.
+  function wires() {
+    const frame = document.getElementById('frame').getBoundingClientRect();
+    const svg = document.getElementById('wires');
+    svg.setAttribute('width', frame.width); svg.setAttribute('height', frame.height);
+    const g = document.getElementById('golden').getBoundingClientRect();
+    const x1 = g.right - frame.left, y1 = g.top + g.height / 2 - frame.top;
+    document.querySelectorAll('.row').forEach((r) => {
+      const b = r.getBoundingClientRect();
+      const x2 = b.left - frame.left, y2 = b.top + b.height / 2 - frame.top;
+      const mx = (x1 + x2) / 2;
+      el('path', { d: `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2 - 1} ${y2}`, stroke: C.faint, 'stroke-width': 1.6, fill: 'none', 'stroke-dasharray': '4 5' }, svg);
+      el('circle', { cx: x2 - 1, cy: y2, r: 3.5, fill: C.faint }, svg);
+    });
+  }
+
+  window.__fonts = ['400 16px Inter', '500 14px Inter', '600 21px Inter', '400 15px "JetBrains Mono"', '400 36px "Instrument Serif"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { wires(); window.__ready = true; });
+</script>
+</body>
+</html>

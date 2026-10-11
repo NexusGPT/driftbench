@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench areas</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  #frame {
+    width: 1200px;
+    padding: 4px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .tile {
+    display: flex; align-items: center; gap: 28px;
+    padding: 34px 36px;
+    border-radius: 24px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+  .icon {
+    flex: none; width: 92px; height: 92px; border-radius: 24px;
+    display: grid; place-items: center;
+    background: var(--card-2);
+    border: 1px solid var(--line-2);
+  }
+  .icon svg { width: 58px; height: 58px; overflow: visible; }
+  h3 { margin: 0; font-size: 29px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+  p { margin: 8px 0 0; font-size: 20px; line-height: 1.45; color: var(--muted); }
+  .k { stroke: var(--ink-2); }
+  .b { stroke: var(--blue); }
+  .e { stroke: var(--ember); }
+  .bf { fill: var(--blue); }
+  .ef { fill: var(--ember); }
+  .soft { fill: var(--blue-soft); }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="tile">
+    <div class="icon">
+      <svg viewBox="0 0 52 52" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path class="k" d="M8 9h22a4 4 0 0 1 4 4v9a4 4 0 0 1-4 4H17l-6 5v-5H8a4 4 0 0 1-4-4v-9a4 4 0 0 1 4-4z"/>
+        <path class="k" d="M11 15.5h14M11 20h9"/>
+        <path class="b soft" d="M22 25h22a4 4 0 0 1 4 4v9a4 4 0 0 1-4 4h-3v5l-6-5H22a4 4 0 0 1-4-4v-9a4 4 0 0 1 4-4z"/>
+        <circle class="bf" cx="27.5" cy="33.5" r="1.9" stroke="none"/>
+        <circle class="bf" cx="33" cy="33.5" r="1.9" stroke="none"/>
+        <circle class="ef" cx="38.5" cy="33.5" r="1.9" stroke="none"/>
+      </svg>
+    </div>
+    <div>
+      <h3>Scenarios and simulated users</h3>
+      <p>Scripted turns, simulated users, and ten deviations to inject at any block.</p>
+    </div>
+  </div>
+
+  <div class="tile">
+    <div class="icon">
+      <svg viewBox="0 0 52 52" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <circle class="k" cx="14" cy="10" r="4"/>
+        <circle class="k" cx="26" cy="10" r="4"/>
+        <circle class="b soft" cx="38" cy="10" r="4"/>
+        <rect class="k" x="6" y="20" width="40" height="26" rx="6"/>
+        <path class="b" d="M16 33.5l6.5 6 13.5-13"/>
+      </svg>
+    </div>
+    <div>
+      <h3>Checks and judges</h3>
+      <p>Machine checks first. Judges that earn each criterion on fixture pairs.</p>
+    </div>
+  </div>
+
+  <div class="tile">
+    <div class="icon">
+      <svg viewBox="0 0 52 52" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path class="k" d="M2 16h48" stroke-dasharray="3 4.4" stroke-width="2"/>
+        <path class="b" d="M2 16h8c7 0 8 20 16 20s9-20 16-20h8"/>
+        <circle class="ef" cx="26" cy="36" r="4" stroke="none"/>
+        <path class="k" d="M18 42v4h16v-4" stroke-width="2"/>
+      </svg>
+    </div>
+    <div>
+      <h3>Drift and recovery</h3>
+      <p>Five drift classes per block. The turns to recover, counted.</p>
+    </div>
+  </div>
+
+  <div class="tile">
+    <div class="icon">
+      <svg viewBox="0 0 52 52" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path class="k" d="M3 46h46" stroke-width="2"/>
+        <path class="e" d="M40 4v42" stroke-dasharray="3 4" stroke-width="2"/>
+        <path class="b" d="M6 14h26M6 10v8M32 10v8"/>
+        <circle class="bf" cx="19" cy="14" r="3.4" stroke="none"/>
+        <path class="b" d="M12 32h22M12 28v8M34 28v8"/>
+        <circle class="bf" cx="23" cy="32" r="3.4" stroke="none"/>
+      </svg>
+    </div>
+    <div>
+      <h3>Statistics and CI gates</h3>
+      <p>An interval on every rate. A verdict your CI can gate on.</p>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 20px Inter', '600 29px Inter'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

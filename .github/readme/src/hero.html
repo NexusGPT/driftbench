@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench hero</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  /* The hero is one picture with its own background, so it keeps fixed light colors. */
+  #frame {
+    position: relative;
+    width: 1600px;
+    height: 720px;
+    overflow: hidden;
+    background: #EEF1F6;
+    color: #0E1116;
+  }
+  #silk { position: absolute; left: 0; top: 0; width: 1600px; height: 720px; }
+  .logo { position: absolute; left: 96px; top: 90px; height: 28px; }
+  .copy { position: absolute; left: 96px; top: 196px; width: 660px; }
+  .eyebrow {
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--mono); font-size: 15px; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase; color: #4A5262;
+  }
+  .eyebrow .dot { width: 9px; height: 9px; border-radius: 50%; background: #EA6A2A; flex: none; }
+  h1 {
+    margin: 30px 0 0;
+    font-family: var(--serif); font-weight: 400;
+    font-size: 104px; line-height: 0.96; letter-spacing: -0.012em;
+    color: #0E1116;
+  }
+  h1 .tag { display: block; color: #555C69; font-size: 76px; line-height: 1.02; margin-top: 10px; }
+  .sub {
+    margin-top: 30px; width: 600px;
+    font-size: 22px; line-height: 1.5; color: #454C59;
+  }
+  .card {
+    position: absolute; left: 812px; top: 166px; width: 700px;
+    padding: 14px 14px 0;
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.46);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 40px 80px -36px rgba(27, 42, 68, 0.38), 0 2px 6px rgba(27, 42, 68, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(22px) saturate(1.15);
+    -webkit-backdrop-filter: blur(22px) saturate(1.15);
+  }
+  .panel { display: block; width: 672px; height: 340px; border-radius: 16px; }
+  .card .caption {
+    padding: 16px 6px 18px;
+    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    letter-spacing: 0.2em; text-transform: uppercase; color: #3E4553;
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <canvas id="silk"></canvas>
+  <img class="logo" src="nexus-logo.svg" alt="Nexus">
+
+  <div class="copy">
+    <div class="eyebrow"><span class="dot"></span>An agent evaluation framework · Open source</div>
+    <h1>driftbench.<span class="tag">Every exchange<br>is a unit test.</span></h1>
+    <div class="sub">Every number carries an interval.<br>Drift and recovery are measured, not guessed.</div>
+  </div>
+
+  <div class="card">
+    <svg class="panel" viewBox="0 0 672 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+      <defs>
+        <linearGradient id="pbg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#141922"/>
+          <stop offset="1" stop-color="#0D1117"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="672" height="340" rx="16" fill="url(#pbg)"/>
+
+      <!-- legend -->
+      <g font-size="12.5" fill="#8C96A6">
+        <line x1="474" y1="31" x2="500" y2="31" stroke="#5F6A7B" stroke-width="1.6" stroke-dasharray="4 4"/>
+        <text x="508" y="35">expected</text>
+        <line x1="572" y1="31" x2="598" y2="31" stroke="#86A8FF" stroke-width="2.4" stroke-linecap="round"/>
+        <text x="606" y="35">observed</text>
+      </g>
+
+      <!-- injection marker over block 3 -->
+      <g>
+        <text x="284" y="32" text-anchor="middle" font-size="13" fill="#F2A673" font-weight="500">goal shift injected</text>
+        <path d="M 278 40 L 290 40 L 284 47 Z" fill="#F2904F"/>
+      </g>
+
+      <!-- six blocks -->
+      <g id="cols"></g>
+
+      <!-- expected track -->
+      <line x1="72" y1="140" x2="602" y2="140" stroke="#566174" stroke-width="1.6" stroke-dasharray="4 5"/>
+
+      <!-- observed path: on track, drifts at block 3, back at block 4 -->
+      <path d="M 72 140 L 178 140 C 228 140, 234 206, 284 206 C 334 206, 340 140, 390 140 L 602 140"
+            fill="none" stroke="#86A8FF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <g id="nodes"></g>
+
+      <!-- drift chip under block 3 -->
+      <g>
+        <rect x="236" y="262" width="96" height="23" rx="11.5" fill="rgba(242,144,79,0.14)" stroke="rgba(242,144,79,0.5)"/>
+        <text x="284" y="278" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11.5" fill="#F4A06A" font-weight="500">X3 flow drift</text>
+      </g>
+
+      <!-- recovery bracket from block 3 to block 4 -->
+      <path d="M 262 294 L 262 301 L 412 301 L 412 294" fill="none" stroke="#9DB8FF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="337" y="324" text-anchor="middle" font-size="13.5" fill="#C5CFDC">back on track one block later</text>
+    </svg>
+    <div class="caption">A perturbed run, block by block</div>
+  </div>
+</div>
+
+<script>
+  // Columns and nodes, drawn from data so the layout stays exact.
+  const steps = ['greet', 'plan', 'plan', 'identity', 'recap', 'submit'];
+  const x0 = 25, w = 94, gap = 12;
+  const ns = 'http://www.w3.org/2000/svg';
+  const cols = document.getElementById('cols');
+  const nodes = document.getElementById('nodes');
+  const el = (name, attrs, parent, text) => {
+    const n = document.createElementNS(ns, name);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text) n.textContent = text;
+    parent.appendChild(n);
+    return n;
+  };
+  steps.forEach((step, i) => {
+    const x = x0 + i * (w + gap);
+    const cx = x + w / 2;
+    const drift = i === 2;
+    el('rect', {
+      x, y: 56, width: w, height: 196, rx: 12,
+      fill: drift ? 'rgba(242,144,79,0.08)' : 'rgba(255,255,255,0.025)',
+      stroke: drift ? 'rgba(242,144,79,0.42)' : 'rgba(255,255,255,0.07)'
+    }, cols);
+    el('text', { x: cx, y: 82, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono, monospace', 'font-size': 13,
+      fill: drift ? '#F2A673' : '#7F8999', 'font-weight': 500 }, cols, 'b' + (i + 1));
+    el('text', { x: cx, y: 118, 'text-anchor': 'middle', 'font-size': 13.5, fill: '#8C96A6' }, cols, step);
+    // expected node
+    el('circle', { cx, cy: 140, r: 7.5, fill: '#10151C', stroke: drift ? '#7A6A60' : '#6B7688', 'stroke-width': 1.6 }, nodes);
+    if (!drift) {
+      el('circle', { cx, cy: 140, r: 3.8, fill: '#86A8FF' }, nodes);
+    } else {
+      el('circle', { cx, cy: 206, r: 10, fill: 'rgba(242,144,79,0.18)' }, nodes);
+      el('circle', { cx, cy: 206, r: 5.5, fill: '#F2904F' }, nodes);
+      el('text', { x: cx, y: 236, 'text-anchor': 'middle', 'font-size': 13.5, fill: '#F2A673', 'font-weight': 500 }, nodes, 'identity');
+    }
+  });
+
+  // Pale silk background: a lit height field, folds kept to the right so the text stays calm.
+  function drawSilk(canvas, cssW, cssH, dpr) {
+    const W = Math.round(cssW * dpr), H = Math.round(cssH * dpr);
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    const img = ctx.createImageData(W, H);
+    const d = img.data;
+    const sin = Math.sin;
+    // Domain warped folds; the soft crease keeps a satin edge without a hard seam.
+    const crease = (t) => (t > 0 ? 1 - Math.pow(1 - t, 2.2) : -Math.pow(-t, 1.6));
+    const hgt = (x, y) => {
+      const a = x * 1.6, b = y * 1.6;
+      const wx = a + 0.6 * sin(1.7 * b + 0.5) + 0.3 * sin(2.8 * a + 1.9);
+      const wy = b + 0.6 * sin(1.5 * a + 1.4) + 0.3 * sin(3.3 * b + 0.4);
+      return 0.8 * crease(sin(2.6 * wx + 1.9 * wy)) + 0.25 * sin(4.8 * wy - 1.5 * wx + 2.0);
+    };
+    const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+    const smooth = (a, b, t) => { const x = clamp((t - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+    const mix = (a, b, t) => a + (b - a) * t;
+    const norm = (v) => { const l = Math.hypot(v[0], v[1], v[2]); return [v[0] / l, v[1] / l, v[2] / l]; };
+    const L = norm([-0.45, -0.6, 0.66]);
+    const Hv = norm([L[0], L[1], L[2] + 1]);
+    const base = [240, 243, 248], deep = [160, 171, 201], hi = [255, 255, 255];
+    // height grid with a one pixel border
+    const GW = W + 2, GH = H + 2;
+    const g = new Float32Array(GW * GH);
+    for (let py = 0; py < GH; py++) {
+      const y = (py - 1) / H;
+      for (let px = 0; px < GW; px++) g[py * GW + px] = hgt((px - 1) / H, y);
+    }
+    // Two box passes soften the crease into a tight, smooth ridge.
+    const tmp = new Float32Array(GW * GH);
+    const r = Math.round(2 * dpr);
+    for (let pass = 0; pass < 2; pass++) {
+      for (let py = 0; py < GH; py++) {
+        let acc = 0;
+        for (let k = -r; k <= r; k++) acc += g[py * GW + clamp(k, 0, GW - 1)];
+        for (let px = 0; px < GW; px++) {
+          tmp[py * GW + px] = acc / (2 * r + 1);
+          acc += g[py * GW + clamp(px + r + 1, 0, GW - 1)] - g[py * GW + clamp(px - r, 0, GW - 1)];
+        }
+      }
+      for (let px = 0; px < GW; px++) {
+        let acc = 0;
+        for (let k = -r; k <= r; k++) acc += tmp[clamp(k, 0, GH - 1) * GW + px];
+        for (let py = 0; py < GH; py++) {
+          g[py * GW + px] = acc / (2 * r + 1);
+          acc += tmp[clamp(py + r + 1, 0, GH - 1) * GW + px] - tmp[clamp(py - r, 0, GH - 1) * GW + px];
+        }
+      }
+    }
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const i = (py + 1) * GW + (px + 1);
+        const hx = (g[i + 1] - g[i - 1]) * H / 2;
+        const hy = (g[i + GW] - g[i - GW]) * H / 2;
+        const u = px / W, v = py / H;
+        const calm = smooth(0.30, 0.85, u) * 0.9 + 0.1;
+        const s = 0.05 + 0.36 * calm;
+        const n = norm([-s * hx, -s * hy, 1]);
+        const dif = n[0] * L[0] + n[1] * L[1] + n[2] * L[2];
+        let sp = n[0] * Hv[0] + n[1] * Hv[1] + n[2] * Hv[2];
+        sp = sp < 0 ? 0 : Math.pow(sp, 14);
+        const shade = Math.tanh((dif - L[2]) / 0.7);
+        const out = [0, 0, 0];
+        for (let c = 0; c < 3; c++) {
+          let col = shade < 0 ? mix(base[c], deep[c], Math.pow(-shade, 0.85)) : mix(base[c], hi[c], shade);
+          col += sp * 20 * calm;
+          // a soft vignette toward the lower right
+          col = mix(col, deep[c], 0.10 * smooth(0.45, 1.2, (u + v) / 2));
+          out[c] = col;
+        }
+        const grain = (Math.random() - 0.5) * 2.2;
+        const o = (py * W + px) * 4;
+        d[o] = clamp(out[0] + grain, 0, 255);
+        d[o + 1] = clamp(out[1] + grain, 0, 255);
+        d[o + 2] = clamp(out[2] + grain, 0, 255);
+        d[o + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  drawSilk(document.getElementById('silk'), 1600, 720, window.devicePixelRatio || 1);
+  window.__fonts = ['400 16px Inter', '500 16px Inter', '500 15px "JetBrains Mono"', '400 96px "Instrument Serif"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench judge council</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  #frame { width: 1200px; padding: 4px; }
+  .card {
+    border-radius: 22px;
+    background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
+    padding: 22px 24px;
+  }
+  .flow { display: grid; grid-template-columns: 296px 34px 1fr 34px 300px; align-items: stretch; }
+  .arrow { display: grid; place-items: center; color: var(--faint); }
+  .arrow svg { width: 24px; height: 24px; }
+  .title { font-family: var(--serif); font-size: 34px; line-height: 1.05; color: var(--ink); margin: 10px 0 14px; }
+  .body { font-size: 17px; line-height: 1.45; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+  .chip {
+    font-family: var(--mono); font-size: 14px; color: var(--ink-2);
+    padding: 6px 9px; border-radius: 10px; background: var(--card-2); border: 1px solid var(--line-2);
+  }
+  .strong { color: var(--ink); font-weight: 600; }
+  .judges { display: grid; grid-template-rows: 1fr 1fr; gap: 14px; }
+  .judge { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; padding: 18px 22px; }
+  .judge .name { font-size: 21px; font-weight: 600; color: var(--ink); }
+  .judge .who { margin-top: 4px; font-family: var(--mono); font-size: 14.5px; color: var(--blue-ink); }
+  .judge .what { margin-top: 6px; font-size: 16.5px; line-height: 1.4; color: var(--muted); }
+  .dots { display: flex; gap: 7px; }
+  .dots i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--blue); background: var(--blue-soft); display: block; }
+  .verdict .row { display: flex; gap: 10px; margin: 4px 0 16px; }
+  .pill { font-size: 16px; font-weight: 600; padding: 7px 14px; border-radius: 999px; }
+  .pill.pass { color: var(--pass); background: var(--pass-soft); }
+  .pill.fail { color: var(--fail); background: var(--fail-soft); }
+  .rule { display: grid; gap: 9px; font-size: 16.5px; line-height: 1.4; color: var(--muted); }
+  .rule b { color: var(--ink); font-weight: 600; }
+
+  .earn { margin-top: 16px; display: grid; grid-template-columns: auto 1fr; gap: 26px; align-items: center; }
+  .earn .lead .title { margin: 8px 0 0; font-size: 32px; }
+  .steps { display: grid; grid-template-columns: 1fr 26px 1fr 26px 1fr 26px 1fr; align-items: stretch; }
+  .step { border-radius: 16px; background: var(--card-2); border: 1px solid var(--line-2); padding: 14px 16px; }
+  .step .k { font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+  .step .v { margin-top: 6px; font-size: 18px; line-height: 1.3; color: var(--ink); font-weight: 600; }
+  .step .s { margin-top: 3px; font-size: 15px; color: var(--muted); }
+  .step.own { background: var(--blue-soft); border-color: var(--blue-line); }
+  .step.own .v { color: var(--blue-ink); }
+  .pair { display: flex; gap: 8px; margin-top: 8px; }
+  .doc { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; padding: 5px 10px; border-radius: 9px; }
+  .doc.bad { color: var(--fail); background: var(--fail-soft); }
+  .doc.good { color: var(--pass); background: var(--pass-soft); }
+  .mini { width: 18px; height: 18px; color: var(--faint); justify-self: center; align-self: center; }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="flow">
+    <div class="card">
+      <div class="caps">First</div>
+      <div class="title">Machine checks</div>
+      <div class="chips">
+        <span class="chip">tools</span><span class="chip">text</span><span class="chip">language</span>
+        <span class="chip">personal data</span><span class="chip">end state</span>
+      </div>
+      <div class="body"><span class="strong">A machine fail is final.</span> No judge overturns it.</div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h14M13 6l6 6-6 6"/></svg></div>
+
+    <div class="judges">
+      <div class="card judge">
+        <div>
+          <div class="name">System 1 judges</div>
+          <div class="who">Jev · OpenAI Decisions API</div>
+          <div class="what">One fixed yes or no question. Cheap, fast, low variance.</div>
+        </div>
+        <div class="dots"><i></i><i></i><i></i></div>
+      </div>
+      <div class="card judge">
+        <div>
+          <div class="name">System 2 judges</div>
+          <div class="who">OpenAI · Google · Anthropic</div>
+          <div class="what">Chat models that read across blocks and keep their reasoning.</div>
+        </div>
+        <div class="dots"><i></i><i></i><i></i></div>
+      </div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h14M13 6l6 6-6 6"/></svg></div>
+
+    <div class="card verdict">
+      <div class="caps">Then</div>
+      <div class="title">Verdict</div>
+      <div class="row"><span class="pill pass">pass</span><span class="pill fail">fail</span></div>
+      <div class="rule">
+        <div><b>Majority</b> of three judges.</div>
+        <div><b>Split:</b> the other class judges.</div>
+        <div><b>Inconclusive:</b> judged again, never counted.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card earn">
+    <div class="lead">
+      <div class="caps">Assignment</div>
+      <div class="title">is earned</div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="k">Fixture pair</div>
+        <div class="pair"><span class="doc bad">✕ failing</span><span class="doc good">✓ clean</span></div>
+        <div class="s" style="margin-top:8px">one per criterion</div>
+      </div>
+      <svg class="mini" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11M10 5l4 4-4 4"/></svg>
+      <div class="step">
+        <div class="k">Separation</div>
+        <div class="v">3 of 3</div>
+        <div class="s">runs on each side</div>
+      </div>
+      <svg class="mini" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11M10 5l4 4-4 4"/></svg>
+      <div class="step">
+        <div class="k">Hand labels</div>
+        <div class="v">kappa ≥ 0.8</div>
+        <div class="s">else rewrite the rubric</div>
+      </div>
+      <svg class="mini" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11M10 5l4 4-4 4"/></svg>
+      <div class="step own">
+        <div class="k">Result</div>
+        <div class="v">Owns the criterion</div>
+        <div class="s">ties go to system 1</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 16px Inter', '600 16px Inter', '400 14px "JetBrains Mono"', '400 34px "Instrument Serif"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench perturbed run</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  #frame { width: 1200px; padding: 4px; }
+  .card {
+    border-radius: 24px;
+    background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
+  }
+  .card svg { display: block; width: 1190px; height: 400px; }
+  .legend {
+    margin-top: 16px; display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;
+    padding: 0 6px;
+  }
+  .legend .caps { margin-right: 8px; }
+  .cls {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: 16.5px; color: var(--muted);
+    padding: 8px 14px; border-radius: 999px;
+    border: 1px solid var(--line);
+  }
+  .cls b { font-family: var(--mono); font-weight: 600; font-size: 14.5px; color: var(--faint); }
+  .cls.on { color: var(--ink); border-color: var(--ember-line); background: var(--ember-soft); }
+  .cls.on b { color: var(--ember); }
+  .legend .note { margin-left: auto; font-size: 15.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="card"><svg id="run" viewBox="0 0 1190 400" font-family="Inter, sans-serif"></svg></div>
+  <div class="legend">
+    <span class="caps">Drift classes</span>
+    <span class="cls"><b>X1</b>local error</span>
+    <span class="cls on"><b>X2</b>contradiction</span>
+    <span class="cls on"><b>X3</b>flow drift</span>
+    <span class="cls"><b>X4</b>format drift</span>
+    <span class="cls"><b>X5</b>tool drift</span>
+  </div>
+</div>
+<script>
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const C = {
+    ink: css('--ink'), ink2: css('--ink-2'), muted: css('--muted'), faint: css('--faint'),
+    line: css('--line'), line2: css('--line-2'), card: css('--card'), card2: css('--card-2'),
+    blue: css('--blue'), blueSoft: css('--blue-soft'), ember: css('--ember'), emberSoft: css('--ember-soft'), emberLine: css('--ember-line'),
+    pass: css('--pass'), passSoft: css('--pass-soft')
+  };
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('run');
+  const el = (name, attrs, parent = svg, text) => {
+    const n = document.createElementNS(ns, name);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    parent.appendChild(n);
+    return n;
+  };
+
+  // Drawn after the fonts load, so measured text widths are exact.
+  function draw() {
+    const steps = ['greet', 'plan', 'plan', 'identity', 'recap', 'confirm', 'submit'];
+    // How far the observed state sits from the expected one, per block.
+    const off = [0, 0, 82, 40, 0, 0, 0];
+    const W = 146, G = 12, X0 = 48, TOP = 64, H = 262, TRACK = 158;
+    const cx = (i) => X0 + i * (W + G) + W / 2;
+
+    // legend, top right
+    el('line', { x1: 920, y1: 33, x2: 950, y2: 33, stroke: C.faint, 'stroke-width': 1.8, 'stroke-dasharray': '4 5' });
+    el('text', { x: 958, y: 38, 'font-size': 15, fill: C.muted }, svg, 'expected');
+    el('line', { x1: 1038, y1: 33, x2: 1068, y2: 33, stroke: C.blue, 'stroke-width': 2.8, 'stroke-linecap': 'round' });
+    el('text', { x: 1076, y: 38, 'font-size': 15, fill: C.muted }, svg, 'observed');
+
+    // injection callout over block 3
+    {
+      const x = cx(2);
+      el('text', { x: x - 64, y: 38, 'font-size': 15.5, fill: C.ember, 'font-weight': 600 }, svg, 'Goal shift injected:');
+      el('text', { x: x + 92, y: 38, 'font-size': 15.5, fill: C.ink2 }, svg, '“Make it two lines, not one.”');
+      el('path', { d: `M ${x - 7} 47 L ${x + 7} 47 L ${x} 55 Z`, fill: C.ember });
+    }
+
+    // columns
+    steps.forEach((s, i) => {
+      const x = X0 + i * (W + G);
+      const drifting = off[i] > 0;
+      el('rect', { x, y: TOP, width: W, height: H, rx: 16,
+        fill: drifting ? C.emberSoft : C.card2, stroke: drifting ? C.emberLine : C.line2, 'stroke-width': 1.2 });
+      el('text', { x: cx(i), y: TOP + 28, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono, monospace', 'font-size': 14.5,
+        fill: drifting ? C.ember : C.faint, 'font-weight': 500 }, svg, 'b' + (i + 1));
+      el('text', { x: cx(i), y: TOP + 62, 'text-anchor': 'middle', 'font-size': 16, fill: C.muted }, svg, s);
+    });
+
+    // expected track
+    el('line', { x1: cx(0), y1: TRACK, x2: cx(6), y2: TRACK, stroke: C.faint, 'stroke-width': 1.8, 'stroke-dasharray': '4 6' });
+
+    // observed path through the offsets, smooth between blocks
+    {
+      let d = `M ${cx(0)} ${TRACK + off[0]}`;
+      for (let i = 1; i < steps.length; i++) {
+        const x1 = cx(i - 1), y1 = TRACK + off[i - 1], x2 = cx(i), y2 = TRACK + off[i];
+        const k = (x2 - x1) * 0.45;
+        d += ` C ${x1 + k} ${y1}, ${x2 - k} ${y2}, ${x2} ${y2}`;
+      }
+      el('path', { d, fill: 'none', stroke: C.blue, 'stroke-width': 3, 'stroke-linecap': 'round' });
+    }
+
+    // nodes
+    steps.forEach((s, i) => {
+      const x = cx(i);
+      el('circle', { cx: x, cy: TRACK, r: 9, fill: C.card2, stroke: off[i] ? C.emberLine : C.faint, 'stroke-width': 1.8 });
+      if (!off[i]) el('circle', { cx: x, cy: TRACK, r: 4.6, fill: C.blue });
+      else {
+        el('circle', { cx: x, cy: TRACK + off[i], r: 12, fill: C.emberSoft });
+        el('circle', { cx: x, cy: TRACK + off[i], r: 6.5, fill: C.ember });
+      }
+    });
+
+    // what was observed on the drifting blocks
+    function chip(x, y, code, label) {
+      const g = el('g', {});
+      const t = el('text', { x, y: y + 17, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono, monospace', 'font-size': 12.5, 'font-weight': 600, fill: C.ember }, g, code + ' ' + label);
+      const w = t.getComputedTextLength() + 22;
+      const r = el('rect', { x: x - w / 2, y, width: w, height: 26, rx: 13, fill: C.card2, stroke: C.emberLine });
+      g.insertBefore(r, t);
+    }
+    el('text', { x: cx(2), y: TRACK + off[2] + 34, 'text-anchor': 'middle', 'font-size': 15, fill: C.ink2 }, svg, 'asks for ID');
+    chip(cx(2), TRACK + off[2] + 46, 'X3', 'flow drift');
+    el('text', { x: cx(3), y: TRACK + off[3] + 34, 'text-anchor': 'middle', 'font-size': 15, fill: C.ink2 }, svg, '“your one line”');
+    chip(cx(3), TRACK + off[3] + 46, 'X2', 'contradiction');
+
+    // end state on the last block
+    {
+      const x = cx(6), y = TOP + H - 52;
+      el('rect', { x: x - 56, y, width: 112, height: 30, rx: 15, fill: C.passSoft });
+      el('path', { d: `M ${x - 41} ${y + 15} l 5 5 l 10 -10`, fill: 'none', stroke: C.pass, 'stroke-width': 2.4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+      el('text', { x: x - 20, y: y + 20, 'text-anchor': 'start', 'font-size': 14.5, fill: C.pass, 'font-weight': 600 }, svg, 'end state');
+    }
+
+    // recovery bracket from the injection to the first clean block
+    {
+      const y = TOP + H + 22, xa = cx(2) - 30, xb = cx(4) + 30;
+      el('path', { d: `M ${xa} ${y - 7} V ${y} H ${xb} V ${y - 7}`, fill: 'none', stroke: C.blue, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+      const t = el('text', { x: (xa + xb) / 2, y: y + 30, 'text-anchor': 'middle', 'font-size': 17, fill: C.ink }, svg);
+      el('tspan', { 'font-weight': 600 }, t, 'Turns to recover: 2');
+      el('tspan', { fill: C.muted }, t, '  ·  label: late  ·  collateral: 0');
+    }
+
+  }
+
+  window.__fonts = ['400 16px Inter', '500 16px Inter', '600 16px Inter', '500 14px "JetBrains Mono"', '600 14px "JetBrains Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { draw(); window.__ready = true; });
+</script>
+</body>
+</html>

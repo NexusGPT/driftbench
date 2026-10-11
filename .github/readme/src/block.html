@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench block</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  #frame { width: 1200px; padding: 4px; }
+  .row { display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr; align-items: stretch; }
+  .card {
+    border-radius: 22px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    padding: 26px 26px 24px;
+    display: flex; flex-direction: column;
+  }
+  .label { display: flex; align-items: center; gap: 10px; }
+  .label .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .title { font-family: var(--serif); font-size: 38px; line-height: 1.05; margin: 12px 0 18px; color: var(--ink); }
+  .kv { display: grid; grid-template-columns: 92px 1fr; row-gap: 9px; font-family: var(--mono); font-size: 16.5px; line-height: 1.35; }
+  .kv .k { color: var(--faint); }
+  .kv .v { color: var(--ink-2); }
+  .quote {
+    font-family: var(--sans); font-size: 20px; line-height: 1.45; color: var(--ink);
+    background: var(--card-2); border: 1px solid var(--line-2);
+    border-radius: 16px 16px 16px 4px; padding: 14px 16px;
+  }
+  .note { margin-top: auto; padding-top: 16px; font-size: 16.5px; line-height: 1.45; color: var(--muted); }
+  .arrow { display: grid; place-items: center; }
+  .arrow svg { width: 26px; height: 26px; }
+  .given .dot { background: var(--navy); }
+  .when .dot { background: var(--ember); }
+  .then .dot { background: var(--blue); }
+  .when .caps { color: var(--ember); }
+  .then .caps { color: var(--blue); }
+
+  .strip {
+    margin-top: 18px;
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 22px;
+    border-radius: 18px;
+    border: 1px dashed var(--line);
+  }
+  .strip .caps { margin-right: 6px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 15.5px; color: var(--ink-2);
+    padding: 7px 12px; border-radius: 999px;
+    background: var(--pass-soft);
+  }
+  .pill svg { width: 15px; height: 15px; }
+  .pass-word { margin-left: auto; font-size: 18px; font-weight: 600; color: var(--pass); display: flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="row">
+    <div class="card given">
+      <div class="label"><span class="dot"></span><span class="caps">Given</span></div>
+      <div class="title">What is true before</div>
+      <div class="kv">
+        <span class="k">prefix</span><span class="v">b1, b2 accepted</span>
+        <span class="k">ledger</span><span class="v">name: Sam<br>plan: none</span>
+        <span class="k">world</span><span class="v">catalog stub</span>
+        <span class="k">vars</span><span class="v">channel: web</span>
+      </div>
+      <div class="note">The state so far: earlier blocks, known facts, tools and fixtures.</div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--faint)"><path d="M5 13h15M14 7l6 6-6 6"/></svg></div>
+
+    <div class="card when">
+      <div class="label"><span class="dot"></span><span class="caps">When</span></div>
+      <div class="title">What happens</div>
+      <div class="quote">Which plan has unlimited data? I want to keep my number.</div>
+      <div class="note">A user message. Or an injected deviation, or a forced tool result.</div>
+    </div>
+
+    <div class="arrow"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--faint)"><path d="M5 13h15M14 7l6 6-6 6"/></svg></div>
+
+    <div class="card then">
+      <div class="label"><span class="dot"></span><span class="caps">Then</span></div>
+      <div class="title">What must follow</div>
+      <div class="kv">
+        <span class="k">step</span><span class="v">plan</span>
+        <span class="k">tools</span><span class="v">catalog.search × 1</span>
+        <span class="k">must</span><span class="v">/unlimited/i</span>
+        <span class="k">must_not</span><span class="v">/as an AI/i</span>
+        <span class="k">lang</span><span class="v">en</span>
+        <span class="k">ledger</span><span class="v">+ keep_number: yes</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="strip">
+    <span class="caps">Observed</span>
+    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>step</span>
+    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>tools</span>
+    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>must</span>
+    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>must_not</span>
+    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>lang</span>
+    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>ledger</span>
+    <span class="pass-word">Block passes</span>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 16px Inter', '600 18px Inter', '400 16px "JetBrains Mono"', '400 38px "Instrument Serif"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

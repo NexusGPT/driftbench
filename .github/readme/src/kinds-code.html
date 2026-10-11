@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench code interpreter task step</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="kinds.css">
+<style>
+  .tree {
+    margin-top: 12px;
+    font-family: var(--mono); font-size: 16px; line-height: 1.6; color: var(--ink-2);
+    background: var(--card-2); border: 1px solid var(--line-2); border-radius: 14px;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+  }
+  .tree .add { color: var(--pass); }
+  .tree .same { color: var(--faint); }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="card">
+    <div class="head"><span class="caps">Code interpreter agent</span><span class="caps">step 2</span></div>
+    <div class="title">A block is one task step</div>
+    <div class="ask">Build the Q3 price sheet from plans.csv.</div>
+    <div class="work">
+      <div class="line"><span class="tag">skill</span><span class="val">spreadsheets</span></div>
+      <div class="line"><span class="tag">run</span><span class="val">python build_sheet.py</span><span class="ok">exit 0</span></div>
+    </div>
+    <div class="tree">
+      <div class="add">+ q3_prices.xlsx</div>
+      <div class="same">  plans.csv, notes.md untouched</div>
+    </div>
+    <div class="checks">
+      <span class="check"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>cells and formulas</span>
+      <span class="check"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>workspace diff</span>
+      <span class="check"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>exit code</span>
+      <span class="check"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>no destructive op</span>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 19px Inter', '400 16px "JetBrains Mono"', '400 36px "Instrument Serif"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench conversational agent block</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="kinds.css">
+</head>
+<body>
+<div id="frame">
+  <div class="card">
+    <div class="head"><span class="caps">Conversational agent</span><span class="caps">b4</span></div>
+    <div class="title">A block is one exchange</div>
+    <div class="ask">Can I keep my number if I switch?</div>
+    <div class="work">
+      <div class="line"><span class="tag">tool</span><span class="val">porting.check(number)</span><span class="ok">eligible</span></div>
+    </div>
+    <div class="reply">Yes. Your number moves with you. Shall I add it to the order?</div>
+    <div class="checks">
+      <span class="check"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>step</span>
+      <span class="check"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>tool call</span>
+      <span class="check"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>language</span>
+      <span class="check"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>ledger</span>
+      <span class="check"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>one question</span>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 19px Inter', '400 16px "JetBrains Mono"', '400 36px "Instrument Serif"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>
