@@ -137,7 +137,7 @@ describe('denylist', () => {
 
   it('reads the environment and the local file, drops short terms and comments', () => {
     const dir = folder({ '.guard-denylist': '# client names\nPlutonia\nab\n' });
-    expect(loadDenylist({ GUARD_DENYLIST: 'Zebracorp, Zebracorp,Xy' }, dir)).toEqual([
+    expect(loadDenylist({ GUARD_DENYLIST: '# names\nZebracorp, Zebracorp,Xy' }, dir)).toEqual([
       'Zebracorp',
       'Plutonia',
     ]);

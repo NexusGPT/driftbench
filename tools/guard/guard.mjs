@@ -274,7 +274,9 @@ export function loadDenylist(env, root) {
       if (!line.trim().startsWith('#')) raw.push(line);
     }
   }
-  return [...new Set(raw.map((term) => term.trim()).filter((term) => term.length >= 3))];
+  return [
+    ...new Set(raw.map((term) => term.trim()).filter((term) => term.length >= 3 && !term.startsWith('#'))),
+  ];
 }
 
 function walk(dir, out) {
