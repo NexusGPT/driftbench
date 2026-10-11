@@ -181,8 +181,9 @@ describe('driftbench campaign plan', () => {
   });
 
   it.each([
-    [['--target', 'function:acme', '--mode', 'T'], 'Mode T is planned, phase 3.'],
+    [['--target', 'function:acme', '--mode', 'P'], 'Mode P is planned, phase 3.'],
     [['--target', 'function:acme', '--mode', 'X'], 'Unknown mode "X".'],
+    [['--target', 'function:acme', '--mode', 'T,Q'], 'Unknown mode "Q".'],
     [
       ['--target', 'function:acme', '--repeats', '0'],
       '--repeats takes a whole number of at least 1, not "0".',
@@ -193,6 +194,49 @@ describe('driftbench campaign plan', () => {
     const { code, err } = await cli(['campaign', 'plan', SPECS, ...options]);
     expect(code).toBe(2);
     expect(err).toContain(message);
+  });
+});
+
+describe('driftbench campaign in mode T', () => {
+  it('plans T and F cells from one --mode list, T first', async () => {
+    const { code, out } = await cli([
+      'campaign',
+      'plan',
+      SPECS,
+      '--target',
+      'function:acme',
+      '--mode',
+      'F,T',
+    ]);
+    expect(code).toBe(0);
+    expect(out).toContain('Plan: 6 specs, 1 target, modes T, F, 1 repeat: 12 cells, 52 blocks.');
+    expect(out).toContain('Minimum detectable effect, mode T:');
+    expect(out).toContain('Minimum detectable effect, mode F:');
+  });
+
+  it('runs a teacher-forced campaign: every block of every spec passes with the Acme agent', async () => {
+    const store = await storePath();
+    const { code, out } = await cli([
+      'campaign',
+      'run',
+      SPECS,
+      '--target',
+      'function:acme',
+      '--mode',
+      'T',
+      '--store',
+      store,
+      '--campaign',
+      'c-teacher',
+    ]);
+    expect(code).toBe(0);
+    expect(out).toContain('✓ acme-plan-upgrade · function:acme · T · repeat 0  pass  5 blocks');
+    expect(out).toContain('6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.');
+    const opened = await openStore(store);
+    const campaign = await opened.getCampaign('c-teacher');
+    expect(campaign?.modes).toEqual(['T']);
+    expect(campaign?.repeats).toEqual({ T: 1, F: 0, P: 0 });
+    await opened.close();
   });
 });
 

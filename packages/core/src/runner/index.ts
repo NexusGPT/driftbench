@@ -34,8 +34,20 @@ export {
 } from './campaign';
 export { type CellKey, cellId } from './cell';
 export {
+  type CompoundingBlock,
+  type CompoundingIndex,
+  type CompoundingLine,
+  compoundingIndex,
+  type IntervalEstimate,
+  type IntervalFn,
+  isDriverInjected,
+  specBlocks,
+} from './compounding';
+export {
   addFacts,
   assistantMessage,
+  canonicalGiven,
+  canonicalReply,
   enterBlock,
   initialGiven,
   mergeWorld,

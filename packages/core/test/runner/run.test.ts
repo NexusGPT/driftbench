@@ -809,10 +809,7 @@ describe('failures', () => {
     expect(run.blocks).toHaveLength(5);
   });
 
-  it('refuses teacher-forced mode and a store without a campaign', async () => {
-    await expect(
-      runSpec(spec(), { adapter: echoAdapter(), driver, checks: [], mode: 'T', repeat: 0 }),
-    ).rejects.toThrow(/teacher-forced mode \(T\) is planned, phase 3/);
+  it('refuses a store without a campaign', async () => {
     await expect(
       runSpec(spec(), {
         adapter: echoAdapter(),

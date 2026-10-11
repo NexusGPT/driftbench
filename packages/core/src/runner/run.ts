@@ -13,6 +13,7 @@ import { cellId } from './cell';
 import {
   addFacts,
   assistantMessage,
+  canonicalGiven,
   enterBlock,
   initialGiven,
   resolveGiven,
@@ -28,7 +29,8 @@ export type RunOptions = {
   /** Applied to every block, in order. */
   checks: CheckSet;
   /** F runs free: one session, each block inherits the agent's own earlier replies. P is F plus the
-   *  blocks a perturbing driver injects. T (teacher-forced) is planned, phase 3, and throws. */
+   *  blocks a perturbing driver injects. T (teacher-forced) runs every block from its canonical Given in a
+   *  session of its own: the prefix, ledger and world the spec writes, never the agent's own history. */
   mode: RunMode;
   repeat: number;
   /** Overrides the spec's target. With neither, the target is `{ adapter: <adapter id> }`. */
@@ -54,20 +56,22 @@ export type RunOptions = {
 };
 
 /**
- * Runs one spec, once, in free-running mode. For each step of the driver: resolve the block's Given,
+ * Runs one spec, once, in mode F, P or T. For each step of the driver: resolve the block's Given,
  * send the stimulus (then `trace` when the adapter has the capability), apply every check, record the
  * ledger, drift and pass of the block. After the last spec block, the end-state sources the spec names
  * are read through `adapter.endState` (source `*` for `end_state: none`); the checks of that block see
  * them and the run compares them.
+ *
+ * In mode T each block is an independent sample: it opens its own session from `canonicalGiven`, its
+ * checks see no earlier block, and it may not be injected. The end state of a T run is composed from a read
+ * after every block, in block order: a source keeps the last value a block's session recorded, and `*`
+ * joins the payload lists, so the last block's checks and the run see what the blocks left between them.
  *
  * Transport errors are retried with backoff; an AgentFailure, an Observed that does not validate, or a
  * transport error past its retries ends the run with status `failed` and the error. The session is
  * always closed. The result always validates against the RunResult schema.
  */
 export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResult> {
-  if (options.mode === 'T') {
-    throw new Error('runSpec: teacher-forced mode (T) is planned, phase 3; this runner runs F and P');
-  }
   if (options.store && options.campaignId === undefined) {
     throw new Error('runSpec: a store needs a campaignId to file the run under');
   }
@@ -188,6 +192,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let nextBlock = 0;
   let lastKey: string | undefined;
   let endRead: { states: unknown[]; afterBlock: number } | undefined;
+  /** The end-state values so far: in mode T composed over the blocks, else the last read. */
+  let composed: unknown[] | undefined;
   let status: RunResult['status'] = 'completed';
   let error: string | undefined;
 
@@ -203,10 +209,22 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const planned = planStep(spec, step);
       if (step.kind === 'block') nextBlock = step.blockIndex + 1;
 
-      state = enterBlock(state, planned.given, planned.world);
-      if (planned.given?.prefix) {
+      if (run.mode === 'T') {
+        if (step.kind !== 'block') {
+          throw new RunnerError(
+            `teacher-forced mode runs the spec's own blocks; the driver ${run.driver.id} injected ${step.perturbationId}`,
+          );
+        }
+        const canonical = canonicalGiven(spec, step.blockIndex);
+        state = canonical.state;
         await channel.restart();
-        history = structuredClone(planned.given.prefix);
+        history = canonical.prefix;
+      } else {
+        state = enterBlock(state, planned.given, planned.world);
+        if (planned.given?.prefix) {
+          await channel.restart();
+          history = structuredClone(planned.given.prefix);
+        }
       }
       const user = stimulusMessages(planned.stimulus);
       const given = resolveGiven(state, history, run.target);
@@ -235,13 +253,15 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       state = { ...state, ledger: facts.ledger };
 
       let endState: unknown;
-      if (planned.lastSpecBlock && sources.length > 0) {
+      if (sources.length > 0 && (planned.lastSpecBlock || run.mode === 'T')) {
         const read = await channel.endState(sources, key);
         if (read.kind === 'miss') return undefined;
         if (read.kind === 'read') {
-          endRead = { states: read.states, afterBlock: position };
-          endState = endStateValue(run.endState, sources, read.states);
+          const states = run.mode === 'T' ? composeStates(sources, composed, read.states) : read.states;
+          composed = states;
+          endRead = { states, afterBlock: position };
         }
+        if (planned.lastSpecBlock && composed) endState = endStateValue(run.endState, sources, composed);
       }
 
       const verdicts = await applyChecks(run.checks, {
@@ -252,7 +272,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         expect: planned.expect,
         given,
         observed,
-        history: [...blocks],
+        // A teacher-forced block is an independent sample: no earlier block of the run is its history.
+        history: run.mode === 'T' ? [] : [...blocks],
         ledger: facts.ledger,
         endState,
         artifacts: run.artifacts,
@@ -331,6 +352,22 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     finishedAt: run.now().toISOString(),
     cacheHit: channel.replay,
   };
+}
+
+/**
+ * The end state of a teacher-forced run after one more block: for each source, the value this block's
+ * session read when it recorded one (not undefined, not null), else the value so far; for `*`, the lists
+ * joined in block order.
+ */
+function composeStates(sources: string[], before: unknown[] | undefined, read: unknown[]): unknown[] {
+  return sources.map((source, index) => {
+    const earlier = before?.[index];
+    const now = read[index];
+    if (source === '*') {
+      return [...(Array.isArray(earlier) ? earlier : []), ...(Array.isArray(now) ? now : [])];
+    }
+    return now === undefined || now === null ? earlier : now;
+  });
 }
 
 /** The sources to read for a spec's `end_state`: `*` for `none`, each mapping's source once otherwise. */

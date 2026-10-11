@@ -62,6 +62,9 @@ export type CampaignDeps = {
   now(): Date;
 };
 
+const MODE_HELP =
+  'the run mode: T teacher-forced, F free-running, P perturbed; several separated by commas, such as T,F';
+
 const TARGET_HELP =
   'run every spec on this target; repeat for several. Without it, each spec runs on its own target';
 
@@ -137,7 +140,7 @@ export function registerCampaignCommands(
     .description('Expand the cells, project their cost and print the minimum detectable effect.')
     .argument('<paths...>', 'spec files or folders')
     .option('--target <adapter[:agent]>', TARGET_HELP, collect, [])
-    .option('--mode <mode>', 'the run mode; F today, T and P are planned, phase 3', 'F')
+    .option('--mode <modes>', MODE_HELP, 'F')
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option('--budget-usd <usd>', 'compare the projected cost with this budget')
     .option('--baseline-rate <rate>', 'the pass rate the minimum detectable effect assumes', '0.5')
@@ -152,7 +155,7 @@ export function registerCampaignCommands(
     .description('Run every cell and print pass or fail per cell. Exit 1 on any failed or failing cell.')
     .argument('<paths...>', 'spec files or folders')
     .option('--target <adapter[:agent]>', TARGET_HELP, collect, [])
-    .option('--mode <mode>', 'the run mode; F today, T and P are planned, phase 3', 'F')
+    .option('--mode <modes>', MODE_HELP, 'F')
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
@@ -218,7 +221,7 @@ export async function campaignPlanCommand(
       await store.close();
     }
   }
-  const plan = planFor(runs, [shape.mode], shape.repeats, {
+  const plan = planFor(runs, shape.modes, shape.repeats, {
     units,
     baselineRate,
     ...(budget === undefined ? {} : { budgetUsd: budget }),
@@ -233,7 +236,7 @@ export async function campaignPlanCommand(
       ? count(shape.targets.length, 'target')
       : `each on its own target (${pinnedTargets(runs).map(showTarget).join(', ')})`;
   io.out(
-    `Plan: ${count(loaded.length, 'spec')}, ${targets}, mode ${shape.mode}, ${count(shape.repeats, 'repeat')}: ${count(plan.cells.length, 'cell')}, ${count(plan.blocks, 'block')}.\n`,
+    `Plan: ${count(loaded.length, 'spec')}, ${targets}, ${shape.modes.length === 1 ? 'mode' : 'modes'} ${shape.modes.join(', ')}, ${count(shape.repeats, 'repeat')}: ${count(plan.cells.length, 'cell')}, ${count(plan.blocks, 'block')}.\n`,
   );
   io.out(
     `${table([
@@ -289,9 +292,11 @@ export async function campaignRunCommand(
         ...(pinned === undefined ? {} : { target: pinned }),
       }));
       const targets = shape.targets.length > 0 ? shape.targets : pinnedTargets(runs);
-      const repeats = { T: 0, F: 0, P: 0, [shape.mode]: shape.repeats };
-      const campaignId =
-        options.campaign ?? `c-${contentHash({ specs, targets, mode: shape.mode, repeats, createdAt })}`;
+      const repeats = { T: 0, F: 0, P: 0 };
+      for (const mode of shape.modes) repeats[mode] = shape.repeats;
+      // One mode keeps the key a single-mode campaign always had, so its id is unchanged.
+      const mode = shape.modes.length === 1 ? shape.modes[0] : shape.modes;
+      const campaignId = options.campaign ?? `c-${contentHash({ specs, targets, mode, repeats, createdAt })}`;
       if (await store.getCampaign(campaignId)) {
         io.err(
           `Campaign ${campaignId} already exists. Resume it with: driftbench campaign resume ${campaignId}\n`,
@@ -303,7 +308,7 @@ export async function campaignRunCommand(
         campaignId,
         specs,
         targets,
-        modes: [shape.mode],
+        modes: shape.modes,
         repeats,
         // 0 when no budget was given: the schema has no field for "no budget".
         budgetUsd: pool.budgetUsd ?? 0,
@@ -482,7 +487,7 @@ async function storedCampaign(
   return { campaign, specs };
 }
 
-type Shape = { targets: TargetRef[]; mode: RunMode; repeats: number };
+type Shape = { targets: TargetRef[]; modes: RunMode[]; repeats: number };
 
 type Pool = { concurrency: number; budgetUsd?: number };
 
@@ -500,15 +505,24 @@ function parsePool(
   return budgetUsd === null ? undefined : { concurrency, budgetUsd };
 }
 
-/** Mode, repeats and the `--target` list, which is empty when each spec runs on its own target. */
+/**
+ * Modes, repeats and the `--target` list, which is empty when each spec runs on its own target. `--mode`
+ * takes one mode or several separated by commas, such as `T,F,P`; the cells come in the order T, F, P.
+ */
 function parseShape(options: { target: string[]; mode: string; repeats: string }, io: Io): Shape | undefined {
-  const mode = RunMode.safeParse(options.mode);
-  if (!mode.success) {
-    io.err(`Unknown mode "${options.mode}". The modes are F, T and P.\n`);
-    return undefined;
+  const named = options.mode.split(',').map((part) => part.trim());
+  const modes: RunMode[] = [];
+  for (const text of named) {
+    const mode = RunMode.safeParse(text);
+    if (!mode.success) {
+      io.err(`Unknown mode "${text}". The modes are T, F and P, alone or separated by commas.\n`);
+      return undefined;
+    }
+    if (!modes.includes(mode.data)) modes.push(mode.data);
   }
-  if (mode.data !== 'F') {
-    io.err(`Mode ${mode.data} is planned, phase 3. Campaigns run in mode F today.\n`);
+  modes.sort((a, b) => RunMode.options.indexOf(a) - RunMode.options.indexOf(b));
+  if (modes.includes('P')) {
+    io.err('Mode P is planned, phase 3. Campaigns run in modes T and F today.\n');
     return undefined;
   }
   const repeats = Number(options.repeats);
@@ -525,7 +539,7 @@ function parseShape(options: { target: string[]; mode: string; repeats: string }
     }
     if (!targets.some((known) => showTarget(known) === showTarget(target.data))) targets.push(target.data);
   }
-  return { targets, mode: mode.data, repeats };
+  return { targets, modes, repeats };
 }
 
 /** One line per spec whose own target names another adapter than a `--target`, which overrides it. */
