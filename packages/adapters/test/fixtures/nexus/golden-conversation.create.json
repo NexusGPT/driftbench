@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "data": {
+    "id": "cccccccc-0000-4000-8000-000000000001",
+    "agentId": "aaaaaaaa-0000-4000-8000-000000000001",
+    "deploymentId": "dddddddd-0000-4000-8000-000000000001",
+    "title": "driftbench 3f9a1c2b7d4e",
+    "description": "Created by the driftbench nexus adapter for one evaluated conversation. Safe to delete.",
+    "status": "DRAFT",
+    "authoringVersionId": "beef0000-0000-4000-8000-000000000001",
+    "hasPendingCandidate": false,
+    "createdAt": "2026-01-15T10:00:00.000Z",
+    "updatedAt": "2026-01-15T10:00:00.000Z"
+  }
+}

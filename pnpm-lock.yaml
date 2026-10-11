@@ -64,15 +64,51 @@ importers:
 
   packages/cli:
     dependencies:
+      '@driftbench/adapters':
+        specifier: workspace:*
+        version: link:../adapters
+      '@driftbench/artifacts':
+        specifier: workspace:*
+        version: link:../artifacts
+      '@driftbench/checks':
+        specifier: workspace:*
+        version: link:../checks
       '@driftbench/core':
         specifier: workspace:*
         version: link:../core
+      '@driftbench/generate':
+        specifier: workspace:*
+        version: link:../generate
+      '@driftbench/sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
+      '@driftbench/space':
+        specifier: workspace:*
+        version: link:../space
+      '@driftbench/store':
+        specifier: workspace:*
+        version: link:../store
+      '@driftbench/users':
+        specifier: workspace:*
+        version: link:../users
       commander:
         specifier: ^15.0.0
         version: 15.0.0
 
   packages/core:
     dependencies:
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
+
+  packages/generate:
+    dependencies:
+      '@driftbench/core':
+        specifier: workspace:*
+        version: link:../core
       yaml:
         specifier: ^2.9.1
         version: 2.9.1
@@ -89,6 +125,18 @@ importers:
       '@driftbench/core':
         specifier: workspace:*
         version: link:../core
+
+  packages/space:
+    dependencies:
+      '@driftbench/core':
+        specifier: workspace:*
+        version: link:../core
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
 
   packages/stats: {}
 

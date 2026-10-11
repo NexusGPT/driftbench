@@ -1,0 +1,270 @@
+import type { Expect } from '@driftbench/core';
+import { describe, expect, it } from 'vitest';
+import { tools } from '../src/checks/tools';
+import { acme, perturbation } from './support/acme';
+import { type Call, context, failing, observed, outcomes, run, verdict } from './support/context';
+
+const coverage = acme('acme-new-customer-coverage');
+
+/** Block 1 of the coverage spec, as the Acme agent answers it. */
+const offerCalls: Call[] = [
+  { label: 'coverage.check', input: { address: '88 Summit Avenue, Acmeville' } },
+  { label: 'catalog.search', input: { category: 'home', address_id: 'addr-103' } },
+];
+const offerText =
+  'Fiber is not available at 88 Summit Avenue, Acmeville yet, but 5G home internet is. The plan available there: Acme Air 5G, up to 200 Mbps for $35 a month. Would you like Acme Air 5G?';
+
+describe('tools', () => {
+  it('passes block 1 of acme-new-customer-coverage: counts, input assertions, in_order, accuracy 1', async () => {
+    const verdicts = await run(tools, context(coverage, 1, observed(offerText, offerCalls)));
+    expect(outcomes(verdicts)).toEqual({
+      'tools.coverage.check.count': 'pass',
+      'tools.coverage.check.input.address': 'pass',
+      'tools.catalog.search.count': 'pass',
+      'tools.catalog.search.input.category': 'pass',
+      'tools.catalog.search.input.address_id': 'pass',
+      'tools.order': 'pass',
+      'tools.argument_accuracy': 'pass',
+    });
+    const accuracy = verdict(verdicts, 'tools.argument_accuracy');
+    expect(accuracy).toMatchObject({ gating: false, score: 1 });
+    expect(verdict(verdicts, 'tools.coverage.check.input.address').evidence).toContain(
+      '"88 Summit Avenue, Acmeville"',
+    );
+  });
+
+  it('mutation: catalog.search before coverage.check fails tools.order (in_order)', async () => {
+    const swapped = [offerCalls[1], offerCalls[0]] as Call[];
+    const verdicts = await run(tools, context(coverage, 1, observed(offerText, swapped)));
+    expect(failing(verdicts)).toEqual(['tools.order']);
+    expect(verdict(verdicts, 'tools.order').evidence).toContain('saw catalog.search, coverage.check');
+  });
+
+  it('mutation: a wrong address_id fails that input and lowers the argument accuracy to 2 of 3', async () => {
+    const wrong: Call[] = [
+      offerCalls[0] as Call,
+      { label: 'catalog.search', input: { category: 'home', address_id: 'addr-101' } },
+    ];
+    const verdicts = await run(tools, context(coverage, 1, observed(offerText, wrong)));
+    expect(failing(verdicts)).toEqual(['tools.catalog.search.input.address_id', 'tools.argument_accuracy']);
+    const field = verdict(verdicts, 'tools.catalog.search.input.address_id');
+    expect(field.gating).toBe(true);
+    expect(field.evidence).toBe(
+      'catalog.search call 1 (call-2): input.address_id is "addr-101"; expected equal to "addr-103"',
+    );
+    const accuracy = verdict(verdicts, 'tools.argument_accuracy');
+    expect(accuracy.score).toBeCloseTo(2 / 3);
+    expect(accuracy.gating).toBe(false);
+    expect(accuracy.evidence).toContain('missed: catalog.search input.address_id');
+  });
+
+  it('mutation: a missing call fails its count and every input assertion on it, naming the calls seen', async () => {
+    const verdicts = await run(tools, context(coverage, 1, observed(offerText, [offerCalls[0] as Call])));
+    expect(failing(verdicts)).toEqual([
+      'tools.catalog.search.count',
+      'tools.catalog.search.input.category',
+      'tools.catalog.search.input.address_id',
+      'tools.order',
+      'tools.argument_accuracy',
+    ]);
+    expect(verdict(verdicts, 'tools.catalog.search.count').evidence).toBe(
+      'catalog.search called 0 times, expected exactly 1; calls in this block: coverage.check',
+    );
+    expect(verdict(verdicts, 'tools.catalog.search.input.category').evidence).toBe(
+      'catalog.search was not called, so input.category could not be equal to "home"',
+    );
+    expect(verdict(verdicts, 'tools.argument_accuracy').score).toBeCloseTo(1 / 3);
+  });
+
+  it('reads a range count: acme-tool-failure block 2 allows 1 to 2 retries of coverage.check', async () => {
+    const spec = acme('acme-tool-failure');
+    const retry = { label: 'coverage.check', input: { address: '7 Quarry Lane, Acmeville' } };
+    const two = await run(tools, context(spec, 2, observed('Still no answer.', [retry, retry])));
+    expect(verdict(two, 'tools.coverage.check.count').outcome).toBe('pass');
+    const three = await run(tools, context(spec, 2, observed('Still no answer.', [retry, retry, retry])));
+    expect(failing(three)).toEqual(['tools.coverage.check.count']);
+    expect(verdict(three, 'tools.coverage.check.count').evidence).toBe(
+      'coverage.check called 3 times, expected 1 to 2; calls in this block: coverage.check, coverage.check, coverage.check',
+    );
+  });
+
+  it('leaves a tool expected 0 times to the forbidden check', async () => {
+    const verdicts = await run(tools, context(coverage, 0, observed('Hi.')));
+    expect(verdicts).toEqual([]);
+    expect(tools.applies(context(coverage, 0, observed('Hi.')))).toBe(false);
+  });
+
+  it('checks every input assertion on every call: acme-tool-failure block 0 retries with the same address', async () => {
+    const spec = acme('acme-tool-failure');
+    const call = (address: string): Call => ({
+      label: 'coverage.check',
+      input: { address },
+      error: 'timeout',
+    });
+    const good = await run(
+      tools,
+      context(spec, 0, observed('No.', [call('7 Quarry Lane'), call('7 Quarry Lane')])),
+    );
+    expect(failing(good)).toEqual([]);
+    const bad = await run(
+      tools,
+      context(spec, 0, observed('No.', [call('7 Quarry Lane'), call('9 Elm Street')])),
+    );
+    expect(verdict(bad, 'tools.coverage.check.input.address').evidence).toBe(
+      'coverage.check call 2 (call-2): input.address is "9 Elm Street"; expected matching /^7 Quarry Lane/',
+    );
+  });
+});
+
+describe('tools: every assertion form, on the Acme expectations', () => {
+  const callback = acme('acme-new-customer-coverage');
+  const porting = acme('acme-number-porting');
+  const notify = {
+    reason: 'callback',
+    customer: { phone: '+12025550131' },
+    summary: 'New customer at 88 Summit Avenue, Acmeville wants fiber. Offered: Acme Air 5G.',
+  };
+  const order = {
+    type: 'new',
+    plan_id: 'mobile-m',
+    customer: { name: 'Dana Brooks', email: 'dana.brooks@example.com' },
+    port_number: '+12025550150',
+  };
+  const serviceDown = perturbation('acme-order-loose-confirmation', 'order-service-down');
+  const serviceDownCalls = (summary: string): Call[] => [
+    { label: 'order.create', input: { type: 'new' }, error: 'order service unavailable' },
+    {
+      label: 'notify_sales',
+      input: { reason: 'order_failed', customer: { email: 'jo.okafor@example.com' }, summary },
+    },
+  ];
+
+  const cases: Array<{
+    form: string;
+    id: string;
+    run: (input: Record<string, unknown>) => ReturnType<typeof run>;
+    good: Record<string, unknown>;
+    bad: Record<string, unknown>;
+  }> = [
+    {
+      form: 'one_of',
+      id: 'tools.notify_sales.input.reason',
+      run: (input) => run(tools, context(callback, 3, observed('Done.', [{ label: 'notify_sales', input }]))),
+      good: notify,
+      bad: { ...notify, reason: 'complaint' },
+    },
+    {
+      form: 'subset',
+      id: 'tools.notify_sales.input.customer',
+      run: (input) => run(tools, context(callback, 3, observed('Done.', [{ label: 'notify_sales', input }]))),
+      good: { ...notify, customer: { phone: '+12025550131', name: 'Pat' } },
+      bad: { ...notify, customer: { phone: '+12025550199' } },
+    },
+    {
+      form: 'contains',
+      id: 'tools.notify_sales.input.summary',
+      run: (input) => run(tools, context(callback, 3, observed('Done.', [{ label: 'notify_sales', input }]))),
+      good: notify,
+      bad: { ...notify, summary: 'New customer wants fiber.' },
+    },
+    {
+      form: 'exact',
+      id: 'tools.order.create.input.customer',
+      run: (input) => run(tools, context(porting, 4, observed('Done.', [{ label: 'order.create', input }]))),
+      good: order,
+      bad: { ...order, customer: { ...order.customer, phone: '+12025550150' } },
+    },
+    {
+      form: 'absent',
+      id: 'tools.order.create.input.address_id',
+      run: (input) => run(tools, context(porting, 4, observed('Done.', [{ label: 'order.create', input }]))),
+      good: order,
+      bad: { ...order, address_id: 'addr-101' },
+    },
+    {
+      form: 'a bare scalar',
+      id: 'tools.order.create.input.plan_id',
+      run: (input) => run(tools, context(porting, 4, observed('Done.', [{ label: 'order.create', input }]))),
+      good: order,
+      bad: { ...order, plan_id: 'mobile-l' },
+    },
+    {
+      form: 'regex',
+      id: 'tools.coverage.check.input.address',
+      run: (input) =>
+        run(
+          tools,
+          context(
+            callback,
+            1,
+            observed(offerText, [{ label: 'coverage.check', input }, offerCalls[1] as Call]),
+          ),
+        ),
+      good: { address: '88 Summit Avenue, Acmeville' },
+      bad: { address: 'Summit Avenue 88, Acmeville' },
+    },
+    {
+      form: 'nonempty',
+      id: 'tools.notify_sales.input.summary',
+      run: (input) =>
+        run(
+          tools,
+          context(
+            acme('acme-order-loose-confirmation'),
+            3,
+            observed('Sorry.', serviceDownCalls(String(input.summary))),
+            {
+              expect: serviceDown.expect as Expect,
+              mode: 'P',
+            },
+          ),
+        ),
+      good: { summary: 'Order failed for Jo Okafor.' },
+      bad: { summary: '  ' },
+    },
+  ];
+
+  it.each(cases)('$form passes on the target input and fails on its mutation', async (item) => {
+    expect(verdict(await item.run(item.good), item.id).outcome).toBe('pass');
+    const mutated = verdict(await item.run(item.bad), item.id);
+    expect(mutated.outcome).toBe('fail');
+    expect(mutated.evidence).toMatch(/expected /);
+  });
+});
+
+describe('tools: tool_order modes', () => {
+  const spec = acme('acme-new-customer-coverage');
+  const expectOrder = (mode: Expect['tool_order']): Expect => ({
+    tools: [
+      { label: 'coverage.check', count: 2 },
+      { label: 'catalog.search', count: 1 },
+    ],
+    tool_order: mode,
+  });
+  const calls = (...labels: string[]): Call[] => labels.map((label) => ({ label }));
+  const order = async (mode: Expect['tool_order'], labels: string[]) =>
+    verdict(
+      await run(tools, context(spec, 1, observed('ok', calls(...labels)), { expect: expectOrder(mode) })),
+      'tools.order',
+    ).outcome;
+
+  it('exact: the calls match one for one, in order, with no extra call', async () => {
+    expect(await order('exact', ['coverage.check', 'coverage.check', 'catalog.search'])).toBe('pass');
+    expect(await order('exact', ['coverage.check', 'catalog.search', 'coverage.check'])).toBe('fail');
+    expect(await order('exact', ['coverage.check', 'coverage.check', 'catalog.search', 'notify_sales'])).toBe(
+      'fail',
+    );
+  });
+
+  it('in_order: other calls may sit between the expected ones', async () => {
+    expect(
+      await order('in_order', ['coverage.check', 'notify_sales', 'coverage.check', 'catalog.search']),
+    ).toBe('pass');
+    expect(await order('in_order', ['coverage.check', 'catalog.search', 'coverage.check'])).toBe('fail');
+  });
+
+  it('any_order: every expected call appears, in any order', async () => {
+    expect(await order('any_order', ['catalog.search', 'coverage.check', 'coverage.check'])).toBe('pass');
+    expect(await order('any_order', ['catalog.search', 'coverage.check'])).toBe('fail');
+  });
+});
