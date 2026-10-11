@@ -294,7 +294,7 @@ In the repo: [the Acme map proposal](examples/acme/map/README.md)
 </a>
 <p align="center"><sub>One block per carriage: generated blocks pass the agent, nine machine checks and the judge council, and the console turns what they leave into drift, recovery and the interval the CI gate reads.</sub></p>
 
-[Open the interactive figure](.github/readme/anatomy/index.html) to run the campaign in each mode and hover a part to see what it does.
+[Open the interactive figure (from a clone)](.github/readme/anatomy/index.html) to run the campaign in each mode and hover a part to see what it does.
 
 ---
 
