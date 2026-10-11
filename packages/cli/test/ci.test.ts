@@ -678,7 +678,11 @@ describe('the driftbench ci GitHub Action', () => {
 
       const parity = action('40');
       // Node 22 warns that its SQLite module is experimental; that line is the runtime's, not the action's.
-      expect(parity.result.stderr.split('\n').filter((l) => l !== '' && !/ExperimentalWarning|--trace-warnings/.test(l))).toEqual([]);
+      expect(
+        parity.result.stderr
+          .split('\n')
+          .filter((l) => l !== '' && !/ExperimentalWarning|--trace-warnings/.test(l)),
+      ).toEqual([]);
       expect(parity.result.status).toBe(0);
       expect(await readFile(parity.output, 'utf8')).toBe(`verdict=parity\nreport-path=${parity.report}\n`);
       expect((await summaryAt(parity.report)).verdict).toBe('parity');
