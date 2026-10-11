@@ -150,6 +150,11 @@ export function measureHardness(rows: readonly JournalRow[], options: { audit?: 
     );
   }
   if (!end) reasons.push('no pilot row yet');
+  const audit = options.audit === undefined ? null : parseAudit(options.audit);
+  if (!audit) reasons.push('audit.md is absent: no validator merges without the audit (12.7)');
+  for (const entry of audit ?? []) {
+    if (entry.verdict !== 'pass') reasons.push(`the audit check ${entry.check} is ${entry.verdict}`);
+  }
   const flags: string[] = [];
   const blindRate = blind?.measure.fixedPerIteration ?? null;
   const builderRate = builder.measure.fixedPerIteration;
@@ -179,7 +184,7 @@ export function measureHardness(rows: readonly JournalRow[], options: { audit?: 
     flags,
     gate: { holds: reasons.length === 0, reasons },
     bankMinimum: bankMinimum(latest),
-    audit: options.audit === undefined ? null : parseAudit(options.audit),
+    audit,
   };
 }
 
@@ -302,7 +307,7 @@ export function formatHardness(component: string, h: Hardness): string {
           : ` (${h.causes.withoutCause} failing items name no cause and count as their own)`
       }.\n`;
   text += h.gate.holds
-    ? `Gate: HOLDS (forecast at least ${HARDNESS_MIN_FORECAST}, score after the pilot at most ${HARDNESS_MAX_SCORE}, at least ${HARDNESS_MIN_CAUSES} distinct failing causes).\n`
+    ? `Gate: HOLDS (forecast at least ${HARDNESS_MIN_FORECAST}, score after the pilot at most ${HARDNESS_MAX_SCORE}, at least ${HARDNESS_MIN_CAUSES} distinct failing causes, all four audit checks pass).\n`
     : `Gate: NOT MET: ${h.gate.reasons.join('; ')}.\n`;
   text += h.bankMinimum.holds
     ? 'Bank minimum at merge (12.1): holds.\n'

@@ -7,11 +7,10 @@ import {
   formatHardness,
   type JournalRow,
   JournalRowSchema,
-  measureHardness,
   parseAudit,
   readJournal,
 } from '../src/index';
-import { journalOf, journalRow } from './support';
+import { hard, journalOf, journalRow, PASSING_AUDIT } from './support';
 
 const made: string[] = [];
 afterAll(async () => {
@@ -66,7 +65,7 @@ describe('the executor field of the journal', () => {
 describe('the blind pilot in --hardness', () => {
   it('forecasts from the blind pilot and flags a builder pilot more than 1.5 times slower', () => {
     const blind = [32, 34, 36, 38, 40, 42, 44, 46, 48, 50];
-    const h = measureHardness(journal(BUILDER, blind));
+    const h = hard(journal(BUILDER, blind));
     expect(h.source).toBe('blind');
     expect(h.pilots.builder.fixedPerIteration).toBe(1);
     expect(h.pilots.blind?.fixedPerIteration).toBe(2);
@@ -89,23 +88,23 @@ describe('the blind pilot in --hardness', () => {
 
   it('does not flag a builder pilot at most 1.5 times slower, and gates on the blind pilot', () => {
     const blind = [31, 33, 34, 36, 37, 39, 40, 42, 43, 45];
-    const h = measureHardness(journal(BUILDER, blind));
+    const h = hard(journal(BUILDER, blind));
     expect(h.pilots.blind?.fixedPerIteration).toBe(1.5);
     expect(h.flags).toEqual([]);
-    const fast = measureHardness(journal(BUILDER, [130, 140], 1));
+    const fast = hard(journal(BUILDER, [130, 140], 1));
     expect(fast.source).toBe('blind');
     expect(fast.gate.reasons).toContain('the blind pilot holds 2 of 10 iterations');
   });
 
   it('uses the blind executor own baseline when it records iteration 0', () => {
     const rows = journal(BUILDER, [20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40], 0);
-    const h = measureHardness(rows);
+    const h = hard(rows);
     expect(h.pilots.blind?.baseline.passing).toBe(20);
     expect(h.pilots.blind?.fixedPerIteration).toBe(2);
   });
 
   it('keeps the builder pilot as the source without blind rows', () => {
-    const h = measureHardness(journal(BUILDER, []));
+    const h = hard(journal(BUILDER, []));
     expect(h.source).toBe('builder');
     expect(h.pilots.blind).toBeNull();
     expect(formatHardness('banked', h)).not.toContain('Pilot  ');
@@ -139,15 +138,32 @@ describe('audit.md', () => {
 
   it('prints the verdicts in --hardness, and says when the file is absent', () => {
     const rows = journal(BUILDER, []);
-    const withAudit = formatHardness(
-      'banked',
-      measureHardness(rows, { audit: '| cheater | fail | seeds |' }),
-    );
+    const withAudit = formatHardness('banked', hard(rows, '| cheater | fail | seeds |'));
     expect(withAudit).toContain('Audit (validators/banked/audit.md, section 12.7):');
     expect(withAudit).toContain('  cheater: FAIL, seeds\n');
     expect(withAudit).toContain('  planted bugs: MISSING\n');
-    expect(formatHardness('banked', measureHardness(rows))).toContain(
+    expect(formatHardness('banked', hard(rows, null))).toContain(
       'Audit: validators/banked/audit.md is absent.',
     );
+  });
+});
+
+describe('the audit gate', () => {
+  const rows = journal(BUILDER, []);
+  it('holds only when audit.md is present and all four checks pass', () => {
+    expect(hard(rows).gate).toEqual({ holds: true, reasons: [] });
+    expect(hard(rows, null).gate).toEqual({
+      holds: false,
+      reasons: ['audit.md is absent: no validator merges without the audit (12.7)'],
+    });
+    expect(
+      hard(rows, PASSING_AUDIT.replace('| cheater | pass |', '| cheater | fail |')).gate.reasons,
+    ).toEqual(['the audit check cheater is fail']);
+    expect(
+      hard(rows, PASSING_AUDIT.replace('| cause review | pass |', '| cause review | pending |')).gate.reasons,
+    ).toEqual(['the audit check cause review is pending']);
+    expect(hard(rows, PASSING_AUDIT.replace('| planted bugs | pass | |\n', '')).gate.reasons).toEqual([
+      'the audit check planted bugs is missing',
+    ]);
   });
 });

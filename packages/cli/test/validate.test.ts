@@ -3,7 +3,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
-import { bankLadder, journalOf, journalRow, plantedLadder } from '../../validators/test/support';
+import {
+  bankLadder,
+  journalOf,
+  journalRow,
+  PASSING_AUDIT,
+  plantedLadder,
+} from '../../validators/test/support';
 import { USAGE_EXIT, type ValidateDeps, validateCommand } from '../src/commands/validate';
 import { main } from '../src/index';
 import type { Io } from '../src/io';
@@ -397,6 +403,7 @@ describe('driftbench validate --items and --hardness', () => {
           .map((row) => JSON.stringify(row))
           .join('\n')}\n`,
       );
+      await writeFile(join(root, 'validators/banked/audit.md'), PASSING_AUDIT);
     };
     await write([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]);
     const holds = capture(root);
@@ -468,7 +475,22 @@ describe('driftbench validate --hardness with the audit', () => {
       join(root, 'validators/banked/journal.jsonl'),
       `${[...builder, ...blind].map((row) => JSON.stringify(row)).join('\n')}\n`,
     );
-    await writeFile(join(root, 'validators/banked/audit.md'), '| blind pilot | pass | ok |\n');
+    const absent = capture(root);
+    expect(await validateCommand('banked', { hardness: true }, absent.io, d)).toBe(1);
+    expect(absent.output.out).toContain('audit.md is absent: no validator merges without the audit (12.7)');
+    await writeFile(
+      join(root, 'validators/banked/audit.md'),
+      '| blind pilot | pass | ok |\n| cheater | pending | |\n',
+    );
+    const partial = capture(root);
+    expect(await validateCommand('banked', { hardness: true }, partial.io, d)).toBe(1);
+    expect(partial.output.out).toContain(
+      'the audit check cheater is pending; the audit check cause review is missing; the audit check planted bugs is missing',
+    );
+    await writeFile(
+      join(root, 'validators/banked/audit.md'),
+      PASSING_AUDIT.replace('| blind pilot | pass | |', '| blind pilot | pass | ok |'),
+    );
     const { io, output } = capture(root);
     expect(await validateCommand('banked', { hardness: true }, io, d)).toBe(0);
     expect(output.out).toContain('Flag: the builder pilot fixed 1 items per iteration');
