@@ -6,6 +6,7 @@ import { CLUSTERED_COVERAGE, clusteredLevel } from './clustered';
 import { designsPath, readDesigns, type StatsDesigns } from './designs';
 import { type Row, referenceLevel, STATS_FIXTURES, type StatsImpl } from './reference';
 import { type PilotAnalyser, SHARES_RECOVERY, sharesLevel } from './shares';
+import { type CompletenessLine, UNSEEN_ERROR, unseenLevel } from './unseen';
 import { WILSON_COVERAGE, wilsonLevel } from './wilson';
 
 export { CLUSTERED_COMPONENT, CLUSTERED_COVERAGE, clusteredLevel } from './clustered';
@@ -39,6 +40,14 @@ export {
   type SharesDataset,
   sharesLevel,
 } from './shares';
+export {
+  type CompletenessLine,
+  type Population,
+  plantPopulation,
+  UNSEEN_COMPONENTS,
+  UNSEEN_ERROR,
+  unseenLevel,
+} from './unseen';
 export { WILSON_COVERAGE, WILSON_DRAWS, WILSON_RATES, WILSON_SIZES, wilsonLevel } from './wilson';
 
 export type StatsLadderOptions = {
@@ -49,6 +58,8 @@ export type StatsLadderOptions = {
   designs?: StatsDesigns;
   /** The pilot analysis level 4 scores; by default `analysePilot` of the generate package. */
   analysePilot?: PilotAnalyser;
+  /** The completeness line level 5 scores; by default `completeness` of the space package. */
+  completeness?: CompletenessLine;
 };
 
 /**
@@ -56,7 +67,8 @@ export type StatsLadderOptions = {
  * 1e-6. Level 2: Wilson coverage at least 0.93 at n of 20, 50 and 200 over 1000 draws per seed. Level 3: the
  * clustered bootstrap covers at least 0.93 on clustered data, where the naive interval falls below the bar.
  * Level 4: the pilot analysis puts at least 0.93 of the planted variance shares inside their bootstrap interval,
- * over 8 planted datasets.
+ * over 8 planted datasets. Level 5: above the class count the sample coverage estimates err by less than 10
+ * percent on average, and below it the completeness line refuses the estimate with a warning on every draw.
  */
 export function statsLadder(options: StatsLadderOptions = {}): Ladder {
   const s: StatsImpl = { ...stats, ...options.impl };
@@ -104,6 +116,15 @@ export function statsLadder(options: StatsLadderOptions = {}): Ladder {
           'planted shares inside their bootstrap interval / shares planted, 4 levels on each of 8 datasets',
         threshold: SHARES_RECOVERY,
         compute: ({ seed, root }) => sharesLevel(seed, designs(root).shares, options.analysePilot),
+      },
+      {
+        id: 'unseen-mass',
+        name: 'unseen mass',
+        metric:
+          'mean |estimated - true coverage| / true coverage above the class count, worst estimator and population; 1 when a draw below it gets no warning',
+        threshold: UNSEEN_ERROR,
+        direction: 'atMost',
+        compute: ({ seed, root }) => unseenLevel(seed, s, designs(root).unseen, options.completeness),
       },
     ],
   });
