@@ -1,71 +1,147 @@
 # Statistics
 
-One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. The functions on this page ship in `@driftbench/stats`. Each matches a reference value computed in Python (scipy and numpy) and committed as a test fixture. Repeats and the minimum detectable effect of `campaign plan` are built, phase 1. Wiring the functions into reports, the parity verdict of a campaign, and the `stats`, `compare` and `ci` commands is planned, phase 4.
+One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. The functions on this page ship in `@driftbench/stats`. Each matches a reference value computed in Python with scipy and numpy and committed as a test fixture (`packages/stats/test/reference`).
+
+What is built and what is not:
+
+* Built, phase 1: repeats in a campaign, and the minimum detectable effect `campaign plan` prints. See [running](../running.md).
+* Built: every function below, as a library.
+* Planned, phase 4: wiring them into the run records and reports, the parity verdict of a whole campaign, the scorecard, and the `stats`, `compare` and `ci` commands.
+
+The same statistics serve conversations and tasks. One conversation, or one task, is one cluster. An artifact check is a pass or a fail per repeat, so pass^k reads the same way for a workbook as for a reply.
+
+```ts
+import { mde, nonInferiority, passK, repeatsForFloor, wilson, zeroFailureBound } from '@driftbench/stats';
+
+console.log(wilson(18, 20));
+console.log(passK(4, 5, 2), zeroFailureBound(0.05));
+console.log(mde({ n: 100, repeats: 5, baselineRate: 0.9, rho: 0.3 }));
+console.log(repeatsForFloor({ flipRate: 0.1, floor: 0.05 }));
+
+const verdict = nonInferiority({
+  baseline: [true, true, true, true, false, true, true, true],
+  candidate: [true, true, false, true, true, true, true, true],
+  margin: 0.05,
+});
+console.log(verdict.nonInferior, verdict.reason);
+```
+
+It prints:
+
+```
+{ estimate: 0.9, lower: 0.6989663547715128, upper: 0.9721335187862319 }
+0.6000000000000001 59
+{
+  effect: 0.09264469664389918,
+  effectiveN: 227.27272727272725,
+  designEffect: 2.2
+}
+{ repeats: 277, floor: 0.04996253425649987 }
+false upper bound 0.3746 of the regression effect is not below the margin 0.05
+```
+
+One regressed pair and one improved pair out of eight leave the candidate unproven: the interval on the regression effect is far wider than a 5-point margin.
 
 ## Repeats
 
-A campaign runs each spec several times in each mode (`--repeats`; see [running](../running.md)). With c passing runs out of n:
+A campaign runs each spec several times in each mode (`--repeats`). With c passing runs out of n:
 
-* pass^k is the probability that all k runs pass: `C(c, k) / C(n, k)`. This is the estimator of [arXiv 2406.12045](https://arxiv.org/pdf/2406.12045), as used by the `pass_k` reducer of inspect_ai.
-* pass@k is the probability that at least one of k runs passes, with the estimator of [arXiv 2107.03374](https://arxiv.org/pdf/2107.03374).
-* Unreliability is the 90th percentile minus the 10th percentile of the block score across repeats.
+| Function | Computes |
+|---|---|
+| `passK(c, n, k)` | pass^k, the probability that k runs drawn from the n all pass: `C(c, k) / C(n, k)`, the estimator of [arXiv 2406.12045](https://arxiv.org/pdf/2406.12045), as the `pass_k` reducer of inspect_ai uses it |
+| `passAtK(c, n, k)` | pass@k, the probability that at least one of k runs passes: `1 - C(n - c, k) / C(n, k)`, the estimator of [arXiv 2107.03374](https://arxiv.org/pdf/2107.03374) |
+| `unreliability(samples)` | the 90th percentile minus the 10th of the scores across repeats |
 
-pass^k falls as k grows when an agent is inconsistent, even if its average looks fine.
+Both forms are computed as products, so they never overflow. pass^k falls as k grows when an agent is inconsistent, even if its average looks fine.
 
 ## Intervals
 
-* Every rate is printed with a Wilson interval.
-* Anything aggregated over blocks uses a percentile bootstrap with one conversation, or one task, as one cluster. The blocks of one run are not independent samples, so no interval treats them as if they were.
+| Function | Computes |
+|---|---|
+| `wilson(k, n, z)` | the Wilson score interval for k successes in n; `z` defaults to the two-sided 95 percent value |
+| `clopperPearson(k, n, alpha)` | the exact interval at level `1 - alpha`, from the beta quantile; `alpha` defaults to 0.05 |
+| `zeroFailureBound(p, alpha)` | the number of independent failure-free runs needed to claim a failure rate below `p` at confidence `1 - alpha`: 59 for 5 percent at 95 percent |
+| `bootstrapCI(values, { clusters, iterations, method, alpha, seed, statistic })` | a bootstrap interval that resamples whole clusters |
+
+`bootstrapCI` takes one cluster key per value: every value of one conversation carries the conversation's key, so the blocks of a run are never treated as independent samples. Without keys every value is its own cluster. `iterations` defaults to 2000, `method` is `percentile` (the default) or `basic`, `alpha` defaults to 0.05, and `seed` defaults to 1: the same seed gives the same interval. `statistic` replaces the pooled mean with any function of the resampled values.
+
+## Where results vary
+
+Two runs of the same spec can differ, and two wordings of the same situation can differ too. Before a difference between two versions means anything, it is read against that spread: the noise floor.
+
+| Function | Computes |
+|---|---|
+| `varianceComponents(observations, { levels, residual })` | how the variance of an outcome splits across nested levels |
+| `icc(result)` | per level, the correlation of two observations that share that level |
+| `designEffect(m, rho)`, `effectiveSampleSize(n, m, rho)` | the design effect `1 + (m - 1) rho` of clusters of size m, and n divided by it |
+| `neymanAllocation({ sizes, sds, total })` | how to spread a fixed number of conversations across strata |
+| `repeatsForFloor({ variance, flipRate, floor, z, blocks, difference })` | the repeats per block that keep run-to-run noise under a floor |
+
+* `varianceComponents` reads observations, each a pass flag (true counts as 1) or a score, with its `path`: the group at each level, outermost first. The default levels are `cell`, `conversation` and `wording`, and each observation is one `repeat`, the residual. It uses the ANOVA estimator of a nested random-effects model: the classic nested ANOVA when the data is balanced, Henderson's method I otherwise. Each component reports its estimate, its variance truncated at 0, and its share of the total; a level with one child per parent is marked not estimable.
+* `icc` turns those components into the correlation of two observations that share a level. That correlation is the `rho` of the design effect: repeats of one conversation that agree with each other add less information than independent runs.
+* `neymanAllocation` gives each stratum a share proportional to its size times its spread, rounded to whole numbers that add up to `total`, so a stratum where results vary more gets more conversations.
+* `repeatsForFloor` solves the half-width `z sqrt(f variance / (r blocks))` for the repeats r, with `f` 2 for a difference between two versions (the default) and 1 otherwise. Give the run-to-run `variance`, or the `flipRate` of a pass flag, whose variance is `p (1 - p)`. `z` defaults to 1.96 and `blocks` to 1. It returns the repeats and the floor they reach.
 
 ## Comparing a baseline and a candidate
 
 Both run on the same specs.
 
-* McNemar's test on the all-pass flag per spec, exact for small counts.
-* Wilcoxon's signed-rank test on the drift count per spec.
-* The effect size is the difference in discordant pairs, with its interval.
-* Many criteria: Benjamini-Hochberg control across criteria before any report says that a criterion regressed.
+| Function | Computes |
+|---|---|
+| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts: exact below 25 discordant pairs by default, else the continuity-corrected chi-square |
+| `wilcoxonSignedRank(x, y, { method })` | Wilcoxon's signed-rank test on paired values, such as the drift count per spec; `method` is `auto` (the default, which follows scipy's choice), `exact`, `permutation` or `asymptotic` |
+| `pairedRateDifference(table, alpha)` | the baseline pass rate minus the candidate's, with Newcombe's interval for paired data; `table` counts `bothPass`, `regressed`, `improved` and `bothFail` |
+| `benjaminiHochberg(pvalues, q)` | false discovery rate control at `q` (default 0.05): adjusted p-values, the rejected hypotheses and the threshold |
+
+Many criteria are compared at once, so a report applies Benjamini-Hochberg across criteria before it says that a criterion regressed.
 
 ## The parity verdict
 
-The candidate is non-inferior to the baseline when, for every gating criterion, the upper bound of the interval on the regression effect is below a margin set before the campaign, and no gating flag fires where the baseline had none. Zero regressed cells in one run is not parity: it is one draw. The report prints the margin and the discordant pair counts.
+`nonInferiority({ baseline, candidate, margin, pairs, alpha, gatingFlags })` judges one gating criterion. `baseline` and `candidate` hold the all-pass flag of each spec, in the same order. The candidate is non-inferior when the upper bound of the interval on the regression effect, at level `1 - alpha` (default 0.05), is below the `margin` set before the campaign, and no gating flag fires for the candidate where the baseline had none (`gatingFlags`, one flag per spec for each version). `pairs` names the specs, so the result lists the regressed ones and the new flags, with the discordant counts and the reason. Zero regressed pairs in one run is not parity: it is one draw.
+
+The function judges one criterion; combining the criteria of a campaign into one verdict is planned, phase 4.
 
 ## Before a campaign
 
-`campaign plan` prints the number of runs, the projected cost and the minimum detectable effect for the chosen repeats. If the effect is too large to be useful, the repeats go up before any money is spent. `campaign plan` treats runs as independent today. The library's `mde` takes the correlation of repeats of one conversation or one task (`rho`, measured by `varianceComponents`); using it in `campaign plan` is planned, phase 4. See [running](../running.md#the-minimum-detectable-effect).
+`campaign plan` prints the number of runs, the projected cost and the minimum detectable effect for the chosen repeats. If the effect is too large to be useful, the repeats go up before any money is spent.
+
+`mde({ n, repeats, baselineRate, power, alpha, rho })` solves the two-proportion power equation for the smallest drop from the baseline rate that the campaign detects, with `n` specs per version, `repeats` per spec (default 1), `power` 0.8 and `alpha` 0.05 by default. The repeats count through the design effect: `n repeats / (1 + (repeats - 1) rho)` effective units per version. `rho` defaults to 0, which treats repeats as independent and so is optimistic; pass the `rho` that `icc` measures. It treats the two versions as independent samples, which is conservative for a paired campaign. The effect is `null` when no drop below the baseline rate is detectable.
+
+`campaign plan` uses the runner's own formula today, with runs counted as independent; using `mde` with a measured `rho` there is planned, phase 4. See [running](../running.md#the-minimum-detectable-effect).
 
 ## Over time
 
-To watch a live agent: CUSUM and Page-Hinkley on pass rate, cost and latency, and a Kolmogorov-Smirnov test for a shift in a distribution.
+To watch a live agent, on its pass rate, cost or latency:
+
+| Function | Computes |
+|---|---|
+| `cusum(series, { target, sd, k, h, warmup, reset })` | the tabular CUSUM in standard deviations: `k` 0.5 and `h` 5 by default; `target` and `sd` default to the first `warmup` points (20 at most) |
+| `pageHinkley(series, { delta, threshold, minInstances })` | the two-sided Page-Hinkley test: `delta` 0.005, `threshold` 50 and `minInstances` 30 by default; set the threshold to the scale of the series |
+| `ksTest(a, b, { method })` | the two-sample Kolmogorov-Smirnov test of a shift between two distributions: exact up to 10000 values per sample, the Kolmogorov limit above |
+
+Each detector returns its statistics after every point and the alarms, with their position and direction.
 
 ## Judges
 
 Cohen's kappa and Krippendorff's alpha measure how far judges agree with hand labels and with each other. See [judges](judges.md).
 
-## Tasks
+| Function | Computes |
+|---|---|
+| `cohenKappa(a, b, { weights, categories })` | kappa between two raters over the same items; `weights` is `none` (the default), `linear` or `quadratic` for ordered labels, over the order `categories` gives |
+| `krippendorffAlpha(matrix, { level })` | alpha over a raters by units matrix, where a missing value is `null`; `level` is `nominal` (the default), `ordinal`, `interval` or `ratio` |
 
-Task specs use the same statistics. One task is one cluster. An artifact check is a pass or a fail per repeat, so pass^k reads the same way for a workbook as for a reply.
+## How complete a sample is
 
-## Functions
+A set of specs, or of real conversations, is a sample of the situations an agent can face. These estimators say how much of that space the sample has reached, from the number of times each class (each cell of the map) was seen:
 
 | Function | Computes |
 |---|---|
-| `wilson(k, n, z)` | the Wilson interval for k successes in n; `z` defaults to the 95 percent value |
-| `clopperPearson(k, n, alpha)` | the exact interval, from the beta quantile |
-| `zeroFailureBound(p, alpha)` | the smallest n with no failure that bounds a failure rate p |
-| `designEffect(m, rho)`, `effectiveSampleSize(n, m, rho)` | the design effect `1 + (m - 1) rho` of clusters of size m, and the effective sample size |
-| `bootstrapCI(values, { clusters, iterations, method, alpha, seed, statistic })` | a percentile or basic bootstrap interval that resamples whole clusters, seeded |
-| `passK(c, n, k)`, `passAtK(c, n, k)` | pass^k and pass@k |
-| `unreliability(samples)` | the 90th percentile minus the 10th |
-| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts, exact below 25 discordant pairs by default |
-| `wilcoxonSignedRank(x, y, { method })` | the paired signed-rank test |
-| `pairedRateDifference(table, alpha)` | the interval on the baseline rate minus the candidate rate of paired results |
-| `nonInferiority({ baseline, candidate, margin, pairs, alpha, gatingFlags })` | the parity verdict of one criterion: the upper bound below the margin, and no new gating flag |
-| `benjaminiHochberg(pvalues, q)` | false discovery rate control, with adjusted p-values |
-| `mde({ n, repeats, baselineRate, power, alpha, rho })` | the minimum detectable effect, with the effective sample size of the repeats |
-| `cusum(series, options)`, `pageHinkley(series, options)` | change detection over time |
-| `ksTest(a, b, { method })` | a shift between two distributions |
-| `cohenKappa(a, b, { weights, categories })`, `krippendorffAlpha(matrix, { level })` | judge agreement |
-| `varianceComponents(observations, { levels, residual })`, `icc(result)` | how much of the variance sits at each level (cell, conversation, wording, repeat), and the correlation of two observations that share a level |
-| `neymanAllocation({ sizes, sds, total })`, `repeatsForFloor(...)` | how to spread runs across strata, and how many repeats a precision floor needs |
-| `goodTuring(counts)`, `chaoCoverage(counts)`, `hillNumbers(counts)` | how complete a sample of cells is: the estimators behind `driftbench space complete` (see [CLI](../reference/cli.md#driftbench-space-complete)) |
+| `goodTuring(counts)` | the discovery probability `f1 / n`, the chance that the next conversation shows a class not seen yet, and the coverage `1 - f1 / n` |
+| `chaoCoverage(counts)` | the sample coverage of Chao and Jost, which also uses `f2`, and the Chao1 estimate of the total number of classes |
+| `hillNumbers(counts)`, `hillNumber(counts, q)` | the effective number of classes at q 0 (classes seen), 1 (the exponential of the Shannon entropy) and 2 (inverse Simpson) |
+
+`f1` and `f2` are the classes seen once and twice, and `n` the observations. `abundances(labels)` turns a list of class labels into the counts these functions take. `driftbench space complete` prints the same quantities for a map of situations; see [CLI](../reference/cli.md#driftbench-space-complete).
+
+## Helpers
+
+The package also exports the pieces the functions above are built on: `mean`, `quantile`, `quantileSorted` (type 7 quantiles), `sampleVariance`, `mulberry32` (the seeded generator), `zFor`, `Z95`, `normalCdf`, `normalSf`, `normalQuantile`, `chiSquareSf`, `binomialCdf`, `betaQuantile`, `incompleteBeta`, `logGamma`, `erfc` and `kolmogorovSf`.
