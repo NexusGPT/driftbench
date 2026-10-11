@@ -1,3 +1,5 @@
+import { readdir, readFile } from 'node:fs/promises';
+import { join, relative } from 'node:path';
 import { parseSpecText, type Spec } from '@driftbench/core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
@@ -9,7 +11,7 @@ import {
   SITUATION_OF,
 } from '../../src/estate/generate';
 import { MARKERS } from '../../src/estate/then';
-import { COMMITTED_PATHS, fixtureInputs } from './support';
+import { COMMITTED_PATHS, FIXTURE_GENERATED, fixtureInputs } from './support';
 
 function specs(result: EstateGenerateResult): Map<string, Spec> {
   const out = new Map<string, Spec>();
@@ -402,3 +404,25 @@ describe('the record and the seed', () => {
     );
   });
 });
+
+describe('the committed suite', () => {
+  it('is byte for byte what the generator writes for the fixture, the hand plan and seed 1', async () => {
+    const result = generateEstateSuite(await fixtureInputs(), { paths: COMMITTED_PATHS });
+    const committed = await tree(FIXTURE_GENERATED);
+    expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
+    for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
+  });
+});
+
+async function tree(dir: string): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  const walk = async (at: string) => {
+    for (const entry of await readdir(at, { withFileTypes: true })) {
+      const full = join(at, entry.name);
+      if (entry.isDirectory()) await walk(full);
+      else out[relative(dir, full).split('\\').join('/')] = await readFile(full, 'utf8');
+    }
+  };
+  await walk(dir);
+  return out;
+}

@@ -72,6 +72,14 @@ describe('driftbench estate generate', () => {
   });
 
   it('gives replay specs that pass and fail over the three sessions as planned', async () => {
+    await replayAsPlanned(join(out, 'specs/replay'));
+  }, 60_000);
+
+  it('passes and fails the committed replay specs as planned too', async () => {
+    await replayAsPlanned(join(FIXTURE, 'generated/specs/replay'));
+  }, 60_000);
+
+  async function replayAsPlanned(suite: string): Promise<void> {
     const replay = await run([
       'replay',
       ...NAMES.map((name) => join(SESSIONS, `${name}.jsonl`)),
@@ -80,7 +88,7 @@ describe('driftbench estate generate', () => {
       '--steps',
       ...NAMES.map((name) => join(SESSIONS, `${name}.steps.jsonl`)),
       '--suite',
-      join(out, 'specs/replay'),
+      suite,
       '--json',
     ]);
     expect(replay.err).toBe('');
@@ -115,7 +123,7 @@ describe('driftbench estate generate', () => {
       'estate.p01.weekly-skill-skipped': ['block 0: skills.weekly-report'],
       'estate.p02.weekly-gate-violated': ['block 0: custom.ordered.Read.Edit'],
     });
-  }, 60_000);
+  }
 
   it('lints the complete specs clean', async () => {
     const lint = await run(['spec', 'lint', join(out, 'specs'), '--strict']);
