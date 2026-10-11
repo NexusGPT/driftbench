@@ -1,0 +1,28 @@
+{
+  "name": "driftbench",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "bin": {
+    "driftbench": "./dist/bin.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/bin.ts --format esm --dts --clean --target node22"
+  },
+  "dependencies": {
+    "@driftbench/core": "workspace:*",
+    "commander": "^15.0.0"
+  }
+}

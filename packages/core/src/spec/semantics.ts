@@ -1,0 +1,212 @@
+import type { Assertion, Count } from '../schema/common';
+import type { Expect, Spec } from '../schema/spec';
+import { error, type Issue } from './issues';
+
+const CRITERION_REF = /^([A-Za-z0-9][A-Za-z0-9_.-]*)(@gating)?$/;
+
+/** Splits `name@gating` into its parts. Returns undefined when the reference is malformed. */
+export function parseCriterionRef(ref: string): { name: string; gating: boolean } | undefined {
+  const match = CRITERION_REF.exec(ref);
+  if (!match?.[1]) return undefined;
+  return { name: match[1], gating: match[2] === '@gating' };
+}
+
+/** Compiles a spec pattern the way checks will use it. Returns the error message, or undefined. */
+export function patternError(source: string): string | undefined {
+  try {
+    new RegExp(source, 'm');
+    return undefined;
+  } catch (cause) {
+    return cause instanceof Error ? cause.message : String(cause);
+  }
+}
+
+type Context = {
+  steps: Set<string> | undefined;
+  defined: Set<string> | undefined;
+  forbidden: Set<string>;
+};
+
+/** Rules a schema cannot express. Every issue returned is an error. */
+export function checkSemantics(spec: Spec): Issue[] {
+  const issues: Issue[] = [];
+
+  const defined = spec.criteria ? new Set<string>() : undefined;
+  spec.criteria?.forEach((criterion, index) => {
+    if (defined?.has(criterion.name)) {
+      issues.push(
+        error(
+          'CRITERION_DUPLICATE',
+          `criteria.${index}.name`,
+          `criterion "${criterion.name}" is defined twice`,
+        ),
+      );
+    }
+    defined?.add(criterion.name);
+  });
+
+  const forbidden = new Set<string>(spec.rules?.forbidden_tools ?? []);
+  for (const [label, max] of Object.entries(spec.rules?.max_calls ?? {})) {
+    if (max === 0) forbidden.add(label);
+  }
+  const ctx: Context = { steps: spec.steps ? new Set(spec.steps) : undefined, defined, forbidden };
+
+  const blockIds = new Set<string>();
+  spec.blocks.forEach((block, index) => {
+    if (block.id !== undefined) {
+      if (blockIds.has(block.id)) {
+        issues.push(
+          error('DUPLICATE_BLOCK_ID', `blocks.${index}.id`, `block id "${block.id}" is used twice`),
+        );
+      }
+      blockIds.add(block.id);
+    }
+    if (block.expect) checkExpect(block.expect, `blocks.${index}.expect`, ctx, issues);
+  });
+
+  const perturbationIds = new Set<string>();
+  spec.perturbations?.forEach((perturbation, index) => {
+    const path = `perturbations.${index}`;
+    if (perturbationIds.has(perturbation.id)) {
+      issues.push(
+        error(
+          'DUPLICATE_PERTURBATION_ID',
+          `${path}.id`,
+          `perturbation id "${perturbation.id}" is used twice`,
+        ),
+      );
+    }
+    perturbationIds.add(perturbation.id);
+    if (perturbation.inject_at > spec.blocks.length) {
+      issues.push(
+        error(
+          'PERTURBATION_OUT_OF_RANGE',
+          `${path}.inject_at`,
+          `inject_at ${perturbation.inject_at} is past the last position (${spec.blocks.length}); it inserts before block n, counting from 0`,
+        ),
+      );
+    }
+    if (
+      perturbation.user === undefined &&
+      perturbation.burst === undefined &&
+      perturbation.world === undefined
+    ) {
+      issues.push(error('PERTURBATION_EMPTY', path, 'a perturbation needs `user`, `burst` or `world`'));
+    }
+    if (perturbation.expect) checkExpect(perturbation.expect, `${path}.expect`, ctx, issues);
+    const after = perturbation.recovery?.step_after;
+    if (after !== undefined && ctx.steps && !ctx.steps.has(after)) {
+      issues.push(
+        error('STEP_UNKNOWN', `${path}.recovery.step_after`, `step "${after}" is not in the spec's steps`),
+      );
+    }
+  });
+
+  const endStates = spec.end_state === undefined || spec.end_state === 'none' ? [] : [spec.end_state].flat();
+  endStates.forEach((endState, index) => {
+    const base = Array.isArray(spec.end_state) ? `end_state.${index}.expect` : 'end_state.expect';
+    for (const [field, assertion] of Object.entries(endState.expect)) {
+      checkAssertion(assertion, `${base}.${field}`, issues);
+    }
+  });
+
+  return issues;
+}
+
+function checkExpect(expect: Expect, path: string, ctx: Context, issues: Issue[]): void {
+  for (const key of ['must', 'must_not'] as const) {
+    expect[key]?.forEach((pattern, index) => {
+      const problem = patternError(pattern);
+      if (problem) issues.push(error('REGEX_INVALID', `${path}.${key}.${index}`, problem));
+    });
+  }
+  const mustNot = new Set(expect.must_not ?? []);
+  expect.must?.forEach((pattern, index) => {
+    if (mustNot.has(pattern)) {
+      issues.push(
+        error('MUST_CONFLICT', `${path}.must.${index}`, `"${pattern}" is in both must and must_not`),
+      );
+    }
+  });
+
+  expect.tools?.forEach((tool, index) => {
+    const toolPath = `${path}.tools.${index}`;
+    checkCount(tool.count, `${toolPath}.count`, issues);
+    const zero = isZero(tool.count);
+    if (zero && tool.input) {
+      issues.push(
+        error(
+          'TOOL_COUNT_CONTRADICTION',
+          toolPath,
+          `"${tool.label}" is expected 0 times but has input assertions`,
+        ),
+      );
+    }
+    if (!zero && ctx.forbidden.has(tool.label)) {
+      issues.push(
+        error(
+          'TOOL_FORBIDDEN_EXPECTED',
+          toolPath,
+          `"${tool.label}" is forbidden by the spec's rules but expected here`,
+        ),
+      );
+    }
+    for (const [field, assertion] of Object.entries(tool.input ?? {})) {
+      checkAssertion(assertion, `${toolPath}.input.${field}`, issues);
+    }
+  });
+  for (const [index, card] of (expect.cards ?? []).entries()) {
+    checkCount(card.count, `${path}.cards.${index}.count`, issues);
+  }
+  for (const [index, skill] of (expect.skills ?? []).entries()) {
+    checkCount(skill.count, `${path}.skills.${index}.count`, issues);
+  }
+
+  expect.criteria?.forEach((ref, index) => {
+    const parsed = parseCriterionRef(ref);
+    if (!parsed) {
+      issues.push(
+        error(
+          'CRITERION_REF_INVALID',
+          `${path}.criteria.${index}`,
+          `"${ref}" is not a criterion name, optionally followed by @gating`,
+        ),
+      );
+      return;
+    }
+    if (ctx.defined && !ctx.defined.has(parsed.name)) {
+      issues.push(
+        error(
+          'CRITERION_UNDEFINED',
+          `${path}.criteria.${index}`,
+          `criterion "${parsed.name}" is not defined in this spec's criteria`,
+        ),
+      );
+    }
+  });
+
+  if (expect.step !== undefined && ctx.steps && !ctx.steps.has(expect.step)) {
+    issues.push(error('STEP_UNKNOWN', `${path}.step`, `step "${expect.step}" is not in the spec's steps`));
+  }
+}
+
+function checkAssertion(assertion: Assertion, path: string, issues: Issue[]): void {
+  if (assertion !== null && typeof assertion === 'object' && 'regex' in assertion) {
+    const problem = patternError(assertion.regex);
+    if (problem) issues.push(error('REGEX_INVALID', `${path}.regex`, problem));
+  }
+}
+
+function checkCount(count: Count | undefined, path: string, issues: Issue[]): void {
+  if (count === undefined || typeof count === 'number') return;
+  if (count.min !== undefined && count.max !== undefined && count.min > count.max) {
+    issues.push(error('COUNT_RANGE_INVALID', path, `min ${count.min} is greater than max ${count.max}`));
+  }
+}
+
+/** True when a count allows only zero calls. */
+export function isZero(count: Count | undefined): boolean {
+  if (count === undefined) return false;
+  if (typeof count === 'number') return count === 0;
+  return count.max === 0;
+}

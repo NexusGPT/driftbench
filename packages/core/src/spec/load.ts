@@ -1,0 +1,141 @@
+import { readdir, readFile, stat } from 'node:fs/promises';
+import { extname, join } from 'node:path';
+import { parse as parseYaml } from 'yaml';
+import type { z } from 'zod';
+import { Spec } from '../schema/spec';
+import { contentHash } from './hash';
+import { error, type Issue } from './issues';
+import { lintSpec } from './lint';
+import { normalizeSpec } from './normalize';
+import { checkSemantics } from './semantics';
+
+export type LoadResult =
+  | { ok: true; path: string; spec: Spec; hash: string; warnings: Issue[] }
+  | { ok: false; path: string; errors: Issue[]; warnings: Issue[] };
+
+export type LoadedSpec = Extract<LoadResult, { ok: true }>;
+
+/** Parses, normalises and validates spec text. Never throws on bad input. */
+export function parseSpecText(text: string, format: 'yaml' | 'json', path = '<inline>'): LoadResult {
+  let raw: unknown;
+  try {
+    raw = format === 'json' ? JSON.parse(text) : parseYaml(text, { prettyErrors: true, uniqueKeys: true });
+  } catch (cause) {
+    return { ok: false, path, errors: [error('SPEC_PARSE', '', describe(cause))], warnings: [] };
+  }
+  return validateSpec(raw, path);
+}
+
+/** Normalises and validates an already parsed value. */
+export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
+  const normalized = normalizeSpec(raw);
+  const errors = normalized.issues.filter((issue) => issue.level === 'error');
+  const parsed = Spec.safeParse(normalized.value);
+
+  if (!parsed.success) {
+    for (const zodIssue of parsed.error.issues) {
+      const issue = fromZod(zodIssue);
+      const covered = errors.some(
+        (known) =>
+          known.path !== '' && (issue.path === known.path || issue.path.startsWith(`${known.path}.`)),
+      );
+      if (!covered) errors.push(issue);
+    }
+  }
+  if (!parsed.success || errors.length > 0) return { ok: false, path, errors, warnings: [] };
+
+  const semantic = checkSemantics(parsed.data);
+  if (semantic.length > 0) return { ok: false, path, errors: semantic, warnings: [] };
+
+  return {
+    ok: true,
+    path,
+    spec: parsed.data,
+    hash: contentHash(parsed.data),
+    warnings: lintSpec(parsed.data),
+  };
+}
+
+/** Reads one file. `.json` is parsed as JSON, anything else as YAML. */
+export async function loadSpecFile(path: string): Promise<LoadResult> {
+  let text: string;
+  try {
+    text = await readFile(path, 'utf8');
+  } catch (cause) {
+    return {
+      ok: false,
+      path,
+      errors: [error('SPEC_PARSE', '', `cannot read the file: ${describe(cause)}`)],
+      warnings: [],
+    };
+  }
+  return parseSpecText(text, extname(path).toLowerCase() === '.json' ? 'json' : 'yaml', path);
+}
+
+/** Expands files and folders into spec files: `*.yaml`, `*.yml` and `*.spec.json`, sorted. */
+export async function findSpecFiles(paths: string[]): Promise<string[]> {
+  const found = new Set<string>();
+  for (const path of paths) {
+    const info = await stat(path).catch(() => undefined);
+    if (!info) {
+      found.add(path);
+    } else if (info.isDirectory()) {
+      for (const file of await walk(path)) found.add(file);
+    } else {
+      found.add(path);
+    }
+  }
+  return [...found].sort();
+}
+
+/** Loads every spec found under the given files and folders. */
+export async function loadSpecs(paths: string[]): Promise<LoadResult[]> {
+  const files = await findSpecFiles(paths);
+  return Promise.all(files.map((file) => loadSpecFile(file)));
+}
+
+const SKIP = new Set(['node_modules', 'dist']);
+
+async function walk(dir: string): Promise<string[]> {
+  const out: string[] = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith('.') || SKIP.has(entry.name)) continue;
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...(await walk(full)));
+    } else if (/\.(ya?ml)$/i.test(entry.name) || /\.spec\.json$/i.test(entry.name)) {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
+const UNION_HINTS: Record<string, string> = {
+  when: 'expected exactly one of: user, burst, injection',
+  count: 'expected a whole number of at least 0, or { min, max }',
+  end_state: "expected 'none', an end-state mapping, or a list of them",
+};
+
+function fromZod(issue: z.core.$ZodIssue): Issue {
+  const path = issue.path.map(String).join('.');
+  const last = String(issue.path[issue.path.length - 1] ?? '');
+  const parent = String(issue.path[issue.path.length - 2] ?? '');
+  let message = issue.message;
+  if (issue.code === 'invalid_union') {
+    message =
+      UNION_HINTS[last] ??
+      (parent === 'input' || parent === 'expect'
+        ? 'expected a value, or one of: exact, regex, contains, one_of, nonempty, absent, subset'
+        : message);
+  } else if (issue.code === 'unrecognized_keys') {
+    message = `unknown key${issue.keys.length > 1 ? 's' : ''}: ${issue.keys.join(', ')}`;
+  } else if (issue.code === 'invalid_type') {
+    message = message.replace(/received undefined$/, 'missing');
+  }
+  return { level: 'error', code: `SCHEMA_${issue.code.toUpperCase()}`, path, message };
+}
+
+function describe(cause: unknown): string {
+  if (cause instanceof Error) return cause.message.split('\n').slice(0, 3).join(' ').trim();
+  return String(cause);
+}

@@ -1,0 +1,59 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - name: CLI smoke
+        run: node packages/cli/dist/bin.js --version
+
+  guard:
+    name: leak guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Canary (proves every check fires)
+        env:
+          GUARD_DENYLIST: ${{ secrets.GUARD_DENYLIST }}
+        run: node tools/guard/guard.mjs --canary ${{ github.event_name == 'push' && '--require-denylist' || '' }}
+      - name: Scan the tree
+        env:
+          GUARD_DENYLIST: ${{ secrets.GUARD_DENYLIST }}
+        run: node tools/guard/guard.mjs ${{ github.event_name == 'push' && '--require-denylist' || '' }}
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
