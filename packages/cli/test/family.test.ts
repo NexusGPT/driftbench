@@ -192,3 +192,83 @@ describe('driftbench family review', () => {
     expect(review).toMatch(/\nsigned_by: null\nsigned_on: null\n$/);
   });
 });
+
+describe('driftbench family verify', () => {
+  it('ships the instances the reference passes and rejects the ones it fails, as an oracle or reference defect', async () => {
+    const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const built = await run(
+      ['family', 'instances', ACME_FAMILY, '--n', '3', '--seed', '7', '--out', 'out'],
+      cwd,
+    );
+    expect(built.code).toBe(0);
+    const report = JSON.parse(await readFile(join(cwd, 'out', 'family-report.json'), 'utf8')) as {
+      instances: Array<{ name: string; knobs: { seed_format: string } }>;
+    };
+    const json = report.instances
+      .filter((entry) => entry.knobs.seed_format === 'json')
+      .map((entry) => entry.name);
+    const csv = report.instances
+      .filter((entry) => entry.knobs.seed_format === 'csv')
+      .map((entry) => entry.name);
+    expect(json.length).toBeGreaterThan(0);
+    expect(csv.length).toBeGreaterThan(0);
+
+    const result = await run(['family', 'verify', 'out', '--reference', 'process:acme-ops'], cwd);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(1);
+    expect(result.out).toMatch(/^Verify out on the reference process:acme-ops: \d+ specs\.\n/);
+    expect(result.out).toContain(`These instances are not shipped: ${json.join(', ')}.`);
+    expect(result.out).toContain(`instances pass every variant: ${csv.join(', ')}.`);
+    expect(result.out).toMatch(/I cannot find catalog\.csv in the workspace/);
+    expect(result.out).toContain('Release also waits for a person to sign the review of acme-price-sheet');
+    const verify = JSON.parse(await readFile(join(cwd, 'out', 'verify-report.json'), 'utf8')) as {
+      shipped: string[];
+      rejected: string[];
+    };
+    expect(verify).toMatchObject({ shipped: csv, rejected: json });
+  }, 120_000);
+
+  it('exits 0 when the reference passes every spec of a CSV-only family', async () => {
+    const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const family = await acmeCopy();
+    const text = await readFile(join(family, 'family.yaml'), 'utf8');
+    await writeFile(
+      join(family, 'family.yaml'),
+      text
+        .replace('values: [csv, json]', 'values: [csv]')
+        .replace(/ {2}- id: json-has-no-line-endings-knob\n.*\n/, '')
+        .replace(/ {2}- path: catalog\.json\n[\s\S]*?(?= {2}- path: '\{readme_name\}')/, ''),
+    );
+    const built = await run(['family', 'instances', family, '--n', '2', '--seed', '3', '--out', 'out'], cwd);
+    expect(built.err).toBe('');
+    expect(built.code).toBe(0);
+    const result = await run(['family', 'verify', 'out', '--reference', 'process:acme-ops', '--json'], cwd);
+    expect(result.code).toBe(0);
+    const report = JSON.parse(result.out) as {
+      specs: number;
+      passed: number;
+      shipped: string[];
+      rejected: string[];
+    };
+    expect(report.passed).toBe(report.specs);
+    expect(report).toMatchObject({ shipped: ['i01', 'i02'], rejected: [] });
+  }, 120_000);
+
+  it('exits 2 with no adapter for the reference, a bad number, or no spec under the folder', async () => {
+    const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const none = await run(['family', 'verify', '.', '--reference', 'process:nobody'], cwd);
+    expect(none.code).toBe(2);
+    expect(none.err).toMatch(/^No adapter is set up for process:nobody\./);
+    const bad = await run(
+      ['family', 'verify', '.', '--reference', 'process:acme-ops', '--concurrency', '0'],
+      cwd,
+    );
+    expect(bad).toMatchObject({
+      code: 2,
+      err: '--concurrency must be a whole number of at least 1, got "0".\n',
+    });
+    const empty = await run(['family', 'verify', '.', '--reference', 'process:acme-ops'], cwd);
+    expect(empty.code).toBe(2);
+    expect(empty.err).toMatch(/^No spec found under \./);
+  });
+});
