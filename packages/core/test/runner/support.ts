@@ -6,13 +6,11 @@ import {
   type Campaign,
   type Check,
   type CheckSet,
-  type CostUnit,
   type Count,
   type LoadedSpec,
   loadSpecs,
   machineVerdict,
   type Observed,
-  type RunFilter,
   type RunResult,
   type Spec,
   type Store,
@@ -28,7 +26,7 @@ import { matchAssertion, type ObservedCache } from '../../src/runner';
 
 /**
  * Test support for the runner. Everything here is INTERIM and test-only: the minimal machine checks stand
- * in for the checks package, the Acme adapter for the function adapter, the memory store for the store.
+ * in for the checks package, and the Acme adapter for the function adapter.
  */
 
 export const ACME_CONVERSATIONS = fileURLToPath(
@@ -212,10 +210,12 @@ export function acmeAdapter(options: AcmeAdapterOptions = {}): AcmeAdapter {
     },
     async endState(session, source) {
       calls.endState += 1;
+      const { payloads } = (session.state as State).store;
+      // `*` is every recorded payload, as a list, in order: the contract's source for end_state: none.
+      if (source === '*') return payloads.map(({ tool, input }) => ({ tool, input }));
       const label = /^tool:(.+)$/.exec(source)?.[1];
       if (label === undefined) throw new AgentFailure(`unknown end-state source ${source}`);
-      return (session.state as State).store.payloads.filter((payload) => payload.tool === label).at(-1)
-        ?.input;
+      return payloads.filter((payload) => payload.tool === label).at(-1)?.input;
     },
     async close() {
       calls.close += 1;
@@ -278,7 +278,7 @@ export function echoAdapter(text = 'ok'): AgentAdapter & { opened: Array<{ prefi
   };
 }
 
-// A cache and a store held in memory, test-only.
+// A cache held in memory that counts its calls, test-only.
 
 export type MemoryCache = ObservedCache & { entries: Map<string, Observed>; gets: number; puts: number };
 
@@ -300,56 +300,23 @@ export function memoryCache(): MemoryCache {
   return cache;
 }
 
-export class MemoryStore implements Store {
-  readonly specs: LoadedSpec[] = [];
-  readonly campaigns = new Map<string, Campaign>();
-  readonly runs: Array<{ campaignId: string; run: RunResult }> = [];
-  readonly cache = new Map<string, Observed>();
-  readonly units: CostUnit[] = [];
-
-  async putSpec(spec: LoadedSpec) {
-    this.specs.push(spec);
-  }
-  async getSpec(id: string, hash: string) {
-    return this.specs.find((entry) => entry.spec.id === id && entry.hash === hash);
-  }
-  async putCampaign(campaign: Campaign) {
-    this.campaigns.set(campaign.campaignId, campaign);
-  }
-  async getCampaign(campaignId: string) {
-    return this.campaigns.get(campaignId);
-  }
-  async putRun(campaignId: string, run: RunResult) {
-    this.runs.push({ campaignId, run: structuredClone(run) });
-  }
-  async getRun(runId: string) {
-    return this.runs.find((entry) => entry.run.runId === runId)?.run;
-  }
-  async listRuns(filter: RunFilter = {}) {
-    return this.runs
-      .filter(
-        ({ campaignId, run }) =>
-          (filter.campaignId === undefined || campaignId === filter.campaignId) &&
-          (filter.status === undefined || run.status === filter.status),
-      )
-      .map((entry) => entry.run);
-  }
-  async cacheGet(key: string) {
-    return this.cache.get(key);
-  }
-  async cachePut(key: string, observed: Observed) {
-    this.cache.set(key, observed);
-  }
-  async putUnit(unit: CostUnit) {
-    this.units.push(unit);
-  }
-  async listUnits(adapter?: string) {
-    return this.units.filter((unit) => adapter === undefined || unit.adapter === adapter);
-  }
-  async exportCampaign(): Promise<string> {
-    throw new Error('not used in these tests');
-  }
-  async close() {}
+/** Puts a campaign over the given specs: the store takes a run only under a campaign it holds. */
+export async function putCampaign(
+  store: Store,
+  campaignId: string,
+  specs: readonly LoadedSpec[],
+): Promise<void> {
+  const campaign: Campaign = {
+    campaignId,
+    specs: specs.map((entry) => ({ id: entry.spec.id, hash: entry.hash })),
+    targets: [{ adapter: 'function', agent: 'acme' }],
+    modes: ['F'],
+    repeats: { T: 0, F: 1, P: 0 },
+    budgetUsd: 0,
+    judge: { mode: 'system1', judges: [] },
+    createdAt: '2026-10-11T00:00:00.000Z',
+  };
+  await store.putCampaign(campaign);
 }
 
 /** The failing gating verdicts of a run, for test messages. */

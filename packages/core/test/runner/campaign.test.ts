@@ -1,4 +1,5 @@
 import { AgentFailure, type CostUnit, RunResult } from '@driftbench/core';
+import { openMemoryStore, projectCost, cellId as storeCellId } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import { describe, expect, it } from 'vitest';
 import {
@@ -15,8 +16,8 @@ import {
   acmeAdapter,
   dropsFirstToolCall,
   loadAcmeConversations,
-  MemoryStore,
   minimalChecks,
+  putCampaign,
 } from './support';
 
 const loaded = await loadAcmeConversations();
@@ -60,6 +61,21 @@ describe('planCampaign', () => {
     expect(new Set(ids).size).toBe(5);
   });
 
+  it('computes the same cell id as the store, the run id the store keys runs by', () => {
+    const cells = [
+      ...planCampaign(loaded, [acme], ['F'], 2).cells,
+      ...planCampaign(loaded, [{ adapter: 'http', agent: 'acme', options: { b: 1, a: [2] } }], ['P'], 1)
+        .cells,
+    ];
+    for (const cell of cells) {
+      expect(cell.cellId).toMatch(/^[0-9a-f]{16}$/);
+      expect(cell.cellId).toBe(storeCellId(cell));
+    }
+    expect(cellId({ specHash: 'aaa', target: acme, mode: 'F', repeat: 0 })).toBe(
+      cellId({ repeat: 0, mode: 'F', target: { agent: 'acme', adapter: 'function' }, specHash: 'aaa' }),
+    );
+  });
+
   it('expands P mode into one cell per perturbation and repeat, each with one injected block', () => {
     const plan = planCampaign(loaded, [acme], ['P'], 2);
     const perturbations = loaded.reduce((sum, entry) => sum + (entry.spec.perturbations?.length ?? 0), 0);
@@ -72,6 +88,7 @@ describe('planCampaign', () => {
     const plan = planCampaign(loaded, [acme], ['F'], 2);
     expect(plan.cost).toEqual({
       usd: 0,
+      unmeasured: ['function'],
       byAdapter: [{ adapter: 'function', blocks: 2 * blocksPerRun, usd: 0, note: 'no unit measured' }],
     });
   });
@@ -88,8 +105,27 @@ describe('planCampaign', () => {
       { adapter: 'function', blocks: 2 * blocksPerRun, usdPerBlock: 0.01, usd: 2 * blocksPerRun * 0.01 },
     ]);
     expect(plan.cost.usd).toBeCloseTo(0.52, 10);
+    expect(plan.cost.unmeasured).toEqual([]);
     expect(plan).toMatchObject({ budgetUsd: 0.5, withinBudget: false });
     expect(planCampaign(loaded, [acme], ['F'], 2, { units, budgetUsd: 1 }).withinBudget).toBe(true);
+  });
+
+  it('projects what projectCost of the store projects for the same cells and units', () => {
+    const units: CostUnit[] = [
+      { adapter: 'function', metric: 'block', usd: 0.03, measuredAt: '2026-10-09T08:00:00+02:00' },
+      { adapter: 'function', metric: 'block', usd: 0.02, measuredAt: '2026-10-09T07:00:00.000Z' },
+    ];
+    const targets = [acme, { adapter: 'http', agent: 'acme' }];
+    const plan = planCampaign(loaded, targets, ['F'], 3, { units });
+    const store = projectCost(
+      plan.cells.map((cell) => ({ adapter: cell.target.adapter, blocks: cell.blocks })),
+      units,
+    );
+    expect(plan.cost.usd).toBeCloseTo(store.usd, 10);
+    expect(plan.cost.unmeasured).toEqual(store.unmeasured);
+    expect(plan.cost.unmeasured).toEqual(['http']);
+    // 08:00 at +02:00 is 06:00 UTC, earlier than 07:00 UTC: dates compare as dates, not as text.
+    expect(plan.cost.byAdapter[0]?.usdPerBlock).toBe(0.02);
   });
 
   it('prints the minimum detectable effect of the two-proportion normal approximation', () => {
@@ -115,7 +151,8 @@ describe('planCampaign', () => {
 describe('outcomeOf', () => {
   it('passes a completed run whose blocks pass and whose end state matches, and lists what fails', async () => {
     const plan = planCampaign(loaded, [acme], ['F'], 1);
-    const store = new MemoryStore();
+    const store = openMemoryStore();
+    await putCampaign(store, 'c-outcome', loaded);
     const outcomes = await runCampaign({
       campaignId: 'c-outcome',
       cells: plan.cells.filter((cell) => cell.specId === 'acme-plan-upgrade'),
@@ -155,7 +192,8 @@ describe('runCampaign', () => {
   const plan = planCampaign(loaded, [acme], ['F'], 2);
 
   it('runs every cell, files every run, and resumes by reusing the completed cells', async () => {
-    const store = new MemoryStore();
+    const store = openMemoryStore();
+    await putCampaign(store, 'c-resume', loaded);
     const flaky = acmeAdapter();
     const send = flaky.send.bind(flaky);
     flaky.send = async (session, turn) => {
@@ -187,8 +225,13 @@ describe('runCampaign', () => {
       'pass',
       'pass',
     ]);
-    expect(store.runs).toHaveLength(12);
-    for (const { run } of store.runs) expect(RunResult.safeParse(run).success).toBe(true);
+    const stored = await store.listRuns({ campaignId: 'c-resume' });
+    expect(stored).toHaveLength(12);
+    expect(stored.filter((run) => run.status === 'failed').map((run) => run.specId)).toEqual([
+      'acme-number-porting',
+      'acme-number-porting',
+    ]);
+    for (const run of stored) expect(RunResult.safeParse(run).success).toBe(true);
 
     const healthy = acmeAdapter();
     const seen: string[] = [];
@@ -213,12 +256,21 @@ describe('runCampaign', () => {
     expect(healthy.calls.open).toBe(2);
     expect(seen[2]).toBe('acme-number-porting/0 pass');
     expect(seen[0]).toBe('acme-new-customer-coverage/0 pass reused');
-    expect(store.runs).toHaveLength(14);
-    for (const outcome of second) expect(cellIdOf(outcome.run as RunResult)).toBe(outcome.cell.cellId);
+    // A cell's run id is its cell id, so the resumed runs replace the failed ones.
+    const after = await store.listRuns({ campaignId: 'c-resume' });
+    expect(after).toHaveLength(12);
+    expect(after.every((run) => run.status === 'completed')).toBe(true);
+    for (const outcome of second) {
+      expect(cellIdOf(outcome.run as RunResult)).toBe(outcome.cell.cellId);
+      expect(outcome.run?.runId).toBe(outcome.cell.cellId);
+    }
+    await store.close();
   });
 
   it('keeps campaigns apart', async () => {
-    const store = new MemoryStore();
+    const store = openMemoryStore();
+    await putCampaign(store, 'c-one', loaded);
+    await putCampaign(store, 'c-two', loaded);
     const options = {
       cells: plan.cells.slice(0, 2),
       specFor: specOf,
@@ -230,6 +282,11 @@ describe('runCampaign', () => {
     await runCampaign({ ...options, campaignId: 'c-one' });
     const other = await runCampaign({ ...options, campaignId: 'c-two' });
     expect(other.some((outcome) => outcome.reused)).toBe(false);
+    // The same cell in two campaigns has the same run id; each campaign holds its own run.
+    const [cell] = options.cells;
+    expect((await store.getRun(cell?.cellId ?? '', 'c-one'))?.runId).toBe(cell?.cellId);
+    expect((await store.getRun(cell?.cellId ?? '', 'c-two'))?.runId).toBe(cell?.cellId);
+    await store.close();
   });
 });
 

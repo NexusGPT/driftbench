@@ -1,17 +1,13 @@
-import { mkdtemp } from 'node:fs/promises';
+import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AgentFailure } from '@driftbench/core';
+import { openStore } from '@driftbench/store';
 import { Command, CommanderError } from 'commander';
 import { describe, expect, it } from 'vitest';
 import { acmeAdapter, dropsFirstToolCall, minimalChecks } from '../../core/test/runner/support';
-import {
-  type CampaignDeps,
-  InterimJsonStore,
-  interimDeps,
-  registerCampaignCommands,
-} from '../src/commands/campaign';
+import { type CampaignDeps, interimDeps, registerCampaignCommands } from '../src/commands/campaign';
 import { type Io, main } from '../src/index';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
@@ -53,7 +49,7 @@ async function cli(argv: string[], deps?: Partial<CampaignDeps>) {
 }
 
 async function storePath(): Promise<string> {
-  return join(await mkdtemp(join(tmpdir(), 'driftbench-campaign-')), 'store.json');
+  return join(await mkdtemp(join(tmpdir(), 'driftbench-campaign-')), 'store.db');
 }
 
 /** The Acme agent, failing for good on the porting spec. */
@@ -82,7 +78,7 @@ describe('driftbench campaign plan', () => {
     ]);
     expect(code).toBe(0);
     expect(out).toContain('Plan: 6 specs, 1 target, mode F, 3 repeats: 18 cells, 78 blocks.');
-    expect(out).toMatch(/ {2}[0-9a-f]{12} {2}acme-plan-upgrade {14}function:acme {2}F {5}2 {7}5\n/);
+    expect(out).toMatch(/ {2}[0-9a-f]{16} {2}acme-plan-upgrade {14}function:acme {2}F {5}2 {7}5\n/);
     expect(out).toContain('Projected cost: $0.00 (function: no unit measured).');
     expect(out).toContain(
       'Minimum detectable effect, mode F: 46.7 points on a 50% pass rate, with 18 runs per arm (two-sided alpha 0.05, power 0.8).',
@@ -91,7 +87,7 @@ describe('driftbench campaign plan', () => {
 
   it('prices the blocks from the units in the store and compares with the budget', async () => {
     const path = await storePath();
-    const store = await InterimJsonStore.open(path);
+    const store = openStore(path);
     await store.putUnit({
       adapter: 'function',
       metric: 'block',
@@ -304,6 +300,14 @@ describe('driftbench campaign status and resume', () => {
     const after = await cli(['campaign', 'status', 'c-resume', '--store', path, '--json']);
     expect(after.code).toBe(0);
     expect((JSON.parse(after.out) as { summary: { pass: number } }).summary.pass).toBe(6);
+  });
+
+  it('exits 2 on a store file it cannot open', async () => {
+    const path = await storePath();
+    await writeFile(path, 'not a database, only text');
+    const { code, err } = await cli(['campaign', 'status', 'c-any', '--store', path]);
+    expect(code).toBe(2);
+    expect(err).toContain(`Cannot open the store at ${path}: store: `);
   });
 
   it('exits 2 for a campaign the store does not hold, and needs --store', async () => {

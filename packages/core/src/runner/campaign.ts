@@ -5,8 +5,8 @@ import type { CostUnit, Store } from '../contracts/store';
 import type { TargetRef } from '../schema/common';
 import type { RunMode, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
-import { contentHash } from '../spec/hash';
 import type { ObservedCache } from './cache';
+import { cellId } from './cell';
 import type { RetryOptions } from './retry';
 import { runSpec } from './run';
 
@@ -23,20 +23,7 @@ export type PlannedCell = {
   blocks: number;
 };
 
-export type CellKey = Pick<PlannedCell, 'specHash' | 'target' | 'mode' | 'repeat' | 'perturbationId'>;
-
-/** The stable id of a cell: the content hash of its spec hash, target, mode, repeat and perturbation. */
-export function cellId(cell: CellKey): string {
-  return contentHash({
-    specHash: cell.specHash,
-    target: cell.target,
-    mode: cell.mode,
-    repeat: cell.repeat,
-    perturbationId: cell.perturbationId,
-  });
-}
-
-/** The cell a stored run belongs to. */
+/** The cell a stored run belongs to: its run id is its cell id unless the caller chose another. */
 export function cellIdOf(run: RunResult): string {
   return cellId(run);
 }
@@ -73,7 +60,8 @@ export type CampaignPlan = {
   cells: PlannedCell[];
   /** Blocks sent over every cell. */
   blocks: number;
-  cost: { usd: number; byAdapter: CostLine[] };
+  /** As `projectCost` of @driftbench/store computes it, with a line per adapter. */
+  cost: { usd: number; unmeasured: string[]; byAdapter: CostLine[] };
   budgetUsd?: number;
   /** True when the projected cost fits the budget; absent without a budget. */
   withinBudget?: boolean;
@@ -150,6 +138,10 @@ export function planCampaign(
   }
   const lines = [...byAdapter.values()];
   const usd = lines.reduce((sum, line) => sum + line.usd, 0);
+  const unmeasured = lines
+    .filter((line) => line.usdPerBlock === undefined)
+    .map((line) => line.adapter)
+    .sort();
 
   const baselineRate = options.baselineRate ?? 0.5;
   const firstTarget = targets[0];
@@ -169,7 +161,7 @@ export function planCampaign(
   return {
     cells,
     blocks: cells.reduce((sum, cell) => sum + cell.blocks, 0),
-    cost: { usd, byAdapter: lines },
+    cost: { usd, unmeasured, byAdapter: lines },
     ...(options.budgetUsd === undefined
       ? {}
       : { budgetUsd: options.budgetUsd, withinBudget: usd <= options.budgetUsd }),
@@ -177,13 +169,20 @@ export function planCampaign(
   };
 }
 
+/** The most recently measured unit of an adapter and metric; dates compare as dates, anything else as text. */
 function latestUnit(units: readonly CostUnit[], adapter: string, metric: string): CostUnit | undefined {
-  return units
-    .filter((unit) => unit.adapter === adapter && unit.metric === metric)
-    .reduce<CostUnit | undefined>(
-      (latest, unit) => (!latest || unit.measuredAt > latest.measuredAt ? unit : latest),
-      undefined,
-    );
+  let latest: CostUnit | undefined;
+  for (const unit of units) {
+    if (unit.adapter !== adapter || unit.metric !== metric) continue;
+    if (!latest || isLater(unit.measuredAt, latest.measuredAt)) latest = unit;
+  }
+  return latest;
+}
+
+function isLater(a: string, b: string): boolean {
+  const left = Date.parse(a);
+  const right = Date.parse(b);
+  return Number.isNaN(left) || Number.isNaN(right) ? a > b : left > right;
 }
 
 /** A cell after the campaign ran it, or found it already done. */

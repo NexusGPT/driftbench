@@ -1,5 +1,4 @@
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
-import { dirname, join, relative, resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import {
   type AgentAdapter,
   AgentFailure,
@@ -9,15 +8,13 @@ import {
   contentHash,
   type LoadedSpec,
   loadSpecs,
-  type Observed,
-  type RunFilter,
   RunMode,
-  type RunResult,
   type Spec,
   type Store,
   TargetRef,
   type UserDriver,
 } from '@driftbench/core';
+import { openMemoryStore, openStore } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
 // root: becomes '@driftbench/core' at merge
@@ -39,22 +36,22 @@ export type CampaignDeps = {
   checks: CheckSet;
   /** A fresh driver for one run. */
   driver(): UserDriver;
-  /** The store at a path, or one held in memory without a path. */
+  /** The store at a path, or one held in memory without a path. A failure to open is reported, exit 2. */
   openStore(path: string | undefined): Promise<Store>;
   now(): Date;
 };
 
 /**
- * INTERIM until the adapters, checks and store lanes merge: `function:acme` is the only target (the Acme
- * agent behind a minimal function adapter), no machine check is loaded (the runner still compares the end
- * state), and the store is the interim JSON store below.
+ * INTERIM until the adapters and checks lanes merge: `function:acme` is the only target (the Acme agent
+ * behind a minimal function adapter) and no machine check is loaded (the runner still compares the end
+ * state). The store is @driftbench/store: a SQLite file with `--store`, in memory without it.
  */
 export const interimDeps: CampaignDeps = {
   adapterFor: async (target) =>
     target.adapter === 'function' && target.agent === 'acme' ? interimAcmeAdapter() : undefined,
   checks: [],
   driver: createScriptedDriver,
-  openStore: (path) => InterimJsonStore.open(path),
+  openStore: async (path) => (path === undefined ? openMemoryStore() : openStore(path)),
   now: () => new Date(),
 };
 
@@ -159,7 +156,8 @@ export async function campaignPlanCommand(
 
   let units: CostUnit[] = [];
   if (options.store) {
-    const store = await deps.openStore(resolve(io.cwd, options.store));
+    const store = await openReported(deps, resolve(io.cwd, options.store), io);
+    if (!store) return 2;
     try {
       units = await store.listUnits();
     } finally {
@@ -216,7 +214,8 @@ export async function campaignRunCommand(
   const adapters = await adaptersFor(shape.targets, deps, io);
   if (!adapters) return 2;
 
-  const store = await deps.openStore(options.store ? resolve(io.cwd, options.store) : undefined);
+  const store = await openReported(deps, options.store ? resolve(io.cwd, options.store) : undefined, io);
+  if (!store) return 2;
   try {
     const createdAt = deps.now().toISOString();
     const specs = loaded.map((entry) => ({ id: entry.spec.id, hash: entry.hash }));
@@ -259,7 +258,8 @@ export async function campaignResumeCommand(
   io: Io,
   deps: CampaignDeps,
 ): Promise<number> {
-  const store = await deps.openStore(resolve(io.cwd, options.store));
+  const store = await openReported(deps, resolve(io.cwd, options.store), io);
+  if (!store) return 2;
   try {
     const stored = await storedCampaign(store, campaignId, options.store, io);
     if (!stored) return 2;
@@ -282,7 +282,8 @@ export async function campaignStatusCommand(
   io: Io,
   deps: CampaignDeps,
 ): Promise<number> {
-  const store = await deps.openStore(resolve(io.cwd, options.store));
+  const store = await openReported(deps, resolve(io.cwd, options.store), io);
+  if (!store) return 2;
   try {
     const stored = await storedCampaign(store, campaignId, options.store, io);
     if (!stored) return 2;
@@ -338,6 +339,19 @@ async function executeCampaign(
     if (!flags.kept) io.out('The runs are not kept: pass --store <file> to keep them.\n');
   }
   return outcomes.every((outcome) => outcome.state === 'pass') ? 0 : 1;
+}
+
+async function openReported(
+  deps: CampaignDeps,
+  path: string | undefined,
+  io: Io,
+): Promise<Store | undefined> {
+  try {
+    return await deps.openStore(path);
+  } catch (cause) {
+    io.err(`Cannot open the store at ${path}: ${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return undefined;
+  }
 }
 
 function planOf(campaign: Campaign, loaded: readonly { spec: Spec; hash: string }[]): CampaignPlan {
@@ -604,7 +618,7 @@ function table(rows: string[][]): string[] {
  * INTERIM until the adapters lane merges: the Acme Telecom agent behind a minimal function adapter. Each
  * session gets its own Acme store, so payloads never leak between runs. `send` hands the agent the session
  * history, which ends with the block's user messages, and the block's resolved world; `endState` reads
- * `tool:<label>` as the last payload that tool accepted.
+ * `tool:<label>` as the last payload that tool accepted, and `*` as every payload, in order.
  */
 export async function interimAcmeAdapter(): Promise<AgentAdapter> {
   const acme = await import('../../../../examples/acme/src/index');
@@ -650,158 +664,14 @@ export async function interimAcmeAdapter(): Promise<AgentAdapter> {
       }
     },
     async endState(session, source) {
+      const { payloads } = stateOf(session.state).store;
+      if (source === '*') return payloads.map(({ tool, input }) => ({ tool, input }));
       const label = /^tool:(.+)$/.exec(source)?.[1];
-      if (label === undefined)
-        throw new AgentFailure(`the Acme adapter reads tool:<label> sources, not ${source}`);
-      return stateOf(session.state)
-        .store.payloads.filter((payload) => payload.tool === label)
-        .at(-1)?.input;
+      if (label === undefined) {
+        throw new AgentFailure(`the Acme adapter reads tool:<label> and * sources, not ${source}`);
+      }
+      return payloads.filter((payload) => payload.tool === label).at(-1)?.input;
     },
     async close() {},
-  };
-}
-
-type Snapshot = {
-  format: 'driftbench-interim-store';
-  version: 1;
-  specs: LoadedSpec[];
-  campaigns: Campaign[];
-  runs: Array<{ campaignId: string; run: RunResult }>;
-  cache: Record<string, { observed: Observed; expiresAt?: number }>;
-  units: CostUnit[];
-};
-
-/**
- * INTERIM until the store lane merges: a Store held in memory and, with a path, written to one JSON file
- * after every campaign, run and unit, and on close. One writer at a time.
- */
-export class InterimJsonStore implements Store {
-  private constructor(
-    readonly path: string | undefined,
-    private readonly data: Snapshot,
-  ) {}
-
-  static async open(path?: string): Promise<InterimJsonStore> {
-    if (path === undefined) return new InterimJsonStore(undefined, emptySnapshot());
-    let text: string;
-    try {
-      text = await readFile(path, 'utf8');
-    } catch (cause) {
-      if ((cause as { code?: string }).code === 'ENOENT') return new InterimJsonStore(path, emptySnapshot());
-      throw cause;
-    }
-    const data = JSON.parse(text) as Snapshot;
-    if (data.format !== 'driftbench-interim-store' || data.version !== 1) {
-      throw new Error(`${path} is not a driftbench interim store`);
-    }
-    return new InterimJsonStore(path, data);
-  }
-
-  async putSpec(spec: LoadedSpec): Promise<void> {
-    this.data.specs = [
-      ...this.data.specs.filter((entry) => !(entry.spec.id === spec.spec.id && entry.hash === spec.hash)),
-      spec,
-    ];
-  }
-
-  async getSpec(id: string, hash: string): Promise<LoadedSpec | undefined> {
-    return this.data.specs.find((entry) => entry.spec.id === id && entry.hash === hash);
-  }
-
-  async putCampaign(campaign: Campaign): Promise<void> {
-    this.data.campaigns = [
-      ...this.data.campaigns.filter((entry) => entry.campaignId !== campaign.campaignId),
-      campaign,
-    ];
-    await this.save();
-  }
-
-  async getCampaign(campaignId: string): Promise<Campaign | undefined> {
-    return this.data.campaigns.find((entry) => entry.campaignId === campaignId);
-  }
-
-  async putRun(campaignId: string, run: RunResult): Promise<void> {
-    this.data.runs = [
-      ...this.data.runs.filter((entry) => entry.run.runId !== run.runId),
-      { campaignId, run },
-    ];
-    await this.save();
-  }
-
-  async getRun(runId: string): Promise<RunResult | undefined> {
-    return this.data.runs.find((entry) => entry.run.runId === runId)?.run;
-  }
-
-  async listRuns(filter: RunFilter = {}): Promise<RunResult[]> {
-    return this.data.runs
-      .filter(
-        ({ campaignId, run }) =>
-          (filter.campaignId === undefined || campaignId === filter.campaignId) &&
-          (filter.specId === undefined || run.specId === filter.specId) &&
-          (filter.mode === undefined || run.mode === filter.mode) &&
-          (filter.status === undefined || run.status === filter.status),
-      )
-      .map((entry) => entry.run);
-  }
-
-  async cacheGet(key: string): Promise<Observed | undefined> {
-    const entry = this.data.cache[key];
-    if (!entry || (entry.expiresAt !== undefined && entry.expiresAt < Date.now())) return undefined;
-    return entry.observed;
-  }
-
-  async cachePut(key: string, observed: Observed, ttlMs?: number): Promise<void> {
-    this.data.cache[key] = { observed, ...(ttlMs === undefined ? {} : { expiresAt: Date.now() + ttlMs }) };
-  }
-
-  async putUnit(unit: CostUnit): Promise<void> {
-    this.data.units.push(unit);
-    await this.save();
-  }
-
-  async listUnits(adapter?: string): Promise<CostUnit[]> {
-    return this.data.units.filter((unit) => adapter === undefined || unit.adapter === adapter);
-  }
-
-  async exportCampaign(campaignId: string, dir: string): Promise<string> {
-    const campaign = await this.getCampaign(campaignId);
-    if (!campaign) throw new Error(`no campaign ${campaignId}`);
-    const bundle = {
-      format: 'driftbench-campaign',
-      version: 1,
-      campaign,
-      specs: campaign.specs.flatMap((pinned) =>
-        this.data.specs.filter((entry) => entry.spec.id === pinned.id && entry.hash === pinned.hash),
-      ),
-      runs: await this.listRuns({ campaignId }),
-    };
-    const path = join(dir, `${campaignId}.json`);
-    await mkdir(dir, { recursive: true });
-    await writeFile(path, `${JSON.stringify(bundle, null, 2)}\n`);
-    return path;
-  }
-
-  async close(): Promise<void> {
-    await this.save();
-  }
-
-  private async save(): Promise<void> {
-    if (this.path === undefined) return;
-    await mkdir(dirname(this.path), { recursive: true });
-    const temporary = `${this.path}.tmp`;
-    await writeFile(temporary, JSON.stringify(this.data));
-    await rename(temporary, this.path);
-  }
-}
-
-function emptySnapshot(): Snapshot {
-  return {
-    format: 'driftbench-interim-store',
-    version: 1,
-    specs: [],
-    campaigns: [],
-    runs: [],
-    cache: {},
-    units: [],
   };
 }

@@ -12,10 +12,11 @@ import {
   type Spec,
   type UserDriver,
 } from '@driftbench/core';
+import { openMemoryStore, cellId as storeCellId } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import { describe, expect, it } from 'vitest';
 import * as runner from '../../src/runner';
-import { blockCacheKey, runSpec } from '../../src/runner';
+import { blockCacheKey, cellId, runSpec } from '../../src/runner';
 import {
   acmeAdapter,
   acmeSpec,
@@ -24,9 +25,9 @@ import {
   echoAdapter,
   failures,
   loadAcmeConversations,
-  MemoryStore,
   memoryCache,
   minimalChecks,
+  putCampaign,
   specOf,
 } from './support';
 
@@ -91,8 +92,7 @@ describe('runSpec on the Acme conversations, free-running, with the real Acme ag
         longestClean: spec.blocks.length,
         minOverBlocks: true,
       });
-      if (spec.end_state === undefined || spec.end_state === 'none') expect(run.endState).toBeUndefined();
-      else expect(run.endState).toEqual({ match: true, diff: [] });
+      expect(run.endState).toEqual({ match: true, diff: [] });
       expect(run.cacheHit).toBe(false);
       expect(adapter.calls).toMatchObject({ open: 1, send: spec.blocks.length, close: 1 });
     },
@@ -439,28 +439,52 @@ describe('the end state', () => {
       mode: 'F',
       repeat: 0,
     });
-    expect(watch.seen.at(-1)?.endState).toEqual([
-      { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' },
-      undefined,
-    ]);
+    expect(watch.seen.at(-1)?.endState).toEqual({
+      'tool:order.create': { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' },
+      'tool:notify_sales': undefined,
+    });
     expect(run.endState).toEqual({
       match: false,
       diff: [{ field: 'tool:notify_sales.reason', expected: { nonempty: true }, observed: undefined }],
     });
   });
 
-  it('reads nothing for end_state none, and nothing when the adapter cannot read', async () => {
-    const none = acmeAdapter();
+  it('reads source * for end_state none: an empty list passes, a recorded payload fails', async () => {
+    const quiet = acmeAdapter();
+    const watch = spy();
     const run = await runSpec(acmeSpec(loaded, 'acme-off-topic-return'), {
-      adapter: none,
+      adapter: quiet,
       driver,
-      checks: [],
+      checks: [watch],
       mode: 'F',
       repeat: 0,
     });
-    expect(none.calls.endState).toBe(0);
-    expect(run.endState).toBeUndefined();
+    expect(quiet.calls.endState).toBe(1);
+    expect(watch.seen.at(-1)?.endState).toEqual([]);
+    expect(run.endState).toEqual({ match: true, diff: [] });
 
+    const ordered = await runSpec(
+      { ...acmeSpec(loaded, 'acme-plan-upgrade'), end_state: 'none' },
+      { adapter: acmeAdapter(), driver, checks: [], mode: 'F', repeat: 0 },
+    );
+    expect(ordered.endState).toEqual({
+      match: false,
+      diff: [
+        {
+          field: '*',
+          expected: [],
+          observed: [
+            {
+              tool: 'order.create',
+              input: { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('reads nothing when the adapter cannot read an end state', async () => {
     const blind = acmeAdapter({ capabilities: { endState: false } });
     const unread = await runSpec(acmeSpec(loaded, 'acme-plan-upgrade'), {
       adapter: blind,
@@ -613,7 +637,7 @@ describe('failures', () => {
         checks: [],
         mode: 'F',
         repeat: 0,
-        store: new MemoryStore(),
+        store: openMemoryStore(),
       }),
     ).rejects.toThrow(/a store needs a campaignId/);
   });
@@ -868,18 +892,54 @@ describe('the cache', () => {
     expect(live.endState).toEqual({ match: true, diff: [] });
   });
 
-  it('files the run in the store under its campaign', async () => {
-    const store = new MemoryStore();
-    const run = await runSpec(spec(), {
+  it('replays through the SQLite store cache, whose JSON gives back what was put', async () => {
+    const store = openMemoryStore();
+    const first = await runSpec(spec(), {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache: store,
+    });
+    const adapter = acmeAdapter();
+    const second = await runSpec(spec(), {
+      adapter,
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache: store,
+    });
+    expect(second.cacheHit).toBe(true);
+    expect(adapter.calls.send).toBe(0);
+    expect(second.blocks).toEqual(first.blocks);
+    expect(second.endState).toEqual(first.endState);
+    await store.close();
+  });
+
+  it('files the run under its campaign, with the cell id as its run id', async () => {
+    const store = openMemoryStore();
+    const options = {
       adapter: acmeAdapter(),
       driver,
       checks: [],
-      mode: 'F',
-      repeat: 0,
+      mode: 'F' as const,
+      repeat: 1,
       store,
       campaignId: 'c-test',
-    });
+    };
+    await expect(runSpec(spec(), options)).rejects.toThrow(
+      /CAMPAIGN_MISSING|campaign c-test is not in the store/,
+    );
+    await putCampaign(store, 'c-test', loaded);
+    const run = await runSpec(spec(), options);
+    const key = { specHash: run.specHash, target: run.target, mode: run.mode, repeat: 1 };
+    expect(run.runId).toBe(cellId(key));
+    expect(run.runId).toBe(storeCellId(key));
     expect(await store.listRuns({ campaignId: 'c-test' })).toEqual([run]);
+    expect(await store.getRun(run.runId, 'c-test')).toEqual(run);
+    await store.close();
   });
 });
 

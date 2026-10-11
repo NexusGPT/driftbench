@@ -20,10 +20,8 @@ export {
 export {
   type CampaignPlan,
   type CampaignRunOptions,
-  type CellKey,
   type CellOutcome,
   type CostLine,
-  cellId,
   cellIdOf,
   type MinimumDetectableEffect,
   minimumDetectableEffect,
@@ -34,6 +32,7 @@ export {
   runCampaign,
   runsByCell,
 } from './campaign';
+export { type CellKey, cellId } from './cell';
 export {
   addFacts,
   assistantMessage,
@@ -45,7 +44,7 @@ export {
   stimulusMessages,
 } from './given';
 export { CallFailure, describeError, isTransportError, type RetryOptions, withRetry } from './retry';
-export { type RunOptions, runSpec, type WorkspaceReading } from './run';
+export { type RunOptions, runSpec } from './run';
 export { succession } from './succession';
 export {
   compareTranscripts,

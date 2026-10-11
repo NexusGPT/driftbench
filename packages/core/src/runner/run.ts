@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import type { AdapterCapabilities, AgentAdapter, Session, Turn } from '../contracts/adapter';
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import { type CheckContext, type CheckSet, machineVerdict } from '../contracts/check';
@@ -6,10 +5,11 @@ import type { DriverStep, UserDriver } from '../contracts/driver';
 import type { Store } from '../contracts/store';
 import { DriftClass, type Message, type TargetRef, type WorldState } from '../schema/common';
 import { type BlockResult, Observed, type RunMode, RunResult, Verdict } from '../schema/run';
-import type { BlockSpec, EndStateSpec, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
+import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { contentHash } from '../spec/hash';
 import { compareEndState } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
+import { cellId } from './cell';
 import {
   addFacts,
   assistantMessage,
@@ -46,19 +46,18 @@ export type RunOptions = {
   artifacts?: ArtifactReaderRegistry;
   retry?: RetryOptions;
   now?: () => Date;
+  /** Default: the cell id of the run (spec hash, target, mode, repeat, perturbation), the store's run id. */
   runId?: string;
   /** A guard against a driver that never stops. Default: 4 steps per spec block, at least 16. */
   maxSteps?: number;
 };
 
-/** A workspace read an adapter may offer beyond the contract: `readArtifact(session, path)`. */
-export type WorkspaceReading = { readArtifact(session: Session, path: string): Promise<Uint8Array> };
-
 /**
  * Runs one spec, once, in free-running mode. For each step of the driver: resolve the block's Given,
  * send the stimulus (then `trace` when the adapter has the capability), apply every check, record the
  * ledger, drift and pass of the block. After the last spec block, the end-state sources the spec names
- * are read through `adapter.endState`; the checks of that block see them and the run compares them.
+ * are read through `adapter.endState` (source `*` for `end_state: none`); the checks of that block see
+ * them and the run compares them.
  *
  * Transport errors are retried with backoff; an AgentFailure, an Observed that does not validate, or a
  * transport error past its retries ends the run with status `failed` and the error. The session is
@@ -72,10 +71,13 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     throw new Error('runSpec: a store needs a campaignId to file the run under');
   }
   const now = options.now ?? (() => new Date());
+  const specHash = contentHash(spec);
+  const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
+  const endState = spec.end_state;
   const run: RunContext = {
     spec,
-    specHash: contentHash(spec),
-    target: options.target ?? spec.target ?? { adapter: options.adapter.id },
+    specHash,
+    target,
     mode: options.mode,
     repeat: options.repeat,
     perturbationId: options.perturbationId,
@@ -88,10 +90,19 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     artifacts: options.artifacts,
     retry: options.retry,
     now,
-    runId: options.runId ?? randomUUID(),
+    runId:
+      options.runId ??
+      cellId({
+        specHash,
+        target,
+        mode: options.mode,
+        repeat: options.repeat,
+        perturbationId: options.perturbationId,
+      }),
     startedAt: now().toISOString(),
     maxSteps: options.maxSteps ?? Math.max(16, 4 * spec.blocks.length),
-    endStates: spec.end_state === undefined || spec.end_state === 'none' ? [] : [spec.end_state].flat(),
+    endState,
+    sources: endStateSources(endState),
   };
 
   const replayed = options.cache ? await execute(run, replayChannel(options.cache)) : undefined;
@@ -122,7 +133,9 @@ type RunContext = {
   runId: string;
   startedAt: string;
   maxSteps: number;
-  endStates: EndStateSpec[];
+  endState: EndState | undefined;
+  /** The sources read after the last spec block: each mapping's own, or `*` for `end_state: none`. */
+  sources: string[];
 };
 
 /** One step of the driver, resolved against the spec. */
@@ -161,7 +174,7 @@ class RunnerError extends Error {
 async function execute(run: RunContext, channel: Channel): Promise<RunResult | undefined> {
   const { spec } = run;
   const blocks: BlockResult[] = [];
-  const sources = run.endStates.map((entry) => entry.source);
+  const { sources } = run;
   let state = initialGiven(spec);
   let history: Message[] = [];
   let nextBlock = 0;
@@ -219,7 +232,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         if (read.kind === 'miss') return undefined;
         if (read.kind === 'read') {
           endRead = { states: read.states, afterBlock: position };
-          endState = Array.isArray(spec.end_state) ? read.states : read.states[0];
+          endState = endStateValue(run.endState, sources, read.states);
         }
       }
 
@@ -270,7 +283,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   const note = await channel.close();
   if (channel.replay && blocks.length === 0) return undefined;
   const endState =
-    status === 'completed' && endRead ? compareEndState(run.endStates, endRead.states) : undefined;
+    status === 'completed' && endRead && run.endState !== undefined
+      ? compareEndState(run.endState, endStateValue(run.endState, sources, endRead.states))
+      : undefined;
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
     runId: run.runId,
@@ -291,6 +306,23 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     finishedAt: run.now().toISOString(),
     cacheHit: channel.replay,
   };
+}
+
+/** The sources to read for a spec's `end_state`: `*` for `none`, each mapping's source once otherwise. */
+function endStateSources(endState: EndState | undefined): string[] {
+  if (endState === undefined) return [];
+  if (endState === 'none') return ['*'];
+  return [...new Set([endState].flat().map((entry) => entry.source))];
+}
+
+/**
+ * The end state as the checks see it in `CheckContext.endState`: the value a mapping's source returned,
+ * a record keyed by source for a list, the list source `*` returned for `none`.
+ */
+function endStateValue(endState: EndState | undefined, sources: string[], states: unknown[]): unknown {
+  if (Array.isArray(endState))
+    return Object.fromEntries(sources.map((source, index) => [source, states[index]]));
+  return states[0];
 }
 
 async function nextStep(run: RunContext, blockIndex: number, blocks: BlockResult[]): Promise<DriverStep> {
@@ -433,7 +465,6 @@ function liveChannel(run: RunContext): Channel {
       notes.push(`closing session ${open.id} failed: ${describeError(cause)}`);
     }
   };
-  const reader = workspaceReader(adapter);
 
   return {
     replay: false,
@@ -471,8 +502,10 @@ function liveChannel(run: RunContext): Channel {
       return { kind: 'read', states };
     },
     readArtifact() {
-      if (!reader) return undefined;
-      return (path) => (session ? reader(session, path) : Promise.reject(new Error('no session is open')));
+      const read = adapter.readArtifact;
+      if (!read) return undefined;
+      return (path) =>
+        session ? read.call(adapter, session, path) : Promise.reject(new Error('no session is open'));
     },
     async close() {
       await closeSession();
@@ -503,9 +536,4 @@ function replayChannel(cache: ObservedCache): Channel {
       return undefined;
     },
   };
-}
-
-function workspaceReader(adapter: AgentAdapter): WorkspaceReading['readArtifact'] | undefined {
-  const read = (adapter as Partial<WorkspaceReading>).readArtifact;
-  return typeof read === 'function' ? (session, path) => read.call(adapter, session, path) : undefined;
 }

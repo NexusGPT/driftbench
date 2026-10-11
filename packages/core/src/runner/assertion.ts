@@ -1,5 +1,5 @@
 import type { Assertion } from '../schema/common';
-import type { EndStateSpec } from '../schema/spec';
+import type { EndState, EndStateSpec } from '../schema/spec';
 import { isPlainObject as isRecord } from '../spec/normalize';
 
 /**
@@ -37,16 +37,26 @@ export type EndStateDiff = { field: string; expected: unknown; observed: unknown
 export type EndStateMatch = { match: boolean; diff: EndStateDiff[] };
 
 /**
- * Compares what the adapter read from each end-state source with the spec's expectations. `subset`
- * (the default) checks the listed fields; `exact` also fails every other field present in the state.
- * One diff entry per field that does not hold. With several sources, a field is named `<source>.<field>`.
+ * Compares the end state the adapter read with the spec's `end_state`. `value` has the shape the checks
+ * see in `CheckContext.endState`: one mapping gives the value its source returned, a list gives a record
+ * keyed by source, and `none` gives the list that source `*` returned. `subset` (the default) checks the
+ * listed fields; `exact` also fails every other field of the state, expected absent. One diff entry per
+ * field that does not hold; in a list a field is named `<source>.<field>`. `none` holds when nothing was
+ * recorded (undefined, null, an empty list or object) and otherwise gives one entry for `*`.
  */
-export function compareEndState(entries: readonly EndStateSpec[], states: readonly unknown[]): EndStateMatch {
+export function compareEndState(endState: EndState, value: unknown): EndStateMatch {
+  if (endState === 'none') {
+    return isEmpty(value)
+      ? { match: true, diff: [] }
+      : { match: false, diff: [{ field: '*', expected: [], observed: value }] };
+  }
+  const list = Array.isArray(endState);
+  const entries: EndStateSpec[] = Array.isArray(endState) ? endState : [endState];
   const diff: EndStateDiff[] = [];
-  entries.forEach((entry, index) => {
-    const state = states[index];
+  for (const entry of entries) {
+    const state = list ? (isRecord(value) ? value[entry.source] : undefined) : value;
     const record = isRecord(state) ? state : undefined;
-    const name = (field: string) => (entries.length > 1 ? `${entry.source}.${field}` : field);
+    const name = (field: string) => (list ? `${entry.source}.${field}` : field);
     for (const [field, assertion] of Object.entries(entry.expect)) {
       const observed = record?.[field];
       if (!matchAssertion(observed, assertion))
@@ -59,7 +69,7 @@ export function compareEndState(entries: readonly EndStateSpec[], states: readon
         }
       }
     }
-  });
+  }
   return { match: diff.length === 0, diff };
 }
 
