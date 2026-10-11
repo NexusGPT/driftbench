@@ -61,6 +61,16 @@ export {
   type RoundOutcome,
   type Vote,
 } from './council';
+export {
+  type CriteriaIssue,
+  type CriteriaLoad,
+  CriterionFile,
+  CriterionFixture,
+  fixtureRequest,
+  type LoadedCriterion,
+  loadCriteria,
+  parseCriterionFile,
+} from './criteria';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
 export {

@@ -1,0 +1,20 @@
+criterion:
+  name: resumes_pending_step
+  rubric: After a one-sentence answer to the detour, the reply asks the pending plan question again.
+  pass: The detour is answered and the same plan question follows.
+  fail: The plan question is dropped, changed, or the detour gets a long answer.
+  gating: true
+  judge_class: system1
+fixtures:
+  pass:
+    note: The detour gets one sentence, then the pending question comes back.
+    transcript:
+      - { role: context, text: "Pending question: Which plan would you like, Acme Fiber 300 or Acme Fiber 1000?" }
+      - { role: user, text: "By the way, do you sell phones?" }
+      - { role: agent, text: "We don't sell phones here, only plans. Which plan would you like, Acme Fiber 300 or Acme Fiber 1000?" }
+  fail:
+    note: The reply talks about phones and never comes back to the plan.
+    transcript:
+      - { role: context, text: "Pending question: Which plan would you like, Acme Fiber 300 or Acme Fiber 1000?" }
+      - { role: user, text: "By the way, do you sell phones?" }
+      - { role: agent, text: "Phones are a big choice. Many customers like a large screen and a long battery life, and a case is a good idea. Is there anything else I can help with?" }

@@ -1,0 +1,28 @@
+criterion:
+  name: ledger_intact
+  rubric: >
+    The reply restates the address and the plans already found without asking for them again and
+    without a new tool call.
+  pass: The address and the plans come back from earlier in the conversation, with no new question about them.
+  fail: The reply asks for the address again, forgets the plans, or calls coverage.check or catalog.search again.
+  scope: conversation
+  judge_class: system2
+fixtures:
+  pass:
+    note: After a detour the reply restates what is known.
+    given:
+      ledger: { address: "14 Harbor Road, Acmeville", plans: ["Acme Fiber 300", "Acme Fiber 1000"] }
+    transcript:
+      - { role: user, text: "Do you have home internet at 14 Harbor Road, Acmeville?" }
+      - { role: agent, text: "Yes: 14 Harbor Road, Acmeville can get Acme Fiber 300 and Acme Fiber 1000. Which would you like?" }
+      - { role: user, text: "What's the weather like?" }
+      - { role: agent, text: "I can't help with the weather. For 14 Harbor Road, Acmeville we found Acme Fiber 300 and Acme Fiber 1000. Which would you like?" }
+  fail:
+    note: After the detour the reply asks for the address again.
+    given:
+      ledger: { address: "14 Harbor Road, Acmeville", plans: ["Acme Fiber 300", "Acme Fiber 1000"] }
+    transcript:
+      - { role: user, text: "Do you have home internet at 14 Harbor Road, Acmeville?" }
+      - { role: agent, text: "Yes: 14 Harbor Road, Acmeville can get Acme Fiber 300 and Acme Fiber 1000. Which would you like?" }
+      - { role: user, text: "What's the weather like?" }
+      - { role: agent, text: "I can't help with the weather. What address would you like me to check?" }

@@ -1,0 +1,20 @@
+criterion:
+  name: checks_before_promising
+  rubric: The reply says the number can move only after port.check returned it as eligible.
+  pass: The promise follows an eligible port.check result in the same block.
+  fail: The reply promises the transfer before port.check, or after a result that says no.
+  gating: true
+  judge_class: system1
+fixtures:
+  pass:
+    note: port.check says eligible, then the reply promises the move.
+    transcript:
+      - { role: user, text: "I want to switch to Acme and keep my number +1 202 555 0165." }
+      - { role: tool_call, tool: port.check, text: '{"number":"+12025550165"}' }
+      - { role: tool_result, tool: port.check, text: '{"eligible":true}' }
+      - { role: agent, text: "Good news: +1 202 555 0165 can move to Acme. Which plan would you like with it?" }
+  fail:
+    note: The reply promises the move with no port.check at all.
+    transcript:
+      - { role: user, text: "I want to switch to Acme and keep my number +1 202 555 0160." }
+      - { role: agent, text: "No problem, +1 202 555 0160 will move to Acme with you. Which plan would you like with it?" }
