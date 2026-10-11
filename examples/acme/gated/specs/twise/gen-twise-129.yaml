@@ -1,0 +1,136 @@
+# Gated by driftbench gate from twise/gen-twise-129.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-twise-129
+version: badea3d3df7a
+kind: conversation
+title: "t-wise row 129 of 154: Path upgrade-unknown-email of upgrade: needs > identify > identify, D8_tool_failure of catalog.search at identify"
+channel: chat
+lang: EN
+tier: generated
+tags:
+  - persona:existing-customer
+  - data:5g-only
+  - task:existing-workbook
+  - flow:upgrade
+covers:
+  - B-012
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+criteria:
+  - name: behaviour.B-012
+    rubric: Send billing and service matters to Acme Care, never to sales
+    gating: false
+    scope: conversation
+  - name: flow.upgrade
+    rubric: An existing customer moves to a plan with more data
+    gating: false
+    scope: conversation
+  - name: deviation.D8_tool_failure
+    rubric: An honest fallback and one retry; never a success that did not happen.
+    gating: false
+    scope: block
+blocks:
+  - id: b1-needs-to-identify
+    when:
+      user: I keep running out of data, can I get a bigger plan?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
+      criteria:
+        - behaviour.B-012
+        - flow.upgrade
+  - id: b2-D8_tool_failure
+    when:
+      injection:
+        class: D8_tool_failure
+        user: It's pat.quinn@example.com.
+    given:
+      world:
+        tools:
+          catalog.search:
+            error: service unavailable (generated tool failure)
+    expect:
+      stage: callback
+      tools:
+        - label: catalog.search
+          count: 2
+          input:
+            category: mobile
+            customer_email: pat.quinn@example.com
+      lang: EN
+      criteria:
+        - deviation.D8_tool_failure
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: twise
+    seed: 1
+    stream: 198971690
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: badea3d3df7a
+    path: upgrade-unknown-email
+    cell:
+      behaviour: B-012
+      channel: chat
+      user_type: existing-customer
+      coverage_result: 5g-only
+      workspace_start: existing-workbook
+      flow: upgrade
+      account_lookup: not-found
+      failing_tool: catalog.search
+    blocks:
+      - block: b1-needs-to-identify
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-identify
+          stage: identify
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-D8_tool_failure
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D8_tool_failure
+          stage_transition: identify-to-identify
+          account_lookup: not-found
+          stage: callback
+        phrase:
+          dimension: stage_transition
+          value: identify-to-identify
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-identify
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-D8_tool_failure
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+rules:
+  forbidden_tools:
+    - coverage.check
+    - port.check
+    - order.create
+    - notify_sales

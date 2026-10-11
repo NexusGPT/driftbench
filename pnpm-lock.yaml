@@ -100,6 +100,9 @@ importers:
       '@driftbench/judges':
         specifier: workspace:*
         version: link:../judges
+      '@driftbench/report':
+        specifier: workspace:*
+        version: link:../report
       '@driftbench/sandbox':
         specifier: workspace:*
         version: link:../sandbox
@@ -203,7 +206,20 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
 
-  packages/report: {}
+  packages/report:
+    dependencies:
+      '@driftbench/core':
+        specifier: workspace:*
+        version: link:../core
+      '@driftbench/stats':
+        specifier: workspace:*
+        version: link:../stats
+      '@driftbench/store':
+        specifier: workspace:*
+        version: link:../store
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
 
   packages/sandbox:
     dependencies:

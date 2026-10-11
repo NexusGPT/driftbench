@@ -94,7 +94,8 @@ export type GenerateReport = {
   metamorphic: MetamorphicSummary;
   constraints: { applied: number; list: Array<{ forbid: Record<string, string>; reason: string }> };
   no_phrase: Array<{ dimension: string; value: string; blocks: number; specs: string[] }>;
-  no_then: Array<{ spec: string; blocks: string[] }>;
+  /** Specs with a block the map supports no machine Then for, and why when a path could not be walked. */
+  no_then: Array<{ spec: string; blocks: string[]; reasons: string[] }>;
   coverage: {
     t: number;
     allowed: number;
@@ -184,7 +185,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       all.push(loaded.spec);
       if (needsThen) {
         totals.needs_then += 1;
-        noThen.push({ spec: rendered.id, blocks: rendered.noThen });
+        noThen.push({ spec: rendered.id, blocks: rendered.noThen, reasons: rendered.reasons });
       }
       if (needsPhrase) {
         totals.needs_phrase += 1;
@@ -309,7 +310,11 @@ export function renderSummary(report: GenerateReport): string {
   }
   lines.push(
     '',
-    `Stage graph: ${report.graph.covered} of ${report.graph.edges} edges covered in ${report.graph.paths} paths from ${report.graph.start ?? 'no start'}.`,
+    `Stage graph: ${report.graph.covered} of ${report.graph.edges} edges covered in ${report.graph.paths} paths from ${report.graph.start ?? 'no start'}.${
+      report.graph.unwalked
+        ? ` Paths no cell can walk: ${report.graph.unwalked.map((entry) => entry.path).join(', ')}.`
+        : ''
+    }`,
     `t-wise: covering array of ${report.twise.rows} rows over ${report.twise.dimensions.length} dimensions, ${report.twise.covered} of ${report.twise.allowed} allowed ${report.twise.t}-tuples (${percent(report.twise.share)}).`,
     `Constraints applied: ${report.constraints.applied}.`,
     `Deviation probes: ${report.deviation.probes.length} of ${report.deviation.classes} classes. Metamorphic families: ${report.metamorphic.families}.`,
@@ -331,8 +336,17 @@ export function renderSummary(report: GenerateReport): string {
     const more = report.no_then.length > 10 ? ', ...' : '';
     lines.push(
       '',
-      `Specs with a block the map supports no Then for (${report.no_then.length}), in ${INCOMPLETE_DIR}/: ${named.join(', ')}${more}.`,
+      `Specs with a block the map supports no machine Then for (${report.no_then.length}), in ${INCOMPLETE_DIR}/: ${named.join(', ')}${more}.`,
     );
+    const counts = new Map<string, number>();
+    for (const entry of report.no_then) {
+      for (const reason of new Set(entry.reasons.map((text) => text.replace(/^path [^:]+: /, '')))) {
+        counts.set(reason, (counts.get(reason) ?? 0) + 1);
+      }
+    }
+    const top = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 8);
+    if (top.length > 0) lines.push('  Most frequent reasons:');
+    for (const [reason, count] of top) lines.push(`  ${String(count).padStart(4)}  ${reason}`);
   }
   if (report.invalid.length > 0 || report.lint.length > 0) {
     lines.push(

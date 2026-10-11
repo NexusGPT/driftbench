@@ -8,6 +8,10 @@ import { type Rng, range, shuffle } from './random';
  * The full grid is never enumerated: a depth-first search fixes the given values, then tries the values of
  * every other dimension, and drops a branch as soon as a constraint matches. A map with 46 dimensions has
  * a grid far larger than any enumeration; the search touches one cell per answer.
+ *
+ * The search visits the dimensions the constraints name first, the most named first, and the free ones
+ * last: a free dimension never forces a step back, so a partial cell no allowed cell holds is refuted
+ * within the constrained dimensions, never by walking the product of every free one.
  */
 
 /** A partial cell: pairs of a dimension index and a value index. */
@@ -18,6 +22,8 @@ export class Feasibility {
   /** For each dimension, the constraints that name it. */
   private readonly touching: number[][];
   private readonly cache = new Map<string, boolean>();
+  /** The visiting order: constrained dimensions first, the most constrained first, then map order. */
+  private readonly order: number[];
 
   constructor(private readonly space: CompiledSpace) {
     this.sizes = space.dimensions.map((dimension) => dimension.values.length);
@@ -25,6 +31,9 @@ export class Feasibility {
     space.constraints.forEach((constraint, index) => {
       for (const [dimension] of constraint) this.touching[dimension]?.push(index);
     });
+    this.order = range(this.sizes.length).sort(
+      (a, b) => (this.touching[b]?.length ?? 0) - (this.touching[a]?.length ?? 0) || a - b,
+    );
   }
 
   /** The number of dimensions of the map. */
@@ -54,7 +63,7 @@ export class Feasibility {
       cell[dimension] = value;
     }
     const fixed = partial.map(([dimension]) => dimension);
-    const rest = (order ?? range(this.sizes.length)).filter((dimension) => !fixed.includes(dimension));
+    const rest = (order ?? this.order).filter((dimension) => !fixed.includes(dimension));
     const visit = [...new Set(fixed), ...rest];
     return this.search(cell, visit, 0, rng) ? cell : undefined;
   }

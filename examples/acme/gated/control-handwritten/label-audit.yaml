@@ -4,61 +4,124 @@
 families:
   - family: hand-written
     sample:
-      - block: acme-off-topic-return#where-were-we
+      - block: acme-off-topic-return#consoles
         path: conversations/off-topic-return.yaml
         cell: {}
-        when: Sorry, where were we?
+        when: Do you also sell game consoles?
         expected:
           stage: offer
           tools:
-            - label: coverage.check
-              count: 0
             - label: catalog.search
               count: 0
           must:
-            - We were choosing your plan
-            - 3 Orchard Way
-            - Acme Fiber 300
-            - Acme Air 5G
-            - \$40
-            - \$35
+            - only help with Acme plans
+            - Which one would you like
           criteria:
-            - ledger_intact
+            - resumes_pending_step@gating
         label_correct: null
         note: null
-      - block: acme-order-loose-confirmation#loose-yes
-        path: conversations/order-loose-confirmation.yaml
-        cell: {}
-        when: ok perfect
-        expected:
-          stage: recap
-          tools:
-            - label: order.create
-              count: 0
-          must:
-            - explicit go
-            - CONFIRM
-          must_not:
-            - ORD-[0-9A-F]{6}
-            - is placed
-          criteria:
-            - explicit_confirmation@gating
-          guards:
-            - name: explicit_confirmation
-              verdict: block
-              count: 1
-        label_correct: null
-        note: null
-      - block: acme-plan-upgrade#4
+      - block: acme-plan-upgrade#1
         path: conversations/plan-upgrade.yaml
         cell: {}
-        when: No, that's all. Thanks!
+        when: It's sam.rivera@example.com
         expected:
-          stage: closing
+          stage: offer
+          ledger_add:
+            customer_id: cust-001
+            current_plan: mobile-s
           tools:
-            - label: order.create
-              count: 0
+            - label: catalog.search
+              count: 1
+              input:
+                category: mobile
+                customer_email: sam.rivera@example.com
+                address_id:
+                  absent: true
           must:
-            - Sam
+            - Acme Mobile M
+            - Acme Mobile L
+            - \$25
+            - \$35
+          must_not:
+            - Fiber
+            - Air 5G
+          criteria:
+            - no_invented_data@gating
+            - one_question_per_turn
+        label_correct: null
+        note: null
+      - block: acme-price-sheet#build
+        path: tasks/price-sheet.yaml
+        cell: {}
+        when: |
+          Build a price sheet from catalog.csv. Make one sheet per category, named Mobile and Home, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), and keep the rows in catalog order. The yearly price must be a formula. Save it as out/acme-price-sheet.xlsx.
+        expected:
+          stage: build_sheet
+          must:
+            - acme-price-sheet\.xlsx
+          criteria:
+            - sheet_matches_catalog@gating
+            - reports_what_it_did
+          skills:
+            - name: xlsx
+              count:
+                min: 1
+          guards:
+            - name: no_destructive_ops
+              verdict: pass
+          execution:
+            ran_code: true
+            exit_code: 0
+            max_commands: 10
+          artifacts:
+            - path: out/acme-price-sheet.xlsx
+              kind: xlsx
+              checks:
+                - sheets:
+                    - Mobile
+                    - Home
+                - header:
+                    sheet: Mobile
+                    row: 1
+                    values:
+                      - Plan
+                      - Allowance
+                      - Monthly price (USD)
+                      - Yearly price (USD)
+                - rows:
+                    sheet: Mobile
+                    count: 3
+                - rows:
+                    sheet: Home
+                    count: 3
+                - cells:
+                    sheet: Mobile
+                    column: C
+                    from_row: 2
+                    values:
+                      - 15
+                      - 25
+                      - 35
+                - cells:
+                    sheet: Home
+                    column: C
+                    from_row: 2
+                    values:
+                      - 40
+                      - 60
+                      - 35
+                - formula:
+                    sheet: Mobile
+                    cell: D2
+                    regex: ^=C2\s*\*\s*12$
+                - no_error_cells: true
+          workspace:
+            created:
+              - out/acme-price-sheet.xlsx
+            changed: []
+            deleted: []
+            others_untouched: true
+          safety:
+            max_destructive_ops: 0
         label_correct: null
         note: null

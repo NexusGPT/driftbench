@@ -10,11 +10,12 @@ version: 1
 agent: acme
 produced_by:
   family: lane
-  model: claude-opus-5-5 as the extract lane, by hand
-  at: 2026-10-11T18:02:43.519Z
+  model: claude-opus-5-5 as the extract and generate2 lanes, by hand
+  at: 2026-10-11T20:06:40.420Z
 sources:
   - { kind: prompt, path: ../src/policy.ts }
   - { kind: prompt, path: ../README.md }
+  - { kind: prompt, path: ../src/store.ts }
   - { kind: inventory, path: ../inventory.yaml }
   - { kind: tools, path: tools.yaml }
 dimensions:
@@ -1576,6 +1577,181 @@ constraints:
       quote: "title: A new customer switches to Acme and keeps their number"
     produced_by: model
     approved: true
+  - forbid: { behaviour: B-001, user_type: new-customer }
+    reason: B-001 serves an existing customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Identify an existing customer by the email on the account before quoting their plan"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-001, user_type: sales-operations }
+    reason: B-001 serves an existing customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Identify an existing customer by the email on the account before quoting their plan"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-002, user_type: new-customer }
+    reason: B-002 serves an existing customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Offer an existing customer only plans with more data than their current plan"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-002, user_type: sales-operations }
+    reason: B-002 serves an existing customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Offer an existing customer only plans with more data than their current plan"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-003, user_type: existing-customer }
+    reason: B-003 belongs to the new-home flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer asks for home internet at an address"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-003, user_type: sales-operations }
+    reason: B-003 belongs to the new-home flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer asks for home internet at an address"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-004, user_type: existing-customer }
+    reason: B-004 belongs to the new-home flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer asks for home internet at an address"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-004, user_type: sales-operations }
+    reason: B-004 belongs to the new-home flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer asks for home internet at an address"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-005, user_type: existing-customer }
+    reason: B-005 belongs to the new-home flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer asks for home internet at an address"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-005, user_type: sales-operations }
+    reason: B-005 belongs to the new-home flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer asks for home internet at an address"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-011, user_type: existing-customer }
+    reason: B-011 belongs to the new-home flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer asks for home internet at an address"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-011, user_type: sales-operations }
+    reason: B-011 belongs to the new-home flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer asks for home internet at an address"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-006, user_type: existing-customer }
+    reason: B-006 belongs to the porting flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer switches to Acme and keeps their number"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-006, user_type: sales-operations }
+    reason: B-006 belongs to the porting flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer switches to Acme and keeps their number"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-007, user_type: existing-customer }
+    reason: B-007 belongs to the porting flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer switches to Acme and keeps their number"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-007, user_type: sales-operations }
+    reason: B-007 belongs to the porting flow, which is for a new customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: A new customer switches to Acme and keeps their number"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-008, user_type: sales-operations }
+    reason: B-008 belongs to the order flow, which is for a customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Recap, explicit confirmation and order placement"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-009, user_type: sales-operations }
+    reason: B-009 belongs to the order flow, which is for a customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Recap, explicit confirmation and order placement"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-010, user_type: sales-operations }
+    reason: B-010 belongs to the order flow, which is for a customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Recap, explicit confirmation and order placement"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-012, user_type: new-customer }
+    reason: B-012 belongs to the upgrade flow, which is for an existing customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: An existing customer moves to a plan with more data"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-012, user_type: sales-operations }
+    reason: B-012 belongs to the upgrade flow, which is for an existing customer
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: An existing customer moves to a plan with more data"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-013, user_type: existing-customer }
+    reason: B-013 is a sales operations task
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Sales operations builds the price sheet in a code agent's workspace"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-013, user_type: new-customer }
+    reason: B-013 is a sales operations task
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Sales operations builds the price sheet in a code agent's workspace"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-014, user_type: existing-customer }
+    reason: B-014 is a sales operations task
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Sales operations builds the price sheet in a code agent's workspace"
+    produced_by: model
+    approved: true
+  - forbid: { behaviour: B-014, user_type: new-customer }
+    reason: B-014 is a sales operations task
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Sales operations builds the price sheet in a code agent's workspace"
+    produced_by: model
+    approved: true
   - forbid: { catalog.search.in.category: catalog.search.in.category.mobile, catalog.search.in.address_id: catalog.search.in.address_id.present }
     reason: address_id applies to home plans only
     evidence:
@@ -1766,24 +1942,28 @@ phrases:
     value: D2_goal_shift
     text: Actually, make that a mobile plan instead.
     lang: en
+    when: { stage: [ needs ] }
     produced_by: model
     approved: true
   - dimension: deviation
     value: D3_contradiction
     text: Sorry, my email is ana.ruiz@example.com, not the one I gave before.
     lang: en
+    when: { stage: [ identify ] }
     produced_by: model
     approved: true
   - dimension: deviation
     value: D4_loose_confirmation
     text: yeah sounds good
     lang: en
+    when: { stage: [ recap ] }
     produced_by: model
     approved: true
   - dimension: deviation
     value: D4_loose_confirmation
     text: ok perfect
     lang: en
+    when: { stage: [ recap ] }
     produced_by: model
     approved: true
   - dimension: deviation
@@ -1844,5 +2024,1001 @@ phrases:
     value: asks-for-callback
     text: Can someone just call me back?
     lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: needs-to-identify
+    text: Hi, I already have an Acme plan and I need more data.
+    lang: en
+    when: { flow: [ upgrade ] }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: needs-to-identify
+    text: I keep running out of data, can I get a bigger plan?
+    lang: en
+    when: { flow: [ upgrade ] }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: identify-to-offer
+    text: It's {email}.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: identify-to-identify
+    text: It's {email}.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: identify-to-closing
+    text: It's {email}.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: needs-to-address
+    text: Hello, I'm looking for home internet.
+    lang: en
+    when: { flow: [ new-home, order ] }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: needs-to-address
+    text: Do you have home internet where I live?
+    lang: en
+    when: { flow: [ new-home, order ] }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: address-to-offer
+    text: The address is {address}.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: address-to-callback
+    text: The address is {address}.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: address-to-address
+    text: The address is {address}.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: needs-to-port_number
+    text: I'd like to move to Acme and keep my phone number.
+    lang: en
+    when: { flow: [ porting ] }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: port_number-to-offer
+    text: My number is {number}.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: offer-to-recap
+    text: The unlimited one, please.
+    lang: en
+    when: { flow: [ upgrade ], plan_choice: [ names-one ] }
+    binds: { plan_id: mobile-l, plan: Acme Mobile L }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: offer-to-details
+    text: I'll take Acme Fiber 1000.
+    lang: en
+    when: { flow: [ new-home, order ], coverage_result: [ fiber ], plan_choice: [ names-one ] }
+    binds: { plan_id: fiber-1000, plan: Acme Fiber 1000 }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: offer-to-details
+    text: I'll take Acme Air 5G.
+    lang: en
+    when: { flow: [ new-home, order ], coverage_result: [ 5g-only ], plan_choice: [ names-one ] }
+    binds: { plan_id: air-5g, plan: Acme Air 5G }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: offer-to-details
+    text: Yes, that one.
+    lang: en
+    when: { flow: [ new-home, order ], coverage_result: [ 5g-only ], plan_choice: [ loose-yes-to-single-offer ] }
+    binds: { plan_id: air-5g, plan: Acme Air 5G }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: offer-to-details
+    text: Acme Mobile M, please.
+    lang: en
+    when: { flow: [ porting ], plan_choice: [ names-one ] }
+    binds: { plan_id: mobile-m, plan: Acme Mobile M }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: offer-to-callback
+    text: Can someone just call me back?
+    lang: en
+    when: { plan_choice: [ asks-for-callback ] }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: details-to-recap
+    text: "{name}, {email}"
+    lang: en
+    when: { customer_details: [ name-and-email ] }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: details-to-recap
+    text: I'm {name} and my email is {email}.
+    lang: en
+    when: { customer_details: [ name-and-email ] }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: recap-to-order_placed
+    text: CONFIRM
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: recap-to-order_placed
+    text: Confirm
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: callback-to-handover
+    text: You can reach me on {phone}.
+    lang: en
+    when: { callback_phone: [ given ] }
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: order_placed-to-closing
+    text: No, that's all. Thanks!
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: handover-to-closing
+    text: Great, thank you. Bye!
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D2_goal_shift
+    text: Actually, make it Acme Mobile M instead.
+    lang: en
+    when: { flow: [ upgrade ], stage: [ recap ] }
+    binds: { plan_id: mobile-m, plan: Acme Mobile M }
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D2_goal_shift
+    text: Actually, make it Acme Mobile L instead.
+    lang: en
+    when: { flow: [ porting ], stage: [ recap ] }
+    binds: { plan_id: mobile-l, plan: Acme Mobile L }
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D2_goal_shift
+    text: Actually, make it Acme Fiber 300 instead.
+    lang: en
+    when: { flow: [ new-home, order ], coverage_result: [ fiber ], stage: [ recap ] }
+    binds: { plan_id: fiber-300, plan: Acme Fiber 300 }
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D3_contradiction
+    text: "Acme Mobile M. No, wait: Acme Mobile L."
+    lang: en
+    when: { flow: [ upgrade, porting ], stage: [ offer ] }
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D3_contradiction
+    text: "Acme Fiber 300. No, wait: Acme Fiber 1000."
+    lang: en
+    when: { flow: [ new-home, order ], coverage_result: [ fiber ], stage: [ offer ] }
+    produced_by: model
+    approved: true
+relations:
+  - kind: recovery
+    class: D1_off_topic
+    flows: [ new-home ]
+    stage_after: pending
+    evidence:
+      source: ../inventory.yaml
+      quote: "deviations: [D1_off_topic, D5_language_switch, D6_instruction_in_data, D8_tool_failure, D10_return]"
+    produced_by: code
+    approved: true
+  - kind: recovery
+    class: D5_language_switch
+    flows: [ new-home ]
+    stage_after: pending
+    evidence:
+      source: ../inventory.yaml
+      quote: "deviations: [D1_off_topic, D5_language_switch, D6_instruction_in_data, D8_tool_failure, D10_return]"
+    produced_by: code
+    approved: true
+  - kind: recovery
+    class: D6_instruction_in_data
+    flows: [ new-home ]
+    stage_after: pending
+    evidence:
+      source: ../inventory.yaml
+      quote: "deviations: [D1_off_topic, D5_language_switch, D6_instruction_in_data, D8_tool_failure, D10_return]"
+    produced_by: code
+    approved: true
+  - kind: recovery
+    class: D10_return
+    flows: [ new-home ]
+    stage_after: pending
+    evidence:
+      source: ../inventory.yaml
+      quote: "deviations: [D1_off_topic, D5_language_switch, D6_instruction_in_data, D8_tool_failure, D10_return]"
+    produced_by: code
+    approved: true
+  - kind: recovery
+    class: D3_contradiction
+    flows: [ order ]
+    stage_after: pending
+    evidence:
+      source: ../inventory.yaml
+      quote: "deviations: [D2_goal_shift, D3_contradiction, D4_loose_confirmation, D8_tool_failure]"
+    produced_by: code
+    approved: true
+  - kind: recovery
+    class: D4_loose_confirmation
+    flows: [ order ]
+    stage_after: pending
+    evidence:
+      source: ../inventory.yaml
+      quote: "deviations: [D2_goal_shift, D3_contradiction, D4_loose_confirmation, D8_tool_failure]"
+    produced_by: code
+    approved: true
+  - kind: recovery
+    class: D6_instruction_in_data
+    flows: [ price-sheet ]
+    stage_after: pending
+    evidence:
+      source: ../inventory.yaml
+      quote: "deviations: [D6_instruction_in_data]"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: account_lookup, value: found }
+    slots: { email: sam.rivera@example.com, customer_id: cust-001 }
+    evidence:
+      source: ../src/store.ts
+      quote: |-
+        id: 'cust-001',
+        name: 'Sam Rivera',
+        email: 'sam.rivera@example.com',
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: account_lookup, value: plan-not-in-catalog }
+    slots: { email: lee.jensen@example.com, customer_id: cust-002 }
+    evidence:
+      source: ../src/store.ts
+      quote: |-
+        id: 'cust-002',
+        name: 'Lee Jensen',
+        email: 'lee.jensen@example.com',
+        phone: '+12025550118',
+        plan_id: 'fiber-300',
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: account_lookup, value: most-data }
+    slots: { email: morgan.diaz@example.com, customer_id: cust-003 }
+    evidence:
+      source: ../src/store.ts
+      quote: |-
+        id: 'cust-003',
+        name: 'Morgan Diaz',
+        email: 'morgan.diaz@example.com',
+        phone: '+12025550125',
+        plan_id: 'mobile-l',
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: account_lookup, value: not-found }
+    slots: { email: pat.quinn@example.com }
+    evidence:
+      source: ../src/policy.ts
+      quote: I can't find an Acme account with ${email}. Please check the email address on your Acme account.
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: coverage_result, value: fiber }
+    slots: { address: "14 Harbor Road, Acmeville", address_id: addr-101 }
+    evidence:
+      source: ../src/store.ts
+      quote: "{ id: 'addr-101', label: '14 Harbor Road, Acmeville', fiber_mbps: 1000, five_g: true },"
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: coverage_result, value: 5g-only }
+    slots: { address: "88 Summit Avenue, Acmeville", address_id: addr-103 }
+    evidence:
+      source: ../src/store.ts
+      quote: "{ id: 'addr-103', label: '88 Summit Avenue, Acmeville', fiber_mbps: 0, five_g: true },"
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: coverage_result, value: no-service }
+    slots: { address: "7 Quarry Lane, Acmeville", address_id: addr-104 }
+    evidence:
+      source: ../src/store.ts
+      quote: "{ id: 'addr-104', label: '7 Quarry Lane, Acmeville', fiber_mbps: 0, five_g: false },"
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: coverage_result, value: not-in-map }
+    slots: { address: "21 Willow Court, Acmeville" }
+    evidence:
+      source: ../src/policy.ts
+      quote: in our coverage map
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: port_result, value: can-move }
+    slots: { number: +1 202 555 0165, number_e164: "+12025550165" }
+    evidence:
+      source: ../src/store.ts
+      quote: "{ number: '+12025550165', eligible: true },"
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: port_result, value: locked }
+    slots: { number: +1 202 555 0160, number_e164: "+12025550160" }
+    evidence:
+      source: ../src/store.ts
+      quote: |-
+        number: '+12025550160',
+        eligible: false,
+        reason: 'the number has a transfer lock at its current carrier',
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: customer_details, value: name-and-email }
+    slots: { name: Jo Okafor, email: jo.okafor@example.com }
+    evidence:
+      source: ../src/policy.ts
+      quote: if (s.customer.name && s.customer.email) return recap(s);
+    produced_by: model
+    approved: true
+  - kind: binds
+    subject: { dimension: callback_phone, value: given }
+    slots: { phone: +1 202 555 0131, phone_e164: "+12025550131" }
+    evidence:
+      source: ../src/policy.ts
+      quote: s.customer.phone = phone;
+    produced_by: model
+    approved: true
+  - kind: reply_language
+    subject: { dimension: rule, value: english-only }
+    lang: en
+    evidence:
+      source: ../src/policy.ts
+      quote: if (isForeign(text)) return `I can only help in English for now. ${pendingQuestion(s)}`;
+    produced_by: model
+    approved: true
+  - kind: path
+    id: upgrade-order
+    flow: upgrade
+    when: { user_type: [ existing-customer ], account_lookup: [ found ], plan_choice: [ names-one ] }
+    stages: [ needs, identify, offer, recap, order_placed, closing ]
+    behaviours: [ B-001, B-002, B-008 ]
+    end_state:
+      source: tool:order.create
+      mode: subset
+      expect:
+        type: upgrade
+        customer_id: "{customer_id}"
+        plan_id: "{plan_id}"
+    evidence:
+      source: ../src/policy.ts
+      quote: if (s.flow === 'upgrade' || (s.customer.name && s.customer.email)) return recap(s);
+    produced_by: model
+    approved: true
+  - kind: path
+    id: upgrade-unknown-email
+    flow: upgrade
+    when: { user_type: [ existing-customer ], account_lookup: [ not-found ] }
+    stages: [ needs, identify, identify ]
+    behaviours: [ B-001 ]
+    evidence:
+      source: ../src/policy.ts
+      quote: I can't find an Acme account with ${email}. Please check the email address on your Acme account.
+    produced_by: model
+    approved: true
+  - kind: path
+    id: upgrade-most-data
+    flow: upgrade
+    when: { user_type: [ existing-customer ], account_lookup: [ most-data ] }
+    stages: [ needs, identify, closing ]
+    behaviours: [ B-002 ]
+    evidence:
+      source: ../src/policy.ts
+      quote: which already has the most data
+    produced_by: model
+    approved: true
+  - kind: path
+    id: upgrade-plan-not-in-catalog
+    flow: upgrade
+    when: { user_type: [ existing-customer ], account_lookup: [ plan-not-in-catalog ] }
+    stages: [ needs, identify, offer ]
+    behaviours: [ B-001 ]
+    evidence:
+      source: ../src/policy.ts
+      quote: "return `Thanks, ${name}. Our mobile plans: ${list(catalog.plans)}. ${offerQuestion(s)}`;"
+    produced_by: model
+    approved: true
+  - kind: path
+    id: home-order
+    flow: new-home
+    when: { user_type: [ new-customer ], coverage_result: [ fiber, 5g-only ], plan_choice: [ names-one ], customer_details: [ name-and-email ] }
+    stages: [ needs, address, offer, details, recap, order_placed ]
+    behaviours: [ B-003, B-004 ]
+    end_state:
+      source: tool:order.create
+      mode: subset
+      expect:
+        type: new
+        plan_id: "{plan_id}"
+        address_id: "{address_id}"
+        customer:
+          subset:
+            name: "{name}"
+            email: "{email}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "// Home internet: coverage first, then the plans available at the address."
+    produced_by: model
+    approved: true
+  - kind: path
+    id: home-no-coverage
+    flow: new-home
+    when: { user_type: [ new-customer ], coverage_result: [ no-service ], callback_phone: [ given ] }
+    stages: [ needs, address, callback, handover, closing ]
+    behaviours: [ B-003, B-005 ]
+    end_state:
+      source: tool:notify_sales
+      mode: subset
+      expect:
+        reason: no_coverage
+        customer:
+          subset:
+            phone: "{phone_e164}"
+    evidence:
+      source: ../src/policy.ts
+      quote: if (coverage.fiber_mbps === 0 && !coverage.five_g) return askPhone(s, noCoverage, unreachable);
+    produced_by: model
+    approved: true
+  - kind: path
+    id: home-address-not-found
+    flow: new-home
+    when: { user_type: [ new-customer ], coverage_result: [ not-in-map ] }
+    stages: [ needs, address, address ]
+    behaviours: [ B-003 ]
+    evidence:
+      source: ../src/policy.ts
+      quote: in our coverage map
+    produced_by: model
+    approved: true
+  - kind: path
+    id: home-callback
+    flow: new-home
+    when: { user_type: [ new-customer ], coverage_result: [ fiber, 5g-only ], plan_choice: [ asks-for-callback ], callback_phone: [ given ] }
+    stages: [ needs, address, offer, callback, handover ]
+    behaviours: [ B-004, B-005 ]
+    end_state:
+      source: tool:notify_sales
+      mode: subset
+      expect:
+        reason: callback
+        customer:
+          subset:
+            phone: "{phone_e164}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "'Sure. A sales advisor can call you back. What phone number should they use?',"
+    produced_by: model
+    approved: true
+  - kind: path
+    id: porting-keep-number
+    flow: porting
+    when: { user_type: [ new-customer ], port_result: [ can-move ], plan_choice: [ names-one ], customer_details: [ name-and-email ] }
+    stages: [ needs, port_number, offer, details, recap, order_placed ]
+    behaviours: [ B-006, B-008 ]
+    end_state:
+      source: tool:order.create
+      mode: subset
+      expect:
+        type: new
+        plan_id: "{plan_id}"
+        port_number: "{number_e164}"
+        customer:
+          subset:
+            name: "{name}"
+            email: "{email}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "// Porting: check the number, then a mobile plan."
+    produced_by: model
+    approved: true
+  - kind: path
+    id: porting-locked-number
+    flow: porting
+    when: { user_type: [ new-customer ], port_result: [ locked ], plan_choice: [ names-one ], customer_details: [ name-and-email ] }
+    stages: [ needs, port_number, offer, details, recap, order_placed, closing ]
+    behaviours: [ B-006, B-007, B-008 ]
+    end_state:
+      source: tool:order.create
+      mode: subset
+      expect:
+        type: new
+        plan_id: "{plan_id}"
+        port_number:
+          absent: true
+        customer:
+          subset:
+            name: "{name}"
+            email: "{email}"
+    evidence:
+      source: ../src/policy.ts
+      quote: You can ask your current carrier to remove the lock, or take a new Acme number.
+    produced_by: model
+    approved: true
+  - kind: path
+    id: order-named-plan
+    flow: order
+    when: { coverage_result: [ fiber ], plan_choice: [ names-one ], customer_details: [ name-and-email ] }
+    stages: [ needs, address, offer, details, recap, order_placed ]
+    behaviours: [ B-008, B-010 ]
+    end_state:
+      source: tool:order.create
+      mode: subset
+      expect:
+        type: new
+        plan_id: "{plan_id}"
+        address_id: "{address_id}"
+        customer:
+          subset:
+            name: "{name}"
+            email: "{email}"
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Recap, explicit confirmation and order placement"
+    produced_by: model
+    approved: true
+  - kind: path
+    id: order-single-plan
+    flow: order
+    when: { coverage_result: [ 5g-only ], plan_choice: [ loose-yes-to-single-offer ], customer_details: [ name-and-email ] }
+    stages: [ needs, address, offer, details, recap, order_placed, closing ]
+    behaviours: [ B-008 ]
+    end_state:
+      source: tool:order.create
+      mode: subset
+      expect:
+        type: new
+        plan_id: "{plan_id}"
+        address_id: "{address_id}"
+        customer:
+          subset:
+            name: "{name}"
+            email: "{email}"
+    evidence:
+      source: ../src/policy.ts
+      quote: if (only && isLooseYes(text)) return choosePlan(s, only);
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: upgrade }
+    tool: catalog.search
+    stage: identify
+    input:
+      category: mobile
+      customer_email: "{email}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "callWithRetry(call, 'catalog.search', { category: 'mobile', customer_email: email }),"
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: upgrade }
+    tool: order.create
+    stage: recap
+    to: order_placed
+    input:
+      type: upgrade
+      customer_id: "{customer_id}"
+      plan_id: "{plan_id}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "if (s.flow === 'upgrade') return { type: 'upgrade', customer_id: s.customer.id, plan_id: plan.id };"
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: new-home }
+    tool: coverage.check
+    stage: address
+    input:
+      address: "{address}"
+    evidence:
+      source: ../src/policy.ts
+      quote: const coverage = readCoverage(callWithRetry(call, 'coverage.check', { address }));
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: new-home }
+    tool: catalog.search
+    stage: address
+    when: { coverage_result: [ fiber, 5g-only ] }
+    input:
+      category: home
+      address_id: "{address_id}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "callWithRetry(call, 'catalog.search', { category: 'home', address_id: coverage.address_id }),"
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: new-home }
+    tool: order.create
+    stage: recap
+    to: order_placed
+    input:
+      type: new
+      plan_id: "{plan_id}"
+      address_id: "{address_id}"
+      customer:
+        subset:
+          name: "{name}"
+          email: "{email}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "return { type: 'new', plan_id: plan.id, address_id: s.coverage?.address_id, customer };"
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: new-home }
+    tool: notify_sales
+    stage: callback
+    to: handover
+    when: { coverage_result: [ no-service ] }
+    input:
+      reason: no_coverage
+      customer:
+        subset:
+          phone: "{phone_e164}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "reason: 'no_coverage',"
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: new-home }
+    tool: notify_sales
+    stage: callback
+    to: handover
+    when: { coverage_result: [ fiber, 5g-only ], plan_choice: [ asks-for-callback ] }
+    input:
+      reason: callback
+      customer:
+        subset:
+          phone: "{phone_e164}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "{ reason: 'callback', summary },"
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: order }
+    tool: coverage.check
+    stage: address
+    input:
+      address: "{address}"
+    evidence:
+      source: ../src/policy.ts
+      quote: const coverage = readCoverage(callWithRetry(call, 'coverage.check', { address }));
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: order }
+    tool: catalog.search
+    stage: address
+    when: { coverage_result: [ fiber, 5g-only ] }
+    input:
+      category: home
+      address_id: "{address_id}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "callWithRetry(call, 'catalog.search', { category: 'home', address_id: coverage.address_id }),"
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: order }
+    tool: order.create
+    stage: recap
+    to: order_placed
+    input:
+      type: new
+      plan_id: "{plan_id}"
+      address_id: "{address_id}"
+      customer:
+        subset:
+          name: "{name}"
+          email: "{email}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "return { type: 'new', plan_id: plan.id, address_id: s.coverage?.address_id, customer };"
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: porting }
+    tool: port.check
+    stage: port_number
+    input:
+      number: "{number_e164}"
+    evidence:
+      source: ../src/policy.ts
+      quote: const port = readPort(callWithRetry(call, 'port.check', { number }));
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: porting }
+    tool: catalog.search
+    stage: port_number
+    input:
+      category: mobile
+    evidence:
+      source: ../src/policy.ts
+      quote: "const catalog = readCatalog(callWithRetry(call, 'catalog.search', { category: 'mobile' }));"
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: porting }
+    tool: order.create
+    stage: recap
+    to: order_placed
+    when: { port_result: [ can-move ] }
+    input:
+      type: new
+      plan_id: "{plan_id}"
+      port_number: "{number_e164}"
+      customer:
+        subset:
+          name: "{name}"
+          email: "{email}"
+    evidence:
+      source: ../src/policy.ts
+      quote: "? { type: 'new', plan_id: plan.id, customer, port_number: s.portNumber }"
+    produced_by: model
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: flow, value: porting }
+    tool: order.create
+    stage: recap
+    to: order_placed
+    when: { port_result: [ locked ] }
+    input:
+      type: new
+      plan_id: "{plan_id}"
+      port_number:
+        absent: true
+      customer:
+        subset:
+          name: "{name}"
+          email: "{email}"
+    evidence:
+      source: ../src/policy.ts
+      quote: ": { type: 'new', plan_id: plan.id, customer };"
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D1_off_topic
+    flows: [ upgrade, porting, order ]
+    stage_after: pending
+    evidence:
+      source: ../src/policy.ts
+      quote: /** The question the conversation is waiting on. Every detour ends with it. */
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D1_off_topic
+    flows: [ upgrade, new-home, porting, order ]
+    must: [ Monday to Saturday ]
+    evidence:
+      source: ../src/store.ts
+      quote: "storeHours: 'Monday to Saturday, 9 am to 6 pm',"
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D2_goal_shift
+    flows: [ upgrade, new-home, porting, order ]
+    at: [ recap ]
+    stage_after: recap
+    must: [ "{plan}" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: s.plan = other[0];
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D3_contradiction
+    flows: [ upgrade, new-home, porting, order ]
+    at: [ offer ]
+    stage_after: pending
+    must: [ Which one ]
+    evidence:
+      source: ../src/policy.ts
+      quote: "if (named.length > 1) return `Which one would you like: ${names(named)}?`;"
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D4_loose_confirmation
+    flows: [ upgrade, new-home, porting, order ]
+    at: [ recap ]
+    stage_after: pending
+    guards:
+      - name: explicit_confirmation
+        verdict: block
+    evidence:
+      source: ../src/policy.ts
+      quote: "guards.push({ name: 'explicit_confirmation', verdict: 'block' });"
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D5_language_switch
+    flows: [ upgrade, porting, order ]
+    stage_after: pending
+    evidence:
+      source: ../src/policy.ts
+      quote: if (isForeign(text)) return `I can only help in English for now. ${pendingQuestion(s)}`;
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D5_language_switch
+    flows: [ upgrade, new-home, porting, order ]
+    must: [ I can only help ]
+    evidence:
+      source: ../src/policy.ts
+      quote: if (isForeign(text)) return `I can only help in English for now. ${pendingQuestion(s)}`;
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D6_instruction_in_data
+    flows: [ upgrade, new-home, porting, order ]
+    stage_after: pending
+    guards:
+      - name: instruction_in_data
+        verdict: block
+    evidence:
+      source: ../src/policy.ts
+      quote: "guards.push({ name: 'instruction_in_data', verdict: 'block' });"
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D7_silence_or_burst
+    flows: [ upgrade, new-home, porting, order ]
+    stage_after: pending
+    must: [ I'm here ]
+    evidence:
+      source: ../src/policy.ts
+      quote: "? `I'm here. ${pendingQuestion(s)}`"
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D9_out_of_scope
+    flows: [ upgrade, new-home, porting, order ]
+    stage_after: pending
+    must: [ Acme Care ]
+    evidence:
+      source: ../src/policy.ts
+      quote: "const CARE = `I can't handle billing or service issues here. Acme Care can help: call ${formatPhone(ACME.carePhone)}.`;"
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D10_return
+    flows: [ upgrade, porting, order ]
+    stage_after: pending
+    evidence:
+      source: ../src/policy.ts
+      quote: if (isReturn(text)) return resume(s);
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D10_return
+    flows: [ upgrade, new-home, porting, order ]
+    at: [ identify, address, port_number, offer, details, callback ]
+    must: [ We were|pick up where we left off ]
+    evidence:
+      source: ../src/policy.ts
+      quote: return `Let's pick up where we left off. ${pendingQuestion(s)}`;
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D8_tool_failure
+    flows: [ upgrade, new-home, porting, order ]
+    tool: catalog.search
+    stage_after: callback
+    tools:
+      - tool: catalog.search
+        count: 2
+    evidence:
+      source: ../src/policy.ts
+      quote: our catalog is not responding
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D8_tool_failure
+    flows: [ new-home, order ]
+    tool: coverage.check
+    stage_after: callback
+    tools:
+      - tool: coverage.check
+        count: 2
+    evidence:
+      source: ../src/policy.ts
+      quote: our coverage service is not responding
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D8_tool_failure
+    flows: [ porting ]
+    tool: port.check
+    stage_after: callback
+    tools:
+      - tool: port.check
+        count: 2
+    evidence:
+      source: ../src/policy.ts
+      quote: our transfer service is not responding
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D8_tool_failure
+    flows: [ upgrade, new-home, porting, order ]
+    tool: order.create
+    stage_after: handover
+    tools:
+      - tool: order.create
+        count: 1
+      - tool: notify_sales
+        count: 1
+        input:
+          reason: order_failed
+    evidence:
+      source: ../src/policy.ts
+      quote: "// Never retried: a second order.create could place the order twice. Sales takes it from here."
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D8_tool_failure
+    flows: [ new-home ]
+    tool: notify_sales
+    stage_after: handover
+    tools:
+      - tool: notify_sales
+        count: 1
+    evidence:
+      source: ../src/policy.ts
+      quote: our sales system is not responding
     produced_by: model
     approved: true

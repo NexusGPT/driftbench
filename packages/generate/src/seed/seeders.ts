@@ -1,5 +1,6 @@
 import type { PerturbationSpec, ToolExpect, WorldState } from '@driftbench/core';
 import { NONE } from '@driftbench/space';
+import type { PathRelation, ProposalPhrase } from '../extract/proposal';
 import {
   type BlockDraft,
   choosePhrase,
@@ -12,7 +13,8 @@ import {
 import { DETOURS, MAX_CALLS_AFTER_FAILURE, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
 import { type Edge, type StageGraph, stageGraph, walkGraph } from './graph';
 import { dimensionId, type PreparedMap, partitionOf, phraseKey, valueId } from './map';
-import { pick, type Rng, rngFor, streamSeed } from './random';
+import { pick, type Rng, rngFor, shuffle, streamSeed } from './random';
+import { buildScenario, type ProbeRequest } from './scenario';
 import { coveringArray } from './twise';
 import { concreteValue, INVALID_PARTITIONS, inputAssertion, toolAnswer } from './values';
 
@@ -20,6 +22,12 @@ import { concreteValue, INVALID_PARTITIONS, inputAssertion, toolAnswer } from '.
  * The five seeders. Each one is deterministic code over the approved map: the stage graph walk, the
  * t-wise covering array, the boundary values of every data dimension, one probe per deviation class and
  * the metamorphic families of phrasings. A seeder returns drafts; `renderDraft` writes them as specs.
+ *
+ * When the map holds approved paths (relations), each seeder builds its specs as scenarios on them
+ * (`buildScenario`): a t-wise row walks a path of a flow its behaviour belongs to, a boundary value walks a
+ * path that needs it, a probe is injected on a path whose flow has a recovery for the class, a metamorphic
+ * variant forces one phrasing on the same walk. Every block then carries a machine Then derived from the
+ * map. A cell no path fits goes to incomplete/ with the reason.
  */
 
 export type SeedContext = { seed: number; t: number; max: number };
@@ -28,6 +36,107 @@ export type SeedContext = { seed: number; t: number; max: number };
 export const MAX_PATH_LENGTH = 12;
 
 const pad = (n: number) => String(n).padStart(3, '0');
+
+// Scenarios on the map's paths ----------------------------------------------------------------------------
+
+/** True when the map holds approved paths: the seeders then build scenarios. */
+export function hasPaths(prepared: PreparedMap): boolean {
+  return prepared.relations.paths.length > 0;
+}
+
+/** The flows a behaviour belongs to, by the inventory, by id. A flow value is its own flow. */
+export function flowsOfBehaviour(prepared: PreparedMap, behaviour: string): string[] {
+  const flows = (prepared.inventory?.flows ?? [])
+    .filter((flow) => flow.id === behaviour || (flow.behaviours ?? []).includes(behaviour as never))
+    .map((flow) => flow.id);
+  const own = prepared.relations.paths.some((path) => path.flow === behaviour);
+  return own && !flows.includes(behaviour) ? [behaviour, ...flows] : flows;
+}
+
+type PathTry = { draft: SpecDraft; path: PathRelation } | { reasons: string[] };
+
+/**
+ * Tries the candidate paths in a seeded order, the preferred ones first, and returns the first scenario
+ * that builds, as a draft; else every reason a path gave.
+ */
+function scenarioDraft(
+  prepared: PreparedMap,
+  context: SeedContext,
+  id: string,
+  seeder: SpecDraft['seeder'],
+  prefix: string,
+  fixed: readonly Pick[],
+  candidates: { preferred: PathRelation[]; others: PathRelation[] },
+  options: { probe?: ProbeRequest; force?: ProposalPhrase; rngLabel?: string } = {},
+): PathTry {
+  const rng = rngFor(context.seed, options.rngLabel ?? id);
+  const order = [...shuffle(rng, candidates.preferred), ...shuffle(rng, candidates.others)];
+  const reasons: string[] = [];
+  for (const path of order) {
+    const built = buildScenario(prepared, rng, {
+      path,
+      fixed,
+      ...(options.probe ? { probe: options.probe } : {}),
+      ...(options.force ? { force: options.force } : {}),
+    });
+    if (!built.ok) {
+      reasons.push(built.reason);
+      continue;
+    }
+    const cell = [...built.cell, ...contextAxes(prepared, built.cell, rng)];
+    const behaviours = cell.filter(
+      ([dimension]) =>
+        prepared.space.dimensions[dimension]?.kind === 'behaviour' && dimension !== prepared.transition,
+    );
+    const criteria = behaviours.map((entry) => draftCriterion(prepared, entry));
+    const blocks = built.blocks;
+    const first = blocks[0];
+    if (first && criteria.length > 0) first.criteria = criteria.map((criterion) => criterion.name);
+    if (options.probe) {
+      const probeCriterion = deviationCriterion(options.probe.classId);
+      criteria.push(probeCriterion);
+      const injected = blocks.find((block) => block.injection === options.probe?.classId);
+      if (injected) injected.criteria = [...(injected.criteria ?? []), probeCriterion.name];
+    }
+    return {
+      path,
+      draft: {
+        id,
+        seeder,
+        title: `${prefix}: ${built.title}`,
+        stream: streamSeed(context.seed, options.rngLabel ?? id),
+        cell,
+        blocks,
+        criteria,
+        path: path.id,
+        ...(built.rules ? { rules: built.rules } : {}),
+        ...(built.endState ? { end_state: built.endState } : {}),
+      },
+    };
+  }
+  return { reasons: reasons.length > 0 ? reasons : ['no approved path fits'] };
+}
+
+/** Splits paths into those that list a behaviour and the rest. */
+function preferring(paths: PathRelation[], behaviour: string | undefined) {
+  const preferred = paths.filter(
+    (path) => behaviour !== undefined && (path.behaviours ?? []).includes(behaviour),
+  );
+  return { preferred, others: paths.filter((path) => !preferred.includes(path)) };
+}
+
+/** The probe a cell's deviation asks for, or undefined for none. */
+function probeOf(prepared: PreparedMap, cell: readonly Pick[]): ProbeRequest | undefined {
+  const deviation = cell.find(([dimension]) => dimension === prepared.deviation);
+  if (!deviation) return undefined;
+  const classId = valueId(prepared, deviation[0], deviation[1]);
+  return classId === NONE ? undefined : { classId };
+}
+
+/** An incomplete draft: the old carrier, its blocks with judged criteria only, and why no path fits. */
+function withReasons(draft: SpecDraft, reasons: string[]): SpecDraft {
+  return { ...draft, reasons: [...new Set(reasons)].slice(0, 6) };
+}
 
 // The stage graph --------------------------------------------------------------------------------------
 
@@ -40,6 +149,8 @@ export type GraphSummary = {
   unreachable: string[];
   blocked: string[];
   unparsed: string[];
+  /** Approved paths the generator could not walk in any cell, with why. */
+  unwalked?: Array<{ path: string; reasons: string[] }>;
 };
 
 export function graphSeeder(
@@ -60,6 +171,7 @@ export function graphSeeder(
     };
     return { drafts: [], summary };
   }
+  if (hasPaths(prepared)) return pathSeeder(prepared, context, graph);
   const walk = walkGraph(prepared, graph, rngFor(context.seed, 'graph'), {
     maxLength: MAX_PATH_LENGTH,
     maxPaths: context.max,
@@ -102,6 +214,52 @@ export function graphSeeder(
     unparsed: graph.unparsed,
   };
   return { drafts, summary };
+}
+
+/**
+ * With approved paths, the stage graph is walked along them: one spec per path, in a cell its `when`
+ * allows, so every edge a path takes is covered by a conversation the agent can actually have. An edge no
+ * approved path takes is reported as blocked.
+ */
+function pathSeeder(
+  prepared: PreparedMap,
+  context: SeedContext,
+  graph: StageGraph,
+): { drafts: SpecDraft[]; summary: GraphSummary } {
+  const drafts: SpecDraft[] = [];
+  const covered = new Set<string>();
+  const unwalked: Array<{ path: string; reasons: string[] }> = [];
+  for (const path of prepared.relations.paths) {
+    if (drafts.length >= context.max) break;
+    const id = `gen-graph-${pad(drafts.length + 1)}`;
+    const built = scenarioDraft(prepared, context, id, 'graph', `Stage path ${drafts.length + 1}`, [], {
+      preferred: [path],
+      others: [],
+    });
+    if ('draft' in built) {
+      for (let index = 0; index + 1 < path.stages.length; index += 1) {
+        covered.add(`${path.stages[index]}-to-${path.stages[index + 1]}`);
+      }
+      drafts.push(built.draft);
+    } else {
+      unwalked.push({ path: path.id, reasons: built.reasons });
+    }
+  }
+  const edges = graph.edges.map((edge) => edge.id);
+  return {
+    drafts,
+    summary: {
+      stages: graph.stages.length,
+      start: graph.start ?? null,
+      edges: graph.edges.length,
+      covered: edges.filter((edge) => covered.has(edge)).length,
+      paths: drafts.length,
+      unreachable: [],
+      blocked: edges.filter((edge) => !covered.has(edge)),
+      unparsed: graph.unparsed,
+      ...(unwalked.length > 0 ? { unwalked } : {}),
+    },
+  };
 }
 
 /** One block per edge: the phrase of the transition (or of the stage it reaches), the stage it reaches. */
@@ -256,14 +414,31 @@ export function twiseSeeder(
   const drafts = array.rows.map((row, index) => {
     const id = `gen-twise-${pad(index + 1)}`;
     const cell: Pick[] = dimensions.map((dimension) => [dimension, row[dimension] ?? 0]);
-    return carrierDraft(
-      prepared,
-      context,
-      id,
-      'twise',
-      `t-wise row ${index + 1} of ${array.rows.length}`,
-      cell,
-    );
+    const title = `t-wise row ${index + 1} of ${array.rows.length}`;
+    if (!hasPaths(prepared)) return carrierDraft(prepared, context, id, 'twise', title, cell);
+    const behaviour = cell
+      .filter(
+        ([dimension]) =>
+          prepared.axes.has(dimension) && prepared.space.dimensions[dimension]?.kind === 'behaviour',
+      )
+      .map(([dimension, value]) => valueId(prepared, dimension, value))[0];
+    const flows = behaviour === undefined ? [] : flowsOfBehaviour(prepared, behaviour);
+    const paths = prepared.relations.paths.filter((path) => flows.includes(path.flow));
+    const probe = probeOf(prepared, cell);
+    const fixed = cell.filter(([dimension]) => dimension !== prepared.deviation);
+    const built = scenarioDraft(prepared, context, id, 'twise', title, fixed, preferring(paths, behaviour), {
+      ...(probe ? { probe } : {}),
+    });
+    if ('draft' in built) {
+      const deviation = cell.find(([dimension]) => dimension === prepared.deviation);
+      if (deviation) built.draft.cell.push(deviation);
+      return built.draft;
+    }
+    const reasons =
+      paths.length === 0
+        ? [`no approved path belongs to a flow of ${behaviour ?? 'the row'} (${flows.join(', ') || 'none'})`]
+        : built.reasons;
+    return withReasons(carrierDraft(prepared, context, id, 'twise', title, cell), reasons);
   });
   const summary: TwiseSummary = {
     t,
@@ -366,9 +541,11 @@ function addDeviation(
   };
   if (anchor !== undefined && DETOURS.has(classId)) block.stage = anchor;
   if (classId === 'D5_language_switch') {
+    // The reply stays in the language the map fixes for every reply; without that rule, in the language the
+    // conversation declared. Never the language of the switched message.
     const declared = draft.blocks.find((candidate) => candidate.stimulus.kind === 'phrase');
     const lang = declared?.stimulus.kind === 'phrase' ? declared.stimulus.phrase.lang : undefined;
-    const bank = lang ?? mostFrequentLang(prepared);
+    const bank = prepared.relations.replyLanguage ?? lang ?? mostFrequentLang(prepared);
     if (bank) block.lang = bank.toUpperCase();
   }
   if (classId === 'D7_silence_or_burst') draft.rules = { ...(draft.rules ?? {}), one_message_per_turn: true };
@@ -468,6 +645,16 @@ export function boundarySeeder(
       const rng = rngFor(context.seed, id);
       const target: Pick = [index, position];
       const found = prepared.toolDimensions.get(index);
+      if (hasPaths(prepared) && !found) {
+        const built = boundaryScenario(prepared, context, id, dimension.id, value.id, target);
+        if ('draft' in built) {
+          drafts.push(built.draft);
+          return;
+        }
+        const old = oldBoundary(prepared, context, id, rng, index, position, value.title);
+        drafts.push(withReasons(old, built.reasons));
+        return;
+      }
       const partition = partitionOf(dimension.id, value.id);
       const cell: Pick[] = [target];
       const tools: ToolExpect[] = [];
@@ -527,6 +714,78 @@ export function boundarySeeder(
   return { drafts, summary: { values: drafts.length, tools: toolValues, unsupported } };
 }
 
+/**
+ * A data value on the map's paths: a path whose `when` needs the value, walked with it; a value that names a
+ * tool the map recovers from, as that tool's failure on a path of a flow with the recovery.
+ */
+function boundaryScenario(
+  prepared: PreparedMap,
+  context: SeedContext,
+  id: string,
+  dimension: string,
+  value: string,
+  target: Pick,
+): PathTry {
+  const title = `Boundary value ${dimension}=${value}`;
+  const tool = prepared.tools.some((entry) => entry.name === value)
+    ? prepared.relations.recoveries.some((entry) => entry.class === TOOL_FAILURE && entry.tool === value)
+    : false;
+  if (tool) {
+    const flows = new Set(
+      prepared.relations.recoveries
+        .filter((entry) => entry.class === TOOL_FAILURE && entry.tool === value)
+        .flatMap((entry) => entry.flows),
+    );
+    return scenarioDraft(
+      prepared,
+      context,
+      id,
+      'boundary',
+      title,
+      [target],
+      { preferred: prepared.relations.paths.filter((path) => flows.has(path.flow)), others: [] },
+      { probe: { classId: TOOL_FAILURE, tool: value } },
+    );
+  }
+  const needing = prepared.relations.paths.filter((path) => path.when?.[dimension]?.includes(value));
+  if (needing.length === 0) return { reasons: [`no approved path needs ${dimension}=${value}`] };
+  return scenarioDraft(prepared, context, id, 'boundary', title, [target], {
+    preferred: needing,
+    others: [],
+  });
+}
+
+/** A data value the paths cannot place: one block with its phrase, or a placeholder, and judged criteria. */
+function oldBoundary(
+  prepared: PreparedMap,
+  context: SeedContext,
+  id: string,
+  rng: Rng,
+  index: number,
+  position: number,
+  title: string,
+): SpecDraft {
+  const target: Pick = [index, position];
+  const cell: Pick[] = [target, ...contextAxes(prepared, [target], rng)];
+  const criterion = draftCriterion(prepared, target);
+  return {
+    id,
+    seeder: 'boundary',
+    title: `Boundary value ${valueId(prepared, index, position)}: ${title}`,
+    stream: streamSeed(context.seed, id),
+    cell,
+    blocks: [
+      {
+        id: 'b1-value',
+        stimulus: choosePhrase(prepared, rng, [target]),
+        carries: [target],
+        criteria: [criterion.name],
+      },
+    ],
+    criteria: [criterion],
+  };
+}
+
 // Deviation probes -------------------------------------------------------------------------------------
 
 export type DeviationSummary = {
@@ -582,6 +841,45 @@ export function deviationSeeder(
     if (drafts.length >= context.max) break;
     const deviation: Pick = [dimension, prepared.space.dimensions[dimension]?.index.get(value.id) ?? 0];
     const id = `gen-deviation-${pad(drafts.length + 1)}`;
+    if (hasPaths(prepared)) {
+      const required = new Set(
+        (prepared.inventory?.flows ?? [])
+          .filter((flow) => (flow.deviations ?? []).includes(value.id as never))
+          .map((flow) => flow.id),
+      );
+      const built = scenarioDraft(
+        prepared,
+        context,
+        id,
+        'deviation',
+        `Deviation probe ${value.id}`,
+        [],
+        {
+          preferred: prepared.relations.paths.filter((path) => required.has(path.flow)),
+          others: prepared.relations.paths.filter((path) => !required.has(path.flow)),
+        },
+        { probe: { classId: value.id } },
+      );
+      const phrase =
+        (prepared.phrasesOf.get(phraseKey(dimensionId(prepared, dimension), value.id)) ?? []).length > 0;
+      if ('draft' in built) {
+        built.draft.cell.push(deviation);
+        drafts.push(built.draft);
+        const injected = built.draft.blocks.findIndex((block) => block.injection === value.id);
+        const path = built.path.stages;
+        probes.push({
+          class: value.id,
+          stage: injected < 0 ? null : (path[injected] ?? null),
+          spec: id,
+          phrase,
+        });
+        continue;
+      }
+      const fallback = probeDraft(prepared, context, id, 'deviation', deviation, anchors);
+      drafts.push(withReasons(fallback.draft, built.reasons));
+      probes.push({ class: value.id, stage: null, spec: id, phrase });
+      continue;
+    }
     const probe = probeDraft(prepared, context, id, 'deviation', deviation, anchors);
     drafts.push(probe.draft);
     probes.push({
@@ -691,6 +989,7 @@ export function metamorphicSeeder(
   const graph = stageGraph(prepared);
   const anchors = anchorStages(prepared, graph);
   let families = 0;
+  if (hasPaths(prepared)) return metamorphicOnPaths(prepared, context);
   for (const [key, phrases] of prepared.phrasesOf) {
     if (phrases.length < 2 || drafts.length >= context.max) continue;
     const target = pickOf(prepared, phrases[0] as (typeof phrases)[number]);
@@ -713,6 +1012,84 @@ export function metamorphicSeeder(
         metamorphic: { family, variant: variant + 1, of: phrases.length, relation: 'same observed outcome' },
       });
     });
+  }
+  return { drafts, summary: { families, specs: drafts.length, values } };
+}
+
+/**
+ * Metamorphic families on the map's paths: the phrasings of one value that fit the same cells and state the
+ * same slot values form a family; each variant walks the same path, in the same cell, with the same draws,
+ * and says that value with its own phrasing. The Then is the same by construction; the gate checks that the
+ * agent's outcome is too.
+ */
+function metamorphicOnPaths(
+  prepared: PreparedMap,
+  context: SeedContext,
+): { drafts: SpecDraft[]; summary: MetamorphicSummary } {
+  const drafts: SpecDraft[] = [];
+  const values: string[] = [];
+  let families = 0;
+  const transitionKey =
+    prepared.transition === undefined ? undefined : dimensionId(prepared, prepared.transition);
+  const deviationKey =
+    prepared.deviation === undefined ? undefined : dimensionId(prepared, prepared.deviation);
+  for (const [key, phrases] of prepared.phrasesOf) {
+    if (drafts.length >= context.max) break;
+    const groups = new Map<string, ProposalPhrase[]>();
+    for (const phrase of phrases) {
+      const group = JSON.stringify([phrase.when ?? null, phrase.binds ?? null]);
+      groups.set(group, [...(groups.get(group) ?? []), phrase]);
+    }
+    for (const members of groups.values()) {
+      if (members.length < 2 || drafts.length >= context.max) continue;
+      const first = members[0] as ProposalPhrase;
+      const target = pickOf(prepared, first);
+      if (!target || target[0] === prepared.stage) continue;
+      let candidates: PathRelation[] = [];
+      let probe: ProbeRequest | undefined;
+      if (first.dimension === transitionKey) {
+        candidates = prepared.relations.paths.filter((path) =>
+          path.stages.some((stage, index) => `${stage}-to-${path.stages[index + 1]}` === first.value),
+        );
+      } else if (first.dimension === deviationKey) {
+        candidates = prepared.relations.paths;
+        probe = { classId: first.value };
+      }
+      families += 1;
+      values.push(key);
+      const family = `gen-metamorphic-${pad(families)}`;
+      members.forEach((phrase, variant) => {
+        const id = `${family}-${variant + 1}`;
+        const title = `Metamorphic ${key}, phrasing ${variant + 1} of ${members.length}`;
+        const built =
+          candidates.length === 0
+            ? { reasons: [`no approved path says ${key}`] }
+            : scenarioDraft(
+                prepared,
+                context,
+                id,
+                'metamorphic',
+                title,
+                [],
+                { preferred: candidates, others: [] },
+                { force: phrase, rngLabel: family, ...(probe ? { probe } : {}) },
+              );
+        const metamorphic = {
+          family,
+          variant: variant + 1,
+          of: members.length,
+          relation: 'same observed outcome',
+        };
+        if ('draft' in built) {
+          drafts.push({ ...built.draft, metamorphic });
+          return;
+        }
+        const old = carrierDraft(prepared, { ...context }, family, 'metamorphic', '', [target], {
+          stimulus: { kind: 'phrase', phrase },
+        });
+        drafts.push(withReasons({ ...old, id, title, metamorphic }, built.reasons));
+      });
+    }
   }
   return { drafts, summary: { families, specs: drafts.length, values } };
 }
