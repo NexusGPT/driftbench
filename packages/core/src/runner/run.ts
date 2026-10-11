@@ -112,6 +112,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   }
   const now = options.now ?? (() => new Date());
   const specHash = contentHash(spec);
+  // The cache key leaves out the spec's version: a free label that plays no part (docs/running.md, "The
+  // cache and replay"), so relabelling a spec still replays its runs.
+  const { version: _version, ...unlabelled } = spec;
+  const cacheSpecHash = contentHash(unlabelled);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
   // In P mode the spec's end state describes the unperturbed run, so it is neither read nor compared, as
   // the Acme light runner and the end_state check do; phase 3 decides what a perturbed run should leave.
@@ -132,6 +136,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const run: RunContext = {
     spec,
     specHash,
+    cacheSpecHash,
     target,
     mode: options.mode,
     repeat: options.repeat,
@@ -189,6 +194,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 type RunContext = {
   spec: Spec;
   specHash: string;
+  /** The hash the cache key carries: the spec's, without its version label. */
+  cacheSpecHash: string;
   target: TargetRef;
   mode: RunMode;
   repeat: number;
@@ -314,7 +321,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         retry: run.policy,
       };
       const key = blockCacheKey({
-        specHash: run.specHash,
+        specHash: run.cacheSpecHash,
         repeat: run.repeat,
         position,
         given,
