@@ -88,6 +88,7 @@ export function parseAnswerText(raw: string): JudgeResult {
   // Prose may hold brace pairs or an example object before the answer: the first object that meets the
   // contract is the answer; when none does, the first problem is the reason.
   let first: JudgeResult | undefined;
+  let answer: JudgeResult | undefined;
   for (const candidate of candidates) {
     let result: JudgeResult;
     if (!candidate.includes(':')) {
@@ -100,10 +101,15 @@ export function parseAnswerText(raw: string): JudgeResult {
         result = { answer: inconclusive(`unparseable answer: ${why}`), raw, unparsed: true };
       }
     }
-    if (!result.unparsed) return result;
-    first ??= result;
+    if (!result.unparsed) {
+      // Two answers that disagree are no answer: the judge changed its mind and the text cannot say which.
+      if (answer && answer.answer.outcome !== result.answer.outcome) {
+        return { answer: inconclusive('two answers that disagree'), raw, unparsed: true };
+      }
+      answer ??= result;
+    } else first ??= result;
   }
-  return first as JudgeResult;
+  return answer ?? (first as JudgeResult);
 }
 
 /** Validates an already decoded answer against the contract. */

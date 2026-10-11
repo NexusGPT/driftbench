@@ -116,3 +116,15 @@ describe('a score that contradicts the outcome', () => {
     expect(parseAnswerText('{"outcome":"fail","score":0.5,"reasoning":"r"}').answer.outcome).toBe('fail');
   });
 });
+
+describe('two answers', () => {
+  it('refuses two answers that disagree and reads two that agree', () => {
+    expect(
+      parseAnswerText('{"outcome":"pass","reasoning":"a"} then {"outcome":"fail","reasoning":"b"}').unparsed,
+    ).toBe(true);
+    expect(
+      parseAnswerText('{"outcome":"pass","reasoning":"a"} again {"outcome":"pass","reasoning":"b"}').answer
+        .reasoning,
+    ).toBe('a');
+  });
+});
