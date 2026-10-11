@@ -56,6 +56,13 @@ describe('driftbench view', () => {
     expect(viewer.url).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
   });
 
+  it('tells the browser to load nothing from anywhere', async () => {
+    const response = await fetch(`${viewer.url}/`);
+    expect(response.headers.get('content-security-policy')).toBe(
+      "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'",
+    );
+  });
+
   it('lists the campaigns of the store with their runs', async () => {
     const page = await get('/');
     expect(page.status).toBe(200);
@@ -104,6 +111,8 @@ describe('driftbench view', () => {
     const first = await save('pass', '1', 'The plans and prices come from catalog.search.');
     expect(first.status).toBe(303);
     expect(first.headers.get('location')).toBe(`${run}?saved=no_invented_data#block-1`);
+    const onlyPass = await get(`${run}?saved=no_invented_data`);
+    expect(onlyPass.text).toContain('1 pass, 0 fail. judge calibrate needs at least one fail label on it.');
     expect((await save('fail', '3', 'The order is placed with no recap.')).status).toBe(303);
 
     const loaded = await loadLabels(labels);
