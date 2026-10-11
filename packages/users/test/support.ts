@@ -66,11 +66,15 @@ export function acmeSales(wrap?: (agent: AcmeAgent) => AcmeAgent): AgentAdapter 
   });
 }
 
-/** The Acme ops agent behind the real process adapter, in a local sandbox under `dir`. */
-export function acmeOps(dir: string): AgentAdapter {
+/** A faulty ops agent of the gate lane's fault set: a script that wraps the real one. */
+export const OPS_FAULT = (name: string) =>
+  fileURLToPath(new URL(`../../../examples/acme/faults/ops/${name}`, import.meta.url));
+
+/** The Acme ops agent (or a fault script) behind the real process adapter, in a local sandbox under `dir`. */
+export function acmeOps(dir: string, script: string = OPS_AGENT): AgentAdapter {
   return processAdapter({
     command: process.execPath,
-    args: [OPS_AGENT],
+    args: [script],
     provider: localProvider({ dir }),
     deterministic: true,
   });
