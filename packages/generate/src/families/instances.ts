@@ -2,6 +2,7 @@ import { mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { canonicalJson, validateSpec } from '@driftbench/core';
 import { stringify } from 'yaml';
+import { formatJson } from '../enumerate/json';
 import { rngFor, streamSeed } from '../seed/random';
 import { compileBlock } from './compile';
 import { alternatives, drawKnobs, FamilyError, type Knobs } from './knobs';
@@ -446,7 +447,7 @@ export async function writeInstances(
     }
   }
   const reportPath = join(dir, REPORT_NAME);
-  await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  await writeFile(reportPath, formatJson(report));
   written.push(reportPath);
   return written;
 }

@@ -7,6 +7,7 @@ import {
   FamilyError,
   type FamilyIssue,
   familyReport,
+  formatJson,
   type Instance,
   type LoadedFamily,
   loadFamily,
@@ -222,7 +223,7 @@ export async function familyVerifyCommand(
     );
     return 2;
   }
-  await writeFile(join(root, VERIFY_REPORT_NAME), `${JSON.stringify(report, null, 2)}\n`);
+  await writeFile(join(root, VERIFY_REPORT_NAME), formatJson(report));
   const pending = await pendingReviewNote(root, report);
   if (options.json) {
     io.out(`${JSON.stringify(report, null, 2)}\n`);

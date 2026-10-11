@@ -24,11 +24,7 @@
         "workbook": "out/acme-prices.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "duplicate-line",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -66,11 +62,7 @@
         "workbook": "out/acme-prices.xlsx",
         "yearly": "formula"
       },
-      "corners": [
-        "duplicate-line",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -108,11 +100,7 @@
         "workbook": "out/acme-prices.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "empty-cell",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["empty-cell", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -150,11 +138,7 @@
         "workbook": "out/acme-prices.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "empty-cell",
-        "duplicate-line",
-        "header-order"
-      ],
+      "corners": ["empty-cell", "duplicate-line", "header-order"],
       "variants": [
         {
           "id": "base",
@@ -196,11 +180,7 @@
         "workbook": "out/acme-prices.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "duplicate-line",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -238,11 +218,7 @@
         "workbook": "out/acme-price-sheet.xlsx",
         "yearly": "formula"
       },
-      "corners": [
-        "empty-cell",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["empty-cell", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -280,11 +256,7 @@
         "workbook": "out/acme-price-sheet.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "empty-cell",
-        "duplicate-line",
-        "unit-change"
-      ],
+      "corners": ["empty-cell", "duplicate-line", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -322,11 +294,7 @@
         "workbook": "out/acme-price-sheet.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "empty-cell",
-        "duplicate-line",
-        "unit-change"
-      ],
+      "corners": ["empty-cell", "duplicate-line", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -368,11 +336,7 @@
         "workbook": "out/price-sheet.xlsx",
         "yearly": "formula"
       },
-      "corners": [
-        "empty-cell",
-        "duplicate-line",
-        "unit-change"
-      ],
+      "corners": ["empty-cell", "duplicate-line", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -410,11 +374,7 @@
         "workbook": "out/acme-prices.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "empty-cell",
-        "duplicate-line",
-        "header-order"
-      ],
+      "corners": ["empty-cell", "duplicate-line", "header-order"],
       "variants": [
         {
           "id": "base",
@@ -452,11 +412,7 @@
         "workbook": "out/acme-price-sheet.xlsx",
         "yearly": "formula"
       },
-      "corners": [
-        "duplicate-line",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -494,11 +450,7 @@
         "workbook": "out/acme-price-sheet.xlsx",
         "yearly": "formula"
       },
-      "corners": [
-        "empty-cell",
-        "duplicate-line",
-        "unit-change"
-      ],
+      "corners": ["empty-cell", "duplicate-line", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -540,11 +492,7 @@
         "workbook": "out/acme-prices.xlsx",
         "yearly": "formula"
       },
-      "corners": [
-        "duplicate-line",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -586,11 +534,7 @@
         "workbook": "out/acme-price-sheet.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "duplicate-line",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -628,11 +572,7 @@
         "workbook": "out/acme-price-sheet.xlsx",
         "yearly": "formula"
       },
-      "corners": [
-        "empty-cell",
-        "duplicate-line",
-        "header-order"
-      ],
+      "corners": ["empty-cell", "duplicate-line", "header-order"],
       "variants": [
         {
           "id": "base",
@@ -670,11 +610,7 @@
         "workbook": "out/price-sheet.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "empty-cell",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["empty-cell", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -712,11 +648,7 @@
         "workbook": "out/price-sheet.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "duplicate-line",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -754,11 +686,7 @@
         "workbook": "out/acme-price-sheet.xlsx",
         "yearly": "value"
       },
-      "corners": [
-        "empty-cell",
-        "duplicate-line",
-        "unit-change"
-      ],
+      "corners": ["empty-cell", "duplicate-line", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -800,11 +728,7 @@
         "workbook": "out/price-sheet.xlsx",
         "yearly": "formula"
       },
-      "corners": [
-        "empty-cell",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["empty-cell", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
@@ -846,11 +770,7 @@
         "workbook": "out/acme-price-sheet.xlsx",
         "yearly": "formula"
       },
-      "corners": [
-        "duplicate-line",
-        "header-order",
-        "unit-change"
-      ],
+      "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
         {
           "id": "base",
