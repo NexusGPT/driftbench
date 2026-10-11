@@ -7,11 +7,10 @@ import {
   formatItems,
   type JournalRow,
   JournalRowSchema,
-  measureHardness,
   runSeeds,
   seedSpecs,
 } from '../src/index';
-import { journalOf, journalRow } from './support';
+import { hard, journalOf, journalRow } from './support';
 
 function ladderOf(entries: Parameters<typeof bankMeasure>[0]) {
   return defineLadder({
@@ -83,18 +82,18 @@ describe('the distinct-cause gate of --hardness', () => {
     journalOf(PILOT, 300, TIERS, causes).map((row) => JournalRowSchema.parse(row));
 
   it('holds at 100 distinct failing causes and fails at 99', () => {
-    expect(measureHardness(rows(() => 100)).gate).toEqual({ holds: true, reasons: [] });
-    expect(measureHardness(rows(() => 100)).causes).toEqual({ distinct: 100, withoutCause: 0 });
-    expect(measureHardness(rows(() => 99)).gate).toEqual({
+    expect(hard(rows(() => 100)).gate).toEqual({ holds: true, reasons: [] });
+    expect(hard(rows(() => 100)).causes).toEqual({ distinct: 100, withoutCause: 0 });
+    expect(hard(rows(() => 99)).gate).toEqual({
       holds: false,
       reasons: ['99 distinct failing causes after the pilot, under 100: extend the bank (12.2)'],
     });
   });
 
   it('fails when the last pilot row records no cause count', () => {
-    const h = measureHardness(rows(() => undefined));
+    const h = hard(rows(() => undefined));
     expect(h.causes).toBeNull();
-    expect(h.gate.reasons).toEqual(['the last pilot row records no failingCauses']);
+    expect(h.gate.reasons).toEqual(['the last row of the pilot records no failingCauses']);
     expect(formatHardness('caused', h)).toContain('Distinct failing causes after the pilot: not recorded.');
   });
 
@@ -104,7 +103,7 @@ describe('the distinct-cause gate of --hardness', () => {
         index === PILOT.length - 1 ? { ...(row as object), failingWithoutCause: 12 } : row,
       ),
     );
-    const text = formatHardness('caused', measureHardness(parsed));
+    const text = formatHardness('caused', hard(parsed));
     expect(text).toContain(
       'Distinct failing causes after the pilot: 150 (12 failing items name no cause and count as their own).',
     );
