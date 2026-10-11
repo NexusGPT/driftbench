@@ -19,7 +19,7 @@
   .copy { position: absolute; left: 96px; top: 196px; width: 660px; }
   .eyebrow {
     display: flex; align-items: center; gap: 14px;
-    font-family: var(--mono); font-size: 15px; font-weight: 500;
+    font-family: var(--mono); font-size: 16px; font-weight: 500;
     letter-spacing: 0.22em; text-transform: uppercase; color: #4A5262;
   }
   .eyebrow .dot { width: 9px; height: 9px; border-radius: 50%; background: #EA6A2A; flex: none; }
@@ -47,7 +47,7 @@
   .panel { display: block; width: 672px; height: 340px; border-radius: 16px; }
   .card .caption {
     padding: 16px 6px 18px;
-    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    font-family: var(--mono); font-size: 15px; font-weight: 500;
     letter-spacing: 0.2em; text-transform: uppercase; color: #3E4553;
   }
 </style>
@@ -74,16 +74,16 @@
       <rect x="0" y="0" width="672" height="340" rx="16" fill="url(#pbg)"/>
 
       <!-- legend -->
-      <g font-size="12.5" fill="#8C96A6">
-        <line x1="474" y1="31" x2="500" y2="31" stroke="#5F6A7B" stroke-width="1.6" stroke-dasharray="4 4"/>
-        <text x="508" y="35">expected</text>
-        <line x1="572" y1="31" x2="598" y2="31" stroke="#86A8FF" stroke-width="2.4" stroke-linecap="round"/>
-        <text x="606" y="35">observed</text>
+      <g font-size="14.5" fill="#8C96A6">
+        <line x1="440" y1="30" x2="466" y2="30" stroke="#5F6A7B" stroke-width="1.8" stroke-dasharray="4 4"/>
+        <text x="474" y="35">expected</text>
+        <line x1="552" y1="30" x2="578" y2="30" stroke="#86A8FF" stroke-width="2.6" stroke-linecap="round"/>
+        <text x="586" y="35">observed</text>
       </g>
 
       <!-- injection marker over block 3 -->
       <g>
-        <text x="284" y="32" text-anchor="middle" font-size="13" fill="#F2A673" font-weight="500">goal shift injected</text>
+        <text x="284" y="32" text-anchor="middle" font-size="15.5" fill="#F2A673" font-weight="500">goal shift injected</text>
         <path d="M 278 40 L 290 40 L 284 47 Z" fill="#F2904F"/>
       </g>
 
@@ -101,13 +101,13 @@
 
       <!-- drift chip under block 3 -->
       <g>
-        <rect x="236" y="262" width="96" height="23" rx="11.5" fill="rgba(242,144,79,0.14)" stroke="rgba(242,144,79,0.5)"/>
-        <text x="284" y="278" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11.5" fill="#F4A06A" font-weight="500">X3 flow drift</text>
+        <rect x="222" y="260" width="124" height="26" rx="13" fill="rgba(242,144,79,0.14)" stroke="rgba(242,144,79,0.5)"/>
+        <text x="284" y="278" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13.5" fill="#F4A06A" font-weight="500">X3 flow drift</text>
       </g>
 
       <!-- recovery bracket from block 3 to block 4 -->
       <path d="M 262 294 L 262 301 L 412 301 L 412 294" fill="none" stroke="#9DB8FF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-      <text x="337" y="324" text-anchor="middle" font-size="13.5" fill="#C5CFDC">back on track one block later</text>
+      <text x="337" y="325" text-anchor="middle" font-size="16" fill="#C5CFDC">back on track one block later</text>
     </svg>
     <div class="caption">A perturbed run, block by block</div>
   </div>
@@ -136,9 +136,9 @@
       fill: drift ? 'rgba(242,144,79,0.08)' : 'rgba(255,255,255,0.025)',
       stroke: drift ? 'rgba(242,144,79,0.42)' : 'rgba(255,255,255,0.07)'
     }, cols);
-    el('text', { x: cx, y: 82, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono, monospace', 'font-size': 13,
+    el('text', { x: cx, y: 82, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono, monospace', 'font-size': 15,
       fill: drift ? '#F2A673' : '#7F8999', 'font-weight': 500 }, cols, 'b' + (i + 1));
-    el('text', { x: cx, y: 118, 'text-anchor': 'middle', 'font-size': 13.5, fill: '#8C96A6' }, cols, step);
+    el('text', { x: cx, y: 117, 'text-anchor': 'middle', 'font-size': 16, fill: '#959FAF' }, cols, step);
     // expected node
     el('circle', { cx, cy: 140, r: 7.5, fill: '#10151C', stroke: drift ? '#7A6A60' : '#6B7688', 'stroke-width': 1.6 }, nodes);
     if (!drift) {
@@ -146,7 +146,7 @@
     } else {
       el('circle', { cx, cy: 206, r: 10, fill: 'rgba(242,144,79,0.18)' }, nodes);
       el('circle', { cx, cy: 206, r: 5.5, fill: '#F2904F' }, nodes);
-      el('text', { x: cx, y: 236, 'text-anchor': 'middle', 'font-size': 13.5, fill: '#F2A673', 'font-weight': 500 }, nodes, 'identity');
+      el('text', { x: cx, y: 239, 'text-anchor': 'middle', 'font-size': 16, fill: '#F2A673', 'font-weight': 500 }, nodes, 'identity');
     }
   });
 
