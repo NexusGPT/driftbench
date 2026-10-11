@@ -37,3 +37,15 @@ Sources read:
 What others do: boundary value analysis tests on and just below each edge; minItems is an edge of the item count, so a test needs one item under it and exactly at it.
 
 What to try, and why: the tool pre-pass reads minItems: below-min-items and at-min-items, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
+
+## Iteration 4
+
+Question: packages/generate/src/extract/tools.ts: numberPartitions reads exclusiveMinimum and exclusiveMaximum only as numbers, so a draft-04 schema (minimum with exclusiveMinimum true) gets inclusive bounds; schema-keywords.exclusive-minimum-boolean and exclusive-maximum-boolean prove it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-validation section 6.2.5 (exclusiveMinimum is a number since draft 6)
+* packages/generate/src/extract/tools.ts doc comment (the accepted files include OpenAI and older tool formats, which carry draft-04 schemas)
+
+What others do: draft 6 turned exclusiveMinimum and exclusiveMaximum from booleans that modify minimum and maximum into numbers; tool files from older generators still carry the boolean form.
+
+What to try, and why: the tool pre-pass reads the draft-04 boolean exclusiveMinimum and exclusiveMaximum, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
