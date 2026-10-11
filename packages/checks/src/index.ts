@@ -1,2 +1,45 @@
-/** Machine checks: tool calls, text, language, personal data, cards, end state, artifacts, workspace, execution, safety, budget. Implementation lands in Phase 1 and Phase 5. */
+/**
+ * Machine checks. Each check reads one part of what a block expected and what was observed, and returns
+ * verdicts with evidence: tool calls, forbidden tools, text, language, personal data, cards, stage,
+ * skills, guards, execution, workspace, safety, artifacts, strict schemas, budget, end state and the
+ * checks users register. `defaultChecks()` returns them all, in the order the runner applies them.
+ */
+export { artifacts } from './checks/artifacts';
+export { budget } from './checks/budget';
+export { cards } from './checks/cards';
+export {
+  CheckRegistry,
+  type CustomCheckFunction,
+  createCustomCheck,
+  custom,
+  defaultRegistry,
+  registerCheck,
+} from './checks/custom';
+export { compareEndState, type EndStateDiff, endState } from './checks/end_state';
+export { execution } from './checks/execution';
+export { forbidden } from './checks/forbidden';
+export { guards } from './checks/guards';
+export { createLangCheck, lang } from './checks/lang';
+export { must, mustNot } from './checks/must';
+export { pii } from './checks/pii';
+export { safety } from './checks/safety';
+export { schemaStrict } from './checks/schema_strict';
+export { skills } from './checks/skills';
+export { stage } from './checks/stage';
+export { tools } from './checks/tools';
+export { workspace } from './checks/workspace';
+export { type DefaultChecksOptions, defaultChecks } from './defaults';
+export { type AssertionResult, checkAssertion } from './support/assert';
+export { countAllows, describeCount } from './support/count';
+export { DETECT_DEFAULTS, type DetectOptions, detect, toDetectorCode } from './support/language';
+export {
+  classifyCommand,
+  classifyTool,
+  destructiveOperations,
+  type Operation,
+  type OperationClass,
+} from './support/operations';
+export { type PiiFinding, type PiiKind, redact, scanPii } from './support/pii';
+export { type SchemaIssue, validateStrict } from './support/schema';
+
 export const packageName = '@driftbench/checks';

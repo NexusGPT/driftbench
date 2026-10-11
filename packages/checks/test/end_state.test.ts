@@ -1,0 +1,114 @@
+import type { Spec } from '@driftbench/core';
+import { describe, expect, it } from 'vitest';
+import { compareEndState, endState } from '../src/checks/end_state';
+import { acme } from './support/acme';
+import { context, failing, observed, outcomes, run, verdict } from './support/context';
+
+const loose = acme('acme-order-loose-confirmation');
+const placed = 'Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14 Harbor Road, Acmeville.';
+/** The payload order.create recorded on the CONFIRM block of the order spec. */
+const order = {
+  type: 'new',
+  plan_id: 'fiber-1000',
+  address_id: 'addr-101',
+  customer: { name: 'Jo Okafor', email: 'jo.okafor@example.com' },
+};
+const last = (spec: Spec) => spec.blocks.length - 1;
+
+describe('end_state', () => {
+  it('passes acme-order-loose-confirmation: the order.create payload holds every expected field (subset)', async () => {
+    const verdicts = await run(endState, context(loose, last(loose), observed(placed), { endState: order }));
+    expect(outcomes(verdicts)).toEqual({
+      'end_state.type': 'pass',
+      'end_state.plan_id': 'pass',
+      'end_state.address_id': 'pass',
+      'end_state.customer': 'pass',
+      'end_state.port_number': 'pass',
+    });
+    expect(verdict(verdicts, 'end_state.plan_id').evidence).toBe(
+      'tool:order.create plan_id is "fiber-1000", expected equal to "fiber-1000"',
+    );
+  });
+
+  it('mutation: the payload orders fiber-300; end_state.plan_id fails with the diff of that field', async () => {
+    const wrong = { ...order, plan_id: 'fiber-300' };
+    const verdicts = await run(endState, context(loose, last(loose), observed(placed), { endState: wrong }));
+    expect(failing(verdicts)).toEqual(['end_state.plan_id']);
+    expect(verdict(verdicts, 'end_state.plan_id').evidence).toBe(
+      'tool:order.create plan_id is "fiber-300", expected equal to "fiber-1000"',
+    );
+    expect(compareEndState(loose.end_state ?? 'none', wrong)).toEqual({
+      match: false,
+      diff: [{ field: 'plan_id', expected: 'fiber-1000', observed: 'fiber-300' }],
+    });
+  });
+
+  it('exact mode: acme-plan-upgrade passes on the listed fields and fails on one more', async () => {
+    const upgrade = acme('acme-plan-upgrade');
+    const payload = { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' };
+    const done = await run(
+      endState,
+      context(upgrade, last(upgrade), observed('Bye.'), { endState: payload }),
+    );
+    expect(failing(done)).toEqual([]);
+    const extra = await run(
+      endState,
+      context(upgrade, last(upgrade), observed('Bye.'), {
+        endState: { ...payload, port_number: '+12025550150' },
+      }),
+    );
+    expect(failing(extra)).toEqual(['end_state.port_number']);
+    expect(verdict(extra, 'end_state.port_number').evidence).toBe(
+      'tool:order.create port_number is "+12025550150", a field the exact end state does not list',
+    );
+  });
+
+  it('fails when nothing was read from the source', async () => {
+    const verdicts = await run(endState, context(loose, last(loose), observed(placed)));
+    expect(verdicts.map((item) => [item.id, item.outcome])).toEqual([
+      ['end_state.tool:order.create', 'fail'],
+    ]);
+    expect(verdicts[0]?.evidence).toMatch(/^tool:order\.create: nothing was read/);
+  });
+
+  it('none: acme-off-topic-return passes with nothing recorded and fails on a recorded order', async () => {
+    const spec = acme('acme-off-topic-return');
+    expect(outcomes(await run(endState, context(spec, last(spec), observed('ok'))))).toEqual({
+      'end_state.none': 'pass',
+    });
+    const submitted = await run(
+      endState,
+      context(spec, last(spec), observed('ok'), { endState: { 'tool:order.create': order } }),
+    );
+    expect(outcomes(submitted)).toEqual({ 'end_state.none': 'fail' });
+    expect(verdict(submitted, 'end_state.none').evidence).toMatch(
+      /^end_state is none, but the adapter recorded tool:order\.create \{"type":"new"/,
+    );
+  });
+
+  it('a list of end states reads a record keyed by source', async () => {
+    const spec: Spec = {
+      ...loose,
+      end_state: [
+        { source: 'tool:order.create', expect: { plan_id: 'fiber-1000' } },
+        { source: 'tool:notify_sales', expect: { reason: 'order_failed' } },
+      ],
+    };
+    const state = { 'tool:order.create': order, 'tool:notify_sales': { reason: 'callback' } };
+    const verdicts = await run(endState, context(spec, last(spec), observed(placed), { endState: state }));
+    expect(outcomes(verdicts)).toEqual({
+      'end_state.tool:order.create.plan_id': 'pass',
+      'end_state.tool:notify_sales.reason': 'fail',
+    });
+  });
+
+  it('runs only on the last block of a T or F run', () => {
+    expect(endState.applies(context(loose, 1, observed('ok'), { endState: order }))).toBe(false);
+    expect(
+      endState.applies(context(loose, last(loose), observed('ok'), { endState: order, mode: 'P' })),
+    ).toBe(false);
+    expect(
+      endState.applies(context(loose, last(loose), observed('ok'), { endState: order, mode: 'T' })),
+    ).toBe(true);
+  });
+});
