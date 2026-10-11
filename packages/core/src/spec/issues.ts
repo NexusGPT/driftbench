@@ -22,6 +22,7 @@ export const IssueCodes = [
   'BLOCK_NO_EXPECTATION',
   'TASK_WITHOUT_OUTCOME',
   'PERTURBATION_NO_RECOVERY',
+  'RETENTION_FACT_UNKNOWN',
 ] as const;
 
 export type IssueCode = (typeof IssueCodes)[number] | `SCHEMA_${string}`;

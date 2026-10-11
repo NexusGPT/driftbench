@@ -5,11 +5,13 @@ import type { Verdict } from '../schema/run';
  * The drift class of a failing verdict, by its family: the text of its id before the first dot (check
  * names hold no dot; tool labels and paths after it may).
  *
- * - X1_local, a fault the block shows on its own: what the reply says (`must`, `must_not`), what it ran
+ * - X1_local, a fault the block shows on its own: what the reply says (`must`, `must_not`, `similarity`,
+ *   `relevancy`), what it ran
  *   and produced (`execution`, `workspace`, `artifacts`, `schema_strict`), its budget, the end state, and
  *   the judged criteria (`judge`).
  * - X2_contradiction: the runner's ledger check (`ledger`), tool inputs and reply facts against the ledger.
- * - X3_flow: the stage the runtime reports (`stage`) and the runner's step classifier (`flow`).
+ * - X3_flow: the stage the runtime reports (`stage`), the runner's step classifier (`flow`), and a known fact
+ *   asked for again or dropped (`knowledge_retention`).
  * - X4_format: language, cards and one message per turn, and personal data echoed (`lang`, `cards`, `pii`).
  * - X5_tool: a missing, extra or mis-parametrised call, a forbidden tool, a skill, a guard, a file read
  *   or a helper dispatched, and a destructive operation over its limit (`tools`, `forbidden`, `skills`,
@@ -21,6 +23,8 @@ import type { Verdict } from '../schema/run';
 export const DRIFT_BY_FAMILY: Readonly<Record<string, DriftClass>> = {
   must: 'X1_local',
   must_not: 'X1_local',
+  similarity: 'X1_local',
+  relevancy: 'X1_local',
   execution: 'X1_local',
   workspace: 'X1_local',
   artifacts: 'X1_local',
@@ -31,6 +35,7 @@ export const DRIFT_BY_FAMILY: Readonly<Record<string, DriftClass>> = {
   ledger: 'X2_contradiction',
   stage: 'X3_flow',
   flow: 'X3_flow',
+  knowledge_retention: 'X3_flow',
   lang: 'X4_format',
   cards: 'X4_format',
   pii: 'X4_format',

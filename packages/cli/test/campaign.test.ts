@@ -368,7 +368,7 @@ describe('driftbench campaign run', () => {
     ]);
     expect(code).toBe(0);
     expect(out).toContain(
-      'Campaign c-main: 6 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+      'Campaign c-main: 6 cells, 4 at a time. Checks: tools, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
     );
     expect(out).toContain('✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks');
     expect(out).toContain('6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.');
@@ -705,7 +705,7 @@ describe('each spec on its own target, without --target', () => {
       ]);
       expect(code, out).toBe(0);
       expect(out).toContain(
-        'Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+        'Checks: tools, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
       );
       expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks');
       expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 1  pass  2 blocks');

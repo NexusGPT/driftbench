@@ -37,6 +37,9 @@ The loader rewrites these forms before it validates a spec.
 * [ToolExpect](#toolexpect)
 * [Count](#count)
 * [Assertion](#assertion)
+* [SimilarityExpect](#similarityexpect)
+* [RelevancyExpect](#relevancyexpect)
+* [RetentionExpect](#retentionexpect)
 * [CardExpect](#cardexpect)
 * [SkillExpect](#skillexpect)
 * [GuardExpect](#guardexpect)
@@ -245,6 +248,9 @@ The expected output and state delta of a block. Every field is optional.
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
 | `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
 | `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
+| `similarity` | list of [SimilarityExpect](#similarityexpect) | no |  | Reference texts the reply must be close to, each with its lowest passing score. |
+| `relevancy` | [RelevancyExpect](#relevancyexpect) | no |  | The reply addresses the ask of the block. |
+| `knowledge_retention` | list of [RetentionExpect](#retentionexpect) | no |  | Facts given earlier that the block must not ask for again, and may have to use. |
 | `lang` | string, 2 to 8 characters | no |  | The language of the reply. |
 | `cards` | list of [CardExpect](#cardexpect) | no |  | The cards expected in the block. |
 | `criteria` | list of strings, each not empty | no |  | Judged criteria by name. name@gating makes a fail fail the block. |
@@ -302,6 +308,34 @@ Write one of these forms.
 | `nonempty` | `true` | Present and not empty. |
 | `absent` | `true` | Absent. |
 | `subset` | map of string to JSON value | Holds at least these keys with these values. |
+
+## SimilarityExpect
+
+A reference text the reply must be close to, with the lowest score that passes.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `reference` | string, not empty | yes |  | The text the reply is compared with. |
+| `min` | number, 0 to 1 | yes |  | The lowest similarity that passes, from 0 to 1, as the embedder scores it. |
+
+## RelevancyExpect
+
+The reply addresses the ask of the block: a share of its key terms appears in the reply.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `min` | number, 0 to 1 | no |  | The share of the key terms that must appear in the reply, from 0 to 1. Default 0.5. |
+| `terms` | list of strings, each not empty | no |  | The key terms of the ask. Without them, the check takes the words of the stimulus. |
+
+## RetentionExpect
+
+A fact the user gave earlier: the block must not ask for it again, and may have to use it.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `fact` | string, not empty | yes |  | The ledger key of the fact, given in an earlier block. |
+| `use` | boolean | no |  | True when the block must use the fact: its value appears in the reply or a tool input. |
+| `ask` | string, not empty | no |  | A pattern that marks a question asking for the fact again. Default: the words of the key. |
 
 ## CardExpect
 
