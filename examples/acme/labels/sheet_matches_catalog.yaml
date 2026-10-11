@@ -1,0 +1,80 @@
+# Hand-labelled blocks for sheet_matches_catalog, a task criterion: the judge reads the workbook text the
+# xlsx reader renders. The catalog is the one of specs/tasks/price-sheet.yaml. Fictional data.
+criterion: sheet_matches_catalog
+labelled_by: Cue, by hand, 2026-10-11
+blocks:
+  - id: sheet_matches_catalog.1
+    label: fail
+    note: Acme Air 5G sits on the Mobile sheet.
+    transcript:
+      - { role: user, text: "Build a price sheet from catalog.csv, one sheet per category." }
+      - { role: agent, text: "I built out/acme-price-sheet.xlsx with the sheets Mobile and Home." }
+    artifact: |
+      File out/acme-price-sheet.xlsx (xlsx)
+      Sheet 1 of 2: Mobile
+      | row | A | B | C | D |
+      | 1 | Plan | Allowance | Monthly price (USD) | Yearly price (USD) |
+      | 2 | Acme Mobile S | 10 GB | 15 | 180 (=C2*12) |
+      | 3 | Acme Mobile M | 40 GB | 25 | 300 (=C3*12) |
+      | 4 | Acme Mobile L | unlimited | 35 | 420 (=C4*12) |
+      | 5 | Acme Air 5G | 200 Mbps | 35 | 420 (=C5*12) |
+
+      Sheet 2 of 2: Home
+      | row | A | B | C | D |
+      | 1 | Plan | Allowance | Monthly price (USD) | Yearly price (USD) |
+      | 2 | Acme Fiber 300 | 300 Mbps | 40 | 480 (=C2*12) |
+      | 3 | Acme Fiber 1000 | 1000 Mbps | 60 | 720 (=C3*12) |
+
+      Workspace changes: created out/acme-price-sheet.xlsx; changed none; deleted none.
+  - id: sheet_matches_catalog.2
+    label: pass
+    note: Every plan once, on its sheet, in catalog order, after a Summary sheet was added.
+    transcript:
+      - { role: user, text: "Add a Summary sheet with the cheapest plan of each category." }
+      - { role: agent, text: "I added the sheet Summary to out/acme-price-sheet.xlsx." }
+    artifact: |
+      File out/acme-price-sheet.xlsx (xlsx)
+      Sheet 1 of 3: Mobile
+      | row | A | B | C | D |
+      | 1 | Plan | Allowance | Monthly price (USD) | Yearly price (USD) |
+      | 2 | Acme Mobile S | 10 GB | 15 | 180 (=C2*12) |
+      | 3 | Acme Mobile M | 40 GB | 25 | 300 (=C3*12) |
+      | 4 | Acme Mobile L | unlimited | 35 | 420 (=C4*12) |
+
+      Sheet 2 of 3: Home
+      | row | A | B | C | D |
+      | 1 | Plan | Allowance | Monthly price (USD) | Yearly price (USD) |
+      | 2 | Acme Fiber 300 | 300 Mbps | 40 | 480 (=C2*12) |
+      | 3 | Acme Fiber 1000 | 1000 Mbps | 60 | 720 (=C3*12) |
+      | 4 | Acme Air 5G | 200 Mbps | 35 | 420 (=C4*12) |
+
+      Sheet 3 of 3: Summary
+      | row | A | B | C |
+      | 1 | Category | Plan | Monthly price (USD) |
+      | 2 | Mobile | Acme Mobile S | 15 |
+      | 3 | Home | Acme Air 5G | 35 |
+
+      Workspace changes: created none; changed out/acme-price-sheet.xlsx; deleted none.
+  - id: sheet_matches_catalog.3
+    label: fail
+    note: The Home rows are out of catalog order.
+    transcript:
+      - { role: user, text: "Build a price sheet from catalog.csv, one sheet per category, in catalog order." }
+      - { role: agent, text: "I built out/acme-price-sheet.xlsx." }
+    artifact: |
+      File out/acme-price-sheet.xlsx (xlsx)
+      Sheet 1 of 2: Mobile
+      | row | A | B | C | D |
+      | 1 | Plan | Allowance | Monthly price (USD) | Yearly price (USD) |
+      | 2 | Acme Mobile S | 10 GB | 15 | 180 (=C2*12) |
+      | 3 | Acme Mobile M | 40 GB | 25 | 300 (=C3*12) |
+      | 4 | Acme Mobile L | unlimited | 35 | 420 (=C4*12) |
+
+      Sheet 2 of 2: Home
+      | row | A | B | C | D |
+      | 1 | Plan | Allowance | Monthly price (USD) | Yearly price (USD) |
+      | 2 | Acme Air 5G | 200 Mbps | 35 | 420 (=C2*12) |
+      | 3 | Acme Fiber 300 | 300 Mbps | 40 | 480 (=C3*12) |
+      | 4 | Acme Fiber 1000 | 1000 Mbps | 60 | 720 (=C4*12) |
+
+      Workspace changes: created out/acme-price-sheet.xlsx; changed none; deleted none.

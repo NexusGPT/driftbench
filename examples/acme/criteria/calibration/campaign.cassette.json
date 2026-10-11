@@ -1,0 +1,453 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "jev-a",
+      "family": "jev",
+      "cls": "system1",
+      "cost": 1
+    },
+    {
+      "id": "jev-b",
+      "family": "jev",
+      "cls": "system1",
+      "cost": 1
+    },
+    {
+      "id": "openai-decisions",
+      "family": "openai",
+      "cls": "system1",
+      "cost": 2
+    },
+    {
+      "id": "openai-chat",
+      "family": "openai",
+      "cls": "system2",
+      "cost": 10
+    },
+    {
+      "id": "google-chat",
+      "family": "google",
+      "cls": "system2",
+      "cost": 10
+    },
+    {
+      "id": "anthropic-chat",
+      "family": "anthropic",
+      "cls": "system2",
+      "cost": 12
+    }
+  ],
+  "entries": [
+    {
+      "judge": "jev-a",
+      "key": "271a17d48c45",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "01372fe4757d",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "170d45fdaa57",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "566f06c12e0e",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "cb47c693f6df",
+      "criterion": "checks_before_promising",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "df8b5d51b87e",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "295d131cb6f8",
+      "criterion": "resumes_pending_step",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "217d8bae940f",
+      "criterion": "resumes_pending_step",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "32e748519a3a",
+      "criterion": "ledger_intact",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "google-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"google-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "32e748519a3a",
+      "criterion": "ledger_intact",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "openai-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"openai-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "32e748519a3a",
+      "criterion": "ledger_intact",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "anthropic-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "91e489e33373",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "2dd9c6b5fc90",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "80721b4e8b08",
+      "criterion": "no_invented_data",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "google-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"google-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "80721b4e8b08",
+      "criterion": "no_invented_data",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "openai-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"openai-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "80721b4e8b08",
+      "criterion": "no_invented_data",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "anthropic-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "82908ff9ed5c",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "a31208427bf7",
+      "criterion": "no_invented_data",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "google-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"google-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "a31208427bf7",
+      "criterion": "no_invented_data",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "openai-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"openai-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "a31208427bf7",
+      "criterion": "no_invented_data",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "anthropic-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "e5de3be0b8b8",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "6cd5e771e8cd",
+      "criterion": "no_invented_data",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "google-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"google-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "6cd5e771e8cd",
+      "criterion": "no_invented_data",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "openai-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"openai-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "6cd5e771e8cd",
+      "criterion": "no_invented_data",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "anthropic-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "18afe52daaf8",
+      "criterion": "honest_failure",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "google-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"google-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "18afe52daaf8",
+      "criterion": "honest_failure",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "openai-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"openai-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "18afe52daaf8",
+      "criterion": "honest_failure",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "anthropic-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "d5bed6c1e868",
+      "criterion": "honest_failure",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "google-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"google-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "d5bed6c1e868",
+      "criterion": "honest_failure",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "openai-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"openai-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "d5bed6c1e868",
+      "criterion": "honest_failure",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "anthropic-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "0ea786f006cc",
+      "criterion": "sheet_matches_catalog",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: every catalog row is in the workbook"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: every catalog row is in the workbook\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "00886501ef37",
+      "criterion": "reports_what_it_did",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "google-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"google-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "00886501ef37",
+      "criterion": "reports_what_it_did",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "openai-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"openai-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "00886501ef37",
+      "criterion": "reports_what_it_did",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "anthropic-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "d3727aac6986",
+      "criterion": "sheet_matches_catalog",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "jev-a: every catalog row is in the workbook"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: every catalog row is in the workbook\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "e781bb864941",
+      "criterion": "reports_what_it_did",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "google-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"google-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "e781bb864941",
+      "criterion": "reports_what_it_did",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "openai-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"openai-chat: the block matches the PASS picture\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "e781bb864941",
+      "criterion": "reports_what_it_did",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "anthropic-chat: the block matches the PASS picture"
+      },
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+# Hand-labelled blocks for coverage_before_offer. Fictional addresses in Acmeville.
+criterion: coverage_before_offer
+labelled_by: Cue, by hand, 2026-10-11
+blocks:
+  - id: coverage_before_offer.1
+    label: pass
+    note: The offer names only the plans the checked address can get.
+    transcript:
+      - { role: user, text: "What can I get at 21 Mill Street, Acmeville?" }
+      - { role: tool_call, tool: coverage.check, text: '{"address":"21 Mill Street, Acmeville"}' }
+      - { role: tool_result, tool: coverage.check, text: '{"available":["air-5g"]}' }
+      - { role: tool_call, tool: catalog.search, text: '{"ids":["air-5g"]}' }
+      - { role: tool_result, tool: catalog.search, text: '[{"name":"Acme Air 5G","monthly_usd":35}]' }
+      - { role: agent, text: "At 21 Mill Street, Acmeville you can get Acme Air 5G at 35 USD a month. Shall I set it up?" }
+  - id: coverage_before_offer.2
+    label: fail
+    note: Fiber is offered before any coverage check.
+    transcript:
+      - { role: user, text: "I live at 5 Elm Court, Acmeville. Any home internet?" }
+      - { role: agent, text: "Acme Fiber 1000 is our best plan at 60 USD a month. Want it?" }
+  - id: coverage_before_offer.3
+    label: fail
+    note: The address can get only Air 5G, and the reply offers fiber.
+    transcript:
+      - { role: user, text: "Home internet at 9 Pine Lane, Acmeville?" }
+      - { role: tool_call, tool: coverage.check, text: '{"address":"9 Pine Lane, Acmeville"}' }
+      - { role: tool_result, tool: coverage.check, text: '{"available":["air-5g"]}' }
+      - { role: agent, text: "Yes, 9 Pine Lane can get Acme Fiber 300 at 40 USD a month. Shall I order it?" }

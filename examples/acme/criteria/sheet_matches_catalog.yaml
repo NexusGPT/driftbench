@@ -7,34 +7,57 @@ criterion:
   fail: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.
   gating: true
   judge_class: system1
+# The fixture pair is a real workbook: examples/acme/ops/agent.mjs built it from the task spec's catalog in a
+# temporary workspace, and the fail copy has one cell changed (Mobile C3, 25 to 29). The artifact text is
+# what the xlsx reader renders for the build block, workspace diff included. The agent's reply is the same
+# in both: the judge must read the workbook, not the claim. packages/judges/test/task.test.ts rebuilds both
+# and fails when this text goes stale.
 fixtures:
   pass:
-    note: The workbook text matches the catalog.
+    note: The workbook the ops agent built matches the catalog.
     transcript:
-      - { role: user, text: "Build price-sheet.xlsx from catalog.csv: one sheet per category, in catalog order." }
-      - { role: tool_result, tool: catalog.csv, text: "mobile-s,Acme Mobile S,mobile,15 | mobile-m,Acme Mobile M,mobile,25 | mobile-l,Acme Mobile L,mobile,35 | fiber-300,Acme Fiber 300,home,40 | fiber-1000,Acme Fiber 1000,home,60 | air-5g,Acme Air 5G,home,35" }
-      - { role: agent, text: "Done: price-sheet.xlsx has a Mobile sheet and a Home sheet." }
-    artifact: |
-      Sheet Mobile
-      Acme Mobile S | 10 GB | 15
-      Acme Mobile M | 40 GB | 25
-      Acme Mobile L | unlimited | 35
-      Sheet Home
-      Acme Fiber 300 | 300 Mbps | 40
-      Acme Fiber 1000 | 1000 Mbps | 60
-      Acme Air 5G | 200 Mbps | 35
+      - role: user
+        text: "Build a price sheet from catalog.csv. Make one sheet per category, named Mobile and Home, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), and keep the rows in catalog order. The yearly price must be a formula. Save it as out/acme-price-sheet.xlsx."
+      - role: agent
+        text: "I built out/acme-price-sheet.xlsx from catalog.csv. It has the sheets Mobile and Home, one row per plan in catalog order, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD). The yearly price is a formula on every row, =C2*12 on the first one. I read it back to check it: Mobile 3 rows, Home 3 rows, no error cell."
+    artifact: |-
+      File out/acme-price-sheet.xlsx (xlsx)
+      Sheet 1 of 2: Mobile
+      | row | A | B | C | D |
+      | 1 | Plan | Allowance | Monthly price (USD) | Yearly price (USD) |
+      | 2 | Acme Mobile S | 10 GB | 15 | 180 (=C2*12) |
+      | 3 | Acme Mobile M | 40 GB | 25 | 300 (=C3*12) |
+      | 4 | Acme Mobile L | unlimited | 35 | 420 (=C4*12) |
+
+      Sheet 2 of 2: Home
+      | row | A | B | C | D |
+      | 1 | Plan | Allowance | Monthly price (USD) | Yearly price (USD) |
+      | 2 | Acme Fiber 300 | 300 Mbps | 40 | 480 (=C2*12) |
+      | 3 | Acme Fiber 1000 | 1000 Mbps | 60 | 720 (=C3*12) |
+      | 4 | Acme Air 5G | 200 Mbps | 35 | 420 (=C4*12) |
+
+      Workspace changes: created out/acme-price-sheet.xlsx; changed none; deleted none.
   fail:
-    note: Acme Mobile M carries another price.
+    note: The same workbook with Acme Mobile M at 29 instead of 25; the reply still says it is correct.
     transcript:
-      - { role: user, text: "Build price-sheet.xlsx from catalog.csv: one sheet per category, in catalog order." }
-      - { role: tool_result, tool: catalog.csv, text: "mobile-s,Acme Mobile S,mobile,15 | mobile-m,Acme Mobile M,mobile,25 | mobile-l,Acme Mobile L,mobile,35 | fiber-300,Acme Fiber 300,home,40 | fiber-1000,Acme Fiber 1000,home,60 | air-5g,Acme Air 5G,home,35" }
-      - { role: agent, text: "Done: price-sheet.xlsx has a Mobile sheet and a Home sheet." }
-    artifact: |
-      Sheet Mobile
-      Acme Mobile S | 10 GB | 15
-      Acme Mobile M | 40 GB | 29
-      Acme Mobile L | unlimited | 35
-      Sheet Home
-      Acme Fiber 300 | 300 Mbps | 40
-      Acme Fiber 1000 | 1000 Mbps | 60
-      Acme Air 5G | 200 Mbps | 35
+      - role: user
+        text: "Build a price sheet from catalog.csv. Make one sheet per category, named Mobile and Home, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), and keep the rows in catalog order. The yearly price must be a formula. Save it as out/acme-price-sheet.xlsx."
+      - role: agent
+        text: "I built out/acme-price-sheet.xlsx from catalog.csv. It has the sheets Mobile and Home, one row per plan in catalog order, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD). The yearly price is a formula on every row, =C2*12 on the first one. I read it back to check it: Mobile 3 rows, Home 3 rows, no error cell."
+    artifact: |-
+      File out/acme-price-sheet.xlsx (xlsx)
+      Sheet 1 of 2: Mobile
+      | row | A | B | C | D |
+      | 1 | Plan | Allowance | Monthly price (USD) | Yearly price (USD) |
+      | 2 | Acme Mobile S | 10 GB | 15 | 180 (=C2*12) |
+      | 3 | Acme Mobile M | 40 GB | 29 | 300 (=C3*12) |
+      | 4 | Acme Mobile L | unlimited | 35 | 420 (=C4*12) |
+
+      Sheet 2 of 2: Home
+      | row | A | B | C | D |
+      | 1 | Plan | Allowance | Monthly price (USD) | Yearly price (USD) |
+      | 2 | Acme Fiber 300 | 300 Mbps | 40 | 480 (=C2*12) |
+      | 3 | Acme Fiber 1000 | 1000 Mbps | 60 | 720 (=C3*12) |
+      | 4 | Acme Air 5G | 200 Mbps | 35 | 420 (=C4*12) |
+
+      Workspace changes: created out/acme-price-sheet.xlsx; changed none; deleted none.
