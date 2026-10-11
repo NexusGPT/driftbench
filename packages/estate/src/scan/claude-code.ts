@@ -427,7 +427,7 @@ function anchorOf(token: string): { script: string; anchored: boolean } {
 
 function readSkill(file: EstateFile, estate: RawEstate): void {
   const frontmatter = readFrontmatter(file.text);
-  if (frontmatter.error) estate.notes.push({ file: file.path, message: `frontmatter: ${frontmatter.error}` });
+  noteFrontmatter(file, frontmatter, estate);
   const fields = frontmatter.fields;
   const name = typeof fields.name === 'string' ? fields.name : (file.owner ?? basename(file.path));
   const skill: SkillDecl = {
@@ -460,7 +460,7 @@ function readSkill(file: EstateFile, estate: RawEstate): void {
 
 function readSubagent(file: EstateFile, estate: RawEstate): void {
   const frontmatter = readFrontmatter(file.text);
-  if (frontmatter.error) estate.notes.push({ file: file.path, message: `frontmatter: ${frontmatter.error}` });
+  noteFrontmatter(file, frontmatter, estate);
   const fields = frontmatter.fields;
   const name = typeof fields.name === 'string' ? fields.name : basename(file.path, '.md');
   const subagent: SubagentDecl = {
@@ -504,6 +504,21 @@ const ROW_ID = /^[A-Za-z][\w.#-]*\d[\w.#-]*$/;
  * guard column as written; else the id. The rules it enforces come from an `Enforces` column (ids and
  * quoted passages) and from a `Fires when` or `Watches` column (quoted passages and ids).
  */
+/** A frontmatter the reader could not read, or read only with the tolerant pass, leaves a note. */
+function noteFrontmatter(
+  file: EstateFile,
+  frontmatter: ReturnType<typeof readFrontmatter>,
+  estate: RawEstate,
+): void {
+  if (frontmatter.error) estate.notes.push({ file: file.path, message: `frontmatter: ${frontmatter.error}` });
+  if (frontmatter.tolerated) {
+    estate.notes.push({
+      file: file.path,
+      message: `frontmatter read field by field (the YAML parser said: ${frontmatter.tolerated})`,
+    });
+  }
+}
+
 function readRegistry(file: EstateFile, estate: RawEstate): void {
   if (file.path.endsWith('.json')) {
     readJsonRegistry(file, estate);

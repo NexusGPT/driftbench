@@ -75,6 +75,7 @@ export {
   sha256,
   sliceLines,
   slug,
+  tolerantFields,
 } from './text';
 
 /** The runtimes the scanner can read, by the name the CLI takes. */
