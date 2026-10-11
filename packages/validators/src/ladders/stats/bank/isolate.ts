@@ -39,8 +39,9 @@ function runFrom(
   return new Promise((resolve) => {
     const child = spawn(process.execPath, ['--import', 'tsx', CHILD, String(seed), root, String(start)], {
       cwd: root,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
+    child.stdin.end(JSON.stringify(items.map((item) => item.id)));
     let buffer = '';
     let errors = '';
     let current = start;

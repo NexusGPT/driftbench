@@ -2,7 +2,7 @@
  * The bank's child process: runs the items of the statistics bank on one seed, in bank order, from a start index,
  * and writes one JSON line before and after each item. The parent (isolate.ts) kills it when an item runs past
  * its budget, so an endless loop in the statistics package fails one item instead of hanging the validator.
- * Usage: node --import tsx child.ts <seed> <root> <start>
+ * Usage: node --import tsx child.ts <seed> <root> <start>, with the item ids to run as a JSON array on stdin.
  */
 import { runItem, statsBank } from './index';
 
@@ -10,7 +10,15 @@ async function main(): Promise<void> {
   const [seedText, root, startText] = process.argv.slice(2);
   const seed = Number(seedText);
   const start = Number(startText ?? 0);
-  const items = statsBank();
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
+  const ids = JSON.parse(Buffer.concat(chunks).toString('utf8')) as string[];
+  const byId = new Map(statsBank(root as string).map((item) => [item.id, item]));
+  const items = ids.map((id) => {
+    const item = byId.get(id);
+    if (!item) throw new Error(`no bank item ${id}`);
+    return item;
+  });
   for (let index = start; index < items.length; index += 1) {
     const item = items[index] as (typeof items)[number];
     process.stdout.write(`${JSON.stringify({ start: index, id: item.id })}\n`);

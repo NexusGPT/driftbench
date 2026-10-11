@@ -1,17 +1,19 @@
 import * as stats from '@driftbench/stats';
 import type { Item, Measure } from '../../../ladder';
 import type { StatsImpl } from '../reference';
+import { analyticItems } from './analytic';
 import { degenerateItems } from './degenerate';
 import { attempt, BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, itemRng } from './item';
 import { referenceItems } from './reference';
+import { roadmapItems } from './roadmap';
 
 export { BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, type Tier } from './item';
 
 export type BankOptions = { s?: StatsImpl; extra?: BankItem[] };
 
 /** Every item of the statistics bank, in ladder order. */
-export function statsBank(): BankItem[] {
-  const items = [...referenceItems(), ...degenerateItems()];
+export function statsBank(root: string): BankItem[] {
+  const items = [...referenceItems(), ...degenerateItems(), ...analyticItems(), ...roadmapItems(root)];
   const order = new Map<BankLevel, number>(BANK_LEVELS.map((level, i) => [level, i]));
   return items.sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number));
 }
