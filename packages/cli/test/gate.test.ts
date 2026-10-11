@@ -9,6 +9,7 @@ const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const FAULTS = join(ROOT, 'examples/acme/faults');
 const HAND = join(ROOT, 'examples/acme/specs/conversations');
 const GENERATED = join(ROOT, 'examples/acme/generated/specs/deviation');
+const INCOMPLETE = join(ROOT, 'examples/acme/generated/incomplete/twise');
 const SLOW = 120_000;
 
 const made: string[] = [];
@@ -88,7 +89,9 @@ describe('driftbench gate', () => {
           'specs/tool-failure.yaml',
         ]),
       );
-      expect(files).not.toContain('specs/gen-deviation-004.yaml');
+      // The generated probe walks an approved path: its loose yes at the recap passes the reference and
+      // goes red on the fault that orders on a loose yes.
+      expect(files).toContain('specs/gen-deviation-004.yaml');
       const report = JSON.parse(await readFile(join(out, 'gate-report.json'), 'utf8'));
       expect(report.summary.specs).toBe(3);
       expect(report.funnel.map((row: { stage: string }) => row.stage)).toEqual([
@@ -102,8 +105,11 @@ describe('driftbench gate', () => {
         'label_audit',
         'freshness',
       ]);
-      const probe = report.blocks.find((block: { key: string }) => block.key.startsWith('gen-deviation-004'));
-      expect(probe).toMatchObject({ status: 'rejected' });
+      const probe = report.blocks.find(
+        (block: { key: string }) => block.key === 'gen-deviation-004#b5-D4_loose_confirmation',
+      );
+      expect(probe).toMatchObject({ status: 'accepted' });
+      expect(probe.faults['d4-order-on-loose-yes']).toMatchObject({ outcome: 'fail' });
       const control = report.mutation.by_fault.find(
         (fault: { id: string }) => fault.id === 'control-sales-identity',
       );
@@ -131,14 +137,16 @@ describe('driftbench gate', () => {
   it(
     'exits 1 when no candidate block passes',
     async () => {
+      // Two specs no path could build: their blocks hold judged criteria only, so stage 1 rejects them.
       const specs = await folder([
-        join(GENERATED, 'gen-deviation-001.yaml'),
-        join(GENERATED, 'gen-deviation-004.yaml'),
+        join(INCOMPLETE, 'gen-twise-133.yaml'),
+        join(INCOMPLETE, 'gen-twise-025.yaml'),
       ]);
       const out = join(await temp(), 'gated');
       const result = await run(['gate', specs, ...BASE, '--out', out]);
       expect(result.code).toBe(1);
-      expect(result.out).toContain('Accepted 0 of 2 blocks.');
+      expect(result.out).toContain('Accepted 0 of 3 blocks.');
+      expect(result.out).toContain('no-machine-then 3');
       expect(await tree(out)).toEqual([
         'gate-report.json',
         'holdout/seal.json',

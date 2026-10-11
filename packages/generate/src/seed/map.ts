@@ -1,10 +1,11 @@
 import { contentHash, type Inventory, isPlainObject } from '@driftbench/core';
 import { type CompiledSpace, compileSpace, NONE, type SpaceMap } from '@driftbench/space';
 import { parse as parseYaml } from 'yaml';
-import type { Proposal, ProposalPhrase } from '../extract/proposal';
+import { type Proposal, type ProposalPhrase, valueApproved } from '../extract/proposal';
 import { toSpaceMap } from '../extract/space';
 import { toolSlug } from '../extract/tools';
 import { Feasibility } from './feasible';
+import { type Relations, readRelations } from './relations';
 
 /**
  * The approved map, ready for the seeders: the space map of the approved entries only, the approved
@@ -58,6 +59,8 @@ export type PreparedMap = {
   channel: number | undefined;
   /** The behaviour dimension the extractor names `stage_transition`: the edges of the stage graph. */
   transition: number | undefined;
+  /** The approved relations: paths, tool calls, slot values, recoveries, the reply language. */
+  relations: Relations;
 };
 
 /** The dimension id the extractor gives the stage graph's edges, `<from>-to-<to>` (extract handoff). */
@@ -103,10 +106,34 @@ export function prepareMap(
     );
     return index < 0 ? undefined : index;
   };
+  const approvedValue = (dimension: string, value: string) => {
+    const found = proposal.dimensions.find((candidate) => candidate.id === dimension);
+    const entry = found?.values.find((candidate) => candidate.id === value);
+    return found !== undefined && entry !== undefined && valueApproved(found, entry);
+  };
+  const relations = readRelations(proposal, approvedValue);
   const hash = contentHash({
     map,
     axes: [...axisIds],
-    phrases: phrases.map(({ dimension, value, text, lang }) => ({ dimension, value, text, lang })),
+    phrases: phrases.map(({ dimension, value, text, lang, when, binds }) => ({
+      dimension,
+      value,
+      text,
+      lang,
+      ...(when ? { when } : {}),
+      ...(binds ? { binds } : {}),
+    })),
+    ...(relations.paths.length +
+      relations.usesTools.length +
+      relations.binds.size +
+      relations.recoveries.length >
+      0 || relations.replyLanguage !== undefined
+      ? {
+          relations: (proposal.relations ?? [])
+            .filter((relation) => relation.approved)
+            .map(({ evidence: _evidence, produced_by: _by, approved: _approved, ...body }) => body),
+        }
+      : {}),
   });
   return {
     agent: proposal.agent,
@@ -126,6 +153,7 @@ export function prepareMap(
     deviation: find('deviation'),
     channel: find('channel'),
     transition: find('behaviour', TRANSITION_DIMENSION),
+    relations,
   };
 }
 
