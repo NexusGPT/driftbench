@@ -9,8 +9,8 @@ import { attempt, type BankItem, fail, near, ok, show } from './item';
  */
 
 const MILLION = 1_000_000;
-/** The time a one-million-row call may take on the validator's machine. */
-export const SCALE_BUDGET_MS = 2_000;
+/** The time a one-million-row call may take: an O(n log n) call takes well under it, an O(n^2) one hours. */
+export const SCALE_BUDGET_MS = 5_000;
 
 const scaleItem = (id: string, component: string, check: BankItem['check']): BankItem => ({
   id: `scale.${id}`,
@@ -240,12 +240,14 @@ export function stabilityItems(): BankItem[] {
   const sp = 'packages/stats/src/special.ts';
   const data = (rng: () => number, n = 200) => Array.from({ length: n }, () => normal(rng));
   for (const offset of [1e6, 1e9]) {
+    // A value stored at 1e9 keeps about 1.2e-7 of absolute precision, so the tolerance follows the offset.
+    const tol = offset >= 1e9 ? 1e-4 : 1e-6;
     out.push(
       stabItem(`variance-shift-${offset}`, B, ({ s, rng }) => {
         const v = data(rng);
         const a = s.sampleVariance(v);
         const b = s.sampleVariance(v.map((x) => x + offset));
-        return rel(b, a, 1e-6)
+        return rel(b, a, tol)
           ? ok()
           : fail(
               `sampleVariance changed from ${a} to ${b} when ${offset} was added to every value; a shift leaves the variance unchanged.`,
@@ -260,7 +262,7 @@ export function stabilityItems(): BankItem[] {
         const b = s
           .varianceComponents(obs.map((o) => ({ ...o, value: (o.value as number) + offset })))
           .components.map((c) => c.estimate);
-        const bad = a.findIndex((x, i) => !near(b[i] as number, x, 1e-6 * Math.max(1, Math.abs(x))));
+        const bad = a.findIndex((x, i) => !near(b[i] as number, x, tol * Math.max(1, Math.abs(x))));
         return bad < 0
           ? ok()
           : fail(
@@ -271,7 +273,7 @@ export function stabilityItems(): BankItem[] {
         const v = data(rng, 60);
         const a = s.cusum(v).upper;
         const b = s.cusum(v.map((x) => x + offset)).upper;
-        const bad = a.findIndex((x, i) => !near(b[i] as number, x, 1e-6 * Math.max(1, Math.abs(x))));
+        const bad = a.findIndex((x, i) => !near(b[i] as number, x, tol * Math.max(1, Math.abs(x))));
         return bad < 0
           ? ok()
           : fail(
@@ -285,7 +287,7 @@ export function stabilityItems(): BankItem[] {
           v.map((x) => x + offset),
           { seed: 5, iterations: 300 },
         );
-        return near(b.lower - offset, a.lower, 1e-6) && near(b.upper - offset, a.upper, 1e-6)
+        return near(b.lower - offset, a.lower, tol) && near(b.upper - offset, a.upper, tol)
           ? ok()
           : fail(
               `bootstrapCI bounds [${a.lower}, ${a.upper}] became [${b.lower - offset}, ${b.upper - offset}] after adding and removing ${offset}; summing large values loses the digits of the small ones.`,

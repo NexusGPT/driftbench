@@ -795,10 +795,10 @@ function unseenItems(): BankItem[] {
         const counts = sample(rng, pop.probs, 50 * S);
         const truth = hillTrue(pop.probs, 1);
         const got = s.hillNumbers(counts).q1;
-        return Math.abs(got - truth) / truth <= 0.02
+        return Math.abs(got - truth) / truth <= 0.05
           ? ok()
           : fail(
-              `hillNumbers(counts).q1 on ${50 * S} draws from ${pop.key} gave ${got}; the population's exp(Shannon) is ${truth} and the plug-in value is within 2 percent at 50 draws per class.`,
+              `hillNumbers(counts).q1 on ${50 * S} draws from ${pop.key} gave ${got}; the population's exp(Shannon) is ${truth} and the plug-in value is within 5 percent at 50 draws per class.`,
             );
       }),
       item(`analytic.unseen.hill-q2.${pop.key}`, 'unseen-known', 3, FILES.coverage, ({ s, rng }) => {

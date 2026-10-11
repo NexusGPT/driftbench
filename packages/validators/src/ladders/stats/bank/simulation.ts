@@ -1,5 +1,5 @@
 import type { Measure } from '../../../ladder';
-import { CLUSTERED_COVERAGE, clusteredLevel } from '../clustered';
+import { clusteredLevel } from '../clustered';
 import { designsPath, readDesigns, type StatsDesigns } from '../designs';
 import { generator } from '../draw';
 import { powerLevel } from '../power';
@@ -13,6 +13,9 @@ import { type BankItem, fail, ok } from './item';
  * Level `simulation`: the levels 2 to 6 of ladder version 1, one item per design, so each failing design is named
  * on its own. The truths are planted and the coverage, recovery, error and power are counted over draws.
  */
+
+/** The coverage bar of one clustered design alone (1000 draws, a correct interval covers about 0.945). */
+export const SINGLE_DESIGN_COVERAGE = 0.92;
 
 const designsCache = new Map<string, StatsDesigns>();
 function designs(root: string): StatsDesigns {
@@ -87,10 +90,11 @@ export function simulationItems(): BankItem[] {
         const design = plan.designs.find((d) => d.id === id);
         if (!design) return fail(`the designs file has no clustered design ${id}`);
         const m = clusteredLevel(seed, s, { ...plan, designs: [design] });
-        return m.value >= CLUSTERED_COVERAGE
+        // One design alone has 1000 draws: its bar is 0.92 (version 1 pooled three designs against 0.93).
+        return m.value >= SINGLE_DESIGN_COVERAGE
           ? ok()
           : fail(
-              `clustered bootstrap on design ${id}: value ${m.value} (bar ${CLUSTERED_COVERAGE}). ${m.items.map((i) => i.detail).join(' | ')}`,
+              `clustered bootstrap on design ${id}: value ${m.value} (bar ${SINGLE_DESIGN_COVERAGE}; 0 means the naive interval also covered). ${m.items.map((i) => i.detail).join(' | ')}`,
             );
       }),
     );
