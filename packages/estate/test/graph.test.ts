@@ -103,7 +103,11 @@ describe('the fixture graph', () => {
       'ledger-guard.py': ['registry instruction.standing.never-delete-a-ledger-file-archive'],
       'stop-word.sh': ['registry instruction.standing.on-stop-stop-all-work-and'],
       'reply-length.py': ['quote register.standing.replies-under-1-200-characters'],
+      'claim-window.py': ['registry instruction.parcel-claims.never-promise-a-refund-date'],
       'check-carrier.sh': ['registry instruction.shipment-tracker.always-pass-the-carrier-code-to'],
+      C1: ['registry instruction.parcel-claims.never-promise-a-refund-date'],
+      C2: ['registry register.standing.at-most-one-question-per-reply'],
+      C3: [],
     });
   });
 
@@ -112,15 +116,15 @@ describe('the fixture graph', () => {
     const kinds: Record<string, number> = {};
     for (const edge of map.edges) kinds[edge.kind] = (kinds[edge.kind] ?? 0) + 1;
     expect(kinds).toEqual({
-      allows: 15,
+      allows: 17,
       cites: 1,
       dispatch: 1,
-      enforces: 7,
-      event: 6,
-      next: 4,
-      reference: 5,
-      route: 13,
-      script: 2,
+      enforces: 10,
+      event: 10,
+      next: 8,
+      reference: 6,
+      route: 15,
+      script: 4,
     });
     const has = (from: string, kind: string, to: string) =>
       map.edges.some((edge) => edge.from === from && edge.kind === kind && edge.to === to);
@@ -164,8 +168,8 @@ describe('the fixture graph', () => {
     ]);
     expect(analysis.missingScripts).toEqual([]);
     const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind));
-    expect(rules).toHaveLength(58);
-    expect(analysis.unenforced).toHaveLength(51);
+    expect(rules).toHaveLength(67);
+    expect(analysis.unenforced).toHaveLength(58);
     expect(analysis.reachableFiles.has('.claude/skills/weekly-report/templates/report.md')).toBe(true);
     expect(analysis.reachableAtoms.has('subagent.inbox-triager.helper-inbox-triager')).toBe(false);
   });
