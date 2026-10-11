@@ -10,6 +10,8 @@ import {
   loadEstateRecording,
   type MapIssue,
   parseEstateMapText,
+  proseInventory,
+  proseInventoryLines,
   RUNTIMES,
   readerFor,
   renderEstateMap,
@@ -196,8 +198,11 @@ function scanReport(result: ScanEstateResult, out: string, io: Io): string {
       `    ${kind.padEnd(width)}  ${String(atoms.length).padStart(3)}${model > 0 ? `  (${model} by the model)` : ''}`,
     );
   }
-  if (result.chunks.length === 0) lines.push('  No model call: structured atoms only (--no-model).');
+  const prose = proseInventoryLines(proseInventory(result.raw), result.chunks.length > 0);
+  if (result.chunks.length === 0)
+    lines.push('  No model call: structured atoms only (--no-model).', ...prose);
   else {
+    lines.push(...prose);
     const calls = result.calls;
     lines.push(
       `  Model ${map.producedBy?.family} ${map.producedBy?.model}: ${result.chunks.length} prose chunks, ${calls} ${plural(calls, 'call', 'calls')}.`,

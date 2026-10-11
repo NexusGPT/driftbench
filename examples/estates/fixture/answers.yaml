@@ -320,3 +320,33 @@ answers:
         quote: Never answer a message yourself and never delete one.
         polarity: prohibition
         evidence: [{ type: custom, name: no_reply_no_delete }]
+  # Added by the reader lane (E8): the reader now gives the markdown files beside a skill to the model, like a
+  # skill body. A file that states no rule (a rate table, a report template, a page that says it is
+  # superseded) gets an answer with no atom.
+  .claude/skills/invoice-reconcile/references/currency-table.md:
+    chunk: .claude/skills/invoice-reconcile/references/currency-table.md
+    atoms: []
+  .claude/skills/invoice-reconcile/references/matching-rules.md:
+    chunk: .claude/skills/invoice-reconcile/references/matching-rules.md
+    atoms:
+      - kind: instruction
+        title: A line matches on article code and quantity
+        quote: An invoice line matches an order line when the article code and the quantity are equal.
+        polarity: obligation
+        evidence: [{ type: custom, name: line_match }]
+      - kind: instruction
+        title: Under 0.05 EUR per unit is rounding
+        quote: A price difference under 0.05 EUR per unit is rounding, not a difference.
+        polarity: obligation
+        evidence: [{ type: custom, name: rounding_tolerance, options: { per_unit: 0.05 } }]
+      - kind: instruction
+        title: An invoice line with no order line is an extra charge, listed apart
+        quote: "A line on the invoice with no order line is an extra charge: list it apart."
+        polarity: obligation
+        evidence: [{ type: custom, name: extra_charges_listed }]
+  .claude/skills/invoice-reconcile/references/old-tolerances.md:
+    chunk: .claude/skills/invoice-reconcile/references/old-tolerances.md
+    atoms: []
+  .claude/skills/weekly-report/templates/report.md:
+    chunk: .claude/skills/weekly-report/templates/report.md
+    atoms: []
