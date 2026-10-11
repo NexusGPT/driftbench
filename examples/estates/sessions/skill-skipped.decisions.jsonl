@@ -1,0 +1,3 @@
+{"at":"2026-01-02T09:00:06.500Z","event":"PreToolUse","check":"read-before-write","verdict":"allow","session":"00000000-0000-4000-8000-000000000002"}
+{"at":"2026-01-02T09:00:10.500Z","event":"PreToolUse","check":"read-before-write","verdict":"allow","session":"00000000-0000-4000-8000-000000000002"}
+{"at":"2026-01-02T09:00:14.500Z","event":"PostToolUse","check":"exit-code-read","verdict":"allow","session":"00000000-0000-4000-8000-000000000002"}

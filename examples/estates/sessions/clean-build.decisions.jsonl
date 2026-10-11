@@ -1,0 +1,5 @@
+{"at":"2026-01-01T09:00:04.500Z","event":"UserPromptSubmit","check":"language-check","verdict":"allow","session":"00000000-0000-4000-8000-000000000001"}
+{"at":"2026-01-01T09:00:14.500Z","event":"PreToolUse","check":"skill-first","verdict":"allow","session":"00000000-0000-4000-8000-000000000001"}
+{"at":"2026-01-01T09:00:18.500Z","event":"PreToolUse","check":"read-before-write","verdict":"allow","session":"00000000-0000-4000-8000-000000000001"}
+{"at":"2026-01-01T09:00:22.500Z","event":"PreToolUse","check":"read-before-write","verdict":"allow","session":"00000000-0000-4000-8000-000000000001"}
+{"at":"2026-01-01T09:00:26.500Z","event":"PostToolUse","check":"exit-code-read","verdict":"allow","session":"00000000-0000-4000-8000-000000000001"}
