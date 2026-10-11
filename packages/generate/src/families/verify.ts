@@ -1,0 +1,186 @@
+import { isAbsolute, relative, resolve } from 'node:path';
+import {
+  type AgentAdapter,
+  type ArtifactReaderRegistry,
+  type CheckSet,
+  findSpecFiles,
+  loadSpecFile,
+  type RunResult,
+  runSpec,
+  type Spec,
+  type TargetRef,
+} from '@driftbench/core';
+import { createScriptedDriver } from '@driftbench/users';
+
+/**
+ * The cheat() rule: before an instance ships, the reference build must pass it, through the real runner
+ * and the machine checks. An instance the reference fails is a defect of the oracle or of the reference
+ * (one of the two is wrong about the task); it is reported with the failing verdicts and never shipped.
+ */
+
+export type VerifyDeps = {
+  /** The reference build. */
+  adapter: AgentAdapter;
+  target: TargetRef;
+  checks: CheckSet;
+  artifacts: ArtifactReaderRegistry;
+  /** The folder a relative `workspace_seed.from` resolves from. */
+  cwd: string;
+  /** How many specs run at once. */
+  concurrency?: number;
+  now?: () => Date;
+};
+
+export type FailedVerdict = { block: number; blockId?: string; check: string; id: string; evidence: string };
+
+export type SpecVerdict = {
+  file: string;
+  specId: string;
+  instance?: string;
+  variant?: string;
+  state: 'pass' | 'fail' | 'failed' | 'invalid';
+  /** Gating verdicts that did not pass; for a run that did not complete, its error. */
+  failing: FailedVerdict[];
+  error?: string;
+};
+
+export type VerifyReport = {
+  reference: string;
+  specs: number;
+  passed: number;
+  /** Instances whose every variant passed: these may ship. */
+  shipped: string[];
+  /** Instances the reference failed on at least one variant: an oracle or a reference defect, never shipped. */
+  rejected: string[];
+  results: SpecVerdict[];
+};
+
+function familyOf(spec: Spec): { instance?: string; variant?: string } {
+  const meta = spec.metadata?.family;
+  if (meta === null || typeof meta !== 'object') return {};
+  const record = meta as Record<string, unknown>;
+  return {
+    ...(typeof record.instance === 'string' ? { instance: record.instance } : {}),
+    ...(typeof record.variant === 'string' ? { variant: record.variant } : {}),
+  };
+}
+
+/** The spec with a relative workspace folder made absolute from `cwd`, as the CLI's working folder sees it. */
+function anchored(spec: Spec, cwd: string): Spec {
+  const workspace = spec.given?.world?.workspace;
+  if (workspace?.from === undefined || isAbsolute(workspace.from)) return spec;
+  return {
+    ...spec,
+    given: {
+      ...spec.given,
+      world: { ...spec.given?.world, workspace: { ...workspace, from: resolve(cwd, workspace.from) } },
+    },
+  };
+}
+
+function verdictOf(file: string, spec: Spec, run: RunResult): SpecVerdict {
+  const where = familyOf(spec);
+  const failing = run.blocks.flatMap((block) =>
+    block.verdicts
+      .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
+      .map((verdict) => ({
+        block: block.index,
+        ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
+        check: verdict.name,
+        id: verdict.id,
+        evidence: verdict.evidence,
+      })),
+  );
+  if (run.status !== 'completed') {
+    return {
+      file,
+      specId: spec.id,
+      ...where,
+      state: 'failed',
+      failing,
+      ...(run.error ? { error: run.error } : {}),
+    };
+  }
+  const pass =
+    run.blocks.length > 0 && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
+  return { file, specId: spec.id, ...where, state: pass ? 'pass' : 'fail', failing };
+}
+
+/** Runs the reference on one spec, once, in free-running mode, with the cache off. */
+export async function verifySpec(file: string, spec: Spec, deps: VerifyDeps): Promise<SpecVerdict> {
+  try {
+    const run = await runSpec(anchored(spec, deps.cwd), {
+      adapter: deps.adapter,
+      driver: createScriptedDriver(),
+      checks: deps.checks,
+      artifacts: deps.artifacts,
+      mode: 'F',
+      repeat: 0,
+      target: deps.target,
+      ...(deps.now ? { now: deps.now } : {}),
+    });
+    return verdictOf(file, spec, run);
+  } catch (cause) {
+    return {
+      file,
+      specId: spec.id,
+      ...familyOf(spec),
+      state: 'failed',
+      failing: [],
+      error: cause instanceof Error ? cause.message : String(cause),
+    };
+  }
+}
+
+/** Every spec under the folder, run on the reference. Specs are found as `spec validate` finds them. */
+export async function verifyInstances(dir: string, deps: VerifyDeps): Promise<VerifyReport> {
+  const files = await findSpecFiles([dir]);
+  const results: SpecVerdict[] = new Array(files.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < files.length) {
+      const index = next;
+      next += 1;
+      const file = files[index] as string;
+      const shown = relative(dir, file);
+      const loaded = await loadSpecFile(file);
+      if (!loaded.ok) {
+        const issue = loaded.errors[0];
+        results[index] = {
+          file: shown,
+          specId: '(invalid)',
+          state: 'invalid',
+          failing: [],
+          error: `${issue?.path ?? ''} ${issue?.code ?? ''} ${issue?.message ?? ''}`.trim(),
+        };
+        continue;
+      }
+      results[index] = await verifySpec(shown, loaded.spec, deps);
+    }
+  };
+  const lanes = Math.max(1, Math.min(deps.concurrency ?? 4, files.length));
+  await Promise.all(Array.from({ length: lanes }, worker));
+
+  const byInstance = new Map<string, boolean>();
+  for (const result of results) {
+    const key = result.instance ?? result.file;
+    byInstance.set(key, (byInstance.get(key) ?? true) && result.state === 'pass');
+  }
+  const shipped = [...byInstance]
+    .filter(([, ok]) => ok)
+    .map(([key]) => key)
+    .sort();
+  const rejected = [...byInstance]
+    .filter(([, ok]) => !ok)
+    .map(([key]) => key)
+    .sort();
+  return {
+    reference:
+      deps.target.agent === undefined ? deps.target.adapter : `${deps.target.adapter}:${deps.target.agent}`,
+    specs: results.length,
+    passed: results.filter((result) => result.state === 'pass').length,
+    shipped,
+    rejected,
+    results,
+  };
+}

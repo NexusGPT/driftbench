@@ -1,2 +1,105 @@
-/** Owned by the families lane. */
-export {};
+/**
+ * Code-agent task families (G6): a family file (knobs, constraints, a seed grammar, approved phrases, an
+ * oracle in code, reader checks, a planted variant and a review a person signs once), the instances code
+ * builds from it with a seed, the style invariant, and the reference check before release.
+ */
+export { columnLetterOf, compileBlock, compileFile, formulaPattern } from './compile';
+export {
+  type BlockExpectation,
+  type BuildOptions,
+  buildInstance,
+  buildInstances,
+  earlierOutput,
+  type FamilyReport,
+  familyReport,
+  type Instance,
+  instanceName,
+  instanceSeed,
+  isNonEmptyFolder,
+  REPORT_NAME,
+  type ReviewState,
+  type StyleCheck,
+  seedFolderName,
+  type Variant,
+  VERIFY_REPORT_NAME,
+  writeInstances,
+} from './instances';
+export {
+  alternatives,
+  broken,
+  drawKnobs,
+  FamilyError,
+  type Knobs,
+  MAX_DRAWS,
+  meets,
+  valuesOf,
+} from './knobs';
+export {
+  checkNames,
+  FAMILY_FILE,
+  type FamilyIssue,
+  type FamilyLoad,
+  type LoadedFamily,
+  loadFamily,
+  pendingReview,
+  REVIEW_QUESTIONS,
+  type ReviewStatus,
+  reviewStatus,
+  sha256,
+  slotsOf,
+} from './load';
+export {
+  activeBlocks,
+  baseSlots,
+  fillSlots,
+  isText,
+  renderFiles,
+  renderInstruction,
+  renderPlanted,
+  type SeedFiles,
+  unapprovedPhrases,
+} from './render';
+export {
+  type BlockDef,
+  CheckVocabulary,
+  type Condition,
+  Constraint,
+  type CornerKind,
+  type Count,
+  ExpectedBlock,
+  ExpectedCell,
+  ExpectedFile,
+  ExpectedSheet,
+  FamilyFile,
+  type Generator,
+  isRange,
+  Knob,
+  KnobClass,
+  type KnobValue,
+  type Oracle,
+  type OracleInput,
+  OracleOutput,
+  type Phrase,
+  ReviewFile,
+  type SeedFile,
+  type Table,
+} from './schema';
+export {
+  applyCorner,
+  chooseCorners,
+  countOf,
+  type GeneratedTable,
+  generateTable,
+  generateTables,
+  type TableCell,
+  type TableRow,
+  type Tables,
+} from './tables';
+export {
+  type FailedVerdict,
+  type SpecVerdict,
+  type VerifyDeps,
+  type VerifyReport,
+  verifyInstances,
+  verifySpec,
+} from './verify';
