@@ -1,3 +1,5 @@
+import { readFile, stat } from 'node:fs/promises';
+import { isAbsolute, relative, resolve } from 'node:path';
 import {
   type AdapterCapabilities,
   type AgentAdapter,
@@ -16,7 +18,15 @@ export type ReplayAdapterOptions = {
   session: ReplaySession;
   /** The session block the spec's first block reads. Default 0. */
   fromBlock?: number;
+  /**
+   * The folder holding the files the session left (its after tree). With it, the adapter reads artifacts
+   * from there for the artifact checks; without it, it offers no `readArtifact`.
+   */
+  files?: string;
 };
+
+/** The most bytes one artifact read returns, as the process adapter's bounded read. */
+const MAX_ARTIFACT_BYTES = 100 * 1024 * 1024;
 
 /**
  * The replay adapter: serves a recorded session to the runner, block by block, with no model call. The
@@ -63,5 +73,23 @@ export function replayAdapter(options: ReplayAdapterOptions): AgentAdapter {
       return structuredClone(block.observed);
     },
     async close() {},
+    ...(options.files === undefined ? {} : { readArtifact: artifactReader(options.files) }),
+  };
+}
+
+/** Reads a file under the folder, refusing a path that leaves it and a file over the bound. */
+function artifactReader(folder: string): (session: Session, path: string) => Promise<Uint8Array> {
+  const root = resolve(folder);
+  return async (_session, path) => {
+    const full = resolve(root, path);
+    const inside = relative(root, full);
+    if (inside === '' || inside.startsWith('..') || isAbsolute(inside)) {
+      throw new Error(`${path} is outside the session's files (${root})`);
+    }
+    const info = await stat(full);
+    if (info.size > MAX_ARTIFACT_BYTES) {
+      throw new Error(`${path} holds ${info.size} bytes, over the ${MAX_ARTIFACT_BYTES} byte bound`);
+    }
+    return new Uint8Array(await readFile(full));
   };
 }

@@ -20,3 +20,7 @@ missed; the README lists them. Northwind Traders and its carriers are invented.
 
 A carrier claim and the month close follow their steps in `.claude/processes.json`. Read
 `.claude/memory/MEMORY.md` at the start of every session.
+
+The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
+When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.

@@ -153,6 +153,50 @@ describe('driftbench estate scan', () => {
   });
 });
 
+describe('driftbench estate scan and lint with an ignore list', () => {
+  const CASES = fileURLToPath(new URL('../../../examples/estates/reader-cases/', import.meta.url));
+
+  it('prints what the defaults and the config skip, records the list in the map, and lints with it', async () => {
+    const out = await mkdtemp(join(tmpdir(), 'driftbench-estate-ignore-'));
+    const scan = await run(['estate', 'scan', CASES, '--no-model', '--out', join(out, 'map.yaml')], out);
+    expect(scan.code).toBe(0);
+    expect(scan.out).toContain(
+      [
+        '  Ignored: 8 files no runtime loads.',
+        '    node_modules  1',
+        '    __pycache__  1',
+        '    *.log  1',
+        '    tests/fixtures  1',
+        '    hooks/**/tests  1',
+        '    .trash  1',
+        '    skills/synced  1',
+        '    archive  1',
+      ].join('\n'),
+    );
+    const lint = await run(['estate', 'lint', join(out, 'map.yaml')], out);
+    expect(lint.out).toContain('2 findings.');
+    expect(lint.out).toContain('AMBIGUOUS_REFERENCE');
+
+    // A glob given to the scan only travels in the map: lint reads the estate with it, unasked.
+    const NOTES = 'shipment-tracker/references/notes.md';
+    const orphan = `.claude/skills/${NOTES}: nothing in the estate names this file`;
+    const more = await run(
+      ['estate', 'scan', CASES, '--no-model', '--ignore', NOTES, '--out', join(out, 'more.yaml')],
+      out,
+    );
+    expect(more.out).toContain(`    ${NOTES}  1`);
+    const loaded = await loadEstateMap(join(out, 'more.yaml'));
+    expect(loaded.ok && loaded.map.ignore).toEqual(['archive', NOTES]);
+    const again = await run(['estate', 'lint', join(out, 'more.yaml')], out);
+    expect(again.out).not.toContain(orphan);
+    // The same map without its recorded list: lint reads the file again and finds it unnamed.
+    const text = await readFile(join(out, 'more.yaml'), 'utf8');
+    await writeFile(join(out, 'bare.yaml'), text.replace(/^ignore:\n(?: {2}- .*\n)+/m, ''));
+    const bare = await run(['estate', 'lint', join(out, 'bare.yaml')], out);
+    expect(bare.out).toContain(orphan);
+  });
+});
+
 describe('driftbench estate lint, approve and map', () => {
   it('lints the planted defects, approves by kind and all, and writes a space map the space package loads', async () => {
     const root = await fixtureCopy();
@@ -170,7 +214,9 @@ describe('driftbench estate lint, approve and map', () => {
       'REGISTRY_ROW',
       'REGISTRY_GUARD',
       'UNENFORCED',
+      'EXTERNAL',
     ]);
+    expect(lint.out).toContain('  EXTERNAL    0 named paths outside the estate (information).');
 
     const pending = await run(['estate', 'approve', 'map.yaml'], root);
     expect(pending.code).toBe(0);

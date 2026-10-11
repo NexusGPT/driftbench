@@ -119,6 +119,28 @@ export const GuardExpect = z
   );
 export type GuardExpect = z.infer<typeof GuardExpect>;
 
+/** A file the agent must have read during the block: a skill file, a reference, a source. */
+export const ReferenceExpect = z
+  .strictObject({
+    path: z
+      .string()
+      .min(1)
+      .describe('The path read, or a glob: * matches within a folder, ** across folders, ? one character.'),
+    count: Count.optional().describe('How many reads of a matching file. 0 means it must not be read.'),
+  })
+  .describe('A file the agent must read during the block, by path or glob.');
+export type ReferenceExpect = z.infer<typeof ReferenceExpect>;
+
+/** A helper the agent must dispatch during the block. The adapter maps the runtime's own names. */
+export const SubagentExpect = z
+  .strictObject({
+    name: z.string().min(1).describe('The helper name, as the adapter reports it.'),
+    model: z.string().min(1).optional().describe('The model the helper must run on.'),
+    count: Count.optional().describe('How many dispatches. 0 means the helper must not be dispatched.'),
+  })
+  .describe('A helper the agent must dispatch during the block, with an optional model.');
+export type SubagentExpect = z.infer<typeof SubagentExpect>;
+
 export const ExecutionExpect = z
   .strictObject({
     ran_code: z.boolean().optional().describe('True when the block must run code; false when it must not.'),
@@ -205,6 +227,14 @@ export const Expect = z
       .array(GuardExpect)
       .optional()
       .describe('The runtime checks expected in the block, with their verdict and count.'),
+    references: z
+      .array(ReferenceExpect)
+      .optional()
+      .describe('The files the agent must read in the block, by path or glob, with a count.'),
+    subagents: z
+      .array(SubagentExpect)
+      .optional()
+      .describe('The helpers the agent must dispatch in the block, by name and model, with a count.'),
     execution: ExecutionExpect.optional().describe('What the agent runs.'),
     artifacts: z.array(ArtifactExpect).optional().describe('The files the block must produce.'),
     workspace: WorkspaceExpect.optional().describe('The workspace diff expected.'),

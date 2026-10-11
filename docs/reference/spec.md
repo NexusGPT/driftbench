@@ -40,6 +40,8 @@ The loader rewrites these forms before it validates a spec.
 * [CardExpect](#cardexpect)
 * [SkillExpect](#skillexpect)
 * [GuardExpect](#guardexpect)
+* [ReferenceExpect](#referenceexpect)
+* [SubagentExpect](#subagentexpect)
 * [ExecutionExpect](#executionexpect)
 * [ArtifactExpect](#artifactexpect)
 * [WorkspaceExpect](#workspaceexpect)
@@ -248,6 +250,8 @@ The expected output and state delta of a block. Every field is optional.
 | `criteria` | list of strings, each not empty | no |  | Judged criteria by name. name@gating makes a fail fail the block. |
 | `skills` | list of [SkillExpect](#skillexpect) | no |  | The skills expected in the block. |
 | `guards` | list of [GuardExpect](#guardexpect) | no |  | The runtime checks expected in the block, with their verdict and count. |
+| `references` | list of [ReferenceExpect](#referenceexpect) | no |  | The files the agent must read in the block, by path or glob, with a count. |
+| `subagents` | list of [SubagentExpect](#subagentexpect) | no |  | The helpers the agent must dispatch in the block, by name and model, with a count. |
 | `execution` | [ExecutionExpect](#executionexpect) | no |  | What the agent runs. |
 | `artifacts` | list of [ArtifactExpect](#artifactexpect) | no |  | The files the block must produce. |
 | `workspace` | [WorkspaceExpect](#workspaceexpect) | no |  | The workspace diff expected. |
@@ -326,6 +330,25 @@ One runtime check that fired during the block, with its verdict. The adapter map
 | `name` | string, not empty | yes |  | The name of the check, as the adapter reports it. |
 | `verdict` | string, not empty | no |  | The verdict the check must have given, such as pass or deny. |
 | `count` | [Count](#count) | no |  | How many times the check fired. |
+
+## ReferenceExpect
+
+A file the agent must read during the block, by path or glob.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `path` | string, not empty | yes |  | The path read, or a glob: * matches within a folder, ** across folders, ? one character. |
+| `count` | [Count](#count) | no |  | How many reads of a matching file. 0 means it must not be read. |
+
+## SubagentExpect
+
+A helper the agent must dispatch during the block, with an optional model.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | string, not empty | yes |  | The helper name, as the adapter reports it. |
+| `model` | string, not empty | no |  | The model the helper must run on. |
+| `count` | [Count](#count) | no |  | How many dispatches. 0 means the helper must not be dispatched. |
 
 ## ExecutionExpect
 

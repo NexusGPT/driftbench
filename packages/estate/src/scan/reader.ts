@@ -148,6 +148,25 @@ export type RawEstate = {
   steps: StepDecl[];
   prose: ProseChunk[];
   notes: ReadNote[];
+  /**
+   * Folders, relative to the root, that a path named in prose may be written from when it is not written
+   * from the naming file's folder or the root (for Claude Code, `.claude` and `.claude/skills`).
+   */
+  bases?: string[];
+  /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
+  ignored?: {
+    patterns: Array<{ pattern: string; files: number }>;
+    paths: string[];
+    /** The globs beside the defaults (from the estate configuration and the reader's options). */
+    chosen?: string[];
+  };
+  /** Path aliases: `REF` stands for each folder listed, so `REF/a.md` is tried as `<folder>/a.md`. */
+  aliases?: Record<string, string[]>;
+  /**
+   * Folders outside the estate a named path may point into (`docs/`, `_meta/`). A path under one of them, or
+   * one that starts with `~/` or `/`, is external when the estate does not hold it.
+   */
+  externals?: string[];
 };
 
 export interface EstateReader {

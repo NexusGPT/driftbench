@@ -1,0 +1,7 @@
+plan_id,name,category,allowance,monthly_usd
+mobile-s,Acme Mobile S,mobile,10 GB,15
+mobile-m,Acme Mobile M,mobile,40 GB,25
+mobile-l,Acme Mobile L,mobile,unlimited,35
+fiber-300,Acme Fiber 300,home,300 Mbps,40
+fiber-1000,Acme Fiber 1000,home,1000 Mbps,60
+air-5g,Acme Air 5G,home,200 Mbps,35
