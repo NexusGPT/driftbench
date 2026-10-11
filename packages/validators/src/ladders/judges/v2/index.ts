@@ -1,5 +1,6 @@
 import { type BankEntry, bankMeasure, defineLadder, type Ladder } from '../../../ladder';
 import { type BankItem, type JudgesApi, realApi, runItem } from './bank';
+import { causeOf } from './causes';
 import { attackItems } from './families/attacks';
 import { calibrationItems } from './families/calibration';
 import { cassetteItems, consistencyItems } from './families/consistency';
@@ -17,6 +18,7 @@ import { budgetItems, turnItems } from './families/turns';
 import { v1Items } from './families/v1';
 
 export * from './bank';
+export { causeOf } from './causes';
 export { BILLED_APPROVAL, billedMode } from './families/live';
 export { parseRendered, ruleVerdict } from './rules';
 
@@ -55,7 +57,7 @@ export const LEVELS: readonly { id: string; name: string }[] = [
 
 /** Every item of the bank, deterministic and live. */
 export function judgesBank(): BankItem[] {
-  return [
+  const all: BankItem[] = [
     ...v1Items(),
     ...contractItems(),
     ...consistencyItems(),
@@ -77,6 +79,7 @@ export function judgesBank(): BankItem[] {
     ...scaleItems(),
     ...liveItems(),
   ];
+  return all.map((entry) => ({ ...entry, cause: causeOf(entry.id) }));
 }
 
 export type JudgesV2Options = {

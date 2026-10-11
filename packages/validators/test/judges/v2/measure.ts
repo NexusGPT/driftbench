@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bankSummary, gitHead, hiddenSeed, readJournal, runSeeds, seedLabel } from '../../../src/index';
-import { judgesLadderV2 } from '../../../src/ladders/judges/v2/index';
+import { causeOf, judgesLadderV2 } from '../../../src/ladders/judges/v2/index';
 
 /**
  * Measures the judges bank (ladder version 2) for one row of the hardness journal (docs/validators.md
@@ -101,8 +101,10 @@ async function main(): Promise<void> {
   writeFileSync(arg('out'), `${JSON.stringify(row)}\n`, 'utf8');
   const lines = [
     `iteration ${iteration}: ${bank.passing} of ${bank.size} pass on every seed (score ${bank.score}), level ${levelAfter}, hidden seed ${hidden.seed}, ${Math.round((Date.now() - started) / 1000)} s`,
+    `distinct causes among failing items: ${new Set(failingNow.map(causeOf)).size}`,
     ...bank.rows.map(
-      (r) => `${r.passEverySeed ? 'PASS' : 'FAIL'} ${r.id} tier ${r.tier ?? 'none'} ${r.family}`,
+      (r) =>
+        `${r.passEverySeed ? 'PASS' : 'FAIL'} ${r.id} tier ${r.tier ?? 'none'} ${r.family}${r.passEverySeed ? '' : ` | ${causeOf(r.id)}`}`,
     ),
   ];
   writeFileSync(capture(iteration), `${lines.join('\n')}\n`, 'utf8');

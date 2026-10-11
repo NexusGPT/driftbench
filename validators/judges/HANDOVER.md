@@ -32,6 +32,8 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, 574 deterministic items in 19 levels, each level's threshold 1. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails on 3 items. Bank score after the ten-iteration pilot: 222 of 574 items pass on every seed (0.3868); iteration 0 was 208 (0.3624). Hardness: 1.4 items fixed per iteration, 352 remaining, forecast 251 iterations. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10, each with the bank summary; `pnpm driftbench validate judges --hardness` prints the measurement and its gate (holds).
 
+Every item carries a cause, the one change in packages/judges that makes it pass (`packages/validators/src/ladders/judges/v2/causes.ts`). After the pilot the 352 failing items hold 155 distinct causes. A failing item's detail ends with `Fix: <the change>`, so you can act on it without reading the validator's code: make that change in packages/judges, add its test, measure.
+
 ## Floor
 
 Floors are per ladder version (section 12.5); `validators/floors.json` is the maintainer's. The judges floor of 7 belongs to version 1. Version 2 starts at the level the pilot reached: 1.

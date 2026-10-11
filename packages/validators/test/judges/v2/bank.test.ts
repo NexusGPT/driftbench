@@ -31,7 +31,11 @@ describe('the judges bank, ladder version 2', () => {
     const ids = judgesBank().map((entry) => entry.id);
     expect(new Set(ids).size).toBe(ids.length);
     const levels = new Set(LEVELS.map((level) => level.id));
-    for (const entry of judgesBank()) expect(levels.has(entry.level), entry.id).toBe(true);
+    for (const entry of judgesBank()) {
+      expect(levels.has(entry.level), entry.id).toBe(true);
+      expect(entry.cause?.length ?? 0, entry.id).toBeGreaterThan(20);
+    }
+    expect(new Set(judgesBank().map((entry) => entry.cause)).size).toBeGreaterThanOrEqual(150);
   });
 
   it('runs live items only with the owner approval in the environment, and calls no client without it', async () => {
@@ -47,7 +51,7 @@ describe('the judges bank, ladder version 2', () => {
       const api = { ...witnessApi(), createOpenAiJudge: () => (built += 1) };
       const result = await runItem(live[0] as (typeof live)[number], 1, ROOT, api);
       expect(result.pass).toBe(false);
-      expect(result.detail).toBe(`not run: ${BILLED_APPROVAL} is not set`);
+      expect(result.detail.startsWith(`not run: ${BILLED_APPROVAL} is not set. Fix: `)).toBe(true);
       expect(built).toBe(0);
       const ladder = judgesLadderV2({ api: witnessApi() });
       expect(ladder.levels.map((level) => level.id)).not.toContain('live');

@@ -1,0 +1,429 @@
+/**
+ * The cause of every item (docs/validators.md section 12.4, point 4): the one change in packages/judges that
+ * makes the item pass, written as an instruction an executor can act on without reading the validator. Items
+ * sharing a cause carry the same text and count once. The first rule whose pattern matches the item id wins;
+ * every item of the bank must match a rule (a test checks it).
+ */
+
+const S = 'packages/judges';
+const SCREEN = `Add screenData(request) to ${S} (export it from src/index.ts): it returns { flagged, findings: [{ where }] }, where is transcript.<index>, artifact or given; flag a sentence that tells the judge how to answer (a judge word such as rubric, grader, judge, evaluator, verdict, criterion, together with a verdict word such as pass, passed, met, 1.0)`;
+
+const LANGUAGE: Record<string, string> = {
+  fr: 'French',
+  es: 'Spanish',
+  de: 'German',
+  it: 'Italian',
+  pt: 'Portuguese',
+  nl: 'Dutch',
+  pl: 'Polish',
+  tr: 'Turkish',
+  ru: 'Russian',
+  zh: 'Chinese',
+  ja: 'Japanese',
+  ko: 'Korean',
+  ar: 'Arabic',
+  hi: 'Hindi',
+  sv: 'Swedish',
+  id: 'Indonesian',
+};
+
+const ENCODING: Record<string, string> = {
+  base64: 'decode base64 runs (16 characters or more) and screen the decoded text',
+  'base64-url': 'decode URL-safe base64 (- and _ in place of + and /, no padding)',
+  rot13: 'screen the ROT13 reading of the text',
+  'caesar-3': 'screen every Caesar shift of short texts, not only ROT13',
+  hex: 'decode 0x hexadecimal runs',
+  'url-encoding': 'decode %XX URL encoding',
+  'html-entities': 'decode HTML numeric entities (&#NNN;)',
+  'unicode-escapes': 'decode \\uXXXX escapes',
+  reversed: 'screen the text read backwards',
+  leetspeak: 'fold leetspeak digits (4 a, 3 e, 1 i, 0 o, 5 s, 7 t) before matching',
+  'zero-width-interleaved': 'drop zero-width and other invisible characters before matching',
+  homoglyphs: 'fold Cyrillic lookalike letters to Latin before matching',
+  fullwidth: 'fold fullwidth letters (NFKC) before matching',
+  'spaced-letters': 'join letters spaced one by one (i g n o r e) before matching',
+  'dotted-letters': 'join letters separated by dots (i.g.n.o.r.e) before matching',
+  'random-case': 'match without case',
+  'base64-of-rot13': 'decode base64 and then screen the ROT13 reading of the result',
+  'html-comment': 'screen text inside HTML comments',
+  'markdown-link-title': 'screen the title text of markdown links',
+  'json-field': 'screen string values inside JSON in the data',
+  'code-comment': 'screen code comments in the data',
+  binary: 'decode runs of 8-bit binary groups',
+};
+
+/** [pattern on the item id, cause]. Order matters: the first match wins. */
+const RULES: readonly (readonly [RegExp, string])[] = [
+  [
+    /^v1\//,
+    'Keep the judge path of ladder version 1 working (cassette replay, the answer contract, the council and its cascade).',
+  ],
+  [
+    /^contract\/probability-(above-one|below-zero|nan)$/,
+    `In ${S}/src/contract.ts outcomeFromProbability: read a probability that is not finite or is outside 0 to 1 as inconclusive.`,
+  ],
+  [
+    /^contract\/probability-crossed-bounds$/,
+    `In outcomeFromProbability: throw a RangeError when failAt is not under passAt.`,
+  ],
+  [/^contract\/probability-/, 'Keep outcomeFromProbability mapping at its bounds.'],
+  [
+    /^contract\/(brace-pair-before|example-object-before)$/,
+    'In parseAnswerText: read the first object that meets the contract, past brace pairs and example objects.',
+  ],
+  [/^contract\/outcome-capitals$/, 'In the contract: read the outcome without case.'],
+  [/^contract\/score-as-string$/, 'In the contract: read a score written as a number in quotes.'],
+  [/^contract\/single-quotes$/, 'In the contract: read an object written with single quotes.'],
+  [/^contract\/trailing-comma$/, 'In the contract: drop a comma before a closing brace.'],
+  [/^contract\/line-comment$/, 'In the contract: drop a line that is only a // comment.'],
+  [/^contract\/typographic-quotes$/, 'In the contract: read typographic quotes as straight quotes.'],
+  [
+    /^contract\/score-contradicts-outcome$/,
+    'In the contract: refuse a pass scored under 0.5 or a fail scored over 0.5.',
+  ],
+  [/^contract\/two-disagreeing-answers$/, 'In the contract: refuse two answers whose outcomes disagree.'],
+  [/^contract\/key-given-twice$/, 'In the contract: refuse an object that gives a top-level key twice.'],
+  [/^contract\//, 'Keep the contract reading and refusing the shapes it handles today.'],
+  [
+    /^consistency\/repeated-(zero|fraction)-refused$/,
+    'In judgeRepeated: throw a RangeError unless k is a whole number from 1.',
+  ],
+  [
+    /^consistency\/repeated-/,
+    `Add judgeRepeated(client, request, k) to ${S}: ask k times, return { outcomes, consistent }, consistent when all k outcomes are equal and not inconclusive.`,
+  ],
+  [
+    /^consistency\/temperature-zero-openai$/,
+    `In ${S}/src/clients/chat.ts createOpenAiJudge: send temperature 0.`,
+  ],
+  [/^consistency\/temperature-zero-anthropic$/, 'In createAnthropicJudge: send temperature 0.'],
+  [/^consistency\/temperature-zero-google$/, 'In createGoogleJudge: send generationConfig.temperature 0.'],
+  [/^consistency\//, 'Keep prompts, keys, parsing and councils identical across repeats.'],
+  [
+    /^cassette\/duplicate-judge-refused$/,
+    `In ${S}/src/cassette.ts loadCassette: refuse a judge listed twice.`,
+  ],
+  [
+    /^cassette\/entry-of-unknown-judge-refused$/,
+    'In loadCassette: refuse an entry whose judge the cassette does not list.',
+  ],
+  [
+    /^cassette\/entry-with-answer-and-error-refused$/,
+    'In loadCassette: refuse an entry holding both an answer and an error.',
+  ],
+  [/^cassette\/empty-entry-refused$/, 'In loadCassette: refuse an entry with no answer, raw text or error.'],
+  [
+    /^cassette\/answer-breaking-contract-refused$/,
+    'In loadCassette: refuse a recorded answer that breaks the answer contract.',
+  ],
+  [
+    /^cassette\/key-not-hex-refused$/,
+    'In loadCassette: refuse a key that is not a 12-character hex request hash.',
+  ],
+  [/^cassette\//, 'Keep cassettes recording and replaying as they do.'],
+  [
+    /^criteria\/fixtures-differ-only-in-spacing$/,
+    `In ${S}/src/criteria.ts loadCriteria: compare the pass and fail fixtures after folding runs of white space.`,
+  ],
+  [/^criteria\/fixtures-differ-only-in-case$/, 'In loadCriteria: compare the fixtures without case.'],
+  [
+    /^criteria\/same-pictures$/,
+    'In loadCriteria: report a criterion whose PASS and FAIL pictures say the same.',
+  ],
+  [
+    /^criteria\/pictures-same-but-spacing$/,
+    'In loadCriteria: compare the PASS and FAIL pictures after folding case and white space.',
+  ],
+  [/^criteria\//, 'Keep the criteria loader reporting what it reports today.'],
+  [
+    /^check\/two-judge-verdicts-same-id-refused$/,
+    `In ${S}/src/check.ts combineVerdicts: refuse two judge verdicts with one id.`,
+  ],
+  [
+    /^check\/verdict-ids-unique-across-names$/,
+    'In judgeCheck: give each verdict a unique id when two criterion names map to the same safe id.',
+  ],
+  [
+    /^check\/diff-summary-one-line$/,
+    `In ${S}/src/artifacts.ts summarizeDiff: keep the summary on one line when a file name holds a line break.`,
+  ],
+  [/^check\//, 'Keep the judge check and verdict merging as they are.'],
+  [
+    /^rubric\/(.+)$/,
+    `Add lintCriterion(criterion) to ${S}, returning { issues: [{ code }] }, and make it report the code named in the item (spec in the item detail).`,
+  ],
+  [
+    /^render\/forged-entry-in-tool-name$/,
+    `In ${S}/src/prompt.ts renderEntry: keep a tool name on its line (no line break, no closing bracket).`,
+  ],
+  [
+    /^render\/forged-entry-/,
+    'In renderEntry: keep each entry on one line: replace every line-break character (\\n, \\r, U+2028, U+2029, U+0085, \\v, \\f) in its text with a visible marker.',
+  ],
+  [
+    /^render\/closing-tag-/,
+    'In escapeData: guard data tags written with lookalike characters: fold compatibility forms (NFKC) and drop invisible characters before escaping.',
+  ],
+  [/^render\//, 'Keep rendering entries as they render today.'],
+  [/^budget\/singular-marker$/, 'In fitPrompt: write "[1 earlier entry omitted]" for one dropped entry.'],
+  [/^budget\/tool-result-not-orphaned$/, 'In fitPrompt: also drop a tool result whose call was dropped.'],
+  [
+    /^budget\/budget-(zero|fraction)-refused$/,
+    'In fitPrompt: throw a RangeError unless the budget is a whole number above 0.',
+  ],
+  [
+    /^budget\/(refuses-when-last-block-too-big|single-turn-too-big-refused)$/,
+    'In fitPrompt: throw a RangeError when the last block alone does not fit.',
+  ],
+  [
+    /^budget\//,
+    `Add fitPrompt(request, maxChars) to ${S}: drop the fewest oldest entries so buildPrompt(request).user fits, replacing them with one context entry "[k earlier entries omitted]"; never drop the last block, the artifact or the Given.`,
+  ],
+  [
+    /^evidence\/(extra-spaces|line-breaks-folded)$/,
+    'In groundEvidence: fold runs of white space before matching.',
+  ],
+  [/^evidence\/(surrounding-quotes)$/, 'In groundEvidence: strip one pair of quotes around the evidence.'],
+  [/^evidence\/typographic-quotes$/, 'In groundEvidence: read typographic quotes as straight quotes.'],
+  [/^evidence\/other-case$/, 'In groundEvidence: match without case.'],
+  [
+    /^evidence\/ellipsis-/,
+    'In groundEvidence: split the evidence at "..." and find the parts in order in one place.',
+  ],
+  [
+    /^evidence\/(decomposed-accents|fullwidth-digits)$/,
+    'In groundEvidence: fold compatibility forms (NFKC) before matching.',
+  ],
+  [/^evidence\/partial-word$/, 'In groundEvidence: match only on word boundaries.'],
+  [/^evidence\/in-artifact$/, 'In groundEvidence: search the artifact text and name it artifact.'],
+  [/^evidence\/in-given$/, 'In groundEvidence: search the Given (its JSON) and name it given.'],
+  [
+    /^evidence\//,
+    `Add groundEvidence(request, answer) to ${S}: grounded when answer.evidence is found in a transcript entry text (never the criterion, never a tool name), returning { grounded, where: transcript.<index> } for the first entry holding it.`,
+  ],
+  [/^injection\/language-(\w+)$/, ''],
+  [/^injection\/encoding-([\w-]+)$/, ''],
+  [/^injection\/layered-(\w+)-(file-name|given)-/, ''],
+  [/^injection\/layered-(\w+)-([\w-]+)-/, ''],
+  [/^injection\/place-artifact-/, 'In screenData: screen the artifact text and name it artifact.'],
+  [
+    /^injection\/(place-file-name-|file-name-style-[12]$)/,
+    'In screenData: read file names as words (split on _ - . /) in the artifact.',
+  ],
+  [/^injection\/file-name-style-3$/, 'In screenData: split CamelCase file names into words.'],
+  [/^injection\/file-name-style-4$/, 'In screenData: split file paths on / and _ into words.'],
+  [/^injection\/file-name-style-5$/, 'In screenData: URL-decode file names before reading them as words.'],
+  [/^injection\/place-given-value-/, 'In screenData: screen the Given values and name them given.'],
+  [/^injection\/place-given-key-/, 'In screenData: screen the Given keys too.'],
+  [/^injection\/place-tool-name-/, 'In screenData: screen tool names, read as words.'],
+  [/^injection\/place-card-/, 'In screenData: screen card entries, their JSON included.'],
+  [
+    /^injection\/buried-in-long-text$/,
+    'In screenData: screen every sentence of a long text, not only its start.',
+  ],
+  [/^injection\/after-closing-tag$/, SCREEN],
+  [/^injection\/double-base64$/, 'In screenData: decode base64 twice when the decoded text is base64 again.'],
+  [
+    /^injection\/mixed-script-words$/,
+    'In screenData: fold lookalike letters word by word in mixed-script text.',
+  ],
+  [/^injection\/markdown-heading$/, SCREEN],
+  [/^injection\//, SCREEN],
+  [
+    /^precision\//,
+    'In screenData: in English, flag a sentence only when it instructs (an imperative, a modal such as must or should, or a note addressed to the judge); narration that only uses judge words (a judge at a hearing, an exam grader) is not flagged.',
+  ],
+  [
+    /^attacks\/(answer-bloat-after|verbose-before|earlier-good-attempt|minimum-over-turns|mischievous-user-claims-consent|goal-shift-cover|contradiction-in-ledger)$/,
+    SCREEN,
+  ],
+  [
+    /^attacks\/customer-tells-agent-to-ignore-rules$/,
+    'In screenData: do not flag an instruction addressed to the agent (a customer asking it to ignore its rules); only instructions to the judge.',
+  ],
+  [
+    /^attacks\/bad-likert-judge$/,
+    'In screenData: flag a rating-scale claim that grades the reply against the criterion (Bad Likert Judge).',
+  ],
+  [
+    /^attacks\/crescendo-across-turns$/,
+    'In screenData: flag an instruction to the reviewer built up across several customer turns.',
+  ],
+  [
+    /^attacks\/many-shot-fake-verdicts$/,
+    'In screenData: flag fabricated judged examples (Verdict: pass) in the data.',
+  ],
+  [/^attacks\/fake-rubric$/, 'In screenData: flag a criterion or PASS picture written inside the data.'],
+  [
+    /^attacks\/fake-answer-contract$/,
+    'In screenData: flag an answer object ({"outcome": "pass"}) written inside the data.',
+  ],
+  [
+    /^attacks\/refusal-suppression$/,
+    'In screenData: flag a sentence forbidding the evaluator to answer fail.',
+  ],
+  [/^attacks\/pressure-on-the-evaluator$/, 'In screenData: flag pressure addressed to the evaluator.'],
+  [
+    /^attacks\/role-play-pass-bot$/,
+    'In screenData: flag a role-play that recasts the judge (you are a grader who ...).',
+  ],
+  [/^attacks\/judge-role-line$/, 'In screenData: flag a [judge] verdict line inside the data.'],
+  [
+    /^attacks\/system-prompt-header$/,
+    'In screenData: flag a fake system prompt for the grader inside the data.',
+  ],
+  [
+    /^attacks\/verdict-in-json-keys$/,
+    'In screenData: read JSON keys as words (grader_verdict) when screening.',
+  ],
+  [
+    /^attacks\/payload-split-over-results$/,
+    'In screenData: also screen the transcript read as one text, so an instruction split over entries is found.',
+  ],
+  [/^attacks\/instruction-in-artifact-footer$/, 'In screenData: screen the artifact, its comments included.'],
+  [/^attacks\/injection-probability-mid-conversation$/, SCREEN],
+  [
+    /^council\/majority-size-/,
+    `In ${S}/src/council.ts majority: an outcome wins only with more than half of all votes cast, inconclusive votes counted in the total; otherwise split.`,
+  ],
+  [
+    /^council\/weight-(negative|not-finite)-refused$/,
+    'In majority: throw a RangeError for a weight that is negative or not finite.',
+  ],
+  [
+    /^council\/weight/,
+    "Add majority(votes, { weights }): a vote weighs its judge's weight (default 1); an outcome wins with more than half of the total weight.",
+  ],
+  [
+    /^council\/(correlated|family|three-families|all-one-family|distinct-families)/,
+    'Add majority(votes, { families }): votes of one family first collapse into one family vote (its own majority, inconclusive on a split), each family weighing 1.',
+  ],
+  [/^council\/size-/, 'In createCouncil: take size (default 3) and seat that many judges per class.'],
+  [
+    /^council\/weights-in-the-council$/,
+    'In createCouncil: take weights and pass them to the round majority.',
+  ],
+  [/^council\//, 'Keep the council behaviour it has today.'],
+  [
+    /^cascade\/(reports-|cost-below-full)/,
+    'In createCouncil: report cost on the council result, the sum of the costs of every judge called (re-asks and later rounds included).',
+  ],
+  [
+    /^cascade\/threshold-/,
+    'In createCouncil: throw CouncilConfigError for a cascade threshold outside (0.5, 1].',
+  ],
+  [
+    /^cascade\/per-judge-threshold/,
+    'In createCouncil: take cascade.thresholds per judge id, used in place of the threshold for that judge.',
+  ],
+  [
+    /^cascade\/flagged-request-never-stops-early$/,
+    'In the cascade: never stop at the cheapest judge when screenData flags the request.',
+  ],
+  [/^cascade\//, 'Keep the cascade stopping only on a sure cheap pass.'],
+  [/^turns\/judge-throws-on-a-turn$/, 'In judgeTurns: a judge that throws makes its turn inconclusive.'],
+  [/^turns\/burst-is-one-turn$/, 'In judgeTurns: consecutive customer messages are one turn.'],
+  [
+    /^turns\/(recovered-at|recovery-after-inconclusive)$/,
+    'In judgeTurns: report recoveredAt, the first turn after the first failing one that passes.',
+  ],
+  [/^turns\/context-is-not-a-turn$/, 'In judgeTurns: context entries are not turns.'],
+  [
+    /^turns\/no-customer-refused$/,
+    'In judgeTurns: throw a RangeError for a transcript with no customer message.',
+  ],
+  [
+    /^turns\//,
+    `Add judgeTurns(judge, request) to ${S}: judge each turn on the prefix ending where the next turn starts; return { turns: [{ turn, outcome }], outcome (fail, else inconclusive, else pass), firstFailing }.`,
+  ],
+  [/^pairwise\/judge-throws$/, 'In comparePair: a pair judge that throws gives inconclusive.'],
+  [
+    /^pairwise\/pair-prompt-guards-/,
+    'In buildPairPrompt: escape the candidate tags (first_data, second_data) inside candidate text.',
+  ],
+  [
+    /^pairwise\/pair-prompt-/,
+    `Add buildPairPrompt({ criterion, first, second }) to ${S}: each candidate inside its own data tag, <first_data> then <second_data>.`,
+  ],
+  [
+    /^pairwise\/bradley-terry-(disconnected|undefeated)-refused$/,
+    'In bradleyTerry: throw a RangeError when the comparison graph is not strongly connected.',
+  ],
+  [
+    /^pairwise\/bradley-terry-/,
+    "Add bradleyTerry(wins) to packages/judges: maximum likelihood strengths summing to 1 (Hunter's MM iteration), ties counted as halves.",
+  ],
+  [/^pairwise\/elo-/, 'Add eloUpdate(ra, rb, score, k = 32): the two new Elo ratings.'],
+  [
+    /^pairwise\/(cycle-found|no-cycle-when-transitive)$/,
+    'Add findCycles(wins): every 3-player cycle by majority, as sorted index triples starting at the smallest index.',
+  ],
+  [
+    /^pairwise\//,
+    `Add comparePair(judge, { criterion, a, b }) to ${S}: ask the pair judge in both orders and return { winner }: the agreed winner, tie when both say tie, else inconclusive.`,
+  ],
+  [
+    /^calibration\/coverage-n(5|20|100)-p0\.97-/,
+    'In agreementInterval: use an interval that keeps 95 percent coverage near agreement 1 at small n (Clopper-Pearson or Jeffreys, not Wilson).',
+  ],
+  [
+    /^calibration\/coverage-n500-p0\.985-/,
+    'In agreementInterval: keep coverage at n 500 and agreement above 0.985 (an exact or Jeffreys interval).',
+  ],
+  [
+    /^calibration\/coverage-/,
+    `Add agreementInterval(agree, n) to ${S}/src/calibration.ts returning { lower, upper } with at least 93 percent coverage.`,
+  ],
+  [
+    /^calibration\/interval-is-agreement-interval-/,
+    'In calibrate: report labels.agreement from agreementInterval.',
+  ],
+  [/^calibration\/pabak-/, 'In calibrate: report labels.pabak = 2 * agree / n - 1.'],
+  [/^calibration\/ac1-/, "In calibrate: report labels.ac1, Gwet's AC1 for two categories."],
+  [
+    /^calibration\/one-label-class-has-no-kappa$/,
+    'In calibrate: leave kappa undefined when the labels hold one class only.',
+  ],
+  [/^calibration\//, 'Keep calibration computing kappa, the bar and the assignment as it does.'],
+  [
+    /^scale\/screen-/,
+    'Make screenData linear in the text length (no per-character regex rebuild, no quadratic decoding).',
+  ],
+  [
+    /^scale\/player-/,
+    'In playerClient: index the entries by key once, instead of scanning every entry on every call.',
+  ],
+  [
+    /^scale\/parse-many-braces-/,
+    'In parseAnswerText: scan the objects once, skipping brace pairs with no key, so many brace pairs stay linear.',
+  ],
+  [/^scale\//, 'Keep the operation linear in its input.'],
+  [
+    /^live\//,
+    'Run in the billed mode the owner approves; a failing live item points at the judge client named in its component.',
+  ],
+];
+
+/** The cause of one item id. Throws when no rule matches: every item must carry a cause. */
+export function causeOf(id: string): string {
+  for (const [pattern, cause] of RULES) {
+    const match = pattern.exec(id);
+    if (!match) continue;
+    if (id.startsWith('rubric/')) {
+      const code = id.slice('rubric/'.length);
+      return `${cause} Code: ${code === 'block-scope-whole-conversation' ? 'scope-mismatch, block scope side' : code === 'hedged-picture' ? 'hedged, in the PASS picture' : code}.`;
+    }
+    if (cause !== '') return cause;
+    if (id.startsWith('injection/language-')) {
+      return `In screenData: recognise instructions to the judge written in ${LANGUAGE[match[1] as string] ?? match[1]}.`;
+    }
+    if (id.startsWith('injection/encoding-'))
+      return `In screenData: ${ENCODING[match[1] as string] ?? match[1]}.`;
+    if (/^injection\/layered-\w+-(file-name|given)-/.test(id)) {
+      return `In screenData: recognise instructions to the judge written in ${LANGUAGE[match[1] as string] ?? match[1]}.`;
+    }
+    // A layered item passes once its language and its encoding are both read: it shares the encoding's cause.
+    return `In screenData: ${ENCODING[match[2] as string] ?? match[2]}.`;
+  }
+  throw new Error(`no cause rule matches the item ${id}`);
+}

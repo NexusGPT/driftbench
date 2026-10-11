@@ -65,6 +65,8 @@ export type BankItem = {
   component: string;
   /** Live items call real judge clients: billed, and only in the billed mode. */
   live?: boolean;
+  /** The one change in packages/judges that makes the item pass (section 12.4); set by the bank from causes.ts. */
+  cause?: string;
   /** Runs the generator, the package and the oracle on one seed. */
   run(ctx: ItemContext): Promise<ItemResult> | ItemResult;
 };
@@ -120,11 +122,15 @@ export async function runItem(
   api: JudgesApi,
 ): Promise<ItemResult> {
   const random = mulberry32(hash32(`${seed}:${entry.id}`));
+  let result: ItemResult;
   try {
-    return await entry.run({ seed, root, api, random });
+    result = await entry.run({ seed, root, api, random });
   } catch (cause) {
-    return { pass: false, detail: `the item threw: ${message(cause)}` };
+    result = { pass: false, detail: `the item threw: ${message(cause)}` };
   }
+  return result.pass || !entry.cause
+    ? result
+    : { ...result, detail: `${result.detail}. Fix: ${entry.cause}` };
 }
 
 export function message(cause: unknown): string {
