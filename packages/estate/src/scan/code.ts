@@ -358,11 +358,30 @@ export function namedPaths(line: string): string[] {
   return found.filter((path) => !/[<>*?{}$]/.test(path) && /\.[A-Za-z0-9]+$/.test(path));
 }
 
-/** A path a file names, relative to the root: from the root when it starts with `.claude/`, else from the file. */
-export function resolveNamed(path: string, from: string, files: ReadonlyMap<string, EstateFile>): string {
+/**
+ * A path a file names, relative to the root. It is tried, in order, from the naming file's folder, from the
+ * root, then from each base folder the runtime declares; the first that names a file of the estate (or a file
+ * the reader skipped on purpose, in `skipped`) wins. When none does, the path stays as the naming file's
+ * folder gives it (from the root when it starts with `.claude/`), so the finding names where it was looked
+ * for.
+ */
+export function resolveNamed(
+  path: string,
+  from: string,
+  files: ReadonlyMap<string, EstateFile>,
+  bases: readonly string[] = [],
+  skipped: ReadonlySet<string> = new Set(),
+): string {
   const clean = path.replace(/^\.\//, '');
-  if (clean.startsWith('.claude/') || files.has(clean)) return posix.normalize(clean);
-  return posix.normalize(posix.join(posix.dirname(from), clean));
+  const candidates = [
+    posix.join(posix.dirname(from), clean),
+    clean,
+    ...bases.map((base) => posix.join(base, clean)),
+  ].map((candidate) => posix.normalize(candidate));
+  const hit = candidates.find((candidate) => files.has(candidate) || skipped.has(candidate));
+  if (hit !== undefined) return hit;
+  if (clean.startsWith('.claude/')) return posix.normalize(clean);
+  return candidates[0] as string;
 }
 
 function referenceAtoms(
@@ -371,11 +390,13 @@ function referenceAtoms(
   raw: RawEstate,
   builder: AtomBuilder,
 ): void {
+  const skipped = new Set(raw.ignored?.paths ?? []);
   for (const line of chunkLines(chunk)) {
     for (const named of namedPaths(line.text)) {
-      const path = resolveNamed(named, chunk.file, files);
+      const path = resolveNamed(named, chunk.file, files, raw.bases, skipped);
       const target = files.get(path);
-      if (!target && !DOCUMENT.test(path)) continue;
+      const isSkipped = target === undefined && skipped.has(path);
+      if (!target && !isSkipped && !DOCUMENT.test(path)) continue;
       if (target && (target.kind === 'guard_script' || SCRIPT.test(path))) continue;
       builder.add({
         kind: 'reference',
@@ -383,7 +404,13 @@ function referenceAtoms(
         at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.text },
         evidence: [{ type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }],
         situation: line.text,
-        fields: { path, exists: target !== undefined, readWhen: line.text, from: chunk.file },
+        fields: {
+          path,
+          exists: target !== undefined || isSkipped,
+          readWhen: line.text,
+          from: chunk.file,
+          ...(isSkipped ? { ignored: true } : {}),
+        },
       });
     }
   }
@@ -451,7 +478,9 @@ function gateAtoms(
       const trigger = (match[act] ?? '').replace(/`/g, '').trim();
       if (first === '' || trigger === '') continue;
       const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
-      const path = isFile ? resolveNamed(first, chunk.file, files) : undefined;
+      const path = isFile
+        ? resolveNamed(first, chunk.file, files, raw.bases, new Set(raw.ignored?.paths ?? []))
+        : undefined;
       const before = isFile ? raw.labels.read : raw.labels.shell;
       const after = actLabel(trigger, raw);
       const evidence: EvidencePredicate[] = [

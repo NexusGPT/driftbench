@@ -153,6 +153,41 @@ describe('driftbench estate scan', () => {
   });
 });
 
+describe('driftbench estate scan and lint with an ignore list', () => {
+  const CASES = fileURLToPath(new URL('../../../examples/estates/reader-cases/', import.meta.url));
+
+  it('prints what the defaults and the config skip, takes --ignore, and lints with the same list', async () => {
+    const out = await mkdtemp(join(tmpdir(), 'driftbench-estate-ignore-'));
+    const scan = await run(['estate', 'scan', CASES, '--no-model', '--out', join(out, 'map.yaml')], out);
+    expect(scan.code).toBe(0);
+    expect(scan.out).toContain(
+      [
+        '  Ignored: 6 files no runtime loads.',
+        '    node_modules  1',
+        '    __pycache__  1',
+        '    *.log  1',
+        '    tests/fixtures  1',
+        '    hooks/**/tests  1',
+        '    skills/synced  1',
+        '  Orphans: none.',
+      ].join('\n'),
+    );
+    const clean = await run(['estate', 'lint', join(out, 'map.yaml')], out);
+    expect(clean.code).toBe(0);
+    expect(clean.out).toContain('Clean.');
+
+    const more = await run(
+      ['estate', 'scan', CASES, '--no-model', '--ignore', 'processes.json', '--out', join(out, 'more.yaml')],
+      out,
+    );
+    expect(more.out).toContain('    processes.json  1');
+    expect(more.out).toContain('  Ignored: 7 files no runtime loads.');
+    const like = await run(['estate', 'lint', join(out, 'more.yaml'), '--ignore', 'processes.json'], out);
+    expect(like.code).toBe(0);
+    expect(like.out).toContain('Clean.');
+  });
+});
+
 describe('driftbench estate lint, approve and map', () => {
   it('lints the planted defects, approves by kind and all, and writes a space map the space package loads', async () => {
     const root = await fixtureCopy();

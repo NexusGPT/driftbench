@@ -148,6 +148,13 @@ export type RawEstate = {
   steps: StepDecl[];
   prose: ProseChunk[];
   notes: ReadNote[];
+  /**
+   * Folders, relative to the root, that a path named in prose may be written from when it is not written
+   * from the naming file's folder or the root (for Claude Code, `.claude` and `.claude/skills`).
+   */
+  bases?: string[];
+  /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
+  ignored?: { patterns: Array<{ pattern: string; files: number }>; paths: string[] };
 };
 
 export interface EstateReader {

@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-11T21:13:55.323Z
+readAt: 2026-10-11T21:41:39.440Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -152,9 +152,17 @@ atoms:
       scriptExists: true
       dispatcher: .claude/guards/lib/dispatch.py
       registry: W3
+      registryRows:
+        - W3
+        - W4
+        - W5
+        - HANDBACK
+        - STOP-WAKE
       state: enforce
       enforces:
         - atom: instruction.parcel-claims.never-promise-a-refund-date
+          by: registry
+        - atom: register.standing.at-most-one-question-per-reply
           by: registry
   - id: guard.registry.stop-guard-c1
     kind: guard
@@ -545,6 +553,48 @@ atoms:
       exists: true
       readWhen: "`.claude/memory/MEMORY.md` at the start of every session."
       from: CLAUDE.md
+  - id: reference.standing.read-guards-check-registry-md
+    kind: reference
+    title: Read guards/CHECK-REGISTRY.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 24
+      endLine: 24
+      quote: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+      hash: 90c58deec811455d638e0a0020e2031c5649ec69842a3c719f3bc52dcbab2799
+    producedBy: code
+    role: detail
+    approved: true
+    situation: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+    evidence:
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/guards/CHECK-REGISTRY.md } } }
+    enforcement: []
+    fields:
+      path: .claude/guards/CHECK-REGISTRY.md
+      exists: true
+      readWhen: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+      from: CLAUDE.md
+  - id: reference.standing.read-parcel-claims-references-claim-rules
+    kind: reference
+    title: Read parcel-claims/references/claim-rules.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 24
+      endLine: 24
+      quote: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+      hash: 90c58deec811455d638e0a0020e2031c5649ec69842a3c719f3bc52dcbab2799
+    producedBy: code
+    role: detail
+    approved: true
+    situation: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+    evidence:
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/claim-rules.md } } }
+    enforcement: []
+    fields:
+      path: .claude/skills/parcel-claims/references/claim-rules.md
+      exists: true
+      readWhen: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+      from: CLAUDE.md
   - id: route.standing.an-ask-to-file-a-claim
     kind: route
     title: An ask to file a claim for a damaged or missing parcel loads parcel-claims
@@ -699,7 +749,7 @@ atoms:
     approved: false
     evidence:
       - { type: custom, name: one_question }
-    enforcement: [ guard.registry.stop-guard-c2 ]
+    enforcement: [ guard.settings.stop-guard-claim-window-py, guard.registry.stop-guard-c2 ]
   - id: instruction.standing.report-only-numbers-read-during-the
     kind: instruction
     title: Report only numbers read during the session
@@ -955,7 +1005,7 @@ atoms:
     fields:
       check: standing_size
       ceiling: 40000
-      characters: 1179
+      characters: 1287
       holds: true
   - id: invariant.standing.no-file-of-the-estate-is
     kind: invariant
@@ -1024,6 +1074,7 @@ edges:
   - { from: guard.settings.pretooluse-bash-guard-block-force-push, to: instruction.standing.never-force-push, kind: enforces }
   - { from: guard.settings.pretooluse-bash-guard-block-force-push, to: event.PreToolUse, kind: event }
   - { from: guard.settings.stop-guard-claim-window-py, to: instruction.parcel-claims.never-promise-a-refund-date, kind: enforces }
+  - { from: guard.settings.stop-guard-claim-window-py, to: register.standing.at-most-one-question-per-reply, kind: enforces }
   - { from: guard.settings.stop-guard-claim-window-py, to: event.Stop, kind: event }
   - { from: route.parcel-claims.an-ask-that-fits-parcel-claims, to: skill.parcel-claims.skill-parcel-claims, kind: route }
   - { from: route.shipment-tracker.an-ask-that-fits-shipment-tracker, to: skill.shipment-tracker.skill-shipment-tracker, kind: route }
@@ -1044,5 +1095,5 @@ edges:
 producedBy:
   family: lane
   model: claude-opus-5-5 as the reader lane, by hand
-  at: 2026-10-11T21:13:55.323Z
-hash: 4f25bb248116a6235039a37190c01aa8b70729d1bc66de52196838a90b400f12
+  at: 2026-10-11T21:41:39.440Z
+hash: 56bb1cb6741aae19a2be8a534231c560f3c04bd2f6ec429f1de7e21618012948
