@@ -1,4 +1,5 @@
-import { deepEqual, isRecord, show } from './values';
+import { deepEqual } from '@driftbench/core';
+import { isRecord, show } from './values';
 
 /**
  * A strict JSON Schema reader for tool inputs. It understands type (one or a list), enum, const,

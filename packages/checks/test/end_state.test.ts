@@ -1,6 +1,6 @@
 import type { Spec } from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
-import { compareEndState, endState } from '../src/checks/end_state';
+import { endState } from '../src/checks/end_state';
 import { acme } from './support/acme';
 import { context, failing, observed, outcomes, run, verdict } from './support/context';
 
@@ -30,17 +30,13 @@ describe('end_state', () => {
     );
   });
 
-  it('mutation: the payload orders fiber-300; end_state.plan_id fails with the diff of that field', async () => {
+  it('mutation: the payload orders fiber-300; end_state.plan_id fails and names both values', async () => {
     const wrong = { ...order, plan_id: 'fiber-300' };
     const verdicts = await run(endState, context(loose, last(loose), observed(placed), { endState: wrong }));
     expect(failing(verdicts)).toEqual(['end_state.plan_id']);
     expect(verdict(verdicts, 'end_state.plan_id').evidence).toBe(
       'tool:order.create plan_id is "fiber-300", expected equal to "fiber-1000"',
     );
-    expect(compareEndState(loose.end_state ?? 'none', wrong)).toEqual({
-      match: false,
-      diff: [{ field: 'plan_id', expected: 'fiber-1000', observed: 'fiber-300' }],
-    });
   });
 
   it('exact mode: acme-plan-upgrade passes on the listed fields and fails on one more', async () => {
@@ -61,12 +57,6 @@ describe('end_state', () => {
     expect(verdict(extra, 'end_state.port_number').evidence).toBe(
       'tool:order.create port_number is "+12025550150", a field the exact end state does not list',
     );
-    expect(compareEndState(upgrade.end_state ?? 'none', { ...payload, port_number: '+12025550150' })).toEqual(
-      {
-        match: false,
-        diff: [{ field: 'port_number', expected: { absent: true }, observed: '+12025550150' }],
-      },
-    );
   });
 
   it('mutation: order.create recorded nothing; every expected field fails, absent ones included', async () => {
@@ -81,10 +71,6 @@ describe('end_state', () => {
     expect(verdict(verdicts, 'end_state.plan_id').evidence).toBe(
       'tool:order.create: nothing was read (no payload recorded, or the adapter cannot read end states), so plan_id is absent; expected equal to "fiber-1000"',
     );
-    const { match, diff } = compareEndState(loose.end_state ?? 'none', undefined);
-    expect(match).toBe(false);
-    expect(diff[1]).toEqual({ field: 'plan_id', expected: 'fiber-1000', observed: { absent: true } });
-    expect(diff.every((entry) => JSON.stringify(entry.observed) === '{"absent":true}')).toBe(true);
   });
 
   it('mutation: the source holds a string or a list, not a mapping; every field fails, naming the type', async () => {
@@ -110,18 +96,18 @@ describe('end_state', () => {
         ),
       );
     }
-    expect(compareEndState(loose.end_state ?? 'none', 'ORD-222B51').diff[1]).toEqual({
-      field: 'plan_id',
-      expected: 'fiber-1000',
-      observed: { absent: true },
-    });
   });
 
-  it('writes a field missing from a read payload as { absent: true } in the diff', () => {
+  it('mutation: the payload lacks address_id; end_state.address_id fails and says it is absent', async () => {
     const { address_id: _dropped, ...withoutAddress } = order;
-    expect(compareEndState(loose.end_state ?? 'none', withoutAddress).diff).toEqual([
-      { field: 'address_id', expected: 'addr-101', observed: { absent: true } },
-    ]);
+    const verdicts = await run(
+      endState,
+      context(loose, last(loose), observed(placed), { endState: withoutAddress }),
+    );
+    expect(failing(verdicts)).toEqual(['end_state.address_id']);
+    expect(verdict(verdicts, 'end_state.address_id').evidence).toBe(
+      'tool:order.create address_id is absent, expected equal to "addr-101"',
+    );
   });
 
   it('none: acme-off-topic-return passes on an empty payload list (source *), absent, null or empty', async () => {
@@ -143,14 +129,6 @@ describe('end_state', () => {
     expect(verdict(submitted, 'end_state.none').evidence).toMatch(
       /^end_state is none, but the adapter recorded 2 payloads; the first: \{"type":"new","plan_id":"fiber-1000"/,
     );
-    expect(compareEndState('none', [order, callback])).toEqual({
-      match: false,
-      diff: [
-        { field: '*.0', expected: { absent: true }, observed: order },
-        { field: '*.1', expected: { absent: true }, observed: callback },
-      ],
-    });
-    expect(compareEndState('none', [])).toEqual({ match: true, diff: [] });
     const empty = await run(endState, context(spec, last(spec), observed('ok'), { endState: [{}] }));
     expect(outcomes(empty)).toEqual({ 'end_state.none': 'fail' });
   });
@@ -175,8 +153,6 @@ describe('end_state', () => {
     const single: Spec = { ...loose, end_state: { source: 'tool:order.create', expect: {} } };
     const verdicts = await run(endState, context(single, last(single), observed(placed)));
     expect(outcomes(verdicts)).toEqual({ 'end_state.tool:order.create': 'fail' });
-    const entry = { field: 'tool:order.create', expected: { nonempty: true }, observed: { absent: true } };
-    expect(compareEndState(single.end_state ?? 'none', undefined).diff).toEqual([entry]);
     const list: Spec = {
       ...loose,
       end_state: [
@@ -184,9 +160,16 @@ describe('end_state', () => {
         { source: 'tool:notify_sales', expect: { reason: 'order_failed' } },
       ],
     };
-    expect(
-      compareEndState(list.end_state ?? 'none', { 'tool:notify_sales': { reason: 'order_failed' } }).diff,
-    ).toEqual([entry]);
+    const listed = await run(
+      endState,
+      context(list, last(list), observed(placed), {
+        endState: { 'tool:notify_sales': { reason: 'order_failed' } },
+      }),
+    );
+    expect(outcomes(listed)).toEqual({
+      'end_state.tool:order.create': 'fail',
+      'end_state.tool:notify_sales.reason': 'pass',
+    });
     expect(
       failing(await run(endState, context(single, last(single), observed(placed), { endState: order }))),
     ).toEqual([]);
@@ -201,7 +184,6 @@ describe('end_state', () => {
     expect(recorded.map((item) => [item.id, item.outcome, item.evidence])).toEqual([
       ['end_state.tool:order.create', 'pass', 'tool:order.create recorded a string "ORD-222B51"'],
     ]);
-    expect(compareEndState(single.end_state ?? 'none', 'ORD-222B51')).toEqual({ match: true, diff: [] });
     const nothing = await run(endState, context(single, last(single), observed(placed), { endState: null }));
     expect(outcomes(nothing)).toEqual({ 'end_state.tool:order.create': 'fail' });
     const strict: Spec = { ...loose, end_state: { source: 'tool:order.create', mode: 'exact', expect: {} } };

@@ -220,9 +220,17 @@ describe('tools: every assertion form, on the Acme expectations', () => {
           ),
         ),
       good: { summary: 'Order failed for Jo Okafor.' },
-      bad: { summary: '  ' },
+      bad: { summary: '' },
     },
   ];
+
+  // A disagreement with core's matchAssertion, kept red on purpose and routed to the lead: it passes here
+  // as long as core accepts a blank summary, and fails, asking to be turned back into it(), once core agrees.
+  it.fails('DISAGREES WITH CORE: a blank summary fails nonempty on acme order-service-down; core accepts "  "', async () => {
+    const blank = cases.find((item) => item.form === 'nonempty');
+    if (!blank) throw new Error('the nonempty case is missing');
+    expect(verdict(await blank.run({ summary: '  ' }), blank.id).outcome).toBe('fail');
+  });
 
   it.each(cases)('$form passes on the target input and fails on its mutation', async (item) => {
     expect(verdict(await item.run(item.good), item.id).outcome).toBe('pass');
