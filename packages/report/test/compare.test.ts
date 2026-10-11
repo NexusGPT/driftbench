@@ -1,6 +1,6 @@
 import type { RunResult } from '@driftbench/core';
-import { openMemoryStore } from '@driftbench/store';
 import { benjaminiHochberg, mcnemar, pairedRateDifference, wilcoxonSignedRank } from '@driftbench/stats';
+import { openMemoryStore } from '@driftbench/store';
 import { describe, expect, it } from 'vitest';
 import { compareCampaigns, criterionOf, unitsOf } from '../src/compare';
 import { loadCampaign } from '../src/data';
@@ -63,7 +63,12 @@ describe('compareCampaigns', () => {
     expect(result.allPass.mcnemar.pValue).toBeCloseTo(mcnemar(10, 0, { exact: true }).pValue, 12);
     expect(result.allPass.effect.estimate).toBeCloseTo(10 / 60, 12);
     const tools = result.criteria.find((row) => row.criterion === 'tools');
-    expect(tools).toMatchObject({ regressed: 10, improved: 0, significantRegression: true, nonInferior: false });
+    expect(tools).toMatchObject({
+      regressed: 10,
+      improved: 0,
+      significantRegression: true,
+      nonInferior: false,
+    });
     const bh = benjaminiHochberg(result.criteria.map((row) => row.pValue));
     expect(result.criteria.map((row) => row.adjusted)).toEqual(bh.adjusted);
     expect(result.criteria[0]?.criterion).toBe('tools');
@@ -78,14 +83,20 @@ describe('compareCampaigns', () => {
   });
 
   it('calls a new gating flag a regression even when every rate is within the margin', () => {
-    const result = compareCampaigns(campaign('b', 200), campaign('c', 200, { forbidden: [7] }), { margin: 0.2 });
+    const result = compareCampaigns(campaign('b', 200), campaign('c', 200, { forbidden: [7] }), {
+      margin: 0.2,
+    });
     expect(result.newFlags).toEqual([{ unit: 'g07 · F', family: 'forbidden' }]);
     expect(result.allPass.nonInferior).toBe(true);
     expect(result.verdict).toBe('regressed');
     // A flag the baseline already raised is not new.
-    const both = compareCampaigns(campaign('b', 200, { forbidden: [7] }), campaign('c', 200, { forbidden: [7] }), {
-      margin: 0.2,
-    });
+    const both = compareCampaigns(
+      campaign('b', 200, { forbidden: [7] }),
+      campaign('c', 200, { forbidden: [7] }),
+      {
+        margin: 0.2,
+      },
+    );
     expect(both.newFlags).toEqual([]);
   });
 
@@ -102,25 +113,34 @@ describe('compareCampaigns', () => {
   });
 
   it('pairs only the same golden at the same hash, and refuses two campaigns with nothing in common', () => {
-    const result = compareCampaigns(campaign('b', 3), dataOf([run({ specId: 'g00', specHash: 'h2' }), run({ specId: 'g01' }), run({ specId: 'x' })], {}, 'c'), {
-      margin: 0.5,
-    });
+    const result = compareCampaigns(
+      campaign('b', 3),
+      dataOf([run({ specId: 'g00', specHash: 'h2' }), run({ specId: 'g01' }), run({ specId: 'x' })], {}, 'c'),
+      {
+        margin: 0.5,
+      },
+    );
     expect(result.pairs.map((pair) => pair.unit)).toEqual(['g01 · F']);
     expect(result.unpaired).toEqual([
       { unit: 'g00 · F', reason: 'the spec changed between the campaigns: h1 and h2' },
       { unit: 'g02 · F', reason: 'baseline only' },
       { unit: 'x · F', reason: 'candidate only' },
     ]);
-    expect(() => compareCampaigns(campaign('b', 2), campaign('c', 2, { specHash: 'h9' }), { margin: 0.1 })).toThrow(
-      'share no golden',
-    );
+    expect(() =>
+      compareCampaigns(campaign('b', 2), campaign('c', 2, { specHash: 'h9' }), { margin: 0.1 }),
+    ).toThrow('share no golden');
     expect(() => compareCampaigns(campaign('b', 2), campaign('c', 2), { margin: 0 })).toThrow('margin');
   });
 
   it('treats a golden as passing only when every repeat passes, and ignores inconclusive verdicts', () => {
     const units = unitsOf(
       [
-        run({ repeat: 0, blocks: [{ verdicts: [{ id: 'judge.tone', kind: 'judge', name: 'tone', outcome: 'inconclusive' }] }] }),
+        run({
+          repeat: 0,
+          blocks: [
+            { verdicts: [{ id: 'judge.tone', kind: 'judge', name: 'tone', outcome: 'inconclusive' }] },
+          ],
+        }),
         run({ repeat: 1, blocks: [{ pass: false, verdicts: [{ id: 'tools.x', outcome: 'fail' }] }] }),
       ],
       ['forbidden'],
@@ -133,10 +153,18 @@ describe('compareCampaigns', () => {
 
   it('adds the target to the unit when a campaign runs a golden on several targets', () => {
     const units = unitsOf(
-      [run(), run({ target: { adapter: 'function', agent: 'other' } }), run({ specId: 'b', mode: 'P', perturbationId: 'p1' })],
+      [
+        run(),
+        run({ target: { adapter: 'function', agent: 'other' } }),
+        run({ specId: 'b', mode: 'P', perturbationId: 'p1' }),
+      ],
       [],
     );
-    expect([...units.keys()]).toEqual(['spec-a · F · function:demo', 'spec-a · F · function:other', 'b · P · p1']);
+    expect([...units.keys()]).toEqual([
+      'spec-a · F · function:demo',
+      'spec-a · F · function:other',
+      'b · P · p1',
+    ]);
   });
 
   it('names a criterion by its family, or by its id for a judged one', () => {
@@ -159,7 +187,12 @@ describe('compare on stored Acme campaigns', () => {
   it('finds the fault that skips the recap regressed against the Acme agent', async () => {
     const store = openMemoryStore();
     await storeAcmeCampaign(store, { campaignId: 'c-acme', modes: ['F', 'P'], repeats: 2 });
-    await storeAcmeCampaign(store, { campaignId: 'c-x3', modes: ['F', 'P'], repeats: 2, fault: 'x3-skips-recap' });
+    await storeAcmeCampaign(store, {
+      campaignId: 'c-x3',
+      modes: ['F', 'P'],
+      repeats: 2,
+      fault: 'x3-skips-recap',
+    });
     const baseline = await loadCampaign(store, 'c-acme');
     const candidate = await loadCampaign(store, 'c-x3');
     const result = compareCampaigns(baseline, candidate, { margin: 0.15 });

@@ -1,6 +1,12 @@
 import { resolve } from 'node:path';
 import type { RunMode, Store } from '@driftbench/core';
-import { type CampaignData, compareCampaigns, compareText, loadCampaign, ReportInputError } from '@driftbench/report';
+import {
+  type CampaignData,
+  compareCampaigns,
+  compareText,
+  loadCampaign,
+  ReportInputError,
+} from '@driftbench/report';
 import { openStore } from '@driftbench/store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -39,7 +45,10 @@ export function registerCompareCommand(
     .requiredOption('--baseline <campaign>', 'the baseline campaign id')
     .requiredOption('--candidate <campaign>', 'the candidate campaign id')
     .requiredOption('--store <file>', 'the store that holds both campaigns')
-    .requiredOption('--margin <points>', 'the largest drop in pass rate tolerated, in percentage points, such as 2')
+    .requiredOption(
+      '--margin <points>',
+      'the largest drop in pass rate tolerated, in percentage points, such as 2',
+    )
     .option('--mode <modes>', 'compare only these modes, such as F or T,F; default every mode both ran')
     .option('--q <rate>', 'false discovery rate of Benjamini-Hochberg across criteria', '0.05')
     .option('--json', 'print one JSON document')
@@ -49,7 +58,11 @@ export function registerCompareCommand(
 }
 
 /** `driftbench compare`: 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. */
-export async function compareCommand(options: CompareCommandOptions, io: Io, deps: ReportDeps): Promise<number> {
+export async function compareCommand(
+  options: CompareCommandOptions,
+  io: Io,
+  deps: ReportDeps,
+): Promise<number> {
   const margin = parseMargin(options.margin, io);
   const q = parseRate(options.q, '--q', io);
   const modes = options.mode === undefined ? undefined : parseModes(options.mode, io);

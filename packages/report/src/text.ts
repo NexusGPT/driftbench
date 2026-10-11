@@ -32,8 +32,18 @@ export function compareText(result: CompareResult): string {
     'All repeats pass, per golden:',
     ...textTable([
       ['side', 'passing', 'rate', '95% interval'],
-      ['baseline', `${all.baseline.k} of ${all.baseline.n}`, pct(all.baseline.estimate), interval(all.baseline, pct)],
-      ['candidate', `${all.candidate.k} of ${all.candidate.n}`, pct(all.candidate.estimate), interval(all.candidate, pct)],
+      [
+        'baseline',
+        `${all.baseline.k} of ${all.baseline.n}`,
+        pct(all.baseline.estimate),
+        interval(all.baseline, pct),
+      ],
+      [
+        'candidate',
+        `${all.candidate.k} of ${all.candidate.n}`,
+        pct(all.candidate.estimate),
+        interval(all.candidate, pct),
+      ],
     ]),
     `  Both pass ${t.bothPass}, regressed ${t.regressed}, improved ${t.improved}, both fail ${t.bothFail}. McNemar exact p = ${pValue(all.mcnemar.pValue)}.`,
     `  Effect, baseline minus candidate: ${points(all.effect.estimate)} points, interval ${interval(all.effect, points)} (Newcombe, paired).`,
@@ -41,7 +51,19 @@ export function compareText(result: CompareResult): string {
     '',
     `Criteria: McNemar exact per criterion, Benjamini-Hochberg across ${count(result.criteria.length, 'criterion', 'criteria')} at q ${fixed(result.q, 2)}. Effect in points, baseline minus candidate.`,
     ...textTable([
-      ['criterion', 'gating', 'goldens', 'regressed', 'improved', 'p', 'q', 'effect', 'interval', 'margin', 'verdict'],
+      [
+        'criterion',
+        'gating',
+        'goldens',
+        'regressed',
+        'improved',
+        'p',
+        'q',
+        'effect',
+        'interval',
+        'margin',
+        'verdict',
+      ],
       ...result.criteria.map((row) => [
         row.criterion,
         row.gating ? 'yes' : 'no',
@@ -59,7 +81,9 @@ export function compareText(result: CompareResult): string {
   );
   if (result.newFlags.length > 0) {
     lines.push('', `New gating flags (${result.flagFamilies.join(', ')}), firing for the candidate only:`);
-    lines.push(...textTable([['golden', 'family'], ...result.newFlags.map((flag) => [flag.unit, flag.family])]));
+    lines.push(
+      ...textTable([['golden', 'family'], ...result.newFlags.map((flag) => [flag.unit, flag.family])]),
+    );
   }
   if (result.unpaired.length > 0) {
     lines.push('', 'Not paired:');

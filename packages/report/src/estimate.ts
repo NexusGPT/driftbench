@@ -7,10 +7,18 @@ import { bootstrapCI, wilson } from '@driftbench/stats';
  *   draws, seed 1), so the values inside one conversation are never read as independent.
  * - `wilson, raised`: pass^k and pass@k, the Wilson bounds of the per-run rate put through the same
  *   monotone map (p^k, 1 - (1 - p)^k).
+ * - `wilson, clusters`: a pass rate whose values all agree (all pass or all fail), where a bootstrap has no
+ *   width: the Wilson interval over the clusters, each cluster counted once.
  * - `newcombe`: the paired difference of two rates (Newcombe's method 10).
  * - `none`: one cluster only, so no interval can be drawn; lower and upper equal the estimate.
  */
-export type IntervalMethod = 'wilson' | 'cluster bootstrap' | 'wilson, raised' | 'newcombe' | 'none';
+export type IntervalMethod =
+  | 'wilson'
+  | 'cluster bootstrap'
+  | 'wilson, clusters'
+  | 'wilson, raised'
+  | 'newcombe'
+  | 'none';
 
 /** A point estimate with its 95% interval and how the interval was made. */
 export type Estimate = {
@@ -36,16 +44,31 @@ export function rate(k: number, n: number): Rate | undefined {
 
 /**
  * The mean of values with a cluster bootstrap interval: one key per value, a cluster being one
- * conversation (a run) or one spec. With a single cluster the method is `none`. Undefined with no value.
- * `statistic` replaces the pooled mean (see bootstrapCI).
+ * conversation (a run) or one spec. With a single cluster the method is `none`. A pass rate whose values all
+ * agree (`rate`: the values are pass flags, 0 or 1) takes the Wilson interval over the clusters. `statistic`
+ * replaces the pooled mean (see bootstrapCI). Undefined with no value.
  */
 export function clustered(
   values: readonly number[],
   clusters: readonly (string | number)[],
-  statistic?: (values: readonly number[]) => number,
+  options: { statistic?: (values: readonly number[]) => number; rate?: boolean } = {},
 ): Estimate | undefined {
   if (values.length === 0) return undefined;
+  const statistic = options.statistic;
   const result = bootstrapCI(values, { clusters, seed: 1, ...(statistic ? { statistic } : {}) });
+  const first = values[0] as number;
+  if (options.rate && !statistic && result.clusters >= 2 && values.every((v) => v === first)) {
+    // Every value agrees: resampling cannot move the mean. Count each cluster once instead.
+    const w = wilson(first === 1 ? result.clusters : 0, result.clusters);
+    return {
+      estimate: first,
+      lower: w.lower,
+      upper: w.upper,
+      method: 'wilson, clusters',
+      n: values.length,
+      clusters: result.clusters,
+    };
+  }
   if (result.clusters < 2) {
     return {
       estimate: result.estimate,

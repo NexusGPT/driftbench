@@ -124,7 +124,9 @@ export function showTarget(target: TargetRef): string {
  * repeats of a line are the runs pass^k and pass@k read.
  */
 export function lineKey(run: RunResult): string {
-  return [run.specId, run.specHash, canonicalJson(run.target), run.mode, run.perturbationId ?? ''].join('\u0000');
+  return [run.specId, run.specHash, canonicalJson(run.target), run.mode, run.perturbationId ?? ''].join(
+    '\u0000',
+  );
 }
 
 /** Groups runs by a key, keeping the first-seen order of the keys and the order of the runs. */

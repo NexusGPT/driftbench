@@ -291,7 +291,13 @@ function tableOf(baseline: readonly boolean[], candidate: readonly boolean[]): P
 }
 
 function newcombe(effect: { estimate: number; lower: number; upper: number; n: number }): Estimate {
-  return { estimate: effect.estimate, lower: effect.lower, upper: effect.upper, method: 'newcombe', n: effect.n };
+  return {
+    estimate: effect.estimate,
+    lower: effect.lower,
+    upper: effect.upper,
+    method: 'newcombe',
+    n: effect.n,
+  };
 }
 
 type UnitEntry = {
@@ -359,7 +365,12 @@ function sideOf(runs: readonly RunResult[], flagFamilies: readonly string[]): Un
   };
 }
 
-function criteriaOf(pairs: readonly UnitPair[], margin: number, alpha: number, q: number): CriterionComparison[] {
+function criteriaOf(
+  pairs: readonly UnitPair[],
+  margin: number,
+  alpha: number,
+  q: number,
+): CriterionComparison[] {
   const names = new Set<string>();
   for (const pair of pairs) {
     for (const name of pair.baseline.criteria.keys()) if (pair.candidate.criteria.has(name)) names.add(name);

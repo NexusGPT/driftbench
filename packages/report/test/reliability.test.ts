@@ -1,5 +1,5 @@
-import { openMemoryStore } from '@driftbench/store';
 import { passAtK, passK, unreliability, wilson } from '@driftbench/stats';
+import { openMemoryStore } from '@driftbench/store';
 import { describe, expect, it } from 'vitest';
 import { blockScore, loadCampaign, ReportInputError, runPassed } from '../src/data';
 import { modeReliability, recoveryOf, reliability, successionOf } from '../src/reliability';
@@ -40,24 +40,31 @@ describe('reliability per line', () => {
         run({ target: { adapter: 'function', agent: 'other' } }),
       ]),
     );
-    expect(more.map((entry) => `${entry.mode} ${entry.perturbationId ?? ''} ${entry.target.agent} ${entry.runs}`)).toEqual([
-      'F  demo 3',
-      'T  demo 1',
-      'P p1 demo 1',
-      'P p2 demo 1',
-      'F  other 1',
-    ]);
+    expect(
+      more.map((entry) => `${entry.mode} ${entry.perturbationId ?? ''} ${entry.target.agent} ${entry.runs}`),
+    ).toEqual(['F  demo 3', 'T  demo 1', 'P p1 demo 1', 'P p2 demo 1', 'F  other 1']);
   });
 
   it('gives the pass rate with its Wilson interval', () => {
     const w = wilson(2, 3);
-    expect(line?.passRate).toMatchObject({ k: 2, n: 3, estimate: 2 / 3, lower: w.lower, upper: w.upper, method: 'wilson' });
+    expect(line?.passRate).toMatchObject({
+      k: 2,
+      n: 3,
+      estimate: 2 / 3,
+      lower: w.lower,
+      upper: w.upper,
+      method: 'wilson',
+    });
   });
 
   it('gives pass^k and pass@k for every k, the Wilson bounds raised the same way', () => {
     const w = wilson(2, 3);
     expect(line?.passK.map((entry) => entry.value)).toEqual([passK(2, 3, 1), passK(2, 3, 2), passK(2, 3, 3)]);
-    expect(line?.passAtK.map((entry) => entry.value)).toEqual([passAtK(2, 3, 1), passAtK(2, 3, 2), passAtK(2, 3, 3)]);
+    expect(line?.passAtK.map((entry) => entry.value)).toEqual([
+      passAtK(2, 3, 1),
+      passAtK(2, 3, 2),
+      passAtK(2, 3, 3),
+    ]);
     expect(line?.passK[1]).toMatchObject({ k: 2, lower: w.lower ** 2, upper: w.upper ** 2 });
     expect(line?.passAtK[2]?.lower).toBeCloseTo(1 - (1 - w.lower) ** 3, 12);
     expect(line?.passAtK[2]?.upper).toBeCloseTo(1 - (1 - w.upper) ** 3, 12);
@@ -70,7 +77,12 @@ describe('reliability per line', () => {
   });
 
   it('pools blocks with the run, one conversation, as the cluster', () => {
-    expect(line?.blockAccuracy).toMatchObject({ estimate: 8 / 9, n: 9, clusters: 3, method: 'cluster bootstrap' });
+    expect(line?.blockAccuracy).toMatchObject({
+      estimate: 8 / 9,
+      n: 9,
+      clusters: 3,
+      method: 'cluster bootstrap',
+    });
   });
 
   it('gives no interval over a single run, and says so', () => {
@@ -104,8 +116,19 @@ describe('succession summary', () => {
 describe('recovery summary', () => {
   it('reads labels, turns over the runs that came back, and rates over the runs that say', () => {
     const summary = recoveryOf([
-      run({ recovery: { injectedAt: 1, turnsToRecover: 0, label: 'immediate', collateral: 0, safeAction: true, clarified: true } }),
-      run({ recovery: { injectedAt: 1, turnsToRecover: 3, label: 'late', collateral: 2, safeAction: false } }),
+      run({
+        recovery: {
+          injectedAt: 1,
+          turnsToRecover: 0,
+          label: 'immediate',
+          collateral: 0,
+          safeAction: true,
+          clarified: true,
+        },
+      }),
+      run({
+        recovery: { injectedAt: 1, turnsToRecover: 3, label: 'late', collateral: 2, safeAction: false },
+      }),
       run({ recovery: { injectedAt: 1, label: 'never', collateral: 1, safeAction: true, clarified: false } }),
       run({ recovery: { injectedAt: 1, turnsToRecover: 1, label: 'immediate', collateral: 0 } }),
       run(),
@@ -147,7 +170,9 @@ describe('loadCampaign on a stored Acme campaign', () => {
     const data = await loadCampaign(store, 'c-load');
     expect(data.campaign.createdAt).toBe(FIXED);
     expect(data.specs.size).toBe(6);
-    const order = data.runs.map((entry) => `${entry.specId} ${entry.mode} ${entry.perturbationId ?? ''} ${entry.repeat}`);
+    const order = data.runs.map(
+      (entry) => `${entry.specId} ${entry.mode} ${entry.perturbationId ?? ''} ${entry.repeat}`,
+    );
     expect(order.slice(0, 6)).toEqual([
       'acme-new-customer-coverage F  0',
       'acme-new-customer-coverage F  1',
@@ -161,7 +186,9 @@ describe('loadCampaign on a stored Acme campaign', () => {
     expect(lines.every((entry) => entry.passRate.k === 2 && entry.runs === 2)).toBe(true);
     const recovered = lines.filter((entry) => entry.recovery);
     expect(recovered.length).toBeGreaterThan(0);
-    expect(recovered.every((entry) => entry.mode === 'P' && entry.recovery?.labels.immediate === 2)).toBe(true);
+    expect(recovered.every((entry) => entry.mode === 'P' && entry.recovery?.labels.immediate === 2)).toBe(
+      true,
+    );
     await expect(loadCampaign(store)).resolves.toMatchObject({ campaign: { campaignId: 'c-load' } });
     await store.close();
   });

@@ -17,7 +17,12 @@ beforeAll(async () => {
   const store = openStore(db);
   try {
     await storeAcmeCampaign(store, { campaignId: 'c-acme', modes: ['F', 'P'], repeats: 2 });
-    await storeAcmeCampaign(store, { campaignId: 'c-x3', modes: ['F', 'P'], repeats: 2, fault: 'x3-skips-recap' });
+    await storeAcmeCampaign(store, {
+      campaignId: 'c-x3',
+      modes: ['F', 'P'],
+      repeats: 2,
+      fault: 'x3-skips-recap',
+    });
     await storeAcmeCampaign(store, { campaignId: 'c-acme-again', modes: ['F', 'P'], repeats: 2 });
   } finally {
     await store.close();
@@ -159,7 +164,17 @@ describe('driftbench compare', () => {
   });
 
   it('exits 2 on a missing campaign and when the campaigns share no mode', async () => {
-    const missing = await cli(['compare', '--baseline', 'nope', '--candidate', 'c-x3', '--store', 'store.db', '--margin', '5']);
+    const missing = await cli([
+      'compare',
+      '--baseline',
+      'nope',
+      '--candidate',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--margin',
+      '5',
+    ]);
     expect(missing.code).toBe(2);
     expect(missing.err).toContain('No campaign nope');
     const noMode = await cli([

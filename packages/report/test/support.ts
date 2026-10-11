@@ -48,6 +48,8 @@ export type StoredCampaignOptions = {
   modes?: RunMode[];
   repeats?: number;
   specs?: readonly LoadedSpec[];
+  /** The campaign's creation time; FIXED by default. The runs keep the FIXED clock. */
+  createdAt?: string;
 };
 
 /**
@@ -77,7 +79,7 @@ export async function storeAcmeCampaign(store: Store, options: StoredCampaignOpt
     repeats: counts,
     budgetUsd: 0,
     judge: { mode: 'system1', judges: [] },
-    createdAt: FIXED,
+    createdAt: options.createdAt ?? FIXED,
   };
   await store.putCampaign(campaign);
   const bySpec = new Map(specs.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
@@ -208,7 +210,11 @@ export function run(shape: RunShape = {}): RunResult {
 }
 
 /** Campaign data over synthetic runs, with optional specs by id (hash h1 unless the run says otherwise). */
-export function dataOf(runs: RunResult[], specs: Record<string, Partial<Spec>> = {}, campaignId = 'c-test'): CampaignData {
+export function dataOf(
+  runs: RunResult[],
+  specs: Record<string, Partial<Spec>> = {},
+  campaignId = 'c-test',
+): CampaignData {
   const ids = [...new Set(runs.map((entry) => `${entry.specId}@${entry.specHash}`))];
   const loaded = new Map<string, LoadedSpec>();
   for (const key of ids) {

@@ -1,14 +1,6 @@
 import type { DriftClass, RunMode, RunResult, TargetRef } from '@driftbench/core';
 import { passAtK, passK, unreliability } from '@driftbench/stats';
-import {
-  blockScore,
-  type CampaignData,
-  deviationOf,
-  groupBy,
-  lineKey,
-  runPassed,
-  specOfRun,
-} from './data';
+import { blockScore, type CampaignData, deviationOf, groupBy, lineKey, runPassed, specOfRun } from './data';
 import { clustered, type Estimate, median, type Rate, rate } from './estimate';
 
 /** pass^k or pass@k at one k, with the Wilson bounds of the per-run rate raised the same way. */
@@ -107,7 +99,7 @@ function lineOf(data: CampaignData, runs: RunResult[]): ReliabilityLine {
   const bootUnrel = clustered(
     scores,
     runs.map((_, index) => index),
-    (values) => unreliability(values),
+    { statistic: (values) => unreliability(values) },
   ) as Estimate;
   const deviation = deviationOf(specOfRun(data, first), first);
   const recovery = recoveryOf(runs);
@@ -154,7 +146,7 @@ export function blockAccuracy(runs: readonly RunResult[]): Estimate | undefined 
       clusters.push(index);
     }
   });
-  return clustered(values, clusters);
+  return clustered(values, clusters, { rate: true });
 }
 
 export function successionOf(runs: readonly RunResult[]): SuccessionSummary {
@@ -185,7 +177,7 @@ export function successionOf(runs: readonly RunResult[]): SuccessionSummary {
         ids,
       ),
     ),
-    ...optional('driftRate', clustered(driftValues, driftClusters)),
+    ...optional('driftRate', clustered(driftValues, driftClusters, { rate: true })),
     ...optional('allBlocksPass', allBlocksPass),
     firstDrift,
     ...(runs.length === 0
@@ -247,6 +239,7 @@ export function modeReliability(data: CampaignData, lines: readonly ReliabilityL
         clustered(
           runs.map((run) => (runPassed(run) ? 1 : 0)),
           lineOfRun,
+          { rate: true },
         ),
       ),
       ...optional('blockAccuracy', blockAccuracy(runs)),
@@ -258,6 +251,7 @@ export function modeReliability(data: CampaignData, lines: readonly ReliabilityL
         clustered(
           runs.map((run) => (run.succession.minOverBlocks ? 1 : 0)),
           lineOfRun,
+          { rate: true },
         ),
       ),
       ...optional(

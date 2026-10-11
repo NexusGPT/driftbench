@@ -22,15 +22,37 @@ export {
   showTarget,
 } from './data';
 export { type Estimate, type IntervalMethod, type Rate, rate } from './estimate';
+export { renderHtml } from './html';
+export { failures, renderJunit } from './junit';
+export { PilotReport, readPilotReport } from './pilot';
 export {
   type AtK,
   type ModeReliability,
   modeReliability,
   type RecoverySummary,
   type ReliabilityLine,
-  reliability,
   recoveryOf,
+  reliability,
   type SuccessionSummary,
   successionOf,
 } from './reliability';
+export {
+  type BlockDetail,
+  buildScorecard,
+  type RunDetail,
+  type Scorecard,
+  type ScorecardOptions,
+  type ToolAccuracy,
+  toolAccuracy,
+} from './scorecard';
+export {
+  type CellSpread,
+  factorsOf,
+  type JudgeFlip,
+  judgeFlip,
+  type NoiseFloor,
+  type Spread,
+  type SpreadOptions,
+  spread,
+} from './spread';
 export { compareText, textTable } from './text';
