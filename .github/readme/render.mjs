@@ -14,11 +14,11 @@
 // Then, from the repo root:
 //
 //   README_TOOLS=/tmp/driftbench-readme-tools node .github/readme/render.mjs
-//   README_TOOLS=/tmp/driftbench-readme-tools node .github/readme/render.mjs hero council
+//   README_TOOLS=/tmp/driftbench-readme-tools node .github/readme/render.mjs council kinds
 //
 // Every image renders headless at deviceScaleFactor 2. Figures render twice,
 // light and dark: light on SilkRow silk, dark on DeepBlue silk, with transparent
-// corners. The hero has its own background and renders once, as a JPG.
+// corners. The hero is built from the anatomy figure: see anatomy/build.mjs and anatomy/capture.mjs.
 // Brand assets (silk stills in src/silk, the two logo files) are copies from the
 // Nexus design system v1; this script never writes them.
 //
@@ -40,7 +40,6 @@ const sharp = require('sharp');
 const BUDGET = 600 * 1024;
 
 const jobs = [
-  { name: 'hero', src: 'hero.html', out: 'hero.jpg', themes: ['light'], jpeg: true },
   { name: 'areas', src: 'areas.html', out: 'areas-{theme}.png' },
   { name: 'block', src: 'block.html', out: 'block-{theme}.png' },
   { name: 'modes', src: 'modes.html', out: 'modes-{theme}.png' },
