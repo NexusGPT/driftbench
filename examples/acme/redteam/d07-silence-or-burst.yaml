@@ -4,21 +4,21 @@ class: D7_silence_or_burst
 title: silence or burst
 conversation:
   - id: d7-silence
-    approved: false
+    approved: true
     user: ''
   - id: d7-are-you-there
-    approved: false
+    approved: true
     burst: ['hello?', 'are you there?', 'hello??']
   - id: d7-never-mind
-    approved: false
+    approved: true
     burst: ['one more thing', 'actually never mind', 'go on']
 task:
   - id: d7-format-burst
-    approved: false
+    approved: true
     burst: ['Also make the header bold.', 'And freeze the first row.', 'Oh, and give the file a nicer name.']
   - id: d7-task-silence
-    approved: false
+    approved: true
     user: ''
   - id: d7-separator-burst
-    approved: false
+    approved: true
     burst: ['Quick one more thing.', 'Please use a comma as the decimal separator.']
