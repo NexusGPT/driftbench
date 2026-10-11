@@ -48,6 +48,22 @@ describe('compareEndState', () => {
     expect(compareEndState(order, null)).toEqual({ match: false, diff });
   });
 
+  it('fails every expected field, absent ones included, on a state that is not a mapping', () => {
+    for (const state of ['order placed', [{ plan_id: 'mobile-l' }]]) {
+      expect(compareEndState(order, state)).toEqual({
+        match: false,
+        diff: [
+          { field: 'plan_id', expected: 'mobile-l', observed: absent },
+          { field: 'port_number', expected: absent, observed: absent },
+        ],
+      });
+      expect(compareEndState({ source: 'tool:order.create', expect: {} }, state)).toEqual({
+        match: true,
+        diff: [],
+      });
+    }
+  });
+
   it('fails an empty expect only when the source recorded nothing', () => {
     const any: EndState = { source: 'tool:notify_sales', expect: {} };
     expect(compareEndState(any, { reason: 'callback' })).toEqual({ match: true, diff: [] });

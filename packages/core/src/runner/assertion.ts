@@ -42,8 +42,9 @@ export type EndStateMatch = { match: boolean; diff: EndStateDiff[] };
  * keyed by source, and `none` gives the list that source `*` returned. `subset` (the default) checks the
  * listed fields; `exact` also fails every other field of the state, expected absent. One diff entry per
  * field that does not hold; in a list a field is named `<source>.<field>`. A source that recorded nothing
- * (undefined or null) fails every expected field, `{ absent: true }` assertions included, and with an
- * empty `expect` gives one entry for the source itself, expected `{ nonempty: true }`. `none` holds when nothing was
+ * (undefined or null), or a state that is not a mapping (a string, a list), fails every expected field,
+ * `{ absent: true }` assertions included; with nothing recorded an empty `expect` gives one entry for the
+ * source itself, expected `{ nonempty: true }`. `none` holds when nothing was
  * recorded (undefined, null, an empty list or object) and otherwise gives one entry per payload found,
  * `*.<index>`, expected absent. A value that is absent is written `{ absent: true }`, the assertion that
  * names it, so a diff keeps its meaning through JSON, where an undefined value would vanish.
@@ -68,9 +69,9 @@ export function compareEndState(endState: EndState, value: unknown): EndStateMat
     const state = list ? (isRecord(value) ? value[entry.source] : undefined) : value;
     const name = (field: string) => (list ? `${entry.source}.${field}` : field);
     const expected = Object.entries(entry.expect);
-    if (state === undefined || state === null) {
-      // A named source that recorded nothing fails, as the end_state check of the checks package does.
-      if (expected.length === 0) {
+    if (!isRecord(state)) {
+      // Nothing recorded, or a state with no fields: no field assertion holds, as in the end_state check.
+      if (expected.length === 0 && (state === undefined || state === null)) {
         diff.push({ field: entry.source, expected: { nonempty: true }, observed: { absent: true } });
       }
       for (const [field, assertion] of expected) {
@@ -78,7 +79,7 @@ export function compareEndState(endState: EndState, value: unknown): EndStateMat
       }
       continue;
     }
-    const record = isRecord(state) ? state : undefined;
+    const record = state;
     for (const [field, assertion] of expected) {
       const observed = record?.[field];
       if (!matchAssertion(observed, assertion)) {
