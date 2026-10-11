@@ -176,6 +176,7 @@ function partitionsOf(name: string, property: YAMLMap, quote: (keyword?: string)
     if (types.includes('string')) stringPartitions(name, property, add);
     if (types.includes('array')) arrayPartitions(name, property, add);
     if (types.includes('object') && types.includes('null')) add('present', `${name} is an object`, 'type');
+    if (types.includes('object')) objectPartitions(name, property, add);
   }
   const nullable = plain(entry(property, 'nullable')?.value) === true;
   // An enum that lists null already gave the null partition.
@@ -267,6 +268,27 @@ function stringPartitions(name: string, property: YAMLMap, add: Add): void {
   if (typeof encoding === 'string') {
     add('well-formed', `${name} is well-formed ${encoding}`, 'contentEncoding');
     add('malformed', `${name} is not well-formed ${encoding}`, 'contentEncoding');
+  }
+}
+
+function objectPartitions(name: string, property: YAMLMap, add: Add): void {
+  const count = (key: string) => {
+    const value = plain(entry(property, key)?.value);
+    return typeof value === 'number' ? value : undefined;
+  };
+  const minProperties = count('minProperties');
+  const maxProperties = count('maxProperties');
+  if (minProperties !== undefined && minProperties > 0) {
+    add(
+      'below-min-properties',
+      `${name} has ${minProperties - 1} keys, one under its minProperties`,
+      'minProperties',
+    );
+    add('at-min-properties', `${name} has exactly ${minProperties} keys`, 'minProperties');
+  }
+  if (maxProperties !== undefined) {
+    add('at-max-properties', `${name} has exactly ${maxProperties} keys`, 'maxProperties');
+    add('above-max-properties', `${name} has more than ${maxProperties} keys`, 'maxProperties');
   }
 }
 
