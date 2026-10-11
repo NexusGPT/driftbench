@@ -1,0 +1,170 @@
+/* README figures in the Nexus design system v1.
+   Colours, type, radii and shadows are the design system's token values. The scene parts follow its
+   illustration kit: white panels and node cards on one frosted glass panel over silk, quiet navy connectors,
+   one blue path, green only for done, the #FF6600 spark at most once.
+   Fonts: Libre Caslon Display, Libre Caslon Text, Geist and Geist Mono, from Google Fonts (SIL Open Font License).
+   Light figures sit on SilkRow silk; dark figures on DeepBlue silk with dark glass. */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&display=block');
+
+:root {
+  --nx-page: #F6F8FB;
+  --nx-card: #FFFFFF;
+  --nx-card-2: #EEF1F6;
+  --nx-ink: #0E1116;
+  --nx-ink-2: rgba(14,17,22,.68);
+  --nx-ink-3: rgba(14,17,22,.5);
+  --nx-line: rgba(14,17,22,.10);
+  --nx-spark: #FF6600;
+  --nx-blue: #2F5FD0;
+  --nx-blue-soft: #EEF3FB;
+  --nx-navy-ink: #1B2A44;
+  --nx-navy-ink-2: #4A5873;
+  --nx-done-bg: #E3F4EA;
+  --nx-done-ink: #1F7A4A;
+  --nx-ill-green: #16A34A;
+  --nx-ill-me: #DCE6F4;
+  --nx-ill-panel-shadow: 0 8px 18px rgba(14,30,60,.16);
+  --nx-ill-panel-border: rgba(14,17,22,.08);
+  --nx-ill-edge: rgba(27,42,68,.2);
+  --nx-shadow-glass: 0 20px 40px -28px rgba(14,30,60,.35);
+  --nx-serif: 'Libre Caslon Display', Georgia, serif;
+  --nx-serif-text: 'Libre Caslon Text', Georgia, serif;
+  --nx-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --nx-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --nx-serif-track: -.012em;
+
+  /* scene roles, so one source renders both themes */
+  --kind: rgba(14,17,22,.38);
+  --kind-strong: rgba(14,17,22,.68);
+  --detail: #4A5873;
+  --pill-ink: #2E3643;
+  --pill-border: rgba(14,17,22,.07);
+  --pill-shadow: 0 4px 12px rgba(14,30,60,.14);
+  --tile: #DCE6F4;
+  --tile-ink: #1B2A44;
+  --miss-bg: #EEF1F6;
+  --miss-ink: rgba(14,17,22,.62);
+  --soft-edge: rgba(47,95,208,.16);
+  --silk: url('silk/silkrow-1920x1080.jpg');
+  --silk-fallback: #D6E3F9;
+  --glass-bg: rgba(255,255,255,.46);
+  --glass-border: rgba(255,255,255,.6);
+  --glass-rim: inset 0 1px 0 rgba(255,255,255,.9);
+  --bubble-agent-bg: rgba(255,255,255,.96);
+  --bubble-agent-ink: #1B2A44;
+  --bubble-agent-border: rgba(255,255,255,.9);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --nx-card: #161618;
+    --nx-card-2: #1C1C1F;
+    --nx-ink: #F5F3F0;
+    --nx-ink-2: rgba(245,243,240,.72);
+    --nx-ink-3: rgba(245,243,240,.5);
+    --nx-line: rgba(255,255,255,.10);
+    --nx-blue: #8DB2F0;
+    --nx-done-bg: rgba(46,155,99,.22);
+    --nx-done-ink: #8FDDB0;
+    --nx-ill-panel-shadow: 0 8px 18px rgba(0,0,0,.34);
+    --nx-ill-panel-border: rgba(255,255,255,.10);
+    --nx-ill-edge: rgba(245,243,240,.24);
+    --kind: rgba(245,243,240,.5);
+    --kind-strong: rgba(245,243,240,.72);
+    --detail: rgba(245,243,240,.68);
+    --pill-ink: #F5F3F0;
+    --pill-border: rgba(255,255,255,.12);
+    --pill-shadow: 0 4px 12px rgba(0,0,0,.3);
+    --tile: rgba(141,178,240,.16);
+    --tile-ink: #C9D8F5;
+    --miss-bg: rgba(255,255,255,.08);
+    --miss-ink: rgba(245,243,240,.7);
+    --soft-edge: rgba(141,178,240,.22);
+    --silk: url('silk/deepblue-1920x1080.jpg');
+    --silk-fallback: #06122B;
+    --glass-bg: rgba(7,11,20,.38);
+    --glass-border: rgba(255,255,255,.2);
+    --glass-rim: inset 0 1px 0 rgba(255,255,255,.14);
+    --bubble-agent-bg: rgba(22,22,24,.94);
+    --bubble-agent-ink: #F5F3F0;
+    --bubble-agent-border: rgba(255,255,255,.10);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: transparent; }
+body { font-family: var(--nx-sans); color: var(--nx-ink); -webkit-font-smoothing: antialiased; }
+
+/* The scene: drawn at the kit's card scale, then zoomed so it reads at README width. */
+.scene { zoom: 1.34375; }
+
+/* silk card with a 10 px frame and one frosted glass panel */
+.nx-ill { position: relative; overflow: hidden; border-radius: 24px; padding: 10px;
+  background: var(--silk-fallback) var(--silk) center/cover; color: var(--nx-ink); }
+.nx-ill__glass { position: relative; width: 100%; height: 100%; border-radius: 14px; background: var(--glass-bg);
+  border: 1px solid var(--glass-border); box-shadow: var(--glass-rim), var(--nx-shadow-glass);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); overflow: hidden; }
+.nx-edges { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+
+/* raised panel: r14, 1 px border, the one soft shadow */
+.nx-ill-panel { position: absolute; background: var(--nx-card); border-radius: 14px;
+  border: 1px solid var(--nx-ill-panel-border); box-shadow: var(--nx-ill-panel-shadow); }
+
+/* node card */
+.nx-node { position: absolute; display: grid; grid-template-columns: auto 1fr;
+  grid-template-areas: "ico kind" "title title" "detail detail"; align-content: center; align-items: center;
+  column-gap: 7px; row-gap: 4px; padding: 8px 11px; border-radius: 12px; background: var(--nx-card);
+  border: 1px solid var(--nx-ill-panel-border); box-shadow: var(--nx-ill-panel-shadow); }
+.nx-node--noico { grid-template-areas: "kind kind" "title title" "detail detail"; }
+.nx-node__ico { grid-area: ico; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px;
+  background: var(--tile); color: var(--tile-ink); }
+.nx-node__ico svg { width: 13px; height: 13px; }
+.nx-node__kind { grid-area: kind; min-width: 0; font: 400 11px/1.2 var(--nx-sans); color: var(--kind); }
+.nx-node__title { grid-area: title; min-width: 0; font: 600 12.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
+.nx-node__detail { grid-area: detail; min-width: 0; font: 400 11px/1.3 var(--nx-sans); color: var(--detail); }
+.nx-ring { box-shadow: var(--nx-ill-panel-shadow), 0 0 0 2px var(--nx-blue) !important; }
+
+/* pills */
+.nx-ipill { position: absolute; display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 11px;
+  border-radius: 999px; background: var(--nx-card); border: 1px solid var(--pill-border); box-shadow: var(--pill-shadow);
+  font: 500 11.5px/1 var(--nx-sans); color: var(--pill-ink); white-space: nowrap; }
+.nx-ipill--flat { box-shadow: none; }
+.nx-ipill--static { position: static; }
+.nx-done { display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 8px; border-radius: 999px;
+  background: var(--nx-done-bg); color: var(--nx-done-ink); font: 600 10.5px/1 var(--nx-sans); white-space: nowrap; }
+.nx-done svg { width: 9px; height: 9px; }
+.nx-center { transform: translate(-50%, -50%); }
+
+/* labels */
+.nx-kind { position: absolute; font: 500 10.5px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase;
+  color: var(--kind); white-space: nowrap; }
+.nx-kind--ink { color: var(--kind-strong); }
+.nx-kind--static { position: static; }
+.nx-readout { position: absolute; font-family: var(--nx-serif); font-weight: 400; letter-spacing: var(--nx-serif-track);
+  line-height: 1; color: var(--nx-ink); white-space: nowrap; }
+
+/* connectors */
+.nx-edge { fill: none; stroke: var(--nx-ill-edge); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nx-edge--new { fill: none; stroke: var(--nx-blue); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.nx-edge--soft { fill: none; stroke: var(--soft-edge); stroke-width: 1.5; }
+
+/* rows inside a panel */
+.nx-irow { display: flex; align-items: center; gap: 8px; min-height: 26px; padding: 0 10px; border-top: 1px solid var(--nx-line);
+  font: 500 11.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
+.nx-irow:first-child { border-top: 0; }
+.nx-irow .k { flex: none; width: 58px; font: 500 10px/1 var(--nx-mono); letter-spacing: .5px; color: var(--kind); }
+.nx-irow .v { min-width: 0; }
+.nx-irow .m { font-family: var(--nx-mono); font-weight: 400; font-size: 11px; }
+
+/* chat bubbles */
+.nx-ibub { position: absolute; padding: 8px 11px; font: 400 11.5px/1.35 var(--nx-sans); }
+.nx-ibub--me { border-radius: 14px 14px 5px 14px; background: linear-gradient(180deg,#22345A,#16233F); color: #fff;
+  box-shadow: 0 8px 18px -12px rgba(14,30,60,.7); }
+.nx-ibub--agent { border-radius: 14px 14px 14px 5px; background: var(--bubble-agent-bg); color: var(--bubble-agent-ink);
+  border: 1px solid var(--bubble-agent-border); box-shadow: 0 8px 18px -12px rgba(14,30,60,.55); }
+
+/* block tiles in a run: done, missed, deviated */
+.tile { position: absolute; width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; }
+.tile svg { width: 12px; height: 12px; }
+.tile--done { background: var(--nx-done-bg); color: var(--nx-done-ink); }
+.tile--miss { background: var(--miss-bg); color: var(--miss-ink); }

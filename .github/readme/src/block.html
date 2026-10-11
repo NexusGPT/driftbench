@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: a block is a unit test</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* One block read left to right: Given, When, Then, and what was observed. The block is the second block of
+     examples/acme/specs/conversations/plan-upgrade.yaml; the Then rows are fields of its expect. */
+  #frame { width: 640px; height: 326px; }
+  .panel { top: 14px; height: 214px; padding: 12px 0 0; }
+  .panel .head { padding: 0 12px 8px; }
+  .panel .head .t { margin-top: 7px; font: 600 12.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .given { left: 14px; width: 190px; }
+  .then { left: 398px; width: 208px; }
+  .panel .nx-irow { min-height: 24px; }
+  .panel .nx-irow .k { width: 54px; }
+  .when-k { left: 232px; top: 26px; }
+  .when-t { position: absolute; left: 232px; top: 40px; font: 600 12.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .note { position: absolute; left: 232px; top: 176px; width: 146px; font: 400 11px/1.4 var(--nx-sans); color: var(--detail); }
+  .obs { left: 14px; top: 244px; width: 592px; height: 48px; display: flex; align-items: center; gap: 5px; padding: 0 12px; }
+  .obs .nx-kind { position: static; margin-right: 4px; }
+  .obs .end { margin-left: auto; height: 24px; padding: 0 11px; font-size: 11.5px; }
+  .chk { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--pill-border); background: var(--nx-card); font: 500 11px/1 var(--nx-sans); color: var(--pill-ink); white-space: nowrap; }
+  .chk svg { width: 9px; height: 9px; color: var(--nx-done-ink); }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <svg class="nx-edges" viewBox="0 0 620 306">
+      <path id="edge-in" class="nx-edge" d=""/>
+      <path id="edge-out" class="nx-edge" d=""/>
+    </svg>
+
+    <div class="nx-ill-panel panel given">
+      <div class="head"><span class="nx-kind nx-kind--static">Given</span><div class="t">What is true before</div></div>
+      <div class="nx-irow"><span class="k">prefix</span><span class="v">b1 from the golden</span></div>
+      <div class="nx-irow"><span class="k">ledger</span><span class="v">customer: existing</span></div>
+      <div class="nx-irow"><span class="k">world</span><span class="v">Acme store</span></div>
+      <div class="nx-irow"><span class="k">vars</span><span class="v">channel: chat</span></div>
+    </div>
+
+    <span class="nx-kind when-k">When</span>
+    <div class="when-t">What happens</div>
+    <div id="ask" class="nx-ibub nx-ibub--me" style="left:226px;top:92px;width:fit-content">It's<br>sam.rivera@example.com</div>
+    <div class="note">A user message, an injected deviation or a forced tool result.</div>
+
+    <div class="nx-ill-panel panel then">
+      <div class="head"><span class="nx-kind nx-kind--static">Then</span><div class="t">What must follow</div></div>
+      <div class="nx-irow"><span class="k">stage</span><span class="v">offer</span></div>
+      <div class="nx-irow"><span class="k">tools</span><span class="v m">catalog.search × 1</span></div>
+      <div class="nx-irow"><span class="k">must</span><span class="v m">Acme Mobile M</span></div>
+      <div class="nx-irow"><span class="k">must_not</span><span class="v m">Fiber</span></div>
+      <div class="nx-irow"><span class="k">ledger</span><span class="v m">+ customer_id</span></div>
+      <div class="nx-irow"><span class="k">criteria</span><span class="v m">no_invented_data</span></div>
+    </div>
+
+    <div class="nx-ill-panel obs">
+      <span class="nx-kind nx-kind--ink">Observed</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>stage</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>tools</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>must</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>must_not</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>ledger</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>criteria</span>
+      <span class="nx-done end">Block passes</span>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 11px Geist', '500 11px Geist', '600 12px Geist', '500 10px "Geist Mono"', '400 11px "Geist Mono"'];
+  // The two connectors run from the panels to the message bubble, measured once the fonts have loaded.
+  function edges() {
+    const g = document.querySelector('.nx-ill__glass').getBoundingClientRect();
+    const z = g.width / 620;
+    const ask = document.getElementById('ask').getBoundingClientRect();
+    const y = ((ask.top + ask.bottom) / 2 - g.top) / z;
+    const left = (ask.left - g.left) / z, right = (ask.right - g.left) / z;
+    document.getElementById('edge-in').setAttribute('d', 'M204 ' + y + ' L' + left + ' ' + y);
+    document.getElementById('edge-out').setAttribute('d', 'M' + right + ' ' + y + ' L398 ' + y);
+  }
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { edges(); window.__ready = true; });
+</script>
+</body>
+</html>

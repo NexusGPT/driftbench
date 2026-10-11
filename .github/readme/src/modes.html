@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: one golden, three runs</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* One golden, the plan upgrade spec of the Acme example, feeds three runs. Each run shows four blocks and the one quantity it isolates. */
+  #frame { width: 640px; height: 348px; }
+  .golden { left: 14px; top: 89px; width: 148px; padding: 11px 0 4px; }
+  .golden .head { padding: 0 12px 8px; }
+  .golden .id { margin-top: 6px; font: 500 10.5px/1.2 var(--nx-mono); color: var(--nx-ink); white-space: nowrap; }
+  .golden .nx-irow { min-height: 24px; }
+  .golden .nx-irow .k { width: 22px; }
+  .golden .nx-irow .v { color: var(--detail); font-weight: 400; }
+  .mode { left: 180px; width: 426px; height: 88px; }
+  .mode .t { position: absolute; left: 14px; top: 14px; font: 600 12.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .mode .d { position: absolute; left: 14px; top: 34px; width: 128px; font: 400 11px/1.4 var(--nx-sans); color: var(--detail); }
+  .mode .note { position: absolute; top: 64px; font: 400 10.5px/1 var(--nx-sans); color: var(--detail); white-space: nowrap; transform: translateX(-50%); }
+  .mode .meas { position: absolute; left: 318px; top: 14px; width: 100px; }
+  .mode .meas .nx-kind { position: static; display: block; margin-bottom: 7px; }
+  .mode .meas b { display: block; font: 600 12px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .mode .meas span.s { display: block; margin-top: 3px; font: 400 11px/1.3 var(--nx-sans); color: var(--detail); }
+  .mode .tile { top: 26px; }
+  .spark { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--nx-spark); }
+  .dev { position: absolute; top: 12px; font: 500 9.5px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase; color: var(--kind-strong); }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <svg class="nx-edges" viewBox="0 0 620 328">
+      <!-- golden to each run -->
+      <path class="nx-edge" d="M162 164 C173 164 169 58 180 58"/>
+      <path class="nx-edge" d="M162 164 L180 164"/>
+      <path class="nx-edge" d="M162 164 C173 164 169 270 180 270"/>
+    </svg>
+
+    <div class="nx-ill-panel golden">
+      <div class="head"><span class="nx-kind nx-kind--static">Golden</span><div class="id">acme-plan-upgrade</div></div>
+      <div class="nx-irow"><span class="k">b1</span><span class="v">identify</span></div>
+      <div class="nx-irow"><span class="k">b2</span><span class="v">offer</span></div>
+      <div class="nx-irow"><span class="k">b3</span><span class="v">recap</span></div>
+      <div class="nx-irow"><span class="k">b4</span><span class="v">order placed</span></div>
+    </div>
+
+    <!-- teacher forced -->
+    <div class="nx-ill-panel mode" style="top:14px">
+      <div class="t">Teacher forced</div>
+      <div class="d">Each block starts from the golden's own past.</div>
+      <svg class="nx-edges" viewBox="0 0 426 88"></svg>
+      <div class="tile tile--done" style="left:162px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.4 2.4L9.6 3.6"/></svg></div>
+      <div class="tile tile--done" style="left:198px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.4 2.4L9.6 3.6"/></svg></div>
+      <div class="tile tile--miss" style="left:234px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.3 3.3l5.4 5.4M8.7 3.3L3.3 8.7"/></svg></div>
+      <div class="tile tile--done" style="left:270px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.4 2.4L9.6 3.6"/></svg></div>
+      <span class="note" style="left:247px">stays local</span>
+      <div class="meas"><span class="nx-kind">Measures</span><b>Local accuracy</b><span class="s">block by block</span></div>
+    </div>
+
+    <!-- free running -->
+    <div class="nx-ill-panel mode" style="top:120px">
+      <div class="t">Free running</div>
+      <div class="d">The agent's own replies carry forward.</div>
+      <svg class="nx-edges" viewBox="0 0 426 88">
+        <path class="nx-edge" d="M188 39 L198 39"/><path class="nx-edge" d="M224 39 L234 39"/><path class="nx-edge" d="M260 39 L270 39"/>
+      </svg>
+      <div class="tile tile--done" style="left:162px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.4 2.4L9.6 3.6"/></svg></div>
+      <div class="tile tile--done" style="left:198px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.4 2.4L9.6 3.6"/></svg></div>
+      <div class="tile tile--miss" style="left:234px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.3 3.3l5.4 5.4M8.7 3.3L3.3 8.7"/></svg></div>
+      <div class="tile tile--miss" style="left:270px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.3 3.3l5.4 5.4M8.7 3.3L3.3 8.7"/></svg></div>
+      <span class="note" style="left:229px">one miss, then another</span>
+      <div class="meas"><span class="nx-kind">Measures</span><b>Compounding</b><span class="s">T minus F</span></div>
+    </div>
+
+    <!-- perturbed -->
+    <div class="nx-ill-panel mode" style="top:226px">
+      <div class="t">Perturbed</div>
+      <div class="d">Free running, with a deviation injected at block k.</div>
+      <svg class="nx-edges" viewBox="0 0 426 88">
+        <path class="nx-edge" d="M188 39 L198 39"/><path class="nx-edge" d="M224 39 L234 39"/><path class="nx-edge" d="M260 39 L270 39"/>
+        <path class="nx-edge--new" d="M200 58 L200 62 L258 62 L258 58"/>
+      </svg>
+      <span class="spark" style="left:207.5px;top:15px"></span>
+      <span class="dev" style="left:220px">deviation</span>
+      <div class="tile tile--done" style="left:162px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.4 2.4L9.6 3.6"/></svg></div>
+      <div class="tile tile--miss" style="left:198px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.3 3.3l5.4 5.4M8.7 3.3L3.3 8.7"/></svg></div>
+      <div class="tile tile--done" style="left:234px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.4 2.4L9.6 3.6"/></svg></div>
+      <div class="tile tile--done" style="left:270px"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.4 2.4L9.6 3.6"/></svg></div>
+      <span class="note" style="left:229px;top:70px">back one block later</span>
+      <div class="meas"><span class="nx-kind">Measures</span><b>Recovery</b><span class="s">turns to recover</span></div>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 11px Geist', '600 12px Geist', '500 10px "Geist Mono"', '400 11px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

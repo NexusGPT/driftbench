@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench hero</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* The hero follows the design system's slide cover: SilkBlue silk full bleed, the ink logo top left, a spark dot
+     before a mono label, a Libre Caslon title with its soft second half, a Geist intro. On the right, one glass panel
+     holds a perturbed run drawn in the illustration kit. It is one picture with its own background, so its colours are
+     fixed light values and do not follow the reader's theme. */
+  :root { color-scheme: light; }
+  #frame { position: relative; width: 1600px; height: 720px; overflow: hidden;
+    background: #F6F8FB url('silk/silkblue-1920x1080.jpg') center/cover; color: #0E1116; }
+  .logo { position: absolute; left: 96px; top: 70px; width: 120px; }
+  .label { position: absolute; right: 96px; top: 83px; font: 500 15px/1 var(--nx-mono); letter-spacing: .12em;
+    text-transform: uppercase; color: rgba(14,17,22,.68); }
+  .copy { position: absolute; left: 96px; top: 222px; width: 640px; }
+  .kicker { display: flex; align-items: center; gap: 12px; font: 500 16px/1.2 var(--nx-mono); letter-spacing: .12em;
+    text-transform: uppercase; color: rgba(14,17,22,.68); }
+  .kicker::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #FF6600; }
+  h1 { margin: 26px 0 0; font: 400 96px/1 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: #0E1116; }
+  h1 .soft { display: block; margin-top: 6px; font-size: 58px; line-height: 1.04; color: rgba(14,17,22,.68); }
+  .intro { margin-top: 28px; width: 560px; font: 400 22px/1.45 var(--nx-sans); color: rgba(14,17,22,.68); }
+
+  /* the glass panel with the run */
+  .glass { position: absolute; left: 804px; top: 168px; width: 700px; height: 400px; border-radius: 20px;
+    background: rgba(255,255,255,.66); border: 1px solid rgba(255,255,255,.6); box-shadow: 0 20px 40px -28px rgba(14,30,60,.35);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); }
+  .glass::after { content: ""; position: absolute; left: 14px; right: 14px; top: 1px; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.95), rgba(255,255,255,0)); }
+  .run { position: absolute; inset: 0; zoom: 1.1; }
+  .run .nx-edges { position: absolute; inset: 0; width: 636px; height: 364px; overflow: visible; }
+  .run .head { position: absolute; left: 22px; top: 22px; font: 500 11px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase; color: rgba(14,17,22,.68); }
+  .run .legend { position: absolute; right: 22px; top: 22px; display: flex; align-items: center; gap: 7px;
+    font: 500 10.5px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase; color: rgba(14,17,22,.45); }
+  .run .legend svg { width: 20px; height: 6px; }
+  .b { position: absolute; width: 90px; height: 58px; padding: 7px 10px; row-gap: 3px; background: #fff;
+    border: 1px solid rgba(14,17,22,.08); box-shadow: 0 8px 18px rgba(14,30,60,.16); }
+  .b .nx-node__kind { color: rgba(14,17,22,.55); }
+  .b .nx-node__title { color: #0E1116; }
+  .b .nx-node__detail { color: #4A5873; }
+  .shift { position: absolute; left: 279px; top: 74px; display: flex; align-items: baseline; gap: 8px; }
+  .shift b { font: 500 10.5px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase; color: rgba(14,17,22,.68); font-weight: 500; }
+  .shift .q { font: 400 11.5px/1 var(--nx-sans); color: #0E1116; }
+  .pill { position: absolute; transform: translate(-50%, -50%); display: inline-flex; align-items: center; height: 24px; padding: 0 11px;
+    border-radius: 999px; background: #fff; border: 1px solid rgba(14,17,22,.07); box-shadow: 0 4px 12px rgba(14,30,60,.14);
+    font: 500 11.5px/1 var(--nx-sans); color: #2E3643; white-space: nowrap; }
+  .done { position: absolute; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px;
+    border-radius: 999px; background: #E3F4EA; color: #1F7A4A; font: 600 11px/1 var(--nx-sans); white-space: nowrap; }
+  .done svg { width: 9px; height: 9px; }
+  .read { position: absolute; left: 22px; top: 252px; }
+  .read .k { font: 500 10.5px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase; color: rgba(14,17,22,.45); }
+  .read .n { margin-top: 8px; font: 400 32px/1 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: #0E1116; }
+  .spark { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #FF6600; }
+</style>
+</head>
+<body>
+<div id="frame">
+  <img class="logo" src="../nexus-logo-ink.svg" alt="Nexus">
+  <span class="label">Open source · Apache 2.0</span>
+
+  <div class="copy">
+    <div class="kicker">An agent evaluation framework</div>
+    <h1>driftbench.<span class="soft">Every exchange is a unit&nbsp;test.</span></h1>
+    <div class="intro">Every number carries an interval. Drift and recovery are measured, block by block.</div>
+  </div>
+
+  <div class="glass">
+    <div class="run">
+      <svg class="nx-edges" viewBox="0 0 636 364">
+        <path d="M67 147 L567 147" fill="none" stroke="rgba(47,95,208,.16)" stroke-width="1.5"/>
+        <path d="M267 96 L267 168" fill="none" stroke="rgba(47,95,208,.16)" stroke-width="1.5" stroke-dasharray="2 4"/>
+        <path d="M67 147 L167 147 C217 147 217 199 267 199 C317 199 317 173 367 173 C417 173 417 147 467 147 L567 147"
+              fill="none" stroke="#2F5FD0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="head">A perturbed run</span>
+      <span class="legend">
+        <svg viewBox="0 0 20 6"><path d="M1 3 L19 3" stroke="rgba(47,95,208,.3)" stroke-width="1.5"/></svg>expected
+        <svg viewBox="0 0 20 6" style="margin-left:8px"><path d="M1.5 3 L18.5 3" stroke="#2F5FD0" stroke-width="2.4" stroke-linecap="round"/></svg>observed
+      </span>
+
+      <span class="spark" style="left:263.5px;top:76px"></span>
+      <div class="shift"><b>Goal shift</b><span class="q">“Make it two lines.”</span></div>
+
+      <div class="nx-node nx-node--noico b" style="left:22px;top:118px"><span class="nx-node__kind">b1</span><span class="nx-node__title">greet</span><span class="nx-node__detail">right stage</span></div>
+      <div class="nx-node nx-node--noico b" style="left:122px;top:118px"><span class="nx-node__kind">b2</span><span class="nx-node__title">plan</span><span class="nx-node__detail">right stage</span></div>
+      <div class="nx-node nx-node--noico b" style="left:222px;top:170px"><span class="nx-node__kind">b3</span><span class="nx-node__title">plan</span><span class="nx-node__detail">asks for ID</span></div>
+      <div class="nx-node nx-node--noico b" style="left:322px;top:144px"><span class="nx-node__kind">b4</span><span class="nx-node__title">identity</span><span class="nx-node__detail">says one line</span></div>
+      <div class="nx-node nx-node--noico b" style="left:422px;top:118px"><span class="nx-node__kind">b5</span><span class="nx-node__title">recap</span><span class="nx-node__detail">right stage</span></div>
+      <div class="nx-node nx-node--noico b" style="left:522px;top:118px"><span class="nx-node__kind">b6</span><span class="nx-node__title">submit</span><span class="nx-node__detail">right stage</span></div>
+
+      <span class="pill" style="left:267px;top:254px">X3 flow drift</span>
+      <span class="pill" style="left:367px;top:230px">X2 contradiction</span>
+      <span class="done" style="left:567px;top:196px"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>end state</span>
+
+      <div class="read"><div class="k">Turns to recover</div><div class="n">2 blocks</div></div>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 22px Geist', '500 12px Geist', '600 12px Geist', '500 15px "Geist Mono"', '400 96px "Libre Caslon Display"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>
