@@ -24,31 +24,49 @@ const ChannelList = z
   .array(z.string().min(1))
   .min(1, { error: 'list at least one channel, or leave the key out' });
 
-export const InventoryBehaviour = z.strictObject({
-  id: BehaviourId,
-  title: z.string(),
-  /** `task` marks a code-interpreter behaviour. It is a row of the same matrix as the others. */
-  kind: z.enum(['conversation', 'task']).default('conversation'),
-  /** The channels where the behaviour applies. Absent means every channel. */
-  channels: ChannelList.optional(),
-});
+export const InventoryBehaviour = z
+  .strictObject({
+    id: BehaviourId.describe('The behaviour id, such as B-001. Specs name it in covers.'),
+    title: z.string().describe('What the agent does.'),
+    /** `task` marks a code-interpreter behaviour. It is a row of the same matrix as the others. */
+    kind: z
+      .enum(['conversation', 'task'])
+      .default('conversation')
+      .describe('task marks a code-interpreter behaviour. It is a row of the same matrix as the others.'),
+    /** The channels where the behaviour applies. Absent means every channel. */
+    channels: ChannelList.optional().describe(
+      'The channels where the behaviour applies. Absent means every channel.',
+    ),
+  })
+  .describe('One behaviour the agent must show.');
 export type InventoryBehaviour = z.infer<typeof InventoryBehaviour>;
 
-export const InventoryFlow = z.strictObject({
-  id: FlowId,
-  title: z.string(),
-  behaviours: z.array(BehaviourId),
-  /** The deviation classes this flow must be perturbed with. Absent means none is required. */
-  deviations: z.array(DeviationClass).optional(),
-});
+export const InventoryFlow = z
+  .strictObject({
+    id: FlowId.describe('The flow id, such as plan-upgrade. Specs join it with the tag flow:<id>.'),
+    title: z.string().describe('What the flow does.'),
+    behaviours: z.array(BehaviourId).describe('The behaviours of the flow, by id.'),
+    /** The deviation classes this flow must be perturbed with. Absent means none is required. */
+    deviations: z
+      .array(DeviationClass)
+      .optional()
+      .describe('The deviation classes this flow must be perturbed with. Absent means none is required.'),
+  })
+  .describe('A flow: behaviours that run together, and the deviations it must be perturbed with.');
 export type InventoryFlow = z.infer<typeof InventoryFlow>;
 
-export const Inventory = z.strictObject({
-  behaviours: z.array(InventoryBehaviour),
-  flows: z.array(InventoryFlow),
-  /** The channel universe. Absent means the channels named by behaviours and specs, else `default`. */
-  channels: ChannelList.optional(),
-});
+export const Inventory = z
+  .strictObject({
+    behaviours: z.array(InventoryBehaviour).describe('Every behaviour the agent must show.'),
+    flows: z.array(InventoryFlow).describe('The flows that group the behaviours.'),
+    /** The channel universe. Absent means the channels named by behaviours and specs, else `default`. */
+    channels: ChannelList.optional().describe(
+      'The channel universe. Absent means the channels named by behaviours and specs, else default.',
+    ),
+  })
+  .describe(
+    'The behaviour inventory: every behaviour the agent must show, grouped into flows, and the deviation classes each flow must be perturbed with.',
+  );
 export type Inventory = z.infer<typeof Inventory>;
 
 /** Every problem an inventory can have has a stable code, like the spec loader's issues. */
