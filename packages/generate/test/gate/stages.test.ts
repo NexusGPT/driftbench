@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   blockOutcome,
+  expectedValues,
   GATE_DEFAULTS,
   leakageStage,
   observedStage,
@@ -77,9 +78,9 @@ describe('stage 1, observed state', () => {
 describe('stage 2, leakage', () => {
   const options = { ngram: 13, overlap: 0.5 };
 
-  it('rejects an expected tool input already in the When', () => {
-    const spec = makeSpec({
-      id: 'when-leak',
+  it('exempts a tool input the user supplies in the When, and rejects an end-state value there', () => {
+    const supplied = makeSpec({
+      id: 'when-supplied',
       blocks: [
         {
           when: { user: 'Order sku-7 for me.' },
@@ -87,9 +88,55 @@ describe('stage 2, leakage', () => {
         },
       ],
     });
-    expect(leakageStage(spec, 0, options, undefined)).toMatchObject({
+    const verdict = leakageStage(supplied, 0, options, undefined);
+    expect(verdict.status).toBe('pass');
+    expect(verdict.detail).toContain('value "sku-7" supplied by the user in the When, exempt');
+    const ended = makeSpec({
+      id: 'when-leak',
+      blocks: [{ when: { user: 'Confirm order ord-42.' }, expect: { must: ['x'] } }],
+      end_state: { source: 'tool:order.create', expect: { order_id: 'ord-42' } },
+    });
+    expect(leakageStage(ended, 0, options, undefined)).toMatchObject({
       status: 'reject',
       reason: 'expected-value-in-when',
+      detail: 'the When already holds the expected end-state value "ord-42"',
+    });
+  });
+
+  it('still rejects a tool input value the Given holds', () => {
+    const spec = makeSpec({
+      id: 'given-input',
+      given: { world: { fixtures: { note: 'the sku is sku-7' } } },
+      blocks: [
+        {
+          when: { user: 'Order the red one.' },
+          expect: { tools: [{ label: 'order.create', input: { sku: 'sku-7' } }] },
+        },
+      ],
+    });
+    expect(leakageStage(spec, 0, options, undefined)).toMatchObject({
+      status: 'reject',
+      reason: 'expected-value-in-given',
+    });
+  });
+
+  it('ignores enum words of four letters or fewer, and counts a longer word and a number', () => {
+    const spec = (value: string | number) =>
+      makeSpec({
+        id: 'enum',
+        given: { world: { fixtures: { note: 'type new, home, mobile, 42' } } },
+        blocks: [
+          { when: { user: 'Go.' }, expect: { tools: [{ label: 'order.create', input: { type: value } }] } },
+        ],
+      });
+    expect(expectedValues(spec('new'), 0)).toEqual([]);
+    expect(expectedValues(spec('home'), 0)).toEqual([]);
+    expect(leakageStage(spec('home'), 0, options, undefined).status).toBe('pass');
+    expect(leakageStage(spec('mobile'), 0, options, undefined)).toMatchObject({
+      reason: 'expected-value-in-given',
+    });
+    expect(leakageStage(spec(42), 0, options, undefined)).toMatchObject({
+      reason: 'expected-value-in-given',
     });
   });
 

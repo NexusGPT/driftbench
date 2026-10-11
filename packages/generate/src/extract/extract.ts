@@ -40,7 +40,7 @@ export type ExtractResult =
       ok: true;
       proposal: Proposal;
       /** What the code pre-pass alone proposed. */
-      prepass: { dimensions: number; values: number; constraints: number };
+      prepass: { dimensions: number; values: number; constraints: number; relations: number };
       sections: SectionRun[];
       refusals: Refusal[];
       duplicates: string[];
@@ -51,8 +51,9 @@ export type ExtractResult =
 
 /**
  * Proposes the map. First the code pre-pass, without a model: the inventory's behaviours, flows, deviation
- * classes and channels, and the tool schemas' boundary values. Then, with a model, one call per section
- * (stages, rules, personas, data, phrases): an unreadable answer is retried once and then reported, and
+ * classes and channels, the recovery the inventory already fixes (a detour returns to the pending stage),
+ * and the tool schemas' boundary values. Then, with a model, one call per section (stages, rules, personas,
+ * data, phrases, relations): an unreadable answer is retried once and then reported, and
  * every entry is checked on its own (see `acceptAnswer`). Every entry comes out with `approved: false`.
  */
 export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
@@ -78,6 +79,7 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
     dimensions: [...fromInventory.dimensions],
     constraints: [...fromInventory.constraints],
     phrases: [],
+    relations: [...fromInventory.relations],
   };
   const notes = [...fromInventory.notes];
   const toolFile = toolFiles[0];
@@ -93,6 +95,7 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
     dimensions: draft.dimensions.length,
     values: draft.dimensions.reduce((sum, dimension) => sum + dimension.values.length, 0),
     constraints: draft.constraints.length,
+    relations: draft.relations.length,
   };
 
   const texts = new Map(input.sources.map((source) => [source.path, source.text]));
@@ -121,6 +124,7 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
     dimensions: draft.dimensions,
     constraints: draft.constraints,
     phrases: draft.phrases,
+    ...(draft.relations.length > 0 ? { relations: draft.relations } : {}),
   };
   // Every entry was checked on the way in; these two checks keep that promise if the code ever drifts.
   const checked = validateProposal(proposal);

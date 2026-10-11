@@ -1,4 +1,13 @@
-import type { CriterionDef, Expect, PerturbationSpec, Rules, ToolExpect, WorldState } from '@driftbench/core';
+import type {
+  CriterionDef,
+  EndStateSpec,
+  Expect,
+  GuardExpect,
+  PerturbationSpec,
+  Rules,
+  ToolExpect,
+  WorldState,
+} from '@driftbench/core';
 import { NONE } from '@driftbench/space';
 import { stringify } from 'yaml';
 import type { ProposalPhrase } from '../extract/proposal';
@@ -37,6 +46,9 @@ export type BlockDraft = {
   carries: Pick[];
   given?: { world?: WorldState };
   tools?: ToolExpect[];
+  guards?: GuardExpect[];
+  must?: string[];
+  must_not?: string[];
   lang?: string;
   /** Names of draft criteria (defined on the spec) the block references. */
   criteria?: string[];
@@ -58,14 +70,21 @@ export type SpecDraft = {
   /** Concrete boundary values, by data value id. */
   concrete?: Record<string, unknown>;
   metamorphic?: { family: string; variant: number; of: number; relation: string };
+  /** What the store holds after the last block, derived from the path's end state. */
+  end_state?: EndStateSpec;
+  /** The path relation the spec walks, when it walks one. */
+  path?: string;
+  /** Why the map supports no machine Then for the spec: it goes to incomplete/ with these reasons. */
+  reasons?: string[];
 };
 
 /** The criterion a placeholder block references; it is never defined, so `lintSpec` flags the spec. */
 export const PLACEHOLDER_CRITERION = 'needs-approved-phrase';
 
 /**
- * The criterion a block references when the map supports no Then for its cell (no stage, no tool, no
- * deviation, no behaviour value): a block that checks nothing is reported, never shipped as complete.
+ * The criterion a block references when the map supports no machine Then for it (no stage, no tool call,
+ * no guard, no end state): judged criteria alone are not enough. Such a block is reported with the reason,
+ * never shipped as complete.
  */
 export const NO_THEN_CRITERION = 'needs-derivable-then';
 
@@ -144,8 +163,10 @@ export type Rendered = {
   spec: Record<string, unknown>;
   /** The values with no approved phrase that got a placeholder. */
   placeholders: Array<{ dimension: string; value: string }>;
-  /** The blocks the map supports no Then for. */
+  /** The blocks the map supports no machine Then for. */
   noThen: string[];
+  /** Why, when the generator could not build the spec from a path. */
+  reasons: string[];
   blocks: number;
 };
 
@@ -187,7 +208,9 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     firstPhrase?.stimulus.kind === 'phrase' ? firstPhrase.stimulus.phrase.lang : bankLanguage(prepared);
   const lang = declared?.toUpperCase();
 
-  const blocks = draft.blocks.map((block) => {
+  const ruled =
+    (draft.rules?.forbidden_tools?.length ?? 0) > 0 || Object.keys(draft.rules?.max_calls ?? {}).length > 0;
+  const blocks = draft.blocks.map((block, position) => {
     const text =
       block.stimulus.kind === 'phrase'
         ? block.stimulus.phrase.text
@@ -198,9 +221,19 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     const expect: Expect = {};
     if (block.stage !== undefined) expect.stage = block.stage;
     if (block.tools && block.tools.length > 0) expect.tools = block.tools;
+    if (block.guards && block.guards.length > 0) expect.guards = block.guards;
+    if (block.must && block.must.length > 0) expect.must = block.must;
+    if (block.must_not && block.must_not.length > 0) expect.must_not = block.must_not;
     if (block.lang !== undefined) expect.lang = block.lang;
     const criteria = [...(block.criteria ?? [])];
-    if (Object.keys(expect).length === 0 && criteria.length === 0) {
+    // A machine Then reads observed state: the stage, the calls, a guard, or the end state on the last block.
+    const observed =
+      expect.stage !== undefined ||
+      (expect.tools?.length ?? 0) > 0 ||
+      (expect.guards?.length ?? 0) > 0 ||
+      ruled ||
+      (draft.end_state !== undefined && position === draft.blocks.length - 1);
+    if (!observed) {
       criteria.push(NO_THEN_CRITERION);
       noThen.push(block.id);
     }
@@ -214,12 +247,17 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     };
   });
 
-  const incomplete = placeholders.length > 0 || noThen.length > 0;
+  const reasons = [...(draft.reasons ?? [])];
+  const incomplete = placeholders.length > 0 || noThen.length > 0 || reasons.length > 0;
   // An incomplete spec defines no criterion, so the undefined marker reference is a lint warning and never
   // a semantic error; its draft criteria are dropped with it. A block left with nothing to check carries
   // the marker that keeps the spec incomplete.
   if (incomplete) {
     const marker = placeholders.length > 0 ? PLACEHOLDER_CRITERION : NO_THEN_CRITERION;
+    if (reasons.length > 0 && noThen.length === 0 && placeholders.length === 0) {
+      noThen.push(...blocks.map((block) => block.id));
+      for (const block of blocks) block.expect.criteria = [NO_THEN_CRITERION];
+    }
     for (const block of blocks) {
       const kept = (block.expect.criteria ?? []).filter((name) => MARKERS.has(name));
       if (kept.length > 0) block.expect.criteria = kept;
@@ -277,6 +315,7 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     ...(!incomplete && draft.criteria.length > 0 ? { criteria: draft.criteria } : {}),
     blocks,
     ...(draft.rules ? { rules: draft.rules } : {}),
+    ...(draft.end_state ? { end_state: draft.end_state } : {}),
     ...(perturbations && perturbations.length > 0 ? { perturbations } : {}),
     metadata: {
       generated: {
@@ -285,16 +324,18 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
         seed: run.seed,
         stream: draft.stream,
         map: { path: run.mapPath, agent: prepared.agent, version: prepared.version, hash: prepared.hash },
+        ...(draft.path ? { path: draft.path } : {}),
         cell: specCell,
         blocks: blockRecords,
         ...(draft.concrete ? { concrete: draft.concrete } : {}),
         ...(draft.metamorphic ? { metamorphic: draft.metamorphic } : {}),
         ...(placeholders.length > 0 ? { needs_phrase: placeholders } : {}),
         ...(noThen.length > 0 ? { needs_then: noThen } : {}),
+        ...(reasons.length > 0 ? { needs_then_why: reasons } : {}),
       },
     },
   };
-  return { id: draft.id, seeder: draft.seeder, spec, placeholders, noThen, blocks: blocks.length };
+  return { id: draft.id, seeder: draft.seeder, spec, placeholders, noThen, reasons, blocks: blocks.length };
 }
 
 /** The YAML text of a rendered spec, with a header. Deterministic: no clock, no absolute path. */
@@ -311,9 +352,10 @@ export function specText(rendered: Rendered, run: RunIdentity, hash: string): st
   }
   if (rendered.noThen.length > 0) {
     header.push(
-      `# Not runnable yet: the map supports no Then for ${rendered.noThen.length} block(s) (see metadata.generated.needs_then).`,
+      `# Not runnable yet: the map supports no machine Then for ${rendered.noThen.length} block(s) (see metadata.generated.needs_then).`,
     );
   }
+  for (const reason of rendered.reasons) header.push(`# Why: ${reason}.`);
   const body = stringify(rendered.spec, { lineWidth: 0, aliasDuplicateObjects: false });
   return `${header.join('\n')}\n${body}`;
 }

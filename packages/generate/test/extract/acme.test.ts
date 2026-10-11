@@ -27,7 +27,14 @@ describe('the Acme map proposal', () => {
     const loaded = await loadProposal(PROPOSAL);
     if (!loaded.ok) throw new Error('invalid');
     const counts = countEntries(loaded.proposal);
-    expect(counts).toMatchObject({ dimensions: 46, constraints: 34, phrases: 21, total: 101, approved: 0 });
+    expect(counts).toMatchObject({
+      dimensions: 46,
+      constraints: 59,
+      phrases: 51,
+      relations: 63,
+      total: 219,
+      approved: 0,
+    });
     expect(counts.valuesApproved).toBe(0);
   });
 
@@ -77,6 +84,7 @@ describe('the Acme map proposal', () => {
       ['personas', 'done', 1],
       ['data', 'done', 1],
       ['phrases', 'done', 1],
+      ['relations', 'done', 1],
     ]);
     expect(renderProposal(result.proposal)).toBe(loaded.text);
   });
@@ -167,7 +175,7 @@ describe('the Acme map proposal', () => {
     const flipped = approveAll(proposal.text);
     if (!flipped.ok) throw new Error('cannot approve');
     expect(approved.text).toBe(flipped.text);
-    expect(countEntries(approved.proposal)).toMatchObject({ total: 101, approved: 101, valuesApproved: 175 });
+    expect(countEntries(approved.proposal)).toMatchObject({ total: 219, approved: 219, valuesApproved: 175 });
   });
 
   it('gives the space commands a map of seven axes they accept, written in space.yaml', async () => {

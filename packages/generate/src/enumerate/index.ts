@@ -16,6 +16,7 @@ export { Feasibility } from '../seed/feasible';
 export { type Edge, type StageGraph, stageGraph, walkGraph } from '../seed/graph';
 export { type PreparedMap, prepareMap, readToolSchemas, type ToolSchema } from '../seed/map';
 export { rngFor, streamSeed } from '../seed/random';
+export { EMPTY_RELATIONS, type Relations } from '../seed/relations';
 export { allowedTuples, type CoveringArray, coveringArray } from '../seed/twise';
 export { concreteValue, defaultFor, inputAssertion, toolAnswer } from '../seed/values';
 export {
