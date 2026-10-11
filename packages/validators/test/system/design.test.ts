@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { binomialCdf, designEffect, logGamma, wilson } from '@driftbench/stats';
 import { describe, expect, it } from 'vitest';
-import * as plant from '../../src/ladders/system/plant';
+import * as plant from '../../src/ladders/system/effect';
 
 const design = JSON.parse(
   readFileSync(new URL('../../fixtures/system/design.json', import.meta.url), 'utf8'),

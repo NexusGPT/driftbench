@@ -1,10 +1,6 @@
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-
 /**
  * The fixed table from what a system item is about to the one component it points at (docs/validators.md
- * section 1, rule 4). A component that later moves to its own file is found when that file exists: the
- * drift classifier and the recovery record leave run.ts in the run-modes work.
+ * section 1, rule 4).
  */
 export const SYSTEM_COMPONENTS = {
   plant: 'packages/validators/src/ladders/system/plant.ts',
@@ -28,15 +24,3 @@ export const CHECK_COMPONENTS: Readonly<Record<string, string>> = {
   lang: 'packages/checks/src/checks/lang.ts',
   guards: 'packages/checks/src/checks/guards.ts',
 };
-
-/** Where the drift class of a block is decided: drift.ts when it exists, else run.ts. */
-export function driftComponent(root: string): string {
-  const own = 'packages/core/src/runner/drift.ts';
-  return existsSync(join(root, own)) ? own : SYSTEM_COMPONENTS.runner;
-}
-
-/** Where the recovery record is computed: recovery.ts when it exists, else run.ts, which writes the record. */
-export function recoveryComponent(root: string): string {
-  const own = 'packages/core/src/runner/recovery.ts';
-  return existsSync(join(root, own)) ? own : SYSTEM_COMPONENTS.runner;
-}
