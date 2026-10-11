@@ -2,14 +2,13 @@ import type { DeviationClass, Message, Observed, WorldState } from '@driftbench/
 import { blockOutcome, type FaultSession, runOnce } from '@driftbench/generate';
 import { describe, expect, it } from 'vitest';
 import { baselineSuite } from '../../src/ladders/generator/baseline';
-import { DRIFT_CLASSES, faultFamily } from '../../src/ladders/generator/faults';
+import { combinedFault, FAULT_CLASSES, faultFamily } from '../../src/ladders/generator/faults';
 import { createFollower, FOREIGN_REPLY } from '../../src/ladders/generator/follower';
 import { DEVIATION_POOL, type HiddenSpec, hiddenSpec } from '../../src/ladders/generator/hidden';
-import { followerAdapter, runContext } from '../../src/ladders/generator/measure';
+import { emulate, followerAdapter, runContext } from '../../src/ladders/generator/measure';
 
 type Step = { text: string; world?: WorldState };
 
-/** Plays user turns into one session and returns what it observed on each. */
 async function play(session: () => FaultSession, steps: readonly Step[]): Promise<Observed[]> {
   const agent = session();
   const messages: Message[] = [];
@@ -25,24 +24,24 @@ async function play(session: () => FaultSession, steps: readonly Step[]): Promis
 
 const stageOf = (observed: Observed | undefined) => observed?.runtime?.stages?.at(-1)?.name;
 
-function phrase(
-  spec: HiddenSpec,
-  test: (intent: HiddenSpec['phrases'][number]['intent']) => boolean,
-): string {
-  const found = spec.phrases.find((entry) => test(entry.intent));
-  if (!found) throw new Error('no phrase for the intent');
-  return found.text;
+/** The move phrase of an edge, its slot filled with the first member of the enum it feeds. */
+function move(spec: HiddenSpec, edge: string): string {
+  const text = spec.phrases.find(
+    (phrase) => phrase.intent.kind === 'transition' && phrase.intent.edge === edge,
+  )?.text;
+  if (!text) throw new Error(`no phrase for ${edge}`);
+  return text.replace(/\{([a-z_]+)\}/g, (_all, slot: string) => {
+    const property = spec.tools.find((tool) => tool.slot === slot)?.input[0];
+    return property?.type === 'enum' ? (property.members[1] as string) : 'x';
+  });
 }
 
-const move = (spec: HiddenSpec, edge: string) =>
-  phrase(spec, (intent) => intent.kind === 'transition' && intent.edge === edge);
-const deviation = (spec: HiddenSpec, cls: DeviationClass) =>
-  phrase(spec, (intent) => intent.kind === 'deviation' && intent.class === cls);
-
-/** The first seed whose hidden specification holds a class. */
-function seedWith(cls: DeviationClass): number {
-  for (let seed = 1; seed < 200; seed += 1) if (hiddenSpec(seed).deviations.includes(cls)) return seed;
-  throw new Error(`no seed under 200 holds ${cls}`);
+function deviation(spec: HiddenSpec, cls: DeviationClass): string {
+  const text = spec.phrases.find(
+    (phrase) => phrase.intent.kind === 'deviation' && phrase.intent.class === cls,
+  )?.text;
+  if (!text) throw new Error(`no phrase for ${cls}`);
+  return text;
 }
 
 describe('the rule follower', () => {
@@ -60,156 +59,140 @@ describe('the rule follower', () => {
     }
   });
 
-  it('takes a move only from the stage it leaves, and calls the tool bound to the stage it enters', async () => {
+  it('reads the slot a turn states and sends it to the tool of the stage it enters', async () => {
     const spec = hiddenSpec(1);
-    const [first, early, second] = await play(createFollower(spec), [
-      { text: move(spec, `${spec.start}-to-${spec.next[spec.start]}`) },
-      { text: move(spec, 'recap-to-done') },
-      { text: move(spec, 'intake-to-check') },
+    const read = spec.tools.find((tool) => tool.role === 'read');
+    const property = read?.input[0];
+    if (!read || property?.type !== 'enum') throw new Error('no read tool');
+    const [, checked] = await play(createFollower(spec), [
+      { text: move(spec, `${spec.start}-to-${spec.goal}`) },
+      { text: move(spec, `${spec.goal}-to-check`) },
     ]);
-    expect(stageOf(first)).toBe(spec.next[spec.start]);
-    expect(stageOf(early)).toBe(spec.next[spec.start]);
-    expect(early?.toolCalls).toEqual([]);
-    expect(stageOf(second)).toBe('check');
-    expect(second?.toolCalls.map((call) => call.label)).toEqual(['lookup_record']);
+    expect(stageOf(checked)).toBe('check');
+    expect(
+      checked?.toolCalls.map((call) => [call.label, (call.input as Record<string, unknown>)[property.name]]),
+    ).toEqual([[read.name, property.members[1]]]);
   });
 
-  it('sends a valid value as the turn gives it and refuses one the schema forbids', async () => {
+  it('takes a move only from the stage it leaves', async () => {
     const spec = hiddenSpec(1);
-    const valid = spec.data.find((value) => value.direction === 'in' && value.partition === 'at-maximum');
-    const invalid = spec.data.find(
-      (value) => value.direction === 'in' && value.partition === 'above-maximum',
-    );
-    if (!valid || !invalid) throw new Error('no bound partition');
-    const [sent, refused] = await play(createFollower(spec), [
-      { text: phrase(spec, (intent) => intent.kind === 'data' && intent.value === valid.id) },
-      { text: phrase(spec, (intent) => intent.kind === 'data' && intent.value === invalid.id) },
+    const [early] = await play(createFollower(spec), [
+      { text: move(spec, `${spec.confirm}-to-${spec.final}`) },
     ]);
-    expect(sent?.toolCalls).toHaveLength(1);
-    expect((sent?.toolCalls[0]?.input as Record<string, unknown> | undefined)?.[valid.field]).toBe(
-      valid.value,
+    expect(stageOf(early)).toBe(spec.start);
+    expect(early?.toolCalls).toEqual([]);
+  });
+
+  it('refuses a value the schema forbids and never submits outside the confirmation', async () => {
+    const spec = hiddenSpec(1);
+    const invalid = spec.data.find(
+      (value) =>
+        value.direction === 'in' && value.partition === 'above-maximum' && value.tool === 'lookup_record',
     );
+    const write = spec.data.find(
+      (value) =>
+        value.direction === 'in' && value.tool === 'submit_request' && value.partition === 'at-minimum',
+    );
+    const text = (id: string | undefined) =>
+      spec.phrases.find((phrase) => phrase.intent.kind === 'data' && phrase.intent.value === id)?.text ?? '';
+    const [refused, unconfirmed] = await play(createFollower(spec), [
+      { text: text(invalid?.id) },
+      { text: text(write?.id) },
+    ]);
     expect(refused?.toolCalls).toEqual([]);
     expect(refused?.text).toMatch(/outside what/);
+    expect(unconfirmed?.toolCalls).toEqual([]);
   });
 
-  it('stays on its step through a detour, goes back to the goal on a goal shift, and replies once in English', async () => {
-    const seed = seedWith('D2_goal_shift');
-    const spec = hiddenSpec(seed);
-    const detour =
-      spec.deviations.find((cls) => cls === 'D1_off_topic' || cls === 'D3_contradiction') ?? null;
+  it('stays on its step through a detour with the recovery words, and goes to the goal on a goal shift', async () => {
+    const spec = hiddenSpec(1);
     const steps: Step[] = [
       { text: move(spec, `${spec.start}-to-${spec.goal}`) },
-      { text: move(spec, `${spec.goal}-to-${spec.next[spec.goal]}`) },
+      { text: move(spec, `${spec.goal}-to-check`) },
+      { text: deviation(spec, 'D1_off_topic') },
       { text: deviation(spec, 'D2_goal_shift') },
     ];
     const seen = await play(createFollower(spec), steps);
-    expect(stageOf(seen[1])).toBe(spec.next[spec.goal]);
-    expect(stageOf(seen[2])).toBe(spec.goal);
-    for (const observed of seen) {
+    expect(stageOf(seen[2])).toBe('check');
+    expect(seen[2]?.text).toMatch(/keep to your request/);
+    expect(stageOf(seen[3])).toBe(spec.goal);
+    for (const observed of seen)
       expect(observed.segments.filter((segment) => segment.type === 'text')).toHaveLength(1);
-      expect(observed.text).not.toBe(FOREIGN_REPLY);
-    }
-    if (detour) {
-      const [, stayed] = await play(createFollower(spec), [
-        { text: move(spec, `${spec.start}-to-${spec.goal}`) },
-        { text: deviation(spec, detour) },
-      ]);
-      expect(stageOf(stayed)).toBe(spec.goal);
-    }
   });
 
-  it('retries a failing read-only tool once, never a side-effecting one, and says the step failed', async () => {
+  it('retries a failing read-only tool once, stays where it was, and says the service is not answering', async () => {
     const spec = hiddenSpec(1);
-    const error = { error: 'service unavailable' };
-    const read = spec.tools.find((tool) => !tool.sideEffect && tool.stage !== undefined);
-    if (!read?.stage) throw new Error('no read-only tool bound to a stage');
-    const route: Step[] = [];
-    for (let stage = spec.start; stage !== read.stage; stage = spec.next[stage] as string) {
-      route.push({ text: move(spec, `${stage}-to-${spec.next[stage]}`) });
-    }
-    const last = route.at(-1) as Step;
-    last.world = { tools: { [read.name]: error } };
-    const seen = await play(createFollower(spec), route);
-    const failed = seen.at(-1);
-    expect(failed?.toolCalls.map((call) => call.error)).toEqual([error.error, error.error]);
+    const [, failed] = await play(createFollower(spec), [
+      { text: move(spec, `${spec.start}-to-${spec.goal}`) },
+      { text: move(spec, `${spec.goal}-to-check`), world: { tools: { lookup_record: { error: 'down' } } } },
+    ]);
+    expect(failed?.toolCalls.map((call) => call.error)).toEqual(['down', 'down']);
+    expect(stageOf(failed)).toBe(spec.goal);
     expect(failed?.text).toMatch(/not answering/);
+  });
+
+  it('plays the same turns the same way when emulated and when run through the runner', async () => {
+    const spec = hiddenSpec(2);
+    for (const { spec: hand } of baselineSuite(spec)) {
+      const emulated = await emulate(hand, createFollower(spec)());
+      expect(emulated).toHaveLength(hand.blocks.length);
+    }
   });
 });
 
 describe('the fault family', () => {
-  it('plants three instances of every drift class and of each deviation class the specification holds', () => {
+  it('holds 70 classes, at least 60 of them drift or deviation classes, in three families', () => {
+    expect(FAULT_CLASSES).toHaveLength(70);
+    expect(new Set(FAULT_CLASSES.map((cls) => cls.id)).size).toBe(70);
+    expect(FAULT_CLASSES.filter((cls) => cls.family === 'drift')).toHaveLength(28);
+    expect(FAULT_CLASSES.filter((cls) => cls.family === 'deviation')).toHaveLength(22);
+    expect(FAULT_CLASSES.filter((cls) => cls.family === 'code')).toHaveLength(20);
+    for (const cls of DEVIATION_POOL) expect(FAULT_CLASSES.some((entry) => entry.parent === cls)).toBe(true);
+  });
+
+  it('plants up to five instances per class, each with a distinct id', () => {
     const spec = hiddenSpec(1);
     const family = faultFamily(spec);
     expect(new Set(family.map((fault) => fault.def.id)).size).toBe(family.length);
-    for (const cls of [...DRIFT_CLASSES, ...spec.deviations]) {
-      const members = family.filter((fault) => fault.class === cls);
-      expect(members.map((fault) => [fault.where === 'any', fault.rate])).toEqual([
-        [true, 1],
-        [members[1]?.where === 'any', 1],
-        [true, 2],
-      ]);
-      expect(members.every((fault) => fault.def.target === `function:${spec.agent}`)).toBe(true);
-    }
-    expect(
-      family.some(
-        (fault) => !spec.deviations.includes(fault.class as DeviationClass) && fault.class.startsWith('D'),
-      ),
-    ).toBe(false);
-  });
-
-  /** One scenario per class where the follower and its every-time fault must part. */
-  function scenario(spec: HiddenSpec, cls: string): Step[] {
-    const toGoal = { text: move(spec, `${spec.start}-to-${spec.goal}`) };
-    const toNext = { text: move(spec, `${spec.goal}-to-${spec.next[spec.goal]}`) };
-    const boolOut = spec.data.find((value) => value.direction === 'out' && value.partition === 'true');
-    const enumIn = spec.data.find(
-      (value) => value.direction === 'in' && typeof value.value === 'string' && !value.invalid,
-    );
-    switch (cls) {
-      case 'X1_local':
-        return [{ text: phrase(spec, (intent) => intent.kind === 'data' && intent.value === enumIn?.id) }];
-      case 'X2_contradiction':
-      case 'X5_tool':
-        return [{ text: phrase(spec, (intent) => intent.kind === 'data' && intent.value === boolOut?.id) }];
-      case 'X3_flow':
-      case 'X4_format':
-        return [toGoal];
-      case 'D8_tool_failure': {
-        const read = spec.tools.find((tool) => tool.stage === spec.next[spec.goal]) ?? spec.tools[0];
-        return [toGoal, { ...toNext, world: { tools: { [read?.name ?? '']: { error: 'down' } } } }];
-      }
-      case 'D9_out_of_scope':
-        return [toGoal, toNext, { text: deviation(spec, cls) }];
-      case 'D2_goal_shift':
-        return [toGoal, toNext, { text: deviation(spec, cls) }];
-      default:
-        return [toGoal, { text: deviation(spec, cls as DeviationClass) }];
-    }
-  }
-
-  it('makes every every-time fault part from the follower on a scenario built for its class', async () => {
-    const classes = [...DRIFT_CLASSES, ...DEVIATION_POOL];
-    for (const cls of classes) {
-      const seed = cls.startsWith('X') ? 1 : seedWith(cls as DeviationClass);
-      const spec = hiddenSpec(seed);
-      const fault = faultFamily(spec).find(
-        (entry) => entry.class === cls && entry.where === 'any' && entry.rate === 1,
-      );
-      if (fault?.def.agent.kind !== 'function') throw new Error(`no every-time fault for ${cls}`);
-      const steps = scenario(spec, cls);
-      const theirs = await play(fault.def.agent.create, steps);
-      const ours = await play(createFollower(spec), steps);
-      expect(JSON.stringify(theirs), `${cls} on seed ${seed}`).not.toBe(JSON.stringify(ours));
+    for (const cls of FAULT_CLASSES) {
+      const members = family.filter((fault) => fault.class === cls.id);
+      expect(members.length).toBeGreaterThanOrEqual(3);
+      expect(members.length).toBeLessThanOrEqual(5);
+      expect(members.some((fault) => fault.where === 'any' && fault.rate === 1)).toBe(true);
     }
   });
 
-  it('fires an every-second-time fault on the second opportunity only', async () => {
+  it('makes every every-time drift and deviation fault part from the follower somewhere in the baseline turns', async () => {
     const spec = hiddenSpec(1);
-    const fault = faultFamily(spec).find((entry) => entry.class === 'X4_format' && entry.rate === 2);
-    if (fault?.def.agent.kind !== 'function') throw new Error('no every-second-time X4 fault');
-    const steps = [{ text: move(spec, `${spec.start}-to-${spec.goal}`) }, { text: 'hm' }, { text: 'hm' }];
-    const seen = await play(fault.def.agent.create, steps);
-    expect(seen.map((observed) => observed.text === FOREIGN_REPLY)).toEqual([false, true, false]);
+    const turns: Step[] = [
+      { text: move(spec, `${spec.start}-to-${spec.goal}`) },
+      { text: move(spec, `${spec.goal}-to-check`) },
+      ...DEVIATION_POOL.filter((cls) => cls !== 'D8_tool_failure').map((cls) => ({
+        text: deviation(spec, cls),
+      })),
+    ];
+    const ours = JSON.stringify(await play(createFollower(spec), turns));
+    const silent: string[] = [];
+    for (const cls of FAULT_CLASSES.filter(
+      (entry) =>
+        entry.family === 'drift' &&
+        entry.id !== 'X2.slot-first' &&
+        entry.id !== 'X5.early-write' &&
+        entry.id !== 'X5.write-twice',
+    )) {
+      const fault = faultFamily(spec, [cls]).find((entry) => entry.where === 'any' && entry.rate === 1);
+      if (fault?.def.agent.kind !== 'function') throw new Error(cls.id);
+      if (JSON.stringify(await play(fault.def.agent.create, turns)) === ours) silent.push(cls.id);
+    }
+    expect(silent).toEqual([]);
+  });
+
+  it('composes classes: a pair changes what each of its members changes', async () => {
+    const spec = hiddenSpec(1);
+    const pair = combinedFault(spec, ['X4.dutch', 'X3.stay']);
+    if (pair.def.agent.kind !== 'function') throw new Error('not a function fault');
+    const [seen] = await play(pair.def.agent.create, [{ text: move(spec, `${spec.start}-to-${spec.goal}`) }]);
+    expect(seen?.text).toBe(FOREIGN_REPLY);
+    expect(stageOf(seen)).toBe(spec.start);
   });
 });

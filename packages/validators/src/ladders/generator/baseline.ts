@@ -15,8 +15,14 @@ import type { HiddenSpec } from './hidden';
 
 /** The first transition phrase of an edge. */
 function phraseOf(spec: HiddenSpec, edge: string): string | undefined {
-  return spec.phrases.find((phrase) => phrase.intent.kind === 'transition' && phrase.intent.edge === edge)
-    ?.text;
+  const text = spec.phrases.find(
+    (phrase) => phrase.intent.kind === 'transition' && phrase.intent.edge === edge,
+  )?.text;
+  // A slot takes the first member of the enum it feeds: the value a person writing by hand would pick.
+  return text?.replace(/\{([a-z][a-z0-9_]*)\}/g, (all, slot: string) => {
+    const property = spec.tools.find((tool) => tool.slot === slot)?.input[0];
+    return property?.type === 'enum' ? (property.members[0] as string) : all;
+  });
 }
 
 function spine(spec: HiddenSpec): Array<{ edge: string; to: string }> {

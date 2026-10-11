@@ -267,7 +267,13 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
       stages: [...path.stages],
       behaviours: [...(spec.flows.find((flow) => flow.id === path.flow)?.behaviours ?? [])],
       ...(path.endState
-        ? { end_state: { source: `tool:${path.endState.tool}`, mode: 'subset' as const, expect: { ...path.endState.expect } } }
+        ? {
+            end_state: {
+              source: `tool:${path.endState.tool}`,
+              mode: 'subset' as const,
+              expect: { ...path.endState.expect },
+            },
+          }
         : {}),
       evidence: { source: prompt, quote: path.quote },
       ...common,
@@ -299,7 +305,9 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
       stage_after: recovery.stageAfter,
       ...(recovery.must ? { must: [...recovery.must] } : {}),
       ...(recovery.mustNot ? { must_not: [...recovery.mustNot] } : {}),
-      ...(recovery.tools ? { tools: recovery.tools.map((tool) => ({ tool: tool.tool, count: tool.count })) } : {}),
+      ...(recovery.tools
+        ? { tools: recovery.tools.map((tool) => ({ tool: tool.tool, count: tool.count })) }
+        : {}),
       evidence: { source: prompt, quote: recovery.quote },
       ...common,
     })),

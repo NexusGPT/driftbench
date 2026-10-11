@@ -320,7 +320,11 @@ const FLOW_BANK: Array<{ id: string; title: string; texts: [string, string] }> =
 const PERSONA_BANK: Array<{ id: string; title: string; text: string }> = [
   { id: 'returning', title: 'A user who has made requests before', text: 'I have used this service before.' },
   { id: 'newcomer', title: 'A user who has never made a request', text: 'This is my first time here.' },
-  { id: 'staff', title: 'A member of staff working on a request', text: 'I am on the staff side and need to check something.' },
+  {
+    id: 'staff',
+    title: 'A member of staff working on a request',
+    text: 'I am on the staff side and need to check something.',
+  },
 ];
 
 /** The phrases of each deviation class. D8 has none: a tool fails in the Given. */
@@ -395,7 +399,12 @@ function recoveryOf(
     case 'D7_silence_or_burst':
       return { stageAfter: 'pending' };
     case 'D8_tool_failure':
-      return { stageAfter: 'pending', tool: read, must: ['not answering'], tools: [{ tool: read, count: { max: 2 } }] };
+      return {
+        stageAfter: 'pending',
+        tool: read,
+        must: ['not answering'],
+        tools: [{ tool: read, count: { max: 2 } }],
+      };
     case 'D9_out_of_scope':
       return { stageAfter: 'pending', must: ['billing desk'] };
     case 'D10_return':
@@ -434,7 +443,13 @@ function dataValues(tool: HiddenTool, direction: 'in' | 'out', property: HiddenP
   });
   if (property.type === 'enum') {
     return property.members.map((member) => ({
-      ...make(member, `${property.name} is ${member}`, member, false, `enum: [${property.members.join(', ')}]`),
+      ...make(
+        member,
+        `${property.name} is ${member}`,
+        member,
+        false,
+        `enum: [${property.members.join(', ')}]`,
+      ),
       ...(direction === 'in' ? { binds: { [tool.slot]: member } } : {}),
     }));
   }
@@ -458,7 +473,8 @@ function dataValues(tool: HiddenTool, direction: 'in' | 'out', property: HiddenP
 
 function dataPhrase(value: HiddenDataValue): string {
   const tool = value.tool.replace(/_/g, ' ');
-  if (value.direction === 'in') return `Please run ${tool} with ${value.field} set to ${String(value.value)}.`;
+  if (value.direction === 'in')
+    return `Please run ${tool} with ${value.field} set to ${String(value.value)}.`;
   return `Please run ${tool} and tell me whether ${value.field} comes back as ${String(value.value)}.`;
 }
 
@@ -481,7 +497,13 @@ function movePhrase(to: string, tools: HiddenTool[]): string {
   }
 }
 
-const EXTRA_EDGES: Array<{ from: string; to: string; title: string; text: (tools: HiddenTool[]) => string; needs: string[] }> = [
+const EXTRA_EDGES: Array<{
+  from: string;
+  to: string;
+  title: string;
+  text: (tools: HiddenTool[]) => string;
+  needs: string[];
+}> = [
   {
     from: 'intake',
     to: 'intake',
@@ -493,7 +515,8 @@ const EXTRA_EDGES: Array<{ from: string; to: string; title: string; text: (tools
     from: 'check',
     to: 'recap',
     title: 'The record already holds every choice, so the agent goes to the recap',
-    text: (tools) => `Use the same choices as last time, on the {${tools.find((tool) => tool.role === 'write')?.slot}} plan.`,
+    text: (tools) =>
+      `Use the same choices as last time, on the {${tools.find((tool) => tool.role === 'write')?.slot}} plan.`,
     needs: ['choice'],
   },
   {
@@ -516,7 +539,10 @@ const EXTRA_EDGES: Array<{ from: string; to: string; title: string; text: (tools
 export function hiddenSpec(seed: number): HiddenSpec {
   const rng = rngFor(seed, 'generator-validator:hidden');
   const stageIds = STAGE_LISTS[between(rng, HIDDEN_SHAPE.stages)] as string[];
-  const stages: HiddenStage[] = stageIds.map((id) => ({ id, ...(STAGE_BANK[id] as { title: string; question: string }) }));
+  const stages: HiddenStage[] = stageIds.map((id) => ({
+    id,
+    ...(STAGE_BANK[id] as { title: string; question: string }),
+  }));
   const start = stageIds[0] as string;
   const final = stageIds[stageIds.length - 1] as string;
   const confirm = stageIds[stageIds.length - 2] as string;
@@ -568,7 +594,10 @@ export function hiddenSpec(seed: number): HiddenSpec {
     movePhrases.push({ edge: id, text: movePhrase(to, tools) });
   }
   const eligible = EXTRA_EDGES.filter(
-    (edge) => stageIds.includes(edge.from) && stageIds.includes(edge.to) && edge.needs.every((stage) => stageIds.includes(stage)),
+    (edge) =>
+      stageIds.includes(edge.from) &&
+      stageIds.includes(edge.to) &&
+      edge.needs.every((stage) => stageIds.includes(stage)),
   );
   const extras = shuffled(rng, eligible).slice(0, between(rng, HIDDEN_SHAPE.extraEdges));
   for (const edge of EXTRA_EDGES.filter((candidate) => extras.includes(candidate))) {
@@ -606,7 +635,10 @@ export function hiddenSpec(seed: number): HiddenSpec {
   });
   const deviations = [...DEVIATION_POOL];
   const channels = ['web', 'messaging'];
-  const personas = PERSONA_BANK.slice(0, between(rng, HIDDEN_SHAPE.personas)).map(({ id, title }) => ({ id, title }));
+  const personas = PERSONA_BANK.slice(0, between(rng, HIDDEN_SHAPE.personas)).map(({ id, title }) => ({
+    id,
+    title,
+  }));
 
   const wanted = between(rng, HIDDEN_SHAPE.constraints);
   const constraints: HiddenConstraint[] = [];
@@ -664,12 +696,18 @@ export function hiddenSpec(seed: number): HiddenSpec {
     for (const stage of stagesOfPath.slice(1)) {
       const tool = toolAt(stage);
       const property = tool?.input[0];
-      if (tool && property?.type === 'enum') when[`${tool.name}.in.${property.name}`] = property.members.map((member) => `${tool.name}.in.${property.name}.${member}`);
+      if (tool && property?.type === 'enum')
+        when[`${tool.name}.in.${property.name}`] = property.members.map(
+          (member) => `${tool.name}.in.${property.name}.${member}`,
+        );
     }
     if (stagesOfPath.includes('recap')) {
       const write = tools.find((tool) => tool.role === 'write');
       const property = write?.input[0];
-      if (write && property?.type === 'enum') when[`${write.name}.in.${property.name}`] = property.members.map((member) => `${write.name}.in.${property.name}.${member}`);
+      if (write && property?.type === 'enum')
+        when[`${write.name}.in.${property.name}`] = property.members.map(
+          (member) => `${write.name}.in.${property.name}.${member}`,
+        );
     }
     return when;
   };
@@ -692,14 +730,31 @@ export function hiddenSpec(seed: number): HiddenSpec {
     'change-request-back',
     'change-request',
     hasEdge('recap-to-intake') ? [...spineTo('recap'), 'intake'] : spineTo('recap'),
-    hasEdge('recap-to-intake') ? 'The user wants to change the item at the recap.' : `After ${start}, the next step is ${goal}.`,
+    hasEdge('recap-to-intake')
+      ? 'The user wants to change the item at the recap.'
+      : `After ${start}, the next step is ${goal}.`,
   );
   if (hasEdge('intake-to-intake'))
-    addPath('status-check-unclear', 'status-check', [start, 'intake', 'intake', 'check'], 'The item named is unclear, so the agent asks again.');
+    addPath(
+      'status-check-unclear',
+      'status-check',
+      [start, 'intake', 'intake', 'check'],
+      'The item named is unclear, so the agent asks again.',
+    );
   if (hasEdge('check-to-recap'))
-    addPath('new-request-short', 'new-request', [start, 'intake', 'check', 'recap', final], 'The record already holds every choice, so the agent goes to the recap.');
+    addPath(
+      'new-request-short',
+      'new-request',
+      [start, 'intake', 'check', 'recap', final],
+      'The record already holds every choice, so the agent goes to the recap.',
+    );
   if (hasEdge('check-to-check'))
-    addPath('status-check-again', 'status-check', [start, 'intake', 'check', 'check'], 'The user asks the agent to look the record up again.');
+    addPath(
+      'status-check-again',
+      'status-check',
+      [start, 'intake', 'check', 'check'],
+      'The user asks the agent to look the record up again.',
+    );
 
   const uses: HiddenUse[] = [];
   for (const path of paths) {
@@ -709,7 +764,12 @@ export function hiddenSpec(seed: number): HiddenSpec {
       const tool = toolAt(to);
       if (!tool) return;
       const field = tool.input[0]?.name ?? 'value';
-      if (uses.some((use) => use.flow === path.flow && use.tool === tool.name && use.from === from && use.to === to)) return;
+      if (
+        uses.some(
+          (use) => use.flow === path.flow && use.tool === tool.name && use.from === from && use.to === to,
+        )
+      )
+        return;
       uses.push({
         flow: path.flow,
         tool: tool.name,
@@ -731,15 +791,33 @@ export function hiddenSpec(seed: number): HiddenSpec {
   const lang = 'en';
   const phrases: HiddenPhrase[] = [];
   for (const { edge, text } of movePhrases) {
-    phrases.push({ dimension: 'stage_transition', value: edge, text, lang, intent: { kind: 'transition', edge } });
+    phrases.push({
+      dimension: 'stage_transition',
+      value: edge,
+      text,
+      lang,
+      intent: { kind: 'transition', edge },
+    });
   }
   for (const cls of deviations) {
     for (const phrase of DEVIATION_PHRASES[cls] ?? []) {
-      phrases.push({ dimension: 'deviation', value: cls, text: phrase.text, lang: phrase.lang ?? lang, intent: { kind: 'deviation', class: cls } });
+      phrases.push({
+        dimension: 'deviation',
+        value: cls,
+        text: phrase.text,
+        lang: phrase.lang ?? lang,
+        intent: { kind: 'deviation', class: cls },
+      });
     }
   }
   for (const value of data) {
-    phrases.push({ dimension: value.dimension, value: value.id, text: dataPhrase(value), lang, intent: { kind: 'data', value: value.id } });
+    phrases.push({
+      dimension: value.dimension,
+      value: value.id,
+      text: dataPhrase(value),
+      lang,
+      intent: { kind: 'data', value: value.id },
+    });
   }
   for (const behaviour of behaviours) {
     phrases.push({
@@ -747,19 +825,34 @@ export function hiddenSpec(seed: number): HiddenSpec {
       value: behaviour.id,
       text: `I need you to ${behaviour.title.charAt(0).toLowerCase()}${behaviour.title.slice(1)}.`,
       lang,
-      intent: behaviour.title.startsWith('Save the record') ? { kind: 'save' } : { kind: 'behaviour', behaviour: behaviour.id },
+      intent: behaviour.title.startsWith('Save the record')
+        ? { kind: 'save' }
+        : { kind: 'behaviour', behaviour: behaviour.id },
     });
   }
   for (const flow of flows) {
     const row = FLOW_BANK.find((candidate) => candidate.id === flow.id);
     const count = rng() < 0.5 ? 2 : 1;
     for (const text of (row?.texts ?? []).slice(0, count)) {
-      phrases.push({ dimension: 'flow', value: flow.id, text, lang, intent: { kind: 'flow', flow: flow.id } });
+      phrases.push({
+        dimension: 'flow',
+        value: flow.id,
+        text,
+        lang,
+        intent: { kind: 'flow', flow: flow.id },
+      });
     }
   }
   for (const persona of personas) {
     const row = PERSONA_BANK.find((candidate) => candidate.id === persona.id);
-    if (row) phrases.push({ dimension: 'user_type', value: persona.id, text: row.text, lang, intent: { kind: 'persona', persona: persona.id } });
+    if (row)
+      phrases.push({
+        dimension: 'user_type',
+        value: persona.id,
+        text: row.text,
+        lang,
+        intent: { kind: 'persona', persona: persona.id },
+      });
   }
 
   return {
@@ -784,7 +877,11 @@ export function hiddenSpec(seed: number): HiddenSpec {
     paths,
     uses,
     recoveries,
-    languageRule: { id: 'english-only', title: 'The agent answers in English only', quote: DEVIATION_RULES.D5_language_switch },
+    languageRule: {
+      id: 'english-only',
+      title: 'The agent answers in English only',
+      quote: DEVIATION_RULES.D5_language_switch,
+    },
     lang,
     confirmWord: 'CONFIRM',
     saveFile: 'exports/record.json',
@@ -798,7 +895,10 @@ export function phrasePattern(text: string): RegExp {
 }
 
 /** The intent a user turn expresses and the slot values it states; undefined when no phrase matches. */
-export function readTurn(spec: HiddenSpec, text: string): { intent: Intent; slots: Record<string, string> } | undefined {
+export function readTurn(
+  spec: HiddenSpec,
+  text: string,
+): { intent: Intent; slots: Record<string, string> } | undefined {
   const trimmed = text.trim();
   for (const phrase of spec.phrases) {
     const match = phrasePattern(phrase.text).exec(trimmed);

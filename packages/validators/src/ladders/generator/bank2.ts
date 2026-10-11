@@ -1,0 +1,577 @@
+import type { Spec } from '@driftbench/core';
+import type { BankItem, SeedData, Tier, Verdict } from './bank';
+import { DEVIATION_POOL, type HiddenSpec, type ToolRole } from './hidden';
+import type { Generation } from './measure';
+
+/**
+ * The research and parity families of the generator bank (docs/validators.md section 12.2, items 1 to 3):
+ * paths (IntellAgent and tau-bench walk every policy branch and check the end state), sequence coverage
+ * (ordered pairs on the stage graph and a deviation followed by recovery, the second layer of t-wise
+ * coverage for sequence-dependent faults), allocation (a stratified usage model: every value present, the
+ * spread even, Hill and Pielou numbers), and contrast (CheckList and Gardner minimal pairs: a one-slot
+ * change changes the Then, an irrelevant change keeps it). Every oracle reads the generated suite against
+ * the hidden specification.
+ */
+
+const verdict = (pass: boolean, detail: string): Verdict => ({ pass, detail });
+
+const C = {
+  scenario: 'packages/generate/src/seed/scenario.ts#buildScenario',
+  seeders: 'packages/generate/src/seed/seeders.ts',
+  relations: 'packages/generate/src/seed/relations.ts',
+} as const;
+
+export const BASE_PATHS = ['new-request-full', 'status-check-lookup', 'change-request-back'] as const;
+const EXTRA_PATHS = ['status-check-unclear', 'new-request-short', 'status-check-again'];
+const STAGE_UNION = ['opening', 'intake', 'check', 'choice', 'details', 'recap', 'done'];
+
+/** The path a generated spec walks, from the scenario title (`Path <id> of <flow>: ...`). */
+export function pathOf(spec: Spec): string | undefined {
+  return /Path (\S+) of /.exec(spec.title ?? '')?.[1];
+}
+
+function cellOf(spec: Spec): Record<string, string> {
+  return ((spec.metadata?.generated as { cell?: Record<string, string> } | undefined)?.cell ?? {}) as Record<
+    string,
+    string
+  >;
+}
+
+function walking(generated: Generation, path: string): Spec[] {
+  return generated.complete.map((loaded) => loaded.spec).filter((spec) => pathOf(spec) === path);
+}
+
+function probes(spec: Spec): string[] {
+  return spec.blocks.flatMap((block) =>
+    block.when && 'injection' in block.when ? [block.when.injection.class] : [],
+  );
+}
+
+function allowed(hidden: HiddenSpec, cell: Record<string, string>): boolean {
+  return !hidden.constraints.some((constraint) =>
+    Object.entries(constraint.forbid).every(([dimension, value]) => cell[dimension] === value),
+  );
+}
+
+function personaOf(spec: Spec): string | undefined {
+  return (spec.tags ?? []).find((tag) => tag.startsWith('persona:'))?.slice('persona:'.length);
+}
+
+// paths ---------------------------------------------------------------------------------------------------
+
+function pathItems(): BankItem[] {
+  const items: BankItem[] = [];
+  const item = (
+    id: string,
+    tier: Tier,
+    component: string,
+    check: (generated: Generation) => Verdict,
+  ): BankItem => ({
+    id,
+    family: 'paths',
+    tier,
+    level: 'paths',
+    component,
+    async check(data: SeedData) {
+      return check(await data.generated());
+    },
+  });
+  for (const id of BASE_PATHS) {
+    items.push(
+      item(`paths.${id}.walked`, 1, C.scenario, (generated) => {
+        const specs = walking(generated, id);
+        return verdict(specs.length > 0, `${specs.length} complete specs walk the path ${id}`);
+      }),
+      item(`paths.${id}.values`, 3, `${C.seeders}#twiseSeeder`, (generated) => {
+        const path = generated.hidden.paths.find((entry) => entry.id === id);
+        const specs = walking(generated, id);
+        const missing = Object.entries(path?.when ?? {}).flatMap(([dimension, values]) =>
+          values.filter((value) => !specs.some((spec) => cellOf(spec)[dimension] === value)),
+        );
+        return verdict(
+          path !== undefined && specs.length > 0 && missing.length === 0,
+          `${missing.length} values the path reads are walked by no complete spec: ${missing.slice(0, 4).join(', ')}`,
+        );
+      }),
+      item(`paths.${id}.channels`, 3, `${C.seeders}#twiseSeeder`, (generated) => {
+        const specs = walking(generated, id);
+        const missing = generated.hidden.channels.filter(
+          (channel) => !specs.some((spec) => spec.channel === channel),
+        );
+        return verdict(
+          specs.length > 0 && missing.length === 0,
+          `channels never walked on the path: ${missing.join(', ') || 'none'}`,
+        );
+      }),
+      item(`paths.${id}.personas`, 3, `${C.seeders}#twiseSeeder`, (generated) => {
+        const specs = walking(generated, id);
+        const missing = generated.hidden.personas
+          .map((persona) => persona.id)
+          .filter((persona) => !specs.some((spec) => personaOf(spec) === persona));
+        return verdict(
+          specs.length > 0 && missing.length === 0,
+          `personas never walked on the path: ${missing.join(', ') || 'none'}`,
+        );
+      }),
+      item(`paths.${id}.probes`, 4, `${C.seeders}#deviationSeeder`, (generated) => {
+        const path = generated.hidden.paths.find((entry) => entry.id === id);
+        const flow = generated.hidden.flows.find((entry) => entry.id === path?.flow);
+        const specs = walking(generated, id);
+        const missing = (flow?.deviations ?? []).filter(
+          (cls) => !specs.some((spec) => probes(spec).includes(cls)),
+        );
+        return verdict(
+          path !== undefined && missing.length === 0,
+          `classes the flow requires that no spec probes on this path: ${missing.join(', ') || 'none'}`,
+        );
+      }),
+    );
+  }
+  items.push(
+    item('paths.new-request-full.end-state', 2, C.relations, (generated) => {
+      const specs = walking(generated, 'new-request-full').filter(
+        (spec) => !probes(spec).includes('D8_tool_failure'),
+      );
+      const without = specs.filter((spec) => spec.end_state === undefined);
+      return verdict(
+        specs.length > 0 && without.length === 0,
+        `${without.length} of ${specs.length} complete specs that walk to the end check no end state`,
+      );
+    }),
+    item('paths.extras.walked', 3, C.scenario, (generated) => {
+      const present = generated.hidden.paths.filter((path) => EXTRA_PATHS.includes(path.id));
+      const missing = present
+        .filter((path) => walking(generated, path.id).length === 0)
+        .map((path) => path.id);
+      return verdict(
+        missing.length === 0,
+        `extra-edge paths walked by no complete spec: ${missing.join(', ') || 'none'} (of ${present.length})`,
+      );
+    }),
+    item('paths.all-walked', 2, C.scenario, (generated) => {
+      const missing = generated.hidden.paths
+        .filter((path) => walking(generated, path.id).length === 0)
+        .map((path) => path.id);
+      return verdict(
+        missing.length === 0,
+        `paths walked by no complete spec: ${missing.join(', ') || 'none'}`,
+      );
+    }),
+    item('paths.unwalked-reported', 2, 'packages/generate/src/enumerate/generate.ts', (generated) => {
+      const unwalked = new Set((generated.report?.graph.unwalked ?? []).map((entry) => entry.path));
+      const notWalked = generated.hidden.paths
+        .filter((path) => generated.loaded.every((result) => !result.ok || pathOf(result.spec) !== path.id))
+        .map((path) => path.id);
+      const silent = notWalked.filter((path) => !unwalked.has(path));
+      return verdict(
+        silent.length === 0,
+        `paths no spec walks that the report does not list as unwalked: ${silent.join(', ') || 'none'}`,
+      );
+    }),
+    item('paths.recorded', 2, 'packages/generate/src/seed/assemble.ts#renderDraft', (generated) => {
+      const scenario = generated.complete.filter((loaded) => pathOf(loaded.spec) !== undefined);
+      const unrecorded = scenario.filter(
+        (loaded) => (loaded.spec.metadata?.generated as { path?: unknown } | undefined)?.path === undefined,
+      );
+      return verdict(
+        scenario.length > 0 && unrecorded.length === 0,
+        `${unrecorded.length} of ${scenario.length} scenario specs do not record their path id in metadata.generated`,
+      );
+    }),
+  );
+  return items;
+}
+
+// sequence ------------------------------------------------------------------------------------------------
+
+function sequenceItems(): BankItem[] {
+  const items: BankItem[] = [];
+  for (const cls of DEVIATION_POOL) {
+    items.push(
+      {
+        id: `sequence.after.${cls}`,
+        family: 'sequence',
+        tier: 3,
+        level: 'sequence',
+        component: C.scenario,
+        async check(data) {
+          const generated = await data.generated();
+          const continued = generated.complete.some(({ spec }) => {
+            const at = spec.blocks.findIndex(
+              (block) =>
+                block.when !== undefined && 'injection' in block.when && block.when.injection.class === cls,
+            );
+            return at >= 0 && at < spec.blocks.length - 1;
+          });
+          return verdict(
+            continued,
+            continued
+              ? `a spec goes on after its ${cls} probe`
+              : `no complete spec goes on after a ${cls} probe: recovery is never followed by the rest of the flow`,
+          );
+        },
+      },
+      {
+        id: `sequence.stages.${cls}`,
+        family: 'sequence',
+        tier: 4,
+        level: 'sequence',
+        component: `${C.seeders}#deviationSeeder`,
+        async check(data) {
+          const generated = await data.generated();
+          const hidden = generated.hidden;
+          const flows = hidden.flows.filter((flow) => flow.deviations.includes(cls)).map((flow) => flow.id);
+          const stages = new Set(
+            hidden.paths
+              .filter((path) => flows.includes(path.flow))
+              .flatMap((path) => path.stages.slice(1, -1)),
+          );
+          const reachable = [...stages].filter((stage) => allowed(hidden, { deviation: cls, stage }));
+          const probedAt = new Set<string>();
+          for (const { spec } of generated.complete) {
+            spec.blocks.forEach((block, index) => {
+              if (!block.when || !('injection' in block.when) || block.when.injection.class !== cls) return;
+              const before = spec.blocks
+                .slice(0, index)
+                .reverse()
+                .find((earlier) => earlier.expect?.stage !== undefined)?.expect?.stage;
+              if (before) probedAt.add(before);
+            });
+          }
+          const missing = reachable.filter((stage) => !probedAt.has(stage));
+          return verdict(
+            reachable.length > 0 && missing.length === 0,
+            `stages where ${cls} can arrive but is never probed: ${missing.join(', ') || 'none'}`,
+          );
+        },
+      },
+    );
+  }
+  for (const stage of STAGE_UNION) {
+    items.push({
+      id: `sequence.through.${stage}`,
+      family: 'sequence',
+      tier: 3,
+      level: 'sequence',
+      component: C.scenario,
+      async check(data) {
+        const generated = await data.generated();
+        const hidden = generated.hidden;
+        if (!hidden.stages.some((entry) => entry.id === stage))
+          return verdict(true, `the hidden graph has no stage ${stage}`);
+        const wanted = new Set<string>();
+        for (const path of hidden.paths) {
+          path.stages.forEach((at, index) => {
+            if (at === stage && index > 0 && index < path.stages.length - 1)
+              wanted.add(`${path.stages[index - 1]}>${at}>${path.stages[index + 1]}`);
+          });
+        }
+        const walked = new Set<string>();
+        for (const { spec } of generated.complete) {
+          const seen = [
+            hidden.start,
+            ...spec.blocks
+              .filter((block) => !(block.when && 'injection' in block.when))
+              .map((block) => block.expect?.stage ?? ''),
+          ];
+          for (let index = 1; index + 1 < seen.length; index += 1)
+            walked.add(`${seen[index - 1]}>${seen[index]}>${seen[index + 1]}`);
+        }
+        const missing = [...wanted].filter((pair) => !walked.has(pair));
+        return verdict(
+          missing.length === 0,
+          `${missing.length} of ${wanted.size} ordered edge pairs through ${stage} walked by no complete spec: ${missing.join(', ')}`,
+        );
+      },
+    });
+  }
+  return items;
+}
+
+// allocation ----------------------------------------------------------------------------------------------
+
+function counts(generated: Generation, dimension: string): Map<string, number> {
+  const hidden = generated.hidden;
+  const values =
+    dimension === 'behaviour'
+      ? hidden.behaviours.map((entry) => entry.id)
+      : dimension === 'deviation'
+        ? [...DEVIATION_POOL]
+        : dimension === 'channel'
+          ? hidden.channels
+          : dimension === 'stage'
+            ? hidden.stages.map((entry) => entry.id)
+            : hidden.personas.map((entry) => entry.id);
+  const out = new Map(values.map((value) => [value, 0]));
+  const add = (value: string | undefined) => {
+    if (value !== undefined && out.has(value)) out.set(value, (out.get(value) ?? 0) + 1);
+  };
+  for (const { spec } of generated.complete) {
+    if (dimension === 'behaviour') for (const id of spec.covers ?? []) add(id);
+    else if (dimension === 'channel') add(spec.channel);
+    else if (dimension === 'user_type') add(personaOf(spec));
+    else if (dimension === 'stage') for (const block of spec.blocks) add(block.expect?.stage);
+    else for (const cls of probes(spec)) add(cls);
+  }
+  return out;
+}
+
+function allocationItems(): BankItem[] {
+  const items: BankItem[] = [];
+  for (const dimension of ['behaviour', 'deviation', 'channel', 'stage', 'user_type']) {
+    const stat = (
+      name: string,
+      tier: Tier,
+      test: (values: number[], keys: string[]) => [boolean, string],
+    ): BankItem => ({
+      id: `allocation.${dimension}.${name}`,
+      family: 'allocation',
+      tier,
+      level: 'allocation',
+      component: dimension === 'stage' ? C.scenario : `${C.seeders}#twiseSeeder`,
+      async check(data) {
+        const map = counts(await data.generated(), dimension);
+        const [pass, detail] = test([...map.values()], [...map.keys()]);
+        return verdict(
+          pass,
+          `${detail}; counts ${[...map.entries()].map(([key, value]) => `${key} ${value}`).join(', ')}`,
+        );
+      },
+    });
+    const entropy = (values: number[]) => {
+      const total = values.reduce((sum, value) => sum + value, 0);
+      return total === 0
+        ? 0
+        : -values
+            .filter((value) => value > 0)
+            .reduce((sum, value) => sum + (value / total) * Math.log(value / total), 0);
+    };
+    items.push(
+      stat('present', 2, (values, keys) => {
+        const missing = keys.filter((_, index) => values[index] === 0);
+        return [missing.length === 0, `values no complete spec places on: ${missing.join(', ') || 'none'}`];
+      }),
+      stat('ratio', 3, (values) => {
+        const max = Math.max(...values);
+        const min = Math.min(...values);
+        return [
+          min > 0 && max / min <= 3,
+          `the most placed value has ${max}, the least ${min} (ratio at most 3)`,
+        ];
+      }),
+      stat('evenness', 4, (values) => {
+        const j = values.length > 1 ? entropy(values) / Math.log(values.length) : 1;
+        return [j >= 0.9, `Pielou evenness ${j.toFixed(3)} (at least 0.9)`];
+      }),
+      stat('hill1', 3, (values) => {
+        const d1 = Math.exp(entropy(values));
+        return [
+          d1 >= 0.8 * values.length,
+          `Hill number of order 1 is ${d1.toFixed(2)} for ${values.length} values (at least 0.8 of them)`,
+        ];
+      }),
+    );
+  }
+  return items;
+}
+
+// contrast ------------------------------------------------------------------------------------------------
+
+/** The machine expectations of a spec's blocks, as text: what two specs are compared on. */
+function thens(spec: Spec): string {
+  return JSON.stringify(spec.blocks.map((block) => ({ ...block.expect, criteria: undefined })));
+}
+
+function contrastItems(): BankItem[] {
+  const items: BankItem[] = [];
+  for (const role of ['read', 'list', 'write'] as ToolRole[]) {
+    for (const [i, j] of [
+      [0, 1],
+      [0, 2],
+      [1, 2],
+    ] as const) {
+      items.push({
+        id: `contrast.${role}.enum.${i}-${j}`,
+        family: 'contrast',
+        tier: 3,
+        level: 'contrast',
+        component: C.relations,
+        async check(data) {
+          const generated = await data.generated();
+          const tool = generated.hidden.tools.find((entry) => entry.role === role);
+          const property = tool?.input[0];
+          if (!tool || property?.type !== 'enum') return verdict(false, 'no enum input');
+          if (!generated.hidden.paths.some((path) => path.stages.includes(tool.stage ?? '-')))
+            return verdict(true, `no path calls ${tool.name}`);
+          const dimension = `${tool.name}.in.${property.name}`;
+          const holding = (member: string) =>
+            generated.complete.filter(
+              ({ spec }) =>
+                cellOf(spec)[dimension] === `${dimension}.${member}` && pathOf(spec) !== undefined,
+            );
+          const a = holding(property.members[i] as string);
+          const b = holding(property.members[j] as string);
+          const found = a.some((left) =>
+            b.some(
+              (right) =>
+                pathOf(left.spec) === pathOf(right.spec) &&
+                JSON.stringify(
+                  left.spec.blocks.map(
+                    (block) => (block.expect?.tools ?? []).find((entry) => entry.label === tool.name)?.input,
+                  ),
+                ) !==
+                  JSON.stringify(
+                    right.spec.blocks.map(
+                      (block) =>
+                        (block.expect?.tools ?? []).find((entry) => entry.label === tool.name)?.input,
+                    ),
+                  ),
+            ),
+          );
+          return verdict(
+            found,
+            `${a.length} and ${b.length} scenario specs hold members ${property.members[i]} and ${property.members[j]}; ${found ? 'a pair on one path expects different inputs' : 'no pair on one path expects different inputs for the change'}`,
+          );
+        },
+      });
+    }
+    for (const [low, high] of [
+      ['at-minimum', 'above-minimum'],
+      ['below-maximum', 'at-maximum'],
+    ] as const) {
+      items.push({
+        id: `contrast.${role}.integer.${low}-${high}`,
+        family: 'contrast',
+        tier: 2,
+        level: 'contrast',
+        component: 'packages/generate/src/seed/values.ts#inputAssertion',
+        async check(data) {
+          const generated = await data.generated();
+          const tool = generated.hidden.tools.find((entry) => entry.role === role);
+          const property = tool?.input[1];
+          if (!tool || property?.type !== 'integer') return verdict(false, 'no integer input');
+          const dimension = `${tool.name}.in.${property.name}`;
+          const inputs = (partition: string) =>
+            generated.complete
+              .filter(
+                ({ spec }) =>
+                  cellOf(spec)[dimension] === `${dimension}.${partition}` ||
+                  spec.blocks.some((block) => JSON.stringify(block).includes(`${dimension}.${partition}`)),
+              )
+              .flatMap(({ spec }) =>
+                spec.blocks.flatMap((block) =>
+                  (block.expect?.tools ?? [])
+                    .filter((entry) => entry.label === tool.name)
+                    .map((entry) => JSON.stringify(entry.input?.[property.name])),
+                ),
+              );
+          const left = new Set(inputs(low));
+          const right = new Set(inputs(high));
+          const differ = left.size > 0 && right.size > 0 && [...left].some((value) => !right.has(value));
+          return verdict(
+            differ,
+            `${property.name} ${low} is asserted as ${[...left].join(', ') || 'nothing'}, ${high} as ${[...right].join(', ') || 'nothing'}`,
+          );
+        },
+      });
+    }
+  }
+  for (const path of BASE_PATHS) {
+    items.push(
+      {
+        id: `invariance.${path}.persona`,
+        family: 'contrast',
+        tier: 4,
+        level: 'contrast',
+        component: `${C.seeders}#metamorphicSeeder`,
+        async check(data) {
+          const generated = await data.generated();
+          const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
+          const slots = (spec: Spec) =>
+            JSON.stringify(
+              Object.entries(cellOf(spec))
+                .filter(([key]) => key.includes('.in.'))
+                .sort(),
+            );
+          const pair = specs.some((left) =>
+            specs.some((right) => personaOf(left) !== personaOf(right) && slots(left) === slots(right)),
+          );
+          const equal = specs.every((left) =>
+            specs.every((right) => slots(left) !== slots(right) || thens(left) === thens(right)),
+          );
+          return verdict(
+            pair && equal,
+            pair
+              ? equal
+                ? 'specs that differ only in persona expect the same'
+                : 'two specs that differ only in persona expect different things'
+              : 'no two complete specs walk the path with the same values and different personas',
+          );
+        },
+      },
+      {
+        id: `contrast.${path}.values`,
+        family: 'contrast',
+        tier: 3,
+        level: 'contrast',
+        component: C.relations,
+        async check(data) {
+          const generated = await data.generated();
+          const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
+          const slots = (spec: Spec) =>
+            JSON.stringify(
+              Object.entries(cellOf(spec))
+                .filter(([key]) => key.includes('.in.'))
+                .sort(),
+            );
+          const found = specs.some((left) =>
+            specs.some((right) => slots(left) !== slots(right) && thens(left) !== thens(right)),
+          );
+          return verdict(
+            found,
+            found
+              ? 'two specs with different slot values expect different things'
+              : 'no two complete specs walk the path with different slot values',
+          );
+        },
+      },
+      {
+        id: `invariance.${path}.channel`,
+        family: 'contrast',
+        tier: 4,
+        level: 'contrast',
+        component: `${C.seeders}#metamorphicSeeder`,
+        async check(data) {
+          const generated = await data.generated();
+          const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
+          const slots = (spec: Spec) =>
+            JSON.stringify(
+              Object.entries(cellOf(spec))
+                .filter(([key]) => key.includes('.in.'))
+                .sort(),
+            );
+          const pair = specs.some((left) =>
+            specs.some((right) => left.channel !== right.channel && slots(left) === slots(right)),
+          );
+          const equal = specs.every((left) =>
+            specs.every((right) => slots(left) !== slots(right) || thens(left) === thens(right)),
+          );
+          return verdict(
+            pair && equal,
+            pair
+              ? equal
+                ? 'specs that differ only in channel expect the same'
+                : 'two specs that differ only in channel expect different things'
+              : 'no two complete specs walk the path with the same values on different channels',
+          );
+        },
+      },
+    );
+  }
+  return items;
+}
+
+/** The research and parity families. */
+export function researchItems(): BankItem[] {
+  return [...pathItems(), ...sequenceItems(), ...allocationItems(), ...contrastItems()];
+}

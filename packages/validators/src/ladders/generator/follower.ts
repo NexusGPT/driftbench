@@ -38,7 +38,13 @@ export type MutationContext = {
 };
 
 /** The rule's answer to a deviation: where the conversation stays and what is said. */
-export type DeviationAnswer = { stage: string; enter: boolean; said: string };
+export type DeviationAnswer = {
+  stage: string;
+  enter: boolean;
+  said: string;
+  /** The whole reply, as segments, in place of the composed one. */
+  replies?: string[];
+};
 
 /** A workspace change the save behaviour makes. */
 export type SaveResult = { diff: WorkspaceDiff; artifacts: ArtifactRef[]; said: string };
@@ -55,7 +61,11 @@ export type Mutation = {
   facts?(facts: Fact[], ctx: MutationContext): Fact[];
   reply?(texts: string[], ctx: MutationContext): string[];
   /** On a failing tool: the rule retries a read-only tool once and stays. */
-  failure?(tool: HiddenTool, rule: 'retry' | 'stop', ctx: MutationContext): 'retry' | 'stop' | 'hide' | 'retry-many' | 'advance';
+  failure?(
+    tool: HiddenTool,
+    rule: 'retry' | 'stop',
+    ctx: MutationContext,
+  ): 'retry' | 'stop' | 'hide' | 'retry-many' | 'advance';
   /** The stage the runtime reports; null reports none. */
   report?(stage: string, ctx: MutationContext): string | null;
   /** The value a slot keeps when the user states it. */
@@ -65,28 +75,45 @@ export type Mutation = {
 
 /** Applies mutations one after the other: the second sees the first one's decision. */
 export function compose(...mutations: Mutation[]): Mutation {
-  const chain = <K extends keyof Mutation>(key: K) => mutations.filter((mutation) => mutation[key] !== undefined);
+  const chain = <K extends keyof Mutation>(key: K) =>
+    mutations.filter((mutation) => mutation[key] !== undefined);
   return {
-    move: (from, to, ctx) => chain('move').reduce((target, mutation) => mutation.move?.(from, target, ctx) ?? target, to),
+    move: (from, to, ctx) =>
+      chain('move').reduce((target, mutation) => mutation.move?.(from, target, ctx) ?? target, to),
     deviation: (cls, answer, ctx) =>
-      chain('deviation').reduce((current, mutation) => mutation.deviation?.(cls, current, ctx) ?? current, answer),
+      chain('deviation').reduce(
+        (current, mutation) => mutation.deviation?.(cls, current, ctx) ?? current,
+        answer,
+      ),
     input: (tool, input, ctx) =>
       chain('input').reduce((current, mutation) => mutation.input?.(tool, current, ctx) ?? current, input),
     calls: (tool, count, ctx) =>
       chain('calls').reduce((current, mutation) => mutation.calls?.(tool, current, ctx) ?? current, count),
     extra: (called, ctx) => chain('extra').flatMap((mutation) => mutation.extra?.(called, ctx) ?? []),
-    facts: (facts, ctx) => chain('facts').reduce((current, mutation) => mutation.facts?.(current, ctx) ?? current, facts),
-    reply: (texts, ctx) => chain('reply').reduce((current, mutation) => mutation.reply?.(current, ctx) ?? current, texts),
+    facts: (facts, ctx) =>
+      chain('facts').reduce((current, mutation) => mutation.facts?.(current, ctx) ?? current, facts),
+    reply: (texts, ctx) =>
+      chain('reply').reduce((current, mutation) => mutation.reply?.(current, ctx) ?? current, texts),
     failure: (tool, rule, ctx) =>
       chain('failure').reduce<ReturnType<NonNullable<Mutation['failure']>>>(
-        (current, mutation) => (current === 'retry' || current === 'stop' ? (mutation.failure?.(tool, current, ctx) ?? current) : current),
+        (current, mutation) =>
+          current === 'retry' || current === 'stop'
+            ? (mutation.failure?.(tool, current, ctx) ?? current)
+            : current,
         rule,
       ),
     report: (stage, ctx) =>
-      chain('report').reduce<string | null>((current, mutation) => (current === null ? null : (mutation.report?.(current, ctx) ?? current)), stage),
+      chain('report').reduce<string | null>(
+        (current, mutation) => (current === null ? null : (mutation.report?.(current, ctx) ?? current)),
+        stage,
+      ),
     slot: (name, given, held, ctx) =>
-      chain('slot').reduce((current, mutation) => mutation.slot?.(name, current, held, ctx) ?? current, given),
-    save: (result, ctx) => chain('save').reduce((current, mutation) => mutation.save?.(current, ctx) ?? current, result),
+      chain('slot').reduce(
+        (current, mutation) => mutation.slot?.(name, current, held, ctx) ?? current,
+        given,
+      ),
+    save: (result, ctx) =>
+      chain('save').reduce((current, mutation) => mutation.save?.(current, ctx) ?? current, result),
   };
 }
 
@@ -155,6 +182,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         const facts: Fact[] = [];
         const notes: string[] = [];
         let said = '';
+        let replaced: string[] | undefined;
         let callId = 0;
         let workspace: WorkspaceDiff | undefined;
         let artifacts: ArtifactRef[] | undefined;
@@ -181,7 +209,13 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           const input = mutation.input?.(tool, wanted, ctx()) ?? wanted;
           const times = mutation.calls?.(tool, 1, ctx()) ?? 1;
           if (times === 0) {
-            facts.push(...tool.output.map((property) => ({ tool: tool.name, field: property.name, value: defaultValue(property) })));
+            facts.push(
+              ...tool.output.map((property) => ({
+                tool: tool.name,
+                field: property.name,
+                value: defaultValue(property),
+              })),
+            );
             return true;
           }
           const override = world.tools?.[tool.name];
@@ -189,12 +223,15 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             const rule = tool.sideEffect ? 'stop' : 'retry';
             const choice = mutation.failure?.(tool, rule, ctx()) ?? rule;
             const attempts = choice === 'retry' ? 2 : choice === 'retry-many' ? 4 : 1;
-            for (let attempt = 0; attempt < attempts; attempt += 1) record(tool.name, input, null, override.error);
+            for (let attempt = 0; attempt < attempts; attempt += 1)
+              record(tool.name, input, null, override.error);
             if (choice === 'hide') {
               notes.push(`All set, ${tool.name.replace(/_/g, ' ')} went through.`);
               return true;
             }
-            notes.push(`The ${tool.name.replace(/_/g, ' ')} service is not answering, so I cannot finish that step now; I can pass your request to a person.`);
+            notes.push(
+              `The ${tool.name.replace(/_/g, ' ')} service is not answering, so I cannot finish that step now; I can pass your request to a person.`,
+            );
             return choice === 'advance';
           }
           const output = (override?.result as Record<string, unknown> | undefined) ?? defaultOutput(tool);
@@ -202,7 +239,8 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             record(tool.name, input, output, undefined);
             if (tool.sideEffect) payloads.push({ tool: tool.name, input, output });
           }
-          for (const property of tool.output) facts.push({ tool: tool.name, field: property.name, value: output?.[property.name] });
+          for (const property of tool.output)
+            facts.push({ tool: tool.name, field: property.name, value: output?.[property.name] });
           return true;
         };
 
@@ -212,7 +250,12 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           stage = target;
         };
 
-        const read = readTurn(spec, text) ?? text.split('\n').map((line) => readTurn(spec, line)).find((found) => found !== undefined);
+        const read =
+          readTurn(spec, text) ??
+          text
+            .split('\n')
+            .map((line) => readTurn(spec, line))
+            .find((found) => found !== undefined);
         for (const [name, value] of Object.entries(read?.slots ?? {})) {
           memory[name] = mutation.slot?.(name, value, memory[name], ctx()) ?? value;
         }
@@ -240,6 +283,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
               else stage = answer.stage;
             }
             said = answer.said;
+            replaced = answer.replies;
             break;
           }
           case 'data': {
@@ -251,7 +295,8 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             } else if (tool.sideEffect) {
               said = 'I submit requests only after CONFIRM at the recap.';
             } else {
-              if (value.direction === 'in' && value.field === tool.input[0]?.name) memory[tool.slot] = String(value.value);
+              if (value.direction === 'in' && value.field === tool.input[0]?.name)
+                memory[tool.slot] = String(value.value);
               call(tool, value.direction === 'in' ? { [value.field]: value.value } : {});
               said = 'Here is what I found.';
             }
@@ -288,15 +333,21 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             said = 'I did not understand that.';
         }
 
-        for (const extra of mutation.extra?.(toolCalls.map((call) => call.label), ctx()) ?? []) {
+        for (const extra of mutation.extra?.(
+          toolCalls.map((call) => call.label),
+          ctx(),
+        ) ?? []) {
           const tool = tools.get(extra);
           if (tool) record(tool.name, defaultInput(tool), defaultOutput(tool), undefined);
         }
         const stated = mutation.facts?.(facts, ctx()) ?? facts;
-        const factText = stated.map((fact) => `${fact.tool.replace(/_/g, ' ')} says ${fact.field} is ${String(fact.value)}.`);
+        const factText = stated.map(
+          (fact) => `${fact.tool.replace(/_/g, ' ')} says ${fact.field} is ${String(fact.value)}.`,
+        );
         const question = stageOf.get(stage)?.question ?? '';
         const reply = [said.trim(), ...notes, ...factText, question].filter((part) => part !== '').join(' ');
-        const replies = mutation.reply?.([reply], ctx()) ?? [reply];
+        const composed = replaced ?? [reply];
+        const replies = mutation.reply?.(composed, ctx()) ?? composed;
         for (const part of replies) segments.push({ type: 'text', text: part });
         const reported = mutation.report ? mutation.report(stage, ctx()) : stage;
         return {

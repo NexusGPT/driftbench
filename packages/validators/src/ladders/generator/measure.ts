@@ -5,13 +5,19 @@ import { functionAdapter } from '@driftbench/adapters';
 import { defaultChecks } from '@driftbench/checks';
 import {
   type AgentAdapter,
+  enterBlock,
+  initialGiven,
   type LoadedSpec,
   type LoadResult,
   loadSpecs,
+  type Message,
   type RunResult,
+  runSpec,
   type Spec,
+  stimulusMessages,
 } from '@driftbench/core';
 import {
+  blockCell,
   blockOutcome,
   COMPLETE_DIR,
   deviationOf,
@@ -21,17 +27,20 @@ import {
   type GenerateResult,
   generateSuite,
   loadApprovedMap,
+  machineSignature,
   type PreparedMap,
+  projectObserved,
   projectRun,
   type RunContext,
   runOnce,
+  stimulusText,
   type ThenField,
   thenFields,
 } from '@driftbench/generate';
 import { createScriptedDriver } from '@driftbench/users';
 import { baselineSuite } from './baseline';
 import { CHEATERS, type Cheater, cheaterAdapter, replayCalls } from './cheaters';
-import { faultFamily, type HiddenFault } from './faults';
+import { combinedFault, FAULT_CLASSES, faultFamily, type HiddenFault } from './faults';
 import { createFollower } from './follower';
 import { type HiddenSpec, hiddenSpec } from './hidden';
 import { MAP_FILES, type RenderedMap, renderMap } from './render';
@@ -39,15 +48,19 @@ import { MAP_FILES, type RenderedMap, renderMap } from './render';
 /**
  * One seed of the generator validator, measured: the hidden specification rendered as a map, the real
  * generator run on it twice, every generated spec loaded from disk, and every complete spec run through the
- * real runner and checks on the rule follower (k repeats), on each cheater and on each fault agent. The
- * ladder's levels read this record; nothing here decides a level.
+ * real runner and checks on the rule follower (k repeats), on each cheater, on each planted fault, on the
+ * pairwise and three-way fault combinations, and in the other runner modes. The bank's items read these
+ * records; nothing here decides an item.
  */
 
-/** Repeats on the rule follower, for pass to the k (level 7). */
+/** Repeats on the rule follower, for pass to the k. */
 export const REFERENCE_REPEATS = 5;
 
 /** The map path every generated spec records: the same in both runs, so their bytes can be compared. */
 export const MAP_PATH = `../map/${MAP_FILES.map}`;
+
+/** The generator seeds the stability items compare, as offsets from the run's seed. */
+export const STABILITY_OFFSETS = [0, 101, 202] as const;
 
 /** What a test or a mutation replaces: each part of the chain the validator drives. */
 export type GeneratorParts = {
@@ -58,27 +71,30 @@ export type GeneratorParts = {
   follower?: (spec: HiddenSpec) => () => FaultSession;
   faults?: (spec: HiddenSpec) => HiddenFault[];
   cheaters?: readonly Cheater[];
-  /** The hand-written suite: the coverage baseline and the replay cheater's source. */
+  /** The hand-written suite: the replay cheater's source. */
   baseline?: (spec: HiddenSpec) => LoadedSpec[];
   /** Repeats on the reference. */
   k?: number;
+  /** Only these bank families are evaluated; the others fail with one item saying so. Tests narrow the bank. */
+  families?: readonly string[];
 };
 
 export type GeneratedFileSet = Map<string, string>;
 
 export type Generation = {
   hidden: HiddenSpec;
-  /** Set when the generator refused the map: nothing was generated. */
+  /** The generator seed the suite was written with. */
+  generatorSeed: number;
   refused?: { code: string; message: string; issues: string[] };
-  /** The files of the first run and of the second, by path relative to the output folder. */
   first: GeneratedFileSet;
   second: GeneratedFileSet;
-  /** Every spec of the first run, loaded from disk by the core loader. */
   loaded: LoadResult[];
-  /** The loaded specs of the complete folder. */
   complete: LoadedSpec[];
   report?: GenerateResult['report'];
+  prepared?: PreparedMap;
 };
+
+export type Outcome = 'pass' | 'fail' | 'unjudged';
 
 /** One block of a complete spec, and what every agent made of it. */
 export type BlockRun = {
@@ -88,28 +104,32 @@ export type BlockRun = {
   seeder: string;
   fields: ThenField[];
   deviation?: string;
-  reference: Array<'pass' | 'fail' | 'unjudged'>;
+  injected: boolean;
+  signature: string;
+  when: string;
+  cell: Record<string, string>;
+  tags: string[];
+  reference: Outcome[];
   referenceFailing: string[];
   referenceTrace: string;
-  cheaters: Partial<Record<Cheater, { outcome: 'pass' | 'fail' | 'unjudged'; passing: string[] }>>;
-  faults: Record<string, { outcome: 'pass' | 'fail' | 'unjudged'; failing: string[] }>;
+  cheaters: Partial<Record<Cheater, { outcome: Outcome; passing: string[] }>>;
+  faults: Record<string, Outcome>;
 };
 
-export type FaultRecord = { fault: HiddenFault; changedOn: string[]; ranOn: number };
-
-export type Runs = {
-  blocks: BlockRun[];
-  faults: FaultRecord[];
-  /** The specs whose runs ended in error, with the error. */
-  errors: string[];
+/** A planted fault: the specs it changed and, per spec, the first block where it changed what the agent did. */
+export type FaultRecord = {
+  fault: HiddenFault;
+  changedOn: string[];
+  ranOn: number;
+  firstChange: Record<string, number>;
 };
 
-/** The run context of every run: the default checks and the scripted driver, as the gate runs them. */
+export type Runs = { blocks: BlockRun[]; faults: FaultRecord[]; errors: string[] };
+
 export function runContext(): RunContext {
   return { checks: defaultChecks(), driver: () => createScriptedDriver() };
 }
 
-/** The follower behind the function adapter. */
 export function followerAdapter(session: () => FaultSession, version = 'rule-follower'): AgentAdapter {
   return functionAdapter<FaultSession>({
     create: () => session(),
@@ -142,13 +162,17 @@ async function readAll(root: string): Promise<GeneratedFileSet> {
 }
 
 /**
- * Renders the hidden specification of `seed` into a fresh folder, runs the generator on it twice (as
- * `driftbench generate --map <map> --out <dir> --seed <seed>` does: load the approved map, generate, write
- * every file), and loads every written spec with the core loader. The folder is removed before it returns.
+ * Renders a hidden specification into a fresh folder and runs the generator on it as `driftbench generate
+ * --map <map> --out <dir> --seed <seed>` does (load the approved map, generate, write every file), twice,
+ * then loads every written spec with the core loader. The folder is removed before it returns.
  */
-export async function generation(seed: number, parts: GeneratorParts = {}): Promise<Generation> {
-  const hidden = (parts.hidden ?? hiddenSpec)(seed);
-  const rendered = (parts.render ?? renderMap)(hidden);
+export async function generateFrom(
+  hidden: HiddenSpec,
+  rendered: RenderedMap,
+  generatorSeed: number,
+  parts: GeneratorParts = {},
+  options: { once?: boolean } = {},
+): Promise<Generation> {
   const root = await mkdtemp(join(tmpdir(), 'driftbench-vgen-'));
   try {
     const mapDir = join(root, 'map');
@@ -160,6 +184,7 @@ export async function generation(seed: number, parts: GeneratorParts = {}): Prom
     if (!loaded.ok) {
       return {
         hidden,
+        generatorSeed,
         refused: {
           code: loaded.code,
           message: loaded.message,
@@ -173,15 +198,17 @@ export async function generation(seed: number, parts: GeneratorParts = {}): Prom
     }
     const generate = parts.generate ?? ((prepared, options) => generateSuite(prepared, options));
     const runs: GenerateResult[] = [];
-    for (const folder of ['first', 'second']) {
+    let prepared: PreparedMap | undefined;
+    for (const folder of options.once ? ['first'] : ['first', 'second']) {
       const again = await loadApprovedMap(join(mapDir, MAP_FILES.map));
       if (!again.ok) throw new Error(`the map loaded once and was refused the second time: ${again.message}`);
-      const result = generate(again.prepared, { seed, mapPath: MAP_PATH });
+      prepared ??= again.prepared;
+      const result = generate(again.prepared, { seed: generatorSeed, mapPath: MAP_PATH });
       await writeAll(join(root, folder), result.files);
       runs.push(result);
     }
     const first = await readAll(join(root, 'first'));
-    const second = await readAll(join(root, 'second'));
+    const second = options.once ? first : await readAll(join(root, 'second'));
     const specs = await loadSpecs([join(root, 'first')]);
     const loadedSpecs = specs.map((result) => ({
       ...result,
@@ -193,23 +220,34 @@ export async function generation(seed: number, parts: GeneratorParts = {}): Prom
     complete.sort((a, b) => a.path.localeCompare(b.path));
     return {
       hidden,
+      generatorSeed,
       first,
       second,
       loaded: loadedSpecs,
       complete,
       report: runs[0]?.report as GenerateResult['report'],
+      ...(prepared ? { prepared } : {}),
     };
   } finally {
     await rm(root, { recursive: true, force: true });
   }
 }
 
-function seederOf(spec: Spec): string {
+/** The hidden specification of a seed, rendered and generated with the seed as the generator seed. */
+export async function generation(
+  seed: number,
+  parts: GeneratorParts = {},
+  generatorSeed = seed,
+): Promise<Generation> {
+  const hidden = (parts.hidden ?? hiddenSpec)(seed);
+  return generateFrom(hidden, (parts.render ?? renderMap)(hidden), generatorSeed, parts);
+}
+
+export function seederOf(spec: Spec): string {
   const generated = spec.metadata?.generated as { seeder?: unknown } | undefined;
   return typeof generated?.seeder === 'string' ? generated.seeder : 'hand-written';
 }
 
-/** What the follower did in a block: the stage it reports and the calls it made. */
 function traceOf(run: RunResult, index: number): string {
   const block = run.blocks.find((entry) => entry.index === index);
   if (!block) return 'the run ended before the block';
@@ -218,7 +256,6 @@ function traceOf(run: RunResult, index: number): string {
   return `stage ${stage}; calls ${calls.length > 0 ? calls.join(', ') : 'none'}; reply "${block.observed.text}"`;
 }
 
-/** Hygiene and limits the runner applies to every block: never part of a Then, as the gate reads a block. */
 const NOT_THEN: ReadonlySet<string> = new Set(['pii', 'schema_strict', 'budget']);
 
 function passingIds(run: RunResult, index: number): string[] {
@@ -239,17 +276,85 @@ function failingDetails(run: RunResult, index: number): string[] {
     .map((verdict) => `${verdict.id}: ${verdict.evidence}`);
 }
 
+function changed(base: string[], result: RunResult): boolean {
+  const projected = projectRun(result);
+  return projected.length !== base.length || projected.some((part, index) => part !== base[index]);
+}
+
 /**
- * Runs every complete spec on the follower k times, on every cheater once and on every fault once, through
- * the real runner in free-running mode with the default checks, as the gate does.
+ * The shortcut that keeps the bank fast. A free-running scripted run of a deterministic in-process agent is
+ * a function of the agent's replies: the runner sends each block's user turn on the history so far, with the
+ * block's world. `emulate` plays the same turns into a session directly and returns each block's
+ * projection (what `projectRun` compares). When a fault's emulated turns equal the follower's real ones
+ * block for block (and the follower's own emulation equals its real run, checked per spec), the fault
+ * changed nothing in that spec, so its real run would equal the follower's: its outcomes are the
+ * follower's and no run is made. Any difference sends the fault through the real runner.
+ */
+export async function emulate(spec: Spec, session: FaultSession): Promise<string[]> {
+  let state = initialGiven(spec);
+  const history: Message[] = [];
+  const out: string[] = [];
+  for (const block of spec.blocks) {
+    state = enterBlock(state, block.given, undefined);
+    if (block.given?.prefix) history.splice(0, history.length, ...structuredClone(block.given.prefix));
+    if (!block.when) return out;
+    history.push(...stimulusMessages(block.when));
+    const observed = await session.respond(structuredClone(history), structuredClone(state.world));
+    history.push({ role: 'assistant', content: observed.text });
+    out.push(projectObserved(observed));
+  }
+  return out;
+}
+
+/** Real runs a spec needs, and the follower's projections it is compared with. */
+type SpecPlan = { spec: Spec; follower: RunResult; projections: string[]; emulable: boolean };
+
+async function planSpec(spec: Spec, follower: RunResult, session: () => FaultSession): Promise<SpecPlan> {
+  const projections = projectRun(follower);
+  const emulated = await emulate(spec, session());
+  const emulable =
+    follower.status === 'completed' &&
+    emulated.length === spec.blocks.length &&
+    emulated.every((projection, index) => projection === projections[index]);
+  return { spec, follower, projections, emulable };
+}
+
+/** The outcome of one agent on a spec: from the follower's run when the agent changed nothing, else a real run. */
+async function outcomesOn(
+  plan: SpecPlan,
+  session: () => FaultSession,
+  adapter: AgentAdapter,
+): Promise<{ outcomes: Outcome[]; changed: boolean; first?: number }> {
+  if (plan.emulable) {
+    const emulated = await emulate(plan.spec, session());
+    if (emulated.every((projection, index) => projection === plan.projections[index])) {
+      return {
+        outcomes: plan.spec.blocks.map((_, index) => blockOutcome(plan.follower, index)),
+        changed: false,
+      };
+    }
+  }
+  const result = await runOnce(plan.spec, adapter, 1, runContext());
+  const projected = projectRun(result);
+  const first = projected.findIndex((part, index) => part !== plan.projections[index]);
+  return {
+    outcomes: plan.spec.blocks.map((_, index) => blockOutcome(result, index)),
+    changed: changed(plan.projections, result),
+    ...(first >= 0 && first < plan.spec.blocks.length ? { first } : {}),
+  };
+}
+
+/**
+ * Runs every complete spec on the follower k times, on every cheater once and on every fault once, in
+ * free-running mode with the default checks and the scripted driver, as the gate does.
  */
 export async function runAll(generated: Generation, parts: GeneratorParts = {}): Promise<Runs> {
   const { hidden } = generated;
   const k = parts.k ?? REFERENCE_REPEATS;
   const context = runContext();
-  const follower = (parts.follower ?? ((spec: HiddenSpec) => createFollower(spec)))(hidden);
-  const reference = followerAdapter(follower);
-  const faults = (parts.faults ?? faultFamily)(hidden);
+  const followerSession = (parts.follower ?? ((spec: HiddenSpec) => createFollower(spec)))(hidden);
+  const reference = followerAdapter(followerSession);
+  const faults = (parts.faults ?? ((spec: HiddenSpec) => faultFamily(spec)))(hidden);
   const cheaters = parts.cheaters ?? CHEATERS;
   const replay = replayCalls((parts.baseline ?? baselineSuite)(hidden).map((loaded) => loaded.spec));
   const provider = () => {
@@ -257,7 +362,7 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
   };
   const adapters = faults.map((fault) => ({ fault, adapter: faultAdapter(fault.def, provider) }));
   const records = new Map<string, FaultRecord>(
-    faults.map((fault) => [fault.def.id, { fault, changedOn: [], ranOn: 0 }]),
+    faults.map((fault) => [fault.def.id, { fault, changedOn: [], ranOn: 0, firstChange: {} }]),
   );
   const blocks: BlockRun[] = [];
   const errors: string[] = [];
@@ -269,20 +374,19 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
     const first = references[0] as RunResult;
     if (first.status !== 'completed')
       errors.push(`${spec.id}: the follower run ${first.status}${first.error ? `: ${first.error}` : ''}`);
-    const base = projectRun(first);
     const cheaterRuns = new Map<Cheater, RunResult>();
     for (const name of cheaters)
       cheaterRuns.set(name, await runOnce(spec, cheaterAdapter(name, spec, hidden, replay), 1, context));
-    const faultRuns = new Map<string, RunResult>();
+    const plan = await planSpec(spec, first, followerSession);
+    const faultOutcomes = new Map<string, Outcome[]>();
     for (const { fault, adapter } of adapters) {
-      const result = await runOnce(spec, adapter, 1, context);
-      faultRuns.set(fault.def.id, result);
+      const session = fault.def.agent.kind === 'function' ? fault.def.agent.create : followerSession;
+      const result = await outcomesOn(plan, session, adapter);
+      faultOutcomes.set(fault.def.id, result.outcomes);
       const record = records.get(fault.def.id) as FaultRecord;
       record.ranOn += 1;
-      const projected = projectRun(result);
-      if (projected.length !== base.length || projected.some((part, index) => part !== base[index])) {
-        record.changedOn.push(spec.id);
-      }
+      if (result.changed) record.changedOn.push(spec.id);
+      if (result.first !== undefined) record.firstChange[spec.id] = result.first;
     }
     spec.blocks.forEach((block, index) => {
       const deviation = deviationOf(spec, index);
@@ -293,6 +397,14 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         seeder: seederOf(spec),
         fields: thenFields(spec, index),
         ...(deviation === undefined ? {} : { deviation }),
+        injected: 'injection' in (block.when ?? {}),
+        signature: machineSignature(spec, index),
+        when: block.when ? stimulusText(block.when) : '',
+        cell: {
+          ...((spec.metadata?.generated as { cell?: Record<string, string> } | undefined)?.cell ?? {}),
+          ...blockCell(spec, index),
+        },
+        tags: [...(spec.tags ?? [])],
         reference: references.map((result) => blockOutcome(result, index)),
         referenceFailing: failingDetails(first, index),
         referenceTrace: traceOf(first, index),
@@ -302,11 +414,187 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
       for (const [name, result] of cheaterRuns) {
         run.cheaters[name] = { outcome: blockOutcome(result, index), passing: passingIds(result, index) };
       }
-      for (const [id, result] of faultRuns) {
-        run.faults[id] = { outcome: blockOutcome(result, index), failing: failingIds(result, index) };
-      }
+      for (const [id, outcomes] of faultOutcomes) run.faults[id] = outcomes[index] ?? 'unjudged';
       blocks.push(run);
     });
   }
   return { blocks, faults: [...records.values()], errors };
+}
+
+/** The follower's run and plan of every complete spec, once per generation. */
+const plans = new WeakMap<Generation, Promise<SpecPlan[]>>();
+
+function plansOf(generated: Generation, parts: GeneratorParts): Promise<SpecPlan[]> {
+  let found = plans.get(generated);
+  if (!found) {
+    found = (async () => {
+      const session = (parts.follower ?? ((spec: HiddenSpec) => createFollower(spec)))(generated.hidden);
+      const adapter = followerAdapter(session);
+      const out: SpecPlan[] = [];
+      for (const { spec } of generated.complete)
+        out.push(await planSpec(spec, await runOnce(spec, adapter, 1, runContext()), session));
+      return out;
+    })();
+    plans.set(generated, found);
+  }
+  return found;
+}
+
+/** Per block key, the outcome of one agent on every complete spec. */
+export async function outcomesOf(
+  generated: Generation,
+  session: () => FaultSession,
+  parts: GeneratorParts = {},
+): Promise<Map<string, Outcome>> {
+  const out = new Map<string, Outcome>();
+  const adapter = followerAdapter(session, 'agent');
+  for (const plan of await plansOf(generated, parts)) {
+    const { outcomes } = await outcomesOn(plan, session, adapter);
+    plan.spec.blocks.forEach((block, index) => {
+      out.set(`${plan.spec.id}#${block.id ?? index}`, outcomes[index] ?? 'unjudged');
+    });
+  }
+  return out;
+}
+
+/** The outcomes of the combined agents of each interaction, by interaction id. */
+export async function runCombinations(
+  generated: Generation,
+  combinations: readonly (readonly string[])[],
+  parts: GeneratorParts = {},
+): Promise<Map<string, Map<string, Outcome>>> {
+  const out = new Map<string, Map<string, Outcome>>();
+  for (const ids of combinations) {
+    const fault = combinedFault(generated.hidden, ids);
+    if (fault.def.agent.kind !== 'function') continue;
+    out.set(ids.join('+'), await outcomesOf(generated, fault.def.agent.create, parts));
+  }
+  return out;
+}
+
+/**
+ * The kill status of every class's every-time instance on a suite generated with another generator seed:
+ * what the stability items compare across seeds.
+ */
+export async function killsUnder(
+  seed: number,
+  generatorSeed: number,
+  parts: GeneratorParts,
+  classes: readonly string[],
+): Promise<Map<string, boolean>> {
+  const generated = await generation(seed, parts, generatorSeed);
+  const reference = await outcomesOf(
+    generated,
+    (parts.follower ?? ((spec: HiddenSpec) => createFollower(spec)))(generated.hidden),
+    parts,
+  );
+  const family = faultFamily(
+    generated.hidden,
+    FAULT_CLASSES.filter((cls) => classes.includes(cls.id)),
+  ).filter((fault) => fault.where === 'any' && fault.rate === 1);
+  const out = new Map<string, boolean>();
+  for (const fault of family) {
+    if (fault.def.agent.kind !== 'function') continue;
+    const outcomes = await outcomesOf(generated, fault.def.agent.create, parts);
+    out.set(
+      fault.class,
+      [...outcomes].some(([key, outcome]) => outcome === 'fail' && reference.get(key) === 'pass'),
+    );
+  }
+  return out;
+}
+
+/** What the perturbed (P) and teacher-forced (T) runs of the generated suite kill. */
+export type ModeKills = { ok: boolean; detail: string; killed: Set<string> };
+
+/**
+ * The other two runner modes. P: every perturbation a complete spec declares is applied in a perturbed run,
+ * on the follower and on the every-time instance of every drift and deviation class; a class is killed when
+ * some perturbed run fails on it while the follower's passes. T: every complete spec runs teacher-forced on
+ * the follower and on the same instances. A mode the suite gives nothing to run, or the runner refuses,
+ * kills nothing and says why.
+ */
+export async function modeKills(
+  generated: Generation,
+  parts: GeneratorParts = {},
+): Promise<Record<'P' | 'T', ModeKills>> {
+  const context = runContext();
+  const follower = followerAdapter(
+    (parts.follower ?? ((spec: HiddenSpec) => createFollower(spec)))(generated.hidden),
+  );
+  const provider = () => {
+    throw new Error('function faults only');
+  };
+  const planted = faultFamily(
+    generated.hidden,
+    FAULT_CLASSES.filter((cls) => cls.family !== 'code'),
+  ).filter((fault) => fault.where === 'any' && fault.rate === 1);
+  const result: Record<'P' | 'T', ModeKills> = {
+    P: {
+      ok: false,
+      detail: 'no complete spec declares a perturbation, so no run is perturbed',
+      killed: new Set(),
+    },
+    T: { ok: false, detail: 'no complete spec', killed: new Set() },
+  };
+  const perturbed = generated.complete.flatMap(({ spec }) =>
+    (spec.perturbations ?? []).map((perturbation) => ({ spec, id: perturbation.id })),
+  );
+  if (perturbed.length > 0) {
+    let followerOk = true;
+    for (const { spec, id } of perturbed) {
+      const options = {
+        driver: createScriptedDriver(),
+        checks: context.checks,
+        mode: 'P' as const,
+        repeat: 1,
+        perturbationId: id,
+      };
+      const base = await runSpec(spec, { ...options, adapter: follower });
+      if (base.blocks.some((block) => !block.pass)) {
+        followerOk = false;
+        continue;
+      }
+      for (const fault of planted) {
+        const run = await runSpec(spec, { ...options, adapter: faultAdapter(fault.def, provider) });
+        if (run.blocks.some((block) => !block.pass)) result.P.killed.add(fault.class);
+      }
+    }
+    result.P.ok = followerOk;
+    result.P.detail = followerOk
+      ? `${perturbed.length} perturbed runs`
+      : 'the follower fails a perturbed run';
+  }
+  const first = generated.complete[0];
+  if (first) {
+    try {
+      await runSpec(first.spec, {
+        adapter: follower,
+        driver: createScriptedDriver(),
+        checks: context.checks,
+        mode: 'T',
+        repeat: 1,
+      });
+      for (const { spec } of generated.complete) {
+        const options = {
+          driver: createScriptedDriver(),
+          checks: context.checks,
+          mode: 'T' as const,
+          repeat: 1,
+        };
+        const base = await runSpec(spec, { ...options, adapter: follower });
+        for (const fault of planted) {
+          const run = await runSpec(spec, { ...options, adapter: faultAdapter(fault.def, provider) });
+          base.blocks.forEach((block, index) => {
+            if (block.pass && run.blocks[index] && !run.blocks[index]?.pass) result.T.killed.add(fault.class);
+          });
+        }
+      }
+      result.T.ok = true;
+      result.T.detail = 'teacher-forced runs completed';
+    } catch (cause) {
+      result.T.detail = `the runner refuses mode T: ${cause instanceof Error ? cause.message : String(cause)}`;
+    }
+  }
+  return result;
 }

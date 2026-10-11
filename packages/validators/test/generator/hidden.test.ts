@@ -4,7 +4,13 @@ import { join } from 'node:path';
 import { loadApprovedMap, stageGraph } from '@driftbench/generate';
 import { validateSpaceMap } from '@driftbench/space';
 import { describe, expect, it } from 'vitest';
-import { DEVIATION_POOL, HIDDEN_SHAPE, hiddenSpec, intentsByText } from '../../src/ladders/generator/hidden';
+import {
+  DEVIATION_POOL,
+  HIDDEN_SHAPE,
+  hiddenSpec,
+  intentsByText,
+  readTurn,
+} from '../../src/ladders/generator/hidden';
 import { hiddenSpaceMap, MAP_FILES, renderMap } from '../../src/ladders/generator/render';
 
 const FIXTURE = new URL('../../fixtures/generator/seed-1/', import.meta.url);
@@ -39,8 +45,19 @@ describe('the hidden specification', () => {
       expect(inside(spec.constraints.length, HIDDEN_SHAPE.constraints)).toBe(true);
       expect(inside(spec.flows.length, HIDDEN_SHAPE.flows)).toBe(true);
       for (const flow of spec.flows) {
-        expect(inside(flow.deviations.length, HIDDEN_SHAPE.deviationsPerFlow)).toBe(true);
         expect(flow.deviations.every((cls) => DEVIATION_POOL.includes(cls))).toBe(true);
+      }
+      // The three flows together require every class, so every class has its items on every seed.
+      expect(new Set(spec.flows.flatMap((flow) => flow.deviations))).toEqual(new Set(DEVIATION_POOL));
+      expect(spec.tools.map((tool) => tool.role)).toEqual(['read', 'list', 'write']);
+      expect(spec.recoveries.map((recovery) => recovery.class)).toEqual([...DEVIATION_POOL]);
+      for (const path of spec.paths) {
+        path.stages.slice(1).forEach((to, index) => {
+          expect(
+            spec.transitions.some((edge) => edge.from === path.stages[index] && edge.to === to),
+            `${path.id} ${to}`,
+          ).toBe(true);
+        });
       }
       for (const tool of spec.tools) {
         for (const property of [...tool.input, ...tool.output]) {
@@ -63,6 +80,19 @@ describe('the hidden specification', () => {
         expect(phrased.has(`deviation=${cls}`)).toBe(cls !== 'D8_tool_failure');
       }
     }
+  });
+
+  it('reads a slot phrase back with the value it states', () => {
+    const spec = hiddenSpec(1);
+    const read = spec.tools.find((tool) => tool.role === 'read');
+    const property = read?.input[0];
+    if (!read || property?.type !== 'enum') throw new Error('no read tool');
+    const text = `It is about a ${property.members[2]} item, please look it up.`;
+    expect(readTurn(spec, text)).toEqual({
+      intent: { kind: 'transition', edge: `${spec.goal}-to-check` },
+      slots: { [read.slot]: property.members[2] },
+    });
+    expect(readTurn(spec, 'Something nobody says.')).toBeUndefined();
   });
 
   it('computes the concrete value of every partition from the schema bounds', () => {

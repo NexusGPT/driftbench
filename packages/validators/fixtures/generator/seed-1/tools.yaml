@@ -6,39 +6,39 @@ tools:
       type: object
       required: [kind, quantity]
       properties:
-        kind: { type: string, enum: [basic, standard, small] }
-        quantity: { type: integer, minimum: 1, maximum: 9 }
+        kind: { type: string, enum: [green, basic, west] }
+        quantity: { type: integer, minimum: 2, maximum: 12 }
     output_schema:
       type: object
       required: [found, status]
       properties:
         found: { type: boolean }
-        status: { type: string, enum: [south, monthly] }
-  - name: submit_request
-    description: Submits the confirmed request
-    input_schema:
-      type: object
-      required: [plan, units]
-      properties:
-        plan: { type: string, enum: [inland, coastal, west] }
-        units: { type: integer, minimum: 2, maximum: 12 }
-    output_schema:
-      type: object
-      required: [accepted, route]
-      properties:
-        accepted: { type: boolean }
-        route: { type: string, enum: [amber, green] }
+        status: { type: string, enum: [monthly, daily] }
   - name: list_options
     description: Lists the options for an item
     input_schema:
       type: object
       required: [category, limit]
       properties:
-        category: { type: string, enum: [daily, weekly, large] }
+        category: { type: string, enum: [medium, small, east] }
         limit: { type: integer, minimum: 2, maximum: 12 }
     output_schema:
       type: object
       required: [available, order]
       properties:
         available: { type: boolean }
-        order: { type: string, enum: [medium, east] }
+        order: { type: string, enum: [amber, north] }
+  - name: submit_request
+    description: Submits the confirmed request
+    input_schema:
+      type: object
+      required: [plan, units]
+      properties:
+        plan: { type: string, enum: [standard, premium, large] }
+        units: { type: integer, minimum: 2, maximum: 9 }
+    output_schema:
+      type: object
+      required: [accepted, route]
+      properties:
+        accepted: { type: boolean }
+        route: { type: string, enum: [coastal, south] }
