@@ -1,5 +1,6 @@
 import { comboFamily, generatedFamily } from './combo';
 import type { Family } from './frame';
+import { decoysFamily, hostileFamily } from './hostile';
 import { lintCleanFamily, lintDefectFamily } from './lint';
 import { genAsksFamily, genCompleteFamily, impactFamily, mutantFamily } from './loop';
 import { planContractFamily, planPairsFamily, planRelevanceFamily } from './plan';
@@ -32,6 +33,8 @@ export const BANK_LEVELS = [
       hazardsFamily(),
       pathsFamily(),
       comboFamily(),
+      hostileFamily(),
+      decoysFamily(),
     ],
   },
   { id: 'lint', name: 'lint', families: () => [lintDefectFamily(), lintCleanFamily()] },
@@ -52,6 +55,7 @@ export function estateBank(): Family[] {
 }
 export { comboFamily, FORMS as COMBINATION_FORMS, generatedFamily } from './combo';
 export * from './hardness';
+export { decoysFamily, hostileFamily } from './hostile';
 export { lintCleanFamily, lintDefectFamily } from './lint';
 export {
   GEN_CLASSES,
