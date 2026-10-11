@@ -8,6 +8,7 @@ import type { RunMode, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import type { ObservedCache } from './cache';
 import { cellId } from './cell';
+import { replacesBlock } from './inject';
 import type { RetryOptions } from './retry';
 import { runSpec } from './run';
 
@@ -20,7 +21,8 @@ export type PlannedCell = {
   mode: RunMode;
   repeat: number;
   perturbationId?: string;
-  /** Blocks the cell sends: the spec's blocks, plus the injected one in P mode. */
+  /** Blocks the cell sends: the spec's blocks, plus the injected one in P mode unless it writes only a
+   *  world, which runs under its own block. */
   blocks: number;
 };
 
@@ -105,9 +107,10 @@ export function planCampaign(
   for (const { spec, hash } of specs) {
     for (const target of targets) {
       for (const mode of modes) {
-        const perturbations =
-          mode === 'P' ? (spec.perturbations ?? []).map((perturbation) => perturbation.id) : [undefined];
-        for (const perturbationId of perturbations) {
+        const perturbations = mode === 'P' ? (spec.perturbations ?? []) : [undefined];
+        for (const perturbation of perturbations) {
+          const perturbationId = perturbation?.id;
+          const extra = perturbation === undefined || replacesBlock(perturbation) ? 0 : 1;
           for (let repeat = 0; repeat < repeatsOf(mode); repeat++) {
             const key = { specHash: hash, target, mode, repeat, perturbationId };
             cells.push({
@@ -115,7 +118,7 @@ export function planCampaign(
               specId: spec.id,
               ...key,
               ...(perturbationId === undefined ? {} : { perturbationId }),
-              blocks: spec.blocks.length + (perturbationId === undefined ? 0 : 1),
+              blocks: spec.blocks.length + extra,
             });
           }
         }
@@ -261,6 +264,8 @@ export type CampaignRunOptions = {
   budgetUsd?: number;
   /** Called once per cell in cell order, as soon as the cell and every cell before it have an outcome. */
   onCell?(outcome: CellOutcome): void;
+  /** Mode P: more tools whose call is a consequential act, for the recovery metrics. */
+  consequential?: (label: string) => boolean;
 };
 
 /**
@@ -268,6 +273,10 @@ export type CampaignRunOptions = {
  * whose completed run is already in the store is reused, not run again: that is how `resume` works. Failed
  * and stopped cells run again. Outcomes come back, and `onCell` hears them, in cell order. With a budget, a
  * cell that would start once the campaign's spend has reached it is stopped instead and never starts.
+ *
+ * Perturbed cells start after every other cell: each takes as the reference of its recovery the F run of
+ * the same spec, target and repeat (else repeat 0) in this campaign, run now or stored, waiting for it when
+ * it is still in flight. A campaign without that F cell gives P runs no reference.
  */
 export async function runCampaign(options: CampaignRunOptions): Promise<CellOutcome[]> {
   const stored = await options.store.listRuns({ campaignId: options.campaignId });
@@ -278,6 +287,29 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   let next = 0;
   let heard = 0;
   let failure: { cause: unknown } | undefined;
+  // P cells last, so the F run each takes as its reference has started before it.
+  const order = [
+    ...cells.flatMap((cell, index) => (cell.mode === 'P' ? [] : [index])),
+    ...cells.flatMap((cell, index) => (cell.mode === 'P' ? [index] : [])),
+  ];
+  const fRuns = new Map<string, { promise: Promise<RunResult | undefined>; settle(run?: RunResult): void }>();
+  for (const cell of cells) {
+    if (cell.mode !== 'F') continue;
+    let settle: (run?: RunResult) => void = () => {};
+    const promise = new Promise<RunResult | undefined>((resolve) => {
+      settle = resolve;
+    });
+    fRuns.set(cell.cellId, { promise, settle });
+  }
+  const referenceFor = async (cell: PlannedCell): Promise<RunResult | undefined> => {
+    for (const repeat of [...new Set([cell.repeat, 0])]) {
+      const id = cellId({ specHash: cell.specHash, target: cell.target, mode: 'F', repeat });
+      const planned = fRuns.get(id);
+      const run = planned ? await planned.promise : done.get(id);
+      if (run) return run;
+    }
+    return undefined;
+  };
 
   const start = async (cell: PlannedCell): Promise<CellOutcome> => {
     const previous = done.get(cell.cellId);
@@ -285,6 +317,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
     if (budgetUsd !== undefined && spentUsd >= budgetUsd) {
       return { cell, reused: false, state: 'stopped', failing: [], budgetStop: { budgetUsd, spentUsd } };
     }
+    const reference = cell.mode === 'P' ? await referenceFor(cell) : undefined;
     const run = await runSpec(options.specFor(cell), {
       adapter: options.adapterFor(cell.target),
       driver: options.driver(cell),
@@ -299,6 +332,8 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       ...(options.cache ? { cache: options.cache } : {}),
       ...(options.retry ? { retry: options.retry } : {}),
       ...(options.now ? { now: options.now } : {}),
+      ...(reference ? { reference } : {}),
+      ...(options.consequential ? { consequential: options.consequential } : {}),
     });
     if (!run.cacheHit) spentUsd += run.cost;
     return outcomeOf(cell, run);
@@ -312,8 +347,8 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   };
 
   const worker = async () => {
-    while (!failure && next < cells.length) {
-      const index = next;
+    while (!failure && next < order.length) {
+      const index = order[next] as number;
       next += 1;
       const cell = cells[index];
       if (!cell) return;
@@ -322,6 +357,8 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       } catch (cause) {
         failure ??= { cause };
         return;
+      } finally {
+        fRuns.get(cell.cellId)?.settle(outcomes[index]?.run);
       }
       hear();
     }
@@ -329,6 +366,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
 
   const workers = Math.max(1, Math.min(Math.floor(options.concurrency ?? 4), cells.length));
   await Promise.all(Array.from({ length: workers }, () => worker()));
+  for (const planned of fRuns.values()) planned.settle();
   if (failure) throw failure.cause;
   return outcomes.filter((outcome): outcome is CellOutcome => outcome !== undefined);
 }
