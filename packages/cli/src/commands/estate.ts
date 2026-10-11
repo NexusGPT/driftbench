@@ -21,6 +21,7 @@ import { ModelError, type ModelPort, portFromEnv, shortQuote } from '@driftbench
 import { formatSpaceMap, gridSize, validateSpaceMap } from '@driftbench/space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { registerEstateGenerateCommand } from './estate-generate';
 import { registerEstateMaintainCommands } from './estate-maintain';
 import { registerEstatePlanCommands } from './estate-plan';
 
@@ -104,6 +105,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
 
   registerEstatePlanCommands(estate, io, setExit);
   registerEstateMaintainCommands(estate, io, setExit);
+  registerEstateGenerateCommand(estate, io, setExit);
 }
 
 /**

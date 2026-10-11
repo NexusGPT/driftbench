@@ -5,6 +5,7 @@
 export const packageName = '@driftbench/generate';
 
 export * from './enumerate';
+export * from './estate';
 export * from './extract';
 export * from './families';
 export * from './gate';
