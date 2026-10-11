@@ -38,15 +38,23 @@ export const RANDOM_TARGET = 'acme-random';
 export const pilotDeps: CampaignDeps = {
   ...defaultDeps,
   adapterFor: async (target, scope) => {
-    if (target.adapter === 'function' && target.agent === RANDOM_TARGET) return randomAgentAdapter();
+    const seed = target.adapter === 'function' ? randomSeed(target.agent) : undefined;
+    if (seed !== undefined) return randomAgentAdapter(seed === 'default' ? undefined : seed);
     return defaultDeps.adapterFor(target, scope);
   },
 };
 
+/** `acme-random` gives the default seed, `acme-random-<n>` seed n; anything else is not the control. */
+function randomSeed(agent: string | undefined): number | 'default' | undefined {
+  if (agent === RANDOM_TARGET) return 'default';
+  const match = agent === undefined ? null : /^acme-random-(\d+)$/.exec(agent);
+  return match ? Number(match[1]) : undefined;
+}
+
 /** The seeded random Acme agent of examples/acme/pilot/random-agent behind the function adapter. */
-export async function randomAgentAdapter(): Promise<AgentAdapter> {
+export async function randomAgentAdapter(seed?: number): Promise<AgentAdapter> {
   const control = await import('../../../../examples/acme/pilot/random-agent/index');
-  const agent = control.createRandomAgent();
+  const agent = control.createRandomAgent(seed === undefined ? {} : { seed });
   return functionAdapter<ReturnType<typeof agent.create>>({
     create: (given) => agent.create(given),
     respond: (messages, world, _vars, session) => agent.respond(messages, world, session),
@@ -108,7 +116,7 @@ export function registerPilotCommand(
       .option('--iterations <n>', 'bootstrap resamples', '500')
       .option('--seed <n>', 'bootstrap seed', '1')
       .option('--sensitivity <f>', 'the wording range above which a cell is flagged', '0.2')
-      .option('--resample <unit>', 'what the bootstrap draws: cells, conversations or both', 'cells')
+      .option('--resample <unit>', 'what the bootstrap draws: cells, conversations or both', 'both')
       .option('--out <dir>', `the folder to write ${PILOT_REPORT_FILE} into`, '.')
       .option('--json', 'print the report as JSON');
 
@@ -185,7 +193,7 @@ export async function pilotRunCommand(options: RunFlags, io: Io, deps: CampaignD
   const adapter = await deps.adapterFor(target);
   if (!adapter) {
     io.err(
-      `No adapter is set up for ${showTarget(target)}. The pilot reaches function:acme (the Acme sales assistant) and function:${RANDOM_TARGET} (its seeded random control).\n`,
+      `No adapter is set up for ${showTarget(target)}. The pilot reaches function:acme (the Acme sales assistant) and function:${RANDOM_TARGET} or function:${RANDOM_TARGET}-<seed> (its seeded random control).\n`,
     );
     return 2;
   }

@@ -36,7 +36,7 @@ export type PilotAnalysisOptions = {
   seed?: number;
   /** A cell is flagged as wording-sensitive when some conversation's pass rates across wordings span more than this. Default 0.2. */
   sensitivity?: number;
-  /** What the bootstrap of the pooled shares draws. Default 'cells'. */
+  /** What the bootstrap of the pooled shares draws. Default 'both'. */
   resample?: Resample;
 };
 
@@ -46,7 +46,7 @@ export const PILOT_ANALYSIS_DEFAULTS: Required<PilotAnalysisOptions> = {
   iterations: 500,
   seed: 1,
   sensitivity: 0.2,
-  resample: 'cells',
+  resample: 'both',
 };
 
 export type Range = { lower: number; upper: number };
@@ -376,10 +376,12 @@ type Boot = { shares: number[][]; variances: number[][] };
 export type Resample = 'cells' | 'conversations' | 'both';
 
 /**
- * A cluster bootstrap of the pooled model. `cells` (the default) draws whole cells with replacement and
- * keeps each drawn cell as it is, the top-level resampling recommended for nested random effects;
- * `conversations` keeps the cells and draws conversations inside each; `both` draws cells, then
- * conversations inside each drawn cell. A drawn unit gets a fresh id, so a duplicate is a new group.
+ * A cluster bootstrap of the pooled model. `both` (the default) draws cells with replacement, then
+ * conversations with replacement inside each drawn cell; `cells` draws whole cells and keeps each as it
+ * is; `conversations` keeps the cells and draws conversations inside each. A drawn unit gets a fresh id,
+ * so a duplicate is a new group. On simulated designs with planted shares, `both` covered every level at
+ * about the nominal rate; `conversations` missed the cell level often (it treats cells as fixed while the
+ * model treats them as random) and `cells` missed with few cells.
  */
 function bootstrapPooled(
   rows: readonly PilotObservation[],

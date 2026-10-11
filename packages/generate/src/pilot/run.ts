@@ -13,6 +13,7 @@ import {
   type TargetRef,
   type UserDriver,
 } from '@driftbench/core';
+import { pilotControlCheck } from './control';
 import { designVariants, type PilotDesign, type PilotFactors, pilotFactors } from './design';
 
 /** The projected size and cost of one cell of the pilot, or of the whole pilot. */
@@ -181,6 +182,8 @@ export async function runPilot(
   return { campaign, outcomes };
 }
 
+const CONTROL_CHECK = pilotControlCheck.name;
+
 /** One run of the pilot with its factors: the unit the analysis reads. */
 export type PilotObservation = PilotFactors & {
   specId: string;
@@ -192,7 +195,9 @@ export type PilotObservation = PilotFactors & {
   blocks: boolean[];
   /**
    * The chance this run fails, when the agent states it (a control agent records `pilotControl.pFail`
-   * on every block's raw output): 1 minus the product of the blocks' chances to pass.
+   * on every block's raw output): 1 minus the product of the blocks' chances to pass. A control wraps a
+   * deterministic agent, so a run whose other gating checks fail (or whose end state differs) fails
+   * whatever the control draws: its chance is 1.
    */
   planted?: number;
   /** The control agent's own parameters, when it states them. */
@@ -211,10 +216,20 @@ export function observationOf(
     run.blocks.every((block) => block.pass) &&
     run.endState?.match !== false;
   const controls = run.blocks.map((block) => controlOf(block.observed.raw));
-  const planted =
-    controls.length > 0 && controls.every((control) => control !== undefined)
-      ? 1 - controls.reduce((product, control) => product * (1 - (control?.pFail as number)), 1)
-      : undefined;
+  const stated = controls.length > 0 && controls.every((control) => control !== undefined);
+  const baseFailed =
+    run.status !== 'completed' ||
+    run.endState?.match === false ||
+    run.blocks.some((block) =>
+      block.verdicts.some(
+        (verdict) => verdict.gating && verdict.outcome !== 'pass' && verdict.name !== CONTROL_CHECK,
+      ),
+    );
+  const planted = !stated
+    ? undefined
+    : baseFailed
+      ? 1
+      : 1 - controls.reduce((product, control) => product * (1 - (control?.pFail as number)), 1);
   const model = controls.find((control) => control?.model)?.model;
   return {
     ...factors,
