@@ -94,7 +94,7 @@ export function parseAnswerText(raw: string): JudgeResult {
       result = { answer: inconclusive('unparseable answer: an object with no key'), raw, unparsed: true };
     } else {
       try {
-        result = parseAnswerValue(JSON.parse(candidate), raw);
+        result = parseAnswerValue(decode(candidate), raw);
       } catch (cause) {
         const why = cause instanceof Error ? cause.message : String(cause);
         result = { answer: inconclusive(`unparseable answer: ${why}`), raw, unparsed: true };
@@ -117,6 +117,19 @@ export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(va
     raw,
     unparsed: true,
   };
+}
+
+/**
+ * Decodes one object as JSON. Some models answer with Python-style single quotes; an object with no double
+ * quote at all is read again with its single quotes as double quotes.
+ */
+function decode(candidate: string): unknown {
+  try {
+    return JSON.parse(candidate);
+  } catch (cause) {
+    if (candidate.includes('"') || !candidate.includes("'")) throw cause;
+    return JSON.parse(candidate.replace(/'/g, '"'));
+  }
 }
 
 /** A model writing PASS or Fail means the outcome: the outcome is read without case or surrounding space. */

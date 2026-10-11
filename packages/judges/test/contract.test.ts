@@ -76,3 +76,10 @@ describe('a score in quotes', () => {
     expect(parseAnswerText('{"outcome":"pass","score":"high","reasoning":"r"}').unparsed).toBe(true);
   });
 });
+
+describe('single quotes', () => {
+  it("reads {'outcome': 'fail', ...} and keeps a double-quoted answer as JSON", () => {
+    expect(parseAnswerText("{'outcome': 'fail', 'reasoning': 'r'}").answer.outcome).toBe('fail');
+    expect(parseAnswerText(`{"outcome":"pass","reasoning":"it's fine"}`).answer.reasoning).toBe("it's fine");
+  });
+});
