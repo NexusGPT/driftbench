@@ -25,10 +25,10 @@
 
 driftbench evaluates AI agents one exchange at a time. Each exchange is a **block**: one user message and everything the agent does before the next one. Each block is a unit test with a Given, a When and a Then. A conversation is a succession of blocks, so a failure has an address, drift has a first block, and recovery has a count. Every rate comes with its interval.
 
-It works for conversational agents and for code interpreter agents that write code, use a workspace and load skills. Any agent plugs in through an adapter. Open source, Apache 2.0, written in TypeScript.
+It is designed for conversational agents and for code interpreter agents that write code, use a workspace and load skills. Any agent plugs in through an adapter. Open source, Apache 2.0, written in TypeScript.
 
 > [!NOTE]
-> **Not released yet.** Phase 0 is in progress: the spec format, the validator, the coverage tool and a synthetic Acme Telecom example. The runner, judges and statistics described below are designed and planned. The [roadmap](#roadmap) shows what each phase delivers.
+> **Not released yet.** Phase 0 is in progress: the spec format, the validator, the coverage tool and a synthetic Acme Telecom example. The runner, judges and statistics on this page are designed and planned. The [roadmap](#roadmap) shows what each phase delivers.
 
 ---
 
@@ -45,7 +45,7 @@ pnpm driftbench spec validate examples/acme/specs
 
 The last command loads the Acme Telecom specs and validates them against the spec schema. Acme Telecom is the synthetic sales assistant behind every example. No API key needed.
 
-A spec is YAML. A golden with one block:
+A spec is one golden conversation, written as blocks in YAML. This one has a single block:
 
 ```yaml
 id: acme.upgrade_plan
@@ -77,10 +77,14 @@ blocks:
 
 ## What you get
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/readme/areas-dark.png">
-  <img alt="Four areas: scenarios and simulated users, checks and judges, drift and recovery, statistics and CI gates." src=".github/readme/areas-light.png" width="100%">
-</picture>
+Four areas. Each bullet names the phase that delivers it.
+
+<a href=".github/readme/areas-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/areas-dark.png">
+    <img alt="Four areas: scenarios and simulated users, checks and judges, drift and recovery, statistics and CI gates." src=".github/readme/areas-light.png" width="100%">
+  </picture>
+</a>
 
 - **[Scenarios and simulated users](#a-block-is-a-unit-test)**: YAML specs, scripted turns, simulated users with a persona and a goal, ten deviation classes to inject at any block. <sub>Phases&nbsp;0,&nbsp;1&nbsp;and&nbsp;3</sub>
 - **[Checks and judges](#judges-earn-their-criteria)**: machine checks on tools, text, language, personal data and end state, then a council of judges that earn each criterion. <sub>Phases&nbsp;1&nbsp;and&nbsp;2</sub>
@@ -104,10 +108,12 @@ This section describes the design. Phase 0 builds the spec format now. The runne
 
 ### A block is a unit test
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-dark.png">
-  <img alt="Three cards. Given: earlier blocks, the facts so far, a catalog stub, the channel. When: the user asks which plan has unlimited data. Then: step plan, one catalog search, the word unlimited, no robotic phrasing, English, and a new fact in the ledger. Below, every observed field passes." src=".github/readme/block-light.png" width="100%">
-</picture>
+<a href=".github/readme/block-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-dark.png">
+    <img alt="Three cards. Given: earlier blocks, the facts so far, a catalog stub, the channel. When: the user asks which plan has unlimited data. Then: step plan, one catalog search, the word unlimited, no robotic phrasing, English, and a new fact in the ledger. Below, every observed field passes." src=".github/readme/block-light.png" width="100%">
+  </picture>
+</a>
 <p align="center"><sub>Given the state so far, when the user speaks, then the agent must reach the right step, call the right tools and say nothing it must not.</sub></p>
 
 A block holds everything the agent does between two user messages: text, cards, tool calls and tool results. The spec fixes what must be true after it. driftbench reads what actually happened, compares it field by field, and keeps the evidence behind every verdict. Run one block many times from the same Given and you get its own pass rate, free of the blocks before it.
@@ -115,17 +121,21 @@ A block holds everything the agent does between two user messages: text, cards, 
 <table>
   <tr>
     <td width="50%" valign="top">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-chat-dark.png">
-        <img alt="A conversational block: the user asks to keep their number, the agent checks porting eligibility and answers. Checks pass on step, tool call, language, ledger and one question." src=".github/readme/kinds-chat-light.png" width="100%">
-      </picture>
+      <a href=".github/readme/kinds-chat-light.png">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-chat-dark.png">
+          <img alt="A conversational block: the user asks to keep their number, the agent checks porting eligibility and answers. Checks pass on step, tool call, language, ledger and one question." src=".github/readme/kinds-chat-light.png" width="100%">
+        </picture>
+      </a>
       <br/><sub>Conversational agents. A block is one exchange, checked on step, tools, language and facts.</sub>
     </td>
     <td width="50%" valign="top">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-code-dark.png">
-        <img alt="A code interpreter task step: build a price sheet. The agent loads a spreadsheet skill, runs a script that exits cleanly, creates one file and touches nothing else. Checks pass on cells and formulas, workspace diff, exit code and no destructive operation." src=".github/readme/kinds-code-light.png" width="100%">
-      </picture>
+      <a href=".github/readme/kinds-code-light.png">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-code-dark.png">
+          <img alt="A code interpreter task step: build a price sheet. The agent loads a spreadsheet skill, runs a script that exits cleanly, creates one file and touches nothing else. Checks pass on cells and formulas, workspace diff, exit code and no destructive operation." src=".github/readme/kinds-code-light.png" width="100%">
+        </picture>
+      </a>
       <br/><sub>Code interpreter agents. A block is a task step, checked on the files it leaves and the commands it ran.</sub>
     </td>
   </tr>
@@ -133,10 +143,12 @@ A block holds everything the agent does between two user messages: text, cards, 
 
 ### One golden, three runs
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/readme/modes-dark.png">
-  <img alt="One golden feeds three runs. Teacher forced: every block starts from the golden, a miss stays local. Free running: the agent's own replies carry forward, one miss leads to another. Perturbed: a deviation lands at block two, the agent is back one block later." src=".github/readme/modes-light.png" width="100%">
-</picture>
+<a href=".github/readme/modes-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/modes-dark.png">
+    <img alt="One golden feeds three runs. Teacher forced: every block starts from the golden, a miss stays local. Free running: the agent's own replies carry forward, one miss leads to another. Perturbed: a deviation lands at block two, the agent is back one block later." src=".github/readme/modes-light.png" width="100%">
+  </picture>
+</a>
 <p align="center"><sub>Teacher forced isolates each block. Free running lets errors compound. Perturbed injects a deviation and measures the way back.</sub></p>
 
 | Mode, and where each block starts | What it isolates |
@@ -149,10 +161,12 @@ The gap between teacher forced and free running on the same golden is the **comp
 
 ### Drift and recovery
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/readme/perturbed-dark.png">
-  <img alt="Seven blocks of an order flow. A goal shift is injected at block three. At block three the agent asks for ID and skips the change: flow drift. At block four it says your one line: contradiction. At block five it is back on the expected path. Turns to recover: two, label late, collateral zero. The end state matches." src=".github/readme/perturbed-light.png" width="100%">
-</picture>
+<a href=".github/readme/perturbed-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/perturbed-dark.png">
+    <img alt="Seven blocks of an order flow. A goal shift is injected at block three. At block three the agent asks for ID and skips the change: flow drift. At block four it says your one line: contradiction. At block five it is back on the expected path. Turns to recover: two, label late, collateral zero. The end state matches." src=".github/readme/perturbed-light.png" width="100%">
+  </picture>
+</a>
 <p align="center"><sub>A goal shift lands at block 3. The agent skips the change, then contradicts it, then comes back. Two blocks to recover.</sub></p>
 
 Every failing block gets one or more drift classes:
@@ -171,10 +185,12 @@ After an injection, driftbench reports the **turns to recover**, a recovery labe
 
 ### Judges earn their criteria
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
-  <img alt="The judge council. Machine checks run first and a machine fail is final. Then system 1 judges, Jev and the OpenAI Decisions API, and system 2 judges, chat models from OpenAI, Google and Anthropic, vote in threes. Majority wins, a split goes to the other class, inconclusive is judged again and never counted. Below: assignment is earned through a fixture pair, separation three times out of three, and a kappa of 0.8 against hand labels." src=".github/readme/council-light.png" width="100%">
-</picture>
+<a href=".github/readme/council-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
+    <img alt="The judge council. Machine checks run first and a machine fail is final. Then system 1 judges, Jev and the OpenAI Decisions API, and system 2 judges, chat models from OpenAI, Google and Anthropic, vote in threes. Majority wins, a split goes to the other class, inconclusive is judged again and never counted. Below: assignment is earned through a fixture pair, separation three times out of three, and a kappa of 0.8 against hand labels." src=".github/readme/council-light.png" width="100%">
+  </picture>
+</a>
 <p align="center"><sub>Machine checks run first and cannot be overruled. Each criterion goes to the judge class that earned it on a fixture pair.</sub></p>
 
 - **Machine checks first.** Tool labels, counts and arguments, patterns on visible text, language, personal data, end state. A machine fail is a fail.
@@ -210,7 +226,7 @@ The same runner covers agent harnesses through a runtime battery: hook replay wi
 
 All planned. Every adapter must pass the same contract suite.
 
-**Agents:** function · HTTP · OpenAI Agents · Anthropic · Google · LangGraph · Nexus · process, for code agents in a sandbox<br/>
+**Agents:** function · HTTP · OpenAI Agents · Anthropic · Google · LangGraph · Nexus · code agents in a sandbox<br/>
 **Judges:** Jev · OpenAI Decisions API · OpenAI · Google · Anthropic · any HTTP endpoint<br/>
 **Reports:** HTML scorecard · run diff · JUnit XML · Markdown summary<br/>
 **CI:** exit codes on the verdict · GitHub Action<br/>
