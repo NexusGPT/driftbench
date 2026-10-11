@@ -54,6 +54,26 @@ blocks:
   - when:
       user: It's sam.rivera@example.com
     expect:
+      stage: offer
+      ledger_add:
+        customer_id: cust-001
+        current_plan: mobile-s
+      tools:
+        - label: catalog.search
+          count: 1
+          input:
+            category: mobile
+            customer_email: sam.rivera@example.com
+            address_id:
+              absent: true
+      must:
+        - Acme Mobile M
+        - Acme Mobile L
+        - \$25
+        - \$35
+      must_not:
+        - Fiber
+        - Air 5G
       criteria:
         - no_invented_data@gating
         - one_question_per_turn
@@ -154,9 +174,9 @@ metadata:
         stage: shortcut
         reason: passed-by-echo
       - block: 1
-        status: rejected
-        stage: leakage
-        reason: expected-value-in-when
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.5
       - block: 2
         status: accepted
         pass_k: 1
@@ -171,5 +191,4 @@ metadata:
         pass_probability: 0.6
     dropped:
       - "0: stage, tools, must"
-      - "1: stage, ledger_add, tools, must, must_not"
       - "rules: a block they apply to was rejected"
