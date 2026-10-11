@@ -103,6 +103,7 @@ export function roadmapItems(root: string): BankItem[] {
     ...roadmapDegenerateItems(methods(root)),
     ...roadmapScaleItems(methods(root)),
     ...roadmapCoverageItems(methods(root)),
+    ...roadmapPurityItems(methods(root)),
   );
   return items;
 }
