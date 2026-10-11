@@ -135,8 +135,8 @@ export function scaleItems(): BankItem[] {
     );
   }
   for (const [entries, budget, tier] of [
-    [1_000, 100, 2],
-    [20_000, 100, 4],
+    [1_000, 400, 2],
+    [100_000, 150, 4],
   ] as const) {
     out.push(
       timed(
