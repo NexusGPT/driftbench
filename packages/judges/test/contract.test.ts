@@ -90,3 +90,15 @@ describe('a trailing comma', () => {
     expect(parseAnswerText("{'outcome':'fail','reasoning':'r', }").answer.outcome).toBe('fail');
   });
 });
+
+describe('a comment line', () => {
+  it('reads an answer with a // comment line and keeps // inside a string', () => {
+    expect(
+      parseAnswerText('{\n  // the verdict follows\n  "outcome": "fail",\n  "reasoning": "r"\n}').answer
+        .outcome,
+    ).toBe('fail');
+    expect(parseAnswerText('{"outcome":"pass","reasoning":"see https://example.com"}').answer.reasoning).toBe(
+      'see https://example.com',
+    );
+  });
+});

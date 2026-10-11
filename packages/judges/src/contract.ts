@@ -128,7 +128,8 @@ function decode(candidate: string): unknown {
     return JSON.parse(candidate);
   } catch (cause) {
     // A comma before the closing brace or bracket is a common slip; it carries nothing.
-    let text = candidate.replace(/,\s*([}\]])/g, '$1');
+    // A line that is only a // comment is dropped; a // inside a string (a URL) is kept.
+    let text = candidate.replace(/^[ \t]*\/\/.*$/gm, '').replace(/,\s*([}\]])/g, '$1');
     if (!text.includes('"') && text.includes("'")) text = text.replace(/'/g, '"');
     if (text === candidate) throw cause;
     return JSON.parse(text);
