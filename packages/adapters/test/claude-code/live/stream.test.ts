@@ -74,6 +74,17 @@ describe('parseStream', () => {
     expect(parsed.issues).toEqual([]);
   });
 
+  it('reads the tools the runtime offered, from the init record', () => {
+    const offered = line({
+      type: 'system',
+      subtype: 'init',
+      session_id: 's-1',
+      tools: ['Read', 'Edit', 'WebSearch'],
+    });
+    expect(parseStream(offered).tools).toEqual(['Read', 'Edit', 'WebSearch']);
+    expect(parseStream(reply).tools).toBeUndefined();
+  });
+
   it('names a stream with no init, no result, or a line that is not JSON', () => {
     const issues = parseStream([reply, 'not json'].join('\n')).issues;
     expect(issues[0]).toMatch(/^stream line 2 is not JSON/);

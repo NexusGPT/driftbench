@@ -374,6 +374,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
           ...(isRecord(block.observed.raw) ? block.observed.raw : {}),
           live: {
             sessionId: parsed.sessionId ?? null,
+            ...(parsed.tools === undefined ? {} : { tools: parsed.tools }),
             pin: state.pin,
             attempts,
             ops: ops.map((op) => op.op),

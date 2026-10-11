@@ -1,18 +1,25 @@
 import { isRecord, type JsonlLine, parseJsonl, stringField } from '../format';
 
 /**
- * The headless stream, as this runner reads it. Written from public knowledge of the shape and NOT verified
- * against a live run yet: the first billed run checks it.
+ * The headless stream, as this runner reads it, checked against the runtime (2.1.296) in the first real run,
+ * 2026-10-12.
  *
  * `<runtime> -p <prompt> --output-format stream-json --verbose` prints one JSON record per line:
- * - `system` with `subtype: init`: `session_id`, `cwd`, `model`, `tools`. Opens the stream.
- * - `assistant`: `message` as in the session file (text, tool_use and thinking blocks, `id`, `usage`).
- * - `user`: `message.content` with `tool_result` blocks, the results of the calls before it.
- * - `result`: closes the stream. `subtype` (success or an error kind), `is_error`, `result` (the final
- *   text), `num_turns`, `duration_ms`, `total_cost_usd`, `usage`.
+ * - `system` with `subtype: init`: `session_id`, `cwd`, `model`, `tools` (the tools offered; a tool a
+ *   setting denies is absent), `memory_paths`, `skills`. It is not the first line: with
+ *   `--include-hook-events` the UserPromptSubmit hook records come before it.
+ * - `assistant`: `message` as in the session file (text, tool_use and thinking blocks, `id`, `usage`), with
+ *   `timestamp`, `uuid`, `parent_tool_use_id`.
+ * - `user`: `message.content` with `tool_result` blocks, `timestamp`, and the structured result as
+ *   `tool_use_result` (the session file says `toolUseResult`).
+ * - other `system` records: `hook_started`, `hook_response` (`hook_name`, `hook_event`, `exit_code`,
+ *   `outcome`, `stdout`, `stderr`), `permission_denied` (`tool_name`), `thinking_tokens`; none has a
+ *   timestamp. A `rate_limit_event` record carries the provider's rate state.
+ * - `result`: closes the stream. `subtype` (`success`, `error_max_turns`, ...), `is_error`, `result` (the
+ *   final text; absent when the turns ran out), `num_turns`, `duration_ms`, `total_cost_usd`, `usage`,
+ *   `permission_denials`. A run ending on an error exits 1 with its stream intact.
  * Records a helper writes carry `parent_tool_use_id` (the id of the Agent call that started it); they are
- * the helper's acts, not the agent's. Every record may carry `session_id`; this reader also takes a
- * `timestamp` when the stream has one (the real stream may not; then order is the only clock).
+ * the helper's acts, not the agent's.
  *
  * The runner turns one stream into session-file records (see `../format.ts`) so the session adapter maps
  * it into one block: a typed user record with the ask opens the block, the stream's records follow.
@@ -32,6 +39,8 @@ export type ParsedStream = {
   /** The session id the runtime gave the run, from the init record or any record carrying one. */
   sessionId?: string;
   model?: string;
+  /** The tools the runtime offered the agent, from the init record. A tool a setting denies is not offered. */
+  tools?: string[];
   /** The closing result record, when the stream has one. */
   result?: StreamResult;
   /** Records in order, as parsed. */
@@ -58,6 +67,8 @@ export function parseStream(text: string): ParsedStream {
       init = true;
       const model = stringField(record, 'model');
       if (model !== undefined) out.model = model;
+      if (Array.isArray(record.tools))
+        out.tools = record.tools.filter((tool): tool is string => typeof tool === 'string');
     }
     if (type === 'result') out.result = resultOf(record);
   }

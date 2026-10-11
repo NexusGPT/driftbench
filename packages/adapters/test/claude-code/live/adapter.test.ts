@@ -83,10 +83,13 @@ describe('claudeCodeLiveAdapter', () => {
     expect(executions.map((record) => record.role)).toEqual(['command', 'agent']);
     expect(executions[0]?.exitCode).toBe(0);
     expect(executions.at(-1)?.exitCode).toBe(0);
-    const raw = observed.raw as { live: { sessionId: string; attempts: unknown[]; pin: string } };
+    const raw = observed.raw as {
+      live: { sessionId: string; attempts: unknown[]; pin: string; tools: string[] };
+    };
     expect(raw.live.sessionId).toMatch(/^[0-9a-f-]{36}$/);
     expect(raw.live.attempts).toEqual([{ exitCode: 0, overloaded: false }]);
     expect(raw.live.pin).toBe(MAP_HASH);
+    expect(raw.live.tools).toEqual(['Read', 'Edit', 'Write', 'Bash', 'Skill', 'Agent', 'WebFetch']);
     const file = await adapter.readArtifact?.(session, 'reports/2026-W41.md');
     expect(Buffer.from(file ?? new Uint8Array()).toString('utf8')).toContain('2 (NW-55012, NW-55031)');
   });
