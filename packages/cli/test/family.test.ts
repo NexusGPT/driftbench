@@ -209,7 +209,7 @@ describe('driftbench family review', () => {
 });
 
 describe('driftbench family verify', () => {
-  it('ships the instances the reference passes and rejects the ones it fails, as an oracle or reference defect', async () => {
+  it('ships every instance of both seed formats the reference passes, and rejects one whose expectation is wrong', async () => {
     const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
     const built = await run(
       ['family', 'instances', ACME_FAMILY, '--n', '3', '--seed', '7', '--out', 'out'],
@@ -219,28 +219,40 @@ describe('driftbench family verify', () => {
     const report = JSON.parse(await readFile(join(cwd, 'out', 'family-report.json'), 'utf8')) as {
       instances: Array<{ name: string; knobs: { seed_format: string } }>;
     };
-    const json = report.instances
-      .filter((entry) => entry.knobs.seed_format === 'json')
-      .map((entry) => entry.name);
-    const csv = report.instances
-      .filter((entry) => entry.knobs.seed_format === 'csv')
-      .map((entry) => entry.name);
-    expect(json.length).toBeGreaterThan(0);
-    expect(csv.length).toBeGreaterThan(0);
+    const formats = new Set(report.instances.map((entry) => entry.knobs.seed_format));
+    expect(formats).toEqual(new Set(['csv', 'json']));
+    const names = report.instances.map((entry) => entry.name);
 
-    const result = await run(['family', 'verify', 'out', '--reference', 'process:acme-ops'], cwd);
-    expect(result.err).toBe('');
-    expect(result.code).toBe(1);
-    expect(result.out).toMatch(/^Verify out on the reference process:acme-ops: \d+ specs\.\n/);
-    expect(result.out).toContain(`These instances are not shipped: ${json.join(', ')}.`);
-    expect(result.out).toContain(`instances pass every variant: ${csv.join(', ')}.`);
-    expect(result.out).toMatch(/I cannot find catalog\.csv in the workspace/);
-    expect(result.out).toContain('Release also waits for a person to sign the review of acme-price-sheet');
-    const verify = JSON.parse(await readFile(join(cwd, 'out', 'verify-report.json'), 'utf8')) as {
-      shipped: string[];
-      rejected: string[];
-    };
-    expect(verify).toMatchObject({ shipped: csv, rejected: json });
+    const passed = await run(['family', 'verify', 'out', '--reference', 'process:acme-ops'], cwd);
+    expect(passed.err).toBe('');
+    expect(passed.code).toBe(0);
+    expect(passed.out).toMatch(/^Verify out on the reference process:acme-ops: \d+ specs\.\n/);
+    expect(passed.out).toMatch(/✓ The reference passes all \d+ specs: 3 instances may ship\./);
+    expect(passed.out).toContain('Release also waits for a person to sign the review of acme-price-sheet');
+    expect(JSON.parse(await readFile(join(cwd, 'out', 'verify-report.json'), 'utf8'))).toMatchObject({
+      shipped: names,
+      rejected: [],
+    });
+
+    // An oracle defect, planted by hand: one expected monthly price of the first instance is wrong.
+    const file = join(cwd, 'out', 'i01', 'base.yaml');
+    const text = await readFile(file, 'utf8');
+    const planted = text.replace(/(column: C\n\s+from_row: 2\n\s+values:\n\s+- )(\d+)\n/, '$1999\n');
+    expect(planted).not.toBe(text);
+    await writeFile(file, planted);
+    const failed = await run(['family', 'verify', 'out', '--reference', 'process:acme-ops'], cwd);
+    expect(failed.code).toBe(1);
+    expect(failed.out).toMatch(
+      / {2}✗ i01\/base\.yaml {2}fail\n {6}block 0 \(build\) artifacts\.[^\n]*C2 is \d+, expected 999/,
+    );
+    expect(failed.out).toContain(
+      'Each is an oracle or a reference defect: one of the two is wrong about the task. These instances are not shipped: i01.',
+    );
+    expect(failed.out).toContain('2 instances pass every variant: i02, i03.');
+    expect(JSON.parse(await readFile(join(cwd, 'out', 'verify-report.json'), 'utf8'))).toMatchObject({
+      shipped: ['i02', 'i03'],
+      rejected: ['i01'],
+    });
   }, 120_000);
 
   it('exits 0 when the reference passes every spec of a CSV-only family', async () => {

@@ -47,7 +47,7 @@ instance the reference fails is an oracle or a reference defect, and it is not s
 
 ## Where the instances stand
 
-The reference build, `process:acme-ops`, reads `catalog.csv` only. On a `catalog.json` seed it builds
-nothing, so `verify` rejects every JSON instance: 14 of the 20 instances (59 of 86 specs) pass and ship,
-and the 6 JSON instances are reported as reference defects. The review is pending: a person reviews the
-family and signs `review.yaml` before any instance is released.
+The reference build, `process:acme-ops`, reads `catalog.csv`, or `catalog.json` when the workspace holds
+no `catalog.csv`. It passes all 86 specs of the 20 instances, 14 with a CSV seed and 6 with a JSON seed, so
+`verify` exits 0 and every instance may ship. The review is pending: a person reviews the family and signs
+`review.yaml` before any instance is released.

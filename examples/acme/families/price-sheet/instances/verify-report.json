@@ -1,24 +1,30 @@
 {
   "reference": "process:acme-ops",
   "specs": 86,
-  "passed": 59,
+  "passed": 86,
   "shipped": [
     "i01",
+    "i02",
     "i03",
     "i04",
     "i05",
     "i06",
     "i07",
+    "i08",
     "i09",
     "i10",
     "i11",
+    "i12",
     "i13",
     "i14",
+    "i15",
+    "i16",
     "i17",
+    "i18",
     "i19",
     "i20"
   ],
-  "rejected": ["i02", "i08", "i12", "i15", "i16", "i18"],
+  "rejected": [],
   "results": [
     {
       "file": "i01/base.yaml",
@@ -57,288 +63,32 @@
       "specId": "acme-price-sheet-i02-base",
       "instance": "i02",
       "variant": "base",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-prices\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-prices.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/acme-prices.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i02/duplicate-line.yaml",
       "specId": "acme-price-sheet-i02-duplicate-line",
       "instance": "i02",
       "variant": "duplicate-line",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-prices\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-prices.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/acme-prices.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i02/header-order.yaml",
       "specId": "acme-price-sheet-i02-header-order",
       "instance": "i02",
       "variant": "header-order",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-prices\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-prices.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/acme-prices.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i02/unit-change.yaml",
       "specId": "acme-price-sheet-i02-unit-change",
       "instance": "i02",
       "variant": "unit-change",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-prices\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-prices.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/acme-prices.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i03/base.yaml",
@@ -513,220 +263,40 @@
       "specId": "acme-price-sheet-i08-base",
       "instance": "i08",
       "variant": "base",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i08/duplicate-line.yaml",
       "specId": "acme-price-sheet-i08-duplicate-line",
       "instance": "i08",
       "variant": "duplicate-line",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i08/empty-cell.yaml",
       "specId": "acme-price-sheet-i08-empty-cell",
       "instance": "i08",
       "variant": "empty-cell",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i08/planted.yaml",
       "specId": "acme-price-sheet-i08-planted",
       "instance": "i08",
       "variant": "planted",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i08/unit-change.yaml",
       "specId": "acme-price-sheet-i08-unit-change",
       "instance": "i08",
       "variant": "unit-change",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i09/base.yaml",
@@ -829,220 +399,40 @@
       "specId": "acme-price-sheet-i12-base",
       "instance": "i12",
       "variant": "base",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i12/duplicate-line.yaml",
       "specId": "acme-price-sheet-i12-duplicate-line",
       "instance": "i12",
       "variant": "duplicate-line",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i12/empty-cell.yaml",
       "specId": "acme-price-sheet-i12-empty-cell",
       "instance": "i12",
       "variant": "empty-cell",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i12/planted.yaml",
       "specId": "acme-price-sheet-i12-planted",
       "instance": "i12",
       "variant": "planted",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i12/unit-change.yaml",
       "specId": "acme-price-sheet-i12-unit-change",
       "instance": "i12",
       "variant": "unit-change",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i13/base.yaml",
@@ -1121,576 +511,64 @@
       "specId": "acme-price-sheet-i15-base",
       "instance": "i15",
       "variant": "base",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/acme-price-sheet.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i15/duplicate-line.yaml",
       "specId": "acme-price-sheet-i15-duplicate-line",
       "instance": "i15",
       "variant": "duplicate-line",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/acme-price-sheet.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i15/empty-cell.yaml",
       "specId": "acme-price-sheet-i15-empty-cell",
       "instance": "i15",
       "variant": "empty-cell",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/acme-price-sheet.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i15/header-order.yaml",
       "specId": "acme-price-sheet-i15-header-order",
       "instance": "i15",
       "variant": "header-order",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/acme-price-sheet.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i16/base.yaml",
       "specId": "acme-price-sheet-i16-base",
       "instance": "i16",
       "variant": "base",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/price-sheet.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i16/empty-cell.yaml",
       "specId": "acme-price-sheet-i16-empty-cell",
       "instance": "i16",
       "variant": "empty-cell",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/price-sheet.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i16/header-order.yaml",
       "specId": "acme-price-sheet-i16-header-order",
       "instance": "i16",
       "variant": "header-order",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/price-sheet.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i16/unit-change.yaml",
       "specId": "acme-price-sheet-i16-unit-change",
       "instance": "i16",
       "variant": "unit-change",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "workspace",
-          "id": "workspace.changed",
-          "evidence": "out/price-sheet.xlsx was not changed; changed in this block: none"
-        },
-        {
-          "block": 1,
-          "blockId": "summary",
-          "check": "artifacts",
-          "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i17/base.yaml",
@@ -1729,220 +607,40 @@
       "specId": "acme-price-sheet-i18-base",
       "instance": "i18",
       "variant": "base",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i18/duplicate-line.yaml",
       "specId": "acme-price-sheet-i18-duplicate-line",
       "instance": "i18",
       "variant": "duplicate-line",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i18/empty-cell.yaml",
       "specId": "acme-price-sheet-i18-empty-cell",
       "instance": "i18",
       "variant": "empty-cell",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i18/planted.yaml",
       "specId": "acme-price-sheet-i18-planted",
       "instance": "i18",
       "variant": "planted",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i18/unit-change.yaml",
       "specId": "acme-price-sheet-i18-unit-change",
       "instance": "i18",
       "variant": "unit-change",
-      "state": "fail",
-      "failing": [
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "must",
-          "id": "must.0",
-          "evidence": "/acme-price-sheet\\.xlsx/ is missing; visible text \"I cannot find catalog.csv in the workspace, so I have no pla...\""
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "skills",
-          "id": "skills.xlsx",
-          "evidence": "xlsx loaded 0 times, expected at least 1; skills loaded in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "execution",
-          "id": "execution.ran_code",
-          "evidence": "ran_code true expected; no command ran; the agent process exited with 0"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "workspace",
-          "id": "workspace.created",
-          "evidence": "out/acme-price-sheet.xlsx was not created; created in this block: none"
-        },
-        {
-          "block": 0,
-          "blockId": "build",
-          "check": "artifacts",
-          "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
-        }
-      ]
+      "state": "pass",
+      "failing": []
     },
     {
       "file": "i19/base.yaml",

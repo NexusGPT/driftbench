@@ -94,14 +94,14 @@ describe('verify on the reference build (process:acme-ops)', () => {
     );
   }, 120_000);
 
-  it('rejects a JSON instance: the reference reads catalog.csv only, so it builds nothing', async () => {
+  it('passes every variant of a JSON instance: the reference reads catalog.json when there is no catalog.csv', async () => {
     if (!json) throw new Error('no JSON instance');
     const dir = await written([json], build);
     const report = await verifyInstances(dir, reference(dir));
-    expect(report.rejected).toEqual([json.name]);
-    expect(report.passed).toBe(0);
-    const base = report.results.find((result) => result.variant === 'base');
-    expect(base?.failing.map((entry) => entry.id)).toContain('workspace.created');
+    const failing = report.results.filter((result) => result.state !== 'pass');
+    expect(failing, JSON.stringify(failing, null, 2)).toEqual([]);
+    expect(report.specs).toBe(json.variants.length);
+    expect(report).toMatchObject({ shipped: [json.name], rejected: [] });
   }, 120_000);
 
   it('reports a spec that does not load as invalid, never as a pass', async () => {

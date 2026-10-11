@@ -287,6 +287,118 @@ describe('the Acme ops agent, block 0: the price sheet', () => {
   );
 });
 
+/** The spec's seed with the catalog as catalog.json, the same plans in the same order, and no catalog.csv. */
+function jsonSeed(): Record<string, string> {
+  const lines = (SEED['catalog.csv'] ?? '').trim().split('\n');
+  const head = (lines[0] ?? '').split(',');
+  const plans = lines.slice(1).map((line) => {
+    const cells = line.split(',');
+    return Object.fromEntries(
+      head.map((name, at) => [name, name === 'monthly_usd' ? Number(cells[at]) : (cells[at] ?? '')]),
+    );
+  });
+  const { 'catalog.csv': _csv, ...rest } = SEED;
+  return { ...rest, 'catalog.json': `${JSON.stringify({ plans }, null, 2)}\n` };
+}
+
+describe('the Acme ops agent and the two catalog formats', () => {
+  it(
+    'builds the price sheet from catalog.csv and names it as the source',
+    async () => {
+      const dir = await workspace(SEED);
+      const result = await block(dir, [], BUILD);
+      expect(result.exitCode, result.stderr).toBe(0);
+      expect(result.reply).toContain(`I built ${WORKBOOK} from catalog.csv.`);
+      const book = await readBook(dir);
+      expect(
+        rowsOf(book, 'Mobile')
+          .slice(1)
+          .map((row) => row.slice(0, 3)),
+      ).toEqual(
+        catalog()
+          .filter((plan) => plan.category === 'mobile')
+          .map((plan) => [plan.name, plan.allowance, plan.monthly]),
+      );
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'builds the same workbook, byte for byte, from catalog.json when the workspace holds no catalog.csv',
+    async () => {
+      const fromCsv = await workspace(SEED);
+      const fromJson = await workspace(jsonSeed());
+      const seeded = await files(fromJson);
+      await block(fromCsv, [], BUILD);
+      const result = await block(fromJson, [], BUILD);
+      expect(result.exitCode, result.stderr).toBe(0);
+      expect(result.reply).toContain(`I built ${WORKBOOK} from catalog.json.`);
+      expect(result.runtime.map((event) => event.type)).toEqual(['guard', 'skill', 'stage']);
+      expect(result.commands[0]).toMatchObject({ exitCode: 0 });
+      expect(sha256(await readFile(join(fromJson, WORKBOOK)))).toBe(
+        sha256(await readFile(join(fromCsv, WORKBOOK))),
+      );
+      const after = await files(fromJson);
+      expect(Object.keys(after).sort()).toEqual([...Object.keys(seeded), WORKBOOK].sort());
+      for (const [path, hash] of Object.entries(seeded)) expect(after[path]).toBe(hash);
+
+      const summary = await block(
+        fromJson,
+        [
+          { role: 'user', content: BUILD },
+          { role: 'assistant', content: result.reply },
+        ],
+        SUMMARY,
+      );
+      expect(summary.exitCode, summary.stderr).toBe(0);
+      expect(rowsOf(await readBook(fromJson), 'Summary').slice(1)).toEqual([
+        ['Mobile', 'Acme Mobile S', 15],
+        ['Home', 'Acme Air 5G', 35],
+      ]);
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'reads catalog.csv when the workspace holds both files',
+    async () => {
+      const both = { ...SEED, 'catalog.json': '{ "plans": [] }\n' };
+      const result = await block(await workspace(both), [], BUILD);
+      expect(result.exitCode, result.stderr).toBe(0);
+      expect(result.reply).toContain(`I built ${WORKBOOK} from catalog.csv.`);
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'writes nothing and says why when catalog.json is not valid JSON, holds no plans list, or a plan has no price',
+    async () => {
+      const { 'catalog.csv': _csv, ...rest } = SEED;
+      const cases: Array<[string, RegExp]> = [
+        ['{ "plans": [', /^catalog\.json is not valid JSON \(.+\), so I did not build the price sheet\.$/],
+        [
+          '{ "items": [] }',
+          /^catalog\.json holds no list under plans, so I did not build the price sheet\.$/,
+        ],
+        ['{ "plans": [] }', /^catalog\.json lists no plan, so I did not build the price sheet\.$/],
+        [
+          '{ "plans": [{ "name": "Acme Mobile S", "category": "mobile", "allowance": "10 GB", "monthly_usd": "" }] }',
+          /^Plan 1 of catalog\.json has no number in monthly_usd, so I did not build the price sheet\.$/,
+        ],
+      ];
+      for (const [text, reply] of cases) {
+        const dir = await workspace({ ...rest, 'catalog.json': text });
+        const seeded = await files(dir);
+        const result = await block(dir, [], BUILD);
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.reply).toMatch(reply);
+        expect(await files(dir)).toEqual(seeded);
+      }
+    },
+    TIMEOUT,
+  );
+});
+
 describe('the Acme ops agent, block 1: the summary', () => {
   it(
     'adds a Summary sheet, Mobile first, with the cheapest plan of each category, and changes only the workbook',
