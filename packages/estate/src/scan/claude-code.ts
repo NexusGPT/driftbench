@@ -25,8 +25,13 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
  * `.claude/CLAUDE.md`, `CLAUDE.local.md`), memory files under `.claude/memory/`, skills under
  * `.claude/skills/<name>/SKILL.md` with the files beside them, helper agents under `.claude/agents/`,
  * `.claude/settings.json` (model, permissions, environment keys, hooks), the hooks a skill declares in its
- * frontmatter, a check registry (a file whose name holds "registry"), and step lists (a JSON file with a
- * `steps` list). Claude Code calls a guard a hook; the scanner gets them as guards.
+ * frontmatter, a check registry (a file whose name holds "registry", every table keyed by check id), a
+ * catalogue of checks (a JSON file of entries with kind, event, watches, work, step and status), and step
+ * lists (a JSON file with a `steps` list or a `processes` map of them). Symbolic links are followed. A hook
+ * command behind a prefix or a dispatcher resolves to the script it runs. A frontmatter the YAML parser
+ * refuses is read field by field. Prose (standing files, memory, skill bodies, the markdown files beside a
+ * skill, helper bodies) is cut into chunks within a size budget. Claude Code calls a guard a hook; the
+ * scanner gets them as guards.
  */
 
 const STANDING = new Set(['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']);
