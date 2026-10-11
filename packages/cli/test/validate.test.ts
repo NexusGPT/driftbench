@@ -69,3 +69,47 @@ describe('driftbench validate <component>', () => {
     expect(await validateCommand('planted', { seed: 'x' }, bad.io, d)).toBe(USAGE_EXIT);
   });
 });
+
+describe('driftbench validate seeds', () => {
+  it('reports every seed and exits with the minimum level over them', async () => {
+    const d = await deps([3]);
+    const { io, output } = capture(d.root as string);
+    expect(await validateCommand('planted', { seeds: '1..3' }, io, d)).toBe(1);
+    expect(output.out).toContain('Level per seed: 1 = 3, 2 = 3, 3 = 1');
+    expect(output.out).toContain('Level of the run: 1 of 3, the minimum over 3 seeds.');
+  });
+
+  it('adds the hidden seed from the commit with --hidden, and notes the fallback outside a repository', async () => {
+    const d = await deps([]);
+    const head = 'abcdef0123456789abcdef0123456789abcdef01';
+    const withHead = capture(d.root as string);
+    const code = await validateCommand('planted', { seeds: '1..2', hidden: true, json: true }, withHead.io, {
+      ...d,
+      readHead: () => head,
+    });
+    expect(code).toBe(3);
+    const report = JSON.parse(withHead.output.out);
+    expect(report.seeds.map((run: { hidden: boolean }) => run.hidden)).toEqual([false, false, true]);
+    expect(report.hiddenSeed).toMatchObject({ source: 'head', head });
+    expect(report.seeds[2].seed).toBe(report.hiddenSeed.seed);
+    const outside = capture(d.root as string);
+    await validateCommand('planted', { hidden: true }, outside.io, {
+      ...d,
+      readHead: () => {
+        throw new Error('fatal: not a git repository');
+      },
+    });
+    expect(outside.output.out).toContain('Note: git rev-parse HEAD failed');
+    expect(outside.output.out).toContain('seed hidden');
+  });
+
+  it('runs every registered validator with all and exits with the lowest level', async () => {
+    const root = await temp();
+    const { ladder: low } = plantedLadder([1], 'low');
+    const { ladder: high } = plantedLadder([], 'high');
+    const { io, output } = capture(root);
+    expect(await validateCommand('all', {}, io, { ladders: () => ({ low, high }), root })).toBe(1);
+    expect(output.out).toContain('Validator high');
+    expect(output.out).toContain('Validator low');
+  });
+});

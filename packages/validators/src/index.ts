@@ -26,3 +26,14 @@ export {
 } from './ladder';
 export { registeredLadders } from './ladders/index';
 export { findRoot } from './root';
+export {
+  FALLBACK_HIDDEN_SEED,
+  gitHead,
+  type HeadReader,
+  type HiddenSeed,
+  hiddenSeed,
+  MAX_SEEDS,
+  parseSeeds,
+  type SeedOptions,
+  seedSpecs,
+} from './seeds';
