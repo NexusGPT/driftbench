@@ -278,7 +278,7 @@ export const Rules = z
     custom: z
       .record(z.string(), z.unknown())
       .optional()
-      .describe('Reserved for user-registered checks (planned, phase 1).'),
+      .describe('Maps a registered custom check name to its options; the checks package runs it.'),
   })
   .describe('Rules that hold for the whole conversation.');
 export type Rules = z.infer<typeof Rules>;
