@@ -5,6 +5,7 @@ import { type AgentAdapter, outcomeOf, type PlannedCell, runSpec } from '@driftb
 import {
   BUDGET_FILE,
   Budget,
+  formatJson,
   inHoldout,
   openBundle,
   passRate,
@@ -175,7 +176,7 @@ export async function holdoutSealCommand(options: SealOptions, io: Io, deps: Hol
     specs: entries,
   };
   await mkdir(outPath, { recursive: true });
-  await writeFile(bundlePath, `${JSON.stringify(bundle, null, 2)}\n`);
+  await writeFile(bundlePath, formatJson(bundle));
 
   const lines = [
     split === 'gate'
@@ -252,7 +253,7 @@ export async function holdoutScoreCommand(options: ScoreOptions, io: Io, deps: H
       return 2;
     }
     // The query is spent before the first run: results seen once count, even when the run breaks off.
-    await writeFile(budgetPath, `${JSON.stringify(decision.budget, null, 2)}\n`);
+    await writeFile(budgetPath, formatJson(decision.budget));
 
     const notRun: string[] = [];
     let passed = 0;
@@ -302,7 +303,7 @@ export async function holdoutScoreCommand(options: ScoreOptions, io: Io, deps: H
           : entry,
       ),
     };
-    await writeFile(budgetPath, `${JSON.stringify(scored, null, 2)}\n`);
+    await writeFile(budgetPath, formatJson(scored));
 
     const left = scored.total - scored.used;
     if (options.json) {

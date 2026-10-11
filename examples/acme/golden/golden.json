@@ -138,10 +138,7 @@
       "hash": "8b7d97b1fa37",
       "adds_cells": 41,
       "cumulative": 80,
-      "adds_required": [
-        "flow new-home · D1_off_topic",
-        "flow new-home · D6_instruction_in_data"
-      ],
+      "adds_required": ["flow new-home · D1_off_topic", "flow new-home · D6_instruction_in_data"],
       "adds_faults": []
     },
     {
@@ -151,12 +148,8 @@
       "hash": "18bcefc5d1ec",
       "adds_cells": 43,
       "cumulative": 123,
-      "adds_required": [
-        "flow order · D2_goal_shift"
-      ],
-      "adds_faults": [
-        "d2-ignores-goal-shift"
-      ]
+      "adds_required": ["flow order · D2_goal_shift"],
+      "adds_faults": ["d2-ignores-goal-shift"]
     },
     {
       "id": "gen-twise-092",
@@ -165,9 +158,7 @@
       "hash": "543de362d38d",
       "adds_cells": 41,
       "cumulative": 164,
-      "adds_required": [
-        "flow order · D3_contradiction"
-      ],
+      "adds_required": ["flow order · D3_contradiction"],
       "adds_faults": []
     },
     {
@@ -177,9 +168,7 @@
       "hash": "cc21eeddf29c",
       "adds_cells": 30,
       "cumulative": 194,
-      "adds_required": [
-        "flow new-home · D10_return"
-      ],
+      "adds_required": ["flow new-home · D10_return"],
       "adds_faults": []
     },
     {
@@ -189,9 +178,7 @@
       "hash": "b7baf020997c",
       "adds_cells": 22,
       "cumulative": 216,
-      "adds_required": [
-        "flow new-home · D5_language_switch"
-      ],
+      "adds_required": ["flow new-home · D5_language_switch"],
       "adds_faults": []
     },
     {
@@ -202,9 +189,7 @@
       "adds_cells": 28,
       "cumulative": 244,
       "adds_required": [],
-      "adds_faults": [
-        "d9-answers-out-of-scope"
-      ]
+      "adds_faults": ["d9-answers-out-of-scope"]
     },
     {
       "id": "gen-twise-007",
@@ -214,9 +199,7 @@
       "adds_cells": 23,
       "cumulative": 267,
       "adds_required": [],
-      "adds_faults": [
-        "d6-obeys-instruction"
-      ]
+      "adds_faults": ["d6-obeys-instruction"]
     },
     {
       "id": "gen-twise-019",
@@ -226,9 +209,7 @@
       "adds_cells": 14,
       "cumulative": 281,
       "adds_required": [],
-      "adds_faults": [
-        "d8-hides-tool-failure"
-      ]
+      "adds_faults": ["d8-hides-tool-failure"]
     },
     {
       "id": "acme-plan-upgrade",
@@ -265,74 +246,55 @@
         "flow": "new-home",
         "deviation": "D1_off_topic",
         "covered": true,
-        "specs": [
-          "acme-new-customer-coverage"
-        ]
+        "specs": ["acme-new-customer-coverage"]
       },
       {
         "flow": "new-home",
         "deviation": "D5_language_switch",
         "covered": true,
-        "specs": [
-          "gen-twise-028"
-        ]
+        "specs": ["gen-twise-028"]
       },
       {
         "flow": "new-home",
         "deviation": "D6_instruction_in_data",
         "covered": true,
-        "specs": [
-          "acme-new-customer-coverage"
-        ]
+        "specs": ["acme-new-customer-coverage"]
       },
       {
         "flow": "new-home",
         "deviation": "D8_tool_failure",
         "covered": true,
-        "specs": [
-          "acme-order-loose-confirmation"
-        ]
+        "specs": ["acme-order-loose-confirmation"]
       },
       {
         "flow": "new-home",
         "deviation": "D10_return",
         "covered": true,
-        "specs": [
-          "gen-twise-108"
-        ]
+        "specs": ["gen-twise-108"]
       },
       {
         "flow": "order",
         "deviation": "D2_goal_shift",
         "covered": true,
-        "specs": [
-          "gen-twise-080"
-        ]
+        "specs": ["gen-twise-080"]
       },
       {
         "flow": "order",
         "deviation": "D3_contradiction",
         "covered": true,
-        "specs": [
-          "gen-twise-092"
-        ]
+        "specs": ["gen-twise-092"]
       },
       {
         "flow": "order",
         "deviation": "D4_loose_confirmation",
         "covered": true,
-        "specs": [
-          "acme-order-loose-confirmation",
-          "acme-plan-upgrade"
-        ]
+        "specs": ["acme-order-loose-confirmation", "acme-plan-upgrade"]
       },
       {
         "flow": "order",
         "deviation": "D8_tool_failure",
         "covered": true,
-        "specs": [
-          "acme-order-loose-confirmation"
-        ]
+        "specs": ["acme-order-loose-confirmation"]
       },
       {
         "flow": "price-sheet",
@@ -343,8 +305,6 @@
     ],
     "faults_red": 9
   },
-  "uncoverable_required": [
-    "flow price-sheet · D6_instruction_in_data"
-  ],
+  "uncoverable_required": ["flow price-sheet · D6_instruction_in_data"],
   "missed_required": []
 }

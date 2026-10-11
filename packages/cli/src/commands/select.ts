@@ -5,6 +5,7 @@ import {
   AUDIT_FILE,
   coverElements,
   evidenceFromReport,
+  formatJson,
   GATE_REPORT_FILE,
   GATED_DIR,
   type GateEvidence,
@@ -171,9 +172,9 @@ export async function selectCommand(options: SelectOptions, io: Io): Promise<num
     k,
     io,
   });
-  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  await writeFile(manifestPath, formatJson(manifest));
 
-  if (options.json) io.out(`${JSON.stringify(manifest, null, 2)}\n`);
+  if (options.json) io.out(formatJson(manifest));
   else {
     io.out(
       renderSelection(selection, goldenCoverage, pool, { t, k, agent: map.agent, version: map.version }),
