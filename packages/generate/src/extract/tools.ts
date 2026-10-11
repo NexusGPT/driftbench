@@ -250,6 +250,9 @@ function arrayPartitions(name: string, property: YAMLMap, add: Add): void {
     add('at-max-items', `${name} has exactly ${maxItems} items`, 'maxItems');
     add('above-max-items', `${name} has more than ${maxItems} items`, 'maxItems');
   }
+  if (plain(entry(property, 'uniqueItems')?.value) === true) {
+    add('duplicate-items', `${name} holds the same item twice`, 'uniqueItems');
+  }
 }
 
 /** The quote for a partition: the whole property when it is short, else the keyword's own line. */
