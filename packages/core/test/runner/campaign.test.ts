@@ -293,32 +293,46 @@ describe('runCampaign', () => {
 
 describe('the worker pool', () => {
   const plan = planCampaign(loaded, [acme], ['F'], 1);
+  const FIRST = "I'm new here"; // the first block of the first cell, acme-new-customer-coverage
+  const SECOND = 'keep my phone number'; // the first block of the second cell, acme-number-porting
 
-  /** The Acme agent with a delay per block: long on the first spec, short on the others. */
-  function timed() {
+  /**
+   * The Acme agent, counting the sends in flight. With `hold`, the first cell's first block waits until the
+   * second cell has closed, so the second cell always finishes first: no clock decides the order.
+   */
+  function counted(hold: boolean) {
     const adapter = acmeAdapter();
     const send = adapter.send.bind(adapter);
     const flight = { now: 0, max: 0 };
+    const finished: string[] = [];
+    const firstStimulus = new Map<string, string>();
+    let release = () => {};
+    const secondClosed = new Promise<void>((resolve) => {
+      release = resolve;
+    });
     adapter.send = async (session, turn) => {
+      const stimulus = JSON.stringify(turn.stimulus);
+      if (turn.index === 0) firstStimulus.set(session.id, stimulus);
       flight.now += 1;
       flight.max = Math.max(flight.max, flight.now);
-      const slow = turn.index === 0 && JSON.stringify(turn.stimulus).includes("I'm new here");
-      await new Promise((resolve) => setTimeout(resolve, slow ? 30 : 2));
+      if (hold && turn.index === 0 && stimulus.includes(FIRST)) await secondClosed;
+      else await new Promise((resolve) => setImmediate(resolve));
       flight.now -= 1;
       return send(session, turn);
     };
-    return { adapter, flight };
+    adapter.close = async (session) => {
+      const stimulus = firstStimulus.get(session.id) ?? '';
+      finished.push(stimulus.includes(FIRST) ? 'first' : stimulus.includes(SECOND) ? 'second' : 'other');
+      if (stimulus.includes(SECOND)) release();
+    };
+    return { adapter, flight, finished };
   }
 
   async function campaign(concurrency: number) {
     const store = openMemoryStore();
     await putCampaign(store, 'c-pool', loaded);
-    const { adapter, flight } = timed();
+    const { adapter, flight, finished } = counted(concurrency > 1);
     const heard: string[] = [];
-    const finished: string[] = [];
-    adapter.close = async (session) => {
-      finished.push(session.id);
-    };
     const outcomes = await runCampaign({
       campaignId: 'c-pool',
       cells: plan.cells,
@@ -339,18 +353,20 @@ describe('the worker pool', () => {
     const { outcomes, heard, flight, stored, finished } = await campaign(4);
     const order = plan.cells.map((cell) => cell.specId);
     expect(flight.max).toBe(4);
+    // The first cell finished after the second, yet both are reported and returned in cell order.
+    expect(finished.indexOf('second')).toBeLessThan(finished.indexOf('first'));
     expect(outcomes.map((outcome) => outcome.cell.specId)).toEqual(order);
     expect(heard).toEqual(order);
     expect(outcomes.every((outcome) => outcome.state === 'pass')).toBe(true);
-    expect(stored).toHaveLength(6);
-    // The slow first cell finished after cells that started after it.
-    expect(finished.indexOf('acme-1')).toBeGreaterThan(finished.indexOf('acme-2'));
+    // Every run is stored; the store lists them by start time, then run id, which is its own order.
+    expect(new Set(stored.map((run) => run.runId))).toEqual(new Set(plan.cells.map((cell) => cell.cellId)));
   });
 
   it('runs one cell at a time with a concurrency of 1', async () => {
-    const { flight, heard } = await campaign(1);
+    const { flight, heard, finished } = await campaign(1);
     expect(flight.max).toBe(1);
     expect(heard).toEqual(plan.cells.map((cell) => cell.specId));
+    expect(finished.slice(0, 2)).toEqual(['first', 'second']);
   });
 });
 

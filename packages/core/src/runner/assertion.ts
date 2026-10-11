@@ -41,7 +41,9 @@ export type EndStateMatch = { match: boolean; diff: EndStateDiff[] };
  * see in `CheckContext.endState`: one mapping gives the value its source returned, a list gives a record
  * keyed by source, and `none` gives the list that source `*` returned. `subset` (the default) checks the
  * listed fields; `exact` also fails every other field of the state, expected absent. One diff entry per
- * field that does not hold; in a list a field is named `<source>.<field>`. `none` holds when nothing was
+ * field that does not hold; in a list a field is named `<source>.<field>`. A source that recorded nothing
+ * (undefined or null) fails every expected field, `{ absent: true }` assertions included, and with an
+ * empty `expect` gives one entry for the source itself, expected `{ nonempty: true }`. `none` holds when nothing was
  * recorded (undefined, null, an empty list or object) and otherwise gives one entry per payload found,
  * `*.<index>`, expected absent. A value that is absent is written `{ absent: true }`, the assertion that
  * names it, so a diff keeps its meaning through JSON, where an undefined value would vanish.
@@ -64,9 +66,20 @@ export function compareEndState(endState: EndState, value: unknown): EndStateMat
   const diff: EndStateDiff[] = [];
   for (const entry of entries) {
     const state = list ? (isRecord(value) ? value[entry.source] : undefined) : value;
-    const record = isRecord(state) ? state : undefined;
     const name = (field: string) => (list ? `${entry.source}.${field}` : field);
-    for (const [field, assertion] of Object.entries(entry.expect)) {
+    const expected = Object.entries(entry.expect);
+    if (state === undefined || state === null) {
+      // A named source that recorded nothing fails, as the end_state check of the checks package does.
+      if (expected.length === 0) {
+        diff.push({ field: entry.source, expected: { nonempty: true }, observed: { absent: true } });
+      }
+      for (const [field, assertion] of expected) {
+        diff.push({ field: name(field), expected: assertion, observed: { absent: true } });
+      }
+      continue;
+    }
+    const record = isRecord(state) ? state : undefined;
+    for (const [field, assertion] of expected) {
       const observed = record?.[field];
       if (!matchAssertion(observed, assertion)) {
         diff.push({ field: name(field), expected: assertion, observed: shown(observed) });
