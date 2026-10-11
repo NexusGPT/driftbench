@@ -16,9 +16,9 @@
     "max": null
   },
   "summary": {
-    "specs": 268,
-    "blocks": 1041,
-    "complete": 186,
+    "specs": 298,
+    "blocks": 1170,
+    "complete": 216,
     "incomplete": 82
   },
   "seeders": {
@@ -55,9 +55,9 @@
       "cut": false
     },
     "metamorphic": {
-      "specs": 12,
-      "blocks": 52,
-      "complete": 10,
+      "specs": 42,
+      "blocks": 181,
+      "complete": 40,
       "needs_phrase": 0,
       "needs_then": 2,
       "cut": false
@@ -158,15 +158,29 @@
     ]
   },
   "metamorphic": {
-    "families": 6,
-    "specs": 12,
+    "families": 20,
+    "specs": 42,
     "values": [
       "flow=upgrade",
       "deviation=D4_loose_confirmation",
       "stage_transition=needs-to-identify",
       "stage_transition=needs-to-address",
       "stage_transition=details-to-recap",
-      "stage_transition=recap-to-order_placed"
+      "stage_transition=recap-to-order_placed",
+      "upgrade-order@channel",
+      "upgrade-unknown-email@channel",
+      "upgrade-most-data@channel",
+      "upgrade-plan-not-in-catalog@channel",
+      "home-order@channel",
+      "home-no-coverage@channel",
+      "home-address-not-found@channel",
+      "home-callback@channel",
+      "porting-keep-number@channel",
+      "porting-locked-number@channel",
+      "order-named-plan@channel",
+      "order-named-plan@user_type",
+      "order-single-plan@channel",
+      "order-single-plan@user_type"
     ]
   },
   "constraints": {
@@ -1123,14 +1137,14 @@
     "allowed": 840,
     "complete": {
       "t": 2,
-      "specs": 186,
+      "specs": 216,
       "allowed": 840,
       "covered": 679,
       "share": 0.8083333333333333
     },
     "all": {
       "t": 2,
-      "specs": 268,
+      "specs": 298,
       "allowed": 840,
       "covered": 700,
       "share": 0.8333333333333334

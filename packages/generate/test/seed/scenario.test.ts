@@ -563,3 +563,28 @@ describe('pilot iteration 6: a tool failure carries the words of its recovery', 
     expect(built.blocks.at(-1)?.must).toEqual(['not available']);
   });
 });
+
+describe('pilot iteration 7: invariance families over the context axes', () => {
+  it('walks one path with the same values under each persona and each channel, expecting the same', () => {
+    const prepared = prepare();
+    const result = generateSuite(prepared, { seed: 1, mapPath: 'map.yaml', t: 2 });
+    const families = new Map<string, Array<{ title: string; expects: string }>>();
+    for (const spec of result.complete) {
+      const meta = spec.metadata?.generated as { metamorphic?: { family: string } } | undefined;
+      if (!meta?.metamorphic || !(spec.title ?? '').includes(' over ')) continue;
+      const list = families.get(meta.metamorphic.family) ?? [];
+      list.push({
+        title: spec.title ?? '',
+        expects: JSON.stringify(spec.blocks.map((block) => block.expect)),
+      });
+      families.set(meta.metamorphic.family, list);
+    }
+    const titles = [...families.values()].map((list) => list[0]?.title ?? '');
+    expect(titles.some((title) => title.includes(' over user,'))).toBe(true);
+    expect(titles.some((title) => title.includes(' over channel,'))).toBe(true);
+    for (const list of families.values()) {
+      expect(list.length).toBeGreaterThanOrEqual(2);
+      expect(new Set(list.map((entry) => entry.expects)).size).toBe(1);
+    }
+  });
+});
