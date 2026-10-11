@@ -5,11 +5,11 @@
 <title>driftbench: one golden, three runs</title>
 <link rel="stylesheet" href="brand.css">
 <style>
-  /* One golden feeds three runs. Each run shows four blocks and the one quantity it isolates. */
+  /* One golden, the plan upgrade spec of the Acme example, feeds three runs. Each run shows four blocks and the one quantity it isolates. */
   #frame { width: 640px; height: 348px; }
-  .golden { left: 14px; top: 89px; width: 136px; padding: 11px 0 4px; }
+  .golden { left: 14px; top: 89px; width: 148px; padding: 11px 0 4px; }
   .golden .head { padding: 0 12px 8px; }
-  .golden .id { margin-top: 6px; font: 500 11px/1.2 var(--nx-mono); color: var(--nx-ink); }
+  .golden .id { margin-top: 6px; font: 500 10.5px/1.2 var(--nx-mono); color: var(--nx-ink); white-space: nowrap; }
   .golden .nx-irow { min-height: 24px; }
   .golden .nx-irow .k { width: 22px; }
   .golden .nx-irow .v { color: var(--detail); font-weight: 400; }
@@ -31,17 +31,17 @@
   <div class="nx-ill__glass">
     <svg class="nx-edges" viewBox="0 0 620 328">
       <!-- golden to each run -->
-      <path class="nx-edge" d="M150 164 C166 164 164 58 180 58"/>
-      <path class="nx-edge" d="M150 164 L180 164"/>
-      <path class="nx-edge" d="M150 164 C166 164 164 270 180 270"/>
+      <path class="nx-edge" d="M162 164 C173 164 169 58 180 58"/>
+      <path class="nx-edge" d="M162 164 L180 164"/>
+      <path class="nx-edge" d="M162 164 C173 164 169 270 180 270"/>
     </svg>
 
     <div class="nx-ill-panel golden">
-      <div class="head"><span class="nx-kind nx-kind--static">Golden</span><div class="id">acme.order_flow</div></div>
-      <div class="nx-irow"><span class="k">b1</span><span class="v">greet</span></div>
-      <div class="nx-irow"><span class="k">b2</span><span class="v">plan</span></div>
-      <div class="nx-irow"><span class="k">b3</span><span class="v">identity</span></div>
-      <div class="nx-irow"><span class="k">b4</span><span class="v">recap</span></div>
+      <div class="head"><span class="nx-kind nx-kind--static">Golden</span><div class="id">acme-plan-upgrade</div></div>
+      <div class="nx-irow"><span class="k">b1</span><span class="v">identify</span></div>
+      <div class="nx-irow"><span class="k">b2</span><span class="v">offer</span></div>
+      <div class="nx-irow"><span class="k">b3</span><span class="v">recap</span></div>
+      <div class="nx-irow"><span class="k">b4</span><span class="v">order placed</span></div>
     </div>
 
     <!-- teacher forced -->

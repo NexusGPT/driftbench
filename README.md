@@ -45,33 +45,56 @@ pnpm driftbench spec validate examples/acme/specs
 
 The last command loads the Acme Telecom specs and validates them against the spec schema. Acme Telecom is the synthetic sales assistant behind every example. No API key needed.
 
-A spec is one golden conversation, written as blocks in YAML. This one has a single block:
+A spec is one golden conversation, written as blocks in YAML. These are the first two of the five blocks in [`plan-upgrade.yaml`](examples/acme/specs/conversations/plan-upgrade.yaml):
 
 ```yaml
-id: acme.upgrade_plan
-version: "1"
-kind: conversation
+id: acme-plan-upgrade
+title: An existing customer moves to a plan with more data
+channel: chat
 lang: EN
+target: { adapter: function, agent: acme-sales }
+ledger_seed:
+  customer: existing
+  lang: EN
+stages: [identify, offer, recap, order_placed, callback, handover, closing]
+
 criteria:
-  - name: one_question
-    rubric: The reply asks one question at most.
+  - name: one_question_per_turn
+    rubric: The reply asks the customer at most one question.
+    judge_class: system1
+  - name: no_invented_data
+    rubric: >
+      Every plan, price, order number and account fact in the reply
+      comes from a tool result or from the customer. Nothing is guessed.
+    gating: true
+    judge_class: system2
+
 blocks:
-  - when:
-      user: >
-        Which plan has unlimited data?
-        I want to keep my number.
+  - user: Hi, I'm already an Acme customer and I keep running out of data on my phone.
     expect:
-      step: plan
+      stage: identify
+      tools:
+        - { label: catalog.search, count: 0 }
+      must: ['Acme Telecom', 'email address']
+      criteria: [one_question_per_turn]
+
+  - user: It's sam.rivera@example.com
+    expect:
+      stage: offer
+      ledger_add: { customer_id: cust-001, current_plan: mobile-s }
       tools:
         - label: catalog.search
           count: 1
-      must: [unlimited]
-      must_not: [as an AI]
-      ledger_add:
-        keep_number: true
-      criteria:
-        - one_question@gating
+          input:
+            category: mobile
+            customer_email: sam.rivera@example.com
+            address_id: { absent: true }
+      must: ['Acme Mobile M', 'Acme Mobile L', '\$25', '\$35']
+      must_not: ['Fiber', 'Air 5G']
+      criteria: [no_invented_data@gating, one_question_per_turn]
 ```
+
+Until the Phase 1 runner lands, `pnpm vitest run examples/acme` drives every Acme conversation through the agent and checks tools, text, stages, guards, the end state and the recovery after each deviation.
 
 ---
 
@@ -111,20 +134,20 @@ This section describes the design. Phase 0 builds the spec format now. The runne
 <a href=".github/readme/block-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-dark.png">
-    <img alt="One block in three parts. Given: earlier blocks, the facts so far, a catalogue stub, the channel. When: the user asks which plan has unlimited data and says they want to keep their number. Then: step plan, one catalogue search, the word unlimited, no robotic phrasing, a new fact in the ledger, the one question criterion. Below, every observed field passes and the block passes." src=".github/readme/block-light.png" width="100%">
+    <img alt="The second block of the plan upgrade spec in three parts. Given: the first block, an existing customer, the Acme store, the chat channel. When: the user gives the email on their account. Then: stage offer, one catalogue search, both larger plans named, no home plans, the customer id added to the ledger, the no invented data criterion. Below, every observed field passes and the block passes." src=".github/readme/block-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Given the state so far, when the user speaks, then the agent must reach the right step, call the right tools and say nothing it must not.</sub></p>
+<p align="center"><sub>Given the state so far, when the user speaks, then the agent must reach the right stage, call the right tools and say nothing it must not.</sub></p>
 
 A block holds everything the agent does between two user messages: text, cards, tool calls and tool results. The spec fixes what must be true after it. driftbench reads what happened, compares it field by field, and keeps the evidence behind every verdict. Run one block many times from the same Given and you get its own pass rate, free of the blocks before it.
 
 <a href=".github/readme/kinds-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-dark.png">
-    <img alt="The same block model for two agents. Left, a conversational agent: the user asks to keep their number, the agent checks porting eligibility and answers; step, tool call, language, ledger and one question are checked. Right, a code interpreter agent: the user asks for a price sheet, the agent loads a spreadsheet skill, runs a script that exits cleanly, creates one file and leaves the others untouched; cells and formulas, workspace diff, exit code and no destructive operation are checked." src=".github/readme/kinds-light.png" width="100%">
+    <img alt="The same block model for two agents. Left, the Acme sales assistant at block four: the user replies CONFIRM, the agent places the order and gives its order number; stage, tool call, confirmation guard, text and end state are checked. Right, a code interpreter agent at the first block of the price sheet task: it loads the xlsx skill, runs code that exits with 0, creates the price sheet workbook and leaves the other files untouched; sheets and cells, the formula, the workspace diff and no destructive operation are checked." src=".github/readme/kinds-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>One block model for both kinds of agent. The same checks read a reply, a tool call or a file.</sub></p>
+<p align="center"><sub>One block model for both kinds of agent. Left, the Acme agent's real reply. The same checks read a reply, a tool call or a file.</sub></p>
 
 When the agent writes code, uses a workspace and loads skills, a block is one task step, run in a sandbox. The same checks then read what the step left behind:
 
@@ -141,7 +164,7 @@ Agent harnesses add a runtime battery: hook replay with negative controls, skill
 <a href=".github/readme/modes-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/modes-dark.png">
-    <img alt="One golden feeds three runs. Teacher forced: each block starts from the golden, so a miss stays local; it measures local accuracy. Free running: the agent's own replies carry forward, one miss leads to another; it measures compounding. Perturbed: a deviation lands at block two and the agent is back one block later; it measures recovery." src=".github/readme/modes-light.png" width="100%">
+    <img alt="One golden, the plan upgrade spec, feeds three runs. Teacher forced: each block starts from the golden, so a miss stays local; it measures local accuracy. Free running: the agent's own replies carry forward, one miss leads to another; it measures compounding. Perturbed: a deviation lands at block two and the agent is back one block later; it measures recovery." src=".github/readme/modes-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>Teacher forced isolates each block. Free running lets errors compound. Perturbed injects a deviation and measures the way back.</sub></p>
@@ -170,7 +193,7 @@ Every failing block gets one or more drift classes:
 |---|---|
 | `X1` local error | a wrong answer or a wrong tool, facts intact |
 | `X2` contradiction | the reply contradicts a fact already established |
-| `X3` flow drift | the wrong step: skipped, repeated, or a known fact asked again |
+| `X3` flow drift | the wrong stage: skipped, repeated, or a known fact asked again |
 | `X4` format drift | narration, a language leak, a double send, channel rules broken |
 | `X5` tool drift | a call that is missing, extra, duplicated or wrongly filled |
 
