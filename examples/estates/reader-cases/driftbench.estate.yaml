@@ -3,3 +3,9 @@
 # and a folder matched by it is skipped whole.
 ignore:
   - archive
+# Folders outside the estate a path may name: the project the agent works on and the shared workspace.
+# They replace the defaults (docs/ and _meta/), so the defaults are listed again.
+externals:
+  - docs
+  - _meta
+  - companies

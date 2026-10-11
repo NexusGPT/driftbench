@@ -162,6 +162,11 @@ export type RawEstate = {
   };
   /** Path aliases: `REF` stands for each folder listed, so `REF/a.md` is tried as `<folder>/a.md`. */
   aliases?: Record<string, string[]>;
+  /**
+   * Folders outside the estate a named path may point into (`docs/`, `_meta/`). A path under one of them, or
+   * one that starts with `~/` or `/`, is external when the estate does not hold it.
+   */
+  externals?: string[];
 };
 
 export interface EstateReader {

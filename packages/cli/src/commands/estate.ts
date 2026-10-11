@@ -5,6 +5,7 @@ import {
   AtomKind,
   approveAtoms,
   estateRecordingPort,
+  INFORMATION,
   lintEstate,
   loadEstateMap,
   loadEstateRecording,
@@ -240,6 +241,12 @@ function scanReport(result: ScanEstateResult, out: string, io: Io): string {
     for (const duplicate of result.duplicates) lines.push(`    ${duplicate}`);
   }
   lines.push(...ignoredLines(result));
+  const external = map.atoms.filter((atom) => atom.kind === 'reference' && atom.fields?.external === true);
+  if (external.length > 0) {
+    lines.push(
+      `  External: ${external.length} named ${plural(external.length, 'path', 'paths')} outside the estate (information, not a finding).`,
+    );
+  }
   lines.push(listLine('Orphans', analysis.orphans));
   lines.push(listLine('Unreachable from the standing instructions', analysis.unreachableFiles));
   const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind)).length;
@@ -285,11 +292,12 @@ export async function estateLintCommand(
   const raw = await reader.read(root);
   const result = lintEstate(loaded.map, raw, { ceiling });
   const lines = [`${show(file, io)}: estate at ${show(root, io)}, ${loaded.map.atoms.length} atoms.`];
-  const shown = result.findings.filter((finding) => finding.code !== 'UNENFORCED');
+  const shown = result.findings.filter((finding) => !INFORMATION.has(finding.code));
   const width = Math.max(0, ...shown.map((finding) => finding.code.length));
   for (const finding of shown) lines.push(`  ${finding.code.padEnd(width)}  ${finding.message}`);
   lines.push(
     `  UNENFORCED  ${result.counts.UNENFORCED} rules no guard enforces (trusted; listed by estate scan).`,
+    `  EXTERNAL    ${result.counts.EXTERNAL} named paths outside the estate (information).`,
   );
   lines.push(
     result.failed ? `${shown.length} ${plural(shown.length, 'finding', 'findings')}.` : 'Clean.',

@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-11T21:49:08.903Z
+readAt: 2026-10-11T21:56:49.807Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -616,6 +616,94 @@ atoms:
       exists: true
       readWhen: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
       from: CLAUDE.md
+  - id: reference.standing.read-companies-fjord-kitchenware-md
+    kind: reference
+    title: Read companies/fjord-kitchenware.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
+    producedBy: code
+    role: detail
+    approved: true
+    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+    evidence:
+      - { type: tool_called, label: Read, input: { file_path: { contains: companies/fjord-kitchenware.md } } }
+    enforcement: []
+    fields:
+      path: companies/fjord-kitchenware.md
+      exists: false
+      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      from: CLAUDE.md
+      external: true
+  - id: reference.standing.read-meta-identity-md
+    kind: reference
+    title: Read _meta/IDENTITY.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
+    producedBy: code
+    role: detail
+    approved: true
+    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+    evidence:
+      - { type: tool_called, label: Read, input: { file_path: { contains: _meta/IDENTITY.md } } }
+    enforcement: []
+    fields:
+      path: _meta/IDENTITY.md
+      exists: false
+      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      from: CLAUDE.md
+      external: true
+  - id: reference.standing.read-docs-design-md
+    kind: reference
+    title: Read docs/DESIGN.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
+    producedBy: code
+    role: detail
+    approved: true
+    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+    evidence:
+      - { type: tool_called, label: Read, input: { file_path: { contains: docs/DESIGN.md } } }
+    enforcement: []
+    fields:
+      path: docs/DESIGN.md
+      exists: false
+      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      from: CLAUDE.md
+      external: true
+  - id: reference.standing.read-notes-claims-md
+    kind: reference
+    title: Read ~/notes/claims.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 26
+      endLine: 26
+      quote: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      hash: 60f74b4aee2bfa083fe0179c0f4ad21fcfc602d6cb1ff972ac11b2eb9326dfba
+    producedBy: code
+    role: detail
+    approved: true
+    situation: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+    evidence:
+      - { type: tool_called, label: Read, input: { file_path: { contains: ~/notes/claims.md } } }
+    enforcement: []
+    fields:
+      path: ~/notes/claims.md
+      exists: false
+      readWhen: When a claim names a supplier, read its file `companies/fjord-kitchenware.md` and the brand rules `_meta/IDENTITY.md`; the project's design is in `docs/DESIGN.md`; your own notes are `~/notes/claims.md`.
+      from: CLAUDE.md
+      external: true
   - id: route.standing.an-ask-to-file-a-claim
     kind: route
     title: An ask to file a claim for a damaged or missing parcel loads parcel-claims
@@ -1111,7 +1199,7 @@ atoms:
     fields:
       check: standing_size
       ceiling: 40000
-      characters: 1361
+      characters: 1565
       holds: true
   - id: invariant.standing.no-file-of-the-estate-is
     kind: invariant
@@ -1207,5 +1295,5 @@ ignore:
 producedBy:
   family: lane
   model: claude-opus-5-5 as the reader lane, by hand
-  at: 2026-10-11T21:49:08.903Z
-hash: 7643ab3b84f607e37cd7d59a41df68b4eb57310abfcf952d1fa2031417f3efd5
+  at: 2026-10-11T21:56:49.807Z
+hash: 15b204d41636a5a45f0a6763d5de4778f802c7871b7adfa5e860222692234524
