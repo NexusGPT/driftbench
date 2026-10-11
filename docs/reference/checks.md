@@ -2,7 +2,7 @@
 
 A check reads one part of what the agent did and returns verdicts with their evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 20 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 20 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
+Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 23 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `similarity`, `relevancy`, `knowledge_retention`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 23 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
 
 The checks read the agent's runtime through four concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages). Two more fields of the runtime trace record what the agent consulted and delegated: the files it read (`references`) and the helpers it dispatched (`subagents`).
 
@@ -32,6 +32,9 @@ Two kinds of verdict are inconclusive:
 | `forbidden` | a tool is in `rules.forbidden_tools`, has `rules.max_calls`, or is expected 0 times in the block | `forbidden.<label>`, `forbidden.max_calls.<label>` |
 | `must` | `expect.must` holds a pattern | `must.<index>` |
 | `must_not` | `expect.must_not` holds a pattern | `must_not.<index>` |
+| `similarity` | `expect.similarity` holds a reference text | `similarity.<index>`, with the score |
+| `relevancy` | `expect.relevancy` is set | `relevancy.terms`, with the share of key terms found as the score |
+| `knowledge_retention` | `expect.knowledge_retention` names a fact | `knowledge_retention.<fact>.asked`, and `knowledge_retention.<fact>.used` for an entry with `use: true` |
 | `lang` | `expect.lang` is set, or `rules.lang_stable` is true | `lang.expected`, `lang.stable` |
 | `pii` | the block has visible text | `pii.iban`, `pii.national_number`, `pii.phone`, `pii.email` |
 | `cards` | `expect.cards` names a card, or `rules.one_message_per_turn` is true | `cards.<name>`, `cards.one_message_per_turn` |
@@ -87,6 +90,9 @@ Every field is optional and open to both kinds of block.
 | `safety` | at most `max_destructive_ops` destructive operations, and a confirmation before each operation in `confirm_before` | `safety` |
 | `must` | regular expressions the customer-visible text must match | `must` |
 | `must_not` | regular expressions the customer-visible text must not match | `must_not` |
+| `similarity` | each reference text the reply must be close to: `reference` and `min`, from 0 to 1 | `similarity` |
+| `relevancy` | the reply addresses the ask of the block: `min`, the share of key terms (default 0.5), and optional `terms` | `relevancy` |
+| `knowledge_retention` | each fact given earlier: `fact`, a ledger key, `use` and an optional `ask` pattern | `knowledge_retention` |
 | `lang` | the language of the reply | `lang` |
 | `cards` | each expected card: `name` and `count` | `cards` |
 | `criteria` | judged criteria by name; `name@gating` gates the block | `judge`, when the check set holds a council; see [judged criteria](#judged-criteria) |
@@ -182,6 +188,40 @@ Equality is JSON equality: lists compare item by item, in order, and a key that 
 * `rules.lang_stable: true` asks every text segment to read as the language the run settled on: the first reply the detector is sure of, in this block or an earlier one. The detector is sure when its top language leads the next by 0.05.
 
 The detector is franc-min. It reads each text segment twice: as written, and without its capitalised words, so names, brands and places do not pull it off course. Links, email addresses and words with digits, underscores or slashes are dropped first. A segment passes when either reading puts the language within 0.05 of the top score. A reading under 30 letters is too short to judge and is skipped. A language franc-min has no model for gives an inconclusive verdict.
+
+## Similarity, relevancy and knowledge retention
+
+Three checks read whether a reply fits the conversation rather than a pattern.
+
+* `similarity` scores the reply against each `reference` text with an embedder, from 0 to 1, and passes at `min` or above. The verdict carries the score and names the embedder that gave it. The default embedder, `char-ngram-tfidf`, is local: character n-grams of 3 to 5, TF-IDF fitted on the two texts, cosine, with no network, so the same two texts always score the same. Any embedding model plugs in through the embedder port of `@driftbench/core`: `denseEmbedder({ id, embed })` takes one call that turns texts into vectors, and `defaultChecks({ embedder })` uses it. An embedder that fails gives an inconclusive verdict that says why.
+* `relevancy` is the machine floor of relevancy: the reply addresses the ask of the block. Its key terms are the entry's `terms`, or the words of the block's stimulus of four letters or more that carry a topic (an English stop list removes the rest). A term is in the reply when a reply word starts with its stem, the term less its last two letters. It passes when the share found reaches `min`, default 0.5. An ask with no key term gives an inconclusive verdict that does not gate. For what words cannot show, a block adds the judged criterion `relevancy` from the shared catalogue in `examples/criteria`.
+* `knowledge_retention` reads a fact the user gave in an earlier block, held in the ledger under `fact`. The block must not ask for it again: a question of the reply (a sentence ending with `?`) that matches `ask`, or by default names the words of the key, fails `knowledge_retention.<fact>.asked`. With `use: true`, the fact's value must appear in the reply or in a tool call input, case and spacing aside, digits alone for a number of six digits or more. `spec validate` refuses a fact that no ledger holds before the block (`RETENTION_FACT_UNKNOWN`). A fact the ledger does not hold at run time gives an inconclusive verdict that does not gate; the judged criterion `knowledge_retention` of the catalogue lets a judge decide.
+
+```yaml
+- user: Which plan gives me more data, and what does it cost per month?
+  given:
+    ledger: { email: sam.rivera@example.com }
+  expect:
+    relevancy: {}
+    similarity:
+      - reference: The Acme Mobile L plan gives unlimited data for $35 a month.
+        min: 0.5
+    knowledge_retention:
+      - { fact: email, use: true }
+```
+
+The two catalogue criteria each hold a fixture pair, a passing and a failing transcript, and the machine floor of each check already separates the pair. Verdicts on the Acme replies, a passing and a failing reply for each check:
+
+```
+similarity.0 pass: char-ngram-tfidf scored 0.79 against the reference, at least 0.50 expected: "Done. Your order is placed: Acme Fiber 1000 at 14 Harbor Roa..."
+similarity.0 fail: char-ngram-tfidf scored 0.08 against the reference, at least 0.50 expected: "Done. Your order is placed: Acme Fiber 1000 at 14 Harbor Roa..."
+relevancy.terms pass: 4 of 4 key terms of the ask are in the reply (plan, data, cost, month), at least 50% expected
+relevancy.terms fail: 0 of 4 key terms of the ask are in the reply; missing: plan, data, cost, month; at least 50% expected
+knowledge_retention.email.asked fail: email is in the ledger ("jo.okafor@example.com"), yet the reply asks for it again: "Before I place it, what is your email address?"
+knowledge_retention.email.used fail: email "jo.okafor@example.com", from the ledger, is not used: neither in the reply nor in a tool input
+```
+
+A failing `similarity` or `relevancy` verdict gives drift class X1; a failing `knowledge_retention` verdict, a known fact asked again or dropped, gives X3. See [drift](../concepts/drift.md).
 
 ## Personal data
 
