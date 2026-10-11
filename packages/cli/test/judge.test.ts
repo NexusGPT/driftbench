@@ -2,7 +2,27 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defaultChecks } from '@driftbench/checks';
+import type { Store } from '@driftbench/core';
+import {
+  type Cassette,
+  type CassetteJudge,
+  cassettePlayers,
+  councilAssignment,
+  createCouncil,
+  emptyCassette,
+  FakeJudge,
+  type JudgeClient,
+  type JudgeRequest,
+  loadAssignmentTable,
+  loadCassette,
+  recordingClient,
+  saveCassette,
+} from '@driftbench/judges';
+import { openMemoryStore } from '@driftbench/store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { ACME_JUDGES } from '../../judges/test/support/scripted';
+import { type CampaignDeps, campaignRunCommand, defaultDeps } from '../src/commands/campaign';
 import { type Io, main } from '../src/index';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
@@ -290,4 +310,166 @@ describe('driftbench judge run with an assignment table', () => {
     expect(code).toBe(2);
     expect(err).toContain('the assignment table is for mode hybrid');
   });
+});
+
+/**
+ * Step 3: the judge council in the default check set. `defaultChecks({ judges: council })` adds the judge
+ * check after every machine check; no council, no judge check. The campaign runs the Acme conversation
+ * specs and the price-sheet task over a cassette of scripted answers, with the assignment calibration
+ * wrote. To record the cassette again after a change to the Acme agents or criteria, run this file with
+ * DRIFTBENCH_RECORD_JUDGES=1: scripted judges answer, every answer is recorded, the file is rewritten.
+ */
+const CAMPAIGN_CASSETTE = 'examples/acme/criteria/calibration/campaign.cassette.json';
+const RECORD = process.env.DRIFTBENCH_RECORD_JUDGES === '1';
+
+/** The scripted answers behind the campaign cassette. Hand-written, not a real model's. */
+function scriptedJudge(judge: CassetteJudge): FakeJudge {
+  const rows = [
+    '| Acme Mobile S | 10 GB | 15 |',
+    '| Acme Mobile M | 40 GB | 25 |',
+    '| Acme Mobile L | unlimited | 35 |',
+    '| Acme Fiber 300 | 300 Mbps | 40 |',
+    '| Acme Fiber 1000 | 1000 Mbps | 60 |',
+    '| Acme Air 5G | 200 Mbps | 35 |',
+  ];
+  return new FakeJudge(
+    judge.id,
+    [
+      (request: JudgeRequest) => {
+        let outcome: 'pass' | 'fail' = 'pass';
+        let reasoning = `${judge.id}: the block matches the PASS picture`;
+        if (request.criterion.name === 'sheet_matches_catalog') {
+          const missing = rows.filter((row) => !(request.artifact ?? '').includes(row));
+          if (missing.length > 0) {
+            outcome = 'fail';
+            reasoning = `${judge.id}: not in the workbook: ${missing.join(' ')}`;
+          } else reasoning = `${judge.id}: every catalog row is in the workbook`;
+        }
+        const score = outcome === 'pass' ? 0.95 : 0.05;
+        if (judge.cls === 'system1') return { outcome, score, reasoning };
+        // Chat answers: google leaves the score out, so a cascade it leads never stops early.
+        if (judge.family === 'google') return JSON.stringify({ outcome, reasoning });
+        return JSON.stringify({ outcome, score, reasoning });
+      },
+    ],
+    { family: judge.family, cls: judge.cls, cost: judge.cost },
+  );
+}
+
+type Captured = { judge: string; request: JudgeRequest };
+
+async function judgedCampaign(cassette: Cassette, captured: Captured[]) {
+  const table = councilAssignment(await loadAssignmentTable(join(ROOT, TABLE)));
+  const judges: JudgeClient[] = (
+    RECORD
+      ? ACME_JUDGES.map((judge) => recordingClient(scriptedJudge(judge), cassette))
+      : cassettePlayers(cassette)
+  ).map((client) => ({
+    id: client.id,
+    family: client.family,
+    cls: client.cls,
+    cost: client.cost,
+    judge: (request: JudgeRequest) => {
+      captured.push({ judge: client.id, request });
+      return client.judge(request);
+    },
+  }));
+  return createCouncil({
+    mode: table.mode,
+    agentFamily: 'none',
+    judges,
+    assignment: table.assignment,
+    unassigned: table.unassigned,
+    cascade: true,
+  });
+}
+
+describe('the judge check in the default check set', () => {
+  it('is absent without a council and comes last with one', async () => {
+    expect(defaultChecks().map((check) => check.name)).not.toContain('judge');
+    const council = await judgedCampaign(await loadCassette(join(ROOT, CAMPAIGN_CASSETTE)), []);
+    const names = defaultChecks({ judges: council }).map((check) => check.name);
+    expect(names.at(-1)).toBe('judge');
+    expect(names.slice(0, -1)).toEqual(defaultChecks().map((check) => check.name));
+  });
+
+  it('runs the Acme specs with judged criteria over the cassette, under the calibrated assignment', async () => {
+    const cassette = RECORD ? emptyCassette() : await loadCassette(join(ROOT, CAMPAIGN_CASSETTE));
+    const captured: Captured[] = [];
+    const council = await judgedCampaign(cassette, captured);
+    const store = openMemoryStore();
+    const deps: CampaignDeps = {
+      ...defaultDeps,
+      checks: defaultChecks({ judges: council }),
+      // The campaign closes its store; this one stays open so the test can read the runs back.
+      openStore: async () =>
+        new Proxy(store, {
+          get: (target, key) => {
+            if (key === 'close') return async () => {};
+            const value = Reflect.get(target, key, target);
+            return typeof value === 'function' ? value.bind(target) : value;
+          },
+        }) as Store,
+      now: () => new Date('2026-10-11T00:00:00.000Z'),
+    };
+    const output = { out: '', err: '' };
+    const io: Io = {
+      out: (text) => {
+        output.out += text;
+      },
+      err: (text) => {
+        output.err += text;
+      },
+      cwd: ROOT,
+    };
+    const code = await campaignRunCommand(
+      ['examples/acme/specs/conversations', 'examples/acme/specs/tasks'],
+      { target: [], mode: 'F', repeats: '1', cache: false, concurrency: '1', json: true },
+      io,
+      deps,
+    );
+    if (RECORD) await saveCassette(join(ROOT, CAMPAIGN_CASSETTE), cassette);
+    expect(output.err).toBe('');
+    expect(code).toBe(0);
+    const report = JSON.parse(output.out);
+    expect(report.checks.at(-1)).toBe('judge');
+    expect(report.cells).toHaveLength(7);
+    expect(report.cells.every((cell: { state: string }) => cell.state === 'pass')).toBe(true);
+
+    const runs = await store.listRuns();
+    await store.close();
+    const judged = runs.flatMap((run) =>
+      run.blocks.flatMap((block) => block.verdicts.filter((verdict) => verdict.kind === 'judge')),
+    );
+    expect(judged.length).toBeGreaterThan(10);
+    expect(judged.every((verdict) => verdict.outcome === 'pass')).toBe(true);
+    // No judge call missed the cassette.
+    expect(judged.every((verdict) => !verdict.evidence.includes('gave no answer'))).toBe(true);
+
+    // The cascade stops on a sure pass with a score: one system 1 vote.
+    const one = judged.find((verdict) => verdict.name === 'one_question_per_turn');
+    expect(one?.judge).toMatchObject({ cls: 'system1' });
+    expect(one?.judge?.votes.map((vote) => vote.judge)).toEqual(['jev-a']);
+    // Calibration gave no_invented_data to system 2, led by google-chat, which gives no score: all three vote.
+    const invented = judged.find((verdict) => verdict.name === 'no_invented_data');
+    expect(invented?.judge?.cls).toBe('system2');
+    expect(invented?.judge?.votes.map((vote) => vote.judge)).toEqual([
+      'google-chat',
+      'openai-chat',
+      'anthropic-chat',
+    ]);
+    expect(invented?.gating).toBe(true);
+    // ledger_intact is unassigned: judged, never gating.
+    const ledger = judged.find((verdict) => verdict.name === 'ledger_intact');
+    expect(ledger).toMatchObject({ gating: false, outcome: 'pass' });
+    expect(ledger?.evidence).toMatch(/^unassigned by calibration, not gating/);
+
+    // The task block: the judge read the workbook the ops agent wrote, through the xlsx reader.
+    const sheet = judged.find((verdict) => verdict.name === 'sheet_matches_catalog');
+    expect(sheet).toMatchObject({ gating: true, outcome: 'pass', judge: { cls: 'system1' } });
+    const request = captured.find((c) => c.request.criterion.name === 'sheet_matches_catalog')?.request;
+    expect(request?.artifact).toContain('File out/acme-price-sheet.xlsx (xlsx)');
+    expect(request?.artifact).toContain('| 3 | Acme Mobile M | 40 GB | 25 | 300 (=C3*12) |');
+    expect(request?.artifact).toMatch(/Workspace changes: created out\/acme-price-sheet\.xlsx/);
+  }, 120_000);
 });

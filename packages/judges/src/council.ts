@@ -1,5 +1,6 @@
-import type { Vote as VoteSchema } from '@driftbench/core';
+import type { Check, Vote as VoteSchema } from '@driftbench/core';
 import type { z } from 'zod';
+import { type JudgeCheckOptions, judgeCheck } from './check';
 import type { JudgeClient } from './client';
 import type { Budget, JudgeClass, JudgeOutcome, JudgeRequest } from './contract';
 import { normalizeFamily, sameFamily } from './family';
@@ -109,6 +110,8 @@ export type Council = {
   unassignedReason(criterion: string): string | undefined;
   /** Judges one request. Never throws on a judge failure: the failure becomes an inconclusive vote. */
   judge(request: JudgeRequest, judgeClass?: 'system1' | 'system2' | 'auto'): Promise<CouncilResult>;
+  /** This council as the `judge` check, for a check set such as `defaultChecks({ judges: council })`. */
+  check(options?: JudgeCheckOptions): Check;
 };
 
 export function createCouncil(config: CouncilConfig): Council {
@@ -149,6 +152,7 @@ export function createCouncil(config: CouncilConfig): Council {
     agentFamily: config.agentFamily,
     assignmentFor,
     unassignedReason: (criterion) => unassigned.get(criterion),
+    check: (options) => judgeCheck(council, options),
     async judge(request, judgeClass) {
       const row = assignmentFor(request.criterion.name, judgeClass);
       const pick = (ids: readonly string[]) => ids.map((id) => byId.get(id) as JudgeClient);
