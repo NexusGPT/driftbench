@@ -1,3 +1,6 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Command, CommanderError } from 'commander';
 import { describe, expect, it } from 'vitest';
@@ -122,5 +125,30 @@ describe('driftbench smoke', () => {
     const target = await cli(['smoke', SPEC, '--target', 'nexus:max']);
     expect(target.code).toBe(2);
     expect(target.err).toContain('No adapter is set up for nexus:max.');
+  });
+
+  it('runs the spec on its own target without --target: the price sheet on the ops agent, identical', async () => {
+    const { code, out } = await cli(['smoke', 'examples/acme/specs/tasks/price-sheet.yaml', '--runs', '2']);
+    expect(code, out).toBe(0);
+    expect(out).toContain('Smoke: acme-price-sheet on process:acme-ops, 2 runs, cache off.');
+    expect(out).toContain('✓ The transcripts are identical.');
+  }, 120_000);
+
+  it('exits 2 naming a spec with no target when --target is absent', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-smoke-'));
+    try {
+      const spec = join(dir, 'untargeted.yaml');
+      await writeFile(
+        spec,
+        ['id: acme-untargeted', 'blocks:', '  - user: Hello', '    expect: { must: [Acme Telecom] }'].join(
+          '\n',
+        ),
+      );
+      const { code, err } = await cli(['smoke', spec]);
+      expect(code).toBe(2);
+      expect(err).toContain('acme-untargeted names no target.');
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 });

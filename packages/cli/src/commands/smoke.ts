@@ -1,14 +1,23 @@
 import { compareTranscripts, type RunResult, runSpec } from '@driftbench/core';
 import type { Command } from 'commander';
 import type { Io } from '../io';
-import { type CampaignDeps, defaultDeps, loadValidSpecs, parseTarget, showTarget } from './campaign';
+import {
+  type CampaignDeps,
+  defaultDeps,
+  loadValidSpecs,
+  noAdapter,
+  parseTarget,
+  showTarget,
+  specRuns,
+} from './campaign';
 
-type SmokeOptions = { target: string; runs: string; json?: boolean };
+type SmokeOptions = { target?: string; runs: string; json?: boolean };
 
 /**
- * `driftbench smoke <spec> --target <adapter[:agent]> [--runs 3]`: the determinism check. Runs one spec
- * several times in mode F with the cache off and compares the transcripts block by block. Exit 0 when
- * they are identical, 1 when they differ or a run fails, 2 on bad input.
+ * `driftbench smoke <spec> [--target <adapter[:agent]>] [--runs 3]`: the determinism check. Runs one spec
+ * several times in mode F with the cache off and compares the transcripts block by block. Without
+ * --target the spec runs on its own target. Exit 0 when they are identical, 1 when they differ or a run
+ * fails, 2 on bad input.
  */
 export function registerSmokeCommand(
   program: Command,
@@ -20,7 +29,10 @@ export function registerSmokeCommand(
     .command('smoke')
     .description('Run one spec several times with the cache off and report whether the transcripts differ')
     .argument('<spec>', 'one spec file')
-    .requiredOption('--target <adapter[:agent]>', 'the target to run on, such as function:acme')
+    .option(
+      '--target <adapter[:agent]>',
+      "the target to run on, such as function:acme-sales; without it, the spec's own target",
+    )
     .option('--runs <n>', 'how many runs to compare, at least 2', '3')
     .option('--json', 'print one JSON document')
     .action(async (path: string, options: SmokeOptions) => {
@@ -46,12 +58,13 @@ export async function smokeCommand(
     io.err(`smoke takes one spec; ${path} holds ${loaded.length}.\n`);
     return 2;
   }
-  const target = parseTarget(options.target);
+  const given = options.target === undefined ? [] : [parseTarget(options.target)];
+  const [run] = specRuns([entry], given, io) ?? [];
+  const target = run?.targets[0];
+  if (run === undefined || target === undefined) return 2;
   const adapter = await deps.adapterFor(target);
   if (!adapter) {
-    io.err(
-      `No adapter is set up for ${showTarget(target)}. The CLI reaches function:acme, the Acme example agent.\n`,
-    );
+    io.err(`${noAdapter(target, run.pinned === undefined ? [] : [entry.spec.id])}\n`);
     return 2;
   }
 
