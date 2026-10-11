@@ -1,0 +1,55 @@
+/**
+ * The runner: runs a spec through an adapter, block by block, in free-running mode; plans and runs
+ * campaigns; compares transcripts for the determinism smoke test.
+ */
+export {
+  compareEndState,
+  deepEqual,
+  type EndStateDiff,
+  type EndStateMatch,
+  matchAssertion,
+} from './assertion';
+export {
+  type BlockKeyParts,
+  blockCacheKey,
+  endStateCacheKey,
+  type ObservedCache,
+  unwrapEndState,
+  wrapEndState,
+} from './cache';
+export {
+  type CampaignPlan,
+  type CampaignRunOptions,
+  type CellKey,
+  type CellOutcome,
+  type CostLine,
+  cellId,
+  cellIdOf,
+  type MinimumDetectableEffect,
+  minimumDetectableEffect,
+  outcomeOf,
+  type PlannedCell,
+  type PlanOptions,
+  planCampaign,
+  runCampaign,
+  runsByCell,
+} from './campaign';
+export {
+  addFacts,
+  assistantMessage,
+  enterBlock,
+  initialGiven,
+  mergeWorld,
+  type RunningGiven,
+  resolveGiven,
+  stimulusMessages,
+} from './given';
+export { CallFailure, describeError, isTransportError, type RetryOptions, withRetry } from './retry';
+export { type RunOptions, runSpec, type WorkspaceReading } from './run';
+export { succession } from './succession';
+export {
+  compareTranscripts,
+  type TranscriptBlock,
+  type TranscriptComparison,
+  transcriptOf,
+} from './transcript';
