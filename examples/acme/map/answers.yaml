@@ -347,26 +347,6 @@ answers:
   data:
     section: data
     dimensions:
-      - id: account_lookup
-        title: What the plan lookup finds for the email the customer gives
-        kind: data
-        values:
-          - id: found
-            title: An account has that email
-            source: ../src/policy.ts
-            quote: "s.customer = { ...s.customer, id: customer.id, name: customer.name };"
-          - id: not-found
-            title: No account has that email
-            source: ../src/policy.ts
-            quote: "I can't find an Acme account with ${email}."
-          - id: plan-not-in-catalog
-            title: The account's current plan is not in the catalog, so every mobile plan is offered
-            source: ../src/policy.ts
-            quote: "return `Thanks, ${name}. Our mobile plans: ${list(catalog.plans)}. ${offerQuestion(s)}`;"
-          - id: most-data
-            title: The account is already on the plan with the most data
-            source: ../src/policy.ts
-            quote: which already has the most data
       - id: coverage_result
         title: What the coverage check says about the address
         kind: data
@@ -387,6 +367,26 @@ answers:
             title: The address is not in the coverage map
             source: ../src/policy.ts
             quote: "I can't find ${s.address} in our coverage map."
+      - id: account_lookup
+        title: What the plan lookup finds for the email the customer gives
+        kind: data
+        values:
+          - id: found
+            title: An account has that email
+            source: ../src/policy.ts
+            quote: "s.customer = { ...s.customer, id: customer.id, name: customer.name };"
+          - id: not-found
+            title: No account has that email
+            source: ../src/policy.ts
+            quote: "I can't find an Acme account with ${email}."
+          - id: plan-not-in-catalog
+            title: The account's current plan is not in the catalog, so every mobile plan is offered
+            source: ../src/policy.ts
+            quote: "return `Thanks, ${name}. Our mobile plans: ${list(catalog.plans)}. ${offerQuestion(s)}`;"
+          - id: most-data
+            title: The account is already on the plan with the most data
+            source: ../src/policy.ts
+            quote: which already has the most data
       - id: home_plans
         title: How many home plans the address gets
         kind: data

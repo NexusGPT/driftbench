@@ -99,6 +99,7 @@ describe('extractMap with a model: the answer contract', () => {
       forbid: { language: 'other', channel: 'email' },
       reason: 'invented for the test',
       evidence: { source: 'prompt.md', quote: 'If the customer writes in another language' },
+      produced_by: 'model',
       approved: false,
     });
     expect(proposal.phrases).toEqual([
@@ -108,16 +109,38 @@ describe('extractMap with a model: the answer contract', () => {
         text: 'What is my balance?',
         lang: 'en',
         evidence: { source: 'prompt.md', quote: '"What is my balance?"' },
+        produced_by: 'model',
         approved: false,
       },
-      { dimension: 'language', value: 'other', text: 'Quel est mon solde ?', lang: 'fr', approved: false },
+      {
+        dimension: 'language',
+        value: 'other',
+        text: 'Quel est mon solde ?',
+        lang: 'fr',
+        produced_by: 'model',
+        approved: false,
+      },
     ]);
     const flags = [
-      ...proposal.dimensions.flatMap((dimension) => dimension.values.map((value) => value.approved)),
+      ...proposal.dimensions.map((dimension) => dimension.approved),
       ...proposal.constraints.map((constraint) => constraint.approved),
       ...proposal.phrases.map((phrase) => phrase.approved),
     ];
     expect(flags.every((flag) => flag === false)).toBe(true);
+    expect(proposal.dimensions.flatMap((d) => d.values).every((value) => value.approved === undefined)).toBe(
+      true,
+    );
+    expect(proposal.dimensions.map((d) => [d.id, d.role, d.produced_by])).toEqual([
+      ['behaviour', 'axis', 'code'],
+      ['flow', 'detail', 'code'],
+      ['deviation', 'axis', 'code'],
+      ['channel', 'axis', 'code'],
+      ['stage', 'axis', 'model'],
+      ['rule', 'detail', 'model'],
+      ['language', 'axis', 'model'],
+    ]);
+    expect(proposal.constraints.map((c) => c.produced_by)).toEqual(['code', 'model']);
+    expect(proposal.phrases.every((phrase) => phrase.produced_by === 'model')).toBe(true);
     expect(validateProposal(proposal).ok).toBe(true);
   });
 

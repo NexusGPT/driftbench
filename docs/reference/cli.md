@@ -1,6 +1,6 @@
 # CLI
 
-`driftbench` is the command line. Today it checks spec files: `spec validate`, `spec lint` and `spec coverage` work. Commands that run agents are planned, phase 1 and later.
+`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), and proposes that map (`extract`). The campaign and smoke commands, their options, their output and their exit codes are on the [running](../running.md) page.
 
 ## Running it
 
@@ -11,7 +11,7 @@ pnpm install
 pnpm driftbench spec validate path/to/specs
 ```
 
-Relative paths are read from the folder where you type the command.
+Relative paths are read from the folder where you type the command. `pnpm -s driftbench` prints only what driftbench prints, without pnpm's own lines.
 
 The Acme example runs `spec validate`, `spec lint` and `spec coverage` on seven specs and an inventory: [`examples/acme`](../../examples/acme/README.md) shows the commands and their output.
 
@@ -47,7 +47,7 @@ An invalid spec lists every error with its path in the spec and its code:
     blocks.0.expect.stage  STAGE_UNKNOWN  stage "b" is not in the spec's stages
 ```
 
-The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash, not the spec's `version`, keys the cache of the runner (planned, phase 1); `version` is a free label.
+The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash. The hash, not the spec's `version`, is part of the runner's cache key and of every run id; `version` is a free label. See [running](../running.md#the-cache-and-replay).
 
 | Option | Effect |
 |---|---|
@@ -241,15 +241,172 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `--version` | print the version |
 | `--help` | print the usage of the program or of a command |
 
+## Campaigns and smoke
+
+These commands run specs on a target. Each has its options, its output and its exit codes on the [running](../running.md) page.
+
+| Command | Does |
+|---|---|
+| [`campaign plan`](../running.md#driftbench-campaign-plan) | expands specs, targets, modes and repeats into cells, projects their cost and prints the minimum detectable effect |
+| [`campaign run`](../running.md#driftbench-campaign-run) | runs every cell and prints pass or fail per cell |
+| [`campaign status`](../running.md#driftbench-campaign-status) | prints the state of every cell of a stored campaign |
+| [`campaign resume`](../running.md#driftbench-campaign-resume) | runs the cells of a stored campaign that have no completed run, and reuses the others |
+| [`smoke`](../running.md#driftbench-smoke) | runs one spec several times with the cache off and reports whether the transcripts differ |
+
+## `driftbench space`
+
+The space commands read a map of the situations an agent can face, and count how much of it the specs cover. The map is a YAML or JSON file, usually beside the agent's inventory; [`packages/space/test/fixtures/acme-space.yaml`](../../packages/space/test/fixtures/acme-space.yaml) is the Acme map. Every key is checked strictly.
+
+| Key | Holds |
+|---|---|
+| `version`, `agent` | the map's version and the agent it describes |
+| `inventory` | optional: the behaviour inventory, relative to the map; the flow deviations it requires become required cells |
+| `dimensions` | each with an `id`, a `title`, a `kind` (`stage`, `behaviour`, `deviation`, `persona`, `channel`, `data` or `task`) and its `values`. A value has an `id`, a `title`, an optional relative `weight`, and `required: true` when it must be covered. |
+| `constraints` | combinations that cannot happen: `forbid` names a value per dimension, with a `reason` |
+| `prior` | `declared` or `fitted` (a fitted prior names its `source`), with optional `weights` per dimension |
+
+A cell is one value per dimension. The value `none` is reserved: it collects a block or a spec that names no value of the dimension. A spec is placed by its blocks and perturbations: the stage from a block's `expect.stage` (a deviation sits on the stage the conversation has reached when it arrives), the deviation from an injection or a perturbation, the behaviours from `covers`, the channel from `channel`, and persona, data and task from the tags `persona:<id>`, `data:<id>` and `task:<id>`.
+
+### `driftbench space coverage`
+
+```
+driftbench space coverage <paths...> --map <file> [--t <n>] [--json]
+```
+
+Counts the cells of the map the specs cover: per dimension, on every subset of `t` dimensions (the full grid without `--t`), weighted by the prior, and for each required cell. A cell the constraints forbid counts in neither the covered cells nor the allowed ones.
+
+```
+$ pnpm -s driftbench space coverage --map packages/space/test/fixtures/acme-space.yaml examples/acme/specs --t 2
+Map acme-sales, version 1: 6 dimensions, 54432 cells, 5 constraints, prior declared (Owner estimate for the fictional Acme example)
+
+Dimensions
+  id         kind       values  covered  not covered
+  stage      stage      12      12
+  behaviour  behaviour  14      13       B-007
+  deviation  deviation  9       7        D2_goal_shift, D3_contradiction
+  channel    channel    2       2
+  persona    persona    3       0        cooperative, terse, sceptical
+  data       data       6       1        fiber, no-fiber, check-fails, portable, locked
+
+Grid at t = 2: 15 subsets of 2 dimensions
+  cells     818 allowed of 823 (5 forbidden by the constraints)
+  covered   196 (24.0%)
+  weighted  34.0% of the declared user mix, effective sample size 6.3 of 7 specs
+
+t-wise coverage
+  t = 2  196 of 818 allowed pairs (24.0%)
+  t = 3  390 of 7082 allowed triples (5.5%)
+
+Required cells
+  ✓  stage=recap · deviation=D4_loose_confirmation  acme-order-loose-confirmation, acme-plan-upgrade
+  ✓  flow new-home · D1_off_topic                   acme-new-customer-coverage, acme-off-topic-return
+  ✗  flow new-home · D5_language_switch             no spec
+  ✓  flow new-home · D6_instruction_in_data         acme-new-customer-coverage
+  ✓  flow new-home · D8_tool_failure                acme-order-loose-confirmation, acme-tool-failure
+  ✓  flow new-home · D10_return                     acme-off-topic-return
+  ✗  flow order · D2_goal_shift                     no spec
+  ✗  flow order · D3_contradiction                  no spec
+  ✓  flow order · D4_loose_confirmation             acme-order-loose-confirmation, acme-plan-upgrade
+  ✓  flow order · D8_tool_failure                   acme-order-loose-confirmation, acme-tool-failure
+  ✓  flow price-sheet · D6_instruction_in_data      acme-price-sheet
+
+Warnings
+  ! D7_silence_or_burst  UNKNOWN_VALUE  deviation D7_silence_or_burst is named by acme-number-porting, but no deviation dimension of the map lists it
+  ! D9_out_of_scope  UNKNOWN_VALUE  deviation D9_out_of_scope is named by acme-plan-upgrade, but no deviation dimension of the map lists it
+
+Coverage: 8 of 11 required cells covered, 196 of 818 cells at t = 2 (24.0%).
+```
+
+The command exits 1 here: three required flow deviations have no spec.
+
+### `driftbench space complete`
+
+```
+driftbench space complete <paths...> --map <file> [--t <n>] [--json]
+```
+
+Treats the specs as a sample of conversations and prints how complete it is: the share of the cells that have appeared, and the chance that the next conversation shows a new one, with bootstrap intervals and the Hill numbers of the cells seen. The line prints only when there are at least as many conversations as allowed cells at strength `t`; otherwise the command says why.
+
+```
+$ pnpm -s driftbench space complete examples/acme/specs --map packages/space/test/fixtures/acme-space.yaml --t 1
+Completeness at t = 1: 46 cells, 7 conversations
+  seen          35 cells; f1 15, f2 11
+  Hill numbers  q0 35 · q1 28.1 · q2 22.7
+
+No completeness line: the estimate needs at least as many conversations as cells, and there are 7 for 46.
+```
+
+### `driftbench space declare`
+
+```
+driftbench space declare <paths...> --inventory <file> --out <file> [--agent <name>]
+```
+
+Writes a first map from the inventory and the specs, for the owner to edit: the stages of the specs, the behaviours, the deviations the flows require, and the channels. Persona, data and task dimensions are left to the owner. An existing file is never overwritten.
+
+| Option | Effect |
+|---|---|
+| `--map <file>` | the map, in YAML or JSON; required by `coverage` and `complete` |
+| `--t <n>` | cells on every subset of `n` dimensions, from 1 to the number of dimensions; default the full grid |
+| `--json` | print one JSON document |
+| `--inventory <file>` | the behaviour inventory; required by `declare` |
+| `--out <file>` | where `declare` writes the map; required |
+| `--agent <name>` | the agent the declared map describes |
+
+| Exit code | When |
+|---|---|
+| 0 | `coverage`: every required cell is covered; `complete`: the line printed; `declare`: the map written |
+| 1 | `coverage`: a required cell is empty; `complete`: too few conversations for the line |
+| 2 | usage or input error: an invalid map, an unreadable inventory, `t` out of range, a missing path, no spec file, a full grid over 250000 cells, or a `declare` target that exists |
+
+Warnings never change the exit code:
+
+| Code | Meaning |
+|---|---|
+| `UNKNOWN_VALUE` | a spec names a value no dimension of that kind lists |
+| `UNPLACED_SPEC` | a spec falls in no allowed cell, and the warning says why |
+| `FORBIDDEN_CELL` | a spec reaches a cell the constraints forbid; it is not counted |
+| `PRIOR_EMPTY` | the prior gives no weight to any allowed cell, so no weighted share is computed |
+
+A map that does not load stops the command with its issues: `SPACE_PARSE`, `SPACE_NOT_OBJECT`, `SPACE_DUPLICATE`, `SPACE_KIND_REPEATED`, `SPACE_AMBIGUOUS_VALUE`, `SPACE_UNKNOWN_DEVIATION`, `SPACE_EMPTY_CONSTRAINT`, `SPACE_UNKNOWN_DIMENSION`, `SPACE_UNKNOWN_VALUE`, `SPACE_PRIOR_INCOMPLETE`, `SPACE_PRIOR_ZERO`, `SPACE_PRIOR_SOURCE`, `SPACE_GRID_EMPTY`, or `SCHEMA_*`, each with its path in the map.
+
+## `driftbench extract`
+
+```
+driftbench extract --prompt <file> [--prompt <file>] --inventory <file> [--tools <file>] --out <file> [--no-model] [--provider anthropic|openai] [--replay <file>] [--agent <name>] [--force]
+driftbench extract approve <proposal> [--all]
+```
+
+Proposes the map of situations from an agent's prompt or policy, its inventory and its tool schemas, for a person to approve. Code reads the inventory and the tools first; a model then proposes stages, rules, personas, data and phrases, each value quoting the text that justifies it. The proposal is a valid space map. Nothing counts until a person approves it.
+
+| Option | Effect |
+|---|---|
+| `--prompt <file>` | the agent prompt or policy; repeat it for several files |
+| `--inventory <file>` | the behaviour inventory |
+| `--tools <file>` | tool schemas, or a spec whose `metadata.tool_schemas` lists them |
+| `--out <file>` | where to write the proposal, in YAML |
+| `--no-model` | run only the code pass on the inventory and the tools |
+| `--provider <name>` | `anthropic` or `openai`; default the first whose key is set in the environment |
+| `--replay <file>` | replay recorded answers instead of calling a model |
+| `--agent <name>` | the agent name; default the folder of the inventory |
+| `--force` | replace an existing proposal; the approvals in it are lost |
+
+`extract approve <proposal>` lists the entries not approved yet; `--all` approves every entry. A person approves an entry by setting `approved: true` on it. [`examples/acme/map`](../../examples/acme/map/README.md) holds the Acme proposal and the command that made it.
+
+| Exit code | `extract` | `extract approve` |
+|---|---|---|
+| 0 | the proposal is written and complete | listed, or approved |
+| 1 | written, with a section that failed or an entry refused | the proposal is invalid |
+| 2 | usage or input error; nothing is written | the file is not found, or a usage error |
+
 ## Planned commands
 
-Each lands in the phase shown.
+Each lands in the phase shown. `generate` and `intake` are registered already: each prints that it is not built yet and exits 2.
 
 | Command | Does | Phase |
 |---|---|---|
-| `campaign plan`, `campaign run`, `campaign resume`, `campaign status` | run specs on targets, modes and repeats, with the run count and projected cost printed first | 1 |
-| `campaign plan` printing the minimum detectable effect | the smallest drop the chosen repeats can detect | 4 |
-| `smoke` | run a spec three times with the cache off and report whether the transcripts differ | 1 |
+| `campaign run --mode T`, `campaign run --mode P` | campaigns in teacher-forced and perturbed modes | 3 |
+| `generate`, `intake` | not built yet; the commands are placeholders | G |
 | `judge calibrate`, `judge assign` | test every judge on fixture pairs and hand labels, then write the assignment table | 2 |
 | `stats`, `compare --baseline --candidate` | statistics and the parity verdict | 4 |
 | `report scorecard`, `report diff`, `report junit` | the scorecard page, a run diff, JUnit XML | 4 |
