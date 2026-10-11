@@ -15,13 +15,19 @@ const NAMES = [
   'gate-violated',
   'compaction-mid-task',
   'subagent-dispatch',
+  'price-sheet-build',
 ];
 const SESSIONS = NAMES.map((name) => `${DIR}/${name}.jsonl`);
 const LOGS = [
-  ...['clean-build', 'skill-skipped', 'forbidden-act', 'gate-violated', 'subagent-dispatch'].flatMap(
-    (name) => ['--decisions', `${DIR}/${name}.decisions.jsonl`],
-  ),
-  ...['clean-build', 'skill-skipped', 'gate-violated'].flatMap((name) => [
+  ...[
+    'clean-build',
+    'skill-skipped',
+    'forbidden-act',
+    'gate-violated',
+    'subagent-dispatch',
+    'price-sheet-build',
+  ].flatMap((name) => ['--decisions', `${DIR}/${name}.decisions.jsonl`]),
+  ...['clean-build', 'skill-skipped', 'gate-violated', 'price-sheet-build'].flatMap((name) => [
     '--steps',
     `${DIR}/${name}.steps.jsonl`,
   ]),
@@ -69,7 +75,7 @@ afterEach(async () => {
   for (const dir of temp.splice(0)) await rm(dir, { recursive: true });
 });
 
-describe('driftbench replay over the six fixture sessions', () => {
+describe('driftbench replay over the seven fixture sessions', () => {
   it('passes the clean, dispatch and control specs and fails each faulty one on its own verdict', async () => {
     const { code, json, err } = await replayJson(['replay', ...SESSIONS, '--suite', `${DIR}/specs`, ...LOGS]);
     expect(err).toBe('');
@@ -81,9 +87,11 @@ describe('driftbench replay over the six fixture sessions', () => {
       'replay-forbidden-act',
       'replay-gate-violated',
       'replay-negative-control',
+      'replay-price-sheet-build',
       'replay-skill-skipped',
       'replay-subagent-dispatch',
     ]);
+    expect(byId['replay-price-sheet-build']).toMatchObject({ pass: true, failing: [] });
     expect(byId['replay-clean-build']).toMatchObject({ pass: true, status: 'completed', failing: [] });
     expect(byId['replay-subagent-dispatch']).toMatchObject({ pass: true, failing: [] });
     expect(byId['replay-negative-control']).toMatchObject({
@@ -112,7 +120,7 @@ describe('driftbench replay over the six fixture sessions', () => {
     expect(out).toContain(
       '✗ replay-forbidden-act  session forbidden-act from block 0 (metadata)\n    failing: block 0: forbidden.WebFetch\n',
     );
-    expect(out).toContain('7 specs replayed: 3 pass, 4 fail.');
+    expect(out).toContain('8 specs replayed: 4 pass, 4 fail.');
   });
 
   it('stores every run in mode F with the cache off, under one replay campaign', async () => {
@@ -130,7 +138,7 @@ describe('driftbench replay over the six fixture sessions', () => {
     const store = await openStore(db);
     try {
       const runs = await store.listRuns();
-      expect(runs).toHaveLength(7);
+      expect(runs).toHaveLength(8);
       expect(
         runs.every((run) => run.mode === 'F' && run.cacheHit === false && run.status === 'completed'),
       ).toBe(true);
@@ -246,7 +254,7 @@ describe('driftbench replay: alignment', () => {
   });
 
   it('takes several logs after one flag, and refuses a log given as a session', async () => {
-    const names = ['clean-build', 'gate-violated', 'skill-skipped'];
+    const names = ['clean-build', 'gate-violated', 'skill-skipped', 'price-sheet-build'];
     const together = await replayJson([
       'replay',
       ...SESSIONS,
@@ -258,7 +266,9 @@ describe('driftbench replay: alignment', () => {
       `${DIR}/forbidden-act.decisions.jsonl`,
       `${DIR}/subagent-dispatch.decisions.jsonl`,
       '--steps',
-      ...['clean-build', 'skill-skipped', 'gate-violated'].map((name) => `${DIR}/${name}.steps.jsonl`),
+      ...['clean-build', 'skill-skipped', 'gate-violated', 'price-sheet-build'].map(
+        (name) => `${DIR}/${name}.steps.jsonl`,
+      ),
     ]);
     const repeated = await replayJson(['replay', ...SESSIONS, '--suite', `${DIR}/specs`, ...LOGS]);
     expect(together.code).toBe(repeated.code);

@@ -10,6 +10,7 @@ import type {
   ToolCall,
   WorkspaceDiff,
 } from '@driftbench/core';
+import { globMatches } from '@driftbench/core';
 import {
   type DecisionRow,
   decisionRow,
@@ -115,6 +116,8 @@ export type SessionInput = {
   steps?: JsonlLine[];
   trees?: { before: Tree; after: Tree };
   file?: string;
+  /** Paths or globs the spec names: a successful Read of a matching file is a reference too. */
+  references?: readonly string[];
 };
 
 export type SessionPaths = {
@@ -124,6 +127,8 @@ export type SessionPaths = {
   /** Folders whose files are hashed into the before and after trees. */
   before?: string;
   after?: string;
+  /** Paths or globs the spec names, mapped to references beside the skill folders. */
+  references?: readonly string[];
 };
 
 /** Reads a session from its files and maps it. */
@@ -141,6 +146,7 @@ export async function readSession(paths: SessionPaths): Promise<ReplaySession> {
     ...(paths.decisions === undefined ? {} : { decisions: await lines(paths.decisions) }),
     ...(paths.steps === undefined ? {} : { steps: await lines(paths.steps) }),
     ...(trees ? { trees } : {}),
+    ...(paths.references === undefined ? {} : { references: paths.references }),
     file: paths.transcript,
   });
 }
@@ -179,6 +185,8 @@ export function diffTrees(before: Tree, after: Tree): WorkspaceDiff {
 
 const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
 const AGENT_TOOLS = new Set(['Agent', 'Task']);
+/** A file inside a skill folder: a `skills/<name>/` segment anywhere in its path. */
+const SKILL_FILE = /(^|\/)skills\/[^/]+\//;
 const OUTPUT_LIMIT = 4000;
 
 type PendingCall = { call: ToolCall; at?: string; line: number };
@@ -191,6 +199,8 @@ class BlockBuilder {
   readonly skills: NonNullable<RuntimeTrace['skills']> = [];
   readonly guards: NonNullable<RuntimeTrace['guards']> = [];
   readonly stages: NonNullable<RuntimeTrace['stages']> = [];
+  readonly references: NonNullable<RuntimeTrace['references']> = [];
+  readonly subagents: NonNullable<RuntimeTrace['subagents']> = [];
   readonly markers: Marker[] = [];
   readonly kept: KeptRecord[] = [];
   readonly reads: string[] = [];
@@ -248,6 +258,10 @@ export function mapSession(input: SessionInput): ReplaySession {
     else meta.preamble.push({ line, reason, record });
   };
   const rel = (path: string) => relativeTo(meta.cwd, path);
+  const named = input.references ?? [];
+  /** A file under a skill folder, or a path the spec names, is a reference. */
+  const isReference = (path: string) =>
+    SKILL_FILE.test(path) || named.some((pattern) => globMatches(pattern, path));
 
   for (const entry of input.transcript) {
     if (!entry.ok) {
@@ -428,6 +442,14 @@ export function mapSession(input: SessionInput): ReplaySession {
     if (AGENT_TOOLS.has(label) && !isRecord(input)) {
       meta.issues.push(`line ${line}: an ${label} call whose brief is not an object`);
     }
+    if (AGENT_TOOLS.has(label)) {
+      const model = stringField(fields, 'model');
+      block.subagents.push({
+        name: stringField(fields, 'subagent_type') ?? 'general-purpose',
+        ...(model === undefined ? {} : { model }),
+        ...(at === undefined ? {} : { at }),
+      });
+    }
   }
 
   function applyResult(
@@ -483,6 +505,9 @@ export function mapSession(input: SessionInput): ReplaySession {
     if (path === undefined || isError) return;
     if (call.label === 'Read') {
       known.add(path);
+      const read = rel(path);
+      if (isReference(read))
+        block.references.push({ path: read, ...(open.at === undefined ? {} : { at: open.at }) });
       return;
     }
     if (!WRITE_TOOLS.has(call.label)) return;
@@ -519,6 +544,8 @@ export function mapSession(input: SessionInput): ReplaySession {
     }
     const runtime: RuntimeTrace = {
       skills: block.skills,
+      references: block.references,
+      subagents: block.subagents,
       ...(meta.decisions ? { guards: block.guards } : {}),
       ...(meta.steps ? { stages: block.stages } : {}),
     };

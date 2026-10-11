@@ -168,6 +168,12 @@ function checkExpect(expect: Expect, path: string, ctx: Context, issues: Issue[]
   for (const [index, guard] of (expect.guards ?? []).entries()) {
     checkCount(guard.count, `${path}.guards.${index}.count`, issues);
   }
+  for (const [index, reference] of (expect.references ?? []).entries()) {
+    checkCount(reference.count, `${path}.references.${index}.count`, issues);
+  }
+  for (const [index, subagent] of (expect.subagents ?? []).entries()) {
+    checkCount(subagent.count, `${path}.subagents.${index}.count`, issues);
+  }
 
   expect.criteria?.forEach((ref, index) => {
     const parsed = parseCriterionRef(ref);
