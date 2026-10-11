@@ -59,4 +59,5 @@ export {
 } from './proposal';
 export { foldQuote, QuoteIndex, shortQuote } from './quote';
 export { loadRecording, Recording, type RecordingResult, recordingPort } from './replay';
+export { checkSpaceMap, SINGLE_KINDS, type SpaceMapOptions, toSpaceMap } from './space';
 export { type ToolsIssue, type ToolsPrepass, toolSlug, toolsPrepass } from './tools';

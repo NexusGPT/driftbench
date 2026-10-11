@@ -1,3 +1,4 @@
+import { loadSpaceMap, NONE, validateSpaceMap } from '@driftbench/space';
 import { describe, expect, it } from 'vitest';
 import {
   countEntries,
@@ -6,6 +7,7 @@ import {
   loadRecording,
   recordingPort,
   renderProposal,
+  toSpaceMap,
 } from '../../src/extract';
 import { ACME, acmeSources } from './support';
 
@@ -98,5 +100,47 @@ describe('the Acme map proposal', () => {
       'handover',
       'closing',
     ]);
+  });
+
+  it('is a valid space map, and holds every behaviour, deviation and channel of the reference map', async () => {
+    const loaded = await loadProposal(PROPOSAL);
+    if (!loaded.ok) throw new Error('invalid');
+    const map = toSpaceMap(loaded.proposal);
+    const checked = validateSpaceMap(map, PROPOSAL);
+    if (!checked.ok) throw new Error(JSON.stringify(checked.errors, null, 2));
+    expect(map.inventory).toBe('../inventory.yaml');
+    expect(map.prior).toEqual({ kind: 'declared' });
+    expect(map.dimensions.find((dimension) => dimension.kind === 'deviation')?.values[0]).toEqual({
+      id: NONE,
+      title: 'No deviation',
+    });
+    const reference = await loadSpaceMap(
+      new URL('../../../space/test/fixtures/acme-space.yaml', import.meta.url).pathname,
+    );
+    if (!reference.ok) throw new Error(JSON.stringify(reference.errors));
+    for (const kind of ['behaviour', 'deviation', 'channel'] as const) {
+      const ours = new Set(
+        map.dimensions.filter((d) => d.kind === kind).flatMap((d) => d.values.map((v) => v.id)),
+      );
+      const theirs = reference.map.dimensions
+        .filter((d) => d.kind === kind)
+        .flatMap((d) => d.values.map((v) => v.id));
+      expect(
+        theirs.filter((id) => !ours.has(id)),
+        kind,
+      ).toEqual([]);
+    }
+  });
+
+  it('stays a valid space map once the owner approves everything', async () => {
+    const loaded = await loadProposal(PROPOSAL);
+    if (!loaded.ok) throw new Error('invalid');
+    const approved = structuredClone(loaded.proposal);
+    for (const dimension of approved.dimensions) for (const value of dimension.values) value.approved = true;
+    for (const constraint of approved.constraints) constraint.approved = true;
+    const map = toSpaceMap(approved, { approvedOnly: true });
+    expect(map.dimensions).toHaveLength(approved.dimensions.length);
+    expect(map.constraints).toHaveLength(approved.constraints.length);
+    expect(validateSpaceMap(map).ok).toBe(true);
   });
 });

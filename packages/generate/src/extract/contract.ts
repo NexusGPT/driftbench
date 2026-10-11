@@ -23,7 +23,7 @@ export type Section = (typeof SECTIONS)[number];
 
 /** The dimension kinds each section may propose. The phrases section proposes phrases only. */
 export const SECTION_KINDS: Record<Section, readonly Kind[]> = {
-  stages: ['stage'],
+  stages: ['stage', 'behaviour'],
   rules: ['behaviour', 'deviation'],
   personas: ['persona', 'channel'],
   data: ['data', 'task'],
@@ -40,7 +40,7 @@ export const SYSTEM_PROMPT = `You map where an AI agent's behaviour is specified
 Rules:
 1. Quote, never invent. Every entry has "source", one of the source paths given, and "quote", text copied character for character from that source that shows the entry is specified there. Code searches every quote in its source and refuses an entry whose quote it cannot find. Copy one short passage, a line or a sentence, at most ${MAX_MODEL_QUOTE} characters. Never paraphrase inside a quote, never join two passages, never correct the text.
 2. List only what the sources state. No entry from general knowledge, no behaviour the agent probably has, no case the sources do not support. When the sources say nothing for this section, answer with empty lists.
-3. Ids are short slugs: letters, digits, hyphens and underscores; dimension ids are lowercase and may also use dots. Keep the ids already proposed when you add values to an existing dimension, and never repeat a value already listed.
+3. Ids are short slugs: letters, digits, hyphens and underscores; dimension ids are lowercase and may also use dots. Keep the ids already proposed when you add values to an existing dimension, and never repeat a value already listed. There is one dimension of kind stage, one of kind deviation and one of kind channel: add to it. A spec names a behaviour, persona, data or task value without its dimension, so a value id is unique among the dimensions of its kind. The id "none" is reserved.
 4. Any person, email or phone number you write is invented: emails end in @example.com, phone numbers sit between +1 202 555 0100 and +1 202 555 0199.
 5. Answer with one JSON object and nothing else: no prose, no code fence. Use only these keys:
 {
@@ -61,7 +61,7 @@ A constraint names values from at least two dimensions, and only when a source s
 const TASKS: Record<Section, string> = {
   stages: `List the stages the agent moves through, and the moves between them that the sources specify.
 Dimension "stage" (kind "stage"): one value per stage, in the order the sources give.
-Dimension "stage_transition" (kind "stage"): one value per move from one stage to the next, with the id "<from>-to-<to>" and a quote that shows the move.
+Dimension "stage_transition" (kind "behaviour"): one value per move from one stage to the next, with the id "<from>-to-<to>" and a quote that shows the move.
 Constraints: a stage that a source ties to one flow, kind of user or channel, as a combination that cannot happen elsewhere.`,
   rules: `List the rules the agent must follow that the dimensions already listed do not hold: what it must always do, what it must never do, guardrails, the order of tool calls, retries, routing and refusals.
 Dimension "rule" (kind "behaviour"): one value per rule.

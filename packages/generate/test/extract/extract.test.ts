@@ -237,7 +237,7 @@ describe('extractMap with a model: the answer contract', () => {
     });
     const { result } = await run([stages, RULES, PERSONAS, DATA, PHRASES]);
     expect(result.refusals.map((refusal) => [refusal.entry, refusal.reason])).toEqual([
-      ['dimension language', 'kind persona does not belong to the stages section (stage)'],
+      ['dimension language', 'kind persona does not belong to the stages section (stage or behaviour)'],
       ['dimension Stage!', expect.stringMatching(/^id: expected a dimension id/)],
       ['dimension behaviour', 'behaviour already exists with the kind behaviour'],
     ]);
@@ -368,5 +368,54 @@ describe('extractMap with a model: the answer contract', () => {
       error: 'the model call failed (http: 529 overloaded_error: Overloaded)',
     });
     expect(result.sections[1]?.status).toBe('done');
+  });
+
+  it('keeps every proposal a valid space map: one stage dimension, unique ids per kind, no "none"', async () => {
+    const stages = answer('stages', {
+      dimensions: [
+        {
+          id: 'stage',
+          title: 'Stages',
+          kind: 'stage',
+          values: [fromPrompt('greet', 'Stages, in order: greet, verify, help.')],
+        },
+        {
+          id: 'phase',
+          title: 'Phases',
+          kind: 'stage',
+          values: [fromPrompt('help', 'Stages, in order: greet, verify, help.')],
+        },
+      ],
+    });
+    const rules = answer('rules', {
+      dimensions: [
+        {
+          id: 'deviation',
+          title: 'Deviations',
+          kind: 'deviation',
+          values: [fromPrompt('D11_shouting', 'Never give investment advice.')],
+        },
+        {
+          id: 'rule',
+          title: 'Rules',
+          kind: 'behaviour',
+          values: [
+            fromPrompt('B-001', 'Never give investment advice.'),
+            fromPrompt('none', 'Never give investment advice.'),
+          ],
+        },
+      ],
+    });
+    const { result, proposal } = await run([stages, rules, PERSONAS, DATA, PHRASES]);
+    expect(result.refusals.map((refusal) => [refusal.entry, refusal.reason])).toEqual([
+      ['dimension phase', 'a map holds one stage dimension: add the values to "stage"'],
+      ['deviation/D11_shouting', '"D11_shouting" is not a deviation class: use D1_off_topic to D10_return'],
+      [
+        'rule/B-001',
+        '"B-001" is already a value of behaviour: a spec names a behaviour value without its dimension, so the id must be unique',
+      ],
+      ['rule/none', '"none" is reserved: code adds it where a dimension needs it'],
+    ]);
+    expect(validateProposal(proposal).ok).toBe(true);
   });
 });

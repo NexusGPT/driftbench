@@ -33,7 +33,7 @@ describe('sectionRequest', () => {
     const lines = request.user.split('\n');
     expect(lines[0]).toBe('SECTION: stages');
     expect(sectionOf(request.user)).toBe('stages');
-    expect(request.user).toContain('Dimension kinds allowed in this section: stage.');
+    expect(request.user).toContain('Dimension kinds allowed in this section: stage, behaviour.');
     expect(request.user).toContain('- behaviour (behaviour): The behaviours the inventory lists');
     expect(request.user).toContain('    B-001: Verify the customer before any balance');
   });

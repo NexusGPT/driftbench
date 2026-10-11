@@ -1,3 +1,5 @@
+import { DeviationClass } from '@driftbench/core';
+import { NONE } from '@driftbench/space';
 import {
   type Answer,
   AnswerConstraint,
@@ -19,6 +21,7 @@ import {
   type ProposalValue,
 } from './proposal';
 import { foldQuote, type QuoteIndex, shortQuote } from './quote';
+import { SINGLE_KINDS } from './space';
 
 /** The entries gathered so far: the code pre-pass first, then each section's accepted entries. */
 export type Draft = {
@@ -89,6 +92,15 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
       refuse(label, `${dimension.id} already exists with the kind ${existing.kind}`);
       continue;
     }
+    const single = SINGLE_KINDS.has(dimension.kind)
+      ? draft.dimensions.find(
+          (candidate) => candidate.kind === dimension.kind && candidate.id !== dimension.id,
+        )
+      : undefined;
+    if (single) {
+      refuse(label, `a map holds one ${dimension.kind} dimension: add the values to "${single.id}"`);
+      continue;
+    }
     const values: ProposalValue[] = [];
     const known = new Set(existing?.values.map((value) => value.id));
     for (const [position, rawValue] of dimension.values.entries()) {
@@ -100,6 +112,11 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
       }
       if (known.has(value.data.id)) {
         duplicate(valueLabel);
+        continue;
+      }
+      const clash = valueClash(draft, dimension.id, dimension.kind, value.data.id);
+      if (clash) {
+        refuse(valueLabel, clash);
         continue;
       }
       const found = evidence(value.data.source, value.data.quote);
@@ -210,6 +227,28 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
   }
 
   return result;
+}
+
+/**
+ * Why a value id cannot join a dimension of this kind, by the space map's rules: `none` is reserved, a
+ * deviation value is a deviation class, and a spec names a behaviour, persona, data or task value without
+ * its dimension, so the id is unique across the dimensions of that kind.
+ */
+function valueClash(draft: Draft, dimension: string, kind: string, id: string): string | undefined {
+  if (id === NONE) return `"${NONE}" is reserved: code adds it where a dimension needs it`;
+  if (kind === 'deviation' && !DeviationClass.safeParse(id).success) {
+    return `"${id}" is not a deviation class: use D1_off_topic to D10_return`;
+  }
+  if (kind === 'stage' || kind === 'deviation' || kind === 'channel') return undefined;
+  const owner = draft.dimensions.find(
+    (candidate) =>
+      candidate.kind === kind &&
+      candidate.id !== dimension &&
+      candidate.values.some((value) => value.id === id),
+  );
+  return owner
+    ? `"${id}" is already a value of ${owner.id}: a spec names a ${kind} value without its dimension, so the id must be unique`
+    : undefined;
 }
 
 function hasValue(draft: Draft, dimension: string, value: string): boolean {

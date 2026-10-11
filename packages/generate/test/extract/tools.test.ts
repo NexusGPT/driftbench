@@ -8,10 +8,13 @@ function ok(result: ToolsPrepass) {
   return result;
 }
 
+/** The value ids of a dimension without their dimension prefix, after checking the prefix is there. */
 function values(result: ToolsPrepass, id: string): string[] | undefined {
-  return ok(result)
+  const ids = ok(result)
     .dimensions.find((dimension) => dimension.id === id)
     ?.values.map((value) => value.id);
+  for (const value of ids ?? []) expect(value.startsWith(`${id}.`)).toBe(true);
+  return ids?.map((value) => value.slice(id.length + 1));
 }
 
 function quotesFound(result: ToolsPrepass, text: string) {
@@ -76,7 +79,7 @@ describe('toolsPrepass on the Acme tools', () => {
   it('quotes the "absent" value with the required list that leaves the property out', () => {
     const absent = ok(acme)
       .dimensions.find((dimension) => dimension.id === 'catalog.search.in.address_id')
-      ?.values.find((value) => value.id === 'absent');
+      ?.values.find((value) => value.id === 'catalog.search.in.address_id.absent');
     expect(absent?.evidence.quote).toBe('required: [category]');
   });
 

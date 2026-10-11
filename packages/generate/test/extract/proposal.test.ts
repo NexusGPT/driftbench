@@ -10,6 +10,7 @@ import {
   type Proposal,
   parseProposalText,
   renderProposal,
+  toSpaceMap,
   validateProposal,
 } from '../../src/extract';
 import { FakeModelPort } from '../../src/model';
@@ -172,6 +173,43 @@ describe('loadProposal', () => {
     expect(loaded.ok ? [] : loaded.errors.map((issue) => issue.code)).toEqual([
       'PROPOSAL_SOURCE_UNREADABLE',
       'PROPOSAL_QUOTE_NOT_FOUND',
+    ]);
+  });
+});
+
+describe('the proposal as a space map', () => {
+  it('refuses a proposal the space package would refuse', async () => {
+    const proposal = await build();
+    const repeated = copy(proposal);
+    const stage = repeated.dimensions.find((dimension) => dimension.id === 'stage');
+    if (stage) repeated.dimensions.push({ ...structuredClone(stage), id: 'phase' });
+    expect(codes(repeated)).toEqual([`dimensions.${proposal.dimensions.length}.kind SPACE_KIND_REPEATED`]);
+    const ambiguous = copy(proposal);
+    const language = ambiguous.dimensions.find((dimension) => dimension.id === 'language');
+    if (language) ambiguous.dimensions.push({ ...structuredClone(language), id: 'tongue' });
+    expect(codes(ambiguous)).toEqual([
+      `dimensions.${proposal.dimensions.length}.values.0.id SPACE_AMBIGUOUS_VALUE`,
+      `dimensions.${proposal.dimensions.length}.values.1.id SPACE_AMBIGUOUS_VALUE`,
+    ]);
+  });
+
+  it('keeps only approved entries on request, and a constraint only when its values stay', async () => {
+    const proposal = await build();
+    const language = proposal.dimensions.find((dimension) => dimension.id === 'language');
+    const english = language?.values.find((value) => value.id === 'english');
+    if (english) english.approved = true;
+    for (const constraint of proposal.constraints) constraint.approved = true;
+    const map = toSpaceMap(proposal, { approvedOnly: true });
+    expect(
+      map.dimensions.map((dimension) => [dimension.id, dimension.values.map((value) => value.id)]),
+    ).toEqual([
+      ['deviation', ['none']],
+      ['language', ['english']],
+    ]);
+    expect(map.constraints).toEqual([]);
+    expect(toSpaceMap(proposal).constraints.map((constraint) => constraint.forbid)).toEqual([
+      { behaviour: 'B-002', channel: 'email' },
+      { language: 'other', channel: 'email' },
     ]);
   });
 });

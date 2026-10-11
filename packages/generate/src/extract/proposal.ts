@@ -4,6 +4,7 @@ import { isPlainObject } from '@driftbench/core';
 import { Document, isMap, isSeq, parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { QuoteIndex } from './quote';
+import { checkSpaceMap } from './space';
 
 /**
  * The map proposal: the places where an agent's behaviour is specified, as dimensions, values, constraints
@@ -164,7 +165,8 @@ export const ProposalIssueCodes = [
   'PROPOSAL_SOURCE_UNREADABLE',
   'PROPOSAL_QUOTE_NOT_FOUND',
 ] as const;
-export type ProposalIssueCode = (typeof ProposalIssueCodes)[number] | `SCHEMA_${string}`;
+/** `SPACE_*` codes come from `validateSpaceMap`: every proposal must also be a valid space map. */
+export type ProposalIssueCode = (typeof ProposalIssueCodes)[number] | `SCHEMA_${string}` | `SPACE_${string}`;
 
 export type ProposalIssue = {
   code: ProposalIssueCode;
@@ -186,7 +188,7 @@ export function parseProposalText(text: string): ProposalResult {
   return validateProposal(raw);
 }
 
-/** Validates an already parsed value. Never throws on bad input. */
+/** Validates an already parsed value: the schema, the references, then the space map rules. Never throws. */
 export function validateProposal(raw: unknown): ProposalResult {
   if (!isPlainObject(raw)) {
     return {
@@ -197,7 +199,9 @@ export function validateProposal(raw: unknown): ProposalResult {
   const parsed = Proposal.safeParse(raw);
   if (!parsed.success) return { ok: false, errors: parsed.error.issues.map(fromZod) };
   const errors = checkReferences(parsed.data);
-  return errors.length > 0 ? { ok: false, errors } : { ok: true, proposal: parsed.data };
+  if (errors.length > 0) return { ok: false, errors };
+  const space = checkSpaceMap(parsed.data);
+  return space.length > 0 ? { ok: false, errors: space } : { ok: true, proposal: parsed.data };
 }
 
 export type LoadedProposal =

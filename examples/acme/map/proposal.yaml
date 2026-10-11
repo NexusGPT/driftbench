@@ -9,7 +9,7 @@ agent: acme
 produced_by:
   family: lane
   model: claude-opus-5-5 as the extract lane, by hand
-  at: 2026-10-11T17:30:57.026Z
+  at: 2026-10-11T17:44:48.508Z
 sources:
   - { kind: prompt, path: ../src/policy.ts }
   - { kind: prompt, path: ../README.md }
@@ -273,13 +273,13 @@ dimensions:
     title: catalog.search input category
     kind: data
     values:
-      - id: mobile
+      - id: catalog.search.in.category.mobile
         title: category is mobile
         evidence:
           source: tools.yaml
           quote: "category: { type: string, enum: [mobile, home] }"
         approved: false
-      - id: home
+      - id: catalog.search.in.category.home
         title: category is home
         evidence:
           source: tools.yaml
@@ -289,19 +289,19 @@ dimensions:
     title: catalog.search input customer_email
     kind: data
     values:
-      - id: below-min-length
+      - id: catalog.search.in.customer_email.below-min-length
         title: customer_email shorter than its minLength 1
         evidence:
           source: tools.yaml
           quote: "customer_email: { type: string, minLength: 1 }"
         approved: false
-      - id: at-min-length
+      - id: catalog.search.in.customer_email.at-min-length
         title: customer_email exactly 1 characters long
         evidence:
           source: tools.yaml
           quote: "customer_email: { type: string, minLength: 1 }"
         approved: false
-      - id: absent
+      - id: catalog.search.in.customer_email.absent
         title: customer_email is left out (not required)
         evidence:
           source: tools.yaml
@@ -311,13 +311,13 @@ dimensions:
     title: catalog.search input address_id
     kind: data
     values:
-      - id: present
+      - id: catalog.search.in.address_id.present
         title: address_id is given
         evidence:
           source: tools.yaml
           quote: "address_id: { type: string, description: Home plans only. }"
         approved: false
-      - id: absent
+      - id: catalog.search.in.address_id.absent
         title: address_id is left out (not required)
         evidence:
           source: tools.yaml
@@ -327,19 +327,19 @@ dimensions:
     title: catalog.search output plans
     kind: data
     values:
-      - id: empty
+      - id: catalog.search.out.plans.empty
         title: plans is empty
         evidence:
           source: tools.yaml
           quote: "plans: { type: array, items: { type: object } }"
         approved: false
-      - id: one-item
+      - id: catalog.search.out.plans.one-item
         title: plans has one item
         evidence:
           source: tools.yaml
           quote: "plans: { type: array, items: { type: object } }"
         approved: false
-      - id: several-items
+      - id: catalog.search.out.plans.several-items
         title: plans has several items
         evidence:
           source: tools.yaml
@@ -349,7 +349,7 @@ dimensions:
     title: catalog.search output customer
     kind: data
     values:
-      - id: present
+      - id: catalog.search.out.customer.present
         title: customer is an object
         evidence:
           source: tools.yaml
@@ -363,7 +363,7 @@ dimensions:
                 name: { type: string }
                 current_plan_id: { type: string }
         approved: false
-      - id: "null"
+      - id: catalog.search.out.customer.null
         title: customer is null
         evidence:
           source: tools.yaml
@@ -377,7 +377,7 @@ dimensions:
                 name: { type: string }
                 current_plan_id: { type: string }
         approved: false
-      - id: absent
+      - id: catalog.search.out.customer.absent
         title: customer is left out (not required)
         evidence:
           source: tools.yaml
@@ -387,13 +387,13 @@ dimensions:
     title: coverage.check input address
     kind: data
     values:
-      - id: below-min-length
+      - id: coverage.check.in.address.below-min-length
         title: address shorter than its minLength 1
         evidence:
           source: tools.yaml
           quote: "address: { type: string, minLength: 1 }"
         approved: false
-      - id: at-min-length
+      - id: coverage.check.in.address.at-min-length
         title: address exactly 1 characters long
         evidence:
           source: tools.yaml
@@ -403,13 +403,13 @@ dimensions:
     title: coverage.check output found
     kind: data
     values:
-      - id: "true"
+      - id: coverage.check.out.found.true
         title: found is true
         evidence:
           source: tools.yaml
           quote: "found: { type: boolean }"
         approved: false
-      - id: "false"
+      - id: coverage.check.out.found.false
         title: found is false
         evidence:
           source: tools.yaml
@@ -419,13 +419,13 @@ dimensions:
     title: coverage.check output address_id
     kind: data
     values:
-      - id: present
+      - id: coverage.check.out.address_id.present
         title: address_id is given
         evidence:
           source: tools.yaml
           quote: "address_id: { type: string, description: Only when found is true. }"
         approved: false
-      - id: absent
+      - id: coverage.check.out.address_id.absent
         title: address_id is left out (not required)
         evidence:
           source: tools.yaml
@@ -435,25 +435,25 @@ dimensions:
     title: coverage.check output fiber_mbps
     kind: data
     values:
-      - id: below-minimum
+      - id: coverage.check.out.fiber_mbps.below-minimum
         title: fiber_mbps below its minimum 0
         evidence:
           source: tools.yaml
           quote: "fiber_mbps: { type: integer, minimum: 0, description: Only when found is true; 0 when there is no fiber. }"
         approved: false
-      - id: at-minimum
+      - id: coverage.check.out.fiber_mbps.at-minimum
         title: fiber_mbps at its minimum 0
         evidence:
           source: tools.yaml
           quote: "fiber_mbps: { type: integer, minimum: 0, description: Only when found is true; 0 when there is no fiber. }"
         approved: false
-      - id: above-minimum
+      - id: coverage.check.out.fiber_mbps.above-minimum
         title: fiber_mbps just above its minimum 0
         evidence:
           source: tools.yaml
           quote: "fiber_mbps: { type: integer, minimum: 0, description: Only when found is true; 0 when there is no fiber. }"
         approved: false
-      - id: absent
+      - id: coverage.check.out.fiber_mbps.absent
         title: fiber_mbps is left out (not required)
         evidence:
           source: tools.yaml
@@ -463,19 +463,19 @@ dimensions:
     title: coverage.check output five_g
     kind: data
     values:
-      - id: "true"
+      - id: coverage.check.out.five_g.true
         title: five_g is true
         evidence:
           source: tools.yaml
           quote: "five_g: { type: boolean, description: Only when found is true. }"
         approved: false
-      - id: "false"
+      - id: coverage.check.out.five_g.false
         title: five_g is false
         evidence:
           source: tools.yaml
           quote: "five_g: { type: boolean, description: Only when found is true. }"
         approved: false
-      - id: absent
+      - id: coverage.check.out.five_g.absent
         title: five_g is left out (not required)
         evidence:
           source: tools.yaml
@@ -485,13 +485,13 @@ dimensions:
     title: port.check input number
     kind: data
     values:
-      - id: below-min-length
+      - id: port.check.in.number.below-min-length
         title: number shorter than its minLength 1
         evidence:
           source: tools.yaml
           quote: "number: { type: string, minLength: 1, description: A US phone number; anything else is refused. }"
         approved: false
-      - id: at-min-length
+      - id: port.check.in.number.at-min-length
         title: number exactly 1 characters long
         evidence:
           source: tools.yaml
@@ -501,13 +501,13 @@ dimensions:
     title: port.check output eligible
     kind: data
     values:
-      - id: "true"
+      - id: port.check.out.eligible.true
         title: eligible is true
         evidence:
           source: tools.yaml
           quote: "eligible: { type: boolean }"
         approved: false
-      - id: "false"
+      - id: port.check.out.eligible.false
         title: eligible is false
         evidence:
           source: tools.yaml
@@ -517,13 +517,13 @@ dimensions:
     title: port.check output reason
     kind: data
     values:
-      - id: present
+      - id: port.check.out.reason.present
         title: reason is given
         evidence:
           source: tools.yaml
           quote: "reason: { type: string, description: Why the number cannot move, when it cannot. }"
         approved: false
-      - id: absent
+      - id: port.check.out.reason.absent
         title: reason is left out (not required)
         evidence:
           source: tools.yaml
@@ -533,13 +533,13 @@ dimensions:
     title: order.create input type
     kind: data
     values:
-      - id: new
+      - id: order.create.in.type.new
         title: type is new
         evidence:
           source: tools.yaml
           quote: "type: { type: string, enum: [new, upgrade] }"
         approved: false
-      - id: upgrade
+      - id: order.create.in.type.upgrade
         title: type is upgrade
         evidence:
           source: tools.yaml
@@ -549,13 +549,13 @@ dimensions:
     title: order.create input customer_id
     kind: data
     values:
-      - id: present
+      - id: order.create.in.customer_id.present
         title: customer_id is given
         evidence:
           source: tools.yaml
           quote: "customer_id: { type: string }"
         approved: false
-      - id: absent
+      - id: order.create.in.customer_id.absent
         title: customer_id is left out (not required)
         evidence:
           source: tools.yaml
@@ -565,7 +565,7 @@ dimensions:
     title: order.create input customer
     kind: data
     values:
-      - id: present
+      - id: order.create.in.customer.present
         title: customer is given
         evidence:
           source: tools.yaml
@@ -577,7 +577,7 @@ dimensions:
                 name: { type: string }
                 email: { type: string }
         approved: false
-      - id: absent
+      - id: order.create.in.customer.absent
         title: customer is left out (not required)
         evidence:
           source: tools.yaml
@@ -587,13 +587,13 @@ dimensions:
     title: order.create input address_id
     kind: data
     values:
-      - id: present
+      - id: order.create.in.address_id.present
         title: address_id is given
         evidence:
           source: tools.yaml
           quote: "address_id: { type: string, description: Home plans only. }"
         approved: false
-      - id: absent
+      - id: order.create.in.address_id.absent
         title: address_id is left out (not required)
         evidence:
           source: tools.yaml
@@ -603,13 +603,13 @@ dimensions:
     title: order.create input port_number
     kind: data
     values:
-      - id: present
+      - id: order.create.in.port_number.present
         title: port_number is given
         evidence:
           source: tools.yaml
           quote: "port_number: { type: string, description: Mobile plans only; the number must be able to move. }"
         approved: false
-      - id: absent
+      - id: order.create.in.port_number.absent
         title: port_number is left out (not required)
         evidence:
           source: tools.yaml
@@ -619,7 +619,7 @@ dimensions:
     title: order.create output status
     kind: data
     values:
-      - id: pending
+      - id: order.create.out.status.pending
         title: status is pending
         evidence:
           source: tools.yaml
@@ -629,25 +629,25 @@ dimensions:
     title: notify_sales input reason
     kind: data
     values:
-      - id: callback
+      - id: notify_sales.in.reason.callback
         title: reason is callback
         evidence:
           source: tools.yaml
           quote: "reason: { type: string, enum: [callback, no_coverage, tool_failure, order_failed] }"
         approved: false
-      - id: no_coverage
+      - id: notify_sales.in.reason.no_coverage
         title: reason is no_coverage
         evidence:
           source: tools.yaml
           quote: "reason: { type: string, enum: [callback, no_coverage, tool_failure, order_failed] }"
         approved: false
-      - id: tool_failure
+      - id: notify_sales.in.reason.tool_failure
         title: reason is tool_failure
         evidence:
           source: tools.yaml
           quote: "reason: { type: string, enum: [callback, no_coverage, tool_failure, order_failed] }"
         approved: false
-      - id: order_failed
+      - id: notify_sales.in.reason.order_failed
         title: reason is order_failed
         evidence:
           source: tools.yaml
@@ -657,13 +657,13 @@ dimensions:
     title: notify_sales input customer.name
     kind: data
     values:
-      - id: present
+      - id: notify_sales.in.customer.name.present
         title: name is given
         evidence:
           source: tools.yaml
           quote: "name: { type: string }"
         approved: false
-      - id: absent
+      - id: notify_sales.in.customer.name.absent
         title: name is left out (not required)
         evidence:
           source: tools.yaml
@@ -673,13 +673,13 @@ dimensions:
     title: notify_sales input customer.email
     kind: data
     values:
-      - id: present
+      - id: notify_sales.in.customer.email.present
         title: email is given
         evidence:
           source: tools.yaml
           quote: "email: { type: string }"
         approved: false
-      - id: absent
+      - id: notify_sales.in.customer.email.absent
         title: email is left out (not required)
         evidence:
           source: tools.yaml
@@ -689,13 +689,13 @@ dimensions:
     title: notify_sales input customer.phone
     kind: data
     values:
-      - id: present
+      - id: notify_sales.in.customer.phone.present
         title: phone is given
         evidence:
           source: tools.yaml
           quote: "phone: { type: string }"
         approved: false
-      - id: absent
+      - id: notify_sales.in.customer.phone.absent
         title: phone is left out (not required)
         evidence:
           source: tools.yaml
@@ -705,13 +705,13 @@ dimensions:
     title: notify_sales input summary
     kind: data
     values:
-      - id: below-min-length
+      - id: notify_sales.in.summary.below-min-length
         title: summary shorter than its minLength 1
         evidence:
           source: tools.yaml
           quote: "summary: { type: string, minLength: 1 }"
         approved: false
-      - id: at-min-length
+      - id: notify_sales.in.summary.at-min-length
         title: summary exactly 1 characters long
         evidence:
           source: tools.yaml
@@ -721,13 +721,13 @@ dimensions:
     title: notify_sales output queued
     kind: data
     values:
-      - id: "true"
+      - id: notify_sales.out.queued.true
         title: queued is true
         evidence:
           source: tools.yaml
           quote: "queued: { type: boolean }"
         approved: false
-      - id: "false"
+      - id: notify_sales.out.queued.false
         title: queued is false
         evidence:
           source: tools.yaml
@@ -805,7 +805,7 @@ dimensions:
         approved: false
   - id: stage_transition
     title: A move from one stage to the next
-    kind: stage
+    kind: behaviour
     values:
       - id: needs-to-identify
         title: An upgrade starts by asking for the account email
@@ -1422,109 +1422,109 @@ constraints:
       source: ../inventory.yaml
       quote: "title: A new customer switches to Acme and keeps their number"
     approved: false
-  - forbid: { catalog.search.in.category: mobile, catalog.search.in.address_id: present }
+  - forbid: { catalog.search.in.category: catalog.search.in.category.mobile, catalog.search.in.address_id: catalog.search.in.address_id.present }
     reason: address_id applies to home plans only
     evidence:
       source: tools.yaml
       quote: "address_id: { type: string, description: Home plans only. }"
     approved: false
-  - forbid: { catalog.search.in.customer_email: absent, catalog.search.out.customer: present }
+  - forbid: { catalog.search.in.customer_email: catalog.search.in.customer_email.absent, catalog.search.out.customer: catalog.search.out.customer.present }
     reason: The customer comes back only when an email was given
     evidence:
       source: tools.yaml
       quote: "description: Present when customer_email was given; null when no account has that email."
     approved: false
-  - forbid: { catalog.search.in.customer_email: absent, catalog.search.out.customer: "null" }
+  - forbid: { catalog.search.in.customer_email: catalog.search.in.customer_email.absent, catalog.search.out.customer: catalog.search.out.customer.null }
     reason: The customer comes back only when an email was given
     evidence:
       source: tools.yaml
       quote: "description: Present when customer_email was given; null when no account has that email."
     approved: false
-  - forbid: { coverage.check.out.found: "false", coverage.check.out.address_id: present }
+  - forbid: { coverage.check.out.found: coverage.check.out.found.false, coverage.check.out.address_id: coverage.check.out.address_id.present }
     reason: address_id comes back only when the address is found
     evidence:
       source: tools.yaml
       quote: "address_id: { type: string, description: Only when found is true. }"
     approved: false
-  - forbid: { coverage.check.out.found: "true", coverage.check.out.address_id: absent }
+  - forbid: { coverage.check.out.found: coverage.check.out.found.true, coverage.check.out.address_id: coverage.check.out.address_id.absent }
     reason: address_id comes back whenever the address is found
     evidence:
       source: tools.yaml
       quote: "address_id: { type: string, description: Only when found is true. }"
     approved: false
-  - forbid: { coverage.check.out.found: "false", coverage.check.out.fiber_mbps: at-minimum }
+  - forbid: { coverage.check.out.found: coverage.check.out.found.false, coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.at-minimum }
     reason: fiber_mbps comes back only when the address is found
     evidence:
       source: tools.yaml
       quote: "description: Only when found is true; 0 when there is no fiber."
     approved: false
-  - forbid: { coverage.check.out.found: "false", coverage.check.out.fiber_mbps: above-minimum }
+  - forbid: { coverage.check.out.found: coverage.check.out.found.false, coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.above-minimum }
     reason: fiber_mbps comes back only when the address is found
     evidence:
       source: tools.yaml
       quote: "description: Only when found is true; 0 when there is no fiber."
     approved: false
-  - forbid: { coverage.check.out.found: "false", coverage.check.out.fiber_mbps: below-minimum }
+  - forbid: { coverage.check.out.found: coverage.check.out.found.false, coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.below-minimum }
     reason: fiber_mbps comes back only when the address is found
     evidence:
       source: tools.yaml
       quote: "description: Only when found is true; 0 when there is no fiber."
     approved: false
-  - forbid: { coverage.check.out.found: "true", coverage.check.out.fiber_mbps: absent }
+  - forbid: { coverage.check.out.found: coverage.check.out.found.true, coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.absent }
     reason: fiber_mbps comes back whenever the address is found
     evidence:
       source: tools.yaml
       quote: "description: Only when found is true; 0 when there is no fiber."
     approved: false
-  - forbid: { coverage.check.out.found: "false", coverage.check.out.five_g: "true" }
+  - forbid: { coverage.check.out.found: coverage.check.out.found.false, coverage.check.out.five_g: coverage.check.out.five_g.true }
     reason: five_g comes back only when the address is found
     evidence:
       source: tools.yaml
       quote: "five_g: { type: boolean, description: Only when found is true. }"
     approved: false
-  - forbid: { coverage.check.out.found: "false", coverage.check.out.five_g: "false" }
+  - forbid: { coverage.check.out.found: coverage.check.out.found.false, coverage.check.out.five_g: coverage.check.out.five_g.false }
     reason: five_g comes back only when the address is found
     evidence:
       source: tools.yaml
       quote: "five_g: { type: boolean, description: Only when found is true. }"
     approved: false
-  - forbid: { coverage.check.out.found: "true", coverage.check.out.five_g: absent }
+  - forbid: { coverage.check.out.found: coverage.check.out.found.true, coverage.check.out.five_g: coverage.check.out.five_g.absent }
     reason: five_g comes back whenever the address is found
     evidence:
       source: tools.yaml
       quote: "five_g: { type: boolean, description: Only when found is true. }"
     approved: false
-  - forbid: { port.check.out.eligible: "true", port.check.out.reason: present }
+  - forbid: { port.check.out.eligible: port.check.out.eligible.true, port.check.out.reason: port.check.out.reason.present }
     reason: A reason comes back only when the number cannot move
     evidence:
       source: tools.yaml
       quote: "reason: { type: string, description: Why the number cannot move, when it cannot. }"
     approved: false
-  - forbid: { port.check.out.eligible: "false", port.check.out.reason: absent }
+  - forbid: { port.check.out.eligible: port.check.out.eligible.false, port.check.out.reason: port.check.out.reason.absent }
     reason: A number that cannot move comes back with its reason
     evidence:
       source: tools.yaml
       quote: "reason: { type: string, description: Why the number cannot move, when it cannot. }"
     approved: false
-  - forbid: { order.create.in.type: upgrade, order.create.in.customer: present }
+  - forbid: { order.create.in.type: order.create.in.type.upgrade, order.create.in.customer: order.create.in.customer.present }
     reason: An upgrade takes customer_id only
     evidence:
       source: tools.yaml
       quote: "description: Places an order. An upgrade takes customer_id only; a new order takes customer."
     approved: false
-  - forbid: { order.create.in.type: upgrade, order.create.in.port_number: present }
+  - forbid: { order.create.in.type: order.create.in.type.upgrade, order.create.in.port_number: order.create.in.port_number.present }
     reason: An upgrade takes customer_id only
     evidence:
       source: tools.yaml
       quote: "description: Places an order. An upgrade takes customer_id only; a new order takes customer."
     approved: false
-  - forbid: { order.create.in.address_id: present, order.create.in.port_number: present }
+  - forbid: { order.create.in.address_id: order.create.in.address_id.present, order.create.in.port_number: order.create.in.port_number.present }
     reason: address_id is for home plans and port_number for mobile plans
     evidence:
       source: tools.yaml
       quote: "port_number: { type: string, description: Mobile plans only; the number must be able to move. }"
     approved: false
-  - forbid: { notify_sales.in.customer.email: absent, notify_sales.in.customer.phone: absent }
+  - forbid: { notify_sales.in.customer.email: notify_sales.in.customer.email.absent, notify_sales.in.customer.phone: notify_sales.in.customer.phone.absent }
     reason: A lead needs a phone or an email
     evidence:
       source: tools.yaml

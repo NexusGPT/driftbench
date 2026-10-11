@@ -24,6 +24,9 @@ pnpm driftbench extract --prompt examples/acme/src/policy.ts --prompt examples/a
   through the same parser and checks a model answer goes through. `produced_by.family` is `lane`, so no
   one mistakes them for a tool run.
 * Every value and constraint quotes the text that justifies it, and code found each quote in its source.
+* The proposal is also a valid space map (`toSpaceMap`, then `validateSpaceMap` from `@driftbench/space`):
+  one stage, deviation and channel dimension each, value ids unique per kind (so tool values carry their
+  dimension, such as `coverage.check.out.found.true`), and `none` added to the deviations.
 
 ## Approving it
 
