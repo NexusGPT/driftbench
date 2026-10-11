@@ -8,6 +8,8 @@ kind: conversation
 title: "Stage path 3: needs > offer > recap > handover > closing"
 lang: EN
 tier: generated
+tags:
+  - flow:upgrade
 covers:
   - upgrade
   - needs-to-offer

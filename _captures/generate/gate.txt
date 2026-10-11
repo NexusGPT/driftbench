@@ -1,0 +1,8 @@
+Checked 321 files in 96ms. No fixes applied.
+lint EXIT 0
+typecheck EXIT 0
+EXIT 0
+ Test Files  91 passed (91)
+      Tests  1244 passed | 14 skipped (1258)
+driftbench guard: clean (665 files scanned, 17 skipped, 33 denylist terms).
+guard EXIT 0

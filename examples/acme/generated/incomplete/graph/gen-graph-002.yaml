@@ -8,6 +8,8 @@ kind: conversation
 title: "Stage path 2: needs > port_number > offer > details > recap > order_placed > closing"
 lang: EN
 tier: generated
+tags:
+  - flow:porting
 covers:
   - porting
   - needs-to-port_number

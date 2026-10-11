@@ -7,6 +7,9 @@ kind: conversation
 title: Deviation probe D8_tool_failure before the opening turn
 lang: EN
 tier: generated
+tags:
+  - flow:new-home
+  - flow:order
 covers:
   - new-home
   - order

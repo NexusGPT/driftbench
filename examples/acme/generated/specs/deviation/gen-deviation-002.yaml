@@ -7,6 +7,8 @@ kind: conversation
 title: Deviation probe D2_goal_shift at stage needs
 lang: EN
 tier: generated
+tags:
+  - flow:order
 covers:
   - order
 criteria:

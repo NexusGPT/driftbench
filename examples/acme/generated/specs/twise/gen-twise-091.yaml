@@ -9,6 +9,7 @@ channel: whatsapp
 lang: FR
 tier: generated
 tags:
+  - flow:price-sheet
   - data:catalog.search.in.category.mobile
   - data:catalog.search.in.customer_email.below-min-length
   - data:catalog.search.in.address_id.absent

@@ -9,6 +9,7 @@ channel: whatsapp
 lang: EN
 tier: generated
 tags:
+  - flow:porting
   - data:catalog.search.in.category.mobile
   - data:catalog.search.in.customer_email.at-min-length
   - data:catalog.search.in.address_id.absent

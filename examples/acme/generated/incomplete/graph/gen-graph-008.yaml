@@ -8,6 +8,8 @@ kind: conversation
 title: "Stage path 8: needs > address > address > offer"
 lang: EN
 tier: generated
+tags:
+  - flow:upgrade
 covers:
   - upgrade
   - needs-to-address

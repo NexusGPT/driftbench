@@ -131,6 +131,15 @@ describe('generate on the approved Acme map', () => {
     }
   });
 
+  it('tags each spec that covers an inventory flow with flow:<id>, the way the core joins flows', () => {
+    const flows = new Set((prepared.inventory?.flows ?? []).map((flow) => flow.id));
+    for (const spec of result.all) {
+      for (const id of spec.covers ?? []) {
+        if (flows.has(id)) expect(spec.tags, spec.id).toContain(`flow:${id}`);
+      }
+    }
+  });
+
   it('lists the values with no approved phrase: every stage transition, every data value', () => {
     const gaps = new Set(result.report.no_phrase.map((gap) => gap.dimension));
     expect(gaps.has('stage_transition')).toBe(true);

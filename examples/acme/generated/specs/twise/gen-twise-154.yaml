@@ -9,6 +9,7 @@ channel: chat
 lang: EN
 tier: generated
 tags:
+  - flow:order
   - data:catalog.search.in.category.home
   - data:catalog.search.in.customer_email.absent
   - data:catalog.search.in.address_id.absent

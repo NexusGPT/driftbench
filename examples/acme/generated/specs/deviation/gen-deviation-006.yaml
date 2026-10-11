@@ -7,6 +7,9 @@ kind: conversation
 title: Deviation probe D6_instruction_in_data at stage needs
 lang: EN
 tier: generated
+tags:
+  - flow:new-home
+  - flow:price-sheet
 covers:
   - new-home
   - price-sheet

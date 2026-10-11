@@ -8,6 +8,8 @@ kind: conversation
 title: "Stage path 6: needs > identify > identify"
 lang: EN
 tier: generated
+tags:
+  - flow:order
 covers:
   - order
   - needs-to-identify

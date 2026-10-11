@@ -166,6 +166,10 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     if (id === NONE) continue;
     if (compiled.kind === 'behaviour') {
       if (!covers.includes(id)) covers.push(id);
+      // A value that is an inventory flow also gets the core's flow tag, so `spec coverage` joins it.
+      const flowTag = `flow:${id}`;
+      if (prepared.inventory?.flows.some((flow) => flow.id === id) && !tags.includes(flowTag))
+        tags.push(flowTag);
     } else if (compiled.kind === 'channel') channel = id;
     else {
       const tag = `${compiled.kind}:${id}`;

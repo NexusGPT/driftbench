@@ -7,6 +7,8 @@ kind: conversation
 title: Deviation probe D5_language_switch at stage needs
 lang: EN
 tier: generated
+tags:
+  - flow:new-home
 covers:
   - new-home
 stages:

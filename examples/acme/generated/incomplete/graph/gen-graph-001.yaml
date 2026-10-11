@@ -8,6 +8,8 @@ kind: conversation
 title: "Stage path 1: needs > identify > closing"
 lang: EN
 tier: generated
+tags:
+  - flow:new-home
 covers:
   - new-home
   - needs-to-identify
