@@ -828,6 +828,8 @@ window.__anatomy = {
 
 startCampaign('T');
 draw(0, still.matches);
+// Captures at twice the size: hero.html?x2 doubles the page with CSS zoom, so the still renders crisp at 1x.
+if (/[?&]x2\b/.test(location.search)) document.body.style.zoom = '2';
 // A still for captures and links: index.html#at=P,39.62 runs the perturbed campaign to that second and holds it.
 {
   const still = /^#at=([TFP]),(\d+(?:\.\d+)?)$/.exec(location.hash);

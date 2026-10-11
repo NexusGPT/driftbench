@@ -647,4 +647,53 @@ const page = k
 writeFileSync(join(HERE, 'index.html'), page);
 console.log(`wrote index.html ${(page.length / 1024).toFixed(0)} KB · ${drawn.length} items · ${R.solids.length} shapes · ${CABLES.length} cables · scale ${KS.toFixed(3)} · carriage layer at ${insertAt} · conflicts ${conflicts.length ? [...new Set(conflicts)].join(', ') : 'none'}`);
 
+// ---------------------------------------------------------------- the README hero: the same machine, with callouts
+// The hero frame is 1600 by HERO_H px. The machine is drawn at MS px per unit with its origin at MO; the callouts
+// are placed in machine units, so they move with it. Each callout: a dot on the part, a thin leader with one bend,
+// and a two line Geist Mono label on a short rule.
+const HERO_H = 900;
+const MS = 1.16;
+const MO = [470, 150];
+const ANCHORS = {
+  generation: [X0 - 6, -14, 146],
+  validity: [X0 - 34.2, 0, 74],
+  agent: [X2, 12, 72],
+  checks: [GX, 13, 74],
+  council: [X4 + 27, -50, 33],
+  drift: [CHART.x + 52, FACE_Y + 2, CHART.z0 - 12],
+  interval: [DIAL.x + 12, FACE_Y + 3.6, DIAL.z + 12],
+  gate: [GATE.x, GATE.y - 3.4, 30],
+};
+if (process.argv.includes('--anchors')) for (const [name, p] of Object.entries(ANCHORS)) console.log(name, at(p).map(f2).join(' '));
+const CALLOUTS = JSON.parse(readFileSync(join(HERE, 'callouts.json'), 'utf8'));
+const calloutSvg = CALLOUTS.map((c) => {
+  const [ax, ay] = at(ANCHORS[c.id]);
+  const [x0, x1] = c.rule;
+  const jx = c.join ?? ax;
+  const bend = c.bend ? `L${f2(c.bend[0])} ${f2(c.bend[1])}` : `L${f2(jx)} ${f2(ay)}`;
+  const path = `M${f2(ax)} ${f2(ay)}${bend}L${f2(jx)} ${f2(c.y)}M${f2(x0)} ${f2(c.y)}L${f2(x1)} ${f2(c.y)}`;
+  const tx = c.text === 'end' ? x1 - (c.inset ?? 0) : x0;
+  const anchor = c.text === 'end' ? 'end' : 'start';
+  return `<g class="an-callout" data-callout="${c.id}"><path class="an-leader" d="${path}"/><circle class="an-pin-ring" cx="${f2(ax)}" cy="${f2(ay)}" r="4.6"/><circle class="an-pin" cx="${f2(ax)}" cy="${f2(ay)}" r="2.2"/><text class="an-callout-name" x="${f2(tx)}" y="${f2(c.y - 21)}" text-anchor="${anchor}">${c.name}</text><text class="an-callout-note" x="${f2(tx)}" y="${f2(c.y - 5)}" text-anchor="${anchor}">${c.note}</text></g>`;
+}).join('');
+const VB = [-MO[0] / MS, -MO[1] / MS, 1600 / MS, HERO_H / MS].map(f2);
+const heroSvg = svg.replace(`viewBox="0 0 ${W} ${H}"`, `viewBox="${VB.join(' ')}"`).replace(/<\/svg>$/, `<g class="an-callouts">${calloutSvg}</g></svg>`);
+const HERO_CSS = readFileSync(join(HERE, 'hero.css'), 'utf8');
+const heroBody = `<div class="an an-hero" data-part="root" id="frame">
+  <img class="hero-logo hero-logo--ink" src="../nexus-logo-ink.svg" alt="Nexus"><img class="hero-logo hero-logo--white" src="../nexus-logo-white.svg" alt="Nexus">
+  <div class="hero-copy">
+    <div class="hero-kicker">An agent evaluation framework</div>
+    <h1 class="hero-title">driftbench.<span class="hero-soft">Every exchange is a unit&nbsp;test.</span></h1>
+    <p class="hero-intro">Every number carries an interval. Drift and recovery are measured, block by block.</p>
+  </div>
+  <span class="hero-label">Open source · Apache 2.0</span>
+  <div class="iso-stage an-stage hero-stage" tabindex="0" role="group" aria-label="driftbench drawn as one machine, with callouts on its parts.">${heroSvg}<span class="an-sr" role="status" aria-live="polite" data-status></span></div>
+  <span class="hero-hidden" data-readout></span><button type="button" class="hero-hidden" data-theme-toggle>dark theme</button>
+</div>`;
+const heroPage = k
+  .pageHtml({ title: 'driftbench hero', theme: 'light', body: `<style>${CSS}${HERO_CSS}</style>${heroBody}`, script: kitSource + latheScript + modelScript + LIVE, width: 1600 })
+  .replace('<head>', '<head><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&family=Libre+Caslon+Display&display=swap" rel="stylesheet">');
+writeFileSync(join(HERE, 'hero.html'), heroPage);
+console.log(`wrote hero.html ${(heroPage.length / 1024).toFixed(0)} KB · ${CALLOUTS.length} callouts`);
+
 A.auditOrExit(R, P, {});

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Captures the README stills of the anatomy figure, light and dark, with the Anatomy kit's own capture
+// Captures the README stills of the anatomy figure and the README hero, light and dark, with the Anatomy kit's own capture
 // script, then encodes them as lossless WebP next to the other README images.
 //
 // Needs the Anatomy kit (ANATOMY_KIT, as for build.mjs), Chrome, and cwebp on the PATH
@@ -43,6 +43,23 @@ try {
     execFileSync('cwebp', ['-quiet', '-lossless', '-z', '9', png, '-o', out]);
     const size = statSync(out).size;
     console.log(`${theme.padEnd(5)} ${Math.round(size / 1024)} KB ${size > BUDGET ? 'over budget' : 'within 400 KB'}`);
+    if (size > BUDGET) failed++;
+  }
+  // The README hero: hero.html at twice its size (?x2), cropped to the 3200 by 1800 frame, lossy WebP.
+  for (const theme of ['light', 'dark']) {
+    const png = join(work, `hero-${theme}.png`);
+    const out = join(HERE, '..', `hero-${theme}.webp`);
+    const url = `${pathToFileURL(join(HERE, 'hero.html')).href}?x2#at=${STILL}`;
+    const log = execFileSync(
+      process.execPath,
+      [join(KIT, 'scripts', 'capture.mjs'), url, '--out', png, '--select', '#frame', '--theme', theme, '--width', '3300', '--height', '1900', '--scale', '1', '--wait', '3000'],
+      { encoding: 'utf8' },
+    );
+    process.stdout.write(log);
+    if (!/console: clean/.test(log)) failed++;
+    execFileSync('cwebp', ['-quiet', '-q', '90', '-m', '6', '-sharp_yuv', '-crop', '6', '6', '3200', '1800', png, '-o', out]);
+    const size = statSync(out).size;
+    console.log(`hero ${theme.padEnd(5)} ${Math.round(size / 1024)} KB ${size > BUDGET ? 'over budget' : 'within 400 KB'}`);
     if (size > BUDGET) failed++;
   }
 } finally {

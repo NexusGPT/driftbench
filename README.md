@@ -1,7 +1,10 @@
 <h1 align="center">driftbench. Every exchange is a unit test.</h1>
 
 <p align="center">
-  <img src=".github/readme/hero.jpg" alt="driftbench, an agent evaluation framework by Nexus. Every number carries an interval. Drift and recovery are measured, block by block. On the right, a perturbed run: a goal shift lands at block three, the observed path leaves the expected one and rejoins it two blocks later." width="100%" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hero-dark.webp">
+    <img src=".github/readme/hero-light.webp" alt="driftbench, an agent evaluation framework by Nexus. Every exchange is a unit test. Every number carries an interval; drift and recovery are measured, block by block. Beside the title, driftbench drawn as one machine, an indexing test line on a bench, with eight callouts. Test generation: a hopper fed from a prompt, a spec or past conversations. Validity gate: invalid blocks never run. Agent under test: chat or code, through one adapter. Machine checks: nine pins, and a fail is final. Judge council: system 1 and system 2 balances that earned their criteria. Drift and recovery: a chart pen leaves the line, then comes back. Pass rate and interval: a dial reads 0.38, between 0.14 and 0.69. CI gate: an arm that lifts only when the candidate is noninferior." width="100%" />
+  </picture>
 </p>
 
 <p align="center">
