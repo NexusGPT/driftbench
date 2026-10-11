@@ -1,0 +1,4 @@
+{"type":"assistant","message":{"id":"msg_ar_1","type":"message","role":"assistant","model":"fake-model","content":[{"type":"tool_use","id":"toolu_ar_01","name":"Bash","input":{"command":"mkdir -p reports/archive && mv reports/2026-W40.md reports/archive/2026-W40.md","description":"Archive the week 40 report"}}],"usage":{"input_tokens":140,"output_tokens":30}},"parent_tool_use_id":null}
+{"fake":"move","from":"reports/2026-W40.md","to":"reports/archive/2026-W40.md"}
+{"type":"user","message":{"role":"user","content":[{"tool_use_id":"toolu_ar_01","type":"tool_result","content":""}]},"parent_tool_use_id":null}
+{"type":"assistant","message":{"id":"msg_ar_2","type":"message","role":"assistant","model":"fake-model","content":[{"type":"text","text":"Moved reports/2026-W40.md to reports/archive/2026-W40.md."}],"usage":{"input_tokens":160,"output_tokens":20}},"parent_tool_use_id":null}

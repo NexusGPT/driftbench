@@ -1,0 +1,548 @@
+import { spawn, spawnSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
+import { cp, mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import {
+  type AdapterCapabilities,
+  AdapterTransportError,
+  type AgentAdapter,
+  AgentFailure,
+  type ArtifactRef,
+  canonicalJson,
+  type ExecutionRecord,
+  type Observed,
+  type ResolvedGiven,
+  type Sandbox,
+  type SandboxProvider,
+  type Session,
+  type Stimulus,
+  type Turn,
+  type WorldState,
+} from '@driftbench/core';
+import { shellLine, shellQuote } from '../../process/shell';
+import { isRecord, parseJsonl } from '../format';
+import { mapSession } from '../session';
+import {
+  applySessionOps,
+  type LiveOp,
+  opsForTurn,
+  projectFolderName,
+  readSessionRecords,
+  type SessionFile,
+  type StateLibrary,
+  sessionFileText,
+} from './states';
+import { isOverloaded, normaliseStream, type ParsedStream, parseStream } from './stream';
+
+export const CLAUDE_CODE_LIVE_VERSION = '0.1.0';
+
+/**
+ * The live runner: runs the runtime's headless command in a sandbox that holds a copy of the estate and the
+ * seeded workspace, one process per turn, and maps the streamed transcript into one Observed per turn with
+ * the session adapter.
+ *
+ * The command line is the public headless shape, NOT verified against a live run yet:
+ *   `<command> [args] -p <ask> --output-format stream-json --verbose [--resume <session id>]`
+ * The ask is the turn's user message and nothing else: no spec id, test type or atom reaches the agent, in
+ * the prompt or anywhere in its folder (the estate copy holds the estate's own files only). A queued message
+ * switches the turn to `--input-format stream-json`, with the ask and the queued messages on the input.
+ *
+ * Turn after turn the run resumes the session the runtime named. The session state and the estate
+ * deviations are operations on what the runtime finds (see `states.ts`), applied before the turn.
+ *
+ * What the estate's own hooks write is read when it is there, from paths the process receives in its
+ * environment, outside the project folder: `HOOK_DECISION_LOG` (one row `{ at, event, check, verdict }` per
+ * guard verdict) and `STEP_FEED` (one row `{ at, step }` per stage). The rows a turn adds become its guards
+ * and stages. The runtime keeps its own files under `CLAUDE_CONFIG_DIR`, a folder of the run, so a real run
+ * needs its credentials in `env`; nothing of the evaluator's environment passes but the sandbox's few
+ * variables.
+ *
+ * Cost comes from the stream's result record (`total_cost_usd`), tokens from it or from the messages.
+ * An overloaded or rate-limited run is retried up to `retries.max` times; past that the turn fails as a
+ * transport error.
+ */
+
+type Workspace = NonNullable<WorldState['workspace']>;
+
+export type ClaudeCodeLiveOptions = {
+  /** The runtime's headless binary, or a path to a stand-in that speaks the same stream. */
+  command: string;
+  /** Arguments put before the runner's own, such as a model or a permission mode. */
+  args?: readonly string[];
+  /** The estate root: the folder holding the standing instructions and the runtime's settings folder. */
+  estateRoot: string;
+  /** What of the estate root is copied. Default: CLAUDE.md, CLAUDE.local.md, .claude and .mcp.json, those present. */
+  estateFiles?: readonly string[];
+  /** A workspace seed written before the Given's own workspace. */
+  workspace?: Workspace;
+  /** The operations of a spec that names no session state. Default: a fresh session. */
+  sessionState?: readonly LiveOp[];
+  /** Operations by `vars.session_state` and `vars.event`. */
+  library?: StateLibrary;
+  /** More operations before a turn, chosen by the caller. */
+  ops?: (turn: Turn) => readonly LiveOp[];
+  /** Where sandboxes come from: `localProvider()` of @driftbench/sandbox. */
+  provider: SandboxProvider;
+  /** The estate map hashes this copy answers to; a spec pinned to another (`vars.estate.map_hash`) fails. */
+  pins?: readonly string[];
+  /** Variables of the runtime's process, such as its credentials. Never written to the trace. */
+  env?: Record<string, string>;
+  /** Kills a turn after this long. A block's latency budget lowers it. Default 15 minutes. */
+  timeoutMs?: number;
+  retries?: { max?: number; backoffMs?: number };
+  /** Leaves the sandbox and the run's state folder on disk after close, for inspection. */
+  keep?: boolean;
+  /** The parent folder of the run's state folder. Default: the system temp folder. */
+  stateDir?: string;
+};
+
+export const DEFAULT_ESTATE_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'] as const;
+
+type LiveState = {
+  sandbox: Sandbox;
+  /** Outside the project folder: the runtime's config folder, the hook logs, the helper registry. */
+  stateFolder: string;
+  configDir: string;
+  decisions: string;
+  steps: string;
+  helpers: string;
+  rateWave: string;
+  resumeId?: string;
+  applied: Set<string>;
+  seeded: Workspace | undefined;
+  /** Processes the runner started for running helpers, killed at close. */
+  pids: number[];
+  helperCount: number;
+  closed: boolean;
+  pin: string;
+};
+
+const DEFAULT_TIMEOUT_MS = 15 * 60 * 1000;
+const DEFAULT_RETRIES = 3;
+const DEFAULT_BACKOFF_MS = 5000;
+
+export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdapter {
+  const capabilities: AdapterCapabilities = {
+    variants: false,
+    seedPrefix: false,
+    toolStubs: false,
+    trace: false,
+    sandbox: true,
+    endState: false,
+    deterministic: false,
+  };
+  const maxRetries = options.retries?.max ?? DEFAULT_RETRIES;
+  const backoffMs = options.retries?.backoffMs ?? DEFAULT_BACKOFF_MS;
+
+  return {
+    id: 'claude-code',
+    version: CLAUDE_CODE_LIVE_VERSION,
+    capabilities: () => ({ ...capabilities }),
+
+    async open(given: ResolvedGiven): Promise<Session> {
+      const pin = pinOf(given, options.pins);
+      const sandbox = await options.provider
+        .create({ ...(options.keep === undefined ? {} : { keep: options.keep }) })
+        .catch((error: unknown) => {
+          throw new AdapterTransportError(
+            `the ${options.provider.kind} sandbox could not be created: ${messageOf(error)}`,
+            { cause: error },
+          );
+        });
+      let stateFolder: string | undefined;
+      try {
+        await copyEstate(options.estateRoot, options.estateFiles ?? DEFAULT_ESTATE_FILES, folderOf(sandbox));
+        if (options.workspace !== undefined) await sandbox.seed(options.workspace);
+        if (given.world.workspace !== undefined) await sandbox.seed(given.world.workspace);
+        await ensureCommand(sandbox, options.command);
+        const parent = options.stateDir ?? tmpdir();
+        await mkdir(parent, { recursive: true });
+        stateFolder = await mkdtemp(join(parent, 'live-state-'));
+        await mkdir(join(stateFolder, 'config'), { recursive: true });
+      } catch (error) {
+        await sandbox.destroy().catch(() => undefined);
+        if (stateFolder !== undefined) await rm(stateFolder, { recursive: true, force: true });
+        throw error;
+      }
+      const state: LiveState = {
+        sandbox,
+        stateFolder,
+        configDir: join(stateFolder, 'config'),
+        decisions: join(stateFolder, 'decisions.jsonl'),
+        steps: join(stateFolder, 'steps.jsonl'),
+        helpers: join(stateFolder, 'helpers.json'),
+        rateWave: join(stateFolder, 'rate-wave'),
+        applied: new Set(),
+        seeded: given.world.workspace,
+        pids: [],
+        helperCount: 0,
+        closed: false,
+        pin,
+      };
+      return {
+        id: randomUUID(),
+        adapter: 'claude-code',
+        target: given.target,
+        given,
+        history: [...given.prefix],
+        state,
+      };
+    },
+
+    async send(session: Session, turn: Turn): Promise<Observed> {
+      const state = stateOf(session);
+      if (state.closed) throw new Error('the live session is closed');
+      const { sandbox } = state;
+      const ask = askOf(turn.stimulus);
+      const cwd = sandbox.root;
+
+      let ops: LiveOp[];
+      try {
+        ops = [
+          ...opsForTurn(options.library, turn.given.vars, turn.index, state.applied, options.sessionState),
+          ...(options.ops?.(turn) ?? []),
+        ];
+      } catch (error) {
+        throw new AgentFailure(messageOf(error), { cause: error });
+      }
+      const at = new Date().toISOString();
+      const notes = await applyOps(state, ops, cwd, at);
+
+      // The world of this block: a perturbation can add or change seeded files.
+      const workspace = turn.given.world.workspace;
+      if (workspace !== undefined) {
+        const delta = workspaceDelta(state.seeded, workspace);
+        if (delta !== undefined) await sandbox.seed(delta);
+        state.seeded = workspace;
+      }
+
+      const before = await sandbox.snapshot();
+      const decisionsBefore = await lineCount(state.decisions);
+      const stepsBefore = await lineCount(state.steps);
+      const queued = ops.flatMap((op) => (op.op === 'queue' ? [op.message] : []));
+      const words = [
+        options.command,
+        ...(options.args ?? []),
+        '-p',
+        ...(queued.length > 0 ? ['--input-format', 'stream-json'] : [ask]),
+        '--output-format',
+        'stream-json',
+        '--verbose',
+        ...(state.resumeId === undefined ? [] : ['--resume', state.resumeId]),
+      ];
+      const commandLine = shellLine(words);
+      const stdin =
+        queued.length > 0
+          ? [ask, ...queued]
+              .map((text) => JSON.stringify({ type: 'user', message: { role: 'user', content: text } }))
+              .join('\n')
+              .concat('\n')
+          : '';
+      const env: Record<string, string> = {
+        ...options.env,
+        CLAUDE_CONFIG_DIR: state.configDir,
+        HOOK_DECISION_LOG: state.decisions,
+        STEP_FEED: state.steps,
+        HELPER_REGISTRY: state.helpers,
+        RATE_WAVE_FILE: state.rateWave,
+      };
+      const budget = turn.budget?.latencyMs;
+      const timeoutMs = Math.min(
+        options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+        budget !== undefined && budget > 0 ? budget : Number.POSITIVE_INFINITY,
+      );
+
+      const startedAt = new Date().toISOString();
+      const attempts: Array<{ exitCode: number; overloaded: boolean }> = [];
+      let run: ExecutionRecord;
+      let parsed: ParsedStream;
+      for (;;) {
+        run = await sandbox.exec(commandLine, { env, stdin, timeoutMs }).catch((error: unknown) => {
+          throw new AdapterTransportError(`the runtime could not be started: ${messageOf(error)}`, {
+            cause: error,
+          });
+        });
+        parsed = parseStream(run.stdout ?? '');
+        const overloaded = isOverloaded(parsed, run.exitCode, run.stderr ?? '');
+        attempts.push({ exitCode: run.exitCode, overloaded });
+        if (!overloaded) break;
+        if (attempts.length > maxRetries) {
+          throw new AdapterTransportError(
+            `the provider stayed overloaded through ${attempts.length} attempts of this turn`,
+          );
+        }
+        await sleep(backoffMs * attempts.length);
+      }
+      if (parsed.lines.length === 0 && run.exitCode !== 0) {
+        throw new AgentFailure(
+          `the runtime exited ${run.exitCode} without a stream: ${(run.stderr ?? '').slice(0, 400)}`,
+        );
+      }
+
+      const after = await sandbox.snapshot();
+      const workspaceDiff = sandbox.diff(before, after);
+      const artifacts: ArtifactRef[] = [...workspaceDiff.created, ...workspaceDiff.changed]
+        .sort()
+        .map((path) => ({ path, ...after.files[path] }) as ArtifactRef);
+
+      const decisions = await linesAfter(state.decisions, decisionsBefore);
+      const steps = await linesAfter(state.steps, stepsBefore);
+      const transcript = normaliseStream({ parsed, ask, startedAt, cwd, queued });
+      const mapped = mapSession({
+        transcript: parseJsonl(transcript.join('\n')),
+        ...(decisions === undefined ? {} : { decisions: parseJsonl(decisions) }),
+        ...(steps === undefined ? {} : { steps: parseJsonl(steps) }),
+      });
+      const block = mapped.blocks[0];
+      if (!block) throw new AgentFailure('the turn mapped to no block');
+      if (mapped.blocks.length > 1) {
+        throw new AgentFailure(`the turn mapped to ${mapped.blocks.length} blocks; one is expected`);
+      }
+      if (parsed.sessionId !== undefined) state.resumeId = parsed.sessionId;
+
+      const agentRecord: ExecutionRecord = {
+        command: commandLine,
+        role: 'agent',
+        exitCode: run.exitCode,
+        stderr: run.stderr ?? '',
+        startedAt,
+        ...(run.latencyMs === undefined ? {} : { latencyMs: run.latencyMs }),
+        ...(run.truncated ? { truncated: true } : {}),
+      };
+      const tokens = block.observed.cost;
+      const result = parsed.result;
+      const observed: Observed = {
+        ...block.observed,
+        artifacts,
+        workspaceDiff,
+        executions: [...(block.observed.executions ?? []), agentRecord],
+        sandbox: {
+          kind: sandbox.kind,
+          isolation: sandbox.isolation,
+          ...(options.keep ? { root: folderOf(sandbox) } : {}),
+        },
+        cost: {
+          ...(result?.costUsd === undefined ? {} : { usd: result.costUsd }),
+          ...(tokens.inputTokens !== undefined
+            ? { inputTokens: tokens.inputTokens, outputTokens: tokens.outputTokens ?? 0 }
+            : result?.usage
+              ? { inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens }
+              : {}),
+        },
+        latencyMs: Math.max(0, Date.now() - Date.parse(startedAt)),
+        raw: {
+          ...(isRecord(block.observed.raw) ? block.observed.raw : {}),
+          live: {
+            sessionId: parsed.sessionId ?? null,
+            pin: state.pin,
+            attempts,
+            ops: ops.map((op) => op.op),
+            notes,
+            queued,
+            ...(result === undefined ? {} : { result }),
+            issues: [...parsed.issues, ...mapped.meta.issues],
+            decisions: decisions !== undefined,
+            steps: steps !== undefined,
+          },
+        },
+      };
+      return observed;
+    },
+
+    async readArtifact(session: Session, path: string): Promise<Uint8Array> {
+      const state = stateOf(session);
+      if (state.closed) throw new Error('the live session is closed');
+      return state.sandbox.readFile(path);
+    },
+
+    /** Removes the sandbox and the state folder unless kept, and stops the helpers the runner started. */
+    async close(session: Session): Promise<void> {
+      const state = session.state as LiveState | undefined;
+      if (state === undefined || state.closed) return;
+      state.closed = true;
+      for (const pid of state.pids) {
+        try {
+          process.kill(pid, 'SIGKILL');
+        } catch {
+          // Already gone.
+        }
+      }
+      await state.sandbox.destroy();
+      if (!options.keep) await rm(state.stateFolder, { recursive: true, force: true });
+    },
+  };
+
+  async function applyOps(
+    state: LiveState,
+    ops: readonly LiveOp[],
+    cwd: string,
+    at: string,
+  ): Promise<string[]> {
+    const touchesFile = ops.some(
+      (op) => op.op === 'resume' || op.op === 'compact' || op.op === 'restart' || op.op === 'helper',
+    );
+    const notes: string[] = [];
+    if (touchesFile) {
+      const current = await currentSessionFile(state);
+      const applied = applySessionOps(current, ops, {
+        newId: () => randomUUID(),
+        cwd,
+        at,
+        helperId: () => `helper-${++state.helperCount}`,
+      });
+      notes.push(...applied.notes);
+      if (applied.file) {
+        const folder = join(state.configDir, 'projects', projectFolderName(cwd));
+        await mkdir(folder, { recursive: true });
+        await writeFile(join(folder, `${applied.file.id}.jsonl`), sessionFileText(applied.file));
+        state.resumeId = applied.file.id;
+      }
+    }
+    for (const op of ops) {
+      if (op.op === 'plant') {
+        await state.sandbox.seed({ files: { [op.path]: op.content } });
+        notes.push(`plant: ${op.path}`);
+      } else if (op.op === 'helper') {
+        const pid = op.alive ? startHelper() : goneProcess();
+        if (op.alive) state.pids.push(pid);
+        const registry = await readJson(state.helpers);
+        const list = Array.isArray(registry) ? registry : [];
+        list.push({ id: `helper-${state.helperCount}`, pid, description: op.description, at });
+        await writeFile(state.helpers, `${JSON.stringify(list, null, 2)}\n`);
+      } else if (op.op === 'rate_wave') {
+        await writeFile(state.rateWave, `${Math.max(0, Math.floor(op.overloads))}\n`);
+        notes.push(`rate_wave: ${op.overloads} overloaded answers armed`);
+      } else if (op.op === 'queue') {
+        notes.push('queue: a message waits on the input');
+      }
+    }
+    return notes;
+  }
+}
+
+/** The session file the next turn would resume, read back from the runtime's folder. */
+async function currentSessionFile(state: LiveState): Promise<SessionFile | undefined> {
+  if (state.resumeId === undefined) return undefined;
+  const projects = join(state.configDir, 'projects');
+  const folders = await readdir(projects).catch(() => [] as string[]);
+  for (const folder of folders) {
+    const text = await readFile(join(projects, folder, `${state.resumeId}.jsonl`), 'utf8').catch(
+      () => undefined,
+    );
+    if (text !== undefined) return { id: state.resumeId, records: readSessionRecords(text) };
+  }
+  return { id: state.resumeId, records: [] };
+}
+
+/** The pin a spec names, checked against the hashes the copy answers to. A short hash matches its prefix. */
+function pinOf(given: ResolvedGiven, pins: readonly string[] | undefined): string {
+  const estate = isRecord(given.vars.estate) ? given.vars.estate : undefined;
+  const named = typeof estate?.map_hash === 'string' ? estate.map_hash : undefined;
+  if (pins === undefined || pins.length === 0) return named === undefined ? 'unpinned' : `unchecked ${named}`;
+  if (named === undefined) return 'unpinned';
+  const match = pins.find((pin) => pin.startsWith(named) || named.startsWith(pin));
+  if (match === undefined) {
+    throw new AgentFailure(
+      `the spec was generated from the estate map ${named.slice(0, 12)}, and this copy answers to ${pins
+        .map((pin) => pin.slice(0, 12))
+        .join(', ')}`,
+    );
+  }
+  return match;
+}
+
+/** Copies the estate's own files into the project folder, modes kept (guard scripts stay runnable). */
+async function copyEstate(root: string, names: readonly string[], folder: string): Promise<void> {
+  const info = await stat(root).catch(() => undefined);
+  if (!info?.isDirectory()) throw new AgentFailure(`the estate root ${root} is not a folder`);
+  let copied = 0;
+  for (const name of names) {
+    const source = join(root, name);
+    if ((await stat(source).catch(() => undefined)) === undefined) continue;
+    await cp(source, join(folder, name), { recursive: true, verbatimSymlinks: true });
+    copied += 1;
+  }
+  if (copied === 0) throw new AgentFailure(`the estate root ${root} holds none of ${names.join(', ')}`);
+}
+
+/** Fails the open with a transport error when the command is not there to run. */
+async function ensureCommand(sandbox: Sandbox, command: string): Promise<void> {
+  const quoted = shellQuote(command);
+  const probe = command.includes('/') ? `test -f ${quoted} && test -x ${quoted}` : `command -v ${quoted}`;
+  const found = await sandbox.exec(probe, { timeoutMs: 30_000 });
+  if (found.exitCode !== 0) {
+    throw new AdapterTransportError(
+      `the runtime command ${command} is not found in the ${sandbox.kind} sandbox`,
+    );
+  }
+}
+
+/** A process that keeps running until the session closes: a helper still at work. */
+function startHelper(): number {
+  const child = spawn('sleep', ['3600'], { detached: true, stdio: 'ignore' });
+  child.unref();
+  if (child.pid === undefined) throw new Error('a running helper could not be started');
+  return child.pid;
+}
+
+/** The id of a process that has already exited: a helper whose process is gone. */
+function goneProcess(): number {
+  const done = spawnSync('true');
+  return done.pid;
+}
+
+function askOf(stimulus: Stimulus): string {
+  if ('user' in stimulus) return stimulus.user;
+  if ('burst' in stimulus) return stimulus.burst.join('\n\n');
+  return stimulus.injection.user;
+}
+
+function workspaceDelta(seeded: Workspace | undefined, next: Workspace): Workspace | undefined {
+  if (seeded !== undefined && canonicalJson(seeded) === canonicalJson(next)) return undefined;
+  const files: Record<string, string> = {};
+  for (const [path, content] of Object.entries(next.files ?? {})) {
+    if (seeded?.files?.[path] !== content) files[path] = content;
+  }
+  return Object.keys(files).length === 0 ? undefined : { files };
+}
+
+async function lineCount(path: string): Promise<number> {
+  const text = await readFile(path, 'utf8').catch(() => undefined);
+  return text === undefined ? 0 : text.split('\n').filter((line) => line.trim() !== '').length;
+}
+
+/** The non-blank lines after the first `skip`, or undefined when the file does not exist. */
+async function linesAfter(path: string, skip: number): Promise<string | undefined> {
+  const text = await readFile(path, 'utf8').catch(() => undefined);
+  if (text === undefined) return undefined;
+  return text
+    .split('\n')
+    .filter((line) => line.trim() !== '')
+    .slice(skip)
+    .join('\n');
+}
+
+async function readJson(path: string): Promise<unknown> {
+  const text = await readFile(path, 'utf8').catch(() => undefined);
+  return text === undefined ? undefined : JSON.parse(text);
+}
+
+function stateOf(session: Session): LiveState {
+  const state = session.state as Partial<LiveState> | undefined;
+  if (state?.sandbox === undefined) throw new Error('the session was not opened by the live adapter');
+  return state as LiveState;
+}
+
+function folderOf(sandbox: Sandbox): string {
+  const folder = (sandbox as { folder?: unknown }).folder;
+  return typeof folder === 'string' ? folder : sandbox.root;
+}
+
+function sleep(ms: number): Promise<void> {
+  return ms <= 0 ? Promise.resolve() : new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}

@@ -1,0 +1,161 @@
+# Gated by driftbench gate from boundary/gen-boundary-071.yaml, sealed in the holdout.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-boundary-071
+version: badea3d3df7a
+kind: conversation
+title: "Boundary value failing_tool=notify_sales: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D8_tool_failure of notify_sales at callback"
+channel: whatsapp
+lang: EN
+tier: generated
+tags:
+  - flow:new-home
+  - persona:new-customer
+  - data:no-service
+  - task:existing-workbook
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+criteria:
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
+    gating: false
+    scope: conversation
+  - name: deviation.D8_tool_failure
+    rubric: An honest fallback and one retry; never a success that did not happen.
+    gating: false
+    scope: block
+blocks:
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+      criteria:
+        - flow.new-home
+  - id: b2-address-to-callback
+    when:
+      user: The address is 7 Quarry Lane, Acmeville.
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 7 Quarry Lane, Acmeville
+        - label: notify_sales
+          count: 0
+      lang: EN
+  - id: b3-D8_tool_failure
+    when:
+      injection:
+        class: D8_tool_failure
+        user: You can reach me on +1 202 555 0131.
+    given:
+      world:
+        tools:
+          notify_sales:
+            error: service unavailable (generated tool failure)
+    expect:
+      stage: handover
+      tools:
+        - label: notify_sales
+          count: 1
+          input:
+            reason: no_coverage
+            customer:
+              subset:
+                phone: "+12025550131"
+        - label: coverage.check
+          count: 0
+      lang: EN
+      criteria:
+        - deviation.D8_tool_failure
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: boundary
+    seed: 1
+    stream: 1834545192
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: badea3d3df7a
+    path: home-no-coverage
+    cell:
+      failing_tool: notify_sales
+      flow: new-home
+      user_type: new-customer
+      coverage_result: no-service
+      callback_phone: given
+      channel: whatsapp
+      workspace_start: existing-workbook
+    blocks:
+      - block: b1-needs-to-address
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-address-to-callback
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-callback
+          coverage_result: no-service
+          stage: callback
+        phrase:
+          dimension: stage_transition
+          value: address-to-callback
+      - block: b3-D8_tool_failure
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          deviation: D8_tool_failure
+          stage_transition: callback-to-handover
+          callback_phone: given
+          coverage_result: no-service
+          stage: handover
+        phrase:
+          dimension: stage_transition
+          value: callback-to-handover
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-address-to-callback
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b3-D8_tool_failure
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+rules:
+  forbidden_tools:
+    - catalog.search
+    - port.check
+    - order.create

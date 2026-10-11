@@ -1,10 +1,11 @@
-import { DeviationClass } from '@driftbench/core';
+import { canonicalJson, DeviationClass } from '@driftbench/core';
 import { NONE } from '@driftbench/space';
 import {
   type Answer,
   AnswerConstraint,
   AnswerDimension,
   AnswerPhrase,
+  AnswerRelation,
   AnswerValue,
   firstIssue,
   MAX_MODEL_QUOTE,
@@ -15,10 +16,15 @@ import {
 import {
   combinationKey,
   type Evidence,
+  FLOW_DIMENSION,
+  PENDING_STAGE,
   type ProposalConstraint,
   type ProposalDimension,
   type ProposalPhrase,
+  type ProposalRelation,
   type ProposalValue,
+  relationLabel,
+  type When,
 } from './proposal';
 import { foldQuote, type QuoteIndex, shortQuote } from './quote';
 import { proposeRole, SINGLE_KINDS } from './space';
@@ -28,13 +34,14 @@ export type Draft = {
   dimensions: ProposalDimension[];
   constraints: ProposalConstraint[];
   phrases: ProposalPhrase[];
+  relations: ProposalRelation[];
 };
 
 /** An entry the extractor refused, with the reason. Refusals are reported, never dropped silently. */
 export type Refusal = { section: Section; entry: string; reason: string };
 
 export type Accepted = {
-  /** How many values, constraints and phrases entered the draft. */
+  /** How many values, constraints, phrases and relations entered the draft. */
   accepted: number;
   refusals: Refusal[];
   /** Entries already in the draft, skipped. */
@@ -69,8 +76,8 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
 
   for (const [index, raw] of answer.dimensions.entries()) {
     const label = `dimension ${labelOf(raw, 'id') ?? `#${index + 1}`}`;
-    if (section === 'phrases') {
-      refuse(label, 'the phrases section proposes phrases only');
+    if (section === 'phrases' || section === 'relations') {
+      refuse(label, `the ${section} section proposes ${section} only`);
       continue;
     }
     const parsed = AnswerDimension.safeParse(raw);
@@ -146,8 +153,8 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
   const forbidden = new Set(draft.constraints.map((constraint) => combinationKey(constraint.forbid)));
   for (const [index, raw] of answer.constraints.entries()) {
     const label = `constraint #${index + 1}`;
-    if (section === 'phrases') {
-      refuse(label, 'the phrases section proposes phrases only');
+    if (section === 'phrases' || section === 'relations') {
+      refuse(label, `the ${section} section proposes ${section} only`);
       continue;
     }
     const parsed = AnswerConstraint.safeParse(raw);
@@ -210,6 +217,11 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
       refuse(named, 'a phrase gives both source and quote, or neither');
       continue;
     }
+    const badWhen = phrase.when ? unknownWhen(draft, phrase.when) : undefined;
+    if (badWhen) {
+      refuse(named, badWhen);
+      continue;
+    }
     let found: Evidence | undefined;
     if (phrase.source !== undefined && phrase.quote !== undefined) {
       const checked = evidence(phrase.source, phrase.quote);
@@ -224,6 +236,8 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
       value: phrase.value,
       text: phrase.text,
       lang: phrase.lang,
+      ...(phrase.when ? { when: phrase.when } : {}),
+      ...(phrase.binds ? { binds: phrase.binds } : {}),
       ...(found ? { evidence: found } : {}),
       produced_by: 'model',
       approved: false,
@@ -238,7 +252,115 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
     result.accepted++;
   }
 
+  const related = new Set(draft.relations.map(relationKey));
+  for (const [index, raw] of answer.relations.entries()) {
+    const label = `relation #${index + 1}`;
+    if (section !== 'relations') {
+      refuse(label, 'relations come from the relations section');
+      continue;
+    }
+    const parsed = AnswerRelation.safeParse(raw);
+    if (!parsed.success) {
+      refuse(label, firstIssue(parsed.error));
+      continue;
+    }
+    const { source, quote, ...body } = parsed.data;
+    const relation = {
+      ...body,
+      evidence: { source, quote },
+      produced_by: 'model',
+      approved: false,
+    } as ProposalRelation;
+    const named = `${label} (${relationLabel(relation)})`;
+    const unknown = unknownInRelation(draft, relation);
+    if (unknown) {
+      refuse(named, unknown);
+      continue;
+    }
+    const found = evidence(source, quote);
+    if (typeof found === 'string') {
+      refuse(named, found);
+      continue;
+    }
+    relation.evidence = found;
+    const key = relationKey(relation);
+    if (related.has(key)) {
+      duplicate(named);
+      continue;
+    }
+    related.add(key);
+    draft.relations.push(relation);
+    result.accepted++;
+  }
+
   return result;
+}
+
+/** Equal for relations that say the same thing, whoever proposed them and on whatever quote. */
+export function relationKey(relation: ProposalRelation): string {
+  const { evidence: _evidence, produced_by: _by, approved: _approved, ...body } = relation;
+  return relation.kind === 'path' ? `path:${relation.id}` : canonicalJson(body);
+}
+
+/** Why a `when` names something the draft does not hold, or undefined. */
+function unknownWhen(draft: Draft, when: When): string | undefined {
+  for (const [dimension, values] of Object.entries(when)) {
+    for (const value of values) {
+      if (!hasValue(draft, dimension, value))
+        return `when names ${dimension}=${value}, which is not a proposed value`;
+    }
+  }
+  return undefined;
+}
+
+/** Why a relation names a value, stage, flow or class the draft does not hold, or undefined. */
+function unknownInRelation(draft: Draft, relation: ProposalRelation): string | undefined {
+  const stages = new Set(
+    draft.dimensions.find((dimension) => dimension.kind === 'stage')?.values.map((value) => value.id),
+  );
+  const stage = (id: string) => (stages.has(id) ? undefined : `${id} is not a proposed stage`);
+  const value = (dimension: string, id: string) =>
+    hasValue(draft, dimension, id) ? undefined : `${dimension}=${id} is not a proposed value`;
+  const first = (...found: Array<string | undefined>) => found.find((entry) => entry !== undefined);
+  switch (relation.kind) {
+    case 'path':
+      return first(
+        value(FLOW_DIMENSION, relation.flow),
+        ...relation.stages.map(stage),
+        ...(relation.behaviours ?? []).map((id) =>
+          draft.dimensions.some(
+            (dimension) =>
+              dimension.kind === 'behaviour' && dimension.values.some((entry) => entry.id === id),
+          )
+            ? undefined
+            : `${id} is not a proposed behaviour`,
+        ),
+        relation.when ? unknownWhen(draft, relation.when) : undefined,
+      );
+    case 'uses_tool':
+      return first(
+        value(relation.subject.dimension, relation.subject.value),
+        stage(relation.stage),
+        relation.to === undefined ? undefined : stage(relation.to),
+        relation.when ? unknownWhen(draft, relation.when) : undefined,
+      );
+    case 'binds':
+    case 'reply_language':
+      return value(relation.subject.dimension, relation.subject.value);
+    case 'recovery': {
+      const deviation = draft.dimensions.find((dimension) => dimension.kind === 'deviation');
+      return first(
+        deviation?.values.some((entry) => entry.id === relation.class)
+          ? undefined
+          : `${relation.class} is not a proposed deviation class`,
+        ...relation.flows.map((flow) => value(FLOW_DIMENSION, flow)),
+        ...(relation.at ?? []).map(stage),
+        relation.stage_after === undefined || relation.stage_after === PENDING_STAGE
+          ? undefined
+          : stage(relation.stage_after),
+      );
+    }
+  }
 }
 
 /**

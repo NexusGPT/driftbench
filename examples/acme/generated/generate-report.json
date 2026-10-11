@@ -4,11 +4,11 @@
     "path": "../map/approved.yaml",
     "agent": "acme",
     "version": "1",
-    "hash": "957045c0b3a9",
+    "hash": "badea3d3df7a",
     "dimensions": 46,
     "values": 176,
-    "constraints": 34,
-    "phrases": 21
+    "constraints": 59,
+    "phrases": 51
   },
   "options": {
     "t": 2,
@@ -16,50 +16,50 @@
     "max": null
   },
   "summary": {
-    "specs": 256,
-    "blocks": 404,
+    "specs": 268,
+    "blocks": 941,
     "complete": 168,
-    "incomplete": 88
+    "incomplete": 100
   },
   "seeders": {
     "graph": {
-      "specs": 8,
-      "blocks": 28,
-      "complete": 0,
-      "needs_phrase": 8,
+      "specs": 12,
+      "blocks": 48,
+      "complete": 12,
+      "needs_phrase": 0,
       "needs_then": 0,
       "cut": false
     },
     "twise": {
       "specs": 154,
-      "blocks": 280,
-      "complete": 154,
+      "blocks": 676,
+      "complete": 123,
       "needs_phrase": 0,
-      "needs_then": 0,
+      "needs_then": 31,
       "cut": false
     },
     "boundary": {
       "specs": 80,
-      "blocks": 80,
-      "complete": 0,
-      "needs_phrase": 80,
-      "needs_then": 0,
+      "blocks": 113,
+      "complete": 13,
+      "needs_phrase": 67,
+      "needs_then": 10,
       "cut": false
     },
     "deviation": {
       "specs": 10,
-      "blocks": 10,
+      "blocks": 52,
       "complete": 10,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false
     },
     "metamorphic": {
-      "specs": 4,
-      "blocks": 6,
-      "complete": 4,
+      "specs": 12,
+      "blocks": 52,
+      "complete": 10,
       "needs_phrase": 0,
-      "needs_then": 0,
+      "needs_then": 2,
       "cut": false
     }
   },
@@ -67,18 +67,24 @@
     "stages": 11,
     "start": "needs",
     "edges": 23,
-    "covered": 23,
-    "paths": 8,
+    "covered": 18,
+    "paths": 12,
     "unreachable": [],
-    "blocked": [],
+    "blocked": [
+      "needs-to-offer",
+      "address-to-details",
+      "recap-to-recap",
+      "recap-to-handover",
+      "callback-to-offer"
+    ],
     "unparsed": []
   },
   "twise": {
     "t": 2,
     "dimensions": ["behaviour", "deviation", "channel", "user_type", "coverage_result", "workspace_start"],
     "rows": 154,
-    "allowed": 470,
-    "covered": 470,
+    "allowed": 444,
+    "covered": 444,
     "share": 1
   },
   "boundary": {
@@ -91,73 +97,80 @@
     "probes": [
       {
         "class": "D1_off_topic",
-        "stage": "needs",
+        "stage": "address",
         "spec": "gen-deviation-001",
         "phrase": true
       },
       {
         "class": "D2_goal_shift",
-        "stage": "needs",
+        "stage": "recap",
         "spec": "gen-deviation-002",
         "phrase": true
       },
       {
         "class": "D3_contradiction",
-        "stage": "needs",
+        "stage": "offer",
         "spec": "gen-deviation-003",
         "phrase": true
       },
       {
         "class": "D4_loose_confirmation",
-        "stage": "needs",
+        "stage": "recap",
         "spec": "gen-deviation-004",
         "phrase": true
       },
       {
         "class": "D5_language_switch",
-        "stage": "needs",
+        "stage": "handover",
         "spec": "gen-deviation-005",
         "phrase": true
       },
       {
         "class": "D6_instruction_in_data",
-        "stage": "needs",
+        "stage": "callback",
         "spec": "gen-deviation-006",
         "phrase": true
       },
       {
         "class": "D8_tool_failure",
-        "stage": null,
+        "stage": "recap",
         "spec": "gen-deviation-007",
         "phrase": false
       },
       {
         "class": "D10_return",
-        "stage": "needs",
+        "stage": "address",
         "spec": "gen-deviation-008",
         "phrase": true
       },
       {
         "class": "D7_silence_or_burst",
-        "stage": "needs",
+        "stage": "recap",
         "spec": "gen-deviation-009",
         "phrase": true
       },
       {
         "class": "D9_out_of_scope",
-        "stage": "needs",
+        "stage": "identify",
         "spec": "gen-deviation-010",
         "phrase": true
       }
     ]
   },
   "metamorphic": {
-    "families": 2,
-    "specs": 4,
-    "values": ["flow=upgrade", "deviation=D4_loose_confirmation"]
+    "families": 6,
+    "specs": 12,
+    "values": [
+      "flow=upgrade",
+      "deviation=D4_loose_confirmation",
+      "stage_transition=needs-to-identify",
+      "stage_transition=needs-to-address",
+      "stage_transition=details-to-recap",
+      "stage_transition=recap-to-order_placed"
+    ]
   },
   "constraints": {
-    "applied": 34,
+    "applied": 59,
     "list": [
       {
         "forbid": {
@@ -256,6 +269,181 @@
           "flow": "porting"
         },
         "reason": "The porting flow is for a new customer who switches to Acme"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-001",
+          "user_type": "new-customer"
+        },
+        "reason": "B-001 serves an existing customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-001",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-001 serves an existing customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-002",
+          "user_type": "new-customer"
+        },
+        "reason": "B-002 serves an existing customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-002",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-002 serves an existing customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-003",
+          "user_type": "existing-customer"
+        },
+        "reason": "B-003 belongs to the new-home flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-003",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-003 belongs to the new-home flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-004",
+          "user_type": "existing-customer"
+        },
+        "reason": "B-004 belongs to the new-home flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-004",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-004 belongs to the new-home flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-005",
+          "user_type": "existing-customer"
+        },
+        "reason": "B-005 belongs to the new-home flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-005",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-005 belongs to the new-home flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-011",
+          "user_type": "existing-customer"
+        },
+        "reason": "B-011 belongs to the new-home flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-011",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-011 belongs to the new-home flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-006",
+          "user_type": "existing-customer"
+        },
+        "reason": "B-006 belongs to the porting flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-006",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-006 belongs to the porting flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-007",
+          "user_type": "existing-customer"
+        },
+        "reason": "B-007 belongs to the porting flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-007",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-007 belongs to the porting flow, which is for a new customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-008",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-008 belongs to the order flow, which is for a customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-009",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-009 belongs to the order flow, which is for a customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-010",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-010 belongs to the order flow, which is for a customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-012",
+          "user_type": "new-customer"
+        },
+        "reason": "B-012 belongs to the upgrade flow, which is for an existing customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-012",
+          "user_type": "sales-operations"
+        },
+        "reason": "B-012 belongs to the upgrade flow, which is for an existing customer"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-013",
+          "user_type": "existing-customer"
+        },
+        "reason": "B-013 is a sales operations task"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-013",
+          "user_type": "new-customer"
+        },
+        "reason": "B-013 is a sales operations task"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-014",
+          "user_type": "existing-customer"
+        },
+        "reason": "B-014 is a sales operations task"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-014",
+          "user_type": "new-customer"
+        },
+        "reason": "B-014 is a sales operations task"
       },
       {
         "forbid": {
@@ -400,144 +588,6 @@
     ]
   },
   "no_phrase": [
-    {
-      "dimension": "stage_transition",
-      "value": "needs-to-identify",
-      "blocks": 3,
-      "specs": ["gen-graph-001", "gen-graph-005", "gen-graph-006"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "identify-to-closing",
-      "blocks": 1,
-      "specs": ["gen-graph-001"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "needs-to-port_number",
-      "blocks": 1,
-      "specs": ["gen-graph-002"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "port_number-to-offer",
-      "blocks": 1,
-      "specs": ["gen-graph-002"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "offer-to-details",
-      "blocks": 1,
-      "specs": ["gen-graph-002"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "details-to-recap",
-      "blocks": 1,
-      "specs": ["gen-graph-002"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "recap-to-order_placed",
-      "blocks": 1,
-      "specs": ["gen-graph-002"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "order_placed-to-closing",
-      "blocks": 1,
-      "specs": ["gen-graph-002"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "needs-to-offer",
-      "blocks": 1,
-      "specs": ["gen-graph-003"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "offer-to-recap",
-      "blocks": 2,
-      "specs": ["gen-graph-003", "gen-graph-005"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "recap-to-handover",
-      "blocks": 1,
-      "specs": ["gen-graph-003"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "handover-to-closing",
-      "blocks": 1,
-      "specs": ["gen-graph-003"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "needs-to-address",
-      "blocks": 3,
-      "specs": ["gen-graph-004", "gen-graph-007", "gen-graph-008"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "address-to-callback",
-      "blocks": 1,
-      "specs": ["gen-graph-004"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "callback-to-offer",
-      "blocks": 1,
-      "specs": ["gen-graph-004"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "offer-to-callback",
-      "blocks": 1,
-      "specs": ["gen-graph-004"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "callback-to-handover",
-      "blocks": 1,
-      "specs": ["gen-graph-004"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "identify-to-offer",
-      "blocks": 1,
-      "specs": ["gen-graph-005"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "recap-to-recap",
-      "blocks": 1,
-      "specs": ["gen-graph-005"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "identify-to-identify",
-      "blocks": 1,
-      "specs": ["gen-graph-006"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "address-to-details",
-      "blocks": 1,
-      "specs": ["gen-graph-007"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "address-to-address",
-      "blocks": 1,
-      "specs": ["gen-graph-008"]
-    },
-    {
-      "dimension": "stage_transition",
-      "value": "address-to-offer",
-      "blocks": 1,
-      "specs": ["gen-graph-008"]
-    },
     {
       "dimension": "catalog.search.in.category",
       "value": "catalog.search.in.category.mobile",
@@ -881,30 +931,6 @@
       "specs": ["gen-boundary-057"]
     },
     {
-      "dimension": "account_lookup",
-      "value": "found",
-      "blocks": 1,
-      "specs": ["gen-boundary-058"]
-    },
-    {
-      "dimension": "account_lookup",
-      "value": "not-found",
-      "blocks": 1,
-      "specs": ["gen-boundary-059"]
-    },
-    {
-      "dimension": "account_lookup",
-      "value": "plan-not-in-catalog",
-      "blocks": 1,
-      "specs": ["gen-boundary-060"]
-    },
-    {
-      "dimension": "account_lookup",
-      "value": "most-data",
-      "blocks": 1,
-      "specs": ["gen-boundary-061"]
-    },
-    {
       "dimension": "home_plans",
       "value": "one-plan",
       "blocks": 1,
@@ -921,48 +947,6 @@
       "value": "no-plan",
       "blocks": 1,
       "specs": ["gen-boundary-064"]
-    },
-    {
-      "dimension": "port_result",
-      "value": "can-move",
-      "blocks": 1,
-      "specs": ["gen-boundary-065"]
-    },
-    {
-      "dimension": "port_result",
-      "value": "locked",
-      "blocks": 1,
-      "specs": ["gen-boundary-066"]
-    },
-    {
-      "dimension": "failing_tool",
-      "value": "catalog.search",
-      "blocks": 1,
-      "specs": ["gen-boundary-067"]
-    },
-    {
-      "dimension": "failing_tool",
-      "value": "coverage.check",
-      "blocks": 1,
-      "specs": ["gen-boundary-068"]
-    },
-    {
-      "dimension": "failing_tool",
-      "value": "port.check",
-      "blocks": 1,
-      "specs": ["gen-boundary-069"]
-    },
-    {
-      "dimension": "failing_tool",
-      "value": "order.create",
-      "blocks": 1,
-      "specs": ["gen-boundary-070"]
-    },
-    {
-      "dimension": "failing_tool",
-      "value": "notify_sales",
-      "blocks": 1,
-      "specs": ["gen-boundary-071"]
     },
     {
       "dimension": "tool_answer",
@@ -990,12 +974,6 @@
     },
     {
       "dimension": "customer_details",
-      "value": "name-and-email",
-      "blocks": 1,
-      "specs": ["gen-boundary-076"]
-    },
-    {
-      "dimension": "customer_details",
       "value": "one-of-them",
       "blocks": 1,
       "specs": ["gen-boundary-077"]
@@ -1008,42 +986,303 @@
     },
     {
       "dimension": "callback_phone",
-      "value": "given",
-      "blocks": 1,
-      "specs": ["gen-boundary-079"]
-    },
-    {
-      "dimension": "callback_phone",
       "value": "not-given",
       "blocks": 1,
       "specs": ["gen-boundary-080"]
     }
   ],
-  "no_then": [],
+  "no_then": [
+    {
+      "spec": "gen-twise-025",
+      "blocks": ["b1-open", "b2-D2_goal_shift"],
+      "reasons": [
+        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service",
+        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
+        "path home-no-coverage: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service"
+      ]
+    },
+    {
+      "spec": "gen-twise-026",
+      "blocks": ["b1-open", "b2-D3_contradiction"],
+      "reasons": [
+        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
+        "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
+        "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+      ]
+    },
+    {
+      "spec": "gen-twise-036",
+      "blocks": ["b1-open", "b2-D2_goal_shift"],
+      "reasons": [
+        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
+        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
+        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
+        "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+      ]
+    },
+    {
+      "spec": "gen-twise-047",
+      "blocks": ["b1-open", "b2-D2_goal_shift"],
+      "reasons": [
+        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
+        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
+        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
+        "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+      ]
+    },
+    {
+      "spec": "gen-twise-048",
+      "blocks": ["b1-open", "b2-D3_contradiction"],
+      "reasons": [
+        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
+        "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
+        "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+      ]
+    },
+    {
+      "spec": "gen-twise-098",
+      "blocks": ["b1-open", "b2-D7_silence_or_burst"],
+      "reasons": [
+        "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service",
+        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service",
+        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
+        "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds new-customer",
+        "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer",
+        "path upgrade-most-data: it needs user_type in existing-customer; the cell holds new-customer"
+      ]
+    },
+    {
+      "spec": "gen-twise-102",
+      "blocks": ["b1-open", "b2-D2_goal_shift"],
+      "reasons": [
+        "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
+        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
+        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
+        "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds not-in-map",
+        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map"
+      ]
+    },
+    {
+      "spec": "gen-twise-105",
+      "blocks": ["b1-open", "b2-D5_language_switch"],
+      "reasons": [
+        "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
+        "path home-address-not-found: it needs user_type in new-customer; the cell holds existing-customer",
+        "path home-callback: it needs user_type in new-customer; the cell holds existing-customer",
+        "path home-no-coverage: it needs user_type in new-customer; the cell holds existing-customer",
+        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds not-in-map",
+        "path home-order: it needs user_type in new-customer; the cell holds existing-customer"
+      ]
+    },
+    {
+      "spec": "gen-twise-113",
+      "blocks": ["b1-open", "b2-D2_goal_shift"],
+      "reasons": [
+        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
+        "path home-callback: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
+        "path home-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+      ]
+    },
+    {
+      "spec": "gen-twise-133",
+      "blocks": ["b1-open"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-134",
+      "blocks": ["b1-open", "b2-D1_off_topic"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-135",
+      "blocks": ["b1-open", "b2-D2_goal_shift"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-136",
+      "blocks": ["b1-open", "b2-D3_contradiction"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-137",
+      "blocks": ["b1-open", "b2-D4_loose_confirmation"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-138",
+      "blocks": ["b1-open", "b2-D5_language_switch"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-139",
+      "blocks": ["b1-open", "b2-D6_instruction_in_data"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-140",
+      "blocks": ["b1-open"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-141",
+      "blocks": ["b1-open", "b2-D10_return"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-142",
+      "blocks": ["b1-open", "b2-D7_silence_or_burst"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-143",
+      "blocks": ["b1-open", "b2-D9_out_of_scope"],
+      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-144",
+      "blocks": ["b1-open"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-145",
+      "blocks": ["b1-open", "b2-D1_off_topic"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-146",
+      "blocks": ["b1-open", "b2-D2_goal_shift"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-147",
+      "blocks": ["b1-open", "b2-D3_contradiction"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-148",
+      "blocks": ["b1-open", "b2-D4_loose_confirmation"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-149",
+      "blocks": ["b1-open", "b2-D5_language_switch"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-150",
+      "blocks": ["b1-open", "b2-D6_instruction_in_data"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-151",
+      "blocks": ["b1-open"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-152",
+      "blocks": ["b1-open", "b2-D10_return"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-153",
+      "blocks": ["b1-open", "b2-D7_silence_or_burst"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-twise-154",
+      "blocks": ["b1-open", "b2-D9_out_of_scope"],
+      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
+    },
+    {
+      "spec": "gen-boundary-062",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs home_plans=one-plan"]
+    },
+    {
+      "spec": "gen-boundary-063",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs home_plans=several-plans"]
+    },
+    {
+      "spec": "gen-boundary-064",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs home_plans=no-plan"]
+    },
+    {
+      "spec": "gen-boundary-072",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs tool_answer=error"]
+    },
+    {
+      "spec": "gen-boundary-073",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs tool_answer=unreadable"]
+    },
+    {
+      "spec": "gen-boundary-074",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs retry_outcome=retry-answers"]
+    },
+    {
+      "spec": "gen-boundary-075",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs retry_outcome=retry-fails-too"]
+    },
+    {
+      "spec": "gen-boundary-077",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs customer_details=one-of-them"]
+    },
+    {
+      "spec": "gen-boundary-078",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs customer_details=neither"]
+    },
+    {
+      "spec": "gen-boundary-080",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs callback_phone=not-given"]
+    },
+    {
+      "spec": "gen-metamorphic-001-1",
+      "blocks": ["b1-open"],
+      "reasons": ["no approved path says flow=upgrade"]
+    },
+    {
+      "spec": "gen-metamorphic-001-2",
+      "blocks": ["b1-open"],
+      "reasons": ["no approved path says flow=upgrade"]
+    }
+  ],
   "coverage": {
     "t": 2,
-    "allowed": 866,
+    "allowed": 840,
     "complete": {
       "t": 2,
       "specs": 168,
-      "allowed": 866,
-      "covered": 489,
-      "share": 0.5646651270207852
+      "allowed": 840,
+      "covered": 619,
+      "share": 0.736904761904762
     },
     "all": {
       "t": 2,
-      "specs": 256,
-      "allowed": 866,
-      "covered": 566,
-      "share": 0.6535796766743649
+      "specs": 268,
+      "allowed": 840,
+      "covered": 677,
+      "share": 0.805952380952381
     },
     "baseline": {
       "label": "examples/acme/specs",
       "t": 2,
       "specs": 7,
-      "allowed": 866,
+      "allowed": 840,
       "covered": 164,
-      "share": 0.18937644341801385
+      "share": 0.19523809523809524
     }
   },
   "invalid": [],

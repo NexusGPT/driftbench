@@ -327,7 +327,7 @@ describe('driftbench validate through main', () => {
     expect(refused.code).toBe(64);
     expect(refused.err).toContain('No validator is registered for "nothing"');
     expect((await run(['validate', 'floors'])).out).toMatch(
-      /Floors \(validators\/floors\.json\): stats = \d+\./,
+      /Floors \(validators\/floors\.json\): (?:[a-z-]+ = \d+, )*stats = \d+[.,]/,
     );
   });
 });

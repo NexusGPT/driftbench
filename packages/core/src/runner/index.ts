@@ -34,8 +34,21 @@ export {
 } from './campaign';
 export { type CellKey, cellId } from './cell';
 export {
+  type CompoundingBlock,
+  type CompoundingIndex,
+  type CompoundingLine,
+  compoundingIndex,
+  type IntervalEstimate,
+  type IntervalFn,
+  isDriverInjected,
+  specBlocks,
+} from './compounding';
+export { DRIFT_BY_FAMILY, driftOf } from './drift';
+export {
   addFacts,
   assistantMessage,
+  canonicalGiven,
+  canonicalReply,
   enterBlock,
   initialGiven,
   mergeWorld,
@@ -43,8 +56,25 @@ export {
   resolveGiven,
   stimulusMessages,
 } from './given';
+export { injectedStimulus, injectingDriver, replacesBlock } from './inject';
+export {
+  describeContradiction,
+  type LedgerContradiction,
+  ledgerContradictions,
+  ledgerVerdicts,
+} from './ledger';
+export { type RecoveryMetrics, type RecoveryOptions, recoveryOf } from './recovery';
 export { CallFailure, describeError, isTransportError, type RetryOptions, withRetry } from './retry';
 export { type RunOptions, runSpec } from './run';
+export {
+  canonicalPreviousStage,
+  classifyStage,
+  flowVerdicts,
+  readStage,
+  type StageReading,
+  type StageSource,
+  stageSignatures,
+} from './stages';
 export { succession } from './succession';
 export {
   compareTranscripts,

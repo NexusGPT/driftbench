@@ -181,8 +181,8 @@ describe('driftbench campaign plan', () => {
   });
 
   it.each([
-    [['--target', 'function:acme', '--mode', 'T'], 'Mode T is planned, phase 3.'],
     [['--target', 'function:acme', '--mode', 'X'], 'Unknown mode "X".'],
+    [['--target', 'function:acme', '--mode', 'T,Q'], 'Unknown mode "Q".'],
     [
       ['--target', 'function:acme', '--repeats', '0'],
       '--repeats takes a whole number of at least 1, not "0".',
@@ -193,6 +193,165 @@ describe('driftbench campaign plan', () => {
     const { code, err } = await cli(['campaign', 'plan', SPECS, ...options]);
     expect(code).toBe(2);
     expect(err).toContain(message);
+  });
+});
+
+describe('driftbench campaign in mode T', () => {
+  it('plans T and F cells from one --mode list, T first', async () => {
+    const { code, out } = await cli([
+      'campaign',
+      'plan',
+      SPECS,
+      '--target',
+      'function:acme',
+      '--mode',
+      'F,T',
+    ]);
+    expect(code).toBe(0);
+    expect(out).toContain('Plan: 6 specs, 1 target, modes T, F, 1 repeat: 12 cells, 52 blocks.');
+    expect(out).toContain('Minimum detectable effect, mode T:');
+    expect(out).toContain('Minimum detectable effect, mode F:');
+  });
+
+  it('runs a teacher-forced campaign: every block of every spec passes with the Acme agent', async () => {
+    const store = await storePath();
+    const { code, out } = await cli([
+      'campaign',
+      'run',
+      SPECS,
+      '--target',
+      'function:acme',
+      '--mode',
+      'T',
+      '--store',
+      store,
+      '--campaign',
+      'c-teacher',
+    ]);
+    expect(code).toBe(0);
+    expect(out).toContain('✓ acme-plan-upgrade · function:acme · T · repeat 0  pass  5 blocks');
+    expect(out).toContain('6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.');
+    const opened = await openStore(store);
+    const campaign = await opened.getCampaign('c-teacher');
+    expect(campaign?.modes).toEqual(['T']);
+    expect(campaign?.repeats).toEqual({ T: 1, F: 0, P: 0 });
+    await opened.close();
+  });
+});
+
+describe('driftbench campaign in mode P', () => {
+  it('runs every perturbation of the Acme specs after their F cells, each with its recovery', async () => {
+    const store = await storePath();
+    const { code, out } = await cli([
+      'campaign',
+      'run',
+      SPECS,
+      '--target',
+      'function:acme',
+      '--mode',
+      'P,F',
+      '--store',
+      store,
+      '--campaign',
+      'c-perturbed',
+    ]);
+    expect(code).toBe(0);
+    expect(out).toContain(
+      '✓ acme-plan-upgrade · function:acme · P · repeat 0 · billing-aside  pass  6 blocks',
+    );
+    expect(out).toContain(
+      '✓ acme-tool-failure · function:acme · P · repeat 0 · sales-queue-down  pass  3 blocks',
+    );
+    expect(out).toContain('16 cells: 16 pass, 0 fail, 0 failed. Spent $0.00.');
+    const opened = await openStore(store);
+    const runs = await opened.listRuns({ campaignId: 'c-perturbed', mode: 'P' });
+    expect(runs).toHaveLength(10);
+    expect(runs.map((run) => run.recovery?.label)).toEqual(runs.map(() => 'immediate'));
+    expect(runs.every((run) => run.recovery?.collateral === 0 && run.recovery.safeAction === true)).toBe(
+      true,
+    );
+    await opened.close();
+  });
+});
+
+describe('driftbench campaign status --detail', () => {
+  /** Loses the thread once it has written three replies of its own: free-running runs drift after block 2. */
+  const drifting = () =>
+    realAcmeAdapter((agent) => ({
+      async respond(messages, world) {
+        const observed = await agent.respond(messages, world);
+        const own = messages.filter((message) => message.role === 'assistant' && message.content !== '');
+        if (own.length >= 3) {
+          observed.text = 'Sorry, let me start again. What is your email address?';
+          observed.segments = [{ type: 'text', text: observed.text }];
+        }
+        return observed;
+      },
+    }));
+
+  it('prints the compounding index, the succession and the recovery of every run', async () => {
+    const store = await storePath();
+    const spec = 'examples/acme/specs/conversations/plan-upgrade.yaml';
+    const deps = { adapterFor: async () => drifting() };
+    const ran = await cli(
+      [
+        'campaign',
+        'run',
+        spec,
+        '--target',
+        'function:acme',
+        '--mode',
+        'T,F,P',
+        '--store',
+        store,
+        '--campaign',
+        'c-detail',
+      ],
+      deps,
+    );
+    expect(ran.code).toBe(1);
+    const { code, out } = await cli(['campaign', 'status', 'c-detail', '--store', store, '--detail'], deps);
+    expect(code).toBe(1);
+    // Checked by hand: T passes all 5 blocks; F fails blocks 3 and 4 (the agent's own third reply on).
+    expect(out).toContain(
+      '  acme-plan-upgrade  function:acme  5       1/1       100.0%  60.0%  +40.0  [0.0, +80.0]',
+    );
+    expect(out).toContain('  all specs                         5                 100.0%  60.0%  +40.0\n');
+    expect(out).toContain(
+      '  acme-plan-upgrade  F     0                      5       3            2       40.0%  3              no        X1_local 2',
+    );
+    // billing-aside: the aside passes, then the recap (passed in F) fails: collateral 1.
+    expect(out).toContain(
+      '  acme-plan-upgrade  billing-aside  D9_out_of_scope        0       2            0      immediate  1           yes          yes',
+    );
+    // loose-ok: injected after three replies of its own, so it never comes back.
+    expect(out).toContain(
+      '  acme-plan-upgrade  loose-ok       D4_loose_confirmation  0       3            none   never      0           yes          yes',
+    );
+    const json = await cli(['campaign', 'status', 'c-detail', '--store', store, '--detail', '--json'], deps);
+    const detail = (JSON.parse(json.out) as { detail: { compounding: { overall: { index: number } } } })
+      .detail;
+    expect(detail.compounding.overall.index).toBeCloseTo(0.4, 12);
+  });
+
+  it('prints no detail without --detail', async () => {
+    const store = await storePath();
+    await cli([
+      'campaign',
+      'run',
+      SPECS,
+      '--target',
+      'function:acme',
+      '--store',
+      store,
+      '--campaign',
+      'c-plain',
+    ]);
+    const { out } = await cli(['campaign', 'status', 'c-plain', '--store', store]);
+    expect(out).not.toContain('Compounding index');
+    const detailed = await cli(['campaign', 'status', 'c-plain', '--store', store, '--detail']);
+    expect(detailed.out).toContain('  No spec ran in both T and F.');
+    expect(detailed.out).toContain('  No perturbed run.');
   });
 });
 

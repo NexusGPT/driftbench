@@ -2,7 +2,9 @@
 
 An adapter connects driftbench to the agent under test. The runner, the checks and the judges never call an agent directly; they go through an adapter. The core package imports no vendor SDK, and Nexus is one adapter among others.
 
-The contract lives in `packages/core/src/contracts/adapter.ts`. The function, http, nexus and process adapters ship in `@driftbench/adapters`, phase 1, and each passes the contract suite.
+The contract lives in `packages/core/src/contracts/adapter.ts`. Every adapter ships in `@driftbench/adapters`. The function, http, nexus and process adapters (phase 1) and the openai-agents, anthropic, google and langgraph adapters (release phase) each pass the contract suite. The Claude Code adapter replays a recorded session, with no model call.
+
+`@driftbench/adapters` imports no vendor SDK either. The four SDK adapters take the vendor's client, runner or graph from you, and `@driftbench/adapters` declares `@openai/agents`, `@anthropic-ai/sdk`, `@google/genai` and `@langchain/langgraph` as optional peer dependencies, with the versions the shapes were proven against.
 
 ## The contract
 
@@ -101,6 +103,18 @@ Any other error fails the run at once too. A failed run is recorded with status 
 | `endState` | with a payload log | with an end-state URL | yes | no |
 | `deterministic` | as declared | as declared | no | as declared |
 
+| Capability | openai-agents | anthropic | google | langgraph | claude-code (replay) |
+|---|---|---|---|---|---|
+| `variants` | no | no | no | no | no |
+| `seedPrefix` | yes | yes | yes | yes | yes |
+| `toolStubs` | no: the SDK runs the tools | yes | yes | no: the graph runs the tools | no |
+| `trace` | no | no | no | no | no |
+| `sandbox` | no | no | no | no | no |
+| `endState` | with `sideEffects` | with `sideEffects` | with `sideEffects` | with `sideEffects`, or a checkpointer | no |
+| `deterministic` | as declared | as declared | as declared | as declared | yes |
+
+The four SDK adapters report tokens, never a cost in USD.
+
 The runner uses `trace` and `endState` today. It does not act on the others yet: a forced tool result in `world.tools` on an adapter without `toolStubs` is not applied, and a spec's `prefix` on an adapter without `seedPrefix` is not replayed to the agent.
 
 ## The contract suite
@@ -123,7 +137,7 @@ It runs in one of two modes. A chat adapter holds the conversation of the Acme T
 | releases the session on close | a later `send` rejects, and the adapter's own release probe agrees when one is given |
 | throws `AdapterTransportError` when the transport fails | a broken transport fails `open` or `send` with that error |
 
-The function, http and nexus adapters run it in chat mode. The process adapter runs it in task mode on the Acme price-sheet task, with the fixture code agent of the sandbox tests (`packages/adapters/test/process.contract.test.ts`). A test a capability or the mode rules out is skipped, never failed. Run it from the repository root:
+The function, http and nexus adapters and the four SDK adapters run it in chat mode; the langgraph adapter runs it twice, on a graph with a checkpointer and on one without. The SDK adapters run it on fakes that play the Acme agent and refuse what the real API refuses (roles out of order, a dotted Anthropic tool name, an unanswered `tool_use`, a Gemini 3 call sent back without its signature). Their requests are also checked against exchanges the real SDK packages recorded with fake transports (`packages/adapters/test/fixtures/sdk/recorded`). The process adapter runs it in task mode on the Acme price-sheet task, with the fixture code agent of the sandbox tests (`packages/adapters/test/process.contract.test.ts`). A test a capability or the mode rules out is skipped, never failed. Run it from the repository root:
 
 ```sh
 pnpm vitest run packages/adapters
@@ -137,7 +151,11 @@ pnpm vitest run packages/adapters
 | [http](http.md) | an endpoint that speaks JSON, answering with an Observed or an OpenAI-compatible chat completion | shipped, phase 1 |
 | [nexus](nexus.md) | an agent on the Nexus platform | shipped, phase 1; tested against recorded answer shapes, not yet run against a live agent |
 | [process](process.md) | a code-interpreter agent run as a command in a sandbox | shipped, phase 1 |
-| `openai-agents`, `anthropic`, `google`, `langgraph` | agents built on these SDKs and frameworks | planned, release phase |
+| [openai-agents](openai-agents.md) | an agent built with the OpenAI Agents SDK, run by your runner | shipped, release phase; contract proven on fakes and on the real SDK with fake transports, not yet run against a live model |
+| [anthropic](anthropic.md) | an agent on the Anthropic Messages API, through your client; the adapter closes the tool loop | shipped, release phase; contract proven on fakes and on the real SDK with fake transports, not yet run against a live model |
+| [google](google.md) | an agent on the Gemini API, through your client; the adapter closes the tool loop | shipped, release phase; contract proven on fakes and on the real SDK with fake transports, not yet run against a live model |
+| [langgraph](langgraph.md) | a compiled LangGraph graph whose state holds `messages`, with or without a checkpointer | shipped, release phase; contract proven on fakes and on the real SDK with fake transports, not yet run against a live model |
+| [claude-code](claude-code.md) | a recorded Claude Code session (transcript, guard decision log, step feed), replayed with no model call; also the reader of a Claude Code estate | the session reader, the replay adapter and the estate reader are shipped; the live runner is not built yet |
 
 ## Runtime vocabulary
 
@@ -153,7 +171,20 @@ Every adapter maps its runtime onto the four concepts that specs and checks know
 | a shell command | a command it ran, with its exit code |
 | any other tool call | a tool call |
 
-The process adapter carries the first three today: a code agent reports its skills, guards and stages, and the commands it ran, in two files the adapter reads after each block. See [the process adapter](process.md#what-the-agent-reports). No adapter reads a harness's own event log yet: the transcript adapter of the runtime battery is planned, phase 4. The guardrails of an agent SDK map to guards in the same way; the SDK adapters are planned, release phase.
+Two adapters carry it today:
+
+* The [claude-code adapter](claude-code.md) reads a recorded session: the transcript gives the tool calls, the Skill loads and the shell commands with their exit codes; the hook decision log gives the guards; the step feed gives the stages.
+* The process adapter reads what a code agent reports: its skills, guards and stages, and the commands it ran, in two files the adapter reads after each block. See [the process adapter](process.md#what-the-agent-reports).
+
+The SDK adapters map their runtimes the same way:
+
+| SDK runtime | Maps to |
+|---|---|
+| an OpenAI Agents input or output guardrail result | a guard, `block` when its tripwire fired, `pass` otherwise |
+| an OpenAI Agents handoff | a transfer tool call, and a stage named after the agent taking over |
+| an OpenAI Agents call waiting for approval | a tool call closed with an error |
+| a LangGraph interrupt | a card named `interrupt` |
+| an Anthropic thinking block, a Gemini thought part | nothing |
 
 ## Choosing the agent in a spec
 
@@ -165,4 +196,4 @@ target:
   agent: support-bot
 ```
 
-The command line reaches one target today, `function:acme`, the Acme example agent. The other adapters are used from code. See [running](../running.md).
+The command line reaches the Acme example agents: `function:acme-sales` (or `function:acme`), the sales assistant behind the function adapter, and `process:acme-ops`, the ops agent behind the process adapter. `driftbench pilot` adds its control agent, `function:acme-random`, and `driftbench replay` runs specs on the claude-code replay adapter. The other adapters are used from code. See [running](../running.md).

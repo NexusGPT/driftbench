@@ -1,0 +1,10 @@
+/** Estate mutants: one atom deleted or inverted in a copy of the estate, for the adequacy of its tests. */
+export {
+  copyEstate,
+  ESTATE_COPY_FILES,
+  invertText,
+  MutantError,
+  type MutantResult,
+  type MutationOp,
+  mutateEstate,
+} from './mutate';

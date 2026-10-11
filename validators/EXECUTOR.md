@@ -1,6 +1,6 @@
 # Executor instruction (the static part; `driftbench validate <component> --brief` prepends the live state)
 
-You drive one validator to 100 percent. The validator is `driftbench validate <component>`. 100 percent means every level passes on seeds 1 to 20 and on the hidden seed. You may be Opus or Sonnet; the files below are your whole memory, and the next executor may not be you.
+You drive one validator to 100 percent. The validator is `driftbench validate <component>`. 100 percent means every level passes on seeds 1 to 20 and on the hidden seed. You run on Sonnet at medium effort by default, and Opus only after a stuck record; the files below are your whole memory, and the next executor may not be you.
 
 Read first, in this order: `validators/<component>/HANDOVER.md`, the last five rows of `validators/<component>/journal.jsonl`, `validators/<component>/research.md`. Then run the validator once on the handover's seed before you change anything. If the level differs from the handover, that is your first finding: record it.
 
