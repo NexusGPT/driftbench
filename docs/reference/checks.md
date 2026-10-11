@@ -44,7 +44,7 @@ Two kinds of verdict are inconclusive:
 | `artifacts` | `expect.artifacts` names a file | `artifacts.<path>`, `artifacts.<path>.<index>.<check name>` |
 | `schema_strict` | `metadata.tool_schemas` is a mapping and the block made a tool call | `schema_strict.<label>.<n>` |
 | `budget` | the block's `budget` sets `steps`, `cost_usd` or `latency_ms` | `budget.steps`, `budget.cost_usd`, `budget.latency_ms` |
-| `end_state` | the spec sets `end_state`, the run is teacher-forced or free-running, and the block is the spec's last | `end_state.<field>`, `end_state.<source>.<field>` for a list, `end_state.<source>` for an empty `expect`, `end_state.none` |
+| `end_state` | the spec sets `end_state`, the run is teacher-forced or free-running, and the block is the spec's last | `end_state.<field>`, `end_state.<source>.<field>` for a list, `end_state.<source>` for an empty `expect`, `end_state.none`; `end_state.compare` when the state cannot be compared |
 | `custom` | `rules.custom` names a check | `custom.<name>`, `custom.<name>.<id>` |
 
 `tools.argument_accuracy` never gates: its `score` is the share of expected arguments that matched. `<n>` in `schema_strict` counts the calls of one tool in the block from 1. `<index>` counts from 0.
@@ -148,11 +148,11 @@ Tool `input` and `end_state.expect` assert values with these forms. Patterns com
 | `{ regex: <pattern> }` | is a string that matches the pattern |
 | `{ contains: <text> }` | is a string that contains the text, or a list that holds it as an item |
 | `{ one_of: [<value>, ...] }` | is one of the listed values |
-| `{ nonempty: true }` | is present and not empty: not `null`, not an empty string, list or mapping |
+| `{ nonempty: true }` | is present and not empty: not `null`, not a string with no visible character, not an empty list, not a mapping none of whose keys holds a value |
 | `{ absent: true }` | is absent |
 | `{ subset: { ... } }` | holds at least these keys with these values; nested mappings compare the same way |
 
-Equality is JSON equality: lists compare item by item, in order, and a key that holds no value counts as absent.
+Equality is JSON equality: lists compare item by item, in order, and a key that holds no value counts as absent. One function decides every assertion, core's `matchAssertion`: the `tools` input assertions, the `end_state` check and the runner's end-state comparison give the same answer on the same value. A blank tool summary fails `{ nonempty: true }`. A pattern that does not compile fails its verdict and says so.
 
 ## Text and language
 
@@ -327,7 +327,7 @@ The check runs on the last spec block of a teacher-forced or free-running run, n
 * For a list, the fields are named `<source>.<field>`.
 * `none` asserts that nothing was submitted. The runner reads the adapter's source `*`, the list of every recorded payload. The check passes when that list is empty, and fails with one verdict that names the first payload.
 
-The runner also writes the comparison into the run record, field by field. See [running](../running.md#end-state).
+The check turns core's `compareEndState` into verdicts, the same comparison the runner writes into the run record, field by field, so the verdicts and the record agree. See [running](../running.md#end-state).
 
 ## The runtime battery
 

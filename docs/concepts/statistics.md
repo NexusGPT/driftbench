@@ -1,6 +1,6 @@
 # Statistics
 
-One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. Repeats and the minimum detectable effect of `campaign plan` are built, phase 1; everything else on this page is planned, phase 4. Each function ships with reference values computed once in Python and committed as test fixtures.
+One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. The functions on this page ship in `@driftbench/stats`. Each matches a reference value computed in Python (scipy and numpy) and committed as a test fixture. Repeats and the minimum detectable effect of `campaign plan` are built, phase 1. Wiring the functions into reports, the parity verdict of a campaign, and the `stats`, `compare` and `ci` commands is planned, phase 4.
 
 ## Repeats
 
@@ -32,7 +32,7 @@ The candidate is non-inferior to the baseline when, for every gating criterion, 
 
 ## Before a campaign
 
-`campaign plan` prints the number of runs, the projected cost and the minimum detectable effect for the chosen repeats. If the effect is too large to be useful, the repeats go up before any money is spent. Today the effect treats runs as independent; the clustered version, with one conversation or one task as one cluster, is planned, phase 4. See [running](../running.md#the-minimum-detectable-effect).
+`campaign plan` prints the number of runs, the projected cost and the minimum detectable effect for the chosen repeats. If the effect is too large to be useful, the repeats go up before any money is spent. `campaign plan` treats runs as independent today. The library's `mde` takes the correlation of repeats of one conversation or one task (`rho`, measured by `varianceComponents`); using it in `campaign plan` is planned, phase 4. See [running](../running.md#the-minimum-detectable-effect).
 
 ## Over time
 
@@ -50,16 +50,22 @@ Task specs use the same statistics. One task is one cluster. An artifact check i
 
 | Function | Computes |
 |---|---|
-| `wilson(k, n, z)` | the Wilson interval for k successes in n |
-| `bootstrapCI(values, { clusters, iterations, method })` | a percentile bootstrap interval, by cluster |
-| `passK(c, n, k)` | pass^k |
-| `passAtK(c, n, k)` | pass@k |
+| `wilson(k, n, z)` | the Wilson interval for k successes in n; `z` defaults to the 95 percent value |
+| `clopperPearson(k, n, alpha)` | the exact interval, from the beta quantile |
+| `zeroFailureBound(p, alpha)` | the smallest n with no failure that bounds a failure rate p |
+| `designEffect(m, rho)`, `effectiveSampleSize(n, m, rho)` | the design effect `1 + (m - 1) rho` of clusters of size m, and the effective sample size |
+| `bootstrapCI(values, { clusters, iterations, method, alpha, seed, statistic })` | a percentile or basic bootstrap interval that resamples whole clusters, seeded |
+| `passK(c, n, k)`, `passAtK(c, n, k)` | pass^k and pass@k |
 | `unreliability(samples)` | the 90th percentile minus the 10th |
-| `mcnemar(b, c)` | McNemar's test on the discordant counts |
-| `wilcoxonSignedRank(x, y)` | the paired signed-rank test |
-| `benjaminiHochberg(pvalues, q)` | false discovery rate control |
-| `mde({ n, repeats, baselineRate, power, alpha })` | the minimum detectable effect |
-| `nonInferiority({ baseline, candidate, margin, pairs })` | the parity verdict |
-| `cusum(series)`, `pageHinkley(series)` | change detection over time |
-| `ksTest(a, b)` | a shift between two distributions |
-| `cohenKappa(a, b)`, `krippendorffAlpha(matrix)` | judge agreement |
+| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts, exact below 25 discordant pairs by default |
+| `wilcoxonSignedRank(x, y, { method })` | the paired signed-rank test |
+| `pairedRateDifference(table, alpha)` | the interval on the baseline rate minus the candidate rate of paired results |
+| `nonInferiority({ baseline, candidate, margin, pairs, alpha, gatingFlags })` | the parity verdict of one criterion: the upper bound below the margin, and no new gating flag |
+| `benjaminiHochberg(pvalues, q)` | false discovery rate control, with adjusted p-values |
+| `mde({ n, repeats, baselineRate, power, alpha, rho })` | the minimum detectable effect, with the effective sample size of the repeats |
+| `cusum(series, options)`, `pageHinkley(series, options)` | change detection over time |
+| `ksTest(a, b, { method })` | a shift between two distributions |
+| `cohenKappa(a, b, { weights, categories })`, `krippendorffAlpha(matrix, { level })` | judge agreement |
+| `varianceComponents(observations, { levels, residual })`, `icc(result)` | how much of the variance sits at each level (cell, conversation, wording, repeat), and the correlation of two observations that share a level |
+| `neymanAllocation({ sizes, sds, total })`, `repeatsForFloor(...)` | how to spread runs across strata, and how many repeats a precision floor needs |
+| `goodTuring(counts)`, `chaoCoverage(counts)`, `hillNumbers(counts)` | how complete a sample of cells is: the estimators behind `driftbench space complete` (see [CLI](../reference/cli.md#driftbench-space-complete)) |
