@@ -63,6 +63,21 @@ export {
 } from './ladder';
 export { registeredLadders } from './ladders/index';
 export {
+  REFERENCE_TOLERANCE,
+  referenceCases,
+  referenceLevel,
+  STATS_COMPONENTS,
+  STATS_FIXTURES,
+  type StatsImpl,
+  type StatsLadderOptions,
+  statsLadder,
+  WILSON_COVERAGE,
+  WILSON_DRAWS,
+  WILSON_RATES,
+  WILSON_SIZES,
+  wilsonLevel,
+} from './ladders/stats';
+export {
   type DiffReader,
   EXECUTOR_BRANCH_PREFIX,
   gitChangedFiles,
