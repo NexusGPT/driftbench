@@ -16,7 +16,8 @@
     "guard": "node tools/guard/guard.mjs",
     "driftbench": "tsx packages/cli/src/bin.ts",
     "guard:canary": "node tools/guard/guard.mjs --canary",
-    "docs:reference": "tsx tools/docs/spec-reference.ts"
+    "docs:reference": "tsx tools/docs/spec-reference.ts",
+    "docs:links": "tsx tools/docs/check-links.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",

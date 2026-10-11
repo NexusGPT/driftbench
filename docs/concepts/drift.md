@@ -16,7 +16,7 @@ A failing block carries one class or more.
 
 ## How a class is assigned
 
-* The stage classifier labels the stage the agent reaches in the block: a system 1 judge, or a table of regular expressions per flow when the spec provides one. When the label differs from `expect.stage`, the block gets `X3_flow`. A runtime that reports its own stages lists them in the block's runtime trace.
+* The stage classifier labels the stage the agent reaches in the block: a system 1 judge, or a table of regular expressions per flow when the spec provides one. When the label differs from `expect.stage`, the block gets `X3_flow`. A runtime that reports its own stages lists them in the block's runtime trace, and that report is the observed stage; the classifier runs only when the trace carries none.
 * The ledger check asks a judge whether the block contradicts any fact in the ledger, and quotes the fact. A contradiction gives `X2_contradiction`.
 * Tool, skill and guard checks give `X5_tool`, the action-level class. Format and channel checks give `X4_format`: language, cards, one message per turn.
 * Any other failing check or criterion, with the ledger intact, gives `X1_local`.
