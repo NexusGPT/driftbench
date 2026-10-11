@@ -21,6 +21,8 @@ import { ModelError, type ModelPort, portFromEnv, shortQuote } from '@driftbench
 import { formatSpaceMap, gridSize, validateSpaceMap } from '@driftbench/space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { registerEstateMaintainCommands } from './estate-maintain';
+import { registerEstatePlanCommands } from './estate-plan';
 
 export type EstateScanOptions = {
   runtime?: string;
@@ -99,6 +101,9 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .action(async (path: string, options: { to?: string; all?: boolean; agent?: string }) => {
       setExit(await estateMapCommand(path, options, io));
     });
+
+  registerEstatePlanCommands(estate, io, setExit);
+  registerEstateMaintainCommands(estate, io, setExit);
 }
 
 /**
