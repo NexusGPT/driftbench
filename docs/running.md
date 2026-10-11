@@ -97,10 +97,12 @@ The projected cost of an adapter is its blocks times the latest cost per block m
 ## `driftbench campaign run`
 
 ```
-driftbench campaign run <paths...> [--target <adapter[:agent]>] [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>]... [--target <adapter[:agent]>] [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
 ```
 
 Creates a campaign over the specs, runs every cell and prints one line per cell, in cell order.
+
+With `--dataset <ref>`, the specs come from a dataset version of the store instead of, or beside, the paths; with `--prompt <ref>`, the campaign names a prompt version it ran with. Both need `--store`, and the campaign records each version by name, number and hash: see [datasets](datasets.md#a-campaign-records-the-versions-it-ran).
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
