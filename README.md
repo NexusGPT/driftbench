@@ -145,7 +145,7 @@ A block holds everything the agent does between two user messages: text, cards, 
 | **Free running**<br/>from the agent's own earlier replies | compounding: one wrong block poisons the next |
 | **Perturbed**<br/>free running, plus a deviation at block k | recovery: whether it comes back, how fast, at what cost |
 
-The gap between teacher forced and free running on the same golden is the **compounding index**. An agent can be right block by block and still fragile end to end. Only the free running run shows it.
+The gap between teacher forced and free running on the same golden is the **compounding index**. An agent can be right block by block and still fragile end to end. Only free running shows it.
 
 ### Drift and recovery
 
@@ -218,7 +218,7 @@ All planned. Every adapter must pass the same contract suite.
 
 ## How it compares
 
-driftbench builds on ideas other tools document well. What their docs describe as of 11 October 2026, and how driftbench takes each idea further:
+driftbench builds on ideas other tools document well. What their docs describe as of 11 October 2026, and where driftbench takes each one:
 
 | Tool, and what its docs describe | driftbench, by design |
 |---|---|
@@ -257,7 +257,7 @@ Questions and ideas go in [GitHub issues](https://github.com/achammah/driftbench
 
 ## Security
 
-Report a vulnerability privately through [GitHub security advisories](https://github.com/achammah/driftbench/security/advisories/new), not in a public issue.
+Report a vulnerability privately through [GitHub security advisories](https://github.com/achammah/driftbench/security), not in a public issue.
 
 ---
 
