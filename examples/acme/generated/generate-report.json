@@ -1,0 +1,1051 @@
+{
+  "generator": "driftbench generate",
+  "map": {
+    "path": "../map/approved.yaml",
+    "agent": "acme",
+    "version": "1",
+    "hash": "957045c0b3a9",
+    "dimensions": 46,
+    "values": 176,
+    "constraints": 34,
+    "phrases": 21
+  },
+  "options": {
+    "t": 2,
+    "seed": 1,
+    "max": null
+  },
+  "summary": {
+    "specs": 256,
+    "blocks": 404,
+    "complete": 168,
+    "incomplete": 88
+  },
+  "seeders": {
+    "graph": {
+      "specs": 8,
+      "blocks": 28,
+      "complete": 0,
+      "needs_phrase": 8,
+      "needs_then": 0,
+      "cut": false
+    },
+    "twise": {
+      "specs": 154,
+      "blocks": 280,
+      "complete": 154,
+      "needs_phrase": 0,
+      "needs_then": 0,
+      "cut": false
+    },
+    "boundary": {
+      "specs": 80,
+      "blocks": 80,
+      "complete": 0,
+      "needs_phrase": 80,
+      "needs_then": 0,
+      "cut": false
+    },
+    "deviation": {
+      "specs": 10,
+      "blocks": 10,
+      "complete": 10,
+      "needs_phrase": 0,
+      "needs_then": 0,
+      "cut": false
+    },
+    "metamorphic": {
+      "specs": 4,
+      "blocks": 6,
+      "complete": 4,
+      "needs_phrase": 0,
+      "needs_then": 0,
+      "cut": false
+    }
+  },
+  "graph": {
+    "stages": 11,
+    "start": "needs",
+    "edges": 23,
+    "covered": 23,
+    "paths": 8,
+    "unreachable": [],
+    "blocked": [],
+    "unparsed": []
+  },
+  "twise": {
+    "t": 2,
+    "dimensions": ["behaviour", "deviation", "channel", "user_type", "coverage_result", "workspace_start"],
+    "rows": 154,
+    "allowed": 470,
+    "covered": 470,
+    "share": 1
+  },
+  "boundary": {
+    "values": 80,
+    "tools": 57,
+    "unsupported": []
+  },
+  "deviation": {
+    "classes": 10,
+    "probes": [
+      {
+        "class": "D1_off_topic",
+        "stage": "needs",
+        "spec": "gen-deviation-001",
+        "phrase": true
+      },
+      {
+        "class": "D2_goal_shift",
+        "stage": "needs",
+        "spec": "gen-deviation-002",
+        "phrase": true
+      },
+      {
+        "class": "D3_contradiction",
+        "stage": "needs",
+        "spec": "gen-deviation-003",
+        "phrase": true
+      },
+      {
+        "class": "D4_loose_confirmation",
+        "stage": "needs",
+        "spec": "gen-deviation-004",
+        "phrase": true
+      },
+      {
+        "class": "D5_language_switch",
+        "stage": "needs",
+        "spec": "gen-deviation-005",
+        "phrase": true
+      },
+      {
+        "class": "D6_instruction_in_data",
+        "stage": "needs",
+        "spec": "gen-deviation-006",
+        "phrase": true
+      },
+      {
+        "class": "D8_tool_failure",
+        "stage": null,
+        "spec": "gen-deviation-007",
+        "phrase": false
+      },
+      {
+        "class": "D10_return",
+        "stage": "needs",
+        "spec": "gen-deviation-008",
+        "phrase": true
+      },
+      {
+        "class": "D7_silence_or_burst",
+        "stage": "needs",
+        "spec": "gen-deviation-009",
+        "phrase": true
+      },
+      {
+        "class": "D9_out_of_scope",
+        "stage": "needs",
+        "spec": "gen-deviation-010",
+        "phrase": true
+      }
+    ]
+  },
+  "metamorphic": {
+    "families": 2,
+    "specs": 4,
+    "values": ["flow=upgrade", "deviation=D4_loose_confirmation"]
+  },
+  "constraints": {
+    "applied": 34,
+    "list": [
+      {
+        "forbid": {
+          "behaviour": "B-001",
+          "channel": "whatsapp"
+        },
+        "reason": "B-001 applies only on chat"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-013",
+          "channel": "whatsapp"
+        },
+        "reason": "B-013 applies only on chat"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-014",
+          "channel": "whatsapp"
+        },
+        "reason": "B-014 applies only on chat"
+      },
+      {
+        "forbid": {
+          "flow": "upgrade",
+          "stage": "details"
+        },
+        "reason": "An upgrade goes from the chosen plan straight to the recap; it never asks for details"
+      },
+      {
+        "forbid": {
+          "flow": "upgrade",
+          "stage_transition": "callback-to-offer"
+        },
+        "reason": "Only the home flow retries a coverage check from the callback stage"
+      },
+      {
+        "forbid": {
+          "flow": "porting",
+          "stage_transition": "callback-to-offer"
+        },
+        "reason": "Only the home flow retries a coverage check from the callback stage"
+      },
+      {
+        "forbid": {
+          "user_type": "new-customer",
+          "flow": "upgrade"
+        },
+        "reason": "The upgrade flow is for an existing customer"
+      },
+      {
+        "forbid": {
+          "user_type": "existing-customer",
+          "flow": "new-home"
+        },
+        "reason": "The new-home flow is for a new customer"
+      },
+      {
+        "forbid": {
+          "user_type": "existing-customer",
+          "flow": "porting"
+        },
+        "reason": "The porting flow is for a new customer who switches to Acme"
+      },
+      {
+        "forbid": {
+          "user_type": "existing-customer",
+          "flow": "price-sheet"
+        },
+        "reason": "Sales operations builds the price sheet, not a customer"
+      },
+      {
+        "forbid": {
+          "user_type": "new-customer",
+          "flow": "price-sheet"
+        },
+        "reason": "Sales operations builds the price sheet, not a customer"
+      },
+      {
+        "forbid": {
+          "user_type": "sales-operations",
+          "flow": "upgrade"
+        },
+        "reason": "The upgrade flow is for an existing customer"
+      },
+      {
+        "forbid": {
+          "user_type": "sales-operations",
+          "flow": "new-home"
+        },
+        "reason": "The new-home flow is for a new customer"
+      },
+      {
+        "forbid": {
+          "user_type": "sales-operations",
+          "flow": "porting"
+        },
+        "reason": "The porting flow is for a new customer who switches to Acme"
+      },
+      {
+        "forbid": {
+          "catalog.search.in.category": "catalog.search.in.category.mobile",
+          "catalog.search.in.address_id": "catalog.search.in.address_id.present"
+        },
+        "reason": "address_id applies to home plans only"
+      },
+      {
+        "forbid": {
+          "catalog.search.in.customer_email": "catalog.search.in.customer_email.absent",
+          "catalog.search.out.customer": "catalog.search.out.customer.present"
+        },
+        "reason": "The customer comes back only when an email was given"
+      },
+      {
+        "forbid": {
+          "catalog.search.in.customer_email": "catalog.search.in.customer_email.absent",
+          "catalog.search.out.customer": "catalog.search.out.customer.null"
+        },
+        "reason": "The customer comes back only when an email was given"
+      },
+      {
+        "forbid": {
+          "coverage.check.out.found": "coverage.check.out.found.false",
+          "coverage.check.out.address_id": "coverage.check.out.address_id.present"
+        },
+        "reason": "address_id comes back only when the address is found"
+      },
+      {
+        "forbid": {
+          "coverage.check.out.found": "coverage.check.out.found.true",
+          "coverage.check.out.address_id": "coverage.check.out.address_id.absent"
+        },
+        "reason": "address_id comes back whenever the address is found"
+      },
+      {
+        "forbid": {
+          "coverage.check.out.found": "coverage.check.out.found.false",
+          "coverage.check.out.fiber_mbps": "coverage.check.out.fiber_mbps.at-minimum"
+        },
+        "reason": "fiber_mbps comes back only when the address is found"
+      },
+      {
+        "forbid": {
+          "coverage.check.out.found": "coverage.check.out.found.false",
+          "coverage.check.out.fiber_mbps": "coverage.check.out.fiber_mbps.above-minimum"
+        },
+        "reason": "fiber_mbps comes back only when the address is found"
+      },
+      {
+        "forbid": {
+          "coverage.check.out.found": "coverage.check.out.found.false",
+          "coverage.check.out.fiber_mbps": "coverage.check.out.fiber_mbps.below-minimum"
+        },
+        "reason": "fiber_mbps comes back only when the address is found"
+      },
+      {
+        "forbid": {
+          "coverage.check.out.found": "coverage.check.out.found.true",
+          "coverage.check.out.fiber_mbps": "coverage.check.out.fiber_mbps.absent"
+        },
+        "reason": "fiber_mbps comes back whenever the address is found"
+      },
+      {
+        "forbid": {
+          "coverage.check.out.found": "coverage.check.out.found.false",
+          "coverage.check.out.five_g": "coverage.check.out.five_g.true"
+        },
+        "reason": "five_g comes back only when the address is found"
+      },
+      {
+        "forbid": {
+          "coverage.check.out.found": "coverage.check.out.found.false",
+          "coverage.check.out.five_g": "coverage.check.out.five_g.false"
+        },
+        "reason": "five_g comes back only when the address is found"
+      },
+      {
+        "forbid": {
+          "coverage.check.out.found": "coverage.check.out.found.true",
+          "coverage.check.out.five_g": "coverage.check.out.five_g.absent"
+        },
+        "reason": "five_g comes back whenever the address is found"
+      },
+      {
+        "forbid": {
+          "port.check.out.eligible": "port.check.out.eligible.true",
+          "port.check.out.reason": "port.check.out.reason.present"
+        },
+        "reason": "A reason comes back only when the number cannot move"
+      },
+      {
+        "forbid": {
+          "port.check.out.eligible": "port.check.out.eligible.false",
+          "port.check.out.reason": "port.check.out.reason.absent"
+        },
+        "reason": "A number that cannot move comes back with its reason"
+      },
+      {
+        "forbid": {
+          "order.create.in.type": "order.create.in.type.upgrade",
+          "order.create.in.customer": "order.create.in.customer.present"
+        },
+        "reason": "An upgrade takes customer_id only"
+      },
+      {
+        "forbid": {
+          "order.create.in.type": "order.create.in.type.upgrade",
+          "order.create.in.port_number": "order.create.in.port_number.present"
+        },
+        "reason": "An upgrade takes customer_id only"
+      },
+      {
+        "forbid": {
+          "order.create.in.address_id": "order.create.in.address_id.present",
+          "order.create.in.port_number": "order.create.in.port_number.present"
+        },
+        "reason": "address_id is for home plans and port_number for mobile plans"
+      },
+      {
+        "forbid": {
+          "notify_sales.in.customer.email": "notify_sales.in.customer.email.absent",
+          "notify_sales.in.customer.phone": "notify_sales.in.customer.phone.absent"
+        },
+        "reason": "A lead needs a phone or an email"
+      },
+      {
+        "forbid": {
+          "failing_tool": "order.create",
+          "retry_outcome": "retry-answers"
+        },
+        "reason": "order.create is never retried"
+      },
+      {
+        "forbid": {
+          "failing_tool": "notify_sales",
+          "retry_outcome": "retry-answers"
+        },
+        "reason": "A lead is sent once, never retried"
+      }
+    ]
+  },
+  "no_phrase": [
+    {
+      "dimension": "stage_transition",
+      "value": "needs-to-identify",
+      "blocks": 3,
+      "specs": ["gen-graph-001", "gen-graph-005", "gen-graph-006"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "identify-to-closing",
+      "blocks": 1,
+      "specs": ["gen-graph-001"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "needs-to-port_number",
+      "blocks": 1,
+      "specs": ["gen-graph-002"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "port_number-to-offer",
+      "blocks": 1,
+      "specs": ["gen-graph-002"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "offer-to-details",
+      "blocks": 1,
+      "specs": ["gen-graph-002"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "details-to-recap",
+      "blocks": 1,
+      "specs": ["gen-graph-002"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "recap-to-order_placed",
+      "blocks": 1,
+      "specs": ["gen-graph-002"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "order_placed-to-closing",
+      "blocks": 1,
+      "specs": ["gen-graph-002"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "needs-to-offer",
+      "blocks": 1,
+      "specs": ["gen-graph-003"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "offer-to-recap",
+      "blocks": 2,
+      "specs": ["gen-graph-003", "gen-graph-005"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "recap-to-handover",
+      "blocks": 1,
+      "specs": ["gen-graph-003"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "handover-to-closing",
+      "blocks": 1,
+      "specs": ["gen-graph-003"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "needs-to-address",
+      "blocks": 3,
+      "specs": ["gen-graph-004", "gen-graph-007", "gen-graph-008"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "address-to-callback",
+      "blocks": 1,
+      "specs": ["gen-graph-004"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "callback-to-offer",
+      "blocks": 1,
+      "specs": ["gen-graph-004"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "offer-to-callback",
+      "blocks": 1,
+      "specs": ["gen-graph-004"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "callback-to-handover",
+      "blocks": 1,
+      "specs": ["gen-graph-004"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "identify-to-offer",
+      "blocks": 1,
+      "specs": ["gen-graph-005"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "recap-to-recap",
+      "blocks": 1,
+      "specs": ["gen-graph-005"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "identify-to-identify",
+      "blocks": 1,
+      "specs": ["gen-graph-006"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "address-to-details",
+      "blocks": 1,
+      "specs": ["gen-graph-007"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "address-to-address",
+      "blocks": 1,
+      "specs": ["gen-graph-008"]
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "address-to-offer",
+      "blocks": 1,
+      "specs": ["gen-graph-008"]
+    },
+    {
+      "dimension": "catalog.search.in.category",
+      "value": "catalog.search.in.category.mobile",
+      "blocks": 1,
+      "specs": ["gen-boundary-001"]
+    },
+    {
+      "dimension": "catalog.search.in.category",
+      "value": "catalog.search.in.category.home",
+      "blocks": 1,
+      "specs": ["gen-boundary-002"]
+    },
+    {
+      "dimension": "catalog.search.in.customer_email",
+      "value": "catalog.search.in.customer_email.below-min-length",
+      "blocks": 1,
+      "specs": ["gen-boundary-003"]
+    },
+    {
+      "dimension": "catalog.search.in.customer_email",
+      "value": "catalog.search.in.customer_email.at-min-length",
+      "blocks": 1,
+      "specs": ["gen-boundary-004"]
+    },
+    {
+      "dimension": "catalog.search.in.customer_email",
+      "value": "catalog.search.in.customer_email.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-005"]
+    },
+    {
+      "dimension": "catalog.search.in.address_id",
+      "value": "catalog.search.in.address_id.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-006"]
+    },
+    {
+      "dimension": "catalog.search.in.address_id",
+      "value": "catalog.search.in.address_id.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-007"]
+    },
+    {
+      "dimension": "catalog.search.out.plans",
+      "value": "catalog.search.out.plans.empty",
+      "blocks": 1,
+      "specs": ["gen-boundary-008"]
+    },
+    {
+      "dimension": "catalog.search.out.plans",
+      "value": "catalog.search.out.plans.one-item",
+      "blocks": 1,
+      "specs": ["gen-boundary-009"]
+    },
+    {
+      "dimension": "catalog.search.out.plans",
+      "value": "catalog.search.out.plans.several-items",
+      "blocks": 1,
+      "specs": ["gen-boundary-010"]
+    },
+    {
+      "dimension": "catalog.search.out.customer",
+      "value": "catalog.search.out.customer.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-011"]
+    },
+    {
+      "dimension": "catalog.search.out.customer",
+      "value": "catalog.search.out.customer.null",
+      "blocks": 1,
+      "specs": ["gen-boundary-012"]
+    },
+    {
+      "dimension": "catalog.search.out.customer",
+      "value": "catalog.search.out.customer.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-013"]
+    },
+    {
+      "dimension": "coverage.check.in.address",
+      "value": "coverage.check.in.address.below-min-length",
+      "blocks": 1,
+      "specs": ["gen-boundary-014"]
+    },
+    {
+      "dimension": "coverage.check.in.address",
+      "value": "coverage.check.in.address.at-min-length",
+      "blocks": 1,
+      "specs": ["gen-boundary-015"]
+    },
+    {
+      "dimension": "coverage.check.out.found",
+      "value": "coverage.check.out.found.true",
+      "blocks": 1,
+      "specs": ["gen-boundary-016"]
+    },
+    {
+      "dimension": "coverage.check.out.found",
+      "value": "coverage.check.out.found.false",
+      "blocks": 1,
+      "specs": ["gen-boundary-017"]
+    },
+    {
+      "dimension": "coverage.check.out.address_id",
+      "value": "coverage.check.out.address_id.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-018"]
+    },
+    {
+      "dimension": "coverage.check.out.address_id",
+      "value": "coverage.check.out.address_id.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-019"]
+    },
+    {
+      "dimension": "coverage.check.out.fiber_mbps",
+      "value": "coverage.check.out.fiber_mbps.below-minimum",
+      "blocks": 1,
+      "specs": ["gen-boundary-020"]
+    },
+    {
+      "dimension": "coverage.check.out.fiber_mbps",
+      "value": "coverage.check.out.fiber_mbps.at-minimum",
+      "blocks": 1,
+      "specs": ["gen-boundary-021"]
+    },
+    {
+      "dimension": "coverage.check.out.fiber_mbps",
+      "value": "coverage.check.out.fiber_mbps.above-minimum",
+      "blocks": 1,
+      "specs": ["gen-boundary-022"]
+    },
+    {
+      "dimension": "coverage.check.out.fiber_mbps",
+      "value": "coverage.check.out.fiber_mbps.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-023"]
+    },
+    {
+      "dimension": "coverage.check.out.five_g",
+      "value": "coverage.check.out.five_g.true",
+      "blocks": 1,
+      "specs": ["gen-boundary-024"]
+    },
+    {
+      "dimension": "coverage.check.out.five_g",
+      "value": "coverage.check.out.five_g.false",
+      "blocks": 1,
+      "specs": ["gen-boundary-025"]
+    },
+    {
+      "dimension": "coverage.check.out.five_g",
+      "value": "coverage.check.out.five_g.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-026"]
+    },
+    {
+      "dimension": "port.check.in.number",
+      "value": "port.check.in.number.below-min-length",
+      "blocks": 1,
+      "specs": ["gen-boundary-027"]
+    },
+    {
+      "dimension": "port.check.in.number",
+      "value": "port.check.in.number.at-min-length",
+      "blocks": 1,
+      "specs": ["gen-boundary-028"]
+    },
+    {
+      "dimension": "port.check.out.eligible",
+      "value": "port.check.out.eligible.true",
+      "blocks": 1,
+      "specs": ["gen-boundary-029"]
+    },
+    {
+      "dimension": "port.check.out.eligible",
+      "value": "port.check.out.eligible.false",
+      "blocks": 1,
+      "specs": ["gen-boundary-030"]
+    },
+    {
+      "dimension": "port.check.out.reason",
+      "value": "port.check.out.reason.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-031"]
+    },
+    {
+      "dimension": "port.check.out.reason",
+      "value": "port.check.out.reason.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-032"]
+    },
+    {
+      "dimension": "order.create.in.type",
+      "value": "order.create.in.type.new",
+      "blocks": 1,
+      "specs": ["gen-boundary-033"]
+    },
+    {
+      "dimension": "order.create.in.type",
+      "value": "order.create.in.type.upgrade",
+      "blocks": 1,
+      "specs": ["gen-boundary-034"]
+    },
+    {
+      "dimension": "order.create.in.customer_id",
+      "value": "order.create.in.customer_id.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-035"]
+    },
+    {
+      "dimension": "order.create.in.customer_id",
+      "value": "order.create.in.customer_id.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-036"]
+    },
+    {
+      "dimension": "order.create.in.customer",
+      "value": "order.create.in.customer.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-037"]
+    },
+    {
+      "dimension": "order.create.in.customer",
+      "value": "order.create.in.customer.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-038"]
+    },
+    {
+      "dimension": "order.create.in.address_id",
+      "value": "order.create.in.address_id.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-039"]
+    },
+    {
+      "dimension": "order.create.in.address_id",
+      "value": "order.create.in.address_id.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-040"]
+    },
+    {
+      "dimension": "order.create.in.port_number",
+      "value": "order.create.in.port_number.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-041"]
+    },
+    {
+      "dimension": "order.create.in.port_number",
+      "value": "order.create.in.port_number.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-042"]
+    },
+    {
+      "dimension": "order.create.out.status",
+      "value": "order.create.out.status.pending",
+      "blocks": 1,
+      "specs": ["gen-boundary-043"]
+    },
+    {
+      "dimension": "notify_sales.in.reason",
+      "value": "notify_sales.in.reason.callback",
+      "blocks": 1,
+      "specs": ["gen-boundary-044"]
+    },
+    {
+      "dimension": "notify_sales.in.reason",
+      "value": "notify_sales.in.reason.no_coverage",
+      "blocks": 1,
+      "specs": ["gen-boundary-045"]
+    },
+    {
+      "dimension": "notify_sales.in.reason",
+      "value": "notify_sales.in.reason.tool_failure",
+      "blocks": 1,
+      "specs": ["gen-boundary-046"]
+    },
+    {
+      "dimension": "notify_sales.in.reason",
+      "value": "notify_sales.in.reason.order_failed",
+      "blocks": 1,
+      "specs": ["gen-boundary-047"]
+    },
+    {
+      "dimension": "notify_sales.in.customer.name",
+      "value": "notify_sales.in.customer.name.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-048"]
+    },
+    {
+      "dimension": "notify_sales.in.customer.name",
+      "value": "notify_sales.in.customer.name.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-049"]
+    },
+    {
+      "dimension": "notify_sales.in.customer.email",
+      "value": "notify_sales.in.customer.email.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-050"]
+    },
+    {
+      "dimension": "notify_sales.in.customer.email",
+      "value": "notify_sales.in.customer.email.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-051"]
+    },
+    {
+      "dimension": "notify_sales.in.customer.phone",
+      "value": "notify_sales.in.customer.phone.present",
+      "blocks": 1,
+      "specs": ["gen-boundary-052"]
+    },
+    {
+      "dimension": "notify_sales.in.customer.phone",
+      "value": "notify_sales.in.customer.phone.absent",
+      "blocks": 1,
+      "specs": ["gen-boundary-053"]
+    },
+    {
+      "dimension": "notify_sales.in.summary",
+      "value": "notify_sales.in.summary.below-min-length",
+      "blocks": 1,
+      "specs": ["gen-boundary-054"]
+    },
+    {
+      "dimension": "notify_sales.in.summary",
+      "value": "notify_sales.in.summary.at-min-length",
+      "blocks": 1,
+      "specs": ["gen-boundary-055"]
+    },
+    {
+      "dimension": "notify_sales.out.queued",
+      "value": "notify_sales.out.queued.true",
+      "blocks": 1,
+      "specs": ["gen-boundary-056"]
+    },
+    {
+      "dimension": "notify_sales.out.queued",
+      "value": "notify_sales.out.queued.false",
+      "blocks": 1,
+      "specs": ["gen-boundary-057"]
+    },
+    {
+      "dimension": "account_lookup",
+      "value": "found",
+      "blocks": 1,
+      "specs": ["gen-boundary-058"]
+    },
+    {
+      "dimension": "account_lookup",
+      "value": "not-found",
+      "blocks": 1,
+      "specs": ["gen-boundary-059"]
+    },
+    {
+      "dimension": "account_lookup",
+      "value": "plan-not-in-catalog",
+      "blocks": 1,
+      "specs": ["gen-boundary-060"]
+    },
+    {
+      "dimension": "account_lookup",
+      "value": "most-data",
+      "blocks": 1,
+      "specs": ["gen-boundary-061"]
+    },
+    {
+      "dimension": "home_plans",
+      "value": "one-plan",
+      "blocks": 1,
+      "specs": ["gen-boundary-062"]
+    },
+    {
+      "dimension": "home_plans",
+      "value": "several-plans",
+      "blocks": 1,
+      "specs": ["gen-boundary-063"]
+    },
+    {
+      "dimension": "home_plans",
+      "value": "no-plan",
+      "blocks": 1,
+      "specs": ["gen-boundary-064"]
+    },
+    {
+      "dimension": "port_result",
+      "value": "can-move",
+      "blocks": 1,
+      "specs": ["gen-boundary-065"]
+    },
+    {
+      "dimension": "port_result",
+      "value": "locked",
+      "blocks": 1,
+      "specs": ["gen-boundary-066"]
+    },
+    {
+      "dimension": "failing_tool",
+      "value": "catalog.search",
+      "blocks": 1,
+      "specs": ["gen-boundary-067"]
+    },
+    {
+      "dimension": "failing_tool",
+      "value": "coverage.check",
+      "blocks": 1,
+      "specs": ["gen-boundary-068"]
+    },
+    {
+      "dimension": "failing_tool",
+      "value": "port.check",
+      "blocks": 1,
+      "specs": ["gen-boundary-069"]
+    },
+    {
+      "dimension": "failing_tool",
+      "value": "order.create",
+      "blocks": 1,
+      "specs": ["gen-boundary-070"]
+    },
+    {
+      "dimension": "failing_tool",
+      "value": "notify_sales",
+      "blocks": 1,
+      "specs": ["gen-boundary-071"]
+    },
+    {
+      "dimension": "tool_answer",
+      "value": "error",
+      "blocks": 1,
+      "specs": ["gen-boundary-072"]
+    },
+    {
+      "dimension": "tool_answer",
+      "value": "unreadable",
+      "blocks": 1,
+      "specs": ["gen-boundary-073"]
+    },
+    {
+      "dimension": "retry_outcome",
+      "value": "retry-answers",
+      "blocks": 1,
+      "specs": ["gen-boundary-074"]
+    },
+    {
+      "dimension": "retry_outcome",
+      "value": "retry-fails-too",
+      "blocks": 1,
+      "specs": ["gen-boundary-075"]
+    },
+    {
+      "dimension": "customer_details",
+      "value": "name-and-email",
+      "blocks": 1,
+      "specs": ["gen-boundary-076"]
+    },
+    {
+      "dimension": "customer_details",
+      "value": "one-of-them",
+      "blocks": 1,
+      "specs": ["gen-boundary-077"]
+    },
+    {
+      "dimension": "customer_details",
+      "value": "neither",
+      "blocks": 1,
+      "specs": ["gen-boundary-078"]
+    },
+    {
+      "dimension": "callback_phone",
+      "value": "given",
+      "blocks": 1,
+      "specs": ["gen-boundary-079"]
+    },
+    {
+      "dimension": "callback_phone",
+      "value": "not-given",
+      "blocks": 1,
+      "specs": ["gen-boundary-080"]
+    }
+  ],
+  "no_then": [],
+  "coverage": {
+    "t": 2,
+    "allowed": 866,
+    "complete": {
+      "t": 2,
+      "specs": 168,
+      "allowed": 866,
+      "covered": 489,
+      "share": 0.5646651270207852
+    },
+    "all": {
+      "t": 2,
+      "specs": 256,
+      "allowed": 866,
+      "covered": 566,
+      "share": 0.6535796766743649
+    },
+    "baseline": {
+      "label": "examples/acme/specs",
+      "t": 2,
+      "specs": 7,
+      "allowed": 866,
+      "covered": 164,
+      "share": 0.18937644341801385
+    }
+  },
+  "invalid": [],
+  "lint": []
+}
