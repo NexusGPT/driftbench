@@ -1,2 +1,22 @@
-/** Owned by the estate-maintain lane. */
-export {};
+export {
+  AtomChange,
+  AtomMove,
+  AtomPlace,
+  AtomRestated,
+  ChangeClass,
+  classifyQuote,
+  DiffAtom,
+  type DiffOptions,
+  diffEstateMaps,
+  EstateDiff,
+  edgeKey,
+  GuardEvidence,
+  GuardMode,
+  GuardTransition,
+  guardLine,
+  MapStamp,
+  normaliseQuote,
+  type ParsedDiff,
+  parseEstateDiff,
+  renderEstateDiff,
+} from './diff';
