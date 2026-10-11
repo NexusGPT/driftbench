@@ -1,20 +1,13 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import * as stats from '@driftbench/stats';
-import { showNumber } from '../format';
-import { defineLadder, type Item, type Ladder, type Measure } from '../ladder';
+import type * as stats from '@driftbench/stats';
+import type { Item, Measure } from '../../ladder';
+
+/** Level 1 of the statistics validator: every Python reference value matches the implementation. */
 
 /** The Python reference values, from the repository root. Written by make_fixtures.py next to it. */
 export const STATS_FIXTURES = 'packages/stats/test/reference/fixtures.json';
 
 /** The tolerance every reference value is matched to (docs/validators.md section 7, level 1). */
 export const REFERENCE_TOLERANCE = 1e-6;
-
-/** Level 2: the sample sizes, the draws per size and seed, the coverage bar and the range of true rates. */
-export const WILSON_SIZES = [20, 50, 200] as const;
-export const WILSON_DRAWS = 1000;
-export const WILSON_COVERAGE = 0.93;
-export const WILSON_RATES = { low: 0.1, high: 0.9 } as const;
 
 /** The fixed table from a fixture group to the one source file an item points at. */
 export const STATS_COMPONENTS: Record<string, string> = {
@@ -39,14 +32,8 @@ export const STATS_COMPONENTS: Record<string, string> = {
 /** The functions the ladder scores. Tests replace one to plant a fault. */
 export type StatsImpl = typeof stats;
 
-export type StatsLadderOptions = {
-  impl?: Partial<StatsImpl>;
-  /** The fixtures file; by default STATS_FIXTURES under the run's root. */
-  fixtures?: string;
-};
-
 // biome-ignore lint/suspicious/noExplicitAny: the fixtures are JSON read as data; each case reads the fields it compares
-type Row = Record<string, any>;
+export type Row = Record<string, any>;
 
 /** One comparison: the function under test, run on one reference case. */
 type Case = { id: string; component: string; run(expect: Expect): void };
@@ -370,80 +357,4 @@ export function referenceLevel(fixtures: Row, s: StatsImpl): Measure {
     };
   }
   return { value: (cases.length - items.length) / cases.length, items };
-}
-
-/** The generator of one sample size on one seed: the seed mixed with the size, so sizes draw apart. */
-function generator(seed: number, n: number): () => number {
-  return stats.mulberry32((Math.imul(seed >>> 0, 0x9e3779b1) ^ Math.imul(n, 0x85ebca6b)) >>> 0);
-}
-
-/**
- * Level 2: for each sample size, WILSON_DRAWS draws of a true rate uniform on [0.1, 0.9] and a binomial count
- * at that rate; the coverage is the share of Wilson intervals that contain the true rate. The observed value
- * is the lowest coverage over the sizes; a size below the bar is an item with its first misses.
- */
-export function wilsonLevel(seed: number, s: StatsImpl): Measure {
-  const items: Item[] = [];
-  let lowest = 1;
-  for (const n of WILSON_SIZES) {
-    const rng = generator(seed, n);
-    let contained = 0;
-    const misses: string[] = [];
-    for (let draw = 0; draw < WILSON_DRAWS; draw += 1) {
-      const truth = WILSON_RATES.low + (WILSON_RATES.high - WILSON_RATES.low) * rng();
-      let k = 0;
-      for (let trial = 0; trial < n; trial += 1) if (rng() < truth) k += 1;
-      const ci = s.wilson(k, n);
-      if (ci.lower <= truth && truth <= ci.upper) contained += 1;
-      else if (misses.length < 3) {
-        misses.push(
-          `draw ${draw}: truth ${showNumber(truth)}, estimate ${showNumber(ci.estimate)}, interval [${showNumber(ci.lower)}, ${showNumber(ci.upper)}]`,
-        );
-      }
-    }
-    const coverage = contained / WILSON_DRAWS;
-    lowest = Math.min(lowest, coverage);
-    if (coverage < WILSON_COVERAGE) {
-      items.push({
-        id: `wilson-n${n}`,
-        component: STATS_COMPONENTS.intervals as string,
-        detail: `estimator wilson, seed ${seed}, n ${n}: ${contained} of ${WILSON_DRAWS} intervals contain the truth (coverage ${showNumber(coverage)}); first misses: ${misses.join('; ')}`,
-      });
-    }
-  }
-  return { value: lowest, items };
-}
-
-/**
- * The statistics validator (docs/validators.md section 7), first rungs. Level 1: every Python reference value
- * matches to 1e-6. Level 2: Wilson coverage at least 0.93 at n of 20, 50 and 200 over 1000 draws per seed.
- * The V6 lane adds levels 3 to 6.
- */
-export function statsLadder(options: StatsLadderOptions = {}): Ladder {
-  const s: StatsImpl = { ...stats, ...options.impl };
-  let cached: { path: string; data: Row } | undefined;
-  const load = (root: string): Row => {
-    const path = options.fixtures ?? join(root, STATS_FIXTURES);
-    if (cached?.path !== path) cached = { path, data: JSON.parse(readFileSync(path, 'utf8')) as Row };
-    return cached.data;
-  };
-  return defineLadder({
-    component: 'stats',
-    levels: [
-      {
-        id: 'reference-values',
-        name: 'reference values',
-        metric: 'fixture cases matched / fixture cases compared',
-        threshold: 1,
-        compute: ({ root }) => referenceLevel(load(root), s),
-      },
-      {
-        id: 'wilson-coverage',
-        name: 'Wilson coverage',
-        metric: 'intervals containing the truth / intervals computed, lowest over n of 20, 50, 200',
-        threshold: WILSON_COVERAGE,
-        compute: ({ seed }) => wilsonLevel(seed, s),
-      },
-    ],
-  });
 }
