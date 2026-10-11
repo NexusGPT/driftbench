@@ -62,6 +62,13 @@ export {
   seedLabel,
 } from './ladder';
 export { registeredLadders } from './ladders/index';
+export {
+  type DiffReader,
+  EXECUTOR_BRANCH_PREFIX,
+  gitChangedFiles,
+  PROTECTED_PATHS,
+  protectedChanges,
+} from './protect';
 export { findRoot } from './root';
 export {
   FALLBACK_HIDDEN_SEED,

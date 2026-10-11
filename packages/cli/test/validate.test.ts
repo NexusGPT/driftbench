@@ -231,3 +231,44 @@ describe('driftbench validate loop files', () => {
     expect(await validateCommand('planted', { fresh: true }, usage.io, d)).toBe(USAGE_EXIT);
   });
 });
+
+describe('driftbench validate protect', () => {
+  it('exits 1 when an exec/ branch changes a protected file, 0 otherwise', async () => {
+    const d = await deps();
+    const changed = () => ['packages/validators/src/ladders/stats.ts', 'packages/stats/src/intervals.ts'];
+    const refused = capture(d.root as string);
+    expect(
+      await validateCommand('protect', { branch: 'exec/stats', base: 'origin/main' }, refused.io, {
+        ...d,
+        changedFiles: changed,
+      }),
+    ).toBe(1);
+    expect(refused.output.err).toContain('  packages/validators/src/ladders/stats.ts\n');
+    expect(refused.output.err).not.toContain('intervals.ts');
+    const lane = capture(d.root as string);
+    expect(
+      await validateCommand('protect', { branch: 'lane/validators', base: 'origin/main' }, lane.io, {
+        ...d,
+        changedFiles: changed,
+      }),
+    ).toBe(0);
+    const clean = capture(d.root as string);
+    expect(
+      await validateCommand('protect', { branch: 'exec/stats', base: 'origin/main' }, clean.io, {
+        ...d,
+        changedFiles: () => ['packages/stats/src/intervals.ts'],
+      }),
+    ).toBe(0);
+    expect(clean.output.out).toContain('none of them protected');
+    const broken = capture(d.root as string);
+    expect(
+      await validateCommand('protect', { branch: 'exec/stats', base: 'origin/nope' }, broken.io, {
+        ...d,
+        changedFiles: () => {
+          throw new Error('fatal: bad revision');
+        },
+      }),
+    ).toBe(USAGE_EXIT);
+    expect(await validateCommand('protect', {}, capture(d.root as string).io, d)).toBe(USAGE_EXIT);
+  });
+});

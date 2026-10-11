@@ -1,0 +1,55 @@
+name: validators
+
+# Runs every registered validator on seeds 1 to 3 and the hidden seed, enforces validators/floors.json,
+# checks each validator's HANDOVER.md against its journal, and refuses a pull request from an executor
+# branch (exec/...) that changes the validator code, the floors, the executor instruction, the fault family,
+# the statistics reference fixtures or this file. Documented in docs/validators.md section 8.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validators-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ladders:
+    name: ladders and floors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Every validator on seeds 1 to 3 and the hidden seed, at or above its floor
+        run: pnpm driftbench validate all --seeds 1..3 --hidden --check-floor
+      - name: Every handover agrees with its journal
+        run: pnpm driftbench validate all --check-handover
+
+  protect:
+    name: executor branches leave the validators alone
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Refuse protected changes from an exec/ branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        run: pnpm driftbench validate protect --branch "$HEAD_REF" --base "origin/$BASE_REF"

@@ -5,12 +5,14 @@ import {
   checkFloors,
   checkHandover,
   composeBrief,
+  type DiffReader,
   EXECUTOR_FILE,
   FLOORS_FILE,
   type FloorsFile,
   findRoot,
   floorOf,
   formatLadder,
+  gitChangedFiles,
   type HeadReader,
   type HiddenSeed,
   handoverFile,
@@ -19,7 +21,9 @@ import {
   journalFile,
   type Ladder,
   type LadderReport,
+  PROTECTED_PATHS,
   parseSeeds,
+  protectedChanges,
   raiseFloor,
   readFloors,
   readHandover,
@@ -51,6 +55,8 @@ export type ValidateCommandOptions = {
   fresh?: boolean;
   journal?: string;
   checkHandover?: boolean;
+  branch?: string;
+  base?: string;
 };
 
 /** What the command runs with. Tests pass their own ladders, root and commit reader. */
@@ -60,6 +66,8 @@ export type ValidateDeps = {
   root?: string;
   /** Reads the commit the hidden seed derives from; by default `git rev-parse HEAD`. */
   readHead?: HeadReader;
+  /** Lists the files changed since a base; by default `git diff --name-only base...HEAD`. */
+  changedFiles?: DiffReader;
 };
 
 export const defaultValidateDeps: ValidateDeps = {
@@ -95,6 +103,8 @@ export function registerValidateCommand(
     .option('--fresh', "with --brief: leave out the handover's hypotheses (the handover test)")
     .option('--journal <row.json>', "append a validated journal row and rewrite the handover's level table")
     .option('--check-handover', 'exit 1 when HANDOVER.md misses a section or disagrees with the journal')
+    .option('--branch <name>', 'with protect: the branch of the pull request')
+    .option('--base <ref>', 'with protect: the ref the pull request merges into, such as origin/main')
     .action(async (component: string, level: string | undefined, options: ValidateCommandOptions) => {
       setExit(await validateCommand(component, options, io, deps, level));
     });
@@ -117,6 +127,7 @@ export async function validateCommand(
     return USAGE_EXIT;
   }
   if (component === 'floors') return floorsCommand(options, level, floors, ladders, root, io);
+  if (component === 'protect') return protectCommand(options, deps, root, io);
   if (level !== undefined) {
     io.err(`Unexpected argument "${level}": a level is only taken by floors --raise.\n`);
     return USAGE_EXIT;
@@ -160,6 +171,36 @@ export async function validateCommand(
   for (const check of below)
     io.err(`${check.component} is at level ${check.level}, below its floor ${check.floor}.\n`);
   return below.length > 0 || (component === 'all' && problems.length > 0) ? 1 : 0;
+}
+
+/** `validate protect --branch <name> --base <ref>`: exit 1 when an executor branch changes a protected file. */
+function protectCommand(options: ValidateCommandOptions, deps: ValidateDeps, root: string, io: Io): number {
+  if (options.branch === undefined || options.base === undefined) {
+    io.err('Check a pull request with: driftbench validate protect --branch <name> --base <ref>.\n');
+    return USAGE_EXIT;
+  }
+  let files: string[];
+  try {
+    files = (deps.changedFiles ?? gitChangedFiles)(root, options.base);
+  } catch (cause) {
+    io.err(`git diff against ${options.base} failed: ${message(cause)}\n`);
+    return USAGE_EXIT;
+  }
+  const touched = protectedChanges(options.branch, files);
+  if (touched.length === 0) {
+    io.out(
+      options.branch.startsWith('exec/')
+        ? `${options.branch} changes ${files.length} files, none of them protected.\n`
+        : `${options.branch} is not an executor branch (exec/): nothing is protected from it.\n`,
+    );
+    return 0;
+  }
+  io.err(`${options.branch} is an executor branch and changes protected files:\n`);
+  for (const file of touched) io.err(`  ${file}\n`);
+  io.err(
+    `Protected: ${PROTECTED_PATHS.join(', ')}. These are the maintainer's (docs/validators.md section 8).\n`,
+  );
+  return 1;
 }
 
 /** `validate <component> --journal <row.json>`: appends a validated row and rewrites the handover's level table. */

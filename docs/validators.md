@@ -86,6 +86,39 @@ Feedback. Each miss prints the seed, the truth, the estimate and its interval, a
 
 What the owner reads: one table per validator per merge, seven rows at most, with the level reached, the floor, and the count of named items at the first failing level.
 
+### 8.1 The CI job
+
+`.github/workflows/validators.yml` holds two jobs, on every push to main and every pull request.
+
+1. Ladders and floors. `pnpm driftbench validate all --seeds 1..3 --hidden --check-floor` runs every registered validator on seeds 1, 2 and 3 and on the hidden seed of the commit, prints each ladder table, and fails when a validator's level (the minimum over the four seeds) is below its floor in `validators/floors.json`, or when that file holds a floor for a component with no registered validator or above the top of its ladder. `pnpm driftbench validate all --check-handover` then fails when a validator's `HANDOVER.md` is missing, lacks a required section, or shows a level table that differs from the last row of its journal.
+2. Protection. On a pull request, `pnpm driftbench validate protect --branch <head> --base origin/<base>` lists the files the branch changes (`git diff --name-only base...HEAD`, full history checked out) and fails when the branch name starts with `exec/` and any of them is protected. Protected: `packages/validators/src/**` (the ladders under `ladders/`, their thresholds, the hidden seed derivation and the frame that scores them), `validators/floors.json`, `validators/EXECUTOR.md`, the fault families under `examples/acme/faults/**`, the statistics reference fixtures under `packages/stats/test/reference/**`, and the workflow file itself. Executors push from `exec/` branches; the maintainer changes these files from any other branch.
+
+### 8.2 The command
+
+```
+driftbench validate <component|all> [--seed n] [--seeds a..b] [--hidden] [--json]
+driftbench validate <component|all> --check-floor [seed options]
+driftbench validate <component> --brief [--fresh] [seed options]
+driftbench validate <component> --journal <row.json>
+driftbench validate <component|all> --check-handover
+driftbench validate floors [--raise <component> <level> --evidence <json>]
+driftbench validate protect --branch <name> --base <ref>
+```
+
+* Seeds. `--seed n` and `--seeds a..b` give the visible seeds, together and without repeats; seed 1 when neither is given. `--hidden` adds the hidden seed: 1000000 plus the first 32 bits of `git rev-parse HEAD` modulo 1000000000, so every commit has its own. Outside a git repository it falls back to 7777777 and the output says so. The table has one column per seed; the level of the run is the minimum over its seeds.
+* Output. The ladder table (level, name, metric, threshold, then observed value, pass or FAIL and the item count per seed), the level per seed, the level of the run, the floor comparison, then the items of each seed's first failing level, each with the component it points at. `--json` prints the report instead: `{ component, level, top, seeds: [{ seed, hidden, level, rows, failing }], hiddenSeed }`, wrapped in `{ reports }` for `all`.
+* Floors. `validate floors` prints the floors. `validate floors --raise stats 2 --evidence run.json` rewrites `validators/floors.json` only upward: it refuses a level at or below the current floor, a level above the ladder's top, and evidence that is not a `--json` run of that component on at least one visible seed and the hidden seed derived from a commit, reaching the level on every seed. The file keeps the evidence summary per component. Commit the rise on its own with the evidence run in the message.
+* Loop files. `--journal row.json` appends the row to `validators/<component>/journal.jsonl` when it passes the section 10.2 schema (the level is the minimum over the per seed levels, the result matches the move, the iteration is the next one), creates `HANDOVER.md` from its template and `research.md` when they are absent, and rewrites the handover's level table from the row. `--check-handover` checks the eight sections (level per seed, floor, open items, hypotheses tried, next actions, pitfalls, how to run, fixtures), at least one numbered next action, and the level table against the last row.
+* Brief. `--brief` runs the validator on the given seeds and prints the live state (the ladder table with the failing items and the floor, the last journal row, the handover's next actions and hypotheses) followed by `validators/EXECUTOR.md` with the component filled in. `--brief --fresh` leaves out the handover's hypotheses and the last row's hypothesis: it is the handover test of section 10.4.
+
+| Exit code | Meaning |
+|---|---|
+| the level, 0 to 63 | a plain run: the minimum over its seeds of the highest level passed; `all` gives the lowest over the validators |
+| 0 or 1 | `--check-floor`, `--check-handover`, `floors --raise`, `--journal` and `protect`: 0 when it holds or was written, 1 when it fails or was refused |
+| 64 | an input error: an unknown component, a bad seed, an unreadable file, a mode given the wrong options |
+
+Option errors that the argument parser itself reports (an unknown flag) exit 2, like every driftbench command.
+
 ## 9. Order of building
 
 Generator and system validators first, because they reuse the fault family the gate already has. Then the judge validator, because its labels come from the same fault family. Then the map validator, because the renderer is the largest new piece. Then the estate validator, because it needs the estate rule follower. The statistics validator extends the pilot's control and the reference fixtures that exist.
