@@ -9,6 +9,7 @@
   <a href="#what-you-get">What you get</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#roadmap">Roadmap</a> ·
+  <a href="docs/index.md">Docs</a> ·
   <a href="#contributing">Contributing</a> ·
   <a href="https://agent.nexus">agent.nexus</a>
 </p>
@@ -127,7 +128,7 @@ Four areas. Each bullet names the phase that delivers it.
 
 ## How it works
 
-This section describes the design. Phase 0 builds the spec format now. The runner, checks, judges and statistics arrive in phases 1 to 4.
+This section describes the design. Phase 0 builds the spec format now. The runner, checks, judges and statistics arrive in phases 1 to 4. The [docs](docs/index.md) hold the detail: concepts, the spec reference, the CLI and the adapters.
 
 ### A block is a unit test
 
@@ -159,6 +160,8 @@ When the agent writes code, uses a workspace and loads skills, a block is one ta
 
 Agent harnesses add a runtime battery: hook replay with negative controls, skill loading gates, process step order, mutation tests that must fail first, speed budgets and a reply style check.
 
+In the docs: [Block](docs/concepts/block.md) · [Given, When, Then](docs/concepts/given-when-then.md) · [Checks](docs/reference/checks.md) · [Spec reference](docs/reference/spec.md)
+
 ### One golden, three runs
 
 <a href=".github/readme/modes-light.png">
@@ -176,6 +179,8 @@ Agent harnesses add a runtime battery: hook replay with negative controls, skill
 | **Perturbed**<br/>free running, plus a deviation at block k | recovery: whether it comes back, how fast, at what cost |
 
 The gap between teacher forced and free running on the same golden is the **compounding index**. An agent can pass every block on its own and still fail the whole conversation. Only free running shows it.
+
+In the docs: [Run modes](docs/concepts/run-modes.md)
 
 ### Drift and recovery
 
@@ -201,6 +206,8 @@ Ten deviation classes can be injected at any block, in a conversation or in a co
 
 After an injection, driftbench reports the **turns to recover**, a recovery label (immediate, late or never), the **collateral** failures after recovery, the safe action rate on risky injections, and how often the agent asked instead of guessing.
 
+In the docs: [Drift](docs/concepts/drift.md) · [Recovery](docs/concepts/recovery.md)
+
 ### Judges earn their criteria
 
 <a href=".github/readme/council-light.png">
@@ -216,6 +223,8 @@ After an injection, driftbench reports the **turns to recover**, a recovery labe
 - **Earned on evidence.** Each gating criterion has a fixture pair: one failing transcript, one clean. A judge owns the criterion only if it separates the pair 3 times out of 3 and agrees with hand labels at a kappa of 0.8 or more. Below that, the rubric is rewritten and the threshold stays. Task artifacts are judged the same way.
 - **Strict verdicts.** Majority of three. A split goes to the other class. Inconclusive is judged again and never counted. The judged text sits in a data tag, and instructions inside it are ignored.
 
+In the docs: [Judges](docs/concepts/judges.md)
+
 ### Numbers with intervals
 
 One run proves nothing. driftbench treats evaluation as a statistics problem.
@@ -226,13 +235,15 @@ One run proves nothing. driftbench treats evaluation as a statistics problem.
 - **Power first.** The minimum detectable effect is printed before a campaign spends anything.
 - **A verdict CI can gate on.** The candidate is noninferior when the upper bound of every gating regression stays under your margin.
 
+In the docs: [Statistics](docs/concepts/statistics.md)
+
 ---
 
 ## Integrations
 
-All planned. Every adapter must pass the same contract suite.
+All planned. Every adapter must pass the same contract suite. The [adapter contract](docs/adapters/index.md) is in the docs.
 
-**Agents:** function · HTTP · Nexus · a command line agent in a sandbox · OpenAI Agents · Anthropic · Google · LangGraph<br/>
+**Agents:** [function](docs/adapters/function.md) · [HTTP](docs/adapters/http.md) · [Nexus](docs/adapters/nexus.md) · [a command line agent in a sandbox](docs/adapters/process.md) · OpenAI Agents · Anthropic · Google · LangGraph<br/>
 **Judges:** Jev · OpenAI Decisions API · OpenAI · Google · Anthropic · any HTTP endpoint<br/>
 **Reports:** HTML scorecard · run diff · JUnit XML · Markdown summary<br/>
 **CI:** exit codes on the verdict · GitHub Action<br/>
@@ -250,6 +261,8 @@ driftbench builds on ideas other tools document well. What their docs describe a
 | **[Inspect](https://inspect.aisi.org.uk/metrics.html)**<br/>Wilson intervals for binary scores, clustered standard errors, and a [scorer cascade](https://inspect.aisi.org.uk/multiple-scorers.html) that stops at the first scorer that settles a sample. | Intervals on every rate with one conversation per cluster, paired tests, and judges that run cheapest first. <sub>Phases&nbsp;2&nbsp;and&nbsp;4</sub> |
 | **[Langfuse](https://langfuse.com/docs/evaluation/overview)**<br/>A GitHub Action that fails the job when a score violates your threshold. | A noninferiority verdict with a margin, as an exit code. <sub>Phase&nbsp;4</sub> |
 | **[Opik](https://www.comet.com/docs/opik/evaluation/evaluate_threads)**<br/>A function that scores whole conversation threads. | Verdicts per block, then drift and recovery across them. <sub>Phase&nbsp;3</sub> |
+
+The [comparison page](docs/comparison.md) sets driftbench beside seven evaluation tools and six code agent benchmarks, capability by capability, with a source and a read date for every cell.
 
 ---
 
@@ -272,7 +285,7 @@ Issues and pull requests are welcome. The project is young, so the most useful c
 
 1. Fork the repo and run `pnpm install`.
 2. Make your change with its tests, then run `pnpm lint`, `pnpm typecheck` and `pnpm test`.
-3. Open a pull request. CI runs the same checks plus a leak guard. Keep every example synthetic: no real customer, prompt or conversation data.
+3. Open a pull request. CI runs the same checks, the build, the docs checks and a leak guard. Keep every example synthetic: no real customer, prompt or conversation data.
 
 Questions and ideas go in [GitHub issues](https://github.com/achammah/driftbench/issues).
 
