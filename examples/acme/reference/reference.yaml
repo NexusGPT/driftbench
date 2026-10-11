@@ -1,0 +1,1041 @@
+# driftbench reference set for acme: user turns per cell, from the owner's interview.
+# origin interview: the owner wrote the message; origin model: the model wrote it and code checked it.
+# No turn counts until a person approves it in approval.yaml.
+version: 1
+agent: acme
+produced_by:
+  family: lane
+  model: claude-opus-5-5 as the intake lane, by hand
+  at: 2026-10-11T18:41:36.479Z
+interview: answers.yaml
+map: ../map/approved.yaml
+dimensions:
+  stage: stage
+  intent: flow
+  channel: channel
+cells:
+  - key: stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    values:
+      stage: needs
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.0875
+    requested: 3
+    accepted: 3
+  - key: stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en
+    values:
+      stage: needs
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: whatsapp
+      lang: en
+    weight: 0.0375
+    requested: 1
+    accepted: 1
+  - key: stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    values:
+      stage: identify
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.0875
+    requested: 3
+    accepted: 3
+  - key: stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en
+    values:
+      stage: identify
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: whatsapp
+      lang: en
+    weight: 0.0375
+    requested: 1
+    accepted: 1
+  - key: stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    values:
+      stage: offer
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.0875
+    requested: 3
+    accepted: 3
+  - key: stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en
+    values:
+      stage: offer
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: whatsapp
+      lang: en
+    weight: 0.0375
+    requested: 1
+    accepted: 1
+  - key: stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    values:
+      stage: recap
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.0875
+    requested: 3
+    accepted: 3
+  - key: stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en
+    values:
+      stage: recap
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: whatsapp
+      lang: en
+    weight: 0.0375
+    requested: 1
+    accepted: 1
+  - key: stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    values:
+      stage: needs
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.07125
+    requested: 2
+    accepted: 2
+  - key: stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl
+    values:
+      stage: needs
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: other-language
+      channel: chat
+      lang: nl
+    weight: 0.00375
+    requested: 1
+    accepted: 1
+  - key: stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    values:
+      stage: address
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.07125
+    requested: 2
+    accepted: 2
+  - key: stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl
+    values:
+      stage: address
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: other-language
+      channel: chat
+      lang: nl
+    weight: 0.00375
+    requested: 1
+    accepted: 1
+  - key: stage=offer flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    values:
+      stage: offer
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.07125
+    requested: 2
+    accepted: 2
+  - key: stage=offer flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl
+    values:
+      stage: offer
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: other-language
+      channel: chat
+      lang: nl
+    weight: 0.00375
+    requested: 1
+    accepted: 1
+  - key: stage=details flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    values:
+      stage: details
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.07125
+    requested: 2
+    accepted: 2
+  - key: stage=details flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl
+    values:
+      stage: details
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: other-language
+      channel: chat
+      lang: nl
+    weight: 0.00375
+    requested: 1
+    accepted: 1
+  - key: stage=needs flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    values:
+      stage: needs
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.05
+    requested: 2
+    accepted: 2
+  - key: stage=port_number flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    values:
+      stage: port_number
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.05
+    requested: 2
+    accepted: 2
+  - key: stage=offer flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    values:
+      stage: offer
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.05
+    requested: 1
+    accepted: 1
+  - key: stage=details flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    values:
+      stage: details
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    weight: 0.05
+    requested: 1
+    accepted: 1
+dropped_cells: []
+turns:
+  - id: t-0001
+    cell:
+      stage: needs
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: i need more data
+    origin: interview
+    source: examples.0.turns.0
+  - id: t-0002
+    cell:
+      stage: needs
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: can i upgrade my plan? always run out by the 20th
+    origin: interview
+    source: examples.0.turns.1
+  - id: t-0003
+    cell:
+      stage: needs
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: hey, my data runs out every month, what can you do?
+    origin: model
+    source: examples.0.turns.1
+  - id: t-0004
+    cell:
+      stage: needs
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: want a plan with more gb
+    origin: model
+    source: examples.0.turns.0
+  - id: t-0005
+    cell:
+      stage: needs
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: is there something bigger than what i have now
+    origin: model
+    source: personas.upgrader
+  - id: t-0006
+    cell:
+      stage: needs
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: whatsapp
+      lang: en
+    text: hi acme, need more data on my phone plan pls
+    origin: model
+    source: examples.0.turns.0
+  - id: t-0007
+    cell:
+      stage: identify
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: sam.rivera@example.com
+    origin: interview
+    source: examples.1.turns.0
+  - id: t-0008
+    cell:
+      stage: identify
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: it's morgan.diaz@example.com
+    origin: interview
+    source: examples.1.turns.1
+  - id: t-0009
+    cell:
+      stage: identify
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: lee.jensen@example.com
+    origin: model
+    source: examples.1.turns.0
+  - id: t-0010
+    cell:
+      stage: identify
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: the email is sam.rivera@example.com i think
+    origin: model
+    source: examples.1.turns.1
+  - id: t-0011
+    cell:
+      stage: identify
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: morgan.diaz@example.com, same as always
+    origin: model
+    source: tone
+  - id: t-0012
+    cell:
+      stage: identify
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: whatsapp
+      lang: en
+    text: its lee.jensen@example.com
+    origin: model
+    source: examples.1.turns.1
+  - id: t-0013
+    cell:
+      stage: offer
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: the M one
+    origin: interview
+    source: examples.2.turns.0
+  - id: t-0014
+    cell:
+      stage: offer
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Acme Mobile L please
+    origin: interview
+    source: examples.2.turns.1
+  - id: t-0015
+    cell:
+      stage: offer
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Mobile M is fine
+    origin: model
+    source: examples.2.turns.0
+  - id: t-0016
+    cell:
+      stage: offer
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: the unlimited one
+    origin: model
+    source: examples.2.turns.1
+  - id: t-0017
+    cell:
+      stage: offer
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: L. how much is it per month?
+    origin: model
+    source: personas.upgrader
+  - id: t-0018
+    cell:
+      stage: offer
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: whatsapp
+      lang: en
+    text: M please
+    origin: model
+    source: examples.2.turns.0
+  - id: t-0019
+    cell:
+      stage: recap
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: CONFIRM
+    origin: interview
+    source: examples.3.turns.0
+  - id: t-0020
+    cell:
+      stage: recap
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: confirm
+    origin: interview
+    source: examples.3.turns.1
+  - id: t-0021
+    cell:
+      stage: recap
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: ok CONFIRM
+    origin: model
+    source: examples.3.turns.0
+  - id: t-0022
+    cell:
+      stage: recap
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: wait, is that price per month? then CONFIRM
+    origin: model
+    source: examples.3.turns.1
+  - id: t-0023
+    cell:
+      stage: recap
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: chat
+      lang: en
+    text: yes
+    origin: model
+    source: personas.upgrader
+  - id: t-0024
+    cell:
+      stage: recap
+      flow: upgrade
+      persona: upgrader
+      first_message: step-by-step
+      plan_choice: names-one
+      user_type: existing-customer
+      language: english
+      channel: whatsapp
+      lang: en
+    text: CONFIRM, thanks
+    origin: model
+    source: examples.3.turns.0
+  - id: t-0025
+    cell:
+      stage: needs
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Hi, do you have home internet at 3 Orchard Way, Acmeville?
+    origin: interview
+    source: examples.4.turns.0
+  - id: t-0026
+    cell:
+      stage: needs
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Hello, I'm moving to 7 Quarry Lane in Acmeville next month. Can I get internet there?
+    origin: model
+    source: examples.4.turns.0
+  - id: t-0027
+    cell:
+      stage: needs
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Do you offer fibre at 14 Harbor Road, Acmeville?
+    origin: model
+    source: examples.4.turns.0
+  - id: t-0028
+    cell:
+      stage: needs
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: other-language
+      channel: chat
+      lang: nl
+    text: Hallo, hebben jullie internet op Orchard Way 3 in Acmeville?
+    origin: interview
+    source: examples.5.turns.0
+  - id: t-0029
+    cell:
+      stage: needs
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: other-language
+      channel: chat
+      lang: nl
+    text: Goedendag, ik verhuis naar Summit Avenue 88. Is daar glasvezel?
+    origin: model
+    source: examples.5.turns.0
+  - id: t-0030
+    cell:
+      stage: address
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: It's 14 Harbor Road, Acmeville.
+    origin: interview
+    source: examples.6.turns.0
+  - id: t-0031
+    cell:
+      stage: address
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: 88 Summit Avenue, Acmeville please
+    origin: interview
+    source: examples.6.turns.1
+  - id: t-0032
+    cell:
+      stage: address
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: 7 Quarry Lane, Acmeville.
+    origin: model
+    source: examples.6.turns.1
+  - id: t-0033
+    cell:
+      stage: address
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: The new place is 3 Orchard Way, Acmeville.
+    origin: model
+    source: examples.6.turns.0
+  - id: t-0034
+    cell:
+      stage: address
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: other-language
+      channel: chat
+      lang: nl
+    text: Het adres is Harbor Road 14, Acmeville.
+    origin: model
+    source: examples.6.turns.0
+  - id: t-0035
+    cell:
+      stage: offer
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Acme Fiber 300 sounds right for us.
+    origin: interview
+    source: examples.7.turns.0
+  - id: t-0036
+    cell:
+      stage: offer
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: We'll take Acme Fiber 1000, please.
+    origin: model
+    source: examples.7.turns.0
+  - id: t-0037
+    cell:
+      stage: offer
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: What is the difference between the fiber plans?
+    origin: model
+    source: personas.home-mover
+  - id: t-0038
+    cell:
+      stage: offer
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: other-language
+      channel: chat
+      lang: nl
+    text: Doe maar Acme Fiber 300.
+    origin: model
+    source: examples.7.turns.0
+  - id: t-0039
+    cell:
+      stage: details
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Alex Moreau, alex.moreau@example.com
+    origin: interview
+    source: examples.8.turns.0
+  - id: t-0040
+    cell:
+      stage: details
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Jamie Ortiz, jamie.ortiz@example.com
+    origin: model
+    source: examples.8.turns.0
+  - id: t-0041
+    cell:
+      stage: details
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: My name is Casey Brook and my email is casey.brook@example.com.
+    origin: model
+    source: personas.home-mover
+  - id: t-0042
+    cell:
+      stage: details
+      flow: new-home
+      persona: home-mover
+      first_message: says-everything
+      plan_choice: names-one
+      user_type: new-customer
+      language: other-language
+      channel: chat
+      lang: nl
+    text: Noor Peeters, noor.peeters@example.com
+    origin: model
+    source: examples.8.turns.0
+  - id: t-0043
+    cell:
+      stage: needs
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: I want to switch to Acme and keep my number.
+    origin: interview
+    source: examples.9.turns.0
+  - id: t-0044
+    cell:
+      stage: needs
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Hi, I'm with another carrier now. Can I bring my number to Acme?
+    origin: model
+    source: examples.9.turns.0
+  - id: t-0045
+    cell:
+      stage: needs
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: how does switching work if I want to keep my mobile number?
+    origin: model
+    source: personas.switcher
+  - id: t-0046
+    cell:
+      stage: port_number
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: +1 202 555 0165
+    origin: interview
+    source: examples.10.turns.0
+  - id: t-0047
+    cell:
+      stage: port_number
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: it is 202-555-0160
+    origin: interview
+    source: examples.10.turns.1
+  - id: t-0048
+    cell:
+      stage: port_number
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: you can reach it on (202) 555-0181
+    origin: model
+    source: examples.10.turns.0
+  - id: t-0049
+    cell:
+      stage: port_number
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: "number: 202 555 0177, it's a prepaid sim"
+    origin: model
+    source: examples.10.turns.1
+  - id: t-0050
+    cell:
+      stage: offer
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Could someone call me to go through this?
+    origin: interview
+    source: examples.11.turns.0
+  - id: t-0051
+    cell:
+      stage: offer
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Before I choose, can an advisor phone me?
+    origin: model
+    source: examples.11.turns.0
+  - id: t-0052
+    cell:
+      stage: details
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Robin Vale, robin.vale@example.com
+    origin: interview
+    source: examples.12.turns.0
+  - id: t-0053
+    cell:
+      stage: details
+      flow: porting
+      persona: switcher
+      first_message: step-by-step
+      plan_choice: asks-for-callback
+      user_type: new-customer
+      language: english
+      channel: chat
+      lang: en
+    text: Taylor Brooks, taylor.brooks@example.com
+    origin: model
+    source: examples.12.turns.0
+rejected: []

@@ -1,0 +1,102 @@
+# Recorded answers of the reference writer for the Acme interview, one per cell, replayed by
+#   driftbench intake from-interview examples/acme/reference/answers.yaml --replay examples/acme/reference/recorded.yaml
+# No model key was set, so the intake lane wrote these answers by hand under the writer's contract
+# (REFERENCE_PROMPT in packages/generate/src/intake/reference.ts). family is lane, so no one mistakes them
+# for a model run. Every person, email, number and address is fictional.
+family: lane
+model: claude-opus-5-5 as the intake lane, by hand
+answers:
+  "stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en":
+    cell: "stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "hey, my data runs out every month, what can you do?", source: examples.0.turns.1 }
+      - { text: "want a plan with more gb", source: examples.0.turns.0 }
+      - { text: "is there something bigger than what i have now", source: personas.upgrader }
+  "stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en":
+    cell: "stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en"
+    turns:
+      - { text: "hi acme, need more data on my phone plan pls", source: examples.0.turns.0 }
+  "stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en":
+    cell: "stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "lee.jensen@example.com", source: examples.1.turns.0 }
+      - { text: "the email is sam.rivera@example.com i think", source: examples.1.turns.1 }
+      - { text: "morgan.diaz@example.com, same as always", source: tone }
+  "stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en":
+    cell: "stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en"
+    turns:
+      - { text: "its lee.jensen@example.com", source: examples.1.turns.1 }
+  "stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en":
+    cell: "stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "Mobile M is fine", source: examples.2.turns.0 }
+      - { text: "the unlimited one", source: examples.2.turns.1 }
+      - { text: "L. how much is it per month?", source: personas.upgrader }
+  "stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en":
+    cell: "stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en"
+    turns:
+      - { text: "M please", source: examples.2.turns.0 }
+  "stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en":
+    cell: "stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "ok CONFIRM", source: examples.3.turns.0 }
+      - { text: "wait, is that price per month? then CONFIRM", source: examples.3.turns.1 }
+      - { text: "yes", source: personas.upgrader }
+  "stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en":
+    cell: "stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en"
+    turns:
+      - { text: "CONFIRM, thanks", source: examples.3.turns.0 }
+  "stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en":
+    cell: "stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "Hello, I'm moving to 7 Quarry Lane in Acmeville next month. Can I get internet there?", source: examples.4.turns.0 }
+      - { text: "Do you offer fibre at 14 Harbor Road, Acmeville?", source: examples.4.turns.0 }
+  "stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl":
+    cell: "stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl"
+    turns:
+      - { text: "Goedendag, ik verhuis naar Summit Avenue 88. Is daar glasvezel?", source: examples.5.turns.0 }
+  "stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en":
+    cell: "stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "7 Quarry Lane, Acmeville.", source: examples.6.turns.1 }
+      - { text: "The new place is 3 Orchard Way, Acmeville.", source: examples.6.turns.0 }
+  "stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl":
+    cell: "stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl"
+    turns:
+      - { text: "Het adres is Harbor Road 14, Acmeville.", source: examples.6.turns.0 }
+  "stage=offer flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en":
+    cell: "stage=offer flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "We'll take Acme Fiber 1000, please.", source: examples.7.turns.0 }
+      - { text: "What is the difference between the fiber plans?", source: personas.home-mover }
+  "stage=offer flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl":
+    cell: "stage=offer flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl"
+    turns:
+      - { text: "Doe maar Acme Fiber 300.", source: examples.7.turns.0 }
+  "stage=details flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en":
+    cell: "stage=details flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "Jamie Ortiz, jamie.ortiz@example.com", source: examples.8.turns.0 }
+      - { text: "My name is Casey Brook and my email is casey.brook@example.com.", source: personas.home-mover }
+  "stage=details flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl":
+    cell: "stage=details flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl"
+    turns:
+      - { text: "Noor Peeters, noor.peeters@example.com", source: examples.8.turns.0 }
+  "stage=needs flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en":
+    cell: "stage=needs flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "Hi, I'm with another carrier now. Can I bring my number to Acme?", source: examples.9.turns.0 }
+      - { text: "how does switching work if I want to keep my mobile number?", source: personas.switcher }
+  "stage=port_number flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en":
+    cell: "stage=port_number flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "you can reach it on (202) 555-0181", source: examples.10.turns.0 }
+      - { text: "number: 202 555 0177, it's a prepaid sim", source: examples.10.turns.1 }
+  "stage=offer flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en":
+    cell: "stage=offer flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "Before I choose, can an advisor phone me?", source: examples.11.turns.0 }
+  "stage=details flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en":
+    cell: "stage=details flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en"
+    turns:
+      - { text: "Taylor Brooks, taylor.brooks@example.com", source: examples.12.turns.0 }

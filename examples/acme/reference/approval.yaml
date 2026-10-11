@@ -1,0 +1,270 @@
+# Approval of the reference set reference.yaml. Read each turn: is it something a real user would write in
+# this cell? Set approved: true on the turns you accept. Only approved turns count. Approve every turn with
+#   driftbench intake approve <this file> --all
+reference: reference.yaml
+turns:
+  - id: t-0001
+    cell: stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: interview
+    text: i need more data
+    approved: false
+  - id: t-0002
+    cell: stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: interview
+    text: can i upgrade my plan? always run out by the 20th
+    approved: false
+  - id: t-0003
+    cell: stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: hey, my data runs out every month, what can you do?
+    approved: false
+  - id: t-0004
+    cell: stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: want a plan with more gb
+    approved: false
+  - id: t-0005
+    cell: stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: is there something bigger than what i have now
+    approved: false
+  - id: t-0006
+    cell: stage=needs flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en
+    origin: model
+    text: hi acme, need more data on my phone plan pls
+    approved: false
+  - id: t-0007
+    cell: stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: interview
+    text: sam.rivera@example.com
+    approved: false
+  - id: t-0008
+    cell: stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: interview
+    text: it's morgan.diaz@example.com
+    approved: false
+  - id: t-0009
+    cell: stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: lee.jensen@example.com
+    approved: false
+  - id: t-0010
+    cell: stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: the email is sam.rivera@example.com i think
+    approved: false
+  - id: t-0011
+    cell: stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: morgan.diaz@example.com, same as always
+    approved: false
+  - id: t-0012
+    cell: stage=identify flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en
+    origin: model
+    text: its lee.jensen@example.com
+    approved: false
+  - id: t-0013
+    cell: stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: interview
+    text: the M one
+    approved: false
+  - id: t-0014
+    cell: stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: interview
+    text: Acme Mobile L please
+    approved: false
+  - id: t-0015
+    cell: stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: Mobile M is fine
+    approved: false
+  - id: t-0016
+    cell: stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: the unlimited one
+    approved: false
+  - id: t-0017
+    cell: stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: L. how much is it per month?
+    approved: false
+  - id: t-0018
+    cell: stage=offer flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en
+    origin: model
+    text: M please
+    approved: false
+  - id: t-0019
+    cell: stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: interview
+    text: CONFIRM
+    approved: false
+  - id: t-0020
+    cell: stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: interview
+    text: confirm
+    approved: false
+  - id: t-0021
+    cell: stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: ok CONFIRM
+    approved: false
+  - id: t-0022
+    cell: stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: wait, is that price per month? then CONFIRM
+    approved: false
+  - id: t-0023
+    cell: stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=chat lang=en
+    origin: model
+    text: yes
+    approved: false
+  - id: t-0024
+    cell: stage=recap flow=upgrade persona=upgrader first_message=step-by-step plan_choice=names-one user_type=existing-customer language=english channel=whatsapp lang=en
+    origin: model
+    text: CONFIRM, thanks
+    approved: false
+  - id: t-0025
+    cell: stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: interview
+    text: Hi, do you have home internet at 3 Orchard Way, Acmeville?
+    approved: false
+  - id: t-0026
+    cell: stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: Hello, I'm moving to 7 Quarry Lane in Acmeville next month. Can I get internet there?
+    approved: false
+  - id: t-0027
+    cell: stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: Do you offer fibre at 14 Harbor Road, Acmeville?
+    approved: false
+  - id: t-0028
+    cell: stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl
+    origin: interview
+    text: Hallo, hebben jullie internet op Orchard Way 3 in Acmeville?
+    approved: false
+  - id: t-0029
+    cell: stage=needs flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl
+    origin: model
+    text: Goedendag, ik verhuis naar Summit Avenue 88. Is daar glasvezel?
+    approved: false
+  - id: t-0030
+    cell: stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: interview
+    text: It's 14 Harbor Road, Acmeville.
+    approved: false
+  - id: t-0031
+    cell: stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: interview
+    text: 88 Summit Avenue, Acmeville please
+    approved: false
+  - id: t-0032
+    cell: stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: 7 Quarry Lane, Acmeville.
+    approved: false
+  - id: t-0033
+    cell: stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: The new place is 3 Orchard Way, Acmeville.
+    approved: false
+  - id: t-0034
+    cell: stage=address flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl
+    origin: model
+    text: Het adres is Harbor Road 14, Acmeville.
+    approved: false
+  - id: t-0035
+    cell: stage=offer flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: interview
+    text: Acme Fiber 300 sounds right for us.
+    approved: false
+  - id: t-0036
+    cell: stage=offer flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: We'll take Acme Fiber 1000, please.
+    approved: false
+  - id: t-0037
+    cell: stage=offer flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: What is the difference between the fiber plans?
+    approved: false
+  - id: t-0038
+    cell: stage=offer flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl
+    origin: model
+    text: Doe maar Acme Fiber 300.
+    approved: false
+  - id: t-0039
+    cell: stage=details flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: interview
+    text: Alex Moreau, alex.moreau@example.com
+    approved: false
+  - id: t-0040
+    cell: stage=details flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: Jamie Ortiz, jamie.ortiz@example.com
+    approved: false
+  - id: t-0041
+    cell: stage=details flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: My name is Casey Brook and my email is casey.brook@example.com.
+    approved: false
+  - id: t-0042
+    cell: stage=details flow=new-home persona=home-mover first_message=says-everything plan_choice=names-one user_type=new-customer language=other-language channel=chat lang=nl
+    origin: model
+    text: Noor Peeters, noor.peeters@example.com
+    approved: false
+  - id: t-0043
+    cell: stage=needs flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: interview
+    text: I want to switch to Acme and keep my number.
+    approved: false
+  - id: t-0044
+    cell: stage=needs flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: Hi, I'm with another carrier now. Can I bring my number to Acme?
+    approved: false
+  - id: t-0045
+    cell: stage=needs flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: how does switching work if I want to keep my mobile number?
+    approved: false
+  - id: t-0046
+    cell: stage=port_number flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: interview
+    text: +1 202 555 0165
+    approved: false
+  - id: t-0047
+    cell: stage=port_number flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: interview
+    text: it is 202-555-0160
+    approved: false
+  - id: t-0048
+    cell: stage=port_number flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: you can reach it on (202) 555-0181
+    approved: false
+  - id: t-0049
+    cell: stage=port_number flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: "number: 202 555 0177, it's a prepaid sim"
+    approved: false
+  - id: t-0050
+    cell: stage=offer flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: interview
+    text: Could someone call me to go through this?
+    approved: false
+  - id: t-0051
+    cell: stage=offer flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: Before I choose, can an advisor phone me?
+    approved: false
+  - id: t-0052
+    cell: stage=details flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: interview
+    text: Robin Vale, robin.vale@example.com
+    approved: false
+  - id: t-0053
+    cell: stage=details flow=porting persona=switcher first_message=step-by-step plan_choice=asks-for-callback user_type=new-customer language=english channel=chat lang=en
+    origin: model
+    text: Taylor Brooks, taylor.brooks@example.com
+    approved: false
