@@ -148,9 +148,10 @@ export async function selectCommand(options: SelectOptions, io: Io): Promise<num
     await rm(join(outPath, GOLDEN_SPECS_DIR), { recursive: true, force: true });
     await rm(manifestPath, { force: true });
   }
+  const placed = goldenPaths(chosen, pool.base);
   const written: string[] = [];
   for (const spec of chosen) {
-    const target = join(outPath, GOLDEN_SPECS_DIR, relative(pool.base, spec.path));
+    const target = join(outPath, placed.get(spec.spec.id) ?? spec.spec.id);
     await mkdir(dirname(target), { recursive: true });
     await copyFile(spec.path, target);
     written.push(portable(relative(outPath, target)));
@@ -159,6 +160,7 @@ export async function selectCommand(options: SelectOptions, io: Io): Promise<num
     selection,
     pool,
     chosen,
+    placed,
     goldenCoverage,
     poolCoverage,
     mapPath: portable(display(mapPath, io)),
@@ -168,7 +170,6 @@ export async function selectCommand(options: SelectOptions, io: Io): Promise<num
     t,
     k,
     io,
-    outPath,
   });
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
@@ -379,6 +380,7 @@ function manifestOf(input: {
   selection: Selection;
   pool: Pool;
   chosen: LoadedSpec[];
+  placed: ReadonlyMap<string, string>;
   goldenCoverage: SpaceCoverage;
   poolCoverage: SpaceCoverage;
   mapPath: string;
@@ -388,7 +390,6 @@ function manifestOf(input: {
   t: number;
   k: number | undefined;
   io: Io;
-  outPath: string;
 }) {
   const { selection, pool, chosen, goldenCoverage, poolCoverage } = input;
   const byId = new Map(chosen.map((spec) => [spec.spec.id, spec]));
@@ -401,8 +402,8 @@ function manifestOf(input: {
     t: input.t,
     ...(input.k === undefined ? {} : { k: input.k }),
     rule: selection.kBest
-      ? 'the k best: greedy over the pool, ranked by new required cells, then new faults turned red, then new cells; ties to the earlier spec id'
-      : 'the greedy cover: new required cells first, then new cells; ties to more new faults turned red, then the earlier spec id',
+      ? 'the k best: greedy over the pool, ranked by new required cells, then new faults turned red, then new cells; ties to the spec read first (path order)'
+      : 'the greedy cover: new required cells first, then new cells; ties to more new faults turned red, then the spec read first (path order)',
     pool: {
       specs: pool.specs.length,
       sealed_left_out: pool.sealed.length,
@@ -417,7 +418,8 @@ function manifestOf(input: {
       const spec = byId.get(pick.id);
       return {
         id: pick.id,
-        path: spec ? portable(join(GOLDEN_SPECS_DIR, relative(pool.base, spec.path))) : null,
+        path: input.placed.get(pick.id) ?? null,
+        from: spec ? portable(display(spec.path, input.io)) : null,
         hash: spec?.hash ?? null,
         adds_cells: pick.cells,
         cumulative: pick.cumulative,
@@ -448,6 +450,27 @@ function manifestOf(input: {
     uncoverable_required: selection.uncoverable,
     missed_required: selection.missed,
   };
+}
+
+/**
+ * Where each chosen spec is written in the golden folder: `specs/<its folder>/<its file>`, such as
+ * `specs/twise/gen-twise-007.yaml`. Two specs that would land on one path keep their whole path under
+ * the folder read instead.
+ */
+function goldenPaths(chosen: readonly LoadedSpec[], base: string): Map<string, string> {
+  const short = (spec: LoadedSpec) =>
+    portable(join(GOLDEN_SPECS_DIR, basename(dirname(spec.path)), basename(spec.path)));
+  const counts = new Map<string, number>();
+  for (const spec of chosen) counts.set(short(spec), (counts.get(short(spec)) ?? 0) + 1);
+  return new Map(
+    chosen.map((spec) => {
+      const path = short(spec);
+      return [
+        spec.spec.id,
+        (counts.get(path) ?? 0) > 1 ? portable(join(GOLDEN_SPECS_DIR, relative(base, spec.path))) : path,
+      ];
+    }),
+  );
 }
 
 /** Rows as aligned columns; the last column is not padded. */
