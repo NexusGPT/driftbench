@@ -32,10 +32,16 @@ import {
 
 export const GROWTH_BOUND = 25;
 
+/**
+ * The CPU time the work took in this process (user plus system), in milliseconds. Wall time stretches with
+ * the load of a shared machine; CPU time measures the work, so a budget or a growth bound does not fail on a
+ * busy machine. The subjects run in process and wait on no network.
+ */
 async function timed<T>(work: () => Promise<T>): Promise<{ value: T; ms: number }> {
-  const started = performance.now();
+  const started = process.cpuUsage();
   const value = await work();
-  return { value, ms: performance.now() - started };
+  const used = process.cpuUsage(started);
+  return { value, ms: (used.user + used.system) / 1000 };
 }
 
 type Subject = {
