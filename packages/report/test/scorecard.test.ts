@@ -191,16 +191,18 @@ describe('tool accuracy', () => {
     const data = dataOf(
       [
         run({ blocks: [{ toolCalls: ['x', 'y'] }, { toolCalls: ['z'] }, { toolCalls: ['w'] }] }),
-        run({ repeat: 1, blocks: [{ toolCalls: ['x'] }, { toolCalls: ['z', 'z'] }, {}] }),
+        run({ repeat: 1, blocks: [{ toolCalls: ['x'] }, { toolCalls: ['z', 'z', 'z'] }, {}] }),
       ],
       { 'spec-a': spec as never },
     );
     const acc = toolAccuracy(data);
-    // Run 0: matched x 1, z 1 of 2 expected; 3 calls in blocks with expectations. Run 1: matched 3 of 3, 3 calls.
-    expect(acc).toMatchObject({ matched: 5, expected: 6, observed: 6 });
-    expect(acc.precision?.estimate).toBeCloseTo(5 / 6, 12);
+    // Run 0: matched x 1, z 1 of 2 expected; 3 calls in blocks with expectations. Run 1: matched 3 of 3, 4 calls.
+    expect(acc).toMatchObject({ matched: 5, expected: 6, observed: 7 });
+    expect(acc.precision?.estimate).toBeCloseTo(5 / 7, 12);
     expect(acc.recall?.estimate).toBeCloseTo(5 / 6, 12);
-    expect(acc.f1?.estimate).toBeCloseTo(5 / 6, 12);
+    const p = 5 / 7;
+    const r = 5 / 6;
+    expect(acc.f1?.estimate).toBeCloseTo((2 * p * r) / (p + r), 12);
     expect(acc.recall?.clusters).toBe(2);
   });
 });

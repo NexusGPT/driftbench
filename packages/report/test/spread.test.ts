@@ -164,8 +164,8 @@ describe('spread', () => {
   it('flags a cell whose outcome depends on the wording, above the threshold and the noise floor', () => {
     // Wording 0 always passes, wording 1 always fails: a range of 1, no run-to-run noise.
     const sensitive = cellRuns('W', 3, 3, (index) => index % 2 === 0, 2);
-    // Every run flips: a wording range under the noise floor is noise.
-    const noisy = cellRuns('N', 3, 4, (index, r) => (index + r) % 2 === 0, 2);
+    // Wording 0 passes 3 of 4 repeats, wording 1 one of 4: a range of 50 points, under a noise floor of 69.
+    const noisy = cellRuns('N', 3, 4, (index, r) => (index % 2 === 0 ? r < 3 : r < 1), 2);
     const flat = cellRuns('S', 3, 2, () => true, 1);
     const data = dataOf([...sensitive.runs, ...noisy.runs, ...flat.runs], {
       ...sensitive.specs,
@@ -174,7 +174,8 @@ describe('spread', () => {
     });
     const cells = new Map(spread(data, { margin: 0.05 }).cells.map((cell) => [cell.cell, cell]));
     expect(cells.get('W')?.wording).toMatchObject({ conversations: 3, maxRange: 1, floor: 0, flagged: true });
-    expect(cells.get('N')?.wording?.flagged).toBe(false);
+    expect(cells.get('N')?.wording).toMatchObject({ maxRange: 0.5, flagged: false });
+    expect(cells.get('N')?.wording?.floor).toBeGreaterThan(0.5);
     expect(cells.get('S')?.wording).toBeUndefined();
   });
 

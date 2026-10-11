@@ -82,6 +82,24 @@ describe('compareCampaigns', () => {
     expect(result.verdict).toBe('unproven');
   });
 
+  it('never calls an improvement a regression, however significant', () => {
+    const fails = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27];
+    const result = compareCampaigns(campaign('b', 60, { fails }), campaign('c', 60), { margin: 0.05 });
+    const tools = result.criteria.find((row) => row.criterion === 'tools');
+    expect(tools).toMatchObject({ regressed: 0, improved: 10 });
+    expect(tools?.adjusted).toBeLessThan(0.05);
+    expect(tools?.significantRegression).toBe(false);
+    expect(result.verdict).not.toBe('regressed');
+  });
+
+  it('raises no flag for a failing verdict that does not gate', () => {
+    const units = unitsOf(
+      [run({ blocks: [{ verdicts: [{ id: 'forbidden.order', outcome: 'fail', gating: false }] }] })],
+      ['forbidden'],
+    );
+    expect([...(units.get('spec-a · F')?.side.flags ?? [])]).toEqual([]);
+  });
+
   it('calls a new gating flag a regression even when every rate is within the margin', () => {
     const result = compareCampaigns(campaign('b', 200), campaign('c', 200, { forbidden: [7] }), {
       margin: 0.2,

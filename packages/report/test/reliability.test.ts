@@ -131,14 +131,16 @@ describe('recovery summary', () => {
       }),
       run({ recovery: { injectedAt: 1, label: 'never', collateral: 1, safeAction: true, clarified: false } }),
       run({ recovery: { injectedAt: 1, turnsToRecover: 1, label: 'immediate', collateral: 0 } }),
+      // A run that never came back does not count toward the turns, even if it carries a number.
+      run({ recovery: { injectedAt: 1, turnsToRecover: 9, label: 'never', collateral: 0 } }),
       run(),
     ]);
-    expect(summary?.measured).toBe(4);
-    expect(summary?.labels).toEqual({ immediate: 2, late: 1, never: 1 });
-    expect(summary?.immediate).toMatchObject({ k: 2, n: 4 });
-    expect(summary?.recovered).toMatchObject({ k: 3, n: 4 });
+    expect(summary?.measured).toBe(5);
+    expect(summary?.labels).toEqual({ immediate: 2, late: 1, never: 2 });
+    expect(summary?.immediate).toMatchObject({ k: 2, n: 5 });
+    expect(summary?.recovered).toMatchObject({ k: 3, n: 5 });
     expect(summary?.medianTurns).toBe(1);
-    expect(summary?.collateral?.estimate).toBe(3 / 4);
+    expect(summary?.collateral?.estimate).toBe(3 / 5);
     expect(summary?.safeAction).toMatchObject({ k: 2, n: 3 });
     expect(summary?.clarified).toMatchObject({ k: 1, n: 2 });
   });
