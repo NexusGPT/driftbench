@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FakeModelPort } from '@driftbench/generate';
 import { describe, expect, it } from 'vitest';
-import { logsCommand } from '../src/commands/intake';
+import { fromInterviewCommand, logsCommand } from '../src/commands/intake';
 import { type Io, main } from '../src/index';
 
 function capture(cwd: string) {
@@ -176,5 +176,227 @@ describe('driftbench intake logs', () => {
     expect(output.out).toContain('Model check (other checker-1): 4 checked, 0 more redacted, 1 failed');
     expect(output.out).toContain('✗ model check failed on c4');
     for (const request of port.requests) expect(request.user).not.toContain('ana.duarte');
+  });
+});
+
+const ZED_SPACE = `version: '1'
+agent: zed
+dimensions:
+  - id: stage
+    title: Stages
+    kind: stage
+    values:
+      - { id: greet, title: The agent greets }
+      - { id: verify, title: The agent asks for the last four digits }
+  - id: flow
+    title: Flows
+    kind: behaviour
+    values:
+      - { id: balance, title: A customer asks for their balance }
+      - { id: card-lost, title: A customer reports a lost card }
+  - id: channel
+    title: Channels
+    kind: channel
+    values:
+      - { id: chat, title: Chat }
+      - { id: email, title: Email }
+constraints:
+  - forbid: { flow: balance, channel: email }
+    reason: balance is on chat only
+prior: { kind: declared }
+`;
+
+const ZED_ANSWERS = `version: 1
+agent: zed
+map: map.yaml
+personas:
+  - id: saver
+    description: A customer who checks their account often
+    share: 1
+    languages: [en]
+    channels: [chat, email]
+intents:
+  - { value: balance, share: 2 }
+  - { value: card-lost, share: 1 }
+examples:
+  - { stage: greet, intent: balance, persona: saver, turns: ["what's my balance?"] }
+  - { stage: verify, intent: card-lost, persona: saver, turns: ["last four are 1234"] }
+languages:
+  - { lang: en, share: 1 }
+channels:
+  - { value: chat, share: 3 }
+  - { value: email, share: 1 }
+`;
+
+async function zed() {
+  const dir = await mkdtemp(join(tmpdir(), 'driftbench-interview-'));
+  await writeFile(join(dir, 'map.yaml'), ZED_SPACE);
+  await writeFile(join(dir, 'answers.yaml'), ZED_ANSWERS);
+  return dir;
+}
+
+const DISTINCT = [
+  'how much is left in my account',
+  'my card is gone, please block it',
+  'could you check the money I have?',
+  'I think somebody took my wallet',
+  'tell me what remains on savings',
+  'need a new card asap',
+];
+
+/** A fake writer that answers every cell with `count` distinct turns. */
+function writer(count = 'asked' as 'asked' | number) {
+  const answer = (request: { user: string }) => {
+    const key = request.user.split('\n', 1)[0]?.slice('CELL: '.length) ?? '';
+    const asked = Number(/^COUNT: (\d+)$/m.exec(request.user)?.[1]);
+    const n = count === 'asked' ? asked : count;
+    return JSON.stringify({
+      cell: key,
+      turns: Array.from({ length: n }, (_, i) => ({
+        text: DISTINCT[i % DISTINCT.length],
+        source: 'personas.saver',
+      })),
+    });
+  };
+  return new FakeModelPort([answer, answer, answer, answer, answer, answer], {
+    family: 'other',
+    model: 'writer-1',
+  });
+}
+
+describe('driftbench intake interview', () => {
+  it('writes the questionnaire from the map, with the map path relative to it', async () => {
+    const dir = await zed();
+    const result = await run(
+      ['intake', 'interview', '--map', 'map.yaml', '--out', 'interview/questions.yaml'],
+      dir,
+    );
+    expect(result.code).toBe(0);
+    const text = await readFile(join(dir, 'interview/questions.yaml'), 'utf8');
+    expect(text).toContain('map: ../map.yaml');
+    expect(text).toContain('Q3. Example interactions per stage');
+    expect(
+      (await run(['intake', 'interview', '--map', 'map.yaml', '--out', 'interview/questions.yaml'], dir))
+        .code,
+    ).toBe(2);
+  });
+
+  it('refuses a proposal with nothing approved yet', async () => {
+    const dir = await zed();
+    const result = await run(
+      ['intake', 'interview', '--map', `${ACME}map/proposal.yaml`, '--out', 'q.yaml'],
+      dir,
+    );
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('no approved entry yet');
+  });
+});
+
+describe('driftbench intake from-interview', () => {
+  it('lists every open question of an unanswered questionnaire and writes nothing', async () => {
+    const dir = await zed();
+    await run(['intake', 'interview', '--map', 'map.yaml', '--out', 'questions.yaml'], dir);
+    const result = await run(['intake', 'from-interview', 'questions.yaml', '--out', 'set'], dir);
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('personas.0.share  not answered');
+    expect(await stat(join(dir, 'set')).catch(() => undefined)).toBeUndefined();
+  });
+
+  it('prints the plan on a dry run and calls no model', async () => {
+    const dir = await zed();
+    const result = await run(['intake', 'from-interview', 'answers.yaml', '--dry-run', '--turns', '8'], dir);
+    expect(result.code).toBe(0);
+    expect(result.out).toContain('Cells: 3, 8 model turns to request, 1 cells dropped by the map.');
+    expect(result.out).toContain(
+      'dropped stage=greet flow=balance persona=saver channel=email lang=en: balance is on chat only',
+    );
+  });
+
+  it('writes the set and its approval file, every turn unapproved, and exits 0', async () => {
+    const dir = await zed();
+    const { io, output } = capture(dir);
+    const code = await fromInterviewCommand('answers.yaml', { out: 'set', turns: '6', map: 'map.yaml' }, io, {
+      port: writer(),
+      now: () => new Date('2026-10-11T12:00:00Z'),
+    });
+    expect(output.err).toBe('');
+    expect(code).toBe(0);
+    expect(output.out).toContain(
+      "8 turns (2 from the owner's examples, 6 from other writer-1) in 3 cells, none approved.",
+    );
+    const reference = await readFile(join(dir, 'set/reference.yaml'), 'utf8');
+    expect(reference).toContain('interview: ../answers.yaml');
+    expect(reference).toContain('map: ../map.yaml');
+    const approval = await readFile(join(dir, 'set/approval.yaml'), 'utf8');
+    expect(approval.match(/approved: false/g)).toHaveLength(8);
+    expect((await run(['intake', 'from-interview', 'answers.yaml', '--out', 'set'], dir)).code).toBe(2);
+  });
+
+  it('exits 1 when a cell falls short, and lists it', async () => {
+    const dir = await zed();
+    const { io, output } = capture(dir);
+    const code = await fromInterviewCommand('answers.yaml', { out: 'set', turns: '6' }, io, {
+      port: writer(0),
+    });
+    expect(code).toBe(1);
+    expect(output.out).toMatch(
+      /✗ stage=greet flow=balance persona=saver channel=chat lang=en: 0 of \d turns accepted/,
+    );
+  });
+
+  it('replays a recording keyed by cell', async () => {
+    const dir = await zed();
+    const key = 'stage=greet flow=balance persona=saver channel=chat lang=en';
+    const others = [
+      'stage=verify flow=card-lost persona=saver channel=chat lang=en',
+      'stage=verify flow=card-lost persona=saver channel=email lang=en',
+    ];
+    const recording = {
+      family: 'lane',
+      model: 'by hand',
+      answers: Object.fromEntries(
+        [key, ...others].map((cell) => [
+          cell,
+          { cell, turns: [{ text: `recorded for ${cell}`, source: 'personas.saver' }] },
+        ]),
+      ),
+    };
+    await writeFile(join(dir, 'recorded.json'), JSON.stringify(recording));
+    const result = await run(
+      [
+        'intake',
+        'from-interview',
+        'answers.yaml',
+        '--out',
+        'set',
+        '--replay',
+        'recorded.json',
+        '--turns',
+        '0',
+      ],
+      dir,
+    );
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    expect(result.out).toContain('from lane by hand');
+  });
+});
+
+describe('driftbench intake approve', () => {
+  it('lists the pending turns, approves them all, and refuses an invalid or missing file', async () => {
+    const dir = await zed();
+    const { io } = capture(dir);
+    await fromInterviewCommand('answers.yaml', { out: 'set', turns: '3' }, io, { port: writer() });
+    const listed = await run(['intake', 'approve', 'set/approval.yaml'], dir);
+    expect(listed.code).toBe(0);
+    expect(listed.out).toContain('6 of 6 turns are not approved yet.');
+    const approved = await run(['intake', 'approve', 'set/approval.yaml', '--all'], dir);
+    expect(approved.out).toContain('Approved 6 turns');
+    expect((await run(['intake', 'approve', 'set/approval.yaml'], dir)).out).toContain(
+      'all 6 turns are approved',
+    );
+    await writeFile(join(dir, 'bad.yaml'), 'reference: r\nturns: 3\n');
+    expect((await run(['intake', 'approve', 'bad.yaml'], dir)).code).toBe(1);
+    expect((await run(['intake', 'approve', 'nope.yaml'], dir)).code).toBe(2);
   });
 });

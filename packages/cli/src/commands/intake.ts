@@ -1,17 +1,27 @@
 import { chmod, mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { basename, join, relative, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import {
+  approveAllTurns,
+  fromInterview,
   gitWorkTreeOf,
   type IntakeMap,
   intakeFiles,
   intakeLogs,
   loadIntakeMap,
+  loadTurnRecording,
   ModelError,
   type ModelPort,
+  parseApproval,
+  parseInterview,
   parseLogs,
+  planCells,
   portFromEnv,
+  renderApproval,
+  renderQuestionnaire,
+  renderReferenceSet,
   SECOND_PASSES,
   type SecondPass,
+  turnRecordingPort,
 } from '@driftbench/generate';
 import { aboutPercent } from '@driftbench/space';
 import type { Command } from 'commander';
@@ -39,9 +49,23 @@ export type LogsOptions = {
   force?: boolean;
 };
 
+export type FromInterviewOptions = {
+  map?: string;
+  out?: string;
+  replay?: string;
+  provider?: string;
+  turns?: string;
+  minPerCell?: string;
+  maxCells?: string;
+  dryRun?: boolean;
+  force?: boolean;
+};
+
 /**
  * `driftbench intake`: the reference set of user turns. `intake logs` turns past conversations into a
- * private, anonymised set (path i).
+ * private, anonymised set (path i). `intake interview` writes the owner's questionnaire from the map,
+ * `intake from-interview` turns the answers into a reference set through the model port, and `intake
+ * approve` lists or approves its turns (path ii).
  */
 export function registerIntakeCommand(program: Command, io: Io, setExit: (code: number) => void): void {
   const intake = program
@@ -70,6 +94,260 @@ export function registerIntakeCommand(program: Command, io: Io, setExit: (code: 
     .action(async (file: string, options: LogsOptions) => {
       setExit(await logsCommand(file, options, io));
     });
+
+  intake
+    .command('interview')
+    .description("Write the owner's interview questionnaire from the approved map")
+    .option('--map <file>', 'the approved map (a proposal or a space map)')
+    .option('--out <file>', 'where to write the questionnaire (YAML)')
+    .option('--force', 'replace an existing file; the answers in it are lost')
+    .action(async (options: { map?: string; out?: string; force?: boolean }) => {
+      setExit(await interviewCommand(options, io));
+    });
+
+  intake
+    .command('from-interview')
+    .description(
+      "Turn the owner's answers into a reference set of user turns per cell, for a person to approve",
+    )
+    .argument('<answers>', 'the answered questionnaire (YAML)')
+    .option('--map <file>', "the approved map (default: the answers' map field)")
+    .option('--out <dir>', 'the folder to write reference.yaml and approval.yaml to')
+    .option('--replay <file>', 'replay recorded answers instead of calling a model')
+    .option('--provider <name>', 'anthropic or openai (default: the first whose key is set)')
+    .option('--turns <n>', 'model-written turns to allocate over the cells by their weight', '40')
+    .option('--min-per-cell <n>', 'the fewest model-written turns per cell', '1')
+    .option('--max-cells <n>', 'refuse a plan with more cells than this', '200')
+    .option('--dry-run', 'print the cells, their weights and the turns to request; call no model')
+    .option('--force', 'replace an existing set; its approvals are lost')
+    .action(async (answers: string, options: FromInterviewOptions) => {
+      setExit(await fromInterviewCommand(answers, options, io));
+    });
+
+  intake
+    .command('approve')
+    .description('List the reference turns not approved yet; --all approves every turn')
+    .argument('<approval>', 'the approval file')
+    .option('--all', 'approve every turn and print the count')
+    .action(async (path: string, options: { all?: boolean }) => {
+      setExit(await approveCommand(path, options, io));
+    });
+}
+
+/** Exit 0 when written, 2 on a usage or input error. */
+export async function interviewCommand(
+  options: { map?: string; out?: string; force?: boolean },
+  io: Io,
+): Promise<number> {
+  if (!options.map || !options.out) {
+    io.err("error: required options '--map <file>' and '--out <file>'\n");
+    return 2;
+  }
+  const out = resolve(io.cwd, options.out);
+  if (!options.force && (await exists(out))) {
+    io.err(`${show(out, io)} already exists: pass --force to replace it (the answers in it are lost).\n`);
+    return 2;
+  }
+  const mapPath = resolve(io.cwd, options.map);
+  const loaded = await loadIntakeMap(mapPath);
+  if (!loaded.ok) {
+    io.err(`Cannot use the map ${options.map}:\n${loaded.errors.map((line) => `  ${line}\n`).join('')}`);
+    return 2;
+  }
+  if (loaded.map.dimensions.length === 0) {
+    io.err(
+      `The map ${options.map} has no approved entry yet: approve it first (driftbench extract approve).\n`,
+    );
+    return 2;
+  }
+  await mkdir(dirname(out), { recursive: true });
+  await writeFile(out, renderQuestionnaire(loaded.map, relativeTo(dirname(out), mapPath)));
+  io.out(
+    `Wrote ${show(out, io)}: the interview for ${loaded.map.agent}. Answer every question in place, then run driftbench intake from-interview ${show(out, io)} --map ${options.map} --out <folder>.\n`,
+  );
+  return 0;
+}
+
+/**
+ * Exit 0 when the set is written and every cell got the turns it asked for, 1 when it is written but a
+ * cell failed or fell short (each is listed), 2 on a usage or input error (nothing is written).
+ */
+export async function fromInterviewCommand(
+  answers: string,
+  options: FromInterviewOptions,
+  io: Io,
+  deps: IntakeDeps = {},
+): Promise<number> {
+  if (!options.out && !options.dryRun) {
+    io.err("error: required option '--out <dir>' not specified\n");
+    return 2;
+  }
+  const total = whole(options.turns ?? '40', 0);
+  const minPerCell = whole(options.minPerCell ?? '1', 0);
+  const maxCells = whole(options.maxCells ?? '200', 1);
+  if (total === undefined || minPerCell === undefined || maxCells === undefined) {
+    io.err('error: --turns, --min-per-cell and --max-cells take whole numbers\n');
+    return 2;
+  }
+  const answersPath = resolve(io.cwd, answers);
+  let text: string;
+  try {
+    text = await readFile(answersPath, 'utf8');
+  } catch (cause) {
+    io.err(`Cannot read ${show(answersPath, io)}: ${reason(cause)}\n`);
+    return 2;
+  }
+  let mapPath: string;
+  if (options.map) {
+    mapPath = resolve(io.cwd, options.map);
+  } else {
+    const named = /^map:\s*(.+)$/m
+      .exec(text)?.[1]
+      ?.trim()
+      .replace(/^['"]|['"]$/g, '');
+    if (!named) {
+      io.err("error: pass --map <file>, or name the map in the answers' map field\n");
+      return 2;
+    }
+    mapPath = resolve(dirname(answersPath), named);
+  }
+  const loaded = await loadIntakeMap(mapPath);
+  if (!loaded.ok) {
+    io.err(
+      `Cannot use the map ${show(mapPath, io)}:\n${loaded.errors.map((line) => `  ${line}\n`).join('')}`,
+    );
+    return 2;
+  }
+  const map = loaded.map;
+  const parsed = parseInterview(text, map);
+  if (!parsed.ok) {
+    io.err(`✗ ${show(answersPath, io)}\n`);
+    for (const issue of parsed.issues) io.err(`  ${issue.path}  ${issue.message}\n`);
+    io.err('The answers are incomplete or do not match the map, so nothing was written.\n');
+    return 2;
+  }
+  const interview = parsed.interview;
+  const plan = planCells(interview, map, { total, minPerCell });
+  if (plan.cells.length === 0) {
+    io.err('The answers give no cell: every example is empty, forbidden by the map, or has a share of 0.\n');
+    return 2;
+  }
+  if (plan.cells.length > maxCells) {
+    io.err(`The answers give ${plan.cells.length} cells, more than --max-cells ${maxCells}.\n`);
+    return 2;
+  }
+  const planLines = [
+    `Cells: ${plan.cells.length}, ${plan.cells.reduce((sum, cell) => sum + cell.requested, 0)} model turns to request, ${plan.dropped.length} cells dropped by the map.`,
+    ...plan.cells.map((cell) => `  ${cell.key}  weight ${cell.weight.toFixed(4)}  turns ${cell.requested}`),
+    ...plan.dropped.map((cell) => `  dropped ${cell.key}: ${cell.reason}`),
+    ...plan.skipped.map((entry) => `  skipped examples.${entry.example}: ${entry.reason}`),
+  ];
+  if (options.dryRun) {
+    io.out(`${planLines.join('\n')}\n`);
+    return 0;
+  }
+
+  const out = resolve(io.cwd, options.out as string);
+  const referencePath = join(out, 'reference.yaml');
+  const approvalPath = join(out, 'approval.yaml');
+  if (!options.force && ((await exists(referencePath)) || (await exists(approvalPath)))) {
+    io.err(
+      `${show(out, io)} already holds a reference set: pass --force to replace it (its approvals are lost).\n`,
+    );
+    return 2;
+  }
+  let port: ModelPort;
+  if (options.replay) {
+    const recording = await loadTurnRecording(resolve(io.cwd, options.replay));
+    if (!recording.ok) {
+      io.err(`Cannot use the recording ${options.replay}: ${recording.message}\n`);
+      return 2;
+    }
+    port = turnRecordingPort(recording.recording);
+  } else {
+    try {
+      port = deps.port ?? portFromEnv({ env: deps.env, provider: options.provider });
+    } catch (cause) {
+      if (!(cause instanceof ModelError)) throw cause;
+      io.err(`${cause.message}. Pass --replay <file> to replay recorded answers.\n`);
+      return 2;
+    }
+  }
+
+  const result = await fromInterview(interview, map, plan, {
+    port,
+    paths: { interview: relativeTo(out, answersPath), map: relativeTo(out, mapPath) },
+    ...(deps.now ? { now: deps.now } : {}),
+  });
+  await mkdir(out, { recursive: true });
+  await writeFile(referencePath, renderReferenceSet(result.set));
+  await writeFile(approvalPath, renderApproval(result.set, 'reference.yaml'));
+
+  const fromModel = result.set.turns.filter((turn) => turn.origin === 'model').length;
+  const lines = [
+    `Wrote ${show(referencePath, io)} and ${show(approvalPath, io)}: ${result.set.turns.length} turns (${result.set.turns.length - fromModel} from the owner's examples, ${fromModel} from ${port.family} ${port.model ?? 'unknown'}) in ${plan.cells.length} cells, none approved.`,
+    `  Model calls: ${result.calls}. Turns refused by the checks: ${result.set.rejected.length}.`,
+  ];
+  for (const run of result.runs.filter((entry) => entry.status !== 'done')) {
+    lines.push(
+      run.status === 'failed'
+        ? `  ✗ ${run.key}: failed: ${run.error}`
+        : `  ✗ ${run.key}: ${run.accepted} of ${run.requested} turns accepted`,
+    );
+  }
+  for (const rejected of result.set.rejected) lines.push(`  refused in ${rejected.cell}: ${rejected.reason}`);
+  lines.push(
+    `Next: read approval.yaml and set approved: true on the turns you accept, or run driftbench intake approve ${show(approvalPath, io)} --all.`,
+  );
+  io.out(`${lines.join('\n')}\n`);
+  return result.runs.every((run) => run.status === 'done') ? 0 : 1;
+}
+
+/** Exit 0 after listing or approving, 1 when the approval file is invalid, 2 when it cannot be found. */
+export async function approveCommand(path: string, options: { all?: boolean }, io: Io): Promise<number> {
+  const file = resolve(io.cwd, path);
+  const name = show(file, io);
+  let text: string;
+  try {
+    text = await readFile(file, 'utf8');
+  } catch {
+    io.err(`Cannot find ${name}.\n`);
+    return 2;
+  }
+  const parsed = parseApproval(text);
+  if (!parsed.ok) {
+    io.err(`✗ ${name}: ${parsed.message}\nThe approval file is invalid, so nothing was approved.\n`);
+    return 1;
+  }
+  const { turns } = parsed.approval;
+  if (options.all) {
+    const approved = approveAllTurns(text);
+    if (!approved.ok) {
+      io.err(`✗ ${name}: ${approved.message}\n`);
+      return 1;
+    }
+    await writeFile(file, approved.text);
+    io.out(
+      `Approved ${approved.approved} ${approved.approved === 1 ? 'turn' : 'turns'} in ${name}; ${approved.already} ${approved.already === 1 ? 'was' : 'were'} already approved.\n`,
+    );
+    return 0;
+  }
+  const pending = turns.filter((turn) => !turn.approved);
+  if (pending.length === 0) {
+    io.out(`${name}: all ${turns.length} turns are approved.\n`);
+    return 0;
+  }
+  io.out(
+    [
+      `${name}: ${pending.length} of ${turns.length} turns are not approved yet.`,
+      ...pending.map(
+        (turn) => `  ${turn.id}  ${turn.origin}  ${turn.cell}\n      ${JSON.stringify(turn.text)}`,
+      ),
+      'Set approved: true on each turn you accept, or approve every turn with --all.',
+      '',
+    ].join('\n'),
+  );
+  return 0;
 }
 
 /**
@@ -215,6 +493,16 @@ export async function logsCommand(
     lines.push(`  ✗ model check failed on ${failure.id}: ${failure.reason}`);
   io.out(`${lines.join('\n')}\n`);
   return intake.model.failed.length > 0 ? 1 : 0;
+}
+
+/** A path as a file in `dir` records it: relative, with forward slashes. */
+function relativeTo(dir: string, path: string): string {
+  const rel = relative(dir, path);
+  return isAbsolute(rel) ? path : rel.split(sep).join('/');
+}
+
+async function exists(path: string): Promise<boolean> {
+  return (await stat(path).catch(() => undefined)) !== undefined;
 }
 
 function whole(value: string, min: number): number | undefined {

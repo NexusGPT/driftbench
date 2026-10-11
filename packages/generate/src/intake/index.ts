@@ -4,6 +4,13 @@
  * against the map and approved turn by turn. Fidelity compares generated user turns with the set.
  */
 export {
+  Interview,
+  type InterviewIssue,
+  type InterviewResult,
+  parseInterview,
+  renderQuestionnaire,
+} from './interview';
+export {
   FAILURE_FLAGS,
   gitWorkTreeOf,
   type IntakeConversation,
@@ -53,6 +60,37 @@ export {
   type SecondPass,
   type TurnText,
 } from './privacy';
+export {
+  Approval,
+  type ApprovalResult,
+  allocate,
+  approveAllTurns,
+  type CellPlan,
+  type CellRun,
+  type CellValues,
+  cellKey,
+  cellOfRequest,
+  cellRequest,
+  checkTurn,
+  type DroppedCell,
+  type FromInterviewResult,
+  fromInterview,
+  loadTurnRecording,
+  MAX_TURN_LENGTH,
+  parseApproval,
+  parseReferenceAnswer,
+  planCells,
+  REFERENCE_PROMPT,
+  type ReferenceAnswer,
+  type ReferenceCell,
+  type ReferenceSet,
+  type ReferenceTurn,
+  type RejectedTurn,
+  renderApproval,
+  renderReferenceSet,
+  TurnRecording,
+  turnRecordingPort,
+} from './reference';
 export {
   charGrams,
   type GramNeighbour,
