@@ -221,6 +221,7 @@ function readHelpers() {
   if (!env.HELPER_REGISTRY || !existsSync(env.HELPER_REGISTRY)) return [];
   return JSON.parse(readFileSync(env.HELPER_REGISTRY, 'utf8')).map((helper) => ({
     id: helper.id,
+    pid: helper.pid,
     alive: alive(helper.pid),
   }));
 }
