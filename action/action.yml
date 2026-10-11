@@ -1,0 +1,79 @@
+name: driftbench ci
+description: >-
+  Runs a driftbench spec suite on a candidate target, compares it golden by golden with a baseline campaign
+  and fails the job on a regression beyond the margin or on a new gating flag.
+
+inputs:
+  specs:
+    description: The spec file or folder the candidate runs, relative to working-directory.
+    required: true
+  target:
+    description: The candidate target, such as function:acme-sales.
+    required: true
+  baseline:
+    description: The baseline store file (its latest campaign is the baseline), or a campaign id held in the store input.
+    required: true
+  store:
+    description: The store file the candidate campaign is written to.
+    required: false
+    default: .driftbench/ci.db
+  margin:
+    description: The largest drop in pass rate tolerated, in percentage points.
+    required: false
+    default: '2'
+  repeats:
+    description: Runs per spec and mode.
+    required: false
+    default: '1'
+  mode:
+    description: The run mode, T, F or P, or several separated by commas.
+    required: false
+    default: F
+  budget-usd:
+    description: A hard stop on the candidate campaign's spend. Empty means no budget.
+    required: false
+    default: ''
+  faults:
+    description: A fault set whose faults the target can name as fault:<id>. Empty means none.
+    required: false
+    default: ''
+  report-path:
+    description: Where the JSON summary is written, relative to working-directory.
+    required: false
+    default: driftbench-ci.json
+  working-directory:
+    description: The folder the CLI runs in.
+    required: false
+    default: .
+  driftbench:
+    description: The command that runs the driftbench CLI in working-directory.
+    required: false
+    default: pnpm -s driftbench
+
+outputs:
+  verdict:
+    description: parity, regression, gating, incomplete, or input-error when the CLI refused its input.
+    value: ${{ steps.ci.outputs.verdict }}
+  report-path:
+    description: The JSON summary the CLI wrote.
+    value: ${{ steps.ci.outputs.report-path }}
+
+runs:
+  using: composite
+  steps:
+    - id: ci
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        INPUT_SPECS: ${{ inputs.specs }}
+        INPUT_TARGET: ${{ inputs.target }}
+        INPUT_BASELINE: ${{ inputs.baseline }}
+        INPUT_STORE: ${{ inputs.store }}
+        INPUT_MARGIN: ${{ inputs.margin }}
+        INPUT_REPEATS: ${{ inputs.repeats }}
+        INPUT_MODE: ${{ inputs.mode }}
+        INPUT_BUDGET_USD: ${{ inputs.budget-usd }}
+        INPUT_FAULTS: ${{ inputs.faults }}
+        INPUT_REPORT_PATH: ${{ inputs.report-path }}
+        INPUT_DRIFTBENCH: ${{ inputs.driftbench }}
+      run: bash "$GITHUB_ACTION_PATH/run.sh"
