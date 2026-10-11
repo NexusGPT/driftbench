@@ -105,7 +105,7 @@ function entryChecks(entry: EndStateSpec, state: unknown, prefix: string): Field
     const why =
       state === undefined || state === null
         ? 'nothing was read (no payload recorded, or the adapter cannot read end states)'
-        : `the state read is ${show(state)}, not a mapping`;
+        : `the state read is ${typeName(state)} (${show(state)}), not a mapping`;
     if (fields.length === 0) {
       return [
         missing(entry.source, { nonempty: true }, `${entry.source}: ${why}; expected a recorded state`),
@@ -146,6 +146,12 @@ function entryChecks(entry: EndStateSpec, state: unknown, prefix: string): Field
     }
   }
   return checks;
+}
+
+/** The type of a state that is not a mapping, as evidence names it. */
+function typeName(state: unknown): string {
+  if (Array.isArray(state)) return 'a list';
+  return typeof state === 'object' ? 'an object' : `a ${typeof state}`;
 }
 
 function missing(field: string, expected: unknown, evidence: string): FieldCheck {
