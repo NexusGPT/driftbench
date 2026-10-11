@@ -33,7 +33,9 @@ export {
 export {
   blockText,
   containsToken,
+  type ExpectedValues,
   expectedValues,
+  expectedValuesBySource,
   givenText,
   leakageStage,
   ngrams,

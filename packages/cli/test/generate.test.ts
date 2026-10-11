@@ -35,11 +35,14 @@ async function tree(dir: string): Promise<Record<string, string>> {
   return out;
 }
 
-const PROMPT = 'You are the Zed Bank assistant. Stages, in order: greet, help.\n';
-const EVIDENCE = '{ source: prompt.md, quote: "Stages, in order: greet, help." }';
+const PROMPT = 'You are the Zed Bank assistant. Stages, in order: greet, help, done.\n';
+const EVIDENCE = '{ source: prompt.md, quote: "Stages, in order: greet, help, done." }';
 const CODE = 'produced_by: code';
 
-/** A map every value of which has an approved phrase: the generator has nothing to leave as a placeholder. */
+/**
+ * A map every value of which has an approved phrase, and one approved path with a recovery from its one
+ * deviation class: the generator has nothing to leave as a placeholder or without a machine Then.
+ */
 const PHRASED_MAP = `version: 1
 agent: zed
 produced_by: { family: lane, model: by hand, at: 2026-10-11T00:00:00.000Z }
@@ -55,6 +58,7 @@ dimensions:
     values:
       - { id: greet, title: The assistant greets, evidence: ${EVIDENCE}, ${CODE} }
       - { id: help, title: The assistant helps, evidence: ${EVIDENCE}, ${CODE} }
+      - { id: done, title: The assistant is done, evidence: ${EVIDENCE}, ${CODE} }
   - id: stage_transition
     title: Transitions
     kind: behaviour
@@ -63,6 +67,7 @@ dimensions:
     approved: true
     values:
       - { id: greet-to-help, title: The user asks for help, evidence: ${EVIDENCE}, ${CODE} }
+      - { id: help-to-done, title: The user is done, evidence: ${EVIDENCE}, ${CODE} }
   - id: flow
     title: Flows
     kind: behaviour
@@ -90,9 +95,13 @@ dimensions:
 constraints: []
 phrases:
   - { dimension: stage_transition, value: greet-to-help, text: I need help with my account., lang: en, produced_by: model, approved: true }
+  - { dimension: stage_transition, value: help-to-done, text: That is all., lang: en, produced_by: model, approved: true }
   - { dimension: deviation, value: D1_off_topic, text: Are you open on Sunday?, lang: en, produced_by: model, approved: true }
   - { dimension: channel, value: chat, text: Hello from the chat., lang: en, produced_by: model, approved: true }
   - { dimension: flow, value: balance, text: What is my balance?, lang: en, produced_by: model, approved: true }
+relations:
+  - { kind: path, id: balance-help, flow: balance, stages: [greet, help, done], evidence: ${EVIDENCE}, produced_by: model, approved: true }
+  - { kind: recovery, class: D1_off_topic, flows: [balance], stage_after: pending, evidence: ${EVIDENCE}, produced_by: model, approved: true }
 `;
 
 describe('driftbench generate', () => {
@@ -101,9 +110,12 @@ describe('driftbench generate', () => {
     const first = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a'], dir);
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
-    expect(first.out).toContain('Stage graph: 23 of 23 edges covered');
+    expect(first.out).toContain('Stage graph: 18 of 23 edges covered in 12 paths from needs.');
     expect(first.out).toContain('t-wise: covering array of 154 rows over 6 dimensions');
-    expect(first.out).toContain('Constraints applied: 34.');
+    expect(first.out).toContain('Constraints applied: 59.');
+    expect(first.out).toContain(
+      '  Most frequent reasons:\n    11  no approved path belongs to a flow of B-013',
+    );
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
     expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(168);
@@ -132,7 +144,7 @@ describe('driftbench generate', () => {
     const result = await run(['generate', '--map', `${ACME}map/proposal.yaml`, '--out', 'out'], dir);
     expect(result.code).toBe(2);
     expect(result.err).toContain('MAP_NOT_APPROVED');
-    expect(result.err).toContain('101 of 101 entries are not approved');
+    expect(result.err).toContain('219 of 219 entries are not approved');
     expect(await readdir(dir)).toEqual([]);
   });
 
@@ -158,7 +170,7 @@ describe('driftbench generate', () => {
     expect(result.code).toBe(0);
     const report = JSON.parse(result.out);
     expect(report.summary.incomplete).toBe(0);
-    expect(report.graph).toMatchObject({ edges: 1, covered: 1 });
+    expect(report.graph).toMatchObject({ edges: 2, covered: 2 });
     expect(report.twise.rows).toBe(2);
     const files = await tree(join(dir, 'out'));
     expect(Object.keys(files).some((path) => path.startsWith('incomplete/'))).toBe(false);

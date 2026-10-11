@@ -3,22 +3,27 @@ import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import { type CheckContext, type CheckSet, machineVerdict } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
 import type { Store } from '../contracts/store';
-import { DriftClass, type Message, type TargetRef, type WorldState } from '../schema/common';
+import type { Message, TargetRef, WorldState } from '../schema/common';
 import { type BlockResult, Observed, type RunMode, RunResult, Verdict } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
 import { cellId } from './cell';
+import { driftOf } from './drift';
 import {
   addFacts,
   assistantMessage,
+  canonicalGiven,
   enterBlock,
   initialGiven,
   resolveGiven,
   stimulusMessages,
 } from './given';
+import { describeContradiction, ledgerVerdicts } from './ledger';
+import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, withRetry } from './retry';
+import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
 import { succession } from './succession';
 
 export type RunOptions = {
@@ -28,7 +33,8 @@ export type RunOptions = {
   /** Applied to every block, in order. */
   checks: CheckSet;
   /** F runs free: one session, each block inherits the agent's own earlier replies. P is F plus the
-   *  blocks a perturbing driver injects. T (teacher-forced) is planned, phase 3, and throws. */
+   *  blocks a perturbing driver injects. T (teacher-forced) runs every block from its canonical Given in a
+   *  session of its own: the prefix, ledger and world the spec writes, never the agent's own history. */
   mode: RunMode;
   repeat: number;
   /** Overrides the spec's target. With neither, the target is `{ adapter: <adapter id> }`. */
@@ -51,23 +57,29 @@ export type RunOptions = {
   runId?: string;
   /** A guard against a driver that never stops. Default: 4 steps per spec block, at least 16. */
   maxSteps?: number;
+  /** Mode P: the free-running run of the same spec and target, for the collateral of the recovery. */
+  reference?: RunResult;
+  /** Mode P: more tools whose call is a consequential act, for the recovery's safe action and clarification. */
+  consequential?: (label: string) => boolean;
 };
 
 /**
- * Runs one spec, once, in free-running mode. For each step of the driver: resolve the block's Given,
+ * Runs one spec, once, in mode F, P or T. For each step of the driver: resolve the block's Given,
  * send the stimulus (then `trace` when the adapter has the capability), apply every check, record the
  * ledger, drift and pass of the block. After the last spec block, the end-state sources the spec names
  * are read through `adapter.endState` (source `*` for `end_state: none`); the checks of that block see
  * them and the run compares them.
+ *
+ * In mode T each block is an independent sample: it opens its own session from `canonicalGiven`, its
+ * checks see no earlier block, and it may not be injected. The end state of a T run is composed from a read
+ * after every block, in block order: a source keeps the last value a block's session recorded, and `*`
+ * joins the payload lists, so the last block's checks and the run see what the blocks left between them.
  *
  * Transport errors are retried with backoff; an AgentFailure, an Observed that does not validate, or a
  * transport error past its retries ends the run with status `failed` and the error. The session is
  * always closed. The result always validates against the RunResult schema.
  */
 export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResult> {
-  if (options.mode === 'T') {
-    throw new Error('runSpec: teacher-forced mode (T) is planned, phase 3; this runner runs F and P');
-  }
   if (options.store && options.campaignId === undefined) {
     throw new Error('runSpec: a store needs a campaignId to file the run under');
   }
@@ -110,6 +122,11 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     maxSteps: options.maxSteps ?? Math.max(16, 4 * spec.blocks.length),
     endState,
     sources: endStateSources(endState),
+    signatures: stageSignatures(spec),
+    recovery: {
+      ...(options.reference ? { reference: options.reference } : {}),
+      ...(options.consequential ? { consequential: options.consequential } : {}),
+    },
   };
 
   const replayed = cache ? await execute(run, replayChannel(cache)) : undefined;
@@ -144,6 +161,9 @@ type RunContext = {
   endState: EndState | undefined;
   /** The sources read after the last spec block: each mapping's own, or `*` for `end_state: none`. */
   sources: string[];
+  /** The tools each stage of the spec's catalogue expects, for the step classifier. */
+  signatures: Map<string, Set<string>>;
+  recovery: RecoveryOptions;
 };
 
 /** One step of the driver, resolved against the spec. */
@@ -188,6 +208,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let nextBlock = 0;
   let lastKey: string | undefined;
   let endRead: { states: unknown[]; afterBlock: number } | undefined;
+  /** The end-state values so far: in mode T composed over the blocks, else the last read. */
+  let composed: unknown[] | undefined;
   let status: RunResult['status'] = 'completed';
   let error: string | undefined;
 
@@ -203,10 +225,22 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const planned = planStep(spec, step);
       if (step.kind === 'block') nextBlock = step.blockIndex + 1;
 
-      state = enterBlock(state, planned.given, planned.world);
-      if (planned.given?.prefix) {
+      if (run.mode === 'T') {
+        if (step.kind !== 'block') {
+          throw new RunnerError(
+            `teacher-forced mode runs the spec's own blocks; the driver ${run.driver.id} injected ${step.perturbationId}`,
+          );
+        }
+        const canonical = canonicalGiven(spec, step.blockIndex);
+        state = canonical.state;
         await channel.restart();
-        history = structuredClone(planned.given.prefix);
+        history = canonical.prefix;
+      } else {
+        state = enterBlock(state, planned.given, planned.world);
+        if (planned.given?.prefix) {
+          await channel.restart();
+          history = structuredClone(planned.given.prefix);
+        }
       }
       const user = stimulusMessages(planned.stimulus);
       const given = resolveGiven(state, history, run.target);
@@ -235,13 +269,15 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       state = { ...state, ledger: facts.ledger };
 
       let endState: unknown;
-      if (planned.lastSpecBlock && sources.length > 0) {
+      if (sources.length > 0 && (planned.lastSpecBlock || run.mode === 'T')) {
         const read = await channel.endState(sources, key);
         if (read.kind === 'miss') return undefined;
         if (read.kind === 'read') {
-          endRead = { states: read.states, afterBlock: position };
-          endState = endStateValue(run.endState, sources, read.states);
+          const states = run.mode === 'T' ? composeStates(sources, composed, read.states) : read.states;
+          composed = states;
+          endRead = { states, afterBlock: position };
         }
+        if (planned.lastSpecBlock && composed) endState = endStateValue(run.endState, sources, composed);
       }
 
       const verdicts = await applyChecks(run.checks, {
@@ -252,24 +288,41 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         expect: planned.expect,
         given,
         observed,
-        history: [...blocks],
+        // A teacher-forced block is an independent sample: no earlier block of the run is its history.
+        history: run.mode === 'T' ? [] : [...blocks],
         ledger: facts.ledger,
         endState,
         artifacts: run.artifacts,
         readArtifact: channel.readArtifact(),
       });
-      const stage = observed.runtime?.stages?.at(-1)?.name;
+      // The stage reached: the runtime's, else the step classifier's. Before the block: in T the stage the
+      // spec expects of the blocks before it, in F and P the stage the run's previous block reached.
+      const previous =
+        run.mode === 'T' && step.kind === 'block'
+          ? canonicalPreviousStage(spec, step.blockIndex)
+          : blocks.at(-1)?.stageObserved;
+      const reading = readStage(spec, observed, {
+        mode: run.mode,
+        history: run.mode === 'T' ? [] : blocks,
+        previous,
+        signatures: run.signatures,
+      });
+      const flow = flowVerdicts(spec, planned.expect, reading, previous);
+      const userMessages = [...given.prefix, ...user].filter((message) => message.role === 'user');
+      const ledger = ledgerVerdicts(facts.ledger, observed, userMessages);
+      const all = [...verdicts, ...flow, ...ledger.verdicts];
+      const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
       blocks.push({
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
         givenHash: given.hash,
         observed,
-        verdicts,
-        ...(stage !== undefined ? { stageObserved: stage } : {}),
-        ledgerCheck: { ok: facts.contradictions.length === 0, contradictions: facts.contradictions },
-        drift: driftOf(verdicts),
-        pass: verdicts.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
+        verdicts: all,
+        ...(reading !== undefined ? { stageObserved: reading.stage } : {}),
+        ledgerCheck: { ok: contradictions.length === 0, contradictions },
+        drift: driftOf(all),
+        pass: all.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
       });
     }
   } catch (cause) {
@@ -311,6 +364,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
 
   const note = await channel.close();
   if (channel.replay && blocks.length === 0) return undefined;
+  const recovery =
+    run.mode === 'P'
+      ? recoveryOf(spec, { blocks, perturbationId: run.perturbationId }, run.recovery)
+      : undefined;
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
     runId: run.runId,
@@ -324,6 +381,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     ...(message ? { error: message } : {}),
     blocks,
     succession: succession(blocks),
+    ...(recovery ? { recovery } : {}),
     ...(endState ? { endState } : {}),
     cost: blocks.reduce((sum, block) => sum + blockCost(block.observed), 0),
     latencyMs: blocks.reduce((sum, block) => sum + block.observed.latencyMs, 0),
@@ -331,6 +389,22 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     finishedAt: run.now().toISOString(),
     cacheHit: channel.replay,
   };
+}
+
+/**
+ * The end state of a teacher-forced run after one more block: for each source, the value this block's
+ * session read when it recorded one (not undefined, not null), else the value so far; for `*`, the lists
+ * joined in block order.
+ */
+function composeStates(sources: string[], before: unknown[] | undefined, read: unknown[]): unknown[] {
+  return sources.map((source, index) => {
+    const earlier = before?.[index];
+    const now = read[index];
+    if (source === '*') {
+      return [...(Array.isArray(earlier) ? earlier : []), ...(Array.isArray(now) ? now : [])];
+    }
+    return now === undefined || now === null ? earlier : now;
+  });
 }
 
 /** The sources to read for a spec's `end_state`: `*` for `none`, each mapping's source once otherwise. */
@@ -442,33 +516,6 @@ async function applyChecks(checks: CheckSet, ctx: CheckContext): Promise<Verdict
     }
   }
   return verdicts;
-}
-
-/**
- * Drift classes before the phase 3 classifier, by the check a failing verdict comes from: the text of its
- * id before the first dot (check names hold no dot; tool labels and paths after it may). Tool, forbidden,
- * skill and guard checks give X5_tool; language and card checks (one_message_per_turn among them) give
- * X4_format; the stage check, which reads the stage the runtime reports, gives X3_flow. A custom check's
- * ids start with `custom`, so a custom check never takes a family's class by its name.
- */
-const DRIFT_BY_CHECK: Readonly<Record<string, DriftClass>> = {
-  tools: 'X5_tool',
-  forbidden: 'X5_tool',
-  skills: 'X5_tool',
-  guards: 'X5_tool',
-  lang: 'X4_format',
-  cards: 'X4_format',
-  stage: 'X3_flow',
-};
-
-function driftOf(verdicts: readonly Verdict[]): DriftClass[] {
-  const found = new Set<DriftClass>();
-  for (const verdict of verdicts) {
-    if (verdict.outcome !== 'fail') continue;
-    const drift = DRIFT_BY_CHECK[verdict.id.split('.', 1)[0] ?? ''];
-    if (drift) found.add(drift);
-  }
-  return DriftClass.options.filter((drift) => found.has(drift));
 }
 
 /** The block's cost: the total the adapter reported, or else the sum of its segments' costs. */

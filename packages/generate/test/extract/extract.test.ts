@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { type ExtractResult, extractMap, SYSTEM_PROMPT, validateProposal } from '../../src/extract';
 import { FakeModelPort, ModelError } from '../../src/model';
-import { answer, DATA, fromPrompt, GOOD_ANSWERS, PERSONAS, PHRASES, RULES, SOURCES, STAGES } from './support';
+import {
+  answer,
+  DATA,
+  fromPrompt,
+  GOOD_ANSWERS,
+  PERSONAS,
+  PHRASES,
+  RELATIONS,
+  RULES,
+  SOURCES,
+  STAGES,
+} from './support';
 
 const NOW = () => new Date('2026-10-11T12:00:00.000Z');
 
@@ -44,7 +55,7 @@ describe('extractMap without a model', () => {
       { kind: 'prompt', path: 'prompt.md' },
       { kind: 'inventory', path: 'inventory.yaml' },
     ]);
-    expect(result.prepass).toEqual({ dimensions: 4, values: 7, constraints: 1 });
+    expect(result.prepass).toEqual({ dimensions: 4, values: 7, constraints: 1, relations: 1 });
   });
 
   it('stops on an invalid inventory before anything else', async () => {
@@ -77,15 +88,17 @@ describe('extractMap with a model: the answer contract', () => {
       'SECTION: personas',
       'SECTION: data',
       'SECTION: phrases',
+      'SECTION: relations',
     ]);
     expect(port.requests.every((request) => request.system === SYSTEM_PROMPT)).toBe(true);
-    expect(result.calls).toBe(5);
+    expect(result.calls).toBe(6);
     expect(result.sections.map((run) => [run.section, run.status, run.accepted])).toEqual([
       ['stages', 'done', 3],
       ['rules', 'done', 1],
       ['personas', 'done', 3],
       ['data', 'done', 0],
       ['phrases', 'done', 2],
+      ['relations', 'done', 2],
     ]);
     expect(result.refusals).toEqual([]);
     expect(proposal.produced_by).toEqual({
@@ -158,8 +171,9 @@ describe('extractMap with a model: the answer contract', () => {
       PERSONAS,
       DATA,
       PHRASES,
+      RELATIONS,
     ]);
-    expect(port.requests).toHaveLength(6);
+    expect(port.requests).toHaveLength(7);
     expect(port.requests[1]?.user).toContain(
       'Your previous answer could not be read: the answer is not JSON',
     );
@@ -168,8 +182,16 @@ describe('extractMap with a model: the answer contract', () => {
   });
 
   it('reports a section whose answer is malformed twice, and runs the next sections', async () => {
-    const { port, result } = await run(['not json at all', 'still not json', RULES, PERSONAS, DATA, PHRASES]);
-    expect(port.requests).toHaveLength(6);
+    const { port, result } = await run([
+      'not json at all',
+      'still not json',
+      RULES,
+      PERSONAS,
+      DATA,
+      PHRASES,
+      answer('relations'),
+    ]);
+    expect(port.requests).toHaveLength(7);
     expect(result.sections[0]).toMatchObject({
       section: 'stages',
       status: 'failed',
@@ -180,7 +202,7 @@ describe('extractMap with a model: the answer contract', () => {
     expect(result.sections[0]?.error).toMatch(/^the answer could not be read, twice: the answer is not JSON/);
     expect(result.sections.slice(1).every((run) => run.status === 'done')).toBe(true);
     expect(valueIds(result, 'stage')).toBeUndefined();
-    expect(result.calls).toBe(6);
+    expect(result.calls).toBe(7);
   });
 
   it('refuses an entry without a quote and keeps the rest of the answer', async () => {
@@ -381,8 +403,8 @@ describe('extractMap with a model: the answer contract', () => {
 
   it('reports a failed model call as a failed section and goes on', async () => {
     const down = new ModelError('http', '529 overloaded_error: Overloaded', { status: 529, retryable: true });
-    const { port, result } = await run([down, RULES, PERSONAS, DATA, PHRASES]);
-    expect(port.requests).toHaveLength(5);
+    const { port, result } = await run([down, RULES, PERSONAS, DATA, PHRASES, answer('relations')]);
+    expect(port.requests).toHaveLength(6);
     expect(result.sections[0]).toEqual({
       section: 'stages',
       calls: 1,
@@ -440,5 +462,137 @@ describe('extractMap with a model: the answer contract', () => {
       ['rule/none', '"none" is reserved: code adds it where a dimension needs it'],
     ]);
     expect(validateProposal(proposal).ok).toBe(true);
+  });
+});
+
+describe('extractMap: the relations section', () => {
+  it('keeps every good relation unapproved with its quote, and refuses one per reason', async () => {
+    const relations = answer('relations', {
+      relations: [
+        {
+          kind: 'uses_tool',
+          subject: { dimension: 'flow', value: 'balance' },
+          tool: 'card.check',
+          stage: 'verify',
+          input: { last_four: '{card}' },
+          source: 'prompt.md',
+          quote: 'Always verify the customer with the last four digits of their card',
+        },
+        {
+          kind: 'path',
+          id: 'balance-lost',
+          flow: 'balance',
+          stages: ['greet', 'lost'],
+          source: 'prompt.md',
+          quote: 'Stages, in order: greet, verify, help.',
+        },
+        {
+          kind: 'binds',
+          subject: { dimension: 'language', value: 'english' },
+          slots: { greeting: 'Hello' },
+          source: 'prompt.md',
+          quote: 'never in the prompt',
+        },
+        {
+          kind: 'recovery',
+          class: 'D5_language_switch',
+          flows: ['balance'],
+          stage_after: 'pending',
+          source: 'prompt.md',
+          quote: 'If the customer writes in another language',
+        },
+        { kind: 'reply_language', subject: { dimension: 'rule', value: 'no-investment-advice' }, lang: 'en' },
+      ],
+    });
+    const { result, proposal } = await run([STAGES, RULES, PERSONAS, DATA, PHRASES, relations]);
+    expect(result.sections.at(-1)).toMatchObject({ section: 'relations', status: 'done', accepted: 1 });
+    expect(proposal.relations?.map((relation) => relation.kind)).toEqual(['recovery', 'uses_tool']);
+    const added = proposal.relations?.[1];
+    expect(added).toMatchObject({
+      evidence: {
+        source: 'prompt.md',
+        quote: 'Always verify the customer with the last four digits of their card',
+      },
+      produced_by: 'model',
+      approved: false,
+    });
+    expect(result.refusals.map((refusal) => [refusal.entry.split(' (')[0], refusal.reason])).toEqual([
+      ['relation #2', 'lost is not a proposed stage'],
+      ['relation #3', 'the quote is not in prompt.md: "never in the prompt"'],
+      ['relation #4', 'D5_language_switch is not a proposed deviation class'],
+      ['relation #5', 'source: the source is missing: name the path of the source the quote comes from'],
+    ]);
+    expect(validateProposal(proposal).ok).toBe(true);
+  });
+
+  it('takes relations from the relations section only, and phrases with a when and binds it can resolve', async () => {
+    const rules = answer('rules', {
+      dimensions: [
+        {
+          id: 'rule',
+          title: 'Rules',
+          kind: 'behaviour',
+          values: [fromPrompt('no-investment-advice', 'Never give investment advice.')],
+        },
+      ],
+      relations: [
+        { kind: 'reply_language', subject: { dimension: 'rule', value: 'no-investment-advice' }, lang: 'en' },
+      ],
+    });
+    const phrases = answer('phrases', {
+      phrases: [
+        {
+          dimension: 'flow',
+          value: 'balance',
+          text: 'My card ends in {card}.',
+          lang: 'en',
+          when: { channel: ['chat'] },
+          binds: { card: '4242' },
+        },
+        {
+          dimension: 'flow',
+          value: 'balance',
+          text: 'Balance please.',
+          lang: 'en',
+          when: { channel: ['fax'] },
+        },
+      ],
+    });
+    const { result, proposal } = await run([STAGES, rules, PERSONAS, DATA, phrases, RELATIONS]);
+    expect(result.refusals.map((refusal) => [refusal.section, refusal.entry, refusal.reason])).toEqual([
+      ['rules', 'relation #1', 'relations come from the relations section'],
+      ['phrases', 'phrase #2 (flow/balance)', 'when names channel=fax, which is not a proposed value'],
+    ]);
+    expect(proposal.phrases).toEqual([
+      {
+        dimension: 'flow',
+        value: 'balance',
+        text: 'My card ends in {card}.',
+        lang: 'en',
+        when: { channel: ['chat'] },
+        binds: { card: '4242' },
+        produced_by: 'model',
+        approved: false,
+      },
+    ]);
+  });
+
+  it('skips a relation already proposed, whoever proposed it first', async () => {
+    const twice = answer('relations', {
+      relations: [
+        {
+          kind: 'recovery',
+          class: 'D1_off_topic',
+          flows: ['balance'],
+          stage_after: 'pending',
+          source: 'prompt.md',
+          quote: 'Stages, in order: greet, verify, help.',
+        },
+      ],
+    });
+    const { result } = await run([STAGES, RULES, PERSONAS, DATA, PHRASES, twice]);
+    expect(result.duplicates).toEqual([
+      'relations: relation #1 (recovery D1_off_topic in balance) is already proposed',
+    ]);
   });
 });

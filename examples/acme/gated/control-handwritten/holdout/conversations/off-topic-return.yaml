@@ -47,6 +47,25 @@ criteria:
 blocks:
   - when:
       user: Hi, do you have home internet at 3 Orchard Way, Acmeville?
+    expect:
+      stage: offer
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address:
+              regex: ^3 Orchard Way
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-102
+      tool_order: in_order
+      must:
+        - Acme Fiber 300
+        - Acme Air 5G
+      must_not:
+        - Fiber 1000
   - id: store-hours
     when:
       injection:
@@ -125,6 +144,16 @@ perturbations:
     recovery:
       within_blocks: 0
       stage_after: offer
+rules:
+  max_calls:
+    coverage.check: 1
+    catalog.search: 1
+    order.create: 0
+    notify_sales: 0
+  forbidden_tools:
+    - port.check
+  lang_stable: true
+  one_message_per_turn: true
 end_state: none
 metadata:
   gate:
@@ -132,9 +161,9 @@ metadata:
     date: 2026-10-11
     blocks:
       - block: 0
-        status: rejected
-        stage: leakage
-        reason: expected-value-in-when
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.5
       - block: store-hours
         status: accepted
         pass_k: 1
@@ -151,6 +180,3 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.6
-    dropped:
-      - "0: stage, tools, tool_order, must, must_not"
-      - "rules: a block they apply to was rejected"
