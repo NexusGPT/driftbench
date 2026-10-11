@@ -83,3 +83,10 @@ describe('single quotes', () => {
     expect(parseAnswerText(`{"outcome":"pass","reasoning":"it's fine"}`).answer.reasoning).toBe("it's fine");
   });
 });
+
+describe('a trailing comma', () => {
+  it('reads an answer with a comma before its closing brace', () => {
+    expect(parseAnswerText('{"outcome":"pass","reasoning":"r",}').answer.outcome).toBe('pass');
+    expect(parseAnswerText("{'outcome':'fail','reasoning':'r', }").answer.outcome).toBe('fail');
+  });
+});

@@ -121,14 +121,17 @@ export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(va
 
 /**
  * Decodes one object as JSON. Some models answer with Python-style single quotes; an object with no double
- * quote at all is read again with its single quotes as double quotes.
+ * quote at all is read again with its single quotes as double quotes, and a trailing comma is dropped.
  */
 function decode(candidate: string): unknown {
   try {
     return JSON.parse(candidate);
   } catch (cause) {
-    if (candidate.includes('"') || !candidate.includes("'")) throw cause;
-    return JSON.parse(candidate.replace(/'/g, '"'));
+    // A comma before the closing brace or bracket is a common slip; it carries nothing.
+    let text = candidate.replace(/,\s*([}\]])/g, '$1');
+    if (!text.includes('"') && text.includes("'")) text = text.replace(/'/g, '"');
+    if (text === candidate) throw cause;
+    return JSON.parse(text);
   }
 }
 
