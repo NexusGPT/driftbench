@@ -230,6 +230,16 @@ function measure(seed: number, subject: Subject) {
         const { value, ms } = await timed(() => subject.run(seed, size));
         out.push({ size, result: value, ms });
       }
+      // A busy machine stretches one timing: the ten-times size is timed twice more and the hundred-times
+      // size once more when it looks too slow, and each keeps its fastest time.
+      const ten = out[1];
+      const hundred = out[2];
+      if (ten && hundred) {
+        for (let again = 0; again < 2; again += 1)
+          ten.ms = Math.min(ten.ms, (await timed(() => subject.run(seed, ten.size))).ms);
+        if (hundred.ms / Math.max(ten.ms, 1) > GROWTH_BOUND)
+          hundred.ms = Math.min(hundred.ms, (await timed(() => subject.run(seed, hundred.size))).ms);
+      }
       return out;
     })();
     measured.clear();
