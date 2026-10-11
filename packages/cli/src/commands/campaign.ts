@@ -1,7 +1,8 @@
 import { relative, resolve } from 'node:path';
+import { functionAdapter } from '@driftbench/adapters';
+import { defaultChecks } from '@driftbench/checks';
 import {
   type AgentAdapter,
-  AgentFailure,
   type Campaign,
   type CheckSet,
   type CostUnit,
@@ -42,14 +43,14 @@ export type CampaignDeps = {
 };
 
 /**
- * INTERIM until the adapters and checks lanes merge: `function:acme` is the only target (the Acme agent
- * behind a minimal function adapter) and no machine check is loaded (the runner still compares the end
- * state). The store is @driftbench/store: a SQLite file with `--store`, in memory without it.
+ * What the commands run with: `function:acme` is the Acme example agent behind the function adapter of
+ * @driftbench/adapters, the checks are `defaultChecks()` of @driftbench/checks, and the store is
+ * @driftbench/store, a SQLite file with `--store` and in memory without it.
  */
-export const interimDeps: CampaignDeps = {
+export const defaultDeps: CampaignDeps = {
   adapterFor: async (target) =>
-    target.adapter === 'function' && target.agent === 'acme' ? interimAcmeAdapter() : undefined,
-  checks: [],
+    target.adapter === 'function' && target.agent === 'acme' ? acmeFunctionAdapter() : undefined,
+  checks: defaultChecks(),
   driver: createScriptedDriver,
   openStore: async (path) => (path === undefined ? openMemoryStore() : openStore(path)),
   now: () => new Date(),
@@ -89,7 +90,7 @@ export function registerCampaignCommands(
   program: Command,
   io: Io,
   setExit: (code: number) => void,
-  deps: CampaignDeps = interimDeps,
+  deps: CampaignDeps = defaultDeps,
 ): void {
   const campaign = program
     .command('campaign')
@@ -130,23 +131,23 @@ export function registerCampaignCommands(
   campaign
     .command('resume')
     .description('Run the cells of a stored campaign that have no completed run; reuse the others.')
-    .argument('<campaignId>', 'the campaign id')
+    .argument('[campaignId]', 'the campaign id; the latest campaign when the store can list them')
     .requiredOption('--store <file>', 'the store that holds the campaign')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', "a hard stop on the campaign's spend; default: the budget it was run with")
     .option('--json', 'print one JSON document')
-    .action(async (campaignId: string, options: StoredCommandOptions) => {
+    .action(async (campaignId: string | undefined, options: StoredCommandOptions) => {
       setExit(await campaignResumeCommand(campaignId, options, io, deps));
     });
 
   campaign
     .command('status')
     .description('Print the state of every cell of a stored campaign. Exit 0 when every cell passes.')
-    .argument('<campaignId>', 'the campaign id')
+    .argument('[campaignId]', 'the campaign id; the latest campaign when the store can list them')
     .requiredOption('--store <file>', 'the store that holds the campaign')
     .option('--json', 'print one JSON document')
-    .action(async (campaignId: string, options: StoredCommandOptions) => {
+    .action(async (campaignId: string | undefined, options: StoredCommandOptions) => {
       setExit(await campaignStatusCommand(campaignId, options, io, deps));
     });
 }
@@ -165,6 +166,7 @@ export async function campaignPlanCommand(
   if (!shape || budget === null || baselineRate === undefined) return 2;
   const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
+  if (!options.json) io.out(targetNotes(loaded, shape.targets));
 
   let units: CostUnit[] = [];
   if (options.store) {
@@ -226,6 +228,7 @@ export async function campaignRunCommand(
   if (!loaded) return 2;
   const adapters = await adaptersFor(shape.targets, deps, io);
   if (!adapters) return 2;
+  if (!options.json) io.out(targetNotes(loaded, shape.targets));
 
   const store = await openReported(deps, options.store ? resolve(io.cwd, options.store) : undefined, io);
   if (!store) return 2;
@@ -268,7 +271,7 @@ export async function campaignRunCommand(
 
 /** `campaign resume`: runs the cells with no completed run, reuses the others. Exits like `campaign run`. */
 export async function campaignResumeCommand(
-  campaignId: string,
+  campaignId: string | undefined,
   options: StoredCommandOptions,
   io: Io,
   deps: CampaignDeps,
@@ -278,7 +281,7 @@ export async function campaignResumeCommand(
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   try {
-    const stored = await storedCampaign(store, campaignId, options.store, io);
+    const stored = await storedCampaign(store, campaignId, options.store, io, 'resume');
     if (!stored) return 2;
     const adapters = await adaptersFor(stored.campaign.targets, deps, io);
     if (!adapters) return 2;
@@ -298,7 +301,7 @@ export async function campaignResumeCommand(
 
 /** `campaign status`: the state of every cell. Exit 0 when every cell passes, 1 otherwise, 2 on bad input. */
 export async function campaignStatusCommand(
-  campaignId: string,
+  campaignId: string | undefined,
   options: StoredCommandOptions,
   io: Io,
   deps: CampaignDeps,
@@ -306,15 +309,16 @@ export async function campaignStatusCommand(
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   try {
-    const stored = await storedCampaign(store, campaignId, options.store, io);
+    const stored = await storedCampaign(store, campaignId, options.store, io, 'status');
     if (!stored) return 2;
-    const plan = planOf(stored.campaign, stored.specs);
-    const byCell = await runsByCell(store, campaignId);
+    const { campaign } = stored;
+    const plan = planOf(campaign, stored.specs);
+    const byCell = await runsByCell(store, campaign.campaignId);
     const outcomes = plan.cells.map((cell) => outcomeOf(cell, byCell.get(cell.cellId)));
     if (options.json) {
-      io.out(`${JSON.stringify(report(campaignId, outcomes, true, []), null, 2)}\n`);
+      io.out(`${JSON.stringify(report(campaign.campaignId, outcomes, true, []), null, 2)}\n`);
     } else {
-      io.out(`Campaign ${campaignId}, created ${stored.campaign.createdAt}.\n`);
+      io.out(`Campaign ${campaign.campaignId}, created ${campaign.createdAt}.\n`);
       for (const outcome of outcomes) io.out(cellLine(outcome));
       io.out(`${summaryLine(outcomes)}\n`);
     }
@@ -382,23 +386,45 @@ function planOf(campaign: Campaign, loaded: readonly { spec: Spec; hash: string 
   return planCampaign(loaded, campaign.targets, campaign.modes, campaign.repeats);
 }
 
+/** A store that can list its campaigns. The Store contract has no such call yet; one is proposed for it. */
+type CampaignListing = { listCampaigns(): Promise<Campaign[]> };
+
 async function storedCampaign(
   store: Store,
-  campaignId: string,
+  campaignId: string | undefined,
   path: string,
   io: Io,
+  command: 'status' | 'resume',
 ): Promise<{ campaign: Campaign; specs: LoadedSpec[] } | undefined> {
-  const campaign = await store.getCampaign(campaignId);
-  if (!campaign) {
-    io.err(`No campaign ${campaignId} in ${path}.\n`);
-    return undefined;
+  let campaign: Campaign | undefined;
+  if (campaignId === undefined) {
+    const list = (store as Partial<CampaignListing>).listCampaigns;
+    if (typeof list !== 'function') {
+      io.err(
+        `Name the campaign: driftbench campaign ${command} <campaignId> --store ${path}. campaign run prints the id; this store cannot list its campaigns.\n`,
+      );
+      return undefined;
+    }
+    for (const each of await list.call(store)) {
+      if (!campaign || each.createdAt > campaign.createdAt) campaign = each;
+    }
+    if (!campaign) {
+      io.err(`The store at ${path} holds no campaign.\n`);
+      return undefined;
+    }
+  } else {
+    campaign = await store.getCampaign(campaignId);
+    if (!campaign) {
+      io.err(`No campaign ${campaignId} in ${path}.\n`);
+      return undefined;
+    }
   }
   const specs: LoadedSpec[] = [];
   for (const pinned of campaign.specs) {
     const spec = await store.getSpec(pinned.id, pinned.hash);
     if (!spec) {
       io.err(
-        `The store has no spec ${pinned.id} at hash ${pinned.hash}, which campaign ${campaignId} pins.\n`,
+        `The store has no spec ${pinned.id} at hash ${pinned.hash}, which campaign ${campaign.campaignId} pins.\n`,
       );
       return undefined;
     }
@@ -456,6 +482,20 @@ function parseShape(options: { target: string[]; mode: string; repeats: string }
   return { targets, mode: mode.data, repeats };
 }
 
+/** One line per spec whose own target names another adapter than a `--target`, which overrides it. */
+function targetNotes(loaded: readonly LoadedSpec[], targets: readonly TargetRef[]): string {
+  const notes: string[] = [];
+  for (const { spec } of loaded) {
+    const own = spec.target?.adapter;
+    for (const target of targets) {
+      if (own !== undefined && own !== target.adapter) {
+        notes.push(`Note: ${spec.id} names the ${own} adapter; --target runs it on ${showTarget(target)}.\n`);
+      }
+    }
+  }
+  return notes.join('');
+}
+
 /** `adapter[:agent]`, such as `function:acme`. */
 export function parseTarget(text: string): TargetRef {
   const at = text.indexOf(':');
@@ -477,7 +517,7 @@ async function adaptersFor(
     const adapter = await deps.adapterFor(target);
     if (!adapter) {
       io.err(
-        `No adapter in this build reaches ${showTarget(target)}. The interim build reaches function:acme.\n`,
+        `No adapter is set up for ${showTarget(target)}. The CLI reaches function:acme, the Acme example agent.\n`,
       );
       return undefined;
     }
@@ -664,63 +704,22 @@ function table(rows: string[][]): string[] {
 }
 
 /**
- * INTERIM until the adapters lane merges: the Acme Telecom agent behind a minimal function adapter. Each
- * session gets its own Acme store, so payloads never leak between runs. `send` hands the agent the session
- * history, which ends with the block's user messages, and the block's resolved world; `endState` reads
- * `tool:<label>` as the last payload that tool accepted, and `*` as every payload, in order.
+ * The Acme Telecom example agent behind the function adapter: a fresh Acme store for each session, so
+ * payloads never leak between runs, and its payload log as the end-state source.
  */
-export async function interimAcmeAdapter(): Promise<AgentAdapter> {
+export async function acmeFunctionAdapter(): Promise<AgentAdapter> {
   const acme = await import('../../../../examples/acme/src/index');
   type AcmeSession = {
     store: ReturnType<typeof acme.createStore>;
     agent: ReturnType<typeof acme.createAcmeAgent>;
   };
-  const stateOf = (state: unknown) => state as AcmeSession;
-  let opened = 0;
-  return {
-    id: 'function',
-    version: 'interim-acme-1',
-    capabilities: () => ({
-      variants: false,
-      seedPrefix: true,
-      toolStubs: true,
-      trace: false,
-      sandbox: false,
-      endState: true,
-      deterministic: true,
-    }),
-    async open(given) {
-      opened += 1;
+  return functionAdapter<AcmeSession>({
+    create: () => {
       const store = acme.createStore();
-      const state: AcmeSession = { store, agent: acme.createAcmeAgent(store) };
-      return {
-        id: `acme-${opened}`,
-        adapter: 'function',
-        target: given.target,
-        given,
-        history: structuredClone(given.prefix),
-        state,
-      };
+      return { store, agent: acme.createAcmeAgent(store) };
     },
-    async send(session, turn) {
-      try {
-        return await stateOf(session.state).agent.respond(
-          structuredClone(session.history),
-          structuredClone(turn.given.world),
-        );
-      } catch (cause) {
-        throw new AgentFailure(cause instanceof Error ? cause.message : String(cause), { cause });
-      }
-    },
-    async endState(session, source) {
-      const { payloads } = stateOf(session.state).store;
-      if (source === '*') return payloads.map(({ tool, input }) => ({ tool, input }));
-      const label = /^tool:(.+)$/.exec(source)?.[1];
-      if (label === undefined) {
-        throw new AgentFailure(`the Acme adapter reads tool:<label> and * sources, not ${source}`);
-      }
-      return payloads.filter((payload) => payload.tool === label).at(-1)?.input;
-    },
-    async close() {},
-  };
+    respond: (messages, world, _vars, session) => session.agent.respond(messages, world),
+    payloads: (session) => session.store.payloads,
+    deterministic: true,
+  });
 }

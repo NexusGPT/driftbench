@@ -1,3 +1,4 @@
+import { defaultChecks } from '@driftbench/checks';
 import * as core from '@driftbench/core';
 import {
   AdapterTransportError,
@@ -28,6 +29,7 @@ import {
   memoryCache,
   minimalChecks,
   putCampaign,
+  realAcmeAdapter,
   specOf,
 } from './support';
 
@@ -120,6 +122,49 @@ describe('runSpec on the Acme conversations, free-running, with the real Acme ag
       startedAt: '2026-10-11T10:00:00.000Z',
       finishedAt: '2026-10-11T10:00:05.000Z',
     });
+  });
+});
+
+describe('the real stack: the function adapter of @driftbench/adapters, defaultChecks of @driftbench/checks', () => {
+  it.each(loaded.map((entry) => ({ id: entry.spec.id, spec: entry.spec })))(
+    '$id passes every machine check',
+    async ({ spec }) => {
+      const run = await runSpec(spec, {
+        adapter: realAcmeAdapter(),
+        driver,
+        checks: defaultChecks(),
+        mode: 'F',
+        repeat: 0,
+      });
+      expectValid(run);
+      expect(run.status, run.error).toBe('completed');
+      expect(failures(run)).toEqual([]);
+      expect(run.blocks).toHaveLength(spec.blocks.length);
+      for (const block of run.blocks) {
+        expect(block.pass).toBe(true);
+        expect(block.verdicts.length).toBeGreaterThan(0);
+        // What does not pass is never gating: a reply too short for the language detector.
+        for (const verdict of block.verdicts.filter((each) => each.outcome !== 'pass')) {
+          expect(verdict).toMatchObject({ id: 'lang.stable', outcome: 'inconclusive', gating: false });
+        }
+      }
+      expect(run.endState).toEqual({ match: true, diff: [] });
+    },
+  );
+
+  it('fails an agent that drops a tool call, on the tools check, with X5 drift', async () => {
+    const run = await runSpec(acmeSpec(loaded, 'acme-plan-upgrade'), {
+      adapter: realAcmeAdapter(dropsFirstToolCall),
+      driver,
+      checks: defaultChecks(),
+      mode: 'F',
+      repeat: 0,
+    });
+    expect(run.status).toBe('completed');
+    expect(run.blocks.map((block) => block.pass)).toEqual([true, false, true, false, true]);
+    expect(run.blocks[1]?.drift).toContain('X5_tool');
+    expect(failures(run).map((line) => line.split(': ')[1])).toContain('tools.catalog.search.count');
+    expect(run.succession).toMatchObject({ firstDriftBlock: 1, driftCount: 2, minOverBlocks: false });
   });
 });
 

@@ -3,7 +3,7 @@ import type { Command } from 'commander';
 // root: becomes '@driftbench/core' at merge
 import { compareTranscripts, runSpec } from '../../../core/src/runner/index';
 import type { Io } from '../io';
-import { type CampaignDeps, interimDeps, loadValidSpecs, parseTarget, showTarget } from './campaign';
+import { type CampaignDeps, defaultDeps, loadValidSpecs, parseTarget, showTarget } from './campaign';
 
 type SmokeOptions = { target: string; runs: string; json?: boolean };
 
@@ -16,7 +16,7 @@ export function registerSmokeCommand(
   program: Command,
   io: Io,
   setExit: (code: number) => void,
-  deps: CampaignDeps = interimDeps,
+  deps: CampaignDeps = defaultDeps,
 ): void {
   program
     .command('smoke')
@@ -52,7 +52,7 @@ export async function smokeCommand(
   const adapter = await deps.adapterFor(target);
   if (!adapter) {
     io.err(
-      `No adapter in this build reaches ${showTarget(target)}. The interim build reaches function:acme.\n`,
+      `No adapter is set up for ${showTarget(target)}. The CLI reaches function:acme, the Acme example agent.\n`,
     );
     return 2;
   }

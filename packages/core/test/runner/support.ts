@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { functionAdapter } from '@driftbench/adapters';
 import {
   type AdapterCapabilities,
   type AgentAdapter,
@@ -221,6 +222,21 @@ export function acmeAdapter(options: AcmeAdapterOptions = {}): AcmeAdapter {
       calls.close += 1;
     },
   };
+}
+
+/** The Acme agent behind the real function adapter of @driftbench/adapters, wired as the CLI wires it. */
+export function realAcmeAdapter(wrap?: (agent: AcmeAgent) => AcmeAgent): AgentAdapter {
+  type Session = { store: AcmeStore; agent: AcmeAgent };
+  return functionAdapter<Session>({
+    create: () => {
+      const store = createStore();
+      const agent = createAcmeAgent(store);
+      return { store, agent: wrap ? wrap(agent) : agent };
+    },
+    respond: (messages, world, _vars, session) => session.agent.respond(messages, world),
+    payloads: (session) => session.store.payloads,
+    deterministic: true,
+  });
 }
 
 /** Breaks the agent on purpose: every reply is changed by `change`. */

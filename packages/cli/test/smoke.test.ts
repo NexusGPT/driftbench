@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { Command, CommanderError } from 'commander';
 import { describe, expect, it } from 'vitest';
 import { acmeAdapter } from '../../core/test/runner/support';
-import { type CampaignDeps, interimDeps } from '../src/commands/campaign';
+import { type CampaignDeps, defaultDeps } from '../src/commands/campaign';
 import { registerSmokeCommand } from '../src/commands/smoke';
 import { type Io, main } from '../src/index';
 
@@ -33,7 +33,7 @@ async function cli(argv: string[], deps?: Partial<CampaignDeps>) {
     (exit) => {
       code = exit;
     },
-    { ...interimDeps, ...deps },
+    { ...defaultDeps, ...deps },
   );
   try {
     await program.parseAsync(argv, { from: 'user' });
@@ -121,6 +121,6 @@ describe('driftbench smoke', () => {
     expect(folder.err).toContain('smoke takes one spec; examples/acme/specs/conversations holds 6.');
     const target = await cli(['smoke', SPEC, '--target', 'nexus:max']);
     expect(target.code).toBe(2);
-    expect(target.err).toContain('No adapter in this build reaches nexus:max.');
+    expect(target.err).toContain('No adapter is set up for nexus:max.');
   });
 });
