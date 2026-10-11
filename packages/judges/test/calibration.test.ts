@@ -15,11 +15,13 @@ import {
   type JudgeClient,
   type LabelledBlock,
   type LoadedCriterion,
+  labelRequest,
   loadAssignmentTable,
   loadCassette,
   loadCriteria,
   loadLabels,
   renderAssignmentTable,
+  requestKey,
 } from '../src/index';
 import { ACME_JUDGES, ACME_MISSES, type Miss, scriptedCalibrationCassette } from './support/scripted';
 
@@ -280,15 +282,20 @@ describe('calibrate with a cassette that makes one judge fail the bar', () => {
     expect(row(report, 'care_redirect', 'jev-a').meetsBar).toBe(false);
   });
 
-  it('counts a judge with no answer as an error and keeps it under the bar', async () => {
+  it('counts a judge with no answer as an error and an inconclusive answer, never a pass', async () => {
     const { criteria, labels } = await acme();
     const cassette: Cassette = scriptedCalibrationCassette(criteria, labels);
-    cassette.entries = cassette.entries.filter(
-      (entry) => !(entry.judge === 'jev-a' && entry.criterion === 'care_redirect'),
-    );
+    const [criterion] = criteria.filter((c) => c.def.name === 'care_redirect');
+    const block = labels.get('care_redirect')?.find((b) => b.id === 'care_redirect.1');
+    if (!criterion || !block) throw new Error('care_redirect.1 is missing');
+    // Only the recording of a block labelled pass goes: a missing answer read as pass would agree with it.
+    const key = requestKey(labelRequest(criterion, block));
+    cassette.entries = cassette.entries.filter((entry) => !(entry.judge === 'jev-a' && entry.key === key));
     const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels });
-    expect(report.errors).toBeGreaterThan(0);
-    expect(row(report, 'care_redirect', 'jev-a').misses.join(' ')).toMatch(/gave no answer/);
+    expect(report.errors).toBe(1);
+    const jev = row(report, 'care_redirect', 'jev-a');
+    expect(jev.labels.blocks.find((b) => b.id === 'care_redirect.1')?.judged).toBe('inconclusive');
+    expect(jev.misses.join(' ')).toMatch(/1 call\(s\) gave no answer/);
     expect(assignmentOf(report, 'care_redirect')).toMatchObject({ owner: 'google-chat' });
   });
 
