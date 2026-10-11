@@ -94,7 +94,7 @@ describe('the distinct-cause gate of --hardness', () => {
   it('fails when the last pilot row records no cause count', () => {
     const h = measureHardness(rows(() => undefined));
     expect(h.causes).toBeNull();
-    expect(h.gate.reasons).toEqual(['the last pilot row records no failingCauses']);
+    expect(h.gate.reasons).toEqual(['the last row of the pilot records no failingCauses']);
     expect(formatHardness('caused', h)).toContain('Distinct failing causes after the pilot: not recorded.');
   });
 

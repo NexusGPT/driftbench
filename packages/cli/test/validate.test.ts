@@ -452,3 +452,31 @@ describe('driftbench validate --hardness and distinct causes', () => {
     expect(JSON.parse(json.output.out).causes).toEqual({ distinct: 40, withoutCause: 0 });
   });
 });
+
+describe('driftbench validate --hardness with the audit', () => {
+  it('reads blind rows and validators/<component>/audit.md', async () => {
+    const root = await temp();
+    const { ladder } = bankLadder();
+    const d: ValidateDeps = { ladders: () => ({ banked: ladder }), root };
+    await mkdir(join(root, 'validators/banked'), { recursive: true });
+    const tiers = { '1': 100, '2': 80, '3': 60, '4': 40, '5': 20 };
+    const builder = journalOf([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 300, tiers, () => 150);
+    const blind = journalOf([30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50], 300, tiers, () => 150)
+      .slice(1)
+      .map((row) => ({ ...(row as object), executor: 'blind' }));
+    await writeFile(
+      join(root, 'validators/banked/journal.jsonl'),
+      `${[...builder, ...blind].map((row) => JSON.stringify(row)).join('\n')}\n`,
+    );
+    await writeFile(join(root, 'validators/banked/audit.md'), '| blind pilot | pass | ok |\n');
+    const { io, output } = capture(root);
+    expect(await validateCommand('banked', { hardness: true }, io, d)).toBe(0);
+    expect(output.out).toContain('Flag: the builder pilot fixed 1 items per iteration');
+    expect(output.out).toContain('  blind pilot: PASS, ok\n');
+    const json = capture(root);
+    await validateCommand('banked', { hardness: true, json: true }, json.io, d);
+    const measured = JSON.parse(json.output.out);
+    expect(measured.source).toBe('blind');
+    expect(measured.audit[0]).toEqual({ check: 'blind pilot', verdict: 'pass', note: 'ok' });
+  });
+});
