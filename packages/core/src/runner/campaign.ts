@@ -1,4 +1,5 @@
 import type { AgentAdapter } from '../contracts/adapter';
+import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import type { CheckSet } from '../contracts/check';
 import type { UserDriver } from '../contracts/driver';
 import type { CostUnit, Store } from '../contracts/store';
@@ -245,6 +246,8 @@ export type CampaignRunOptions = {
   /** A fresh driver for each run. */
   driver(cell: PlannedCell): UserDriver;
   checks: CheckSet;
+  /** Readers for the artifact checks, passed to every run. */
+  artifacts?: ArtifactReaderRegistry;
   store: Store;
   cache?: ObservedCache;
   retry?: RetryOptions;
@@ -286,6 +289,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       adapter: options.adapterFor(cell.target),
       driver: options.driver(cell),
       checks: options.checks,
+      ...(options.artifacts ? { artifacts: options.artifacts } : {}),
       mode: cell.mode,
       repeat: cell.repeat,
       target: cell.target,
