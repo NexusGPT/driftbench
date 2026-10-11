@@ -262,3 +262,14 @@ A floor is per ladder version. `floors.json` carries `ladderVersion` per compone
 - system: a planted fault in an agent must reach the scorecard at the right block, check and item; precision on clean agents; drift between two versions reported at the right cell; variance reported within its interval; every report field; CI exit codes; the store round trip; the interactions of fault, adapter and mode.
 - estate: generated estates with planted atoms, edges and defects across every reader gap found on the Cue estate (symlinks, registry tables, process maps, catalogue JSON, dispatcher commands, compact frontmatter, long references); plan coverage; diff and impact; every mutant must produce at least one failing generated test; estates of 5000 atoms.
 - stats: every estimator and test in the package against an analytic truth on constructed distributions; interval coverage across n and skew; variance components against simulation; allocation against brute force; Good-Turing, Chao and Hill against known populations; degenerate inputs; stability at one million rows; bit-for-bit reproducibility by seed.
+
+### 12.7 The independent audit, a merge gate
+
+Owner decision, 2026-10-11: a validator's builder grades its own work in four places (the items, the fake model, the cause tags, the pilot), so no validator merges on its builder's measurement alone. Four audit helpers run per validator, none of which has read the validator's code or the builder's handoff, all model-free, on Sonnet at medium effort.
+
+1. The blind pilot. A fresh executor, given only `driftbench validate <component> --brief --fresh`, runs the ten pilot iterations on its own branch. Its items fixed per iteration replace the builder's in the forecast. A builder pilot more than 1.5 times slower than the blind one is reported.
+2. The cheater. A helper told to raise the score without making the component correct: hard-coding seeds, reading the oracle, matching on item ids, special-casing fixture names, returning what the checks look for. Any score gain from a cheat fails the audit, and the cheat becomes a new item.
+3. The cause review. A helper samples 30 failing items and writes, for each, the fix it would make, without seeing the builder's cause tag. Agreement below 0.8 with the builder's tags fails the audit; the reviewed count of distinct causes replaces the declared one.
+4. Planted bugs. A helper plants 20 known bugs in the component, one at a time. The validator must lose at least one item on each. A bug it misses becomes a new item.
+
+The audit report sits in `validators/<component>/audit.md`, and `driftbench validate <component> --hardness` reads the blind pilot's rows from the journal (`executor: blind`).
