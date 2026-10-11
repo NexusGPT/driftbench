@@ -281,8 +281,8 @@ export function renderEstateDiff(diff: EstateDiff): string {
   if (diff.atoms.moved.length > 0) {
     lines.push('Moved, same quote:');
     for (const entry of diff.atoms.moved) {
-      const file = entry.from.file === entry.to.file ? '' : ` to ${entry.to.file}`;
-      lines.push(`  > ${entry.id} ${entry.from.file}:${entry.from.startLine}${file}:${entry.to.startLine}`);
+      const to = entry.from.file === entry.to.file ? `${entry.to.startLine}` : where(entry.to);
+      lines.push(`  > ${entry.id} ${where(entry.from)} to ${to}`);
     }
   }
   if (diff.atoms.restated.length > 0) {

@@ -1,4 +1,4 @@
-import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -101,5 +101,139 @@ describe('driftbench estate diff', () => {
     expect(result.code).toBe(2);
     expect(result.err).toContain('broken.yaml is not a valid estate map:');
     await expect(readFile(join(root, 'diff.json'), 'utf8')).rejects.toThrow();
+  });
+});
+
+/** A valid spec covering the given atoms. */
+function spec(id: string, atoms: string[]): string {
+  return [
+    `# Covers ${atoms.join(', ')}. Fictional.`,
+    `id: ${id}`,
+    'kind: task',
+    `title: Test ${id}`,
+    'target: { adapter: claude-code }',
+    'metadata:',
+    `  estate: { atoms: [${atoms.join(', ')}] }`,
+    'blocks:',
+    '  - user: Plan the deliveries.',
+    '    expect:',
+    '      skills:',
+    '        - { name: shipment-tracker, count: { min: 1 } }',
+    '',
+  ].join('\n');
+}
+
+/** Two scans of the fixture, the second after a route changed meaning, a route was removed and a gate added. */
+async function editedEstate(): Promise<string> {
+  const root = await fixtureCopy();
+  expect((await cli(['estate', 'scan', '.', '--no-model', '--out', 'v1.yaml'], root)).code).toBe(0);
+  const standing = join(root, 'CLAUDE.md');
+  await edit(
+    standing,
+    '| plan the delivery routes for tomorrow |',
+    '| plan the delivery routes for the next two days |',
+  );
+  await edit(standing, '| audit the ledger for duplicate payments | the `ledger-auditor` agent |\n', '');
+  await edit(
+    standing,
+    'during this session.\n',
+    'during this session.\n- **R18.** Before closing a month: Read `.claude/skills/weekly-report/templates/report.md`.\n',
+  );
+  expect((await cli(['estate', 'scan', '.', '--no-model', '--out', 'v2.yaml'], root)).code).toBe(0);
+  expect((await cli(['estate', 'diff', 'v1.yaml', 'v2.yaml', '--out', 'diff.json'], root)).code).toBe(0);
+  await mkdir(join(root, 'tests'));
+  await writeFile(
+    join(root, 'tests', 'plan.yaml'),
+    spec('t-plan', ['route.standing.an-ask-to-plan-the-delivery']),
+  );
+  await writeFile(
+    join(root, 'tests', 'audit.yaml'),
+    spec('t-audit', ['route.standing.an-ask-to-audit-the-ledger']),
+  );
+  await writeFile(
+    join(root, 'tests', 'track.yaml'),
+    spec('t-track', ['route.standing.an-ask-to-know-where-a']),
+  );
+  return root;
+}
+
+describe('driftbench estate impact', () => {
+  it('lists what to regenerate, re-approve, retire and add, and exits 1 for the person', async () => {
+    const root = await editedEstate();
+    const result = await cli(['estate', 'impact', 'diff.json', '--tests', 'tests'], root);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(1);
+    expect(result.out).toContain('on 3 live estate tests (0 retired before, 0 other specs)');
+    expect(result.out).toContain('  t-plan (plan.yaml): route.standing.an-ask-to-plan-the-delivery semantic');
+    expect(result.out).toContain(
+      'Re-approve, the meaning changed:\n  route.standing.an-ask-to-plan-the-delivery (route)',
+    );
+    expect(result.out).toContain(
+      '  t-audit (audit.yaml): retired: atom route.standing.an-ask-to-audit-the-ledger removed [to write with --write]',
+    );
+    expect(result.out).toContain(
+      'New atoms with no test:\n  reference.standing.read-claude-skills-weekly-report-templates (reference) CLAUDE.md:26\n  gate.standing.read-claude-skills-weekly-report-templates (gate) CLAUDE.md:26\n',
+    );
+    expect(result.out).toContain(
+      're-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits',
+    );
+    expect(await readFile(join(root, 'tests', 'audit.yaml'), 'utf8')).not.toContain('retired');
+  });
+
+  it('writes the retirement into the spec with --write, and finds it written the next time', async () => {
+    const root = await editedEstate();
+    const written = await cli(
+      ['estate', 'impact', 'diff.json', '--tests', 'tests', '--write', '--out', 'impact.json'],
+      root,
+    );
+    expect(written.code).toBe(1);
+    expect(written.out).toContain('[written]');
+    expect(written.out).toContain('Wrote impact.json.');
+    const audit = await readFile(join(root, 'tests', 'audit.yaml'), 'utf8');
+    expect(audit).toContain('  retired: atom route.standing.an-ask-to-audit-the-ledger removed');
+    expect(audit).toContain('# Covers route.standing.an-ask-to-audit-the-ledger. Fictional.');
+    const report = JSON.parse(await readFile(join(root, 'impact.json'), 'utf8')) as {
+      retire: { state: string }[];
+    };
+    expect(report.retire.map((entry) => entry.state)).toEqual(['written']);
+
+    const again = await cli(['estate', 'impact', 'diff.json', '--tests', 'tests', '--json'], root);
+    const second = JSON.parse(again.out) as { retire: { state: string }[]; tests: { retired: number } };
+    expect(second.retire.map((entry) => entry.state)).toEqual(['already']);
+    expect(second.tests.retired).toBe(1);
+  });
+
+  it('exits 0 when nothing needs a person', async () => {
+    const root = await editedEstate();
+    await writeFile(
+      join(root, 'tests', 'new.yaml'),
+      spec('t-new', ['gate.standing.read-claude-skills-weekly-report-templates']),
+    );
+    const diff = JSON.parse(await readFile(join(root, 'diff.json'), 'utf8')) as {
+      atoms: { changed: unknown[]; added: { id: string }[] };
+    };
+    const gate = diff.atoms.added.find((entry) => entry.id.startsWith('gate.'));
+    expect(gate?.id).toBe('gate.standing.read-claude-skills-weekly-report-templates');
+    diff.atoms.changed = [];
+    diff.atoms.added = diff.atoms.added.filter((entry) => entry.id.startsWith('gate.'));
+    await writeFile(join(root, 'quiet.json'), JSON.stringify(diff));
+    const result = await cli(['estate', 'impact', 'quiet.json', '--tests', 'tests'], root);
+    expect(result.out).toContain('Nothing needs a person.');
+    expect(result.code).toBe(0);
+  });
+
+  it('exits 2 without --tests, on a file that is not a diff, and on a folder of broken specs', async () => {
+    const root = await editedEstate();
+    const noTests = await cli(['estate', 'impact', 'diff.json'], root);
+    expect(noTests.code).toBe(2);
+    expect(noTests.err).toContain("required option '--tests <dir>'");
+    await writeFile(join(root, 'not-a-diff.json'), '{"version": 1}');
+    const bad = await cli(['estate', 'impact', 'not-a-diff.json', '--tests', 'tests'], root);
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('not-a-diff.json is not an estate diff:');
+    await writeFile(join(root, 'tests', 'broken.yaml'), 'id: x\n');
+    const broken = await cli(['estate', 'impact', 'diff.json', '--tests', 'tests'], root);
+    expect(broken.code).toBe(2);
+    expect(broken.err).toContain('The tests in tests cannot be read:');
   });
 });

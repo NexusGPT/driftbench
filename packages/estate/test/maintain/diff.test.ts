@@ -93,6 +93,7 @@ describe('diffEstateMaps', () => {
       },
     ]);
     expect(moved.summary.moved).toBe(1);
+    expect(renderEstateDiff(moved)).toContain('Moved, same quote:\n  > a.b.c CLAUDE.md:3 to 5\n');
   });
 
   it('reports other fields that changed under the same quote, and never approval alone', () => {

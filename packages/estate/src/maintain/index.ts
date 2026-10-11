@@ -20,3 +20,17 @@ export {
   parseEstateDiff,
   renderEstateDiff,
 } from './diff';
+export {
+  type EstateTest,
+  EstateTestMeta,
+  estateImpact,
+  type ImpactOptions,
+  ImpactReport,
+  type LoadedTests,
+  loadEstateTests,
+  RegenerateWhy,
+  type RetireWrite,
+  renderImpact,
+  retirementReason,
+  writeRetirements,
+} from './impact';
