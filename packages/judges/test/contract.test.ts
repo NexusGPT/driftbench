@@ -102,3 +102,9 @@ describe('a comment line', () => {
     );
   });
 });
+
+describe('typographic quotes', () => {
+  it('reads an answer written with curly quotes', () => {
+    expect(parseAnswerText('{“outcome”: “pass”, “reasoning”: “r”}').answer.outcome).toBe('pass');
+  });
+});

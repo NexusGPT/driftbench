@@ -129,7 +129,11 @@ function decode(candidate: string): unknown {
   } catch (cause) {
     // A comma before the closing brace or bracket is a common slip; it carries nothing.
     // A line that is only a // comment is dropped; a // inside a string (a URL) is kept.
-    let text = candidate.replace(/^[ \t]*\/\/.*$/gm, '').replace(/,\s*([}\]])/g, '$1');
+    // Typographic quotes, as a word processor or a chat window writes them, are read as straight quotes.
+    let text = candidate
+      .replace(/[\u201c\u201d]/g, '"')
+      .replace(/^[ \t]*\/\/.*$/gm, '')
+      .replace(/,\s*([}\]])/g, '$1');
     if (!text.includes('"') && text.includes("'")) text = text.replace(/'/g, '"');
     if (text === candidate) throw cause;
     return JSON.parse(text);
