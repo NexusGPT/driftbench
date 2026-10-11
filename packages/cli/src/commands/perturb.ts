@@ -45,7 +45,7 @@ const PACK_FOLDER = 'redteam';
  * It first runs the spec free (mode F) on the same target: the reference the runner counts the
  * recovery's collateral against, as a campaign does. The recovery printed is the runner's own record.
  *
- * Exit 0 when the agent comes back within the spec's window (the runner's label `immediate`), 1 when it
+ * Exit 0 when the agent comes back within the spec's window (turnsToRecover at most `recovery.within_blocks`), 1 when it
  * does not, when the run fails or when the recovery cannot be measured, 2 on bad input (nothing ran).
  */
 export function registerPerturbCommand(
@@ -136,7 +136,9 @@ export async function perturbCommand(
   });
   const recovery = result.recovery;
   const within = driver.perturbation.recovery?.within_blocks;
-  const met = recovery?.label === 'immediate';
+  // Met: back within the spec's window. The label says where (docs/concepts/recovery.md), not whether in time.
+  const met =
+    recovery?.turnsToRecover !== undefined && within !== undefined && recovery.turnsToRecover <= within;
   const reason = recovery ? undefined : notMeasured(driver, result);
 
   if (options.json) {
@@ -326,7 +328,7 @@ function printText(
     ...(recovery.clarified === undefined ? [] : [`asked first ${recovery.clarified ? 'yes' : 'no'}`]),
   ];
   io.out(
-    `${recovery.label === 'immediate' ? '✓' : '✗'} Recovery: ${recovery.label}${turns} (${allows}), ${extras.join(', ')}.\n`,
+    `${recovery.turnsToRecover !== undefined && recovery.turnsToRecover <= within ? '✓' : '✗'} Recovery: ${recovery.label}${turns} (${allows}), ${extras.join(', ')}.\n`,
   );
   io.out(`Recovery record (runner): ${JSON.stringify(recovery)}\n`);
 }
