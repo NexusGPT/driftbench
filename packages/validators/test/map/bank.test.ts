@@ -1,4 +1,4 @@
-import { extractMap, ModelError, SYSTEM_PROMPT } from '@driftbench/generate';
+import { extractMap, ModelError, type Proposal, SYSTEM_PROMPT } from '@driftbench/generate';
 import { describe, expect, it } from 'vitest';
 import { runLadder } from '../../src/ladder';
 import { expectedFacts, proposalFacts } from '../../src/ladders/map/bank/facts';
@@ -14,7 +14,9 @@ import { mapBank } from '../../src/ladders/map/bank/index';
 import {
   answerFor,
   asModelWrites,
+  CHARS_PER_TOKEN,
   contractOf,
+  OUTPUT_TOKENS,
   type Planted,
   perfectPort,
 } from '../../src/ladders/map/bank/perfect';
@@ -175,43 +177,71 @@ describe('the oracle of the styled prompts', () => {
   });
 });
 
-describe('items on the current extractor', () => {
-  it('pass where the pre-pass contract holds and fail where it does not', async () => {
+/** The real extractor, its proposal edited afterwards: a planted fault. */
+function planted(edit: (proposal: Proposal) => void): { extract: typeof extractMap } {
+  return {
+    extract: (async (input) => {
+      const result = await extractMap(input);
+      if (result.ok) edit(result.proposal);
+      return result;
+    }) as typeof extractMap,
+  };
+}
+
+// These tests never assert that today's extractor fails an item: an executor that fixes it must not break them.
+describe('items and their oracles', () => {
+  it('pass where the pre-pass contract has always held', async () => {
     for (const seed of [1, 2]) {
       expect((await runItem(item('schema-keywords.enum'), seed)).pass).toBe(true);
       expect((await runItem(item('tool-formats.mcp'), seed)).pass).toBe(true);
       expect((await runItem(item('prompt-containers.markdown'), seed)).pass).toBe(true);
       expect((await runItem(item('relations.path'), seed)).pass).toBe(true);
     }
-    const multiple = await runItem(item('schema-keywords.multiple-of'), 1);
-    expect(multiple.pass).toBe(false);
-    expect(multiple.detail).toMatch(/lost .*\.multiple = code/);
-    expect((await runItem(item('tool-formats.openapi'), 1)).detail).toMatch(/TOOLS_NOT_FOUND/);
-    expect((await runItem(item('prompt-containers.json-messages'), 1)).pass).toBe(false);
-    expect((await runItem(item('hostile-inputs.decomposed-accents'), 1)).pass).toBe(false);
   });
 
-  it('fail a styled prompt on the polarity the map cannot carry, and nothing else', async () => {
+  it('name the lost partition when a planted fault drops it', async () => {
+    const fault = planted((proposal) => {
+      for (const dimension of proposal.dimensions)
+        dimension.values = dimension.values.filter((value) => !value.id.endsWith('.low'));
+    });
+    const outcome = await runItem(item('schema-keywords.enum'), 3, fault);
+    if (!outcome.pass) expect(outcome.detail).toMatch(/lost .*\.low = code/);
+    const rules = planted((proposal) => {
+      proposal.dimensions = proposal.dimensions.filter((dimension) => dimension.id !== 'rule');
+    });
+    const container = await runItem(item('prompt-containers.markdown'), 1, rules);
+    expect(container.pass).toBe(false);
+    expect(container.detail).toMatch(/lost .*rule\/R-01/);
+  });
+
+  it('fail a styled prompt on polarity while the contract has no polarity key, and on nothing else', async () => {
+    if (contractOf(SYSTEM_PROMPT).valueKeys.has('polarity')) return;
     const outcome = await runItem(item('styles.markdown'), 1);
     expect(outcome.pass).toBe(false);
     expect(outcome.detail).toMatch(/^styles\.markdown: lost polarity rule\/R-\d+ = "must(_not)?"/);
     expect(outcome.detail).toMatch(/gained nothing$/);
   });
 
-  it('fail a 100k prompt because one answer cannot hold a thousand rules', async () => {
-    const outcome = await runItem(item('scale.100k.prose'), 1);
-    expect(outcome.pass).toBe(false);
-    expect(outcome.detail).toMatch(/sections failed: rules \(the model call failed \(truncated/);
+  it('write 100k prompts whose rules no single answer can hold', () => {
+    const [one] = item('scale.100k.prose').generate(1);
+    if (!one) throw new Error('no case');
+    const prompt = one.sources.find((source) => source.kind === 'prompt')?.text ?? '';
+    expect(prompt.length).toBeGreaterThanOrEqual(100_000);
+    const answer = answerFor(
+      'rules',
+      {
+        system: SYSTEM_PROMPT,
+        user: `SECTION: rules\n\n<<<SOURCE prompt.md (prompt)\n${prompt}\nSOURCE prompt.md>>>`,
+      },
+      one.planted,
+    );
+    expect(JSON.stringify(answer).length).toBeGreaterThan(OUTPUT_TOKENS * CHARS_PER_TOKEN);
   });
 
   it('catch a planted extractor fault in the families it touches', async () => {
-    const dropRelations = {
-      extract: (async (input) => {
-        const result = await extractMap(input);
-        if (result.ok) result.proposal.relations = [];
-        return result;
-      }) as typeof extractMap,
-    };
+    const dropRelations = planted((proposal) => {
+      proposal.relations = [];
+    });
     expect((await runItem(item('relations.uses-tool'), 1, dropRelations)).pass).toBe(false);
     expect((await runItem(item('inventory-forms.all-classes'), 1, dropRelations)).pass).toBe(false);
     expect((await runItem(item('schema-keywords.enum'), 1, dropRelations)).pass).toBe(false);
@@ -219,20 +249,19 @@ describe('items on the current extractor', () => {
 });
 
 describe('the bank as a ladder', () => {
-  it('stops at its first level on the current extractor and names the failing items', async () => {
-    const run = await runLadder(mapLadder(), { seed: 1 });
+  it('stops at its first failing level and names the failing items with family and tier', async () => {
+    const noTools = planted((proposal) => {
+      proposal.dimensions = proposal.dimensions.filter(
+        (dimension) => !dimension.id.includes('.in.') && !dimension.id.includes('.out.'),
+      );
+    });
+    const run = await runLadder(mapLadder(noTools), { seed: 1 });
     expect(run.top).toBe(LEVELS.length);
     expect(run.level).toBe(0);
     expect(run.failing?.id).toBe('structured');
     expect(run.rows[1]?.pass).toBeNull();
     const ids = run.failing?.items.map((one) => one.id) ?? [];
-    expect(ids).toEqual(
-      expect.arrayContaining([
-        'schema-keywords.multiple-of',
-        'tool-formats.openapi',
-        'inventory-forms.long-item',
-      ]),
-    );
+    expect(ids).toEqual(expect.arrayContaining(['schema-keywords.enum', 'tool-formats.mcp']));
     expect(run.failing?.items[0]?.detail).toMatch(/^\[[a-z-]+, tier [1-5]\] /);
   });
 });

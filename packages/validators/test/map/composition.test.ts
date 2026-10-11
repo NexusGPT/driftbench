@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { runLadder } from '../../src/ladder';
 import { MAP_COMPONENTS, mapLadderV1 as mapLadder } from '../../src/ladders/map/first';
+import { contractStatesRole } from '../../src/ladders/map/oracle';
 import { type Extract, runPipeline } from '../../src/ladders/map/run';
 import { hiddenSpec } from '../../src/ladders/map/spec';
 import { halves, transformOptions, withOneMoreConstraint } from '../../src/ladders/map/transforms';
@@ -20,7 +21,9 @@ function withFault(fault: (proposal: Json, input: Parameters<Extract>[0]) => voi
 }
 
 describe('level 5: metamorphic invariance', () => {
-  it('fails on the current extractor: a permuted prompt moves the persona axis, pointing at the role proposer', async () => {
+  it('fails while the contract has no role: a permuted prompt moves the persona axis, pointing at the role proposer', async () => {
+    // Once the contract carries a role the perfect model sends it and this failure is fixed; the test then has nothing to say.
+    if (contractStatesRole()) return;
     for (const seed of [1, 2, 3]) {
       const run = await runLadder(mapLadder(), { seed });
       expect(run.level).toBe(4);
