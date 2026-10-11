@@ -12,6 +12,8 @@ describe('matchAssertion', () => {
     ['contains', { contains: 'Summit' }, '88 Summit Avenue', '88 Harbor Road'],
     ['one_of', { one_of: ['mobile-m', 'mobile-l'] }, 'mobile-l', 'mobile-s'],
     ['nonempty', { nonempty: true }, 'x', ''],
+    ['nonempty on a blank string', { nonempty: true }, ' x ', '   '],
+    ['nonempty on a mapping', { nonempty: true }, { key: 1 }, { key: undefined }],
     ['absent', { absent: true }, undefined, null],
     [
       'subset',
