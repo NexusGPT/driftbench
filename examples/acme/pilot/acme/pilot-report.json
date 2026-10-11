@@ -1,0 +1,1437 @@
+{
+  "generator": "driftbench pilot",
+  "campaignId": "pilot-a925775e917b",
+  "createdAt": "2026-10-11T19:26:29.402Z",
+  "target": {
+    "adapter": "function",
+    "agent": "acme"
+  },
+  "map": {
+    "path": "examples/acme/map/approved.yaml",
+    "agent": "acme",
+    "hash": "957045c0b3a9"
+  },
+  "design": {
+    "by": ["behaviour"],
+    "conversations": 10,
+    "repeats": 5,
+    "wordings": 3,
+    "cells": 15,
+    "conversationsRun": 150,
+    "variants": 181,
+    "wordingsAvailable": {
+      "1": 120,
+      "2": 29,
+      "3": 1
+    },
+    "skipped": [],
+    "warnings": []
+  },
+  "plan": {
+    "target": {
+      "adapter": "function",
+      "agent": "acme"
+    },
+    "pricing": {
+      "kind": "in-process"
+    },
+    "cells": [
+      {
+        "cell": "behaviour=-",
+        "conversations": 10,
+        "wordings": 11,
+        "repeats": 5,
+        "runs": 55,
+        "blocks": 55,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-001",
+        "conversations": 10,
+        "wordings": 13,
+        "repeats": 5,
+        "runs": 65,
+        "blocks": 120,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-002",
+        "conversations": 10,
+        "wordings": 12,
+        "repeats": 5,
+        "runs": 60,
+        "blocks": 110,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-003",
+        "conversations": 10,
+        "wordings": 12,
+        "repeats": 5,
+        "runs": 60,
+        "blocks": 110,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-004",
+        "conversations": 10,
+        "wordings": 11,
+        "repeats": 5,
+        "runs": 55,
+        "blocks": 100,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-005",
+        "conversations": 10,
+        "wordings": 11,
+        "repeats": 5,
+        "runs": 55,
+        "blocks": 100,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-006",
+        "conversations": 10,
+        "wordings": 12,
+        "repeats": 5,
+        "runs": 60,
+        "blocks": 110,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-007",
+        "conversations": 10,
+        "wordings": 13,
+        "repeats": 5,
+        "runs": 65,
+        "blocks": 110,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-008",
+        "conversations": 10,
+        "wordings": 12,
+        "repeats": 5,
+        "runs": 60,
+        "blocks": 110,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-009",
+        "conversations": 10,
+        "wordings": 12,
+        "repeats": 5,
+        "runs": 60,
+        "blocks": 110,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-010",
+        "conversations": 10,
+        "wordings": 11,
+        "repeats": 5,
+        "runs": 55,
+        "blocks": 100,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-011",
+        "conversations": 10,
+        "wordings": 12,
+        "repeats": 5,
+        "runs": 60,
+        "blocks": 110,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-012",
+        "conversations": 10,
+        "wordings": 13,
+        "repeats": 5,
+        "runs": 65,
+        "blocks": 115,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-013",
+        "conversations": 10,
+        "wordings": 13,
+        "repeats": 5,
+        "runs": 65,
+        "blocks": 115,
+        "usd": 0
+      },
+      {
+        "cell": "behaviour=B-014",
+        "conversations": 10,
+        "wordings": 13,
+        "repeats": 5,
+        "runs": 65,
+        "blocks": 120,
+        "usd": 0
+      }
+    ],
+    "total": {
+      "cell": "total",
+      "conversations": 150,
+      "wordings": 181,
+      "repeats": 5,
+      "runs": 905,
+      "blocks": 1595,
+      "usd": 0
+    }
+  },
+  "analysis": {
+    "observations": 905,
+    "errored": 0,
+    "passRate": {
+      "estimate": 0.988950276243094,
+      "interval": {
+        "lower": 0.9526930912996325,
+        "upper": 0.9963358708487731
+      },
+      "effectiveRuns": 150
+    },
+    "pooled": {
+      "method": "anova",
+      "balanced": false,
+      "total": 0.011400533426103185,
+      "levels": [
+        {
+          "level": "cell",
+          "groups": 15,
+          "df": 14,
+          "variance": 0,
+          "share": 0,
+          "estimable": true,
+          "shareInterval": {
+            "lower": 0,
+            "upper": 0.21567446827367256
+          },
+          "varianceInterval": {
+            "lower": 0,
+            "upper": 0.0058118354907903255
+          }
+        },
+        {
+          "level": "conversation",
+          "groups": 150,
+          "df": 135,
+          "variance": 0.011400533426103185,
+          "share": 1,
+          "estimable": true,
+          "shareInterval": {
+            "lower": 0,
+            "upper": 1
+          },
+          "varianceInterval": {
+            "lower": 0,
+            "upper": 0.03862840983931432
+          }
+        },
+        {
+          "level": "wording",
+          "groups": 181,
+          "df": 31,
+          "variance": 0,
+          "share": 0,
+          "estimable": true,
+          "shareInterval": {
+            "lower": 0,
+            "upper": 0
+          },
+          "varianceInterval": {
+            "lower": 0,
+            "upper": 0
+          }
+        },
+        {
+          "level": "repeat",
+          "groups": 905,
+          "df": 724,
+          "variance": 0,
+          "share": 0,
+          "estimable": true,
+          "shareInterval": {
+            "lower": 0,
+            "upper": 0
+          },
+          "varianceInterval": {
+            "lower": 0,
+            "upper": 0
+          }
+        }
+      ],
+      "icc": [
+        {
+          "level": "cell",
+          "icc": 0
+        },
+        {
+          "level": "conversation",
+          "icc": 1
+        },
+        {
+          "level": "wording",
+          "icc": 1
+        }
+      ],
+      "bootstrap": {
+        "iterations": 500,
+        "seed": 1,
+        "resample": "both",
+        "cells": 15
+      }
+    },
+    "designEffect": {
+      "m": 6.033333333333333,
+      "rho": 1,
+      "value": 6.033333333333333,
+      "note": "a run of a conversation counts as 1 / design effect of an independent conversation"
+    },
+    "allocation": {
+      "pool": 100,
+      "rule": "Neyman: n_h proportional to N_h S_h, N_h the suite conversations of the cell, S_h = sqrt(p_h (1 - p_h)); proportional when every S_h is 0",
+      "strata": [
+        {
+          "cell": "behaviour=-",
+          "suite": 12,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-001",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-002",
+          "suite": 11,
+          "sd": 0.27638539919628335,
+          "exact": 50,
+          "allocated": 50
+        },
+        {
+          "cell": "behaviour=B-003",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-004",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-005",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-006",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-007",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-008",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-009",
+          "suite": 11,
+          "sd": 0.27638539919628335,
+          "exact": 50,
+          "allocated": 50
+        },
+        {
+          "cell": "behaviour=B-010",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-011",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-012",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-013",
+          "suite": 11,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        },
+        {
+          "cell": "behaviour=B-014",
+          "suite": 13,
+          "sd": 0,
+          "exact": 0,
+          "allocated": 0
+        }
+      ]
+    },
+    "noiseFloor": {
+      "floor": 0.05,
+      "variance": 0,
+      "perBlock": {
+        "repeats": 1,
+        "floor": 0
+      },
+      "perCell": {
+        "blocks": 10,
+        "repeats": 1,
+        "floor": 0
+      },
+      "reached": 0
+    },
+    "flip": {
+      "blocks": 319,
+      "mean": 0,
+      "flipping": 0,
+      "top": []
+    },
+    "wording": {
+      "threshold": 0.2,
+      "q": 0.05,
+      "flagged": []
+    },
+    "cells": [
+      {
+        "cell": "behaviour=-",
+        "suite": 12,
+        "conversations": 10,
+        "variants": 11,
+        "runs": 55,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 11,
+            "df": 1,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 55,
+            "df": 44,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 1,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 11,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-001",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 13,
+        "runs": 65,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 13,
+            "df": 3,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 65,
+            "df": 52,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 2,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 24,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-002",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 12,
+        "runs": 60,
+        "passRate": 0.9166666666666666,
+        "passInterval": {
+          "lower": 0.7272727272727273,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0.08593750000000004,
+            "share": 1,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 12,
+            "df": 2,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 60,
+            "df": 48,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 1
+          },
+          {
+            "level": "wording",
+            "icc": 1
+          }
+        ],
+        "sd": 0.27638539919628335,
+        "allocation": {
+          "exact": 50,
+          "allocated": 50
+        },
+        "wording": {
+          "conversations": 2,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 22,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-003",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 12,
+        "runs": 60,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 12,
+            "df": 2,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 60,
+            "df": 48,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 2,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 22,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-004",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 11,
+        "runs": 55,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 11,
+            "df": 1,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 55,
+            "df": 44,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 1,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 20,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-005",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 11,
+        "runs": 55,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 11,
+            "df": 1,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 55,
+            "df": 44,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 1,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 20,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-006",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 12,
+        "runs": 60,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 12,
+            "df": 2,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 60,
+            "df": 48,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 2,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 22,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-007",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 13,
+        "runs": 65,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 13,
+            "df": 3,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 65,
+            "df": 52,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 3,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 22,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-008",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 12,
+        "runs": 60,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 12,
+            "df": 2,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 60,
+            "df": 48,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 2,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 22,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-009",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 12,
+        "runs": 60,
+        "passRate": 0.9166666666666666,
+        "passInterval": {
+          "lower": 0.7272727272727273,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0.08593750000000004,
+            "share": 1,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 12,
+            "df": 2,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 60,
+            "df": 48,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 1
+          },
+          {
+            "level": "wording",
+            "icc": 1
+          }
+        ],
+        "sd": 0.27638539919628335,
+        "allocation": {
+          "exact": 50,
+          "allocated": 50
+        },
+        "wording": {
+          "conversations": 2,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 22,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-010",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 11,
+        "runs": 55,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 11,
+            "df": 1,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 55,
+            "df": 44,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 1,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 20,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-011",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 12,
+        "runs": 60,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 12,
+            "df": 2,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 60,
+            "df": 48,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 2,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 22,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-012",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 13,
+        "runs": 65,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 13,
+            "df": 3,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 65,
+            "df": 52,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 3,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 23,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-013",
+        "suite": 11,
+        "conversations": 10,
+        "variants": 13,
+        "runs": 65,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 13,
+            "df": 3,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 65,
+            "df": 52,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 3,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 23,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      },
+      {
+        "cell": "behaviour=B-014",
+        "suite": 13,
+        "conversations": 10,
+        "variants": 13,
+        "runs": 65,
+        "passRate": 1,
+        "passInterval": {
+          "lower": 1,
+          "upper": 1
+        },
+        "levels": [
+          {
+            "level": "conversation",
+            "groups": 10,
+            "df": 9,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "wording",
+            "groups": 13,
+            "df": 3,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          },
+          {
+            "level": "repeat",
+            "groups": 65,
+            "df": 52,
+            "variance": 0,
+            "share": 0,
+            "estimable": true
+          }
+        ],
+        "icc": [
+          {
+            "level": "conversation",
+            "icc": 0
+          },
+          {
+            "level": "wording",
+            "icc": 0
+          }
+        ],
+        "sd": 0,
+        "allocation": {
+          "exact": 0,
+          "allocated": 0
+        },
+        "wording": {
+          "conversations": 3,
+          "maxRange": 0,
+          "meanRange": 0,
+          "pValue": 1,
+          "flagged": false,
+          "adjusted": 1
+        },
+        "flip": {
+          "blocks": 24,
+          "mean": 0,
+          "max": 0,
+          "flipping": 0
+        }
+      }
+    ]
+  }
+}
