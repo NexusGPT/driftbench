@@ -169,6 +169,7 @@ describe('the simulated user in a run', () => {
     await step(driver, []);
     expect(port.requests[0]?.user).not.toContain('What you mean to say now');
     expect(port.requests[1]?.user).toContain('(nothing yet: you write first)');
+    expect(port.requests.map((request) => request.user.split('\n')[0])).toEqual(['Turn 1.', 'Turn 1.']);
     expect(port.requests[0]?.system).toContain('Your goal: Get a plan with more data.');
     expect(port.requests[0]?.system).toContain('reply with ###STOP### and nothing else');
   });

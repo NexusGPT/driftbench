@@ -106,6 +106,15 @@ describe('the recovery read', () => {
     expect(reading.recovery.collateral).toBe(2);
   });
 
+  it('counts collateral from the recovery on, not from the injection', () => {
+    const reading = readRecovery(
+      FLOW,
+      ASIDE,
+      asideRun({ 1: { stageObserved: 'x' }, 2: { pass: false }, 4: { pass: false } }),
+    );
+    expect(reading).toMatchObject({ recovery: { turnsToRecover: 2, collateral: 1 }, recoveredAt: 3 });
+  });
+
   it('holds the recovering reply to the return message when the spec sets one', () => {
     const withMessage = {
       ...ASIDE,
