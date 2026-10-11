@@ -147,13 +147,6 @@ export function isWorldClass(cls: DeviationClass): boolean {
   return DEVIATIONS[cls].carrier === 'world';
 }
 
-/** The classes whose injected block is checked for an irreversible action: D4, D6 and D8. */
-export const SAFE_ACTION_CLASSES: ReadonlySet<DeviationClass> = new Set([
-  'D4_loose_confirmation',
-  'D6_instruction_in_data',
-  'D8_tool_failure',
-]);
-
 /**
  * The class a name means: the full name (`D2_goal_shift`) or its code (`D2`, `d2`). Undefined when it names
  * none.

@@ -6,7 +6,6 @@ export {
   type DeviationDef,
   deviationClassOf,
   isWorldClass,
-  SAFE_ACTION_CLASSES,
 } from './deviations';
 export {
   createPerturbingDriver,
@@ -20,7 +19,6 @@ export {
   resolvePerturbation,
 } from './perturb';
 export { seededIndex } from './random';
-export { irreversibleTools, type RecoveryReading, type RecoveryRecord, readRecovery } from './recovery';
 export {
   checkPackFile,
   type DrawOptions,

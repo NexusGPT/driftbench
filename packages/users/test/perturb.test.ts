@@ -9,7 +9,6 @@ import {
   loadRedteamPack,
   PerturbationError,
   type RedteamPack,
-  readRecovery,
 } from '../src/index';
 import { acmeSales, acmeSpec, block, CONVERSATIONS, PACK_DIR, runP, spec } from './support';
 
@@ -344,7 +343,7 @@ describe('perturbations drawn from the red-team pack', () => {
 });
 
 describe('every perturbation the Acme conversation specs declare, through the real runner', () => {
-  it('injects it, returns to the blocks, and the recovery read meets the spec', async () => {
+  it("injects it, returns to the blocks, and the runner's recovery record meets the spec", async () => {
     const rows: string[] = [];
     for (const path of CONVERSATIONS) {
       const loaded = await acmeSpec(path);
@@ -354,25 +353,25 @@ describe('every perturbation the Acme conversation specs declare, through the re
         expect(result.status).toBe('completed');
         const injected = result.blocks.filter((each) => each.injected && each.blockId === perturbation.id);
         expect(injected).toHaveLength(1);
-        const reading = readRecovery(driver.spec, driver.perturbation, result);
-        if (!reading.measured) throw new Error(reading.reason);
-        rows.push(`${loaded.id} ${perturbation.id} ${reading.recovery.label} ${reading.met}`);
+        const recovery = result.recovery;
+        if (!recovery) throw new Error(`${perturbation.id}: the runner recorded no recovery`);
+        rows.push(`${loaded.id} ${perturbation.id} ${recovery.label} ${recovery.turnsToRecover}`);
         // A message adds one block; a change of the world replaces one.
         const extra = driver.worldOnly ? 0 : 1;
         expect(result.blocks).toHaveLength(loaded.blocks.length + extra);
       }
     }
     expect(rows).toEqual([
-      'acme-new-customer-coverage shop-hours immediate true',
-      'acme-new-customer-coverage free-fiber immediate true',
-      'acme-number-porting spanish-line immediate true',
-      'acme-number-porting are-you-there immediate true',
-      'acme-off-topic-return options-again immediate true',
-      'acme-order-loose-confirmation second-loose-yes immediate true',
-      'acme-order-loose-confirmation order-service-down immediate true',
-      'acme-plan-upgrade billing-aside immediate true',
-      'acme-plan-upgrade loose-ok immediate true',
-      'acme-tool-failure sales-queue-down immediate true',
+      'acme-new-customer-coverage shop-hours immediate 0',
+      'acme-new-customer-coverage free-fiber immediate 0',
+      'acme-number-porting spanish-line immediate 0',
+      'acme-number-porting are-you-there immediate 0',
+      'acme-off-topic-return options-again immediate 0',
+      'acme-order-loose-confirmation second-loose-yes immediate 0',
+      'acme-order-loose-confirmation order-service-down immediate 0',
+      'acme-plan-upgrade billing-aside immediate 0',
+      'acme-plan-upgrade loose-ok immediate 0',
+      'acme-tool-failure sales-queue-down immediate 0',
     ]);
   });
 

@@ -9,7 +9,6 @@ import {
   loadPersona,
   loadUserRecording,
   personaOptions,
-  readRecovery,
   type SimulatedUserOptions,
   userRecordingPort,
 } from '../src/index';
@@ -262,11 +261,7 @@ describe('the simulated user through the real runner, on the Acme agent, with th
       return { driver, spec: driver.spec, id: 'billing-aside' };
     });
     expect(result.blocks.map((each) => each.pass)).toEqual([true, true, true, true, true, true]);
-    const reading = readRecovery(
-      made.spec,
-      (made.driver as ReturnType<typeof createPerturbingDriver>).perturbation,
-      result,
-    );
-    expect(reading).toMatchObject({ measured: true, recovery: { label: 'immediate' }, met: true });
+    expect(made.spec.perturbations?.map((each) => each.id)).toContain('billing-aside');
+    expect(result.recovery).toMatchObject({ injectedAt: 2, turnsToRecover: 0, label: 'immediate' });
   });
 });

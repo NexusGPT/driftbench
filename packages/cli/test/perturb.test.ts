@@ -2,6 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadSpecFile, type PlannedCell } from '@driftbench/core';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { defaultDeps } from '../src/commands/campaign';
@@ -14,7 +15,7 @@ const COVERAGE = 'examples/acme/specs/conversations/new-customer-coverage.yaml';
 const SHEET = 'examples/acme/specs/tasks/price-sheet.yaml';
 
 /** Runs `driftbench perturb ...` the way main does: one program, the command registered, exit 2 on a usage error. */
-async function perturb(argv: string[], cwd = ROOT) {
+async function perturb(argv: string[], cwd = ROOT, deps = defaultDeps) {
   let out = '';
   let err = '';
   const io: Io = {
@@ -36,7 +37,7 @@ async function perturb(argv: string[], cwd = ROOT) {
     (exit) => {
       code = exit;
     },
-    defaultDeps,
+    deps,
   );
   try {
     await program.parseAsync(['perturb', ...argv], { from: 'user' });
@@ -55,7 +56,7 @@ afterAll(async () => {
   await rm(dir, { recursive: true, force: true });
 });
 
-describe('driftbench perturb', () => {
+describe('driftbench perturb', { timeout: 60_000 }, () => {
   it("runs the spec's own perturbation of a class at a block, prints each block and the recovery, exit 0 when met", async () => {
     const { code, out, err } = await perturb([
       COVERAGE,
@@ -73,11 +74,15 @@ describe('driftbench perturb', () => {
     );
     expect(out).toMatch(/ {2}1 {4}injected shop-hours\s+address\s+✓/);
     expect(out).toContain(
-      '✓ Recovery: immediate, 0 blocks to come back (the spec allows 0 blocks), collateral 0.',
+      'Reference: the F run of the same spec, 4 of 4 blocks pass; collateral counts against it.',
     );
     expect(out).toContain(
-      'Recovery record (read by @driftbench/users; the runner records none yet): {"injectedAt":1,"turnsToRecover":0,"label":"immediate","collateral":0}',
+      '✓ Recovery: immediate, 0 blocks to come back (the spec allows 0 blocks), collateral 0, safe action yes, asked first yes.',
     );
+    expect(out).toContain(
+      'Recovery record (runner): {"injectedAt":1,"turnsToRecover":0,"label":"immediate","collateral":0,"safeAction":true,"clarified":true}',
+    );
+    expect(out).not.toContain('@driftbench/users');
   });
 
   it('refuses an unapproved phrasing, exit 2 and nothing run, and draws it with --drafts', async () => {
@@ -103,8 +108,9 @@ describe('driftbench perturb', () => {
     expect(drawn.out).toContain(
       '(drawn from examples/acme/redteam/d02-goal-shift.yaml, phrasing d2-cheaper-plan, seed 0, a draft nobody has approved yet)',
     );
+    // A drawn goal shift sets no stage for the injected block: by the runner's rule, passing is enough.
     expect(drawn.out).toContain(
-      '✓ Recovery: late, 1 block to come back (the spec allows 1 block), collateral 0.',
+      '✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0',
     );
   });
 
@@ -113,7 +119,12 @@ describe('driftbench perturb', () => {
     expect(code).toBe(1);
     expect(out).toContain('acme-price-sheet on process:acme-ops');
     expect(out).toContain('D8 tool failure: a change of the world that block 0 runs under');
-    expect(out).toContain('✗ Recovery: never (the spec allows 1 block), collateral 0, safe action yes.');
+    expect(out).toContain(
+      '✗ Recovery: never (the spec allows 1 block), collateral 1, safe action yes, asked first no.',
+    );
+    expect(out).toContain(
+      'Recovery record (runner): {"injectedAt":0,"label":"never","collateral":1,"safeAction":true,"clarified":false}',
+    );
   });
 
   it('runs a declared perturbation by id, and gives the run and the recovery as one JSON document', async () => {
@@ -126,11 +137,30 @@ describe('driftbench perturb', () => {
       source: { kind: 'declared' },
       worldOnly: true,
       run: { status: 'completed' },
-      recovery: { injectedAt: 0, turnsToRecover: 0, label: 'immediate', collateral: 0, safeAction: true },
-      recoveryFrom: 'users',
+      reference: { status: 'completed', used: true },
+      recovery: {
+        injectedAt: 0,
+        turnsToRecover: 0,
+        label: 'immediate',
+        collateral: 0,
+        safeAction: true,
+        clarified: false,
+      },
       within: 0,
       met: true,
     });
+    expect(Object.keys(doc).sort()).toEqual([
+      'met',
+      'perturbation',
+      'recovery',
+      'reference',
+      'run',
+      'source',
+      'specId',
+      'target',
+      'within',
+      'worldOnly',
+    ]);
     expect(
       doc.run.blocks.map((block: { injected: boolean; stage: string }) => [block.injected, block.stage]),
     ).toEqual([
@@ -192,10 +222,56 @@ describe('driftbench perturb', () => {
       [lone, '--class', 'D1', '--at', '1', '--pack', join(ROOT, 'examples/acme/redteam'), '--drafts'],
       dir,
     );
-    expect(given.code).toBe(1);
-    // The spec names no stages, so the injected block has no stage to keep: the next block is the first back.
-    expect(given.out).toContain(
-      '✗ Recovery: late, 1 block to come back (the spec allows 0 blocks), collateral 0.',
+    // The spec names no stages, so the injected block has none to keep: by the runner's rule, passing is enough.
+    expect(given.code).toBe(0);
+    expect(given.out).toContain('(drawn from ');
+    expect(given.out).toContain('✓ Recovery: immediate, 0 blocks to come back (the spec allows 0 blocks)');
+  });
+});
+
+describe('driftbench perturb and the runner', { timeout: 60_000 }, () => {
+  it("exits 1 on a late recovery: back, but after the spec's window", async () => {
+    const { code, out } = await perturb([COVERAGE, '--class', 'D7', '--at', '2', '--drafts']);
+    expect(code).toBe(1);
+    expect(out).toContain('✗ Recovery: late, 1 block to come back (the spec allows 0 blocks)');
+  });
+
+  it("hands the runner the build's test for a consequential tool", async () => {
+    const asked = new Set<string>();
+    const spying = {
+      ...defaultDeps,
+      consequential: (label: string) => {
+        asked.add(label);
+        return false;
+      },
+    };
+    // The injected block calls catalog.search, a tool the spec's end state and rules do not name.
+    const { code } = await perturb([UPGRADE, '--class', 'D6', '--at', '1', '--drafts'], ROOT, spying);
+    expect(code).toBe(0);
+    expect(asked.has('catalog.search')).toBe(true);
+  });
+});
+
+describe('the campaign driver for mode P', () => {
+  it("is the perturbing driver of @driftbench/users on the cell's spec; the scripted driver otherwise", async () => {
+    const loaded = await loadSpecFile(join(ROOT, COVERAGE));
+    if (!loaded.ok) throw new Error('the coverage spec does not load');
+    const cell: PlannedCell = {
+      cellId: 'c1',
+      specId: loaded.spec.id,
+      specHash: loaded.hash,
+      target: { adapter: 'function', agent: 'acme-sales' },
+      mode: 'P',
+      repeat: 0,
+      perturbationId: 'shop-hours',
+      blocks: 5,
+    };
+    expect(defaultDeps.driver(cell, loaded.spec).id).toBe('perturbing:shop-hours');
+    expect(() => defaultDeps.driver(cell)).toThrow(
+      'the perturbed cell c1 needs its spec for the perturbing driver',
     );
+    const { perturbationId: _, ...free } = cell;
+    expect(defaultDeps.driver({ ...free, mode: 'F' }, loaded.spec).id).toBe('scripted');
+    expect(defaultDeps.driver().id).toBe('scripted');
   });
 });

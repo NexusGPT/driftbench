@@ -8,8 +8,6 @@ import {
   deviationClassOf,
   loadRedteamPack,
   type PerturbingDriver,
-  type RecoveryReading,
-  readRecovery,
 } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -44,8 +42,11 @@ const PACK_FOLDER = 'redteam';
  * phrasing drawn by seed from the red-team pack (`--pack`, default the nearest `redteam/` folder at or
  * above the spec's folder). `--perturbation <id>` runs a perturbation the spec declares, at its own block.
  *
- * Exit 0 when the agent comes back within the spec's window, 1 when it does not, when the run fails or when
- * the recovery cannot be measured, 2 on bad input (nothing ran).
+ * It first runs the spec free (mode F) on the same target: the reference the runner counts the
+ * recovery's collateral against, as a campaign does. The recovery printed is the runner's own record.
+ *
+ * Exit 0 when the agent comes back within the spec's window (the runner's label `immediate`), 1 when it
+ * does not, when the run fails or when the recovery cannot be measured, 2 on bad input (nothing ran).
  */
 export function registerPerturbCommand(
   program: Command,
@@ -114,19 +115,29 @@ export async function perturbCommand(
     return 2;
   }
 
-  const result = await runSpec(driver.spec, {
+  // The free-running run of the same spec and target: the reference the runner counts collateral against,
+  // as a campaign does for its perturbed cells.
+  const common = {
     adapter,
-    driver,
     checks: deps.checks,
     ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
-    mode: 'P',
     repeat: 0,
     target,
-    perturbationId: driver.perturbation.id,
     now: () => deps.now(),
+  };
+  const reference = await runSpec(spec, { ...common, driver: deps.driver(), mode: 'F' });
+  const result = await runSpec(driver.spec, {
+    ...common,
+    driver,
+    mode: 'P',
+    perturbationId: driver.perturbation.id,
+    ...(reference.status === 'completed' ? { reference } : {}),
+    ...(deps.consequential ? { consequential: deps.consequential } : {}),
   });
-  const reading = readRecovery(driver.spec, driver.perturbation, result);
-  const recovery = result.recovery ?? (reading.measured ? reading.recovery : undefined);
+  const recovery = result.recovery;
+  const within = driver.perturbation.recovery?.within_blocks;
+  const met = recovery?.label === 'immediate';
+  const reason = recovery ? undefined : notMeasured(driver, result);
 
   if (options.json) {
     io.out(
@@ -140,6 +151,11 @@ export async function perturbCommand(
             ...('packPath' in driver.source ? { packPath: shown(io, driver.source.packPath) } : {}),
           },
           worldOnly: driver.worldOnly,
+          reference: {
+            runId: reference.runId,
+            status: reference.status,
+            used: reference.status === 'completed',
+          },
           run: {
             runId: result.runId,
             status: result.status,
@@ -155,17 +171,31 @@ export async function perturbCommand(
             })),
           },
           recovery: recovery ?? null,
-          recoveryFrom: result.recovery ? 'runner' : reading.measured ? 'users' : null,
-          ...(reading.measured ? { within: reading.within, met: reading.met } : { reason: reading.reason }),
+          ...(within === undefined ? {} : { within }),
+          met,
+          ...(reason === undefined ? {} : { reason }),
         },
         null,
         2,
       )}\n`,
     );
   } else {
-    printText(io, spec, target, driver, result, reading);
+    printText(io, spec, target, driver, reference, result, reason);
   }
-  return result.status === 'completed' && reading.measured && reading.met ? 0 : 1;
+  return result.status === 'completed' && met ? 0 : 1;
+}
+
+/** Why a perturbed run carries no recovery record. */
+function notMeasured(driver: PerturbingDriver, result: RunResult): string {
+  if (!driver.perturbation.recovery)
+    return `${driver.perturbation.id} sets no recovery, so it is run but not measured`;
+  const injected = result.blocks.some(
+    (block) => block.injected === true && block.blockId === driver.perturbation.id,
+  );
+  if (!injected) {
+    return `the deviation ${driver.perturbation.id} never went in: the run ${result.status} after ${result.blocks.length} blocks`;
+  }
+  return 'the runner recorded none';
 }
 
 /** Which flags go together: --perturbation alone, or --class with --at. */
@@ -242,8 +272,9 @@ function printText(
   spec: Spec,
   target: Parameters<typeof showTarget>[0],
   driver: PerturbingDriver,
+  reference: RunResult,
   result: RunResult,
-  reading: RecoveryReading,
+  reason: string | undefined,
 ): void {
   const { perturbation, source } = driver;
   const def = DEVIATIONS[perturbation.class];
@@ -260,6 +291,12 @@ function printText(
     `Perturb: ${spec.id} on ${showTarget(target)}, mode P. ${def.code} ${def.title}: ${carried} (${origin}).\n`,
   );
   io.out(`Expected: ${def.expected}.\n`);
+  const passed = reference.blocks.filter((block) => block.pass).length;
+  io.out(
+    reference.status === 'completed'
+      ? `Reference: the F run of the same spec, ${passed} of ${reference.blocks.length} blocks pass; collateral counts against it.\n`
+      : `Reference: the F run ${reference.status}, so collateral counts the blocks after the recovery that fail.\n`,
+  );
   const rows = result.blocks.map((block) => [
     String(block.index),
     block.injected === true && block.blockId === perturbation.id
@@ -272,12 +309,13 @@ function printText(
   for (const line of table([['pos', 'block', 'stage', 'pass', 'failing'], ...rows])) io.out(`${line}\n`);
   if (result.status !== 'completed')
     io.out(`The run ${result.status}: ${result.error ?? 'no reason given'}.\n`);
-  if (!reading.measured) {
-    io.out(`Recovery not measured: ${reading.reason}.\n`);
+  const recovery = result.recovery;
+  if (!recovery) {
+    io.out(`Recovery not measured: ${reason ?? 'the runner recorded none'}.\n`);
     return;
   }
-  const { recovery } = reading;
-  const allows = `the spec allows ${reading.within} ${reading.within === 1 ? 'block' : 'blocks'}`;
+  const within = perturbation.recovery?.within_blocks ?? 0;
+  const allows = `the spec allows ${within} ${within === 1 ? 'block' : 'blocks'}`;
   const turns =
     recovery.turnsToRecover === undefined
       ? ''
@@ -285,21 +323,12 @@ function printText(
   const extras = [
     `collateral ${recovery.collateral}`,
     ...(recovery.safeAction === undefined ? [] : [`safe action ${recovery.safeAction ? 'yes' : 'no'}`]),
-    ...(recovery.clarified === undefined ? [] : [`asked a question ${recovery.clarified ? 'yes' : 'no'}`]),
+    ...(recovery.clarified === undefined ? [] : [`asked first ${recovery.clarified ? 'yes' : 'no'}`]),
   ];
   io.out(
-    `${reading.met ? '✓' : '✗'} Recovery: ${recovery.label}${turns} (${allows}), ${extras.join(', ')}.\n`,
+    `${recovery.label === 'immediate' ? '✓' : '✗'} Recovery: ${recovery.label}${turns} (${allows}), ${extras.join(', ')}.\n`,
   );
-  if (result.recovery) {
-    io.out(`Recovery record (runner): ${JSON.stringify(result.recovery)}\n`);
-    if (JSON.stringify(result.recovery) !== JSON.stringify(recovery)) {
-      io.out(`Recovery read by @driftbench/users: ${JSON.stringify(recovery)}\n`);
-    }
-  } else {
-    io.out(
-      `Recovery record (read by @driftbench/users; the runner records none yet): ${JSON.stringify(recovery)}\n`,
-    );
-  }
+  io.out(`Recovery record (runner): ${JSON.stringify(recovery)}\n`);
 }
 
 /** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
