@@ -5,6 +5,7 @@ import { defineLadder, type Ladder } from '../../ladder';
 import { CLUSTERED_COVERAGE, clusteredLevel } from './clustered';
 import { designsPath, readDesigns, type StatsDesigns } from './designs';
 import { type Row, referenceLevel, STATS_FIXTURES, type StatsImpl } from './reference';
+import { type PilotAnalyser, SHARES_RECOVERY, sharesLevel } from './shares';
 import { WILSON_COVERAGE, wilsonLevel } from './wilson';
 
 export { CLUSTERED_COMPONENT, CLUSTERED_COVERAGE, clusteredLevel } from './clustered';
@@ -28,6 +29,16 @@ export {
   STATS_FIXTURES,
   type StatsImpl,
 } from './reference';
+export {
+  type PilotAnalyser,
+  plantedShares,
+  plantShares,
+  SHARE_LEVELS,
+  SHARES_COMPONENT,
+  SHARES_RECOVERY,
+  type SharesDataset,
+  sharesLevel,
+} from './shares';
 export { WILSON_COVERAGE, WILSON_DRAWS, WILSON_RATES, WILSON_SIZES, wilsonLevel } from './wilson';
 
 export type StatsLadderOptions = {
@@ -36,12 +47,16 @@ export type StatsLadderOptions = {
   fixtures?: string;
   /** The planted designs of levels 3 to 6; by default STATS_DESIGNS under the run's root. */
   designs?: StatsDesigns;
+  /** The pilot analysis level 4 scores; by default `analysePilot` of the generate package. */
+  analysePilot?: PilotAnalyser;
 };
 
 /**
  * The statistics validator (docs/validators.md section 7). Level 1: every Python reference value matches to
  * 1e-6. Level 2: Wilson coverage at least 0.93 at n of 20, 50 and 200 over 1000 draws per seed. Level 3: the
  * clustered bootstrap covers at least 0.93 on clustered data, where the naive interval falls below the bar.
+ * Level 4: the pilot analysis puts at least 0.93 of the planted variance shares inside their bootstrap interval,
+ * over 8 planted datasets.
  */
 export function statsLadder(options: StatsLadderOptions = {}): Ladder {
   const s: StatsImpl = { ...stats, ...options.impl };
@@ -81,6 +96,14 @@ export function statsLadder(options: StatsLadderOptions = {}): Ladder {
           'clustered intervals containing the truth / intervals computed, pooled over the designs; 0 when the naive interval reaches the bar on a design',
         threshold: CLUSTERED_COVERAGE,
         compute: ({ seed, root }) => clusteredLevel(seed, s, designs(root).clustered),
+      },
+      {
+        id: 'variance-shares',
+        name: 'variance share recovery',
+        metric:
+          'planted shares inside their bootstrap interval / shares planted, 4 levels on each of 8 datasets',
+        threshold: SHARES_RECOVERY,
+        compute: ({ seed, root }) => sharesLevel(seed, designs(root).shares, options.analysePilot),
       },
     ],
   });
