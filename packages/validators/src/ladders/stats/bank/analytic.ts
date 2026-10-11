@@ -723,7 +723,10 @@ const POPS: Pop[] = [
 function sample(rng: () => number, probs: number[], n: number): number[] {
   const cum: number[] = [];
   let r = 0;
-  for (const p of probs) cum.push((r += p));
+  for (const p of probs) {
+    r += p;
+    cum.push(r);
+  }
   const counts = new Array<number>(probs.length).fill(0);
   for (let i = 0; i < n; i += 1) {
     const u = rng();
@@ -953,7 +956,13 @@ function varianceItems(): BankItem[] {
               return fail(
                 `varianceComponents threw ${got.error.name}: ${got.error.message} on a planted ${d.key} design`,
               );
-            estimates.push((got.value?.components[index] as { estimate: number }).estimate);
+            estimates.push(
+              (
+                (got.value as { components: Array<{ estimate: number }> }).components[index] as {
+                  estimate: number;
+                }
+              ).estimate,
+            );
           }
           const m = estimates.reduce((a, b) => a + b, 0) / sims;
           const sd = Math.sqrt(estimates.reduce((a, b) => a + (b - m) ** 2, 0) / (sims - 1));
