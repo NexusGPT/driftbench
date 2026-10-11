@@ -108,3 +108,11 @@ describe('typographic quotes', () => {
     expect(parseAnswerText('{“outcome”: “pass”, “reasoning”: “r”}').answer.outcome).toBe('pass');
   });
 });
+
+describe('a score that contradicts the outcome', () => {
+  it('refuses a pass scored 0.05 and a fail scored 0.97', () => {
+    expect(parseAnswerText('{"outcome":"pass","score":0.05,"reasoning":"r"}').unparsed).toBe(true);
+    expect(parseAnswerText('{"outcome":"fail","score":0.97,"reasoning":"r"}').unparsed).toBe(true);
+    expect(parseAnswerText('{"outcome":"fail","score":0.5,"reasoning":"r"}').answer.outcome).toBe('fail');
+  });
+});

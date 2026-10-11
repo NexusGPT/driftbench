@@ -109,7 +109,18 @@ export function parseAnswerText(raw: string): JudgeResult {
 /** Validates an already decoded answer against the contract. */
 export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(value)): JudgeResult {
   const parsed = JudgeAnswer.safeParse(normalized(value));
-  if (parsed.success) return { answer: parsed.data, raw };
+  if (parsed.success) {
+    // The score is the probability of a pass: a pass under 0.5 or a fail over 0.5 contradicts itself.
+    const { outcome, score } = parsed.data;
+    if (score !== undefined && ((outcome === 'pass' && score < 0.5) || (outcome === 'fail' && score > 0.5))) {
+      return {
+        answer: inconclusive(`answer contradicts itself: outcome ${outcome} with score ${score}`),
+        raw,
+        unparsed: true,
+      };
+    }
+    return { answer: parsed.data, raw };
+  }
   const issue = parsed.error.issues[0];
   const where = issue?.path.join('.') || '(root)';
   return {
