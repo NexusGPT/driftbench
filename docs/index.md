@@ -38,7 +38,7 @@ Every page says what exists today and what is planned, with the phase that deliv
 
 ## What exists today
 
-Phases 0 and 1 are built:
+Phases 0 and 1 are built, and parts of phases 4 and G:
 
 * The spec format: zod schemas in `packages/core/src/schema`, with the TypeScript types inferred from them.
 * The loader: YAML and JSON files, authoring shorthand, schema errors with their path, semantic checks, and lint advice.
@@ -47,6 +47,8 @@ Phases 0 and 1 are built:
 * The 18 machine checks, with their verdict ids, and the artifact readers for workbooks, documents, decks, PDFs, CSV, JSON, text and code. See [checks](reference/checks.md).
 * The function, http, nexus and process adapters and their contract suite, and the local and docker sandboxes. See [adapters](adapters/index.md).
 * The SQLite store: campaigns, runs, the cache, cost units and a JSON export.
+* The statistics library, `@driftbench/stats`: intervals, the bootstrap, paired tests, false discovery control, power, the non-inferiority verdict, change detection, judge agreement, variance components and coverage estimators, each checked against Python reference values. See [statistics](concepts/statistics.md).
+* The map of situations: `driftbench space coverage`, `space complete` and `space declare`, and `driftbench extract`, which proposes a map for a person to approve. See [CLI](reference/cli.md#driftbench-space).
 * A leak guard that refuses personal data in the repository, and CI.
 * These docs, the generator of the spec reference, and a link checker.
 * The Acme Telecom example in [`examples/acme`](../examples/acme/README.md): a deterministic agent with tools and no model, six conversation specs, one task spec and a behaviour inventory.
@@ -61,7 +63,8 @@ The command line runs one target today, the Acme example agent; the other adapte
 | 1, runner | runner in free-running mode with a scripted user; machine checks for text, language, personal data, tools, skills, guards, cards, end state, budget, execution, artifacts, workspace and safety; store, cache and resume; cost and latency per segment; sandbox workspace; artifact readers; function, http, nexus and process adapters | built |
 | 2, judges | judge clients, the council and its cascade, calibration on fixture pairs and hand labels, judges for task artifacts | planned |
 | 3, perturbation, drift and recovery | simulated user, perturbing driver with the ten deviation classes, stage classifier and ledger check, drift classes, recovery metrics, teacher-forced mode; the same deviations on code-agent tasks | planned |
-| 4, statistics and gates | statistics functions with reference fixtures, the parity verdict, scorecard, run diff, JUnit output, CI gate, runtime battery | planned |
+| 4, statistics and gates | statistics functions with reference fixtures, the parity verdict, scorecard, run diff, JUnit output, CI gate, runtime battery | in progress: the statistics functions and the parity verdict function are built |
+| G, the space of situations | the map of situations, its coverage and completeness, the map extractor, generation and intake | in progress: `space` and `extract` are built; `generate` and `intake` are planned |
 | Release | SDK agent adapters, docs site, version 0.1.0 on npm | planned |
 
 There is no separate phase for code agents. A task spec runs through each phase with the conversation specs.

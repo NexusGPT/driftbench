@@ -257,7 +257,7 @@ That command exits 1.
 effect = (z(0.975) + z(0.8)) * sqrt(2 * p * (1 - p) / n)
 ```
 
-`p` is the baseline pass rate (`--baseline-rate`, default 0.5) and `n` the runs per arm: the cells of the mode on the first target. `z(0.975)` and `z(0.8)` are the standard normal quantiles for a two-sided alpha of 0.05 and a power of 0.8. The formula treats runs as independent, so repeats of one spec count as separate runs. With 12 runs per arm at a 50% pass rate, the effect is 57.2 points, as the plan above prints. The clustered version, with one conversation as one cluster, is planned, phase 4. See [statistics](concepts/statistics.md).
+`p` is the baseline pass rate (`--baseline-rate`, default 0.5) and `n` the runs per arm: the cells of the mode on the first target. `z(0.975)` and `z(0.8)` are the standard normal quantiles for a two-sided alpha of 0.05 and a power of 0.8. The formula treats runs as independent, so repeats of one spec count as separate runs. With 12 runs per arm at a 50% pass rate, the effect is 57.2 points, as the plan above prints. The statistics library's `mde` also takes the correlation of repeats of one spec (`rho`); using it in `campaign plan` is planned, phase 4. See [statistics](concepts/statistics.md).
 
 ### The store
 
