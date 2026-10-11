@@ -1639,8 +1639,23 @@ function boundaryItems(): BankItem[] {
 
 // 7. faults -----------------------------------------------------------------------------------------------
 
+/**
+ * The blocks that kill a fault: green on every follower repeat, failed by the fault, and at or after the
+ * block where the fault first changed what the agent did in that spec. A failure before the fault changed
+ * anything is not caused by the fault (a flaky check fails it as well), so it kills nothing.
+ */
 function killers(runs: Runs, faultId: string): BlockRun[] {
-  return machine(runs).filter((block) => block.reference[0] === 'pass' && block.faults[faultId] === 'fail');
+  const record = runs.faults.find((entry) => entry.fault.def.id === faultId);
+  return machine(runs).filter((block) => causalKill(block, faultId, record?.firstChange[block.spec]));
+}
+
+function causalKill(block: BlockRun, faultId: string, firstChange: number | undefined): boolean {
+  return (
+    block.reference.every((outcome) => outcome === 'pass') &&
+    block.faults[faultId] === 'fail' &&
+    firstChange !== undefined &&
+    block.index >= firstChange
+  );
 }
 
 function faultItems(): BankItem[] {
@@ -1994,10 +2009,10 @@ function interactionItems(): BankItem[] {
         const combined = (await data.combinations()).get(ids.join('+'));
         const lost = ids.filter((id) => {
           const single = `${id}@any/r1`;
+          const record = runs.faults.find((entry) => entry.fault.def.id === single);
           return !machine(runs).some(
             (block) =>
-              block.reference[0] === 'pass' &&
-              block.faults[single] === 'fail' &&
+              causalKill(block, single, record?.firstChange[block.spec]) &&
               combined?.get(block.key) === 'fail',
           );
         });

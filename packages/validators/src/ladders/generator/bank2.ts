@@ -136,7 +136,7 @@ function pathItems(): BankItem[] {
       const specs = walking(generated, 'new-request-full').filter(
         (spec) =>
           !probes(spec).includes('D8_tool_failure') &&
-          spec.blocks.some((block) => block.id.endsWith(`-${last}`)),
+          spec.blocks.some((block) => (block.id ?? '').endsWith(`-${last}`)),
       );
       const without = specs.filter((spec) => spec.end_state === undefined);
       return verdict(
