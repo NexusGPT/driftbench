@@ -1,0 +1,148 @@
+# Acme Telecom
+
+Acme Telecom is a fictional telecom. Its sales assistant is the agent every driftbench example runs
+against: a deterministic agent in TypeScript, in process, with tools and a fake payload store. No model,
+no API key, no network, no random number, no clock.
+
+The spec tree holds seven specs: six conversations with the assistant and one task for a code agent. One
+block model, two kinds of block. They share one inventory, one coverage matrix and the commands below.
+
+## Run it
+
+From the repository root:
+
+```sh
+pnpm driftbench spec validate examples/acme/specs
+pnpm driftbench spec lint --strict examples/acme/specs
+pnpm vitest run examples/acme
+pnpm driftbench spec coverage examples/acme/specs --inventory examples/acme/inventory.yaml
+```
+
+| Command | What you see |
+|---|---|
+| `spec validate` | 7 valid specs, each with its block count, perturbation count and hash |
+| `spec lint --strict` | 0 warnings, exit 0 |
+| `vitest run examples/acme` | every conversation spec driven through the agent, block by block, in a plain run and in one run per perturbation |
+| `spec coverage` | the behaviour by channel matrix and the flow by deviation matrix. It exits 1 on purpose: the inventory keeps known gaps |
+
+Until the Phase 1 runner lands, the tests are the way to run the conversation specs. They drive the user
+turns through the agent and check tools, `must`, `must_not`, steps, budgets, rules, the end state and the
+recovery after each perturbation. Criteria and ledgers wait for the judges of Phase 2 and 3. The task spec
+validates today; it runs once the `process` adapter and the artifact readers land.
+
+Talk to the agent from code:
+
+```ts
+import { createAcmeAgent } from './src/agent';
+
+const agent = createAcmeAgent();
+const observed = await agent.respond([
+  { role: 'user', content: 'Hi, do you have home internet at 3 Orchard Way, Acmeville?' },
+]);
+observed.text; // "Hi, I'm the Acme Telecom sales assistant. Good news: 3 Orchard Way, Acmeville has fiber up to 300 Mbps. ..."
+observed.toolCalls.map((call) => call.label); // ['coverage.check', 'catalog.search']
+observed.runtime?.steps; // [{ id: 'offer' }]
+```
+
+## What is here
+
+```
+examples/acme/
+  inventory.yaml                  behaviours, flows and channels: what coverage measures
+  specs/conversations/*.yaml      six conversation specs
+  specs/tasks/price-sheet.yaml    the code-agent task spec
+  src/agent.ts                    createAcmeAgent(store?): respond(messages, world?) returns an Observed
+  src/policy.ts                   the dialogue: flows, steps, replies
+  src/tools.ts                    catalog.search, coverage.check, port.check, order.create, notify_sales
+  src/store.ts                    plans, addresses, customers, transfer records, and the payload log
+  src/parse.ts                    how the agent reads a message: fixed patterns, no model
+  test/                           the tests, and test/support/drive.ts, the light runner they use
+```
+
+## The agent
+
+* Deterministic. The same messages and the same world give the same `Observed`. A test fails if the agent
+  reads the clock, draws a random number or calls `fetch`.
+* Stateless. `respond(messages, world)` answers the last user turn and rebuilds its state from the turns
+  before it. Earlier tool results come from `tool_calls` on assistant messages, so a past turn never calls
+  a tool again. Consecutive user messages form one turn and get one reply.
+* Observed. Each tool call is a `tool_call` segment followed by its `tool_result` segment. The reply is
+  one `text` segment. `toolCalls` lists the calls with input, output or error, and latency. `runtime.steps`
+  names the flow step the turn ends in. `cost` is `{ usd: 0 }`.
+* World. `world.tools.<label>.error` makes the tool fail, and the agent says so without inventing its
+  answer. `world.tools.<label>.result` replaces the answer. `latency_ms` is reported as the call's
+  latency. `world.store` seeds records over the store, such as a transfer record for one spec.
+* Retries. Read-only tools get one retry. `order.create` and `notify_sales` never do: a second call could
+  place an order twice.
+* Payload log. `order.create` and `notify_sales` record every payload they accept, forced results
+  included. An `end_state` with `source: tool:<label>` reads the last one.
+
+| Tool | Input | Answer |
+|---|---|---|
+| `catalog.search` | `category`, `customer_email`?, `address_id`? | `plans`; with an email, the `customer` and their current plan |
+| `coverage.check` | `address` | `found`, `address_id`, `fiber_mbps`, `five_g` |
+| `port.check` | `number` | `eligible`, and a `reason` when it is not |
+| `order.create` | `type`, `plan_id`, `customer_id` or `customer`, `address_id`?, `port_number`? | `order_id`, `status` |
+| `notify_sales` | `reason`, `customer`, `summary` | `ticket_id`, `queued` |
+
+A tool refuses a parameter it does not know, so an invented argument fails loudly. The flow steps a spec
+can expect: `needs`, `identify`, `address`, `port_number`, `offer`, `details`, `recap`, `order_placed`,
+`callback`, `handover`, `closing`.
+
+## The specs
+
+| Spec | Kind | Flow | Channel | Covers | Perturbations | What it shows |
+|---|---|---|---|---|---|---|
+| `plan-upgrade` | conversation | upgrade | chat | B-001, B-002, B-008, B-009, B-012 | D9_out_of_scope, D4_loose_confirmation | identify by email, offer more data only, CONFIRM before `order.create`, an exact end state |
+| `new-customer-coverage` | conversation | new-home | chat | B-003, B-004, B-005, B-011 | D1_off_topic, D6_instruction_in_data | coverage before any offer, only the plans the address gets, a callback lead |
+| `number-porting` | conversation | porting | whatsapp | B-006, B-008 | D5_language_switch, D7_silence_or_burst | `port.check` before any promise, a seeded store, the number on the order |
+| `order-loose-confirmation` | conversation | order | chat | B-003, B-008, B-009, B-010 | D4_loose_confirmation, D8_tool_failure | a loose yes written as an injection block, CONFIRM, the end state of `order.create` |
+| `off-topic-return` | conversation | new-home | chat | B-003, B-004, B-011 | D10_return | two off-topic detours and a return as injection blocks, no tool run twice, `end_state: none` |
+| `tool-failure` | conversation | new-home | chat | B-003, B-005, B-010 | D8_tool_failure | `coverage.check` forced to fail by a block override, an honest fallback, a stubbed `notify_sales` |
+| `price-sheet` | task | price-sheet | chat | B-013, B-014 | D6_instruction_in_data | code ran with exit 0, xlsx artifact checks, the workspace diff, no destructive operation, the xlsx skill |
+
+Between them the specs use `ledger_seed`, `given` on the spec and on blocks, tool overrides with `error`,
+`result` and `latency_ms`, a seeded store, `workspace_seed`, a `steps` catalogue, local `criteria` with
+`@gating`, `tool_order`, count ranges, every assertion kind (a bare value, `exact`, `regex`, `contains`,
+`one_of`, `nonempty`, `absent`, `subset`), the rules `max_calls`, `forbidden_tools`, `lang_stable` and
+`one_message_per_turn`, `end_state` in `exact`, `subset` and `none`, budgets, burst and injection
+stimuli, and perturbations by `user`, `burst` and `world`, each with a recovery.
+
+The task spec reads the same catalog the assistant sells from: a test fails if `catalog.csv` or the
+expected cells drift from `src/store.ts`. Its artifact check names (`sheets`, `header`, `rows`, `cells`,
+`formula`, `no_error_cells`) are a proposal for the artifact readers.
+
+## The inventory
+
+`inventory.yaml` lists 14 behaviours (12 conversation, 2 task), 5 flows and 2 channels. A spec covers
+behaviours through `covers`, joins a flow through its `flow:<id>` tag, and runs on one `channel`. A
+behaviour without `channels` applies to every channel.
+
+The gaps are deliberate, so the matrix shows covered and missing cells:
+
+* B-007 (a number that cannot move) has no spec yet.
+* Most behaviours have no WhatsApp spec, and B-006 has no chat spec.
+* The new-home flow requires D5_language_switch, and no new-home spec perturbs with it.
+* The order flow requires D2_goal_shift and D3_contradiction, and no order spec perturbs with them.
+
+## How the tests read a spec
+
+`test/support/drive.ts` stands in for the Phase 1 runner, with these readings:
+
+* Free-running. The history is the scripted user turns plus the agent's own replies.
+* A perturbation with `user` or `burst` inserts a block before block `inject_at`, checked against the
+  perturbation's `expect`. A perturbation with only `world` inserts nothing: its world applies from block
+  `inject_at` onwards, and its `expect` replaces that block's.
+* Worlds accumulate: the spec's, then each block's from that block onwards, then the perturbation's. For
+  each tool, the later one wins.
+* Recovery holds when a block within `within_blocks` of the injection, the injection itself counting as 0,
+  ends in `step_after`.
+* The end state is checked on unperturbed runs. A tool with no `count` must run at least once. Input
+  assertions hold on every call of the tool in the block.
+* `lang_stable` is read as "no reply carries a word of another language", a stand-in for the language
+  detector of the checks package.
+
+## Data
+
+Everything here is fictional: Acme Telecom, the town of Acmeville, the people, the prices, the plans.
+Emails use example.com. Phones sit in the reserved range +1 202 555 0100 to +1 202 555 0199.
