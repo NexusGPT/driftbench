@@ -78,7 +78,7 @@ export function measureHardness(rows: readonly JournalRow[]): Hardness {
       iteration: latest.iteration,
       size: latest.bankSize,
       passing: latest.passing,
-      byFamilyTier: latest.bankByFamilyTier,
+      byFamilyTier: latest.bankByFamilyTier ?? {},
       failingByFamily: latest.failingByFamily,
     },
     iteration0: { bankSize: zero.bankSize, passing: zero.passing, score: score(zero) },
@@ -95,6 +95,10 @@ function bankMinimum(row: JournalRow): Hardness['bankMinimum'] {
   const problems: string[] = [];
   if (row.bankSize < BANK_MIN_SIZE)
     problems.push(`the bank holds ${row.bankSize} items, under ${BANK_MIN_SIZE}`);
+  if (!row.bankByFamilyTier) {
+    problems.push('the row records no bankByFamilyTier, so family and tier sizes are unknown');
+    return { holds: false, problems };
+  }
   const tiers = new Set<string>();
   for (const [family, perTier] of Object.entries(row.bankByFamilyTier)) {
     const size = Object.values(perTier).reduce((sum, value) => sum + value, 0);

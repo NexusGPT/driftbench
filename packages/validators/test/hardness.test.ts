@@ -30,6 +30,11 @@ describe('the journal row of the hardness contract', () => {
     );
     const { bankSize: _dropped, ...noBank } = journalRow(1);
     expect(ok(noBank)).toBe(false);
+    const { bankByFamilyTier: _tiers, ...frozenNames } = journalRow(0);
+    expect(ok(frozenNames)).toBe(true);
+    expect(measureHardness([JournalRowSchema.parse(frozenNames)]).bankMinimum.problems).toContain(
+      'the row records no bankByFamilyTier, so family and tier sizes are unknown',
+    );
   });
 });
 

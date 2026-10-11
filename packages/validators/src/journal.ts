@@ -57,7 +57,9 @@ export const JournalRowSchema = z
     bankSize: count,
     passing: count,
     failingByFamily: z.record(z.string().min(1), count),
-    bankByFamilyTier: z.record(z.string().min(1), z.record(z.string().regex(/^([1-5]|none)$/), count)),
+    bankByFamilyTier: z
+      .record(z.string().min(1), z.record(z.string().regex(/^([1-5]|none)$/), count))
+      .optional(),
     failingBefore: z.array(z.string().min(1)),
     hypothesis: z.string().min(1),
     research: z
@@ -144,18 +146,19 @@ export const JournalRowSchema = z
         message: `failingByFamily sums to ${failing}, but bankSize minus passing is ${row.bankSize - row.passing}`,
       });
     }
-    const banked = Object.values(row.bankByFamilyTier)
+    const perTier = row.bankByFamilyTier;
+    const banked = Object.values(perTier ?? {})
       .flatMap((tiers) => Object.values(tiers))
       .reduce((sum, value) => sum + value, 0);
-    if (banked !== row.bankSize) {
+    if (perTier && banked !== row.bankSize) {
       ctx.addIssue({
         code: 'custom',
         path: ['bankByFamilyTier'],
         message: `bankByFamilyTier sums to ${banked}, but bankSize is ${row.bankSize}`,
       });
     }
-    for (const [family, failed] of Object.entries(row.failingByFamily)) {
-      const size = Object.values(row.bankByFamilyTier[family] ?? {}).reduce((sum, value) => sum + value, 0);
+    for (const [family, failed] of Object.entries(perTier ? row.failingByFamily : {})) {
+      const size = Object.values(perTier?.[family] ?? {}).reduce((sum, value) => sum + value, 0);
       if (failed > size) {
         ctx.addIssue({
           code: 'custom',
