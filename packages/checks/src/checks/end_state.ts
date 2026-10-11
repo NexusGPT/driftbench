@@ -28,8 +28,9 @@ type FieldCheck = EndStateDiff & { id: string; ok: boolean; evidence: string };
  *
  * `subset` (the default) compares the listed fields, `exact` also fails on a field the spec does not
  * list. One verdict per expected field, the same ids whether or not anything was read; a source that
- * recorded nothing fails every expected field, `{ absent: true }` assertions included. With an empty
- * `expect`, it fails once as `end_state.<source>`, a diff entry `{ field: <source>, expected:
+ * recorded nothing, or a state that is not a mapping, fails every expected field, `{ absent: true }`
+ * assertions included. An empty `expect` gives one verdict `end_state.<source>`: it passes when the source
+ * recorded anything, and fails when it recorded nothing, with the diff entry `{ field: <source>, expected:
  * { nonempty: true }, observed: { absent: true } }`, in a list too.
  */
 export const endState: Check = {
@@ -101,16 +102,30 @@ function fieldChecks(spec: EndStateSpec | EndStateSpec[], value: unknown): Field
 
 function entryChecks(entry: EndStateSpec, state: unknown, prefix: string): FieldCheck[] {
   const fields = Object.entries(entry.expect);
+  const nothing = state === undefined || state === null;
+  if (fields.length === 0) {
+    // An empty expect asks only that the source recorded something, whatever its shape.
+    const presence = nothing
+      ? missing(
+          entry.source,
+          { nonempty: true },
+          `${entry.source}: nothing was read (no payload recorded, or the adapter cannot read end states); expected a recorded state`,
+        )
+      : {
+          id: entry.source,
+          field: entry.source,
+          expected: { nonempty: true },
+          observed: state,
+          ok: true,
+          evidence: `${entry.source} recorded ${isRecord(state) ? 'a mapping' : typeName(state)} ${show(state)}`,
+        };
+    if (nothing || !isRecord(state) || entry.mode !== 'exact') return [presence];
+    return [presence, ...extras(entry, state, prefix)];
+  }
   if (!isRecord(state)) {
-    const why =
-      state === undefined || state === null
-        ? 'nothing was read (no payload recorded, or the adapter cannot read end states)'
-        : `the state read is ${typeName(state)} (${show(state)}), not a mapping`;
-    if (fields.length === 0) {
-      return [
-        missing(entry.source, { nonempty: true }, `${entry.source}: ${why}; expected a recorded state`),
-      ];
-    }
+    const why = nothing
+      ? 'nothing was read (no payload recorded, or the adapter cannot read end states)'
+      : `the state read is ${typeName(state)} (${show(state)}), not a mapping`;
     return fields.map(([field, assertion]) =>
       missing(
         `${prefix}${field}`,
@@ -132,20 +147,21 @@ function entryChecks(entry: EndStateSpec, state: unknown, prefix: string): Field
       evidence: `${entry.source} ${field} is ${show(observed)}, expected ${result.expected}${problem}`,
     };
   });
-  if (entry.mode === 'exact') {
-    for (const field of definedKeys(state)) {
-      if (field in entry.expect) continue;
-      checks.push({
-        id: `${prefix}${field}`,
-        field: `${prefix}${field}`,
-        expected: { absent: true },
-        observed: state[field],
-        ok: false,
-        evidence: `${entry.source} ${field} is ${show(state[field])}, a field the exact end state does not list`,
-      });
-    }
-  }
-  return checks;
+  return entry.mode === 'exact' ? [...checks, ...extras(entry, state, prefix)] : checks;
+}
+
+/** Exact mode: every field of the read state the spec does not list fails, expected `{ absent: true }`. */
+function extras(entry: EndStateSpec, state: Record<string, unknown>, prefix: string): FieldCheck[] {
+  return definedKeys(state)
+    .filter((field) => !(field in entry.expect))
+    .map((field) => ({
+      id: `${prefix}${field}`,
+      field: `${prefix}${field}`,
+      expected: { absent: true },
+      observed: state[field],
+      ok: false,
+      evidence: `${entry.source} ${field} is ${show(state[field])}, a field the exact end state does not list`,
+    }));
 }
 
 /** The type of a state that is not a mapping, as evidence names it. */

@@ -192,6 +192,26 @@ describe('end_state', () => {
     ).toEqual([]);
   });
 
+  it('mutation: an empty expect passes on anything recorded, a string included; nothing recorded fails it', async () => {
+    const single: Spec = { ...loose, end_state: { source: 'tool:order.create', expect: {} } };
+    const recorded = await run(
+      endState,
+      context(single, last(single), observed(placed), { endState: 'ORD-222B51' }),
+    );
+    expect(recorded.map((item) => [item.id, item.outcome, item.evidence])).toEqual([
+      ['end_state.tool:order.create', 'pass', 'tool:order.create recorded a string "ORD-222B51"'],
+    ]);
+    expect(compareEndState(single.end_state ?? 'none', 'ORD-222B51')).toEqual({ match: true, diff: [] });
+    const nothing = await run(endState, context(single, last(single), observed(placed), { endState: null }));
+    expect(outcomes(nothing)).toEqual({ 'end_state.tool:order.create': 'fail' });
+    const strict: Spec = { ...loose, end_state: { source: 'tool:order.create', mode: 'exact', expect: {} } };
+    const extra = await run(
+      endState,
+      context(strict, last(strict), observed(placed), { endState: { plan_id: 'fiber-1000' } }),
+    );
+    expect(outcomes(extra)).toEqual({ 'end_state.tool:order.create': 'pass', 'end_state.plan_id': 'fail' });
+  });
+
   it('runs only on the last spec block of a T or F run, found by identity whatever the run position', () => {
     expect(endState.applies(context(loose, 1, observed('ok'), { endState: order }))).toBe(false);
     expect(
