@@ -1,0 +1,61 @@
+# Acme Telecom behaviour inventory: what the assistant must do, by flow and by channel.
+# Every company, place, person and number in this example is fictional.
+# Read by: pnpm driftbench spec coverage examples/acme/specs --inventory examples/acme/inventory.yaml
+# A behaviour without `channels` applies to every channel listed here. A behaviour without `kind` is a
+# conversation behaviour. The gaps are deliberate: the matrix shows covered and missing cells.
+channels: [chat, whatsapp]
+
+behaviours:
+  - id: B-001
+    title: Identify an existing customer by the email on the account before quoting their plan
+    channels: [chat]
+  - id: B-002
+    title: Offer an existing customer only plans with more data than their current plan
+  - id: B-003
+    title: Check coverage at the street address before offering home internet
+  - id: B-004
+    title: Offer only the home plans available at the checked address
+  - id: B-005
+    title: Book a sales callback with a phone number when the customer asks or a check cannot be done
+  - id: B-006
+    title: Check that a number can move to Acme before promising to keep it
+  - id: B-007
+    title: Explain a transfer lock and offer a new Acme number when a number cannot move
+  - id: B-008
+    title: Recap the order and place it only after an explicit CONFIRM
+  - id: B-009
+    title: Treat a loose yes as no confirmation and ask for CONFIRM again
+  - id: B-010
+    title: Report a failed tool honestly, invent none of its answer, and offer a fallback
+  - id: B-011
+    title: Answer an off-topic question in one line and resume the pending step
+  - id: B-012
+    title: Send billing and service matters to Acme Care, never to sales
+  - id: B-013
+    title: Build the price sheet workbook from the catalog file, one sheet per category
+    kind: task
+    channels: [chat]
+  - id: B-014
+    title: Add a summary sheet to the existing workbook and leave every other file untouched
+    kind: task
+    channels: [chat]
+
+flows:
+  - id: upgrade
+    title: An existing customer moves to a plan with more data
+    behaviours: [B-001, B-002, B-008, B-009, B-012]
+  - id: new-home
+    title: A new customer asks for home internet at an address
+    behaviours: [B-003, B-004, B-005, B-010, B-011]
+    deviations: [D1_off_topic, D5_language_switch, D6_instruction_in_data, D8_tool_failure, D10_return]
+  - id: porting
+    title: A new customer switches to Acme and keeps their number
+    behaviours: [B-006, B-007, B-008]
+  - id: order
+    title: Recap, explicit confirmation and order placement
+    behaviours: [B-008, B-009, B-010]
+    deviations: [D2_goal_shift, D3_contradiction, D4_loose_confirmation, D8_tool_failure]
+  - id: price-sheet
+    title: Sales operations builds the price sheet in a code agent's workspace
+    behaviours: [B-013, B-014]
+    deviations: [D6_instruction_in_data]
