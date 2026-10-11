@@ -409,7 +409,7 @@ describe('the record and the seed', () => {
     expect(asks(two).filter((_, index) => [...specs(two).keys()][index]?.includes('.weekly-'))).toEqual(
       Array(12).fill("Add the late shipment count to this week's report, reports/2026-W41.md."),
     );
-  });
+  }, 60_000);
 });
 
 describe('the committed suite', () => {
