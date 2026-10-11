@@ -1,4 +1,17 @@
-import { BlockResult, Campaign, Observed, RunResult, Segment, Verdict } from '@driftbench/core';
+import {
+  Block,
+  BlockResult,
+  BlockSpec,
+  Campaign,
+  Given,
+  GivenOverride,
+  Observed,
+  Perturbation,
+  PerturbationSpec,
+  RunResult,
+  Segment,
+  Verdict,
+} from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
 
 const observed = {
@@ -106,5 +119,14 @@ describe('run records', () => {
     };
     expect(Campaign.parse(campaign).repeats.F).toBe(5);
     expect(Campaign.safeParse({ ...campaign, modes: [] }).success).toBe(false);
+  });
+});
+
+describe('spec schema names', () => {
+  it('exposes Block, Given and Perturbation as the documented short names', () => {
+    expect(Block).toBe(BlockSpec);
+    expect(Given).toBe(GivenOverride);
+    expect(Perturbation).toBe(PerturbationSpec);
+    expect(Block.safeParse({ when: { user: 'hi' } }).success).toBe(true);
   });
 });

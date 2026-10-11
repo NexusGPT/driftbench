@@ -177,3 +177,11 @@ export const Spec = z.strictObject({
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 export type Spec = z.infer<typeof Spec>;
+
+/** Short names used in the docs: a block, the conditions it starts from, and an injected deviation. */
+export const Block = BlockSpec;
+export type Block = BlockSpec;
+export const Given = GivenOverride;
+export type Given = z.infer<typeof GivenOverride>;
+export const Perturbation = PerturbationSpec;
+export type Perturbation = PerturbationSpec;
