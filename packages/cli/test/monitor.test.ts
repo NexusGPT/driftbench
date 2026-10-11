@@ -307,6 +307,20 @@ describe('monitor()', () => {
     expect(drop.ks).toMatchObject({ index: 20, statistic: 1, change: true });
     expect(drop.ks?.alpha).toBeCloseTo(0.05 / 21, 12);
     expect(drop.votes).toBe(3);
+    // Tied splits keep the first: on a flat series every D is 0 and the KS change sits at the first split.
+    const level = monitor(points(Array(40).fill(0.9)), 'pass_rate', 10, {
+      store: 's',
+      campaigns: 40,
+      skipped: [],
+    });
+    expect(level.ks).toMatchObject({ index: 10, statistic: 0, change: false });
+    // A smaller drop takes three points to cross h; the CUSUM dates its start back to the first of them.
+    const slow = monitor(points([...Array(20).fill(1), ...Array(20).fill(0.975)]), 'pass_rate', 10, {
+      store: 's',
+      campaigns: 40,
+      skipped: [],
+    });
+    expect(slow.cusum.alarms[0]).toMatchObject({ index: 22, direction: 'down', start: 20 });
   });
 
   it('takes the in-control sd from the runs when the warmup campaigns happen to agree', () => {
@@ -379,6 +393,9 @@ describe('driftbench monitor input', () => {
       const short = await cli(['monitor', '--store', path, '--metric', 'cost']);
       expect(short.code).toBe(2);
       expect(short.err).toContain('The store holds 15 campaigns with runs; --window 20 needs at least 40.');
+      const half = await cli(['monitor', '--store', path, '--metric', 'cost', '--window', '10']);
+      expect(half.code).toBe(2);
+      expect(half.err).toContain('The store holds 15 campaigns with runs; --window 10 needs at least 20.');
       const fits = await cli(['monitor', '--store', path, '--metric', 'cost', '--window', '5']);
       expect(fits.err).toBe('');
       expect(fits.code).toBe(0);

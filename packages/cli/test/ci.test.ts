@@ -316,6 +316,47 @@ describe('driftbench ci baselines', () => {
   );
 
   it(
+    'runs the agent on every cell by default, and replays the cache only with --cache',
+    async () => {
+      const dir = await tempFolder();
+      const base = join(dir, 'base.db');
+      await baselineCampaign(CONVERSATIONS, base);
+      const store = join(dir, 'cand.db');
+      const args = (out: string) => [
+        'ci',
+        '--specs',
+        CONVERSATIONS,
+        '--target',
+        'function:acme-sales',
+        '--baseline',
+        base,
+        '--store',
+        store,
+        '--margin',
+        '50',
+        '--out',
+        join(dir, out),
+      ];
+      const hits = async (out: string) => {
+        const summary = await summaryAt(join(dir, out));
+        const opened = openStore(store);
+        try {
+          const stored = await opened.listRuns({ campaignId: summary.candidate.campaignId });
+          return stored.filter((run) => run.cacheHit).length;
+        } finally {
+          await opened.close();
+        }
+      };
+      expect((await cli([...args('first.json'), '--cache'])).code).toBe(0);
+      expect((await cli(args('second.json'))).code).toBe(0);
+      expect(await hits('second.json')).toBe(0);
+      expect((await cli([...args('third.json'), '--cache'])).code).toBe(0);
+      expect(await hits('third.json')).toBe(6);
+    },
+    SLOW,
+  );
+
+  it(
     'lists the goldens only one side ran and compares the rest',
     async () => {
       const dir = await tempFolder();
@@ -562,6 +603,20 @@ describe('pairArms and compareArms', () => {
     verdict.gating = true;
     // The same flag on both sides is no new flag.
     expect(pairArms(candidate, candidate, ['safety']).pairs.some((pair) => pair.newFlag)).toBe(false);
+  });
+
+  it('keeps the modes apart: a spec in T and in F is two goldens', () => {
+    const teacher = structuredClone(runs).map((run) => ({ ...run, mode: 'T' as const }));
+    const candidate = [...structuredClone(runs), ...structuredClone(teacher)];
+    const broken = candidate.find(
+      (run) => run.specId === 'acme-plan-upgrade' && run.mode === 'T',
+    ) as RunResult;
+    (broken.blocks[0] as RunResult['blocks'][number]).pass = false;
+    const paired = pairArms([...runs, ...teacher], candidate, [...DEFAULT_FLAGS]);
+    expect(paired.pairs).toHaveLength(12);
+    expect(paired.pairs.filter((pair) => pair.change === 'regressed').map((pair) => pair.name)).toEqual([
+      'acme-plan-upgrade · T',
+    ]);
   });
 
   it('compareArms is nonInferiority on the all-pass flag: the regression effect and the new flags', () => {
