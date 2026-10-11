@@ -35,3 +35,17 @@ export {
   redteamPack,
 } from './redteam';
 export { createScriptedDriver } from './scripted';
+export {
+  createSimulatedUser,
+  describePersona,
+  loadPersona,
+  loadUserRecording,
+  Persona,
+  personaOptions,
+  type SimulatedUser,
+  SimulatedUserError,
+  type SimulatedUserOptions,
+  type UserModelPort,
+  UserRecording,
+  userRecordingPort,
+} from './simulated';
