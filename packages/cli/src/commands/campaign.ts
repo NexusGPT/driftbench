@@ -12,8 +12,6 @@ import {
   type Campaign,
   type CampaignPlan,
   type CellOutcome,
-  type Check,
-  type CheckContext,
   type CheckSet,
   type CostLine,
   type CostUnit,
@@ -23,7 +21,6 @@ import {
   loadSpecs,
   type MinimumDetectableEffect,
   minimumDetectableEffect,
-  type ObservedCache,
   outcomeOf,
   type PlanOptions,
   planCampaign,
@@ -414,9 +411,11 @@ async function executeCampaign(
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
     driver: () => deps.driver(),
-    checks: withReaders(deps.checks, deps.artifacts),
+    checks: deps.checks,
+    ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
     store,
-    ...(flags.cache ? { cache: replayableCache(store) } : {}),
+    // The runner neither replays nor caches a run in a sandbox: a replay has no workspace to read.
+    ...(flags.cache ? { cache: store } : {}),
     now: () => deps.now(),
     concurrency: flags.concurrency,
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
@@ -689,40 +688,6 @@ function planFor(
         ...(effect === undefined ? {} : { effect }),
       };
     }),
-  };
-}
-
-/**
- * The checks, with the artifact readers in their context. runSpec takes readers, but runCampaign does not
- * pass them on, so a check here gets them whenever the runner left them out.
- */
-function withReaders(checks: CheckSet, readers: ArtifactReaderRegistry | undefined): CheckSet {
-  if (readers === undefined) return checks;
-  const give = (ctx: CheckContext): CheckContext =>
-    ctx.artifacts === undefined ? { ...ctx, artifacts: readers } : ctx;
-  return checks.map(
-    (check): Check => ({
-      name: check.name,
-      applies: (ctx) => check.applies(give(ctx)),
-      evaluate: (ctx) => check.evaluate(give(ctx)),
-    }),
-  );
-}
-
-/**
- * The store as the cache, without the blocks of an agent that ran in a sandbox. A replay opens no
- * workspace, so the artifact checks could not read the files such a block made: those blocks are neither
- * cached nor replayed, and their runs go live every time.
- */
-function replayableCache(store: Store): ObservedCache {
-  return {
-    async cacheGet(key) {
-      const hit = await store.cacheGet(key);
-      return hit?.sandbox === undefined ? hit : undefined;
-    },
-    async cachePut(key, observed, ttlMs) {
-      if (observed.sandbox === undefined) await store.cachePut(key, observed, ttlMs);
-    },
   };
 }
 

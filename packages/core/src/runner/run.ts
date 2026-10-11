@@ -39,7 +39,8 @@ export type RunOptions = {
   store?: Store;
   campaignId?: string;
   /** Observed blocks and end-state reads go to this cache, and a run is replayed from it when every
-   *  block and read of the run is in it. Absent: no cache, every block reaches the adapter. */
+   *  block and read of the run is in it. Absent: no cache, every block reaches the adapter. An adapter
+   *  whose capabilities say `sandbox` never uses it: a replay has no workspace to read files from. */
   cache?: ObservedCache;
   cacheTtlMs?: number;
   /** Readers for the artifact checks, passed to every CheckContext. */
@@ -76,6 +77,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   // In P mode the spec's end state describes the unperturbed run, so it is neither read nor compared, as
   // the Acme light runner and the end_state check do; phase 3 decides what a perturbed run should leave.
   const endState = options.mode === 'P' ? undefined : spec.end_state;
+  const capabilities = options.adapter.capabilities();
+  // A run in a sandbox is neither replayed nor cached: a replay opens no workspace, so the artifact
+  // checks could not read the files its blocks made. It goes live every time.
+  const cache = capabilities.sandbox ? undefined : options.cache;
   const run: RunContext = {
     spec,
     specHash,
@@ -84,10 +89,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     repeat: options.repeat,
     perturbationId: options.perturbationId,
     adapter: options.adapter,
-    capabilities: options.adapter.capabilities(),
+    capabilities,
     driver: options.driver,
     checks: options.checks,
-    cache: options.cache,
+    cache,
     cacheTtlMs: options.cacheTtlMs,
     artifacts: options.artifacts,
     retry: options.retry,
@@ -107,7 +112,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     sources: endStateSources(endState),
   };
 
-  const replayed = options.cache ? await execute(run, replayChannel(options.cache)) : undefined;
+  const replayed = cache ? await execute(run, replayChannel(cache)) : undefined;
   const result = replayed ?? (await execute(run, liveChannel(run)));
   if (!result) throw new Error('runSpec: a live run always gives a result');
   // The run as the store keeps it: written as JSON and read back, so what is returned is what is stored.
