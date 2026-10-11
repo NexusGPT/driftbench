@@ -28,7 +28,9 @@ type FieldCheck = EndStateDiff & { id: string; ok: boolean; evidence: string };
  *
  * `subset` (the default) compares the listed fields, `exact` also fails on a field the spec does not
  * list. One verdict per expected field, the same ids whether or not anything was read; a source that
- * recorded nothing fails every expected field, `{ absent: true }` assertions included.
+ * recorded nothing fails every expected field, `{ absent: true }` assertions included. With an empty
+ * `expect`, it fails once as `end_state.<source>`, a diff entry `{ field: <source>, expected:
+ * { nonempty: true }, observed: { absent: true } }`, in a list too.
  */
 export const endState: Check = {
   name: NAME,
@@ -104,7 +106,11 @@ function entryChecks(entry: EndStateSpec, state: unknown, prefix: string): Field
       state === undefined || state === null
         ? 'nothing was read (no payload recorded, or the adapter cannot read end states)'
         : `the state read is ${show(state)}, not a mapping`;
-    if (fields.length === 0) return [missing(entry.source, {}, `${entry.source}: ${why}`)];
+    if (fields.length === 0) {
+      return [
+        missing(entry.source, { nonempty: true }, `${entry.source}: ${why}; expected a recorded state`),
+      ];
+    }
     return fields.map(([field, assertion]) =>
       missing(
         `${prefix}${field}`,

@@ -141,6 +141,27 @@ describe('end_state', () => {
     });
   });
 
+  it('an empty expect fails once when its source recorded nothing, its field the source, in a list too', async () => {
+    const single: Spec = { ...loose, end_state: { source: 'tool:order.create', expect: {} } };
+    const verdicts = await run(endState, context(single, last(single), observed(placed)));
+    expect(outcomes(verdicts)).toEqual({ 'end_state.tool:order.create': 'fail' });
+    const entry = { field: 'tool:order.create', expected: { nonempty: true }, observed: { absent: true } };
+    expect(compareEndState(single.end_state ?? 'none', undefined).diff).toEqual([entry]);
+    const list: Spec = {
+      ...loose,
+      end_state: [
+        { source: 'tool:order.create', expect: {} },
+        { source: 'tool:notify_sales', expect: { reason: 'order_failed' } },
+      ],
+    };
+    expect(
+      compareEndState(list.end_state ?? 'none', { 'tool:notify_sales': { reason: 'order_failed' } }).diff,
+    ).toEqual([entry]);
+    expect(
+      failing(await run(endState, context(single, last(single), observed(placed), { endState: order }))),
+    ).toEqual([]);
+  });
+
   it('runs only on the last spec block of a T or F run, found by identity whatever the run position', () => {
     expect(endState.applies(context(loose, 1, observed('ok'), { endState: order }))).toBe(false);
     expect(
