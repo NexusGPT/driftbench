@@ -16,6 +16,7 @@ import { registerPilotCommand } from './commands/pilot';
 import { registerReplayCommand } from './commands/replay';
 import { registerReportCommand } from './commands/report';
 import { registerSelectCommand } from './commands/select';
+import { registerSimulateCommand } from './commands/simulate';
 import { registerSmokeCommand } from './commands/smoke';
 import { registerSpaceCommands } from './commands/space';
 import { registerSpecCommands } from './commands/spec';
@@ -48,6 +49,7 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerFamilyCommand(program, io, setExit);
   registerPilotCommand(program, io, setExit);
   registerPerturbCommand(program, io, setExit);
+  registerSimulateCommand(program, io, setExit);
   registerJudgeCommand(program, io, setExit);
   registerValidateCommand(program, io, setExit);
   registerReportCommand(program, io, setExit);

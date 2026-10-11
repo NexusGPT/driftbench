@@ -37,12 +37,14 @@ import {
   TargetRef,
   type UserDriver,
 } from '@driftbench/core';
+import { portFromEnv } from '@driftbench/generate';
 import { localProvider } from '@driftbench/sandbox';
 import { bootstrapCI } from '@driftbench/stats';
 import { openMemoryStore, openStore } from '@driftbench/store';
-import { createPerturbingDriver, createScriptedDriver } from '@driftbench/users';
+import { createPerturbingDriver, createScriptedDriver, type UserModelPort } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
 export type CampaignScope = {
@@ -68,6 +70,11 @@ export type CampaignDeps = {
   driver(cell?: PlannedCell, spec?: Spec): UserDriver;
   /** Tools whose call is a consequential act, for the recovery metrics of mode P. */
   consequential?: (label: string) => boolean;
+  /**
+   * The model port a simulated user speaks through with --model. Default: the port the environment
+   * configures (portFromEnv of @driftbench/generate). Tests pass a fake one.
+   */
+  modelPort?(): UserModelPort;
   /** The store at a path, or one held in memory without a path. A failure to open is reported, exit 2. */
   openStore(path: string | undefined): Promise<Store>;
   now(): Date;
@@ -133,6 +140,12 @@ type RunCommandOptions = {
   concurrency: string;
   budgetUsd?: string;
   json?: boolean;
+  driver?: string;
+  persona?: string[];
+  recording?: string[];
+  model?: boolean;
+  agentFamily?: string;
+  judgeFamily?: string[];
 };
 
 type StoredCommandOptions = {
@@ -181,6 +194,32 @@ export function registerCampaignCommands(
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', 'a hard stop: no cell starts once the campaign has spent this much')
+    .option(
+      '--driver <driver>',
+      "who writes the user turns: scripted (the spec's own) or simulated (a persona)",
+      'scripted',
+    )
+    .option(
+      '--persona <file>',
+      'with --driver simulated: a persona, which plays the spec its file names; repeat it',
+      collect,
+      [],
+    )
+    .option(
+      '--recording <file>',
+      'with --driver simulated: replay the answers of a recording; repeat it',
+      collect,
+      [],
+    )
+    .option(
+      '--model',
+      'with --driver simulated: speak through the model port the environment configures (paid)',
+    )
+    .option(
+      '--agent-family <family>',
+      'the model family of the agent under test; none for an agent that is not a model',
+    )
+    .option('--judge-family <family>', 'a model family of the judges; repeat it', collect, [])
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: RunCommandOptions) => {
       setExit(await campaignRunCommand(paths, options, io, deps));
@@ -309,11 +348,15 @@ export async function campaignRunCommand(
   if (!loaded) return 2;
   const runs = specRuns(loaded, shape.targets, io);
   if (!runs) return 2;
+  const driven = await driverDeps(options, runs, deps, io);
+  if (!driven) return 2;
+  deps = driven.deps;
   const scope = openScope();
   try {
     const adapters = await adaptersFor(runs, deps, scope, io);
     if (!adapters) return 2;
     if (!options.json) io.out(targetNotes(loaded, shape.targets));
+    if (!options.json && driven.note) io.out(driven.note);
 
     const store = await openReported(deps, options.store ? resolve(io.cwd, options.store) : undefined, io);
     if (!store) return 2;
@@ -1198,4 +1241,81 @@ function packageName(manifest: string): unknown {
     // A package.json that does not parse belongs to no package this lookup wants.
     return undefined;
   }
+}
+
+/**
+ * The deps a run uses for `--driver`: unchanged for scripted; for simulated, each spec a persona plays runs
+ * with a fresh simulated user of that persona (under the perturbing driver in mode P). Every spec of the
+ * campaign needs a persona, and every target a family other than the user's. Undefined, printed, on bad input.
+ */
+async function driverDeps(
+  options: RunCommandOptions,
+  runs: readonly SpecRun[],
+  deps: CampaignDeps,
+  io: Io,
+): Promise<{ deps: CampaignDeps; note?: string } | undefined> {
+  const kind = options.driver ?? 'scripted';
+  if (kind !== 'scripted' && kind !== 'simulated') {
+    io.err(`--driver takes scripted or simulated, not "${kind}".\n`);
+    return undefined;
+  }
+  if (kind === 'scripted') {
+    if ((options.persona ?? []).length > 0 || (options.recording ?? []).length > 0 || options.model) {
+      io.err('--persona, --recording and --model go with --driver simulated.\n');
+      return undefined;
+    }
+    return { deps };
+  }
+  if ((options.persona ?? []).length === 0) {
+    io.err('--driver simulated needs a --persona for each spec.\n');
+    return undefined;
+  }
+  const source = await userSource(options, () => (deps.modelPort ?? portFromEnv)(), io);
+  if (!source) return undefined;
+  const personas = await loadPersonas(options.persona ?? [], io);
+  if (!personas) return undefined;
+  const makers = new Map<string, () => UserDriver>();
+  const lines: string[] = [];
+  for (const run of runs) {
+    const played = personas.find((entry) => entry.specId === run.spec.id);
+    if (!played) {
+      io.err(`No persona plays ${run.spec.id}: give a --persona whose spec is that file.\n`);
+      return undefined;
+    }
+    const port = portFor(source, played.persona);
+    if (typeof port === 'string') {
+      io.err(`${port}\n`);
+      return undefined;
+    }
+    for (const target of run.targets) {
+      const family = agentFamilyOf(target, options.agentFamily);
+      if (family === undefined) {
+        io.err(
+          `Name the model family of ${showTarget(target)} with --agent-family (none for an agent that is not a model).\n`,
+        );
+        return undefined;
+      }
+      const make = userFactory(played.persona, port, family, options.judgeFamily ?? []);
+      if (typeof make === 'string') {
+        io.err(`${make}\n`);
+        return undefined;
+      }
+      makers.set(run.spec.id, make);
+    }
+    lines.push(`persona ${played.persona.id} on ${run.spec.id}, ${describeSource(source, played.persona)}`);
+  }
+  return {
+    deps: {
+      ...deps,
+      driver: (cell, spec) => {
+        const make = spec === undefined ? undefined : makers.get(spec.id);
+        if (!make || !spec) return deps.driver(cell, spec);
+        const user = make();
+        return cell?.perturbationId === undefined
+          ? user
+          : createPerturbingDriver({ spec, perturbation: cell.perturbationId, base: user });
+      },
+    },
+    note: `Driver: simulated, ${lines.join('; ')}.\n`,
+  };
 }
