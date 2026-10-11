@@ -108,7 +108,7 @@ export function parseAnswerText(raw: string): JudgeResult {
 
 /** Validates an already decoded answer against the contract. */
 export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(value)): JudgeResult {
-  const parsed = JudgeAnswer.safeParse(value);
+  const parsed = JudgeAnswer.safeParse(normalized(value));
   if (parsed.success) return { answer: parsed.data, raw };
   const issue = parsed.error.issues[0];
   const where = issue?.path.join('.') || '(root)';
@@ -117,6 +117,13 @@ export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(va
     raw,
     unparsed: true,
   };
+}
+
+/** A model writing PASS or Fail means the outcome: the outcome is read without case or surrounding space. */
+function normalized(value: unknown): unknown {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return value;
+  const outcome = (value as Record<string, unknown>).outcome;
+  return typeof outcome === 'string' ? { ...value, outcome: outcome.trim().toLowerCase() } : value;
 }
 
 /** Every balanced top-level JSON object in a text, in order; fences and prose around them ignored. */

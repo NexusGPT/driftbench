@@ -61,3 +61,11 @@ describe('the answer contract after prose with braces', () => {
     expect(parseAnswerText('{"answer":{"outcome":"pass","reasoning":"r"}}').unparsed).toBe(true);
   });
 });
+
+describe('the outcome without case', () => {
+  it('reads PASS and Fail as pass and fail, and still refuses an unknown word', () => {
+    expect(parseAnswerText('{"outcome":"PASS","reasoning":"r"}').answer.outcome).toBe('pass');
+    expect(parseAnswerText('{"outcome":" Fail ","reasoning":"r"}').answer.outcome).toBe('fail');
+    expect(parseAnswerText('{"outcome":"YES","reasoning":"r"}').unparsed).toBe(true);
+  });
+});
