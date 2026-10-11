@@ -31,7 +31,7 @@ export {
   type PilotOptions,
   type PilotVariant,
   pilotFactors,
-  stimulusText,
+  stimulusText as pilotStimulusText,
 } from './design';
 export { formatPilotPlan, formatPilotReport, type PilotReport, pilotReport } from './report';
 export {
