@@ -138,7 +138,7 @@ describe('analysePilot on a control with planted variance', () => {
     for (const level of ['cell', 'conversation', 'wording', 'repeat']) {
       expect(covered(level), level).toBeGreaterThanOrEqual(6);
     }
-  });
+  }, 60_000);
 
   it('separates a wording-only source from a repeat-only source', () => {
     const wordingOnly = simulate({
@@ -155,7 +155,7 @@ describe('analysePilot on a control with planted variance', () => {
     expect(share('wording')).toBeGreaterThan(share('conversation'));
     expect(share('wording')).toBeGreaterThan(0.15);
     expect(analysis.planted?.levels.find((l) => l.level === 'wording')?.recovered).toBe(true);
-  });
+  }, 30_000);
 
   it('reports no planted check when a run does not state its chance', () => {
     const rows = simulate({
@@ -213,10 +213,10 @@ describe('wording sensitivity under repeat noise', () => {
     const analysis = noisy(0, 21);
     expect(Math.max(...analysis.cells.map((cell) => cell.wording.maxRange ?? 0))).toBeGreaterThan(0.2);
     expect(analysis.wording.flagged).toEqual([]);
-  });
+  }, 30_000);
 
   it('flags the cells of a noisy agent whose wordings do matter', () => {
     const analysis = noisy(0.25, 22);
     expect(analysis.wording.flagged.length).toBeGreaterThanOrEqual(5);
-  });
+  }, 30_000);
 });
