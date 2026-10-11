@@ -63,6 +63,8 @@ export type GuardDecl = {
   script?: string;
   /** True when the command finds its script from an anchor (the project folder), not the working folder. */
   anchored: boolean;
+  /** The script the shell runs when it hands the guard's own script to it as an argument (a dispatcher). */
+  dispatcher?: string;
   /** `estate` for a guard of the settings, `catalogue` for a catalogue check, else the declaring skill's name. */
   scope: string;
   timeout?: number;

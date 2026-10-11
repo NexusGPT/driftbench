@@ -21,3 +21,4 @@ runs it, and the fires-when column quotes the rule it watches or names it by its
 | W1 | `stop-word.sh` | UserPromptSubmit | the prompt is one stop word, the R10 case | enforce |
 | W2 | the ledger hook | PostToolUse | a command removes a ledger file: "move it to `ledger/archive/` instead" | observe |
 | C2 | the reply judge | Stop | a reply asks more than one question, against R9 | observe |
+| W3 | `claim-window.py` | PreToolUse | a claim promises a refund: "Never promise the user a refund date" | enforce |

@@ -143,6 +143,7 @@ describe('the check registry, any column set', () => {
       ['W1', 'stop-word.sh', 'enforce'],
       ['W2', 'ledger-guard.py', 'observe'],
       ['C2', 'C2', 'observe'],
+      ['W3', 'claim-window.py', 'enforce'],
     ]);
     expect(raw.registry.find((row) => row.id === 'W2')?.enforces).toEqual([
       { quote: 'move it to `ledger/archive/` instead' },

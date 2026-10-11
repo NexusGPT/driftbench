@@ -340,7 +340,7 @@ function readGuards(
           command: hook.command,
           scope,
           at: found,
-          ...scriptOf(hook.command),
+          ...scriptOf(hook.command, new Set(estate.files.map((entry) => entry.path))),
         };
         if (matcher !== undefined) guard.matcher = matcher;
         if (typeof hook.timeout === 'number') guard.timeout = hook.timeout;
@@ -350,19 +350,79 @@ function readGuards(
   }
 }
 
-/** The script a command runs, relative to the root, and whether it is found from an anchor. */
-export function scriptOf(command: string): { script?: string; anchored: boolean } {
-  for (const raw of command.split(/\s+/)) {
-    const token = raw.replace(/["']/g, '');
-    if (token === '' || token.startsWith('-') || INTERPRETERS.has(token)) continue;
-    if (!token.includes('/') && !SCRIPT_EXTENSION.test(token)) return { anchored: false };
-    for (const anchor of ANCHORS) {
-      if (anchor.test(token)) return { script: posix.normalize(token.replace(anchor, '')), anchored: true };
-    }
-    if (token.startsWith('/') || token.startsWith('~')) return { script: token, anchored: true };
-    return { script: posix.normalize(token), anchored: false };
+/** Words that open a shell test, not a program: a segment that starts with one runs no script. */
+const SHELL_TESTS = new Set(['[', '[[', 'test', 'true', 'false', ':']);
+const ENV_ASSIGNMENT = /^[A-Za-z_][A-Za-z0-9_]*=/;
+const OPERATORS = new Set(['||', '&&', ';', '|', '&']);
+
+/**
+ * The script a command runs, relative to the root, and whether the shell finds it from an anchor. The
+ * command is cut at `||`, `&&`, `;` and `|`; in each part, environment assignments (`ENV=1`) and an `env`
+ * wrapper are passed over, a part that opens a shell test (`[ "$X" = 1 ]`) runs nothing, and an
+ * interpreter (`python3`) runs the path after its flags. The first part that runs a path gives the script.
+ * With the estate's files, a dispatcher is seen through: among that part's path arguments, the last one
+ * that exists is the script (tried from the root, then from the folder of each earlier path and the folders
+ * above it), and the path the shell runs is kept as the dispatcher.
+ */
+export function scriptOf(
+  command: string,
+  paths?: ReadonlySet<string>,
+): { script?: string; anchored: boolean; dispatcher?: string } {
+  for (const segment of segments(command)) {
+    const runs = runPath(segment);
+    if (runs === undefined) continue;
+    const first = anchorOf(runs);
+    if (!paths) return first;
+    const last = scriptIn(segment.join(' '), '', paths);
+    if (last === undefined || last === first.script) return first;
+    return {
+      script: last,
+      anchored: first.anchored,
+      ...(first.script !== undefined && paths.has(first.script) ? { dispatcher: first.script } : {}),
+    };
   }
   return { anchored: false };
+}
+
+/** A command line cut into its parts at the shell's list and pipe operators. */
+function segments(command: string): string[][] {
+  const parts: string[][] = [[]];
+  for (const token of tokens(command)) {
+    if (OPERATORS.has(token)) parts.push([]);
+    else parts[parts.length - 1]?.push(token);
+  }
+  return parts.filter((part) => part.length > 0);
+}
+
+/** The path a part of a command runs, as written: after assignments, `env` and an interpreter's flags. */
+function runPath(segment: readonly string[]): string | undefined {
+  const words = segment.map((token) => token.replace(/["']/g, ''));
+  let index = 0;
+  const skip = (test: (word: string) => boolean) => {
+    while (index < words.length && test(words[index] ?? '')) index++;
+  };
+  skip((word) => ENV_ASSIGNMENT.test(word));
+  if (words[index] === 'env') {
+    index++;
+    skip((word) => ENV_ASSIGNMENT.test(word) || word.startsWith('-'));
+  }
+  const head = words[index] ?? '';
+  if (SHELL_TESTS.has(head)) return undefined;
+  if (INTERPRETERS.has(basename(head))) {
+    index++;
+    skip((word) => word.startsWith('-'));
+  }
+  const word = words[index] ?? '';
+  return word.includes('/') || SCRIPT_EXTENSION.test(word) ? word : undefined;
+}
+
+/** A path as the shell finds it: from an anchor (the project folder, the home folder), else the working folder. */
+function anchorOf(token: string): { script: string; anchored: boolean } {
+  for (const anchor of ANCHORS) {
+    if (anchor.test(token)) return { script: posix.normalize(token.replace(anchor, '')), anchored: true };
+  }
+  if (token.startsWith('/') || token.startsWith('~')) return { script: token, anchored: true };
+  return { script: posix.normalize(token), anchored: false };
 }
 
 function readSkill(file: EstateFile, estate: RawEstate): void {

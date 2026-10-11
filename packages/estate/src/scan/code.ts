@@ -218,6 +218,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
         scope: guard.scope,
         ...(guard.matcher ? { matcher: guard.matcher } : {}),
         ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
+        ...(guard.dispatcher ? { dispatcher: guard.dispatcher } : {}),
         ...(guard.timeout !== undefined ? { timeout: guard.timeout } : {}),
         ...(row ? { registry: row.id } : {}),
         ...(rows.length > 1 ? { registryRows: rows.map((entry) => entry.id) } : {}),
