@@ -13,6 +13,14 @@ export {
   requestKey,
   saveCassette,
 } from './cassette';
+export {
+  combineVerdicts,
+  JUDGE_CHECK,
+  type JudgeCheckOptions,
+  judgeCheck,
+  requestFor,
+  verdictOf,
+} from './check';
 export type { ClientOptions, JudgeClient } from './client';
 export { createAnthropicJudge, createGoogleJudge, createOpenAiJudge } from './clients/chat';
 export { type FakeAnswer, FakeJudge } from './clients/fake';
@@ -39,6 +47,20 @@ export {
   parseAnswerValue,
   TranscriptEntry,
 } from './contract';
+export {
+  type AssignmentRow,
+  type AssignmentSource,
+  type Council,
+  type CouncilConfig,
+  CouncilConfigError,
+  type CouncilMode,
+  type CouncilResult,
+  type CouncilRound,
+  createCouncil,
+  majority,
+  type RoundOutcome,
+  type Vote,
+} from './council';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
 export {
