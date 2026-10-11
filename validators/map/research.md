@@ -25,3 +25,15 @@ Sources read:
 What others do: uniqueItems true makes an array with a repeated element invalid; schema-driven generators send that invalid case as its own input.
 
 What to try, and why: the tool pre-pass reads uniqueItems: duplicate-items, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
+
+## Iteration 3
+
+Question: packages/generate/src/extract/tools.ts: arrayPartitions only renames the empty case for minItems, so schema-keywords.min-items loses below-min-items and at-min-items.
+
+Sources read:
+* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/research/testgen/dossier-specification.md (source 34: boundary values on and either side of each edge)
+* https://json-schema.org/draft/2020-12/json-schema-validation section 6.4.2 (minItems)
+
+What others do: boundary value analysis tests on and just below each edge; minItems is an edge of the item count, so a test needs one item under it and exactly at it.
+
+What to try, and why: the tool pre-pass reads minItems: below-min-items and at-min-items, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
