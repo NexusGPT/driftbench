@@ -29,7 +29,7 @@ None yet. Each entry: the hypothesis, the evidence, and why it was rejected.
 
 1. Read the item of seed 1: `pnpm driftbench validate map --seed 1`. Write one sentence naming `proposeRole` and the missing role field.
 2. Fix one cause: let a model section state a role. Add an optional `role` to `AnswerDimension` in `packages/generate/src/extract/contract.ts`, ask for it in the dimension template of `SYSTEM_PROMPT` (`"role": "<axis or detail>"`), and use it in `acceptAnswer` instead of `proposeRole` when present. Write the test in `packages/generate/test/extract/` that reproduces the item first. The perfect model reads `SYSTEM_PROMPT`: once it shows a `"role":` key, it sends each dimension's declared role (`contractStatesRole` in `oracle.ts`), so no validator file changes.
-3. Re-run on seed 1, then `--seeds 1..20 --hidden`, and record the level per seed with `--journal`. Level 6 and 7 are computed for the first time then; the lane measured them with an order-free role stand-in (seed 2 reached 7 of 7, seed 1 stopped at level 6 on `role:customer_type` and `role:language`).
+3. Re-run on seed 1, then `--seeds 1..20 --hidden`, and record the level per seed with `--journal`. Levels 6 and 7 are computed for the first time then. The V4 lane applied exactly this fix to a scratch copy (never committed; the edits are in `_captures/v-map/mutations/mutate.py`, entry `F`) and measured level 7 of 7 on seeds 1 to 20 and the hidden seed.
 
 ## Pitfalls
 

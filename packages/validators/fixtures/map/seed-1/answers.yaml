@@ -1,4 +1,4 @@
-# The perfect model answers of the map validator, seed 1. Written by code from the hidden specification; every name is fictional.
+# The perfect model answers, each dimension with its declared role, of the map validator, seed 1. Written by code from the hidden specification; every name is fictional.
 family: oracle
 model: perfect model written by code from the hidden specification
 answers:
@@ -8,6 +8,7 @@ answers:
       - id: stage
         title: The stage a conversation is in
         kind: stage
+        role: axis
         values:
           - id: greet
             title: the assistant greets the customer and asks what they need
@@ -39,6 +40,7 @@ answers:
       - id: rule
         title: The rules the assistant follows
         kind: behaviour
+        role: detail
         values:
           - id: R-01
             title: Always greet the customer by name when the account gives a name
@@ -67,6 +69,7 @@ answers:
       - id: deviation
         title: The deviation classes the flows must be perturbed with
         kind: deviation
+        role: axis
         values:
           - id: D8_tool_failure
             title: If a tool fails, say so and offer a callback
@@ -80,6 +83,7 @@ answers:
       - id: customer_type
         title: The kind of customer
         kind: persona
+        role: detail
         values:
           - id: member
             title: a customer with an active plan
@@ -96,6 +100,7 @@ answers:
       - id: language
         title: The language the customer writes in
         kind: persona
+        role: axis
         values:
           - id: en
             title: a customer who writes in English
@@ -129,6 +134,7 @@ answers:
       - id: slot_result
         title: What a visit slot search returns
         kind: data
+        role: axis
         values:
           - id: slot-free
             title: a free slot exists; offer the first two

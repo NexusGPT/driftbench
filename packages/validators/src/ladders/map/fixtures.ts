@@ -29,7 +29,12 @@ export function fixtureFiles(seed: number): Record<string, string> {
     [PROMPT_PATH]: rendered.prompt,
     [INVENTORY_PATH]: rendered.inventory,
     [TOOLS_PATH]: rendered.tools,
-    'answers.yaml': `${header('The perfect model answers')}${stringify(oracleRecording(spec, rendered), { lineWidth: 0 })}`,
+    // With the declared roles: the replay sends them only when the contract asks for one (`contractStatesRole`),
+    // so the file stays the same whichever contract the extractor has.
+    'answers.yaml': `${header('The perfect model answers, each dimension with its declared role,')}${stringify(
+      oracleRecording(spec, rendered, { roles: true }),
+      { lineWidth: 0 },
+    )}`,
     'truth.yaml': `${header('The truth')}${stringify(
       { ...truth, spans, decoys: rendered.decoys, order: rendered.order },
       { lineWidth: 0 },

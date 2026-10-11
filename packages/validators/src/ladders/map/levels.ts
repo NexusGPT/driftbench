@@ -1,5 +1,6 @@
 import type { Proposal, Refusal } from '@driftbench/generate';
 import type { Item, Measure } from '../../ladder';
+import { contractStatesRole } from './oracle';
 import { INVENTORY_PATH, PROMPT_PATH, type Rendered, TOOLS_PATH } from './render';
 import { diffFacts, type MapRun, mapFacts } from './run';
 import { fold, forbidKey, type ProseAtom, quoteInSpan, type Truth } from './truth';
@@ -430,7 +431,11 @@ export function rolesLevel(run: MapRun, truth: Truth): Measure {
       id: `role:${declared.dimension}`,
       component: MAP_COMPONENTS.roles,
       detail: dimension
-        ? `declared ${declared.role}, proposed ${dimension.role}; the ${dimension.kind} axes proposed: ${others.join(', ') || 'none'}; the answer contract carries no role, so the role follows the order dimensions arrive in`
+        ? `declared ${declared.role}, proposed ${dimension.role}; the ${dimension.kind} axes proposed: ${others.join(', ') || 'none'}; ${
+            contractStatesRole()
+              ? 'the answer contract carries a role, and the extractor kept another'
+              : 'the answer contract carries no role, so the role follows the order dimensions arrive in'
+          }`
         : `declared ${declared.role}, but the map has no dimension ${declared.dimension}`,
     });
   }
