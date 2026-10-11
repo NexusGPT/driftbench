@@ -36,7 +36,7 @@ export type StatsImpl = typeof stats;
 export type Row = Record<string, any>;
 
 /** One comparison: the function under test, run on one reference case. */
-type Case = { id: string; component: string; run(expect: Expect): void };
+export type Case = { id: string; component: string; run(expect: Expect): void };
 type Expect = {
   near(what: string, actual: number, expected: number, tolerance?: number): void;
   same(what: string, actual: unknown, expected: unknown): void;
@@ -317,7 +317,7 @@ function nearAll(e: Expect, what: string, actual: readonly number[], expected: r
 }
 
 /** Runs one case and returns its mismatches; a throw is one mismatch. */
-function check(item: Case): string[] {
+export function check(item: Case): string[] {
   const misses: string[] = [];
   const expect: Expect = {
     near(what, actual, expected, tolerance = REFERENCE_TOLERANCE) {
