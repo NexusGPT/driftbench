@@ -58,12 +58,12 @@ describe('the reader follows symbolic links', () => {
 
   it('reads the fixture skill whose scripts folder and one reference are links', async () => {
     const raw = await new ClaudeCodeReader().read(FIXTURE);
-    const linked = raw.files.filter((file) => file.owner === 'carrier-claims').map((file) => file.path);
+    const linked = raw.files.filter((file) => file.owner === 'parcel-claims').map((file) => file.path);
     expect(linked).toEqual([
-      '.claude/skills/carrier-claims/SKILL.md',
-      '.claude/skills/carrier-claims/references/supplier-languages.md',
-      '.claude/skills/carrier-claims/scripts/check-carrier.sh',
-      '.claude/skills/carrier-claims/scripts/track.sh',
+      '.claude/skills/parcel-claims/SKILL.md',
+      '.claude/skills/parcel-claims/references/supplier-languages.md',
+      '.claude/skills/parcel-claims/scripts/check-carrier.sh',
+      '.claude/skills/parcel-claims/scripts/track.sh',
     ]);
     expect(raw.notes.filter((note) => note.message.includes('link'))).toEqual([]);
   });

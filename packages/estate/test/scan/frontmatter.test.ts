@@ -119,10 +119,10 @@ describe('frontmatter the strict parser refuses', () => {
   });
 
   it('reads the fixture skill whose description holds a colon', async () => {
-    const text = await readFile(join(FIXTURE, '.claude/skills/carrier-claims/SKILL.md'), 'utf8');
+    const text = await readFile(join(FIXTURE, '.claude/skills/parcel-claims/SKILL.md'), 'utf8');
     expect(readFrontmatter(text).tolerated).toBeDefined();
     const raw = await new ClaudeCodeReader().read(FIXTURE);
-    const skill = raw.skills.find((candidate) => candidate.name === 'carrier-claims');
+    const skill = raw.skills.find((candidate) => candidate.name === 'parcel-claims');
     expect(skill?.description?.value).toBe(
       'File a damage claim with a carrier for a parcel that arrived broken. Use when: the user reports a damaged or missing parcel.',
     );

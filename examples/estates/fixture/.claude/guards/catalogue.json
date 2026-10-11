@@ -4,7 +4,7 @@
     {
       "id": "C1",
       "kind": "check",
-      "event": "PreToolUse",
+      "event": "Stop",
       "watches": ["Never promise the user a refund date"],
       "work": "claim-window.py",
       "step": "claim/file",

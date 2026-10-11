@@ -7,4 +7,4 @@
 
 | When | Use |
 |---|---|
-| A parcel arrived damaged or missing | `carrier-claims` |
+| A parcel arrived damaged or missing | `parcel-claims` |

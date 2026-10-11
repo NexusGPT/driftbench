@@ -1,5 +1,5 @@
 ---
-name: carrier-claims
+name: parcel-claims
 description: File a damage claim with a carrier for a parcel that arrived broken. Use when: the user reports a damaged or missing parcel.
 allowed-tools: Read, Bash(./scripts/track.sh *)
 ---

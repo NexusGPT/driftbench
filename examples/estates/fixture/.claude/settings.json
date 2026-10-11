@@ -27,15 +27,6 @@
             "timeout": 5
           }
         ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ \"$NORTHWIND_QUIET\" = 1 ] || NORTHWIND_GUARD=claims python3 \"$CLAUDE_PROJECT_DIR\"/.claude/guards/lib/dispatch.py claim-window.py"
-          }
-        ]
       }
     ],
     "PostToolUse": [
@@ -53,6 +44,14 @@
       {
         "hooks": [
           { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/guards/reply-length.py" }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"$NORTHWIND_QUIET\" = 1 ] || NORTHWIND_GUARD=claims python3 \"$CLAUDE_PROJECT_DIR\"/.claude/guards/lib/dispatch.py claim-window.py"
+          }
         ]
       }
     ]

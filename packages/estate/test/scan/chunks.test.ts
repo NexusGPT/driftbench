@@ -13,10 +13,10 @@ describe('skill reference files as prose', () => {
     const raw = await new ClaudeCodeReader().read(FIXTURE);
     const files = raw.prose.filter((chunk) => /\/(references|templates)\//.test(chunk.file));
     expect(files.map((chunk) => [chunk.id, chunk.startLine, chunk.endLine])).toEqual([
-      ['.claude/skills/carrier-claims/references/supplier-languages.md', 1, 11],
       ['.claude/skills/invoice-reconcile/references/currency-table.md', 1, 9],
       ['.claude/skills/invoice-reconcile/references/matching-rules.md', 1, 5],
       ['.claude/skills/invoice-reconcile/references/old-tolerances.md', 1, 5],
+      ['.claude/skills/parcel-claims/references/supplier-languages.md', 1, 11],
       ['.claude/skills/weekly-report/templates/report.md', 1, 9],
     ]);
     expect(raw.prose.some((chunk) => /\.(sh|py)$/.test(chunk.file))).toBe(false);

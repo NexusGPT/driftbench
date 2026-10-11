@@ -89,7 +89,7 @@ describe('guard commands behind a prefix or a dispatcher', () => {
     const raw = await new ClaudeCodeReader().read(FIXTURE);
     const dispatched = raw.guards.filter((guard) => guard.dispatcher);
     expect(dispatched.map((guard) => [guard.event, guard.script, guard.dispatcher, guard.anchored])).toEqual([
-      ['PreToolUse', '.claude/guards/claim-window.py', '.claude/guards/lib/dispatch.py', true],
+      ['Stop', '.claude/guards/claim-window.py', '.claude/guards/lib/dispatch.py', true],
     ]);
     const check = raw.guards.find((guard) => guard.check?.id === 'C1');
     expect(check?.script).toBe('.claude/guards/claim-window.py');
