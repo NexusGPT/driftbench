@@ -85,12 +85,18 @@ importers:
       '@driftbench/generate':
         specifier: workspace:*
         version: link:../generate
+      '@driftbench/judges':
+        specifier: workspace:*
+        version: link:../judges
       '@driftbench/sandbox':
         specifier: workspace:*
         version: link:../sandbox
       '@driftbench/space':
         specifier: workspace:*
         version: link:../space
+      '@driftbench/stats':
+        specifier: workspace:*
+        version: link:../stats
       '@driftbench/store':
         specifier: workspace:*
         version: link:../store
@@ -127,12 +133,33 @@ importers:
 
   packages/generate:
     dependencies:
+      '@driftbench/adapters':
+        specifier: workspace:*
+        version: link:../adapters
+      '@driftbench/artifacts':
+        specifier: workspace:*
+        version: link:../artifacts
+      '@driftbench/checks':
+        specifier: workspace:*
+        version: link:../checks
       '@driftbench/core':
         specifier: workspace:*
         version: link:../core
+      '@driftbench/sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
       '@driftbench/space':
         specifier: workspace:*
         version: link:../space
+      '@driftbench/stats':
+        specifier: workspace:*
+        version: link:../stats
+      '@driftbench/store':
+        specifier: workspace:*
+        version: link:../store
+      '@driftbench/users':
+        specifier: workspace:*
+        version: link:../users
       yaml:
         specifier: ^2.9.1
         version: 2.9.1
@@ -140,7 +167,23 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
 
-  packages/judges: {}
+  packages/judges:
+    dependencies:
+      '@driftbench/artifacts':
+        specifier: workspace:*
+        version: link:../artifacts
+      '@driftbench/core':
+        specifier: workspace:*
+        version: link:../core
+      '@driftbench/stats':
+        specifier: workspace:*
+        version: link:../stats
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
 
   packages/report: {}
 

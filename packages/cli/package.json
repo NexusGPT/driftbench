@@ -32,6 +32,8 @@
     "@driftbench/sandbox": "workspace:*",
     "@driftbench/space": "workspace:*",
     "@driftbench/generate": "workspace:*",
-    "@driftbench/estate": "workspace:*"
+    "@driftbench/estate": "workspace:*",
+    "@driftbench/judges": "workspace:*",
+    "@driftbench/stats": "workspace:*"
   }
 }
