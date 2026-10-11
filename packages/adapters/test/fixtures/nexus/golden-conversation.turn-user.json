@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "data": {
+    "id": "70000000-0000-4000-8000-000000000001",
+    "conversationId": "cccccccc-0000-4000-8000-000000000001",
+    "index": 0,
+    "role": "user",
+    "content": "Hi, do you have home internet at 3 Orchard Way, Acmeville?",
+    "toolCalls": null,
+    "edited": false,
+    "isCheckpoint": false,
+    "criteria": null,
+    "createdAt": "2026-01-15T10:00:00.500Z",
+    "updatedAt": "2026-01-15T10:00:00.500Z"
+  }
+}

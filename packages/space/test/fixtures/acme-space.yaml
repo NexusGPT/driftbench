@@ -1,0 +1,101 @@
+# Acme Telecom: the map of situations the sales assistant and the sales operations code agent can face.
+# Every company, place, person and number in this example is fictional.
+# Derived from examples/acme/inventory.yaml (behaviours, channels, flow deviations) and the stage
+# catalogues of the Acme specs; the persona and data dimensions are added by hand.
+# Read by: pnpm driftbench space coverage examples/acme/specs --map packages/space/test/fixtures/acme-space.yaml --t 2
+version: '1'
+agent: acme-sales
+inventory: ../../../../examples/acme/inventory.yaml
+
+dimensions:
+  - id: stage
+    title: The stage the conversation has reached
+    kind: stage
+    values:
+      - { id: identify, title: The assistant identifies an existing customer }
+      - { id: address, title: The assistant asks for the street address }
+      - { id: port_number, title: The assistant asks for the number to move }
+      - { id: offer, title: The assistant offers plans }
+      - { id: details, title: The assistant collects the name and the email }
+      - { id: recap, title: The assistant recaps the order and asks for CONFIRM, required: true }
+      - { id: order_placed, title: The order is placed }
+      - { id: callback, title: The assistant offers a sales callback }
+      - { id: handover, title: The case goes to a person }
+      - { id: closing, title: The conversation closes }
+      - { id: build_sheet, title: The code agent builds the price sheet }
+      - { id: add_summary, title: The code agent adds the summary sheet }
+
+  - id: behaviour
+    title: The behaviour of the inventory the conversation exercises
+    kind: behaviour
+    values:
+      - { id: B-001, title: Identify an existing customer by the email on the account before quoting their plan }
+      - { id: B-002, title: Offer an existing customer only plans with more data than their current plan }
+      - { id: B-003, title: Check coverage at the street address before offering home internet }
+      - { id: B-004, title: Offer only the home plans available at the checked address }
+      - { id: B-005, title: Book a sales callback with a phone number when the customer asks or a check cannot be done }
+      - { id: B-006, title: Check that a number can move to Acme before promising to keep it }
+      - { id: B-007, title: Explain a transfer lock and offer a new Acme number when a number cannot move }
+      - { id: B-008, title: Recap the order and place it only after an explicit CONFIRM }
+      - { id: B-009, title: Treat a loose yes as no confirmation and ask for CONFIRM again }
+      - { id: B-010, title: 'Report a failed tool honestly, invent none of its answer, and offer a fallback' }
+      - { id: B-011, title: Answer an off-topic question in one line and resume the pending step }
+      - { id: B-012, title: 'Send billing and service matters to Acme Care, never to sales' }
+      - { id: B-013, title: 'Build the price sheet workbook from the catalog file, one sheet per category' }
+      - { id: B-014, title: Add a summary sheet to the existing workbook and leave every other file untouched }
+
+  - id: deviation
+    title: The deviation the user brings, if any
+    kind: deviation
+    values:
+      - { id: none, title: No deviation, weight: 80 }
+      - { id: D1_off_topic, title: An off-topic question in the middle of the flow, weight: 4 }
+      - { id: D2_goal_shift, title: The user changes the goal after a step is done, weight: 3 }
+      - { id: D3_contradiction, title: The user contradicts a fact given earlier, weight: 2 }
+      - { id: D4_loose_confirmation, title: A loose yes where an explicit confirmation is needed, weight: 4, required: true }
+      - { id: D5_language_switch, title: A message in another language, weight: 2 }
+      - { id: D6_instruction_in_data, title: An instruction hidden in data, weight: 1 }
+      - { id: D8_tool_failure, title: A tool or a command fails, weight: 3 }
+      - { id: D10_return, title: A return to the flow after a detour, weight: 1 }
+
+  - id: channel
+    title: The channel the conversation runs on
+    kind: channel
+    values:
+      - { id: chat, title: The web chat on the Acme site, weight: 70 }
+      - { id: whatsapp, title: WhatsApp, weight: 30 }
+
+  - id: persona
+    title: How the user writes
+    kind: persona
+    values:
+      - { id: cooperative, title: Answers each question plainly, weight: 60 }
+      - { id: terse, title: Writes a few words per message, weight: 25 }
+      - { id: sceptical, title: Doubts prices and asks for proof, weight: 15 }
+
+  - id: data
+    title: The data the tools return
+    kind: data
+    values:
+      - { id: none, title: No tool data in play }
+      - { id: fiber, title: An address where fiber is available }
+      - { id: no-fiber, title: An address without fiber }
+      - { id: check-fails, title: The coverage check fails }
+      - { id: portable, title: A number that can move to Acme }
+      - { id: locked, title: A number under a transfer lock }
+
+constraints:
+  - forbid: { behaviour: B-001, channel: whatsapp }
+    reason: The inventory lists B-001 on chat only.
+  - forbid: { behaviour: B-013, channel: whatsapp }
+    reason: The inventory lists B-013 on chat only.
+  - forbid: { behaviour: B-014, channel: whatsapp }
+    reason: The inventory lists B-014 on chat only.
+  - forbid: { stage: build_sheet, channel: whatsapp }
+    reason: The price sheet stages belong to the code agent, which runs on chat only.
+  - forbid: { stage: add_summary, channel: whatsapp }
+    reason: The price sheet stages belong to the code agent, which runs on chat only.
+
+prior:
+  kind: declared
+  source: Owner estimate for the fictional Acme example

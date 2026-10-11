@@ -13,6 +13,8 @@ const packages = [
   'report',
   'battery',
   'artifacts',
+  'space',
+  'generate',
 ];
 
 export default defineConfig({

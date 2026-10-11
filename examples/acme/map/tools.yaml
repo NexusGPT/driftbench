@@ -1,0 +1,112 @@
+# The five tools of the Acme sales assistant as JSON Schema, written from src/tools.ts for
+#   driftbench extract --tools examples/acme/map/tools.yaml
+# Inputs and outputs are plain JSON with snake_case keys. A tool refuses a parameter it does not know, and a
+# required string that is blank. Every company, place and number here is fictional.
+tools:
+  - name: catalog.search
+    description: Plans of a category, the ones available at an address, and the customer's current plan.
+    input_schema:
+      type: object
+      additionalProperties: false
+      required: [category]
+      properties:
+        category: { type: string, enum: [mobile, home] }
+        customer_email: { type: string, minLength: 1 }
+        address_id: { type: string, description: Home plans only. }
+    output_schema:
+      type: object
+      required: [plans]
+      properties:
+        plans: { type: array, items: { type: object } }
+        customer:
+          type: [object, 'null']
+          description: Present when customer_email was given; null when no account has that email.
+          required: [id, name, current_plan_id]
+          properties:
+            id: { type: string }
+            name: { type: string }
+            current_plan_id: { type: string }
+
+  - name: coverage.check
+    description: Whether Acme reaches an address, and how fast.
+    input_schema:
+      type: object
+      additionalProperties: false
+      required: [address]
+      properties:
+        address: { type: string, minLength: 1 }
+    output_schema:
+      type: object
+      required: [found, address]
+      properties:
+        found: { type: boolean }
+        address_id: { type: string, description: Only when found is true. }
+        address: { type: string }
+        fiber_mbps: { type: integer, minimum: 0, description: Only when found is true; 0 when there is no fiber. }
+        five_g: { type: boolean, description: Only when found is true. }
+
+  - name: port.check
+    description: Whether a number held at another carrier can move to Acme.
+    input_schema:
+      type: object
+      additionalProperties: false
+      required: [number]
+      properties:
+        number: { type: string, minLength: 1, description: A US phone number; anything else is refused. }
+    output_schema:
+      type: object
+      required: [number, eligible]
+      properties:
+        number: { type: string }
+        eligible: { type: boolean }
+        reason: { type: string, description: Why the number cannot move, when it cannot. }
+
+  - name: order.create
+    description: Places an order. An upgrade takes customer_id only; a new order takes customer.
+    input_schema:
+      type: object
+      additionalProperties: false
+      required: [type, plan_id]
+      properties:
+        type: { type: string, enum: [new, upgrade] }
+        plan_id: { type: string }
+        customer_id: { type: string }
+        customer:
+          type: object
+          required: [name, email]
+          properties:
+            name: { type: string }
+            email: { type: string }
+        address_id: { type: string, description: Home plans only. }
+        port_number: { type: string, description: Mobile plans only; the number must be able to move. }
+    output_schema:
+      type: object
+      required: [order_id, status, plan_id, monthly_usd]
+      properties:
+        order_id: { type: string }
+        status: { type: string, enum: [pending] }
+        plan_id: { type: string }
+        monthly_usd: { type: number }
+
+  - name: notify_sales
+    description: Hands a lead to a human sales advisor.
+    input_schema:
+      type: object
+      additionalProperties: false
+      required: [reason, customer, summary]
+      properties:
+        reason: { type: string, enum: [callback, no_coverage, tool_failure, order_failed] }
+        customer:
+          type: object
+          description: Needs a phone or an email.
+          properties:
+            name: { type: string }
+            email: { type: string }
+            phone: { type: string }
+        summary: { type: string, minLength: 1 }
+    output_schema:
+      type: object
+      required: [ticket_id, queued]
+      properties:
+        ticket_id: { type: string }
+        queued: { type: boolean }

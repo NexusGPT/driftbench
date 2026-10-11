@@ -1,0 +1,129 @@
+{
+  "success": true,
+  "data": {
+    "id": "9e000000-0000-4000-8000-000000000002",
+    "traceId": "7ace0000-0000-4000-8000-000000000001",
+    "provider": "ANTHROPIC",
+    "modelName": "example-model-1",
+    "status": "COMPLETED",
+    "inputTokens": 1720,
+    "outputTokens": 61,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "reasoningTokens": null,
+    "costUsd": 0.0131,
+    "durationMs": 1900,
+    "thinkingDurationMs": 0,
+    "ttftMs": null,
+    "streamDurationMs": 1780,
+    "taskId": null,
+    "taskName": null,
+    "nodeId": null,
+    "startedAt": "2026-01-15T10:00:03.400Z",
+    "completedAt": "2026-01-15T10:00:05.300Z",
+    "errorMessage": null,
+    "metadata": null,
+    "isAborted": false,
+    "temperature": null,
+    "finishReason": "tool_use",
+    "responseId": "msg_acme_0002",
+    "systemPrompt": "You are the Acme Telecom sales assistant. Check coverage before you offer a home plan.",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "text": "Hi, do you have home internet at 3 Orchard Way, Acmeville?",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "role": "assistant",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "",
+            "signature": "fictional-signature-for-tests"
+          },
+          {
+            "text": "Let me check what reaches 3 Orchard Way.",
+            "type": "text"
+          },
+          {
+            "id": "toolu_acme_coverage_0001",
+            "name": "coverage.check",
+            "type": "tool_use",
+            "input": {
+              "address": "3 Orchard Way, Acmeville"
+            }
+          }
+        ]
+      },
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "tool_result",
+            "content": [
+              {
+                "text": "{\"found\":true,\"address_id\":\"addr-102\",\"address\":\"3 Orchard Way, Acmeville\",\"fiber_mbps\":300,\"five_g\":true}",
+                "type": "text"
+              }
+            ],
+            "tool_use_id": "toolu_acme_coverage_0001"
+          }
+        ]
+      }
+    ],
+    "tools": [
+      {
+        "name": "coverage.check",
+        "description": "Checks whether Acme reaches an address, and how fast.",
+        "input_schema": {
+          "type": "object",
+          "required": ["address"],
+          "properties": {
+            "address": {
+              "type": "string",
+              "description": "The street address."
+            }
+          }
+        }
+      },
+      {
+        "name": "catalog.search",
+        "description": "Lists the Acme plans of a category, the ones available at an address.",
+        "input_schema": {
+          "type": "object",
+          "required": ["category"],
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "mobile or home."
+            },
+            "address_id": {
+              "type": "string",
+              "description": "An address id from coverage.check."
+            }
+          }
+        }
+      }
+    ],
+    "response": null,
+    "responseJson": {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "toolu_acme_catalog_0002",
+          "type": "function",
+          "function": {
+            "name": "catalog.search",
+            "arguments": "{\"category\":\"home\",\"address_id\":\"addr-102\"}"
+          }
+        }
+      ]
+    }
+  }
+}

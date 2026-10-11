@@ -1,6 +1,8 @@
 import { Command, CommanderError } from 'commander';
 import { registerCampaignCommands } from './commands/campaign';
+import { registerExtractCommand } from './commands/extract';
 import { registerSmokeCommand } from './commands/smoke';
+import { registerSpaceCommands } from './commands/space';
 import { registerSpecCommands } from './commands/spec';
 import { type Io, processIo } from './io';
 import { VERSION } from './version';
@@ -20,6 +22,8 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerSpecCommands(program, io, setExit);
   registerCampaignCommands(program, io, setExit);
   registerSmokeCommand(program, io, setExit);
+  registerSpaceCommands(program, io, setExit);
+  registerExtractCommand(program, io, setExit);
 
   try {
     await program.parseAsync(argv, { from: 'user' });
