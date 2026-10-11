@@ -204,6 +204,11 @@ function numberPartitions(name: string, property: YAMLMap, add: Add): void {
       'exclusiveMaximum',
     );
   }
+  const multipleOf = bound('multipleOf');
+  if (multipleOf !== undefined && multipleOf > 0) {
+    add('multiple', `${name} a multiple of ${multipleOf}`, 'multipleOf');
+    add('not-multiple', `${name} not a multiple of ${multipleOf}`, 'multipleOf');
+  }
 }
 
 function stringPartitions(name: string, property: YAMLMap, add: Add): void {
