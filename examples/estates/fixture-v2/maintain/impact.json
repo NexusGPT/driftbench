@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "diff": {
+    "old": "ab256ba636f4b315e09b13501fb64dcf47cad30b4bdc7006fabe7b1ba4c75102",
+    "new": "48cac5d0c4c389e8ceb8c3aef3e31c872108ce0da7ada13c65bfe7177f49375e"
+  },
+  "tests": {
+    "live": 8,
+    "retired": 0,
+    "other": 0
+  },
+  "regenerate": [
+    {
+      "test": "northwind-draft-pair",
+      "file": "draft-pair.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.never-send-a-supplier-email-without",
+          "why": "whitespace"
+        },
+        {
+          "atom": "instruction.standing.keep-an-unconfirmed-draft-unsent",
+          "why": "removed"
+        }
+      ]
+    },
+    {
+      "test": "northwind-late-shipment",
+      "file": "late-shipment.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.tell-the-user-about-a-late",
+          "why": "semantic"
+        }
+      ]
+    },
+    {
+      "test": "northwind-ledger-archive",
+      "file": "ledger-archive.yaml",
+      "atoms": [
+        {
+          "atom": "guard.settings.posttooluse-bash-guard-ledger-guard-py",
+          "why": "guard_state"
+        }
+      ]
+    },
+    {
+      "test": "northwind-route-planner",
+      "file": "route-planner.yaml",
+      "atoms": [
+        {
+          "atom": "route.standing.an-ask-to-plan-the-delivery",
+          "why": "semantic"
+        }
+      ]
+    },
+    {
+      "test": "northwind-supplier-yes",
+      "file": "supplier-yes.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.never-send-a-supplier-email-without",
+          "why": "whitespace"
+        }
+      ]
+    }
+  ],
+  "reapprove": [
+    {
+      "atom": "route.standing.an-ask-to-plan-the-delivery",
+      "kind": "route",
+      "title": "An ask to plan the delivery routes for the next two days dispatches route-planner",
+      "quote": "| plan the delivery routes for the next two days | the `route-planner` agent |",
+      "tests": ["northwind-route-planner"]
+    },
+    {
+      "atom": "instruction.standing.tell-the-user-about-a-late",
+      "kind": "instruction",
+      "title": "Tell the user about a late shipment and propose a supplier email",
+      "quote": "When a shipment is late by more than one day, tell the user and propose a supplier email.",
+      "tests": ["northwind-late-shipment"]
+    }
+  ],
+  "retire": [
+    {
+      "test": "northwind-unsent-draft",
+      "file": "unsent-draft.yaml",
+      "atoms": ["instruction.standing.keep-an-unconfirmed-draft-unsent"],
+      "reason": "atom instruction.standing.keep-an-unconfirmed-draft-unsent removed",
+      "state": "to_write"
+    }
+  ],
+  "new": [
+    {
+      "atom": "instruction.standing.name-the-finance-lead-on-a",
+      "kind": "instruction",
+      "title": "Name the finance lead on a credit note above 500.00 EUR",
+      "file": "CLAUDE.md",
+      "line": 26
+    },
+    {
+      "atom": "instruction.standing.keep-a-credit-note-as-a",
+      "kind": "instruction",
+      "title": "Keep a credit note as a draft until the finance lead answers",
+      "file": "CLAUDE.md",
+      "line": 27
+    }
+  ],
+  "guards": [
+    {
+      "guard": "guard.settings.posttooluse-bash-guard-ledger-guard-py",
+      "move": "promoted",
+      "from": "warn",
+      "to": "enforce",
+      "tests": ["northwind-ledger-archive"],
+      "need": null
+    }
+  ],
+  "unaffected": {
+    "moved": 24,
+    "tests": 2
+  },
+  "needsPerson": [
+    "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
+    "re-approve instruction.standing.tell-the-user-about-a-late: its meaning changed; 1 test waits",
+    "approve the tests of the new atom instruction.standing.name-the-finance-lead-on-a: no test covers it yet",
+    "approve the tests of the new atom instruction.standing.keep-a-credit-note-as-a: no test covers it yet"
+  ]
+}

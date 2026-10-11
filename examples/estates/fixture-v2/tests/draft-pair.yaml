@@ -1,0 +1,12 @@
+# Version 1 test of the Northwind fixture: the full draft is shown and kept until the yes. Fictional.
+id: northwind-draft-pair
+kind: task
+title: The full draft is shown and kept until the yes
+target: { adapter: claude-code }
+metadata:
+  estate: { atoms: [instruction.standing.never-send-a-supplier-email-without, instruction.standing.keep-an-unconfirmed-draft-unsent] }
+blocks:
+  - user: Chase Alpine Cookware about the missing credit note.
+    expect:
+      skills:
+        - { name: supplier-email, count: { min: 1 } }

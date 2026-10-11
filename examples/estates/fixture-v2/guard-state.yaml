@@ -1,0 +1,31 @@
+# Enforcement state of this version of the Northwind fixture, read against map.yaml beside it: one entry per
+# guard atom, observe, warn or enforce, with the decision-log evidence behind the mode. The ledger guard is
+# promoted from warn to enforce in this version. Fictional.
+version: 1
+guards:
+  - guard: guard.settings.pretooluse-bash-guard-block-force-push
+    mode: enforce
+    since: 2026-08-03
+    evidence: { log: logs/block-force-push.decisions.jsonl, decisions: 31, wrong: 0 }
+  - guard: guard.settings.pretooluse-edit-write-guard-read-before
+    mode: enforce
+    since: 2026-08-10
+    evidence: { log: logs/read-before-edit.decisions.jsonl, decisions: 118, wrong: 0 }
+  - guard: guard.settings.posttooluse-bash-guard-ledger-guard-py
+    mode: enforce
+    since: 2026-10-05
+    evidence:
+      log: logs/ledger-guard.decisions.jsonl
+      decisions: 47
+      wrong: 0
+      note: Four weeks of warnings; every flagged delete under ledger/ was a real one.
+  - guard: guard.settings.userpromptsubmit-guard-stop-word-sh
+    mode: warn
+    since: 2026-09-07
+  - guard: guard.settings.stop-guard-reply-length-py
+    mode: observe
+    since: 2026-09-21
+  - guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
+    mode: enforce
+    since: 2026-08-17
+    evidence: { log: logs/check-carrier.decisions.jsonl, decisions: 22, wrong: 0 }
