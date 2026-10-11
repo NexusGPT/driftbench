@@ -209,6 +209,29 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     ]);
   });
 
+  it('plans each replay spec to fail exactly when its session breaks one of the row atoms', () => {
+    const planned = Object.fromEntries(result.report.replay.map((entry) => [entry.spec, entry.expect]));
+    expect(planned).toEqual({
+      'estate.p01.weekly-clean': 'pass',
+      'estate.p01.weekly-skill-skipped': 'fail',
+      'estate.p01.weekly-gate-violated': 'pass',
+      'estate.p02.weekly-clean': 'pass',
+      'estate.p02.weekly-skill-skipped': 'pass',
+      'estate.p02.weekly-gate-violated': 'fail',
+      'estate.p03.weekly-clean': 'pass',
+      'estate.p03.weekly-skill-skipped': 'pass',
+      'estate.p03.weekly-gate-violated': 'pass',
+      'estate.p04.weekly-clean': 'pass',
+      'estate.p04.weekly-skill-skipped': 'pass',
+      'estate.p04.weekly-gate-violated': 'pass',
+    });
+    for (const entry of result.report.replay) {
+      const spec = only(byId, entry.spec);
+      expect(spec.metadata?.replay).toEqual({ session: entry.session, from_block: 0 });
+      expect(spec.blocks[0]?.when).toEqual({ user: input.sessions?.sessions[0]?.ask });
+    }
+  });
+
   it('validates every spec, and the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
