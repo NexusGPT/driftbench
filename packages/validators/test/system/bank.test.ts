@@ -63,6 +63,7 @@ describe('the system bank (docs/validators.md section 12)', () => {
     const ladder = systemLadder();
     expect(ladder.levels.map((level) => level.id)).toEqual(BANK_LEVELS.map((level) => level.id));
     expect(ladder.levels.every((level) => level.threshold === 1)).toBe(true);
+    expect(ladder.version).toBe(2);
   });
 });
 
@@ -104,9 +105,22 @@ describe('a level of the bank', () => {
     const measure = await levelMeasure([passing, failing, throwing], 1, ROOT);
     expect(measure.value).toBeCloseTo(1 / 3);
     expect(measure.items).toEqual([
-      { id: 'probe/fail', component: 'b.ts', detail: '[probe, tier 3] planted reason' },
-      { id: 'probe/throw', component: 'c.ts', detail: '[probe, tier 2] the item threw: planted throw' },
+      {
+        id: 'probe/fail',
+        component: 'b.ts',
+        family: 'probe',
+        tier: 3,
+        detail: 'asks: fails. found: planted reason',
+      },
+      {
+        id: 'probe/throw',
+        component: 'c.ts',
+        family: 'probe',
+        tier: 2,
+        detail: 'asks: throws. found: the item threw: planted throw',
+      },
     ]);
+    expect(measure.bank?.map((entry) => entry.pass)).toEqual([true, false, false]);
   });
 
   it('stops the ladder at the first level holding a failing item', async () => {

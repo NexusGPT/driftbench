@@ -16,7 +16,9 @@ export type ItemSource =
   | 'hostile'
   | 'contract';
 
-export type Tier = 1 | 2 | 3 | 4 | 5;
+import type { Tier } from '../../../ladder';
+
+export type { Tier };
 
 export type ItemContext = {
   seed: number;

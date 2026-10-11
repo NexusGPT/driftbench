@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { Item, Measure } from '../../../ladder';
+import { type BankEntry, bankMeasure, type Measure } from '../../../ladder';
 import { cliItems } from './cli';
 import { fieldItems } from './fields';
 import { precisionItems } from './precision';
@@ -83,23 +83,29 @@ export function scratchFolder(): { path: string; remove(): void } {
   return { path, remove: () => rmSync(path, { recursive: true, force: true }) };
 }
 
-/** A level's measure: the share of its items that pass on this seed, and the failing ones as named items. */
+/**
+ * A level's measure: every item of the level run on this seed, as the frame's bank (docs/validators.md section
+ * 12.1). A failing item's detail says what the item asks for and what it found, so an executor can act on it
+ * without reading the validator: "asks: <capability>. found: <what came back>".
+ */
 export async function levelMeasure(items: readonly BankItem[], seed: number, root: string): Promise<Measure> {
   const scratch = scratchFolder();
   // Holds the event loop open while items run: a timer an item waits on may not (an aborted fetch's).
   const hold = setInterval(() => undefined, 60_000);
   try {
-    const failing: Item[] = [];
+    const entries: BankEntry[] = [];
     for (const item of items) {
       const result = await runItem(item, seed, root, scratch.path);
-      if (!result.pass)
-        failing.push({
-          id: item.id,
-          component: item.component,
-          detail: `[${item.family}, tier ${item.tier}] ${result.detail}`,
-        });
+      entries.push({
+        id: item.id,
+        component: item.component,
+        family: item.family,
+        tier: item.tier,
+        pass: result.pass,
+        ...(result.pass ? {} : { detail: `asks: ${item.title}. found: ${result.detail}` }),
+      });
     }
-    return { value: items.length === 0 ? 1 : (items.length - failing.length) / items.length, items: failing };
+    return bankMeasure(entries, 'system');
   } finally {
     clearInterval(hold);
     scratch.remove();

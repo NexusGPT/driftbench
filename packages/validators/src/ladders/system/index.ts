@@ -12,7 +12,6 @@ export {
   OPERATORS,
   type Operator,
 } from './family';
-export * from './hardness';
 
 /** The version of the system ladder: version 2 is the item bank of docs/validators.md section 12. */
 export const SYSTEM_LADDER_VERSION = 2;
@@ -33,6 +32,7 @@ export function systemLadder(options: SystemLadderOptions = {}): Ladder {
   const bank = options.bank ?? systemBank();
   return defineLadder({
     component: 'system',
+    version: SYSTEM_LADDER_VERSION,
     levels: BANK_LEVELS.map((level) => {
       const items = bank.filter((item) => item.level === level.level);
       const families = [...new Set(items.map((item) => item.family))].join(', ');
