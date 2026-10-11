@@ -19,15 +19,35 @@ function values(list: ValueSpec[]) {
       id: value.id,
       title: value.title ?? `the value ${value.id}`,
       evidence,
-      approved: value.approved ?? true,
+      produced_by: 'code' as const,
+      ...(value.approved === undefined ? {} : { approved: value.approved }),
     };
   });
 }
 
+type Dimension = Proposal['dimensions'][number];
+
+function dimension(
+  id: string,
+  kind: Dimension['kind'],
+  role: Dimension['role'],
+  list: ValueSpec[],
+): Dimension {
+  return {
+    id,
+    title: `the dimension ${id}`,
+    kind,
+    role,
+    produced_by: 'code',
+    approved: true,
+    values: values(list),
+  };
+}
+
 /**
- * A small fictional map (Zed Bank): four stages (lost is unreachable from greet), six transitions (one
- * names no stage pair), two flows, three deviation classes, two channels, a persona, one tool with an
- * input and an output dimension, two constraints, and a phrase bank with one unapproved phrase.
+ * A small fictional map (Zed Bank). Axes: four stages (lost is unreachable from greet), two flows, three
+ * deviation classes, two channels, a persona. Details: six transitions (one names no stage pair), one tool
+ * with an input and an output dimension. Two constraints, and a phrase bank with one unapproved phrase.
  */
 export function zedProposal(
   overrides: { phrases?: ProposalPhrase[]; extra?: Proposal['dimensions'] } = {},
@@ -37,6 +57,7 @@ export function zedProposal(
     value,
     text,
     lang,
+    produced_by: 'model',
     approved: true,
   });
   return {
@@ -45,49 +66,39 @@ export function zedProposal(
     produced_by: { family: 'lane', model: 'by hand', at: '2026-10-11T00:00:00.000Z' },
     sources: [{ kind: 'prompt', path: 'prompt.md' }],
     dimensions: [
-      { id: 'stage', title: 'Stages', kind: 'stage', values: values(['greet', 'verify', 'help', 'lost']) },
-      {
-        id: 'stage_transition',
-        title: 'Transitions',
-        kind: 'behaviour',
-        values: values([
-          'greet-to-verify',
-          'verify-to-verify',
-          'verify-to-help',
-          'help-to-verify',
-          'lost-to-help',
-          'greet-to-nowhere',
-        ]),
-      },
-      { id: 'flow', title: 'Flows', kind: 'behaviour', values: values(['balance', 'card']) },
-      {
-        id: 'deviation',
-        title: 'Deviations',
-        kind: 'deviation',
-        values: values(['D1_off_topic', 'D5_language_switch', 'D8_tool_failure']),
-      },
-      { id: 'channel', title: 'Channels', kind: 'channel', values: values(['chat', 'email']) },
-      { id: 'user', title: 'Users', kind: 'persona', values: values(['customer', 'staff']) },
-      {
-        id: 'lookup.in.account',
-        title: 'lookup input account',
-        kind: 'data',
-        values: values(['lookup.in.account.below-min-length', 'lookup.in.account.at-min-length']),
-      },
-      {
-        id: 'lookup.out.found',
-        title: 'lookup output found',
-        kind: 'data',
-        values: values(['lookup.out.found.true', 'lookup.out.found.false']),
-      },
+      dimension('stage', 'stage', 'axis', ['greet', 'verify', 'help', 'lost']),
+      dimension('stage_transition', 'behaviour', 'detail', [
+        'greet-to-verify',
+        'verify-to-verify',
+        'verify-to-help',
+        'help-to-verify',
+        'lost-to-help',
+        'greet-to-nowhere',
+      ]),
+      dimension('flow', 'behaviour', 'axis', ['balance', 'card']),
+      dimension('deviation', 'deviation', 'axis', ['D1_off_topic', 'D5_language_switch', 'D8_tool_failure']),
+      dimension('channel', 'channel', 'axis', ['chat', 'email']),
+      dimension('user', 'persona', 'axis', ['customer', 'staff']),
+      dimension('lookup.in.account', 'data', 'detail', [
+        'lookup.in.account.below-min-length',
+        'lookup.in.account.at-min-length',
+      ]),
+      dimension('lookup.out.found', 'data', 'detail', ['lookup.out.found.true', 'lookup.out.found.false']),
       ...(overrides.extra ?? []),
     ],
     constraints: [
-      { forbid: { flow: 'card', channel: 'email' }, reason: 'cards only on chat', evidence, approved: true },
+      {
+        forbid: { flow: 'card', channel: 'email' },
+        reason: 'cards only on chat',
+        evidence,
+        produced_by: 'code',
+        approved: true,
+      },
       {
         forbid: { flow: 'card', stage: 'help' },
         reason: 'the card flow never reaches help',
         evidence,
+        produced_by: 'model',
         approved: true,
       },
     ],

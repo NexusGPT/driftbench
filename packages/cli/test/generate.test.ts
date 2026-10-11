@@ -37,6 +37,7 @@ async function tree(dir: string): Promise<Record<string, string>> {
 
 const PROMPT = 'You are the Zed Bank assistant. Stages, in order: greet, help.\n';
 const EVIDENCE = '{ source: prompt.md, quote: "Stages, in order: greet, help." }';
+const CODE = 'produced_by: code';
 
 /** A map every value of which has an approved phrase: the generator has nothing to leave as a placeholder. */
 const PHRASED_MAP = `version: 1
@@ -48,35 +49,50 @@ dimensions:
   - id: stage
     title: Stages
     kind: stage
+    role: axis
+    ${CODE}
+    approved: true
     values:
-      - { id: greet, title: The assistant greets, evidence: ${EVIDENCE}, approved: true }
-      - { id: help, title: The assistant helps, evidence: ${EVIDENCE}, approved: true }
+      - { id: greet, title: The assistant greets, evidence: ${EVIDENCE}, ${CODE} }
+      - { id: help, title: The assistant helps, evidence: ${EVIDENCE}, ${CODE} }
   - id: stage_transition
     title: Transitions
     kind: behaviour
+    role: detail
+    ${CODE}
+    approved: true
     values:
-      - { id: greet-to-help, title: The user asks for help, evidence: ${EVIDENCE}, approved: true }
+      - { id: greet-to-help, title: The user asks for help, evidence: ${EVIDENCE}, ${CODE} }
   - id: flow
     title: Flows
     kind: behaviour
+    role: axis
+    ${CODE}
+    approved: true
     values:
-      - { id: balance, title: The customer asks for their balance, evidence: ${EVIDENCE}, approved: true }
+      - { id: balance, title: The customer asks for their balance, evidence: ${EVIDENCE}, ${CODE} }
   - id: deviation
     title: Deviations
     kind: deviation
+    role: axis
+    ${CODE}
+    approved: true
     values:
-      - { id: D1_off_topic, title: An off-topic question, evidence: ${EVIDENCE}, approved: true }
+      - { id: D1_off_topic, title: An off-topic question, evidence: ${EVIDENCE}, ${CODE} }
   - id: channel
     title: Channels
     kind: channel
+    role: axis
+    ${CODE}
+    approved: true
     values:
-      - { id: chat, title: The chat, evidence: ${EVIDENCE}, approved: true }
+      - { id: chat, title: The chat, evidence: ${EVIDENCE}, ${CODE} }
 constraints: []
 phrases:
-  - { dimension: stage_transition, value: greet-to-help, text: I need help with my account., lang: en, approved: true }
-  - { dimension: deviation, value: D1_off_topic, text: Are you open on Sunday?, lang: en, approved: true }
-  - { dimension: channel, value: chat, text: Hello from the chat., lang: en, approved: true }
-  - { dimension: flow, value: balance, text: What is my balance?, lang: en, approved: true }
+  - { dimension: stage_transition, value: greet-to-help, text: I need help with my account., lang: en, produced_by: model, approved: true }
+  - { dimension: deviation, value: D1_off_topic, text: Are you open on Sunday?, lang: en, produced_by: model, approved: true }
+  - { dimension: channel, value: chat, text: Hello from the chat., lang: en, produced_by: model, approved: true }
+  - { dimension: flow, value: balance, text: What is my balance?, lang: en, produced_by: model, approved: true }
 `;
 
 describe('driftbench generate', () => {
@@ -86,11 +102,11 @@ describe('driftbench generate', () => {
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
     expect(first.out).toContain('Stage graph: 23 of 23 edges covered');
-    expect(first.out).toContain('t-wise: covering array of 179 rows over 44 dimensions');
+    expect(first.out).toContain('t-wise: covering array of 154 rows over 6 dimensions');
     expect(first.out).toContain('Constraints applied: 34.');
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(193);
+    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(168);
 
     const refused = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a'], dir);
     expect(refused.code).toBe(2);
@@ -116,7 +132,7 @@ describe('driftbench generate', () => {
     const result = await run(['generate', '--map', `${ACME}map/proposal.yaml`, '--out', 'out'], dir);
     expect(result.code).toBe(2);
     expect(result.err).toContain('MAP_NOT_APPROVED');
-    expect(result.err).toContain('230 of 230 entries are not approved');
+    expect(result.err).toContain('101 of 101 entries are not approved');
     expect(await readdir(dir)).toEqual([]);
   });
 

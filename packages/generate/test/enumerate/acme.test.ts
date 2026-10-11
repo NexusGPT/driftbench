@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { type LoadedSpec, loadSpecs, type Spec } from '@driftbench/core';
-import { compileSpace, isForbidden } from '@driftbench/space';
+import { compileSpace, isForbidden, loadSpaceMap, coverage as spaceCoverage } from '@driftbench/space';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { type GenerateResult, generateSuite } from '../../src/enumerate/generate';
 import { loadApprovedMap } from '../../src/enumerate/load';
@@ -67,12 +67,23 @@ describe('generate on the approved Acme map', () => {
     expect(result.report.graph.unparsed).toEqual([]);
   });
 
-  it('covers every allowed pair of the 44 non-stage dimensions and applies all 34 constraints', () => {
+  it('covers every allowed pair of the 6 non-stage axes and applies all 34 constraints', () => {
     const twise = result.report.twise;
-    expect(twise.dimensions).toHaveLength(44);
+    expect(twise.dimensions).toEqual([
+      'behaviour',
+      'deviation',
+      'channel',
+      'user_type',
+      'coverage_result',
+      'workspace_start',
+    ]);
     expect(twise.covered).toBe(twise.allowed);
-    // behaviour (14 values) x rule (12 values): no pairwise array has fewer rows than 168.
-    expect(twise.rows).toBeGreaterThanOrEqual(168);
+    // By hand, the pairs of the 6 axes: behaviour 14 x (11 + 2 + 3 + 4 + 2) = 308, deviation 11 x (2 + 3 +
+    // 4 + 2) = 121, channel 2 x (3 + 4 + 2) = 18, user_type 3 x (4 + 2) = 18, coverage_result 4 x 2 = 8:
+    // 473, less the 3 behaviours forbidden on whatsapp: 470.
+    expect(twise.allowed).toBe(470);
+    // behaviour (14 values) x deviation (11 values): no pairwise array has fewer rows than 154.
+    expect(twise.rows).toBeGreaterThanOrEqual(154);
     expect(result.report.constraints.applied).toBe(34);
     const space = compileSpace(prepared.map);
     for (const spec of result.all.filter(
@@ -80,7 +91,7 @@ describe('generate on the approved Acme map', () => {
     )) {
       const cell = (spec.metadata as { generated: { cell: Record<string, string> } }).generated.cell;
       const row = space.dimensions.map((dimension) => dimension.index.get(cell[dimension.id] ?? '') ?? -1);
-      // Stage and transitions are outside the array: the row is checked on the dimensions it fixes.
+      // The row and its details, every dimension but stage and transitions, against every constraint.
       expect(isForbidden(space, row), spec.id).toBe(false);
     }
   });
@@ -88,7 +99,7 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 193, incomplete: 92 });
+    expect(result.report.summary).toMatchObject({ complete: 168, incomplete: 88 });
   });
 
   it('probes all 10 deviation classes, each user turn an approved phrase', () => {
@@ -147,11 +158,20 @@ describe('generate on the approved Acme map', () => {
     expect(result.report.no_phrase.length).toBeGreaterThan(80);
   });
 
-  it('covers far more of the map than the hand-written specs', () => {
+  it('counts coverage on the axis map that extract map writes, as space coverage does', async () => {
+    const written = await loadSpaceMap(`${ACME}map/space.yaml`);
+    if (!written.ok) throw new Error('space.yaml is invalid');
+    expect(prepared.axisMap.dimensions).toEqual(written.map.dimensions);
+    expect(prepared.axisMap.constraints).toEqual(written.map.constraints);
     const coverage = result.report.coverage;
-    expect(coverage.baseline?.specs).toBe(7);
-    expect(coverage.complete.covered).toBeGreaterThan((coverage.baseline?.covered ?? 0) * 10);
-    expect(coverage.complete.share).toBeGreaterThan(0.5);
+    // The hand-written baseline the lead measured: 164 of 866 pairs.
+    expect(coverage.baseline).toMatchObject({ specs: 7, allowed: 866, covered: 164 });
+    expect(coverage.complete.covered).toBeGreaterThan(2 * (coverage.baseline?.covered ?? 0));
+    const generated = await loadSpecs([GENERATED]);
+    const counted = spaceCoverage(written.map, generated, { t: 2 });
+    expect(counted.grid.covered).toBe(coverage.all.covered);
+    // Every tag and covers id names an axis value: nothing is unknown, every spec falls in a cell.
+    expect(counted.warnings.map((warning) => warning.code)).toEqual([]);
   });
 
   it('refuses the unapproved proposal with the count', async () => {
@@ -159,6 +179,6 @@ describe('generate on the approved Acme map', () => {
     expect(loaded.ok).toBe(false);
     if (loaded.ok) return;
     expect(loaded.code).toBe('MAP_NOT_APPROVED');
-    expect(loaded.message).toContain('230 of 230 entries are not approved');
+    expect(loaded.message).toContain('101 of 101 entries are not approved');
   });
 });

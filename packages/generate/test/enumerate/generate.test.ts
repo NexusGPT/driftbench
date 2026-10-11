@@ -77,22 +77,40 @@ describe('generateSuite on a small fictional map', () => {
   it('t-wise: the rows cover every allowed pair and never hold a forbidden combination', () => {
     expect(result.report.twise.covered).toBe(result.report.twise.allowed);
     expect(result.report.twise.share).toBe(1);
-    expect(result.report.twise.dimensions).toEqual([
+    // The axes but stage: the details are chosen inside each row's cell, never crossed.
+    expect(result.report.twise.dimensions).toEqual(['flow', 'deviation', 'channel', 'user']);
+    for (const spec of bySeeder(specs, 'twise')) {
+      const cell = meta(spec).cell as Record<string, string>;
+      expect(cell.flow === 'card' && cell.channel === 'email', spec.id).toBe(false);
+      // Each row's cell holds a value of every detail but the stage graph's.
+      expect(cell['lookup.in.account'], spec.id).toBeDefined();
+      expect(cell['lookup.out.found'], spec.id).toBeDefined();
+      expect(cell.stage_transition, spec.id).toBeUndefined();
+    }
+    // By hand: flow 2, deviation 4 (none added), channel 2, user 2 values. Pairs: the 3 subsets with
+    // deviation give 8 each (24), the 3 others 4 each (12): 36, less flow=card with channel=email: 35.
+    expect(result.report.twise.allowed).toBe(35);
+  });
+
+  it('places axis values only: details stay in the record and the Given, never in tags or covers', () => {
+    const prepared = zedPrepared();
+    const axisValues = new Set(
+      prepared.axisMap.dimensions.flatMap((dimension) => dimension.values.map((value) => value.id)),
+    );
+    for (const spec of specs) {
+      for (const tag of spec.tags ?? []) {
+        if (tag.startsWith('flow:')) continue;
+        expect(axisValues.has(tag.slice(tag.indexOf(':') + 1)), `${spec.id} ${tag}`).toBe(true);
+      }
+      for (const id of spec.covers ?? []) expect(axisValues.has(id), `${spec.id} ${id}`).toBe(true);
+    }
+    expect(prepared.axisMap.dimensions.map((dimension) => dimension.id)).toEqual([
+      'stage',
       'flow',
       'deviation',
       'channel',
       'user',
-      'lookup.in.account',
-      'lookup.out.found',
     ]);
-    for (const spec of bySeeder(specs, 'twise')) {
-      const cell = meta(spec).cell as Record<string, string>;
-      expect(cell.flow === 'card' && cell.channel === 'email', spec.id).toBe(false);
-    }
-    // By hand: flow 2, deviation 4 (none added), channel 2, user 2, account 2, found 2 values. Pairs: the 5
-    // subsets with deviation give 8 each (40), the 10 others 4 each (40): 80, less flow=card with
-    // channel=email: 79 allowed.
-    expect(result.report.twise.allowed).toBe(79);
   });
 
   it('t-wise: the Given carries the tool answer the cell states', () => {
@@ -257,6 +275,7 @@ describe('generateSuite on a small fictional map', () => {
         forbid: { deviation: 'D1_off_topic', stage },
         reason: 'test',
         evidence,
+        produced_by: 'model',
         approved: true,
       });
     }

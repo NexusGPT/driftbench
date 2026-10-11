@@ -28,10 +28,10 @@ export {
   type GenerateResult,
   generateSuite,
   INCOMPLETE_DIR,
+  type MeasuredCoverage,
   REPORT_FILE,
   renderSummary,
   type SeederTotals,
 } from './generate';
 export { formatJson } from './json';
 export { loadApprovedMap, type MapLoad } from './load';
-export { type AllowedSet, allowedSet, type MeasuredCoverage, measureCoverage } from './measure';

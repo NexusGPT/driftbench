@@ -164,12 +164,15 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     if (!listed.includes(id)) listed.push(id);
     specCell[compiled.id] = listed.join(' + ');
     if (id === NONE) continue;
+    // A value that is an inventory flow gets the core's flow tag, so `spec coverage` joins it.
+    const flowTag = `flow:${id}`;
+    if (compiled.kind === 'behaviour' && prepared.inventory?.flows.some((flow) => flow.id === id)) {
+      if (!tags.includes(flowTag)) tags.push(flowTag);
+    }
+    // Only axis values are placed: a detail lives inside the cell, in the record and the Given.
+    if (!prepared.axes.has(dimension)) continue;
     if (compiled.kind === 'behaviour') {
       if (!covers.includes(id)) covers.push(id);
-      // A value that is an inventory flow also gets the core's flow tag, so `spec coverage` joins it.
-      const flowTag = `flow:${id}`;
-      if (prepared.inventory?.flows.some((flow) => flow.id === id) && !tags.includes(flowTag))
-        tags.push(flowTag);
     } else if (compiled.kind === 'channel') channel = id;
     else {
       const tag = `${compiled.kind}:${id}`;

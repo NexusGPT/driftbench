@@ -71,6 +71,13 @@ export function graphSeeder(
       edgeBlock(prepared, rng, edge, `b${position + 1}-${edge.id}`),
     );
     const cell: Pick[] = [...path.context];
+    const reached: Pick[] = [];
+    for (const edge of path.edges) {
+      if (prepared.transition !== undefined) reached.push([prepared.transition, edge.value]);
+      const stage = prepared.space.dimensions[prepared.stage ?? -1]?.index.get(edge.to);
+      if (prepared.stage !== undefined && stage !== undefined) reached.push([prepared.stage, stage]);
+    }
+    cell.push(...contextAxes(prepared, path.context, rng, reached));
     if (prepared.transition !== undefined) {
       for (const edge of path.edges) cell.push([prepared.transition, edge.value]);
     }
@@ -155,11 +162,80 @@ export type TwiseSummary = {
   share: number;
 };
 
-/** The dimensions the covering array spans: every dimension but the stage graph's (stage, transitions). */
+/**
+ * The dimensions the covering array spans: the axes, but the stage graph's (stage, transitions). Details
+ * are chosen inside each row's cell, never crossed.
+ */
 export function twiseDimensions(prepared: PreparedMap): number[] {
-  return prepared.space.dimensions
-    .map((_, index) => index)
+  return [...prepared.axes]
+    .sort((a, b) => a - b)
     .filter((index) => index !== prepared.stage && index !== prepared.transition);
+}
+
+/** Axis kinds that set the context of a conversation: who talks, on which channel, with which data and task. */
+const CONTEXT_KINDS: ReadonlySet<string> = new Set(['persona', 'channel', 'data', 'task']);
+
+/**
+ * The context axes of a spec whose seeder fixes only some values (a graph path, a probe, a boundary value):
+ * a seeded allowed completion of the fixed values, with no deviation, kept only when every stage and
+ * transition the spec reaches stays allowed with it. Behaviour axes are left out: a context draw is not a
+ * claim that the spec covers a behaviour.
+ */
+function contextAxes(
+  prepared: PreparedMap,
+  fixed: readonly Pick[],
+  rng: Rng,
+  reached: readonly Pick[] = [],
+): Pick[] {
+  // One value per dimension is fixed; a second value of the same dimension (a spec covering two flows)
+  // must stay allowed with the draw, like a stage the spec reaches.
+  const base: Pick[] = [];
+  const also: Pick[] = [...reached];
+  for (const entry of fixed) {
+    if (base.some(([at]) => at === entry[0])) also.push(entry);
+    else base.push(entry);
+  }
+  const none =
+    prepared.deviation === undefined
+      ? undefined
+      : prepared.space.dimensions[prepared.deviation]?.index.get(NONE);
+  if (
+    prepared.deviation !== undefined &&
+    none !== undefined &&
+    !base.some(([at]) => at === prepared.deviation)
+  ) {
+    base.push([prepared.deviation, none]);
+  }
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const full = prepared.feasibility.complete(base, rng);
+    if (!full) return [];
+    const picks: Pick[] = [...prepared.axes]
+      .sort((a, b) => a - b)
+      .filter((index) => CONTEXT_KINDS.has(prepared.space.dimensions[index]?.kind ?? ''))
+      .filter((index) => !base.some(([at]) => at === index))
+      .map((index) => [index, full[index] ?? 0]);
+    if (
+      also.every((entry) =>
+        prepared.feasibility.allowed([...base.filter(([at]) => at !== entry[0]), ...picks, entry]),
+      )
+    ) {
+      return picks;
+    }
+  }
+  return [];
+}
+
+/** The details of a cell: a seeded allowed completion, the stage graph's dimensions left out. */
+function withDetails(prepared: PreparedMap, cell: readonly Pick[], rng: Rng): Pick[] {
+  const full = prepared.feasibility.complete(cell, rng);
+  if (!full) return [...cell];
+  const fixed = new Set(cell.map(([dimension]) => dimension));
+  const details: Pick[] = full.flatMap((value, dimension): Pick[] =>
+    fixed.has(dimension) || dimension === prepared.stage || dimension === prepared.transition
+      ? []
+      : [[dimension, value]],
+  );
+  return [...cell, ...details];
 }
 
 export function twiseSeeder(
@@ -201,7 +277,8 @@ export function twiseSeeder(
 }
 
 /**
- * A conversation over one cell of the non-stage dimensions: the tool answers its data values state, an
+ * A conversation over one cell: the given values, completed with a seeded allowed choice of every other
+ * value but the stage graph's (the details inside the cell), the tool answers its data values state, an
  * opening turn from the approved phrases of its values, and its deviation, when it has one, as the next
  * block. The Then is what the map supports for such a cell: the deviation's expectation, and the cell's
  * behaviour values as judged criteria drafted from their approved titles.
@@ -216,6 +293,7 @@ function carrierDraft(
   fixed?: { stimulus: BlockDraft['stimulus'] },
 ): SpecDraft {
   const rng = rngFor(context.seed, id);
+  cell = withDetails(prepared, cell, rng);
   const deviation = cell.find(([dimension]) => dimension === prepared.deviation);
   const openers = cell.filter(([dimension]) => dimension !== prepared.deviation);
   const stimulus = fixed?.stimulus ?? choosePhrase(prepared, rng, openers);
@@ -370,7 +448,7 @@ export function worldFor(
 export type BoundarySummary = { values: number; tools: number; unsupported: string[] };
 
 /**
- * One spec per value of every data dimension. On a tool's output, the tool answers with the value (its
+ * One spec per value of every detail data dimension, inside a cell of context axes. On a tool's output, the tool answers with the value (its
  * other output values completed under the constraints) and the block expects the call; on a tool's input,
  * a valid value is asserted on the call and an invalid one forbids the call (a correct agent never sends
  * it). The concrete value is computed from the schema.
@@ -383,7 +461,7 @@ export function boundarySeeder(
   const unsupported: string[] = [];
   let toolValues = 0;
   prepared.space.dimensions.forEach((dimension, index) => {
-    if (dimension.kind !== 'data') return;
+    if (dimension.kind !== 'data' || prepared.axes.has(index)) return;
     dimension.values.forEach((value, position) => {
       if (value.id === NONE || drafts.length >= context.max) return;
       const id = `gen-boundary-${pad(drafts.length + 1)}`;
@@ -422,6 +500,7 @@ export function boundarySeeder(
         }
       }
       const world = worldFor(prepared, cell);
+      cell.push(...contextAxes(prepared, cell, rng));
       unsupported.push(...world.unsupported.filter((entry) => !unsupported.includes(entry)));
       const criteria = found ? [] : [draftCriterion(prepared, target)];
       drafts.push({
@@ -554,6 +633,7 @@ function probeDraft(
     prepared.feasibility.allowed(atStage ? [deviation, atStage, flow] : [deviation, flow]),
   );
   const cell: Pick[] = [deviation, ...flows];
+  cell.push(...contextAxes(prepared, atStage ? [...cell, atStage] : cell, rng));
   const route = [...(anchor?.route ?? [])];
   const next = worldOnly && anchor ? pick(rng, phrasedOut(anchor.stage)) : undefined;
   const walked = next ? [...route, next] : route;
@@ -610,7 +690,6 @@ export function metamorphicSeeder(
   const values: string[] = [];
   const graph = stageGraph(prepared);
   const anchors = anchorStages(prepared, graph);
-  const dimensions = twiseDimensions(prepared);
   let families = 0;
   for (const [key, phrases] of prepared.phrasesOf) {
     if (phrases.length < 2 || drafts.length >= context.max) continue;
@@ -619,8 +698,6 @@ export function metamorphicSeeder(
     families += 1;
     values.push(key);
     const family = `gen-metamorphic-${pad(families)}`;
-    const rng = rngFor(context.seed, family);
-    const full = prepared.feasibility.complete([target], rng);
     phrases.forEach((phrase, variant) => {
       const id = `${family}-${variant + 1}`;
       const stimulus = { kind: 'phrase' as const, phrase };
@@ -628,15 +705,7 @@ export function metamorphicSeeder(
       const draft =
         target[0] === prepared.deviation
           ? probeDraft(prepared, contextFor, family, 'metamorphic', target, anchors, { stimulus }).draft
-          : carrierDraft(
-              prepared,
-              contextFor,
-              family,
-              'metamorphic',
-              '',
-              dimensions.map((dimension): Pick => [dimension, full?.[dimension] ?? 0]),
-              { stimulus },
-            );
+          : carrierDraft(prepared, contextFor, family, 'metamorphic', '', [target], { stimulus });
       drafts.push({
         ...draft,
         id,

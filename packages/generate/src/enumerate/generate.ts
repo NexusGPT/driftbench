@@ -1,4 +1,5 @@
-import { type Issue, parseSpecText, type Spec } from '@driftbench/core';
+import { type Issue, type LoadResult, parseSpecText, type Spec } from '@driftbench/core';
+import { coverage } from '@driftbench/space';
 import {
   NO_THEN_CRITERION,
   PLACEHOLDER_CRITERION,
@@ -25,7 +26,9 @@ import {
   twiseSeeder,
 } from '../seed/seeders';
 import { formatJson } from './json';
-import { allowedSet, type MeasuredCoverage, measureCoverage } from './measure';
+
+/** t-wise coverage of a set of specs on the axis map, as `driftbench space coverage --t` counts it. */
+export type MeasuredCoverage = { t: number; specs: number; allowed: number; covered: number; share: number };
 
 /**
  * `generateSuite`: every seeder over one approved map, each draft written as a spec, validated and linted
@@ -203,9 +206,10 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     seeders[seeder] = totals;
   }
 
-  const allowed = allowedSet(prepared, t);
+  const measure = (specs: Spec[]) => measured(prepared, specs, t);
+  const completeCoverage = measure(complete);
   const baseline = options.baseline
-    ? { label: options.baseline.label, ...measureCoverage(prepared, options.baseline.specs, allowed) }
+    ? { label: options.baseline.label, ...measure(options.baseline.specs) }
     : undefined;
   const totals = Object.values(seeders);
   const report: GenerateReport = {
@@ -244,9 +248,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     no_then: noThen,
     coverage: {
       t,
-      allowed: allowed.keys.size,
-      complete: measureCoverage(prepared, complete, allowed),
-      all: measureCoverage(prepared, all, allowed),
+      allowed: completeCoverage.allowed,
+      complete: completeCoverage,
+      all: measure(all),
       ...(baseline ? { baseline } : {}),
     },
     invalid,
@@ -256,9 +260,35 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   return { files, report, complete, all };
 }
 
+/**
+ * Coverage on the space map of the approved axes, by the space package's own `coverage`: the same count
+ * `driftbench space coverage --map <space.yaml> <specs> --t <t>` prints.
+ */
+function measured(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCoverage {
+  const results: LoadResult[] = specs.map((spec) => ({
+    ok: true,
+    path: spec.id,
+    spec,
+    hash: '',
+    warnings: [],
+  }));
+  const strength = Math.min(t, prepared.axisMap.dimensions.length);
+  const grid = coverage(prepared.axisMap, results, {
+    t: strength,
+    ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
+  }).grid;
+  return {
+    t: strength,
+    specs: specs.length,
+    allowed: grid.allowed,
+    covered: grid.covered,
+    share: grid.share,
+  };
+}
+
 function dataValues(prepared: PreparedMap): number {
   return prepared.space.dimensions
-    .filter((dimension) => dimension.kind === 'data')
+    .filter((dimension, index) => dimension.kind === 'data' && !prepared.axes.has(index))
     .reduce((sum, dimension) => sum + dimension.values.filter((value) => value.id !== 'none').length, 0);
 }
 
@@ -283,7 +313,7 @@ export function renderSummary(report: GenerateReport): string {
     `t-wise: covering array of ${report.twise.rows} rows over ${report.twise.dimensions.length} dimensions, ${report.twise.covered} of ${report.twise.allowed} allowed ${report.twise.t}-tuples (${percent(report.twise.share)}).`,
     `Constraints applied: ${report.constraints.applied}.`,
     `Deviation probes: ${report.deviation.probes.length} of ${report.deviation.classes} classes. Metamorphic families: ${report.metamorphic.families}.`,
-    `Coverage on the map at t = ${report.coverage.t}: complete specs ${report.coverage.complete.covered} of ${report.coverage.allowed} (${percent(report.coverage.complete.share)}), all specs ${report.coverage.all.covered} (${percent(report.coverage.all.share)})${report.coverage.baseline ? `, ${report.coverage.baseline.label} ${report.coverage.baseline.covered} (${percent(report.coverage.baseline.share)})` : ''}.`,
+    `Coverage on the axis map at t = ${report.coverage.t}: complete specs ${report.coverage.complete.covered} of ${report.coverage.allowed} (${percent(report.coverage.complete.share)}), all specs ${report.coverage.all.covered} (${percent(report.coverage.all.share)})${report.coverage.baseline ? `, ${report.coverage.baseline.label} ${report.coverage.baseline.covered} (${percent(report.coverage.baseline.share)})` : ''}.`,
   );
   if (report.no_phrase.length > 0) {
     lines.push(

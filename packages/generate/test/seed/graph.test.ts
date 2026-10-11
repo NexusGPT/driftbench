@@ -66,6 +66,7 @@ describe('walkGraph', () => {
       forbid: { flow: 'balance', stage: 'help' },
       reason: 'test',
       evidence: { source: 'prompt.md', quote: 'Stages, in order: greet, verify, help.' },
+      produced_by: 'model',
       approved: true,
     });
     const prepared = prepareMap(proposal, { tools: ZED_TOOLS });

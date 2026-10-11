@@ -31,10 +31,18 @@ export type PreparedMap = {
   agent: string;
   /** The proposal format version, as text. */
   version: string;
-  /** The content hash of what the seeders read: the approved space map and the approved phrases. */
+  /** The content hash of what the seeders read: the approved dimensions, their roles, the phrases. */
   hash: string;
+  /**
+   * Every approved dimension, axes and details, with every approved constraint: the space a cell is
+   * drawn in, so a detail chosen inside a cell honours the constraints too.
+   */
   map: SpaceMap;
   space: CompiledSpace;
+  /** The space map of the approved axes (`toSpaceMap`): the map coverage is counted on. */
+  axisMap: SpaceMap;
+  /** Indices, in `space`, of the axis dimensions. Every other dimension is a detail. */
+  axes: ReadonlySet<number>;
   feasibility: Feasibility;
   /** Approved phrases, in file order. */
   phrases: ProposalPhrase[];
@@ -64,8 +72,20 @@ export function prepareMap(
   proposal: Proposal,
   extras: { tools?: ToolSchema[]; inventory?: Inventory } = {},
 ): PreparedMap {
-  const map = toSpaceMap(proposal, { approvedOnly: true });
+  // The cell space holds the details too: the same conversion with every dimension read as an axis.
+  const map = toSpaceMap(
+    {
+      ...proposal,
+      dimensions: proposal.dimensions.map((dimension) => ({ ...dimension, role: 'axis' as const })),
+    },
+    { approvedOnly: true },
+  );
   const space = compileSpace(map);
+  const axisMap = toSpaceMap(proposal, { approvedOnly: true });
+  const axisIds = new Set(axisMap.dimensions.map((dimension) => dimension.id));
+  const axes = new Set(
+    space.dimensions.flatMap((dimension, index) => (isAxis(axisIds, dimension.id) ? [index] : [])),
+  );
   const phrases = proposal.phrases.filter((phrase) => {
     if (!phrase.approved) return false;
     const dimension = space.dimensions.find((candidate) => candidate.id === phrase.dimension);
@@ -85,6 +105,7 @@ export function prepareMap(
   };
   const hash = contentHash({
     map,
+    axes: [...axisIds],
     phrases: phrases.map(({ dimension, value, text, lang }) => ({ dimension, value, text, lang })),
   });
   return {
@@ -93,6 +114,8 @@ export function prepareMap(
     hash,
     map,
     space,
+    axisMap,
+    axes,
     feasibility: new Feasibility(space),
     phrases,
     phrasesOf,
@@ -104,6 +127,14 @@ export function prepareMap(
     channel: find('channel'),
     transition: find('behaviour', TRANSITION_DIMENSION),
   };
+}
+
+/**
+ * Whether a dimension is an axis: its `role` in the proposal, read through the space map of the axes. The
+ * one place the generator decides it.
+ */
+export function isAxis(axisIds: ReadonlySet<string>, dimension: string): boolean {
+  return axisIds.has(dimension);
 }
 
 /** The value id of a dimension's value index. */
