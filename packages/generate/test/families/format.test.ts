@@ -414,6 +414,6 @@ describe('the Acme family as written', () => {
         }
       }
     }
-    expect(text).not.toMatch(/[–—]/);
+    expect(text).not.toMatch(/[\u2013\u2014]/);
   });
 });
