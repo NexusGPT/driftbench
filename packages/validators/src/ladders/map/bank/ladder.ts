@@ -30,6 +30,7 @@ export function bankLadder(component: string, items: readonly BankItem[], deps: 
               component: item.component,
               family: item.family,
               tier: item.tier,
+              cause: item.cause,
               pass: outcome.pass,
               detail: `[${item.family}, tier ${item.tier}, cause ${item.cause}] ${item.title}: ${outcome.detail}`,
             });

@@ -320,14 +320,15 @@ describe('the hardness measurement', () => {
     expect(total).toBe(bank.length);
   });
 
-  it('reads iteration 0 and the ten pilot rows from the journal, and the gate holds', () => {
+  it('reads iteration 0 and the ten pilot rows from the journal; only the audit (12.7) is left for the gate', () => {
     const { rows, problems } = readJournal(ROOT, 'map');
     expect(problems).toEqual([]);
     const measured = measureHardness(rows);
     expect(measured.iteration0).toMatchObject({ bankSize: 546, passing: 192 });
     expect(measured.pilot).toMatchObject({ iterations: 10, complete: true });
     expect(measured.forecast).toBeGreaterThanOrEqual(100);
-    expect(measured.gate.holds).toBe(true);
+    expect(measured.causes?.distinct).toBeGreaterThanOrEqual(100);
+    for (const reason of measured.gate.reasons) expect(reason).toMatch(/audit/);
     expect(measured.bankMinimum.holds).toBe(true);
   });
 });
