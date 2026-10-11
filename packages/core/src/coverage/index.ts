@@ -1,2 +1,32 @@
-/** Coverage of a behaviour inventory by specs. Implemented by the coverage module of Phase 0. */
-export {};
+/** Coverage of a behaviour inventory by specs: the behaviour x channel and flow x deviation matrices. */
+export {
+  type BehaviourCoverage,
+  type CellStatus,
+  type ChannelCell,
+  type ChannelTotals,
+  type ComputeCoverageOptions,
+  type CoverageResult,
+  type CoverageWarning,
+  type CoverageWarningCode,
+  CoverageWarningCodes,
+  channelUniverse,
+  computeCoverage,
+  type DeviationCell,
+  type DeviationSource,
+  type FlowCoverage,
+  type InvalidSpec,
+} from './compute';
+export {
+  BehaviourId,
+  FlowId,
+  Inventory,
+  InventoryBehaviour,
+  InventoryFlow,
+  type InventoryIssue,
+  type InventoryIssueCode,
+  InventoryIssueCodes,
+  type InventoryResult,
+  loadInventory,
+  parseInventoryText,
+  validateInventory,
+} from './inventory';
