@@ -246,6 +246,10 @@ function arrayPartitions(name: string, property: YAMLMap, add: Add): void {
   add('empty', minItems ? `${name} is empty, below its minItems ${minItems}` : `${name} is empty`, 'type');
   add('one-item', `${name} has one item`, 'type');
   add('several-items', `${name} has several items`, 'type');
+  if (minItems !== undefined && minItems > 0) {
+    add('below-min-items', `${name} has ${minItems - 1} items, one under its minItems`, 'minItems');
+    add('at-min-items', `${name} has exactly ${minItems} items`, 'minItems');
+  }
   if (maxItems !== undefined) {
     add('at-max-items', `${name} has exactly ${maxItems} items`, 'maxItems');
     add('above-max-items', `${name} has more than ${maxItems} items`, 'maxItems');

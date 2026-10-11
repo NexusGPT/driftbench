@@ -36,4 +36,13 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       't.x.in.p': ['empty', 'one-item', 'several-items'],
     });
   });
+
+  it('minItems adds below-min-items and at-min-items', () => {
+    expect(partitions({ type: 'array', items: { type: 'string' }, minItems: 3 })).toEqual({
+      't.x.in.p': ['empty', 'one-item', 'several-items', 'below-min-items', 'at-min-items'],
+    });
+    expect(partitions({ type: 'array', items: { type: 'string' }, minItems: 0 })).toEqual({
+      't.x.in.p': ['empty', 'one-item', 'several-items'],
+    });
+  });
 });
