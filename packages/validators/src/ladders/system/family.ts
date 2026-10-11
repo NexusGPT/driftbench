@@ -36,6 +36,11 @@ export type Operator = {
   class: string;
   /** The check family whose failing verdict must fail the block. */
   check: string;
+  /**
+   * Families that may fail beside it, on a runner that has them: the runner's own ledger check reads the
+   * replaced email in the tool input too. Any other failing family is a precision fault of the chain.
+   */
+  also?: readonly string[];
   /** The drift class the failing block must carry. */
   drift: DriftClass;
   /** What the class does wrong, in words, for the items. */
@@ -105,6 +110,7 @@ export const OPERATORS: Readonly<Record<string, Operator>> = {
   X2_contradiction: {
     class: 'X2_contradiction',
     check: 'tools',
+    also: ['ledger'],
     drift: 'X2_contradiction',
     does: 'calls the lookup with the email the user replaced in block 0',
     apply: (observed, block) => ({
