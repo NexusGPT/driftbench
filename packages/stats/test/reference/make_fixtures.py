@@ -1,6 +1,7 @@
 """Reference values for @driftbench/stats.
 
 Run from the repository root:  python3 packages/stats/test/reference/make_fixtures.py
+Then format the output the way the repository does:  npx biome format --write packages/stats/test/reference/fixtures.json
 Writes packages/stats/test/reference/fixtures.json, which the TypeScript tests read and match to 1e-6
 (the bootstrap: exactly when it replays the same generator, within a stated tolerance against numpy).
 
@@ -173,7 +174,7 @@ def bootstrap_cases():
 # ---------------------------------------------------------------- reliability
 def reliability_cases():
     pk, pak = [], []
-    for c, n, k in [(10, 10, 5), (8, 10, 1), (8, 10, 3), (5, 10, 6), (0, 10, 1), (37, 40, 8), (190, 200, 20)]:
+    for c, n, k in [(10, 10, 5), (8, 10, 1), (8, 10, 3), (5, 10, 6), (0, 10, 1), (37, 40, 8), (190, 200, 20), (2, 10, 3), (5, 20, 4), (30, 200, 10), (1, 50, 7)]:
         pk.append({"c": c, "n": n, "k": k, "expected": f(Fraction(comb(c, k), comb(n, k)))})
         pak.append({"c": c, "n": n, "k": k, "expected": f(1 - Fraction(comb(n - c, k), comb(n, k)))})
     rng = np.random.default_rng(3)
