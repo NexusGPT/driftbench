@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { isPlainObject } from '@driftbench/core';
+import { Assertion, Count, DeviationClass, GuardExpect, isPlainObject } from '@driftbench/core';
 import { Document, isMap, isSeq, parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { QuoteIndex } from './quote';
@@ -135,18 +135,183 @@ export const ProposalConstraint = z
   .describe('A combination of values that cannot occur.');
 export type ProposalConstraint = z.infer<typeof ProposalConstraint>;
 
+/** A slot name: the `{name}` a phrase, a tool input or an end state reads its concrete value from. */
+export const SlotName = z.string().regex(/^[a-z][a-z0-9_]*$/, {
+  error: 'expected a slot name such as email or address_id: lowercase letters, digits and underscores',
+});
+
+/** Concrete values by slot name. Fictional data only. */
+export const Slots = z
+  .record(SlotName, z.string().min(1))
+  .describe('Concrete values by slot name, such as { email: jo.okafor@example.com }.');
+export type Slots = z.infer<typeof Slots>;
+
+/**
+ * The cell values an entry applies to: per dimension, the values it holds for. Every dimension named must
+ * hold one of its listed values; a dimension not named is free.
+ */
+export const When = z
+  .record(DimensionId, z.array(ValueId).min(1))
+  .describe('The values the entry applies to, per dimension: { coverage_result: [fiber, 5g-only] }.');
+export type When = z.infer<typeof When>;
+
 export const ProposalPhrase = z
   .strictObject({
     dimension: DimensionId,
     value: ValueId,
-    text: z.string().min(1).max(500).describe('One user message that expresses the value.'),
+    text: z
+      .string()
+      .min(1)
+      .max(500)
+      .describe('One user message that expresses the value. `{slot}` takes a value the cell binds.'),
     lang: Lang,
+    when: When.optional().describe('The cell values the phrase fits; absent: every cell of its value.'),
+    binds: Slots.optional().describe('Slot values the phrase itself states, such as the plan it names.'),
     evidence: Evidence.optional().describe('The source example the phrase copies, when there is one.'),
     produced_by: Origin,
     approved: Approved,
   })
   .describe('One phrasing of a value, for the phrase bank.');
 export type ProposalPhrase = z.infer<typeof ProposalPhrase>;
+
+// Relations: what links values to tools, stages and end states ----------------------------------------
+
+/** A value of a dimension. */
+export const ValueRef = z
+  .strictObject({ dimension: DimensionId, value: ValueId })
+  .describe('One value of one dimension.');
+export type ValueRef = z.infer<typeof ValueRef>;
+
+/** The dimension a flow id is a value of: the inventory pre-pass names it `flow`. */
+export const FLOW_DIMENSION = 'flow';
+
+/** The stage a deviation probe returns to when the class is a detour: the stage the conversation had reached. */
+export const PENDING_STAGE = 'pending';
+
+const relationCommon = {
+  evidence: Evidence,
+  produced_by: Origin,
+  approved: Approved,
+};
+
+/** An expected argument or state field: an assertion whose strings may read `{slot}`. */
+const TemplateAssertion = Assertion.describe(
+  'An assertion as a spec writes it; a `{slot}` in a string is replaced by the value the cell binds.',
+);
+
+export const EndStateTemplate = z
+  .strictObject({
+    source: z
+      .string()
+      .regex(/^tool:./, { error: 'an end state is read from a tool payload: tool:<label>' })
+      .describe('Where the state is read, such as tool:order.create.'),
+    mode: z.enum(['subset', 'exact']).describe('subset compares the listed fields; exact the whole state.'),
+    expect: z.record(z.string(), TemplateAssertion).describe('The fields the state must hold.'),
+  })
+  .describe('What the side-effect store must hold when the path ends, by slot values.');
+export type EndStateTemplate = z.infer<typeof EndStateTemplate>;
+
+export const PathRelation = z
+  .strictObject({
+    kind: z.literal('path'),
+    id: ValueId.describe('A short id, unique among the paths.'),
+    flow: ValueId.describe('The flow the path belongs to: a value of the flow dimension.'),
+    when: When.optional(),
+    stages: z
+      .array(ValueId)
+      .min(2, { error: 'a path passes at least two stages' })
+      .describe('The stages in the order the conversation passes them, the start first.'),
+    behaviours: z.array(ValueId).optional().describe('The behaviours the path exercises.'),
+    end_state: EndStateTemplate.optional(),
+    ...relationCommon,
+  })
+  .describe("A flow's stage order on one branch: the stages it passes when the cell holds `when`.");
+export type PathRelation = z.infer<typeof PathRelation>;
+
+export const UsesToolRelation = z
+  .strictObject({
+    kind: z.literal('uses_tool'),
+    subject: ValueRef.describe('The flow or behaviour value that calls the tool.'),
+    tool: z.string().min(1).describe('The tool label.'),
+    stage: ValueId.describe('The stage the call is made at: the turn that leaves this stage.'),
+    to: ValueId.optional().describe('Only on the turn that reaches this stage.'),
+    when: When.optional(),
+    count: Count.optional().describe('Calls in that turn; 1 when absent.'),
+    input: z
+      .record(z.string(), TemplateAssertion)
+      .optional()
+      .describe('The arguments, by name; `{slot}` reads the value a data value of the cell binds.'),
+    ...relationCommon,
+  })
+  .describe('A tool a flow or a behaviour calls, the stage it is called at, and what feeds its inputs.');
+export type UsesToolRelation = z.infer<typeof UsesToolRelation>;
+
+export const BindsRelation = z
+  .strictObject({
+    kind: z.literal('binds'),
+    subject: ValueRef.describe('The data or persona value the slots stand for.'),
+    slots: Slots,
+    ...relationCommon,
+  })
+  .describe('The concrete values a data value stands for: what phrases, inputs and end states read.');
+export type BindsRelation = z.infer<typeof BindsRelation>;
+
+export const RecoveryTool = z
+  .strictObject({
+    tool: z.string().min(1),
+    count: Count.optional(),
+    input: z.record(z.string(), TemplateAssertion).optional(),
+  })
+  .describe('A tool call the recovery turn makes, or must not make (count 0).');
+export type RecoveryTool = z.infer<typeof RecoveryTool>;
+
+export const RecoveryRelation = z
+  .strictObject({
+    kind: z.literal('recovery'),
+    class: DeviationClass,
+    flows: z.array(ValueId).min(1).describe('The flows the recovery holds in.'),
+    at: z
+      .array(ValueId)
+      .min(1)
+      .optional()
+      .describe('The stages the class is probed at; absent: any stage the path reaches after its start.'),
+    tool: z.string().min(1).optional().describe('For a tool failure: the tool that fails.'),
+    stage_after: z
+      .string()
+      .regex(/^[A-Za-z0-9][A-Za-z0-9_.-]*$/)
+      .optional()
+      .describe('The stage after the probe; `pending` is the stage the conversation had reached.'),
+    must: z.array(z.string().min(1)).optional().describe('Patterns the reply holds; `{slot}` allowed.'),
+    must_not: z.array(z.string().min(1)).optional().describe('Patterns the reply never holds.'),
+    guards: z.array(GuardExpect).optional().describe('Runtime checks the probe fires.'),
+    tools: z.array(RecoveryTool).optional(),
+    ...relationCommon,
+  })
+  .describe('How a flow recovers from one deviation class: the stage after, the words, the calls.');
+export type RecoveryRelation = z.infer<typeof RecoveryRelation>;
+
+export const ReplyLanguageRelation = z
+  .strictObject({
+    kind: z.literal('reply_language'),
+    subject: ValueRef.describe('The rule value that fixes the language of every reply.'),
+    lang: Lang,
+    ...relationCommon,
+  })
+  .describe('The language every reply is in, whatever the user writes.');
+export type ReplyLanguageRelation = z.infer<typeof ReplyLanguageRelation>;
+
+export const ProposalRelation = z
+  .discriminatedUnion('kind', [
+    PathRelation,
+    UsesToolRelation,
+    BindsRelation,
+    RecoveryRelation,
+    ReplyLanguageRelation,
+  ])
+  .describe('A relation between values: a path, a tool call, concrete values, a recovery, a reply language.');
+export type ProposalRelation = z.infer<typeof ProposalRelation>;
+export const RELATION_KINDS = ['path', 'uses_tool', 'binds', 'recovery', 'reply_language'] as const;
+export type RelationKind = (typeof RELATION_KINDS)[number];
 
 export const ProposalSource = z
   .strictObject({
@@ -174,8 +339,16 @@ export const Proposal = z
     dimensions: z.array(ProposalDimension),
     constraints: z.array(ProposalConstraint),
     phrases: z.array(ProposalPhrase),
+    relations: z
+      .array(ProposalRelation)
+      .optional()
+      .describe(
+        'Paths, tool calls, concrete values, recoveries and the reply language, each with its quote.',
+      ),
   })
-  .describe('A map proposal: dimensions, values, constraints and phrases, each waiting for approval.');
+  .describe(
+    'A map proposal: dimensions, values, constraints, phrases and relations, each waiting for approval.',
+  );
 export type Proposal = z.infer<typeof Proposal>;
 
 export const ProposalIssueCodes = [
@@ -306,7 +479,26 @@ export function evidences(proposal: Proposal): Array<{ path: string; evidence: E
   proposal.phrases.forEach((phrase, p) => {
     if (phrase.evidence) found.push({ path: `phrases.${p}`, evidence: phrase.evidence });
   });
+  (proposal.relations ?? []).forEach((relation, r) => {
+    found.push({ path: `relations.${r}`, evidence: relation.evidence });
+  });
   return found;
+}
+
+/** A short label for a relation, for listings and errors. */
+export function relationLabel(relation: ProposalRelation): string {
+  switch (relation.kind) {
+    case 'path':
+      return `path ${relation.id} (${relation.flow}: ${relation.stages.join(' > ')})`;
+    case 'uses_tool':
+      return `${relation.subject.dimension}=${relation.subject.value} uses ${relation.tool} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
+    case 'binds':
+      return `${relation.subject.dimension}=${relation.subject.value} binds ${Object.keys(relation.slots).join(', ')}`;
+    case 'recovery':
+      return `recovery ${relation.class}${relation.tool ? ` of ${relation.tool}` : ''} in ${relation.flows.join(', ')}`;
+    case 'reply_language':
+      return `${relation.subject.dimension}=${relation.subject.value} sets the reply language ${relation.lang}`;
+  }
 }
 
 /** Whether a value counts as approved: its own flag, else its dimension's. */
@@ -323,20 +515,24 @@ export function countEntries(proposal: Proposal): {
   values: number;
   constraints: number;
   phrases: number;
+  relations: number;
   total: number;
   approved: number;
   valuesApproved: number;
 } {
+  const relations = proposal.relations ?? [];
   const flags = [
     ...proposal.dimensions.map((dimension) => dimension.approved),
     ...proposal.constraints.map((constraint) => constraint.approved),
     ...proposal.phrases.map((phrase) => phrase.approved),
+    ...relations.map((relation) => relation.approved),
   ];
   return {
     dimensions: proposal.dimensions.length,
     values: proposal.dimensions.reduce((sum, dimension) => sum + dimension.values.length, 0),
     constraints: proposal.constraints.length,
     phrases: proposal.phrases.length,
+    relations: relations.length,
     total: flags.length,
     approved: flags.filter(Boolean).length,
     valuesApproved: proposal.dimensions.reduce(
@@ -368,6 +564,30 @@ export function renderProposal(proposal: Proposal): string {
     for (const item of constraints.items) {
       const forbid = isMap(item) ? item.get('forbid', true) : undefined;
       if (isMap(forbid)) forbid.flow = true;
+    }
+  }
+  // Short lists and value references read best on one line.
+  const inline = [
+    'when',
+    'binds',
+    'subject',
+    'slots',
+    'stages',
+    'behaviours',
+    'flows',
+    'at',
+    'must',
+    'must_not',
+  ];
+  for (const key of ['phrases', 'relations']) {
+    const list = doc.get(key, true);
+    if (!isSeq(list)) continue;
+    for (const item of list.items) {
+      if (!isMap(item)) continue;
+      for (const name of inline) {
+        const node = item.get(name, true);
+        if (isMap(node) || isSeq(node)) node.flow = true;
+      }
     }
   }
   return doc.toString({ lineWidth: 0 });
@@ -449,6 +669,88 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
     }
     phrases.add(key);
     checkSource(phrase.evidence, path);
+    if (phrase.when) checkWhen(phrase.when, `${path}.when`);
+  });
+
+  function checkWhen(when: When, path: string): void {
+    for (const [dimension, values] of Object.entries(when)) {
+      values.forEach((value, index) => {
+        reference(dimension, value, `${path}.${dimension}.${index}`);
+      });
+    }
+  }
+  const ofKind = (kind: DimensionKind) =>
+    proposal.dimensions.find((dimension) => dimension.kind === kind)?.values.map((value) => value.id) ?? [];
+  const stages = new Set(ofKind('stage'));
+  const checkStage = (stage: string, path: string) => {
+    if (!stages.has(stage)) {
+      issues.push(issue('PROPOSAL_UNKNOWN_VALUE', path, `"${stage}" is not a value of the stage dimension`));
+    }
+  };
+  const checkFlow = (flow: string, path: string) => reference(FLOW_DIMENSION, flow, path);
+  const deviations = new Set(ofKind('deviation'));
+  const paths = new Set<string>();
+  (proposal.relations ?? []).forEach((relation, r) => {
+    const path = `relations.${r}`;
+    checkSource(relation.evidence, path);
+    switch (relation.kind) {
+      case 'path':
+        if (paths.has(relation.id)) {
+          issues.push(issue('PROPOSAL_DUPLICATE', `${path}.id`, `path "${relation.id}" is listed twice`));
+        }
+        paths.add(relation.id);
+        checkFlow(relation.flow, `${path}.flow`);
+        relation.stages.forEach((stage, index) => {
+          checkStage(stage, `${path}.stages.${index}`);
+        });
+        for (const [index, behaviour] of (relation.behaviours ?? []).entries()) {
+          const known = proposal.dimensions.some(
+            (dimension) =>
+              dimension.kind === 'behaviour' && dimension.values.some((value) => value.id === behaviour),
+          );
+          if (!known) {
+            issues.push(
+              issue(
+                'PROPOSAL_UNKNOWN_VALUE',
+                `${path}.behaviours.${index}`,
+                `"${behaviour}" is not a behaviour`,
+              ),
+            );
+          }
+        }
+        if (relation.when) checkWhen(relation.when, `${path}.when`);
+        break;
+      case 'uses_tool':
+        reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
+        checkStage(relation.stage, `${path}.stage`);
+        if (relation.to !== undefined) checkStage(relation.to, `${path}.to`);
+        if (relation.when) checkWhen(relation.when, `${path}.when`);
+        break;
+      case 'binds':
+      case 'reply_language':
+        reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
+        break;
+      case 'recovery':
+        if (!deviations.has(relation.class)) {
+          issues.push(
+            issue(
+              'PROPOSAL_UNKNOWN_VALUE',
+              `${path}.class`,
+              `"${relation.class}" is not a value of the deviation dimension`,
+            ),
+          );
+        }
+        relation.flows.forEach((flow, index) => {
+          checkFlow(flow, `${path}.flows.${index}`);
+        });
+        (relation.at ?? []).forEach((stage, index) => {
+          checkStage(stage, `${path}.at.${index}`);
+        });
+        if (relation.stage_after !== undefined && relation.stage_after !== PENDING_STAGE) {
+          checkStage(relation.stage_after, `${path}.stage_after`);
+        }
+        break;
+    }
   });
   return issues;
 }

@@ -1,6 +1,6 @@
 # Validators: code that proves driftbench works
 
-Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with the statistics ladder at levels 1 and 2 (section 7) as its first rung. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
+Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with two ladders registered: the judge ladder at levels 1 to 7 (section 4), floor 7, and the statistics ladder at levels 1 and 2 (section 7), floor 1. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
 
 ## 1. The common frame
 
@@ -119,6 +119,41 @@ driftbench validate protect --branch <name> --base <ref>
 
 Option errors that the argument parser itself reports (an unknown flag) exit 2, like every driftbench command.
 
+### 8.3 The registered validators
+
+`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns two validators today: `judges` and `stats`. `validate floors` prints their floors:
+
+```
+Floors (validators/floors.json): judges = 7, stats = 1.
+```
+
+The CI command, run from the repository root at the commit that merged main into this docs branch, printed this and exited 0. The hidden seed changes with every commit.
+
+```
+Validator judges (hidden seed 690409099)
+Level  Name                                        Metric                                                                                                                                Threshold  seed 1  seed 2  seed 3  seed hidden
+1      fixture pairs separate                      criteria whose pass and fail fixtures separate 3 of 3 / criteria                                                                      >= 1       1 pass  1 pass  1 pass  1 pass
+2      accuracy and kappa on the hidden split      criteria with accuracy >= 0.9 and kappa >= 0.8 on the hidden split / criteria                                                         >= 1       1 pass  1 pass  1 pass  1 pass
+3      verdict holds under label-preserving edits  label-preserving edits (paraphrase, reorder, name swap) with the verdict unchanged / edits                                            >= 0.95    1 pass  1 pass  1 pass  1 pass
+4      verdict moves under label-flipping edits    label-flipping edits (changed number, removed confirmation, contradicting tool result) with the verdict moved to fail / edits         >= 0.9     1 pass  1 pass  1 pass  1 pass
+5      injection resistance                        items with an instruction planted in the data and the verdict unchanged / items                                                       >= 1       1 pass  1 pass  1 pass  1 pass
+6      consistency, pass to the fifth              hidden items judged right on all 5 repeats / items                                                                                    >= 0.95    1 pass  1 pass  1 pass  1 pass
+7      council and cascade                         council conditions held (majority accuracy above the best judge, cascade agreement >= 0.95, cascade cost below the full council) / 3  >= 1       1 pass  1 pass  1 pass  1 pass
+Level per seed: 1 = 7, 2 = 7, 3 = 7, hidden = 7
+Level of the run: 7 of 7, the minimum over 4 seeds.
+Floor: 7. At or above the floor.
+No level failed.
+
+Validator stats (hidden seed 690409099)
+Level  Name              Metric                                                                             Threshold  seed 1      seed 2      seed 3      seed hidden
+1      reference values  fixture cases matched / fixture cases compared                                     >= 1       1 pass      1 pass      1 pass      1 pass
+2      Wilson coverage   intervals containing the truth / intervals computed, lowest over n of 20, 50, 200  >= 0.93    0.947 pass  0.944 pass  0.948 pass  0.94 pass
+Level per seed: 1 = 2, 2 = 2, 3 = 2, hidden = 2
+Level of the run: 2 of 2, the minimum over 4 seeds.
+Floor: 1. At or above the floor.
+No level failed.
+```
+
 ## 9. Order of building
 
 Generator and system validators first, because they reuse the fault family the gate already has. Then the judge validator, because its labels come from the same fault family. Then the map validator, because the renderer is the largest new piece. Then the estate validator, because it needs the estate rule follower. The statistics validator extends the pilot's control and the reference fixtures that exist.
@@ -169,4 +204,56 @@ Sources: the local research dossiers under the research notes, the design notes,
 
 ## 11. Build order with the loop
 
-V0 the frame: `driftbench validate` with the ladder table, items, seeds, the hidden seed, floors, `--brief`, `--fresh`, the journal and handover formats, `validators/EXECUTOR.md`, and the CI job (floors enforced, validator files protected). Built in `packages/validators/src` (the ladder contract `defineLadder`, `runLadder`, `formatLadder`; the registry in `ladders/index.ts`) and `packages/cli/src/commands/validate.ts`; the statistics ladder's levels 1 and 2 are registered, and its floor is 1. V1 generator validator and V2 system validator (they reuse the gate's fault family). V3 judge validator. V4 map validator (the renderer). V5 estate validator (the estate rule follower). V6 statistics validator. Each validator ships with its ladder at level 1 reachable on the current code, so the loop has a first rung; the executor loops it to 100 percent.
+V0 the frame: `driftbench validate` with the ladder table, items, seeds, the hidden seed, floors, `--brief`, `--fresh`, the journal and handover formats, `validators/EXECUTOR.md`, and the CI job (floors enforced, validator files protected). Built in `packages/validators/src` (the ladder contract `defineLadder`, `runLadder`, `formatLadder`; the registry in `ladders/index.ts`) and `packages/cli/src/commands/validate.ts`; the statistics ladder's levels 1 and 2 are registered, and its floor is 1. V3 is built too: the judge ladder's seven levels are registered in `packages/validators/src/ladders/judges`, on scripted cassettes in `packages/validators/fixtures/judges`, and its floor is 7. V1 generator validator and V2 system validator (they reuse the gate's fault family). V3 judge validator. V4 map validator (the renderer). V5 estate validator (the estate rule follower). V6 statistics validator. Each validator ships with its ladder at level 1 reachable on the current code, so the loop has a first rung; the executor loops it to 100 percent.
+
+## 12. The hardness contract (why a ladder must take 100 iterations)
+
+Owner rule, 2026-10-11: a validator must still be challenging after it is built. Reaching 100 percent must take an executor on the order of 100 iterations or more. A validator whose builder tops it in the session that built it was too simple, and the first three ladders failed this test: judges reached 7 of 7 and statistics 2 of 2 in their own build sessions, the map ladder 4 of 7. The cause is the same in all three. Each level was one threshold over one metric on a fault family of about nine classes, the judge under test was a scripted cassette that the same lane wrote, and the lane that designed the items also owned the component that passes them. Nine causes fixed is the top of such a ladder.
+
+This section replaces the level shapes of sections 2 to 7 where they conflict. The seven rules of section 1 stand.
+
+### 12.1 A bank of items, not a short ladder
+
+A validator holds a bank. An item is one capability the component must have, written as code: an id, a family, a difficulty tier (1 to 5), a seeded generator that builds the input, an exact oracle that knows the answer by construction, and the one component the item points at. Levels remain, ordered by cost of diagnosis, but each level is a sub-bank of many items and its threshold is 1.0: every item of the level passes on every seed, or the level fails and prints the failing ids. The run still stops at the first failing level.
+
+Minimum bank at merge: 300 items per validator, no family under 20 items, every tier represented, and the bank must keep growing with the research (section 12.3). Bank size alone is padding; the measure that matters is section 12.4.
+
+### 12.2 Where items come from, so none is padding
+
+1. Parity. The six parity dossiers (promptfoo, langwatch, deepeval, inspect, observability tools, code-agent harnesses) list what each competitor can do. Every capability in the component's area is one item with a code oracle. A capability driftbench lacks is a failing item, which is the point: the bank is the roadmap.
+2. Research. The research dossiers (benchmarks, robustness, simulation, synthetic data, frameworks, lists) name published methods. Each method with a computable answer is an item: for statistics, every estimator and test against an analytic truth on a constructed distribution; for judges, every documented attack and transform; for generation, every coverage and diversity measure.
+3. Combination. Pairwise and three-way interactions of fault classes, transforms, channels, languages, modes and adapters are generated, never hand-listed. Truth stays by construction because the generators compose. This is where the bank grows past what a person would write, and where shortcuts die.
+4. Scale. Selected items run again at 10 times and 100 times their input size under a time and memory budget. Correct and slow is a failing item.
+5. Adversarial. A breaker lane that has not read the component writes items aimed at the shortcut the component most likely took: a judge keyed on reply length, an extractor keyed on headings, a coverage count that ignores order. Blind authorship is required; a breaker who read the code writes items the code already passes.
+6. Differential. Wherever a brute force exists on a small space (exhaustive enumeration, direct simulation, a second implementation), the item compares the component against it, at every level that admits one.
+7. Degenerate and hostile inputs. Empty, single, all-equal, missing, NaN, unicode, 100k-character, contradictory, and inputs carrying instructions. Each is an item per family, not a single catch-all.
+
+For the judge validator the bank splits in two. Deterministic items run rule judges, the council, calibration, the cascade and the transform and injection banks with no model, and these alone must satisfy section 12.4. Live items run real judge clients, are billed, count only in the billed mode, and run only on the owner's approval of a sized card.
+
+### 12.3 Separation of heads
+
+The lane that writes a bank does not own the component's code, and the executor that climbs the ladder never edits the bank (CI refuses, section 8). An item that turns out wrong is reported to the maintainer with the oracle's own answer and the counter-example; the maintainer fixes the item in a commit of its own. The bank grows by a maintainer commit after each research pass of the executor: a method found in research that the bank does not test becomes an item before it becomes a fix.
+
+### 12.4 The hardness measurement, a merge gate
+
+A validator is merged only with its hardness measured, not asserted.
+
+1. Iteration 0. The builder lane runs the finished validator on seeds 1 to 20 and the hidden seed and records the bank score (items passing on every seed over the bank) and the level.
+2. The pilot. The builder lane then runs ten iterations of the executor loop (section 10) on the component, honestly, as an executor would, and records each iteration's bank score.
+3. The forecast. Items fixed per iteration is the mean over the pilot. Iterations to 100 percent is the remaining failing items divided by that mean. The gate: the forecast is at least 100, and the bank score after the pilot is at most 0.4.
+4. A forecast under 100 sends the lane back to section 12.2 to extend the bank, with the families it extended named in the handoff. A pilot that fixes nothing in ten iterations means the items are miswritten or the component is missing a foundation; both go to the maintainer.
+
+The iteration 0 row and the ten pilot rows are the first rows of `validators/<component>/journal.jsonl`, and `driftbench validate <component> --hardness` prints the measurement from them: bank size per family and tier, score at iteration 0, score after the pilot, items fixed per iteration, the forecast, and whether the gate holds.
+
+### 12.5 Floors under the contract
+
+A floor is per ladder version. `floors.json` carries `ladderVersion` per component; a new bank starts a new ladder version with its floor at the pilot's level, and the evidence names the version. A floor never goes down within a version. The judges floor of 7 and the statistics floor of 1 belong to ladder version 1 of each and are kept in the file as history; version 2 of each starts at the level its pilot reaches.
+
+### 12.6 What each bank must contain at minimum
+
+- map: planted rules, roles, relations and produced_by across at least twelve prompt styles (markdown, numbered, prose, tables, nested sections, multilingual, negation, conditionals, tool references, examples that contradict rules, deprecated sections, duplicated rules with precedence); rules hidden inside examples or phrased as questions; prompts of 100k characters; every pair of styles.
+- generator: a fault family of at least 60 classes with their pairwise interactions; coverage of the space by pairs and triples; the three modes; minimality (no redundant test for a planted fault); stability of the suite across seeds; code-agent faults that leave no file; every perturbation class of the users package.
+- judges: a pool of rule judges under at least 50 transforms per criterion; council majority under correlated errors, odd and even sizes and weights; calibration coverage for n from 5 to 500 and skewed distributions; cascade cost and agreement; an injection bank of at least 100 patterns (multilingual, encoded, in tool results, in artifacts, in file names); consistency to the fifth repeat.
+- system: a planted fault in an agent must reach the scorecard at the right block, check and item; precision on clean agents; drift between two versions reported at the right cell; variance reported within its interval; every report field; CI exit codes; the store round trip; the interactions of fault, adapter and mode.
+- estate: generated estates with planted atoms, edges and defects across every reader gap found on the Cue estate (symlinks, registry tables, process maps, catalogue JSON, dispatcher commands, compact frontmatter, long references); plan coverage; diff and impact; every mutant must produce at least one failing generated test; estates of 5000 atoms.
+- stats: every estimator and test in the package against an analytic truth on constructed distributions; interval coverage across n and skew; variance components against simulation; allocation against brute force; Good-Turing, Chao and Hill against known populations; degenerate inputs; stability at one million rows; bit-for-bit reproducibility by seed.

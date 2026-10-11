@@ -186,12 +186,13 @@ describe('driftbench extract: the proposal', () => {
         personas: { section: 'personas' },
         data: { section: 'data' },
         phrases: { section: 'phrases' },
+        relations: { section: 'relations' },
       },
     });
     const dir = await project({ 'answers.json': recording });
     const { code, out } = await run([...base(), '--replay', 'answers.json', '--agent', 'zed'], dir);
     expect(code).toBe(0);
-    expect(out).toContain('  Model lane by hand: 5 sections, 5 calls.\n    stages    added 1 entry\n');
+    expect(out).toContain('  Model lane by hand: 6 sections, 6 calls.\n    stages     added 1 entry\n');
     const loaded = await loadProposal(join(dir, 'map/proposal.yaml'));
     expect(loaded.ok && loaded.proposal.produced_by.family).toBe('lane');
   });
@@ -215,10 +216,10 @@ describe('driftbench extract: the proposal', () => {
     const { code, out } = await run([...base(), '--replay', 'answers.json'], dir);
     expect(code).toBe(1);
     expect(out).toContain(
-      '    rules     failed: the answer could not be read, twice: the answer is not JSON',
+      '    rules      failed: the answer could not be read, twice: the answer is not JSON',
     );
     expect(out).toContain(
-      '    personas  failed: the model call failed (exhausted: the recording holds no answer left for the personas section)',
+      '    personas   failed: the model call failed (exhausted: the recording holds no answer left for the personas section)',
     );
     expect(out).toContain(
       'Refused, not in the proposal:\n  stages  stage/help  the quote is not in ../prompt.md: "Stages: help only."\n',
@@ -242,6 +243,7 @@ describe('driftbench extract: the proposal', () => {
       '{"section":"personas"}',
       '{"section":"data"}',
       '{"section":"phrases"}',
+      '{"section":"relations"}',
     ]);
     const code = await extractCommand(
       { prompt: ['prompt.md'], inventory: 'inventory.yaml', out: 'map/proposal.yaml' },
@@ -249,7 +251,7 @@ describe('driftbench extract: the proposal', () => {
       { port, now: () => new Date('2026-10-11T12:00:00.000Z') },
     );
     expect(code).toBe(0);
-    expect(output.out).toContain('  Model fake fake-model: 5 sections, 5 calls.');
+    expect(output.out).toContain('  Model fake fake-model: 6 sections, 6 calls.');
     const text = await readFile(join(dir, 'map/proposal.yaml'), 'utf8');
     expect(text).toContain(
       'produced_by:\n  family: fake\n  model: fake-model\n  at: 2026-10-11T12:00:00.000Z\n',
@@ -275,7 +277,7 @@ describe('driftbench extract: the proposal', () => {
     );
     expect(code).toBe(0);
     expect(out).toMatch(
-      /^Wrote proposal\.yaml: 29 dimensions, 86 values, 3 constraints, 0 phrases, none approved\./,
+      /^Wrote proposal\.yaml: 29 dimensions, 86 values, 3 constraints, 0 phrases, 7 relations, none approved\./,
     );
     const loaded = await loadProposal(join(dir, 'proposal.yaml'));
     expect(loaded.ok && loaded.proposal.agent).toBe('acme');
@@ -425,7 +427,7 @@ describe('driftbench extract map', () => {
     expect(err).not.toContain('over the limit');
     expect(code).toBe(1);
     expect(out.split('\n')[0]).toBe(
-      'Map acme, version 1: 7 dimensions, 81312 cells, 3 constraints, prior uniform (no weight declared)',
+      'Map acme, version 1: 7 dimensions, 81312 cells, 28 constraints, prior uniform (no weight declared)',
     );
   });
 });

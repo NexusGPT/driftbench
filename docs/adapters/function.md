@@ -2,11 +2,11 @@
 
 Status: shipped, phase 1. It passes the [contract suite](index.md#the-contract-suite) in chat mode.
 
-The function adapter runs an agent that is an async function in the same process as driftbench. There is no network call and no API key. It suits tests of an agent's logic, and it drives the Acme example agent, the one target the command line reaches (`function:acme`).
+The function adapter runs an agent that is an async function in the same process as driftbench. There is no network call and no API key. It suits tests of an agent's logic, and it drives the Acme sales assistant, the command line's `function:acme-sales` target (short form `function:acme`).
 
 ## Options
 
-The command line builds its `function:acme` target this way:
+The command line builds its `function:acme-sales` target this way:
 
 ```ts
 import { functionAdapter } from '@driftbench/adapters';
@@ -61,4 +61,4 @@ target:
   agent: acme-sales
 ```
 
-The adapter reads no field of the target: the function is the agent. The command line maps `function:acme` to the Acme example agent, with a fresh Acme store per session and its payload log as the end-state source.
+The adapter reads no field of the target: the function is the agent. The command line maps `function:acme-sales` and `function:acme` to the Acme sales assistant, with a fresh Acme store per session and its payload log as the end-state source.

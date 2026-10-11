@@ -5,8 +5,8 @@ counts until it is approved; code enumerates blocks later from the approved entr
 
 | File | What it is |
 |---|---|
-| `proposal.yaml` | the proposal: 46 dimensions (175 values), 34 constraints and 21 phrases, nothing approved |
-| `approved.yaml` | the same proposal with every flag set, by `extract approve --all` (approved on the owner's delegation for the fictional demo) |
+| `proposal.yaml` | the proposal: 46 dimensions (175 values), 59 constraints, 51 phrases and 63 relations, nothing approved |
+| `approved.yaml` | the same proposal with every flag set, by `extract approve --all` (approved on the owner's delegation for the fictional demo, by the extract lane and then by the generate2 lane) |
 | `space.yaml` | the space map of the approved axes, by `extract map`: what `driftbench space` reads |
 | `tools.yaml` | the five Acme tools as JSON Schema, written from `src/tools.ts` |
 | `answers.yaml` | the model's part, written by hand by the extract lane under the answer contract, because no model key was set |
@@ -15,8 +15,9 @@ counts until it is approved; code enumerates blocks later from the approved entr
 
 ```sh
 pnpm driftbench extract --prompt examples/acme/src/policy.ts --prompt examples/acme/README.md \
-  --inventory examples/acme/inventory.yaml --tools examples/acme/map/tools.yaml \
-  --replay examples/acme/map/answers.yaml --out examples/acme/map/proposal.yaml --force
+  --prompt examples/acme/src/store.ts --inventory examples/acme/inventory.yaml \
+  --tools examples/acme/map/tools.yaml --replay examples/acme/map/answers.yaml \
+  --out examples/acme/map/proposal.yaml --force
 pnpm driftbench extract approve examples/acme/map/proposal.yaml --all --to examples/acme/map/approved.yaml
 pnpm driftbench extract map examples/acme/map/approved.yaml --to examples/acme/map/space.yaml
 pnpm driftbench space coverage --map examples/acme/map/space.yaml examples/acme/specs --t 2
@@ -25,9 +26,11 @@ pnpm driftbench space coverage --map examples/acme/map/space.yaml examples/acme/
 * Code, without a model, read the inventory and the tools: 14 behaviours, 5 flows, the 8 deviation classes
   the flows require, 2 channels, 3 channel constraints, and the boundary values of every tool argument and
   result whose schema states one. That is 29 dimensions and 86 values.
-* The five model sections (stages, rules, personas, data, phrases) came from `answers.yaml`, replayed
-  through the same parser and checks a model answer goes through. `produced_by.family` is `lane`, so no
-  one mistakes them for a tool run. Each entry says whether code or the model proposed it.
+* The six model sections (stages, rules, personas, data, phrases, relations) came from `answers.yaml`,
+  replayed through the same parser and checks a model answer goes through. `produced_by.family` is
+  `lane`, so no one mistakes them for a tool run. Each entry says whether code or the model proposed it.
+* Code also proposed the 7 recoveries the inventory already fixes: each detour class a flow lists in its
+  `deviations` returns to the pending stage (the spec reference defines a detour so).
 * Every value and constraint quotes the text that justifies it, and code found each quote in its source.
 
 ## Axes and details
@@ -54,3 +57,24 @@ pnpm driftbench extract approve examples/acme/map/proposal.yaml --all           
 A dimension has one `approved` flag, which its values inherit; a value may set its own flag to override it.
 Each constraint and phrase has its own flag. An entry whose evidence is removed, or whose quote is no
 longer in its source, makes the file invalid: `approve` refuses it and exits 1.
+
+## Relations: what links values to tools, stages and end states
+
+The generator derives every machine Then from the relations, never from an agent's reply. Each relation
+quotes the source line that justifies it, and a person approves it like any other entry.
+
+| Kind | What it says | Acme |
+|---|---|---|
+| `path` | a flow's stage order on one branch, the cell values the branch needs (`when`), and what the store holds at the end (`end_state`, by slots) | 12 paths over the upgrade, new-home, porting and order flows |
+| `uses_tool` | a tool a flow calls, the stage it is called at (and the stage the turn reaches), when, and its inputs by slot | 14 calls, inputs quoted from `src/policy.ts` |
+| `binds` | the concrete values a data value stands for: the email of a found account, the address a coverage result is read at | 12, from `src/store.ts` and invented fictional values |
+| `recovery` | how a flow recovers from a deviation class: the probe stages, the stage after (`pending` is the stage reached), reply patterns, guards and calls; for D8 the tool that fails | 7 from code (the inventory), 17 from the lane |
+| `reply_language` | the language every reply is in | `en`, from the english-only rule |
+
+A phrase may hold `{slot}` (`It's {email}.`), may say where it fits with `when` (`flow`, `stage`, a data
+value), and may state slot values itself with `binds` (`The unlimited one, please.` binds the plan
+`mobile-l`). The generator fills the slots from the cell, so a tool input expected in a block is the value
+the block's own When states.
+
+The model's part of the relations was written by the generate2 lane under the answer contract, because no
+model key was set, and approved by it on the owner's delegation for the fictional demo.
