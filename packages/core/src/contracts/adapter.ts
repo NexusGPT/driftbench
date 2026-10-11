@@ -29,7 +29,13 @@ export type AdapterCapabilities = {
   deterministic: boolean;
 };
 
-/** One open conversation or task with an agent, created from a resolved Given. */
+/**
+ * One open conversation or task with an agent, created from a resolved Given.
+ *
+ * The runner owns `history`: it appends the stimulus's user message(s) before `send` and the
+ * assistant reply (text plus tool calls with their output or error) after it. At send time the
+ * history ends with the current user turn. An adapter never appends to it.
+ */
 export type Session = {
   readonly id: string;
   readonly adapter: string;
@@ -63,8 +69,14 @@ export interface AgentAdapter {
   send(session: Session, turn: Turn): Promise<Observed>;
   /** A richer read of the last turn, when the runtime keeps one (a tracing store). Replaces the view `send` returned. */
   trace?(session: Session, turn: Turn): Promise<Observed>;
-  /** Reads an end-state source named by `end_state.source`, such as `tool:<label>` for the last payload a tool received. */
+  /**
+   * Reads an end-state source named by `end_state.source`, such as `tool:<label>` for the last payload
+   * a tool received. The source `*` means every recorded payload, as a list, in order; the runner asks
+   * for it when the spec says `end_state: none`, and the check passes only when the list is empty.
+   */
   endState?(session: Session, source: string): Promise<unknown>;
+  /** Reads a file the agent left in its workspace, bounded; the runner hands it to the artifact checks. */
+  readArtifact?(session: Session, path: string): Promise<Uint8Array>;
   /** Releases what the session holds. Always called, also after a failure. */
   close(session: Session): Promise<void>;
 }

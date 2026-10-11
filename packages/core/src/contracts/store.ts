@@ -30,8 +30,10 @@ export interface Store {
   putCampaign(campaign: Campaign): Promise<void>;
   getCampaign(campaignId: string): Promise<Campaign | undefined>;
 
+  /** Stores a run under its campaign; the campaign must exist. A run put twice replaces the first (resume). */
   putRun(campaignId: string, run: RunResult): Promise<void>;
-  getRun(runId: string): Promise<RunResult | undefined>;
+  /** A run id is the cell id, shared by the same cell in two campaigns; pass the campaign to pick one. */
+  getRun(runId: string, campaignId?: string): Promise<RunResult | undefined>;
   listRuns(filter?: RunFilter): Promise<RunResult[]>;
 
   /** The cache key is the runner's: spec hash, block index, Given hash, target, adapter version. */

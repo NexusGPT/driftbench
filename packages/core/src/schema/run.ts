@@ -91,9 +91,10 @@ export const WorkspaceDiff = z.strictObject({
 });
 export type WorkspaceDiff = z.infer<typeof WorkspaceDiff>;
 
-/** One command the agent ran, with bounded output. */
+/** One command the agent ran, with bounded output. `role` separates the agent's own process from the commands it ran. */
 export const ExecutionRecord = z.strictObject({
   command: z.string(),
+  role: z.enum(['agent', 'command']).optional(),
   exitCode: z.number().int(),
   stdout: z.string().optional(),
   stderr: z.string().optional(),
@@ -125,6 +126,10 @@ export const Observed = z.strictObject({
   artifacts: z.array(ArtifactRef).optional(),
   workspaceDiff: WorkspaceDiff.optional(),
   executions: z.array(ExecutionRecord).optional(),
+  /** The sandbox the block ran in, when the adapter owns one; reports say 'weak isolation' from this field. */
+  sandbox: z
+    .strictObject({ kind: z.string(), isolation: z.enum(['strong', 'weak']), root: z.string().optional() })
+    .optional(),
   cost: Cost,
   latencyMs: z.number().nonnegative(),
   raw: z.unknown().optional(),
