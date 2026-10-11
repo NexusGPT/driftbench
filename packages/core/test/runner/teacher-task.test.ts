@@ -1,0 +1,112 @@
+import { mkdtemp, realpath, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { processAdapter } from '@driftbench/adapters';
+import { defaultReaders } from '@driftbench/artifacts';
+import { defaultChecks } from '@driftbench/checks';
+import { type Check, type CheckContext, loadSpecFile, type Spec } from '@driftbench/core';
+import { localProvider } from '@driftbench/sandbox';
+import { createScriptedDriver } from '@driftbench/users';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { canonicalGiven, runSpec } from '../../src/runner';
+import { failures } from './support';
+
+/**
+ * Mode T on a task: each step starts from the state the reference trajectory had at that step. For a
+ * workspace, that is the workspace as the run left it after the step before, unless the step's own
+ * `given.world.workspace` replaces it. The Acme ops agent, run by the CLI's process target.
+ */
+
+const OPS = fileURLToPath(new URL('../../../../examples/acme/ops/agent.mjs', import.meta.url));
+const PRICE_SHEET = fileURLToPath(
+  new URL('../../../../examples/acme/specs/tasks/price-sheet.yaml', import.meta.url),
+);
+const SLOW = 120_000;
+
+let parent: string;
+beforeAll(async () => {
+  parent = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-teacher-task-')));
+});
+afterAll(async () => {
+  await rm(parent, { recursive: true, force: true });
+});
+
+function opsAdapter() {
+  return processAdapter({
+    command: process.execPath,
+    args: [OPS],
+    provider: localProvider({ dir: parent }),
+    deterministic: true,
+  });
+}
+
+async function priceSheet(): Promise<Spec> {
+  const loaded = await loadSpecFile(PRICE_SHEET);
+  if (!loaded.ok) throw new Error('the price sheet spec is invalid');
+  return loaded.spec;
+}
+
+function spy(): Check & { seen: CheckContext[] } {
+  const seen: CheckContext[] = [];
+  return { name: 'spy', seen, applies: () => true, evaluate: (ctx) => (seen.push(ctx), []) };
+}
+
+describe('mode T on a task', () => {
+  it(
+    'starts the summary step from the workbook the build step left, with the canonical prefix',
+    async () => {
+      const spec = await priceSheet();
+      const watch = spy();
+      const run = await runSpec(spec, {
+        adapter: opsAdapter(),
+        driver: createScriptedDriver(),
+        checks: [...defaultChecks(), watch],
+        artifacts: defaultReaders(),
+        mode: 'T',
+        repeat: 0,
+      });
+      expect(run.status, run.error).toBe('completed');
+      expect(failures(run)).toEqual([]);
+      expect(run.blocks.map((block) => block.pass)).toEqual([true, true]);
+      expect(run.blocks[1]?.observed.workspaceDiff).toEqual({
+        created: [],
+        changed: ['out/acme-price-sheet.xlsx'],
+        deleted: [],
+      });
+      expect(watch.seen.map((ctx) => ctx.given.prefix)).toEqual([
+        canonicalGiven(spec, 0).prefix,
+        canonicalGiven(spec, 1).prefix,
+      ]);
+    },
+    SLOW,
+  );
+
+  it(
+    'starts a step from its own given.world.workspace when it writes one, not from the step before',
+    async () => {
+      const spec = await priceSheet();
+      const own: Spec = {
+        ...spec,
+        blocks: spec.blocks.map((block, index) =>
+          index === 1
+            ? { ...block, given: { world: { workspace: { files: { 'catalog.csv': 'plan_id\n' } } } } }
+            : block,
+        ),
+      };
+      const run = await runSpec(own, {
+        adapter: opsAdapter(),
+        driver: createScriptedDriver(),
+        checks: defaultChecks(),
+        artifacts: defaultReaders(),
+        mode: 'T',
+        repeat: 0,
+      });
+      expect(run.status, run.error).toBe('completed');
+      // A fresh workspace from the step's own Given holds no workbook to change.
+      expect(run.blocks[1]?.observed.workspaceDiff?.changed).not.toContain('out/acme-price-sheet.xlsx');
+      expect(run.blocks[1]?.pass).toBe(false);
+    },
+    SLOW,
+  );
+});
