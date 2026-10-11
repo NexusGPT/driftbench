@@ -68,6 +68,8 @@ export const DEFAULT_IGNORE = [
   'tests/fixtures',
   'hooks/**/tests',
   'hooks/**/test',
+  '.trash',
+  'skills/synced',
 ] as const;
 
 /** The estate's own configuration file, at its root: `ignore:` lists more globs to skip. */
@@ -84,6 +86,9 @@ export type ClaudeCodeReaderOptions = {
 type IgnoreRule = { pattern: string; test: (path: string) => boolean };
 
 type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
+
+/** The estate configuration: more globs to skip, and path aliases (`REF` to one or more folders). */
+type EstateConfig = { ignore: string[]; aliases: Record<string, string[]> };
 
 /** A `.gitignore`-like glob as a test on a relative path: the path or one of its folders matches. */
 export function ignoreRule(pattern: string): IgnoreRule {
@@ -119,7 +124,11 @@ export class ClaudeCodeReader implements EstateReader {
   async read(root: string): Promise<RawEstate> {
     const budget = this.budget;
     const notes: ReadNote[] = [];
-    const patterns = [...DEFAULT_IGNORE, ...(await configIgnore(root, notes)), ...this.ignore];
+    const config = await readConfig(root, notes);
+    const chosen = [...new Set([...config.ignore, ...this.ignore])].filter(
+      (pattern) => !(DEFAULT_IGNORE as readonly string[]).includes(pattern),
+    );
+    const patterns = [...DEFAULT_IGNORE, ...chosen];
     const ignored: Ignored = {
       rules: [...new Set(patterns)].map(ignoreRule),
       counts: new Map(),
@@ -155,7 +164,9 @@ export class ClaudeCodeReader implements EstateReader {
           files: ignored.counts.get(rule.pattern) ?? 0,
         })),
         paths: ignored.paths,
+        chosen,
       },
+      aliases: { ...aliasTables(files, notes), ...config.aliases },
     };
     for (const file of files) {
       if (file.kind === 'settings') readSettings(file, estate);
@@ -192,27 +203,83 @@ async function present(root: string, names: readonly string[]): Promise<string[]
   return found;
 }
 
-/** The `ignore:` list of the estate configuration file, when it has one. */
-async function configIgnore(root: string, notes: ReadNote[]): Promise<string[]> {
+/**
+ * The estate configuration file, when it has one: `ignore:`, a list of globs, and `aliases:`, a map from an
+ * alias (`REF`) to the folder or folders it stands for, relative to the root.
+ */
+async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig> {
+  const config: EstateConfig = { ignore: [], aliases: {} };
   const text = await readFile(join(root, ESTATE_CONFIG), 'utf8').catch(() => undefined);
-  if (text === undefined) return [];
+  if (text === undefined) return config;
   let parsed: unknown;
   try {
     parsed = parseYaml(text);
   } catch (cause) {
-    notes.push({
-      file: ESTATE_CONFIG,
-      message: `not YAML: ${cause instanceof Error ? cause.message.split('\n')[0] : String(cause)}`,
-    });
-    return [];
+    const message = cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
+    notes.push({ file: ESTATE_CONFIG, message: `not YAML: ${message}` });
+    return config;
   }
-  const list = isRecord(parsed) ? parsed.ignore : undefined;
-  if (list === undefined) return [];
-  if (!Array.isArray(list) || !list.every((item) => typeof item === 'string' && item.trim() !== '')) {
-    notes.push({ file: ESTATE_CONFIG, message: 'ignore: must be a list of globs' });
-    return [];
+  if (!isRecord(parsed)) return config;
+  const list = parsed.ignore;
+  if (list !== undefined) {
+    if (Array.isArray(list) && list.every((item) => typeof item === 'string' && item.trim() !== '')) {
+      config.ignore = list.map((item: string) => item.trim());
+    } else notes.push({ file: ESTATE_CONFIG, message: 'ignore: must be a list of globs' });
   }
-  return list.map((item: string) => item.trim());
+  const aliases = parsed.aliases;
+  if (aliases !== undefined) {
+    const entries = isRecord(aliases) ? Object.entries(aliases) : [];
+    const read = entries.map(([alias, target]) => [alias, typeof target === 'string' ? [target] : target]);
+    if (
+      entries.length > 0 &&
+      read.every(
+        ([, targets]) =>
+          Array.isArray(targets) && targets.length > 0 && targets.every((item) => typeof item === 'string'),
+      )
+    ) {
+      for (const [alias, targets] of read)
+        config.aliases[alias as string] = (targets as string[]).map(cleanFolder);
+    } else
+      notes.push({
+        file: ESTATE_CONFIG,
+        message: 'aliases: must map each alias to a folder or a list of folders',
+      });
+  }
+  return config;
+}
+
+/** A folder written in a table or the config, relative to the root, without `./` or a trailing slash. */
+function cleanFolder(folder: string): string {
+  return posix.normalize(folder.trim().replace(/^`|`$/g, '').replace(/^\.\//, '')).replace(/\/+$/, '');
+}
+
+/**
+ * Alias tables: a markdown file of the estate whose name holds "alias", with a table of an alias column
+ * (`Alias`, `Prefix`) and a folder column (`Path`, `Folder`, `Target`). `REF/a/b.md` then reads as
+ * `<folder>/a/b.md`.
+ */
+function aliasTables(files: readonly EstateFile[], notes: ReadNote[]): Record<string, string[]> {
+  const aliases: Record<string, string[]> = {};
+  for (const file of files) {
+    if (!/alias/i.test(basename(file.path)) || !/\.(md|markdown)$/i.test(file.path)) continue;
+    for (const table of readTables(file.text)) {
+      const alias = table.header.findIndex((cell) => /^(alias|prefix)(es)?$/i.test(strip(cell)));
+      const folder = table.header.findIndex((cell) =>
+        /^(path|folder|target|resolves to)s?$/i.test(strip(cell)),
+      );
+      if (alias < 0 || folder < 0) continue;
+      for (const row of table.rows) {
+        const name = strip(row.cells[alias] ?? '').replace(/\/+$/, '');
+        const target = strip(row.cells[folder] ?? '');
+        if (name === '' || target === '') {
+          notes.push({ file: file.path, message: `alias row at line ${row.line} has no alias or no folder` });
+          continue;
+        }
+        aliases[name] = [...(aliases[name] ?? []), cleanFolder(target)];
+      }
+    }
+  }
+  return aliases;
 }
 
 /**

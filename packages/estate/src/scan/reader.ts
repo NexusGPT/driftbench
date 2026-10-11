@@ -154,7 +154,14 @@ export type RawEstate = {
    */
   bases?: string[];
   /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
-  ignored?: { patterns: Array<{ pattern: string; files: number }>; paths: string[] };
+  ignored?: {
+    patterns: Array<{ pattern: string; files: number }>;
+    paths: string[];
+    /** The globs beside the defaults (from the estate configuration and the reader's options). */
+    chosen?: string[];
+  };
+  /** Path aliases: `REF` stands for each folder listed, so `REF/a.md` is tried as `<folder>/a.md`. */
+  aliases?: Record<string, string[]>;
 };
 
 export interface EstateReader {

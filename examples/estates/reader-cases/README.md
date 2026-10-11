@@ -15,6 +15,9 @@ missed on a real estate. Northwind Traders, its carriers and its checks are inve
 | 8. Files no runtime loads | a test fixture, a pycache file, a log, a test under hooks and a node_modules file (skipped by default), and a synced skill copy (skipped by `driftbench.estate.yaml`). |
 | 9. Paths named from another base | the last line of `CLAUDE.md` names `guards/CHECK-REGISTRY.md` (under `.claude/`) and `parcel-claims/references/claim-rules.md` (under `.claude/skills/`). |
 | 10. Several ids in one registry cell | the rows `` `W4` `W5` `` and `` HANDBACK` / `STOP-WAKE ``; `claim-window.py` holds the last two ids. |
+| 11. Bare file names | `shipment-tracker` names `claim-rules.md`, which one file has; it also names `notes.md`, which two files have: the planted ambiguity, and the shipment tracker's notes file it leaves unnamed. |
+| 12. Path aliases | `.claude/ALIASES.md` maps `REF` to the parcel-claims references; `parcel-claims` names `REF/notes.md`. |
+| 13. More default ignores and the recorded list | a `.trash` skill and the synced copy are skipped by default; `driftbench.estate.yaml` adds `archive`, which the map records for lint. |
 
 `answers.yaml` holds the model's part, written by the reader lane under the answer contract. `map.yaml` is
 the scan with those answers; `approved.yaml` is that map with every atom approved. Made with:

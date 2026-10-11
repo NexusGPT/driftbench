@@ -1,5 +1,5 @@
-# Estate configuration for driftbench: paths under the estate the runtime never loads.
+# Estate configuration for driftbench: paths under the estate the runtime never loads, beside the defaults.
 # Each glob is matched like a .gitignore line: without a leading slash it matches at any depth,
 # and a folder matched by it is skipped whole.
 ignore:
-  - skills/synced
+  - archive

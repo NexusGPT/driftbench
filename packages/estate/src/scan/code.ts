@@ -384,6 +384,78 @@ export function resolveNamed(
   return candidates[0] as string;
 }
 
+/** Where a named path leads: one file, several candidates, or nowhere; and how it was found. */
+export type NamedTarget = { path: string; via: 'place' | 'alias' | 'suffix' | 'none'; candidates?: string[] };
+
+/**
+ * A named path, resolved as `resolveNamed` does, then through the estate's aliases (`REF/a.md` as
+ * `<folder>/a.md`), then by its ending: the longest tail of the path (its last segments, down to the bare
+ * file name) that ends any file of the estate decides. One file: the path resolves to it. Several: the
+ * reference is ambiguous and lists them.
+ */
+export function locateNamed(
+  path: string,
+  from: string,
+  files: ReadonlyMap<string, EstateFile>,
+  options: {
+    bases?: readonly string[];
+    skipped?: ReadonlySet<string>;
+    aliases?: Readonly<Record<string, readonly string[]>>;
+    byName?: ReadonlyMap<string, readonly string[]>;
+  } = {},
+): NamedTarget {
+  const skipped = options.skipped ?? new Set<string>();
+  const known = (candidate: string) => files.has(candidate) || skipped.has(candidate);
+  const placed = resolveNamed(path, from, files, options.bases ?? [], skipped);
+  if (known(placed)) return { path: placed, via: 'place' };
+  const clean = path.replace(/^\.\//, '');
+  const [head, ...rest] = clean.split('/');
+  const folders = head !== undefined && rest.length > 0 ? (options.aliases?.[head] ?? []) : [];
+  for (const folder of folders) {
+    const candidate = posix.normalize(posix.join(folder, ...rest));
+    if (known(candidate)) return { path: candidate, via: 'alias' };
+  }
+  const byName = options.byName ?? fileNames(files, skipped);
+  const segments = clean
+    .split('/')
+    .filter((segment) => segment !== '' && segment !== '.' && segment !== '..');
+  const named = byName.get(segments[segments.length - 1] ?? '') ?? [];
+  for (let start = 0; start < segments.length; start++) {
+    const tail = segments.slice(start).join('/');
+    const hits = named.filter((candidate) => candidate === tail || candidate.endsWith(`/${tail}`));
+    if (hits.length === 1) return { path: hits[0] as string, via: 'suffix' };
+    if (hits.length > 1) return { path: placed, via: 'none', candidates: [...hits].sort() };
+  }
+  return { path: placed, via: 'none' };
+}
+
+/** Every file of the estate (and every skipped file) by its file name. */
+export function fileNames(
+  files: ReadonlyMap<string, EstateFile>,
+  skipped: ReadonlySet<string> = new Set(),
+): Map<string, string[]> {
+  const byName = new Map<string, string[]>();
+  for (const path of [...files.keys(), ...skipped]) {
+    const name = basename(path);
+    byName.set(name, [...(byName.get(name) ?? []), path]);
+  }
+  return byName;
+}
+
+/** The file-name index of an estate, built once per estate read. */
+const NAME_INDEX = new WeakMap<RawEstate, Map<string, string[]>>();
+function names(
+  raw: RawEstate,
+  files: ReadonlyMap<string, EstateFile>,
+  skipped: ReadonlySet<string>,
+): Map<string, string[]> {
+  const cached = NAME_INDEX.get(raw);
+  if (cached) return cached;
+  const built = fileNames(files, skipped);
+  NAME_INDEX.set(raw, built);
+  return built;
+}
+
 function referenceAtoms(
   chunk: ProseChunk,
   files: ReadonlyMap<string, EstateFile>,
@@ -393,7 +465,13 @@ function referenceAtoms(
   const skipped = new Set(raw.ignored?.paths ?? []);
   for (const line of chunkLines(chunk)) {
     for (const named of namedPaths(line.text)) {
-      const path = resolveNamed(named, chunk.file, files, raw.bases, skipped);
+      const located = locateNamed(named, chunk.file, files, {
+        bases: raw.bases ?? [],
+        skipped,
+        aliases: raw.aliases ?? {},
+        byName: names(raw, files, skipped),
+      });
+      const path = located.path;
       const target = files.get(path);
       const isSkipped = target === undefined && skipped.has(path);
       if (!target && !isSkipped && !DOCUMENT.test(path)) continue;
@@ -410,6 +488,8 @@ function referenceAtoms(
           readWhen: line.text,
           from: chunk.file,
           ...(isSkipped ? { ignored: true } : {}),
+          ...(located.via === 'alias' || located.via === 'suffix' ? { resolvedBy: located.via } : {}),
+          ...(located.candidates ? { candidates: located.candidates } : {}),
         },
       });
     }

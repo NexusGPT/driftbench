@@ -42,10 +42,17 @@ describe('the committed reader-cases outputs', () => {
     expect(await readFile(join(CASES, 'approved.yaml'), 'utf8')).toBe(approved.text);
   });
 
-  it('lints clean: every case is read, so no orphan, no unreachable file and no registry gap', async () => {
+  it('lints to the one planted ambiguity: a bare name two files share, and the file it leaves unnamed', async () => {
     const { map, raw } = await scanCases();
     const result = lintEstate(map, raw);
-    expect(result.findings.filter((finding) => finding.code !== 'UNENFORCED')).toEqual([]);
+    expect(
+      result.findings
+        .filter((finding) => finding.code !== 'UNENFORCED')
+        .map((finding) => [finding.code, finding.subject]),
+    ).toEqual([
+      ['ORPHAN', '.claude/skills/shipment-tracker/references/notes.md'],
+      ['AMBIGUOUS_REFERENCE', 'reference.shipment-tracker.read-notes-md'],
+    ]);
     expect(raw.notes.map((note) => note.file)).toEqual(['.claude/skills/parcel-claims/SKILL.md']);
   });
 });
