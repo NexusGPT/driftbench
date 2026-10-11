@@ -144,12 +144,14 @@ The task starts in a workspace that holds two CSV files. The first step expects 
 
 Both examples pass `driftbench spec lint --strict`. A test in `tools/docs` runs them through the loader on every change. Seven complete specs, six conversations and one task, run against a deterministic example agent in [`examples/acme`](../../examples/acme/README.md).
 
+Blocks can also be written by code. `driftbench generate` enumerates conversation blocks from an approved map of situations, and derives each block's Then from the map's relations: the stage reached, the tool calls and their inputs, the end state. A task family builds task instances whose expected outcome an oracle computes from the seed files. See [generating tests](../generating.md).
+
 ## What a block records
 
 The runner records each block it runs, in the shapes of `packages/core/src/schema/run.ts`. See [running](../running.md#the-run-record).
 
 * Observed: the segments in order (text, tool call, tool result, card), the customer-visible text, the tool calls with input, output and latency, the runtime trace (skills loaded, guards fired with their verdicts, stages reached), the artifacts, the workspace diff, the commands run with their exit codes, the sandbox, the cost and the latency.
-* Verdicts: one or more per check, each with its evidence. Judged criteria add theirs when the judges ship, phase 2. See [checks](../reference/checks.md) and [judges](judges.md).
+* Verdicts: one or more per check, each with its evidence. Judged criteria add theirs, `judge.<name>`, when the run's checks include a judge council. See [checks](../reference/checks.md) and [judges](judges.md).
 * Drift: the drift classes its failing verdicts give. See [drift](drift.md).
 * Pass: a block passes when every gating verdict passes. A gating verdict that is inconclusive fails the block; a verdict that does not gate never does.
 

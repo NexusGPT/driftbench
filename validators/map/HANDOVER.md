@@ -30,7 +30,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 0 |
 <!-- level-table:end -->
 
-After pilot iteration 10 (commit a6f767c): level 0 of 8 on every seed. The bank (`validators/map/bank.jsonl`): 180 of 456 items pass on seeds 1 to 20 and the hidden seed, score 0.3947; iteration 0 was 166 of 456, score 0.364. Items fixed per iteration so far: 1.40; failing items left: 276; forecast 197.1 iterations.
+After pilot iteration 10 (commit a6f767c): level 0 of 8 on every seed. The bank (`driftbench validate map --hardness`, from the journal): 180 of 456 items pass on seeds 1 to 20 and the hidden seed, score 0.3947; iteration 0 was 166 of 456, score 0.364. Items fixed per iteration so far: 1.40; failing items left: 276; forecast 197.1 iterations.
 
 ## Floor
 
@@ -59,27 +59,27 @@ None was rejected: each iteration fixed the one keyword or shape its item named.
 
 1. Run `pnpm driftbench validate map --seed 1` and take the next failing item of level 1. The schema keywords left are oneOf, anyOf and anyOf with null, allOf, depth three, array items (objects and enums), prefixItems, contains, dependentRequired and dependencies, if-then-else, not, closed objects, additionalProperties and patternProperties, discriminators, recursive references. The tool shapes left are Bedrock, OpenAPI, Swagger, legacy functions, agent configs, stringified parameters, YAML streams, JSON with comments, Cohere and Vercel. The inventory forms left are a title longer than a quote, markdown tables and CSV.
 2. Write the test in `packages/generate/test/extract/tools-keywords.test.ts` (or the prepass tests for an inventory form) from the item's title, see it red, fix `packages/generate/src/extract/tools.ts` or `prepass.ts`.
-3. Run the bank with `pnpm tsx packages/validators/src/ladders/map/bank/cli.ts --run --record <n> --note "<what changed>"` and append the journal row; every third iteration ask the maintainer for the handover test of section 10.4.
+3. Run `pnpm driftbench validate map --seeds 1..20 --hidden --items --json`, write the row with the bank fields (bankSize, passing, failingByFamily, bankByFamilyTier) and append it with `--journal`; every third iteration ask the maintainer for the handover test of section 10.4.
 
 ## Pitfalls
 
 * The bank's perfect model is code: a model port that answers each section with what the request shows, writes only the keys the contract's answer template shows, and holds 16000 output and 200000 context tokens at four characters a token. A semantics item passes only after the contract template (`SYSTEM_PROMPT` in `packages/generate/src/extract/contract.ts`) shows the key it needs (`polarity`, `when`, `weight`, `required` on a value; `role` on a dimension; the relation kinds `tool_order`, `route`, `reply_text`).
 * Every styled item checks rule polarity, so the style, pair and scale families stay red until the map carries polarity; after that they show the next cause.
 * An item passes only when it passes on all 21 seeds; one seed is not evidence. The ladder level stays 0 until all 98 items of level 1 pass, so progress shows in the level 1 value and in the bank score.
-* A full bank run takes about 70 seconds on 21 seeds.
+* A full `--items` run takes about 35 seconds on 21 seeds.
 
 ## How to run
 
 ```
 pnpm driftbench validate map --seed 1
 pnpm driftbench validate map --seeds 1..20 --hidden
-pnpm tsx packages/validators/src/ladders/map/bank/cli.ts
-pnpm tsx packages/validators/src/ladders/map/bank/cli.ts --run --record <n> --note "<text>"
+pnpm driftbench validate map --seeds 1..20 --hidden --items
+pnpm driftbench validate map --hardness
 pnpm vitest run packages/generate/test/extract/tools-keywords.test.ts   # on exec/map-pilot, where the pilot's fixes are
 ```
 
 ## Fixtures
 
-* The bank is `packages/validators/src/ladders/map/bank/`: `types.ts` (items and levels), `perfect.ts` (the perfect model), `facts.ts` (the oracle's facts), `run.ts`, `ladder.ts`, `hardness.ts`, `styled.ts` (fourteen prompt styles), and one file per family under `families/`. Schema keywords: `families/schema.ts`.
+* The bank is `packages/validators/src/ladders/map/bank/`: `types.ts` (items and levels), `perfect.ts` (the perfect model), `facts.ts` (the oracle's facts), `run.ts`, `ladder.ts` (ladder version 2, each level a bank through `bankMeasure`), `styled.ts` (fourteen prompt styles), and one file per family under `families/`. Schema keywords: `families/schema.ts`.
 * The first ladder of section 2 is `first.ts`; its seven levels are items of the bank (`families/v1.ts`).
-* The hardness rows are `validators/map/bank.jsonl`, iteration 0 first; the pilot's fixes and their keyword tests (`packages/generate/test/extract/tools-keywords.test.ts`) are on the branch `exec/map-pilot`; the extractor is not this lane's, so they wait for its owner.
+* The hardness rows are the first eleven rows of `validators/map/journal.jsonl`, iteration 0 first; the pilot's fixes and their keyword tests (`packages/generate/test/extract/tools-keywords.test.ts`) are on the branch `exec/map-pilot`; the extractor is not this lane's, so they wait for its owner.

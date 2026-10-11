@@ -15,7 +15,7 @@ A spec sets Given in two places.
 * `given` at the top of the spec: the default for every block. It holds `ledger`, `world` and `vars`.
 * `given` on a block: the same three parts, plus `prefix`, the messages that come before the block.
 
-A block's `prefix` starts the block in the middle of a conversation, without replaying the blocks before it. In a free-running run, the block opens a new session from that prefix, and the blocks after it continue from there. Whether the agent itself sees the prefix depends on the adapter's `seedPrefix` capability; see [adapters](../adapters/index.md#capabilities). The block's `ledger`, `world` and `vars` merge into the running state from that block onwards, in free-running and perturbed modes. In teacher-forced mode, planned, phase 3, every block starts from its own resolved Given. See [run modes](run-modes.md).
+A block's `prefix` starts the block in the middle of a conversation, without replaying the blocks before it. In a free-running run, the block opens a new session from that prefix, and the blocks after it continue from there. Whether the agent itself sees the prefix depends on the adapter's `seedPrefix` capability; see [adapters](../adapters/index.md#capabilities). The block's `ledger`, `world` and `vars` merge into the running state from that block onwards, in free-running and perturbed modes. In teacher-forced mode, every block starts from its own resolved Given. See [run modes](run-modes.md).
 
 | Part | What it holds | Example |
 |---|---|---|
@@ -29,7 +29,7 @@ A block's `prefix` starts the block in the middle of a conversation, without rep
 
 An adapter applies `world.tools` only when it has the `toolStubs` capability; see [adapters](../adapters/index.md#capabilities).
 
-The facts grow block by block: `ledger_add` in a block's `expect` adds the facts that block establishes, and every later check sees them. The judge that asks whether a reply contradicts them is planned, phase 3.
+The facts grow block by block: `ledger_add` in a block's `expect` adds the facts that block establishes, and every later check sees them. The ledger check compares what each block states with them, in code; see [drift](drift.md#the-ledger-check).
 
 For a task step, Given includes the workspace. The adapter that owns the workspace takes a snapshot of it before the step and a diff after; see the [process adapter](../adapters/process.md).
 
@@ -62,6 +62,12 @@ A perturbation inserts a deviation before a chosen block at run time, in perturb
 | Judged | `criteria` |
 
 A block can also carry a `budget` for steps, cost and latency. Rules for the whole spec sit in `rules`, and the expected end state of the world in `end_state`. Each field, and the check that reads it, is in [checks](../reference/checks.md).
+
+### Machine Then and judged Then
+
+The fields that read observed state make the machine Then: `stage`, `tools` and `tool_order` (with `rules.max_calls` and `rules.forbidden_tools`), `cards`, `skills`, `guards`, `execution`, `artifacts`, `workspace`, `safety`, custom rules, and `end_state` on the last block. `must`, `must_not`, `lang`, `rules.lang_stable` and `rules.one_message_per_turn` read the agent's words. `criteria` are judged.
+
+A block that `driftbench generate` writes carries a machine Then derived from the approved map of situations, never from an agent's reply: the stage the path reaches next, the tool calls and their inputs, the end state, and for a deviation the recovery the map gives. The gate rejects a block whose Then holds judged criteria only, and one whose Then reads only words when its cell is not about wording. The gate applies the same rule to a conversation block and to a task step. See [generating tests](../generating.md).
 
 ## One block of each kind
 

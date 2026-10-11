@@ -97,7 +97,7 @@ Two sessions that send the identical payload to one stub at the same time cannot
 
 ## Judge
 
-The Nexus platform also offers a system 1 judge, Jev. It is listed as the planned judge client `nexus-jev` (phase 2). See [judges](../concepts/judges.md).
+The Nexus platform also offers a system 1 judge, Jev. Its client is `createJevJudge` in `@driftbench/judges`: id `jev`, class system 1. It asks one yes or no question per criterion and reads the probability of yes: 0.6 or more is a pass, 0.4 or less a fail, anything between inconclusive. It reads `JEV_URL`, `JEV_API_KEY` (sent as a bearer token) and `JEV_MODEL` (default `jev-latest`) from the environment. Its request and answer shapes follow the provider's published format and have not been confirmed by a live call. See [judges](../concepts/judges.md).
 
 ## Target
 

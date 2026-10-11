@@ -53,3 +53,21 @@ describe('the validators workflow', () => {
     );
   });
 });
+
+describe('the protect list and the frame files', () => {
+  it('protects every file of the frame, the bank and hardness modules, the bank fixtures and the validator tests', () => {
+    for (const file of [
+      'packages/validators/src/bank.ts',
+      'packages/validators/src/hardness.ts',
+      'packages/validators/src/floors.ts',
+      'packages/validators/src/journal.ts',
+      'packages/validators/src/ladder.ts',
+      'packages/validators/fixtures/judges/good.cassette.json',
+      'packages/validators/test/judges/ladder.test.ts',
+      'validators/floors.json',
+      'validators/EXECUTOR.md',
+    ]) {
+      expect(protectedChanges('exec/x', [file])).toEqual([file]);
+    }
+  });
+});

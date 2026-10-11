@@ -1,16 +1,10 @@
 import { extractMap, ModelError, type Proposal, SYSTEM_PROMPT } from '@driftbench/generate';
 import { describe, expect, it } from 'vitest';
+import { BANK_MIN_FAMILY as MIN_FAMILY, measureHardness } from '../../src/hardness';
+import { readJournal } from '../../src/journal';
 import { runLadder } from '../../src/ladder';
 import { expectedFacts, proposalFacts } from '../../src/ladders/map/bank/facts';
-import {
-  bankLevel,
-  bankRow,
-  bankShape,
-  forecast,
-  type ItemResult,
-  MIN_FAMILY,
-} from '../../src/ladders/map/bank/hardness';
-import { mapBank } from '../../src/ladders/map/bank/index';
+import { bankByFamilyTier, bankShape, mapBank } from '../../src/ladders/map/bank/index';
 import {
   answerFor,
   asModelWrites,
@@ -24,6 +18,7 @@ import { runCase, runItem } from '../../src/ladders/map/bank/run';
 import { renderStyled, STYLES, styledSpec } from '../../src/ladders/map/bank/styled';
 import { LEVELS } from '../../src/ladders/map/bank/types';
 import { mapLadder } from '../../src/ladders/map/index';
+import { ROOT } from './support';
 
 const bank = mapBank();
 const item = (id: string) => {
@@ -267,46 +262,22 @@ describe('the bank as a ladder', () => {
 });
 
 describe('the hardness measurement', () => {
-  const results = (passing: number, total = 10): ItemResult[] =>
-    Array.from({ length: total }, (_, i) => ({
-      id: `f.${i}`,
-      family: 'f',
-      tier: 1,
-      level: 1 + (i % 2),
-      pass: i < passing,
-      failedOn: i < passing ? [] : ['1'],
-    }));
-
-  it('scores a row, its level and its tallies', () => {
-    const row = bankRow(0, 'abcdef1', ['1', 'hidden'], results(3), 'iteration 0', '2026-10-11T00:00:00.000Z');
-    expect(row).toMatchObject({
-      total: 10,
-      passing: 3,
-      score: 0.3,
-      level: 0,
-      perFamily: { f: { total: 10, passing: 3 } },
-    });
-    expect(bankLevel(results(10))).toBe(LEVELS.length);
-    expect(bankLevel(results(1))).toBe(0);
+  it('counts the bank per family and tier as the journal records it', () => {
+    const counts = bankByFamilyTier(bank);
+    const total = Object.values(counts)
+      .flatMap((tiers) => Object.values(tiers))
+      .reduce((sum, n) => sum + n, 0);
+    expect(total).toBe(bank.length);
   });
 
-  it('forecasts the iterations left from the pilot and checks the gate', () => {
-    const rows = [bankRow(0, 'abcdef1', ['1'], results(30, 400), '', '2026-10-11T00:00:00.000Z')];
-    for (let i = 1; i <= 10; i++)
-      rows.push(bankRow(i, 'abcdef1', ['1'], results(30 + 2 * i, 400), '', '2026-10-11T00:00:00.000Z'));
-    const measured = forecast(rows);
-    expect(measured).toMatchObject({
-      iterations: 10,
-      fixedPerIteration: 2,
-      remaining: 350,
-      forecast: 175,
-      gate: true,
-    });
-    const fast = [
-      rows[0] as (typeof rows)[number],
-      bankRow(1, 'abcdef1', ['1'], results(330, 400), '', '2026-10-11T00:00:00.000Z'),
-    ];
-    expect(forecast(fast)?.gate).toBe(false);
-    expect(forecast(fast)?.reasons.join('; ')).toMatch(/under 100.*over 0\.4.*not 10/);
+  it('reads iteration 0 and the ten pilot rows from the journal, and the gate holds', () => {
+    const { rows, problems } = readJournal(ROOT, 'map');
+    expect(problems).toEqual([]);
+    const measured = measureHardness(rows);
+    expect(measured.iteration0).toMatchObject({ bankSize: 456, passing: 166 });
+    expect(measured.pilot).toMatchObject({ iterations: 10, complete: true });
+    expect(measured.forecast).toBeGreaterThanOrEqual(100);
+    expect(measured.gate.holds).toBe(true);
+    expect(measured.bankMinimum.holds).toBe(true);
   });
 });

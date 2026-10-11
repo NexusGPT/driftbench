@@ -352,7 +352,7 @@ describe('recoveryOf', () => {
     blockId: 'p',
   });
 
-  it('labels a recovery inside within_blocks immediate, past it late, and none never', () => {
+  it('labels the injected block itself immediate, a later block late whatever the window, and none never', () => {
     const two = [
       block(0, { stage: 'a' }),
       injected(1, { pass: false }),
@@ -361,6 +361,11 @@ describe('recoveryOf', () => {
     ];
     expect(recoveryOf(spec, { blocks: two, perturbationId: 'p' })).toMatchObject({
       turnsToRecover: 2,
+      label: 'late',
+    });
+    const itself = [block(0, { stage: 'a' }), injected(1, { stage: 'a' })];
+    expect(recoveryOf(spec, { blocks: itself, perturbationId: 'p' })).toMatchObject({
+      turnsToRecover: 0,
       label: 'immediate',
     });
     const three = [
@@ -382,7 +387,7 @@ describe('recoveryOf', () => {
     const blocks = [block(0), injected(1, { stage: 'b' }), block(2, { stage: 'b' })];
     expect(recoveryOf(spec, { blocks, perturbationId: 'p' })).toMatchObject({
       turnsToRecover: 1,
-      label: 'immediate',
+      label: 'late',
     });
   });
 

@@ -1,6 +1,6 @@
 # Validators: code that proves driftbench works
 
-Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with the statistics ladder at levels 1 and 2 (section 7) as its first rung. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
+Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with two ladders registered: the judge ladder at levels 1 to 7 (section 4), floor 7, and the statistics ladder at levels 1 and 2 (section 7), floor 1. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
 
 ## 1. The common frame
 
@@ -90,34 +90,72 @@ What the owner reads: one table per validator per merge, seven rows at most, wit
 
 `.github/workflows/validators.yml` holds two jobs, on every push to main and every pull request.
 
-1. Ladders and floors. `pnpm driftbench validate all --seeds 1..3 --hidden --check-floor` runs every registered validator on seeds 1, 2 and 3 and on the hidden seed of the commit, prints each ladder table, and fails when a validator's level (the minimum over the four seeds) is below its floor in `validators/floors.json`, or when that file holds a floor for a component with no registered validator or above the top of its ladder. `pnpm driftbench validate all --check-handover` then fails when a validator's `HANDOVER.md` is missing, lacks a required section, or shows a level table that differs from the last row of its journal.
-2. Protection. On a pull request, `pnpm driftbench validate protect --branch <head> --base origin/<base>` lists the files the branch changes (`git diff --name-only base...HEAD`, full history checked out) and fails when the branch name starts with `exec/` and any of them is protected. Protected: `packages/validators/src/**` (the ladders under `ladders/`, their thresholds, the hidden seed derivation and the frame that scores them), `validators/floors.json`, `validators/EXECUTOR.md`, the fault families under `examples/acme/faults/**`, the statistics reference fixtures under `packages/stats/test/reference/**`, and the workflow file itself. Executors push from `exec/` branches; the maintainer changes these files from any other branch.
+1. Ladders and floors. `pnpm driftbench validate all --seeds 1..3 --hidden --check-floor` runs every registered validator on seeds 1, 2 and 3 and on the hidden seed of the commit, prints each ladder table, and fails when a validator's level (the minimum over the four seeds) is below the floor of its registered ladder version in `validators/floors.json`, or when that file holds a floor for a component with no registered validator, for a ladder version above the registered one, or above the top of its ladder. A floor of an earlier ladder version is history and is not enforced (section 12.5). `pnpm driftbench validate all --check-handover` then fails when a validator's `HANDOVER.md` is missing, lacks a required section, or shows a level table that differs from the last row of its journal.
+2. Protection. On a pull request, `pnpm driftbench validate protect --branch <head> --base origin/<base>` lists the files the branch changes (`git diff --name-only base...HEAD`, full history checked out) and fails when the branch name starts with `exec/` and any of them is protected. Protected: `packages/validators/src/**` (the ladders and banks under `ladders/`, their thresholds, the hidden seed derivation, the bank, hardness and floor logic, and the frame that scores them), the bank fixtures under `packages/validators/fixtures/**` and the validator's own tests under `packages/validators/test/**`, `validators/floors.json`, `validators/EXECUTOR.md`, the fault families under `examples/acme/faults/**`, the statistics reference fixtures under `packages/stats/test/reference/**`, and the workflow file itself. Executors push from `exec/` branches; the maintainer changes these files from any other branch.
 
 ### 8.2 The command
 
 ```
-driftbench validate <component|all> [--seed n] [--seeds a..b] [--hidden] [--json]
+driftbench validate <component|all> [--seed n] [--seeds a..b] [--hidden] [--items] [--json]
 driftbench validate <component|all> --check-floor [seed options]
 driftbench validate <component> --brief [--fresh] [seed options]
 driftbench validate <component> --journal <row.json>
 driftbench validate <component|all> --check-handover
-driftbench validate floors [--raise <component> <level> --evidence <json>]
+driftbench validate <component> --hardness [--json]
+driftbench validate floors [--raise <component> <level> --ladder-version <n> --evidence <json>]
 driftbench validate protect --branch <name> --base <ref>
 ```
 
 * Seeds. `--seed n` and `--seeds a..b` give the visible seeds, together and without repeats; seed 1 when neither is given. `--hidden` adds the hidden seed: 1000000 plus the first 32 bits of `git rev-parse HEAD` modulo 1000000000, so every commit has its own. Outside a git repository it falls back to 7777777 and the output says so. The table has one column per seed; the level of the run is the minimum over its seeds.
-* Output. The ladder table (level, name, metric, threshold, then observed value, pass or FAIL and the item count per seed), the level per seed, the level of the run, the floor comparison, then the items of each seed's first failing level, each with the component it points at. `--json` prints the report instead: `{ component, level, top, seeds: [{ seed, hidden, level, rows, failing }], hiddenSeed }`, wrapped in `{ reports }` for `all`.
-* Floors. `validate floors` prints the floors. `validate floors --raise stats 2 --evidence run.json` rewrites `validators/floors.json` only upward: it refuses a level at or below the current floor, a level above the ladder's top, and evidence that is not a `--json` run of that component on at least one visible seed and the hidden seed derived from a commit, reaching the level on every seed. The file keeps the evidence summary per component. Commit the rise on its own with the evidence run in the message.
-* Loop files. `--journal row.json` appends the row to `validators/<component>/journal.jsonl` when it passes the section 10.2 schema (the level is the minimum over the per seed levels, the result matches the move, the iteration is the next one), creates `HANDOVER.md` from its template and `research.md` when they are absent, and rewrites the handover's level table from the row. `--check-handover` checks the eight sections (level per seed, floor, open items, hypotheses tried, next actions, pitfalls, how to run, fixtures), at least one numbered next action, and the level table against the last row.
+* Items. An item carries an id, the component it points at, a detail, and under the hardness contract (section 12) a `family` and a `tier` from 1 to 5; a tier outside that range fails the level. A level built on a bank returns every item with its verdict (`bankMeasure`), so its value is the share passing. The failing items of the table are grouped by family, each with its tier. `--items` runs every level, also above the first failing one, so the whole bank is known: one run gives both the table (a level computed above the failure is marked beyond and never counts) and the listing, one block per family with each item's tier, level, component and pass or FAIL per seed, then the bank score (items passing on every seed over the bank) and the counts per family and tier. A level that returns no bank counts as one item of the family `levels`. With `--json` the report gains `bank`: `{ size, passing, score, byFamilyTier, failingByFamily, rows }`, the numbers a journal row records.
+* Output. The ladder table (level, name, metric, threshold, then observed value, pass or FAIL and the item count per seed), the level per seed, the level of the run, the floor comparison, then the items of each seed's first failing level, each with the component it points at. `--json` prints the report instead: `{ component, ladderVersion, level, top, seeds: [{ seed, hidden, level, rows, failing }], hiddenSeed }`, wrapped in `{ reports }` for `all`.
+* Floors. A ladder declares its version in `defineLadder` (`version`, default 1). `validators/floors.json` (format version 2) holds per component the `ladderVersion` its floor belongs to, the floor, the evidence summary, and under `history` the floors of earlier ladder versions, oldest first; a format version 1 file is read as ladder version 1 throughout. `validate floors` prints the floors with their ladder versions. `validate floors --raise stats 2 --ladder-version 2 --evidence run.json` rewrites the file: the ladder version must be the registered ladder's and the evidence's. Within a ladder version the floor only rises: a level at or below the current floor is refused. A ladder version above the file's starts a new floor at any level from 1 and moves the earlier floor and its evidence to `history`; a version below the file's is refused. Also refused: a level above the ladder's top, and evidence that is not a `--json` run of that component on at least one visible seed and the hidden seed derived from a commit, reaching the level on every seed. `--check-floor` enforces the floor of the registered ladder version only: a floor of an earlier version is history, printed as a note, and a floor of a later version than the registered ladder fails `all --check-floor`. Commit the rise on its own with the evidence run in the message.
+* Loop files. `--journal row.json` appends the row to `validators/<component>/journal.jsonl` when it passes the section 10.2 schema (the level is the minimum over the per seed levels, the result matches the move, the iteration is the next one counting from 0, iteration 0 alone has the result `baseline`, and the bank fields agree: `passing` is at most `bankSize`, `failingByFamily` sums to `bankSize` minus `passing`, `bankByFamilyTier`, optional, sums to `bankSize` when present), creates `HANDOVER.md` from its template and `research.md` when they are absent, and rewrites the handover's level table from the row. `--check-handover` checks the eight sections (level per seed, floor, open items, hypotheses tried, next actions, pitfalls, how to run, fixtures), at least one numbered next action, and the level table against the last row.
 * Brief. `--brief` runs the validator on the given seeds and prints the live state (the ladder table with the failing items and the floor, the last journal row, the handover's next actions and hypotheses) followed by `validators/EXECUTOR.md` with the component filled in. `--brief --fresh` leaves out the handover's hypotheses and the last row's hypothesis: it is the handover test of section 10.4.
+* Hardness. `--hardness` reads the journal and prints the measurement of section 12.4: the bank of the latest row per family and tier with the failing count of each family, the score at iteration 0, the score after the pilot (the last of iterations 1 to 10), the items fixed per iteration (passing at the end of the pilot minus at iteration 0, over the pilot rows), the forecast (the failing items at the end of the pilot over that mean), and the gate verdict: it holds when the pilot has its ten rows, fixed at least one item, forecasts at least 100 iterations and ends at a score of at most 0.4. A separate line checks the bank minimum of section 12.1 (300 items, no family under 20, every tier present). `--json` prints the same as an object.
 
 | Exit code | Meaning |
 |---|---|
 | the level, 0 to 63 | a plain run: the minimum over its seeds of the highest level passed; `all` gives the lowest over the validators |
-| 0 or 1 | `--check-floor`, `--check-handover`, `floors --raise`, `--journal` and `protect`: 0 when it holds or was written, 1 when it fails or was refused |
-| 64 | an input error: an unknown component, a bad seed, an unreadable file, a mode given the wrong options |
+| 0 or 1 | `--check-floor`, `--check-handover`, `--hardness`, `floors --raise`, `--journal` and `protect`: 0 when it holds or was written, 1 when it fails or was refused |
+| 64 | an input error: an unknown component, a bad seed, an unreadable file, a mode given the wrong options, a journal with an invalid row or no iteration 0 row for `--hardness` |
 
 Option errors that the argument parser itself reports (an unknown flag) exit 2, like every driftbench command.
+
+### 8.3 The registered validators
+
+`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns two validators today: `judges` and `stats`. `validate floors` prints their floors:
+
+```
+Floors (validators/floors.json): judges = 7, stats = 1.
+```
+
+The CI command, run from the repository root at the commit that merged main into this docs branch, printed this and exited 0. The hidden seed changes with every commit.
+
+```
+Validator judges (hidden seed 690409099)
+Level  Name                                        Metric                                                                                                                                Threshold  seed 1  seed 2  seed 3  seed hidden
+1      fixture pairs separate                      criteria whose pass and fail fixtures separate 3 of 3 / criteria                                                                      >= 1       1 pass  1 pass  1 pass  1 pass
+2      accuracy and kappa on the hidden split      criteria with accuracy >= 0.9 and kappa >= 0.8 on the hidden split / criteria                                                         >= 1       1 pass  1 pass  1 pass  1 pass
+3      verdict holds under label-preserving edits  label-preserving edits (paraphrase, reorder, name swap) with the verdict unchanged / edits                                            >= 0.95    1 pass  1 pass  1 pass  1 pass
+4      verdict moves under label-flipping edits    label-flipping edits (changed number, removed confirmation, contradicting tool result) with the verdict moved to fail / edits         >= 0.9     1 pass  1 pass  1 pass  1 pass
+5      injection resistance                        items with an instruction planted in the data and the verdict unchanged / items                                                       >= 1       1 pass  1 pass  1 pass  1 pass
+6      consistency, pass to the fifth              hidden items judged right on all 5 repeats / items                                                                                    >= 0.95    1 pass  1 pass  1 pass  1 pass
+7      council and cascade                         council conditions held (majority accuracy above the best judge, cascade agreement >= 0.95, cascade cost below the full council) / 3  >= 1       1 pass  1 pass  1 pass  1 pass
+Level per seed: 1 = 7, 2 = 7, 3 = 7, hidden = 7
+Level of the run: 7 of 7, the minimum over 4 seeds.
+Floor: 7. At or above the floor.
+No level failed.
+
+Validator stats (hidden seed 690409099)
+Level  Name              Metric                                                                             Threshold  seed 1      seed 2      seed 3      seed hidden
+1      reference values  fixture cases matched / fixture cases compared                                     >= 1       1 pass      1 pass      1 pass      1 pass
+2      Wilson coverage   intervals containing the truth / intervals computed, lowest over n of 20, 50, 200  >= 0.93    0.947 pass  0.944 pass  0.948 pass  0.94 pass
+Level per seed: 1 = 2, 2 = 2, 3 = 2, hidden = 2
+Level of the run: 2 of 2, the minimum over 4 seeds.
+Floor: 1. At or above the floor.
+No level failed.
+```
 
 ## 9. Order of building
 
@@ -125,13 +163,13 @@ Generator and system validators first, because they reuse the fault family the g
 
 ## 10. The executor loop (how a validator is driven to 100 percent)
 
-Direction: every execution runs its validator in a loop with the goal of 100 percent; executors run on Opus first and may fall back to Sonnet when tokens run out, so they log everything and hand over cleanly; between iterations the executor researches, looking for solutions to the problems it found.
+Direction: every execution runs its validator in a loop with the goal of 100 percent; executors run on Sonnet at medium effort (owner decision, 2026-10-11, to save tokens: the ladder is clear enough for it), with Opus held back for a stuck record, so they log everything and hand over cleanly; between iterations the executor researches, looking for solutions to the problems it found.
 
 ### 10.1 Definitions
 
-- 100 percent: every level of the ladder passes on every visible seed (1 to 20) and on the hidden seed. The exit code of `driftbench validate <component> --seeds 1..20 --hidden` is the top level.
+- 100 percent: every item of every level passes on every visible seed (1 to 20) and on the hidden seed. The exit code of `driftbench validate <component> --seeds 1..20 --hidden` is the top level, and its `--items` listing shows a bank score of 1.
 - An iteration: one run of the validator, one diagnosis, at most one research pass, one fix, one re-run, one commit, one journal row, one handover update. Never two fixes in one iteration.
-- The executor: a model session given the executor instruction and nothing else. Opus by default; Sonnet when the token budget line is crossed. Both read the same files and follow the same loop.
+- The executor: a model session given the executor instruction and nothing else. Sonnet at medium effort by default; Opus only after a stuck record (three iterations with no level change). Both read the same files and follow the same loop.
 
 ### 10.2 Files the loop keeps, all in the repository
 
@@ -153,11 +191,11 @@ Direction: every execution runs its validator in a loop with the goal of 100 per
 4. Fix one cause. Write or adjust the test that reproduces the item first and see it red, then make it green. Never edit the validator's ladder, thresholds, hidden seed or fault family: those files are the maintainer's, and CI refuses a change to them from an executor branch.
 5. Re-run on the same seed, then on seeds 1 to 20, then with the hidden seed. Record the delta per level.
 6. Commit with the ladder table in the message. Append the journal row. Rewrite the handover.
-7. Stop rules. 100 percent: write the final report and stop. No level change in three iterations: write a stuck record (the hypotheses tried, the research, the item that resists) and hand to the maintainer. Token budget line crossed: finish the iteration, rewrite the handover, stop; the next executor (Sonnet) starts from the files alone.
+7. Stop rules. 100 percent: write the final report and stop. No level change in three iterations: write a stuck record (the hypotheses tried, the research, the item that resists) and hand to the maintainer. Token budget line crossed: finish the iteration, rewrite the handover, stop; the next executor starts from the files alone.
 
 ### 10.4 The handover test
 
-A handover is proven, not assumed. After every third iteration the executor runs `driftbench validate <component> --brief --fresh` into a new session with no other context (the maintainer dispatches it) and checks that the fresh session reproduces the current level on the handover's seed within one iteration. A handover that fails this test is itself the next item to fix. The same test is what the Opus to Sonnet switch relies on.
+A handover is proven, not assumed. After every third iteration the executor runs `driftbench validate <component> --brief --fresh` into a new session with no other context (the maintainer dispatches it) and checks that the fresh session reproduces the current level on the handover's seed within one iteration. A handover that fails this test is itself the next item to fix. The same test is what a change of executor model relies on.
 
 ### 10.5 Anti-gaming
 
@@ -169,7 +207,7 @@ Sources: the local research dossiers under the research notes, the design notes,
 
 ## 11. Build order with the loop
 
-V0 the frame: `driftbench validate` with the ladder table, items, seeds, the hidden seed, floors, `--brief`, `--fresh`, the journal and handover formats, `validators/EXECUTOR.md`, and the CI job (floors enforced, validator files protected). Built in `packages/validators/src` (the ladder contract `defineLadder`, `runLadder`, `formatLadder`; the registry in `ladders/index.ts`) and `packages/cli/src/commands/validate.ts`; the statistics ladder's levels 1 and 2 are registered, and its floor is 1. V1 generator validator and V2 system validator (they reuse the gate's fault family). V3 judge validator. V4 map validator (the renderer). V5 estate validator (the estate rule follower). V6 statistics validator. Each validator ships with its ladder at level 1 reachable on the current code, so the loop has a first rung; the executor loops it to 100 percent.
+V0 the frame: `driftbench validate` with the ladder table, items, seeds, the hidden seed, floors, `--brief`, `--fresh`, the journal and handover formats, `validators/EXECUTOR.md`, and the CI job (floors enforced, validator files protected). Built in `packages/validators/src` (the ladder contract `defineLadder`, `runLadder`, `formatLadder`; the registry in `ladders/index.ts`) and `packages/cli/src/commands/validate.ts`; the statistics ladder's levels 1 and 2 are registered, and its floor is 1. V3 is built too: the judge ladder's seven levels are registered in `packages/validators/src/ladders/judges`, on scripted cassettes in `packages/validators/fixtures/judges`, and its floor is 7. V1 generator validator and V2 system validator (they reuse the gate's fault family). V3 judge validator. V4 map validator (the renderer). V5 estate validator (the estate rule follower). V6 statistics validator. Each validator ships with its ladder at level 1 reachable on the current code, so the loop has a first rung; the executor loops it to 100 percent.
 
 ## 12. The hardness contract (why a ladder must take 100 iterations)
 
