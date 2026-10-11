@@ -13,3 +13,15 @@ Sources read:
 What others do: multipleOf splits a numeric input into two partitions, a multiple and a non-multiple; partition testing covers each once.
 
 What to try, and why: the tool pre-pass reads multipleOf: multiple and not-multiple, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
+
+## Iteration 2
+
+Question: packages/generate/src/extract/tools.ts: arrayPartitions ignores uniqueItems, so schema-keywords.unique-items loses its duplicate-items value.
+
+Sources read:
+* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/research/testgen/dossier-specification.md (source 6: Schemathesis generates edge cases and invalid inputs from a schema)
+* https://json-schema.org/draft/2020-12/json-schema-validation section 6.4.3 (uniqueItems)
+
+What others do: uniqueItems true makes an array with a repeated element invalid; schema-driven generators send that invalid case as its own input.
+
+What to try, and why: the tool pre-pass reads uniqueItems: duplicate-items, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.

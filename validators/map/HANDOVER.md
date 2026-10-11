@@ -30,7 +30,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 0 |
 <!-- level-table:end -->
 
-After pilot iteration 1 (commit c397266): level 0 of 8 on every seed. The bank (`validators/map/bank.jsonl`): 167 of 456 items pass on seeds 1 to 20 and the hidden seed, score 0.3662; iteration 0 was 166 of 456, score 0.364. Items fixed per iteration so far: 1.00; failing items left: 289; forecast 289.0 iterations.
+After pilot iteration 2 (commit 2af2447): level 0 of 8 on every seed. The bank (`validators/map/bank.jsonl`): 168 of 456 items pass on seeds 1 to 20 and the hidden seed, score 0.3684; iteration 0 was 166 of 456, score 0.364. Items fixed per iteration so far: 1.00; failing items left: 288; forecast 288.0 iterations.
 
 ## Floor
 
@@ -38,11 +38,12 @@ None: `validators/floors.json` holds no floor for map, so CI reads it as 0. Unde
 
 ## Open items
 
-Level 1 (structured files) passes 54 of 98 items on every seed. Its failing items: inventory-forms.long-item, inventory-forms.markdown-tables, inventory-forms.csv, tool-formats.gemini, tool-formats.gemini-nested, tool-formats.bedrock, tool-formats.openapi, tool-formats.swagger, tool-formats.legacy-functions, tool-formats.agent-config, tool-formats.stringified-parameters, tool-formats.multi-document, tool-formats.jsonc, tool-formats.cohere-v1, tool-formats.vercel-json-schema, schema-keywords.type-null, schema-keywords.unique-items, schema-keywords.min-items, schema-keywords.min-max-properties, schema-keywords.exclusive-minimum-boolean, schema-keywords.exclusive-maximum-boolean, schema-keywords.format-without-type, schema-keywords.minimum-without-type, schema-keywords.content-encoding, schema-keywords.one-of, schema-keywords.any-of, schema-keywords.any-of-null, schema-keywords.all-of, schema-keywords.ref-defs, schema-keywords.ref-definitions, schema-keywords.depth-three, schema-keywords.array-of-objects, schema-keywords.array-items-enum, schema-keywords.prefix-items, schema-keywords.contains, schema-keywords.dependent-required, schema-keywords.dependencies, schema-keywords.if-then-else, schema-keywords.not, schema-keywords.closed-object, schema-keywords.additional-properties-schema, schema-keywords.pattern-properties, schema-keywords.discriminator, schema-keywords.recursive-ref. Each item's title names the partition ids the pre-pass must give.
+Level 1 (structured files) passes 55 of 98 items on every seed. Its failing items: inventory-forms.long-item, inventory-forms.markdown-tables, inventory-forms.csv, tool-formats.gemini, tool-formats.gemini-nested, tool-formats.bedrock, tool-formats.openapi, tool-formats.swagger, tool-formats.legacy-functions, tool-formats.agent-config, tool-formats.stringified-parameters, tool-formats.multi-document, tool-formats.jsonc, tool-formats.cohere-v1, tool-formats.vercel-json-schema, schema-keywords.type-null, schema-keywords.min-items, schema-keywords.min-max-properties, schema-keywords.exclusive-minimum-boolean, schema-keywords.exclusive-maximum-boolean, schema-keywords.format-without-type, schema-keywords.minimum-without-type, schema-keywords.content-encoding, schema-keywords.one-of, schema-keywords.any-of, schema-keywords.any-of-null, schema-keywords.all-of, schema-keywords.ref-defs, schema-keywords.ref-definitions, schema-keywords.depth-three, schema-keywords.array-of-objects, schema-keywords.array-items-enum, schema-keywords.prefix-items, schema-keywords.contains, schema-keywords.dependent-required, schema-keywords.dependencies, schema-keywords.if-then-else, schema-keywords.not, schema-keywords.closed-object, schema-keywords.additional-properties-schema, schema-keywords.pattern-properties, schema-keywords.discriminator, schema-keywords.recursive-ref. Each item's title names the partition ids the pre-pass must give.
 
 ## Hypotheses tried
 
 * Iteration 1: packages/generate/src/extract/tools.ts: numberPartitions ignores multipleOf, so schema-keywords.multiple-of loses its multiple and not-multiple values. Result: held; the item passes on every seed (commit c397266).
+* Iteration 2: packages/generate/src/extract/tools.ts: arrayPartitions ignores uniqueItems, so schema-keywords.unique-items loses its duplicate-items value. Result: held; the item passes on every seed (commit 2af2447).
 
 None was rejected: each iteration fixed the one keyword or shape its item named.
 
