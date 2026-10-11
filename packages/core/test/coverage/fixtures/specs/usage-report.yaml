@@ -1,0 +1,15 @@
+id: usage-report
+title: Monthly usage sheet built by a code-interpreter agent
+kind: task
+covers: [T-001]
+tags: [flow:usage-report]
+blocks:
+  - user: Build the monthly usage sheet from usage.csv, one tab per line.
+    expect:
+      artifacts:
+        - path: usage.xlsx
+          kind: xlsx
+          checks:
+            - sheets: [Line 1, Line 2]
+      workspace:
+        created: [usage.xlsx]

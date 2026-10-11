@@ -1,0 +1,28 @@
+# A synthetic behaviour inventory for the coverage tests. The agent is fictional; no real data.
+channels: [chat, whatsapp]
+behaviours:
+  - id: B-001
+    title: Greets the customer once and names the assistant
+  - id: B-002
+    title: Looks up the available plans before quoting a price
+    channels: [chat, whatsapp]
+  - id: B-003
+    title: Sends the offer card once
+    channels: [chat]
+  - id: B-004
+    title: Asks for an explicit yes before submitting the order
+  - id: T-001
+    title: Builds the monthly usage sheet with one tab per line
+    kind: task
+flows:
+  - id: plan-upgrade
+    title: Plan upgrade from greeting to submission
+    behaviours: [B-001, B-002, B-004]
+    deviations: [D1_off_topic, D4_loose_confirmation]
+  - id: usage-report
+    title: Monthly usage report built in the workspace
+    behaviours: [T-001]
+    deviations: [D8_tool_failure]
+  - id: offer-card
+    title: Offer card on chat
+    behaviours: [B-003]

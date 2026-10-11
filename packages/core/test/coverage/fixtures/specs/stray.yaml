@@ -1,0 +1,8 @@
+id: stray
+title: Covers a behaviour the inventory does not list
+channel: chat
+covers: [B-099]
+blocks:
+  - user: hi
+    expect:
+      must: ["hello"]
