@@ -24,7 +24,12 @@ export default defineConfig({
     ),
   },
   test: {
-    include: ['packages/*/test/**/*.test.ts', 'tools/**/*.test.mjs'],
+    include: [
+      'packages/*/test/**/*.test.ts',
+      'examples/*/test/**/*.test.ts',
+      'tools/**/*.test.mjs',
+      'tools/**/*.test.ts',
+    ],
     environment: 'node',
   },
 });
