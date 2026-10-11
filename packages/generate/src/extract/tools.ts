@@ -63,7 +63,7 @@ export function toolsPrepass(text: string, source: string): ToolsPrepass {
     ] as const) {
       if (!schema) continue;
       const open: string[] = [];
-      walk({ text, source, tool, direction, dimensions, ids, open }, schema, [], 0);
+      walk({ text, source, tool, direction, dimensions, ids, open, root: schema }, schema, [], 0);
       if (open.length > 0) {
         const side = direction === 'in' ? 'input' : 'output';
         notes.push(`${tool.name} ${side}: no partition stated for ${open.join(', ')}`);
@@ -81,6 +81,8 @@ type Walk = {
   dimensions: ProposalDimension[];
   ids: Set<string>;
   open: string[];
+  /** The tool's input or output schema, where a local $ref points. */
+  root: YAMLMap;
 };
 
 function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void {
@@ -90,7 +92,7 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
   const required = new Set(stringItems(requiredPair?.value));
   for (const pair of properties.items as Pair[]) {
     const name = keyOf(pair);
-    const property = pair.value;
+    const property = resolveRef(ctx.root, pair.value);
     if (name === undefined || !isMap(property)) continue;
     const path = [...prefix, name];
     const quote = quoter(ctx.text, pair, property);
@@ -110,6 +112,19 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
     else if (!types.includes('object')) ctx.open.push(path.join('.'));
     if (types.includes('object') && depth + 1 <= MAX_DEPTH) walk(ctx, property, path, depth + 1);
   }
+}
+
+/**
+ * A local $ref (`#/$defs/Name`, `#/definitions/Name`) read from the schema it sits in, one step: the target's
+ * own keywords replace the reference. Anything else is returned as it is.
+ */
+function resolveRef(root: YAMLMap, node: unknown): unknown {
+  const ref = isMap(node) ? plain(entry(node, '$ref')?.value) : undefined;
+  if (typeof ref !== 'string' || !ref.startsWith('#/')) return node;
+  let target: unknown = root;
+  for (const part of ref.slice(2).split('/'))
+    target = mapAt(target, part.replace(/~1/g, '/').replace(/~0/g, '~')) ?? entry(target, part)?.value;
+  return isMap(target) ? target : node;
 }
 
 function addDimension(ctx: Walk, path: string[], partitions: Partition[]): void {

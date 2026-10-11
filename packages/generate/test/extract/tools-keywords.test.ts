@@ -76,4 +76,21 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       't.x.in.p': ['low', 'high', 'null'],
     });
   });
+
+  it('reads a $ref to $defs or to draft-07 definitions', () => {
+    expect(
+      partitions({ $ref: '#/$defs/Choice' }, true, {
+        $defs: { Choice: { type: 'string', enum: ['north', 'south'] } },
+      }),
+    ).toEqual({
+      't.x.in.p': ['north', 'south'],
+    });
+    expect(
+      partitions({ $ref: '#/definitions/Size' }, true, {
+        definitions: { Size: { type: 'integer', minimum: 1 } },
+      }),
+    ).toEqual({
+      't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum'],
+    });
+  });
 });
