@@ -508,3 +508,19 @@ describe('pilot iteration 3: a recovery that moves the conversation', () => {
     expect(built.endState).toBeUndefined();
   });
 });
+
+describe('pilot iteration 4: boundary values of a side-effecting tool', () => {
+  it('never expect the tool on a request alone: a path carries the value, or the call is forbidden', () => {
+    const prepared = prepare();
+    const result = generateSuite(prepared, { seed: 1, mapPath: 'map.yaml', t: 2 });
+    const boundary = result.all.filter(
+      (spec) => (spec.metadata?.generated as { seeder?: string } | undefined)?.seeder === 'boundary',
+    );
+    const direct = boundary.filter(
+      (spec) =>
+        spec.blocks.length === 1 &&
+        (spec.blocks[0]?.expect?.tools ?? []).some((tool) => tool.label === 'lookup' && tool.count !== 0),
+    );
+    expect(direct.map((spec) => spec.id)).toEqual([]);
+  });
+});

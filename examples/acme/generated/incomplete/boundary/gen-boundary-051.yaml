@@ -20,8 +20,7 @@ blocks:
     expect:
       tools:
         - label: notify_sales
-          count:
-            min: 1
+          count: 0
       criteria:
         - needs-approved-phrase
 metadata:

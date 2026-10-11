@@ -648,6 +648,13 @@ export function boundarySeeder(
   const drafts: SpecDraft[] = [];
   const unsupported: string[] = [];
   let toolValues = 0;
+  // A tool a path names as its end-state source changes the world: the map calls it on a move of a flow,
+  // never on a request alone.
+  const sideEffecting = new Set(
+    prepared.relations.paths.flatMap((path) =>
+      path.end_state ? [path.end_state.source.replace(/^tool:/, '')] : [],
+    ),
+  );
   prepared.space.dimensions.forEach((dimension, index) => {
     if (dimension.kind !== 'data' || prepared.axes.has(index)) return;
     dimension.values.forEach((value, position) => {
@@ -670,7 +677,24 @@ export function boundarySeeder(
       const cell: Pick[] = [target];
       const tools: ToolExpect[] = [];
       const concrete: Record<string, unknown> = {};
-      if (found) {
+      const effect = found !== undefined && sideEffecting.has(found.tool.name);
+      if (effect && hasPaths(prepared)) {
+        // The value on a path that calls the tool on its move, when a path reads it.
+        const built = boundaryScenario(prepared, context, id, dimension.id, value.id, target);
+        if ('draft' in built) {
+          drafts.push(built.draft);
+          return;
+        }
+      }
+      if (found && effect) {
+        toolValues += 1;
+        const shown = concreteValue(found.schema, partition);
+        if (shown.kind === 'value') concrete[value.id] = shown.value;
+        else if (shown.kind === 'absent') concrete[value.id] = '(absent)';
+        else unsupported.push(`${value.id}: ${shown.why}`);
+        // Asked for alone, the side-effecting tool never runs.
+        tools.push({ label: found.tool.name, count: 0 });
+      } else if (found) {
         toolValues += 1;
         const shown = concreteValue(found.schema, partition);
         if (shown.kind === 'value') concrete[value.id] = shown.value;
