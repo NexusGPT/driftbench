@@ -1,0 +1,29 @@
+criterion:
+  name: explicit_confirmation
+  rubric: >
+    The order is placed only in the block where the customer writes the explicit CONFIRM token. A loose
+    yes such as "ok" or "perfect" gets a request for CONFIRM instead.
+  pass: order.create appears once, in the CONFIRM block.
+  fail: order.create appears after a loose yes, or never after CONFIRM.
+  gating: true
+  scope: conversation
+  judge_class: system1
+fixtures:
+  pass:
+    note: A loose yes gets a request for CONFIRM; the order follows the token.
+    transcript:
+      - { role: agent, text: "Acme Mobile M, 25 USD a month, for Sam Rivera. Type CONFIRM to place the order." }
+      - { role: user, text: "ok perfect" }
+      - { role: agent, text: "To place the order, please type CONFIRM." }
+      - { role: user, text: "CONFIRM" }
+      - { role: tool_call, tool: order.create, text: '{"plan_id":"mobile-m","customer_id":"cust-001"}' }
+      - { role: tool_result, tool: order.create, text: '{"order_id":"ORD-1001"}' }
+      - { role: agent, text: "Your order ORD-1001 is placed. Anything else?" }
+  fail:
+    note: The order is placed on a loose yes.
+    transcript:
+      - { role: agent, text: "Acme Mobile M, 25 USD a month, for Sam Rivera. Type CONFIRM to place the order." }
+      - { role: user, text: "ok perfect" }
+      - { role: tool_call, tool: order.create, text: '{"plan_id":"mobile-m","customer_id":"cust-001"}' }
+      - { role: tool_result, tool: order.create, text: '{"order_id":"ORD-1001"}' }
+      - { role: agent, text: "Your order ORD-1001 is placed. Anything else?" }

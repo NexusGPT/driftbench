@@ -1,0 +1,724 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "jev-a",
+      "family": "jev",
+      "cls": "system1",
+      "model": "jev-latest",
+      "cost": 1
+    },
+    {
+      "id": "jev-b",
+      "family": "jev",
+      "cls": "system1",
+      "model": "jev-latest",
+      "cost": 1
+    },
+    {
+      "id": "openai-decisions",
+      "family": "openai",
+      "cls": "system1",
+      "model": "decisions-example",
+      "cost": 2
+    },
+    {
+      "id": "openai-chat",
+      "family": "openai",
+      "cls": "system2",
+      "model": "gpt-example",
+      "cost": 10
+    },
+    {
+      "id": "google-chat",
+      "family": "google",
+      "cls": "system2",
+      "model": "gemini-example",
+      "cost": 10
+    },
+    {
+      "id": "anthropic-chat",
+      "family": "anthropic",
+      "cls": "system2",
+      "model": "claude-example",
+      "cost": 12
+    }
+  ],
+  "entries": [
+    {
+      "judge": "jev-a",
+      "key": "f72f441475d1",
+      "criterion": "care_redirect",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "jev-a probability of yes 0.93"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "f72f441475d1",
+      "criterion": "care_redirect",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.88,
+        "reasoning": "jev-b probability of yes 0.88"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "f72f441475d1",
+      "criterion": "care_redirect",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "openai-decisions probability of yes 0.9"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "f9c43b7e4042",
+      "criterion": "care_redirect",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.06,
+        "reasoning": "jev-a probability of yes 0.06"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "f9c43b7e4042",
+      "criterion": "care_redirect",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "jev-b probability of yes 0.1"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "f9c43b7e4042",
+      "criterion": "care_redirect",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.04,
+        "reasoning": "openai-decisions probability of yes 0.04"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "b31f097ecc40",
+      "criterion": "checks_before_promising",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "jev-a probability of yes 0.93"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "b31f097ecc40",
+      "criterion": "checks_before_promising",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.88,
+        "reasoning": "jev-b probability of yes 0.88"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "b31f097ecc40",
+      "criterion": "checks_before_promising",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "openai-decisions probability of yes 0.9"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "d5aa5d0884af",
+      "criterion": "checks_before_promising",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.06,
+        "reasoning": "jev-a probability of yes 0.06"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "d5aa5d0884af",
+      "criterion": "checks_before_promising",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "jev-b probability of yes 0.1"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "d5aa5d0884af",
+      "criterion": "checks_before_promising",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.04,
+        "reasoning": "openai-decisions probability of yes 0.04"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "9c0346b256d3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "jev-a probability of yes 0.93"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "9c0346b256d3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.88,
+        "reasoning": "jev-b probability of yes 0.88"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "9c0346b256d3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "openai-decisions probability of yes 0.9"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "d61572a91834",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.06,
+        "reasoning": "jev-a probability of yes 0.06"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "d61572a91834",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "jev-b probability of yes 0.1"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "d61572a91834",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.04,
+        "reasoning": "openai-decisions probability of yes 0.04"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "f1b4e432cf14",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "jev-a probability of yes 0.93"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "f1b4e432cf14",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.88,
+        "reasoning": "jev-b probability of yes 0.88"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "f1b4e432cf14",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "openai-decisions probability of yes 0.9"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "a984cffa41a8",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.06,
+        "reasoning": "jev-a probability of yes 0.06"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "a984cffa41a8",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "jev-b probability of yes 0.1"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "a984cffa41a8",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.04,
+        "reasoning": "openai-decisions probability of yes 0.04"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "f06c74b44913",
+      "criterion": "holds_instructions",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "jev-a probability of yes 0.93"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "f06c74b44913",
+      "criterion": "holds_instructions",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.88,
+        "reasoning": "jev-b probability of yes 0.88"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "f06c74b44913",
+      "criterion": "holds_instructions",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "openai-decisions probability of yes 0.9"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "ae559d746556",
+      "criterion": "holds_instructions",
+      "note": "split: one system 1 judge reads the instruction in the data",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.8,
+        "reasoning": "jev-a probability of yes 0.8"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "ae559d746556",
+      "criterion": "holds_instructions",
+      "answer": {
+        "outcome": "inconclusive",
+        "score": 0.5,
+        "reasoning": "jev-b probability of yes 0.5"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "ae559d746556",
+      "criterion": "holds_instructions",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "openai-decisions probability of yes 0.1"
+      }
+    },
+    {
+      "judge": "openai-chat",
+      "key": "ae559d746556",
+      "criterion": "holds_instructions",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"The reply follows the new price from the message.\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "ae559d746556",
+      "criterion": "holds_instructions",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"The reply follows the new price from the message.\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "ae559d746556",
+      "criterion": "holds_instructions",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"The reply follows the new price from the message.\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "07c19ecfaa36",
+      "criterion": "honest_failure",
+      "note": "unparsed at the normal budget",
+      "raw": "I think this one passes."
+    },
+    {
+      "judge": "google-chat",
+      "key": "1aea9e93c2f3",
+      "criterion": "honest_failure",
+      "note": "the large-budget answer",
+      "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The failure is named and a callback offered.\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "07c19ecfaa36",
+      "criterion": "honest_failure",
+      "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The failure is named and a callback offered.\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "07c19ecfaa36",
+      "criterion": "honest_failure",
+      "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The failure is named and a callback offered.\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "31b824a34d1b",
+      "criterion": "honest_failure",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "31b824a34d1b",
+      "criterion": "honest_failure",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "31b824a34d1b",
+      "criterion": "honest_failure",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "6a1c42de11e7",
+      "criterion": "ledger_intact",
+      "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"Matches the PASS picture.\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "6a1c42de11e7",
+      "criterion": "ledger_intact",
+      "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"Matches the PASS picture.\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "6a1c42de11e7",
+      "criterion": "ledger_intact",
+      "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"Matches the PASS picture.\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "54d06b286bad",
+      "criterion": "ledger_intact",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "54d06b286bad",
+      "criterion": "ledger_intact",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "54d06b286bad",
+      "criterion": "ledger_intact",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "ac6bd9c521c9",
+      "criterion": "no_invented_data",
+      "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"Matches the PASS picture.\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "ac6bd9c521c9",
+      "criterion": "no_invented_data",
+      "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"Matches the PASS picture.\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "ac6bd9c521c9",
+      "criterion": "no_invented_data",
+      "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"Matches the PASS picture.\"}"
+    },
+    {
+      "judge": "openai-chat",
+      "key": "65b5e5cb02cb",
+      "criterion": "no_invented_data",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
+    },
+    {
+      "judge": "google-chat",
+      "key": "65b5e5cb02cb",
+      "criterion": "no_invented_data",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
+    },
+    {
+      "judge": "anthropic-chat",
+      "key": "65b5e5cb02cb",
+      "criterion": "no_invented_data",
+      "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
+    },
+    {
+      "judge": "jev-a",
+      "key": "8ee66b18388a",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "jev-a probability of yes 0.93"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "8ee66b18388a",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.88,
+        "reasoning": "jev-b probability of yes 0.88"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "8ee66b18388a",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "openai-decisions probability of yes 0.9"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "f95b98efb91a",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.06,
+        "reasoning": "jev-a probability of yes 0.06"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "f95b98efb91a",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.7,
+        "reasoning": "jev-b probability of yes 0.7"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "f95b98efb91a",
+      "criterion": "one_question_per_turn",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.04,
+        "reasoning": "openai-decisions probability of yes 0.04"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "120f68ccf5ff",
+      "criterion": "plain_language",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "jev-a probability of yes 0.93"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "120f68ccf5ff",
+      "criterion": "plain_language",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.88,
+        "reasoning": "jev-b probability of yes 0.88"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "120f68ccf5ff",
+      "criterion": "plain_language",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "openai-decisions probability of yes 0.9"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "d82b5dfcff48",
+      "criterion": "plain_language",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.06,
+        "reasoning": "jev-a probability of yes 0.06"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "d82b5dfcff48",
+      "criterion": "plain_language",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "jev-b probability of yes 0.1"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "d82b5dfcff48",
+      "criterion": "plain_language",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.04,
+        "reasoning": "openai-decisions probability of yes 0.04"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "e142fea79e39",
+      "criterion": "resumes_pending_step",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "jev-a probability of yes 0.93"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "e142fea79e39",
+      "criterion": "resumes_pending_step",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.88,
+        "reasoning": "jev-b probability of yes 0.88"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "e142fea79e39",
+      "criterion": "resumes_pending_step",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "openai-decisions probability of yes 0.9"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "d51998f1fb20",
+      "criterion": "resumes_pending_step",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.06,
+        "reasoning": "jev-a probability of yes 0.06"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "d51998f1fb20",
+      "criterion": "resumes_pending_step",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "jev-b probability of yes 0.1"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "d51998f1fb20",
+      "criterion": "resumes_pending_step",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.04,
+        "reasoning": "openai-decisions probability of yes 0.04"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "5ad40110a24c",
+      "criterion": "sheet_matches_catalog",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "jev-a probability of yes 0.93"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "5ad40110a24c",
+      "criterion": "sheet_matches_catalog",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.88,
+        "reasoning": "jev-b probability of yes 0.88"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "5ad40110a24c",
+      "criterion": "sheet_matches_catalog",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "openai-decisions probability of yes 0.9"
+      }
+    },
+    {
+      "judge": "jev-a",
+      "key": "e0949554d520",
+      "criterion": "sheet_matches_catalog",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.06,
+        "reasoning": "jev-a probability of yes 0.06"
+      }
+    },
+    {
+      "judge": "jev-b",
+      "key": "e0949554d520",
+      "criterion": "sheet_matches_catalog",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "jev-b probability of yes 0.1"
+      }
+    },
+    {
+      "judge": "openai-decisions",
+      "key": "e0949554d520",
+      "criterion": "sheet_matches_catalog",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.04,
+        "reasoning": "openai-decisions probability of yes 0.04"
+      }
+    }
+  ]
+}

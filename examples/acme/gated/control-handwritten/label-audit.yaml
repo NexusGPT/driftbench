@@ -1,0 +1,64 @@
+# The label audit: a seeded sample of each family of gated blocks, for a person to read against the spec.
+# For each block, set label_correct to true or false and say why in note. The error rate per family is
+# the share of false answers, reported with its interval once the sample is read.
+families:
+  - family: hand-written
+    sample:
+      - block: acme-off-topic-return#where-were-we
+        path: conversations/off-topic-return.yaml
+        cell: {}
+        when: Sorry, where were we?
+        expected:
+          stage: offer
+          tools:
+            - label: coverage.check
+              count: 0
+            - label: catalog.search
+              count: 0
+          must:
+            - We were choosing your plan
+            - 3 Orchard Way
+            - Acme Fiber 300
+            - Acme Air 5G
+            - \$40
+            - \$35
+          criteria:
+            - ledger_intact
+        label_correct: null
+        note: null
+      - block: acme-order-loose-confirmation#loose-yes
+        path: conversations/order-loose-confirmation.yaml
+        cell: {}
+        when: ok perfect
+        expected:
+          stage: recap
+          tools:
+            - label: order.create
+              count: 0
+          must:
+            - explicit go
+            - CONFIRM
+          must_not:
+            - ORD-[0-9A-F]{6}
+            - is placed
+          criteria:
+            - explicit_confirmation@gating
+          guards:
+            - name: explicit_confirmation
+              verdict: block
+              count: 1
+        label_correct: null
+        note: null
+      - block: acme-plan-upgrade#4
+        path: conversations/plan-upgrade.yaml
+        cell: {}
+        when: No, that's all. Thanks!
+        expected:
+          stage: closing
+          tools:
+            - label: order.create
+              count: 0
+          must:
+            - Sam
+        label_correct: null
+        note: null
