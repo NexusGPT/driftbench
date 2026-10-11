@@ -1,7 +1,7 @@
 import type { PhraseBank, SessionIndex } from '@driftbench/generate';
 import type { HiddenEstate, HiddenGuard, HiddenHelper, HiddenSkill } from './hidden';
 import { STANDING, STEPS } from './layout';
-import { skillPath } from './render';
+import { fileHid } from './render';
 
 /**
  * The situations of a generated estate: each ask the validator can put to the agent, what the rule follower
@@ -55,7 +55,7 @@ export const DEVIATION_PHRASES: Readonly<Record<string, string>> = {
 /** The hidden ids of every atom the files of a skill state, its definition excepted. */
 export function skillAtoms(estate: HiddenEstate, skill: HiddenSkill): string[] {
   const topic = skill.topic;
-  const ref = (file: string) => `ref:${topic.skill}:${skillPath(skill, `references/${file}`)}`;
+  const ref = (file: string) => fileHid('ref', skill, `references/${file}`);
   return [
     `route:desc:${topic.skill}`,
     `route:table:${topic.skill}`,
@@ -63,8 +63,8 @@ export function skillAtoms(estate: HiddenEstate, skill: HiddenSkill): string[] {
     ref(topic.gate.file),
     `gate:${topic.skill}`,
     ...(skill.comma ? [ref(topic.comma.file), `gate:${topic.skill}:comma`] : []),
-    `script:${skillPath(skill, `scripts/${topic.script.file}`)}`,
-    ...(skill.unnamedScript ? [`script:${skillPath(skill, 'scripts/shared-helpers.py')}`] : []),
+    fileHid('script', skill, `scripts/${topic.script.file}`),
+    ...(skill.unnamedScript ? [fileHid('script', skill, 'scripts/shared-helpers.py')] : []),
     `rule:${topic.skill}:script`,
     `rule:${topic.skill}:prohibition`,
     ...(skill.dispatch ? [`rule:${topic.skill}:dispatch`] : []),

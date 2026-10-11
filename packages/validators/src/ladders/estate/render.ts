@@ -127,7 +127,13 @@ function standingAtoms(rule: StandingRule): Pending[] {
 
 /** The path a skill file names, relative to the root. */
 export function skillPath(skill: HiddenSkill, relative: string): string {
-  return skillFile(skill.topic.skill, relative);
+  return skillFile(skill.folder ?? skill.topic.skill, relative);
+}
+
+/** The hidden id of a skill's reference or script: the skill's name and the file as its body names it, so a
+ * renamed folder keeps it. */
+export function fileHid(kind: 'ref' | 'script', skill: HiddenSkill, relative: string): string {
+  return `${kind}:${skill.topic.skill}:${relative}`;
 }
 
 export function helperPath(helper: HiddenHelper): string {
@@ -391,8 +397,9 @@ export function renderEstate(estate: HiddenEstate): Rendered {
     };
     const ref = (file: string) => {
       const path = skillPath(skill, `references/${file}`);
-      edges.push({ from: skill.hid, to: `ref:${topic.skill}:${path}`, kind: 'reference' });
-      return { hid: `ref:${topic.skill}:${path}`, kind: 'reference' as const, key: path };
+      const hid = fileHid('ref', skill, `references/${file}`);
+      edges.push({ from: skill.hid, to: hid, kind: 'reference' });
+      return { hid, kind: 'reference' as const, key: path };
     };
     const keep = (part: string) => !skill.omit.includes(part);
     if (keep('lookup')) writer.line(`${next()} ${topic.lookup.line}`, [ref(topic.lookup.file)]);
@@ -427,7 +434,7 @@ export function renderEstate(estate: HiddenEstate): Rendered {
       writer.line(
         `${next()} ${scriptText}`,
         [
-          { hid: `script:${scriptPath}`, kind: 'script', key: scriptPath },
+          { hid: fileHid('script', skill, `scripts/${topic.script.file}`), kind: 'script', key: scriptPath },
           { hid: `rule:${topic.skill}:script`, kind: 'instruction' },
         ],
         {
@@ -440,7 +447,13 @@ export function renderEstate(estate: HiddenEstate): Rendered {
           ],
         },
       );
-    if (keep('script')) edges.push({ from: skill.hid, to: `script:${scriptPath}`, kind: 'script' });
+    if (keep('script')) {
+      edges.push({
+        from: skill.hid,
+        to: fileHid('script', skill, `scripts/${topic.script.file}`),
+        kind: 'script',
+      });
+    }
     if (keep('prohibition'))
       writer.line(
         `${next()} ${topic.prohibition.text}`,
@@ -517,8 +530,9 @@ export function renderEstate(estate: HiddenEstate): Rendered {
       files[path] = ['#!/usr/bin/env python3', '"""Helpers shared by the scripts of this skill."""', ''].join(
         '\n',
       );
-      atoms.push({ hid: `script:${path}`, kind: 'script', file: path, line: 2, key: path });
-      edges.push({ from: skill.hid, to: `script:${path}`, kind: 'script' });
+      const hid = fileHid('script', skill, 'scripts/shared-helpers.py');
+      atoms.push({ hid, kind: 'script', file: path, line: 2, key: path });
+      edges.push({ from: skill.hid, to: hid, kind: 'script' });
     }
     if (hook) {
       files[hook.script] = ['#!/bin/sh', '# Checks the arguments of a script call.', 'exit 0', ''].join('\n');

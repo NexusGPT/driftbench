@@ -1,6 +1,6 @@
 import type { HiddenEstate, HiddenGuard, HiddenSkill } from './hidden';
 import { STANDING } from './layout';
-import { skillPath, workFolder } from './render';
+import { fileHid, skillPath, workFolder } from './render';
 import type { HiddenSituation } from './situations';
 
 /**
@@ -342,7 +342,7 @@ function taskSteps(
   const skill = estate.skills.find((candidate) => candidate.topic.skill === name) as HiddenSkill;
   const topic = skill.topic;
   const ref = (file: string) => skillPath(skill, `references/${file}`);
-  const refHid = (file: string) => `ref:${name}:${ref(file)}`;
+  const refHid = (file: string) => fileHid('ref', skill, `references/${file}`);
   const opening: Step[] = [];
   const doing: Step[] = [];
   const late: Step[] = [];
@@ -375,7 +375,7 @@ function taskSteps(
     (cut(gate.gate) ? late : opening).push({ call: read(cwd, gate.read) });
   }
   const script = skillPath(skill, `scripts/${topic.script.file}`);
-  if (!cut(`script:${script}`) && !cut(`rule:${name}:script`)) {
+  if (!cut(fileHid('script', skill, `scripts/${topic.script.file}`)) && !cut(`rule:${name}:script`)) {
     doing.push({ call: bash(`python3 ${script} ${topic.script.args}`) });
   }
   if (skill.dispatch && !cut(`rule:${name}:dispatch`)) {

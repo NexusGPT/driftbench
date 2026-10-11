@@ -306,7 +306,7 @@ truth:
       file: .claude/skills/menu-review/SKILL.md
       line: 3
       key: menu-review
-    - hid: ref:menu-review:.claude/skills/menu-review/references/allergen-list.md
+    - hid: ref:menu-review:references/allergen-list.md
       kind: reference
       file: .claude/skills/menu-review/SKILL.md
       line: 9
@@ -316,12 +316,12 @@ truth:
       file: .claude/skills/menu-review/SKILL.md
       line: 10
       key: ""
-    - hid: ref:menu-review:.claude/skills/menu-review/references/menu-format.md
+    - hid: ref:menu-review:references/menu-format.md
       kind: reference
       file: .claude/skills/menu-review/SKILL.md
       line: 10
       key: .claude/skills/menu-review/references/menu-format.md
-    - hid: script:.claude/skills/menu-review/scripts/check-menu.py
+    - hid: script:menu-review:scripts/check-menu.py
       kind: script
       file: .claude/skills/menu-review/SKILL.md
       line: 11
@@ -346,7 +346,7 @@ truth:
       file: .claude/skills/menu-review/SKILL.md
       line: 14
       key: ""
-    - hid: ref:menu-review:.claude/skills/menu-review/references/supplier-recipes.md
+    - hid: ref:menu-review:references/supplier-recipes.md
       kind: reference
       file: .claude/skills/menu-review/SKILL.md
       line: 15
@@ -371,7 +371,7 @@ truth:
       file: .claude/skills/repair-ticket/SKILL.md
       line: 3
       key: repair-ticket
-    - hid: ref:repair-ticket:.claude/skills/repair-ticket/references/part-numbers.md
+    - hid: ref:repair-ticket:references/part-numbers.md
       kind: reference
       file: .claude/skills/repair-ticket/SKILL.md
       line: 9
@@ -381,12 +381,12 @@ truth:
       file: .claude/skills/repair-ticket/SKILL.md
       line: 10
       key: ""
-    - hid: ref:repair-ticket:.claude/skills/repair-ticket/references/closing-rules.md
+    - hid: ref:repair-ticket:references/closing-rules.md
       kind: reference
       file: .claude/skills/repair-ticket/SKILL.md
       line: 10
       key: .claude/skills/repair-ticket/references/closing-rules.md
-    - hid: script:.claude/skills/repair-ticket/scripts/list-parts.py
+    - hid: script:repair-ticket:scripts/list-parts.py
       kind: script
       file: .claude/skills/repair-ticket/SKILL.md
       line: 11
@@ -555,31 +555,31 @@ truth:
       to: skill:menu-review
       kind: route
     - from: skill:menu-review
-      to: ref:menu-review:.claude/skills/menu-review/references/allergen-list.md
+      to: ref:menu-review:references/allergen-list.md
       kind: reference
     - from: skill:menu-review
-      to: ref:menu-review:.claude/skills/menu-review/references/menu-format.md
+      to: ref:menu-review:references/menu-format.md
       kind: reference
     - from: skill:menu-review
-      to: script:.claude/skills/menu-review/scripts/check-menu.py
+      to: script:menu-review:scripts/check-menu.py
       kind: script
     - from: skill:menu-review
       to: helper:ledger-auditor
       kind: dispatch
     - from: skill:menu-review
-      to: ref:menu-review:.claude/skills/menu-review/references/supplier-recipes.md
+      to: ref:menu-review:references/supplier-recipes.md
       kind: reference
     - from: route:desc:repair-ticket
       to: skill:repair-ticket
       kind: route
     - from: skill:repair-ticket
-      to: ref:repair-ticket:.claude/skills/repair-ticket/references/part-numbers.md
+      to: ref:repair-ticket:references/part-numbers.md
       kind: reference
     - from: skill:repair-ticket
-      to: ref:repair-ticket:.claude/skills/repair-ticket/references/closing-rules.md
+      to: ref:repair-ticket:references/closing-rules.md
       kind: reference
     - from: skill:repair-ticket
-      to: script:.claude/skills/repair-ticket/scripts/list-parts.py
+      to: script:repair-ticket:scripts/list-parts.py
       kind: script
     - from: route:desc:ledger-auditor
       to: helper:ledger-auditor
@@ -640,8 +640,8 @@ truth:
       kind: next
   findings:
     - code: MISSING_REFERENCE
-      subject: ref:menu-review:.claude/skills/menu-review/references/supplier-recipes.md
-      atom: ref:menu-review:.claude/skills/menu-review/references/supplier-recipes.md
+      subject: ref:menu-review:references/supplier-recipes.md
+      atom: ref:menu-review:references/supplier-recipes.md
       defect: missing_reference
     - code: REGISTRY_ROW
       subject: reply-length.py

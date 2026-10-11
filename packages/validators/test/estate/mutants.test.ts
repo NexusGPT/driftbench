@@ -75,13 +75,20 @@ describe('estate mutants (level 6)', () => {
       'stage',
       'tool',
       'wording',
+      'addition',
+      'semantic',
+      'spacing',
+      'move',
+      'rename',
+      'verdict',
     ]);
     const before = new Set(renderEstate(estate).atoms.map((atom) => atom.hid));
     for (const mutant of mutants) {
       const after = new Set(renderEstate(mutant.estate).atoms.map((atom) => atom.hid));
       const gone = [...before].filter((hid) => !after.has(hid));
-      if (mutant.kind === 'wording') expect(gone, mutant.id).toEqual([]);
-      else expect(gone.length, mutant.id).toBeGreaterThan(0);
+      if (['wording', 'addition', 'semantic', 'spacing', 'move', 'rename', 'verdict'].includes(mutant.kind)) {
+        expect(gone, mutant.id).toEqual([]);
+      } else expect(gone.length, mutant.id).toBeGreaterThan(0);
     }
   });
 
@@ -90,9 +97,14 @@ describe('estate mutants (level 6)', () => {
     const { judged, wrong } = await estateMutantDecisions(run);
     expect(judged).toBeGreaterThan(run.specs.length);
     expect(wrong.length).toBeGreaterThan(0);
-    expect(wrong.every((verdict) => verdict.expected === 'retired' && verdict.got === 'regenerated')).toBe(
-      true,
-    );
+    const deletions = wrong.filter((verdict) => !verdict.mutant.startsWith('rename:'));
+    expect(
+      deletions.every((verdict) => verdict.expected === 'retired' && verdict.got === 'regenerated'),
+    ).toBe(true);
+    // A renamed folder changes the atom ids of the skill: maintenance retires tests whose atoms all stayed.
+    const renamed = wrong.filter((verdict) => verdict.mutant.startsWith('rename:'));
+    expect(renamed.length).toBeGreaterThan(0);
+    expect(renamed.every((verdict) => verdict.expected === 'kept' && verdict.got === 'retired')).toBe(true);
     expect(wrong.some((verdict) => verdict.mutant.startsWith('instruction:'))).toBe(true);
     expect(wrong.some((verdict) => verdict.mutant.startsWith('wording:'))).toBe(false);
     const sample = wrong.find((verdict) => verdict.mutant.startsWith('instruction:'));

@@ -108,5 +108,86 @@ export function estateMutants(estate: HiddenEstate): EstateMutant[] {
       estate: mutant,
     });
   }
+  out.push(...changeMutants(estate));
+  return out;
+}
+
+/**
+ * Changes that leave every atom in place: an added rule, a rule whose meaning changes, a rule respaced, two
+ * output rules swapped, a skill folder renamed with its name kept, a guard's registry verdict changed. The
+ * kind names what maintenance must do with them (see level 6 and the impact family).
+ */
+export function changeMutants(estate: HiddenEstate): EstateMutant[] {
+  const out: EstateMutant[] = [];
+  {
+    const mutant = copy(estate);
+    mutant.rules.push({
+      hid: 'rule:added',
+      section: 'output',
+      kind: 'register',
+      title: 'Sign every reply with the team name',
+      text: 'Sign every reply with the team name.',
+      evidence: [{ type: 'custom', name: 'signed_reply' }],
+      behaviour: { type: 'none' },
+      scope: 'always',
+    });
+    out.push({ id: 'addition:rule:added', kind: 'addition', what: 'an output rule added', estate: mutant });
+  }
+  {
+    const mutant = copy(estate);
+    const rule = mutant.rules.find((candidate) => candidate.hid === 'rule:no-webfetch');
+    if (rule) rule.text = 'Never call WebFetch; use only the files kept in this folder.';
+    out.push({
+      id: 'semantic:rule:no-webfetch',
+      kind: 'semantic',
+      what: 'the WebFetch rule reworded with a new meaning',
+      estate: mutant,
+    });
+  }
+  {
+    const mutant = copy(estate);
+    const rule = mutant.rules.find((candidate) => candidate.hid === 'rule:no-webfetch');
+    if (rule) rule.text = rule.text.replace('work only', 'work  only');
+    out.push({
+      id: 'spacing:rule:no-webfetch',
+      kind: 'spacing',
+      what: 'two spaces put inside the WebFetch rule',
+      estate: mutant,
+    });
+  }
+  {
+    const mutant = copy(estate);
+    const output = mutant.rules.filter((rule) => rule.section === 'output');
+    const first = mutant.rules.indexOf(output[0] as (typeof output)[0]);
+    const second = mutant.rules.indexOf(output[1] as (typeof output)[0]);
+    if (first >= 0 && second >= 0) {
+      const held = mutant.rules[first] as (typeof output)[0];
+      mutant.rules[first] = mutant.rules[second] as (typeof output)[0];
+      mutant.rules[second] = held;
+    }
+    out.push({ id: 'move:output-rules', kind: 'move', what: 'two output rules swapped', estate: mutant });
+  }
+  {
+    const mutant = copy(estate);
+    const skill = [...mutant.skills].sort((a, b) => (a.topic.skill < b.topic.skill ? -1 : 1))[0];
+    if (skill) skill.folder = `${skill.topic.skill}-v2`;
+    out.push({
+      id: `rename:${skill?.topic.skill}`,
+      kind: 'rename',
+      what: 'a skill folder renamed, its name kept',
+      estate: mutant,
+    });
+  }
+  {
+    const mutant = copy(estate);
+    const guard = mutant.guards.find((candidate) => candidate.scope === 'estate' && candidate.row);
+    if (guard) guard.verdict = guard.verdict === 'warn' ? 'deny' : 'warn';
+    out.push({
+      id: `verdict:${guard?.name}`,
+      kind: 'verdict',
+      what: "a guard's registry verdict changed",
+      estate: mutant,
+    });
+  }
   return out;
 }

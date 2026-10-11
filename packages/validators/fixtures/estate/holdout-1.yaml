@@ -467,7 +467,7 @@ truth:
       file: .claude/skills/invoice-check/SKILL.md
       line: 3
       key: invoice-check
-    - hid: ref:invoice-check:.claude/skills/invoice-check/references/currency-table.md
+    - hid: ref:invoice-check:references/currency-table.md
       kind: reference
       file: .claude/skills/invoice-check/SKILL.md
       line: 9
@@ -477,12 +477,12 @@ truth:
       file: .claude/skills/invoice-check/SKILL.md
       line: 10
       key: ""
-    - hid: ref:invoice-check:.claude/skills/invoice-check/references/matching-rules.md
+    - hid: ref:invoice-check:references/matching-rules.md
       kind: reference
       file: .claude/skills/invoice-check/SKILL.md
       line: 10
       key: .claude/skills/invoice-check/references/matching-rules.md
-    - hid: script:.claude/skills/invoice-check/scripts/match-lines.py
+    - hid: script:invoice-check:scripts/match-lines.py
       kind: script
       file: .claude/skills/invoice-check/SKILL.md
       line: 11
@@ -527,7 +527,7 @@ truth:
       file: .claude/skills/menu-review/SKILL.md
       line: 10
       key: check-format.sh
-    - hid: ref:menu-review:.claude/skills/menu-review/references/allergen-list.md
+    - hid: ref:menu-review:references/allergen-list.md
       kind: reference
       file: .claude/skills/menu-review/SKILL.md
       line: 15
@@ -537,7 +537,7 @@ truth:
       file: .claude/skills/menu-review/SKILL.md
       line: 16
       key: ""
-    - hid: ref:menu-review:.claude/skills/menu-review/references/menu-format.md
+    - hid: ref:menu-review:references/menu-format.md
       kind: reference
       file: .claude/skills/menu-review/SKILL.md
       line: 16
@@ -547,12 +547,12 @@ truth:
       file: .claude/skills/menu-review/SKILL.md
       line: 17
       key: ""
-    - hid: ref:menu-review:.claude/skills/menu-review/references/kitchen-hours.md
+    - hid: ref:menu-review:references/kitchen-hours.md
       kind: reference
       file: .claude/skills/menu-review/SKILL.md
       line: 17
       key: .claude/skills/menu-review/references/kitchen-hours.md
-    - hid: script:.claude/skills/menu-review/scripts/check-menu.py
+    - hid: script:menu-review:scripts/check-menu.py
       kind: script
       file: .claude/skills/menu-review/SKILL.md
       line: 18
@@ -572,7 +572,7 @@ truth:
       file: .claude/skills/menu-review/SKILL.md
       line: 20
       key: ""
-    - hid: ref:menu-review:.claude/skills/menu-review/references/supplier-recipes.md
+    - hid: ref:menu-review:references/supplier-recipes.md
       kind: reference
       file: .claude/skills/menu-review/SKILL.md
       line: 21
@@ -587,7 +587,7 @@ truth:
       file: .claude/skills/repair-ticket/SKILL.md
       line: 3
       key: repair-ticket
-    - hid: ref:repair-ticket:.claude/skills/repair-ticket/references/part-numbers.md
+    - hid: ref:repair-ticket:references/part-numbers.md
       kind: reference
       file: .claude/skills/repair-ticket/SKILL.md
       line: 9
@@ -597,12 +597,12 @@ truth:
       file: .claude/skills/repair-ticket/SKILL.md
       line: 10
       key: ""
-    - hid: ref:repair-ticket:.claude/skills/repair-ticket/references/closing-rules.md
+    - hid: ref:repair-ticket:references/closing-rules.md
       kind: reference
       file: .claude/skills/repair-ticket/SKILL.md
       line: 10
       key: .claude/skills/repair-ticket/references/closing-rules.md
-    - hid: script:.claude/skills/repair-ticket/scripts/list-parts.py
+    - hid: script:repair-ticket:scripts/list-parts.py
       kind: script
       file: .claude/skills/repair-ticket/SKILL.md
       line: 11
@@ -637,7 +637,7 @@ truth:
       file: .claude/skills/stock-count/SKILL.md
       line: 3
       key: stock-count
-    - hid: ref:stock-count:.claude/skills/stock-count/references/shelf-map.md
+    - hid: ref:stock-count:references/shelf-map.md
       kind: reference
       file: .claude/skills/stock-count/SKILL.md
       line: 9
@@ -647,12 +647,12 @@ truth:
       file: .claude/skills/stock-count/SKILL.md
       line: 10
       key: ""
-    - hid: ref:stock-count:.claude/skills/stock-count/references/count-rules.md
+    - hid: ref:stock-count:references/count-rules.md
       kind: reference
       file: .claude/skills/stock-count/SKILL.md
       line: 10
       key: .claude/skills/stock-count/references/count-rules.md
-    - hid: script:.claude/skills/stock-count/scripts/sum-counts.py
+    - hid: script:stock-count:scripts/sum-counts.py
       kind: script
       file: .claude/skills/stock-count/SKILL.md
       line: 11
@@ -672,7 +672,7 @@ truth:
       file: .claude/skills/stock-count/SKILL.md
       line: 13
       key: ""
-    - hid: script:.claude/skills/stock-count/scripts/shared-helpers.py
+    - hid: script:stock-count:scripts/shared-helpers.py
       kind: script
       file: .claude/skills/stock-count/scripts/shared-helpers.py
       line: 2
@@ -860,43 +860,43 @@ truth:
       to: skill:invoice-check
       kind: route
     - from: skill:invoice-check
-      to: ref:invoice-check:.claude/skills/invoice-check/references/currency-table.md
+      to: ref:invoice-check:references/currency-table.md
       kind: reference
     - from: skill:invoice-check
-      to: ref:invoice-check:.claude/skills/invoice-check/references/matching-rules.md
+      to: ref:invoice-check:references/matching-rules.md
       kind: reference
     - from: skill:invoice-check
-      to: script:.claude/skills/invoice-check/scripts/match-lines.py
+      to: script:invoice-check:scripts/match-lines.py
       kind: script
     - from: route:desc:menu-review
       to: skill:menu-review
       kind: route
     - from: skill:menu-review
-      to: ref:menu-review:.claude/skills/menu-review/references/allergen-list.md
+      to: ref:menu-review:references/allergen-list.md
       kind: reference
     - from: skill:menu-review
-      to: ref:menu-review:.claude/skills/menu-review/references/menu-format.md
+      to: ref:menu-review:references/menu-format.md
       kind: reference
     - from: skill:menu-review
-      to: ref:menu-review:.claude/skills/menu-review/references/kitchen-hours.md
+      to: ref:menu-review:references/kitchen-hours.md
       kind: reference
     - from: skill:menu-review
-      to: script:.claude/skills/menu-review/scripts/check-menu.py
+      to: script:menu-review:scripts/check-menu.py
       kind: script
     - from: skill:menu-review
-      to: ref:menu-review:.claude/skills/menu-review/references/supplier-recipes.md
+      to: ref:menu-review:references/supplier-recipes.md
       kind: reference
     - from: route:desc:repair-ticket
       to: skill:repair-ticket
       kind: route
     - from: skill:repair-ticket
-      to: ref:repair-ticket:.claude/skills/repair-ticket/references/part-numbers.md
+      to: ref:repair-ticket:references/part-numbers.md
       kind: reference
     - from: skill:repair-ticket
-      to: ref:repair-ticket:.claude/skills/repair-ticket/references/closing-rules.md
+      to: ref:repair-ticket:references/closing-rules.md
       kind: reference
     - from: skill:repair-ticket
-      to: script:.claude/skills/repair-ticket/scripts/list-parts.py
+      to: script:repair-ticket:scripts/list-parts.py
       kind: script
     - from: skill:repair-ticket
       to: helper:ledger-auditor
@@ -905,16 +905,16 @@ truth:
       to: skill:stock-count
       kind: route
     - from: skill:stock-count
-      to: ref:stock-count:.claude/skills/stock-count/references/shelf-map.md
+      to: ref:stock-count:references/shelf-map.md
       kind: reference
     - from: skill:stock-count
-      to: ref:stock-count:.claude/skills/stock-count/references/count-rules.md
+      to: ref:stock-count:references/count-rules.md
       kind: reference
     - from: skill:stock-count
-      to: script:.claude/skills/stock-count/scripts/sum-counts.py
+      to: script:stock-count:scripts/sum-counts.py
       kind: script
     - from: skill:stock-count
-      to: script:.claude/skills/stock-count/scripts/shared-helpers.py
+      to: script:stock-count:scripts/shared-helpers.py
       kind: script
     - from: route:desc:ledger-auditor
       to: helper:ledger-auditor
@@ -1032,8 +1032,8 @@ truth:
       kind: next
   findings:
     - code: MISSING_REFERENCE
-      subject: ref:menu-review:.claude/skills/menu-review/references/supplier-recipes.md
-      atom: ref:menu-review:.claude/skills/menu-review/references/supplier-recipes.md
+      subject: ref:menu-review:references/supplier-recipes.md
+      atom: ref:menu-review:references/supplier-recipes.md
       defect: missing_reference
     - code: ORPHAN
       subject: .claude/skills/menu-review/references/old-menus.md

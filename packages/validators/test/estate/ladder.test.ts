@@ -6,11 +6,13 @@ import {
   type EstateRun,
   estateLadder,
   estateRun,
+  frontmatterFamily,
   lintLevel,
   matchAtoms,
   planLevel,
   requiredRows,
   specLevel,
+  symlinkFamily,
 } from '../../src/ladders/estate/index';
 
 /** The seed 1 run with one part replaced: a fault planted in the component a level watches. */
@@ -19,41 +21,37 @@ async function planted(change: (run: EstateRun) => EstateRun): Promise<EstateRun
 }
 
 describe('the estate ladder', () => {
-  it('has the seven levels of the design, in order', () => {
-    expect(estateLadder().levels.map((level) => level.id)).toEqual([
-      'atoms-and-edges',
+  it('has the seven levels of the bank, in order, each a sub-bank with threshold 1', () => {
+    const ladder = estateLadder();
+    expect(ladder.levels.map((level) => level.id)).toEqual([
+      'reader',
       'lint',
       'plan',
-      'specs',
+      'generation',
       'agent-mutants',
-      'estate-mutants',
-      'hidden-seed',
+      'maintenance',
+      'scale',
     ]);
+    expect(ladder.levels.every((level) => level.threshold === 1)).toBe(true);
   });
 
-  it('reaches level 3 on seed 1 today and names the generator gaps at level 4', async () => {
-    const run = await runLadder(estateLadder(), { seed: 1 });
-    expect(run.rows.slice(0, 3).map((row) => [row.observed, row.pass])).toEqual([
-      [1, true],
-      [1, true],
-      [1, true],
-    ]);
-    expect(run.level).toBe(3);
-    expect(run.failing?.id).toBe('specs');
-    const ids = run.failing?.items.map((item) => item.id) ?? [];
-    expect(ids).toEqual(
-      expect.arrayContaining([
-        'gap:needs-some-call-check',
-        'gap:needs-registered-check',
-        'gap:needs-static-runner',
-        'same-phrase:route_positive',
-      ]),
+  it('stops at the reader level on seed 1 today, naming reader items with their family, tier and file', async () => {
+    const run = await runLadder(
+      estateLadder({ families: { reader: () => [symlinkFamily(), frontmatterFamily()] } }),
+      { seed: 1 },
     );
-    const some = run.failing?.items.find((item) => item.id === 'gap:needs-some-call-check');
-    expect(some?.component).toBe('packages/checks/src/checks/tools.ts');
+    expect(run.level).toBe(0);
+    expect(run.failing?.id).toBe('reader');
+    expect(run.rows[1]?.pass).toBeNull();
+    const item = run.failing?.items.find((candidate) => candidate.id === 'scan.symlink.skill-folder-inside');
+    expect(item?.component).toBe('packages/estate/src/scan/claude-code.ts');
+    expect(item?.detail).toMatch(
+      /^\[scan\.symlink, tier 2\] the reader follows a skill folder linked from a library/,
+    );
+    expect(run.failing?.items.some((candidate) => candidate.id === 'scan.frontmatter.plain')).toBe(false);
   });
 
-  it('stops at level 1 when the scan loses an atom, naming its hidden id and its line', async () => {
+  it('level 1 of the generated estate fails when the scan loses an atom, naming its hidden id and its line', async () => {
     const lost = await planted((run) => {
       const atoms = run.scanned.map.atoms.filter((atom) => atom.kind !== 'script');
       return {
@@ -65,10 +63,9 @@ describe('the estate ladder', () => {
         },
       };
     });
-    const ladder = await runLadder(estateLadder({ run: async () => lost }), { seed: 1 });
-    expect(ladder.level).toBe(0);
-    expect(ladder.rows[1]?.pass).toBeNull();
-    const missed = ladder.failing?.items.filter((item) => item.id.startsWith('atom-missed:script:')) ?? [];
+    const measure = atomLevel(lost);
+    expect(measure.value).toBe(0);
+    const missed = measure.items.filter((item) => item.id.startsWith('atom-missed:script:'));
     expect(missed.length).toBeGreaterThan(0);
     expect(missed[0]?.component).toBe('packages/estate/src/scan/code.ts');
     expect(missed[0]?.detail).toMatch(

@@ -60,20 +60,18 @@ export function familyResults(family: Family, seed: number): Promise<Map<string,
   const key = `${family.id}:${seed}`;
   let known = cache.get(key);
   if (!known) {
-    known = family
-      .evaluate(seed)
-      .catch(
-        (cause) =>
-          new Map(
-            family.items.map((item) => [
-              item.id,
-              {
-                pass: false,
-                detail: `the family threw: ${cause instanceof Error ? cause.message : String(cause)}`,
-              },
-            ]),
-          ),
-      );
+    known = family.evaluate(seed).catch(
+      (cause) =>
+        new Map(
+          family.items.map((item) => [
+            item.id,
+            {
+              pass: false,
+              detail: `the family threw: ${cause instanceof Error ? cause.message : String(cause)}`,
+            },
+          ]),
+        ),
+    );
     cache.set(key, known);
   }
   return known;

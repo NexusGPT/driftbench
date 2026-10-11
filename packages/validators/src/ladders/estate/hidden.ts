@@ -449,6 +449,8 @@ export type HiddenSkill = {
   routed: boolean;
   /** Body lines an estate mutant took out: lookup, gate, script, prohibition, dispatch, register. */
   omit: string[];
+  /** A folder other than the skill's name: an estate mutant that renames the folder and keeps the name. */
+  folder?: string;
 };
 
 export type HiddenHelper = {
