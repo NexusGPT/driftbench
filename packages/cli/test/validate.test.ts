@@ -1,9 +1,11 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
 import { journalRow, plantedLadder } from '../../validators/test/support';
 import { USAGE_EXIT, type ValidateDeps, validateCommand } from '../src/commands/validate';
+import { main } from '../src/index';
 import type { Io } from '../src/io';
 
 const made: string[] = [];
@@ -270,5 +272,62 @@ describe('driftbench validate protect', () => {
       }),
     ).toBe(USAGE_EXIT);
     expect(await validateCommand('protect', {}, capture(d.root as string).io, d)).toBe(USAGE_EXIT);
+  });
+});
+
+describe('driftbench validate through main', () => {
+  const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+
+  async function run(argv: string[], cwd = ROOT) {
+    const { io, output } = capture(cwd);
+    const code = await main(argv, io);
+    return { code, ...output };
+  }
+
+  it('runs the registered stats ladder and exits with its level', async () => {
+    const result = await run(['validate', 'stats', '--seed', '1']);
+    expect(result.code).toBe(2);
+    expect(result.out).toContain('Validator stats');
+    expect(result.out).toMatch(
+      /1\s+reference values\s+fixture cases matched \/ fixture cases compared\s+>= 1\s+1 pass/,
+    );
+    expect(result.out).toContain('Level of the run: 2 of 2, the minimum over 1 seed.');
+  });
+
+  it('holds the committed floors and handovers, as CI checks them', async () => {
+    expect((await run(['validate', 'all', '--seed', '1', '--check-floor'])).code).toBe(0);
+    const handover = await run(['validate', 'all', '--check-handover']);
+    expect(handover.code).toBe(0);
+    expect(handover.out).toContain('validators/stats/HANDOVER.md: every section present');
+  });
+
+  it('prints the stats brief from the real executor instruction', async () => {
+    const result = await run(['validate', 'stats', '--brief', '--fresh']);
+    expect(result.code).toBe(0);
+    expect(result.out).toContain('# Brief: validator stats (fresh)');
+    expect(result.out).toContain(
+      'You drive one validator to 100 percent. The validator is `driftbench validate stats`.',
+    );
+    expect(result.out).toContain('validators/stats/HANDOVER.md');
+  });
+
+  it('parses floors --raise <component> <level> and refuses a level below the committed floor', async () => {
+    const result = await run([
+      'validate',
+      'floors',
+      '--raise',
+      'stats',
+      '1',
+      '--evidence',
+      'validators/stats/HANDOVER.md',
+    ]);
+    expect(result.code).toBe(64);
+    expect(result.err).toContain('Cannot read the evidence');
+    const refused = await run(['validate', 'floors', '--raise', 'nothing', '1', '--evidence', 'x.json']);
+    expect(refused.code).toBe(64);
+    expect(refused.err).toContain('No validator is registered for "nothing"');
+    expect((await run(['validate', 'floors'])).out).toMatch(
+      /Floors \(validators\/floors\.json\): stats = \d+\./,
+    );
   });
 });
