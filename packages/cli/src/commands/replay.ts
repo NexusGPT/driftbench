@@ -1,13 +1,403 @@
+import { basename, resolve } from 'node:path';
+import { orderedCheck, type ReplaySession, readSession, replayAdapter } from '@driftbench/adapters';
+import { CheckRegistry, defaultChecks, defaultRegistry } from '@driftbench/checks';
+import {
+  type Campaign,
+  type CheckSet,
+  contentHash,
+  type LoadedSpec,
+  type RunResult,
+  runSpec,
+  type Store,
+  type TargetRef,
+} from '@driftbench/core';
+import { openMemoryStore, openStore } from '@driftbench/store';
+import { createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { loadValidSpecs } from './campaign';
 
-/** Registers `driftbench replay`. Owned by the replay lane; this stub only says the command is not built yet. */
-export function registerReplayCommand(program: Command, io: Io, setExit: (code: number) => void): void {
+/**
+ * `driftbench replay`: runs a suite of specs over recorded sessions, offline, with no model call.
+ *
+ * Each session is read by the Claude Code adapter into blocks of Observed. Each spec is aligned with one
+ * session and a first block:
+ * - explicitly, by `metadata.replay: { session, from_block }`, where `session` is the transcript's file
+ *   name without `.jsonl` (or its path) and `from_block` the session block the spec's first block reads
+ *   (default 0);
+ * - otherwise by order: the k-th spec without that key, in file order, reads the k-th session given, from
+ *   block 0.
+ * A spec that names a session not given is skipped with a note. The run is the runner's own: mode F, the
+ * scripted driver, `defaultChecks()` plus the ordered-pair check under `rules.custom.ordered`, no cache. Each
+ * run is stored (in the store given with `--store`, in memory otherwise) under one replay campaign. Judged
+ * criteria are not run. A decision log or step feed belongs to the session whose file name starts its own
+ * file name (`clean-build.decisions.jsonl` for `clean-build.jsonl`); with one session it belongs to it.
+ *
+ * Exit 0 when every aligned spec passes, 1 when one fails, 2 on bad input.
+ */
+
+export type ReplayDeps = {
+  openStore(path: string | undefined): Promise<Store>;
+  now(): Date;
+};
+
+export const defaultReplayDeps: ReplayDeps = {
+  openStore: async (path) => (path === undefined ? openMemoryStore() : openStore(path)),
+  now: () => new Date(),
+};
+
+export type ReplayOptions = {
+  suite: string;
+  decisions: string[];
+  steps: string[];
+  store?: string;
+  json?: boolean;
+};
+
+/** Registers `driftbench replay`. */
+export function registerReplayCommand(
+  program: Command,
+  io: Io,
+  setExit: (code: number) => void,
+  deps: ReplayDeps = defaultReplayDeps,
+): void {
   program
     .command('replay')
-    .description('Not built yet.')
-    .action(() => {
-      io.err('driftbench replay is not built yet.\n');
-      setExit(2);
+    .description('Run a spec suite over recorded sessions, offline, with no model call.')
+    .argument('<sessions...>', 'session transcripts (JSONL)')
+    .requiredOption('--suite <dir>', 'the spec files or folder to run')
+    .option('--decisions <log>', 'a guard decision log (JSONL); repeat for several sessions', collect, [])
+    .option('--steps <feed>', 'a step feed (JSONL); repeat for several sessions', collect, [])
+    .option('--store <db>', 'keep the runs in this store; in memory without it')
+    .option('--json', 'print one JSON document')
+    .action(async (sessions: string[], options: ReplayOptions) => {
+      setExit(await replayCommand(sessions, options, io, deps));
     });
+}
+
+type SessionEntry = { name: string; path: string; session: ReplaySession };
+type Alignment = { spec: LoadedSpec; entry: SessionEntry; fromBlock: number; how: 'metadata' | 'order' };
+type ReplayLine = {
+  spec: string;
+  session: string;
+  fromBlock: number;
+  aligned: 'metadata' | 'order';
+  runId: string;
+  status: RunResult['status'];
+  pass: boolean;
+  failing: string[];
+  error?: string;
+};
+
+export async function replayCommand(
+  sessionPaths: string[],
+  options: ReplayOptions,
+  io: Io,
+  deps: ReplayDeps = defaultReplayDeps,
+): Promise<number> {
+  const paths = sessionPaths.map((path) => resolve(io.cwd, path));
+  const names = paths.map(sessionName);
+  const duplicate = names.find((name, index) => names.indexOf(name) !== index);
+  if (duplicate !== undefined) {
+    io.err(`Two sessions share the name ${duplicate}; give each transcript its own file name.\n`);
+    return 2;
+  }
+  const decisions = assign(options.decisions, names, '--decisions', io);
+  const steps = assign(options.steps, names, '--steps', io);
+  if (!decisions || !steps) return 2;
+
+  const entries: SessionEntry[] = [];
+  for (const [index, path] of paths.entries()) {
+    const name = names[index] as string;
+    try {
+      const decisionLog = decisions.get(name);
+      const stepFeed = steps.get(name);
+      const session = await readSession({
+        transcript: path,
+        ...(decisionLog === undefined ? {} : { decisions: resolve(io.cwd, decisionLog) }),
+        ...(stepFeed === undefined ? {} : { steps: resolve(io.cwd, stepFeed) }),
+      });
+      entries.push({ name, path, session });
+    } catch (cause) {
+      io.err(`Cannot read the session ${name}: ${describe(cause)}\n`);
+      return 2;
+    }
+  }
+
+  const loaded = await loadValidSpecs([options.suite], io);
+  if (!loaded) return 2;
+  const aligned = align(loaded, entries, io);
+  if (!aligned) return 2;
+  if (aligned.alignments.length === 0) {
+    io.err('No spec is aligned with the sessions given: nothing ran.\n');
+    return 2;
+  }
+
+  let store: Store;
+  const storePath = options.store === undefined ? undefined : resolve(io.cwd, options.store);
+  try {
+    store = await deps.openStore(storePath);
+  } catch (cause) {
+    io.err(`Cannot open the store at ${storePath}: ${describe(cause)}\n`);
+    return 2;
+  }
+  const lines: ReplayLine[] = [];
+  let campaignId: string;
+  try {
+    const createdAt = deps.now().toISOString();
+    const specs = uniqueBy(
+      aligned.alignments.map(({ spec }) => ({ id: spec.spec.id, hash: spec.hash })),
+      (spec) => `${spec.id} ${spec.hash}`,
+    );
+    const targets = uniqueBy(
+      aligned.alignments.map(({ entry }) => targetOf(entry)),
+      (target) => target.agent ?? '',
+    );
+    campaignId = `replay-${contentHash({ specs, targets, sessions: entries.map(fingerprint), createdAt })}`;
+    for (const spec of uniqueBy(
+      aligned.alignments.map((entry) => entry.spec),
+      (spec) => spec.hash,
+    )) {
+      await store.putSpec(spec);
+    }
+    const campaign: Campaign = {
+      campaignId,
+      specs,
+      targets,
+      modes: ['F'],
+      repeats: { T: 0, F: 1, P: 0 },
+      budgetUsd: 0,
+      judge: { mode: 'system1', judges: [] },
+      createdAt,
+    };
+    await store.putCampaign(campaign);
+    const checks = replayChecks();
+    for (const alignment of aligned.alignments) {
+      const run = await runSpec(alignment.spec.spec, {
+        adapter: replayAdapter({ session: alignment.entry.session, fromBlock: alignment.fromBlock }),
+        driver: createScriptedDriver(),
+        checks,
+        mode: 'F',
+        repeat: 0,
+        target: targetOf(alignment.entry),
+        store,
+        campaignId,
+        now: deps.now,
+      });
+      lines.push(lineOf(alignment, run));
+    }
+  } catch (cause) {
+    io.err(`Replay stopped: ${describe(cause)}\n`);
+    await closeStore(store, io);
+    return 2;
+  }
+  const closed = await closeStore(store, io);
+  if (!closed) return 2;
+
+  const passed = lines.filter((line) => line.pass).length;
+  if (options.json) {
+    io.out(
+      `${JSON.stringify(
+        {
+          campaignId,
+          store: storePath ?? null,
+          notes: aligned.notes,
+          runs: lines,
+          passed,
+          failed: lines.length - passed,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  } else {
+    for (const note of aligned.notes) io.out(`note: ${note}\n`);
+    for (const line of lines) {
+      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : '✗';
+      io.out(
+        `${mark} ${line.spec}  session ${line.session} from block ${line.fromBlock} (${line.aligned})\n`,
+      );
+      if (line.error) io.out(`    error: ${line.error}\n`);
+      if (line.failing.length > 0) io.out(`    failing: ${line.failing.join(', ')}\n`);
+    }
+    io.out(
+      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${lines.length - passed} fail. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
+    );
+  }
+  return passed === lines.length ? 0 : 1;
+}
+
+/** The checks of a replay: every default check, with the ordered-pair check added to the custom registry. */
+export function replayChecks(): CheckSet {
+  const registry = new CheckRegistry();
+  for (const name of defaultRegistry.names()) {
+    const check = defaultRegistry.get(name);
+    if (check) registry.register(name, check);
+  }
+  if (!registry.get('ordered')) registry.register('ordered', orderedCheck);
+  return defaultChecks({ registry });
+}
+
+/** A session's name: its file name without `.jsonl`. */
+function sessionName(path: string): string {
+  return basename(path).replace(/\.jsonl$/i, '');
+}
+
+function targetOf(entry: SessionEntry): TargetRef {
+  return { adapter: 'claude-code', agent: entry.name };
+}
+
+function fingerprint(entry: SessionEntry): string {
+  return contentHash({ name: entry.name, blocks: entry.session.blocks });
+}
+
+/** Gives each log to the session its file name starts with; with one session, to that session. */
+function assign(
+  logs: readonly string[],
+  names: readonly string[],
+  flag: string,
+  io: Io,
+): Map<string, string> | undefined {
+  const out = new Map<string, string>();
+  for (const log of logs) {
+    const file = basename(log);
+    const owners =
+      names.length === 1 ? [...names] : names.filter((name) => file === name || file.startsWith(`${name}.`));
+    const owner = owners.sort((a, b) => b.length - a.length)[0];
+    if (owner === undefined) {
+      io.err(
+        `${flag} ${log}: its file name starts with no session name (${names.join(', ')}); name it <session>.<anything>.jsonl\n`,
+      );
+      return undefined;
+    }
+    if (out.has(owner)) {
+      io.err(`${flag}: two files for the session ${owner}: ${out.get(owner)} and ${log}\n`);
+      return undefined;
+    }
+    out.set(owner, log);
+  }
+  return out;
+}
+
+function align(
+  loaded: readonly LoadedSpec[],
+  entries: readonly SessionEntry[],
+  io: Io,
+): { alignments: Alignment[]; notes: string[] } | undefined {
+  const alignments: Alignment[] = [];
+  const notes: string[] = [];
+  let next = 0;
+  let bad = false;
+  for (const spec of loaded) {
+    const key = spec.spec.metadata?.replay;
+    if (key === undefined) {
+      const entry = entries[next];
+      next += 1;
+      if (!entry) {
+        notes.push(`${spec.spec.id} has no replay key and no session is left to align by order; skipped`);
+        continue;
+      }
+      alignments.push({ spec, entry, fromBlock: 0, how: 'order' });
+      continue;
+    }
+    const parsed = replayKey(key);
+    if (typeof parsed === 'string') {
+      io.err(`${spec.spec.id}: metadata.replay ${parsed}\n`);
+      bad = true;
+      continue;
+    }
+    const entry = entries.find(
+      (candidate) =>
+        candidate.name === parsed.session ||
+        candidate.name === sessionName(parsed.session) ||
+        candidate.path === resolve(io.cwd, parsed.session),
+    );
+    if (!entry) {
+      notes.push(`${spec.spec.id} names the session ${parsed.session}, which was not given; skipped`);
+      continue;
+    }
+    alignments.push({ spec, entry, fromBlock: parsed.fromBlock, how: 'metadata' });
+  }
+  if (bad) return undefined;
+  for (const { spec, entry } of alignments) {
+    if (spec.spec.criteria?.length) notes.push(`${spec.spec.id}: judged criteria are not run in replay`);
+    const wantsGuards = spec.spec.blocks.some((block) => (block.expect?.guards?.length ?? 0) > 0);
+    if (wantsGuards && !entry.session.meta.decisions) {
+      notes.push(
+        `${spec.spec.id} expects guards, but no decision log was given for ${entry.name}: no guard was seen`,
+      );
+    }
+    const wantsStages = spec.spec.blocks.some((block) => block.expect?.stage !== undefined);
+    if (wantsStages && !entry.session.meta.steps) {
+      notes.push(`${spec.spec.id} expects stages, but no step feed was given for ${entry.name}`);
+    }
+  }
+  return { alignments, notes };
+}
+
+function replayKey(value: unknown): { session: string; fromBlock: number } | string {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return 'is a mapping: { session, from_block }';
+  }
+  const record = value as Record<string, unknown>;
+  const unknown = Object.keys(record).filter((key) => key !== 'session' && key !== 'from_block');
+  if (unknown.length > 0) return `has unknown keys: ${unknown.join(', ')}; it takes session and from_block`;
+  if (typeof record.session !== 'string' || record.session === '') return 'needs session, a session name';
+  const from = record.from_block ?? 0;
+  if (typeof from !== 'number' || !Number.isInteger(from) || from < 0) {
+    return 'from_block is a whole number of at least 0';
+  }
+  return { session: record.session, fromBlock: from };
+}
+
+function lineOf(alignment: Alignment, run: RunResult): ReplayLine {
+  const failing = run.blocks.flatMap((block) =>
+    block.verdicts
+      .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
+      .map(
+        (verdict) =>
+          `block ${block.index}: ${verdict.id}${verdict.outcome === 'inconclusive' ? ' (inconclusive)' : ''}`,
+      ),
+  );
+  const pass =
+    run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
+  return {
+    spec: run.specId,
+    session: alignment.entry.name,
+    fromBlock: alignment.fromBlock,
+    aligned: alignment.how,
+    runId: run.runId,
+    status: run.status,
+    pass,
+    failing,
+    ...(run.error === undefined ? {} : { error: run.error }),
+  };
+}
+
+function uniqueBy<T>(items: readonly T[], key: (item: T) => string): T[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const id = key(item);
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
+async function closeStore(store: Store, io: Io): Promise<boolean> {
+  try {
+    await store.close();
+    return true;
+  } catch (cause) {
+    io.err(`Closing the store failed: ${describe(cause)}\n`);
+    return false;
+  }
+}
+
+function collect(value: string, previous: string[]): string[] {
+  return [...previous, value];
+}
+
+function describe(cause: unknown): string {
+  return cause instanceof Error ? cause.message : String(cause);
 }
