@@ -1,0 +1,540 @@
+import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { basename, extname, join } from 'node:path';
+import { cohenKappa, type Interval, krippendorffAlpha, wilson } from '@driftbench/stats';
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
+import { z } from 'zod';
+import type { JudgeClient } from './client';
+import { JudgeClass, type JudgeOutcome, type JudgeRequest } from './contract';
+import type { AssignmentRow, CouncilMode, UnassignedCriterion } from './council';
+import { CriterionFixture, fixtureRequest, type LoadedCriterion } from './criteria';
+import { sameFamily } from './family';
+
+/**
+ * Calibration (P2.3): a judge earns a criterion, it is never assumed to own one.
+ *
+ * Every judge answers, on its own, every criterion's fixture pair `repeats` times and every hand-labelled
+ * block once. Per judge and criterion the report gives:
+ * - the separation: in how many repeats the pass fixture passed and the fail fixture failed;
+ * - Cohen's kappa between the judge and the hand labels, with a Wilson interval on the raw agreement;
+ * and per criterion Krippendorff's alpha across the judges.
+ *
+ * A judge meets the bar on a criterion when it separates the pair in every repeat and its kappa is at
+ * least `kappaMin` (0.8). A council votes three judges of one class, so a class can take a criterion only
+ * when three of its judges meet the bar. The criterion goes to the cheapest judge that meets the bar in
+ * such a class; that judge leads the row and the next two cheapest judges at the bar of its class sit
+ * with it. When no class has three judges at the bar the criterion stays unassigned: it is still judged,
+ * it never gates, and the report says why.
+ *
+ * Judges answer as they vote in a council: an answer that does not parse is asked again once with the
+ * large budget, and a judge that gives no answer at all counts as inconclusive. An inconclusive answer
+ * never separates a pair and always disagrees with a label.
+ */
+
+export const KAPPA_MIN = 0.8;
+export const DEFAULT_REPEATS = 3;
+const COUNCIL_SIZE = 3;
+
+/** A block a human labelled: a fixture-shaped slice, its id, and the human's pass or fail. */
+export const LabelledBlock = CriterionFixture.extend({
+  id: z.string().min(1),
+  label: z.enum(['pass', 'fail']),
+});
+export type LabelledBlock = z.infer<typeof LabelledBlock>;
+
+/** One labels file: the hand-labelled blocks of one criterion. */
+export const LabelFile = z.strictObject({
+  criterion: z.string().min(1),
+  /** Who labelled, for a reader. */
+  labelled_by: z.string().optional(),
+  blocks: z.array(LabelledBlock).min(1),
+});
+export type LabelFile = z.infer<typeof LabelFile>;
+
+export type LabelIssue = { readonly path: string; readonly message: string };
+
+export type LabelsLoad = {
+  /** The labelled blocks per criterion name. */
+  readonly labels: ReadonlyMap<string, readonly LabelledBlock[]>;
+  readonly issues: readonly LabelIssue[];
+};
+
+const YAML_EXT = new Set(['.yaml', '.yml']);
+
+/**
+ * Loads a labels folder: one YAML file per criterion, named after it. A criterion needs at least one
+ * pass and one fail label, or kappa has nothing to measure. Problems are returned, never thrown.
+ */
+export async function loadLabels(dir: string): Promise<LabelsLoad> {
+  let names: string[];
+  try {
+    names = (await readdir(dir)).filter((name) => YAML_EXT.has(extname(name))).sort();
+  } catch (cause) {
+    return {
+      labels: new Map(),
+      issues: [{ path: dir, message: `cannot read the folder: ${message(cause)}` }],
+    };
+  }
+  const labels = new Map<string, LabelledBlock[]>();
+  const issues: LabelIssue[] = [];
+  if (names.length === 0) issues.push({ path: dir, message: 'no labels file (.yaml or .yml)' });
+  const ids = new Map<string, string>();
+  for (const name of names) {
+    const path = join(dir, name);
+    let value: unknown;
+    try {
+      value = parseYaml(await readFile(path, 'utf8'));
+    } catch (cause) {
+      issues.push({ path, message: `not YAML: ${message(cause)}` });
+      continue;
+    }
+    const parsed = LabelFile.safeParse(value);
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        issues.push({ path, message: `${issue.path.join('.') || '(root)'}: ${issue.message}` });
+      }
+      continue;
+    }
+    const file = parsed.data;
+    const stem = basename(name, extname(name));
+    if (file.criterion !== stem) {
+      issues.push({ path, message: `the labels are for ${file.criterion}, the file is ${stem}` });
+      continue;
+    }
+    for (const block of file.blocks) {
+      const twin = ids.get(block.id);
+      if (twin) issues.push({ path, message: `block id ${block.id} is also used in ${twin}` });
+      ids.set(block.id, path);
+    }
+    const kinds = new Set(file.blocks.map((block) => block.label));
+    if (kinds.size < 2) {
+      issues.push({
+        path,
+        message: `every block is labelled ${[...kinds][0]}: a criterion needs a pass and a fail label`,
+      });
+    }
+    labels.set(file.criterion, file.blocks);
+  }
+  return { labels, issues };
+}
+
+/** The request a labelled block sends, as a fixture would. */
+export function labelRequest(criterion: LoadedCriterion, block: LabelledBlock): JudgeRequest {
+  const base = fixtureRequest(criterion, 'pass');
+  return {
+    criterion: base.criterion,
+    transcript: block.transcript,
+    ...(block.artifact === undefined ? {} : { artifact: block.artifact }),
+    ...(block.given === undefined ? {} : { given: block.given }),
+  };
+}
+
+export type CalibrationConfig = {
+  readonly judges: readonly JudgeClient[];
+  readonly criteria: readonly LoadedCriterion[];
+  readonly labels: ReadonlyMap<string, readonly LabelledBlock[]>;
+  /** How many times each fixture is judged. Default 3. */
+  readonly repeats?: number;
+  /** The council mode the assignment is written for. Default hybrid. */
+  readonly mode?: CouncilMode;
+  /** The model family of the agent under test: a judge of that family is left out. Default none. */
+  readonly agentFamily?: string;
+  /** The kappa a judge needs against the labels. Default 0.8. */
+  readonly kappaMin?: number;
+};
+
+export type Separation = {
+  /** The pass fixture's outcome in each repeat. */
+  readonly pass: readonly JudgeOutcome[];
+  /** The fail fixture's outcome in each repeat. */
+  readonly fail: readonly JudgeOutcome[];
+  /** Repeats in which the pass fixture passed and the fail fixture failed. */
+  readonly separated: number;
+  readonly repeats: number;
+};
+
+export type LabelAgreement = {
+  readonly n: number;
+  readonly agree: number;
+  /** Cohen's kappa between the judge and the labels; undefined when it cannot be computed. */
+  readonly kappa?: number;
+  /** The Wilson 95% interval on agree / n. */
+  readonly agreement: Interval;
+  /** Per block: the human label and the judge's answer. */
+  readonly blocks: readonly {
+    readonly id: string;
+    readonly label: 'pass' | 'fail';
+    readonly judged: JudgeOutcome;
+  }[];
+};
+
+export type JudgeCalibration = {
+  readonly judge: string;
+  readonly cls: JudgeClass;
+  readonly cost: number;
+  readonly separation: Separation;
+  readonly labels: LabelAgreement;
+  /** Calls that gave no answer at all. */
+  readonly errors: number;
+  readonly meetsBar: boolean;
+  /** Why the judge misses the bar, when it does. */
+  readonly misses: readonly string[];
+};
+
+export type CriterionAssignment =
+  | {
+      readonly status: 'assigned';
+      readonly owner: string;
+      readonly cls: JudgeClass;
+      readonly judges: readonly string[];
+      readonly rejudge: readonly string[];
+    }
+  | { readonly status: 'unassigned'; readonly reason: string };
+
+export type CriterionCalibration = {
+  readonly criterion: string;
+  readonly gating: boolean;
+  readonly judges: readonly JudgeCalibration[];
+  /** Krippendorff's alpha across every judge, over the fixtures and the labelled blocks. */
+  readonly alpha?: number;
+  readonly assignment: CriterionAssignment;
+};
+
+export type CalibrationReport = {
+  readonly mode: CouncilMode;
+  readonly repeats: number;
+  readonly kappaMin: number;
+  readonly criteria: readonly CriterionCalibration[];
+  /** Per judge, kappa over every labelled block of every criterion. */
+  readonly pooled: readonly {
+    readonly judge: string;
+    readonly n: number;
+    readonly agree: number;
+    readonly kappa?: number;
+    readonly agreement: Interval;
+  }[];
+  /** Judges left out because they share the agent's family. */
+  readonly excluded: readonly string[];
+  readonly errors: number;
+};
+
+/** Runs calibration. Never throws on a judge failure: the failure is an inconclusive answer, counted. */
+export async function calibrate(config: CalibrationConfig): Promise<CalibrationReport> {
+  const repeats = config.repeats ?? DEFAULT_REPEATS;
+  if (!Number.isInteger(repeats) || repeats < 1)
+    throw new RangeError('repeats must be a whole number from 1');
+  const mode = config.mode ?? 'hybrid';
+  const kappaMin = config.kappaMin ?? KAPPA_MIN;
+  const agentFamily = config.agentFamily ?? 'none';
+  const excluded = config.judges.filter((judge) => sameFamily(judge.family, agentFamily)).map((j) => j.id);
+  const judges = config.judges.filter((judge) => !excluded.includes(judge.id));
+
+  const criteria: CriterionCalibration[] = [];
+  const pooled = new Map<string, { judged: JudgeOutcome[]; human: ('pass' | 'fail')[] }>();
+  let errors = 0;
+
+  for (const criterion of config.criteria) {
+    const blocks = config.labels.get(criterion.def.name) ?? [];
+    const rows: JudgeCalibration[] = [];
+    // Units for alpha: the pass fixture, the fail fixture, then each labelled block; one row per judge.
+    const matrix: (JudgeOutcome | null)[][] = [];
+    for (const judge of judges) {
+      const counter = { errors: 0 };
+      const pass: JudgeOutcome[] = [];
+      const fail: JudgeOutcome[] = [];
+      for (let r = 0; r < repeats; r += 1) {
+        pass.push(await answer(judge, fixtureRequest(criterion, 'pass'), counter));
+        fail.push(await answer(judge, fixtureRequest(criterion, 'fail'), counter));
+      }
+      const judged: JudgeOutcome[] = [];
+      for (const block of blocks) judged.push(await answer(judge, labelRequest(criterion, block), counter));
+      errors += counter.errors;
+
+      const separated = pass.filter((outcome, r) => outcome === 'pass' && fail[r] === 'fail').length;
+      const labels = agreement(
+        blocks.map((block) => block.id),
+        blocks.map((block) => block.label),
+        judged,
+      );
+      const misses: string[] = [];
+      if (separated < repeats) misses.push(`separates the fixture pair ${separated} of ${repeats} times`);
+      if (labels.kappa === undefined) misses.push('has no kappa: the criterion has no labelled blocks');
+      else if (labels.kappa < kappaMin) misses.push(`kappa ${fixed(labels.kappa)} is under ${kappaMin}`);
+      if (counter.errors > 0) misses.push(`${counter.errors} call(s) gave no answer`);
+      rows.push({
+        judge: judge.id,
+        cls: judge.cls,
+        cost: judge.cost,
+        separation: { pass, fail, separated, repeats },
+        labels,
+        errors: counter.errors,
+        meetsBar: misses.length === 0,
+        misses,
+      });
+      matrix.push([pass[0] as JudgeOutcome, fail[0] as JudgeOutcome, ...judged].map(vote));
+
+      const own = pooled.get(judge.id) ?? { judged: [], human: [] };
+      own.judged.push(...judged);
+      own.human.push(...blocks.map((block) => block.label));
+      pooled.set(judge.id, own);
+    }
+    const alpha = alphaOf(matrix);
+    criteria.push({
+      criterion: criterion.def.name,
+      gating: criterion.def.gating === true,
+      judges: rows,
+      ...(alpha === undefined ? {} : { alpha }),
+      assignment: assign(rows, judges, mode),
+    });
+  }
+
+  return {
+    mode,
+    repeats,
+    kappaMin,
+    criteria,
+    pooled: judges.map((judge) => {
+      const own = pooled.get(judge.id) ?? { judged: [], human: [] };
+      const { kappa, n, agree, agreement: interval } = agreement([], own.human, own.judged);
+      return { judge: judge.id, n, agree, ...(kappa === undefined ? {} : { kappa }), agreement: interval };
+    }),
+    excluded,
+    errors,
+  };
+}
+
+/** One answer as a council vote would get it: an unparsed answer is asked again with the large budget. */
+async function answer(
+  judge: JudgeClient,
+  request: JudgeRequest,
+  counter: { errors: number },
+): Promise<JudgeOutcome> {
+  try {
+    let result = await judge.judge({ ...request, budget: 'normal' });
+    if (result.unparsed) result = await judge.judge({ ...request, budget: 'large' });
+    return result.unparsed ? 'inconclusive' : result.answer.outcome;
+  } catch {
+    counter.errors += 1;
+    return 'inconclusive';
+  }
+}
+
+function agreement(
+  ids: readonly string[],
+  human: readonly ('pass' | 'fail')[],
+  judged: readonly JudgeOutcome[],
+): LabelAgreement {
+  const n = human.length;
+  const agree = human.filter((label, i) => judged[i] === label).length;
+  const interval = n === 0 ? { estimate: 0, lower: 0, upper: 1 } : wilson(agree, n);
+  let kappa: number | undefined;
+  if (n > 0) {
+    kappa = cohenKappa([...judged], [...human], { categories: ['pass', 'fail', 'inconclusive'] }).kappa;
+  }
+  return {
+    n,
+    agree,
+    ...(kappa === undefined ? {} : { kappa }),
+    agreement: interval,
+    blocks: ids.map((id, i) => ({
+      id,
+      label: human[i] as 'pass' | 'fail',
+      judged: judged[i] as JudgeOutcome,
+    })),
+  };
+}
+
+function vote(outcome: JudgeOutcome): JudgeOutcome | null {
+  return outcome === 'inconclusive' ? null : outcome;
+}
+
+function alphaOf(matrix: (JudgeOutcome | null)[][]): number | undefined {
+  if (matrix.length < 2) return undefined;
+  try {
+    return krippendorffAlpha(matrix).alpha;
+  } catch {
+    // No pairable value: every judge was inconclusive on every unit.
+    return undefined;
+  }
+}
+
+function classesOf(mode: CouncilMode): JudgeClass[] {
+  if (mode === 'system1') return ['system1'];
+  if (mode === 'llm') return ['system2'];
+  return ['system1', 'system2'];
+}
+
+function byCost<T extends { cost: number; id: string }>(a: T, b: T): number {
+  return a.cost - b.cost || a.id.localeCompare(b.id);
+}
+
+/** The assignment rule of the module comment: the cheapest judge at the bar in a class with three. */
+function assign(
+  rows: readonly JudgeCalibration[],
+  judges: readonly JudgeClient[],
+  mode: CouncilMode,
+): CriterionAssignment {
+  const classes = classesOf(mode);
+  const atBar = (cls: JudgeClass) =>
+    rows
+      .filter((row) => row.cls === cls && row.meetsBar)
+      .map((row) => ({ id: row.judge, cost: row.cost }))
+      .sort(byCost);
+  const ranked = rows
+    .filter((row) => row.meetsBar && classes.includes(row.cls))
+    .map((row) => ({ id: row.judge, cost: row.cost, cls: row.cls }))
+    .sort(byCost);
+  for (const owner of ranked) {
+    const seated = atBar(owner.cls);
+    if (seated.length < COUNCIL_SIZE) continue;
+    const other: JudgeClass = owner.cls === 'system1' ? 'system2' : 'system1';
+    let rejudge: string[] = [];
+    if (mode === 'hybrid') {
+      // A split goes to the other class: its judges at the bar first, then its cheapest others.
+      const pool = judges
+        .filter((judge) => judge.cls === other)
+        .map((judge) => ({
+          id: judge.id,
+          cost: judge.cost,
+          bar: rows.find((row) => row.judge === judge.id)?.meetsBar === true,
+        }))
+        .sort((a, b) => Number(b.bar) - Number(a.bar) || byCost(a, b));
+      if (pool.length < COUNCIL_SIZE) continue;
+      rejudge = pool.slice(0, COUNCIL_SIZE).map((judge) => judge.id);
+    }
+    return {
+      status: 'assigned',
+      owner: owner.id,
+      cls: owner.cls,
+      judges: seated.slice(0, COUNCIL_SIZE).map((judge) => judge.id),
+      rejudge,
+    };
+  }
+  const counts = classes
+    .map((cls) => {
+      const total = rows.filter((row) => row.cls === cls).length;
+      return `${cls} has ${atBar(cls).length} of ${total} judges at the bar`;
+    })
+    .join(', ');
+  const missing = rows
+    .filter((row) => !row.meetsBar)
+    .map((row) => `${row.judge} ${row.misses.join(' and ')}`)
+    .join('; ');
+  return {
+    status: 'unassigned',
+    reason: `no class has ${COUNCIL_SIZE} judges at the bar (${counts})${missing ? `: ${missing}` : ''}`,
+  };
+}
+
+function fixed(value: number): string {
+  return value.toFixed(2);
+}
+
+function message(cause: unknown): string {
+  return cause instanceof Error ? cause.message : String(cause);
+}
+
+// The assignment table: what calibration writes and a council reads.
+
+const AssignedEntry = z.strictObject({
+  criterion: z.string().min(1),
+  status: z.literal('assigned'),
+  owner: z.string().min(1),
+  class: JudgeClass,
+  judges: z.array(z.string().min(1)),
+  rejudge: z.array(z.string().min(1)),
+  /** The owner's separation, as "k of n". */
+  separation: z.string(),
+  /** The owner's kappa against the labels. */
+  kappa: z.number(),
+});
+
+const UnassignedEntry = z.strictObject({
+  criterion: z.string().min(1),
+  status: z.literal('unassigned'),
+  reason: z.string().min(1),
+});
+
+export const AssignmentTable = z.strictObject({
+  version: z.literal(1),
+  mode: z.enum(['system1', 'hybrid', 'llm']),
+  repeats: z.number().int().min(1),
+  kappa_min: z.number(),
+  criteria: z.array(z.discriminatedUnion('status', [AssignedEntry, UnassignedEntry])),
+});
+export type AssignmentTable = z.infer<typeof AssignmentTable>;
+
+/** The table a report gives. */
+export function assignmentTable(report: CalibrationReport): AssignmentTable {
+  return {
+    version: 1,
+    mode: report.mode,
+    repeats: report.repeats,
+    kappa_min: report.kappaMin,
+    criteria: report.criteria.map((criterion) => {
+      const a = criterion.assignment;
+      if (a.status === 'unassigned') {
+        return { criterion: criterion.criterion, status: 'unassigned' as const, reason: a.reason };
+      }
+      const owner = criterion.judges.find((row) => row.judge === a.owner) as JudgeCalibration;
+      return {
+        criterion: criterion.criterion,
+        status: 'assigned' as const,
+        owner: a.owner,
+        class: a.cls,
+        judges: [...a.judges],
+        rejudge: [...a.rejudge],
+        separation: `${owner.separation.separated} of ${owner.separation.repeats}`,
+        kappa: Number(fixed(owner.labels.kappa ?? 0)),
+      };
+    }),
+  };
+}
+
+export function renderAssignmentTable(table: AssignmentTable): string {
+  return `# Written by driftbench judge calibrate. A criterion is owned by the cheapest judge that separates its\n# fixture pair in every repeat and reaches kappa ${table.kappa_min} against the hand labels, in a class with three\n# such judges. An unassigned criterion is judged but never gates.\n${stringifyYaml(table, { lineWidth: 0 })}`;
+}
+
+export async function writeAssignmentTable(path: string, table: AssignmentTable): Promise<void> {
+  await writeFile(path, renderAssignmentTable(table), 'utf8');
+}
+
+/** What a council takes from a table: the rows calibration earned and the criteria it left unassigned. */
+export type CouncilAssignment = {
+  readonly assignment: readonly AssignmentRow[];
+  readonly unassigned: readonly UnassignedCriterion[];
+  readonly mode: CouncilMode;
+};
+
+export function councilAssignment(table: AssignmentTable): CouncilAssignment {
+  const assignment: AssignmentRow[] = [];
+  const unassigned: UnassignedCriterion[] = [];
+  for (const entry of table.criteria) {
+    if (entry.status === 'unassigned') unassigned.push({ criterion: entry.criterion, reason: entry.reason });
+    else {
+      assignment.push({
+        criterion: entry.criterion,
+        cls: entry.class,
+        judges: entry.judges,
+        rejudge: entry.rejudge,
+        source: 'calibration',
+      });
+    }
+  }
+  return { assignment, unassigned, mode: table.mode };
+}
+
+/** Reads and validates an assignment table. Throws with the first problem. */
+export async function loadAssignmentTable(path: string): Promise<AssignmentTable> {
+  let value: unknown;
+  try {
+    value = parseYaml(await readFile(path, 'utf8'));
+  } catch (cause) {
+    throw new Error(`${path}: ${message(cause)}`);
+  }
+  const parsed = AssignmentTable.safeParse(value);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    throw new Error(`${path}: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim());
+  }
+  return parsed.data;
+}

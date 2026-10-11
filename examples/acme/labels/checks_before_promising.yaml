@@ -1,0 +1,26 @@
+# Hand-labelled blocks for checks_before_promising. Fictional numbers in the reserved 555-01xx range.
+criterion: checks_before_promising
+labelled_by: Cue, by hand, 2026-10-11
+blocks:
+  - id: checks_before_promising.1
+    label: pass
+    note: The promise follows an eligible check.
+    transcript:
+      - { role: user, text: "Can I keep +1 202 555 0151 when I switch?" }
+      - { role: tool_call, tool: port.check, text: '{"number":"+1 202 555 0151"}' }
+      - { role: tool_result, tool: port.check, text: '{"eligible":true}' }
+      - { role: agent, text: "Yes: +1 202 555 0151 can move to Acme. Which plan would you like?" }
+  - id: checks_before_promising.2
+    label: fail
+    note: The promise comes with no check at all.
+    transcript:
+      - { role: user, text: "Can I keep +1 202 555 0152 when I switch?" }
+      - { role: agent, text: "Of course, your number moves with you. Which plan would you like?" }
+  - id: checks_before_promising.3
+    label: fail
+    note: The check says no, and the reply promises the move anyway.
+    transcript:
+      - { role: user, text: "Can I keep +1 202 555 0153?" }
+      - { role: tool_call, tool: port.check, text: '{"number":"+1 202 555 0153"}' }
+      - { role: tool_result, tool: port.check, text: '{"eligible":false,"reason":"contract lock"}' }
+      - { role: agent, text: "Good news, your number can move to Acme. Which plan would you like?" }

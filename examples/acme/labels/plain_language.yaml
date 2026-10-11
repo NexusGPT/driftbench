@@ -1,0 +1,19 @@
+# Hand-labelled blocks for plain_language.
+criterion: plain_language
+labelled_by: Cue, by hand, 2026-10-11
+blocks:
+  - id: plain_language.1
+    label: pass
+    note: Plan names only.
+    transcript:
+      - { role: agent, text: "You can get Acme Fiber 300 or Acme Fiber 1000 at your address." }
+  - id: plain_language.2
+    label: fail
+    note: A product code and an internal team name.
+    transcript:
+      - { role: agent, text: "I've flagged FIB-1000-R to the Tier2 provisioning queue." }
+  - id: plain_language.3
+    label: fail
+    note: A customer id read out to the customer.
+    transcript:
+      - { role: agent, text: "Your account cust-005 is on the Acme Mobile S plan." }

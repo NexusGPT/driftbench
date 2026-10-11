@@ -40,6 +40,9 @@ export type AssignmentRow = {
   readonly source: AssignmentSource;
 };
 
+/** A criterion calibration could not give to any class. It is judged, and it never gates. */
+export type UnassignedCriterion = { readonly criterion: string; readonly reason: string };
+
 export type CouncilConfig = {
   readonly mode: CouncilMode;
   readonly judges: readonly JudgeClient[];
@@ -47,7 +50,12 @@ export type CouncilConfig = {
   readonly agentFamily: string;
   /** Rows that override the default assignment, such as the output of calibration. */
   readonly assignment?: readonly AssignmentRow[];
-  /** Cascade from the cheapest judge. `true` uses a threshold of 0.9. */
+  /** Criteria calibration left unassigned: their verdicts never gate. */
+  readonly unassigned?: readonly UnassignedCriterion[];
+  /**
+   * Cascade from the cheapest judge. `true` uses a threshold of 0.9. It stops early only on a pass that
+   * carries a score: a judge that leaves `score` out (most chat models) always brings in the other two.
+   */
   readonly cascade?: boolean | { readonly threshold?: number };
 };
 
@@ -97,6 +105,8 @@ export type Council = {
   readonly agentFamily: string;
   /** The assignment row of a criterion, built from the default when no row was given. */
   assignmentFor(criterion: string, judgeClass?: 'system1' | 'system2' | 'auto'): AssignmentRow;
+  /** Why calibration left a criterion unassigned, or undefined when it may gate. */
+  unassignedReason(criterion: string): string | undefined;
   /** Judges one request. Never throws on a judge failure: the failure becomes an inconclusive vote. */
   judge(request: JudgeRequest, judgeClass?: 'system1' | 'system2' | 'auto'): Promise<CouncilResult>;
 };
@@ -111,6 +121,16 @@ export function createCouncil(config: CouncilConfig): Council {
     }
     explicit.set(row.criterion, row);
   }
+  const unassigned = new Map<string, string>();
+  for (const entry of config.unassigned ?? []) {
+    if (explicit.has(entry.criterion)) {
+      throw new CouncilConfigError(`criterion ${entry.criterion} is both assigned and unassigned`);
+    }
+    if (unassigned.has(entry.criterion)) {
+      throw new CouncilConfigError(`criterion ${entry.criterion} is unassigned twice`);
+    }
+    unassigned.set(entry.criterion, entry.reason);
+  }
   const threshold =
     config.cascade === true
       ? DEFAULT_THRESHOLD
@@ -124,10 +144,11 @@ export function createCouncil(config: CouncilConfig): Council {
     return defaultRow(criterion, judgeClass, config);
   };
 
-  return {
+  const council: Council = {
     mode: config.mode,
     agentFamily: config.agentFamily,
     assignmentFor,
+    unassignedReason: (criterion) => unassigned.get(criterion),
     async judge(request, judgeClass) {
       const row = assignmentFor(request.criterion.name, judgeClass);
       const pick = (ids: readonly string[]) => ids.map((id) => byId.get(id) as JudgeClient);
@@ -172,6 +193,7 @@ export function createCouncil(config: CouncilConfig): Council {
       };
     },
   };
+  return council;
 }
 
 function otherClass(cls: JudgeClass): JudgeClass {

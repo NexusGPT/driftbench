@@ -42,7 +42,8 @@ export function judgeCheck(council: Council, options: JudgeCheckOptions = {}): C
         const parsed = parseCriterionRef(ref);
         const name = parsed?.name ?? ref;
         const def = ctx.spec.criteria?.find((criterion) => criterion.name === name);
-        const gating = (parsed?.gating ?? false) || def?.gating === true;
+        const unassigned = council.unassignedReason(name);
+        const gating = unassigned === undefined && ((parsed?.gating ?? false) || def?.gating === true);
         if (!def) {
           verdicts.push({
             id: `${JUDGE_CHECK}.${safeId(name)}`,
@@ -56,7 +57,15 @@ export function judgeCheck(council: Council, options: JudgeCheckOptions = {}): C
         }
         const request = requestFor(ctx, def, artifact, options.contextMessages ?? 2);
         const result = await council.judge(request, def.judge_class);
-        verdicts.push(verdictOf(result, def, gating));
+        const verdict = verdictOf(result, def, gating);
+        verdicts.push(
+          unassigned === undefined
+            ? verdict
+            : {
+                ...verdict,
+                evidence: `unassigned by calibration, not gating: ${unassigned} | ${verdict.evidence}`,
+              },
+        );
       }
       return verdicts;
     },

@@ -2,6 +2,31 @@
 export const packageName = '@driftbench/judges';
 
 export {
+  AssignmentTable,
+  assignmentTable,
+  type CalibrationConfig,
+  type CalibrationReport,
+  type CouncilAssignment,
+  type CriterionAssignment,
+  type CriterionCalibration,
+  calibrate,
+  councilAssignment,
+  DEFAULT_REPEATS,
+  type JudgeCalibration,
+  KAPPA_MIN,
+  type LabelAgreement,
+  LabelFile,
+  type LabelIssue,
+  LabelledBlock,
+  type LabelsLoad,
+  labelRequest,
+  loadAssignmentTable,
+  loadLabels,
+  renderAssignmentTable,
+  type Separation,
+  writeAssignmentTable,
+} from './calibration';
+export {
   Cassette,
   CassetteEntry,
   CassetteJudge,
@@ -59,6 +84,7 @@ export {
   createCouncil,
   majority,
   type RoundOutcome,
+  type UnassignedCriterion,
   type Vote,
 } from './council';
 export {

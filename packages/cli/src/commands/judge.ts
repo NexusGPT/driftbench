@@ -1,13 +1,23 @@
 import { relative, resolve } from 'node:path';
 import {
+  assignmentTable,
+  type CalibrationReport,
+  type CouncilAssignment,
   type CouncilMode,
   type CouncilResult,
+  type CriterionCalibration,
+  calibrate,
   cassettePlayers,
+  councilAssignment,
   createCouncil,
+  DEFAULT_REPEATS,
   fixtureRequest,
   type LoadedCriterion,
+  loadAssignmentTable,
   loadCassette,
   loadCriteria,
+  loadLabels,
+  writeAssignmentTable,
 } from '@driftbench/judges';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -20,13 +30,26 @@ export type JudgeRunOptions = {
   mode: string;
   agentFamily: string;
   cascade?: boolean;
+  assignments?: string;
+  json?: boolean;
+};
+
+export type JudgeCalibrateOptions = {
+  criteria?: string;
+  labels?: string;
+  cassette?: string;
+  out?: string;
+  repeats: string;
+  mode: string;
+  agentFamily: string;
   json?: boolean;
 };
 
 /**
  * `driftbench judge`: the judge council. `judge run` replays a council on recorded answers (a cassette)
- * over every fixture pair of a criteria folder and reports which criteria it separates. `judge check`
- * validates a criteria folder and its fixture pairs. Neither calls a model.
+ * over every fixture pair of a criteria folder and reports which criteria it separates. `judge calibrate`
+ * runs every judge alone on the fixture pairs and the hand-labelled blocks and writes which judges own
+ * which criterion. `judge check` validates a criteria folder and its fixture pairs. None calls a model.
  */
 export function registerJudgeCommand(program: Command, io: Io, setExit: (code: number) => void): void {
   const judge = program
@@ -48,9 +71,30 @@ export function registerJudgeCommand(program: Command, io: Io, setExit: (code: n
     .option('--mode <mode>', `the council mode: ${MODES.join(', ')}`, 'hybrid')
     .option('--agent-family <family>', 'the model family of the agent under test, none for no model', 'none')
     .option('--cascade', 'run the cheapest judge first and stop on a sure pass')
+    .option('--assignments <file>', 'the assignment table judge calibrate wrote')
     .option('--json', 'print one JSON document')
     .action(async (options: JudgeRunOptions) => {
       setExit(await judgeRunCommand(options, io));
+    });
+
+  judge
+    .command('calibrate')
+    .description(
+      'Run every judge on the fixture pairs and the hand-labelled blocks, and write which judge owns each criterion',
+    )
+    .requiredOption('--criteria <dir>', 'the criteria folder, with a fixture pair per criterion')
+    .requiredOption(
+      '--labels <dir>',
+      'the labels folder: one YAML file of hand-labelled blocks per criterion',
+    )
+    .requiredOption('--cassette <file>', 'the recorded answers of every judge, as a cassette JSON file')
+    .requiredOption('--out <file>', 'where to write the assignment table (YAML)')
+    .option('--repeats <n>', 'how many times each judge answers each fixture', String(DEFAULT_REPEATS))
+    .option('--mode <mode>', `the council mode the table is for: ${MODES.join(', ')}`, 'hybrid')
+    .option('--agent-family <family>', 'the model family of the agent under test, none for no model', 'none')
+    .option('--json', 'print the report as one JSON document')
+    .action(async (options: JudgeCalibrateOptions) => {
+      setExit(await judgeCalibrateCommand(options, io));
     });
 
   judge
@@ -78,6 +122,8 @@ type CriterionRow = {
   readonly criterion: string;
   readonly cls: string;
   readonly gating: boolean;
+  /** Why calibration left the criterion unassigned; it then never gates. */
+  readonly unassigned?: string;
   readonly separated: boolean;
   readonly fixtures: readonly FixtureRow[];
 };
@@ -103,10 +149,20 @@ export async function judgeRunCommand(options: JudgeRunOptions, io: Io): Promise
   let council: ReturnType<typeof createCouncil>;
   try {
     const cassette = await loadCassette(resolve(io.cwd, options.cassette));
+    let earned: CouncilAssignment | undefined;
+    if (options.assignments) {
+      earned = councilAssignment(await loadAssignmentTable(resolve(io.cwd, options.assignments)));
+      if (earned.mode !== options.mode) {
+        throw new Error(
+          `the assignment table is for mode ${earned.mode}, the run is in mode ${options.mode}`,
+        );
+      }
+    }
     council = createCouncil({
       mode: options.mode as CouncilMode,
       agentFamily: options.agentFamily,
       judges: cassettePlayers(cassette),
+      ...(earned ? { assignment: earned.assignment, unassigned: earned.unassigned } : {}),
       ...(options.cascade ? { cascade: true } : {}),
     });
   } catch (cause) {
@@ -134,7 +190,7 @@ export async function judgeRunCommand(options: JudgeRunOptions, io: Io): Promise
       )
       .join(', ');
     io.out(
-      `${row.separated ? 'separated' : 'NOT separated'}  ${row.criterion} [${row.cls}${row.gating ? ', gating' : ''}]: ${fixtures}\n`,
+      `${row.separated ? 'separated' : 'NOT separated'}  ${row.criterion} [${row.cls}${row.gating ? ', gating' : ''}${row.unassigned ? ', unassigned: not gating' : ''}]: ${fixtures}\n`,
     );
     if (!row.separated) {
       for (const f of row.fixtures) for (const line of f.log) io.out(`    ${f.fixture}: ${line}\n`);
@@ -168,13 +224,116 @@ async function judgeCriterion(
     });
   }
   const row = council.assignmentFor(criterion.def.name, criterion.def.judge_class);
+  const unassigned = council.unassignedReason(criterion.def.name);
   return {
     criterion: criterion.def.name,
     cls: row.cls,
-    gating: criterion.def.gating === true,
+    gating: criterion.def.gating === true && unassigned === undefined,
+    ...(unassigned === undefined ? {} : { unassigned }),
     separated: fixtures.every((f) => f.outcome === f.fixture),
     fixtures,
   };
+}
+
+/**
+ * Exit 0 when the table is written and every gating criterion is assigned, 1 when a gating criterion
+ * stays unassigned or a judge gave no answer (the table is still written), 2 on bad input.
+ */
+export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: Io): Promise<number> {
+  if (!options.criteria || !options.labels || !options.cassette || !options.out) {
+    io.err('judge calibrate needs --criteria <dir>, --labels <dir>, --cassette <file> and --out <file>.\n');
+    return 2;
+  }
+  if (!MODES.includes(options.mode as CouncilMode)) {
+    io.err(`--mode takes ${MODES.join(', ')}, not "${options.mode}".\n`);
+    return 2;
+  }
+  const repeats = Number(options.repeats);
+  if (!Number.isInteger(repeats) || repeats < 1) {
+    io.err(`--repeats takes a whole number from 1, not "${options.repeats}".\n`);
+    return 2;
+  }
+  const loaded = await loadCriteria(resolve(io.cwd, options.criteria));
+  const labels = await loadLabels(resolve(io.cwd, options.labels));
+  const issues = [...loaded.issues, ...labels.issues];
+  const known = new Set(loaded.criteria.map((criterion) => criterion.def.name));
+  for (const name of labels.labels.keys()) {
+    if (!known.has(name))
+      issues.push({ path: options.labels, message: `labels for an unknown criterion ${name}` });
+  }
+  if (issues.length > 0) {
+    for (const issue of issues) io.err(`${show(io, issue.path)}: ${issue.message}\n`);
+    io.err(`judge calibrate: ${issues.length} issue(s) in the criteria or the labels.\n`);
+    return 2;
+  }
+
+  let report: CalibrationReport;
+  try {
+    const cassette = await loadCassette(resolve(io.cwd, options.cassette));
+    report = await calibrate({
+      judges: cassettePlayers(cassette),
+      criteria: loaded.criteria,
+      labels: labels.labels,
+      repeats,
+      mode: options.mode as CouncilMode,
+      agentFamily: options.agentFamily,
+    });
+  } catch (cause) {
+    io.err(`judge calibrate: ${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return 2;
+  }
+  const out = resolve(io.cwd, options.out);
+  await writeAssignmentTable(out, assignmentTable(report));
+
+  const unassigned = report.criteria.filter((c) => c.assignment.status === 'unassigned');
+  const gatingUnassigned = unassigned.filter((c) => c.gating);
+  const code = gatingUnassigned.length > 0 || report.errors > 0 ? 1 : 0;
+  if (options.json) {
+    io.out(`${JSON.stringify({ ...report, table: show(io, out) }, null, 2)}\n`);
+    return code;
+  }
+  for (const criterion of report.criteria) io.out(describeCalibration(criterion, report));
+  const pooled = report.pooled
+    .map(
+      (row) =>
+        `${row.judge} ${row.kappa === undefined ? 'n/a' : row.kappa.toFixed(2)} (${row.agree}/${row.n})`,
+    )
+    .join(', ');
+  io.out(`Kappa over every labelled block: ${pooled}.\n`);
+  if (report.excluded.length > 0) {
+    io.out(`Left out, same family as the agent: ${report.excluded.join(', ')}.\n`);
+  }
+  io.out(
+    `\n${report.criteria.length - unassigned.length} of ${report.criteria.length} criteria assigned in mode ${report.mode} (${report.repeats} repeats, kappa at least ${report.kappaMin}).`,
+  );
+  if (unassigned.length > 0) {
+    io.out(
+      ` Unassigned, judged but never gating: ${unassigned.map((c) => `${c.criterion}${c.gating ? ' (declared gating)' : ''}`).join(', ')}.`,
+    );
+  }
+  if (report.errors > 0) io.out(` ${report.errors} judge call(s) gave no answer.`);
+  io.out(`\nWrote ${show(io, out)}.\n`);
+  return code;
+}
+
+function describeCalibration(criterion: CriterionCalibration, report: CalibrationReport): string {
+  const a = criterion.assignment;
+  const head =
+    a.status === 'assigned'
+      ? `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: owned by ${a.owner} (${a.cls}: ${a.judges.join(', ')}${a.rejudge.length > 0 ? `; re-judge ${a.rejudge.join(', ')}` : ''})`
+      : `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: UNASSIGNED, judged but not gating: ${a.reason}`;
+  const lines = [head];
+  for (const row of criterion.judges) {
+    const kappa = row.labels.kappa === undefined ? 'n/a' : row.labels.kappa.toFixed(2);
+    const interval = `[${row.labels.agreement.lower.toFixed(2)}, ${row.labels.agreement.upper.toFixed(2)}]`;
+    lines.push(
+      `    ${row.judge.padEnd(18)} ${row.cls}  separation ${row.separation.separated}/${row.separation.repeats}  kappa ${kappa.padStart(5)}  agreement ${row.labels.agree}/${row.labels.n} ${interval}  ${row.meetsBar ? 'at the bar' : `misses: ${row.misses.join('; ')}`}`,
+    );
+  }
+  lines.push(
+    `    alpha across judges ${criterion.alpha === undefined ? 'n/a' : criterion.alpha.toFixed(2)}; bar: ${report.repeats}/${report.repeats} separation and kappa ${report.kappaMin}`,
+  );
+  return `${lines.join('\n')}\n`;
 }
 
 /** Exit 0 when every file is valid, 1 when one has an issue, 2 when the folder cannot be read. */

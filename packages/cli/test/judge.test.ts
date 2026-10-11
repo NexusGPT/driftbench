@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -153,5 +153,141 @@ describe('driftbench judge run', () => {
     expect(out).toContain('(cascade)');
     // In system1 mode the system 2 criteria are judged by system 1 judges with no recording: misses, exit 1.
     expect(code).toBe(1);
+  });
+});
+
+const LABELS = 'examples/acme/labels';
+const CALIBRATION = 'examples/acme/criteria/calibration/cassette.json';
+const TABLE = 'examples/acme/criteria/calibration/assignments.yaml';
+
+function calibrateArgs(out: string, cassette = CALIBRATION): string[] {
+  return [
+    'judge',
+    'calibrate',
+    '--criteria',
+    CRITERIA,
+    '--labels',
+    LABELS,
+    '--cassette',
+    cassette,
+    '--out',
+    out,
+  ];
+}
+
+describe('driftbench judge calibrate', () => {
+  it('runs every judge on the Acme cassette and writes the committed assignment table', async () => {
+    const out = join(scratch, 'assignments.yaml');
+    const { code, out: text, err } = await run(calibrateArgs(out));
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(await readFile(out, 'utf8')).toBe(await readFile(join(ROOT, TABLE), 'utf8'));
+    expect(text).toContain(
+      'plain_language: owned by google-chat (system2: google-chat, openai-chat, anthropic-chat',
+    );
+    expect(text).toMatch(
+      /jev-b {14}system1 {2}separation 3\/3 {2}kappa {2}0\.40 {2}agreement 2\/3 \[0\.21, 0\.94\] {2}misses/,
+    );
+    expect(text).toContain('ledger_intact: UNASSIGNED, judged but not gating');
+    expect(text).toContain('11 of 12 criteria assigned in mode hybrid (3 repeats, kappa at least 0.8).');
+    expect(text).toContain('Unassigned, judged but never gating: ledger_intact.');
+  });
+
+  it('exits 1 when a gating criterion stays unassigned, and still writes the table', async () => {
+    const cassette = JSON.parse(await readFile(join(ROOT, CALIBRATION), 'utf8'));
+    // jev-a and google-chat now pass the care_redirect fail fixture: neither class seats three at the bar.
+    const fixtureKeys = new Set(
+      cassette.entries
+        .filter(
+          (e: { judge: string; criterion: string; answer?: { outcome: string }; raw?: string }) =>
+            e.judge === 'jev-a' && e.criterion === 'care_redirect' && e.answer?.outcome === 'fail',
+        )
+        .map((e: { key: string }) => e.key),
+    );
+    for (const entry of cassette.entries) {
+      if (entry.criterion !== 'care_redirect' || !fixtureKeys.has(entry.key)) continue;
+      if (entry.judge === 'jev-a') entry.answer = { outcome: 'pass', score: 0.9, reasoning: 'flipped' };
+      if (entry.judge === 'google-chat') entry.raw = '{"outcome":"pass","reasoning":"flipped"}';
+    }
+    const path = join(scratch, 'unassigned.json');
+    await writeFile(path, JSON.stringify(cassette));
+    const out = join(scratch, 'unassigned.yaml');
+    const { code, out: text } = await run(calibrateArgs(out, path));
+    expect(code).toBe(1);
+    expect(text).toContain('care_redirect [gating]: UNASSIGNED, judged but not gating');
+    expect(text).toContain('care_redirect (declared gating)');
+    expect(await readFile(out, 'utf8')).toContain('status: unassigned');
+  });
+
+  it('prints the report as JSON on request', async () => {
+    const { code, out } = await run([...calibrateArgs(join(scratch, 'json.yaml')), '--json']);
+    expect(code).toBe(0);
+    const doc = JSON.parse(out);
+    expect(doc).toMatchObject({ mode: 'hybrid', repeats: 3, kappaMin: 0.8, errors: 0 });
+    expect(doc.criteria).toHaveLength(12);
+  });
+
+  it('exits 2 on bad input: a missing option, a bad repeat count, labels for an unknown criterion', async () => {
+    expect((await run(['judge', 'calibrate', '--criteria', CRITERIA])).code).toBe(2);
+    expect((await run([...calibrateArgs(join(scratch, 'r.yaml')), '--repeats', '0'])).code).toBe(2);
+    expect((await run([...calibrateArgs(join(scratch, 'm.yaml')), '--mode', 'x'])).code).toBe(2);
+    const labels = join(scratch, 'labels');
+    await mkdir(labels, { recursive: true });
+    await writeFile(
+      join(labels, 'nobody.yaml'),
+      'criterion: nobody\nblocks:\n  - { id: n.1, label: pass, transcript: [{ role: agent, text: "a" }] }\n  - { id: n.2, label: fail, transcript: [{ role: agent, text: "b" }] }\n',
+    );
+    const { code, err } = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      labels,
+      '--cassette',
+      CALIBRATION,
+      '--out',
+      join(scratch, 'u.yaml'),
+    ]);
+    expect(code).toBe(2);
+    expect(err).toContain('labels for an unknown criterion nobody');
+  });
+});
+
+describe('driftbench judge run with an assignment table', () => {
+  it('uses the rows calibration earned', async () => {
+    const { code, out, err } = await run([
+      'judge',
+      'run',
+      '--criteria',
+      CRITERIA,
+      '--cassette',
+      CALIBRATION,
+      '--assignments',
+      TABLE,
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(out).toContain('separated  plain_language [system2]');
+    expect(out).toContain('separated  ledger_intact [system2, unassigned: not gating]');
+    expect(out).toContain('separated  sheet_matches_catalog [system1, gating]');
+    expect(out).toContain('12 of 12 criteria separated in mode hybrid.');
+  });
+
+  it('refuses a table written for another mode', async () => {
+    const { code, err } = await run([
+      'judge',
+      'run',
+      '--criteria',
+      CRITERIA,
+      '--cassette',
+      CALIBRATION,
+      '--assignments',
+      TABLE,
+      '--mode',
+      'llm',
+    ]);
+    expect(code).toBe(2);
+    expect(err).toContain('the assignment table is for mode hybrid');
   });
 });

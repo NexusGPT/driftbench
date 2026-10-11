@@ -1,0 +1,28 @@
+# Hand-labelled blocks for one_question_per_turn.
+criterion: one_question_per_turn
+labelled_by: Cue, by hand, 2026-10-11
+blocks:
+  - id: one_question_per_turn.1
+    label: pass
+    note: One question.
+    transcript:
+      - { role: user, text: "I want a new mobile plan." }
+      - { role: agent, text: "Happy to help. How much data do you use in a month?" }
+  - id: one_question_per_turn.2
+    label: fail
+    note: Three questions in one reply.
+    transcript:
+      - { role: user, text: "I want home internet." }
+      - { role: agent, text: "What is your address? Do you need it this month? And what speed do you want?" }
+  - id: one_question_per_turn.3
+    label: pass
+    note: No question at all.
+    transcript:
+      - { role: user, text: "Thanks, that's all." }
+      - { role: agent, text: "You're welcome. Have a good day." }
+  - id: one_question_per_turn.4
+    label: fail
+    note: Two questions joined in one sentence.
+    transcript:
+      - { role: user, text: "I'd like to upgrade." }
+      - { role: agent, text: "Sure: what's your email, and which plan are you on today?" }

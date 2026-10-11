@@ -1,0 +1,36 @@
+# Hand-labelled blocks for ledger_intact. Conversation scope; the ledger is the Given.
+criterion: ledger_intact
+labelled_by: Cue, by hand, 2026-10-11
+blocks:
+  - id: ledger_intact.1
+    label: pass
+    note: After a detour the reply keeps the address and the plan found.
+    given:
+      ledger: { address: "7 Bay Street, Acmeville", plans: ["Acme Air 5G"] }
+    transcript:
+      - { role: user, text: "Home internet at 7 Bay Street, Acmeville?" }
+      - { role: agent, text: "7 Bay Street, Acmeville can get Acme Air 5G. Would you like it?" }
+      - { role: user, text: "Do you have a store nearby?" }
+      - { role: agent, text: "I can't help with stores. For 7 Bay Street, Acmeville we found Acme Air 5G. Would you like it?" }
+  - id: ledger_intact.2
+    label: fail
+    note: The reply calls coverage.check again for an address it already checked.
+    given:
+      ledger: { address: "7 Bay Street, Acmeville", plans: ["Acme Air 5G"] }
+    transcript:
+      - { role: user, text: "Home internet at 7 Bay Street, Acmeville?" }
+      - { role: agent, text: "7 Bay Street, Acmeville can get Acme Air 5G. Would you like it?" }
+      - { role: user, text: "Remind me what I can get?" }
+      - { role: tool_call, tool: coverage.check, text: '{"address":"7 Bay Street, Acmeville"}' }
+      - { role: tool_result, tool: coverage.check, text: '{"available":["air-5g"]}' }
+      - { role: agent, text: "You can get Acme Air 5G." }
+  - id: ledger_intact.3
+    label: fail
+    note: The reply forgets one of the two plans found.
+    given:
+      ledger: { address: "14 Harbor Road, Acmeville", plans: ["Acme Fiber 300", "Acme Fiber 1000"] }
+    transcript:
+      - { role: user, text: "Do you have home internet at 14 Harbor Road, Acmeville?" }
+      - { role: agent, text: "Yes: Acme Fiber 300 and Acme Fiber 1000. Which would you like?" }
+      - { role: user, text: "Hold on, what were the options again?" }
+      - { role: agent, text: "For 14 Harbor Road, Acmeville there is Acme Fiber 300. Would you like it?" }

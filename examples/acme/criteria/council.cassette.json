@@ -662,7 +662,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "5ad40110a24c",
+      "key": "2d73b2c3b559",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -672,7 +672,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "5ad40110a24c",
+      "key": "2d73b2c3b559",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -682,7 +682,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "5ad40110a24c",
+      "key": "2d73b2c3b559",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -692,7 +692,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "e0949554d520",
+      "key": "94a125b1faa1",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -702,7 +702,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "e0949554d520",
+      "key": "94a125b1faa1",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -712,7 +712,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "e0949554d520",
+      "key": "94a125b1faa1",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
