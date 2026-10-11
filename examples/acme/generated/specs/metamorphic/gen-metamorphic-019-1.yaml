@@ -11,8 +11,8 @@ tier: generated
 tags:
   - data:5g-only
   - flow:order
-  - persona:new-customer
-  - task:catalog-only
+  - persona:existing-customer
+  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -140,12 +140,12 @@ end_state:
         name: Jo Okafor
         email: jo.okafor@example.com
 perturbations:
-  - id: p1-D7_silence_or_burst
-    class: D7_silence_or_burst
-    inject_at: 4
-    user: hello?
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
+    inject_at: 3
+    user: My last bill charged me twice, can you fix it?
     expect:
-      stage: recap
+      stage: details
       tools:
         - label: coverage.check
           count: 0
@@ -154,11 +154,11 @@ perturbations:
         - label: order.create
           count: 0
       must:
-        - I'm here
+        - Acme Care
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: recap
+      stage_after: details
 metadata:
   generated:
     by: driftbench generate
@@ -177,8 +177,8 @@ metadata:
       customer_details: name-and-email
       channel: chat
       flow: order
-      user_type: new-customer
-      workspace_start: catalog-only
+      user_type: existing-customer
+      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-address
         seeder: metamorphic

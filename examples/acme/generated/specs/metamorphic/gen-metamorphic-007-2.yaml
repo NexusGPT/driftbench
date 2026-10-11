@@ -12,7 +12,7 @@ tags:
   - persona:existing-customer
   - flow:upgrade
   - data:fiber
-  - task:existing-workbook
+  - task:catalog-only
 stages:
   - needs
   - identify
@@ -108,24 +108,23 @@ end_state:
     customer_id: cust-001
     plan_id: mobile-l
 perturbations:
-  - id: p1-D4_loose_confirmation
-    class: D4_loose_confirmation
-    inject_at: 3
-    user: yeah sounds good
+  - id: p1-D1_off_topic
+    class: D1_off_topic
+    inject_at: 1
+    user: Are your stores open on Saturday?
     expect:
-      stage: recap
+      stage: identify
       tools:
         - label: catalog.search
           count: 0
         - label: order.create
           count: 0
-      guards:
-        - name: explicit_confirmation
-          verdict: block
+      must:
+        - Monday to Saturday
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: recap
+      stage_after: identify
 metadata:
   generated:
     by: driftbench generate
@@ -145,7 +144,7 @@ metadata:
       channel: whatsapp
       flow: upgrade
       coverage_result: fiber
-      workspace_start: existing-workbook
+      workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-identify
         seeder: metamorphic

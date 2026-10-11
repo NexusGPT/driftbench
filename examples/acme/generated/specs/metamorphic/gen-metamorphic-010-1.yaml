@@ -11,7 +11,7 @@ tier: generated
 tags:
   - persona:existing-customer
   - flow:upgrade
-  - data:not-in-map
+  - data:5g-only
   - task:existing-workbook
 stages:
   - needs
@@ -61,17 +61,17 @@ rules:
     - order.create
     - notify_sales
 perturbations:
-  - id: p1-D1_off_topic
-    class: D1_off_topic
+  - id: p1-D5_language_switch
+    class: D5_language_switch
     inject_at: 1
-    user: Are your stores open on Saturday?
+    user: Kunt u dat ook in het Nederlands uitleggen?
     expect:
       stage: identify
       tools:
         - label: catalog.search
           count: 0
       must:
-        - Monday to Saturday
+        - I can only help
       lang: EN
     recovery:
       within_blocks: 0
@@ -93,7 +93,7 @@ metadata:
       account_lookup: plan-not-in-catalog
       channel: chat
       flow: upgrade
-      coverage_result: not-in-map
+      coverage_result: 5g-only
       workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-identify

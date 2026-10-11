@@ -97,7 +97,7 @@
     "probes": [
       {
         "class": "D1_off_topic",
-        "stage": "address",
+        "stage": "needs",
         "spec": "gen-deviation-001",
         "phrase": true
       },
@@ -127,7 +127,7 @@
       },
       {
         "class": "D6_instruction_in_data",
-        "stage": "callback",
+        "stage": "offer",
         "spec": "gen-deviation-006",
         "phrase": true
       },
@@ -151,7 +151,7 @@
       },
       {
         "class": "D9_out_of_scope",
-        "stage": "identify",
+        "stage": "needs",
         "spec": "gen-deviation-010",
         "phrase": true
       }
@@ -1139,15 +1139,15 @@
       "t": 2,
       "specs": 216,
       "allowed": 840,
-      "covered": 686,
-      "share": 0.8166666666666667
+      "covered": 708,
+      "share": 0.8428571428571429
     },
     "all": {
       "t": 2,
       "specs": 298,
       "allowed": 840,
-      "covered": 705,
-      "share": 0.8392857142857143
+      "covered": 728,
+      "share": 0.8666666666666667
     },
     "baseline": {
       "label": "examples/acme/specs",

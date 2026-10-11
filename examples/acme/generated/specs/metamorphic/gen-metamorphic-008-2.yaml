@@ -11,7 +11,7 @@ tier: generated
 tags:
   - persona:existing-customer
   - flow:upgrade
-  - data:fiber
+  - data:5g-only
   - task:existing-workbook
 stages:
   - needs
@@ -61,17 +61,17 @@ rules:
     - order.create
     - notify_sales
 perturbations:
-  - id: p1-D9_out_of_scope
-    class: D9_out_of_scope
+  - id: p1-D10_return
+    class: D10_return
     inject_at: 1
-    user: My last bill charged me twice, can you fix it?
+    user: ok, let's continue with the order.
     expect:
       stage: identify
       tools:
         - label: catalog.search
           count: 0
       must:
-        - Acme Care
+        - We were|pick up where we left off
       lang: EN
     recovery:
       within_blocks: 0
@@ -93,7 +93,7 @@ metadata:
       account_lookup: not-found
       channel: whatsapp
       flow: upgrade
-      coverage_result: fiber
+      coverage_result: 5g-only
       workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-identify

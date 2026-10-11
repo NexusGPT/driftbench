@@ -5,13 +5,13 @@ id: gen-metamorphic-003-2
 version: badea3d3df7a
 kind: conversation
 title: "Metamorphic stage_transition=needs-to-identify, phrasing 2 of 2: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
   - flow:upgrade
   - persona:existing-customer
-  - data:not-in-map
+  - data:no-service
   - task:catalog-only
 stages:
   - needs
@@ -108,10 +108,10 @@ end_state:
     customer_id: cust-001
     plan_id: mobile-l
 perturbations:
-  - id: p1-D9_out_of_scope
-    class: D9_out_of_scope
+  - id: p1-D1_off_topic
+    class: D1_off_topic
     inject_at: 2
-    user: My last bill charged me twice, can you fix it?
+    user: Are your stores open on Saturday?
     expect:
       stage: offer
       tools:
@@ -120,7 +120,7 @@ perturbations:
         - label: order.create
           count: 0
       must:
-        - Acme Care
+        - Monday to Saturday
       lang: EN
     recovery:
       within_blocks: 0
@@ -142,8 +142,8 @@ metadata:
       user_type: existing-customer
       account_lookup: found
       plan_choice: names-one
-      channel: whatsapp
-      coverage_result: not-in-map
+      channel: chat
+      coverage_result: no-service
       workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-identify

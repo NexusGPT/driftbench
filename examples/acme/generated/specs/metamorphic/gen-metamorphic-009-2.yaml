@@ -11,8 +11,8 @@ tier: generated
 tags:
   - persona:existing-customer
   - flow:upgrade
-  - data:not-in-map
-  - task:existing-workbook
+  - data:5g-only
+  - task:catalog-only
 stages:
   - needs
   - identify
@@ -61,17 +61,17 @@ rules:
     - order.create
     - notify_sales
 perturbations:
-  - id: p1-D10_return
-    class: D10_return
+  - id: p1-D1_off_topic
+    class: D1_off_topic
     inject_at: 1
-    user: ok, let's continue with the order.
+    user: Are your stores open on Saturday?
     expect:
       stage: identify
       tools:
         - label: catalog.search
           count: 0
       must:
-        - We were|pick up where we left off
+        - Monday to Saturday
       lang: EN
     recovery:
       within_blocks: 0
@@ -93,8 +93,8 @@ metadata:
       account_lookup: most-data
       channel: whatsapp
       flow: upgrade
-      coverage_result: not-in-map
-      workspace_start: existing-workbook
+      coverage_result: 5g-only
+      workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-identify
         seeder: metamorphic

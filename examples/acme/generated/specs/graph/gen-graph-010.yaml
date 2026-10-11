@@ -141,12 +141,12 @@ end_state:
         name: Jo Okafor
         email: jo.okafor@example.com
 perturbations:
-  - id: p1-D7_silence_or_burst
-    class: D7_silence_or_burst
-    inject_at: 5
-    user: hello?
+  - id: p1-D1_off_topic
+    class: D1_off_topic
+    inject_at: 0
+    user: Are your stores open on Saturday?
     expect:
-      stage: order_placed
+      stage: needs
       tools:
         - label: port.check
           count: 0
@@ -155,11 +155,11 @@ perturbations:
         - label: order.create
           count: 0
       must:
-        - I'm here
+        - Monday to Saturday
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: order_placed
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate

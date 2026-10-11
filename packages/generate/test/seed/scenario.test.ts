@@ -658,3 +658,41 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
     expect(built.perturbations).toBeUndefined();
   });
 });
+
+describe('pilot iteration 10: a deviation on the first turn', () => {
+  it('probes the start stage when the recovery keeps the conversation there', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = [
+        ...(draft.relations ?? []),
+        { kind: 'recovery', class: 'D5_language_switch', flows: ['balance'], stage_after: 'pending', ...by },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D5_language_switch', stage: 'greet' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks[0]).toMatchObject({ id: 'b1-D5_language_switch', stage: 'greet' });
+    expect(built.blocks.map((block) => block.stage)).toEqual(['greet', 'verify', 'help']);
+    expect(built.probe).toEqual({ classId: 'D5_language_switch', stage: 'greet' });
+  });
+});
+
+describe('pilot iteration 10: a class that needs an earlier turn', () => {
+  it('never probes the start stage with a silence or a burst', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases = [...(draft.phrases ?? []), phrase('deviation', 'D7_silence_or_burst', 'hello?')];
+      draft.relations = [
+        ...(draft.relations ?? []),
+        { kind: 'recovery', class: 'D7_silence_or_burst', flows: ['balance'], stage_after: 'pending', ...by },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D7_silence_or_burst', stage: 'greet' },
+    });
+    expect(built.ok).toBe(false);
+  });
+});

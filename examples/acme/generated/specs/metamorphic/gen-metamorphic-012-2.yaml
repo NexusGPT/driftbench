@@ -98,10 +98,10 @@ end_state:
       subset:
         phone: "+12025550131"
 perturbations:
-  - id: p1-D10_return
-    class: D10_return
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
     inject_at: 1
-    user: ok, let's continue with the order.
+    user: My last bill charged me twice, can you fix it?
     expect:
       stage: address
       tools:
@@ -110,7 +110,7 @@ perturbations:
         - label: notify_sales
           count: 0
       must:
-        - We were|pick up where we left off
+        - Acme Care
       lang: EN
     recovery:
       within_blocks: 0

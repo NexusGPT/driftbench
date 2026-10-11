@@ -5,13 +5,13 @@ id: gen-metamorphic-006-2
 version: badea3d3df7a
 kind: conversation
 title: "Metamorphic stage_transition=recap-to-order_placed, phrasing 2 of 2: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - flow:upgrade
   - persona:existing-customer
-  - data:not-in-map
+  - data:no-service
   - task:existing-workbook
 stages:
   - needs
@@ -143,8 +143,8 @@ metadata:
       user_type: existing-customer
       account_lookup: found
       plan_choice: names-one
-      channel: chat
-      coverage_result: not-in-map
+      channel: whatsapp
+      coverage_result: no-service
       workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-identify

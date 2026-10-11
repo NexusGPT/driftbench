@@ -70,10 +70,10 @@ rules:
 perturbations:
   - id: p1-D9_out_of_scope
     class: D9_out_of_scope
-    inject_at: 1
+    inject_at: 0
     user: My last bill charged me twice, can you fix it?
     expect:
-      stage: identify
+      stage: needs
       tools:
         - label: catalog.search
           count: 0
@@ -82,7 +82,7 @@ perturbations:
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: identify
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
