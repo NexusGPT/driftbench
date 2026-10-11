@@ -63,6 +63,12 @@ A perturbation inserts a deviation before a chosen block at run time, in perturb
 
 A block can also carry a `budget` for steps, cost and latency. Rules for the whole spec sit in `rules`, and the expected end state of the world in `end_state`. Each field, and the check that reads it, is in [checks](../reference/checks.md).
 
+### Machine Then and judged Then
+
+The fields that read observed state make the machine Then: `stage`, `tools` and `tool_order` (with `rules.max_calls` and `rules.forbidden_tools`), `cards`, `skills`, `guards`, `execution`, `artifacts`, `workspace`, `safety`, custom rules, and `end_state` on the last block. `must`, `must_not`, `lang`, `rules.lang_stable` and `rules.one_message_per_turn` read the agent's words. `criteria` are judged.
+
+A block that `driftbench generate` writes carries a machine Then derived from the approved map of situations, never from an agent's reply: the stage the path reaches next, the tool calls and their inputs, the end state, and for a deviation the recovery the map gives. The gate rejects a block whose Then holds judged criteria only, and one whose Then reads only words when its cell is not about wording. The gate applies the same rule to a conversation block and to a task step. See [generating tests](../generating.md).
+
 ## One block of each kind
 
 A conversational exchange. Given: the facts so far. When: the customer's choice. Then: the stage reached, a new fact and one tool call.

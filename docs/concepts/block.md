@@ -144,6 +144,8 @@ The task starts in a workspace that holds two CSV files. The first step expects 
 
 Both examples pass `driftbench spec lint --strict`. A test in `tools/docs` runs them through the loader on every change. Seven complete specs, six conversations and one task, run against a deterministic example agent in [`examples/acme`](../../examples/acme/README.md).
 
+Blocks can also be written by code. `driftbench generate` enumerates conversation blocks from an approved map of situations, and derives each block's Then from the map's relations: the stage reached, the tool calls and their inputs, the end state. A task family builds task instances whose expected outcome an oracle computes from the seed files. See [generating tests](../generating.md).
+
 ## What a block records
 
 The runner records each block it runs, in the shapes of `packages/core/src/schema/run.ts`. See [running](../running.md#the-run-record).

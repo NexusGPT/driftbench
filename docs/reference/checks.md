@@ -2,7 +2,7 @@
 
 A check reads one part of what the agent did and returns verdicts with their evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 18 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. Judged criteria are planned, phase 2. The stage classifier and the judge that reads a reply against the ledger are planned, phase 3.
+Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 18 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 18 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The stage classifier and the judge that reads a reply against the ledger are planned, phase 3.
 
 The checks read the agent's runtime through four concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages).
 
@@ -46,6 +46,7 @@ Two kinds of verdict are inconclusive:
 | `budget` | the block's `budget` sets `steps`, `cost_usd` or `latency_ms` | `budget.steps`, `budget.cost_usd`, `budget.latency_ms` |
 | `end_state` | the spec sets `end_state`, the run is teacher-forced or free-running, and the block is the spec's last | `end_state.<field>`, `end_state.<source>.<field>` for a list, `end_state.<source>` for an empty `expect`, `end_state.none` |
 | `custom` | `rules.custom` names a check | `custom.<name>`, `custom.<name>.<id>` |
+| `judge` | the check set holds a council and `expect.criteria` names a criterion | `judge.<name>` |
 
 `tools.argument_accuracy` never gates: its `score` is the share of expected arguments that matched. `<n>` in `schema_strict` counts the calls of one tool in the block from 1. `<index>` counts from 0.
 
@@ -84,7 +85,7 @@ Every field is optional and open to both kinds of block.
 | `must_not` | regular expressions the customer-visible text must not match | `must_not` |
 | `lang` | the language of the reply | `lang` |
 | `cards` | each expected card: `name` and `count` | `cards` |
-| `criteria` | judged criteria by name; `name@gating` gates the block | the judges, planned, phase 2 |
+| `criteria` | judged criteria by name; `name@gating` gates the block | `judge`, when the check set holds a council; see [judged criteria](#judged-criteria) |
 
 Outside `expect`, the same family reads a block's `budget`, the spec's `rules`, `metadata.tool_schemas` and `end_state`. They follow below.
 
@@ -285,7 +286,34 @@ rules:
 
 ## Judged criteria
 
-`criteria` names criteria the spec defines, or criteria from a shared catalogue. `gating: true` on a definition gates every reference to it, and `name@gating` gates that one reference; a fail of a gating criterion fails the block. The runner does not judge criteria yet: until the judges ship, phase 2, a criterion gives no verdict and does not change whether a block passes. Judges, the council and calibration are on the [judges](../concepts/judges.md) page.
+`criteria` names criteria the spec defines, or criteria from a shared catalogue. `gating: true` on a definition gates every reference to it, and `name@gating` gates that one reference; a fail of a gating criterion fails the block.
+
+The `judge` check reads them. It ships in `@driftbench/judges`, and it is in a check set only when a council is given:
+
+```ts
+import { defaultChecks } from '@driftbench/checks';
+import { cassettePlayers, createCouncil, loadCassette } from '@driftbench/judges';
+
+const cassette = await loadCassette('examples/acme/criteria/council.cassette.json');
+const council = createCouncil({ mode: 'hybrid', agentFamily: 'none', judges: cassettePlayers(cassette) });
+const checks = defaultChecks({ judges: council });
+```
+
+* `defaultChecks({ judges: council })` puts `judge` last, after `custom`, so judge verdicts sit beside the machine verdicts. `defaultChecks()` has no judge check, and then a criterion gives no verdict and does not change whether a block passes.
+* The check applies to a block whose `expect.criteria` names a criterion, in a conversation spec or a task spec. For a task block, the judge reads the produced files through the artifact readers, with the workspace diff.
+* It gives one verdict per criterion the block names, with the id `judge.<name>`. A character other than a letter, a digit, `_`, `.` or `-` in the name becomes `_`.
+* A judge verdict has kind `judge`. It carries the deciding class and every vote under `judge`, the round log of the council as its evidence, the reasoning of a vote that agrees with the outcome, and a `score` when the agreeing votes carry one.
+* It gates when the reference or the definition makes the criterion gating, unless calibration left the criterion unassigned. An unassigned criterion is judged, never gates, and its evidence starts with `unassigned by calibration, not gating:`.
+* A criterion the spec does not define gives an inconclusive verdict that says so.
+* No judge verdict replaces a machine verdict: the ids differ, and a block passes only when every gating verdict passes. A failing gating judge verdict carries drift class X1.
+
+A verdict from the Acme campaign run with a council that replays the campaign cassette, whose answers are scripted by hand:
+
+| Verdict id | Outcome | Evidence |
+|---|---|---|
+| `judge.no_invented_data` | pass | `system2: google-chat pass, openai-chat pass, anthropic-chat pass; pass` |
+
+`driftbench campaign run` cannot load a council yet; a caller passes `defaultChecks({ judges: council })` from code. Judges, the council, the cascade and calibration are on the [judges](../concepts/judges.md) page.
 
 ## Stage and facts
 
