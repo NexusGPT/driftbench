@@ -1113,6 +1113,14 @@ Floors (validators/floors.json): stats = 1.
 
 An option error the argument parser reports (an unknown option, a missing component) exits 2, as for every command.
 
+## `driftbench view`
+
+```
+driftbench view [--store <file>] [--port <n>] [--labels <dir>] [--labelled-by <name>]
+```
+
+Serves a store on `127.0.0.1` as a local website: the campaigns, each campaign's scorecard with its spread view, one page per run with every block in full, and the comparison of two campaigns. Under every block a form saves a pass or fail label per criterion, with a note, to the labels folder `judge calibrate --labels` reads. `--store` defaults to `driftbench.db`, `--port` to `4317` (`0` picks a free one), `--labels` to `labels`. It runs until Ctrl+C. Exit 0 after a stop; 2 when the store is missing, the port is not a number, or the port cannot be opened. See [viewer](../viewer.md).
+
 ## Not built yet
 
 These commands are registered and print that they are not built yet, with exit code 2:
@@ -1120,8 +1128,6 @@ These commands are registered and print that they are not built yet, with exit c
 | Command | Does, once built | Phase |
 |---|---|---|
 | `estate run`, `estate mutate` | run an estate test live on its runtime; estate mutants that delete or invert one atom (see [estate](../estate.md)) | not built yet |
-| `report` | the scorecard page, a run diff, JUnit XML | 4 |
-| `compare` | the parity verdict of a candidate against a baseline | 4 |
 | `ci` | exit 0 or 1 on the parity verdict and the gating failures | 4 |
 | `select`, `holdout` | selection and the holdout of the generated suite | G |
 | `monitor` | a placeholder; nothing is built behind it | not built yet |

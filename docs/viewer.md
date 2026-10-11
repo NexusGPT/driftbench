@@ -1,0 +1,70 @@
+# The viewer and hand labels
+
+`driftbench view` serves a store as a local website: the campaigns, each campaign's scorecard, every run block by block, and the comparison of two campaigns. Under every block, a person can mark the block pass or fail on a criterion, with a note. The label goes to the folder that [`driftbench judge calibrate --labels`](concepts/judges.md) reads. The judges are calibrated against those labels.
+
+The viewer listens on `127.0.0.1` only. Its pages use the scorecard's renderer and style, in light and dark, at phone width. They load no script and no external asset; a content security policy says so to the browser.
+
+## Start it
+
+```sh
+pnpm driftbench view --store driftbench.db --labels examples/acme/labels --labelled-by "your name"
+```
+
+```
+driftbench view at http://127.0.0.1:4317
+Store /path/to/driftbench.db, labels in /path/to/examples/acme/labels. Stop with Ctrl+C.
+```
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--store <file>` | `driftbench.db` | the store to read; the command stops with exit 2 when it is missing |
+| `--port <n>` | `4317` | the port; `0` picks a free one |
+| `--labels <dir>` | `labels` | the labels folder labels are written to |
+| `--labelled-by <name>` | `a reviewer, in driftbench view` | written as `labelled_by` in a new labels file |
+
+The command runs until Ctrl+C. Exit 0 after a stop, 2 when the store is missing, the port is not a number, or the port cannot be opened.
+
+## The pages
+
+| Address | Shows |
+|---|---|
+| `/` | every campaign of the store, newest first, with its modes, specs, runs and how many pass |
+| `/campaign/<id>` | the campaign's [scorecard](scorecards.md), spread view included; every run in the drilldown links to its own page |
+| `/campaign/<id>/run/<runId>` | one run, every block in full: what the user sent, the reply, the tool calls with their results, every verdict that did not pass and every judged verdict with its evidence and reasoning; a label form under each block |
+| `/compare` | two campaigns picked from the store and a margin; the result is the paired comparison of [`driftbench compare`](concepts/statistics.md#comparing-a-baseline-and-a-candidate) with its verdict |
+
+## Labelling a block
+
+The form under a block offers the judged criteria of its spec, and any judged criterion that voted on the block. Pick one, choose pass or fail, write why, and save. The page comes back on the same block with "Label saved". The label shows under the block, and the labelling section counts the labels per criterion.
+
+One label is one block of the criterion's labels file, `<labels>/<criterion>.yaml`, in the format `judge calibrate` reads:
+
+* `id` is `<runId>.b<block>`.
+* The transcript holds the user turn, each tool call and its result, and the reply.
+* Labelling the same block on the same criterion again replaces its label. Every other block, and the file's `labelled_by`, stay as they were.
+
+A label saved from a run of the Acme campaign with the fault that skips the recap:
+
+```yaml
+criterion: checks_before_promising
+labelled_by: a reviewer
+blocks:
+  - id: e0e9d0a17cada34e.b3
+    label: fail
+    note: Order placed with no recap.
+    transcript:
+      - role: user
+        text: Dana Brooks, dana.brooks@example.com
+      - role: tool_call
+        text: '{"type":"new","plan_id":"mobile-m","customer":{"name":"Dana Brooks","email":"dana.brooks@example.com"},"port_number":"+12025550150"}'
+        tool: order.create
+      - role: tool_result
+        text: '{"order_id":"ORD-831EE0","status":"pending","plan_id":"mobile-m","monthly_usd":25}'
+        tool: order.create
+      - role: agent
+        text: "Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your number +1 202 555 0150 moves to Acme one business day after the order."
+```
+
+`judge calibrate` needs at least one pass and one fail label per criterion, or kappa has nothing to measure. The labelling section says when a criterion still lacks one of the two.
+
+From code, `saveLabel(dir, criterion, block, labelledBy)` and `readLabelFile(dir, criterion)` of `@driftbench/judges` write and read the same files.
