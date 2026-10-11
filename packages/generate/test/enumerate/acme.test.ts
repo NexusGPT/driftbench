@@ -31,7 +31,9 @@ describe('generate on the approved Acme map', () => {
     prepared = loaded.prepared;
     const hand = await loadSpecs([`${ACME}specs`]);
     handWritten = hand.filter((entry): entry is LoadedSpec => entry.ok).map((entry) => entry.spec);
+    // The committed suite is written at strength 2 (`--t 2`); the default is 3.
     result = generateSuite(prepared, {
+      t: 2,
       mapPath: '../map/approved.yaml',
       baseline: { label: 'examples/acme/specs', specs: handWritten },
     });

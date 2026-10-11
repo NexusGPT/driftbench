@@ -36,7 +36,7 @@ export type MeasuredCoverage = { t: number; specs: number; allowed: number; cove
  * files. Same map, same options: the same files, byte for byte.
  */
 
-export const DEFAULT_T = 2;
+export const DEFAULT_T = 3;
 export const DEFAULT_SEED = 1;
 /** The report's file name inside the output folder. */
 export const REPORT_FILE = 'generate-report.json';
