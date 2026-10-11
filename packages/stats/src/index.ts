@@ -12,6 +12,16 @@ export {
 } from './agreement';
 export { mean, mulberry32, quantile, quantileSorted, sampleVariance } from './basics';
 export {
+  abundances,
+  type ChaoResult,
+  chaoCoverage,
+  type GoodTuringResult,
+  goodTuring,
+  type HillNumbers,
+  hillNumber,
+  hillNumbers,
+} from './coverage';
+export {
   type Alarm,
   type CusumOptions,
   type CusumResult,
@@ -65,3 +75,18 @@ export {
   normalQuantile,
   normalSf,
 } from './special';
+export {
+  type Component,
+  icc,
+  type LevelCorrelation,
+  type NeymanInput,
+  type NeymanResult,
+  neymanAllocation,
+  type Observation,
+  type RepeatsForFloorInput,
+  type RepeatsForFloorResult,
+  repeatsForFloor,
+  type VarianceComponentsOptions,
+  type VarianceComponentsResult,
+  varianceComponents,
+} from './variance';
