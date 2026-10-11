@@ -4,7 +4,7 @@
 id: gen-twise-035
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 35 of 154: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D1_off_topic at offer"
+title: "t-wise row 35 of 154: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D1_off_topic at port_number"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -57,7 +57,26 @@ blocks:
       criteria:
         - behaviour.B-004
         - flow.porting
-  - id: b2-port_number-to-offer
+  - id: b2-D1_off_topic
+    when:
+      injection:
+        class: D1_off_topic
+        user: Are your stores open on Saturday?
+    expect:
+      stage: port_number
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+      criteria:
+        - deviation.D1_off_topic
+  - id: b3-port_number-to-offer
     when:
       user: My number is +1 202 555 0165.
     expect:
@@ -74,25 +93,6 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b3-D1_off_topic
-    when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
-    expect:
-      stage: offer
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Monday to Saturday
-      lang: EN
-      criteria:
-        - deviation.D1_off_topic
   - id: b4-offer-to-details
     when:
       user: Acme Mobile M, please.
@@ -187,7 +187,16 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
-      - block: b2-port_number-to-offer
+      - block: b2-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: port_number
+        phrase:
+          dimension: deviation
+          value: D1_off_topic
+      - block: b3-port_number-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -197,15 +206,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
-      - block: b3-D1_off_topic
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: offer
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
       - block: b4-offer-to-details
         seeder: twise
         cell:

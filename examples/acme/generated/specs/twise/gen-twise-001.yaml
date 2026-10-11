@@ -115,23 +115,23 @@ end_state:
     customer_id: cust-001
     plan_id: mobile-l
 perturbations:
-  - id: p1-D7_silence_or_burst
-    class: D7_silence_or_burst
-    inject_at: 4
-    user: hello?
+  - id: p1-D5_language_switch
+    class: D5_language_switch
+    inject_at: 2
+    user: Kunt u dat ook in het Nederlands uitleggen?
     expect:
-      stage: order_placed
+      stage: offer
       tools:
         - label: catalog.search
           count: 0
         - label: order.create
           count: 0
       must:
-        - I'm here
+        - I can only help
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: order_placed
+      stage_after: offer
 metadata:
   generated:
     by: driftbench generate

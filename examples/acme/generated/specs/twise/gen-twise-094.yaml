@@ -4,7 +4,7 @@
 id: gen-twise-094
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 94 of 154: Path home-callback of new-home: needs > address > offer > callback > handover, D5_language_switch at address"
+title: "t-wise row 94 of 154: Path home-callback of new-home: needs > address > offer > callback > handover, D5_language_switch at needs"
 channel: chat
 lang: EN
 tier: generated
@@ -41,7 +41,28 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-address
+  - id: b1-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: needs
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - behaviour.B-009
+        - flow.new-home
+        - deviation.D5_language_switch
+  - id: b2-needs-to-address
     when:
       user: Do you have home internet where I live?
     expect:
@@ -54,28 +75,6 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
-      criteria:
-        - behaviour.B-009
-        - flow.new-home
-  - id: b2-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: address
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-      criteria:
-        - deviation.D5_language_switch
   - id: b3-address-to-offer
     when:
       user: The address is 14 Harbor Road, Acmeville.
@@ -159,7 +158,16 @@ metadata:
       plan_choice: asks-for-callback
       callback_phone: given
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: needs
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
+      - block: b2-needs-to-address
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -168,15 +176,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D5_language_switch
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: address
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
       - block: b3-address-to-offer
         seeder: twise
         cell:

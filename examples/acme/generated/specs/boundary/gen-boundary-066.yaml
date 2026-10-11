@@ -5,14 +5,14 @@ id: gen-boundary-066
 version: badea3d3df7a
 kind: conversation
 title: "Boundary value port_result=locked: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
   - flow:porting
   - persona:new-customer
-  - data:no-service
-  - task:existing-workbook
+  - data:not-in-map
+  - task:catalog-only
 stages:
   - needs
   - identify
@@ -141,12 +141,12 @@ end_state:
         name: Jo Okafor
         email: jo.okafor@example.com
 perturbations:
-  - id: p1-D2_goal_shift
-    class: D2_goal_shift
-    inject_at: 4
-    user: Actually, make it Acme Mobile L instead.
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
+    inject_at: 5
+    user: My last bill charged me twice, can you fix it?
     expect:
-      stage: recap
+      stage: order_placed
       tools:
         - label: port.check
           count: 0
@@ -155,11 +155,11 @@ perturbations:
         - label: order.create
           count: 0
       must:
-        - Acme Mobile L
+        - Acme Care
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: recap
+      stage_after: order_placed
 metadata:
   generated:
     by: driftbench generate
@@ -178,9 +178,9 @@ metadata:
       user_type: new-customer
       plan_choice: names-one
       customer_details: name-and-email
-      channel: whatsapp
-      coverage_result: no-service
-      workspace_start: existing-workbook
+      channel: chat
+      coverage_result: not-in-map
+      workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-port_number
         seeder: boundary

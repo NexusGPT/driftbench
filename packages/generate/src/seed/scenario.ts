@@ -1,7 +1,7 @@
 import type { EndStateSpec, Expect, PerturbationSpec, Rules, ToolExpect } from '@driftbench/core';
 import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
-import { TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
+import { OPENING_CLASSES, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
 import { dimensionId, type PreparedMap, phraseKey, valueId } from './map';
 import { pick, type Rng } from './random';
 import {
@@ -172,7 +172,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     if (!recovery) return fail(`the map gives no recovery from ${probe.classId} in the flow ${path.flow}`);
     const allowed = path.stages
       .map((stage, index) => ({ stage, index }))
-      .filter(({ index }) => index >= 1 && index <= path.stages.length - 2)
+      .filter(({ index }) => index <= path.stages.length - 2)
+      .filter(({ index }) => index >= 1 || OPENING_CLASSES.has(probe.classId))
       .filter(({ stage }) => (recovery?.at ? recovery.at.includes(stage) : true))
       .filter(({ stage }) => (probe.stage === undefined ? true : stage === probe.stage))
       .filter(({ stage }) =>
@@ -327,8 +328,9 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       if (classId === TOOL_FAILURE) continue;
       const own = recoveryFor(relations, classId, path.flow);
       if (!own) continue;
-      for (let index = 1; index + 1 < path.stages.length; index += 1) {
+      for (let index = 0; index + 1 < path.stages.length; index += 1) {
         const stage = path.stages[index] as string;
+        if (index === 0 && !OPENING_CLASSES.has(classId)) continue;
         if (own.at && !own.at.includes(stage)) continue;
         const after = stageAfter(own, stage);
         if (after !== undefined && after !== stage) continue;

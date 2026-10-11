@@ -4,7 +4,7 @@
 id: gen-deviation-010
 version: badea3d3df7a
 kind: conversation
-title: "Deviation probe D9_out_of_scope: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer, D9_out_of_scope at identify"
+title: "Deviation probe D9_out_of_scope: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer, D9_out_of_scope at needs"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -35,7 +35,23 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-identify
+  - id: b1-D9_out_of_scope
+    when:
+      injection:
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: needs
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+      criteria:
+        - flow.upgrade
+        - deviation.D9_out_of_scope
+  - id: b2-needs-to-identify
     when:
       user: Hi, I already have an Acme plan and I need more data.
     expect:
@@ -44,23 +60,6 @@ blocks:
         - label: catalog.search
           count: 0
       lang: EN
-      criteria:
-        - flow.upgrade
-  - id: b2-D9_out_of_scope
-    when:
-      injection:
-        class: D9_out_of_scope
-        user: My last bill charged me twice, can you fix it?
-    expect:
-      stage: identify
-      tools:
-        - label: catalog.search
-          count: 0
-      must:
-        - Acme Care
-      lang: EN
-      criteria:
-        - deviation.D9_out_of_scope
   - id: b3-identify-to-offer
     when:
       user: It's lee.jensen@example.com.
@@ -99,7 +98,16 @@ metadata:
       coverage_result: fiber
       workspace_start: existing-workbook
     blocks:
-      - block: b1-needs-to-identify
+      - block: b1-D9_out_of_scope
+        seeder: deviation
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: needs
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
+      - block: b2-needs-to-identify
         seeder: deviation
         cell:
           spec: metadata.generated.cell
@@ -108,15 +116,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-D9_out_of_scope
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: identify
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope
       - block: b3-identify-to-offer
         seeder: deviation
         cell:
