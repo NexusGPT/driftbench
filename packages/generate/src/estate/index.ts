@@ -1,2 +1,53 @@
-/** Owned by the estate-tests lane. */
-export {};
+/** The estate test generator: plan rows to task specs, by code only. Owned by the estate-tests lane. */
+
+export { type ReadYaml, readEstateYaml, type YamlSchema } from './files';
+export {
+  checkEstateInputs,
+  ESTATE_COMPLETE_DIR,
+  ESTATE_DEFAULT_SEED,
+  ESTATE_INCOMPLETE_DIR,
+  ESTATE_REPORT_FILE,
+  ESTATE_SEEDER,
+  type EstateGenerateInput,
+  type EstateGenerateOptions,
+  type EstateGenerateResult,
+  EstateInputError,
+  type EstateReport,
+  type EstateSpecRecord,
+  findSituation,
+  generateEstateSuite,
+  NEGATIVE_TESTS,
+  REPLAY_CUSTOM_CHECKS,
+  renderEstateSummary,
+  SITUATION_OF,
+  specId,
+} from './generate';
+export {
+  BankPhrase,
+  checkBank,
+  checkSessions,
+  type EstateAtom,
+  type EstateEvidence,
+  type EstateMapInput,
+  type EstatePlanInput,
+  type EstatePlanRow,
+  type InputIssue,
+  PhraseBank,
+  SessionEntry,
+  SessionIndex,
+  Situation,
+  SituationUse,
+  Touches,
+  WorkspaceSeed,
+} from './inputs';
+export {
+  anchorPair,
+  type Gap,
+  MARKERS,
+  type Marker,
+  type StageModel,
+  stageModel,
+  type ThenContext,
+  type ThenParts,
+  thenOf,
+} from './then';

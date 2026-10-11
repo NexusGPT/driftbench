@@ -1,0 +1,24 @@
+# Three synthetic sessions of the Northwind fixture estate, written by code from a hand script for the
+# estate-tests lane: the same ask, one clean run and two faulty ones. `violates` names the atoms a session
+# breaks: a generated replay spec on any of them is planned to fail, every other one to pass. Each session
+# has its transcript, its guard decision log and its step feed. Fictional data only.
+version: 1
+sessions:
+  - name: weekly-clean
+    situation: weekly-report-update
+    ask: "Add the late shipment count to this week's report, reports/2026-W41.md."
+    violates: []
+    note: The skill loads, the report is read before it is edited, the check runs, then the report.
+  - name: weekly-skill-skipped
+    situation: weekly-report-update
+    ask: "Add the late shipment count to this week's report, reports/2026-W41.md."
+    violates:
+      - route.weekly-report.an-ask-that-fits-weekly-report
+      - skill.weekly-report.skill-weekly-report
+    note: The same work with no load of the weekly-report skill.
+  - name: weekly-gate-violated
+    situation: weekly-report-update
+    ask: "Add the late shipment count to this week's report, reports/2026-W41.md."
+    violates:
+      - gate.standing.read-a-file-before-editing-it
+    note: The first edit comes before any read; the guard denies it, then the agent reads and edits again.

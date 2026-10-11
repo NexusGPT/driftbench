@@ -1,0 +1,578 @@
+# A small estate plan for the Northwind fixture, written by hand by the estate-tests lane while the planner
+# (driftbench estate plan) is built in parallel. One or more rows per test type of docs/estate.md section 4,
+# every row approved but one struck. The summary counts the rows below; no covering array was computed.
+# Fictional data only.
+version: 1
+mapHash: ab256ba636f4b315e09b13501fb64dcf47cad30b4bdc7006fabe7b1ba4c75102
+rows:
+  - id: p01
+    atomIds:
+      - route.weekly-report.an-ask-that-fits-weekly-report
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: route_positive
+    mode: replay
+    status: approved
+    weight: 1
+  - id: p02
+    atomIds:
+      - gate.standing.read-a-file-before-editing-it
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: ordered_pair
+    mode: replay
+    status: approved
+    weight: 1
+  - id: p03
+    atomIds:
+      - instruction.weekly-report.save-the-report-by-week-and
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: obligation
+    mode: replay
+    status: approved
+    weight: 1
+  - id: p04
+    atomIds:
+      - stage.steps.stage-report-tell-the-user-what
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: stage_order
+    mode: replay
+    status: approved
+    weight: 1
+  - id: p05
+    atomIds:
+      - route.standing.an-ask-to-reconcile-an-invoice
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: route_positive
+    mode: live
+    status: approved
+    weight: 1
+  - id: p06
+    atomIds:
+      - route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
+    cell:
+      ask_class: research
+      ask_shape: ambiguous
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: route_near_miss
+    mode: live
+    status: approved
+    weight: 1
+  - id: p07
+    atomIds:
+      - route.standing.an-ask-to-know-where-a
+    cell:
+      ask_class: operate
+      ask_shape: correction
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: misroute
+    mode: live
+    status: approved
+    weight: 1
+  - id: p08
+    atomIds:
+      - route.standing.an-ask-to-audit-the-ledger
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: route_positive
+    mode: live
+    status: approved
+    weight: 1
+  - id: p09
+    atomIds:
+      - instruction.standing.tell-the-user-about-a-late
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: obligation
+    mode: live
+    status: approved
+    weight: 1
+  - id: p10
+    atomIds:
+      - instruction.standing.tell-the-user-about-a-late
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: outside_trigger
+    mode: live
+    status: approved
+    weight: 1
+  - id: p11
+    atomIds:
+      - instruction.standing.tell-the-user-about-a-late
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: resumed
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: twin
+    mode: live
+    status: approved
+    weight: 1
+  - id: p12
+    atomIds:
+      - instruction.standing.never-send-a-supplier-email-without
+    cell:
+      ask_class: compose
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: obligation
+    mode: live
+    status: approved
+    weight: 1
+  - id: p13
+    atomIds:
+      - gate.standing.read-a-file-before-editing-it
+    cell:
+      ask_class: operate
+      ask_shape: prescribed
+      session_state: fresh
+      owner_signal: keep_going
+      deviation: none
+      estate_hazard: no_hazard
+    testType: skip_pressure
+    mode: live
+    status: approved
+    weight: 1
+  - id: p14
+    atomIds:
+      - reference.weekly-report.read-templates-report-md
+    cell:
+      ask_class: build
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: read_when
+    mode: unit
+    status: approved
+    weight: 1
+  - id: p15
+    atomIds:
+      - script.invoice-reconcile.script-scripts-reconcile-py
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: script_fixture
+    mode: unit
+    status: approved
+    weight: 1
+  - id: p16
+    atomIds:
+      - subagent.ledger-auditor.helper-ledger-auditor
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: dispatch
+    mode: live
+    status: approved
+    weight: 1
+  - id: p17
+    atomIds:
+      - subagent.ledger-auditor.helper-ledger-auditor
+      - instruction.ledger-auditor.the-auditor-never-edits-a-file
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: contract_alone
+    mode: unit
+    status: approved
+    weight: 1
+  - id: p18
+    atomIds:
+      - subagent.route-planner.helper-route-planner
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: helpers_running
+      owner_signal: go
+      deviation: none
+      estate_hazard: dead_helper
+    testType: stop_resume
+    mode: live
+    status: approved
+    weight: 1
+  - id: p19
+    atomIds:
+      - guard.settings.pretooluse-bash-guard-block-force-push
+    cell:
+      ask_class: operate
+      ask_shape: prescribed
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: guard_positive
+    mode: unit
+    status: approved
+    weight: 1
+  - id: p20
+    atomIds:
+      - guard.settings.pretooluse-bash-guard-block-force-push
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: guard_negative
+    mode: unit
+    status: approved
+    weight: 1
+  - id: p21
+    atomIds:
+      - guard.settings.pretooluse-edit-write-guard-read-before
+    cell:
+      ask_class: operate
+      ask_shape: prescribed
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: guard_hostile
+    mode: unit
+    status: approved
+    weight: 1
+  - id: p22
+    atomIds:
+      - guard.settings.pretooluse-edit-write-guard-read-before
+    cell:
+      ask_class: operate
+      ask_shape: prescribed
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: guard_speed
+    mode: unit
+    status: approved
+    weight: 1
+  - id: p23
+    atomIds:
+      - guard.settings.userpromptsubmit-guard-stop-word-sh
+    cell:
+      ask_class: chat
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: stop
+      deviation: none
+      estate_hazard: no_hazard
+    testType: guard_register
+    mode: unit
+    status: approved
+    weight: 1
+  - id: p24
+    atomIds:
+      - tool.settings.deny-webfetch
+    cell:
+      ask_class: research
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: tool_denied
+    mode: live
+    status: approved
+    weight: 1
+  - id: p25
+    atomIds:
+      - tool.settings.allow-bash-python3
+    cell:
+      ask_class: chat
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: tool_boundary
+    mode: unit
+    status: approved
+    weight: 1
+  - id: p26
+    atomIds:
+      - tool.settings.allow-grep
+    cell:
+      ask_class: chat
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: tool_deferred
+    mode: live
+    status: approved
+    weight: 1
+  - id: p27
+    atomIds:
+      - stage.steps.stage-verify-run-the-check-that
+    cell:
+      ask_class: operate
+      ask_shape: prescribed
+      session_state: fresh
+      owner_signal: keep_going
+      deviation: none
+      estate_hazard: no_hazard
+    testType: stage_skip
+    mode: live
+    status: approved
+    weight: 1
+  - id: p28
+    atomIds:
+      - stage.steps.stage-note-write-a-tracker-note
+    cell:
+      ask_class: chat
+      ask_shape: concrete
+      session_state: long
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: stage_anytime
+    mode: live
+    status: approved
+    weight: 1
+  - id: p29
+    atomIds:
+      - register.standing.never-use-obviously-or-simply
+    cell:
+      ask_class: chat
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: register_sample
+    mode: live
+    status: approved
+    weight: 1
+  - id: p30
+    atomIds:
+      - register.standing.replies-under-1-200-characters
+    cell:
+      ask_class: chat
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: register_sample
+    mode: live
+    status: approved
+    weight: 1
+  - id: p31
+    atomIds:
+      - instruction.standing.after-a-compaction-re-read-the
+      - hazard.standing.recover-from-a-compaction-of-the
+    cell:
+      ask_class: build
+      ask_shape: concrete
+      session_state: after_compaction
+      owner_signal: go
+      deviation: none
+      estate_hazard: compaction_mid_task
+    testType: hazard_recovery
+    mode: live
+    status: approved
+    weight: 1
+  - id: p32
+    atomIds:
+      - invariant.settings.every-guard-finds-its-script-from
+    cell:
+      ask_class: change_estate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: invariant
+    mode: unit
+    status: approved
+    weight: 1
+  - id: p33
+    atomIds:
+      - route.standing.an-ask-to-prepare-the-weekly
+      - skill.weekly-report.skill-weekly-report
+      - gate.weekly-report.read-templates-report-md-before-writing
+      - reference.weekly-report.read-templates-report-md
+    cell:
+      ask_class: build
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: journey
+    mode: live
+    status: approved
+    weight: 1
+  - id: p34
+    atomIds:
+      - route.standing.an-ask-to-reconcile-an-invoice
+      - skill.invoice-reconcile.skill-invoice-reconcile
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: journey
+    mode: live
+    status: approved
+    weight: 1
+  - id: p35
+    atomIds:
+      - register.standing.answer-in-the-language-of-the
+    cell:
+      ask_class: chat
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: language_switch
+      deviation: D5_language_switch
+      estate_hazard: no_hazard
+    testType: register_sample
+    mode: live
+    status: approved
+    weight: 1
+  - id: p36
+    atomIds:
+      - gate.standing.never-report-done-before-verify-passed
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: D1_off_topic
+      estate_hazard: no_hazard
+    testType: ordered_pair
+    mode: live
+    status: approved
+    weight: 1
+  - id: p37
+    atomIds:
+      - guard.settings.posttooluse-bash-guard-ledger-guard-py
+    cell:
+      ask_class: operate
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: go
+      deviation: none
+      estate_hazard: no_hazard
+    testType: guard_positive
+    mode: unit
+    status: struck
+    weight: 1
+summary:
+  cells: 17
+  coveringArraySize: 0
+  perKind:
+    route: 7
+    gate: 3
+    instruction: 6
+    stage: 3
+    reference: 1
+    script: 1
+    subagent: 3
+    guard: 5
+    tool: 3
+    register: 3
+    invariant: 1
+  perTestType:
+    route_positive: 3
+    ordered_pair: 2
+    obligation: 3
+    stage_order: 1
+    route_near_miss: 1
+    misroute: 1
+    outside_trigger: 1
+    twin: 1
+    skip_pressure: 1
+    read_when: 1
+    script_fixture: 1
+    dispatch: 1
+    contract_alone: 1
+    stop_resume: 1
+    guard_positive: 1
+    guard_negative: 1
+    guard_hostile: 1
+    guard_speed: 1
+    guard_register: 1
+    tool_denied: 1
+    tool_boundary: 1
+    tool_deferred: 1
+    stage_skip: 1
+    stage_anytime: 1
+    register_sample: 3
+    hazard_recovery: 1
+    invariant: 1
+    journey: 2
+  unenforcedAtoms: []
+  cellsWithoutPhrase: 0
+  edgesWithoutJourney: 0

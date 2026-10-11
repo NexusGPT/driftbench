@@ -1,7 +1,42 @@
+import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { loadEstateMap, Plan } from '@driftbench/estate';
+import {
+  ESTATE_COMPLETE_DIR,
+  ESTATE_INCOMPLETE_DIR,
+  ESTATE_REPORT_FILE,
+  type EstateGenerateResult,
+  EstateInputError,
+  formatJson,
+  generateEstateSuite,
+  PhraseBank,
+  readEstateYaml,
+  renderEstateSummary,
+  SessionIndex,
+  type YamlSchema,
+} from '@driftbench/generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 
-/** Adds `estate generate` to `driftbench estate`. Owned by the estate-tests lane; this stub says it is not built yet. */
+export type EstateGenerateOptions = {
+  map: string;
+  plan: string;
+  out: string;
+  seed?: string;
+  phrases?: string;
+  sessions?: string;
+  force?: boolean;
+  json?: boolean;
+};
+
+/** The phrase bank and the session index the command looks for beside the map when none is named. */
+export const DEFAULT_PHRASES = 'phrases.yaml';
+export const DEFAULT_SESSIONS = join('sessions', 'index.yaml');
+
+/**
+ * Adds `estate generate` to `driftbench estate`: the approved plan rows of an estate become task specs, by
+ * code only, with no model call. The ask comes from the phrase bank, the Then from the atoms' evidence.
+ */
 export function registerEstateGenerateCommand(
   estate: Command,
   io: Io,
@@ -9,9 +44,140 @@ export function registerEstateGenerateCommand(
 ): void {
   estate
     .command('generate')
-    .description('Not built yet.')
-    .action(() => {
-      io.err('driftbench estate generate is not built yet.\n');
-      setExit(2);
+    .description('Generate task specs from an approved estate plan, by code: one or more specs per plan row')
+    .requiredOption('--map <file>', 'the approved estate map')
+    .requiredOption('--plan <file>', 'the estate plan made from that map')
+    .requiredOption('--out <dir>', `the folder to write the specs and ${ESTATE_REPORT_FILE} into`)
+    .option('--seed <n>', 'the integer seed of every phrase choice (default 1)')
+    .option('--phrases <file>', `the approved phrase bank (default ${DEFAULT_PHRASES} beside the map)`)
+    .option(
+      '--sessions <file>',
+      `the index of recorded sessions for replay rows (default ${DEFAULT_SESSIONS} beside the map, when present)`,
+    )
+    .option('--force', 'replace the output of an earlier run in the folder')
+    .option('--json', 'print the report as JSON')
+    .action(async (options: EstateGenerateOptions) => {
+      setExit(await estateGenerateCommand(options, io));
     });
+}
+
+/**
+ * Exit 0 when every approved row gave complete specs, 1 when the suite is written with incomplete specs,
+ * rows waiting for approval or a generator defect (each listed), 2 on a usage or input error (nothing is
+ * written): an invalid map, plan, bank or session index, inputs that do not fit together, a bad seed, an
+ * earlier output without --force.
+ */
+export async function estateGenerateCommand(options: EstateGenerateOptions, io: Io): Promise<number> {
+  let seed: number | undefined;
+  if (options.seed !== undefined) {
+    const value = Number(options.seed);
+    if (!/^\d+$/.test(options.seed.trim()) || !Number.isSafeInteger(value)) {
+      io.err(`--seed must be a whole number of at least 0, got "${options.seed}".\n`);
+      return 2;
+    }
+    seed = value;
+  }
+  const mapPath = resolve(io.cwd, options.map);
+  const planPath = resolve(io.cwd, options.plan);
+  const outPath = resolve(io.cwd, options.out);
+  const phrasesPath = resolve(io.cwd, options.phrases ?? join(dirname(mapPath), DEFAULT_PHRASES));
+  let sessionsPath: string | undefined;
+  if (options.sessions !== undefined) sessionsPath = resolve(io.cwd, options.sessions);
+  else {
+    const beside = join(dirname(mapPath), DEFAULT_SESSIONS);
+    if (await exists(beside)) sessionsPath = beside;
+  }
+
+  const loaded = await loadEstateMap(mapPath);
+  if (!loaded.ok) {
+    io.err(`✗ ${display(mapPath, io)}  the estate map is refused\n`);
+    for (const issue of loaded.errors)
+      io.err(`  ${issue.path || '(file)'}  ${issue.code}  ${issue.message}\n`);
+    return 2;
+  }
+  const plan = await readYaml(planPath, Plan, 'plan', io);
+  const bank = await readYaml(phrasesPath, PhraseBank, 'phrase bank', io);
+  const sessions =
+    sessionsPath === undefined ? undefined : await readYaml(sessionsPath, SessionIndex, 'session index', io);
+  if (!plan || !bank || (sessionsPath !== undefined && !sessions)) return 2;
+
+  const reportPath = join(outPath, ESTATE_REPORT_FILE);
+  let result: EstateGenerateResult;
+  try {
+    result = generateEstateSuite(
+      { map: loaded.map, plan, bank, ...(sessions ? { sessions } : {}) },
+      {
+        ...(seed === undefined ? {} : { seed }),
+        paths: {
+          map: portable(relative(outPath, mapPath)),
+          plan: portable(relative(outPath, planPath)),
+          phrases: portable(relative(outPath, phrasesPath)),
+          ...(sessionsPath === undefined ? {} : { sessions: portable(relative(outPath, sessionsPath)) }),
+        },
+      },
+    );
+  } catch (cause) {
+    if (cause instanceof EstateInputError) {
+      io.err(`The inputs do not fit together: ${cause.message}.\n`);
+      for (const issue of cause.issues) io.err(`  ${issue.path}  ${issue.message}\n`);
+      return 2;
+    }
+    io.err(`Cannot generate: ${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return 2;
+  }
+
+  if (await exists(reportPath)) {
+    if (!options.force) {
+      io.err(
+        `${display(reportPath, io)} already exists: an earlier run wrote this folder. Pass --force to replace its output.\n`,
+      );
+      return 2;
+    }
+    for (const entry of [ESTATE_COMPLETE_DIR, ESTATE_INCOMPLETE_DIR, ESTATE_REPORT_FILE]) {
+      await rm(join(outPath, entry), { recursive: true, force: true });
+    }
+  }
+  for (const file of result.files) {
+    const target = join(outPath, file.path);
+    await mkdir(dirname(target), { recursive: true });
+    await writeFile(target, file.text);
+  }
+
+  const report = result.report;
+  if (options.json) io.out(formatJson(report));
+  else
+    io.out(`${renderEstateSummary(report)}Wrote ${result.files.length} files to ${display(outPath, io)}.\n`);
+  const defects = report.invalid.length > 0 || report.lint.length > 0;
+  return report.summary.incomplete > 0 || report.waiting.length > 0 || defects ? 1 : 0;
+}
+
+async function readYaml<T>(
+  path: string,
+  schema: YamlSchema<T>,
+  what: string,
+  io: Io,
+): Promise<T | undefined> {
+  const read = await readEstateYaml(path, schema);
+  if (read.ok) return read.value;
+  io.err(`✗ ${display(path, io)}  the ${what} cannot be read or is invalid\n`);
+  for (const issue of read.issues) io.err(`  ${issue.path || '(file)'}  ${issue.message}\n`);
+  return undefined;
+}
+
+async function exists(path: string): Promise<boolean> {
+  try {
+    await stat(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function display(path: string, io: Io): string {
+  const shown = relative(io.cwd, path);
+  return shown === '' ? '.' : shown.startsWith('..') || isAbsolute(shown) ? path : shown;
+}
+
+function portable(path: string): string {
+  return path.split(sep).join('/');
 }
