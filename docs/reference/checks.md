@@ -148,7 +148,7 @@ Tool `input` and `end_state.expect` assert values with these forms. Patterns com
 | `{ regex: <pattern> }` | is a string that matches the pattern |
 | `{ contains: <text> }` | is a string that contains the text, or a list that holds it as an item |
 | `{ one_of: [<value>, ...] }` | is one of the listed values |
-| `{ nonempty: true }` | is present and not empty: not `null`, not an empty string, list or mapping |
+| `{ nonempty: true }` | is present and not empty: not `null`, not a string of spaces only, not an empty list, not a mapping whose keys hold nothing |
 | `{ absent: true }` | is absent |
 | `{ subset: { ... } }` | holds at least these keys with these values; nested mappings compare the same way |
 
