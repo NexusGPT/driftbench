@@ -4,7 +4,7 @@
 id: gen-twise-114
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 114 of 154: Path home-callback of new-home: needs > address > offer > callback > handover, D3_contradiction at offer"
+title: "t-wise row 114 of 154: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D3_contradiction at offer"
 channel: chat
 lang: EN
 tier: generated
@@ -12,7 +12,7 @@ tags:
   - persona:new-customer
   - data:fiber
   - task:existing-workbook
-  - flow:new-home
+  - flow:order
 covers:
   - B-011
 stages:
@@ -32,8 +32,8 @@ criteria:
     rubric: Answer an off-topic question in one line and resume the pending step
     gating: false
     scope: conversation
-  - name: flow.new-home
-    rubric: A new customer asks for home internet at an address
+  - name: flow.order
+    rubric: Recap, explicit confirmation and order placement
     gating: false
     scope: conversation
   - name: deviation.D3_contradiction
@@ -51,12 +51,12 @@ blocks:
           count: 0
         - label: catalog.search
           count: 0
-        - label: notify_sales
+        - label: order.create
           count: 0
       lang: EN
       criteria:
         - behaviour.B-011
-        - flow.new-home
+        - flow.order
   - id: b2-address-to-offer
     when:
       user: The address is 14 Harbor Road, Acmeville.
@@ -72,7 +72,7 @@ blocks:
           input:
             category: home
             address_id: addr-101
-        - label: notify_sales
+        - label: order.create
           count: 0
       lang: EN
   - id: b3-D3_contradiction
@@ -87,39 +87,55 @@ blocks:
           count: 0
         - label: catalog.search
           count: 0
-        - label: notify_sales
+        - label: order.create
           count: 0
       must:
         - Which one
       lang: EN
       criteria:
         - deviation.D3_contradiction
-  - id: b4-offer-to-callback
+  - id: b4-offer-to-details
     when:
-      user: Can someone just call me back?
+      user: I'll take Acme Fiber 1000.
     expect:
-      stage: callback
+      stage: details
       tools:
         - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
-        - label: notify_sales
+        - label: order.create
           count: 0
       lang: EN
-  - id: b5-callback-to-handover
+  - id: b5-details-to-recap
     when:
-      user: You can reach me on +1 202 555 0131.
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
-      stage: handover
+      stage: recap
       tools:
-        - label: notify_sales
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b6-recap-to-order_placed
+    when:
+      user: Confirm
+    expect:
+      stage: order_placed
+      tools:
+        - label: order.create
           count: 1
           input:
-            reason: callback
+            type: new
+            plan_id: fiber-1000
+            address_id: addr-101
             customer:
               subset:
-                phone: "+12025550131"
+                name: Jo Okafor
+                email: jo.okafor@example.com
         - label: coverage.check
           count: 0
         - label: catalog.search
@@ -128,15 +144,18 @@ blocks:
 rules:
   forbidden_tools:
     - port.check
-    - order.create
+    - notify_sales
 end_state:
-  source: tool:notify_sales
+  source: tool:order.create
   mode: subset
   expect:
-    reason: callback
+    type: new
+    plan_id: fiber-1000
+    address_id: addr-101
     customer:
       subset:
-        phone: "+12025550131"
+        name: Jo Okafor
+        email: jo.okafor@example.com
 metadata:
   generated:
     by: driftbench generate
@@ -148,16 +167,16 @@ metadata:
       agent: acme
       version: "1"
       hash: badea3d3df7a
-    path: home-callback
+    path: order-named-plan
     cell:
       behaviour: B-011
       channel: chat
       user_type: new-customer
       coverage_result: fiber
       workspace_start: existing-workbook
-      flow: new-home
-      plan_choice: asks-for-callback
-      callback_phone: given
+      flow: order
+      plan_choice: names-one
+      customer_details: name-and-email
     blocks:
       - block: b1-needs-to-address
         seeder: twise
@@ -187,24 +206,33 @@ metadata:
         phrase:
           dimension: deviation
           value: D3_contradiction
-      - block: b4-offer-to-callback
+      - block: b4-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: offer-to-callback
-          stage: callback
+          stage_transition: offer-to-details
+          stage: details
         phrase:
           dimension: stage_transition
-          value: offer-to-callback
-      - block: b5-callback-to-handover
+          value: offer-to-details
+      - block: b5-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: callback-to-handover
-          callback_phone: given
+          stage_transition: details-to-recap
+          customer_details: name-and-email
+          stage: recap
+        phrase:
+          dimension: stage_transition
+          value: details-to-recap
+      - block: b6-recap-to-order_placed
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: recap-to-order_placed
           coverage_result: fiber
-          plan_choice: asks-for-callback
-          stage: handover
+          customer_details: name-and-email
+          stage: order_placed
         phrase:
           dimension: stage_transition
-          value: callback-to-handover
+          value: recap-to-order_placed

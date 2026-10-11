@@ -426,9 +426,20 @@ export function twiseSeeder(
     const paths = prepared.relations.paths.filter((path) => flows.includes(path.flow));
     const probe = probeOf(prepared, cell);
     const fixed = cell.filter(([dimension]) => dimension !== prepared.deviation);
-    const built = scenarioDraft(prepared, context, id, 'twise', title, fixed, preferring(paths, behaviour), {
-      ...(probe ? { probe } : {}),
-    });
+    // The behaviour's own paths first; when none of them builds (no path, or its flows give no recovery
+    // from the row's deviation), a path of another flow keeps the row's cell complete.
+    const own = preferring(paths, behaviour);
+    const elsewhere = prepared.relations.paths.filter((path) => !flows.includes(path.flow));
+    const built = scenarioDraft(
+      prepared,
+      context,
+      id,
+      'twise',
+      title,
+      fixed,
+      { preferred: own.preferred, others: [...own.others, ...elsewhere] },
+      { ...(probe ? { probe } : {}) },
+    );
     if ('draft' in built) {
       const deviation = cell.find(([dimension]) => dimension === prepared.deviation);
       if (deviation) built.draft.cell.push(deviation);

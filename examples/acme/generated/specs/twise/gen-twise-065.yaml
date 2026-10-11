@@ -4,7 +4,7 @@
 id: gen-twise-065
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 65 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D7_silence_or_burst at offer"
+title: "t-wise row 65 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D7_silence_or_burst at details"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -74,26 +74,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b3-D7_silence_or_burst
-    when:
-      injection:
-        class: D7_silence_or_burst
-        user: hello?
-    expect:
-      stage: offer
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I'm here
-      lang: EN
-      criteria:
-        - deviation.D7_silence_or_burst
-  - id: b4-offer-to-details
+  - id: b3-offer-to-details
     when:
       user: Acme Mobile M, please.
     expect:
@@ -106,6 +87,25 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b4-D7_silence_or_burst
+    when:
+      injection:
+        class: D7_silence_or_burst
+        user: hello?
+    expect:
+      stage: details
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+      criteria:
+        - deviation.D7_silence_or_burst
   - id: b5-details-to-recap
     when:
       user: I'm Jo Okafor and my email is jo.okafor@example.com.
@@ -213,16 +213,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
-      - block: b3-D7_silence_or_burst
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: offer
-        phrase:
-          dimension: deviation
-          value: D7_silence_or_burst
-      - block: b4-offer-to-details
+      - block: b3-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -231,6 +222,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
+      - block: b4-D7_silence_or_burst
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: details
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
       - block: b5-details-to-recap
         seeder: twise
         cell:

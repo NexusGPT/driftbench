@@ -4,7 +4,7 @@
 id: gen-twise-041
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 41 of 154: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D8_tool_failure of coverage.check at address"
+title: "t-wise row 41 of 154: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D8_tool_failure of notify_sales at callback"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -49,27 +49,47 @@ blocks:
       tools:
         - label: coverage.check
           count: 0
+        - label: notify_sales
+          count: 0
       lang: EN
       criteria:
         - behaviour.B-004
         - flow.new-home
-  - id: b2-D8_tool_failure
+  - id: b2-address-to-callback
     when:
-      injection:
-        class: D8_tool_failure
-        user: The address is 7 Quarry Lane, Acmeville.
-    given:
-      world:
-        tools:
-          coverage.check:
-            error: service unavailable (generated tool failure)
+      user: The address is 7 Quarry Lane, Acmeville.
     expect:
       stage: callback
       tools:
         - label: coverage.check
-          count: 2
+          count: 1
           input:
             address: 7 Quarry Lane, Acmeville
+        - label: notify_sales
+          count: 0
+      lang: EN
+  - id: b3-D8_tool_failure
+    when:
+      injection:
+        class: D8_tool_failure
+        user: You can reach me on +1 202 555 0131.
+    given:
+      world:
+        tools:
+          notify_sales:
+            error: service unavailable (generated tool failure)
+    expect:
+      stage: handover
+      tools:
+        - label: notify_sales
+          count: 1
+          input:
+            reason: no_coverage
+            customer:
+              subset:
+                phone: "+12025550131"
+        - label: coverage.check
+          count: 0
       lang: EN
       criteria:
         - deviation.D8_tool_failure
@@ -78,7 +98,6 @@ rules:
     - catalog.search
     - port.check
     - order.create
-    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -99,7 +118,7 @@ metadata:
       workspace_start: catalog-only
       flow: new-home
       callback_phone: given
-      failing_tool: coverage.check
+      failing_tool: notify_sales
     blocks:
       - block: b1-needs-to-address
         seeder: twise
@@ -110,14 +129,25 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D8_tool_failure
+      - block: b2-address-to-callback
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          deviation: D8_tool_failure
           stage_transition: address-to-callback
           coverage_result: no-service
           stage: callback
         phrase:
           dimension: stage_transition
           value: address-to-callback
+      - block: b3-D8_tool_failure
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D8_tool_failure
+          stage_transition: callback-to-handover
+          callback_phone: given
+          coverage_result: no-service
+          stage: handover
+        phrase:
+          dimension: stage_transition
+          value: callback-to-handover

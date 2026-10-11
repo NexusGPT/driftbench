@@ -4,7 +4,7 @@
 id: gen-twise-087
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 87 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D7_silence_or_burst at port_number"
+title: "t-wise row 87 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D7_silence_or_burst at offer"
 channel: chat
 lang: EN
 tier: generated
@@ -57,26 +57,7 @@ blocks:
       criteria:
         - behaviour.B-008
         - flow.porting
-  - id: b2-D7_silence_or_burst
-    when:
-      injection:
-        class: D7_silence_or_burst
-        user: hello?
-    expect:
-      stage: port_number
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I'm here
-      lang: EN
-      criteria:
-        - deviation.D7_silence_or_burst
-  - id: b3-port_number-to-offer
+  - id: b2-port_number-to-offer
     when:
       user: My number is +1 202 555 0160.
     expect:
@@ -93,6 +74,25 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b3-D7_silence_or_burst
+    when:
+      injection:
+        class: D7_silence_or_burst
+        user: hello?
+    expect:
+      stage: offer
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+      criteria:
+        - deviation.D7_silence_or_burst
   - id: b4-offer-to-details
     when:
       user: Acme Mobile M, please.
@@ -203,16 +203,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
-      - block: b2-D7_silence_or_burst
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: port_number
-        phrase:
-          dimension: deviation
-          value: D7_silence_or_burst
-      - block: b3-port_number-to-offer
+      - block: b2-port_number-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -222,6 +213,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
+      - block: b3-D7_silence_or_burst
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: offer
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
       - block: b4-offer-to-details
         seeder: twise
         cell:

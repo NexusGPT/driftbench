@@ -17,9 +17,9 @@
   },
   "summary": {
     "specs": 268,
-    "blocks": 941,
-    "complete": 168,
-    "incomplete": 100
+    "blocks": 1041,
+    "complete": 186,
+    "incomplete": 82
   },
   "seeders": {
     "graph": {
@@ -32,10 +32,10 @@
     },
     "twise": {
       "specs": 154,
-      "blocks": 676,
-      "complete": 123,
+      "blocks": 776,
+      "complete": 141,
       "needs_phrase": 0,
-      "needs_then": 31,
+      "needs_then": 13,
       "cut": false
     },
     "boundary": {
@@ -993,114 +993,8 @@
   ],
   "no_then": [
     {
-      "spec": "gen-twise-025",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-no-coverage: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service"
-      ]
-    },
-    {
-      "spec": "gen-twise-026",
-      "blocks": ["b1-open", "b2-D3_contradiction"],
-      "reasons": [
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
-        "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-036",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
-        "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-047",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-048",
-      "blocks": ["b1-open", "b2-D3_contradiction"],
-      "reasons": [
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
-        "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-098",
-      "blocks": ["b1-open", "b2-D7_silence_or_burst"],
-      "reasons": [
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service",
-        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service",
-        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-most-data: it needs user_type in existing-customer; the cell holds new-customer"
-      ]
-    },
-    {
-      "spec": "gen-twise-102",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
-        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds not-in-map",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map"
-      ]
-    },
-    {
-      "spec": "gen-twise-105",
-      "blocks": ["b1-open", "b2-D5_language_switch"],
-      "reasons": [
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
-        "path home-address-not-found: it needs user_type in new-customer; the cell holds existing-customer",
-        "path home-callback: it needs user_type in new-customer; the cell holds existing-customer",
-        "path home-no-coverage: it needs user_type in new-customer; the cell holds existing-customer",
-        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds not-in-map",
-        "path home-order: it needs user_type in new-customer; the cell holds existing-customer"
-      ]
-    },
-    {
-      "spec": "gen-twise-113",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
-        "path home-callback: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path home-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
       "spec": "gen-twise-133",
       "blocks": ["b1-open"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-134",
-      "blocks": ["b1-open", "b2-D1_off_topic"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-135",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
       "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
     },
     {
@@ -1109,18 +1003,8 @@
       "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
     },
     {
-      "spec": "gen-twise-137",
-      "blocks": ["b1-open", "b2-D4_loose_confirmation"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
       "spec": "gen-twise-138",
       "blocks": ["b1-open", "b2-D5_language_switch"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-139",
-      "blocks": ["b1-open", "b2-D6_instruction_in_data"],
       "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
     },
     {
@@ -1144,11 +1028,6 @@
       "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
     },
     {
-      "spec": "gen-twise-144",
-      "blocks": ["b1-open"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
       "spec": "gen-twise-145",
       "blocks": ["b1-open", "b2-D1_off_topic"],
       "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
@@ -1159,18 +1038,8 @@
       "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
     },
     {
-      "spec": "gen-twise-147",
-      "blocks": ["b1-open", "b2-D3_contradiction"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
       "spec": "gen-twise-148",
       "blocks": ["b1-open", "b2-D4_loose_confirmation"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-149",
-      "blocks": ["b1-open", "b2-D5_language_switch"],
       "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
     },
     {
@@ -1184,18 +1053,8 @@
       "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
     },
     {
-      "spec": "gen-twise-152",
-      "blocks": ["b1-open", "b2-D10_return"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
       "spec": "gen-twise-153",
       "blocks": ["b1-open", "b2-D7_silence_or_burst"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-154",
-      "blocks": ["b1-open", "b2-D9_out_of_scope"],
       "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
     },
     {
@@ -1264,17 +1123,17 @@
     "allowed": 840,
     "complete": {
       "t": 2,
-      "specs": 168,
+      "specs": 186,
       "allowed": 840,
-      "covered": 619,
-      "share": 0.736904761904762
+      "covered": 679,
+      "share": 0.8083333333333333
     },
     "all": {
       "t": 2,
       "specs": 268,
       "allowed": 840,
-      "covered": 677,
-      "share": 0.805952380952381
+      "covered": 700,
+      "share": 0.8333333333333334
     },
     "baseline": {
       "label": "examples/acme/specs",

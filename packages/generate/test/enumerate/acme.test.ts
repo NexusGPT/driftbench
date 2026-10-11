@@ -117,7 +117,12 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 168, incomplete: 100 });
+    expect(result.report.summary).toMatchObject({ complete: 186, incomplete: 82 });
+  });
+
+  it('walks a t-wise row whose behaviour no path of its own flows can carry on a path of another flow', () => {
+    // Before the fallback, rows of behaviours whose flows have no path stayed incomplete: 123 complete rows.
+    expect(result.report.seeders.twise.complete).toBeGreaterThan(123);
   });
 
   it('probes all 10 deviation classes, each user turn an approved phrase with its slots filled from the map', () => {
@@ -198,7 +203,7 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(168);
+    expect(result.complete).toHaveLength(186);
     for (const spec of result.complete) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;
       expect(

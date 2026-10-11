@@ -4,7 +4,7 @@
 id: gen-twise-097
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 97 of 154: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer, D10_return at identify"
+title: "t-wise row 97 of 154: Path upgrade-most-data of upgrade: needs > identify > closing, D10_return at identify"
 channel: chat
 lang: EN
 tier: generated
@@ -43,7 +43,7 @@ criteria:
 blocks:
   - id: b1-needs-to-identify
     when:
-      user: Hi, I already have an Acme plan and I need more data.
+      user: I keep running out of data, can I get a bigger plan?
     expect:
       stage: identify
       tools:
@@ -68,17 +68,17 @@ blocks:
       lang: EN
       criteria:
         - deviation.D10_return
-  - id: b3-identify-to-offer
+  - id: b3-identify-to-closing
     when:
-      user: It's lee.jensen@example.com.
+      user: It's morgan.diaz@example.com.
     expect:
-      stage: offer
+      stage: closing
       tools:
         - label: catalog.search
           count: 1
           input:
             category: mobile
-            customer_email: lee.jensen@example.com
+            customer_email: morgan.diaz@example.com
       lang: EN
 rules:
   forbidden_tools:
@@ -97,7 +97,7 @@ metadata:
       agent: acme
       version: "1"
       hash: badea3d3df7a
-    path: upgrade-plan-not-in-catalog
+    path: upgrade-most-data
     cell:
       behaviour: B-009
       channel: chat
@@ -105,7 +105,7 @@ metadata:
       coverage_result: fiber
       workspace_start: existing-workbook
       flow: upgrade
-      account_lookup: plan-not-in-catalog
+      account_lookup: most-data
     blocks:
       - block: b1-needs-to-identify
         seeder: twise
@@ -125,13 +125,13 @@ metadata:
         phrase:
           dimension: deviation
           value: D10_return
-      - block: b3-identify-to-offer
+      - block: b3-identify-to-closing
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: identify-to-offer
-          account_lookup: plan-not-in-catalog
-          stage: offer
+          stage_transition: identify-to-closing
+          account_lookup: most-data
+          stage: closing
         phrase:
           dimension: stage_transition
-          value: identify-to-offer
+          value: identify-to-closing
