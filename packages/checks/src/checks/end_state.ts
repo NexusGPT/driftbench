@@ -14,7 +14,7 @@ const NAME = 'end_state';
 /** One field that differs between the expected and the observed end state, the RunResult shape. */
 export type EndStateDiff = { field: string; expected: unknown; observed: unknown };
 
-type FieldResult = EndStateDiff & { id: string; ok: boolean; evidence: string };
+type FieldCheck = EndStateDiff & { id: string; ok: boolean; evidence: string };
 
 /**
  * The end state of the world after the run against the spec's `end_state`. It runs on the last block of
@@ -22,15 +22,13 @@ type FieldResult = EndStateDiff & { id: string; ok: boolean; evidence: string };
  * not compared.
  *
  * What the check reads in `ctx.endState`, as the runner fills it. For one mapping, the value the adapter
- * read from its `source`; undefined means nothing was recorded. For a list, a record keyed by source,
- * such as `{ 'tool:order.create': payload }`. For `none`, the list of every recorded payload (the adapter
- * source `*`): the check passes when it is undefined, null, `[]` or `{}`, and fails naming the first
- * payload otherwise.
+ * read from its `source`. For a list, a record keyed by source, such as `{ 'tool:order.create': payload }`.
+ * For `none`, the list of every recorded payload (the adapter source `*`): the check passes when it is
+ * undefined, null, `[]` or `{}`, and fails naming the first payload otherwise.
  *
  * `subset` (the default) compares the listed fields, `exact` also fails on a field the spec does not
- * list. One verdict per field, so the report prints the diff field by field. The diff entries follow the
- * runner's `compareEndState`: an unexpected field is expected `{ absent: true }`, a list names its fields
- * `<source>.<field>`, and `none` fails with one entry for the field `*`.
+ * list. One verdict per expected field, the same ids whether or not anything was read; a source that
+ * recorded nothing fails every expected field, `{ absent: true }` assertions included.
  */
 export const endState: Check = {
   name: NAME,
@@ -38,21 +36,30 @@ export const endState: Check = {
   evaluate(ctx: CheckContext): Verdict[] {
     const spec = ctx.spec.end_state;
     if (spec === undefined) return [];
-    return compareFields(spec, ctx.endState).map((result) =>
-      machineVerdict(NAME, result.id, result.ok ? 'pass' : 'fail', result.evidence),
+    if (spec === 'none') return [noneVerdict(ctx.endState)];
+    return fieldChecks(spec, ctx.endState).map((check) =>
+      machineVerdict(NAME, check.id, check.ok ? 'pass' : 'fail', check.evidence),
     );
   },
 };
 
 /**
  * The end state compared field by field: `match` and the fields that differ, in the shape of
- * `RunResult.endState`. The runner records its own diff from core; this one mirrors it, so the verdicts and
- * the run record agree field for field.
+ * `RunResult.endState`. It mirrors the runner's `compareEndState` in core, so the verdicts and the run
+ * record agree: an absent value is written `{ absent: true }` (undefined does not survive JSON), a list
+ * names its fields `<source>.<field>`, and `none` gives one entry `*.<index>` per payload found.
  */
 export function compareEndState(spec: EndState, value: unknown): { match: boolean; diff: EndStateDiff[] } {
-  const diff = compareFields(spec, value)
-    .filter((result) => !result.ok)
-    .map(({ field, expected, observed }) => ({ field, expected, observed }));
+  const diff: EndStateDiff[] =
+    spec === 'none'
+      ? payloads(value).map((payload, index) => ({
+          field: `*.${index}`,
+          expected: { absent: true },
+          observed: payload,
+        }))
+      : fieldChecks(spec, value)
+          .filter((check) => !check.ok)
+          .map(({ field, expected, observed }) => ({ field, expected, observed }));
   return { match: diff.length === 0, diff };
 }
 
@@ -61,30 +68,17 @@ function isLastSpecBlock(ctx: CheckContext): boolean {
   return ctx.block === ctx.spec.blocks.at(-1) || ctx.blockIndex === ctx.spec.blocks.length - 1;
 }
 
-function compareFields(spec: EndState, value: unknown): FieldResult[] {
-  if (spec === 'none') return [nothingSubmitted(value)];
-  const list = Array.isArray(spec) ? spec : [spec];
-  return list.flatMap((entry) => {
-    const prefix = Array.isArray(spec) ? `${entry.source}.` : '';
-    const state = Array.isArray(spec) ? (isRecord(value) ? value[entry.source] : undefined) : value;
-    return compareOne(entry, state, prefix);
-  });
-}
-
-function nothingSubmitted(value: unknown): FieldResult {
+function noneVerdict(value: unknown): Verdict {
   const recorded = payloads(value);
-  const [first] = recorded;
-  return {
-    id: 'none',
-    field: '*',
-    expected: [],
-    observed: value ?? null,
-    ok: recorded.length === 0,
-    evidence:
-      recorded.length === 0
-        ? 'no payload recorded, as end_state none expects'
-        : `end_state is none, but the adapter recorded ${plural(recorded.length, 'payload')}; the first: ${show(first)}`,
-  };
+  if (recorded.length === 0) {
+    return machineVerdict(NAME, 'none', 'pass', 'no payload recorded, as end_state none expects');
+  }
+  return machineVerdict(
+    NAME,
+    'none',
+    'fail',
+    `end_state is none, but the adapter recorded ${plural(recorded.length, 'payload')}; the first: ${show(recorded[0])}`,
+  );
 }
 
 /** The payloads an end state of `none` holds: the runner's list, or the values of a record. */
@@ -95,24 +89,31 @@ function payloads(value: unknown): unknown[] {
   return [value];
 }
 
-function compareOne(entry: EndStateSpec, state: unknown, prefix: string): FieldResult[] {
+function fieldChecks(spec: EndStateSpec | EndStateSpec[], value: unknown): FieldCheck[] {
+  const list = Array.isArray(spec) ? spec : [spec];
+  return list.flatMap((entry) => {
+    if (!Array.isArray(spec)) return entryChecks(entry, value, '');
+    return entryChecks(entry, isRecord(value) ? value[entry.source] : undefined, `${entry.source}.`);
+  });
+}
+
+function entryChecks(entry: EndStateSpec, state: unknown, prefix: string): FieldCheck[] {
+  const fields = Object.entries(entry.expect);
   if (!isRecord(state)) {
-    const read =
+    const why =
       state === undefined || state === null
         ? 'nothing was read (no payload recorded, or the adapter cannot read end states)'
-        : `the state is ${show(state)}, not a mapping`;
-    return [
-      {
-        id: entry.source,
-        field: entry.source,
-        expected: entry.expect,
-        observed: state ?? null,
-        ok: false,
-        evidence: `${entry.source}: ${read}; expected a state holding ${Object.keys(entry.expect).join(', ')}`,
-      },
-    ];
+        : `the state read is ${show(state)}, not a mapping`;
+    if (fields.length === 0) return [missing(entry.source, {}, `${entry.source}: ${why}`)];
+    return fields.map(([field, assertion]) =>
+      missing(
+        `${prefix}${field}`,
+        assertion,
+        `${entry.source}: ${why}, so ${field} is absent; expected ${checkAssertion(undefined, assertion).expected}`,
+      ),
+    );
   }
-  const results: FieldResult[] = Object.entries(entry.expect).map(([field, assertion]) => {
+  const checks: FieldCheck[] = fields.map(([field, assertion]) => {
     const observed = state[field];
     const result = checkAssertion(observed, assertion);
     const problem = result.problem ? `; ${result.problem}` : '';
@@ -120,7 +121,7 @@ function compareOne(entry: EndStateSpec, state: unknown, prefix: string): FieldR
       id: `${prefix}${field}`,
       field: `${prefix}${field}`,
       expected: assertion,
-      observed,
+      observed: observed === undefined ? { absent: true } : observed,
       ok: result.ok,
       evidence: `${entry.source} ${field} is ${show(observed)}, expected ${result.expected}${problem}`,
     };
@@ -128,7 +129,7 @@ function compareOne(entry: EndStateSpec, state: unknown, prefix: string): FieldR
   if (entry.mode === 'exact') {
     for (const field of definedKeys(state)) {
       if (field in entry.expect) continue;
-      results.push({
+      checks.push({
         id: `${prefix}${field}`,
         field: `${prefix}${field}`,
         expected: { absent: true },
@@ -138,5 +139,9 @@ function compareOne(entry: EndStateSpec, state: unknown, prefix: string): FieldR
       });
     }
   }
-  return results;
+  return checks;
+}
+
+function missing(field: string, expected: unknown, evidence: string): FieldCheck {
+  return { id: field, field, expected, observed: { absent: true }, ok: false, evidence };
 }

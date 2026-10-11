@@ -69,12 +69,29 @@ describe('end_state', () => {
     );
   });
 
-  it('fails when nothing was read from the source', async () => {
+  it('mutation: order.create recorded nothing; every expected field fails, absent ones included', async () => {
     const verdicts = await run(endState, context(loose, last(loose), observed(placed)));
-    expect(verdicts.map((item) => [item.id, item.outcome])).toEqual([
-      ['end_state.tool:order.create', 'fail'],
+    expect(outcomes(verdicts)).toEqual({
+      'end_state.type': 'fail',
+      'end_state.plan_id': 'fail',
+      'end_state.address_id': 'fail',
+      'end_state.customer': 'fail',
+      'end_state.port_number': 'fail',
+    });
+    expect(verdict(verdicts, 'end_state.plan_id').evidence).toBe(
+      'tool:order.create: nothing was read (no payload recorded, or the adapter cannot read end states), so plan_id is absent; expected equal to "fiber-1000"',
+    );
+    const { match, diff } = compareEndState(loose.end_state ?? 'none', undefined);
+    expect(match).toBe(false);
+    expect(diff[1]).toEqual({ field: 'plan_id', expected: 'fiber-1000', observed: { absent: true } });
+    expect(diff.every((entry) => JSON.stringify(entry.observed) === '{"absent":true}')).toBe(true);
+  });
+
+  it('writes a field missing from a read payload as { absent: true } in the diff', () => {
+    const { address_id: _dropped, ...withoutAddress } = order;
+    expect(compareEndState(loose.end_state ?? 'none', withoutAddress).diff).toEqual([
+      { field: 'address_id', expected: 'addr-101', observed: { absent: true } },
     ]);
-    expect(verdicts[0]?.evidence).toMatch(/^tool:order\.create: nothing was read/);
   });
 
   it('none: acme-off-topic-return passes on an empty payload list (source *), absent, null or empty', async () => {
@@ -96,10 +113,14 @@ describe('end_state', () => {
     expect(verdict(submitted, 'end_state.none').evidence).toMatch(
       /^end_state is none, but the adapter recorded 2 payloads; the first: \{"type":"new","plan_id":"fiber-1000"/,
     );
-    expect(compareEndState('none', [order])).toEqual({
+    expect(compareEndState('none', [order, callback])).toEqual({
       match: false,
-      diff: [{ field: '*', expected: [], observed: [order] }],
+      diff: [
+        { field: '*.0', expected: { absent: true }, observed: order },
+        { field: '*.1', expected: { absent: true }, observed: callback },
+      ],
     });
+    expect(compareEndState('none', [])).toEqual({ match: true, diff: [] });
     const empty = await run(endState, context(spec, last(spec), observed('ok'), { endState: [{}] }));
     expect(outcomes(empty)).toEqual({ 'end_state.none': 'fail' });
   });
