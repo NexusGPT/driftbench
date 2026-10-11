@@ -148,7 +148,8 @@ describe('normaliseStream', () => {
     expect(observed?.toolCalls.map((entry) => entry.label)).toEqual(['Agent']);
     expect(observed?.toolCalls[0]?.output).toBe('No duplicates.');
     expect(observed?.text).toBe('No invoice was paid twice.');
-    const kept = (observed?.raw as { kept: Array<{ reason: string }> }).kept.map((entry) => entry.reason);
+    const raw = observed?.raw as { kept: Array<{ reason: string }> } | undefined;
+    const kept = (raw?.kept ?? []).map((entry) => entry.reason);
     expect(kept.filter((reason) => reason.includes('injected'))).toHaveLength(2);
     expect(kept).toContain('a helper record (sidechain)');
   });

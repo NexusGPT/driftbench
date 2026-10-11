@@ -61,6 +61,10 @@
     {
       "ask": "Open the DPX website and read the status of NW-55012.",
       "stream": "streams/carrier-page-fault.jsonl"
+    },
+    {
+      "ask": "Move last week's report into reports/archive/.",
+      "stream": "streams/archive-report.jsonl"
     }
   ]
 }

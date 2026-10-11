@@ -113,6 +113,21 @@ describe('claudeCodeLiveAdapter', () => {
     expect(observed.workspaceDiff).toEqual({ created: [], changed: [], deleted: [] });
   });
 
+  it('takes the diff from the workspace itself: a file a shell command moved is deleted and created', async () => {
+    const { adapter } = await setup();
+    const { session, given } = await openRun(adapter);
+    const observed = await adapter.send(
+      session,
+      turnOf(0, "Move last week's report into reports/archive/.", given),
+    );
+    expect(observed.toolCalls.map((call) => call.label)).toEqual(['Bash']);
+    expect(observed.workspaceDiff).toEqual({
+      created: ['reports/archive/2026-W40.md'],
+      changed: [],
+      deleted: ['reports/2026-W40.md'],
+    });
+  });
+
   it('resumes the session the runtime named on the next turn, and gives each turn its own rows', async () => {
     const { adapter, work } = await setup();
     const { session, given } = await openRun(adapter);

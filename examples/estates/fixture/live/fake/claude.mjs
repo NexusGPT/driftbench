@@ -20,7 +20,15 @@
  * - `FAKE_CALLS` (tests only): one JSON line per call, with what the fake saw.
  */
 import { randomUUID } from 'node:crypto';
-import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -167,6 +175,11 @@ for (const line of lines) {
   if (record.fake === 'write') {
     mkdirSync(dirname(join(cwd, record.path)), { recursive: true });
     writeFileSync(join(cwd, record.path), record.content);
+    continue;
+  }
+  if (record.fake === 'move') {
+    mkdirSync(dirname(join(cwd, record.to)), { recursive: true });
+    renameSync(join(cwd, record.from), join(cwd, record.to));
     continue;
   }
   if (record.fake === 'edit') {
