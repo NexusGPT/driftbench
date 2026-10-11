@@ -510,21 +510,6 @@ async function judgeRepeated(client: JudgeClient, request: JudgeRequest, k: numb
 
 // ---------------------------------------------------------------- clients, cassettes, criteria, check
 
-function pinTemperature(create: (o: ClientOptions) => JudgeClient, google = false) {
-  return (options: ClientOptions = {}) => {
-    const inner = options.fetch ?? ((url: string, init: RequestInit) => fetch(url, init));
-    return create({
-      ...options,
-      fetch: (url, init) => {
-        const body = JSON.parse(String(init.body)) as Record<string, unknown>;
-        if (google) body.generationConfig = { ...(body.generationConfig as object), temperature: 0 };
-        else body.temperature = 0;
-        return inner(url, { ...init, body: JSON.stringify(body) });
-      },
-    });
-  };
-}
-
 async function loadCassette(path: string): Promise<Cassette> {
   const cassette = await judges.loadCassette(path);
   const ids = cassette.judges.map((j) => j.id);
@@ -841,6 +826,161 @@ async function calibrate(config: Parameters<typeof judges.calibrate>[0]) {
   };
 }
 
+// ---------------------------------------------------------------- clients that read every provider shape
+
+async function postWitness(url: string, body: unknown, options: ClientOptions): Promise<unknown> {
+  const fetchFn = options.fetch ?? ((u: string, init: RequestInit) => fetch(u, init));
+  const sleep = options.sleep ?? ((ms: number) => new Promise<void>((done) => setTimeout(done, ms)));
+  const max = options.maxRetries ?? 2;
+  for (let attempt = 0; ; attempt += 1) {
+    const response = await fetchFn(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const text = await response.text();
+    if (response.ok) return JSON.parse(text);
+    const retryable = [408, 409, 429, 500, 502, 503, 504, 529].includes(response.status);
+    if (!retryable || attempt >= max)
+      throw new judges.JudgeError('http', `${url} answered ${response.status}`, { status: response.status });
+    const after = response.headers.get('retry-after');
+    let wait = 1000 * 2 ** attempt;
+    if (after)
+      wait = /^\d+$/.test(after.trim()) ? Number(after) * 1000 : Math.max(0, Date.parse(after) - Date.now());
+    await sleep(Math.min(30_000, wait));
+  }
+}
+
+const rec = (v: unknown): Record<string, unknown> =>
+  v !== null && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
+const declinedResult = (raw: unknown): JudgeResult => ({
+  answer: judges.inconclusive('the provider declined'),
+  raw: JSON.stringify(raw),
+});
+
+function chatClient(
+  id: string,
+  family: string,
+  read: (payload: unknown) => JudgeResult,
+  body: (request: JudgeRequest) => unknown,
+) {
+  return (options: ClientOptions = {}): JudgeClient => ({
+    id: options.id ?? id,
+    family,
+    cls: 'system2',
+    cost: 10,
+    async judge(request) {
+      return read(await postWitness(`https://${family}.example.com`, body(request), options));
+    },
+  });
+}
+
+const openaiWitness = chatClient(
+  'openai',
+  'openai',
+  (payload) => {
+    const choice = rec((rec(payload).choices as unknown[] | undefined)?.[0]);
+    if (Object.keys(choice).length === 0)
+      return { answer: judges.inconclusive('no choice'), raw: JSON.stringify(payload), unparsed: true };
+    if (choice.finish_reason === 'content_filter') return declinedResult(payload);
+    const message = rec(choice.message);
+    if (typeof message.refusal === 'string' && message.refusal) return declinedResult(payload);
+    let text =
+      typeof message.content === 'string'
+        ? message.content
+        : Array.isArray(message.content)
+          ? message.content.map((p) => (typeof rec(p).text === 'string' ? rec(p).text : '')).join('')
+          : '';
+    if (!text && Array.isArray(message.tool_calls))
+      text = String(rec(rec(message.tool_calls[0]).function).arguments ?? '');
+    if (!text && typeof choice.text === 'string') text = choice.text;
+    if (choice.finish_reason === 'length')
+      return { answer: judges.inconclusive('cut'), raw: text, unparsed: true };
+    return parseAnswerText(text);
+  },
+  (request) => ({ temperature: 0, messages: buildPrompt(request) }),
+);
+
+const anthropicWitness = chatClient(
+  'anthropic',
+  'anthropic',
+  (payload) => {
+    const p = rec(payload);
+    if (p.stop_reason === 'refusal') return declinedResult(payload);
+    const blocks = Array.isArray(p.content) ? p.content.map(rec) : [];
+    const text = blocks
+      .filter((b) => b.type === 'text')
+      .map((b) => String(b.text))
+      .join('');
+    const tool = blocks.find((b) => b.type === 'tool_use');
+    if (!text && tool) return judges.parseAnswerValue(tool.input);
+    return parseAnswerText(text);
+  },
+  (request) => ({ temperature: 0, messages: buildPrompt(request) }),
+);
+
+const googleWitness = chatClient(
+  'google',
+  'google',
+  (payload) => {
+    const p = rec(payload);
+    const candidate = rec((p.candidates as unknown[] | undefined)?.[0]);
+    if (Object.keys(candidate).length === 0) {
+      return rec(p.promptFeedback).blockReason
+        ? declinedResult(payload)
+        : { answer: judges.inconclusive('no candidate'), raw: JSON.stringify(payload), unparsed: true };
+    }
+    if (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'RECITATION')
+      return declinedResult(payload);
+    const parts = Array.isArray(rec(candidate.content).parts)
+      ? (rec(candidate.content).parts as unknown[]).map(rec)
+      : [];
+    return parseAnswerText(
+      parts
+        .filter((part) => part.thought !== true)
+        .map((part) => String(part.text ?? ''))
+        .join(''),
+    );
+  },
+  (request) => ({ generationConfig: { temperature: 0 }, contents: buildPrompt(request) }),
+);
+
+function probabilityResult(value: unknown, raw: unknown): JudgeResult {
+  const p = typeof value === 'string' && /^\s*\d*\.?\d+\s*$/.test(value) ? Number(value) : value;
+  if (typeof p !== 'number' || !Number.isFinite(p) || p < 0 || p > 1)
+    return { answer: judges.inconclusive('no probability'), raw: JSON.stringify(raw), unparsed: true };
+  return {
+    answer: { outcome: outcomeFromProbability(p) as judges.JudgeOutcome, score: p, reasoning: 'probability' },
+    raw: JSON.stringify(raw),
+  };
+}
+
+function systemOne(id: string, family: string, read: (payload: unknown) => JudgeResult) {
+  return (options: ClientOptions = {}): JudgeClient => ({
+    id: options.id ?? id,
+    family,
+    cls: 'system1',
+    cost: 1,
+    async judge(request) {
+      return read(
+        await postWitness(`https://${id}.example.com`, { input: buildPrompt(request).user }, options),
+      );
+    },
+  });
+}
+
+const jevWitness = systemOne('jev', 'jev', (payload) =>
+  probabilityResult(rec(rec(rec(payload).answers).verdict).noul, payload),
+);
+const decisionsWitness = systemOne('openai-decisions', 'openai', (payload) => {
+  const answers = rec(payload).answers;
+  const verdict = Array.isArray(answers)
+    ? rec(answers.map(rec).find((a) => a.name === 'verdict'))
+    : rec(rec(answers).verdict);
+  if (verdict.type === 'refusal') return declinedResult(payload);
+  return probabilityResult(verdict.probability, payload);
+});
+
 /** The judges package with the witness's overrides. */
 export function witnessApi(): JudgesApi {
   return {
@@ -853,9 +993,11 @@ export function witnessApi(): JudgesApi {
     createCouncil,
     majority,
     judgeRepeated,
-    createOpenAiJudge: pinTemperature(judges.createOpenAiJudge),
-    createAnthropicJudge: pinTemperature(judges.createAnthropicJudge),
-    createGoogleJudge: pinTemperature(judges.createGoogleJudge, true),
+    createOpenAiJudge: openaiWitness,
+    createAnthropicJudge: anthropicWitness,
+    createGoogleJudge: googleWitness,
+    createJevJudge: jevWitness,
+    createOpenAiDecisionsJudge: decisionsWitness,
     loadCassette,
     playerClient,
     loadCriteria,

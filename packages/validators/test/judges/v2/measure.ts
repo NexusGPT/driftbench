@@ -81,6 +81,8 @@ async function main(): Promise<void> {
     bankSize: bank.size,
     passing: bank.passing,
     failingByFamily: bank.failingByFamily,
+    failingCauses: bank.failingCauses,
+    failingWithoutCause: bank.failingWithoutCause,
     bankByFamilyTier: bank.byFamilyTier,
     failingBefore: failingBefore.slice(0, 40),
     hypothesis: arg('hypothesis'),

@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { runLadder } from '../../../src/index';
+import { protectedChanges, runLadder } from '../../../src/index';
 import {
   BILLED_APPROVAL,
   bankShape,
@@ -36,6 +36,15 @@ describe('the judges bank, ladder version 2', () => {
       expect(entry.cause?.length ?? 0, entry.id).toBeGreaterThan(20);
     }
     expect(new Set(judgesBank().map((entry) => entry.cause)).size).toBeGreaterThanOrEqual(150);
+  });
+
+  it('keeps the witness and the bank where an executor branch cannot change them', () => {
+    const paths = [
+      'packages/validators/test/judges/v2/witness.ts',
+      'packages/validators/src/ladders/judges/v2/causes.ts',
+      'packages/validators/src/ladders/judges/v2/families/injection.ts',
+    ];
+    expect(protectedChanges('exec/judges-1', paths)).toEqual(paths);
   });
 
   it('runs live items only with the owner approval in the environment, and calls no client without it', async () => {

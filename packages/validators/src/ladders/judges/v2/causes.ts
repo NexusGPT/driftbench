@@ -122,6 +122,48 @@ const RULES: readonly (readonly [RegExp, string])[] = [
   ],
   [/^cassette\//, 'Keep cassettes recording and replaying as they do.'],
   [
+    /^clients\/openai-content-parts$/,
+    `In ${S}/src/clients/chat.ts createOpenAiJudge: when message.content is a list, join the text of its text parts.`,
+  ],
+  [
+    /^clients\/openai-tool-call-arguments$/,
+    'In createOpenAiJudge: read the answer from tool_calls[0].function.arguments when content is empty.',
+  ],
+  [
+    /^clients\/openai-legacy-text$/,
+    'In createOpenAiJudge: read choices[0].text when the choice has no message.',
+  ],
+  [
+    /^clients\/openai-content-filter$/,
+    'In createOpenAiJudge: read finish_reason content_filter as declined (inconclusive, not unparsed).',
+  ],
+  [
+    /^clients\/anthropic-tool-use-input$/,
+    "In createAnthropicJudge: read the answer from a tool_use block's input when there is no text.",
+  ],
+  [/^clients\/google-thought-parts-left-out$/, 'In createGoogleJudge: leave out parts marked thought: true.'],
+  [
+    /^clients\/google-prompt-blocked$/,
+    'In createGoogleJudge: read promptFeedback.blockReason with no candidate as declined (inconclusive, not unparsed).',
+  ],
+  [
+    /^clients\/google-recitation$/,
+    'In createGoogleJudge: read finishReason RECITATION as declined, like SAFETY.',
+  ],
+  [
+    /^clients\/jev-probability-in-quotes$/,
+    `In ${S}/src/clients/system1.ts: read a probability written as a number in quotes.`,
+  ],
+  [
+    /^clients\/decisions-answers-by-name$/,
+    'In createOpenAiDecisionsJudge: read answers given as an object keyed by question name.',
+  ],
+  [
+    /^clients\/retry-after-/,
+    `In ${S}/src/http.ts postJson: wait what Retry-After says (seconds or an HTTP date, at most the longest wait) before the next attempt.`,
+  ],
+  [/^clients\//, 'Keep the clients reading the shapes they read today.'],
+  [
     /^criteria\/fixtures-differ-only-in-spacing$/,
     `In ${S}/src/criteria.ts loadCriteria: compare the pass and fail fixtures after folding runs of white space.`,
   ],

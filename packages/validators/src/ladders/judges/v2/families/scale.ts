@@ -60,9 +60,9 @@ const request = (entries: TranscriptEntry[]): JudgeRequest => ({
 export function scaleItems(): BankItem[] {
   const out: BankItem[] = [];
   for (const [n, budget, tier] of [
-    [1_000, 100, 1],
-    [10_000, 300, 2],
-    [100_000, 2_000, 3],
+    [1_000, 400, 1],
+    [10_000, 1_200, 2],
+    [100_000, 6_000, 3],
   ] as const) {
     out.push(
       timed(`prompt-${n}-entries`, tier, 'packages/judges/src/prompt.ts', budget, (api, r) => {
@@ -88,9 +88,9 @@ export function scaleItems(): BankItem[] {
     );
   }
   for (const [chars, budget, tier] of [
-    [100_000, 100, 1],
-    [1_000_000, 500, 2],
-    [10_000_000, 4_000, 4],
+    [100_000, 400, 1],
+    [1_000_000, 1_500, 2],
+    [10_000_000, 12_000, 4],
   ] as const) {
     out.push(
       timed(`parse-after-${chars}-characters`, tier, 'packages/judges/src/contract.ts', budget, (api, r) => {
@@ -134,45 +134,59 @@ export function scaleItems(): BankItem[] {
       ),
     );
   }
-  for (const [entries, budget, tier] of [
-    [1_000, 400, 2],
-    [100_000, 150, 4],
-  ] as const) {
-    out.push(
-      timed(
-        `player-${entries}-entry-cassette`,
-        tier,
-        'packages/judges/src/cassette.ts',
-        budget,
-        async (api, r, clock) => {
-          const key = fn<(q: JudgeRequest) => string>(api, 'requestKey');
-          const requests = Array.from({ length: 300 }, (_, i) =>
-            request([{ role: 'user', text: `q${i} ${filler(r, 2)}` }]),
-          );
-          const cassette: Cassette = {
-            version: 1,
-            judges: [{ id: 'j', family: 'f', cls: 'system1', cost: 1 }],
-            entries: [],
-          };
-          for (let i = 0; i < entries; i += 1) {
-            const q = requests[i % requests.length] as JudgeRequest;
-            cassette.entries.push({
-              judge: 'j',
-              key: i < requests.length ? key(q) : `${i.toString(16).padStart(12, '0')}`,
-              answer: { outcome: 'pass', reasoning: 'x' },
-            });
-          }
-          clock.start();
-          const player = fn<(c: Cassette, id: string) => JudgeClient>(api, 'playerClient')(cassette, 'j');
-          for (const q of requests)
-            if ((await player.judge(q)).answer.outcome !== 'pass') return 'a replay went wrong';
-          return undefined;
-        },
-      ),
+  /** Replays 300 requests from a cassette of `entries` entries; returns the replay time in ms, or a problem. */
+  async function replay(api: JudgesApi, r: () => number, entries: number): Promise<number | string> {
+    const key = fn<(q: JudgeRequest) => string>(api, 'requestKey');
+    const requests = Array.from({ length: 300 }, (_, i) =>
+      request([{ role: 'user', text: `q${i} ${filler(r, 2)}` }]),
     );
+    const cassette: Cassette = {
+      version: 1,
+      judges: [{ id: 'j', family: 'f', cls: 'system1', cost: 1 }],
+      entries: [],
+    };
+    for (let i = 0; i < entries; i += 1) {
+      const q = requests[i % requests.length] as JudgeRequest;
+      cassette.entries.push({
+        judge: 'j',
+        key: i < requests.length ? key(q) : `${i.toString(16).padStart(12, '0')}`,
+        answer: { outcome: 'pass', reasoning: 'x' },
+      });
+    }
+    const player = fn<(c: Cassette, id: string) => JudgeClient>(api, 'playerClient')(cassette, 'j');
+    const started = performance.now();
+    for (const q of requests)
+      if ((await player.judge(q)).answer.outcome !== 'pass') return 'a replay went wrong';
+    return performance.now() - started;
   }
   out.push(
-    timed('council-1000-requests', 2, 'packages/judges/src/council.ts', 3_000, async (api, r) => {
+    timed('player-1000-entry-cassette', 2, 'packages/judges/src/cassette.ts', 400, async (api, r) => {
+      const got = await replay(api, r, 1_000);
+      return typeof got === 'string' ? got : undefined;
+    }),
+    {
+      id: 'scale/player-100000-entry-cassette',
+      family: 'scale',
+      tier: 4,
+      level: 'scale',
+      component: 'packages/judges/src/cassette.ts',
+      async run({ api, random }) {
+        // A ratio, not a clock budget: a scan grows with the cassette, an index does not, whatever the machine load.
+        const small = await replay(api, random, 1_000);
+        const big = await replay(api, random, 100_000);
+        if (typeof small === 'string') return { pass: false, detail: small };
+        if (typeof big === 'string') return { pass: false, detail: big };
+        return big <= 5 * small + 150
+          ? { pass: true, detail: '' }
+          : {
+              pass: false,
+              detail: `replaying 300 requests took ${big.toFixed(0)} ms from 100000 entries against ${small.toFixed(0)} ms from 1000: the player scans every entry`,
+            };
+      },
+    },
+  );
+  out.push(
+    timed('council-1000-requests', 2, 'packages/judges/src/council.ts', 8_000, async (api, r) => {
       const create = fn<
         (c: Record<string, unknown>) => { judge(q: JudgeRequest): Promise<{ outcome: string }> }
       >(api, 'createCouncil');

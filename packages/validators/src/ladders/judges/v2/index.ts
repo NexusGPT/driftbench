@@ -3,6 +3,7 @@ import { type BankItem, type JudgesApi, realApi, runItem } from './bank';
 import { causeOf } from './causes';
 import { attackItems } from './families/attacks';
 import { calibrationItems } from './families/calibration';
+import { clientItems } from './families/clients';
 import { cassetteItems, consistencyItems } from './families/consistency';
 import { contractItems } from './families/contract';
 import { cascadeItems, councilItems } from './families/council';
@@ -37,6 +38,7 @@ export const LEVELS: readonly { id: string; name: string }[] = [
   { id: 'contract', name: 'the answer contract under hostile output' },
   { id: 'consistency', name: 'the same request, the same prompt, key and verdict' },
   { id: 'cassette', name: 'cassettes replay what they recorded' },
+  { id: 'clients', name: 'judge clients read what providers send back' },
   { id: 'criteria', name: 'criteria files and their fixture pairs' },
   { id: 'check', name: 'the judge check beside machine verdicts' },
   { id: 'rubric', name: 'rubrics a judge can answer' },
@@ -62,6 +64,7 @@ export function judgesBank(): BankItem[] {
     ...contractItems(),
     ...consistencyItems(),
     ...cassetteItems(),
+    ...clientItems(),
     ...criteriaItems(),
     ...checkItems(),
     ...rubricItems(),
@@ -118,6 +121,7 @@ export function judgesLadderV2(options: JudgesV2Options = {}): Ladder {
               component: entry.component,
               family: entry.family,
               tier: entry.tier,
+              ...(entry.cause ? { cause: entry.cause } : {}),
               pass: result.pass,
               ...(result.pass ? {} : { detail: result.detail }),
             });
