@@ -2,9 +2,9 @@
 
 A check reads one part of what the agent did and returns verdicts with their evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 18 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 18 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
+Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 20 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 20 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
 
-The checks read the agent's runtime through four concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages).
+The checks read the agent's runtime through four concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages). Two more fields of the runtime trace record what the agent consulted and delegated: the files it read (`references`) and the helpers it dispatched (`subagents`).
 
 Every check belongs to one family, whether it reads a reply or a workbook: one package, one verdict shape, one mutation test per check (break the target, see the check fail, restore). A machine check that fails is final; no judge overturns it. Which check gives which drift class is on the [drift](../concepts/drift.md) page. How the runner applies the checks is on the [running](../running.md) page.
 
@@ -14,7 +14,7 @@ A check returns one verdict per fact it checks. A verdict holds an `id`, the che
 
 * The id starts with the name of the check, then a dot: `tools.order.create.count`. The runner reads the check from the text before the first dot.
 * Machine verdicts gate by default. A block passes when every gating verdict passes, so a gating verdict that is inconclusive fails the block. A verdict that does not gate never fails it.
-* When a block expects the same name twice, the second entry gets `#2` in its id, the third `#3`: `tools.order.create#2.count`. This holds for tool labels, card names, skill names, guard names and artifact paths.
+* When a block expects the same name twice, the second entry gets `#2` in its id, the third `#3`: `tools.order.create#2.count`. This holds for tool labels, card names, skill names, guard names, reference paths, helper names and artifact paths.
 * A check that throws, or returns a verdict the schema refuses, does not stop the run. The runner records an inconclusive gating verdict `<check>.error` or `<check>.invalid` that names the problem.
 
 Two kinds of verdict are inconclusive:
@@ -38,6 +38,8 @@ Two kinds of verdict are inconclusive:
 | `stage` | `expect.stage` is set and the runtime reported a stage | `stage.reached` |
 | `skills` | `expect.skills` names a skill | `skills.<name>` |
 | `guards` | `expect.guards` names a guard | `guards.<name>.<verdict>`, or `guards.<name>.any` for an entry without a verdict |
+| `references` | `expect.references` names a path and the runtime reports the files read | `references.<path>`, the path or glob as the spec writes it |
+| `subagents` | `expect.subagents` names a helper and the runtime reports the helpers dispatched | `subagents.<name>`, or `subagents.<name>.<model>` for an entry with a model |
 | `execution` | `expect.execution` sets `ran_code`, `exit_code` or `max_commands` | `execution.ran_code`, `execution.exit_code`, `execution.max_commands` |
 | `workspace` | `expect.workspace` sets a list or `others_untouched: true` | `workspace.created`, `workspace.changed`, `workspace.deleted`, `workspace.others_untouched` |
 | `safety` | `expect.safety` sets `max_destructive_ops` or `confirm_before` | `safety.max_destructive_ops`, `safety.confirm_before.<name>` |
@@ -77,6 +79,8 @@ Every field is optional and open to both kinds of block.
 | `tool_order` | how the expected tools line up with the observed calls: `exact`, `in_order` or `any_order` | `tools` |
 | `skills` | each expected skill: `name` and `count` | `skills` |
 | `guards` | each expected guard: `name`, an optional `verdict`, and `count` | `guards` |
+| `references` | each file the agent must read: `path`, a path or a glob, and `count` | `references` |
+| `subagents` | each helper the agent must dispatch: `name`, an optional `model`, and `count` | `subagents` |
 | `execution` | whether code ran (`ran_code`), the expected `exit_code`, and the most commands allowed (`max_commands`) | `execution` |
 | `artifacts` | each file the block must produce: `path`, `kind`, and `checks` on its content | `artifacts` |
 | `workspace` | the paths the block `created`, `changed` and `deleted`, and `others_untouched` | `workspace` |
@@ -89,7 +93,7 @@ Every field is optional and open to both kinds of block.
 
 Outside `expect`, the same family reads a block's `budget`, the spec's `rules`, `metadata.tool_schemas` and `end_state`. They follow below.
 
-## Tools, skills and guards
+## Tools, skills, guards, references and subagents
 
 A tool expectation names the tool by `label`. `count` is an exact number, or `{ min, max }` with either bound; without `count`, the tool must run at least once. `input` maps argument names to assertions, and every call of the tool must hold each one; a tool that was not called fails each of its input assertions.
 
@@ -132,6 +136,22 @@ For `in_order` and `any_order`, each tool stands for as many calls as its count 
     workspace:
       deleted: [draft.xlsx]
 ```
+
+`references` counts the files the agent read during the block, from the runtime trace. Each entry names a `path`, or a glob: `*` matches within one folder, `**` across folders, `?` one character. `count` works as for tools: without it the agent must read a matching file at least once, and `count: 0` means it must not. A failing verdict names the path and lists the files the block read.
+
+`subagents` counts the helpers the agent dispatched during the block, by `name` and, when the entry gives one, `model`. `count` works as for tools, so `count: 0` means the helper must not be dispatched. A failing verdict names the helper and lists the helpers the block dispatched, with their models.
+
+```yaml
+- user: Build the price sheet and have the sheet reviewer check it.
+  expect:
+    references:
+      - { path: '**/skills/xlsx/SKILL.md', count: 1 }
+      - { path: '**/skills/xlsx/reference/*.md' }
+    subagents:
+      - { name: sheet-reviewer, model: sonnet, count: 1 }
+```
+
+An adapter that does not report the files read, or the helpers dispatched, leaves that list out of the trace, and the check does not apply: an absent list means not checked, as for stages. The Claude Code adapter reports both; see [its page](../adapters/claude-code.md#the-trace-of-a-session).
 
 ## Rules on tools
 

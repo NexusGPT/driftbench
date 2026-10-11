@@ -888,16 +888,16 @@ The spec then holds `retired: atom instruction.standing.keep-an-unconfirmed-draf
 
 `estate impact ... --replay <sessions> [--suite <dir>] [--store <db>]` runs `driftbench replay` over a folder: every `*.jsonl` there is a session, and `*.decisions.jsonl` and `*.steps.jsonl` files go with their session by name. The suite defaults to the `specs` folder inside the sessions folder. The latest replay campaign is read from the store before this replay is stored in it, and each spec on each session flips: pass to pass, fail to pass, pass to fail (a person is needed), fail to fail, or no previous. The run replays whatever corpus and suite it is given: it does not skip specs that `--write` retired.
 
-The corpus of `examples/estates/sessions` belongs to the shop build estate, not to Northwind, so on the fixture the run shows the comparison working, not Northwind regressions. Run twice with one store, the first run has nothing to compare with; the second compares with the first. These are the two lines each run adds to the impact output above:
+The corpus of `examples/estates/sessions` belongs to the shop build estate and to the Acme ops agent, not to Northwind, so on the fixture the run shows the comparison working, not Northwind regressions. Run twice with one store, the first run has nothing to compare with; the second compares with the first. These are the two lines each run adds to the impact output above:
 
 ```
-Replay of 7 runs, campaign replay-19fd71223c3e, no earlier replay in the store: nothing to compare.
-  pass to pass 0, fail to pass 0, pass to fail 0, fail to fail 0, no previous 7.
+Replay of 8 runs, campaign replay-314dd5d13a4a, no earlier replay in the store: nothing to compare.
+  pass to pass 0, fail to pass 0, pass to fail 0, fail to fail 0, no previous 8.
 ```
 
 ```
-Replay of 7 runs, campaign replay-5e2522967691, against replay-19fd71223c3e.
-  pass to pass 3, fail to pass 0, pass to fail 0, fail to fail 4, no previous 0.
+Replay of 8 runs, campaign replay-603c2d6667db, against replay-314dd5d13a4a.
+  pass to pass 4, fail to pass 0, pass to fail 0, fail to fail 4, no previous 0.
 ```
 
 The failing session that motivated a change is its fail-to-pass case: red before, green after, on the same transcript.

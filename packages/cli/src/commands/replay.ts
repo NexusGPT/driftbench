@@ -1,5 +1,6 @@
-import { basename, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import { orderedCheck, type ReplaySession, readSession, replayAdapter } from '@driftbench/adapters';
+import { defaultReaders } from '@driftbench/artifacts';
 import { CheckRegistry, defaultChecks, defaultRegistry } from '@driftbench/checks';
 import {
   type Campaign,
@@ -80,8 +81,22 @@ export function registerReplayCommand(
     });
 }
 
-type SessionEntry = { name: string; path: string; session: ReplaySession };
-type Alignment = { spec: LoadedSpec; entry: SessionEntry; fromBlock: number; how: 'metadata' | 'order' };
+type SessionEntry = {
+  name: string;
+  path: string;
+  session: ReplaySession;
+  decisions?: string;
+  steps?: string;
+};
+/** The before and after trees of a spec's session: the seed folder, and the folder the session left. */
+type Trees = { before: string; after: string };
+type Alignment = {
+  spec: LoadedSpec;
+  entry: SessionEntry;
+  fromBlock: number;
+  how: 'metadata' | 'order';
+  trees?: Trees;
+};
 type ReplayLine = {
   spec: string;
   session: string;
@@ -124,12 +139,13 @@ export async function replayCommand(
     try {
       const decisionLog = decisions.get(name);
       const stepFeed = steps.get(name);
-      const session = await readSession({
+      const files = {
         transcript: path,
         ...(decisionLog === undefined ? {} : { decisions: resolve(io.cwd, decisionLog) }),
         ...(stepFeed === undefined ? {} : { steps: resolve(io.cwd, stepFeed) }),
-      });
-      entries.push({ name, path, session });
+      };
+      const session = await readSession(files);
+      entries.push({ name, path, session, ...files });
     } catch (cause) {
       io.err(`Cannot read the session ${name}: ${describe(cause)}\n`);
       return 2;
@@ -184,9 +200,16 @@ export async function replayCommand(
     };
     await store.putCampaign(campaign);
     const checks = replayChecks();
+    const artifacts = defaultReaders();
     for (const alignment of aligned.alignments) {
+      const session = await sessionFor(alignment);
       const run = await runSpec(alignment.spec.spec, {
-        adapter: replayAdapter({ session: alignment.entry.session, fromBlock: alignment.fromBlock }),
+        adapter: replayAdapter({
+          session,
+          fromBlock: alignment.fromBlock,
+          ...(alignment.trees ? { files: alignment.trees.after } : {}),
+        }),
+        artifacts,
         driver: createScriptedDriver(),
         checks,
         mode: 'F',
@@ -237,6 +260,35 @@ export async function replayCommand(
     );
   }
   return passed === lines.length ? 0 : 1;
+}
+
+/**
+ * The session a spec reads. It is read again for the spec when the spec names files it must read (they map
+ * to references beside the skill folders) or names its trees (the last block's workspace diff is then the
+ * diff of the trees, and its artifacts are read from the after folder).
+ */
+async function sessionFor(alignment: Alignment): Promise<ReplaySession> {
+  const named = referencesOf(alignment.spec);
+  const { entry, trees } = alignment;
+  if (named.length === 0 && !trees) return entry.session;
+  return readSession({
+    transcript: entry.path,
+    ...(entry.decisions === undefined ? {} : { decisions: entry.decisions }),
+    ...(entry.steps === undefined ? {} : { steps: entry.steps }),
+    ...(trees ? { before: trees.before, after: trees.after } : {}),
+    ...(named.length === 0 ? {} : { references: named }),
+  });
+}
+
+/** Every path or glob a spec expects the agent to read, in its blocks and its perturbations. */
+function referencesOf(spec: LoadedSpec): string[] {
+  const expects = [
+    ...spec.spec.blocks.map((block) => block.expect),
+    ...(spec.spec.perturbations ?? []).map((perturbation) => perturbation.expect),
+  ];
+  return [
+    ...new Set(expects.flatMap((expect) => (expect?.references ?? []).map((reference) => reference.path))),
+  ];
 }
 
 /** The checks of a replay: every default check, with the ordered-pair check added to the custom registry. */
@@ -328,7 +380,19 @@ function align(
       notes.push(`${spec.spec.id} names the session ${parsed.session}, which was not given; skipped`);
       continue;
     }
-    alignments.push({ spec, entry, fromBlock: parsed.fromBlock, how: 'metadata' });
+    // The trees belong to the session: they resolve from the transcript's folder, so a corpus can move.
+    const folder = dirname(entry.path);
+    const trees =
+      parsed.trees === undefined
+        ? undefined
+        : { before: resolve(folder, parsed.trees.before), after: resolve(folder, parsed.trees.after) };
+    alignments.push({
+      spec,
+      entry,
+      fromBlock: parsed.fromBlock,
+      how: 'metadata',
+      ...(trees ? { trees } : {}),
+    });
   }
   if (bad) return undefined;
   for (const { spec, entry } of alignments) {
@@ -347,19 +411,31 @@ function align(
   return { alignments, notes };
 }
 
-function replayKey(value: unknown): { session: string; fromBlock: number } | string {
+const REPLAY_KEYS = ['session', 'from_block', 'before', 'after'];
+
+function replayKey(value: unknown): { session: string; fromBlock: number; trees?: Trees } | string {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return 'is a mapping: { session, from_block }';
+    return 'is a mapping: { session, from_block, before, after }';
   }
   const record = value as Record<string, unknown>;
-  const unknown = Object.keys(record).filter((key) => key !== 'session' && key !== 'from_block');
-  if (unknown.length > 0) return `has unknown keys: ${unknown.join(', ')}; it takes session and from_block`;
+  const unknown = Object.keys(record).filter((key) => !REPLAY_KEYS.includes(key));
+  if (unknown.length > 0) {
+    return `has unknown keys: ${unknown.join(', ')}; it takes session, from_block, before and after`;
+  }
+  const folder = (key: string) => typeof record[key] === 'string' && record[key] !== '';
+  if ((record.before !== undefined || record.after !== undefined) && !(folder('before') && folder('after'))) {
+    return 'before and after go together: the folders the workspace held before and after the session';
+  }
   if (typeof record.session !== 'string' || record.session === '') return 'needs session, a session name';
   const from = record.from_block ?? 0;
   if (typeof from !== 'number' || !Number.isInteger(from) || from < 0) {
     return 'from_block is a whole number of at least 0';
   }
-  return { session: record.session, fromBlock: from };
+  return {
+    session: record.session,
+    fromBlock: from,
+    ...(folder('after') ? { trees: { before: String(record.before), after: String(record.after) } } : {}),
+  };
 }
 
 function lineOf(alignment: Alignment, run: RunResult): ReplayLine {
