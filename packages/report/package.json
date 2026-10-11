@@ -17,5 +17,11 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
+  },
+  "dependencies": {
+    "@driftbench/core": "workspace:*",
+    "@driftbench/stats": "workspace:*",
+    "@driftbench/store": "workspace:*",
+    "zod": "^4.6.5"
   }
 }

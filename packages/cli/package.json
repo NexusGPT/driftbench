@@ -35,6 +35,7 @@
     "@driftbench/estate": "workspace:*",
     "@driftbench/judges": "workspace:*",
     "@driftbench/stats": "workspace:*",
-    "@driftbench/validators": "workspace:*"
+    "@driftbench/validators": "workspace:*",
+    "@driftbench/report": "workspace:*"
   }
 }
