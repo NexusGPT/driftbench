@@ -1,0 +1,865 @@
+import type {
+  Cassette,
+  ClientOptions,
+  CouncilResult,
+  CriteriaLoad,
+  CriterionText,
+  JudgeAnswer,
+  JudgeClient,
+  JudgeRequest,
+  JudgeResult,
+  TranscriptEntry,
+  Vote,
+} from '@driftbench/judges';
+import * as judges from '@driftbench/judges';
+import { clopperPearson } from '@driftbench/stats';
+import { type JudgesApi, realApi } from '../../../src/ladders/judges/v2/bank';
+import { bankMajority } from '../../../src/ladders/judges/v2/families/council';
+import { firstPlace } from '../../../src/ladders/judges/v2/families/evidence';
+import { LANGUAGES } from '../../../src/ladders/judges/v2/families/injection';
+import { referenceBradleyTerry, stronglyConnected } from '../../../src/ladders/judges/v2/families/pairwise';
+import { referenceFit } from '../../../src/ladders/judges/v2/families/turns';
+
+/**
+ * The witness: a version of the judges package written only to show that every deterministic item of the bank
+ * can pass at once. It is test code, never the package: an executor climbing the ladder writes its own fixes
+ * in packages/judges and does not read this file. Each override follows the spec its family states.
+ */
+
+// ---------------------------------------------------------------- the answer contract
+
+function topLevelObjects(raw: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let start = -1;
+  let quote: string | null = null;
+  let escaped = false;
+  for (let i = 0; i < raw.length; i += 1) {
+    const ch = raw[i] as string;
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (ch === '\\') escaped = true;
+      else if (ch === quote || (quote === '“' && ch === '”')) quote = null;
+      continue;
+    }
+    if (depth > 0 && (ch === '"' || ch === "'" || ch === '“')) quote = ch;
+    else if (ch === '{') {
+      if (depth === 0) start = i;
+      depth += 1;
+    } else if (ch === '}' && depth > 0) {
+      depth -= 1;
+      if (depth === 0) out.push(raw.slice(start, i + 1));
+    }
+  }
+  return out;
+}
+
+function duplicateTopKeys(text: string): boolean {
+  const keys: string[] = [];
+  let depth = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === '"') {
+      let j = i + 1;
+      while (j < text.length && text[j] !== '"') j += text[j] === '\\' ? 2 : 1;
+      const after = text.slice(j + 1).match(/^\s*:/);
+      if (depth === 1 && after) keys.push(text.slice(i + 1, j));
+      i = j;
+    } else if (ch === '{' || ch === '[') depth += 1;
+    else if (ch === '}' || ch === ']') depth -= 1;
+  }
+  return new Set(keys).size !== keys.length;
+}
+
+function lenient(candidate: string): unknown {
+  if (!/[:]/.test(candidate)) return undefined;
+  const attempts = [candidate];
+  let text = candidate
+    .replace(/[“”]/g, '"')
+    .replace(/^\s*\/\/.*$/gm, '')
+    .replace(/,\s*([}\]])/g, '$1');
+  if (!text.includes('"')) text = text.replace(/'/g, '"');
+  attempts.push(text);
+  for (const attempt of attempts) {
+    try {
+      if (duplicateTopKeys(attempt)) return undefined;
+      return JSON.parse(attempt);
+    } catch {
+      // the next attempt
+    }
+  }
+  return undefined;
+}
+
+function contractOf(value: unknown): JudgeAnswer | undefined {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  const v = { ...(value as Record<string, unknown>) };
+  if (typeof v.outcome === 'string') v.outcome = v.outcome.toLowerCase();
+  if (typeof v.score === 'string' && /^\s*\d*\.?\d+\s*$/.test(v.score)) v.score = Number(v.score);
+  const parsed = judges.JudgeAnswer.safeParse(v);
+  if (!parsed.success) return undefined;
+  const a = parsed.data;
+  if (
+    a.score !== undefined &&
+    ((a.outcome === 'pass' && a.score < 0.5) || (a.outcome === 'fail' && a.score > 0.5))
+  )
+    return undefined;
+  return a;
+}
+
+export function parseAnswerText(raw: string): JudgeResult {
+  const answers: JudgeAnswer[] = [];
+  for (const candidate of topLevelObjects(raw)) {
+    const answer = contractOf(lenient(candidate));
+    if (answer) answers.push(answer);
+  }
+  if (answers.length === 0) return { answer: judges.inconclusive('unparseable answer'), raw, unparsed: true };
+  if (new Set(answers.map((a) => a.outcome)).size > 1) {
+    return { answer: judges.inconclusive('two answers that disagree'), raw, unparsed: true };
+  }
+  return { answer: answers[0] as JudgeAnswer, raw };
+}
+
+function outcomeFromProbability(p: number, bounds: { passAt?: number; failAt?: number } = {}) {
+  const passAt = bounds.passAt ?? 0.6;
+  const failAt = bounds.failAt ?? 0.4;
+  if (!(failAt < passAt)) throw new RangeError('failAt must be under passAt');
+  if (!Number.isFinite(p) || p < 0 || p > 1) return 'inconclusive';
+  return judges.outcomeFromProbability(p, bounds);
+}
+
+// ---------------------------------------------------------------- the prompt kit
+
+const INVISIBLE = /[​-‏⁠-⁤﻿­᠎]/g;
+const BREAKS = /\r\n|[\n\r\u2028\u2029\u0085\v\f]/g;
+
+function escapeData(text: string): string {
+  return judges.escapeData(text.replace(INVISIBLE, '').normalize('NFKC'));
+}
+
+function renderEntry(entry: TranscriptEntry): string {
+  const tool = entry.tool?.replace(BREAKS, ' ').replace(/[\]]/g, ')');
+  const label = tool ? `${entry.role} ${tool}` : entry.role;
+  return `[${label}] ${entry.text.replace(BREAKS, ' ⏎ ')}`;
+}
+
+function buildPrompt(request: JudgeRequest): { system: string; user: string } {
+  const parts = [judges.renderRubric(request.criterion), ''];
+  const given = request.given
+    ? [
+        request.given.stage ? `stage expected: ${request.given.stage}` : '',
+        request.given.ledger && Object.keys(request.given.ledger).length > 0
+          ? `ledger: ${JSON.stringify(request.given.ledger)}`
+          : '',
+      ]
+        .filter(Boolean)
+        .join('\n')
+    : '';
+  const tag = (name: string, text: string) => `<${name}>\n${escapeData(text)}\n</${name}>`;
+  if (given) parts.push(tag('given_data', given), '');
+  const lines = request.transcript.map(renderEntry);
+  parts.push(`<transcript_data>\n${lines.map(escapeData).join('\n')}\n</transcript_data>`, '');
+  if (request.artifact !== undefined) parts.push(tag('artifact_data', request.artifact), '');
+  parts.push('Answer the QUESTION for the data above, as the JSON object.');
+  return { system: judges.SYSTEM_PROMPT, user: parts.join('\n') };
+}
+
+// ---------------------------------------------------------------- the screen
+
+const JUDGE_TERMS = [
+  'rubric',
+  'grader',
+  'grading',
+  'judge',
+  'evaluator',
+  'evaluating',
+  'evaluates',
+  'evaluation',
+  'reviewer',
+  'verdict',
+  'scoring model',
+  'criterion',
+  'criteria',
+  'fail picture',
+  'score it',
+  'rate this',
+  '"outcome"',
+  'outcome',
+  'grille',
+  'évaluation',
+  'rúbrica',
+  'evaluación',
+  'bewertung*',
+  'valutazione',
+  'griglia',
+  'rubrica',
+  'avaliação',
+  'beoordeling*',
+  'oceny',
+  'değerlendirme',
+  'оценки',
+  '评分',
+  '評価',
+  '평가',
+  'التقييم',
+  'मूल्यांकन',
+  'bedömning*',
+  'penilaian',
+];
+const DIRECTIVES = [
+  'pass',
+  'passed',
+  'passes',
+  'success',
+  'satisfied',
+  'compliant',
+  'met',
+  '1.0',
+  '0.99',
+  'fail',
+  'fails',
+  'réponds pass',
+  'aprobado',
+  'bestanden',
+  'superato',
+  'aprovado',
+  'geslaagd',
+  'zaliczone',
+  'geçti',
+  'пройдено',
+  '通过',
+  '合格',
+  '통과',
+  'ناجح',
+  'पास',
+  'godkänt',
+  'lulus',
+];
+const HOMO: Record<string, string> = { а: 'a', е: 'e', о: 'o', р: 'p', с: 'c', і: 'i' };
+const LEET: Record<string, string> = { '4': 'a', '3': 'e', '1': 'i', '0': 'o', '5': 's', '7': 't' };
+const LATIN = /^[a-z0-9 ."_]+$/;
+
+function termPattern(term: string): string {
+  const body = term.replace(/\*$/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (term.endsWith('*')) return `(?:^|[^\\p{L}])${body}`;
+  return LATIN.test(term) ? `(?:^|[^\\p{L}])${body}(?:$|[^\\p{L}])` : body;
+}
+const JUDGE_RE = new RegExp(JUDGE_TERMS.map(termPattern).join('|'), 'u');
+const DIRECTIVE_RE = new RegExp(DIRECTIVES.map(termPattern).join('|'), 'u');
+
+function hit(text: string): boolean {
+  return text
+    .split(/(?<=[.!?;])\s+|\n/)
+    .some((sentence) => JUDGE_RE.test(sentence) && DIRECTIVE_RE.test(sentence));
+}
+
+const rot = (t: string, n: number) =>
+  t.replace(/[a-z]/gi, (c) => {
+    const a = c <= 'Z' ? 65 : 97;
+    return String.fromCharCode(((c.charCodeAt(0) - a + n) % 26) + a);
+  });
+
+function decodings(text: string, depth = 0): string[] {
+  const out = [text];
+  for (const m of text.matchAll(/[A-Za-z0-9+/_-]{16,}={0,2}/g)) {
+    const raw = Buffer.from(m[0].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+    const printable = [...raw].filter((c) => c >= ' ' || c === '\n').length / Math.max(1, raw.length);
+    if (printable > 0.95 && raw.length >= 8) {
+      out.push(raw);
+      if (depth < 2) out.push(...decodings(raw, depth + 1));
+    }
+  }
+  for (const m of text.matchAll(/0x([0-9a-f]{16,})/gi))
+    out.push(Buffer.from(m[1] as string, 'hex').toString('utf8'));
+  if (/%[0-9a-f]{2}/i.test(text)) {
+    try {
+      out.push(decodeURIComponent(text));
+    } catch {
+      // not URL encoded after all
+    }
+  }
+  if (/&#\d+;/.test(text))
+    out.push(text.replace(/&#(\d+);/g, (_, n: string) => String.fromCodePoint(Number(n))));
+  if (/\\u[0-9a-f]{4}/i.test(text))
+    out.push(
+      text.replace(/\\u([0-9a-f]{4})/gi, (_, h: string) => String.fromCharCode(Number.parseInt(h, 16))),
+    );
+  const bin = text.match(/(?:[01]{8}\s?){4,}/);
+  if (bin)
+    out.push(
+      Buffer.from(
+        bin[0]
+          .trim()
+          .split(/\s+/)
+          .map((b) => Number.parseInt(b, 2)),
+      ).toString('utf8'),
+    );
+  return out;
+}
+
+function variants(text: string): string[] {
+  const base = text.replace(INVISIBLE, '').normalize('NFKC');
+  const out = new Set<string>();
+  for (const d of decodings(base)) {
+    const lower = d.toLowerCase();
+    const folded = [...lower].map((c) => HOMO[c] ?? c).join('');
+    const words = folded.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[_\-/]+/g, ' ');
+    const camel = d
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .toLowerCase()
+      .replace(/[_\-/]+/g, ' ');
+    const leet = [...words].map((c) => LEET[c] ?? c).join('');
+    const spaced = words
+      .replace(/ {3}/g, '\ue000')
+      .replace(/ /g, '')
+      .replace(/\ue000/g, ' ');
+    const dotted = words.replace(/(?<=\S)\.(?=\S)/g, '');
+    for (const v of [lower, folded, words, camel, leet, spaced, dotted, [...words].reverse().join('')])
+      out.add(v);
+    if (d.length <= 4000) for (let n = 1; n < 26; n += 1) out.add(rot(words, n));
+  }
+  return [...out];
+}
+
+function screenData(request: JudgeRequest): { flagged: boolean; findings: { where: string }[] } {
+  const places: [string, string][] = [
+    ...request.transcript.map((e, i): [string, string] => [`transcript.${i}`, `${e.tool ?? ''} ${e.text}`]),
+    ...(request.artifact === undefined ? [] : [['artifact', request.artifact] as [string, string]]),
+    ...(request.given === undefined ? [] : [['given', JSON.stringify(request.given)] as [string, string]]),
+  ];
+  const findings: { where: string }[] = [];
+  for (const [where, text] of places) if (variants(text).some(hit)) findings.push({ where });
+  // An instruction split over entries: read the transcript as one text too.
+  if (findings.length === 0 && variants(request.transcript.map((e) => e.text).join(' ')).some(hit)) {
+    findings.push({ where: 'transcript' });
+  }
+  return { flagged: findings.length > 0, findings };
+}
+
+void LANGUAGES;
+
+// ---------------------------------------------------------------- the council
+
+type Config = judges.CouncilConfig & {
+  size?: number;
+  weights?: Record<string, number>;
+  cascade?: boolean | { threshold?: number; thresholds?: Record<string, number> };
+};
+
+function createCouncil(config: Config) {
+  const size = config.size ?? 3;
+  const fail = (m: string) => {
+    throw new judges.CouncilConfigError(m);
+  };
+  if (!Number.isInteger(size) || size < 1) fail('size must be a whole number from 1');
+  const cascade =
+    config.cascade === true
+      ? { threshold: 0.9 }
+      : config.cascade
+        ? { threshold: config.cascade.threshold ?? 0.9, thresholds: config.cascade.thresholds }
+        : undefined;
+  for (const t of [cascade?.threshold, ...Object.values(cascade?.thresholds ?? {})]) {
+    if (t !== undefined && !(t > 0.5 && t <= 1)) fail(`a cascade threshold must be in (0.5, 1], not ${t}`);
+  }
+  if (!config.agentFamily.trim()) fail('the agent family is not set');
+  for (const j of config.judges)
+    if (judges.sameFamily(j.family, config.agentFamily)) fail(`judge ${j.id} is from the agent's family`);
+  const classes =
+    config.mode === 'system1' ? ['system1'] : config.mode === 'llm' ? ['system2'] : ['system1', 'system2'];
+  for (const cls of classes)
+    if (config.judges.filter((j) => j.cls === cls).length < size)
+      fail(`mode ${config.mode} needs ${size} ${cls} judges`);
+  const cheapest = (cls: string) =>
+    config.judges
+      .filter((j) => j.cls === cls)
+      .sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id))
+      .slice(0, size);
+  const vote = async (
+    judge: JudgeClient,
+    request: JudgeRequest,
+    budget: judges.Budget,
+    counter: { errors: number; cost: number },
+  ): Promise<Vote> => {
+    const name = budget === 'large' ? `${judge.id}@large` : judge.id;
+    counter.cost += judge.cost;
+    try {
+      let result = await judge.judge({ ...request, budget });
+      if (result.unparsed && budget === 'normal') {
+        counter.cost += judge.cost;
+        result = await judge.judge({ ...request, budget: 'large' });
+      }
+      return {
+        judge: name,
+        outcome: result.answer.outcome,
+        ...(result.answer.score === undefined ? {} : { score: result.answer.score }),
+        reasoning: result.answer.reasoning,
+      };
+    } catch (cause) {
+      counter.errors += 1;
+      return { judge: name, outcome: 'inconclusive', reasoning: `no answer: ${String(cause)}` };
+    }
+  };
+  const round = async (
+    request: JudgeRequest,
+    cls: string,
+    members: JudgeClient[],
+    budget: judges.Budget,
+    useCascade: boolean,
+    counter: { errors: number; cost: number },
+  ) => {
+    const votes: Vote[] = [];
+    let cascaded = false;
+    if (useCascade && cascade) {
+      const [cheap, ...rest] = members;
+      const first = await vote(cheap as JudgeClient, request, budget, counter);
+      votes.push(first);
+      const threshold = cascade.thresholds?.[(cheap as JudgeClient).id] ?? cascade.threshold;
+      if (
+        first.outcome === 'pass' &&
+        first.score !== undefined &&
+        first.score >= threshold &&
+        !screenData(request).flagged
+      )
+        cascaded = true;
+      else for (const j of rest) votes.push(await vote(j, request, budget, counter));
+    } else for (const j of members) votes.push(await vote(j, request, budget, counter));
+    const weights = config.weights
+      ? Object.fromEntries(
+          Object.entries(config.weights).flatMap(([k, w]) => [
+            [k, w],
+            [`${k}@large`, w],
+          ]),
+        )
+      : undefined;
+    const outcome = cascaded ? 'pass' : bankMajority(votes, weights ? { weights } : {});
+    return { cls, budget, votes, outcome, cascaded };
+  };
+  return {
+    mode: config.mode,
+    agentFamily: config.agentFamily,
+    async judge(request: JudgeRequest): Promise<CouncilResult & { cost: number }> {
+      const counter = { errors: 0, cost: 0 };
+      const cls = config.mode === 'llm' ? 'system2' : 'system1';
+      const rounds = [await round(request, cls, cheapest(cls), 'normal', true, counter)];
+      let decided = rounds[0]?.outcome === 'split' ? undefined : rounds[0];
+      if (!decided && config.mode === 'hybrid') {
+        const second = await round(request, 'system2', cheapest('system2'), 'normal', false, counter);
+        rounds.push(second);
+        if (second.outcome !== 'split') decided = second;
+      }
+      if (!decided) {
+        const last = await round(request, cls, cheapest(cls), 'large', false, counter);
+        rounds.push(last);
+        if (last.outcome !== 'split') decided = last;
+      }
+      const outcome = (decided ? decided.outcome : 'inconclusive') as judges.JudgeOutcome;
+      const agreeing = (decided?.votes ?? []).filter((v) => v.outcome === outcome && v.score !== undefined);
+      return {
+        criterion: request.criterion.name,
+        outcome,
+        cls: (decided?.cls ?? cls) as judges.JudgeClass,
+        votes: rounds.flatMap((r) => r.votes),
+        rounds: rounds.map((r) => ({
+          ...r,
+          cls: r.cls as judges.JudgeClass,
+          outcome: r.outcome as judges.RoundOutcome,
+        })),
+        split: rounds[0]?.outcome === 'split',
+        cascaded: rounds[0]?.cascaded ?? false,
+        errors: counter.errors,
+        cost: counter.cost,
+        ...(agreeing.length > 0
+          ? { score: agreeing.reduce((s, v) => s + (v.score as number), 0) / agreeing.length }
+          : {}),
+        log: rounds.map(
+          (r) =>
+            `${r.cls}: ${r.votes.map((v) => `${v.judge} ${v.outcome}`).join(', ')}; ${r.cascaded ? 'pass, the cheapest judge was sure' : r.outcome}`,
+        ),
+      };
+    },
+  };
+}
+
+function majority(
+  votes: readonly Vote[],
+  options?: { weights?: Record<string, number>; families?: Record<string, string> },
+) {
+  const out = bankMajority(votes, options);
+  if (out === 'refused') throw new RangeError('a weight must be finite and not negative');
+  return out;
+}
+
+async function judgeRepeated(client: JudgeClient, request: JudgeRequest, k: number) {
+  if (!Number.isInteger(k) || k < 1) throw new RangeError('k must be a whole number from 1');
+  const outcomes: string[] = [];
+  for (let i = 0; i < k; i += 1) outcomes.push((await client.judge(request)).answer.outcome);
+  return { outcomes, consistent: outcomes.every((o) => o === outcomes[0]) && outcomes[0] !== 'inconclusive' };
+}
+
+// ---------------------------------------------------------------- clients, cassettes, criteria, check
+
+function pinTemperature(create: (o: ClientOptions) => JudgeClient, google = false) {
+  return (options: ClientOptions = {}) => {
+    const inner = options.fetch ?? ((url: string, init: RequestInit) => fetch(url, init));
+    return create({
+      ...options,
+      fetch: (url, init) => {
+        const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+        if (google) body.generationConfig = { ...(body.generationConfig as object), temperature: 0 };
+        else body.temperature = 0;
+        return inner(url, { ...init, body: JSON.stringify(body) });
+      },
+    });
+  };
+}
+
+async function loadCassette(path: string): Promise<Cassette> {
+  const cassette = await judges.loadCassette(path);
+  const ids = cassette.judges.map((j) => j.id);
+  if (new Set(ids).size !== ids.length) throw new judges.JudgeError('config', 'a judge is listed twice');
+  for (const e of cassette.entries) {
+    if (!ids.includes(e.judge))
+      throw new judges.JudgeError('config', `an entry of the unlisted judge ${e.judge}`);
+    const held = [
+      e.answer !== undefined,
+      e.raw !== undefined && e.answer === undefined,
+      e.error !== undefined,
+    ].filter(Boolean).length;
+    if (held !== 1 || (e.error !== undefined && (e.answer !== undefined || e.raw !== undefined)))
+      throw new judges.JudgeError('config', 'an entry must hold one of answer, raw or error');
+    if (e.answer !== undefined && !judges.JudgeAnswer.safeParse(e.answer).success)
+      throw new judges.JudgeError('config', 'an answer breaks the contract');
+    if (!/^[0-9a-f]{12}$/.test(e.key)) throw new judges.JudgeError('config', 'a key is not a request hash');
+  }
+  return cassette;
+}
+
+function playerClient(cassette: Cassette, judgeId: string): JudgeClient {
+  const base = judges.playerClient(cassette, judgeId);
+  const index = new Map<string, Cassette['entries']>();
+  for (const e of cassette.entries)
+    if (e.judge === judgeId) index.set(e.key, [...(index.get(e.key) ?? []), e]);
+  const used = new Map<string, number>();
+  return {
+    ...base,
+    async judge(request) {
+      const key = judges.requestKey(request);
+      const matches = index.get(key);
+      if (!matches) throw new judges.JudgeError('cassette_miss', `no recording for ${key}`);
+      const i = used.get(key) ?? 0;
+      used.set(key, i + 1);
+      const e = matches[Math.min(i, matches.length - 1)] as Cassette['entries'][number];
+      if (e.error !== undefined) throw new judges.JudgeError('http', e.error);
+      if (e.answer !== undefined) return judges.parseAnswerValue(e.answer, e.raw);
+      return parseAnswerText(e.raw ?? '');
+    },
+  };
+}
+
+const foldText = (t: string) => t.toLowerCase().replace(/\s+/g, ' ').trim();
+
+async function loadCriteria(dir: string): Promise<CriteriaLoad> {
+  const got = await judges.loadCriteria(dir);
+  const issues = [...got.issues];
+  const criteria = got.criteria.filter((c) => {
+    const slice = (f: typeof c.fixtures.pass) =>
+      foldText(
+        JSON.stringify([f.transcript.map((e) => [e.role, e.tool, foldText(e.text)]), f.artifact ?? '']),
+      );
+    if (slice(c.fixtures.pass) === slice(c.fixtures.fail)) {
+      issues.push({
+        path: c.path,
+        message: 'the fixtures are the same slice once spacing and case are folded',
+      });
+      return false;
+    }
+    if (foldText(c.def.pass ?? '') === foldText(c.def.fail ?? '')) {
+      issues.push({ path: c.path, message: 'the PASS and FAIL pictures say the same' });
+      return false;
+    }
+    return true;
+  });
+  return { criteria, issues };
+}
+
+function combineVerdicts(machine: judges.JudgeResult[] | never[], judged: never[]) {
+  const ids = judged.map((v: { id: string }) => v.id);
+  if (new Set(ids).size !== ids.length) throw new Error('two judge verdicts share an id');
+  return judges.combineVerdicts(machine as never, judged);
+}
+
+function judgeCheck(council: judges.Council, options?: judges.JudgeCheckOptions) {
+  const inner = judges.judgeCheck(council, options);
+  return {
+    ...inner,
+    async evaluate(ctx: Parameters<typeof inner.evaluate>[0]) {
+      const out = await inner.evaluate(ctx);
+      const seen = new Map<string, number>();
+      return out.map((v) => {
+        const n = seen.get(v.id) ?? 0;
+        seen.set(v.id, n + 1);
+        return n === 0 ? v : { ...v, id: `${v.id}.${n + 1}` };
+      });
+    },
+  };
+}
+
+function summarizeDiff(diff: Parameters<typeof judges.summarizeDiff>[0]) {
+  return judges.summarizeDiff(diff).replace(BREAKS, ' ');
+}
+
+// ---------------------------------------------------------------- rubric lint
+
+function lintCriterion(c: CriterionText): { issues: { code: string }[] } {
+  const codes: string[] = [];
+  const r = c.rubric;
+  const lower = r.toLowerCase();
+  const word = (list: string[], text = lower) => list.some((w) => new RegExp(`\\b${w}\\b`).test(text));
+  if (r.trim() === '') codes.push('empty-rubric');
+  if ((r.match(/\?/g) ?? []).length > 1) codes.push('two-questions');
+  if (
+    word([
+      'good',
+      'appropriate',
+      'nice',
+      'reasonable',
+      'properly',
+      'adequate',
+      'helpful',
+      'polite',
+      'professional',
+      'friendly',
+    ])
+  )
+    codes.push('subjective');
+  if (word(['some', 'several', 'many', 'often', 'usually', 'mostly', 'a few', 'most of the time']))
+    codes.push('vague-quantity');
+  if ((lower.match(/\b(not|no|never|fail to|avoid)\b/g) ?? []).length >= 2) codes.push('double-negative');
+  if (
+    r.trim() !== '' &&
+    !word([
+      'reply',
+      'agent',
+      'assistant',
+      'message',
+      'tool',
+      'call',
+      'order',
+      'customer',
+      'user',
+      'file',
+      'transcript',
+    ])
+  )
+    codes.push('no-observable');
+  if (r.length > 400) codes.push('too-long');
+  if (c.fail === undefined) codes.push('no-fail-picture');
+  if (c.pass === undefined) codes.push('no-pass-picture');
+  if (c.pass !== undefined && c.fail !== undefined) {
+    if (foldText(c.pass) === foldText(c.fail)) codes.push('same-pictures');
+    else if (foldText(c.fail).replace(/\bdoes not do\b/, 'does') === foldText(c.pass))
+      codes.push('picture-contradicts-rubric');
+    if (/\bfails?\b/i.test(c.pass) || /\bpasses\b/i.test(c.fail)) codes.push('pictures-swapped');
+  }
+  if (
+    (c.scope === 'conversation' && /\b(the last reply|this reply)\b/.test(lower)) ||
+    (c.scope !== 'conversation' && /\b(the whole conversation|every turn)\b/.test(lower))
+  )
+    codes.push('scope-mismatch');
+  if (/\{[^}]*\}|<[^>]+>/.test(r)) codes.push('placeholder');
+  if ((r.match(/"/g) ?? []).length % 2 === 1) codes.push('unbalanced-quotes');
+  if (/\b(and also|as well as)\b/.test(lower)) codes.push('compound');
+  if (
+    word(['might', 'may', 'could', 'perhaps', 'possibly']) ||
+    word(['might', 'may', 'could', 'perhaps', 'possibly'], (c.pass ?? '').toLowerCase())
+  )
+    codes.push('hedged');
+  if (/\b(answer pass|always pass|mark as)\b/.test(lower)) codes.push('instruction-to-judge');
+  return { issues: codes.map((code) => ({ code })) };
+}
+
+// ---------------------------------------------------------------- evidence, budget, turns
+
+function groundEvidence(request: JudgeRequest, answer: JudgeAnswer) {
+  if (answer.evidence === undefined) return { grounded: false };
+  const where = firstPlace(request, answer.evidence);
+  return where === undefined ? { grounded: false } : { grounded: true, where };
+}
+
+function fitPrompt(request: JudgeRequest, max: number): JudgeRequest {
+  const out = referenceFit(buildPrompt, request, max);
+  if (out === 'refused') throw new RangeError('the request does not fit the budget');
+  return out;
+}
+
+async function judgeTurns(judge: JudgeClient, request: JudgeRequest) {
+  const starts: number[] = [];
+  request.transcript.forEach((e, i) => {
+    if (e.role === 'user' && (starts.length === 0 || request.transcript[i - 1]?.role !== 'user'))
+      starts.push(i);
+  });
+  if (starts.length === 0) throw new RangeError('no customer message');
+  const turns: { turn: number; outcome: string }[] = [];
+  for (let t = 0; t < starts.length; t += 1) {
+    const end = starts[t + 1] ?? request.transcript.length;
+    let outcome: string;
+    try {
+      outcome = (await judge.judge({ ...request, transcript: request.transcript.slice(0, end) })).answer
+        .outcome;
+    } catch {
+      outcome = 'inconclusive';
+    }
+    turns.push({ turn: t + 1, outcome });
+  }
+  const first = turns.findIndex((t) => t.outcome === 'fail');
+  const recovered = first < 0 ? -1 : turns.findIndex((t, i) => i > first && t.outcome === 'pass');
+  return {
+    turns,
+    outcome: turns.some((t) => t.outcome === 'fail')
+      ? 'fail'
+      : turns.some((t) => t.outcome === 'inconclusive')
+        ? 'inconclusive'
+        : 'pass',
+    ...(first < 0 ? {} : { firstFailing: first + 1 }),
+    ...(recovered < 0 ? {} : { recoveredAt: recovered + 1 }),
+  };
+}
+
+// ---------------------------------------------------------------- pairwise
+
+type PairJudge = { judgePair(r: unknown): Promise<string> };
+async function comparePair(
+  judge: PairJudge,
+  r: { criterion: CriterionText; a: TranscriptEntry[]; b: TranscriptEntry[] },
+) {
+  const ask = async (first: TranscriptEntry[], second: TranscriptEntry[]) => {
+    try {
+      return await judge.judgePair({ criterion: r.criterion, first, second });
+    } catch {
+      return 'inconclusive';
+    }
+  };
+  const one = await ask(r.a, r.b);
+  const two = await ask(r.b, r.a);
+  const map1 = one === 'first' ? 'a' : one === 'second' ? 'b' : one;
+  const map2 = two === 'first' ? 'b' : two === 'second' ? 'a' : two;
+  return { winner: map1 === map2 && map1 !== 'inconclusive' ? map1 : 'inconclusive', calls: 2 };
+}
+
+function buildPairPrompt(r: {
+  criterion: CriterionText;
+  first: TranscriptEntry[];
+  second: TranscriptEntry[];
+}) {
+  const guard = (t: string) => escapeData(t).replace(/<(\s*\/?\s*(?:first_data|second_data)\b)/gi, '&lt;$1');
+  const block = (tag: string, entries: TranscriptEntry[]) =>
+    `<${tag}>\n${entries.map((e) => guard(renderEntry(e))).join('\n')}\n</${tag}>`;
+  return {
+    system: judges.SYSTEM_PROMPT,
+    user: [
+      judges.renderRubric(r.criterion),
+      '',
+      block('first_data', r.first),
+      '',
+      block('second_data', r.second),
+      '',
+      'Which candidate passes better?',
+    ].join('\n'),
+  };
+}
+
+function bradleyTerry(wins: number[][]): number[] {
+  if (!stronglyConnected(wins)) throw new RangeError('the comparison graph is not strongly connected');
+  return referenceBradleyTerry(wins);
+}
+
+function eloUpdate(ra: number, rb: number, score: number, k = 32): number[] {
+  const ea = 1 / (1 + 10 ** ((rb - ra) / 400));
+  return [ra + k * (score - ea), rb + k * (1 - score - (1 - ea))];
+}
+
+function findCycles(wins: number[][]): number[][] {
+  const n = wins.length;
+  const beats = (i: number, j: number) => (wins[i]?.[j] ?? 0) > (wins[j]?.[i] ?? 0);
+  const out: number[][] = [];
+  for (let i = 0; i < n; i += 1)
+    for (let j = 0; j < n; j += 1)
+      for (let k = 0; k < n; k += 1)
+        if (i < j && i < k && j !== k && beats(i, j) && beats(j, k) && beats(k, i)) out.push([i, j, k]);
+  return out.sort((a, b) => a.join(',').localeCompare(b.join(',')));
+}
+
+// ---------------------------------------------------------------- calibration
+
+function agreementInterval(agree: number, n: number) {
+  const ci = clopperPearson(agree, n);
+  return { lower: ci.lower, upper: ci.upper };
+}
+
+async function calibrate(config: Parameters<typeof judges.calibrate>[0]) {
+  const report = await judges.calibrate(config);
+  return {
+    ...report,
+    criteria: report.criteria.map((c) => ({
+      ...c,
+      judges: c.judges.map((j) => {
+        const { n, agree, blocks } = j.labels;
+        const classes = new Set(blocks.map((b) => b.label));
+        const po = n === 0 ? 0 : agree / n;
+        const pi =
+          n === 0
+            ? 0
+            : (blocks.filter((b) => b.label === 'pass').length +
+                blocks.filter((b) => b.judged === 'pass').length) /
+              (2 * n);
+        const pe = 2 * pi * (1 - pi);
+        const { kappa, ...rest } = j.labels;
+        return {
+          ...j,
+          labels: {
+            ...rest,
+            ...(classes.size < 2 ? {} : kappa === undefined ? {} : { kappa }),
+            agreement: n === 0 ? j.labels.agreement : { estimate: po, ...agreementInterval(agree, n) },
+            pabak: 2 * po - 1,
+            ac1: (po - pe) / (1 - pe),
+          },
+        };
+      }),
+    })),
+  };
+}
+
+/** The judges package with the witness's overrides. */
+export function witnessApi(): JudgesApi {
+  return {
+    ...realApi,
+    parseAnswerText,
+    outcomeFromProbability,
+    escapeData,
+    buildPrompt,
+    screenData,
+    createCouncil,
+    majority,
+    judgeRepeated,
+    createOpenAiJudge: pinTemperature(judges.createOpenAiJudge),
+    createAnthropicJudge: pinTemperature(judges.createAnthropicJudge),
+    createGoogleJudge: pinTemperature(judges.createGoogleJudge, true),
+    loadCassette,
+    playerClient,
+    loadCriteria,
+    combineVerdicts,
+    judgeCheck,
+    summarizeDiff,
+    lintCriterion,
+    groundEvidence,
+    fitPrompt,
+    judgeTurns,
+    comparePair,
+    buildPairPrompt,
+    bradleyTerry,
+    eloUpdate,
+    findCycles,
+    agreementInterval,
+    calibrate,
+  };
+}

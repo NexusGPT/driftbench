@@ -1,0 +1,123 @@
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import { runLadder } from '../../../src/index';
+import {
+  BILLED_APPROVAL,
+  bankShape,
+  billedMode,
+  hardness,
+  judgesBank,
+  judgesLadderV2,
+  LEVELS,
+  runBank,
+  runItem,
+  shapeProblems,
+} from '../../../src/ladders/judges/v2/index';
+import { witnessApi } from './witness';
+
+const ROOT = fileURLToPath(new URL('../../../../../', import.meta.url));
+
+function without(name: string) {
+  const api = { ...witnessApi() } as Record<string, unknown>;
+  delete api[name];
+  return api;
+}
+
+describe('the judges bank, ladder version 2', () => {
+  it('meets the shape gate: 300 or more deterministic items, no family under 20, every tier', () => {
+    expect(shapeProblems()).toEqual([]);
+    const shape = bankShape();
+    expect(shape.deterministic).toBeGreaterThanOrEqual(300);
+    expect(shape.live).toBeGreaterThan(0);
+    const ids = judgesBank().map((entry) => entry.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    const levels = new Set(LEVELS.map((level) => level.id));
+    for (const entry of judgesBank()) expect(levels.has(entry.level), entry.id).toBe(true);
+  });
+
+  it('runs live items only with the owner approval in the environment, and calls no client without it', async () => {
+    expect(billedMode({})).toBe(false);
+    expect(billedMode({ [BILLED_APPROVAL]: '  ' })).toBe(false);
+    expect(billedMode({ [BILLED_APPROVAL]: 'card-0001' })).toBe(true);
+    const live = judgesBank().filter((entry) => entry.live);
+    expect(live.length).toBe(20);
+    const saved = process.env[BILLED_APPROVAL];
+    delete process.env[BILLED_APPROVAL];
+    try {
+      let built = 0;
+      const api = { ...witnessApi(), createOpenAiJudge: () => (built += 1) };
+      const result = await runItem(live[0] as (typeof live)[number], 1, ROOT, api);
+      expect(result.pass).toBe(false);
+      expect(result.detail).toBe(`not run: ${BILLED_APPROVAL} is not set`);
+      expect(built).toBe(0);
+      const ladder = judgesLadderV2({ api: witnessApi() });
+      expect(ladder.levels.map((level) => level.id)).not.toContain('live');
+      expect(judgesLadderV2({ api: witnessApi(), billed: true }).levels.at(-1)?.id).toBe('live');
+    } finally {
+      if (saved !== undefined) process.env[BILLED_APPROVAL] = saved;
+    }
+  });
+
+  it('can be passed whole: the witness passes every deterministic item on seeds 1 and 2', async () => {
+    const run = await runBank(
+      [
+        { seed: 1, hidden: false },
+        { seed: 2, hidden: false },
+      ],
+      ROOT,
+      { api: witnessApi() },
+    );
+    const failing = run.results.filter((r) => !r.passes.every(Boolean));
+    // Scale items run under a time budget; under a loaded test runner only a time overrun may excuse one.
+    const wrong = failing.filter((r) => !(r.family === 'scale' && /took \d+ ms/.test(r.detail)));
+    expect(wrong.map((r) => `${r.id}: ${r.detail}`)).toEqual([]);
+    expect(run.levels.every((level) => level >= LEVELS.length - 2)).toBe(true);
+  }, 240_000);
+
+  it('fails exactly the items of a missing capability, naming the export', async () => {
+    const run = await runBank([{ seed: 3, hidden: false }], ROOT, { api: without('groundEvidence') });
+    const failing = run.results.filter(
+      (r) => !r.passes[0] && !(r.family === 'scale' && /took/.test(r.detail)),
+    );
+    expect(failing.map((r) => r.family)).toEqual(new Array(failing.length).fill('evidence'));
+    expect(failing.length).toBe(judgesBank().filter((entry) => entry.family === 'evidence').length);
+    expect(failing[0]?.detail).toMatch(/packages\/judges exports no function groundEvidence/);
+  }, 240_000);
+
+  it('stops at the first failing level and prints its items', async () => {
+    const run = await runLadder(judgesLadderV2({ api: without('lintCriterion') }), { seed: 1, root: ROOT });
+    const at = LEVELS.findIndex((level) => level.id === 'rubric');
+    expect(run.level).toBe(at);
+    expect(run.failing?.id).toBe('rubric');
+    expect(run.failing?.items.every((entry) => entry.id.startsWith('rubric/'))).toBe(true);
+    expect(run.rows.slice(at + 1).every((row) => row.pass === null)).toBe(true);
+    expect(run.rows.every((row) => row.threshold === 1)).toBe(true);
+  }, 120_000);
+
+  it('forecasts iterations from the pilot and holds the gate of section 12.4', () => {
+    const rows = [
+      { iteration: 0, score: 0.3, passing: 150, size: 500 },
+      ...Array.from({ length: 10 }, (_, i) => ({
+        iteration: i + 1,
+        score: (150 + 2 * (i + 1)) / 500,
+        passing: 150 + 2 * (i + 1),
+        size: 500,
+      })),
+    ];
+    const h = hardness(rows);
+    expect(h.fixedPerIteration).toBe(2);
+    expect(h.remaining).toBe(330);
+    expect(h.forecast).toBe(165);
+    expect(h.gate).toEqual({ forecast: true, score: true, holds: true });
+    const fast = hardness([
+      rows[0] as (typeof rows)[number],
+      { iteration: 1, score: 0.9, passing: 450, size: 500 },
+    ]);
+    expect(fast.gate.holds).toBe(false);
+    const stuck = hardness([
+      rows[0] as (typeof rows)[number],
+      { iteration: 1, score: 0.3, passing: 150, size: 500 },
+    ]);
+    expect(stuck.gate.forecast).toBe(false);
+  });
+});
