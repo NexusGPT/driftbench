@@ -1,0 +1,318 @@
+{
+  "source": "@anthropic-ai/sdk 0.133.0, messages.create, recorded 2026-10-11 through the real client with a fake fetch; fictional Acme values",
+  "exchanges": [
+    {
+      "request": {
+        "model": "claude-fake-acme",
+        "max_tokens": 1024,
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hi, do you have home internet at 3 Orchard Way, Acmeville?"
+              }
+            ]
+          }
+        ],
+        "system": "You are the Acme Telecom sales assistant.",
+        "tools": [
+          {
+            "name": "catalog_search",
+            "description": "Plans of a category (mobile or home), the ones available at an address, and the customer plan.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "coverage_check",
+            "description": "Fiber and 5G coverage at a street address.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "port_check",
+            "description": "Whether a phone number can move to Acme.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "order_create",
+            "description": "Places an order: a new line, a home plan, an upgrade or a port.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "notify_sales",
+            "description": "Sends a lead to the sales team.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        ]
+      },
+      "response": {
+        "id": "msg_fake_1",
+        "type": "message",
+        "role": "assistant",
+        "model": "claude-fake-acme",
+        "content": [
+          {
+            "type": "tool_use",
+            "id": "toolu_fake_1",
+            "name": "coverage_check",
+            "input": {
+              "address": "3 Orchard Way, Acmeville"
+            }
+          }
+        ],
+        "stop_reason": "tool_use",
+        "stop_sequence": null,
+        "usage": {
+          "input_tokens": 29,
+          "output_tokens": 28
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "claude-fake-acme",
+        "max_tokens": 1024,
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hi, do you have home internet at 3 Orchard Way, Acmeville?"
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "tool_use",
+                "id": "toolu_fake_1",
+                "name": "coverage_check",
+                "input": {
+                  "address": "3 Orchard Way, Acmeville"
+                }
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "tool_result",
+                "tool_use_id": "toolu_fake_1",
+                "content": "{\"found\":true,\"address_id\":\"addr-102\",\"address\":\"3 Orchard Way, Acmeville\",\"fiber_mbps\":300,\"five_g\":true}"
+              }
+            ]
+          }
+        ],
+        "system": "You are the Acme Telecom sales assistant.",
+        "tools": [
+          {
+            "name": "catalog_search",
+            "description": "Plans of a category (mobile or home), the ones available at an address, and the customer plan.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "coverage_check",
+            "description": "Fiber and 5G coverage at a street address.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "port_check",
+            "description": "Whether a phone number can move to Acme.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "order_create",
+            "description": "Places an order: a new line, a home plan, an upgrade or a port.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "notify_sales",
+            "description": "Sends a lead to the sales team.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        ]
+      },
+      "response": {
+        "id": "msg_fake_2",
+        "type": "message",
+        "role": "assistant",
+        "model": "claude-fake-acme",
+        "content": [
+          {
+            "type": "tool_use",
+            "id": "toolu_fake_2",
+            "name": "catalog_search",
+            "input": {
+              "category": "home",
+              "address_id": "addr-102"
+            }
+          }
+        ],
+        "stop_reason": "tool_use",
+        "stop_sequence": null,
+        "usage": {
+          "input_tokens": 118,
+          "output_tokens": 30
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "claude-fake-acme",
+        "max_tokens": 1024,
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hi, do you have home internet at 3 Orchard Way, Acmeville?"
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "tool_use",
+                "id": "toolu_fake_1",
+                "name": "coverage_check",
+                "input": {
+                  "address": "3 Orchard Way, Acmeville"
+                }
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "tool_result",
+                "tool_use_id": "toolu_fake_1",
+                "content": "{\"found\":true,\"address_id\":\"addr-102\",\"address\":\"3 Orchard Way, Acmeville\",\"fiber_mbps\":300,\"five_g\":true}"
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "tool_use",
+                "id": "toolu_fake_2",
+                "name": "catalog_search",
+                "input": {
+                  "category": "home",
+                  "address_id": "addr-102"
+                }
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "tool_result",
+                "tool_use_id": "toolu_fake_2",
+                "content": "{\"plans\":[{\"id\":\"fiber-300\",\"name\":\"Acme Fiber 300\",\"category\":\"home\",\"monthly_usd\":40,\"speed_mbps\":300,\"access\":\"fiber\"},{\"id\":\"air-5g\",\"name\":\"Acme Air 5G\",\"category\":\"home\",\"monthly_usd\":35,\"speed_mbps\":200,\"access\":\"5g\"}]}"
+              }
+            ]
+          }
+        ],
+        "system": "You are the Acme Telecom sales assistant.",
+        "tools": [
+          {
+            "name": "catalog_search",
+            "description": "Plans of a category (mobile or home), the ones available at an address, and the customer plan.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "coverage_check",
+            "description": "Fiber and 5G coverage at a street address.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "port_check",
+            "description": "Whether a phone number can move to Acme.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "order_create",
+            "description": "Places an order: a new line, a home plan, an upgrade or a port.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          {
+            "name": "notify_sales",
+            "description": "Sends a lead to the sales team.",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        ]
+      },
+      "response": {
+        "id": "msg_fake_3",
+        "type": "message",
+        "role": "assistant",
+        "model": "claude-fake-acme",
+        "content": [
+          {
+            "type": "text",
+            "text": "Hi, I'm the Acme Telecom sales assistant. Good news: 3 Orchard Way, Acmeville has fiber up to 300 Mbps. Plans available there: Acme Fiber 300, 300 Mbps for $40 a month; Acme Air 5G, up to 200 Mbps for $35 a month. Which one would you like: Acme Fiber 300 or Acme Air 5G?"
+          }
+        ],
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "usage": {
+          "input_tokens": 245,
+          "output_tokens": 75
+        }
+      }
+    }
+  ]
+}

@@ -1,6 +1,14 @@
 import { type AcmeStore, createStore } from '../../../../../examples/acme/src/index';
 import type { GraphConfigLike, GraphLike, LangChainMessageLike } from '../../../src/langgraph/index';
-import { type AcmeCall, type AcmeTurn, nextAction, runAcmeTool, tokens } from './acme-model';
+import {
+  type AcmeCall,
+  type AcmeTurn,
+  labelOf,
+  nextAction,
+  runAcmeTool,
+  sdkName,
+  tokens,
+} from './acme-model';
 
 /**
  * A fake compiled LangGraph graph that plays the Acme agent as a ReAct loop: an `agent` node (the Acme
@@ -88,7 +96,7 @@ export function fakeGraph(options: { checkpointed: boolean }): FakeGraph {
         if (last?.kind === 'ai') {
           // The tools node: run every call of the last AI message.
           for (const call of last.extra.tool_calls ?? []) {
-            const outcome = runAcmeTool(store, call.name, call.args);
+            const outcome = runAcmeTool(store, labelOf(call.name, []), call.args);
             messages.push(
               new FakeMessage(
                 'tool',
@@ -122,7 +130,9 @@ export function fakeGraph(options: { checkpointed: boolean }): FakeGraph {
           const u = usage(action.input);
           messages.push(
             new FakeMessage('ai', '', nextId('ai'), {
-              tool_calls: [{ id: nextId('call'), name: action.label, args: action.input, type: 'tool_call' }],
+              tool_calls: [
+                { id: nextId('call'), name: sdkName(action.label), args: action.input, type: 'tool_call' },
+              ],
               usage_metadata: { ...u, total_tokens: u.input_tokens + u.output_tokens },
             }),
           );
@@ -192,7 +202,7 @@ function turnsOf(messages: readonly FakeMessage[]): AcmeTurn[] {
       else turns.push({ text: message.content, calls: [], answered: false });
     } else if (message.kind === 'ai') {
       for (const call of message.extra.tool_calls ?? []) {
-        const recorded: AcmeCall = { label: call.name, input: call.args };
+        const recorded: AcmeCall = { label: labelOf(call.name, []), input: call.args };
         turns.at(-1)?.calls.push(recorded);
         pending.set(call.id, recorded);
       }

@@ -221,6 +221,29 @@ export class WireNames {
   }
 }
 
+/**
+ * Tool names an SDK agent declares, mapped to the labels specs use: `{ coverage_check: 'coverage.check' }`.
+ * The OpenAI and LangChain tool names take no dot, so an agent built on them names its tools apart from the
+ * spec. A name absent from the map is its own label.
+ */
+export class ToolLabels {
+  private readonly byLabel: Map<string, string>;
+
+  constructor(private readonly byName: Readonly<Record<string, string>> = {}) {
+    this.byLabel = new Map(Object.entries(byName).map(([name, label]) => [label, name]));
+  }
+
+  /** The spec label of an SDK tool name. */
+  label(name: string): string {
+    return Object.hasOwn(this.byName, name) ? (this.byName[name] as string) : name;
+  }
+
+  /** The SDK tool name of a spec label, for a call the history replays. */
+  name(label: string): string {
+    return this.byLabel.get(label) ?? label;
+  }
+}
+
 /** Adds one model call's token usage into a running total. */
 export type Usage = { inputTokens: number; outputTokens: number; seen: boolean };
 

@@ -21,6 +21,7 @@ import {
   recordPayloads,
   type SdkState,
   stepCap,
+  ToolLabels,
   vendorError,
 } from '../anthropic/common';
 import {
@@ -51,7 +52,9 @@ export type {
  * agent taking over (also a stage), guardrails as guards, and the token usage of every model response.
  *
  * The history belongs to the driftbench runner, so the adapter never passes an SDK session: the SDK's own
- * memory would hold a second copy of the conversation.
+ * memory would hold a second copy of the conversation. After a handoff, the next block starts from the agent
+ * the run ended with (`lastAgent`), as the SDK's own chat loop does; `followHandoffs: false` starts every
+ * block from the first agent.
  */
 
 export const OPENAI_AGENTS_ADAPTER_VERSION = '0.1.0';
@@ -63,9 +66,13 @@ export type OpenAIAgentsAdapterOptions = {
   agent: unknown | ((given: ResolvedGiven) => unknown);
   /** The most model calls one block may take, the SDK's `maxTurns`. Default 10, the SDK's; `budget.steps` lowers it. */
   maxTurns?: number;
+  /** Start each block from the agent the last run ended with, after a handoff. Default true. */
+  followHandoffs?: boolean;
   /** The run context handed to the agent's tools and guardrails, built per session. */
   context?: (given: ResolvedGiven) => unknown;
-  /** The tools that change the world. Their inputs are the payloads `endState` reads. Enables `endState`. */
+  /** The agent's tool names mapped to spec labels, such as `{ coverage_check: 'coverage.check' }`. */
+  toolLabels?: Readonly<Record<string, string>>;
+  /** The tools that change the world, by spec label. Their inputs are the payloads `endState` reads. Enables `endState`. */
   sideEffects?: readonly string[];
   /** True when the same input gives the same output. Default false. */
   deterministic?: boolean;
@@ -73,12 +80,20 @@ export type OpenAIAgentsAdapterOptions = {
   version?: string;
 };
 
-type AgentsState = SdkState & { readonly kind: 'openai-agents'; agent: unknown; context: unknown };
+type AgentsState = SdkState & {
+  readonly kind: 'openai-agents';
+  /** The agent the next block starts from. */
+  agent: unknown;
+  /** The agent each block started from, so a retried block starts from the same one. */
+  startedFrom: Map<number, unknown>;
+  context: unknown;
+};
 
 export function openaiAgentsAdapter(options: OpenAIAgentsAdapterOptions): AgentAdapter {
   const id = 'openai-agents';
   const maxTurns = options.maxTurns ?? 10;
   const sideEffects = new Set(options.sideEffects ?? []);
+  const labels = new ToolLabels(options.toolLabels);
   const capabilities: AdapterCapabilities = {
     variants: false,
     seedPrefix: true,
@@ -105,6 +120,7 @@ export function openaiAgentsAdapter(options: OpenAIAgentsAdapterOptions): AgentA
         closed: false,
         payloads: new Map(),
         agent,
+        startedFrom: new Map(),
         context: options.context?.(given),
       };
       return openSession(id, given, state);
@@ -112,12 +128,14 @@ export function openaiAgentsAdapter(options: OpenAIAgentsAdapterOptions): AgentA
 
     async send(session: Session, turn: Turn) {
       const state = ownState<AgentsState>(session, id, 'openai-agents');
-      const input = toInputItems(session.history);
+      const input = toInputItems(session.history, labels);
+      const agent = state.startedFrom.has(turn.index) ? state.startedFrom.get(turn.index) : state.agent;
+      state.startedFrom.set(turn.index, agent);
       const turns = stepCap(maxTurns, turn.budget?.steps);
       const started = performance.now();
       let result: RunResultLike;
       try {
-        result = await options.runner.run(state.agent, input, {
+        result = await options.runner.run(agent, input, {
           maxTurns: turns,
           ...(state.context === undefined ? {} : { context: state.context }),
         });
@@ -133,7 +151,9 @@ export function openaiAgentsAdapter(options: OpenAIAgentsAdapterOptions): AgentA
         throw new AgentFailure(`the agent run on block ${turn.index} returned no newItems list`);
       }
 
-      const { segments, handoffs } = mapItems(result.newItems);
+      const { segments, handoffs } = mapItems(result.newItems, labels);
+      if (handoffs.length > 0 && options.followHandoffs !== false && result.lastAgent)
+        state.agent = result.lastAgent;
       closeOpenCalls(segments, 'the run ended before the tool answered');
       const usage = newUsage();
       for (const response of result.rawResponses ?? []) {
@@ -168,6 +188,7 @@ export function openaiAgentsAdapter(options: OpenAIAgentsAdapterOptions): AgentA
       state.closed = true;
       state.payloads.clear();
       state.agent = undefined;
+      state.startedFrom.clear();
       state.context = undefined;
     },
   };

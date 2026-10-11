@@ -4,6 +4,7 @@ import {
   errorOf,
   outputText,
   readToolText,
+  type ToolLabels,
   type ToolOutcome,
   type Usage,
 } from '../anthropic/common';
@@ -56,14 +57,37 @@ export type GraphLike = {
   checkpointer?: unknown;
 };
 
-/** The kind of a graph message: `human`, `ai`, `tool`, `system`, from its type method, field or role. */
-export function kindOf(message: unknown): string {
-  if (message === null || typeof message !== 'object') return 'unknown';
-  const m = message as GraphMessageLike;
+/** LangChain's serialized message classes, as their constructor names read. */
+const SERIALIZED_KINDS: Record<string, string> = {
+  HumanMessage: 'human',
+  HumanMessageChunk: 'human',
+  AIMessage: 'ai',
+  AIMessageChunk: 'ai',
+  ToolMessage: 'tool',
+  ToolMessageChunk: 'tool',
+  SystemMessage: 'system',
+  SystemMessageChunk: 'system',
+};
+
+/**
+ * A graph message in one readable form, whatever the graph returned: a message instance (its own fields),
+ * a dict with `type` or `role` (a remote graph's answer), or LangChain's serialized constructor form
+ * (`{ lc: 1, type: 'constructor', id: [..., 'AIMessage'], kwargs }`, what `JSON.stringify` writes).
+ */
+export function readMessage(message: unknown): { kind: string; fields: GraphMessageLike } {
+  if (message === null || typeof message !== 'object') return { kind: 'unknown', fields: {} };
+  const m = message as GraphMessageLike & { lc?: unknown; id?: unknown; kwargs?: unknown };
+  if (m.lc !== undefined && m.type === 'constructor' && Array.isArray(m.id) && isPlainObject(m.kwargs)) {
+    const name = String(m.id.at(-1));
+    return { kind: SERIALIZED_KINDS[name] ?? 'unknown', fields: m.kwargs as GraphMessageLike };
+  }
   const kind = m.getType?.() ?? m._getType?.() ?? m.type ?? m.role ?? 'unknown';
-  if (kind === 'user') return 'human';
-  if (kind === 'assistant') return 'ai';
-  return kind;
+  return { kind: kind === 'user' ? 'human' : kind === 'assistant' ? 'ai' : kind, fields: m };
+}
+
+/** The kind of a graph message: `human`, `ai`, `tool`, `system`, or `unknown`. */
+export function kindOf(message: unknown): string {
+  return readMessage(message).kind;
 }
 
 /**
@@ -72,7 +96,7 @@ export function kindOf(message: unknown): string {
  * text as an assistant message, when there is one. A `tool` message (a free tool note with no call id)
  * becomes user text.
  */
-export function toLangChainMessages(history: readonly Message[]): LangChainMessageLike[] {
+export function toLangChainMessages(history: readonly Message[], labels: ToolLabels): LangChainMessageLike[] {
   const out: LangChainMessageLike[] = [];
   let unnamed = 0;
   for (const message of history) {
@@ -95,7 +119,7 @@ export function toLangChainMessages(history: readonly Message[]): LangChainMessa
       content: '',
       tool_calls: recorded.map((call, index) => ({
         id: ids[index] as string,
-        name: call.label,
+        name: labels.name(call.label),
         args: isPlainObject(call.input) ? call.input : {},
       })),
     });
@@ -105,14 +129,14 @@ export function toLangChainMessages(history: readonly Message[]): LangChainMessa
           ? {
               role: 'tool',
               tool_call_id: ids[index] as string,
-              name: call.label,
+              name: labels.name(call.label),
               content: call.error,
               status: 'error',
             }
           : {
               role: 'tool',
               tool_call_id: ids[index] as string,
-              name: call.label,
+              name: labels.name(call.label),
               content: outputText(call.output),
             };
       out.push(answer);
@@ -128,13 +152,12 @@ export function toLangChainMessages(history: readonly Message[]): LangChainMessa
  * error when its status is `error` (the text is the error) or when it holds a single `error`, else its
  * content, parsed when it is JSON. Human and system messages add nothing.
  */
-export function mapMessages(messages: readonly unknown[], usage: Usage): Segment[] {
+export function mapMessages(messages: readonly unknown[], usage: Usage, toolLabels: ToolLabels): Segment[] {
   const segments: Segment[] = [];
   const labels = new Map<string, string>();
   let unnamed = 0;
   for (const value of messages) {
-    const message = value as GraphMessageLike;
-    const kind = kindOf(message);
+    const { kind, fields: message } = readMessage(value);
     if (kind === 'ai') {
       const cost = addUsage(
         usage,
@@ -151,13 +174,13 @@ export function mapMessages(messages: readonly unknown[], usage: Usage): Segment
       if (text !== '') segments.push({ type: 'text', text, ...take() });
       for (const call of message.tool_calls ?? []) {
         const id = call.id ?? `call-${++unnamed}`;
-        const label = call.name ?? 'tool';
+        const label = toolLabels.label(call.name ?? 'tool');
         labels.set(id, label);
         segments.push({ type: 'tool_call', id, label, input: call.args ?? {}, ...take() });
       }
     } else if (kind === 'tool') {
       const id = message.tool_call_id ?? `call-${++unnamed}`;
-      const label = labels.get(id) ?? message.name ?? 'tool';
+      const label = labels.get(id) ?? toolLabels.label(message.name ?? 'tool');
       const text = contentText(message.content);
       const outcome: ToolOutcome =
         message.status === 'error'

@@ -7,7 +7,15 @@ import type {
   RunOptionsLike,
   RunResultLike,
 } from '../../../src/openai-agents/index';
-import { type AcmeCall, type AcmeTurn, nextAction, runAcmeTool, tokens } from './acme-model';
+import {
+  type AcmeCall,
+  type AcmeTurn,
+  labelOf,
+  nextAction,
+  runAcmeTool,
+  sdkName,
+  tokens,
+} from './acme-model';
 
 /**
  * A fake OpenAI Agents SDK runner that plays the Acme agent: `run(agent, input, options)` reads the input
@@ -27,7 +35,7 @@ export function acmeAgent(): FakeAgent {
 }
 
 export type FakeRunner = RunnerLike & {
-  readonly calls: { input: AgentInputItemLike[]; options?: RunOptionsLike }[];
+  readonly calls: { agent?: unknown; input: AgentInputItemLike[]; options?: RunOptionsLike }[];
 };
 
 /** An error named like the SDK's, so the adapter reads it as the SDK raised it. */
@@ -86,7 +94,7 @@ export function fakeRunner(): FakeRunner {
             type: 'function_call',
             id: `fc_fake_${count}`,
             callId,
-            name: action.label,
+            name: sdkName(action.label),
             arguments: args,
             status: 'completed',
           },
@@ -100,7 +108,7 @@ export function fakeRunner(): FakeRunner {
           rawItem: {
             type: 'function_call_result',
             callId,
-            name: action.label,
+            name: sdkName(action.label),
             status: 'completed',
             output: { type: 'text', text: output },
           },
@@ -129,15 +137,22 @@ export function deadRunner(): RunnerLike {
   };
 }
 
-/** A runner that answers with the given run results in order, for recorded runs. */
+/**
+ * A runner that answers with the given run results in order, for recorded runs. A recorded run that threw
+ * (`{ thrown: { name, message, result } }`) rejects with an error of that name carrying that result.
+ */
 export function recordedRunner(results: readonly unknown[]): FakeRunner {
   const calls: FakeRunner['calls'] = [];
   return {
     calls,
-    async run(_agent, input, options) {
-      calls.push({ input: structuredClone(input), ...(options ? { options } : {}) });
-      const next = results[calls.length - 1];
+    async run(agent, input, options) {
+      calls.push({ agent, input: structuredClone(input), ...(options ? { options } : {}) });
+      const next = results[calls.length - 1] as
+        | { thrown?: { name: string; message: string; result?: unknown } }
+        | undefined;
       if (next === undefined) throw new Error(`no recorded run for call ${calls.length}`);
+      if (next.thrown)
+        throw new FakeSdkError(next.thrown.name, next.thrown.message, { result: next.thrown.result });
       return structuredClone(next) as RunResultLike;
     },
   };
@@ -156,7 +171,7 @@ function turnsOf(input: readonly AgentInputItemLike[]): AcmeTurn[] {
       const open = turns.at(-1);
       if (open) open.answered = true;
     } else if ('type' in item && item.type === 'function_call') {
-      const call: AcmeCall = { label: item.name, input: JSON.parse(item.arguments) };
+      const call: AcmeCall = { label: labelOf(item.name, []), input: JSON.parse(item.arguments) };
       turns.at(-1)?.calls.push(call);
       pending.set(item.callId, call);
     } else if ('type' in item && item.type === 'function_call_result') {

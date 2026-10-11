@@ -1,5 +1,5 @@
 import { isPlainObject, type Message, type Segment } from '@driftbench/core';
-import { errorOf, outputText, readToolText, type ToolOutcome } from '../anthropic/common';
+import { errorOf, outputText, readToolText, type ToolLabels, type ToolOutcome } from '../anthropic/common';
 import { contentText, parseArguments } from '../shared';
 
 /**
@@ -44,6 +44,7 @@ export type RunResultLike = {
   rawResponses?: readonly { usage?: { inputTokens?: number; outputTokens?: number } }[];
   inputGuardrailResults?: readonly GuardrailResultLike[];
   outputGuardrailResults?: readonly GuardrailResultLike[];
+  /** The agent the run ended with: the one a handoff passed to, else the one it started from. */
   lastAgent?: { name?: string };
 };
 
@@ -62,7 +63,7 @@ export type RunnerLike = {
  * text as an assistant message, when there is one. A `tool` message (a free tool note with no call id)
  * becomes user text.
  */
-export function toInputItems(history: readonly Message[]): AgentInputItemLike[] {
+export function toInputItems(history: readonly Message[], labels: ToolLabels): AgentInputItemLike[] {
   const items: AgentInputItemLike[] = [];
   let unnamed = 0;
   for (const message of history) {
@@ -79,7 +80,7 @@ export function toInputItems(history: readonly Message[]): AgentInputItemLike[] 
       items.push({
         type: 'function_call',
         callId,
-        name: call.label,
+        name: labels.name(call.label),
         arguments: JSON.stringify(call.input ?? {}),
         status: 'completed',
       });
@@ -87,7 +88,7 @@ export function toInputItems(history: readonly Message[]): AgentInputItemLike[] 
       items.push({
         type: 'function_call_result',
         callId,
-        name: call.label,
+        name: labels.name(call.label),
         status: 'completed',
         output: { type: 'text', text },
       });
@@ -120,7 +121,7 @@ export type MappedRun = { segments: Segment[]; handoffs: string[] };
  * - `tool_approval_item`: the call waiting for approval, closed with an error saying so.
  * - Reasoning and other items carry nothing the customer sees.
  */
-export function mapItems(items: readonly RunItemLike[]): MappedRun {
+export function mapItems(items: readonly RunItemLike[], toolLabels: ToolLabels): MappedRun {
   const segments: Segment[] = [];
   const handoffs: string[] = [];
   const labels = new Map<string, string>();
@@ -150,7 +151,7 @@ export function mapItems(items: readonly RunItemLike[]): MappedRun {
       }
       case 'tool_call_item': {
         if (raw.type === 'function_call') {
-          call(raw, String(raw.name ?? 'function'), parseArguments(raw.arguments));
+          call(raw, toolLabels.label(String(raw.name ?? 'function')), parseArguments(raw.arguments));
           break;
         }
         const label = String(raw.name ?? raw.type ?? 'hosted_tool');
@@ -164,7 +165,7 @@ export function mapItems(items: readonly RunItemLike[]): MappedRun {
       }
       case 'tool_call_output_item': {
         const id = typeof raw.callId === 'string' ? raw.callId : `item-${++unnamed}`;
-        const label = labels.get(id) ?? String(raw.name ?? 'function');
+        const label = labels.get(id) ?? toolLabels.label(String(raw.name ?? 'function'));
         if (!segments.some((segment) => segment.type === 'tool_result' && segment.id === id)) {
           result(id, label, readOutput(item.output !== undefined ? item.output : raw.output));
         }

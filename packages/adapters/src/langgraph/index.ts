@@ -18,6 +18,7 @@ import {
   readPayloads,
   recordPayloads,
   type SdkState,
+  ToolLabels,
   vendorError,
 } from '../anthropic/common';
 import { type GraphConfigLike, type GraphLike, kindOf, mapMessages, toLangChainMessages } from './messages';
@@ -48,7 +49,9 @@ export type LanggraphAdapterOptions = {
   threadId?: (sessionId: string) => string;
   /** The graph's recursion limit (super-steps per invoke). Unset leaves LangGraph's default. */
   recursionLimit?: number;
-  /** The tools that change the world. Their inputs are the payloads `endState` reads for `tool:` and `*`. */
+  /** The graph's tool names mapped to spec labels, such as `{ coverage_check: 'coverage.check' }`. */
+  toolLabels?: Readonly<Record<string, string>>;
+  /** The tools that change the world, by spec label. Their inputs are the payloads `endState` reads for `tool:` and `*`. */
   sideEffects?: readonly string[];
   /** True when the same input gives the same output. Default false. */
   deterministic?: boolean;
@@ -63,6 +66,7 @@ export function langgraphAdapter(options: LanggraphAdapterOptions): AgentAdapter
   const graph = options.graph;
   const checkpointed = Boolean(graph.checkpointer) && typeof graph.getState === 'function';
   const sideEffects = new Set(options.sideEffects ?? []);
+  const labels = new ToolLabels(options.toolLabels);
   const capabilities: AdapterCapabilities = {
     variants: false,
     seedPrefix: true,
@@ -103,7 +107,7 @@ export function langgraphAdapter(options: LanggraphAdapterOptions): AgentAdapter
       const started = performance.now();
       let answer: unknown;
       try {
-        answer = await graph.invoke({ messages: toLangChainMessages(sent) }, config(state));
+        answer = await graph.invoke({ messages: toLangChainMessages(sent, labels) }, config(state));
       } catch (cause) {
         throw vendorError(cause, `the graph failed on block ${turn.index}`);
       }
@@ -115,7 +119,7 @@ export function langgraphAdapter(options: LanggraphAdapterOptions): AgentAdapter
       const all: unknown[] = answer.messages;
       const lastUser = all.findLastIndex((message) => kindOf(message) === 'human');
       const usage = newUsage();
-      const segments: Segment[] = mapMessages(all.slice(lastUser + 1), usage);
+      const segments: Segment[] = mapMessages(all.slice(lastUser + 1), usage, labels);
       const interrupts = answer.__interrupt__;
       if (Array.isArray(interrupts) && interrupts.length > 0) {
         segments.push({ type: 'card', name: 'interrupt', data: interrupts.map(interruptValue) });

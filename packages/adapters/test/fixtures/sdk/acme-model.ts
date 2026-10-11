@@ -96,6 +96,16 @@ export function runAcmeTool(
 export const ACME_TOOLS = TOOL_LABELS;
 export const ACME_SIDE_EFFECTS = ['order.create', 'notify_sales'] as const;
 
+/** The Acme tools as an agent built on the OpenAI or LangChain SDK names them (no dot), to their spec labels. */
+export const ACME_TOOL_NAMES: Readonly<Record<string, string>> = Object.fromEntries(
+  ACME_TOOLS.map((label) => [sdkName(label), label]),
+);
+
+/** The SDK tool name of an Acme label: the dot becomes an underscore. */
+export function sdkName(label: string): string {
+  return label.replace(/\./g, '_');
+}
+
 /** A wire name back to its Acme label: the vendor fake reads the tool list it was sent. */
 export function labelOf(wireName: string, offered: readonly string[]): string {
   const flat = (value: string) => value.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
