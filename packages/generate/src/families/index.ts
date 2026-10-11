@@ -47,6 +47,7 @@ export {
   reviewStatus,
   sha256,
   slotsOf,
+  writePendingReview,
 } from './load';
 export {
   activeBlocks,

@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { READERS } from '@driftbench/artifacts';
-import { parse as parseYaml } from 'yaml';
+import { parse as parseYaml, stringify } from 'yaml';
 import {
   type Condition,
   type Count,
@@ -458,6 +458,20 @@ export function pendingReview(loaded: LoadedFamily): ReviewFile {
     signed_by: null,
     signed_on: null,
   };
+}
+
+/**
+ * Writes a pending review file for the family as it stands (its hashes, the questions, no signature) and
+ * returns its path. A person reads the family, answers the questions and fills signed_by and signed_on.
+ */
+export async function writePendingReview(loaded: LoadedFamily): Promise<string> {
+  const path = resolve(loaded.dir, loaded.family.review);
+  const header =
+    '# The review of a code-agent task family. A person reads the family file, the oracle and one\n' +
+    '# instance, answers the questions below, then fills signed_by and signed_on. The signature holds\n' +
+    '# for the two hashes: a change to the family file or the oracle needs a new review.\n';
+  await writeFile(path, `${header}${stringify(pendingReview(loaded), { lineWidth: 0 })}`);
+  return path;
 }
 
 function describe(cause: unknown): string {
