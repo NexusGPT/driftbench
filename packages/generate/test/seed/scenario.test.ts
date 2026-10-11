@@ -486,3 +486,25 @@ describe('generateSuite on a map with paths', () => {
     ]);
   });
 });
+
+describe('pilot iteration 3: a recovery that moves the conversation', () => {
+  it('ends the walk after the probe instead of playing turns from a stage the conversation left', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = [
+        ...(draft.relations ?? []),
+        { kind: 'recovery', class: 'D5_language_switch', flows: ['balance'], stage_after: 'greet', ...by },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D5_language_switch', stage: 'verify' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    const at = built.blocks.findIndex((block) => block.injection === 'D5_language_switch');
+    expect(at).toBeGreaterThanOrEqual(0);
+    expect(built.blocks[at]?.stage).toBe('greet');
+    expect(built.blocks).toHaveLength(at + 1);
+    expect(built.endState).toBeUndefined();
+  });
+});

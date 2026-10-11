@@ -188,6 +188,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   const toolNames = new Set(prepared.tools.map((tool) => tool.name));
   const blocks: BlockDraft[] = [];
   const lang = relations.replyLanguage;
+  let movedAway = false;
   for (let index = 0; index + 1 < path.stages.length; index += 1) {
     if (probeAt === index && probe && deviationKey !== undefined && recovery) {
       const stage = path.stages[index] as string;
@@ -228,6 +229,13 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         ...(mustNot.length > 0 ? { must_not: mustNot } : {}),
         ...(lang === undefined ? {} : { lang }),
       });
+      // A recovery that leaves the conversation elsewhere than the stage it had reached (a goal shift goes
+      // back to the stage that owns the change) ends the walk: the path's next turn starts from a stage the
+      // conversation is no longer at.
+      if (after !== undefined && after !== stage) {
+        movedAway = true;
+        break;
+      }
     }
     const from = path.stages[index] as string;
     const to = path.stages[index + 1] as string;
@@ -288,6 +296,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     truncated = true;
   } else if (probe && probeAt !== undefined) {
     placed = { classId: probe.classId, stage: path.stages[probeAt] as string };
+    if (movedAway) truncated = true;
   }
 
   // Every tool the scenario calls is expected 0 times in a turn that does not call it; a tool it never calls
