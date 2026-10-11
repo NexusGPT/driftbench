@@ -85,3 +85,15 @@ Sources read:
 What others do: a $ref is replaced by the schema it points at before validation; Pydantic and OpenAPI tool schemas put shared enums in $defs or definitions, so a generator resolves them first.
 
 What to try, and why: the tool pre-pass reads a local $ref to $defs or definitions, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
+
+## Iteration 8
+
+Question: packages/generate/src/extract/tools.ts: stringPartitions reads format and pattern only, so a base64 contentEncoding gives no partition; schema-keywords.content-encoding proves it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-validation section 8.3 (contentEncoding: the string is encoded binary data)
+* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/research/testgen/dossier-specification.md (source 6: Schemathesis sends invalid inputs next to valid ones)
+
+What others do: contentEncoding states a string shape like format does; the shape gives a valid and an invalid partition.
+
+What to try, and why: the tool pre-pass reads contentEncoding: well-formed and malformed, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
