@@ -7,9 +7,9 @@ const NAME = 'execution';
 /**
  * `expect.execution` against the commands the block ran, `observed.executions`. A record with role
  * `agent` is the agent's own process, not a command it ran: it never counts as code run or as a command.
- * `ran_code` true needs at least one command and false forbids any; `exit_code` is the exit code of the
- * last command, or of the agent process when the agent reported no command; `max_commands` caps how many
- * commands ran. An adapter that reports no executions list observed nothing, so each verdict is
+ * `ran_code` true needs at least one command and false forbids any. `exit_code` is the exit code of the
+ * last command; when the agent process exited non-zero (a crash), it is the agent process's; with no
+ * command, it is the agent process's too. `max_commands` caps how many commands ran. An adapter that reports no executions list observed nothing, so each verdict is
  * inconclusive rather than a pass on nothing.
  */
 export const execution: Check = {
@@ -81,26 +81,32 @@ export const execution: Check = {
   },
 };
 
+/**
+ * The exit code `exit_code` reads: the agent process's when it exited non-zero (a crashed agent fails
+ * `exit_code: 0` even after a clean last command), else the last command's, else the agent process's when
+ * the agent reported no command. The evidence names both when both exist.
+ */
 function exitCode(want: number, commands: ExecutionRecord[], agent: ExecutionRecord | undefined): Verdict {
   const last = commands.at(-1);
-  if (last !== undefined) {
-    const agentNote =
-      agent !== undefined && agent.exitCode !== last.exitCode
-        ? `; the agent process exited with ${agent.exitCode}`
-        : '';
-    return machineVerdict(
-      NAME,
-      'exit_code',
-      last.exitCode === want ? 'pass' : 'fail',
-      `the last command ${JSON.stringify(cut(last.command))} exited with ${last.exitCode}, ${want} expected${stderr(last)}${agentNote}`,
+  const verdict = (got: number, evidence: string) =>
+    machineVerdict(NAME, 'exit_code', got === want ? 'pass' : 'fail', evidence);
+  const lastText =
+    last && `the last command ${JSON.stringify(cut(last.command))} exited with ${last.exitCode}`;
+  if (agent !== undefined && agent.exitCode !== 0) {
+    const also = lastText ? `; ${lastText}` : '; the agent reported no command';
+    return verdict(
+      agent.exitCode,
+      `the agent process exited with ${agent.exitCode}, ${want} expected${stderr(agent)}${also}`,
     );
   }
+  if (last !== undefined) {
+    const also = agent === undefined ? '' : `; the agent process exited with ${agent.exitCode}`;
+    return verdict(last.exitCode, `${lastText}, ${want} expected${stderr(last)}${also}`);
+  }
   if (agent !== undefined) {
-    return machineVerdict(
-      NAME,
-      'exit_code',
-      agent.exitCode === want ? 'pass' : 'fail',
-      `the agent reported no command; the agent process exited with ${agent.exitCode}, ${want} expected${stderr(agent)}`,
+    return verdict(
+      agent.exitCode,
+      `the agent reported no command; the agent process exited with ${agent.exitCode}, ${want} expected`,
     );
   }
   return machineVerdict(
