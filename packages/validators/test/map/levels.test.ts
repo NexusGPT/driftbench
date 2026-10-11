@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { runLadder } from '../../src/ladder';
-import { MAP_COMPONENTS, mapLadder } from '../../src/ladders/map/index';
+import { MAP_COMPONENTS, mapLadderV1 as mapLadder } from '../../src/ladders/map/first';
 import { contractStatesRole, oracleRecording } from '../../src/ladders/map/oracle';
 import { render } from '../../src/ladders/map/render';
 import { runPipeline } from '../../src/ladders/map/run';
@@ -46,6 +46,7 @@ describe('the map ladder on the current extractor', () => {
       ['personas', 'done', 1],
       ['data', 'done', 1],
       ['phrases', 'done', 1],
+      ['relations', 'done', 1],
     ]);
     expect(run.result.refusals).toEqual([]);
   });

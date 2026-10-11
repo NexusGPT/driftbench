@@ -179,3 +179,8 @@ answers:
         lang: de
         source: prompt.md
         quote: Hallo, ich möchte meinen Tarif ändern.
+  relations:
+    section: relations
+    dimensions: []
+    constraints: []
+    phrases: []

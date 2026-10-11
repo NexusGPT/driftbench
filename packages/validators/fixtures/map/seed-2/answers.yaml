@@ -167,3 +167,8 @@ answers:
         lang: nl
         source: prompt.md
         quote: Hallo, ik wil mijn abonnement aanpassen.
+  relations:
+    section: relations
+    dimensions: []
+    constraints: []
+    phrases: []

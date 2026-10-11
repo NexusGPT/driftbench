@@ -158,7 +158,7 @@ export function oracleRecording(
   return {
     family: ORACLE_FAMILY,
     model: ORACLE_MODEL,
-    answers: { stages, rules, personas, data, phrases },
+    answers: { stages, rules, personas, data, phrases, relations: empty('relations') },
   };
 }
 

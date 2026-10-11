@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { runLadder } from '../../src/ladder';
-import { MAP_COMPONENTS, mapLadder } from '../../src/ladders/map/index';
+import { MAP_COMPONENTS, mapLadderV1 as mapLadder } from '../../src/ladders/map/first';
 import { type Extract, runPipeline } from '../../src/ladders/map/run';
 import { hiddenSpec } from '../../src/ladders/map/spec';
 import { halves, transformOptions, withOneMoreConstraint } from '../../src/ladders/map/transforms';
