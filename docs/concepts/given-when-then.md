@@ -51,9 +51,9 @@ A perturbation inserts a deviation before a chosen block at run time, in perturb
 
 | Family | Fields |
 |---|---|
-| Flow and facts | `step`, `ledger_add` |
+| Stage and facts | `stage`, `ledger_add` |
 | Text | `must`, `must_not`, `lang` |
-| Tools and skills | `tools`, `tool_order`, `skills` |
+| Tools, skills and guards | `tools`, `tool_order`, `skills`, `guards` |
 | Channel | `cards` |
 | Code and files | `execution`, `artifacts`, `workspace` |
 | Safety | `safety` |
@@ -63,7 +63,7 @@ A block can also carry a `budget` for steps, cost and latency. Rules for the who
 
 ## One block of each kind
 
-A conversational exchange. Given: the facts so far. When: the customer's choice. Then: the flow step, a new fact and one tool call.
+A conversational exchange. Given: the facts so far. When: the customer's choice. Then: the stage reached, a new fact and one tool call.
 
 ```yaml
 - id: choose
@@ -71,7 +71,7 @@ A conversational exchange. Given: the facts so far. When: the customer's choice.
     ledger: { customer_type: existing }
   user: The 500 one. Yes, go ahead.
   expect:
-    step: confirm
+    stage: confirm
     ledger_add: { plan: fiber_500 }
     tools:
       - label: submit_order

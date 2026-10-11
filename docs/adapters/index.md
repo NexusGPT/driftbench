@@ -50,6 +50,23 @@ Every adapter passes the same contract test suite against the synthetic example 
 | [process](process.md) | a code-interpreter agent run as a command in a sandbox | planned, phase 1 |
 | `openai-agents`, `anthropic`, `google`, `langgraph` | agents built on these SDKs and frameworks | planned, release phase |
 
+## Runtime vocabulary
+
+Specs and checks know four runtime concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages). Each runtime has its own names for them. The adapter that reads a runtime maps those names onto the four concepts, so no spec and no check uses a runtime's own vocabulary.
+
+| Runtime | Its own name | Maps to | Read by |
+|---|---|---|---|
+| Claude Code, and harnesses built on it | a tool call | a tool | the process adapter, planned, phase 1; the transcript adapter of the runtime battery, planned, phase 4 |
+| Claude Code, and harnesses built on it | a write to a task board, such as the Nexus tracks board, through a CLI or a server tool | a tool: a board write is a tool call | the same |
+| Claude Code, and harnesses built on it | a skill read into the session | a skill | the same |
+| Claude Code, and harnesses built on it | a hook that ran, with its decision | a guard, with the decision as its verdict | the same |
+| Claude Code, and harnesses built on it | a process step the harness logs | a stage | the same |
+| An agent SDK | a guardrail that ran, with its result | a guard | the SDK adapters, planned, release phase |
+| A Nexus agent | a tool call, including a workflow, an AI task or a document search the agent calls as one of its skills | a tool | the nexus adapter, planned, phase 1 |
+| A Nexus agent | a step of the flow its prompt defines | a stage, named in the spec's `stages` | the nexus adapter, planned, phase 1 |
+
+A Nexus skill is something the agent calls, so it maps to a tool; a skill in driftbench is a capability the agent loads.
+
 ## Choosing the agent in a spec
 
 `target` sets the default agent of a spec: `adapter`, plus `agent`, `variant`, `deployment` and `options`. The adapter decides what the other fields mean. A run can override the target.

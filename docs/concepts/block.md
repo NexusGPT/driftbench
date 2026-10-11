@@ -12,11 +12,24 @@ A spec sets `kind: conversation` or `kind: task`. Both kinds use the same block,
 |---|---|---|
 | Agent | a conversational agent | a code-interpreter agent: it writes and runs code, works in a workspace and loads skills |
 | When | a user message | an instruction |
-| What the agent does | text, cards, tool calls, tool results | text, tool and skill calls, commands, files written in the workspace |
-| Then reads | reply text, tool calls, cards, language, flow step, facts held | skills loaded, code run and its exit code, files produced, workspace diff, destructive operations |
+| What the agent does | text, cards, tool calls and their results | text, tool calls, skills loaded, commands run, files written in the workspace |
+| Then reads | reply text, tool calls, cards, language, stage reached, facts held | skills loaded, guards that fired, code run and its exit code, files produced, workspace diff, destructive operations |
 | The block ends | when the agent waits for the next user message | when the agent hands back control |
 
 Every field of `expect` is open to both kinds. A conversation block can check a workspace, and a task step can check the reply text. The full list is in [checks](../reference/checks.md).
+
+## Tools, skills, guards and stages
+
+Whatever runtime the agent runs on, driftbench reads it through four concepts. The adapter maps the runtime's own names onto them; see [adapters](../adapters/index.md#runtime-vocabulary).
+
+| Concept | What it is | Checked with |
+|---|---|---|
+| Tool | every external call the agent makes, whatever it reads or writes | `expect.tools` |
+| Skill | a capability the agent loads | `expect.skills` |
+| Guard | a runtime check that fired during the block, with its verdict | `expect.guards` |
+| Stage | the named point of its own process the agent reaches; the spec declares the catalogue in `stages` | `expect.stage` |
+
+A block's runtime trace holds skills, guards and stages. Tool calls sit beside it, in the observed segments.
 
 ## A conversation spec
 
@@ -26,7 +39,7 @@ kind: conversation
 title: An existing customer moves to a faster internet plan
 channel: chat
 lang: EN
-steps: [discover, offer, confirm]
+stages: [discover, offer, confirm]
 ledger_seed:
   customer_type: existing
 criteria:
@@ -38,7 +51,7 @@ blocks:
   - id: ask
     user: Hi, my internet is too slow. What faster plans do you have?
     expect:
-      step: offer
+      stage: offer
       tools:
         - label: lookup_plans
           count: 1
@@ -51,7 +64,7 @@ blocks:
   - id: choose
     user: The 500 one. Yes, go ahead.
     expect:
-      step: confirm
+      stage: confirm
       ledger_add: { plan: fiber_500 }
       tools:
         - label: submit_order
@@ -68,7 +81,7 @@ end_state:
     plan: fiber_500
 ```
 
-The first block expects one call to `lookup_plans` with a `current_plan`, a reply that names the plan and stays in English, and the flow at step `offer`. A judged criterion gates the block. The second block expects the order: the facts gain `plan`, and `submit_order` runs once with `plan: fiber_500`. After the run, `end_state` compares what the `submit_order` tool recorded with the expected fields.
+The first block expects one call to `lookup_plans` with a `current_plan`, a reply that names the plan and stays in English, and the agent at stage `offer`. A judged criterion gates the block. The second block expects the order: the facts gain `plan`, and `submit_order` runs once with `plan: fiber_500`. After the run, `end_state` compares what the `submit_order` tool recorded with the expected fields.
 
 ## A task spec
 
@@ -96,6 +109,10 @@ blocks:
         ran_code: true
         exit_code: 0
         max_commands: 10
+      guards:
+        - name: workspace_boundary
+          verdict: deny
+          count: 0
       artifacts:
         - path: sales.xlsx
           kind: xlsx
@@ -123,7 +140,7 @@ blocks:
         others_untouched: true
 ```
 
-The task starts in a workspace that holds two CSV files. The first step expects the `xlsx` skill once, code that runs and exits with 0, a workbook with one sheet per region, and no other file touched. A judged criterion checks that the reply states the totals the file holds. The second step changes the same workbook and touches nothing else.
+The task starts in a workspace that holds two CSV files. The first step expects the `xlsx` skill once, code that runs and exits with 0, no denial from the `workspace_boundary` guard, a workbook with one sheet per region, and no other file touched. A judged criterion checks that the reply states the totals the file holds. The second step changes the same workbook and touches nothing else.
 
 Both examples pass `driftbench spec lint --strict` today. A test in `tools/docs` runs them through the loader on every change.
 
@@ -131,11 +148,11 @@ Both examples pass `driftbench spec lint --strict` today. A test in `tools/docs`
 
 The runner records each block it runs. The record shapes are defined today in `packages/core/src/schema/run.ts`. The runner that fills them is planned, phase 1.
 
-* Observed: the segments in order (text, tool call, tool result, card), the customer-visible text, the tool calls with input, output and latency, the runtime trace (skills loaded, hooks fired, process steps), the artifacts, the workspace diff, the commands run with their exit codes, the cost and the latency.
+* Observed: the segments in order (text, tool call, tool result, card), the customer-visible text, the tool calls with input, output and latency, the runtime trace (skills loaded, guards fired with their verdicts, stages reached), the artifacts, the workspace diff, the commands run with their exit codes, the cost and the latency.
 * Verdicts: one per check and one per judged criterion, each with its evidence. See [judges](judges.md).
 * Drift: the drift classes of a failing block. See [drift](drift.md).
 * Pass: a block passes when every gating verdict passes and no machine check fails.
 
 ## A spec is checked before it runs
 
-`driftbench spec validate` and `driftbench spec lint` work today. They check the schema, the regular expressions, the criterion references, the step names against `steps`, the counts and the perturbation positions. See [CLI](../reference/cli.md).
+`driftbench spec validate` and `driftbench spec lint` work today. They check the schema, the regular expressions, the criterion references, the stage names against `stages`, the counts and the perturbation positions. See [CLI](../reference/cli.md).

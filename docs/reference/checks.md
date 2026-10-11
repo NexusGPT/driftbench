@@ -2,7 +2,9 @@
 
 A check reads one part of what the agent did and returns a verdict with its evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-The spec side exists today: every field on this page is validated by `driftbench spec validate`. The checks that read the fields are planned: machine checks in phase 1, judged criteria in phase 2, the step classifier and the ledger check in phase 3.
+The spec side exists today: every field on this page is validated by `driftbench spec validate`. The checks that read the fields are planned: machine checks in phase 1, judged criteria in phase 2, the stage classifier and the ledger check in phase 3.
+
+The checks read the agent's runtime through four concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages).
 
 Every check belongs to one family, whether it reads a reply or a workbook: one package, one verdict shape, one mutation test per check (break the target, see the check fail, restore). A machine check that fails is final; no judge overturns it. Which check gives which drift class is on the [drift](../concepts/drift.md) page.
 
@@ -12,11 +14,12 @@ Every field is optional and open to both kinds of block.
 
 | Field | What it checks | Phase |
 |---|---|---|
-| `step` | the flow step the agent is in after the block, against the spec's `steps` | 3 |
+| `stage` | the stage the agent reaches in the block, against the spec's `stages` | 3 |
 | `ledger_add` | the facts the block establishes; they join the ledger that the contradiction check reads | 3 |
 | `tools` | each expected tool call: `label`, `count`, and assertions on its `input` | 1 |
 | `tool_order` | how the expected tools line up with the observed calls: `exact`, `in_order` or `any_order` | 1 |
 | `skills` | each expected skill: `name` and `count` | 1 |
+| `guards` | each expected guard: `name`, an optional `verdict`, and `count` | 1 |
 | `execution` | whether code ran (`ran_code`), the expected `exit_code`, and the most commands allowed (`max_commands`) | 1 |
 | `artifacts` | each file the block must produce: `path`, `kind`, and `checks` on its content | 1 |
 | `workspace` | the paths the block `created`, `changed` and `deleted`, and `others_untouched` | 1 |
@@ -29,7 +32,7 @@ Every field is optional and open to both kinds of block.
 
 Outside `expect`, the same family reads a block's `budget`, the spec's `rules` and the spec's `end_state`. They follow below.
 
-## Tools and skills
+## Tools, skills and guards
 
 A tool expectation names the tool by `label`. `count` is an exact number, or `{ min, max }` with either bound; `count: 0` means the call must not happen. `input` maps argument names to assertions.
 
@@ -54,9 +57,22 @@ A tool expectation names the tool by `label`. `count` is an exact number, or `{ 
 * `in_order`: the expected calls appear in this order; other calls may sit between them.
 * `any_order`: the expected calls appear, in any order.
 
-`skills` checks the skills a code-interpreter agent loads, by `name` and `count`, in the same check family as tools.
+`skills` checks the skills the agent loads, by `name` and `count`.
 
-The tool and skill checks are planned, phase 1. They also report argument accuracy, the share of expected arguments that matched, without gating on it.
+`guards` checks the guards that fired during the block. A guard is a runtime check with a verdict. Each entry names the guard; `verdict` narrows it to one verdict, as the runtime reports it; `count` works as for tools, so `count: 0` means the guard must not fire, or must not give that verdict.
+
+```yaml
+- user: Clean the workspace and keep only the final report.
+  expect:
+    guards:
+      - name: workspace_boundary
+        verdict: deny
+        count: 0
+    workspace:
+      deleted: [draft.xlsx]
+```
+
+The tool, skill and guard checks are planned, phase 1. The tool check also reports argument accuracy, the share of expected arguments that matched, without gating on it.
 
 ## Assertions on values
 
@@ -133,16 +149,16 @@ The names of the checks for each kind are fixed when the readers ship.
 
 `criteria` names criteria the spec defines, or criteria from a shared catalogue. `name@gating` makes a fail of that criterion fail the block. Judges, the council and calibration are on the [judges](../concepts/judges.md) page.
 
-## Flow and facts
+## Stage and facts
 
-* `step` is checked by the step classifier against the step catalogue in `steps`. A name missing from `steps` is an error today (`STEP_UNKNOWN`).
+* `stage` is checked by the stage classifier against the catalogue in `stages`. A name missing from `stages` is an error today (`STAGE_UNKNOWN`).
 * `ledger_add` adds facts to the ledger. The ledger check asks whether a later block contradicts one of them.
 
 Both checks are planned, phase 3.
 
 ## Budget
 
-`budget` on a block caps `steps` (agent steps), `cost_usd` and `latency_ms`. The budget check is planned, phase 1; it reads cost and latency per segment from the adapter.
+`budget` on a block caps `steps` (the agent's steps in the block), `cost_usd` and `latency_ms`. The budget check is planned, phase 1; it reads cost and latency per segment from the adapter.
 
 ## Rules for the whole spec
 
@@ -176,6 +192,6 @@ All planned, phase 1.
 
 ## The runtime battery
 
-The runtime battery checks the harness around an agent: hooks, skill loading, process steps. Its test types are checks of the same family: hook replay with negative controls, the skill loading gate, the order of process steps, measured judge checks on captured scenes, mutation tests that must fail first, a speed budget, and the register of the final reply. A transcript adapter turns a recorded agent session into blocks with these runtime fields, and a pytest adapter runs an existing Python test suite and reads its JUnit output as verdicts. Planned, phase 4.
+The runtime battery checks what an agent's runtime does around the model, through the same concepts: skills, guards and stages. Its test types are checks of the same family: guard replay with negative controls, the skill loading gate, the order of stages, measured judge checks on captured scenes, mutation tests that must fail first, a speed budget per guard, and the register of the final reply. A transcript adapter turns a recorded agent session into blocks with these runtime fields, and a pytest adapter runs an existing Python test suite and reads its JUnit output as verdicts. Planned, phase 4.
 
 Every field and its type are listed in the [spec reference](spec.md).

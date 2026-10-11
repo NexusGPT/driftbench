@@ -2,7 +2,7 @@
 
 # Spec reference
 
-A spec is one YAML or JSON file. It describes one conversation or one task as a succession of blocks; see [block](../concepts/block.md) and [Given, When, Then](../concepts/given-when-then.md). This page lists every field the loader accepts. It is generated from the zod schemas that `driftbench spec validate` uses.
+A spec is one YAML or JSON file. It describes one conversation or one task as a succession of blocks; see [block](../concepts/block.md) and [Given, When, Then](../concepts/given-when-then.md). This page lists every field the loader accepts, then the fields of the behaviour inventory that `driftbench spec coverage` reads. It is generated from the zod schemas that the CLI uses.
 
 * Keys are snake_case. An unknown key is an error.
 * Required means the field is present once the loader has applied the shorthand below.
@@ -39,6 +39,7 @@ The loader rewrites these forms before it validates a spec.
 * [Assertion](#assertion)
 * [CardExpect](#cardexpect)
 * [SkillExpect](#skillexpect)
+* [GuardExpect](#guardexpect)
 * [ExecutionExpect](#executionexpect)
 * [ArtifactExpect](#artifactexpect)
 * [WorkspaceExpect](#workspaceexpect)
@@ -50,6 +51,9 @@ The loader rewrites these forms before it validates a spec.
 * [Perturbation](#perturbation)
 * [RecoveryExpect](#recoveryexpect)
 * [DriftClass](#driftclass)
+* [Inventory](#inventory)
+* [InventoryBehaviour](#inventorybehaviour)
+* [InventoryFlow](#inventoryflow)
 
 ## Spec
 
@@ -67,7 +71,7 @@ The loader rewrites these forms before it validates a spec.
 | `covers` | list of strings | no |  |  |
 | `target` | [TargetRef](#targetref) | no |  |  |
 | `given` | [GivenDefaults](#givendefaults) | no |  |  |
-| `steps` | list of strings, each not empty | no |  |  |
+| `stages` | list of strings, each not empty | no |  |  |
 | `criteria` | list of [CriterionDef](#criteriondef) | no |  |  |
 | `blocks` | list of [Block](#block), at least 1 item | yes |  |  |
 | `rules` | [Rules](#rules) | no |  |  |
@@ -162,8 +166,8 @@ Used by `when.injection.class` and `perturbations[].class`. Running a perturbati
 
 | Value | Meaning |
 |---|---|
-| `D1_off_topic` | An off-topic question in the middle of a step, such as asking for opening hours. Expected: a short answer, then the pending step resumes in the same block. |
-| `D2_goal_shift` | The user changes the goal, such as a different basket after the recap. Expected: back to the step that owns the change, with no question about facts already known. |
+| `D1_off_topic` | An off-topic question in the middle of the flow, such as asking for opening hours. Expected: a short answer, then the agent resumes its pending stage in the same block. |
+| `D2_goal_shift` | The user changes the goal, such as a different basket after the recap. Expected: back to the stage that owns the change, with no question about facts already known. |
 | `D3_contradiction` | The user gives a value that contradicts an earlier one, such as a second account number. Expected: the agent notices and asks which one holds; it never takes the last one silently. |
 | `D4_loose_confirmation` | A vague confirmation, such as "ok perfect", where the flow needs an explicit one. Expected: no submission or other irreversible action without the explicit confirmation. |
 | `D5_language_switch` | One message in another language. Expected: replies stay in the user's declared language, with no mixing. |
@@ -171,7 +175,7 @@ Used by `when.injection.class` and `perturbations[].class`. Running a perturbati
 | `D7_silence_or_burst` | An empty message, or several messages at once. Expected: one reply, no double send. |
 | `D8_tool_failure` | A tool or a command fails or returns an error. Expected: an honest fallback and one retry; never a success that did not happen. |
 | `D9_out_of_scope` | A request outside the agent's job, such as a billing complaint in the middle of an order. Expected: the agent routes it to the place that handles it and keeps it out of the current flow. |
-| `D10_return` | The user returns to the flow after a deviation, such as "ok, let's continue" two blocks later. Expected: the flow resumes at the right step with every known fact kept. |
+| `D10_return` | The user returns to the flow after a deviation, such as "ok, let's continue" two blocks later. Expected: the agent resumes at the right stage with every known fact kept. |
 
 ## Given
 
@@ -205,7 +209,7 @@ Used by `when.injection.class` and `perturbations[].class`. Running a perturbati
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `step` | string, not empty | no |  |  |
+| `stage` | string, not empty | no |  |  |
 | `ledger_add` | map of string to any value | no |  |  |
 | `tools` | list of [ToolExpect](#toolexpect) | no |  |  |
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  |  |
@@ -215,6 +219,7 @@ Used by `when.injection.class` and `perturbations[].class`. Running a perturbati
 | `cards` | list of [CardExpect](#cardexpect) | no |  |  |
 | `criteria` | list of strings, each not empty | no |  |  |
 | `skills` | list of [SkillExpect](#skillexpect) | no |  |  |
+| `guards` | list of [GuardExpect](#guardexpect) | no |  |  |
 | `execution` | [ExecutionExpect](#executionexpect) | no |  |  |
 | `artifacts` | list of [ArtifactExpect](#artifactexpect) | no |  |  |
 | `workspace` | [WorkspaceExpect](#workspaceexpect) | no |  |  |
@@ -272,6 +277,14 @@ Write one of these forms.
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `name` | string, not empty | yes |  |  |
+| `count` | [Count](#count) | no |  |  |
+
+## GuardExpect
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | string, not empty | yes |  |  |
+| `verdict` | string, not empty | no |  |  |
 | `count` | [Count](#count) | no |  |  |
 
 ## ExecutionExpect
@@ -358,7 +371,7 @@ Write one of these forms.
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `within_blocks` | integer, at least 0 | yes |  |  |
-| `step_after` | string, not empty | no |  |  |
+| `stage_after` | string, not empty | no |  |  |
 | `return_message` | string | no |  |  |
 
 ## DriftClass
@@ -369,6 +382,34 @@ Run records, not specs, carry these classes: one or more on each failing block. 
 |---|---|
 | `X1_local` | A wrong answer or a wrong action in this block while every earlier fact still holds. Found by any failing check or criterion on the block alone. |
 | `X2_contradiction` | The block contradicts a fact established earlier, as held in the ledger. Found by the ledger check. |
-| `X3_flow` | The agent is at the wrong step: it skips one, repeats one, or asks again for a known fact. Found by the step classifier against `expect.step`. |
+| `X3_flow` | The agent is at the wrong stage: it skips one, repeats one, or asks again for a known fact. Found by the stage classifier against `expect.stage`. |
 | `X4_format` | A format or persona rule breaks: narration of internal steps, the wrong language, a double send, card misuse, the wrong channel rules. Found by format and channel checks. |
-| `X5_tool` | A tool or skill call is missing, extra, repeated or has wrong parameters. Found by the tool and skill checks. |
+| `X5_tool` | A tool call, a skill or a guard is missing, extra or repeated, or a call has wrong parameters. Found by the tool, skill and guard checks. |
+
+## Inventory
+
+The behaviour inventory is the file `driftbench spec coverage --inventory` reads. It lists the behaviours an agent must show and the flows that group them. A spec covers a behaviour by naming its id in `covers`, and joins a flow with the tag `flow:<id>` or by covering one of its behaviours. See [CLI](cli.md#driftbench-spec-coverage).
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `behaviours` | list of [InventoryBehaviour](#inventorybehaviour) | yes |  |  |
+| `flows` | list of [InventoryFlow](#inventoryflow) | yes |  |  |
+| `channels` | list of strings, each not empty, at least 1 item | no |  |  |
+
+## InventoryBehaviour
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | string matching `^[A-Z]+-\d+$` | yes |  |  |
+| `title` | string | yes |  |  |
+| `kind` | `conversation` or `task` | no | `conversation` |  |
+| `channels` | list of strings, each not empty, at least 1 item | no |  |  |
+
+## InventoryFlow
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | string matching `^[a-z0-9][a-z0-9_-]*$` | yes |  |  |
+| `title` | string | yes |  |  |
+| `behaviours` | list of strings, each matching `^[A-Z]+-\d+$` | yes |  |  |
+| `deviations` | list of [DeviationClass](#deviationclass) | no |  |  |

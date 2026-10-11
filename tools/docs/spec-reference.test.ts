@@ -117,12 +117,21 @@ describe('spec reference generator', () => {
     expect(await run(['--out'], bare.io)).toBe(2);
   });
 
-  it('documents every field of Spec and of every object nested in it', () => {
+  it('documents every field of Spec and of the inventory, at any depth', () => {
     const { markdown } = renderReference();
-    const keys = propertyKeys(toJsonSchema(core.Spec, schemaNames({ ...core })));
-    expect(keys.size).toBeGreaterThan(80);
-    const undocumented = [...keys].filter((key) => !markdown.includes(`| \`${key}\` |`));
-    expect(undocumented).toEqual([]);
+    const names = schemaNames({ ...core });
+    for (const schema of [core.Spec, core.Inventory]) {
+      const keys = propertyKeys(toJsonSchema(schema, names));
+      expect(keys.size).toBeGreaterThan(5);
+      expect([...keys].filter((key) => !markdown.includes(`| \`${key}\` |`))).toEqual([]);
+    }
+    expect(propertyKeys(toJsonSchema(core.Spec, names)).size).toBeGreaterThan(80);
+  });
+
+  it('shows a field with a schema default as optional, with its default', () => {
+    const { markdown } = renderReference();
+    const behaviour = markdown.slice(markdown.indexOf('## InventoryBehaviour'));
+    expect(behaviour).toContain('| `kind` | `conversation` or `task` | no | `conversation` |');
   });
 
   it('gives every deviation and drift class one line', () => {

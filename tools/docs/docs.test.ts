@@ -1,8 +1,38 @@
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { basename, join, relative } from 'node:path';
-import { IssueCodes, type LoadResult, parseSpecText } from '@driftbench/core';
+import { fileURLToPath } from 'node:url';
+import {
+  CoverageWarningCodes,
+  InventoryIssueCodes,
+  IssueCodes,
+  type LoadResult,
+  parseSpecText,
+} from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
 import { DOCS, markdownFiles } from './check-links';
+
+const TOOLS = fileURLToPath(new URL('.', import.meta.url));
+/** An en dash or an em dash, built from code points so no source file holds one. */
+const DASHES = new RegExp(`[${String.fromCharCode(0x2013, 0x2014)}]`);
+/**
+ * Names that belong to one runtime, not to the core vocabulary of tools, skills, guards and stages.
+ * They may appear only under docs/adapters, where each runtime is mapped onto the four concepts.
+ */
+const RUNTIME_NAMES = [
+  /\bhooks?\b/i,
+  /\bboards?\b/i,
+  /\bprocess steps?\b/i,
+  /\bguardrails?\b/i,
+  /\bstep classifier\b/i,
+  /\bflow steps?\b/i,
+  /\bexpect\.step\b/,
+  /\bstep_after\b/,
+  /\bSTEP_UNKNOWN\b/,
+  /\bstepObserved\b/,
+  /\bskillsLoaded\b/,
+  /\bboardOps\b/,
+  /^steps:/m,
+];
 
 type Page = { path: string; text: string };
 
@@ -39,9 +69,31 @@ function loadExample(yaml: string): { kind: 'spec' | 'blocks' | 'fragment'; resu
 }
 
 describe('docs content', () => {
-  it('has no em dash and no en dash on any page', async () => {
-    const offending = (await pages()).filter((page) => /[–—]/.test(page.text)).map((page) => page.path);
+  it('has no em dash and no en dash on any page or in the docs tools', async () => {
+    const sources = await Promise.all(
+      (await readdir(TOOLS))
+        .filter((name) => name.endsWith('.ts'))
+        .map(async (name) => ({
+          path: `tools/docs/${name}`,
+          text: await readFile(join(TOOLS, name), 'utf8'),
+        })),
+    );
+    const offending = [...(await pages()), ...sources]
+      .filter((page) => DASHES.test(page.text))
+      .map((page) => page.path);
+    expect(sources.length).toBeGreaterThanOrEqual(4);
     expect(offending).toEqual([]);
+  });
+
+  it('keeps runtime-specific names under docs/adapters only', async () => {
+    const found = (await pages())
+      .filter((page) => !page.path.startsWith('adapters'))
+      .flatMap((page) =>
+        RUNTIME_NAMES.filter((name) => name.test(page.text)).map((name) => `${page.path}: ${name.source}`),
+      );
+    expect(found).toEqual([]);
+    const mapping = await readFile(join(DOCS, 'adapters', 'index.md'), 'utf8');
+    for (const name of ['hook', 'board', 'process step', 'guardrail']) expect(mapping).toContain(name);
   });
 
   it('loads every YAML example, and every whole spec lints clean', async () => {
@@ -90,9 +142,10 @@ describe('docs content', () => {
     expect(all.filter((page) => /code.?agent/i.test(page.path)).map((page) => page.path)).toEqual([]);
   });
 
-  it('lists every issue code the loader reports on the CLI page', async () => {
+  it('lists every code the spec loader, the inventory loader and coverage report on the CLI page', async () => {
     const text = await readFile(join(DOCS, 'reference', 'cli.md'), 'utf8');
-    expect(IssueCodes.filter((code) => !text.includes(`| \`${code}\` |`))).toEqual([]);
+    const codes = [...IssueCodes, ...InventoryIssueCodes, ...CoverageWarningCodes];
+    expect(codes.filter((code) => !text.includes(`| \`${code}\` |`))).toEqual([]);
   });
 
   it('gives every reference tool cell of the comparison one source and a read date', async () => {

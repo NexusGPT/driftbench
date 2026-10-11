@@ -10,15 +10,15 @@ A failing block carries one class or more.
 |---|---|---|---|
 | `X1_local` | a wrong answer or action in this block, while every earlier fact still holds | the reply quotes the wrong price | the total row of the workbook is wrong |
 | `X2_contradiction` | the block contradicts a fact established earlier | the agent uses the address the user corrected two blocks before | the user asked for amounts in euros, and the new sheet shows dollars |
-| `X3_flow` | the wrong step: one skipped, one repeated, or a known fact asked again | the agent submits the order before the recap | the agent writes the summary before it loads the data |
+| `X3_flow` | the wrong stage: one skipped, one repeated, or a known fact asked again | the agent submits the order before the recap | the agent writes the summary before it loads the data |
 | `X4_format` | a format or persona rule breaks | a double send, card misuse, a reply in the wrong language | the final reply narrates internal steps |
-| `X5_tool` | a tool or skill call is missing, extra, repeated or has wrong parameters | `submit_order` runs twice | the `xlsx` skill never loads |
+| `X5_tool` | a tool call, a skill or a guard is missing, extra or repeated, or a call has wrong parameters | `submit_order` runs twice | the `xlsx` skill never loads, or a guard denies a command the step needed |
 
 ## How a class is assigned
 
-* The step classifier labels the step the agent is in after the block. It is a system 1 judge, or a table of regular expressions per flow when the spec provides one. When the label differs from `expect.step`, the block gets `X3_flow`.
+* The stage classifier labels the stage the agent reaches in the block: a system 1 judge, or a table of regular expressions per flow when the spec provides one. When the label differs from `expect.stage`, the block gets `X3_flow`. A runtime that reports its own stages lists them in the block's runtime trace.
 * The ledger check asks a judge whether the block contradicts any fact in the ledger, and quotes the fact. A contradiction gives `X2_contradiction`.
-* Tool and skill checks give `X5_tool`. Format and channel checks give `X4_format`: language, cards, one message per turn.
+* Tool, skill and guard checks give `X5_tool`. Format and channel checks give `X4_format`: language, cards, one message per turn.
 * Any other failing check or criterion, with the ledger intact, gives `X1_local`.
 
 The ledger is the set of facts from `given.ledger`, plus each block's `ledger_add`. See [Given, When, Then](given-when-then.md). The checks are listed in [checks](../reference/checks.md), and the judges in [judges](judges.md).

@@ -1,6 +1,6 @@
 # CLI
 
-`driftbench` is the command line. Today it checks spec files: `spec validate` and `spec lint` work, and `spec coverage` is being built in phase 0. Commands that run agents are planned, phase 1 and later.
+`driftbench` is the command line. Today it checks spec files: `spec validate`, `spec lint` and `spec coverage` work. Commands that run agents are planned, phase 1 and later.
 
 ## Running it
 
@@ -31,8 +31,8 @@ driftbench spec validate <paths...> [--json]
 Parses, normalises and validates every spec, then prints one line per spec and a summary.
 
 ```
-✓ specs/plan-upgrade.yaml  plan-upgrade · 2 blocks · hash 5bc711537ede
-✓ specs/sales-workbook.yaml  sales-workbook · 2 blocks · hash 97a50643b711
+✓ specs/plan-upgrade.yaml  plan-upgrade · 2 blocks · hash bac3281387f6
+✓ specs/sales-workbook.yaml  sales-workbook · 2 blocks · hash 26966d51ea11
 Checked 2 specs: 2 valid, 0 invalid, 0 warnings.
 ```
 
@@ -42,7 +42,7 @@ An invalid spec lists every error with its path in the spec and its code:
 ✗ broken/semantic.yaml
     blocks.0.expect.must.0  REGEX_INVALID  Invalid regular expression: /(/m: Unterminated group
     blocks.0.expect.criteria.0  CRITERION_UNDEFINED  criterion "c2" is not defined in this spec's criteria
-    blocks.0.expect.step  STEP_UNKNOWN  step "b" is not in the spec's steps
+    blocks.0.expect.stage  STAGE_UNKNOWN  stage "b" is not in the spec's stages
 ```
 
 The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, with keys sorted at every depth. Equal content gives an equal hash.
@@ -84,27 +84,78 @@ Checked 1 spec: 1 valid, 0 invalid, 1 warning.
 
 ## `driftbench spec coverage`
 
-Being built in phase 0. This is its contract.
-
 ```
 driftbench spec coverage <paths...> --inventory <file> [--channel <name>] [--json]
 ```
 
-Reads a behaviour inventory and the specs, then prints two matrices: behaviours by specs (applicable, covered and missing, per channel), and flows by deviation classes, from the perturbations of the specs. Task specs count like conversation specs.
+Reads a behaviour inventory and the specs, then prints two matrices. The inventory format is in the [spec reference](spec.md#inventory).
+
+* Behaviours by channel: one row per behaviour, one column per channel. A cell is `covered` when a valid spec on that channel, or on no channel, lists the behaviour in `covers`. It is `missing` when no spec does, and `n/a` when the behaviour does not apply on that channel.
+* Flows by required deviation: one row per flow. A spec belongs to a flow when it carries the tag `flow:<id>` or covers one of the flow's behaviours. A required deviation class is covered when a member spec has a perturbation of that class, or a block whose stimulus is an injection of that class.
+
+Task behaviours and task specs are rows of the same matrices as conversations.
+
+The channels are the inventory's `channels`. Without them, they are every channel named by a behaviour or a valid spec, sorted; without any, the one channel `default`. `--channel` narrows the matrix to one channel, and then only specs on that channel, or on no channel, count. Invalid specs are listed and never count as coverage. Warnings never change the verdict.
+
+On the test fixture [`packages/core/test/coverage/fixtures`](../../packages/core/test/coverage/fixtures/inventory.yaml):
+
+```
+Behaviours by channel
+     id     kind          chat     whatsapp  title
+  ✓  B-001  conversation  covered  covered   Greets the customer once and names the assistant
+  ✓  B-002  conversation  covered  covered   Looks up the available plans before quoting a price
+  ✓  B-003  conversation  covered  n/a       Sends the offer card once
+  ✗  B-004  conversation  covered  missing   Asks for an explicit yes before submitting the order
+  ✓  T-001  task          covered  covered   Builds the monthly usage sheet with one tab per line
+     total                5 of 5   3 of 4
+
+Flows by required deviation
+  ✓  plan-upgrade  2 specs  D1_off_topic covered · D4_loose_confirmation covered  Plan upgrade from greeting to submission
+  ✗  usage-report  1 spec   D2_goal_shift covered · D8_tool_failure missing       Monthly usage report built in the workspace
+  -  offer-card    1 spec   no deviation required                                 Offer card on chat
+
+Warnings
+  ! B-099  UNKNOWN_BEHAVIOUR  covered by stray, but the inventory has no behaviour B-099
+
+Invalid specs, not counted
+  ✗ specs/broken.yaml  blocks.0  BLOCK_STIMULUS_MISSING  a block needs `user`, `burst` or `when`
+
+Coverage: 4 of 5 behaviours covered, 3 of 4 flow deviations covered.
+```
 
 | Option | Effect |
 |---|---|
 | `--inventory <file>` | the behaviour inventory, in YAML or JSON; required |
-| `--channel <name>` | only this channel |
+| `--channel <name>` | only this channel; an unknown channel is a usage error |
 | `--json` | print one JSON document |
 
 | Exit code | When |
 |---|---|
-| 0 | every applicable behaviour is covered |
-| 1 | a required cell is missing |
-| 2 | usage or input error |
+| 0 | every applicable behaviour and every required deviation is covered |
+| 1 | a behaviour is missing on a channel where it applies, or a required deviation is missing |
+| 2 | usage or input error: an invalid inventory, a path that does not exist, no spec file found, or an unknown channel |
 
-Until it lands, the command prints `driftbench spec coverage is not available yet.` and exits 2.
+`--json` prints one document with the keys `inventory`, `channels`, `behaviours` (each with its cells and the ids of the covering specs), `perChannel`, `flows` (each with its member specs and, per required deviation, the perturbations and injection blocks that cover it), `warnings`, `invalidSpecs`, `summary` and `ok`.
+
+Warnings:
+
+| Code | Meaning |
+|---|---|
+| `UNKNOWN_BEHAVIOUR` | a spec covers a behaviour id the inventory does not list |
+| `UNKNOWN_FLOW` | a spec carries the tag `flow:<id>` for a flow the inventory does not list |
+| `UNLISTED_CHANNEL` | a spec runs on a channel the inventory's `channels` do not list, so it counts for no channel |
+| `KIND_MISMATCH` | a behaviour is covered only by specs of the other kind: a task behaviour by conversation specs, or the reverse |
+
+Inventory errors. Any of them stops the command before coverage is computed:
+
+| Code | Meaning |
+|---|---|
+| `INVENTORY_PARSE` | the file cannot be read, or it is not valid YAML or JSON |
+| `INVENTORY_NOT_OBJECT` | the file does not hold one mapping with behaviours and flows |
+| `INVENTORY_DUPLICATE` | an id, a channel, a behaviour of a flow or a deviation class is listed twice |
+| `INVENTORY_UNKNOWN_BEHAVIOUR` | a flow names a behaviour the inventory does not list |
+| `INVENTORY_UNKNOWN_CHANNEL` | a behaviour names a channel that is not in the inventory's `channels` |
+| `SCHEMA_*` | the schema refuses a value, as for specs |
 
 ## JSON output
 
@@ -170,7 +221,7 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `TOOL_COUNT_CONTRADICTION` | error | a tool is expected 0 times but has input assertions |
 | `COUNT_RANGE_INVALID` | error | a count has a `min` greater than its `max` |
 | `MUST_CONFLICT` | error | the same pattern is in `must` and in `must_not` |
-| `STEP_UNKNOWN` | error | the spec lists `steps`, and `expect.step` or `recovery.step_after` names a step that is not there |
+| `STAGE_UNKNOWN` | error | the spec lists `stages`, and `expect.stage` or `recovery.stage_after` names a stage that is not there |
 | `TOOL_FORBIDDEN_EXPECTED` | error | a block expects a tool that the rules forbid, in `forbidden_tools` or with `max_calls` at 0 |
 | `SCHEMA_*` | error | the schema refuses a value; the suffix is the zod issue code, such as `SCHEMA_UNRECOGNIZED_KEYS`, `SCHEMA_INVALID_TYPE`, `SCHEMA_INVALID_VALUE` or `SCHEMA_TOO_SMALL` |
 | `CRITERION_UNRESOLVED` | warning | blocks name criteria and the spec defines none; they must come from a shared catalogue |
