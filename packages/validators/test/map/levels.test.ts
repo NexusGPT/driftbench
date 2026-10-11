@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { runLadder } from '../../src/ladder';
 import { MAP_COMPONENTS, mapLadder } from '../../src/ladders/map/index';
-import { oracleRecording } from '../../src/ladders/map/oracle';
+import { contractStatesRole, oracleRecording } from '../../src/ladders/map/oracle';
 import { render } from '../../src/ladders/map/render';
 import { runPipeline } from '../../src/ladders/map/run';
 import { hiddenSpec } from '../../src/ladders/map/spec';
@@ -293,5 +293,26 @@ describe('planted faults, one per level', () => {
       );
       for (const quote of quotes) expect(rendered.prompt).toContain(quote);
     }
+  });
+
+  it('gives roles only when the system prompt of the extractor asks for them', async () => {
+    expect(contractStatesRole()).toBe(false);
+    expect(contractStatesRole('{"id": "x", "role": "<axis or detail>"}')).toBe(true);
+    const spec = hiddenSpec(1);
+    const rendered = render(spec, baseOptions(spec));
+    const answers = oracleRecording(spec, rendered, { roles: true }).answers as Record<
+      string,
+      { dimensions: Array<{ id: string; role?: string }> }
+    >;
+    const declared = new Map(truthOf(spec).roles.map((entry) => [entry.dimension, entry.role]));
+    for (const dimension of answers.personas?.dimensions ?? [])
+      expect(dimension.role).toBe(declared.get(dimension.id));
+    // Today's strict answer schema refuses the key, so the default recording leaves it out.
+    const strict = await runPipeline(spec, baseOptions(spec), {
+      answerer: (s, r) => oracleRecording(s, r, { roles: true }),
+    });
+    expect(
+      strict.result.ok && strict.result.refusals.some((refusal) => /unknown key role/.test(refusal.reason)),
+    ).toBe(true);
   });
 });

@@ -1,4 +1,4 @@
-import type { Recording } from '@driftbench/generate';
+import { type Recording, SYSTEM_PROMPT } from '@driftbench/generate';
 import { PROMPT_PATH, type Rendered, type Span } from './render';
 import { DEVIATION_SENTENCES, type HiddenSpec } from './spec';
 
@@ -8,13 +8,17 @@ import { DEVIATION_SENTENCES, type HiddenSpec } from './spec';
  * character for character from the span the renderer recorded, dimensions in the order the prompt states
  * them, nothing for a decoy. It is no model: it reads the hidden specification and the spans, so a validator
  * run never calls one. A live run with a real model replaces this recording and is billed separately.
+ *
+ * It follows the contract as the extractor's system prompt states it: when that prompt asks for a "role" on
+ * a dimension, the perfect model gives the declared role; while it does not, no role is sent, since the
+ * strict answer schema would refuse the key.
  */
 
 export const ORACLE_FAMILY = 'oracle';
 export const ORACLE_MODEL = 'perfect model written by code from the hidden specification';
 
 type AnswerValue = { id: string; title: string; source: string; quote: string };
-type AnswerDimension = { id: string; title: string; kind: string; values: AnswerValue[] };
+type AnswerDimension = { id: string; title: string; kind: string; role?: string; values: AnswerValue[] };
 type AnswerConstraint = { forbid: Record<string, string>; reason: string; source: string; quote: string };
 type AnswerPhrase = {
   dimension: string;
@@ -31,8 +35,24 @@ type SectionAnswer = {
   phrases: AnswerPhrase[];
 };
 
+/** Whether the extractor's system prompt asks for a role on each dimension. */
+export function contractStatesRole(systemPrompt: string = SYSTEM_PROMPT): boolean {
+  return /"role"\s*:/.test(systemPrompt);
+}
+
+export type OracleOptions = {
+  /** Give each dimension its declared role. By default, when the system prompt asks for one. */
+  roles?: boolean;
+};
+
 /** The recording a perfect model would have produced for these rendered artefacts. */
-export function oracleRecording(spec: HiddenSpec, rendered: Rendered): Recording {
+export function oracleRecording(
+  spec: HiddenSpec,
+  rendered: Rendered,
+  options: OracleOptions = {},
+): Recording {
+  const roles = options.roles ?? contractStatesRole();
+  const role = (declared: string) => (roles ? { role: declared } : {});
   const quote = (id: string): string => {
     const span = rendered.spans.get(id);
     if (!span) throw new RangeError(`the renderer wrote no span for ${id}`);
@@ -58,6 +78,7 @@ export function oracleRecording(spec: HiddenSpec, rendered: Rendered): Recording
       id: 'stage',
       title: 'The stage a conversation is in',
       kind: 'stage',
+      ...role('axis'),
       values: spec.stages.map((stage) => value(`stage/${stage.id}`, stage.id, stage.title)),
     });
   }
@@ -79,6 +100,7 @@ export function oracleRecording(spec: HiddenSpec, rendered: Rendered): Recording
       id: 'rule',
       title: 'The rules the assistant follows',
       kind: 'behaviour',
+      ...role('detail'),
       values: ruleValues,
     });
   }
@@ -87,6 +109,7 @@ export function oracleRecording(spec: HiddenSpec, rendered: Rendered): Recording
       id: 'deviation',
       title: 'The deviation classes the flows must be perturbed with',
       kind: 'deviation',
+      ...role('axis'),
       values: [
         value(
           `deviation/${spec.proseDeviation}`,
@@ -106,6 +129,7 @@ export function oracleRecording(spec: HiddenSpec, rendered: Rendered): Recording
       id: dimension.id,
       title: dimension.title,
       kind: dimension.kind,
+      ...role(dimension.role),
       values: dimension.values.map((item) => value(`${dimension.id}/${item.id}`, item.id, item.title)),
     });
   }
