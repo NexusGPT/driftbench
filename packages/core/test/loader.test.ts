@@ -20,7 +20,7 @@ channel: chat
 lang: EN
 tier: core
 covers: [B-001, B-002]
-steps: [welcome, plan_choice, confirm, care_routing]
+stages: [welcome, plan_choice, confirm, care_routing]
 ledger_seed:
   customer: existing
 criteria:
@@ -32,7 +32,7 @@ criteria:
 blocks:
   - user: Hi, I want a faster internet plan
     expect:
-      step: welcome
+      stage: welcome
       tools:
         - label: lookup_plans
           count: 1
@@ -46,11 +46,13 @@ blocks:
     given:
       vars: { clock: "2026-10-11T10:00:00Z" }
     expect:
-      step: plan_choice
+      stage: plan_choice
       ledger_add: { plan: ultra }
   - burst: ["Yes", "yes, go"]
     expect:
-      step: confirm
+      stage: confirm
+      guards:
+        - { name: no_pii_out, verdict: pass }
       tools:
         - label: notify_sales
           count: { min: 1, max: 1 }
@@ -68,7 +70,7 @@ perturbations:
     class: D1_off_topic
     inject_at: 1
     user: Is the shop open on Saturday?
-    recovery: { within_blocks: 1, step_after: welcome }
+    recovery: { within_blocks: 1, stage_after: welcome }
   - id: tool-down
     class: D8_tool_failure
     inject_at: 2
@@ -231,10 +233,10 @@ const INVALID: Array<{ name: string; text: string; code: string; path?: string }
     code: 'MUST_CONFLICT',
   },
   {
-    name: 'step outside the catalogue',
-    text: 'id: x\nsteps: [a]\nblocks:\n  - user: hi\n    expect: { step: b }\n',
-    code: 'STEP_UNKNOWN',
-    path: 'blocks.0.expect.step',
+    name: 'stage outside the catalogue',
+    text: 'id: x\nstages: [a]\nblocks:\n  - user: hi\n    expect: { stage: b }\n',
+    code: 'STAGE_UNKNOWN',
+    path: 'blocks.0.expect.stage',
   },
   {
     name: 'forbidden tool expected',
@@ -245,6 +247,29 @@ const INVALID: Array<{ name: string; text: string; code: string; path?: string }
     name: 'both ledger_seed and given.ledger',
     text: 'id: x\nledger_seed: { a: 1 }\ngiven: { ledger: { a: 2 } }\nblocks:\n  - user: hi\n',
     code: 'SPEC_ALIAS_CONFLICT',
+  },
+  {
+    name: 'guard without a name',
+    text: 'id: x\nblocks:\n  - user: hi\n    expect: { guards: [{ verdict: pass }] }\n',
+    code: 'SCHEMA_INVALID_TYPE',
+    path: 'blocks.0.expect.guards.0.name',
+  },
+  {
+    name: 'guard count range upside down',
+    text: 'id: x\nblocks:\n  - user: hi\n    expect: { guards: [{ name: g, count: { min: 2, max: 1 } }] }\n',
+    code: 'COUNT_RANGE_INVALID',
+  },
+  {
+    name: 'the old step key is refused',
+    text: 'id: x\nblocks:\n  - user: hi\n    expect: { step: welcome }\n',
+    code: 'SCHEMA_UNRECOGNIZED_KEYS',
+    path: 'blocks.0.expect',
+  },
+  {
+    name: 'the old steps catalogue is refused',
+    text: 'id: x\nsteps: [a]\nblocks:\n  - user: hi\n',
+    code: 'SCHEMA_UNRECOGNIZED_KEYS',
+    path: '',
   },
   {
     name: 'end state that is neither none nor a mapping',

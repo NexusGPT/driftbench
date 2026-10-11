@@ -51,6 +51,14 @@ export const CardExpect = z.strictObject({ name: z.string().min(1), count: Count
 
 export const SkillExpect = z.strictObject({ name: z.string().min(1), count: Count.optional() });
 
+/** A runtime check that fired during the block: a hook, a guardrail, a policy. The adapter maps the runtime's own names. */
+export const GuardExpect = z.strictObject({
+  name: z.string().min(1),
+  verdict: z.string().min(1).optional(),
+  count: Count.optional(),
+});
+export type GuardExpect = z.infer<typeof GuardExpect>;
+
 export const ExecutionExpect = z.strictObject({
   ran_code: z.boolean().optional(),
   exit_code: z.number().int().optional(),
@@ -78,9 +86,12 @@ export const SafetyExpect = z.strictObject({
   confirm_before: z.array(z.string().min(1)).optional(),
 });
 
-/** The expected output and state delta of a block. Every field is optional. */
+/**
+ * The expected output and state delta of a block. Every field is optional.
+ * `stage` names the point of its own process the agent must reach; the spec declares the catalogue in `stages`.
+ */
 export const Expect = z.strictObject({
-  step: z.string().min(1).optional(),
+  stage: z.string().min(1).optional(),
   ledger_add: z.record(z.string(), z.unknown()).optional(),
   tools: z.array(ToolExpect).optional(),
   tool_order: z.enum(['exact', 'in_order', 'any_order']).optional(),
@@ -90,6 +101,7 @@ export const Expect = z.strictObject({
   cards: z.array(CardExpect).optional(),
   criteria: z.array(z.string().min(1)).optional(),
   skills: z.array(SkillExpect).optional(),
+  guards: z.array(GuardExpect).optional(),
   execution: ExecutionExpect.optional(),
   artifacts: z.array(ArtifactExpect).optional(),
   workspace: WorkspaceExpect.optional(),
@@ -109,7 +121,7 @@ export type BlockSpec = z.infer<typeof BlockSpec>;
 /** How the agent should come back after an injected deviation. */
 export const RecoveryExpect = z.strictObject({
   within_blocks: z.number().int().min(0),
-  step_after: z.string().min(1).optional(),
+  stage_after: z.string().min(1).optional(),
   return_message: z.string().optional(),
 });
 
@@ -168,7 +180,7 @@ export const Spec = z.strictObject({
   covers: z.array(z.string()).optional(),
   target: TargetRef.optional(),
   given: GivenDefaults.optional(),
-  steps: z.array(z.string().min(1)).optional(),
+  stages: z.array(z.string().min(1)).optional(),
   criteria: z.array(CriterionDef).optional(),
   blocks: z.array(BlockSpec).min(1),
   rules: Rules.optional(),

@@ -1,0 +1,28 @@
+id: upgrade-chat
+title: Existing customer upgrades their plan on chat
+channel: chat
+lang: EN
+covers: [B-001, B-002, B-003, B-004]
+blocks:
+  - user: Hi, I would like a faster plan
+    expect:
+      must: ["assistant"]
+      tools:
+        - label: lookup_plans
+          count: 1
+  - user: The fastest one, please
+    expect:
+      cards:
+        - name: offer
+          count: 1
+  - user: Yes, I confirm
+    expect:
+      tools:
+        - label: submit_order
+          count: 1
+perturbations:
+  - id: shop-hours
+    class: D1_off_topic
+    inject_at: 1
+    user: Is the shop open on Saturday?
+    recovery: { within_blocks: 1 }

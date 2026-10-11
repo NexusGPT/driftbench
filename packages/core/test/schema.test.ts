@@ -49,6 +49,17 @@ describe('run records', () => {
     expect(Observed.parse(observed).segments).toHaveLength(4);
   });
 
+  it('accept a generic runtime trace and refuse harness-specific keys', () => {
+    const runtime = {
+      skills: [{ name: 'xlsx', at: '2026-10-11T10:00:01Z' }],
+      guards: [{ name: 'no_pii_out', verdict: 'pass' }],
+      stages: [{ name: 'plan' }, { name: 'confirm' }],
+    };
+    expect(Observed.parse({ ...observed, runtime }).runtime?.guards).toHaveLength(1);
+    expect(Observed.safeParse({ ...observed, runtime: { hooks: [] } }).success).toBe(false);
+    expect(Observed.safeParse({ ...observed, runtime: { boardOps: [] } }).success).toBe(false);
+  });
+
   it('refuse an unknown segment type', () => {
     expect(Segment.safeParse({ type: 'image', url: 'x' }).success).toBe(false);
   });
@@ -78,7 +89,7 @@ describe('run records', () => {
       givenHash: 'abc123abc123',
       observed,
       verdicts: [verdict],
-      stepObserved: 'welcome',
+      stageObserved: 'welcome',
       ledgerCheck: { ok: true, contradictions: [] },
       drift: [],
       pass: true,
