@@ -524,3 +524,23 @@ describe('pilot iteration 4: boundary values of a side-effecting tool', () => {
     expect(direct.map((spec) => spec.id)).toEqual([]);
   });
 });
+
+describe('pilot iteration 5: a boundary block asks for one tool', () => {
+  it('expects every other tool of the map 0 times', () => {
+    const prepared = prepare();
+    const result = generateSuite(prepared, { seed: 1, mapPath: 'map.yaml', t: 2 });
+    const single = result.all.filter(
+      (spec) =>
+        (spec.metadata?.generated as { seeder?: string } | undefined)?.seeder === 'boundary' &&
+        spec.blocks.length === 1 &&
+        (spec.blocks[0]?.expect?.tools ?? []).some((tool) => tool.label === 'lookup'),
+    );
+    expect(single.length).toBeGreaterThan(0);
+    for (const spec of single) {
+      expect(
+        (spec.blocks[0]?.expect?.tools ?? []).find((tool) => tool.label === 'notify'),
+        spec.id,
+      ).toEqual({ label: 'notify', count: 0 });
+    }
+  });
+});
