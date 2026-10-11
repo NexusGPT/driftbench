@@ -8,6 +8,7 @@ import { precisionItems } from './precision';
 import { reachItems } from './reach';
 import { recordItems } from './records';
 import { replayItems } from './replay';
+import { reportRoadmapItems } from './report';
 import { scaleItems } from './scale';
 import { BANK_LEVELS, type BankItem, type ItemResult } from './types';
 import { varianceItems } from './variance';
@@ -28,6 +29,7 @@ export function systemBank(): BankItem[] {
     ...fieldItems(),
     ...varianceItems(),
     ...versionItems(),
+    ...reportRoadmapItems(),
     ...replayItems(),
     ...cliItems(),
     ...scaleItems(),

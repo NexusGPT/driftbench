@@ -191,7 +191,7 @@ describe('items of every family on the current code', () => {
     'cli/run/failing-list',
     'scale/tool-calls/x10',
   ];
-  const roadmap = ['scorecard/overall-runs/clean', 'version/diff/x5-tool/first'];
+  const roadmap = ['scorecard/overall/runs', 'version/diff/x5-tool/first', 'compare/cell/x1/first'];
   for (const id of holds) {
     it(`holds: ${id}`, async () => {
       const item = bank.find((each) => each.id === id) as BankItem;
