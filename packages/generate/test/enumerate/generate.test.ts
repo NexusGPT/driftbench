@@ -34,7 +34,9 @@ describe('generateSuite on a small fictional map', () => {
       if (!loaded.ok) continue;
       if (file.path.startsWith(`${INCOMPLETE_DIR}/`)) {
         expect(loaded.warnings.map((warning) => warning.code)).toEqual(['CRITERION_UNRESOLVED']);
-        expect(loaded.warnings[0]?.message).toContain(PLACEHOLDER_CRITERION);
+        expect(loaded.warnings[0]?.message).toMatch(
+          new RegExp(`${PLACEHOLDER_CRITERION}|${NO_THEN_CRITERION}`),
+        );
       } else {
         expect(lintSpec(loaded.spec), file.path).toEqual([]);
       }

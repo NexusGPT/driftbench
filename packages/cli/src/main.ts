@@ -1,14 +1,20 @@
 import { Command, CommanderError } from 'commander';
 import { registerCampaignCommands } from './commands/campaign';
+import { registerCiCommand } from './commands/ci';
+import { registerCompareCommand } from './commands/compare';
 import { registerEstateCommand } from './commands/estate';
 import { registerExtractCommand } from './commands/extract';
 import { registerFamilyCommand } from './commands/family';
 import { registerGateCommand } from './commands/gate';
 import { registerGenerateCommand } from './commands/generate';
+import { registerHoldoutCommand } from './commands/holdout';
 import { registerIntakeCommand } from './commands/intake';
 import { registerJudgeCommand } from './commands/judge';
+import { registerMonitorCommand } from './commands/monitor';
 import { registerPilotCommand } from './commands/pilot';
 import { registerReplayCommand } from './commands/replay';
+import { registerReportCommand } from './commands/report';
+import { registerSelectCommand } from './commands/select';
 import { registerSmokeCommand } from './commands/smoke';
 import { registerSpaceCommands } from './commands/space';
 import { registerSpecCommands } from './commands/spec';
@@ -42,6 +48,12 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerPilotCommand(program, io, setExit);
   registerJudgeCommand(program, io, setExit);
   registerValidateCommand(program, io, setExit);
+  registerReportCommand(program, io, setExit);
+  registerCompareCommand(program, io, setExit);
+  registerCiCommand(program, io, setExit);
+  registerMonitorCommand(program, io, setExit);
+  registerSelectCommand(program, io, setExit);
+  registerHoldoutCommand(program, io, setExit);
 
   try {
     await program.parseAsync(argv, { from: 'user' });

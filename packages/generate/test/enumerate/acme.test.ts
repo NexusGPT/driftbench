@@ -37,10 +37,15 @@ describe('generate on the approved Acme map', () => {
     });
   }, 60_000);
 
-  it('reads the 46 approved dimensions, the 34 constraints and the 21 approved phrases', () => {
+  it('reads the 46 approved dimensions, the 59 constraints, the 51 approved phrases and the relations', () => {
     expect(prepared.map.dimensions).toHaveLength(46);
-    expect(prepared.map.constraints).toHaveLength(34);
-    expect(prepared.phrases).toHaveLength(21);
+    expect(prepared.map.constraints).toHaveLength(59);
+    expect(prepared.phrases).toHaveLength(51);
+    expect(prepared.relations.paths).toHaveLength(12);
+    expect(prepared.relations.usesTools).toHaveLength(14);
+    expect(prepared.relations.binds.size).toBe(12);
+    expect(prepared.relations.recoveries).toHaveLength(24);
+    expect(prepared.relations.replyLanguage).toBe('EN');
     expect(prepared.tools.map((tool) => tool.name)).toEqual([
       'catalog.search',
       'coverage.check',
@@ -61,9 +66,21 @@ describe('generate on the approved Acme map', () => {
     }
   });
 
-  it('walks every edge of the stage graph from needs', () => {
-    expect(result.report.graph).toMatchObject({ stages: 11, start: 'needs', edges: 23, covered: 23 });
-    expect(result.report.graph.unreachable).toEqual([]);
+  it('walks the stage graph along the approved paths, and names the edges no path takes', () => {
+    expect(result.report.graph).toMatchObject({
+      stages: 11,
+      start: 'needs',
+      edges: 23,
+      covered: 18,
+      paths: 12,
+    });
+    expect(result.report.graph.blocked).toEqual([
+      'needs-to-offer',
+      'address-to-details',
+      'recap-to-recap',
+      'recap-to-handover',
+      'callback-to-offer',
+    ]);
     expect(result.report.graph.unparsed).toEqual([]);
   });
 
@@ -80,11 +97,12 @@ describe('generate on the approved Acme map', () => {
     expect(twise.covered).toBe(twise.allowed);
     // By hand, the pairs of the 6 axes: behaviour 14 x (11 + 2 + 3 + 4 + 2) = 308, deviation 11 x (2 + 3 +
     // 4 + 2) = 121, channel 2 x (3 + 4 + 2) = 18, user_type 3 x (4 + 2) = 18, coverage_result 4 x 2 = 8:
-    // 473, less the 3 behaviours forbidden on whatsapp: 470.
-    expect(twise.allowed).toBe(470);
+    // 473, less the 3 behaviours forbidden on whatsapp and the 26 behaviour and user type pairs the map
+    // forbids: 444.
+    expect(twise.allowed).toBe(444);
     // behaviour (14 values) x deviation (11 values): no pairwise array has fewer rows than 154.
     expect(twise.rows).toBeGreaterThanOrEqual(154);
-    expect(result.report.constraints.applied).toBe(34);
+    expect(result.report.constraints.applied).toBe(59);
     const space = compileSpace(prepared.map);
     for (const spec of result.all.filter(
       (entry) => (entry.metadata as { generated: { seeder: string } }).generated.seeder === 'twise',
@@ -99,14 +117,28 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 168, incomplete: 88 });
+    expect(result.report.summary).toMatchObject({ complete: 168, incomplete: 100 });
   });
 
-  it('probes all 10 deviation classes, each user turn an approved phrase', () => {
+  it('probes all 10 deviation classes, each user turn an approved phrase with its slots filled from the map', () => {
     expect(result.report.deviation.probes.map((probe) => probe.class)).toHaveLength(10);
-    const approved = new Set(prepared.phrases.map((phrase) => phrase.text));
+    const bound = new Set<string>();
+    for (const slots of prepared.relations.binds.values())
+      for (const value of Object.values(slots)) bound.add(value);
+    const templates = prepared.phrases.map((phrase) => {
+      const parts = phrase.text
+        .split(/\{[a-z][a-z0-9_]*\}/)
+        .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      return new RegExp(`^${parts.join('(.+)')}$`);
+    });
     for (const spec of result.complete) {
-      for (const text of userTexts(spec)) expect(approved.has(text), `${spec.id}: ${text}`).toBe(true);
+      for (const text of userTexts(spec)) {
+        // Some approved phrase matches, every slot it holds filled with a value the map binds.
+        const filled = templates
+          .map((template) => template.exec(text))
+          .some((found) => found?.slice(1).every((value) => bound.has(value)) === true);
+        expect(filled, `${spec.id}: ${text}`).toBe(true);
+      }
     }
   });
 
@@ -118,7 +150,7 @@ describe('generate on the approved Acme map', () => {
       const name = family(spec);
       if (name) groups.set(name, [...(groups.get(name) ?? []), spec]);
     }
-    expect([...groups.keys()]).toHaveLength(2);
+    expect([...groups.keys()]).toHaveLength(6);
     const strip = (spec: Spec) => {
       const copy = JSON.parse(JSON.stringify(spec));
       copy.id = '';
@@ -151,11 +183,82 @@ describe('generate on the approved Acme map', () => {
     }
   });
 
-  it('lists the values with no approved phrase: every stage transition, every data value', () => {
+  it('lists the values with no approved phrase: the tool schema values and the data cases no path says', () => {
     const gaps = new Set(result.report.no_phrase.map((gap) => gap.dimension));
-    expect(gaps.has('stage_transition')).toBe(true);
+    expect(gaps.has('stage_transition')).toBe(false);
     expect(gaps.has('coverage.check.out.found')).toBe(true);
-    expect(result.report.no_phrase.length).toBeGreaterThan(80);
+    expect([...gaps].filter((dimension) => !/\.(in|out)\./.test(dimension)).sort()).toEqual([
+      'callback_phone',
+      'customer_details',
+      'home_plans',
+      'retry_outcome',
+      'tool_answer',
+    ]);
+    expect(result.report.no_phrase).toHaveLength(67);
+  });
+
+  it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
+    expect(result.complete).toHaveLength(168);
+    for (const spec of result.complete) {
+      const generated = (spec.metadata as { generated: { path?: string } }).generated;
+      expect(
+        prepared.relations.paths.map((path) => path.id),
+        spec.id,
+      ).toContain(generated.path);
+      spec.blocks.forEach((block, index) => {
+        const machine =
+          block.expect?.stage !== undefined ||
+          (block.expect?.tools?.length ?? 0) > 0 ||
+          (block.expect?.guards?.length ?? 0) > 0;
+        expect(machine, `${spec.id} block ${index}`).toBe(true);
+      });
+    }
+  });
+
+  it('expects the reply language the map fixes, also after a message in another language', () => {
+    let probes = 0;
+    for (const spec of result.complete) {
+      for (const block of spec.blocks) {
+        expect(block.expect?.lang, spec.id).toBe('EN');
+        if ('injection' in block.when && block.when.injection.class === 'D5_language_switch') probes += 1;
+      }
+    }
+    expect(probes).toBeGreaterThan(0);
+  });
+
+  it('expects a tool input only as the map binds it: the value the block itself states, or a stored id', () => {
+    const bound = new Set<string>();
+    for (const slots of prepared.relations.binds.values())
+      for (const value of Object.values(slots)) bound.add(value);
+    for (const phrase of prepared.phrases)
+      for (const value of Object.values(phrase.binds ?? {})) bound.add(value);
+    const literals = new Set(['mobile', 'home', 'new', 'upgrade', 'no_coverage', 'callback', 'order_failed']);
+    const values = (assertion: unknown): string[] => {
+      if (typeof assertion === 'string') return [assertion];
+      if (assertion && typeof assertion === 'object') return Object.values(assertion).flatMap(values);
+      return [];
+    };
+    for (const spec of result.complete) {
+      for (const block of spec.blocks) {
+        for (const tool of block.expect?.tools ?? []) {
+          for (const value of Object.values(tool.input ?? {}).flatMap(values)) {
+            expect(bound.has(value) || literals.has(value), `${spec.id} ${tool.label} ${value}`).toBe(true);
+          }
+        }
+      }
+    }
+  });
+
+  it('sends every spec the paths cannot build to incomplete/, with the reason', () => {
+    for (const spec of result.all) {
+      if (result.complete.includes(spec)) continue;
+      const generated = (spec.metadata as { generated: Record<string, unknown> }).generated;
+      const why = (generated.needs_then_why as string[] | undefined) ?? [];
+      const phrase = (generated.needs_phrase as unknown[] | undefined) ?? [];
+      expect(why.length + phrase.length, spec.id).toBeGreaterThan(0);
+    }
+    const reasons = result.report.no_then.flatMap((entry) => entry.reasons);
+    expect(reasons).toContain('no approved path belongs to a flow of B-013 (price-sheet)');
   });
 
   it('counts coverage on the axis map that extract map writes, as space coverage does', async () => {
@@ -164,8 +267,8 @@ describe('generate on the approved Acme map', () => {
     expect(prepared.axisMap.dimensions).toEqual(written.map.dimensions);
     expect(prepared.axisMap.constraints).toEqual(written.map.constraints);
     const coverage = result.report.coverage;
-    // The hand-written baseline the lead measured: 164 of 866 pairs.
-    expect(coverage.baseline).toMatchObject({ specs: 7, allowed: 866, covered: 164 });
+    // The hand-written baseline: 164 of the 840 pairs the map allows.
+    expect(coverage.baseline).toMatchObject({ specs: 7, allowed: 840, covered: 164 });
     expect(coverage.complete.covered).toBeGreaterThan(2 * (coverage.baseline?.covered ?? 0));
     const generated = await loadSpecs([GENERATED]);
     const counted = spaceCoverage(written.map, generated, { t: 2 });
@@ -179,6 +282,6 @@ describe('generate on the approved Acme map', () => {
     expect(loaded.ok).toBe(false);
     if (loaded.ok) return;
     expect(loaded.code).toBe('MAP_NOT_APPROVED');
-    expect(loaded.message).toContain('101 of 101 entries are not approved');
+    expect(loaded.message).toContain('219 of 219 entries are not approved');
   });
 });

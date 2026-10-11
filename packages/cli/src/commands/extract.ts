@@ -268,7 +268,7 @@ export async function approveCommand(path: string, options: ApproveOptions, io: 
   });
   io.out(
     [
-      `${name}: ${pending.length} of ${counts.total} decisions are open (${counts.dimensions} dimensions, ${counts.constraints} constraints, ${counts.phrases} phrases).`,
+      `${name}: ${pending.length} of ${counts.total} decisions are open (${counts.dimensions} dimensions, ${counts.constraints} constraints, ${counts.phrases} phrases${counts.relations > 0 ? `, ${counts.relations} relations` : ''}).`,
       gridLine,
       ...lines,
       'Approve a dimension and its values with --dimension <id>, or every entry with --all. In the file, set',
@@ -338,8 +338,8 @@ function report(result: Extract<ExtractResult, { ok: true }>, out: string, io: I
   const axes = proposal.dimensions.filter((dimension) => dimension.role === 'axis').map((d) => d.id);
   const { cells } = axisGrid(proposal);
   const lines = [
-    `Wrote ${show(out, io)}: ${proposal.dimensions.length} dimensions, ${counts.values} values, ${counts.constraints} constraints, ${counts.phrases} phrases, none approved.`,
-    `  Code pre-pass: ${prepass.dimensions} dimensions, ${prepass.values} values, ${prepass.constraints} constraints.`,
+    `Wrote ${show(out, io)}: ${proposal.dimensions.length} dimensions, ${counts.values} values, ${counts.constraints} constraints, ${counts.phrases} phrases${counts.relations > 0 ? `, ${counts.relations} relations` : ''}, none approved.`,
+    `  Code pre-pass: ${prepass.dimensions} dimensions, ${prepass.values} values, ${prepass.constraints} constraints${prepass.relations > 0 ? `, ${prepass.relations} relations` : ''}.`,
     `  Roles: ${axes.length} axes (${axes.join(', ')}), ${proposal.dimensions.length - axes.length} details; the axes make a full grid of ${cells} ${plural(cells, 'cell', 'cells')}.`,
   ];
   if (result.sections.length === 0) {

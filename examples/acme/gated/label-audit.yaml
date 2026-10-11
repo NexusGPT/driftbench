@@ -1,4 +1,317 @@
 # The label audit: a seeded sample of each family of gated blocks, for a person to read against the spec.
 # For each block, set label_correct to true or false and say why in note. The error rate per family is
 # the share of false answers, reported with its interval once the sample is read.
-families: []
+families:
+  - family: boundary
+    sample:
+      - block: gen-boundary-058#b1-needs-to-identify
+        path: boundary/gen-boundary-058.yaml
+        cell:
+          stage_transition: needs-to-identify
+          stage: identify
+        when: I keep running out of data, can I get a bigger plan?
+        expected:
+          stage: identify
+          tools:
+            - label: catalog.search
+              count: 0
+            - label: order.create
+              count: 0
+          lang: EN
+          criteria:
+            - flow.upgrade
+        label_correct: null
+        note: null
+      - block: gen-boundary-060#b2-identify-to-offer
+        path: boundary/gen-boundary-060.yaml
+        cell:
+          stage_transition: identify-to-offer
+          account_lookup: plan-not-in-catalog
+          stage: offer
+        when: It's lee.jensen@example.com.
+        expected:
+          stage: offer
+          tools:
+            - label: catalog.search
+              count: 1
+              input:
+                category: mobile
+                customer_email: lee.jensen@example.com
+          lang: EN
+        label_correct: null
+        note: null
+      - block: gen-boundary-079#b3-offer-to-callback
+        path: boundary/gen-boundary-079.yaml
+        cell:
+          stage_transition: offer-to-callback
+          stage: callback
+        when: Can someone just call me back?
+        expected:
+          stage: callback
+          tools:
+            - label: coverage.check
+              count: 0
+            - label: catalog.search
+              count: 0
+            - label: notify_sales
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+  - family: deviation
+    sample:
+      - block: gen-deviation-004#b4-details-to-recap
+        path: deviation/gen-deviation-004.yaml
+        cell:
+          stage_transition: details-to-recap
+          customer_details: name-and-email
+          stage: recap
+        when: Jo Okafor, jo.okafor@example.com
+        expected:
+          stage: recap
+          tools:
+            - label: coverage.check
+              count: 0
+            - label: catalog.search
+              count: 0
+            - label: order.create
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+      - block: gen-deviation-005#b1-needs-to-address
+        path: deviation/gen-deviation-005.yaml
+        cell:
+          stage_transition: needs-to-address
+          stage: address
+        when: Hello, I'm looking for home internet.
+        expected:
+          stage: address
+          tools:
+            - label: coverage.check
+              count: 0
+            - label: notify_sales
+              count: 0
+          lang: EN
+          criteria:
+            - flow.new-home
+        label_correct: null
+        note: null
+      - block: gen-deviation-005#b5-handover-to-closing
+        path: deviation/gen-deviation-005.yaml
+        cell:
+          stage_transition: handover-to-closing
+          stage: closing
+        when: Great, thank you. Bye!
+        expected:
+          stage: closing
+          tools:
+            - label: coverage.check
+              count: 0
+            - label: notify_sales
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+  - family: graph
+    sample:
+      - block: gen-graph-008#b1-needs-to-address
+        path: graph/gen-graph-008.yaml
+        cell:
+          stage_transition: needs-to-address
+          stage: address
+        when: Hello, I'm looking for home internet.
+        expected:
+          stage: address
+          tools:
+            - label: coverage.check
+              count: 0
+            - label: catalog.search
+              count: 0
+            - label: notify_sales
+              count: 0
+          lang: EN
+          criteria:
+            - flow.new-home
+        label_correct: null
+        note: null
+      - block: gen-graph-010#b3-offer-to-details
+        path: graph/gen-graph-010.yaml
+        cell:
+          stage_transition: offer-to-details
+          stage: details
+        when: Acme Mobile M, please.
+        expected:
+          stage: details
+          tools:
+            - label: port.check
+              count: 0
+            - label: catalog.search
+              count: 0
+            - label: order.create
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+      - block: gen-graph-012#b2-address-to-offer
+        path: graph/gen-graph-012.yaml
+        cell:
+          stage_transition: address-to-offer
+          coverage_result: 5g-only
+          stage: offer
+        when: The address is 88 Summit Avenue, Acmeville.
+        expected:
+          stage: offer
+          tools:
+            - label: coverage.check
+              count: 1
+              input:
+                address: 88 Summit Avenue, Acmeville
+            - label: catalog.search
+              count: 1
+              input:
+                category: home
+                address_id: addr-103
+            - label: order.create
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+  - family: metamorphic
+    sample:
+      - block: gen-metamorphic-003-1#b2-identify-to-offer
+        path: metamorphic/gen-metamorphic-003-1.yaml
+        cell:
+          stage_transition: identify-to-offer
+          account_lookup: found
+          stage: offer
+        when: It's sam.rivera@example.com.
+        expected:
+          stage: offer
+          tools:
+            - label: catalog.search
+              count: 1
+              input:
+                category: mobile
+                customer_email: sam.rivera@example.com
+            - label: order.create
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+      - block: gen-metamorphic-005-2#b2-port_number-to-offer
+        path: metamorphic/gen-metamorphic-005-2.yaml
+        cell:
+          stage_transition: port_number-to-offer
+          port_result: can-move
+          stage: offer
+        when: My number is +1 202 555 0165.
+        expected:
+          stage: offer
+          tools:
+            - label: port.check
+              count: 1
+              input:
+                number: "+12025550165"
+            - label: catalog.search
+              count: 1
+              input:
+                category: mobile
+            - label: order.create
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+      - block: gen-metamorphic-005-2#b5-recap-to-order_placed
+        path: metamorphic/gen-metamorphic-005-2.yaml
+        cell:
+          stage_transition: recap-to-order_placed
+          port_result: can-move
+          customer_details: name-and-email
+          stage: order_placed
+        when: CONFIRM
+        expected:
+          stage: order_placed
+          tools:
+            - label: order.create
+              count: 1
+              input:
+                type: new
+                plan_id: mobile-m
+                port_number: "+12025550165"
+                customer:
+                  subset:
+                    name: Jo Okafor
+                    email: jo.okafor@example.com
+            - label: port.check
+              count: 0
+            - label: catalog.search
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+  - family: twise
+    sample:
+      - block: gen-twise-062#b6-recap-to-order_placed
+        path: twise/gen-twise-062.yaml
+        cell:
+          stage_transition: recap-to-order_placed
+          port_result: can-move
+          customer_details: name-and-email
+          stage: order_placed
+        when: CONFIRM
+        expected:
+          stage: order_placed
+          tools:
+            - label: order.create
+              count: 1
+              input:
+                type: new
+                plan_id: mobile-m
+                port_number: "+12025550165"
+                customer:
+                  subset:
+                    name: Jo Okafor
+                    email: jo.okafor@example.com
+            - label: port.check
+              count: 0
+            - label: catalog.search
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+      - block: gen-twise-103#b5-details-to-recap
+        path: twise/gen-twise-103.yaml
+        cell:
+          stage_transition: details-to-recap
+          customer_details: name-and-email
+          stage: recap
+        when: Jo Okafor, jo.okafor@example.com
+        expected:
+          stage: recap
+          tools:
+            - label: coverage.check
+              count: 0
+            - label: catalog.search
+              count: 0
+            - label: order.create
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+      - block: gen-twise-111#b4-handover-to-closing
+        path: twise/gen-twise-111.yaml
+        cell:
+          stage_transition: handover-to-closing
+          stage: closing
+        when: Great, thank you. Bye!
+        expected:
+          stage: closing
+          tools:
+            - label: coverage.check
+              count: 0
+            - label: notify_sales
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null

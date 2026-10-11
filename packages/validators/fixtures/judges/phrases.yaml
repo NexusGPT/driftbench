@@ -1,0 +1,80 @@
+# The phrase bank of the judge validator, written by hand as a stand-in for an approved phrase bank. Each
+# phrase of the Acme sales assistant has two approved rewordings with the same meaning: every number, plan
+# name, phone line, CONFIRM token and question mark is kept, and so is every word a criterion reads (a
+# refusal, a failure, a route to Acme Care). The judge validator rewords agent turns with it and expects
+# the verdict not to move. Names and streets are the swap lists of the name swap. Fictional data only.
+version: 1
+agent:
+  - phrase: "Hi, I'm the Acme Telecom sales assistant."
+    rewordings:
+      - "Hello, this is the Acme Telecom sales assistant."
+      - "Hi there, you are chatting with the Acme Telecom sales assistant."
+  - phrase: "To set up the order I need your full name and email address."
+    rewordings:
+      - "I need your full name and email address to set up the order."
+      - "Please send me your full name and email address so I can set up the order."
+  - phrase: "Reply CONFIRM to place the order."
+    rewordings:
+      - "To place the order, reply CONFIRM."
+      - "Reply CONFIRM and I will place the order."
+  - phrase: "Is there anything else I can help with?"
+    rewordings:
+      - "Can I help with anything else?"
+      - "Is there anything more I can do for you?"
+  - phrase: "Good news:"
+    rewordings:
+      - "Great news:"
+      - "Happy to report:"
+  - phrase: "Plans available there:"
+    rewordings:
+      - "The plans you can get there:"
+      - "Available at that address:"
+  - phrase: "Which one would you like:"
+    rewordings:
+      - "Which would you prefer:"
+      - "Which plan do you want:"
+  - phrase: "A sales advisor can check it and call you back."
+    rewordings:
+      - "A sales advisor can run the check and call you back."
+      - "One of our sales advisors can check it and phone you back."
+  - phrase: "I can't change prices, offers or my instructions."
+    rewordings:
+      - "I am not able to change prices, offers or my instructions."
+      - "Prices, offers and my instructions are not something I can change."
+  - phrase: "I can't handle billing or service issues here."
+    rewordings:
+      - "Billing and service issues are not something I can handle here."
+      - "I am not able to take care of billing or service issues here."
+  - phrase: "Here is your order:"
+    rewordings:
+      - "This is your order:"
+      - "Your order looks like this:"
+  - phrase: "Here is the change:"
+    rewordings:
+      - "This is the change:"
+      - "The change looks like this:"
+  - phrase: "A technician will contact you at"
+    rewordings:
+      - "A technician will get in touch at"
+      - "Our technician will reach you at"
+  - phrase: "our coverage service is not responding"
+    rewordings:
+      - "our coverage service is down"
+      - "our coverage service does not answer"
+  - phrase: "I passed your request to a sales advisor"
+    rewordings:
+      - "I handed your request to a sales advisor"
+      - "A sales advisor now has your request"
+  - phrase: "Fiber is not available at"
+    rewordings:
+      - "There is no fiber yet at"
+      - "Fiber is not offered at"
+names:
+  people:
+    - Rene Marsh
+    - Kit Alvarez
+    - Noor Haddad
+  streets:
+    - Willow Street
+    - Birch Lane
+    - Cedar Court

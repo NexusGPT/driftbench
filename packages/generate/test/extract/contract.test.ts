@@ -50,7 +50,8 @@ describe('sectionRequest', () => {
   it('gives the phrases section no dimension kind', () => {
     expect(SECTION_KINDS.phrases).toEqual([]);
     expect(sectionRequest('phrases', SOURCES, prepass).user).toContain('none (phrases only)');
-    expect(SECTIONS).toEqual(['stages', 'rules', 'personas', 'data', 'phrases']);
+    expect(SECTIONS).toEqual(['stages', 'rules', 'personas', 'data', 'phrases', 'relations']);
+    expect(SECTION_KINDS.relations).toEqual([]);
   });
 
   it('reads no section from a message that does not start with one', () => {
@@ -78,6 +79,7 @@ describe('parseAnswer', () => {
       dimensions: [],
       constraints: [],
       phrases: [],
+      relations: [],
     });
   });
 

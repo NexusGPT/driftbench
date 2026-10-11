@@ -113,9 +113,32 @@ blocks:
   - when:
       user: CONFIRM
     expect:
+      stage: order_placed
+      tools:
+        - label: order.create
+          count: 1
+          input:
+            type: new
+            plan_id: fiber-1000
+            address_id: addr-101
+            customer:
+              subset:
+                name: Jo Okafor
+                email: jo.okafor@example.com
+            port_number:
+              absent: true
+        - label: notify_sales
+          count: 0
+      must:
+        - ORD-[0-9A-F]{6}
+        - is placed
       criteria:
         - explicit_confirmation@gating
         - no_invented_data@gating
+      guards:
+        - name: explicit_confirmation
+          verdict: pass
+          count: 1
 perturbations:
   - id: second-loose-yes
     class: D4_loose_confirmation
@@ -172,6 +195,27 @@ perturbations:
     recovery:
       within_blocks: 0
       stage_after: handover
+rules:
+  max_calls:
+    coverage.check: 1
+    order.create: 1
+  forbidden_tools:
+    - port.check
+  lang_stable: true
+  one_message_per_turn: true
+end_state:
+  source: tool:order.create
+  mode: subset
+  expect:
+    type: new
+    plan_id: fiber-1000
+    address_id: addr-101
+    customer:
+      subset:
+        name: Jo Okafor
+        email: jo.okafor@example.com
+    port_number:
+      absent: true
 metadata:
   gate:
     by: driftbench gate
@@ -190,10 +234,6 @@ metadata:
         pass_k: 1
         pass_probability: 0.4
       - block: 3
-        status: rejected
-        stage: leakage
-        reason: expected-value-in-given
-    dropped:
-      - "3: stage, tools, must, guards"
-      - "rules: a block they apply to was rejected"
-      - "end_state: the last block was rejected"
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.4

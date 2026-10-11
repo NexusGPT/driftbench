@@ -11,6 +11,7 @@ export async function acmeSources(): Promise<SourceText[]> {
   return [
     { kind: 'prompt', path: '../src/policy.ts', text: await read('src/policy.ts') },
     { kind: 'prompt', path: '../README.md', text: await read('README.md') },
+    { kind: 'prompt', path: '../src/store.ts', text: await read('src/store.ts') },
     { kind: 'inventory', path: '../inventory.yaml', text: await read('inventory.yaml') },
     { kind: 'tools', path: 'tools.yaml', text: await read('map/tools.yaml') },
   ];
@@ -47,13 +48,14 @@ export const SOURCES: SourceText[] = [
 /** One answer in the contract's JSON, for a section. */
 export function answer(
   section: Section,
-  body: { dimensions?: unknown[]; constraints?: unknown[]; phrases?: unknown[] } = {},
+  body: { dimensions?: unknown[]; constraints?: unknown[]; phrases?: unknown[]; relations?: unknown[] } = {},
 ) {
   return JSON.stringify({
     section,
     dimensions: body.dimensions ?? [],
     constraints: body.constraints ?? [],
     phrases: body.phrases ?? [],
+    ...(body.relations ? { relations: body.relations } : {}),
   });
 }
 
@@ -126,4 +128,26 @@ export const PHRASES = answer('phrases', {
   ],
 });
 
-export const GOOD_ANSWERS = [STAGES, RULES, PERSONAS, DATA, PHRASES];
+/** The relations of the Zed Bank: the balance flow passes greet, verify and help, and verifies on a tool. */
+export const RELATIONS = answer('relations', {
+  relations: [
+    {
+      kind: 'path',
+      id: 'balance-happy',
+      flow: 'balance',
+      stages: ['greet', 'verify', 'help'],
+      source: 'prompt.md',
+      quote: 'Stages, in order: greet, verify, help.',
+    },
+    {
+      kind: 'recovery',
+      class: 'D8_tool_failure',
+      flows: ['balance'],
+      stage_after: 'verify',
+      source: 'prompt.md',
+      quote: 'Always verify the customer with the last four digits of their card',
+    },
+  ],
+});
+
+export const GOOD_ANSWERS = [STAGES, RULES, PERSONAS, DATA, PHRASES, RELATIONS];

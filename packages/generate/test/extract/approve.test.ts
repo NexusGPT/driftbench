@@ -20,15 +20,18 @@ async function build(): Promise<Proposal> {
 }
 
 describe('pendingEntries', () => {
-  it('lists one decision per dimension, constraint and phrase', async () => {
+  it('lists one decision per dimension, constraint, phrase and relation', async () => {
     const pending = pendingEntries(await build());
-    expect(pending).toHaveLength(11);
+    expect(pending).toHaveLength(14);
     expect(pending.map((entry) => entry.kind)).toEqual([
       ...Array(7).fill('dimension'),
       'constraint',
       'constraint',
       'phrase',
       'phrase',
+      'relation',
+      'relation',
+      'relation',
     ]);
     expect(pending[0]).toEqual({
       kind: 'dimension',
@@ -44,12 +47,18 @@ describe('pendingEntries', () => {
       detail: 'B-002 applies only on chat',
       source: 'inventory.yaml',
     });
-    expect(pending.at(-1)).toEqual({
+    expect(pending.find((entry) => entry.path === 'phrases.1')).toEqual({
       kind: 'phrase',
       path: 'phrases.1',
       label: 'language/other',
       detail: '"Quel est mon solde ?" (fr)',
     });
+    // The code pre-pass proposes the recovery the inventory fixes; the model proposes the rest.
+    expect(pending.slice(-3).map((entry) => [entry.label, entry.detail, entry.source])).toEqual([
+      ['recovery', 'recovery D1_off_topic in balance', 'inventory.yaml'],
+      ['path', 'path balance-happy (balance: greet > verify > help)', 'prompt.md'],
+      ['recovery', 'recovery D8_tool_failure in balance', 'prompt.md'],
+    ]);
   });
 
   it('leaves out an approved dimension, and names the values that set their own flag', async () => {
@@ -58,7 +67,7 @@ describe('pendingEntries', () => {
     const flow = proposal.dimensions[1]?.values[0];
     if (flow) flow.approved = true;
     const pending = pendingEntries(proposal);
-    expect(pending).toHaveLength(10);
+    expect(pending).toHaveLength(13);
     expect(pending[0]?.detail).toBe(
       'behaviour detail, by code, 1 value, 1 set on their own: The flows the inventory lists',
     );
@@ -99,13 +108,13 @@ describe('approveAll', () => {
     );
     const result = approveAll(text);
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
-    expect(result.approved).toBe(11);
+    expect(result.approved).toBe(14);
     expect(result.already).toBe(0);
     expect(result.text).toContain('# Checked with the product owner on Monday.');
     expect(result.text.split('\n')[0]).toBe(text.split('\n')[0]);
     const parsed = parseProposalText(result.text);
     if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
-    expect(countEntries(parsed.proposal)).toMatchObject({ total: 11, approved: 11, valuesApproved: 13 });
+    expect(countEntries(parsed.proposal)).toMatchObject({ total: 14, approved: 14, valuesApproved: 13 });
     expect(pendingEntries(parsed.proposal)).toEqual([]);
     expect(result.text.replaceAll('approved: true', 'approved: false')).toBe(text);
   });
@@ -114,7 +123,7 @@ describe('approveAll', () => {
     const proposal = await build();
     if (proposal.phrases[0]) proposal.phrases[0].approved = true;
     const result = approveAll(renderProposal(proposal));
-    expect(result.ok && [result.approved, result.already]).toEqual([10, 1]);
+    expect(result.ok && [result.approved, result.already]).toEqual([13, 1]);
   });
 
   it('refuses to approve a proposal where an entry lost its evidence', async () => {

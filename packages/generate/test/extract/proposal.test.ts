@@ -46,7 +46,8 @@ describe('the proposal schema', () => {
       values: 13,
       constraints: 2,
       phrases: 2,
-      total: 11,
+      relations: 3,
+      total: 14,
       approved: 0,
       valuesApproved: 0,
     });
@@ -255,5 +256,92 @@ describe('the proposal as a space map', () => {
       { behaviour: 'B-002', channel: 'email' },
       { language: 'other', channel: 'email' },
     ]);
+  });
+});
+
+describe('relations', () => {
+  it('validates the relations the extractor writes, and refuses broken references in them', async () => {
+    const proposal = await build();
+    expect(validateProposal(proposal).ok).toBe(true);
+    expect(proposal.relations?.map((relation) => [relation.kind, relation.produced_by])).toEqual([
+      ['recovery', 'code'],
+      ['path', 'model'],
+      ['recovery', 'model'],
+    ]);
+
+    const broken = copy(proposal);
+    const path = broken.relations?.[1];
+    if (path?.kind !== 'path') throw new Error('the fixture has no path');
+    path.stages = ['greet', 'nowhere'];
+    path.flow = 'loans';
+    path.when = { channel: ['fax'] };
+    expect(codes(broken)).toEqual([
+      'relations.1.flow PROPOSAL_UNKNOWN_VALUE',
+      'relations.1.stages.1 PROPOSAL_UNKNOWN_VALUE',
+      'relations.1.when.channel.0 PROPOSAL_UNKNOWN_VALUE',
+    ]);
+
+    const recovery = copy(proposal);
+    const entry = recovery.relations?.[2];
+    if (entry?.kind !== 'recovery') throw new Error('the fixture has no recovery');
+    entry.class = 'D2_goal_shift';
+    entry.stage_after = 'gone';
+    entry.at = ['help', 'lost'];
+    expect(codes(recovery)).toEqual([
+      'relations.2.class PROPOSAL_UNKNOWN_VALUE',
+      'relations.2.at.1 PROPOSAL_UNKNOWN_VALUE',
+      'relations.2.stage_after PROPOSAL_UNKNOWN_VALUE',
+    ]);
+  });
+
+  it('refuses a relation without evidence, of an unknown kind, or with a duplicate path id', async () => {
+    const proposal = await build();
+    const noEvidence = copy(proposal) as unknown as { relations: Array<Record<string, unknown>> };
+    delete noEvidence.relations[1]?.evidence;
+    expect(codes(noEvidence)).toEqual(['relations.1.evidence PROPOSAL_EVIDENCE_MISSING']);
+
+    const unknown = copy(proposal) as unknown as { relations: Array<Record<string, unknown>> };
+    if (unknown.relations[1]) unknown.relations[1].kind = 'guess';
+    expect(codes(unknown)[0]).toMatch(/^relations\.1\.kind SCHEMA_/);
+
+    const twice = copy(proposal);
+    const first = twice.relations?.[1];
+    if (first) twice.relations?.push(structuredClone(first));
+    expect(codes(twice)).toEqual(['relations.3.id PROPOSAL_DUPLICATE']);
+  });
+
+  it('checks each relation quote against its source, and counts each relation as one decision', async () => {
+    const proposal = await build();
+    const edited = copy(proposal);
+    const path = edited.relations?.[1];
+    if (path) path.evidence = { source: 'prompt.md', quote: 'Stages, in order: greet, help.' };
+    expect(checkQuotes(edited, TEXTS).map((entry) => `${entry.path} ${entry.code}`)).toEqual([
+      'relations.1.evidence.quote PROPOSAL_QUOTE_NOT_FOUND',
+    ]);
+    expect(countEntries(proposal)).toMatchObject({ relations: 3, total: 14 });
+  });
+
+  it('refuses a phrase whose when names a value the map does not hold', async () => {
+    const proposal = await build();
+    const phrased = copy(proposal);
+    const phrase = phrased.phrases[0];
+    if (phrase) phrase.when = { flow: ['loans'] };
+    expect(codes(phrased)).toEqual(['phrases.0.when.flow.0 PROPOSAL_UNKNOWN_VALUE']);
+  });
+
+  it('writes when, binds, subjects and stages on one line, and keeps them through YAML', async () => {
+    const proposal = await build();
+    const withSlots = copy(proposal);
+    const phrase = withSlots.phrases[0];
+    if (phrase) {
+      phrase.when = { flow: ['balance'] };
+      phrase.binds = { card: '1234' };
+    }
+    const text = renderProposal(withSlots);
+    expect(text).toContain('when: { flow: [ balance ] }');
+    expect(text).toContain('binds: { card: "1234" }');
+    expect(text).toContain('stages: [ greet, verify, help ]');
+    const back = parseProposalText(text);
+    expect(back.ok && back.proposal).toEqual(withSlots);
   });
 });
