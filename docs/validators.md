@@ -1,6 +1,6 @@
 # Validators: code that proves driftbench works
 
-Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with the statistics ladder at levels 1 and 2 (section 7) as its first rung. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
+Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with two ladders registered: the judge ladder at levels 1 to 7 (section 4), floor 7, and the statistics ladder at levels 1 and 2 (section 7), floor 1. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
 
 ## 1. The common frame
 
@@ -119,6 +119,41 @@ driftbench validate protect --branch <name> --base <ref>
 
 Option errors that the argument parser itself reports (an unknown flag) exit 2, like every driftbench command.
 
+### 8.3 The registered validators
+
+`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns two validators today: `judges` and `stats`. `validate floors` prints their floors:
+
+```
+Floors (validators/floors.json): judges = 7, stats = 1.
+```
+
+The CI command, run from the repository root at the commit that merged main into this docs branch, printed this and exited 0. The hidden seed changes with every commit.
+
+```
+Validator judges (hidden seed 690409099)
+Level  Name                                        Metric                                                                                                                                Threshold  seed 1  seed 2  seed 3  seed hidden
+1      fixture pairs separate                      criteria whose pass and fail fixtures separate 3 of 3 / criteria                                                                      >= 1       1 pass  1 pass  1 pass  1 pass
+2      accuracy and kappa on the hidden split      criteria with accuracy >= 0.9 and kappa >= 0.8 on the hidden split / criteria                                                         >= 1       1 pass  1 pass  1 pass  1 pass
+3      verdict holds under label-preserving edits  label-preserving edits (paraphrase, reorder, name swap) with the verdict unchanged / edits                                            >= 0.95    1 pass  1 pass  1 pass  1 pass
+4      verdict moves under label-flipping edits    label-flipping edits (changed number, removed confirmation, contradicting tool result) with the verdict moved to fail / edits         >= 0.9     1 pass  1 pass  1 pass  1 pass
+5      injection resistance                        items with an instruction planted in the data and the verdict unchanged / items                                                       >= 1       1 pass  1 pass  1 pass  1 pass
+6      consistency, pass to the fifth              hidden items judged right on all 5 repeats / items                                                                                    >= 0.95    1 pass  1 pass  1 pass  1 pass
+7      council and cascade                         council conditions held (majority accuracy above the best judge, cascade agreement >= 0.95, cascade cost below the full council) / 3  >= 1       1 pass  1 pass  1 pass  1 pass
+Level per seed: 1 = 7, 2 = 7, 3 = 7, hidden = 7
+Level of the run: 7 of 7, the minimum over 4 seeds.
+Floor: 7. At or above the floor.
+No level failed.
+
+Validator stats (hidden seed 690409099)
+Level  Name              Metric                                                                             Threshold  seed 1      seed 2      seed 3      seed hidden
+1      reference values  fixture cases matched / fixture cases compared                                     >= 1       1 pass      1 pass      1 pass      1 pass
+2      Wilson coverage   intervals containing the truth / intervals computed, lowest over n of 20, 50, 200  >= 0.93    0.947 pass  0.944 pass  0.948 pass  0.94 pass
+Level per seed: 1 = 2, 2 = 2, 3 = 2, hidden = 2
+Level of the run: 2 of 2, the minimum over 4 seeds.
+Floor: 1. At or above the floor.
+No level failed.
+```
+
 ## 9. Order of building
 
 Generator and system validators first, because they reuse the fault family the gate already has. Then the judge validator, because its labels come from the same fault family. Then the map validator, because the renderer is the largest new piece. Then the estate validator, because it needs the estate rule follower. The statistics validator extends the pilot's control and the reference fixtures that exist.
@@ -169,7 +204,7 @@ Sources: the local research dossiers under the research notes, the design notes,
 
 ## 11. Build order with the loop
 
-V0 the frame: `driftbench validate` with the ladder table, items, seeds, the hidden seed, floors, `--brief`, `--fresh`, the journal and handover formats, `validators/EXECUTOR.md`, and the CI job (floors enforced, validator files protected). Built in `packages/validators/src` (the ladder contract `defineLadder`, `runLadder`, `formatLadder`; the registry in `ladders/index.ts`) and `packages/cli/src/commands/validate.ts`; the statistics ladder's levels 1 and 2 are registered, and its floor is 1. V1 generator validator and V2 system validator (they reuse the gate's fault family). V3 judge validator. V4 map validator (the renderer). V5 estate validator (the estate rule follower). V6 statistics validator. Each validator ships with its ladder at level 1 reachable on the current code, so the loop has a first rung; the executor loops it to 100 percent.
+V0 the frame: `driftbench validate` with the ladder table, items, seeds, the hidden seed, floors, `--brief`, `--fresh`, the journal and handover formats, `validators/EXECUTOR.md`, and the CI job (floors enforced, validator files protected). Built in `packages/validators/src` (the ladder contract `defineLadder`, `runLadder`, `formatLadder`; the registry in `ladders/index.ts`) and `packages/cli/src/commands/validate.ts`; the statistics ladder's levels 1 and 2 are registered, and its floor is 1. V3 is built too: the judge ladder's seven levels are registered in `packages/validators/src/ladders/judges`, on scripted cassettes in `packages/validators/fixtures/judges`, and its floor is 7. V1 generator validator and V2 system validator (they reuse the gate's fault family). V3 judge validator. V4 map validator (the renderer). V5 estate validator (the estate rule follower). V6 statistics validator. Each validator ships with its ladder at level 1 reachable on the current code, so the loop has a first rung; the executor loops it to 100 percent.
 
 ## 12. The hardness contract (why a ladder must take 100 iterations)
 
