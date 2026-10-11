@@ -322,10 +322,13 @@ export const BASELINE_RATE = 0.93;
 export const PLANTED_DROP = 0.2;
 /** The non-inferiority margin of the parity verdict, set before the campaigns run. */
 export const PARITY_MARGIN = 0.1;
-/** Levels 6 and 7: at least this many of the 100 intervals contain the truth, or detect the drop. */
+/**
+ * Level 6: at least 93 of 100 Wilson intervals hold the truth. Level 7: at least 95 of 100 campaigns detect
+ * the drop and at most 5 of 100 false-alarm, which is one bar on the lower of the detection share and the
+ * share without a false alarm.
+ */
 export const CALIBRATION_BAR = 0.93;
 export const DETECTION_BAR = 0.95;
-export const FALSE_ALARM_BAR = 0.05;
 
 /** Level 6, design effect: clusters (specs) per campaign, runs per cluster, planted rate and correlation. */
 export const CLUSTERS = 20;
