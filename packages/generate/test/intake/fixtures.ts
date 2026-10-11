@@ -8,6 +8,7 @@ export const ZED_MAP: IntakeMap = {
       id: 'stage',
       title: 'Stages',
       kind: 'stage',
+      role: 'axis',
       values: [
         { id: 'greet', title: 'The agent greets' },
         { id: 'verify', title: 'The agent asks for the last four digits of the card' },
@@ -18,6 +19,7 @@ export const ZED_MAP: IntakeMap = {
       id: 'flow',
       title: 'Flows',
       kind: 'behaviour',
+      role: 'detail',
       values: [
         { id: 'balance', title: 'A customer asks for their balance' },
         { id: 'card-lost', title: 'A customer reports a lost card' },
@@ -27,6 +29,7 @@ export const ZED_MAP: IntakeMap = {
       id: 'user_type',
       title: 'Who writes',
       kind: 'persona',
+      role: 'axis',
       values: [
         { id: 'customer', title: 'A bank customer' },
         { id: 'staff', title: 'Bank staff' },
@@ -36,6 +39,7 @@ export const ZED_MAP: IntakeMap = {
       id: 'language',
       title: 'Language',
       kind: 'persona',
+      role: 'detail',
       values: [
         { id: 'english', title: 'English' },
         { id: 'other-language', title: 'Another language' },
@@ -45,6 +49,7 @@ export const ZED_MAP: IntakeMap = {
       id: 'channel',
       title: 'Channels',
       kind: 'channel',
+      role: 'axis',
       values: [
         { id: 'chat', title: 'Chat' },
         { id: 'email', title: 'Email' },

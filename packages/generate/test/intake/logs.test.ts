@@ -21,6 +21,7 @@ const MAP: IntakeMap = {
       id: 'flow',
       title: 'Flows',
       kind: 'behaviour',
+      role: 'detail',
       values: [
         { id: 'balance', title: 'A customer asks for their account balance' },
         { id: 'card-lost', title: 'A customer reports a lost card and wants it blocked' },

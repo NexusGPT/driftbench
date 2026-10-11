@@ -1,16 +1,27 @@
 import { readFile } from 'node:fs/promises';
 import { loadSpaceMap } from '@driftbench/space';
 import { parse as parseYaml } from 'yaml';
-import { loadProposal } from '../extract/proposal';
+import { loadProposal, valueApproved } from '../extract/proposal';
 
 /**
  * The map as intake reads it: the approved dimensions, values, constraints and phrases. A map is either a
  * proposal from `driftbench extract` (only its approved entries count, the owner's rule: nothing counts
- * until a person approves it) or a hand-written space map from `@driftbench/space` (all of it counts).
+ * until a person approves it; a value inherits its dimension's flag unless it sets its own) or a
+ * hand-written space map from `@driftbench/space` (all of it counts, every dimension an axis).
  */
 
 export type IntakeValue = { id: string; title: string };
-export type IntakeDimension = { id: string; title: string; kind: string; values: IntakeValue[] };
+export type IntakeDimension = {
+  id: string;
+  title: string;
+  kind: string;
+  /**
+   * axis: a dimension of the space map; detail: varied inside a cell. Intake reads both: an intent or a
+   * persona trait can be a detail and still name what a user wants or who they are.
+   */
+  role: 'axis' | 'detail';
+  values: IntakeValue[];
+};
 export type IntakeMap = {
   agent: string;
   dimensions: IntakeDimension[];
@@ -44,8 +55,9 @@ export async function loadIntakeMap(path: string): Promise<MapResult> {
         id: dimension.id,
         title: dimension.title,
         kind: dimension.kind,
+        role: dimension.role,
         values: dimension.values
-          .filter((value) => value.approved)
+          .filter((value) => valueApproved(dimension, value))
           .map((value) => ({ id: value.id, title: value.title })),
       }))
       .filter((dimension) => dimension.values.length > 0);
@@ -81,6 +93,7 @@ export async function loadIntakeMap(path: string): Promise<MapResult> {
         id: dimension.id,
         title: dimension.title,
         kind: dimension.kind,
+        role: 'axis' as const,
         values: dimension.values.map((value) => ({ id: value.id, title: value.title })),
       })),
       constraints: loaded.map.constraints.map((constraint) => ({ ...constraint })),

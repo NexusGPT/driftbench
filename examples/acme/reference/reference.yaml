@@ -6,7 +6,7 @@ agent: acme
 produced_by:
   family: lane
   model: claude-opus-5-5 as the intake lane, by hand
-  at: 2026-10-11T18:17:09.322Z
+  at: 2026-10-11T18:41:36.479Z
 interview: answers.yaml
 map: ../map/approved.yaml
 dimensions:
