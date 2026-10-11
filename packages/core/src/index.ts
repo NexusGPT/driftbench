@@ -19,3 +19,13 @@ export {
 } from './spec/load';
 export { isPlainObject, normalizeSpec } from './spec/normalize';
 export { checkSemantics, isZero, parseCriterionRef, patternError } from './spec/semantics';
+export { type DenseEmbedderOptions, denseEmbedder, localEmbedder } from './text/embedder';
+export {
+  charGrams,
+  type GramOptions,
+  type GramVector,
+  gramCosine,
+  gramTfidf,
+  normaliseText,
+  wordsOf,
+} from './text/grams';
