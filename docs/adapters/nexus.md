@@ -1,29 +1,99 @@
 # nexus adapter
 
-Status: planned, phase 1.
+Status: shipped, phase 1. It passes the [contract suite](index.md#the-contract-suite) in chat mode, against a fake of the platform's public API that serves recorded answer shapes with fictional values. It has not run against a live agent yet; the points to confirm on the first live run are listed [below](#not-yet-observed-on-a-live-run).
 
-The nexus adapter reaches an agent on the Nexus platform. It is one adapter among others; the core never imports it.
+The nexus adapter reaches an agent on the Nexus platform through its public API. It is one adapter among others; the core never imports it.
 
-## Contract as designed
+## Settings
 
-* `send` generates the agent's turn under the prompt variant named in `target.variant`, with the agent's tools live.
-* `trace` reads the whole turn from the platform's tracing: every text segment in order, every tool call with its input and output, tokens, cost and latency per segment. The block's text is built from these segments, so text the agent sends before a tool call is kept.
-* `endState` reads the payload a recording stub received. The stub stands in for a tool with side effects, so a run submits nothing for real, and the `end_state` check compares that payload with the spec.
-* Emulator sessions serve manual checks.
-* In teacher-forced mode, the adapter can use the platform's own golden conversations. Planned, phase 3.
-* It passes the same contract tests as every adapter. See [adapters](index.md).
+| Setting | Meaning |
+|---|---|
+| `NEXUS_API_KEY` | the API key, read from the environment. It travels only in the `api-key` header and never reaches a message, a log or an Observed. Without it, `open` fails before any request. |
+| `NEXUS_BASE_URL` | the server, read from the environment. Default `https://api.nexusgpt.io`. Every path sits under `/api/public/v1`. |
+| `target.agent` | the agent id. Required. |
+| `target.deployment` | a deployment id of that agent. Required. |
+| `target.variant` | the prompt variant: a name, an id, or `main`. Without it, the agent's live prompt. |
+| `target.options.stubs` | a mapping from tool label to the id of the workflow that records that tool's payloads |
+
+```ts
+import { nexusAdapter } from '@driftbench/adapters';
+
+const adapter = nexusAdapter({ keepConversations: false });
+```
+
+| Option | Meaning |
+|---|---|
+| `env` | where the two variables are read. Default `process.env`. |
+| `fetch` | the fetch to use. Default the global fetch. |
+| `timeoutMs` | the most milliseconds an ordinary request may take. Default 30000. |
+| `generateTimeoutMs` | the most milliseconds a generate may take: it runs the whole agent turn, tools included. Default 600000. |
+| `traceWaitMs` | how long `trace` waits for the platform to finish writing a turn's trace. Default 60000. |
+| `pollIntervalMs` | the wait between two reads while `trace` waits. Default 2000. |
+| `keepConversations` | keep the golden conversations the adapter creates, for inspection on the platform. Default false. |
+
+The agent's tools run live when it generates. Point every tool with a side effect at a recording stub workflow before a run, and name the stub in `target.options.stubs`.
+
+## How a session runs
+
+* `open` creates a golden conversation for `target.agent` on `target.deployment`, under the variant: `POST /prompt-eval/golden-conversations`. The session id is the conversation id. The history starts as a copy of the prefix, the runner's record; the platform conversation holds no turn of it.
+* `send` posts each user message of the block (`POST .../turns/user`), generates the agent's turn (`POST .../generate`), and accepts it (`POST .../accept`) so the next block builds on it. It returns the generate view: the turn's tool calls with their outputs, then its final text. A send the runner retries for the same block resumes where it stopped: a user turn already posted is not posted again, and a generated turn is accepted without a second generate.
+* `trace` reads the same turn whole from the platform's tracing, through the emulator session the generate opened. Each generation of the turn adds its reply text, then each tool call it asked for, followed by the call's result. The generation's cost, tokens and duration sit on its first segment. The block's cost is their sum, and its latency the span from the first start to the last end. The adapter waits while a trace is in progress or a generation is pending or running, polling every `pollIntervalMs`, and fails with `AdapterTransportError` after `traceWaitMs`.
+* `close` deletes the golden conversation, unless `keepConversations` is set. A conversation already gone counts as deleted. The emulator sessions a generate opens are left to the platform.
+
+The generate view holds only the final text of a turn. Text the agent sends before a tool call is in the trace only, so the runner calls `trace` after every `send` when the adapter offers it, and the trace replaces the view.
+
+## Cards
+
+A call of `send_message` or `display_html` adds a `card` segment of that name after the call's result. A call of `send_html_template_<name>` adds a card named `<name>`. The card's data is the call's input.
+
+## End state
+
+* `endState(session, 'tool:<label>')` reads the executions of the stub workflow named for that label, newest first, from ten minutes before the session opened, 20 per page and 3 pages at most. It returns the trigger data of the newest execution that carries a call this session made of that tool: every field the agent sent, with the same value. A tool this session never called reads undefined. A label with no stub is a configuration error.
+* `endState(session, '*')` lists, for each call this session made of a stubbed tool, in the order of the calls, the oldest payload that call carries and no earlier call claimed, as `{ tool, input }`. A traced block's calls replace the generate view's calls for that block, so one call never counts twice. A tool with no stub is invisible to `*`, and so to `end_state: none`.
+
+## Errors
+
+| What happens | Error |
+|---|---|
+| no connection, a timeout, status 408, 429, 502, 503 or 504, a trace still incomplete after `traceWaitMs` | `AdapterTransportError`: the runner retries |
+| any other failing status | `AgentFailure`, with the platform's `error.code: error.message` |
+| an answer that lacks a field the adapter reads | `AgentFailure` that names the field |
+
+## Capabilities
+
+`variants`, `trace` and `endState` are on. `seedPrefix` is off: the public API cannot store an agent turn without generating it, and generating runs the tools live, so the agent never sees a spec's prefix. `toolStubs` is off: the platform cannot force a tool result, so `world.tools` does not reach the agent. `deterministic` and `sandbox` are off.
+
+The version is `0.1.0+` and a hash of the base URL.
+
+A variant resolves to its latest version when the conversation is created, while the runner's cache key holds the variant's name. After the prompt changes under the same name, run with the cache off.
 
 ## Runtime vocabulary
 
 The adapter maps the Nexus runtime onto the four concepts of driftbench. See [adapters](index.md#runtime-vocabulary).
 
-| Nexus | Maps to | Checked with |
-|---|---|---|
-| a tool call | a tool call | `expect.tools` |
-| a write to a board | a tool call labelled `board.<op>` | `expect.tools` |
-| a process step | a stage; the process is the spec's `stages` catalogue | `expect.stage` |
-| a hook that ran | a guard, with its verdict | `expect.guards` |
-| a skill | a skill | `expect.skills` |
+| Nexus | Maps to | Checked with | Mapped today |
+|---|---|---|---|
+| a tool call | a tool call | `expect.tools` | yes |
+| a message card | a card | `expect.cards` | yes |
+| a write to a board | a tool call labelled `board.<op>` | `expect.tools` | no |
+| a process step | a stage; the process is the spec's `stages` catalogue | `expect.stage` | no |
+| a hook that ran | a guard, with its verdict | `expect.guards` | no |
+| a skill | a skill | `expect.skills` | no |
+
+The platform's trace of an agent turn carries no board write, process step, hook or skill, so the adapter reports tool calls and cards only.
+
+## Not yet observed on a live run
+
+These readings follow the API's response contract and the recorded shapes; a live run confirms them.
+
+* The token counts of a generate answer are read as `{ input, output }`.
+* A failed tool inside a trace's tool result is read from `is_error`; without it, the text is the output.
+* The traces of a generate session hold only the generated turn.
+* Two user turns in a row are accepted: a `burst` posts one turn per message.
+* The executions list accepts a full ISO time as its start date.
+* A stub's trigger data carries the tool's input field for field.
+
+Two sessions that send the identical payload to one stub at the same time cannot be told apart; the end state is the same payload either way.
 
 ## Judge
 
@@ -34,9 +104,10 @@ The Nexus platform also offers a system 1 judge, Jev. It is listed as the planne
 ```yaml
 target:
   adapter: nexus
-  agent: sales-agent
+  agent: <agent id>
+  deployment: <deployment id>
   variant: candidate
-  deployment: web-chat
+  options:
+    stubs:
+      order.create: <workflow id>
 ```
-
-The meaning of `agent`, `variant` and `deployment` is fixed when the adapter ships.

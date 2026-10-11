@@ -2,7 +2,7 @@
 
 Users deviate. They ask something off-topic, change their mind, contradict themselves, or hide an instruction in data. Recovery measures whether the agent comes back to the flow, how fast, and what breaks on the way.
 
-Deviations run in perturbed mode, planned, phase 3. The deviation classes and the perturbation format exist today and are validated by `driftbench spec validate`.
+Deviations run in perturbed mode, planned, phase 3. The deviation classes and the perturbation format exist today and are validated by `driftbench spec validate`. `runSpec` already runs the blocks a driver injects, in mode P; the driver that injects a perturbation is planned, phase 3. See [running](../running.md).
 
 ## The ten deviation classes
 

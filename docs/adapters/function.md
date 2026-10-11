@@ -1,16 +1,57 @@
 # function adapter
 
-Status: planned, phase 1.
+Status: shipped, phase 1. It passes the [contract suite](index.md#the-contract-suite) in chat mode.
 
-The function adapter runs an agent that is an async function in the same process as driftbench. There is no network call and no API key. It suits tests of an agent's logic, and it drives the synthetic example agent.
+The function adapter runs an agent that is an async function in the same process as driftbench. There is no network call and no API key. It suits tests of an agent's logic, and it drives the Acme example agent, the one target the command line reaches (`function:acme`).
 
-## Contract as designed
+## Options
 
-* `open` hands the function the resolved Given of the block: prefix, ledger, world and vars.
-* `send` passes the stimulus to the function and takes back what the agent did, in order: text, tool calls with their inputs and outputs, cards. The adapter turns it into the observed record of the block (`Observed` in `packages/core/src/schema/run.ts`).
-* It passes the same contract tests as every adapter. See [adapters](index.md).
+The command line builds its `function:acme` target this way:
 
-The exact signature of the function is fixed when the adapter ships.
+```ts
+import { functionAdapter } from '@driftbench/adapters';
+import { createAcmeAgent, createStore } from './examples/acme/src/index';
+
+const adapter = functionAdapter({
+  create: () => {
+    const store = createStore();
+    return { store, agent: createAcmeAgent(store) };
+  },
+  respond: (messages, world, _vars, session) => session.agent.respond(messages, world),
+  payloads: (session) => session.store.payloads,
+  deterministic: true,
+});
+```
+
+| Option | Meaning |
+|---|---|
+| `respond(messages, world, vars, state)` | the agent. It returns an Observed, or a promise of one. |
+| `create(given)` | builds the state of one session from its resolved Given, so nothing leaks between conversations. Without it, `state` is undefined. |
+| `payloads(state)` | the payloads the side-effecting tools received, oldest first, as `{ tool, input }`. It enables `endState`. |
+| `deterministic` | true when the same input gives the same output. Default false. |
+| `version` | the version the runner's cache key carries. Change it when the agent changes. |
+
+## What the agent receives
+
+* `messages`: the session history as the runner left it, ending with the block's user messages. The history starts as a copy of the prefix, so the agent sees the prefix.
+* `world` and `vars`: the block's resolved world and runtime variables, so `world.tools` can force tool results and errors.
+* `state`: what `create` built for the session.
+
+Every argument is a copy: the agent cannot change the session or the Given. The adapter validates what the agent returns.
+
+## Capabilities
+
+`seedPrefix` and `toolStubs` are on: the agent receives the history and the world. `endState` is on when `payloads` is given. `deterministic` is as declared. `variants`, `trace` and `sandbox` are off.
+
+## End state
+
+* `endState(session, 'tool:<label>')` returns the input of the last payload of that tool, or undefined.
+* `endState(session, '*')` returns the whole log, in order, as `{ tool, input }`.
+* Any other source is a configuration error.
+
+## Errors
+
+An error the agent throws becomes an `AgentFailure`, except an `AdapterTransportError` or an `AgentFailure`, which pass through as they are. An Observed that does not validate is an `AgentFailure` that names its first issues. A session used after `close` is an error.
 
 ## Target
 
@@ -19,3 +60,5 @@ target:
   adapter: function
   agent: acme-sales
 ```
+
+The adapter reads no field of the target: the function is the agent. The command line maps `function:acme` to the Acme example agent, with a fresh Acme store per session and its payload log as the end-state source.

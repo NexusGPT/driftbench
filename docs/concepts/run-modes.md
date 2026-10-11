@@ -5,10 +5,10 @@ One spec runs three ways, whether it describes a conversation or a task. Each mo
 | Mode | What block k starts from | What it isolates | Status |
 |---|---|---|---|
 | T, teacher-forced | the spec's own earlier blocks, as written | local competence: each block alone, with no earlier error carried in | planned, phase 3 |
-| F, free-running | the agent's own earlier output, with the user turns scripted | compounding: one wrong block can poison the blocks after it | planned, phase 1 |
+| F, free-running | the agent's own earlier output, with the user turns scripted | compounding: one wrong block can poison the blocks after it | built, phase 1 |
 | P, perturbed | a free-running run with a deviation injected at a chosen block | recovery: whether the agent comes back, how fast, and at what cost | planned, phase 3 |
 
-Run records carry the mode as `T`, `F` or `P`.
+Run records carry the mode as `T`, `F` or `P`. `runSpec` refuses mode T today. It runs mode P with the blocks a driver injects, but the driver that injects a deviation is planned, phase 3, and campaigns run in mode F only. See [running](../running.md).
 
 ## Teacher-forced
 
@@ -34,11 +34,11 @@ Run the same spec in T and in F mode. The compounding index is the T pass rate m
 
 ## Around the modes
 
-These parts of the runner serve every mode. All are planned, phase 1.
+These parts of the runner serve every mode. They are built, phase 1, and described on the [running](../running.md) page.
 
-* Repeats: a campaign runs each spec several times in each chosen mode. One run proves nothing; [statistics](statistics.md) turns repeats into claims.
-* Cache: an observed block is reused when the spec's content hash, the block, the hash of its Given, the target and the adapter version are the same. The spec's `version` is a free label and plays no part. Teacher-forced runs and judge re-runs read from it.
-* Budget: a hard stop on cost. A spec whose first two free-running repeats both fail a gating machine check stops early.
-* Determinism: a smoke command runs a spec three times with the cache off and reports whether the transcripts differ.
-* Resume: a campaign started again with the same id reuses the runs already done.
+* Repeats: a campaign runs each spec several times. One run proves nothing; [statistics](statistics.md) turns repeats into claims.
+* Cache: an observed block is reused when the spec's content hash, the repeat, the block's position, its whole resolved Given, its stimulus, the target and the adapter's version are the same. The spec's `version` is a free label and plays no part. A run replays only when every block and end-state read is in the cache.
+* Budget: a hard stop on spend over a campaign; no cell starts once the spend reaches it. Stopping a spec early when its first two free-running repeats both fail a gating machine check is planned, with no phase assigned yet.
+* Determinism: `driftbench smoke` runs a spec several times, three by default, with the cache off and reports whether the transcripts differ.
+* Resume: `campaign resume` reuses the completed runs of a stored campaign and runs the rest.
 * Retries: transport errors are retried with backoff. A run the agent fails is recorded as failed, never skipped.
