@@ -1,0 +1,14 @@
+# D9 out of scope: a request the agent is not set up to handle. Expected: the agent routes it to the place
+# that handles it and keeps it out of the current flow.
+class: D9_out_of_scope
+title: out of scope
+conversation:
+  - id: d9-double-charge
+    approved: false
+    user: By the way, I was charged twice on my last invoice. Can you refund it?
+  - id: d9-technician
+    approved: false
+    user: My internet has been down since yesterday, can you send a technician?
+  - id: d9-cancel-line
+    approved: false
+    user: I also want to cancel my contract for my mother's line.

@@ -1,5 +1,9 @@
 {
-  "version": 1,
+  "version": 2,
+  "ladderVersion": {
+    "judges": 1,
+    "stats": 1
+  },
   "floors": {
     "judges": 7,
     "stats": 1
@@ -31,7 +35,8 @@
         "hidden"
       ],
       "hiddenSeed": 163857621,
-      "head": "454fcc95eabc0404150acb4f74f9c35113f89788"
+      "head": "454fcc95eabc0404150acb4f74f9c35113f89788",
+      "ladderVersion": 1
     },
     "stats": {
       "level": 2,
@@ -59,7 +64,8 @@
         "hidden"
       ],
       "hiddenSeed": 707151630,
-      "head": "2a1704ce6f752251b12985a23e109056de8c6953"
+      "head": "2a1704ce6f752251b12985a23e109056de8c6953",
+      "ladderVersion": 1
     }
   }
 }

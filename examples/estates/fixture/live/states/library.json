@@ -1,0 +1,100 @@
+{
+  "prefixes": {
+    "resumed": "prefixes/resumed.jsonl",
+    "long": "prefixes/long.jsonl"
+  },
+  "states": {
+    "resumed": [
+      {
+        "op": "resume",
+        "prefix": "resumed"
+      },
+      {
+        "op": "plant",
+        "path": "tracker/open.md",
+        "content": "# Open items\n- INV-1002 to reconcile\n"
+      }
+    ],
+    "long": [
+      {
+        "op": "resume",
+        "prefix": "long"
+      }
+    ],
+    "after_compaction": [
+      {
+        "op": "compact",
+        "prefix": "long",
+        "summary": "The user asked about shipments NW-55031 and NW-55020 and about last week's invoices. One tracker item is open: INV-1002 to reconcile.",
+        "trigger": "auto",
+        "preTokens": 150000
+      }
+    ],
+    "after_restart": [
+      {
+        "op": "restart",
+        "prefix": "resumed"
+      },
+      {
+        "op": "plant",
+        "path": "tracker/open.md",
+        "content": "# Open items\n- INV-1002 to reconcile\n"
+      }
+    ],
+    "helpers_running": [
+      {
+        "op": "helper",
+        "alive": true,
+        "prefix": "resumed",
+        "description": "Audit the ledger of week 41 for invoices paid twice."
+      },
+      {
+        "op": "plant",
+        "path": "tracker/open.md",
+        "content": "# Open items\n- INV-1002 to reconcile\n"
+      }
+    ]
+  },
+  "events": {
+    "compaction_mid_task": [
+      {
+        "op": "compact",
+        "summary": "Work so far: the user's ask is in progress; nothing was changed yet.",
+        "trigger": "auto",
+        "preTokens": 150000
+      }
+    ],
+    "process_restart": [
+      {
+        "op": "restart"
+      }
+    ],
+    "rate_wave": [
+      {
+        "op": "rate_wave",
+        "overloads": 2
+      }
+    ],
+    "stale_tracker": [
+      {
+        "op": "plant",
+        "path": "tracker/open.md",
+        "content": "# Open items\nLast updated 2026-09-14\n- INV-0990 waiting for a credit note\n"
+      }
+    ],
+    "dead_helper": [
+      {
+        "op": "helper",
+        "alive": false,
+        "description": "Audit the ledger of week 41 for invoices paid twice."
+      }
+    ],
+    "helper_stopped": [
+      {
+        "op": "helper",
+        "alive": false,
+        "description": "Plan tomorrow's delivery routes from the open orders."
+      }
+    ]
+  }
+}
