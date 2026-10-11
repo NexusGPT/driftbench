@@ -17,8 +17,13 @@
 //   README_TOOLS=/tmp/driftbench-readme-tools node .github/readme/render.mjs hero council
 //
 // Every image renders headless at deviceScaleFactor 2. Figures render twice,
-// light and dark, on a transparent canvas. The hero has its own background and
-// renders once, as a JPG.
+// light and dark: light on SilkRow silk, dark on DeepBlue silk, with transparent
+// corners. The hero has its own background and renders once, as a JPG.
+// Brand assets (silk stills in src/silk, the two logo files) are copies from the
+// Nexus design system v1; this script never writes them.
+//
+// A render fails when a page throws, a font does not load, or text runs past
+// its box or past the image edge. Each PNG stays under 600 KB.
 
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -41,8 +46,7 @@ const jobs = [
   { name: 'modes', src: 'modes.html', out: 'modes-{theme}.png' },
   { name: 'perturbed', src: 'perturbed.html', out: 'perturbed-{theme}.png' },
   { name: 'council', src: 'council.html', out: 'council-{theme}.png' },
-  { name: 'kinds-chat', src: 'kinds-chat.html', out: 'kinds-chat-{theme}.png' },
-  { name: 'kinds-code', src: 'kinds-code.html', out: 'kinds-code-{theme}.png' },
+  { name: 'kinds', src: 'kinds.html', out: 'kinds-{theme}.png' },
 ];
 
 const wanted = process.argv.slice(2);
@@ -50,13 +54,6 @@ const selected = wanted.length ? jobs.filter((j) => wanted.includes(j.name)) : j
 if (!selected.length) {
   console.error(`No job matches: ${wanted.join(', ')}. Known: ${jobs.map((j) => j.name).join(', ')}`);
   process.exit(1);
-}
-
-// The footer logo: the source SVG for light pages, a light ink copy for dark pages.
-function writeLogos() {
-  const logo = fs.readFileSync(path.join(src, 'nexus-logo.svg'), 'utf8');
-  fs.writeFileSync(path.join(here, 'nexus-logo-light.svg'), logo);
-  fs.writeFileSync(path.join(here, 'nexus-logo-dark.svg'), logo.replaceAll('#0E1116', '#E8EDF3'));
 }
 
 async function encode(png, job) {
@@ -77,7 +74,6 @@ async function encode(png, job) {
 const browser = await chromium.launch({ headless: true });
 let failed = 0;
 try {
-  writeLogos();
   for (const job of selected) {
     for (const theme of job.themes || ['light', 'dark']) {
       const context = await browser.newContext({
@@ -95,6 +91,25 @@ try {
       const missing = await page.evaluate(() => (window.__fonts || ['400 16px Inter'])
         .filter((f) => !document.fonts.check(f)));
       if (missing.length) errors.push(`fonts not loaded: ${missing.join(', ')}`);
+      // No text may be clipped: flag any element whose content runs past its own box, or any box past the frame.
+      const clipped = await page.evaluate(() => {
+        const frame = document.getElementById('frame');
+        const fr = frame.getBoundingClientRect();
+        const out = [];
+        for (const el of frame.querySelectorAll('*')) {
+          if (el.closest('svg')) continue;
+          const name = (el.className && el.className.baseVal === undefined ? el.className : '') || el.tagName.toLowerCase();
+          // Tolerances: 2 px across, 6 px down. Serif and mono glyphs at line height 1 overhang their line box by
+          // up to 5 px and nothing clips them; a cut row or a chip pushed out of its panel overflows by more.
+          if (el.scrollWidth > el.clientWidth + 2 || el.scrollHeight > el.clientHeight + 6) {
+            if (el.clientWidth > 0 && el.clientHeight > 0) out.push(`${name} content ${el.scrollWidth}x${el.scrollHeight} in box ${el.clientWidth}x${el.clientHeight}`);
+          }
+          const b = el.getBoundingClientRect();
+          if (b.width && (b.left < fr.left - 1 || b.right > fr.right + 1 || b.top < fr.top - 1 || b.bottom > fr.bottom + 1)) out.push(`${name} outside the frame`);
+        }
+        return out;
+      });
+      if (clipped.length) errors.push(`clipped: ${clipped.slice(0, 6).join(' | ')}`);
       const frame = page.locator('#frame');
       const png = await frame.screenshot({ type: 'png', omitBackground: !job.jpeg, animations: 'disabled' });
       const out = job.out.replace('{theme}', theme);

@@ -1,7 +1,7 @@
 <h1 align="center">driftbench. Every exchange is a unit test.</h1>
 
 <p align="center">
-  <img src=".github/readme/hero.jpg" alt="driftbench, an agent evaluation framework by Nexus. A perturbed run drawn block by block: a goal shift lands at block three, the observed path leaves the expected one, and it is back on track one block later." width="100%" />
+  <img src=".github/readme/hero.jpg" alt="driftbench, an agent evaluation framework by Nexus. Every number carries an interval. Drift and recovery are measured, block by block. On the right, a perturbed run: a goal shift lands at block three, the observed path leaves the expected one and rejoins it two blocks later." width="100%" />
 </p>
 
 <p align="center">
@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img alt="license Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-2F5FD0?style=flat" /></a>
+  <a href="LICENSE"><img alt="licence Apache 2.0" src="https://img.shields.io/badge/licence-Apache--2.0-2F5FD0?style=flat" /></a>
   <a href="#roadmap"><img alt="status pre alpha" src="https://img.shields.io/badge/status-pre--alpha-1B2A44?style=flat" /></a>
   <img alt="language TypeScript" src="https://img.shields.io/badge/language-TypeScript-2F5FD0?style=flat" />
   <img alt="Node 22 or newer" src="https://img.shields.io/badge/node-22%2B-1B2A44?style=flat" />
@@ -25,7 +25,7 @@
 
 driftbench evaluates AI agents one exchange at a time. Each exchange is a **block**: one user message and everything the agent does before the next one. Each block is a unit test with a Given, a When and a Then. A conversation is a succession of blocks, so a failure has an address, drift has a first block, and recovery has a count. Every rate comes with its interval.
 
-It is designed for conversational agents and for code interpreter agents that write code, use a workspace and load skills. Any agent plugs in through an adapter. Open source, Apache 2.0, written in TypeScript.
+It targets conversational agents and code interpreter agents, the ones that write code, use a workspace and load skills. Both run through the same blocks and the same checks. Any agent plugs in through an adapter. Open source, Apache 2.0, written in TypeScript.
 
 > [!NOTE]
 > **Not released yet.** Phase 0 is in progress: the spec format, the validator, the coverage tool and a synthetic Acme Telecom example. The runner, judges and statistics on this page are designed and planned. The [roadmap](#roadmap) shows what each phase delivers.
@@ -82,12 +82,12 @@ Four areas. Each bullet names the phase that delivers it.
 <a href=".github/readme/areas-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/areas-dark.png">
-    <img alt="Four areas: scenarios and simulated users, checks and judges, drift and recovery, statistics and CI gates." src=".github/readme/areas-light.png" width="100%">
+    <img alt="Four areas on four cards: scenarios and simulated users, checks and judges, drift and recovery, statistics and CI gates." src=".github/readme/areas-light.png" width="100%">
   </picture>
 </a>
 
 - **[Scenarios and simulated users](#a-block-is-a-unit-test)**: YAML specs, scripted turns, simulated users with a persona and a goal, ten deviation classes to inject at any block. <sub>Phases&nbsp;0,&nbsp;1&nbsp;and&nbsp;3</sub>
-- **[Checks and judges](#judges-earn-their-criteria)**: machine checks on tools, text, language, personal data and end state, then a council of judges that earn each criterion. <sub>Phases&nbsp;1&nbsp;and&nbsp;2</sub>
+- **[Checks and judges](#judges-earn-their-criteria)**: machine checks on tools, text, language, personal data, end state and files, then a council of judges that earn each criterion. <sub>Phases&nbsp;1&nbsp;and&nbsp;2</sub>
 - **[Drift and recovery](#drift-and-recovery)**: five drift classes, the first drift block, the drift rate, and the turns to recover after an injected deviation. <sub>Phase&nbsp;3</sub>
 - **[Statistics and CI gates](#numbers-with-intervals)**: an interval on every rate, `pass^k`, paired tests, a noninferiority verdict and an exit code for CI. <sub>Phase&nbsp;4</sub>
 
@@ -98,55 +98,50 @@ Four areas. Each bullet names the phase that delivers it.
 3. **Inject a goal shift at block 4**, or a language switch, or an instruction hidden in data, and count the blocks the agent needs to come back. <sub>Phase&nbsp;3&nbsp;·&nbsp;planned</sub>
 4. **Let a cheap judge own a criterion** once it matches your hand labels as well as a chat model does. <sub>Phase&nbsp;2&nbsp;·&nbsp;planned</sub>
 5. **Gate a prompt change in CI**: noninferiority against the baseline, with a margin you set. <sub>Phase&nbsp;4&nbsp;·&nbsp;planned</sub>
-6. **Test a code interpreter agent on what it leaves behind**: the cells of a spreadsheet, the slides of a deck, the files it touched. <sub>Phase&nbsp;5&nbsp;·&nbsp;planned</sub>
+6. **Check a code interpreter agent on what it leaves behind**: the cells of a spreadsheet, the slides of a deck, the files it touched. <sub>Phase&nbsp;1&nbsp;·&nbsp;planned</sub>
 
 ---
 
 ## How it works
 
-This section describes the design. Phase 0 builds the spec format now. The runner, checks, judges and statistics arrive in phases 1 to 5.
+This section describes the design. Phase 0 builds the spec format now. The runner, checks, judges and statistics arrive in phases 1 to 4.
 
 ### A block is a unit test
 
 <a href=".github/readme/block-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-dark.png">
-    <img alt="Three cards. Given: earlier blocks, the facts so far, a catalog stub, the channel. When: the user asks which plan has unlimited data. Then: step plan, one catalog search, the word unlimited, no robotic phrasing, English, and a new fact in the ledger. Below, every observed field passes." src=".github/readme/block-light.png" width="100%">
+    <img alt="One block in three parts. Given: earlier blocks, the facts so far, a catalogue stub, the channel. When: the user asks which plan has unlimited data and says they want to keep their number. Then: step plan, one catalogue search, the word unlimited, no robotic phrasing, a new fact in the ledger, the one question criterion. Below, every observed field passes and the block passes." src=".github/readme/block-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>Given the state so far, when the user speaks, then the agent must reach the right step, call the right tools and say nothing it must not.</sub></p>
 
-A block holds everything the agent does between two user messages: text, cards, tool calls and tool results. The spec fixes what must be true after it. driftbench reads what actually happened, compares it field by field, and keeps the evidence behind every verdict. Run one block many times from the same Given and you get its own pass rate, free of the blocks before it.
+A block holds everything the agent does between two user messages: text, cards, tool calls and tool results. The spec fixes what must be true after it. driftbench reads what happened, compares it field by field, and keeps the evidence behind every verdict. Run one block many times from the same Given and you get its own pass rate, free of the blocks before it.
 
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <a href=".github/readme/kinds-chat-light.png">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-chat-dark.png">
-          <img alt="A conversational block: the user asks to keep their number, the agent checks porting eligibility and answers. Checks pass on step, tool call, language, ledger and one question." src=".github/readme/kinds-chat-light.png" width="100%">
-        </picture>
-      </a>
-      <br/><sub>Conversational agents. A block is one exchange, checked on step, tools, language and facts.</sub>
-    </td>
-    <td width="50%" valign="top">
-      <a href=".github/readme/kinds-code-light.png">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-code-dark.png">
-          <img alt="A code interpreter task step: build a price sheet. The agent loads a spreadsheet skill, runs a script that exits cleanly, creates one file and touches nothing else. Checks pass on cells and formulas, workspace diff, exit code and no destructive operation." src=".github/readme/kinds-code-light.png" width="100%">
-        </picture>
-      </a>
-      <br/><sub>Code interpreter agents. A block is a task step, checked on the files it leaves and the commands it ran.</sub>
-    </td>
-  </tr>
-</table>
+<a href=".github/readme/kinds-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-dark.png">
+    <img alt="The same block model for two agents. Left, a conversational agent: the user asks to keep their number, the agent checks porting eligibility and answers; step, tool call, language, ledger and one question are checked. Right, a code interpreter agent: the user asks for a price sheet, the agent loads a spreadsheet skill, runs a script that exits cleanly, creates one file and leaves the others untouched; cells and formulas, workspace diff, exit code and no destructive operation are checked." src=".github/readme/kinds-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>One block model for both kinds of agent. The same checks read a reply, a tool call or a file.</sub></p>
+
+When the agent writes code, uses a workspace and loads skills, a block is one task step, run in a sandbox. The same checks then read what the step left behind:
+
+- **Artifacts**, opened and read: spreadsheet cells and formulas, document sections, slide titles, PDF text, test runs.
+- **Workspace**: what was created, changed and deleted. Every other file stays as it was.
+- **Execution**: the commands run, their exit codes, bounded output.
+- **Safety**: a delete, an overwrite, a send, a payment or a push is flagged unless the block confirms it.
+- **Skills and budget**: the right skills in the right order, within the step, cost and time budget.
+
+Agent harnesses add a runtime battery: hook replay with negative controls, skill loading gates, process step order, mutation tests that must fail first, speed budgets and a reply style check.
 
 ### One golden, three runs
 
 <a href=".github/readme/modes-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/modes-dark.png">
-    <img alt="One golden feeds three runs. Teacher forced: every block starts from the golden, a miss stays local. Free running: the agent's own replies carry forward, one miss leads to another. Perturbed: a deviation lands at block two, the agent is back one block later." src=".github/readme/modes-light.png" width="100%">
+    <img alt="One golden feeds three runs. Teacher forced: each block starts from the golden, so a miss stays local; it measures local accuracy. Free running: the agent's own replies carry forward, one miss leads to another; it measures compounding. Perturbed: a deviation lands at block two and the agent is back one block later; it measures recovery." src=".github/readme/modes-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>Teacher forced isolates each block. Free running lets errors compound. Perturbed injects a deviation and measures the way back.</sub></p>
@@ -157,14 +152,14 @@ A block holds everything the agent does between two user messages: text, cards, 
 | **Free running**<br/>from the agent's own earlier replies | compounding: one wrong block poisons the next |
 | **Perturbed**<br/>free running, plus a deviation at block k | recovery: whether it comes back, how fast, at what cost |
 
-The gap between teacher forced and free running on the same golden is the **compounding index**. An agent can be right block by block and still fragile end to end. Only free running shows it.
+The gap between teacher forced and free running on the same golden is the **compounding index**. An agent can pass every block on its own and still fail the whole conversation. Only free running shows it.
 
 ### Drift and recovery
 
 <a href=".github/readme/perturbed-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/perturbed-dark.png">
-    <img alt="Seven blocks of an order flow. A goal shift is injected at block three. At block three the agent asks for ID and skips the change: flow drift. At block four it says your one line: contradiction. At block five it is back on the expected path. Turns to recover: two, label late, collateral zero. The end state matches." src=".github/readme/perturbed-light.png" width="100%">
+    <img alt="Six blocks of an order flow. A goal shift is injected at block three: make it two lines. At block three the agent asks for ID and skips the change: flow drift. At block four it says one line: contradiction. At block five it is back on the expected path, and the end state matches. Turns to recover: two blocks, label late, collateral zero." src=".github/readme/perturbed-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>A goal shift lands at block 3. The agent skips the change, then contradicts it, then comes back. Two blocks to recover.</sub></p>
@@ -179,7 +174,7 @@ Every failing block gets one or more drift classes:
 | `X4` format drift | narration, a language leak, a double send, channel rules broken |
 | `X5` tool drift | a call that is missing, extra, duplicated or wrongly filled |
 
-Ten deviation classes can be injected at any block: off topic question, goal shift, contradiction, loose confirmation, language switch, instruction in data, silence or burst, tool failure, escalation request, and return after deviation.
+Ten deviation classes can be injected at any block, in a conversation or in a code task: off topic question, goal shift, contradiction, loose confirmation, language switch, instruction in data, silence or burst, tool failure, out of scope request, and return after a deviation.
 
 After an injection, driftbench reports the **turns to recover**, a recovery label (immediate, late or never), the **collateral** failures after recovery, the safe action rate on risky injections, and how often the agent asked instead of guessing.
 
@@ -188,15 +183,15 @@ After an injection, driftbench reports the **turns to recover**, a recovery labe
 <a href=".github/readme/council-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
-    <img alt="The judge council. Machine checks run first and a machine fail is final. Then system 1 judges, Jev and the OpenAI Decisions API, and system 2 judges, chat models from OpenAI, Google and Anthropic, vote in threes. Majority wins, a split goes to the other class, inconclusive is judged again and never counted. Below: assignment is earned through a fixture pair, separation three times out of three, and a kappa of 0.8 against hand labels." src=".github/readme/council-light.png" width="100%">
+    <img alt="The judge council. Machine checks run first and a machine fail is final. Then three system 1 judges, such as Jev and the OpenAI Decisions API, or three system 2 judges, chat models from OpenAI, Google and Anthropic, vote. Majority wins, a split goes to the other class, inconclusive is judged again and never counted. Below: assignment is earned through a fixture pair, separation three times out of three, and a kappa of 0.8 or more against hand labels." src=".github/readme/council-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>Machine checks run first and cannot be overruled. Each criterion goes to the judge class that earned it on a fixture pair.</sub></p>
 
-- **Machine checks first.** Tool labels, counts and arguments, patterns on visible text, language, personal data, end state. A machine fail is a fail.
+- **Machine checks first.** Tool labels, counts and arguments, patterns on visible text, language, personal data, end state, and the files a task step leaves. A machine fail is final.
 - **Two judge classes.** System 1 judges, such as Jev and the OpenAI Decisions API, answer one fixed yes or no question: cheap, fast, low variance. System 2 judges are chat models from OpenAI, Google or Anthropic. They read across blocks and keep their reasoning. A judge never shares the agent's model family.
-- **Earned, not assumed.** Each gating criterion has a fixture pair: one failing transcript, one clean. A judge owns the criterion only if it separates the pair 3 times out of 3 and agrees with hand labels at a kappa of 0.8 or more. Below that, the rubric gets rewritten, not the threshold.
-- **Strict verdicts.** Majority of three. A split goes to the other class. Inconclusive is judged again and never counted. Text under judgment is data, never instructions.
+- **Earned on evidence.** Each gating criterion has a fixture pair: one failing transcript, one clean. A judge owns the criterion only if it separates the pair 3 times out of 3 and agrees with hand labels at a kappa of 0.8 or more. Below that, the rubric is rewritten and the threshold stays. Task artifacts are judged the same way.
+- **Strict verdicts.** Majority of three. A split goes to the other class. Inconclusive is judged again and never counted. The judged text sits in a data tag, and instructions inside it are ignored.
 
 ### Numbers with intervals
 
@@ -208,25 +203,13 @@ One run proves nothing. driftbench treats evaluation as a statistics problem.
 - **Power first.** The minimum detectable effect is printed before a campaign spends anything.
 - **A verdict CI can gate on.** The candidate is noninferior when the upper bound of every gating regression stays under your margin.
 
-### Code interpreter agents
-
-For agents that write code, use a workspace and load skills, each block is a task step run in a sandbox.
-
-- **Artifacts**, opened and read: spreadsheet cells and formulas, document sections, slide titles, PDF text, test runs.
-- **Workspace**: what was created, changed and deleted, and nothing else touched.
-- **Execution**: commands, exit codes, bounded output.
-- **Safety**: deletes, overwrites, sends, payments and pushes flagged unless the block confirms them.
-- **Trajectory and budget**: the right skills in the right order, within a step, cost and time budget.
-
-The same runner covers agent harnesses through a runtime battery: hook replay with negative controls, skill loading gates, process step order, mutation tests that must fail first, speed budgets and a reply style check.
-
 ---
 
 ## Integrations
 
 All planned. Every adapter must pass the same contract suite.
 
-**Agents:** function · HTTP · OpenAI Agents · Anthropic · Google · LangGraph · Nexus · code agents in a sandbox<br/>
+**Agents:** function · HTTP · Nexus · a command line agent in a sandbox · OpenAI Agents · Anthropic · Google · LangGraph<br/>
 **Judges:** Jev · OpenAI Decisions API · OpenAI · Google · Anthropic · any HTTP endpoint<br/>
 **Reports:** HTML scorecard · run diff · JUnit XML · Markdown summary<br/>
 **CI:** exit codes on the verdict · GitHub Action<br/>
@@ -252,12 +235,11 @@ driftbench builds on ideas other tools document well. What their docs describe a
 | Phase and status | What it delivers |
 |---|---|
 | **Phase 0** · Foundations<br/>`in progress` | Monorepo and CI, a leak guard, spec schemas and loader, `spec validate`, the coverage tool, the Acme Telecom example, docs |
-| **Phase 1** · Runner, checks and store<br/>`planned` | Free running mode, scripted users, function, HTTP and Nexus adapters, machine checks, a SQLite store with cache and resume, cost and latency per segment |
-| **Phase 2** · Judge council<br/>`planned` | Judge clients, majority and cascade, fixture pairs, kappa, earned assignment |
-| **Phase 3** · Perturbation, drift and recovery<br/>`planned` | Simulated users, ten deviation classes, drift classes, recovery metrics, teacher forced mode |
-| **Phase 4** · Statistics, scorecard and CI gate<br/>`planned` | Intervals and paired tests, the noninferiority verdict, HTML scorecard, JUnit XML, `driftbench ci`, a GitHub Action |
-| **Phase 5** · Code agents and runtime battery<br/>`planned` | Sandbox, process adapter, artifact readers, workspace and safety checks, the runtime battery, more agent adapters |
-| **Phase 6** · First release<br/>`planned` | Docs site, comparison page, examples, version 0.1.0 on npm |
+| **Phase 1** · Runner, checks and store<br/>`planned` | Free running mode, scripted users, the function, HTTP, Nexus and process adapters, the sandbox, machine checks including artifacts, workspace, execution and safety, a SQLite store, cost per segment |
+| **Phase 2** · Judge council<br/>`planned` | Judge clients, majority and cascade, fixture pairs, kappa, earned assignment, task artifacts judged the same way |
+| **Phase 3** · Perturbation, drift and recovery<br/>`planned` | Simulated users, ten deviation classes on conversations and on code tasks, drift classes, recovery metrics, teacher forced mode |
+| **Phase 4** · Statistics, scorecard, CI gate and runtime battery<br/>`planned` | Intervals and paired tests, the noninferiority verdict, HTML scorecard, JUnit XML, `driftbench ci`, a GitHub Action, the runtime battery |
+| **Release**<br/>`planned` | SDK adapters for OpenAI Agents, Anthropic, Google and LangGraph, the docs site, version 0.1.0 on npm |
 
 ---
 
@@ -273,7 +255,7 @@ Questions and ideas go in [GitHub issues](https://github.com/achammah/driftbench
 
 ## Security
 
-Report a vulnerability privately through [GitHub security advisories](https://github.com/achammah/driftbench/security), not in a public issue.
+Report a vulnerability privately through [GitHub security advisories](https://github.com/achammah/driftbench/security). Public issues are for everything else.
 
 ---
 
@@ -282,14 +264,14 @@ Report a vulnerability privately through [GitHub security advisories](https://gi
 <p>
   <a href="https://agent.nexus">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset=".github/readme/nexus-logo-dark.svg">
-      <img src=".github/readme/nexus-logo-light.svg" alt="Nexus" height="28" />
+      <source media="(prefers-color-scheme: dark)" srcset=".github/readme/nexus-logo-white.svg">
+      <img src=".github/readme/nexus-logo-ink.svg" alt="Nexus" height="28" />
     </picture>
   </a>
 </p>
 
 Nexus makes Self Operating Procedures: what your best people know, turned into procedures that run themselves. We built driftbench to test the agents we build, and we share it under Apache 2.0.
 
-## License
+## Licence
 
 Apache 2.0. See [LICENSE](LICENSE).

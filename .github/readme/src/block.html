@@ -2,110 +2,73 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>driftbench block</title>
-<link rel="stylesheet" href="base.css">
+<title>driftbench: a block is a unit test</title>
+<link rel="stylesheet" href="brand.css">
 <style>
-  #frame { width: 1200px; padding: 4px; }
-  .row { display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr; align-items: stretch; }
-  .card {
-    border-radius: 22px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow);
-    padding: 26px 26px 24px;
-    display: flex; flex-direction: column;
-  }
-  .label { display: flex; align-items: center; gap: 10px; }
-  .label .dot { width: 9px; height: 9px; border-radius: 50%; }
-  .title { font-family: var(--serif); font-size: 38px; line-height: 1.05; margin: 12px 0 18px; color: var(--ink); }
-  .kv { display: grid; grid-template-columns: 92px 1fr; row-gap: 9px; font-family: var(--mono); font-size: 16.5px; line-height: 1.35; }
-  .kv .k { color: var(--faint); }
-  .kv .v { color: var(--ink-2); }
-  .quote {
-    font-family: var(--sans); font-size: 20px; line-height: 1.45; color: var(--ink);
-    background: var(--card-2); border: 1px solid var(--line-2);
-    border-radius: 16px 16px 16px 4px; padding: 14px 16px;
-  }
-  .note { margin-top: auto; padding-top: 16px; font-size: 16.5px; line-height: 1.45; color: var(--muted); }
-  .arrow { display: grid; place-items: center; }
-  .arrow svg { width: 26px; height: 26px; }
-  .given .dot { background: var(--navy); }
-  .when .dot { background: var(--ember); }
-  .then .dot { background: var(--blue); }
-  .when .caps { color: var(--ember); }
-  .then .caps { color: var(--blue); }
-
-  .strip {
-    margin-top: 18px;
-    display: flex; align-items: center; gap: 14px;
-    padding: 18px 22px;
-    border-radius: 18px;
-    border: 1px dashed var(--line);
-  }
-  .strip .caps { margin-right: 6px; }
-  .pill {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-family: var(--mono); font-size: 15.5px; color: var(--ink-2);
-    padding: 7px 12px; border-radius: 999px;
-    background: var(--pass-soft);
-  }
-  .pill svg { width: 15px; height: 15px; }
-  .pass-word { margin-left: auto; font-size: 18px; font-weight: 600; color: var(--pass); display: flex; align-items: center; gap: 8px; }
+  /* One block read left to right: Given, When, Then, and what was observed. */
+  #frame { width: 640px; height: 326px; }
+  .panel { top: 14px; height: 214px; padding: 12px 0 0; }
+  .panel .head { padding: 0 12px 8px; }
+  .panel .head .t { margin-top: 7px; font: 600 12.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .given { left: 14px; width: 190px; }
+  .then { left: 398px; width: 208px; }
+  .panel .nx-irow { min-height: 24px; }
+  .panel .nx-irow .k { width: 54px; }
+  .when-k { left: 232px; top: 26px; }
+  .when-t { position: absolute; left: 232px; top: 40px; font: 600 12.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .note { position: absolute; left: 232px; top: 176px; width: 146px; font: 400 11px/1.4 var(--nx-sans); color: var(--detail); }
+  .obs { left: 14px; top: 244px; width: 592px; height: 48px; display: flex; align-items: center; gap: 5px; padding: 0 12px; }
+  .obs .nx-kind { position: static; margin-right: 4px; }
+  .obs .end { margin-left: auto; height: 24px; padding: 0 11px; font-size: 11.5px; }
+  .chk { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--pill-border); background: var(--nx-card); font: 500 11px/1 var(--nx-sans); color: var(--pill-ink); white-space: nowrap; }
+  .chk svg { width: 9px; height: 9px; color: var(--nx-done-ink); }
 </style>
 </head>
 <body>
-<div id="frame">
-  <div class="row">
-    <div class="card given">
-      <div class="label"><span class="dot"></span><span class="caps">Given</span></div>
-      <div class="title">What is true before</div>
-      <div class="kv">
-        <span class="k">prefix</span><span class="v">b1, b2 from the golden</span>
-        <span class="k">ledger</span><span class="v">name: Sam<br>plan: none</span>
-        <span class="k">world</span><span class="v">catalog stub</span>
-        <span class="k">vars</span><span class="v">channel: web</span>
-      </div>
-      <div class="note">The state so far: earlier blocks, known facts, tools and fixtures.</div>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <svg class="nx-edges" viewBox="0 0 620 306">
+      <path class="nx-edge" d="M204 121 L224 121"/>
+      <path class="nx-edge" d="M378 121 L398 121"/>
+    </svg>
+
+    <div class="nx-ill-panel panel given">
+      <div class="head"><span class="nx-kind nx-kind--static">Given</span><div class="t">What is true before</div></div>
+      <div class="nx-irow"><span class="k">prefix</span><span class="v">b1, b2</span></div>
+      <div class="nx-irow"><span class="k">ledger</span><span class="v">name: Sam</span></div>
+      <div class="nx-irow"><span class="k">world</span><span class="v">catalogue stub</span></div>
+      <div class="nx-irow"><span class="k">vars</span><span class="v">channel: web</span></div>
     </div>
 
-    <div class="arrow"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--faint)"><path d="M5 13h15M14 7l6 6-6 6"/></svg></div>
+    <span class="nx-kind when-k">When</span>
+    <div class="when-t">What happens</div>
+    <div class="nx-ibub nx-ibub--me" style="left:232px;top:76px;width:146px">Which plan has unlimited data? I want to keep my number.</div>
+    <div class="note">A user message, an injected deviation or a forced tool result.</div>
 
-    <div class="card when">
-      <div class="label"><span class="dot"></span><span class="caps">When</span></div>
-      <div class="title">What happens</div>
-      <div class="quote">Which plan has unlimited data? I want to keep my number.</div>
-      <div class="note">A user message. Or an injected deviation, or a forced tool result.</div>
+    <div class="nx-ill-panel panel then">
+      <div class="head"><span class="nx-kind nx-kind--static">Then</span><div class="t">What must follow</div></div>
+      <div class="nx-irow"><span class="k">step</span><span class="v">plan</span></div>
+      <div class="nx-irow"><span class="k">tools</span><span class="v m">catalog.search × 1</span></div>
+      <div class="nx-irow"><span class="k">must</span><span class="v m">unlimited</span></div>
+      <div class="nx-irow"><span class="k">must_not</span><span class="v m">as an AI</span></div>
+      <div class="nx-irow"><span class="k">ledger</span><span class="v m">+ keep_number</span></div>
+      <div class="nx-irow"><span class="k">criteria</span><span class="v m">one_question</span></div>
     </div>
 
-    <div class="arrow"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--faint)"><path d="M5 13h15M14 7l6 6-6 6"/></svg></div>
-
-    <div class="card then">
-      <div class="label"><span class="dot"></span><span class="caps">Then</span></div>
-      <div class="title">What must follow</div>
-      <div class="kv">
-        <span class="k">step</span><span class="v">plan</span>
-        <span class="k">tools</span><span class="v">catalog.search × 1</span>
-        <span class="k">must</span><span class="v">/unlimited/</span>
-        <span class="k">must_not</span><span class="v">/as an AI/</span>
-        <span class="k">lang</span><span class="v">EN</span>
-        <span class="k">ledger</span><span class="v">+ keep_number: true</span>
-      </div>
+    <div class="nx-ill-panel obs">
+      <span class="nx-kind nx-kind--ink">Observed</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>step</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>tools</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>must</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>must_not</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>ledger</span>
+      <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>criteria</span>
+      <span class="nx-done end">Block passes</span>
     </div>
-  </div>
-
-  <div class="strip">
-    <span class="caps">Observed</span>
-    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>step</span>
-    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>tools</span>
-    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>must</span>
-    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>must_not</span>
-    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>lang</span>
-    <span class="pill"><svg viewBox="0 0 16 16" fill="none" stroke="var(--pass)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>ledger</span>
-    <span class="pass-word">Block passes</span>
   </div>
 </div>
 <script>
-  window.__fonts = ['400 16px Inter', '600 18px Inter', '400 16px "JetBrains Mono"', '400 38px "Instrument Serif"'];
+  window.__fonts = ['400 11px Geist', '500 11px Geist', '600 12px Geist', '500 10px "Geist Mono"', '400 11px "Geist Mono"'];
   Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
 </script>
 </body>

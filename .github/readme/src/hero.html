@@ -3,246 +3,103 @@
 <head>
 <meta charset="utf-8">
 <title>driftbench hero</title>
-<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="brand.css">
 <style>
-  /* The hero is one picture with its own background, so it keeps fixed light colors. */
-  #frame {
-    position: relative;
-    width: 1600px;
-    height: 720px;
-    overflow: hidden;
-    background: #EEF1F6;
-    color: #0E1116;
-  }
-  #silk { position: absolute; left: 0; top: 0; width: 1600px; height: 720px; }
-  .logo { position: absolute; left: 96px; top: 90px; height: 28px; }
-  .copy { position: absolute; left: 96px; top: 196px; width: 660px; }
-  .eyebrow {
-    display: flex; align-items: center; gap: 14px;
-    font-family: var(--mono); font-size: 16px; font-weight: 500;
-    letter-spacing: 0.22em; text-transform: uppercase; color: #4A5262;
-  }
-  .eyebrow .dot { width: 9px; height: 9px; border-radius: 50%; background: #EA6A2A; flex: none; }
-  h1 {
-    margin: 30px 0 0;
-    font-family: var(--serif); font-weight: 400;
-    font-size: 104px; line-height: 0.96; letter-spacing: -0.012em;
-    color: #0E1116;
-  }
-  h1 .tag { display: block; color: #555C69; font-size: 76px; line-height: 1.02; margin-top: 10px; }
-  .sub {
-    margin-top: 30px; width: 600px;
-    font-size: 22px; line-height: 1.5; color: #454C59;
-  }
-  .card {
-    position: absolute; left: 812px; top: 166px; width: 700px;
-    padding: 14px 14px 0;
-    border-radius: 26px;
-    background: rgba(255, 255, 255, 0.46);
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 40px 80px -36px rgba(27, 42, 68, 0.38), 0 2px 6px rgba(27, 42, 68, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(22px) saturate(1.15);
-    -webkit-backdrop-filter: blur(22px) saturate(1.15);
-  }
-  .panel { display: block; width: 672px; height: 340px; border-radius: 16px; }
-  .card .caption {
-    padding: 16px 6px 18px;
-    font-family: var(--mono); font-size: 15px; font-weight: 500;
-    letter-spacing: 0.2em; text-transform: uppercase; color: #3E4553;
-  }
+  /* The hero follows the design system's slide cover: SilkBlue silk full bleed, the ink logo top left, a spark dot
+     before a mono label, a Libre Caslon title with its soft second half, a Geist intro. On the right, one glass panel
+     holds a perturbed run drawn in the illustration kit. It is one picture with its own background, so its colours are
+     fixed light values and do not follow the reader's theme. */
+  :root { color-scheme: light; }
+  #frame { position: relative; width: 1600px; height: 720px; overflow: hidden;
+    background: #F6F8FB url('silk/silkblue-1920x1080.jpg') center/cover; color: #0E1116; }
+  .logo { position: absolute; left: 96px; top: 70px; width: 120px; }
+  .label { position: absolute; right: 96px; top: 83px; font: 500 15px/1 var(--nx-mono); letter-spacing: .12em;
+    text-transform: uppercase; color: rgba(14,17,22,.68); }
+  .copy { position: absolute; left: 96px; top: 222px; width: 640px; }
+  .kicker { display: flex; align-items: center; gap: 12px; font: 500 16px/1.2 var(--nx-mono); letter-spacing: .12em;
+    text-transform: uppercase; color: rgba(14,17,22,.68); }
+  .kicker::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #FF6600; }
+  h1 { margin: 26px 0 0; font: 400 96px/1 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: #0E1116; }
+  h1 .soft { display: block; margin-top: 6px; font-size: 58px; line-height: 1.04; color: rgba(14,17,22,.68); }
+  .intro { margin-top: 28px; width: 560px; font: 400 22px/1.45 var(--nx-sans); color: rgba(14,17,22,.68); }
+
+  /* the glass panel with the run */
+  .glass { position: absolute; left: 804px; top: 168px; width: 700px; height: 400px; border-radius: 20px;
+    background: rgba(255,255,255,.66); border: 1px solid rgba(255,255,255,.6); box-shadow: 0 20px 40px -28px rgba(14,30,60,.35);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); }
+  .glass::after { content: ""; position: absolute; left: 14px; right: 14px; top: 1px; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.95), rgba(255,255,255,0)); }
+  .run { position: absolute; inset: 0; zoom: 1.1; }
+  .run .nx-edges { position: absolute; inset: 0; width: 636px; height: 364px; overflow: visible; }
+  .run .head { position: absolute; left: 22px; top: 22px; font: 500 11px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase; color: rgba(14,17,22,.68); }
+  .run .legend { position: absolute; right: 22px; top: 22px; display: flex; align-items: center; gap: 7px;
+    font: 500 10.5px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase; color: rgba(14,17,22,.45); }
+  .run .legend svg { width: 20px; height: 6px; }
+  .b { position: absolute; width: 90px; height: 58px; padding: 7px 10px; row-gap: 3px; background: #fff;
+    border: 1px solid rgba(14,17,22,.08); box-shadow: 0 8px 18px rgba(14,30,60,.16); }
+  .b .nx-node__kind { color: rgba(14,17,22,.55); }
+  .b .nx-node__title { color: #0E1116; }
+  .b .nx-node__detail { color: #4A5873; }
+  .shift { position: absolute; left: 279px; top: 74px; display: flex; align-items: baseline; gap: 8px; }
+  .shift b { font: 500 10.5px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase; color: rgba(14,17,22,.68); font-weight: 500; }
+  .shift .q { font: 400 11.5px/1 var(--nx-sans); color: #0E1116; }
+  .pill { position: absolute; transform: translate(-50%, -50%); display: inline-flex; align-items: center; height: 24px; padding: 0 11px;
+    border-radius: 999px; background: #fff; border: 1px solid rgba(14,17,22,.07); box-shadow: 0 4px 12px rgba(14,30,60,.14);
+    font: 500 11.5px/1 var(--nx-sans); color: #2E3643; white-space: nowrap; }
+  .done { position: absolute; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px;
+    border-radius: 999px; background: #E3F4EA; color: #1F7A4A; font: 600 11px/1 var(--nx-sans); white-space: nowrap; }
+  .done svg { width: 9px; height: 9px; }
+  .read { position: absolute; left: 22px; top: 252px; }
+  .read .k { font: 500 10.5px/1 var(--nx-mono); letter-spacing: 1px; text-transform: uppercase; color: rgba(14,17,22,.45); }
+  .read .n { margin-top: 8px; font: 400 32px/1 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: #0E1116; }
+  .spark { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #FF6600; }
 </style>
 </head>
 <body>
 <div id="frame">
-  <canvas id="silk"></canvas>
-  <img class="logo" src="nexus-logo.svg" alt="Nexus">
+  <img class="logo" src="../nexus-logo-ink.svg" alt="Nexus">
+  <span class="label">Open source · Apache 2.0</span>
 
   <div class="copy">
-    <div class="eyebrow"><span class="dot"></span>An agent evaluation framework · Open source</div>
-    <h1>driftbench.<span class="tag">Every exchange<br>is a unit test.</span></h1>
-    <div class="sub">Every number carries an interval.<br>Drift and recovery are measured, not guessed.</div>
+    <div class="kicker">An agent evaluation framework</div>
+    <h1>driftbench.<span class="soft">Every exchange is a unit&nbsp;test.</span></h1>
+    <div class="intro">Every number carries an interval. Drift and recovery are measured, block by block.</div>
   </div>
 
-  <div class="card">
-    <svg class="panel" viewBox="0 0 672 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
-      <defs>
-        <linearGradient id="pbg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#141922"/>
-          <stop offset="1" stop-color="#0D1117"/>
-        </linearGradient>
-      </defs>
-      <rect x="0" y="0" width="672" height="340" rx="16" fill="url(#pbg)"/>
+  <div class="glass">
+    <div class="run">
+      <svg class="nx-edges" viewBox="0 0 636 364">
+        <path d="M67 147 L567 147" fill="none" stroke="rgba(47,95,208,.16)" stroke-width="1.5"/>
+        <path d="M267 96 L267 168" fill="none" stroke="rgba(47,95,208,.16)" stroke-width="1.5" stroke-dasharray="2 4"/>
+        <path d="M67 147 L167 147 C217 147 217 199 267 199 C317 199 317 173 367 173 C417 173 417 147 467 147 L567 147"
+              fill="none" stroke="#2F5FD0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="head">A perturbed run</span>
+      <span class="legend">
+        <svg viewBox="0 0 20 6"><path d="M1 3 L19 3" stroke="rgba(47,95,208,.3)" stroke-width="1.5"/></svg>expected
+        <svg viewBox="0 0 20 6" style="margin-left:8px"><path d="M1.5 3 L18.5 3" stroke="#2F5FD0" stroke-width="2.4" stroke-linecap="round"/></svg>observed
+      </span>
 
-      <!-- legend -->
-      <g font-size="14.5" fill="#8C96A6">
-        <line x1="440" y1="30" x2="466" y2="30" stroke="#5F6A7B" stroke-width="1.8" stroke-dasharray="4 4"/>
-        <text x="474" y="35">expected</text>
-        <line x1="552" y1="30" x2="578" y2="30" stroke="#86A8FF" stroke-width="2.6" stroke-linecap="round"/>
-        <text x="586" y="35">observed</text>
-      </g>
+      <span class="spark" style="left:263.5px;top:76px"></span>
+      <div class="shift"><b>Goal shift</b><span class="q">“Make it two lines.”</span></div>
 
-      <!-- injection marker over block 3 -->
-      <g>
-        <text x="284" y="32" text-anchor="middle" font-size="15.5" fill="#F2A673" font-weight="500">goal shift injected</text>
-        <path d="M 278 40 L 290 40 L 284 47 Z" fill="#F2904F"/>
-      </g>
+      <div class="nx-node nx-node--noico b" style="left:22px;top:118px"><span class="nx-node__kind">b1</span><span class="nx-node__title">greet</span><span class="nx-node__detail">on step</span></div>
+      <div class="nx-node nx-node--noico b" style="left:122px;top:118px"><span class="nx-node__kind">b2</span><span class="nx-node__title">plan</span><span class="nx-node__detail">on step</span></div>
+      <div class="nx-node nx-node--noico b" style="left:222px;top:170px"><span class="nx-node__kind">b3</span><span class="nx-node__title">plan</span><span class="nx-node__detail">asks for ID</span></div>
+      <div class="nx-node nx-node--noico b" style="left:322px;top:144px"><span class="nx-node__kind">b4</span><span class="nx-node__title">identity</span><span class="nx-node__detail">says one line</span></div>
+      <div class="nx-node nx-node--noico b" style="left:422px;top:118px"><span class="nx-node__kind">b5</span><span class="nx-node__title">recap</span><span class="nx-node__detail">on step</span></div>
+      <div class="nx-node nx-node--noico b" style="left:522px;top:118px"><span class="nx-node__kind">b6</span><span class="nx-node__title">submit</span><span class="nx-node__detail">on step</span></div>
 
-      <!-- six blocks -->
-      <g id="cols"></g>
+      <span class="pill" style="left:267px;top:254px">X3 flow drift</span>
+      <span class="pill" style="left:367px;top:230px">X2 contradiction</span>
+      <span class="done" style="left:567px;top:196px"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>end state</span>
 
-      <!-- expected track -->
-      <line x1="72" y1="140" x2="602" y2="140" stroke="#566174" stroke-width="1.6" stroke-dasharray="4 5"/>
-
-      <!-- observed path: on track, drifts at block 3, back at block 4 -->
-      <path d="M 72 140 L 178 140 C 228 140, 234 206, 284 206 C 334 206, 340 140, 390 140 L 602 140"
-            fill="none" stroke="#86A8FF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-
-      <g id="nodes"></g>
-
-      <!-- drift chip under block 3 -->
-      <g>
-        <rect x="222" y="260" width="124" height="26" rx="13" fill="rgba(242,144,79,0.14)" stroke="rgba(242,144,79,0.5)"/>
-        <text x="284" y="278" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13.5" fill="#F4A06A" font-weight="500">X3 flow drift</text>
-      </g>
-
-      <!-- recovery bracket from block 3 to block 4 -->
-      <path d="M 262 294 L 262 301 L 412 301 L 412 294" fill="none" stroke="#9DB8FF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-      <text x="337" y="325" text-anchor="middle" font-size="16" fill="#C5CFDC">back on track one block later</text>
-    </svg>
-    <div class="caption">A perturbed run, block by block</div>
+      <div class="read"><div class="k">Turns to recover</div><div class="n">2 blocks</div></div>
+    </div>
   </div>
 </div>
-
 <script>
-  // Columns and nodes, drawn from data so the layout stays exact.
-  const steps = ['greet', 'plan', 'plan', 'identity', 'recap', 'submit'];
-  const x0 = 25, w = 94, gap = 12;
-  const ns = 'http://www.w3.org/2000/svg';
-  const cols = document.getElementById('cols');
-  const nodes = document.getElementById('nodes');
-  const el = (name, attrs, parent, text) => {
-    const n = document.createElementNS(ns, name);
-    for (const k in attrs) n.setAttribute(k, attrs[k]);
-    if (text) n.textContent = text;
-    parent.appendChild(n);
-    return n;
-  };
-  steps.forEach((step, i) => {
-    const x = x0 + i * (w + gap);
-    const cx = x + w / 2;
-    const drift = i === 2;
-    el('rect', {
-      x, y: 56, width: w, height: 196, rx: 12,
-      fill: drift ? 'rgba(242,144,79,0.08)' : 'rgba(255,255,255,0.025)',
-      stroke: drift ? 'rgba(242,144,79,0.42)' : 'rgba(255,255,255,0.07)'
-    }, cols);
-    el('text', { x: cx, y: 82, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono, monospace', 'font-size': 15,
-      fill: drift ? '#F2A673' : '#7F8999', 'font-weight': 500 }, cols, 'b' + (i + 1));
-    el('text', { x: cx, y: 117, 'text-anchor': 'middle', 'font-size': 16, fill: '#959FAF' }, cols, step);
-    // expected node
-    el('circle', { cx, cy: 140, r: 7.5, fill: '#10151C', stroke: drift ? '#7A6A60' : '#6B7688', 'stroke-width': 1.6 }, nodes);
-    if (!drift) {
-      el('circle', { cx, cy: 140, r: 3.8, fill: '#86A8FF' }, nodes);
-    } else {
-      el('circle', { cx, cy: 206, r: 10, fill: 'rgba(242,144,79,0.18)' }, nodes);
-      el('circle', { cx, cy: 206, r: 5.5, fill: '#F2904F' }, nodes);
-      el('text', { x: cx, y: 239, 'text-anchor': 'middle', 'font-size': 16, fill: '#F2A673', 'font-weight': 500 }, nodes, 'identity');
-    }
-  });
-
-  // Pale silk background: a lit height field, folds kept to the right so the text stays calm.
-  function drawSilk(canvas, cssW, cssH, dpr) {
-    const W = Math.round(cssW * dpr), H = Math.round(cssH * dpr);
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d');
-    const img = ctx.createImageData(W, H);
-    const d = img.data;
-    const sin = Math.sin;
-    // Domain warped folds; the soft crease keeps a satin edge without a hard seam.
-    const crease = (t) => (t > 0 ? 1 - Math.pow(1 - t, 2.2) : -Math.pow(-t, 1.6));
-    const hgt = (x, y) => {
-      const a = x * 1.6, b = y * 1.6;
-      const wx = a + 0.6 * sin(1.7 * b + 0.5) + 0.3 * sin(2.8 * a + 1.9);
-      const wy = b + 0.6 * sin(1.5 * a + 1.4) + 0.3 * sin(3.3 * b + 0.4);
-      return 0.8 * crease(sin(2.6 * wx + 1.9 * wy)) + 0.25 * sin(4.8 * wy - 1.5 * wx + 2.0);
-    };
-    const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
-    // Seeded grain (mulberry32), so a re-render gives the same file.
-    let seed = 20261011;
-    const rand = () => {
-      seed = (seed + 0x6d2b79f5) | 0;
-      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-    const smooth = (a, b, t) => { const x = clamp((t - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
-    const mix = (a, b, t) => a + (b - a) * t;
-    const norm = (v) => { const l = Math.hypot(v[0], v[1], v[2]); return [v[0] / l, v[1] / l, v[2] / l]; };
-    const L = norm([-0.45, -0.6, 0.66]);
-    const Hv = norm([L[0], L[1], L[2] + 1]);
-    const base = [240, 243, 248], deep = [160, 171, 201], hi = [255, 255, 255];
-    // height grid with a one pixel border
-    const GW = W + 2, GH = H + 2;
-    const g = new Float32Array(GW * GH);
-    for (let py = 0; py < GH; py++) {
-      const y = (py - 1) / H;
-      for (let px = 0; px < GW; px++) g[py * GW + px] = hgt((px - 1) / H, y);
-    }
-    // Two box passes soften the crease into a tight, smooth ridge.
-    const tmp = new Float32Array(GW * GH);
-    const r = Math.round(2 * dpr);
-    for (let pass = 0; pass < 2; pass++) {
-      for (let py = 0; py < GH; py++) {
-        let acc = 0;
-        for (let k = -r; k <= r; k++) acc += g[py * GW + clamp(k, 0, GW - 1)];
-        for (let px = 0; px < GW; px++) {
-          tmp[py * GW + px] = acc / (2 * r + 1);
-          acc += g[py * GW + clamp(px + r + 1, 0, GW - 1)] - g[py * GW + clamp(px - r, 0, GW - 1)];
-        }
-      }
-      for (let px = 0; px < GW; px++) {
-        let acc = 0;
-        for (let k = -r; k <= r; k++) acc += tmp[clamp(k, 0, GH - 1) * GW + px];
-        for (let py = 0; py < GH; py++) {
-          g[py * GW + px] = acc / (2 * r + 1);
-          acc += tmp[clamp(py + r + 1, 0, GH - 1) * GW + px] - tmp[clamp(py - r, 0, GH - 1) * GW + px];
-        }
-      }
-    }
-    for (let py = 0; py < H; py++) {
-      for (let px = 0; px < W; px++) {
-        const i = (py + 1) * GW + (px + 1);
-        const hx = (g[i + 1] - g[i - 1]) * H / 2;
-        const hy = (g[i + GW] - g[i - GW]) * H / 2;
-        const u = px / W, v = py / H;
-        const calm = smooth(0.30, 0.85, u) * 0.9 + 0.1;
-        const s = 0.05 + 0.36 * calm;
-        const n = norm([-s * hx, -s * hy, 1]);
-        const dif = n[0] * L[0] + n[1] * L[1] + n[2] * L[2];
-        let sp = n[0] * Hv[0] + n[1] * Hv[1] + n[2] * Hv[2];
-        sp = sp < 0 ? 0 : Math.pow(sp, 14);
-        const shade = Math.tanh((dif - L[2]) / 0.7);
-        const out = [0, 0, 0];
-        for (let c = 0; c < 3; c++) {
-          let col = shade < 0 ? mix(base[c], deep[c], Math.pow(-shade, 0.85)) : mix(base[c], hi[c], shade);
-          col += sp * 20 * calm;
-          // a soft vignette toward the lower right
-          col = mix(col, deep[c], 0.10 * smooth(0.45, 1.2, (u + v) / 2));
-          out[c] = col;
-        }
-        const grain = (rand() - 0.5) * 2.2;
-        const o = (py * W + px) * 4;
-        d[o] = clamp(out[0] + grain, 0, 255);
-        d[o + 1] = clamp(out[1] + grain, 0, 255);
-        d[o + 2] = clamp(out[2] + grain, 0, 255);
-        d[o + 3] = 255;
-      }
-    }
-    ctx.putImageData(img, 0, 0);
-  }
-
-  drawSilk(document.getElementById('silk'), 1600, 720, window.devicePixelRatio || 1);
-  window.__fonts = ['400 16px Inter', '500 16px Inter', '500 15px "JetBrains Mono"', '400 96px "Instrument Serif"'];
+  window.__fonts = ['400 22px Geist', '500 12px Geist', '600 12px Geist', '500 15px "Geist Mono"', '400 96px "Libre Caslon Display"'];
   Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
 </script>
 </body>
