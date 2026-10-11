@@ -12,18 +12,32 @@ export const FIXTURE_GENERATED = `${FIXTURE}generated/`;
 /** The hand-written plan of the lane, until the planner's plan lands on main. */
 export const HAND_PLAN = fileURLToPath(new URL('./fixtures/plan.yaml', import.meta.url));
 
-/** The paths the committed suite records, relative to its folder. */
-export const COMMITTED_PATHS = {
+/** The planner's plan with every row approved, beside the suite generated from it. */
+export const APPROVED_PLAN = `${FIXTURE_GENERATED}plan.approved.yaml`;
+export const PLANNER_PLAN = `${FIXTURE}plan.yaml`;
+/** The suite of the hand plan, kept beside the planner's: it holds the replay rows of the three sessions. */
+export const HAND_GENERATED = `${FIXTURE_GENERATED}hand-plan/`;
+
+/** The paths the suite of the hand plan records, relative to its folder. */
+export const HAND_PATHS = {
+  map: '../../approved.yaml',
+  plan: '../../../../../packages/generate/test/estate/fixtures/plan.yaml',
+  phrases: '../../phrases.yaml',
+  sessions: '../../sessions/index.yaml',
+};
+
+/** The paths the suite of the planner's plan records, relative to its folder. */
+export const PLANNER_PATHS = {
   map: '../approved.yaml',
-  plan: '../../../../packages/generate/test/estate/fixtures/plan.yaml',
+  plan: 'plan.approved.yaml',
   phrases: '../phrases.yaml',
   sessions: '../sessions/index.yaml',
 };
 
-export async function fixtureInputs(): Promise<EstateGenerateInput> {
+export async function fixtureInputs(planPath = HAND_PLAN): Promise<EstateGenerateInput> {
   const map = await loadEstateMap(FIXTURE_MAP);
   if (!map.ok) throw new Error(`fixture map: ${map.errors.map((error) => error.message).join('; ')}`);
-  const plan = await readEstateYaml(HAND_PLAN, Plan);
+  const plan = await readEstateYaml(planPath, Plan);
   const bank = await readEstateYaml(FIXTURE_PHRASES, PhraseBank);
   const sessions = await readEstateYaml(FIXTURE_SESSIONS, SessionIndex);
   for (const [name, read] of Object.entries({ plan, bank, sessions })) {

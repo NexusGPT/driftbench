@@ -11,7 +11,15 @@ import {
   SITUATION_OF,
 } from '../../src/estate/generate';
 import { MARKERS } from '../../src/estate/then';
-import { COMMITTED_PATHS, FIXTURE_GENERATED, fixtureInputs } from './support';
+import {
+  APPROVED_PLAN,
+  FIXTURE_GENERATED,
+  fixtureInputs,
+  HAND_GENERATED,
+  HAND_PATHS,
+  PLANNER_PATHS,
+  PLANNER_PLAN,
+} from './support';
 
 function specs(result: EstateGenerateResult): Map<string, Spec> {
   const out = new Map<string, Spec>();
@@ -41,7 +49,7 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
 
   beforeAll(async () => {
     input = await fixtureInputs();
-    result = generateEstateSuite(input, { paths: COMMITTED_PATHS });
+    result = generateEstateSuite(input, { paths: HAND_PATHS });
     byId = specs(result);
   });
 
@@ -266,7 +274,7 @@ describe('estate generate on inputs that do not fit together', () => {
     const copy = structuredClone(input);
     change(copy);
     try {
-      generateEstateSuite(copy, { paths: COMMITTED_PATHS });
+      generateEstateSuite(copy, { paths: HAND_PATHS });
     } catch (cause) {
       if (cause instanceof EstateInputError)
         return cause.issues.map((issue) => `${issue.path}: ${issue.message}`);
@@ -316,7 +324,7 @@ describe('estate generate on inputs that do not fit together', () => {
     const copy = structuredClone(input);
     const situation = copy.bank.situations.find((entry) => entry.id === 'invoice-reconcile');
     for (const phrase of situation?.phrases ?? []) phrase.approved = false;
-    const result = generateEstateSuite(copy, { paths: COMMITTED_PATHS });
+    const result = generateEstateSuite(copy, { paths: HAND_PATHS });
     const record = result.specs.find((spec) => spec.row === 'p05');
     expect(record?.complete).toBe(false);
     expect(record?.markers).toEqual([MARKERS.phrase]);
@@ -326,7 +334,7 @@ describe('estate generate on inputs that do not fit together', () => {
     const copy = structuredClone(input);
     const helper = copy.map.atoms.find((atom) => atom.id === 'subagent.route-planner.helper-route-planner');
     if (helper) helper.evidence = [{ type: 'text', must: ['route'] }];
-    const result = generateEstateSuite(copy, { paths: COMMITTED_PATHS });
+    const result = generateEstateSuite(copy, { paths: HAND_PATHS });
     const record = result.specs.find((spec) => spec.row === 'p18');
     // The words are checked on the first reply; the resume block has nothing of its own to check.
     expect(record?.markers).toEqual([MARKERS.noThen]);
@@ -339,7 +347,7 @@ describe('estate generate on inputs that do not fit together', () => {
     const copy = structuredClone(input);
     const row = copy.plan.rows.find((entry) => entry.id === 'p05');
     if (row) row.status = 'proposed';
-    const result = generateEstateSuite(copy, { paths: COMMITTED_PATHS });
+    const result = generateEstateSuite(copy, { paths: HAND_PATHS });
     expect(result.report.waiting).toEqual(['p05']);
     expect(result.specs.some((spec) => spec.row === 'p05')).toBe(false);
   });
@@ -363,7 +371,7 @@ describe('the record and the seed', () => {
   });
 
   it('records atoms, plan row, cell, seeder, seed and map hash on every spec', () => {
-    const result = generateEstateSuite(input, { seed: 7, paths: COMMITTED_PATHS });
+    const result = generateEstateSuite(input, { seed: 7, paths: HAND_PATHS });
     const rows = new Map(input.plan.rows.map((row) => [row.id, row]));
     for (const spec of specs(result).values()) {
       const record = estate(spec);
@@ -383,14 +391,14 @@ describe('the record and the seed', () => {
   });
 
   it('gives byte-identical files for the same inputs and seed', () => {
-    const first = generateEstateSuite(input, { seed: 3, paths: COMMITTED_PATHS });
-    const second = generateEstateSuite(structuredClone(input), { seed: 3, paths: COMMITTED_PATHS });
+    const first = generateEstateSuite(input, { seed: 3, paths: HAND_PATHS });
+    const second = generateEstateSuite(structuredClone(input), { seed: 3, paths: HAND_PATHS });
     expect(second.files).toEqual(first.files);
   });
 
   it('draws other phrases with another seed, over the same specs', () => {
-    const one = generateEstateSuite(input, { seed: 1, paths: COMMITTED_PATHS });
-    const two = generateEstateSuite(input, { seed: 2, paths: COMMITTED_PATHS });
+    const one = generateEstateSuite(input, { seed: 1, paths: HAND_PATHS });
+    const two = generateEstateSuite(input, { seed: 2, paths: HAND_PATHS });
     expect(two.files.map((file) => file.path)).toEqual(one.files.map((file) => file.path));
     const asks = (result: EstateGenerateResult) =>
       [...specs(result).values()].map(
@@ -405,13 +413,44 @@ describe('the record and the seed', () => {
   });
 });
 
-describe('the committed suite', () => {
-  it('is byte for byte what the generator writes for the fixture, the hand plan and seed 1', async () => {
-    const result = generateEstateSuite(await fixtureInputs(), { paths: COMMITTED_PATHS });
-    const committed = await tree(FIXTURE_GENERATED);
+describe('the committed suites', () => {
+  it('holds the hand plan suite byte for byte as the generator writes it, seed 1', async () => {
+    const result = generateEstateSuite(await fixtureInputs(), { paths: HAND_PATHS });
+    const committed = await tree(HAND_GENERATED);
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
   });
+
+  it("holds the planner's plan with every row approved and nothing else changed", async () => {
+    const planner = (await readFile(PLANNER_PLAN, 'utf8')).split('\n');
+    const approved = (await readFile(APPROVED_PLAN, 'utf8')).split('\n');
+    // Three lines of note, then the planner's file with each status flipped to approved.
+    expect(approved.slice(3)).toEqual(
+      planner.map((line) =>
+        line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
+      ),
+    );
+    expect(planner.filter((line) => line.includes('status: approved'))).toEqual([]);
+  });
+
+  it("holds the planner's plan suite byte for byte as the generator writes it, seed 1", async () => {
+    const result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), { paths: PLANNER_PATHS });
+    const committed = await tree(FIXTURE_GENERATED);
+    const own = Object.keys(committed).filter(
+      (path) => !path.startsWith('hand-plan/') && path !== 'plan.approved.yaml',
+    );
+    expect(own.sort()).toEqual(result.files.map((file) => file.path).sort());
+    for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
+    expect(result.report.summary).toEqual({
+      specs: 1338,
+      blocks: 1341,
+      complete: 235,
+      incomplete: 1103,
+      judged: 70,
+    });
+    expect(result.report.invalid).toEqual([]);
+    expect(result.report.lint).toEqual([]);
+  }, 120_000);
 });
 
 async function tree(dir: string): Promise<Record<string, string>> {

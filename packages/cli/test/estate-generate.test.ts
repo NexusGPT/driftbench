@@ -76,7 +76,7 @@ describe('driftbench estate generate', () => {
   }, 60_000);
 
   it('passes and fails the committed replay specs as planned too', async () => {
-    await replayAsPlanned(join(FIXTURE, 'generated/specs/replay'));
+    await replayAsPlanned(join(FIXTURE, 'generated/hand-plan/specs/replay'));
   }, 60_000);
 
   async function replayAsPlanned(suite: string): Promise<void> {
