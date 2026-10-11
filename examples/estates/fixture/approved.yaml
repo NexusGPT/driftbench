@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-11T19:04:47.327Z
+readAt: 2026-10-11T19:05:46.525Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -2306,10 +2306,10 @@ atoms:
     title: Every guard finds its script from an anchor
     provenance:
       file: .claude/settings.json
-      startLine: 13
-      endLine: 13
-      quote: '"hooks": {'
-      hash: 5ac7b407c184df45a2143cc8d1d48328eb700a72227205ad0174c2d839d2656c
+      startLine: 18
+      endLine: 18
+      quote: '"\"$CLAUDE_PROJECT_DIR\"/.claude/guards/block-force-push.sh"'
+      hash: c8e7d07beec0a8ce4487c2f1f3a2c8a76f6b474d855777070c07b72f7984dc0a
     producedBy: code
     role: detail
     approved: true
@@ -2401,5 +2401,5 @@ edges:
 producedBy:
   family: lane
   model: claude-opus-5-5 as the estate lane, by hand
-  at: 2026-10-11T19:04:47.327Z
-hash: aa29b9270e7027e23c5c065972c49cbce17776dd12853589c9d73769c0b62b4d
+  at: 2026-10-11T19:05:46.525Z
+hash: ab256ba636f4b315e09b13501fb64dcf47cad30b4bdc7006fabe7b1ba4c75102

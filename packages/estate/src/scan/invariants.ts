@@ -108,12 +108,8 @@ export function invariantAtoms(raw: RawEstate, builder: AtomBuilder, state: Inva
     );
   }
   const settingsGuard = raw.guards.find((guard) => guard.scope === 'estate');
-  const settings = settingsGuard ? raw.files.find((file) => file.path === settingsGuard.at.file) : undefined;
-  if (settings) {
-    const line = linesOf(settings.text).find((entry) => /"hooks"\s*:/.test(entry.text));
-    const at: Located = line
-      ? { file: settings.path, startLine: line.line, endLine: line.line, quote: line.text }
-      : firstLine(settings);
+  if (settingsGuard) {
+    const at: Located = settingsGuard.at;
     added.push(
       builder.add({
         kind: 'invariant',
