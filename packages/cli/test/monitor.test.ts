@@ -270,7 +270,8 @@ describe('driftbench monitor on 60 synthetic campaigns', () => {
       expect(printed.out).toMatch(/Shift detected: [23] of 3 detectors alarmed\. Exit 1\./);
       expect(printed.out).not.toContain('c-day-00');
       const series = await cli(['monitor', '--store', path, '--metric', 'pass_rate', '--series']);
-      expect(series.out).toMatch(/^ {2}0 +c-day-00 +2026-01-01T09:00:00\.000Z +\d+\.\d% +20 /m);
+      const firstDay = new Date(Date.UTC(2026, 0, 1, 9)).toISOString().replace(/\./g, '\\.');
+      expect(series.out).toMatch(new RegExp(`^ {2}0 +c-day-00 +${firstDay} +\\d+\\.\\d% +20 `, 'm'));
       expect(series.out.match(/c-day-\d\d +2026/g)).toHaveLength(60 + 3);
     },
     SLOW,
