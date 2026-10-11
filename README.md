@@ -32,7 +32,7 @@ driftbench evaluates AI agents one exchange at a time. Each exchange is a **bloc
 It targets conversational agents and code interpreter agents, the ones that write code, use a workspace and load skills. Both run through the same blocks and the same checks. Any agent plugs in through an adapter. Open source, Apache 2.0, written in TypeScript.
 
 > [!NOTE]
-> **Not released yet.** Phase 0 is done: the spec format, the validator, the coverage tool and the synthetic Acme Telecom example. Phase 1 is mostly built: the runner, the scripted user, campaigns (`campaign plan|run|status|resume`), `smoke`, the function, HTTP, Nexus and process adapters, the sandbox, the SQLite store, the artifact readers and every machine check. Still open in Phase 1: the Acme code agent task end to end, and the docs. Judges, perturbation and statistics come next. The [roadmap](#roadmap) shows what each phase delivers.
+> **Not released yet.** Phase 0 is done: the spec format, the validator, the coverage tool and the synthetic Acme Telecom example. Phase 1 is mostly built: the runner, the scripted user, campaigns (`campaign plan|run|status|resume`), `smoke`, the function, HTTP, Nexus and process adapters, the sandbox, the SQLite store, the artifact readers and every machine check. Still open in Phase 1: the Acme code agent task end to end. The statistics library is built (intervals, paired tests, variance components); the scorecard that prints them comes next, with judges and perturbation. The [roadmap](#roadmap) shows what each phase delivers.
 
 ---
 
@@ -162,7 +162,7 @@ Four areas. Each bullet names the phase that delivers it.
 
 ## How it works
 
-This section describes the design. The spec format, the runner, the adapters, the store and every machine check run today. Judges, perturbation and statistics are designed and come in phases 2 to 4; test generation is in progress. The [docs](docs/index.md) hold the detail: concepts, the spec reference, the CLI and the adapters.
+This section describes the design. The spec format, the runner, the adapters, the store and every machine check run today. The statistics library is built. Judges, perturbation and the scorecard are designed and come in phases 2 to 4; test generation is in progress. The [docs](docs/index.md) hold the detail: concepts, the spec reference, the CLI and the adapters.
 
 ### A block is a unit test
 
@@ -333,7 +333,7 @@ The [comparison page](docs/comparison.md) sets driftbench beside seven evaluatio
 | **Phase 1** · Runner, checks and store<br/>`in progress` | Free running mode, scripted users, the function, HTTP, Nexus and process adapters, the sandbox, machine checks including artifacts, workspace, execution and safety, a SQLite store, cost per segment |
 | **Phase 2** · Judge council<br/>`planned` | Judge clients, majority and cascade, fixture pairs, kappa, earned assignment, task artifacts judged the same way |
 | **Phase 3** · Perturbation, drift and recovery<br/>`planned` | Simulated users, ten deviation classes on conversations and on code tasks, drift classes, recovery metrics, teacher forced mode |
-| **Phase 4** · Statistics, scorecard, CI gate and runtime battery<br/>`planned` | Intervals and paired tests, the noninferiority verdict, HTML scorecard, JUnit XML, `driftbench ci`, a GitHub Action, the runtime battery |
+| **Phase 4** · Statistics, scorecard, CI gate and runtime battery<br/>`in progress` | Intervals and paired tests, the noninferiority verdict, HTML scorecard, JUnit XML, `driftbench ci`, a GitHub Action, the runtime battery |
 | **Phase G** · Test generation<br/>`in progress` | The map of what varies, proposed from the prompt and approved by a person, with coverage and completeness counted on it; then the code that enumerates blocks, the validity gate, and the pilot that measures where results vary |
 | **Release**<br/>`planned` | SDK adapters for OpenAI Agents, Anthropic, Google and LangGraph, the docs site, version 0.1.0 on npm |
 
