@@ -81,6 +81,7 @@ describe('driftbench view', () => {
     expect(page.text).toContain('<form method="post" action="/labels"');
     expect(page.text).toMatch(/<option value="one_question_per_turn"/);
     expect(page.text).toContain('name="note"');
+    expect(page.text).toContain('No label in the folder yet.');
   });
 
   it('saves a label, reads it back on the page, and writes the file judge calibrate reads', async () => {
@@ -122,6 +123,7 @@ describe('driftbench view', () => {
 
     const page = await get(`${run}?saved=no_invented_data`);
     expect(page.text).toContain('Label saved: no_invented_data.');
+    expect(page.text).toContain('<span class="mono">no_invented_data</span>: 1 pass, 1 fail.</li>');
     expect(page.text).toMatch(
       /no_invented_data: pass[\s\S]*The plans and prices come from catalog\.search\./,
     );

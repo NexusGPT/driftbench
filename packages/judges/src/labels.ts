@@ -57,7 +57,10 @@ export async function saveLabel(
   labelledBy: string,
 ): Promise<void> {
   const path = labelFilePath(dir, criterion);
-  const checked = LabelledBlock.parse(block);
+  const parsed = LabelledBlock.parse(block);
+  // Written in the order a reader scans a labels file: the id, the verdict, why, then the evidence.
+  const { id, label, note, ...rest } = parsed;
+  const checked: LabelledBlock = { id, label, ...(note === undefined ? {} : { note }), ...rest };
   const held = await readLoose(path);
   const blocks = [...(held?.blocks ?? [])];
   const at = blocks.findIndex((entry) => entry.id === checked.id);

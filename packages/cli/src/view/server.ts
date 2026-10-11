@@ -331,9 +331,26 @@ ${criterionField}
 <button type="submit">Save label</button></form></div>`;
   };
   const banner = saved ? `<p class="saved">Label saved: ${esc(saved)}.</p>` : '';
+  const tally = new Map<string, { pass: number; fail: number }>();
+  for (const list of held.values()) {
+    for (const entry of list) {
+      const count = tally.get(entry.criterion) ?? { pass: 0, fail: 0 };
+      if (entry.label === 'pass') count.pass += 1;
+      else count.fail += 1;
+      tally.set(entry.criterion, count);
+    }
+  }
+  const counts = [...tally.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(
+      ([criterion, count]) =>
+        `<li><span class="mono">${esc(criterion)}</span>: ${count.pass} pass, ${count.fail} fail${count.pass === 0 || count.fail === 0 ? `. judge calibrate needs at least one ${count.pass === 0 ? 'pass' : 'fail'} label on it` : ''}.</li>`,
+    )
+    .join('');
+  const summary = counts === '' ? '<p class="muted">No label in the folder yet.</p>' : `<ul>${counts}</ul>`;
   return renderPage(`Run ${run.runId}`, [
     nav(`<a href="/campaign/${encodeURIComponent(campaignId)}">${esc(campaignId)}</a>`),
-    `<section id="labelling"><h2>Labelling</h2>${banner}<p>Mark each block pass or fail on a criterion, with a note. Labels go to <span class="mono">${esc(labelsDir)}</span>, one file per criterion, the folder <span class="mono">driftbench judge calibrate --labels</span> reads. Labelling a block again on the same criterion replaces its label.</p></section>`,
+    `<section id="labelling"><h2>Labelling</h2>${banner}<p>Mark each block pass or fail on a criterion, with a note. Labels go to <span class="mono">${esc(labelsDir)}</span>, one file per criterion, the folder <span class="mono">driftbench judge calibrate --labels</span> reads. Labelling a block again on the same criterion replaces its label.</p>${summary}</section>`,
     renderRun(detail, form),
   ]);
 }
