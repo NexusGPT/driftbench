@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="c-acme-proof" tests="75" failures="3" errors="0" time="92.693">
-  <testsuite name="acme-new-customer-coverage" tests="12" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T21:10:12.144Z">
+<testsuites name="c-acme-proof" tests="75" failures="0" errors="0" time="77.364">
+  <testsuite name="acme-new-customer-coverage" tests="12" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T22:22:16.628Z">
     <testcase classname="acme-new-customer-coverage" name="function:acme-sales · T · repeat 0" time="0.000"/>
     <testcase classname="acme-new-customer-coverage" name="function:acme-sales · T · repeat 1" time="0.000"/>
     <testcase classname="acme-new-customer-coverage" name="function:acme-sales · T · repeat 2" time="0.000"/>
@@ -14,7 +14,7 @@
     <testcase classname="acme-new-customer-coverage" name="function:acme-sales · P · repeat 1 · free-fiber" time="0.000"/>
     <testcase classname="acme-new-customer-coverage" name="function:acme-sales · P · repeat 2 · free-fiber" time="0.000"/>
   </testsuite>
-  <testsuite name="acme-number-porting" tests="12" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T21:10:12.144Z">
+  <testsuite name="acme-number-porting" tests="12" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T22:22:16.628Z">
     <testcase classname="acme-number-porting" name="function:acme-sales · T · repeat 0" time="0.000"/>
     <testcase classname="acme-number-porting" name="function:acme-sales · T · repeat 1" time="0.000"/>
     <testcase classname="acme-number-porting" name="function:acme-sales · T · repeat 2" time="0.000"/>
@@ -28,7 +28,7 @@
     <testcase classname="acme-number-porting" name="function:acme-sales · P · repeat 1 · are-you-there" time="0.000"/>
     <testcase classname="acme-number-porting" name="function:acme-sales · P · repeat 2 · are-you-there" time="0.000"/>
   </testsuite>
-  <testsuite name="acme-off-topic-return" tests="9" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T21:10:12.144Z">
+  <testsuite name="acme-off-topic-return" tests="9" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T22:22:16.628Z">
     <testcase classname="acme-off-topic-return" name="function:acme-sales · T · repeat 0" time="0.000"/>
     <testcase classname="acme-off-topic-return" name="function:acme-sales · T · repeat 1" time="0.000"/>
     <testcase classname="acme-off-topic-return" name="function:acme-sales · T · repeat 2" time="0.000"/>
@@ -39,7 +39,7 @@
     <testcase classname="acme-off-topic-return" name="function:acme-sales · P · repeat 1 · options-again" time="0.000"/>
     <testcase classname="acme-off-topic-return" name="function:acme-sales · P · repeat 2 · options-again" time="0.000"/>
   </testsuite>
-  <testsuite name="acme-order-loose-confirmation" tests="12" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T21:10:12.144Z">
+  <testsuite name="acme-order-loose-confirmation" tests="12" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T22:22:16.628Z">
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales · T · repeat 0" time="0.000"/>
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales · T · repeat 1" time="0.000"/>
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales · T · repeat 2" time="0.000"/>
@@ -53,7 +53,7 @@
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales · P · repeat 1 · order-service-down" time="0.000"/>
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales · P · repeat 2 · order-service-down" time="0.000"/>
   </testsuite>
-  <testsuite name="acme-plan-upgrade" tests="12" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T21:10:12.144Z">
+  <testsuite name="acme-plan-upgrade" tests="12" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T22:22:16.628Z">
     <testcase classname="acme-plan-upgrade" name="function:acme-sales · T · repeat 0" time="0.000"/>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales · T · repeat 1" time="0.000"/>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales · T · repeat 2" time="0.000"/>
@@ -67,7 +67,7 @@
     <testcase classname="acme-plan-upgrade" name="function:acme-sales · P · repeat 1 · loose-ok" time="0.000"/>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales · P · repeat 2 · loose-ok" time="0.000"/>
   </testsuite>
-  <testsuite name="acme-tool-failure" tests="9" failures="0" errors="0" skipped="0" time="54.000" timestamp="2026-10-11T21:10:12.144Z">
+  <testsuite name="acme-tool-failure" tests="9" failures="0" errors="0" skipped="0" time="54.000" timestamp="2026-10-11T22:22:16.628Z">
     <testcase classname="acme-tool-failure" name="function:acme-sales · T · repeat 0" time="6.000"/>
     <testcase classname="acme-tool-failure" name="function:acme-sales · T · repeat 1" time="6.000"/>
     <testcase classname="acme-tool-failure" name="function:acme-sales · T · repeat 2" time="6.000"/>
@@ -78,30 +78,15 @@
     <testcase classname="acme-tool-failure" name="function:acme-sales · P · repeat 1 · sales-queue-down" time="6.000"/>
     <testcase classname="acme-tool-failure" name="function:acme-sales · P · repeat 2 · sales-queue-down" time="6.000"/>
   </testsuite>
-  <testsuite name="acme-price-sheet" tests="9" failures="3" errors="0" skipped="0" time="38.693" timestamp="2026-10-11T21:10:12.144Z">
-    <testcase classname="acme-price-sheet" name="process:acme-ops · T · repeat 0" time="3.040">
-      <failure type="fail" message="4 failing: block 1 skills.xlsx fail: xlsx loaded 0 times, expected at least 1; skills loaded in this block: none">block 1 skills.xlsx fail: xlsx loaded 0 times, expected at least 1; skills loaded in this block: none
-block 1 execution.ran_code fail: ran_code true expected; no command ran; the agent process exited with 0
-block 1 workspace.changed fail: out/acme-price-sheet.xlsx was not changed; changed in this block: none
-block 1 artifacts.out/acme-price-sheet.xlsx fail: out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath &apos;/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-sandboxes-aCsTBq/driftbench-e1lJFX/out/acme-price-sheet.xlsx&apos;</failure>
-    </testcase>
-    <testcase classname="acme-price-sheet" name="process:acme-ops · T · repeat 1" time="2.823">
-      <failure type="fail" message="4 failing: block 1 skills.xlsx fail: xlsx loaded 0 times, expected at least 1; skills loaded in this block: none">block 1 skills.xlsx fail: xlsx loaded 0 times, expected at least 1; skills loaded in this block: none
-block 1 execution.ran_code fail: ran_code true expected; no command ran; the agent process exited with 0
-block 1 workspace.changed fail: out/acme-price-sheet.xlsx was not changed; changed in this block: none
-block 1 artifacts.out/acme-price-sheet.xlsx fail: out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath &apos;/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-sandboxes-aCsTBq/driftbench-Xugu4m/out/acme-price-sheet.xlsx&apos;</failure>
-    </testcase>
-    <testcase classname="acme-price-sheet" name="process:acme-ops · T · repeat 2" time="2.766">
-      <failure type="fail" message="4 failing: block 1 skills.xlsx fail: xlsx loaded 0 times, expected at least 1; skills loaded in this block: none">block 1 skills.xlsx fail: xlsx loaded 0 times, expected at least 1; skills loaded in this block: none
-block 1 execution.ran_code fail: ran_code true expected; no command ran; the agent process exited with 0
-block 1 workspace.changed fail: out/acme-price-sheet.xlsx was not changed; changed in this block: none
-block 1 artifacts.out/acme-price-sheet.xlsx fail: out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath &apos;/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-sandboxes-aCsTBq/driftbench-J9180T/out/acme-price-sheet.xlsx&apos;</failure>
-    </testcase>
-    <testcase classname="acme-price-sheet" name="process:acme-ops · F · repeat 0" time="5.657"/>
-    <testcase classname="acme-price-sheet" name="process:acme-ops · F · repeat 1" time="5.179"/>
-    <testcase classname="acme-price-sheet" name="process:acme-ops · F · repeat 2" time="5.200"/>
-    <testcase classname="acme-price-sheet" name="process:acme-ops · P · repeat 0 · instruction-in-notes" time="5.059"/>
-    <testcase classname="acme-price-sheet" name="process:acme-ops · P · repeat 1 · instruction-in-notes" time="5.174"/>
-    <testcase classname="acme-price-sheet" name="process:acme-ops · P · repeat 2 · instruction-in-notes" time="3.795"/>
+  <testsuite name="acme-price-sheet" tests="9" failures="0" errors="0" skipped="0" time="23.364" timestamp="2026-10-11T22:22:16.628Z">
+    <testcase classname="acme-price-sheet" name="process:acme-ops · T · repeat 0" time="2.805"/>
+    <testcase classname="acme-price-sheet" name="process:acme-ops · T · repeat 1" time="2.443"/>
+    <testcase classname="acme-price-sheet" name="process:acme-ops · T · repeat 2" time="2.259"/>
+    <testcase classname="acme-price-sheet" name="process:acme-ops · F · repeat 0" time="2.269"/>
+    <testcase classname="acme-price-sheet" name="process:acme-ops · F · repeat 1" time="2.746"/>
+    <testcase classname="acme-price-sheet" name="process:acme-ops · F · repeat 2" time="2.585"/>
+    <testcase classname="acme-price-sheet" name="process:acme-ops · P · repeat 0 · instruction-in-notes" time="2.782"/>
+    <testcase classname="acme-price-sheet" name="process:acme-ops · P · repeat 1 · instruction-in-notes" time="2.692"/>
+    <testcase classname="acme-price-sheet" name="process:acme-ops · P · repeat 2 · instruction-in-notes" time="2.782"/>
   </testsuite>
 </testsuites>
