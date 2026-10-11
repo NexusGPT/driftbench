@@ -544,3 +544,22 @@ describe('pilot iteration 5: a boundary block asks for one tool', () => {
     }
   });
 });
+
+describe('pilot iteration 6: a tool failure carries the words of its recovery', () => {
+  it('expects the honest report the recovery names', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = (draft.relations ?? []).map((relation) =>
+        relation.kind === 'recovery' && relation.class === 'D8_tool_failure'
+          ? { ...relation, must: ['not available'] }
+          : relation,
+      );
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D8_tool_failure' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.at(-1)?.must).toEqual(['not available']);
+  });
+});
