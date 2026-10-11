@@ -1,0 +1,324 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "acme-sales"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "opentelemetry.instrumentation.genai",
+            "version": "0.1.0"
+          },
+          "spans": [
+            {
+              "traceId": "5a0000000000000000000000000000a1",
+              "spanId": "a100000000000001",
+              "name": "invoke_agent acme-sales",
+              "kind": 1,
+              "startTimeUnixNano": "1772445600000000000",
+              "endTimeUnixNano": "1772445603000000000",
+              "attributes": [
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "invoke_agent"
+                  }
+                },
+                {
+                  "key": "gen_ai.agent.name",
+                  "value": {
+                    "stringValue": "acme-sales"
+                  }
+                },
+                {
+                  "key": "gen_ai.conversation.id",
+                  "value": {
+                    "stringValue": "conv-acme-0001"
+                  }
+                }
+              ]
+            },
+            {
+              "traceId": "5a0000000000000000000000000000a1",
+              "spanId": "a100000000000002",
+              "name": "chat example-model-1",
+              "kind": 3,
+              "startTimeUnixNano": "1772445600100000000",
+              "endTimeUnixNano": "1772445601200000000",
+              "attributes": [
+                {
+                  "key": "gen_ai.provider.name",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "example-model-1"
+                  }
+                },
+                {
+                  "key": "gen_ai.response.model",
+                  "value": {
+                    "stringValue": "example-model-1-0301"
+                  }
+                },
+                {
+                  "key": "gen_ai.conversation.id",
+                  "value": {
+                    "stringValue": "conv-acme-0001"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "gen_ai.input.messages",
+                  "value": {
+                    "stringValue": "[{\"role\": \"system\", \"parts\": [{\"type\": \"text\", \"content\": \"You are the Acme Telecom sales assistant.\"}]}, {\"role\": \"user\", \"parts\": [{\"type\": \"text\", \"content\": \"Hi, do you have home internet at 3 Orchard Way, Acmeville?\"}]}]"
+                  }
+                },
+                {
+                  "key": "gen_ai.output.messages",
+                  "value": {
+                    "stringValue": "[{\"role\": \"assistant\", \"parts\": [{\"type\": \"tool_call\", \"id\": \"call_cov_1\", \"name\": \"coverage.check\", \"arguments\": {\"address\": \"3 Orchard Way, Acmeville\"}}], \"finish_reason\": \"tool_call\"}]"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.input_tokens",
+                  "value": {
+                    "intValue": "410"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.output_tokens",
+                  "value": {
+                    "intValue": "22"
+                  }
+                }
+              ],
+              "parentSpanId": "a100000000000001"
+            },
+            {
+              "traceId": "5a0000000000000000000000000000a1",
+              "spanId": "a100000000000003",
+              "name": "execute_tool coverage.check",
+              "kind": 1,
+              "startTimeUnixNano": "1772445601250000000",
+              "endTimeUnixNano": "1772445601400000000",
+              "attributes": [
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "execute_tool"
+                  }
+                },
+                {
+                  "key": "gen_ai.tool.name",
+                  "value": {
+                    "stringValue": "coverage.check"
+                  }
+                },
+                {
+                  "key": "gen_ai.tool.call.id",
+                  "value": {
+                    "stringValue": "call_cov_1"
+                  }
+                },
+                {
+                  "key": "gen_ai.tool.call.arguments",
+                  "value": {
+                    "stringValue": "{\"address\": \"3 Orchard Way, Acmeville\"}"
+                  }
+                },
+                {
+                  "key": "gen_ai.tool.call.result",
+                  "value": {
+                    "stringValue": "{\"found\": true, \"address_id\": \"addr-102\", \"fiber_mbps\": 300, \"five_g\": true}"
+                  }
+                }
+              ],
+              "parentSpanId": "a100000000000001"
+            },
+            {
+              "traceId": "5a0000000000000000000000000000a1",
+              "spanId": "a100000000000004",
+              "name": "chat example-model-1",
+              "kind": 3,
+              "startTimeUnixNano": "1772445601450000000",
+              "endTimeUnixNano": "1772445602900000000",
+              "attributes": [
+                {
+                  "key": "gen_ai.provider.name",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "example-model-1"
+                  }
+                },
+                {
+                  "key": "gen_ai.response.model",
+                  "value": {
+                    "stringValue": "example-model-1-0301"
+                  }
+                },
+                {
+                  "key": "gen_ai.conversation.id",
+                  "value": {
+                    "stringValue": "conv-acme-0001"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "gen_ai.input.messages",
+                  "value": {
+                    "stringValue": "[{\"role\": \"system\", \"parts\": [{\"type\": \"text\", \"content\": \"You are the Acme Telecom sales assistant.\"}]}, {\"role\": \"user\", \"parts\": [{\"type\": \"text\", \"content\": \"Hi, do you have home internet at 3 Orchard Way, Acmeville?\"}]}, {\"role\": \"assistant\", \"parts\": [{\"type\": \"tool_call\", \"id\": \"call_cov_1\", \"name\": \"coverage.check\", \"arguments\": {\"address\": \"3 Orchard Way, Acmeville\"}}]}, {\"role\": \"tool\", \"parts\": [{\"type\": \"tool_call_response\", \"id\": \"call_cov_1\", \"response\": {\"found\": true, \"address_id\": \"addr-102\", \"fiber_mbps\": 300, \"five_g\": true}}]}]"
+                  }
+                },
+                {
+                  "key": "gen_ai.output.messages",
+                  "value": {
+                    "stringValue": "[{\"role\": \"assistant\", \"parts\": [{\"type\": \"text\", \"content\": \"Yes: Acme Fiber 300 is available at 3 Orchard Way. Do you want the plan details?\"}], \"finish_reason\": \"stop\"}]"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.input_tokens",
+                  "value": {
+                    "intValue": "520"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.output_tokens",
+                  "value": {
+                    "intValue": "40"
+                  }
+                }
+              ],
+              "parentSpanId": "a100000000000001"
+            },
+            {
+              "traceId": "5a0000000000000000000000000000a2",
+              "spanId": "a200000000000001",
+              "name": "invoke_agent acme-sales",
+              "kind": 1,
+              "startTimeUnixNano": "1772445670000000000",
+              "endTimeUnixNano": "1772445671600000000",
+              "attributes": [
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "invoke_agent"
+                  }
+                },
+                {
+                  "key": "gen_ai.agent.name",
+                  "value": {
+                    "stringValue": "acme-sales"
+                  }
+                },
+                {
+                  "key": "gen_ai.conversation.id",
+                  "value": {
+                    "stringValue": "conv-acme-0001"
+                  }
+                }
+              ]
+            },
+            {
+              "traceId": "5a0000000000000000000000000000a2",
+              "spanId": "a200000000000002",
+              "name": "chat example-model-1",
+              "kind": 3,
+              "startTimeUnixNano": "1772445670050000000",
+              "endTimeUnixNano": "1772445671500000000",
+              "attributes": [
+                {
+                  "key": "gen_ai.provider.name",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "example-model-1"
+                  }
+                },
+                {
+                  "key": "gen_ai.response.model",
+                  "value": {
+                    "stringValue": "example-model-1-0301"
+                  }
+                },
+                {
+                  "key": "gen_ai.conversation.id",
+                  "value": {
+                    "stringValue": "conv-acme-0001"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "gen_ai.input.messages",
+                  "value": {
+                    "stringValue": "[{\"role\": \"system\", \"parts\": [{\"type\": \"text\", \"content\": \"You are the Acme Telecom sales assistant.\"}]}, {\"role\": \"user\", \"parts\": [{\"type\": \"text\", \"content\": \"Hi, do you have home internet at 3 Orchard Way, Acmeville?\"}]}, {\"role\": \"assistant\", \"parts\": [{\"type\": \"text\", \"content\": \"Yes: Acme Fiber 300 is available at 3 Orchard Way. Do you want the plan details?\"}]}, {\"role\": \"user\", \"parts\": [{\"type\": \"text\", \"content\": \"Yes please, how much is it per month?\"}]}]"
+                  }
+                },
+                {
+                  "key": "gen_ai.output.messages",
+                  "value": {
+                    "stringValue": "[{\"role\": \"assistant\", \"parts\": [{\"type\": \"text\", \"content\": \"Acme Fiber 300 costs $45 a month. Shall I set up the order?\"}], \"finish_reason\": \"stop\"}]"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.input_tokens",
+                  "value": {
+                    "intValue": "560"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.output_tokens",
+                  "value": {
+                    "intValue": "18"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.cost",
+                  "value": {
+                    "doubleValue": 0.00141
+                  }
+                }
+              ],
+              "parentSpanId": "a200000000000001"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
