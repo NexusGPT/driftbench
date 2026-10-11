@@ -129,8 +129,14 @@ function pathItems(): BankItem[] {
   }
   items.push(
     item('paths.new-request-full.end-state', 2, C.relations, (generated) => {
+      const path = generated.hidden.paths.find((entry) => entry.id === 'new-request-full');
+      const last = path ? `${path.stages.at(-2)}-to-${path.stages.at(-1)}` : '';
+      // A spec walks to the end when it takes the path's last move; a deviation whose recovery moves the
+      // conversation elsewhere ends the walk early, and such a spec claims no end state.
       const specs = walking(generated, 'new-request-full').filter(
-        (spec) => !probes(spec).includes('D8_tool_failure'),
+        (spec) =>
+          !probes(spec).includes('D8_tool_failure') &&
+          spec.blocks.some((block) => block.id.endsWith(`-${last}`)),
       );
       const without = specs.filter((spec) => spec.end_state === undefined);
       return verdict(
