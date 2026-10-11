@@ -8,6 +8,7 @@ export {
   type ClaudeCodeLiveOptions,
   claudeCodeLiveAdapter,
   DEFAULT_ESTATE_FILES,
+  RUNTIME_FLAGS,
 } from './adapter';
 export {
   applySessionOps,
@@ -23,6 +24,8 @@ export {
   sessionFileText,
 } from './states';
 export {
+  type HookRow,
+  hookDecisions,
   isOverloaded,
   type NormaliseInput,
   normaliseStream,

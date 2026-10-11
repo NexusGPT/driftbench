@@ -1,7 +1,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { cp, mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   type AdapterCapabilities,
@@ -33,7 +33,7 @@ import {
   type StateLibrary,
   sessionFileText,
 } from './states';
-import { isOverloaded, normaliseStream, type ParsedStream, parseStream } from './stream';
+import { hookDecisions, isOverloaded, normaliseStream, type ParsedStream, parseStream } from './stream';
 
 export const CLAUDE_CODE_LIVE_VERSION = '0.1.0';
 
@@ -42,8 +42,12 @@ export const CLAUDE_CODE_LIVE_VERSION = '0.1.0';
  * seeded workspace, one process per turn, and maps the streamed transcript into one Observed per turn with
  * the session adapter.
  *
- * The command line is the public headless shape, NOT verified against a live run yet:
- *   `<command> [args] -p <ask> --output-format stream-json --verbose [--resume <session id>]`
+ * The command line, checked against the runtime (2.1.296) in the first real run, 2026-10-12:
+ *   `<command> [args] [--allowed-tools ...] -p <ask> --output-format stream-json --verbose
+ *    --include-hook-events --setting-sources project,local --strict-mcp-config [--resume <session id>]`
+ * `--setting-sources project,local` keeps the evaluator's own user settings, hooks and user CLAUDE.md out
+ * of the run (only the copy's CLAUDE.md loaded); `--strict-mcp-config` keeps the evaluator's MCP servers out.
+ * Resuming keeps the session id and appends to the same session file.
  * The ask is the turn's user message and nothing else: no spec id, test type or atom reaches the agent, in
  * the prompt or anywhere in its folder (the estate copy holds the estate's own files only). A queued message
  * switches the turn to `--input-format stream-json`, with the ask and the queued messages on the input.
@@ -51,12 +55,18 @@ export const CLAUDE_CODE_LIVE_VERSION = '0.1.0';
  * Turn after turn the run resumes the session the runtime named. The session state and the estate
  * deviations are operations on what the runtime finds (see `states.ts`), applied before the turn.
  *
- * What the estate's own hooks write is read when it is there, from paths the process receives in its
- * environment, outside the project folder: `HOOK_DECISION_LOG` (one row `{ at, event, check, verdict }` per
- * guard verdict) and `STEP_FEED` (one row `{ at, step }` per stage). The rows a turn adds become its guards
- * and stages. The runtime keeps its own files under `CLAUDE_CONFIG_DIR`, a folder of the run, so a real run
- * needs its credentials in `env`; nothing of the evaluator's environment passes but the sandbox's few
- * variables.
+ * Guards come from the stream's hook events (`hook_response`, `permission_denied`; see `hookDecisions`),
+ * named by the copy's settings, and from what the estate's own hooks write when they write it, at paths the
+ * process receives in its environment, outside the project folder: `HOOK_DECISION_LOG` (one row
+ * `{ at, event, check, verdict }` per verdict) and `STEP_FEED` (one row `{ at, step }` per stage). The rows a
+ * turn adds become its guards and stages.
+ *
+ * The login: with `config: 'host'` (the default) the runtime uses the evaluator's config folder
+ * (`CLAUDE_CONFIG_DIR` of `env`, else `~/.claude`), where a subscription login lives; a run with its own
+ * config folder is not logged in (seen in the first real run). Session files go to
+ * `<config>/projects/<the folder, non-alphanumerics replaced by ->/<id>.jsonl`; the runner removes that
+ * project folder at close, as it is the sandbox's own. `config: 'isolated'` gives the run a config folder of
+ * its own, for stand-ins and for runs whose credentials come in `env`.
  *
  * Cost comes from the stream's result record (`total_cost_usd`), tokens from it or from the messages.
  * An overloaded or rate-limited run is retried up to `retries.max` times; past that the turn fails as a
@@ -95,7 +105,22 @@ export type ClaudeCodeLiveOptions = {
   keep?: boolean;
   /** The parent folder of the run's state folder. Default: the system temp folder. */
   stateDir?: string;
+  /** Whose config folder the runtime uses: the evaluator's (default, where the login lives) or the run's own. */
+  config?: 'host' | 'isolated';
+  /**
+   * Passes the tools the copy's settings allow, and Skill, as `--allowed-tools`. A headless run in a folder
+   * never trusted interactively ignores the estate's allow list (seen in the first real run); this restores it.
+   */
+  trustEstate?: boolean;
 };
+
+/** The flags the runner adds after the headless shape. */
+export const RUNTIME_FLAGS = [
+  '--include-hook-events',
+  '--setting-sources',
+  'project,local',
+  '--strict-mcp-config',
+] as const;
 
 export const DEFAULT_ESTATE_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'] as const;
 
@@ -104,6 +129,8 @@ type LiveState = {
   /** Outside the project folder: the runtime's config folder, the hook logs, the helper registry. */
   stateFolder: string;
   configDir: string;
+  /** The copy's `.claude/settings.json`, parsed, to name the hooks of the stream. */
+  settings: unknown;
   decisions: string;
   steps: string;
   helpers: string;
@@ -159,7 +186,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         const parent = options.stateDir ?? tmpdir();
         await mkdir(parent, { recursive: true });
         stateFolder = await mkdtemp(join(parent, 'live-state-'));
-        await mkdir(join(stateFolder, 'config'), { recursive: true });
+        if (options.config === 'isolated') await mkdir(join(stateFolder, 'config'), { recursive: true });
       } catch (error) {
         await sandbox.destroy().catch(() => undefined);
         if (stateFolder !== undefined) await rm(stateFolder, { recursive: true, force: true });
@@ -168,7 +195,11 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       const state: LiveState = {
         sandbox,
         stateFolder,
-        configDir: join(stateFolder, 'config'),
+        configDir:
+          options.config === 'isolated'
+            ? join(stateFolder, 'config')
+            : (options.env?.CLAUDE_CONFIG_DIR ?? join(options.env?.HOME ?? homedir(), '.claude')),
+        settings: await readJson(join(folderOf(sandbox), '.claude', 'settings.json')).catch(() => undefined),
         decisions: join(stateFolder, 'decisions.jsonl'),
         steps: join(stateFolder, 'steps.jsonl'),
         helpers: join(stateFolder, 'helpers.json'),
@@ -221,14 +252,17 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       const decisionsBefore = await lineCount(state.decisions);
       const stepsBefore = await lineCount(state.steps);
       const queued = ops.flatMap((op) => (op.op === 'queue' ? [op.message] : []));
+      const allowed = options.trustEstate ? allowedTools(state.settings) : [];
       const words = [
         options.command,
         ...(options.args ?? []),
+        ...(allowed.length > 0 ? ['--allowed-tools', ...allowed] : []),
         '-p',
         ...(queued.length > 0 ? ['--input-format', 'stream-json'] : [ask]),
         '--output-format',
         'stream-json',
         '--verbose',
+        ...RUNTIME_FLAGS,
         ...(state.resumeId === undefined ? [] : ['--resume', state.resumeId]),
       ];
       const commandLine = shellLine(words);
@@ -241,7 +275,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
           : '';
       const env: Record<string, string> = {
         ...options.env,
-        CLAUDE_CONFIG_DIR: state.configDir,
+        ...(options.config === 'isolated' ? { CLAUDE_CONFIG_DIR: state.configDir } : {}),
         HOOK_DECISION_LOG: state.decisions,
         STEP_FEED: state.steps,
         HELPER_REGISTRY: state.helpers,
@@ -286,7 +320,12 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         .sort()
         .map((path) => ({ path, ...after.files[path] }) as ArtifactRef);
 
-      const decisions = await linesAfter(state.decisions, decisionsBefore);
+      const logged = await linesAfter(state.decisions, decisionsBefore);
+      const hooked = hookDecisions(parsed, state.settings, startedAt).map((row) => JSON.stringify(row));
+      const decisions =
+        logged === undefined && hooked.length === 0
+          ? undefined
+          : [logged ?? '', ...hooked].filter((text) => text !== '').join('\n');
       const steps = await linesAfter(state.steps, stepsBefore);
       const transcript = normaliseStream({ parsed, ask, startedAt, cwd, queued });
       const mapped = mapSession({
@@ -368,8 +407,15 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
           // Already gone.
         }
       }
+      const project = join(state.configDir, 'projects', projectFolderName(state.sandbox.root));
       await state.sandbox.destroy();
-      if (!options.keep) await rm(state.stateFolder, { recursive: true, force: true });
+      if (options.keep) return;
+      await rm(state.stateFolder, { recursive: true, force: true });
+      // The runtime's project folder of this sandbox: its name holds the sandbox's own unique folder name.
+      const own = state.sandbox.root.split('/').at(-1) ?? '';
+      if (options.config !== 'isolated' && own.length >= 8 && project.endsWith(projectFolderName(own))) {
+        await rm(project, { recursive: true, force: true });
+      }
     },
   };
 
@@ -545,4 +591,13 @@ function sleep(ms: number): Promise<void> {
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+/** The tools the settings allow, and Skill, for `--allowed-tools`. */
+function allowedTools(settings: unknown): string[] {
+  const permissions = isRecord(settings) && isRecord(settings.permissions) ? settings.permissions : {};
+  const allow = Array.isArray(permissions.allow)
+    ? permissions.allow.filter((entry): entry is string => typeof entry === 'string')
+    : [];
+  return allow.includes('Skill') ? allow : [...allow, 'Skill'];
 }

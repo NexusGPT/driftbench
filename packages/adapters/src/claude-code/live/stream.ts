@@ -151,6 +151,11 @@ export function normaliseStream(input: NormaliseInput): string[] {
     const type = stringField(record, 'type');
     const base: Record<string, unknown> = { ...common, ...record };
     delete base.session_id;
+    // The stream names the structured tool result `tool_use_result`; the session file `toolUseResult`.
+    if (base.tool_use_result !== undefined && base.toolUseResult === undefined) {
+      base.toolUseResult = base.tool_use_result;
+      delete base.tool_use_result;
+    }
     const helper = typeof record.parent_tool_use_id === 'string' && record.parent_tool_use_id !== '';
     if (helper) base.isSidechain = true;
     if (type === 'system' || type === 'result') {
@@ -176,4 +181,78 @@ function typedText(record: Record<string, unknown>): boolean {
 
 function count(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+/** One guard row, in the shape of a decision-log row. */
+export type HookRow = { at: string; event: string; check: string; verdict: string };
+
+/**
+ * Guard rows from the stream itself, seen in the first real run with `--include-hook-events`:
+ * - a `hook_response` system record (`hook_name` is `<event>:<matcher>` or `<event>`, `exit_code`, `stdout`)
+ *   gives a row; the verdict is the `permissionDecision` or `decision` a JSON stdout names, else deny for
+ *   exit code 2, allow for 0 and error otherwise;
+ * - a `permission_denied` system record gives `permission:<tool>` with verdict deny.
+ * The record names no command, so the row is named by the script of the one hook the estate's settings put
+ * under that event and matcher (`block-force-push.sh`), and by `<event>:<matcher>` when the settings hold
+ * none or several. Hook records carry no time; every row takes the turn's start, so it falls in the turn.
+ */
+export function hookDecisions(parsed: ParsedStream, settings: unknown, at: string): HookRow[] {
+  const rows: HookRow[] = [];
+  for (const entry of parsed.lines) {
+    if (!entry.ok || !isRecord(entry.value)) continue;
+    const record = entry.value;
+    if (stringField(record, 'type') !== 'system') continue;
+    const subtype = stringField(record, 'subtype');
+    if (subtype === 'permission_denied') {
+      const tool = stringField(record, 'tool_name') ?? 'unknown';
+      rows.push({ at, event: 'PermissionRequest', check: `permission:${tool}`, verdict: 'deny' });
+      continue;
+    }
+    if (subtype !== 'hook_response') continue;
+    const name = stringField(record, 'hook_name') ?? stringField(record, 'hook_event') ?? 'hook';
+    const event = stringField(record, 'hook_event') ?? name.split(':')[0] ?? name;
+    const matcher = name.includes(':') ? name.slice(name.indexOf(':') + 1) : undefined;
+    rows.push({ at, event, check: scriptOf(settings, event, matcher) ?? name, verdict: verdictOf(record) });
+  }
+  return rows;
+}
+
+function verdictOf(record: Record<string, unknown>): string {
+  const stdout = stringField(record, 'stdout') ?? '';
+  if (stdout.trim().startsWith('{')) {
+    try {
+      const output: unknown = JSON.parse(stdout);
+      if (isRecord(output)) {
+        const specific = isRecord(output.hookSpecificOutput) ? output.hookSpecificOutput : {};
+        const decision = stringField(specific, 'permissionDecision') ?? stringField(output, 'decision');
+        if (decision !== undefined) return decision === 'block' ? 'deny' : decision;
+      }
+    } catch {
+      // Not JSON after all: the exit code decides.
+    }
+  }
+  const code = record.exit_code;
+  if (code === 2) return 'deny';
+  if (code === 0) return 'allow';
+  return 'error';
+}
+
+/** The script name of the one command hook the settings put under the event and matcher. */
+function scriptOf(settings: unknown, event: string, matcher: string | undefined): string | undefined {
+  const hooks = isRecord(settings) && isRecord(settings.hooks) ? settings.hooks : undefined;
+  const groups = hooks?.[event];
+  if (!Array.isArray(groups)) return undefined;
+  const commands: string[] = [];
+  for (const group of groups) {
+    if (!isRecord(group)) continue;
+    const own = typeof group.matcher === 'string' && group.matcher !== '' ? group.matcher : undefined;
+    if (own !== matcher) continue;
+    for (const hook of Array.isArray(group.hooks) ? group.hooks : []) {
+      if (isRecord(hook) && typeof hook.command === 'string') commands.push(hook.command);
+    }
+  }
+  if (commands.length !== 1) return undefined;
+  const words = (commands[0] ?? '').split(/\s+/).map((word) => word.replace(/["']/g, ''));
+  const script = [...words].reverse().find((word) => /\.[A-Za-z0-9]+$/.test(word)) ?? words.at(-1);
+  return script?.split('/').at(-1);
 }
