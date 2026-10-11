@@ -142,17 +142,17 @@ blocks:
 
 The task starts in a workspace that holds two CSV files. The first step expects the `xlsx` skill once, code that runs and exits with 0, no denial from the `workspace_boundary` guard, a workbook with one sheet per region, and no other file touched. A judged criterion checks that the reply states the totals the file holds. The second step changes the same workbook and touches nothing else.
 
-Both examples pass `driftbench spec lint --strict` today. A test in `tools/docs` runs them through the loader on every change. Seven complete specs, six conversations and one task, run against a deterministic example agent in [`examples/acme`](../../examples/acme/README.md).
+Both examples pass `driftbench spec lint --strict`. A test in `tools/docs` runs them through the loader on every change. Seven complete specs, six conversations and one task, run against a deterministic example agent in [`examples/acme`](../../examples/acme/README.md).
 
 ## What a block records
 
-The runner records each block it runs. The record shapes are defined today in `packages/core/src/schema/run.ts`. The runner that fills them is planned, phase 1.
+The runner records each block it runs, in the shapes of `packages/core/src/schema/run.ts`. See [running](../running.md#the-run-record).
 
-* Observed: the segments in order (text, tool call, tool result, card), the customer-visible text, the tool calls with input, output and latency, the runtime trace (skills loaded, guards fired with their verdicts, stages reached), the artifacts, the workspace diff, the commands run with their exit codes, the cost and the latency.
-* Verdicts: one per check and one per judged criterion, each with its evidence. See [judges](judges.md).
-* Drift: the drift classes of a failing block. See [drift](drift.md).
-* Pass: a block passes when every gating verdict passes and no machine check fails.
+* Observed: the segments in order (text, tool call, tool result, card), the customer-visible text, the tool calls with input, output and latency, the runtime trace (skills loaded, guards fired with their verdicts, stages reached), the artifacts, the workspace diff, the commands run with their exit codes, the sandbox, the cost and the latency.
+* Verdicts: one or more per check, each with its evidence. Judged criteria add theirs when the judges ship, phase 2. See [checks](../reference/checks.md) and [judges](judges.md).
+* Drift: the drift classes its failing verdicts give. See [drift](drift.md).
+* Pass: a block passes when every gating verdict passes. A gating verdict that is inconclusive fails the block; a verdict that does not gate never does.
 
 ## A spec is checked before it runs
 
-`driftbench spec validate` and `driftbench spec lint` work today. They check the schema, the regular expressions, the criterion references, the stage names against `stages`, the counts and the perturbation positions. See [CLI](../reference/cli.md).
+`driftbench spec validate` and `driftbench spec lint` check the schema, the regular expressions, the criterion references, the stage names against `stages`, the counts and the perturbation positions. See [CLI](../reference/cli.md).

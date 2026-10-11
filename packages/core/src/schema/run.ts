@@ -224,7 +224,16 @@ export const JudgeConfig = z.strictObject({
 /** A campaign pins spec versions, targets, modes and repeats. A re-run is a new campaign. */
 export const Campaign = z.strictObject({
   campaignId: z.string().min(1),
-  specs: z.array(z.strictObject({ id: z.string().min(1), hash: z.string().min(1) })).min(1),
+  specs: z
+    .array(
+      z.strictObject({
+        id: z.string().min(1),
+        hash: z.string().min(1),
+        /** The one target this spec runs on. Without it, the spec runs on every target of the campaign. */
+        target: TargetRef.optional(),
+      }),
+    )
+    .min(1),
   targets: z.array(TargetRef).min(1),
   modes: z.array(RunMode).min(1),
   repeats: z.strictObject({

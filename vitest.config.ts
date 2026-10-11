@@ -15,6 +15,7 @@ const packages = [
   'artifacts',
   'space',
   'generate',
+  'estate',
 ];
 
 export default defineConfig({

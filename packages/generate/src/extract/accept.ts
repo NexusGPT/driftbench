@@ -21,7 +21,7 @@ import {
   type ProposalValue,
 } from './proposal';
 import { foldQuote, type QuoteIndex, shortQuote } from './quote';
-import { SINGLE_KINDS } from './space';
+import { proposeRole, SINGLE_KINDS } from './space';
 
 /** The entries gathered so far: the code pre-pass first, then each section's accepted entries. */
 export type Draft = {
@@ -125,12 +125,22 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
         continue;
       }
       known.add(value.data.id);
-      values.push({ id: value.data.id, title: value.data.title, evidence: found, approved: false });
+      values.push({ id: value.data.id, title: value.data.title, evidence: found, produced_by: 'model' });
     }
     if (values.length === 0) continue;
     result.accepted += values.length;
     if (existing) existing.values.push(...values);
-    else draft.dimensions.push({ id: dimension.id, title: dimension.title, kind: dimension.kind, values });
+    else {
+      draft.dimensions.push({
+        id: dimension.id,
+        title: dimension.title,
+        kind: dimension.kind,
+        role: proposeRole(draft.dimensions, dimension.kind, false),
+        produced_by: 'model',
+        approved: false,
+        values,
+      });
+    }
   }
 
   const forbidden = new Set(draft.constraints.map((constraint) => combinationKey(constraint.forbid)));
@@ -172,6 +182,7 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
       forbid: constraint.forbid,
       reason: constraint.reason,
       evidence: found,
+      produced_by: 'model',
       approved: false,
     });
     result.accepted++;
@@ -214,6 +225,7 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
       text: phrase.text,
       lang: phrase.lang,
       ...(found ? { evidence: found } : {}),
+      produced_by: 'model',
       approved: false,
     };
     const key = phraseKey(entry);

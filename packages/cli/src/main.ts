@@ -1,8 +1,10 @@
 import { Command, CommanderError } from 'commander';
 import { registerCampaignCommands } from './commands/campaign';
+import { registerEstateCommand } from './commands/estate';
 import { registerExtractCommand } from './commands/extract';
 import { registerGenerateCommand } from './commands/generate';
 import { registerIntakeCommand } from './commands/intake';
+import { registerReplayCommand } from './commands/replay';
 import { registerSmokeCommand } from './commands/smoke';
 import { registerSpaceCommands } from './commands/space';
 import { registerSpecCommands } from './commands/spec';
@@ -28,6 +30,8 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerExtractCommand(program, io, setExit);
   registerGenerateCommand(program, io, setExit);
   registerIntakeCommand(program, io, setExit);
+  registerEstateCommand(program, io, setExit);
+  registerReplayCommand(program, io, setExit);
 
   try {
     await program.parseAsync(argv, { from: 'user' });

@@ -101,6 +101,7 @@ function statements(db: DatabaseSync) {
     selectSpec: db.prepare('SELECT path, yaml FROM specs WHERE id = ? AND hash = ?'),
     insertCampaign: db.prepare('INSERT INTO campaigns (id, json, created_at) VALUES (?, ?, ?)'),
     selectCampaign: db.prepare('SELECT id, json FROM campaigns WHERE id = ?'),
+    selectCampaigns: db.prepare('SELECT id, json FROM campaigns'),
     deleteBlocks: db.prepare('DELETE FROM blocks WHERE campaign_id = ? AND run_id = ?'),
     deleteRun: db.prepare('DELETE FROM runs WHERE campaign_id = ? AND run_id = ?'),
     insertRun: db.prepare(
@@ -201,6 +202,16 @@ export class SqliteStore implements Store {
     this.live();
     const row = this.sql.selectCampaign.get(campaignId);
     return row === undefined ? undefined : readCampaign(row);
+  }
+
+  /**
+   * Every campaign, newest first by the `createdAt` of its record, then by id. Times compare as dates, so
+   * `...55.649Z` is later than `...55Z`; a time that is not a date comes after the dates. The row's own
+   * insert time plays no part: an imported campaign keeps the time it was made.
+   */
+  async listCampaigns(): Promise<Campaign[]> {
+    this.live();
+    return this.sql.selectCampaigns.all().map(readCampaign).sort(newestFirst);
   }
 
   /** Stores a run under a campaign. A run put again under the same campaign and run id replaces the first. */
@@ -494,6 +505,26 @@ function readCampaign(row: Row): Campaign {
   }
   if (parsed.data.campaignId !== row.id) throw corrupt(`${where} holds campaign ${parsed.data.campaignId}`);
   return parsed.data;
+}
+
+/**
+ * Newest `createdAt` first, read as a date. A time that is not a date comes after every one that is, last
+ * text first, so the order stays total. Equal times sort by campaign id.
+ */
+function newestFirst(a: Campaign, b: Campaign): number {
+  const left = Date.parse(a.createdAt);
+  const right = Date.parse(b.createdAt);
+  let byTime: number;
+  if (!Number.isNaN(left) && !Number.isNaN(right)) byTime = right - left;
+  else if (Number.isNaN(left) !== Number.isNaN(right)) byTime = Number.isNaN(left) ? 1 : -1;
+  else byTime = textOrder(b.createdAt, a.createdAt);
+  return byTime !== 0 ? byTime : textOrder(a.campaignId, b.campaignId);
+}
+
+/** Code-unit order, the same on every machine and locale. */
+function textOrder(a: string, b: string): number {
+  if (a < b) return -1;
+  return a > b ? 1 : 0;
 }
 
 function corrupt(message: string): StoreError {

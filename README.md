@@ -1,7 +1,10 @@
 <h1 align="center">driftbench. Every exchange is a unit test.</h1>
 
 <p align="center">
-  <img src=".github/readme/hero.jpg" alt="driftbench, an agent evaluation framework by Nexus. Every number carries an interval. Drift and recovery are measured, block by block. On the right, a perturbed run: a goal shift lands at block three, the observed path leaves the expected one and rejoins it two blocks later." width="100%" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hero-dark.webp">
+    <img src=".github/readme/hero-light.webp" alt="driftbench, an agent evaluation framework by Nexus. Every exchange is a unit test. Every number carries an interval; drift and recovery are measured, block by block. Beside the title, driftbench drawn as one machine, an indexing test line on a bench, with eight callouts. Test generation: a hopper fed from a prompt, a spec or past conversations. Validity gate: invalid blocks never run. Agent under test: chat or code, through one adapter. Machine checks: nine pins, and a fail is final. Judge council: system 1 and system 2 balances that earned their criteria. Drift and recovery: a chart pen leaves the line, then comes back. Pass rate and interval: a dial reads 0.38, between 0.14 and 0.69. CI gate: an arm that lifts only when the candidate is noninferior." width="100%" />
+  </picture>
 </p>
 
 <p align="center">
@@ -29,7 +32,7 @@ driftbench evaluates AI agents one exchange at a time. Each exchange is a **bloc
 It targets conversational agents and code interpreter agents, the ones that write code, use a workspace and load skills. Both run through the same blocks and the same checks. Any agent plugs in through an adapter. Open source, Apache 2.0, written in TypeScript.
 
 > [!NOTE]
-> **Not released yet.** Phase 0 is in progress: the spec format, the validator, the coverage tool and a synthetic Acme Telecom example. The runner, judges and statistics on this page are designed and planned. The [roadmap](#roadmap) shows what each phase delivers.
+> **Not released yet.** Phase 0 is done: the spec format, the validator, the coverage tool and the synthetic Acme Telecom example. Phase 1 is mostly built: the runner, the scripted user, campaigns (`campaign plan|run|status|resume`), `smoke`, the function, HTTP, Nexus and process adapters, the sandbox, the SQLite store, the artifact readers and every machine check. Still open in Phase 1: the Acme code agent task end to end. The statistics library is built (intervals, paired tests, variance components); the scorecard that prints them comes next, with judges and perturbation. The [roadmap](#roadmap) shows what each phase delivers.
 
 ---
 
@@ -95,7 +98,37 @@ blocks:
       criteria: [no_invented_data@gating, one_question_per_turn]
 ```
 
-Until the Phase 1 runner lands, `pnpm vitest run examples/acme` drives every Acme conversation through the agent and checks tools, text, stages, guards, the end state and the recovery after each deviation.
+Run every Acme spec on the Acme agent, free running, twice each:
+
+```bash
+pnpm driftbench campaign run examples/acme/specs --target function:acme --mode F --repeats 2
+```
+
+It prints a line per cell and a summary. From a run in this repo, the first lines, one cell and the last two lines:
+
+```
+Note: acme-price-sheet names the process adapter; --target runs it on function:acme.
+Campaign c-36ef44014561: 14 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks
+14 cells: 12 pass, 2 fail, 0 failed. Spent $0.00.
+The runs are not kept: pass --store <file> to keep them.
+```
+
+The two failing cells are the price sheet task: it is written for a code agent, and `function:acme` is the chat agent. Running it end to end on a code agent is the open part of Phase 1.
+
+Check that the agent answers the same way every time:
+
+```bash
+pnpm driftbench smoke examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme
+```
+
+```
+Smoke: acme-plan-upgrade on function:acme, 3 runs, cache off.
+  run 1  completed  5 blocks  transcript 9ec7c3e69cd4
+  run 2  completed  5 blocks  transcript 9ec7c3e69cd4
+  run 3  completed  5 blocks  transcript 9ec7c3e69cd4
+✓ The transcripts are identical.
+```
 
 ---
 
@@ -117,18 +150,19 @@ Four areas. Each bullet names the phase that delivers it.
 
 ## Things you can do with driftbench
 
-1. **Write a golden as blocks** and validate it with `driftbench spec validate`. <sub>Phase&nbsp;0&nbsp;·&nbsp;in&nbsp;progress</sub>
-2. **Run one golden three ways** on the same agent. Teacher forced against free running gives the compounding index. <sub>Phases&nbsp;1&nbsp;and&nbsp;3&nbsp;·&nbsp;planned</sub>
+1. **Write a golden as blocks** and validate it with `driftbench spec validate`. <sub>Phase&nbsp;0&nbsp;·&nbsp;done</sub>
+2. **Run one golden three ways** on the same agent. Teacher forced against free running gives the compounding index. <sub>Phases&nbsp;1&nbsp;and&nbsp;3&nbsp;·&nbsp;free&nbsp;running&nbsp;built,&nbsp;the&nbsp;other&nbsp;two&nbsp;planned</sub>
 3. **Inject a goal shift at block 4**, or a language switch, or an instruction hidden in data, and count the blocks the agent needs to come back. <sub>Phase&nbsp;3&nbsp;·&nbsp;planned</sub>
 4. **Let a cheap judge own a criterion** once it matches your hand labels as well as a chat model does. <sub>Phase&nbsp;2&nbsp;·&nbsp;planned</sub>
 5. **Gate a prompt change in CI**: noninferiority against the baseline, with a margin you set. <sub>Phase&nbsp;4&nbsp;·&nbsp;planned</sub>
-6. **Check a code interpreter agent on what it leaves behind**: the cells of a spreadsheet, the slides of a deck, the files it touched. <sub>Phase&nbsp;1&nbsp;·&nbsp;planned</sub>
+6. **Check a code interpreter agent on what it leaves behind**: the cells of a spreadsheet, the slides of a deck, the files it touched. <sub>Phase&nbsp;1&nbsp;·&nbsp;in&nbsp;progress</sub>
+7. **Let a person approve a map of what varies**, then count how much of it the specs cover. <sub>Phase&nbsp;G&nbsp;·&nbsp;in&nbsp;progress</sub>
 
 ---
 
 ## How it works
 
-This section describes the design. Phase 0 builds the spec format now. The runner, checks, judges and statistics arrive in phases 1 to 4. The [docs](docs/index.md) hold the detail: concepts, the spec reference, the CLI and the adapters.
+This section describes the design. The spec format, the runner, the adapters, the store and every machine check run today. The statistics library is built. Judges, perturbation and the scorecard are designed and come in phases 2 to 4; test generation is in progress. The [docs](docs/index.md) hold the detail: concepts, the spec reference, the CLI and the adapters.
 
 ### A block is a unit test
 
@@ -234,14 +268,39 @@ One run proves nothing. driftbench treats evaluation as a statistics problem.
 - **Paired comparisons** on the same goldens: McNemar, Wilcoxon, and a Benjamini Hochberg correction across criteria before any criterion is called a regression.
 - **Power first.** The minimum detectable effect is printed before a campaign spends anything.
 - **A verdict CI can gate on.** The candidate is noninferior when the upper bound of every gating regression stays under your margin.
+- **Where results vary.** Planned: the spread is split by source (the agent's own run to run randomness, the wording, the persona, the conversation and the judge) with a share for each. The run to run spread sets a noise floor, and a difference between two versions smaller than the floor is read as noise.
 
 In the docs: [Statistics](docs/concepts/statistics.md)
+
+### Generating tests
+
+The aim: about ten goldens that cover every kind of block, instead of two hundred conversations picked by hand. driftbench builds them from what the agent is specified to do, not from what a model imagines. Phase G, in progress.
+
+- **A map a person approves.** A model reads the prompt, the behaviour inventory and the tool schemas and proposes what varies: stages, rules, tools and their arguments, allowed values, personas, channels, deviations, and the phrasings a user may use. Every entry quotes its source, and nothing counts until a person approves it. `driftbench extract` writes the proposal; `driftbench extract approve` lists what is still unapproved. Built.
+- **Code writes the blocks.** From the approved map, code, not a model, enumerates the blocks and their combinations: paths through the stages, pairs and triples of values under the constraints, boundary values of tool arguments, one probe per deviation class. No block text is free model output. Planned.
+- **Every test passes a validity gate.** It can fail: a planted fault fails it and a reference agent passes it. It is not leaked: its expected values are absent from its own stimulus and from the prompt. It is not self affirming: a constant reply cannot pass it, and a one slot change to the When changes the Then. Rejects are counted per check. Planned.
+- **Coverage and completeness, with intervals.** `driftbench space coverage` counts the cells of the map the specs cover and `driftbench space complete` prints how complete they are. Rates come from a fixed sample drawn before any result is read, never from the search that hunts failures. Coverage counting is built; the fixed sample is planned.
+- **Spread by source.** A pilot measures how much of the spread comes from the agent's randomness, the wording, the persona, the conversation and the judge, and sets the noise floor the statistics read against. Planned.
+
+In the repo: [the Acme map proposal](examples/acme/map/README.md)
+
+## The anatomy of driftbench
+
+<a href=".github/readme/anatomy-light.webp">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/anatomy-dark.webp">
+    <img alt="driftbench drawn as one machine, an indexing test line on a bench. On the left, a hopper takes generated blocks from three inlets on its lid, a stack of prompt cards, a specification binder and a reel of past conversations, with a coverage pegboard on its magazine and a validity gate that sends rejected blocks down a chute into a tray. Each block is a carriage carrying its Given as a state capsule or a workspace of files, its When as a card, and its Then as a plate of nine test pads. The carriages index along a track through a deviation punch whose lamp is lit, the agent cell with a conversation adapter and a code interpreter adapter with its workspace drawer, a gantry of nine check pins, and a council of six judge balances with a fixture pair, then into a store. A mode lever at the front, beside a rack of golden Givens, sets teacher forced, free running or perturbed. On the console at the back, a chart pen traces drift and recovery, a dial shows a pass rate of 0.38 with its interval from 0.14 to 0.69 and the gate threshold, counters show 3 of 8 runs passed, a pass^3 of 0.02 and 7 of 8 recovered, and the CI gate arm stays down until the tenth run." src=".github/readme/anatomy-light.webp" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>One block per carriage: generated blocks pass the agent, nine machine checks and the judge council, and the console turns what they leave into drift, recovery and the interval the CI gate reads.</sub></p>
+
+[Open the interactive figure (from a clone)](.github/readme/anatomy/index.html) to run the campaign in each mode and hover a part to see what it does.
 
 ---
 
 ## Integrations
 
-All planned. Every adapter must pass the same contract suite. The [adapter contract](docs/adapters/index.md) is in the docs.
+The function, HTTP, Nexus and process adapters and the SQLite store are built; everything else here is planned. Every adapter must pass the same contract suite. The [adapter contract](docs/adapters/index.md) is in the docs.
 
 **Agents:** [function](docs/adapters/function.md) · [HTTP](docs/adapters/http.md) · [Nexus](docs/adapters/nexus.md) · [a command line agent in a sandbox](docs/adapters/process.md) · OpenAI Agents · Anthropic · Google · LangGraph<br/>
 **Judges:** Jev · OpenAI Decisions API · OpenAI · Google · Anthropic · any HTTP endpoint<br/>
@@ -270,11 +329,12 @@ The [comparison page](docs/comparison.md) sets driftbench beside seven evaluatio
 
 | Phase and status | What it delivers |
 |---|---|
-| **Phase 0** · Foundations<br/>`in progress` | Monorepo and CI, a leak guard, spec schemas and loader, `spec validate`, the coverage tool, the Acme Telecom example, docs |
-| **Phase 1** · Runner, checks and store<br/>`planned` | Free running mode, scripted users, the function, HTTP, Nexus and process adapters, the sandbox, machine checks including artifacts, workspace, execution and safety, a SQLite store, cost per segment |
+| **Phase 0** · Foundations<br/>`done` | Monorepo and CI, a leak guard, spec schemas and loader, `spec validate`, the coverage tool, the Acme Telecom example, docs |
+| **Phase 1** · Runner, checks and store<br/>`in progress` | Free running mode, scripted users, the function, HTTP, Nexus and process adapters, the sandbox, machine checks including artifacts, workspace, execution and safety, a SQLite store, cost per segment |
 | **Phase 2** · Judge council<br/>`planned` | Judge clients, majority and cascade, fixture pairs, kappa, earned assignment, task artifacts judged the same way |
 | **Phase 3** · Perturbation, drift and recovery<br/>`planned` | Simulated users, ten deviation classes on conversations and on code tasks, drift classes, recovery metrics, teacher forced mode |
-| **Phase 4** · Statistics, scorecard, CI gate and runtime battery<br/>`planned` | Intervals and paired tests, the noninferiority verdict, HTML scorecard, JUnit XML, `driftbench ci`, a GitHub Action, the runtime battery |
+| **Phase 4** · Statistics, scorecard, CI gate and runtime battery<br/>`in progress` | Intervals and paired tests, the noninferiority verdict, HTML scorecard, JUnit XML, `driftbench ci`, a GitHub Action, the runtime battery |
+| **Phase G** · Test generation<br/>`in progress` | The map of what varies, proposed from the prompt and approved by a person, with coverage and completeness counted on it; then the code that enumerates blocks, the validity gate, and the pilot that measures where results vary |
 | **Release**<br/>`planned` | SDK adapters for OpenAI Agents, Anthropic, Google and LangGraph, the docs site, version 0.1.0 on npm |
 
 ---

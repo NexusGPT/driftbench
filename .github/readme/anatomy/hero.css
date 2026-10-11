@@ -1,0 +1,131 @@
+/* The README hero: the anatomy machine as the main visual, the cover's text block on the left. One picture: the
+   silk shows behind the text and dissolves into the bench's paper, so the drawing and the copy share one ground. */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+.iso-page {
+  width: auto;
+  margin: 0;
+}
+.an-hero {
+  position: relative;
+  width: 1600px;
+  height: 900px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(246, 248, 251, 0) 0%, rgba(246, 248, 251, 0) 18%, var(--anatomy-paper) 37%),
+    var(--an-silk-fallback) url("../src/silk/silkblue-1920x1080.jpg") left center / auto 100%;
+  color: var(--anatomy-strong);
+}
+.iso[data-theme="light"] .an-hero {
+  --anatomy-paper: #f6f8fb;
+  --anatomy-card: #f6f8fb;
+  --anatomy-top: #ffffff;
+  --anatomy-face: #ffffff;
+  --hero-ink: #0e1116;
+  --hero-soft: rgba(14, 17, 22, 0.68);
+}
+.iso[data-theme="dark"] .an-hero {
+  --hero-ink: #f5f3f0;
+  --hero-soft: rgba(245, 243, 240, 0.7);
+  background:
+    linear-gradient(90deg, rgba(18, 22, 30, 0) 0%, rgba(18, 22, 30, 0) 18%, var(--anatomy-paper) 37%),
+    #06122b url("../src/silk/deepblue-1920x1080.jpg") left center / auto 100%;
+}
+.hero-logo {
+  position: absolute;
+  left: 96px;
+  top: 70px;
+  width: 120px;
+}
+.iso[data-theme="light"] .hero-logo--white,
+.iso[data-theme="dark"] .hero-logo--ink {
+  display: none;
+}
+.hero-label {
+  position: absolute;
+  left: 96px;
+  bottom: 64px;
+  font: 500 15px/1 var(--anatomy-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hero-soft);
+}
+.hero-copy {
+  position: absolute;
+  left: 96px;
+  top: 214px;
+  width: 470px;
+}
+.hero-kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 500 15px/1.2 var(--anatomy-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hero-soft);
+}
+.hero-kicker::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff6600;
+}
+.hero-title {
+  margin: 24px 0 0;
+  font: 400 92px/1 var(--an-serif);
+  letter-spacing: -0.012em;
+  color: var(--hero-ink);
+}
+.hero-soft {
+  display: block;
+  margin-top: 8px;
+  font-size: 50px;
+  line-height: 1.06;
+  color: var(--hero-soft);
+}
+.hero-intro {
+  margin: 26px 0 0;
+  font: 400 21px/1.45 var(--an-sans);
+  color: var(--hero-soft);
+}
+.hero-stage {
+  position: absolute;
+  inset: 0;
+}
+.hero-stage .iso-svg {
+  width: 1600px;
+  height: 900px;
+}
+.hero-hidden {
+  display: none;
+}
+/* the spark is spent on the kicker dot here, so the punch's lamp lights in ink */
+.an-hero .an-spark[data-on] .an-spark-dot {
+  fill: var(--anatomy-hi);
+}
+.an-leader {
+  fill: none;
+  stroke: var(--anatomy-mid);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.an-pin {
+  fill: var(--anatomy-hi);
+}
+.an-pin-ring {
+  fill: none;
+  stroke: var(--anatomy-hi);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.an-callout-name {
+  font: 400 12.5px/1 var(--anatomy-mono);
+  letter-spacing: 0.06em;
+  fill: var(--hero-ink);
+}

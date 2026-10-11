@@ -1,0 +1,10 @@
+[
+  { "id": "generation", "name": "TEST GENERATION", "y": 36, "rule": [248, 378] },
+  { "id": "agent", "name": "AGENT UNDER TEST", "y": 92, "rule": [396, 534] },
+  { "id": "checks", "name": "MACHINE CHECKS", "y": 128, "rule": [494, 616] },
+  { "id": "drift", "name": "DRIFT AND RECOVERY", "y": 150, "rule": [630, 786] },
+  { "id": "interval", "name": "PASS RATE AND INTERVAL", "y": 190, "rule": [752, 940], "text": "end" },
+  { "id": "validity", "name": "VALIDITY GATE", "y": 177, "rule": [74, 202], "lead": "end", "text": "end", "inset": 10 },
+  { "id": "council", "name": "JUDGE COUNCIL", "y": 540, "rule": [510, 639], "text": "end", "inset": 10 },
+  { "id": "gate", "name": "CI GATE", "y": 506, "rule": [862, 950], "inset": 8 }
+]
