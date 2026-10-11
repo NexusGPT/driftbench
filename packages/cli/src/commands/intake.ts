@@ -547,7 +547,11 @@ export async function logsCommand(
     intentThreshold,
     clusterThreshold,
   });
-  const files = intakeFiles(intake, { name: basename(input), total: parsed.conversations.length });
+  const files = intakeFiles(intake, {
+    name: basename(input),
+    total: parsed.conversations.length,
+    replaced: parsed.replaced,
+  });
   await mkdir(out, { recursive: true, mode: 0o700 });
   await chmod(out, 0o700);
   for (const [name, content] of Object.entries(files)) {
@@ -566,6 +570,11 @@ export async function logsCommand(
   const lines = [
     `Wrote the private set to ${show(out, io)}: ${Object.keys(files).join(', ')}.`,
     `  Conversations: ${parsed.conversations.length} read, ${intake.duplicates.length} near-duplicates dropped, ${intake.kept.length} kept, ${intake.kept.filter((c) => c.failure).length} flagged as failures.`,
+    ...(parsed.replaced > 0
+      ? [
+          `  Ids, flags, channels or languages holding personal data: ${parsed.replaced}, replaced by line numbers or dropped.`,
+        ]
+      : []),
     `  Pass 1 (rules and checksums): ${total(detections.pass1)} redacted: ${list(detections.pass1)}; ${detections.fictional} of them reserved fictional data.`,
   ];
   if (second !== 'model') {

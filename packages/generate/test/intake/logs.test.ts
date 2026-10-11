@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, realpath, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
@@ -68,6 +68,7 @@ describe('parseLogs', () => {
     expect(parsed).toEqual({
       ok: true,
       conversations: [{ id: 'line-1', line: 1, turns: [{ role: 'user', text: 'hi' }], flags: [] }],
+      replaced: 0,
     });
   });
 
@@ -85,7 +86,30 @@ describe('parseLogs', () => {
     if (parsed.ok) return;
     expect(parsed.errors.map((error) => error.line)).toEqual([1, 2, 4]);
     expect(JSON.stringify(parsed.errors)).not.toContain('hidden.person');
+    expect(parsed.errors[2]?.message).toBe('id: the id of line 3 again');
     expect(parseLogs('\n')).toMatchObject({ ok: false });
+  });
+});
+
+describe('personal data in the fields around the turns', () => {
+  it('replaces an id that is an email by the line number, and drops a flag or channel holding one', () => {
+    const email = realEmail('owner.of.id');
+    const parsed = parseLogs(
+      [
+        line({ id: email, turns: [{ role: 'user', text: 'a' }], flags: ['incident', `by ${email}`] }),
+        line({ id: 'ticket-9912345', turns: [{ role: 'user', text: 'b' }], channel: email }),
+        line({ id: 'line-1', turns: [{ role: 'user', text: 'c' }] }),
+      ].join('\n'),
+    );
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(parsed.conversations.map((c) => [c.id, c.flags, c.channel])).toEqual([
+      ['line-1', ['incident'], undefined],
+      ['ticket-9912345', [], undefined],
+      ['line-3', [], undefined],
+    ]);
+    expect(parsed.replaced).toBe(3);
+    expect(JSON.stringify(parsed)).not.toContain('owner.of.id');
   });
 });
 
@@ -95,6 +119,14 @@ describe('gitWorkTreeOf', () => {
     await mkdir(join(root, 'repo', '.git'), { recursive: true });
     expect(await gitWorkTreeOf(join(root, 'repo', 'private', 'set'))).toBe(join(root, 'repo'));
     expect(await gitWorkTreeOf(join(root, 'elsewhere'))).toBeUndefined();
+  });
+
+  it('follows a symbolic link into a work tree', async () => {
+    const root = await scratch('git');
+    await mkdir(join(root, 'repo', '.git'), { recursive: true });
+    await mkdir(join(root, 'repo', 'inside'));
+    await symlink(join(root, 'repo', 'inside'), join(root, 'innocent'));
+    expect(await gitWorkTreeOf(join(root, 'innocent', 'set'))).toBe(await realpath(join(root, 'repo')));
   });
 
   it('counts a .git file, the form a linked worktree uses', async () => {
@@ -200,7 +232,13 @@ describe('intakeFiles', () => {
       'intake-report.json',
     ]);
     const report = JSON.parse(files['intake-report.json'] as string);
-    expect(report.conversations).toEqual({ read: 7, kept: 5, near_duplicates: 2, failures: 1 });
+    expect(report.conversations).toEqual({
+      read: 7,
+      fields_replaced: 0,
+      kept: 5,
+      near_duplicates: 2,
+      failures: 1,
+    });
     const turns = (files['reference-turns.jsonl'] as string)
       .trim()
       .split('\n')

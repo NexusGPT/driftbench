@@ -1,11 +1,18 @@
-import { stat } from 'node:fs/promises';
+import { realpath, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { chaoCoverage, goodTuringDiscovery, seededRandom } from '@driftbench/space';
 import { stringify as stringifyYaml } from 'yaml';
 import { z } from 'zod';
 import type { ModelPort } from '../model/port';
 import { type IntakeMap, intentDimension } from './map';
-import { type AnonymisedTurns, anonymiseTurns, type Finding, type SecondPass } from './privacy';
+import {
+  type AnonymisedTurns,
+  anonymiseTurns,
+  detectPass1,
+  detectPass2,
+  type Finding,
+  type SecondPass,
+} from './privacy';
 import { gramCosine, gramTfidf, leaderClusters } from './text';
 
 /**
@@ -48,17 +55,32 @@ export type ParsedConversation = {
 };
 
 export type ParseLogs =
-  | { ok: true; conversations: ParsedConversation[] }
+  | {
+      ok: true;
+      conversations: ParsedConversation[];
+      /** Ids, flags, channels and languages that held personal data, replaced or dropped. */
+      replaced: number;
+    }
   | { ok: false; errors: Array<{ line: number; message: string }> };
 
 /**
+ * True when a short field (an id, a flag) holds what the privacy passes would redact. A long digit run
+ * alone does not count: ticket and trace numbers are provenance, not personal data.
+ */
+function carriesPersonalData(text: string): boolean {
+  return detectPass1(text).length > 0 || detectPass2(text).some((finding) => finding.type !== 'long_number');
+}
+
+/**
  * Parses the JSONL text. An error names the line and the field, never the text of the line: the input is
- * private and an error message is printed.
+ * private and an error message is printed. An id that holds personal data (an email used as an id) becomes
+ * `line-<n>`; a flag, channel or language that does is dropped. Both are counted in `replaced`.
  */
 export function parseLogs(text: string): ParseLogs {
   const conversations: ParsedConversation[] = [];
   const errors: Array<{ line: number; message: string }> = [];
-  const ids = new Set<string>();
+  const ids = new Map<string, number>();
+  let replaced = 0;
   text.split('\n').forEach((content, index) => {
     const line = index + 1;
     if (content.trim() === '') return;
@@ -75,12 +97,22 @@ export function parseLogs(text: string): ParseLogs {
       errors.push({ line, message: `${issue?.path.map(String).join('.') || '(line)'}: ${issue?.message}` });
       return;
     }
-    const id = parsed.data.id ?? `line-${line}`;
-    if (ids.has(id)) {
-      errors.push({ line, message: `id: "${id}" appears twice` });
+    const given = parsed.data.id ?? `line-${line}`;
+    const first = ids.get(given);
+    if (first !== undefined) {
+      errors.push({ line, message: `id: the id of line ${first} again` });
       return;
     }
-    ids.add(id);
+    ids.set(given, line);
+    const keep = (value: string | undefined) => {
+      if (value === undefined || !carriesPersonalData(value)) return value;
+      replaced += 1;
+      return undefined;
+    };
+    const id = keep(given) ?? `line-${line}`;
+    const flags = (parsed.data.flags ?? []).filter((flag) => keep(flag) !== undefined);
+    const channel = keep(parsed.data.channel);
+    const lang = keep(parsed.data.lang);
     conversations.push({
       id,
       line,
@@ -88,29 +120,47 @@ export function parseLogs(text: string): ParseLogs {
         role: turn.role === 'user' ? 'user' : 'agent',
         text: turn.text,
       })),
-      flags: parsed.data.flags ?? [],
-      ...(parsed.data.channel ? { channel: parsed.data.channel } : {}),
-      ...(parsed.data.lang ? { lang: parsed.data.lang } : {}),
+      flags,
+      ...(channel ? { channel } : {}),
+      ...(lang ? { lang } : {}),
     });
   });
   if (errors.length > 0) return { ok: false, errors };
   if (conversations.length === 0)
     return { ok: false, errors: [{ line: 0, message: 'the file holds no conversation' }] };
-  return { ok: true, conversations };
+  const taken = new Set<string>();
+  for (const conversation of conversations) {
+    if (taken.has(conversation.id)) conversation.id = `line-${conversation.line}`;
+    taken.add(conversation.id);
+  }
+  return { ok: true, conversations, replaced };
 }
 
 /**
- * The git work tree a path sits in, or undefined: the nearest folder at or above it that holds `.git`. The
- * path need not exist yet; its nearest existing ancestor is checked.
+ * The git work tree a path sits in, or undefined: the nearest folder at or above it that holds `.git`
+ * (a folder, or the file a linked worktree uses). The path need not exist yet. Both the path as written and
+ * its real path (symbolic links followed from the nearest existing ancestor) are checked, so a link cannot
+ * route the private set into a repository.
  */
 export async function gitWorkTreeOf(path: string): Promise<string | undefined> {
-  let dir = resolve(path);
-  for (;;) {
-    if (await exists(join(dir, '.git'))) return dir;
-    const parent = dirname(dir);
-    if (parent === dir) return undefined;
-    dir = parent;
+  const written = resolve(path);
+  let existing = written;
+  while (!(await exists(existing))) {
+    const parent = dirname(existing);
+    if (parent === existing) break;
+    existing = parent;
   }
+  const real = await realpath(existing).catch(() => existing);
+  for (const start of [written, real]) {
+    let dir = start;
+    for (;;) {
+      if (await exists(join(dir, '.git'))) return dir;
+      const parent = dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+  }
+  return undefined;
 }
 
 export type LogIntakeOptions = {
@@ -377,7 +427,10 @@ export type IntakeFiles = Record<string, string>;
  * intent (the reference turns `intake fidelity` reads), the spot-check list for a person, and the report.
  * No raw text and no detected value is in any of them.
  */
-export function intakeFiles(intake: LogIntake, source: { name: string; total: number }): IntakeFiles {
+export function intakeFiles(
+  intake: LogIntake,
+  source: { name: string; total: number; replaced?: number },
+): IntakeFiles {
   const conversations = intake.kept.map((conversation) =>
     JSON.stringify({
       id: conversation.id,
@@ -441,6 +494,7 @@ export function intakeFiles(intake: LogIntake, source: { name: string; total: nu
     source: source.name,
     conversations: {
       read: source.total,
+      fields_replaced: source.replaced ?? 0,
       kept: intake.kept.length,
       near_duplicates: intake.duplicates.length,
       failures: intake.kept.filter((conversation) => conversation.failure).length,
