@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -119,10 +119,15 @@ describe('driftbench intake logs', () => {
 
   it('refuses this repository too', async () => {
     const dir = await setup();
-    const result = await run(
-      ['intake', 'logs', join(dir, 'logs.jsonl'), '--out', join(ACME, 'private')],
-      dir,
-    );
+    // A folder no one else uses, removed whatever happens: if the refusal ever broke, this test would
+    // otherwise leave generated look-alike data inside the repository.
+    const out = join(ACME, `.intake-refusal-${process.pid}-${Date.now()}`);
+    let result: Awaited<ReturnType<typeof run>>;
+    try {
+      result = await run(['intake', 'logs', join(dir, 'logs.jsonl'), '--out', out], dir);
+    } finally {
+      await rm(out, { recursive: true, force: true });
+    }
     expect(result.code).toBe(2);
     expect(result.err).toContain('Refused');
   });

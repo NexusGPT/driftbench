@@ -153,6 +153,23 @@ describe('intakeLogs', () => {
     expect(intake.kept.map((c) => c.id)).toEqual(['a', 'b', 'c', 'e', 'g']);
   });
 
+  it('keeps the failure even when its duplicate comes first in the file', async () => {
+    const parsed = parseLogs(
+      [
+        line({ id: 'calm', turns: [{ role: 'user', text: 'my card was stolen, block it now' }] }),
+        line({
+          id: 'angry',
+          turns: [{ role: 'user', text: 'my card was stolen, block it now' }],
+          flags: ['complaint'],
+        }),
+      ].join('\n'),
+    );
+    if (!parsed.ok) throw new Error('fixture');
+    const intake = await intakeLogs(parsed.conversations, { second: 'rules' });
+    expect(intake.duplicates.map((d) => [d.id, d.keptAs])).toEqual([['calm', 'angry']]);
+    expect(intake.kept.map((c) => [c.id, c.failure])).toEqual([['angry', true]]);
+  });
+
   it('places openings on the map intents and clusters the rest as new intents', async () => {
     const intake = await run();
     expect(intake.kept.map((c) => `${c.id}=${c.intent}`)).toEqual([

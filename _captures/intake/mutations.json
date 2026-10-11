@@ -1,0 +1,170 @@
+[
+  [
+    "M1",
+    "refuse --out inside a git work tree",
+    "packages/generate/src/intake/logs.ts",
+    "exit 1",
+    "5",
+    "driftbench intake logs > refuses an output folder inside a git work tree with exit 2 and writes nothing"
+  ],
+  [
+    "M2",
+    "IBAN mod 97 checksum",
+    "packages/generate/src/intake/privacy.ts",
+    "exit 1",
+    "2",
+    "checksums > accepts an IBAN with a valid mod 97 check and refuses one digit off"
+  ],
+  [
+    "M3",
+    "Luhn check on card numbers",
+    "packages/generate/src/intake/privacy.ts",
+    "exit 1",
+    "2",
+    "checksums > runs the Luhn check on card numbers"
+  ],
+  [
+    "M4",
+    "second pass runs (residual flags)",
+    "packages/generate/src/intake/privacy.ts",
+    "exit 1",
+    "10",
+    "driftbench intake logs > writes the private set with owner-only permissions and prints counts, never a value"
+  ],
+  [
+    "M5",
+    "one value, one placeholder per conversation",
+    "packages/generate/src/intake/privacy.ts",
+    "exit 1",
+    "1",
+    "Redactor > gives one value one placeholder in a conversation, and numbers each type apart"
+  ],
+  [
+    "M6",
+    "model checker sees only redacted text",
+    "packages/generate/src/intake/privacy.ts",
+    "exit 1",
+    "2",
+    "driftbench intake logs > runs the model checker through the port and exits 1 when it fails on a conversation"
+  ],
+  [
+    "M7",
+    "failure kept first among near-duplicates",
+    "packages/generate/src/intake/logs.ts",
+    "exit 1",
+    "1",
+    "intakeLogs > keeps the failure even when its duplicate comes first in the file"
+  ],
+  [
+    "M8",
+    "Good-Turing f1 counts intents seen once",
+    "packages/generate/src/intake/logs.ts",
+    "exit 1",
+    "1",
+    "intakeLogs > computes the Good-Turing discovery probability f1 / n and the Chao coverage"
+  ],
+  [
+    "M9",
+    "personal data in ids replaced",
+    "packages/generate/src/intake/logs.ts",
+    "exit 1",
+    "1",
+    "personal data in the fields around the turns > replaces an id that is an email by the line number, and drops a flag or channel holding one"
+  ],
+  [
+    "M10",
+    "owner-only file permissions",
+    "packages/cli/src/commands/intake.ts",
+    "exit 1",
+    "1",
+    "driftbench intake logs > writes the private set with owner-only permissions and prints counts, never a value"
+  ],
+  [
+    "M11",
+    "map constraints drop cells",
+    "packages/generate/src/intake/reference.ts",
+    "exit 1",
+    "13",
+    "driftbench intake from-interview > prints the plan on a dry run and calls no model"
+  ],
+  [
+    "M12",
+    "largest-remainder allocation",
+    "packages/generate/src/intake/reference.ts",
+    "exit 1",
+    "1",
+    "planCells > allocates the turns by largest remainder with a floor of one per cell"
+  ],
+  [
+    "M13",
+    "generated turn with real-looking personal data refused",
+    "packages/generate/src/intake/reference.ts",
+    "exit 1",
+    "1",
+    "fromInterview > refuses each bad turn in code with its reason, and reports the cell short"
+  ],
+  [
+    "M14",
+    "never-match phrases refused",
+    "packages/generate/src/intake/reference.ts",
+    "exit 1",
+    "1",
+    "fromInterview > refuses each bad turn in code with its reason, and reports the cell short"
+  ],
+  [
+    "M15",
+    "copy of an owner example refused",
+    "packages/generate/src/intake/reference.ts",
+    "exit 1",
+    "1",
+    "fromInterview > refuses each bad turn in code with its reason, and reports the cell short"
+  ],
+  [
+    "M16",
+    "interview values checked against the map",
+    "packages/generate/src/intake/interview.ts",
+    "exit 1",
+    "1",
+    "parseInterview > refuses values the map does not approve and references that do not exist, every one of them"
+  ],
+  [
+    "M17",
+    "fidelity counts approved turns only",
+    "packages/generate/src/intake/fidelity.ts",
+    "exit 1",
+    "2",
+    "driftbench intake fidelity > refuses a reference set with no approved turn"
+  ],
+  [
+    "M18",
+    "approval file must match the set",
+    "packages/generate/src/intake/fidelity.ts",
+    "exit 1",
+    "1",
+    "loadTurns > refuses a set whose approval file is missing or no longer matches the set"
+  ],
+  [
+    "M19",
+    "total variation is half the L1 distance",
+    "packages/generate/src/intake/fidelity.ts",
+    "exit 1",
+    "2",
+    "totalVariation > is 0 for the same distribution, 1 for disjoint ones, and half the L1 distance between"
+  ],
+  [
+    "M20",
+    "KS ties advance both samples",
+    "packages/generate/src/intake/fidelity.ts",
+    "exit 1",
+    "3",
+    "ksStatistic > is the largest gap between the empirical distribution functions, ties advancing both samples"
+  ],
+  [
+    "M21",
+    "recorded answers replay by cell",
+    "packages/generate/src/intake/reference.ts",
+    "exit 1",
+    "1",
+    "the Acme reference set (path ii) > regenerates byte for byte from the answers and the recording"
+  ]
+]
