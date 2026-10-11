@@ -15,7 +15,7 @@ describe('estate lint', () => {
       ['REGISTRY_ROW', 'reply-length.py'],
       ['REGISTRY_GUARD', 'G6'],
     ]);
-    expect(result.counts.UNENFORCED).toBe(51);
+    expect(result.counts.UNENFORCED).toBe(54);
     expect(result.failed).toBe(true);
   });
 

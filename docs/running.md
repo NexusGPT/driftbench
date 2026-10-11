@@ -604,7 +604,7 @@ With `mode: 'T'`, it prints:
 
 For each step the driver gives, the runner:
 
-1. resolves the block's Given. In mode T it closes the open session and starts from the block's canonical Given; a step the driver injects fails the run;
+1. resolves the block's Given. In mode T it closes the open session and starts from the block's canonical Given; on an adapter with a sandbox it keeps the session, so the block starts from the workspace the block before left, and replaces the history with the canonical prefix, unless the block writes its own `given.world.workspace`; a step the driver injects fails the run;
 2. appends the block's user messages to the session history, and sends the block through the adapter, opening a session first when none is open;
 3. reads the block again through `trace` when the adapter offers it, and keeps that read;
 4. checks the Observed as JSON against the schema, the form the cache and the store keep, and appends the agent's reply to the history;
@@ -622,7 +622,7 @@ The run starts from the spec's `given`: its ledger, world and vars. A block's ow
 
 A block's `given.prefix` ends the open session: the next send opens a new one, whose history is that prefix.
 
-In mode T every block opens its own session from its canonical Given: the ledger, world and vars the spec writes up to that block, and a prefix of the earlier blocks as the spec writes them. See [run modes](concepts/run-modes.md#teacher-forced).
+In mode T every block opens its own session from its canonical Given: the ledger, world and vars the spec writes up to that block, and a prefix of the earlier blocks as the spec writes them. On an adapter with a sandbox, a block that writes no `given.world.workspace` of its own keeps the session of the block before, with the canonical prefix as its history, so a task step finds the files the step before made. See [run modes](concepts/run-modes.md#teacher-forced).
 
 The resolved Given of a block holds the prefix (the run's history before the block), the ledger, the world, the vars and the target, and `hash`: the first 12 hex characters of the SHA-256 of the canonical JSON of those five. The block record keeps it as `givenHash`. See [Given, When, Then](concepts/given-when-then.md).
 

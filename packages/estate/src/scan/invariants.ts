@@ -62,13 +62,16 @@ export function measureInvariants(
   ceiling: number,
 ): InvariantState {
   const names = new Set(raw.guards.map((guard) => guardName(guard)));
-  const rows = new Set(raw.registry.map((row) => row.guard.split('/').pop() ?? row.guard));
+  // A catalogue check is listed by its catalogue; the registry is asked to list the guards the runtime runs.
+  const runtime = new Set(raw.guards.filter((guard) => !guard.check).map((guard) => guardName(guard)));
+  const listed = raw.registry.filter((row) => row.origin !== 'catalogue');
+  const rows = new Set(listed.map((row) => row.guard.split('/').pop() ?? row.guard));
   return {
     ceiling,
     standingCharacters: standingFiles(raw).reduce((sum, file) => sum + file.text.length, 0),
     orphans: [...orphans],
     unanchored: raw.guards.filter((guard) => guard.script && !guard.anchored).map((guard) => guard.command),
-    guardsWithoutRow: raw.registry.length === 0 ? [] : [...names].filter((name) => !rows.has(name)).sort(),
+    guardsWithoutRow: listed.length === 0 ? [] : [...runtime].filter((name) => !rows.has(name)).sort(),
     rowsWithoutGuard: raw.registry
       .filter((row) => !names.has(row.guard.split('/').pop() ?? row.guard))
       .map((row) => row.id),
