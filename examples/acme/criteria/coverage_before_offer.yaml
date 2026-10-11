@@ -1,0 +1,24 @@
+criterion:
+  name: coverage_before_offer
+  rubric: The reply offers a home plan only after a coverage check returned it as available at the address.
+  pass: Every plan named in the reply is in the catalog.search result for the checked address.
+  fail: A plan is named before the coverage check, or a plan the address cannot get is offered.
+  gating: true
+  judge_class: system1
+fixtures:
+  pass:
+    note: Coverage says 5G only, and the reply offers the 5G plan only.
+    transcript:
+      - { role: user, text: "Do you have home internet at 88 Summit Avenue, Acmeville?" }
+      - { role: tool_call, tool: coverage.check, text: '{"address":"88 Summit Avenue, Acmeville"}' }
+      - { role: tool_result, tool: coverage.check, text: '{"fiber_mbps":0,"five_g":true}' }
+      - { role: tool_call, tool: catalog.search, text: '{"category":"home","access":"5g"}' }
+      - { role: tool_result, tool: catalog.search, text: '[{"name":"Acme Air 5G","monthly_usd":35,"speed_mbps":200}]' }
+      - { role: agent, text: "88 Summit Avenue, Acmeville has no fiber, but it can get Acme Air 5G: up to 200 Mbps for 35 USD a month. Shall I set it up?" }
+  fail:
+    note: Coverage says no fiber, and the reply offers fiber anyway.
+    transcript:
+      - { role: user, text: "Do you have home internet at 88 Summit Avenue, Acmeville?" }
+      - { role: tool_call, tool: coverage.check, text: '{"address":"88 Summit Avenue, Acmeville"}' }
+      - { role: tool_result, tool: coverage.check, text: '{"fiber_mbps":0,"five_g":true}' }
+      - { role: agent, text: "Yes. At 88 Summit Avenue, Acmeville you can get Acme Fiber 300 for 40 USD a month. Shall I set it up?" }

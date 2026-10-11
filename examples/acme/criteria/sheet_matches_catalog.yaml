@@ -1,0 +1,40 @@
+criterion:
+  name: sheet_matches_catalog
+  rubric: >
+    Every plan in catalog.csv appears exactly once in the workbook, on the sheet of its category, in
+    catalog order, with the same allowance and monthly price.
+  pass: Three rows on Mobile, three on Home, values equal to the catalog.
+  fail: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.
+  gating: true
+  judge_class: system1
+fixtures:
+  pass:
+    note: The workbook text matches the catalog.
+    transcript:
+      - { role: user, text: "Build price-sheet.xlsx from catalog.csv: one sheet per category, in catalog order." }
+      - { role: tool_result, tool: catalog.csv, text: "mobile-s,Acme Mobile S,mobile,15 | mobile-m,Acme Mobile M,mobile,25 | mobile-l,Acme Mobile L,mobile,35 | fiber-300,Acme Fiber 300,home,40 | fiber-1000,Acme Fiber 1000,home,60 | air-5g,Acme Air 5G,home,35" }
+      - { role: agent, text: "Done: price-sheet.xlsx has a Mobile sheet and a Home sheet." }
+    artifact: |
+      Sheet Mobile
+      Acme Mobile S | 10 GB | 15
+      Acme Mobile M | 40 GB | 25
+      Acme Mobile L | unlimited | 35
+      Sheet Home
+      Acme Fiber 300 | 300 Mbps | 40
+      Acme Fiber 1000 | 1000 Mbps | 60
+      Acme Air 5G | 200 Mbps | 35
+  fail:
+    note: Acme Mobile M carries another price.
+    transcript:
+      - { role: user, text: "Build price-sheet.xlsx from catalog.csv: one sheet per category, in catalog order." }
+      - { role: tool_result, tool: catalog.csv, text: "mobile-s,Acme Mobile S,mobile,15 | mobile-m,Acme Mobile M,mobile,25 | mobile-l,Acme Mobile L,mobile,35 | fiber-300,Acme Fiber 300,home,40 | fiber-1000,Acme Fiber 1000,home,60 | air-5g,Acme Air 5G,home,35" }
+      - { role: agent, text: "Done: price-sheet.xlsx has a Mobile sheet and a Home sheet." }
+    artifact: |
+      Sheet Mobile
+      Acme Mobile S | 10 GB | 15
+      Acme Mobile M | 40 GB | 29
+      Acme Mobile L | unlimited | 35
+      Sheet Home
+      Acme Fiber 300 | 300 Mbps | 40
+      Acme Fiber 1000 | 1000 Mbps | 60
+      Acme Air 5G | 200 Mbps | 35

@@ -1,0 +1,21 @@
+criterion:
+  name: plain_language
+  rubric: Does the reply avoid internal codes and internal team names?
+  pass: Every term in the reply is one a customer would use, such as a plan name.
+  fail: The reply uses a product code, an address id, a customer id or an internal team name.
+  judge_class: system1
+fixtures:
+  pass:
+    note: The reply names the plan and the address as a customer would.
+    transcript:
+      - { role: user, text: "Which plan do I have?" }
+      - { role: tool_call, tool: customer.lookup, text: '{"email":"lee.jensen@example.com"}' }
+      - { role: tool_result, tool: customer.lookup, text: '{"id":"cust-002","plan_id":"fiber-300","address_id":"addr-102"}' }
+      - { role: agent, text: "You have Acme Fiber 300 at 3 Orchard Way, Acmeville. Would you like a faster plan?" }
+  fail:
+    note: The reply leaks the codes from the tool result.
+    transcript:
+      - { role: user, text: "Which plan do I have?" }
+      - { role: tool_call, tool: customer.lookup, text: '{"email":"lee.jensen@example.com"}' }
+      - { role: tool_result, tool: customer.lookup, text: '{"id":"cust-002","plan_id":"fiber-300","address_id":"addr-102"}' }
+      - { role: agent, text: "Your plan is fiber-300 on addr-102 (account cust-002). Would you like a faster plan?" }

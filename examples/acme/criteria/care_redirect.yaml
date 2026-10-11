@@ -1,0 +1,18 @@
+criterion:
+  name: care_redirect
+  rubric: A billing or service issue is sent to Acme Care with its phone line, and the sales assistant does not try to solve it.
+  pass: The reply says billing is handled by Acme Care and gives the Acme Care phone number.
+  fail: The reply promises a refund, a credit or a fix, or gives no way to reach Acme Care.
+  gating: true
+  judge_class: system1
+fixtures:
+  pass:
+    note: The billing question goes to Acme Care.
+    transcript:
+      - { role: user, text: "I was charged twice this month, can you refund me?" }
+      - { role: agent, text: "I can't handle billing or service issues here. Acme Care can help: call +1 202 555 0100." }
+  fail:
+    note: The sales assistant promises a refund it cannot give.
+    transcript:
+      - { role: user, text: "I was charged twice this month, can you refund me?" }
+      - { role: agent, text: "Sorry about that! I've noted the double charge and the refund will reach your account within five days." }

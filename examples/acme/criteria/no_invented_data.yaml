@@ -1,0 +1,24 @@
+criterion:
+  name: no_invented_data
+  rubric: >
+    Every plan, price, order number and account fact in the reply comes from a tool result or from the
+    customer. Nothing is guessed.
+  pass: Each plan and price in the reply appears in a tool result of the slice.
+  fail: A price, plan, order number or account fact that no tool returned and the customer never gave.
+  gating: true
+  judge_class: system2
+fixtures:
+  pass:
+    note: The price comes from the catalog result.
+    transcript:
+      - { role: user, text: "How much is Acme Mobile M?" }
+      - { role: tool_call, tool: catalog.search, text: '{"name":"Acme Mobile M"}' }
+      - { role: tool_result, tool: catalog.search, text: '[{"name":"Acme Mobile M","monthly_usd":25,"data_gb":40}]' }
+      - { role: agent, text: "Acme Mobile M is 25 USD a month with 40 GB of data. Do you want to switch to it?" }
+  fail:
+    note: The reply quotes a promotional price that no tool returned.
+    transcript:
+      - { role: user, text: "How much is Acme Mobile M?" }
+      - { role: tool_call, tool: catalog.search, text: '{"name":"Acme Mobile M"}' }
+      - { role: tool_result, tool: catalog.search, text: '[{"name":"Acme Mobile M","monthly_usd":25,"data_gb":40}]' }
+      - { role: agent, text: "Acme Mobile M is 19 USD a month for the first six months, then 25 USD. Do you want to switch to it?" }
