@@ -199,7 +199,6 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     expect(markers.p28).toEqual([MARKERS.stageReach]);
     expect(markers.p32).toEqual([MARKERS.static]);
     expect(result.report.gaps.map((entry) => entry.marker)).toEqual([
-      MARKERS.noThen,
       MARKERS.guardMessage,
       MARKERS.guardTiming,
       MARKERS.registered,
@@ -319,6 +318,19 @@ describe('estate generate on inputs that do not fit together', () => {
     const record = result.specs.find((spec) => spec.row === 'p05');
     expect(record?.complete).toBe(false);
     expect(record?.markers).toEqual([MARKERS.phrase]);
+  });
+
+  it('names a block that checks nothing when no other gap explains it', () => {
+    const copy = structuredClone(input);
+    const helper = copy.map.atoms.find((atom) => atom.id === 'subagent.route-planner.helper-route-planner');
+    if (helper) helper.evidence = [{ type: 'text', must: ['route'] }];
+    const result = generateEstateSuite(copy, { paths: COMMITTED_PATHS });
+    const record = result.specs.find((spec) => spec.row === 'p18');
+    // The words are checked on the first reply; the resume block has nothing of its own to check.
+    expect(record?.markers).toEqual([MARKERS.noThen]);
+    expect(result.report.gaps.find((entry) => entry.marker === MARKERS.noThen)?.details).toEqual([
+      'block resume checks nothing',
+    ]);
   });
 
   it('leaves a proposed row waiting, and writes nothing for it', () => {

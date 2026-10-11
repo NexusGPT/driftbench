@@ -482,8 +482,10 @@ function build(
       expect: expectOf(then, false),
     });
   }
+  // A block left empty by other gaps is already named by them; an empty block with none is its own gap.
+  const named = then.gaps.length > 0;
   for (const block of blocks) {
-    if (asks && Object.keys(block.expect as object).length === 0) {
+    if (asks && !named && Object.keys(block.expect as object).length === 0) {
       gap(then, MARKERS.noThen, first, `block ${String(block.id)} checks nothing`);
     }
   }
