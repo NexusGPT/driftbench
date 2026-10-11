@@ -3,6 +3,8 @@ import { type JournalRow, PILOT_ITERATIONS } from './journal';
 /** The gate of docs/validators.md section 12.4: the forecast is at least this, the pilot score at most that. */
 export const HARDNESS_MIN_FORECAST = 100;
 export const HARDNESS_MAX_SCORE = 0.4;
+/** Section 12.4 point 4: distinct causes among the failing items after the pilot. */
+export const HARDNESS_MIN_CAUSES = 100;
 /** The bank minimum at merge of section 12.1. */
 export const BANK_MIN_SIZE = 300;
 export const BANK_MIN_FAMILY = 20;
@@ -30,6 +32,11 @@ export type Hardness = {
   remaining: number | null;
   /** Iterations to 100 percent: remaining / fixedPerIteration; null when the pilot fixed nothing. */
   forecast: number | null;
+  /**
+   * Distinct causes among the failing items at the end of the pilot, and how many of those items name no cause
+   * (each counts as its own). Null when the row does not record them.
+   */
+  causes: { distinct: number; withoutCause: number | null } | null;
   gate: { holds: boolean; reasons: string[] };
   bankMinimum: { holds: boolean; problems: string[] };
 };
@@ -72,6 +79,16 @@ export function measureHardness(rows: readonly JournalRow[]): Hardness {
   if (end && end.score > HARDNESS_MAX_SCORE) {
     reasons.push(`the score after the pilot ${round(end.score)} is above ${HARDNESS_MAX_SCORE}`);
   }
+  const causes =
+    endRow?.failingCauses !== undefined
+      ? { distinct: endRow.failingCauses, withoutCause: endRow.failingWithoutCause ?? null }
+      : null;
+  if (endRow && !causes) reasons.push('the last pilot row records no failingCauses');
+  if (causes && causes.distinct < HARDNESS_MIN_CAUSES) {
+    reasons.push(
+      `${causes.distinct} distinct failing causes after the pilot, under ${HARDNESS_MIN_CAUSES}: extend the bank (12.2)`,
+    );
+  }
   if (!end) reasons.push('no pilot row yet');
   return {
     bank: {
@@ -86,6 +103,7 @@ export function measureHardness(rows: readonly JournalRow[]): Hardness {
     fixedPerIteration,
     remaining,
     forecast,
+    causes,
     gate: { holds: reasons.length === 0, reasons },
     bankMinimum: bankMinimum(latest),
   };
@@ -150,8 +168,15 @@ export function formatHardness(component: string, h: Hardness): string {
     h.forecast === null
       ? `Forecast: none (${h.fixedPerIteration === null ? 'no pilot row' : 'the pilot fixed nothing'}).\n`
       : `Forecast: ${round(h.forecast)} iterations to 100 percent (${h.remaining} failing / ${round(h.fixedPerIteration ?? 0)}).\n`;
+  text += !h.causes
+    ? 'Distinct failing causes after the pilot: not recorded.\n'
+    : `Distinct failing causes after the pilot: ${h.causes.distinct}${
+        h.causes.withoutCause === null
+          ? ' (the row does not say how many items name no cause)'
+          : ` (${h.causes.withoutCause} failing items name no cause and count as their own)`
+      }.\n`;
   text += h.gate.holds
-    ? `Gate: HOLDS (forecast at least ${HARDNESS_MIN_FORECAST}, score after the pilot at most ${HARDNESS_MAX_SCORE}).\n`
+    ? `Gate: HOLDS (forecast at least ${HARDNESS_MIN_FORECAST}, score after the pilot at most ${HARDNESS_MAX_SCORE}, at least ${HARDNESS_MIN_CAUSES} distinct failing causes).\n`
     : `Gate: NOT MET: ${h.gate.reasons.join('; ')}.\n`;
   text += h.bankMinimum.holds
     ? 'Bank minimum at merge (12.1): holds.\n'
