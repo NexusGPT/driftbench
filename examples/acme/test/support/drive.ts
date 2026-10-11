@@ -19,7 +19,7 @@ import { type AcmeStore, createStore } from '../../src/store';
  * A light stand-in for the Phase 1 runner, enough to prove the Acme specs and the Acme agent agree.
  * It drives a conversation spec in free-running mode (the agent's own replies form the history), or in
  * perturbed mode with one perturbation, and checks what can be checked without a model: tools (count,
- * input assertions, order), must and must_not, step, budget cost and latency, the rules, the end state
+ * input assertions, order), must and must_not, stage, guards, budget cost and latency, the rules, the end state
  * and the recovery. Criteria and ledgers are left to the judges of Phase 2 and 3.
  *
  * Perturbations: `user` or `burst` inserts a block before `inject_at`, checked against the
@@ -35,7 +35,7 @@ export type DrivenBlock = {
   injected: boolean;
   user: string[];
   observed: Observed;
-  step: string | undefined;
+  stage: string | undefined;
   failures: string[];
 };
 
@@ -79,7 +79,7 @@ export async function driveSpec(spec: Spec, options: DriveOptions = {}): Promise
       injected: block.injected,
       user,
       observed,
-      step: observed.runtime?.steps?.at(-1)?.id,
+      stage: observed.runtime?.stages?.at(-1)?.name,
       failures: [...checkBlock(block.expect, observed), ...checkBudget(block.budget, observed)],
     });
   }
@@ -158,7 +158,7 @@ function mergeWorld(base: WorldState, next: WorldState | undefined): WorldState 
   };
 }
 
-/** The machine part of a block's Then: tools, tool order, must, must_not, step. */
+/** The machine part of a block's Then: tools, tool order, must, must_not, stage, guards. */
 export function checkBlock(expect: Expect | undefined, observed: Observed): string[] {
   if (!expect) return [];
   const failures: string[] = [];
@@ -187,9 +187,19 @@ export function checkBlock(expect: Expect | undefined, observed: Observed): stri
   for (const pattern of expect.must_not ?? []) {
     if (new RegExp(pattern, 'm').test(observed.text)) failures.push(`must_not /${pattern}/ is present`);
   }
-  if (expect.step !== undefined) {
-    const step = observed.runtime?.steps?.at(-1)?.id;
-    if (step !== expect.step) failures.push(`step: expected ${expect.step}, saw ${step ?? 'none'}`);
+  if (expect.stage !== undefined) {
+    const stage = observed.runtime?.stages?.at(-1)?.name;
+    if (stage !== expect.stage) failures.push(`stage: expected ${expect.stage}, saw ${stage ?? 'none'}`);
+  }
+  for (const guard of expect.guards ?? []) {
+    const fired = (observed.runtime?.guards ?? []).filter(
+      (event) =>
+        event.name === guard.name && (guard.verdict === undefined || event.verdict === guard.verdict),
+    );
+    if (!countAllows(guard.count, fired.length)) {
+      const verdict = guard.verdict ? ` with verdict ${guard.verdict}` : '';
+      failures.push(`guard ${guard.name}${verdict}: expected ${showCount(guard.count)}, saw ${fired.length}`);
+    }
   }
   return failures;
 }
@@ -293,15 +303,15 @@ export function checkEndState(endState: Spec['end_state'], store: AcmeStore): st
   return failures;
 }
 
-/** Within `within_blocks` blocks of the injection, counting it as 0, the run reaches `step_after`. */
+/** Within `within_blocks` blocks of the injection, counting it as 0, the run reaches `stage_after`. */
 function checkRecovery(perturbation: PerturbationSpec, blocks: DrivenBlock[], injectedAt?: number): string[] {
   const recovery = perturbation.recovery;
-  if (!recovery?.step_after || injectedAt === undefined) return [];
+  if (!recovery?.stage_after || injectedAt === undefined) return [];
   const window = blocks.slice(injectedAt, injectedAt + recovery.within_blocks + 1);
-  if (window.some((block) => block.step === recovery.step_after)) return [];
-  const seen = window.map((block) => block.step ?? 'none').join(', ');
+  if (window.some((block) => block.stage === recovery.stage_after)) return [];
+  const seen = window.map((block) => block.stage ?? 'none').join(', ');
   return [
-    `recovery: ${recovery.step_after} not reached within ${recovery.within_blocks} blocks (saw ${seen})`,
+    `recovery: ${recovery.stage_after} not reached within ${recovery.within_blocks} blocks (saw ${seen})`,
   ];
 }
 
@@ -352,9 +362,10 @@ function countAllows(count: Count | undefined, seen: number): boolean {
 }
 
 function showCount(count: Count | undefined): string {
-  if (count === undefined) return 'at least 1 call';
-  if (typeof count === 'number') return `${count} calls`;
-  return `${count.min ?? 0} to ${count.max ?? 'any'} calls`;
+  if (count === undefined) return 'at least 1';
+  if (typeof count === 'number') return `exactly ${count}`;
+  if (count.max === undefined) return `at least ${count.min ?? 0}`;
+  return `${count.min ?? 0} to ${count.max}`;
 }
 
 function unique(labels: string[]): string[] {
@@ -373,7 +384,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-/** The run as text, for failure messages: user turns, tool calls, replies, steps. */
+/** The run as text, for failure messages: user turns, tool calls, replies, stages. */
 function render(blocks: DrivenBlock[]): string {
   return blocks
     .map((block) => {
@@ -385,7 +396,7 @@ function render(blocks: DrivenBlock[]): string {
         `${block.label}${block.injected ? ' [injected]' : ''}`,
         ...block.user.map((text) => `  user: ${text}`),
         ...tools,
-        `  agent [${block.step}]: ${block.observed.text}`,
+        `  agent [${block.stage}]: ${block.observed.text}`,
         ...block.failures.map((failure) => `  FAIL ${failure}`),
       ].join('\n');
     })

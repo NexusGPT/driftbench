@@ -1,5 +1,13 @@
 export { type AcmeAgent, createAcmeAgent } from './agent';
-export { type Flow, initialState, STEPS, type State, type Step, takeTurn } from './policy';
+export {
+  type Flow,
+  type GuardEvent,
+  initialState,
+  STAGES,
+  type Stage,
+  type State,
+  takeTurn,
+} from './policy';
 export {
   ACME,
   type AcmeData,

@@ -20,7 +20,7 @@ given:
     store:
       port_numbers:
         - { number: '+12025550150', eligible: true }
-steps: [port_number, offer, details, recap, order_placed, callback, handover, closing]
+stages: [port_number, offer, details, recap, order_placed, callback, handover, closing]
 
 criteria:
   - name: checks_before_promising
@@ -36,7 +36,7 @@ criteria:
 blocks:
   - user: Hi, I want to switch to Acme and keep my phone number.
     expect:
-      step: port_number
+      stage: port_number
       tools:
         - { label: port.check, count: 0 }
       must: ['Acme Telecom', 'Which number']
@@ -45,7 +45,7 @@ blocks:
 
   - user: "It's +1 202 555 0150"
     expect:
-      step: offer
+      stage: offer
       ledger_add: { port_number: '+12025550150' }
       tool_order: in_order
       tools:
@@ -60,13 +60,13 @@ blocks:
 
   - user: Mobile M please
     expect:
-      step: details
+      stage: details
       ledger_add: { plan_id: mobile-m }
       must: ['full name', 'email address']
 
   - user: Dana Brooks, dana.brooks@example.com
     expect:
-      step: recap
+      stage: recap
       ledger_add: { name: Dana Brooks, email: dana.brooks@example.com }
       tools:
         - { label: order.create, count: 0 }
@@ -74,7 +74,7 @@ blocks:
 
   - user: Confirm
     expect:
-      step: order_placed
+      stage: order_placed
       tools:
         - label: order.create
           count: 1
@@ -104,16 +104,16 @@ perturbations:
     inject_at: 2
     user: '¿Tienen un plan más barato?'
     expect:
-      step: offer
+      stage: offer
       must: ['only help in English', 'Which one would you like']
       must_not: ['¿', 'Tienen']
-    recovery: { within_blocks: 0, step_after: offer }
+    recovery: { within_blocks: 0, stage_after: offer }
 
   - id: are-you-there
     class: D7_silence_or_burst
     inject_at: 3
     burst: ['hello?', 'are you still there?']
     expect:
-      step: details
+      stage: details
       must: ["I'm here", 'full name']
-    recovery: { within_blocks: 0, step_after: details }
+    recovery: { within_blocks: 0, stage_after: details }

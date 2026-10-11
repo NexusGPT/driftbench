@@ -23,11 +23,11 @@ pnpm driftbench spec coverage examples/acme/specs --inventory examples/acme/inve
 | `spec validate` | 7 valid specs, each with its block count, perturbation count and hash |
 | `spec lint --strict` | 0 warnings, exit 0 |
 | `vitest run examples/acme` | every conversation spec driven through the agent, block by block, in a plain run and in one run per perturbation |
-| `spec coverage` | the behaviour by channel matrix and the flow by deviation matrix. It exits 1 on purpose: the inventory keeps known gaps |
+| `spec coverage` | the behaviour by channel matrix (chat 12 of 14, WhatsApp 2 of 11) and the flow by deviation matrix (7 of 10). It exits 1 on purpose: the inventory keeps known gaps |
 
 Until the Phase 1 runner lands, the tests are the way to run the conversation specs. They drive the user
-turns through the agent and check tools, `must`, `must_not`, steps, budgets, rules, the end state and the
-recovery after each perturbation. Criteria and ledgers wait for the judges of Phase 2 and 3. The task spec
+turns through the agent and check tools, `must`, `must_not`, stages, guards, budgets, rules, the end state
+and the recovery after each perturbation. Criteria and ledgers wait for the judges of Phase 2 and 3. The task spec
 validates today; it runs once the `process` adapter and the artifact readers land.
 
 Talk to the agent from code:
@@ -41,7 +41,7 @@ const observed = await agent.respond([
 ]);
 observed.text; // "Hi, I'm the Acme Telecom sales assistant. Good news: 3 Orchard Way, Acmeville has fiber up to 300 Mbps. ..."
 observed.toolCalls.map((call) => call.label); // ['coverage.check', 'catalog.search']
-observed.runtime?.steps; // [{ id: 'offer' }]
+observed.runtime?.stages; // [{ name: 'offer' }]
 ```
 
 ## What is here
@@ -52,7 +52,7 @@ examples/acme/
   specs/conversations/*.yaml      six conversation specs
   specs/tasks/price-sheet.yaml    the code-agent task spec
   src/agent.ts                    createAcmeAgent(store?): respond(messages, world?) returns an Observed
-  src/policy.ts                   the dialogue: flows, steps, replies
+  src/policy.ts                   the dialogue: flows, stages, guardrails, replies
   src/tools.ts                    catalog.search, coverage.check, port.check, order.create, notify_sales
   src/store.ts                    plans, addresses, customers, transfer records, and the payload log
   src/parse.ts                    how the agent reads a message: fixed patterns, no model
@@ -67,8 +67,10 @@ examples/acme/
   before it. Earlier tool results come from `tool_calls` on assistant messages, so a past turn never calls
   a tool again. Consecutive user messages form one turn and get one reply.
 * Observed. Each tool call is a `tool_call` segment followed by its `tool_result` segment. The reply is
-  one `text` segment. `toolCalls` lists the calls with input, output or error, and latency. `runtime.steps`
-  names the flow step the turn ends in. `cost` is `{ usd: 0 }`.
+  one `text` segment. `toolCalls` lists the calls with input, output or error, and latency. `runtime.stages`
+  names the flow stage the turn ends in. `cost` is `{ usd: 0 }`.
+* Guardrails. `runtime.guards` lists the ones that fired in the turn: `explicit_confirmation` passes on
+  CONFIRM and blocks a loose yes; `instruction_in_data` blocks an instruction hidden in a message.
 * World. `world.tools.<label>.error` makes the tool fail, and the agent says so without inventing its
   answer. `world.tools.<label>.result` replaces the answer. `latency_ms` is reported as the call's
   latency. `world.store` seeds records over the store, such as a transfer record for one spec.
@@ -85,7 +87,7 @@ examples/acme/
 | `order.create` | `type`, `plan_id`, `customer_id` or `customer`, `address_id`?, `port_number`? | `order_id`, `status` |
 | `notify_sales` | `reason`, `customer`, `summary` | `ticket_id`, `queued` |
 
-A tool refuses a parameter it does not know, so an invented argument fails loudly. The flow steps a spec
+A tool refuses a parameter it does not know, so an invented argument fails loudly. The flow stages a spec
 can expect: `needs`, `identify`, `address`, `port_number`, `offer`, `details`, `recap`, `order_placed`,
 `callback`, `handover`, `closing`.
 
@@ -96,14 +98,14 @@ can expect: `needs`, `identify`, `address`, `port_number`, `offer`, `details`, `
 | `plan-upgrade` | conversation | upgrade | chat | B-001, B-002, B-008, B-009, B-012 | D9_out_of_scope, D4_loose_confirmation | identify by email, offer more data only, CONFIRM before `order.create`, an exact end state |
 | `new-customer-coverage` | conversation | new-home | chat | B-003, B-004, B-005, B-011 | D1_off_topic, D6_instruction_in_data | coverage before any offer, only the plans the address gets, a callback lead |
 | `number-porting` | conversation | porting | whatsapp | B-006, B-008 | D5_language_switch, D7_silence_or_burst | `port.check` before any promise, a seeded store, the number on the order |
-| `order-loose-confirmation` | conversation | order | chat | B-003, B-008, B-009, B-010 | D4_loose_confirmation, D8_tool_failure | a loose yes written as an injection block, CONFIRM, the end state of `order.create` |
+| `order-loose-confirmation` | conversation | order | chat | B-003, B-008, B-009, B-010 | D4_loose_confirmation, D8_tool_failure | a loose yes written as an injection block, the confirmation guard blocking then passing, the end state of `order.create` |
 | `off-topic-return` | conversation | new-home | chat | B-003, B-004, B-011 | D10_return | two off-topic detours and a return as injection blocks, no tool run twice, `end_state: none` |
 | `tool-failure` | conversation | new-home | chat | B-003, B-005, B-010 | D8_tool_failure | `coverage.check` forced to fail by a block override, an honest fallback, a stubbed `notify_sales` |
-| `price-sheet` | task | price-sheet | chat | B-013, B-014 | D6_instruction_in_data | code ran with exit 0, xlsx artifact checks, the workspace diff, no destructive operation, the xlsx skill |
+| `price-sheet` | task | price-sheet | chat | B-013, B-014 | D6_instruction_in_data | code ran with exit 0, xlsx artifact checks, the workspace diff, no destructive operation, the xlsx skill, a `no_destructive_ops` guard |
 
 Between them the specs use `ledger_seed`, `given` on the spec and on blocks, tool overrides with `error`,
-`result` and `latency_ms`, a seeded store, `workspace_seed`, a `steps` catalogue, local `criteria` with
-`@gating`, `tool_order`, count ranges, every assertion kind (a bare value, `exact`, `regex`, `contains`,
+`result` and `latency_ms`, a seeded store, `workspace_seed`, a `stages` catalogue, local `criteria` with
+`@gating`, `guards`, `tool_order`, count ranges, every assertion kind (a bare value, `exact`, `regex`, `contains`,
 `one_of`, `nonempty`, `absent`, `subset`), the rules `max_calls`, `forbidden_tools`, `lang_stable` and
 `one_message_per_turn`, `end_state` in `exact`, `subset` and `none`, budgets, burst and injection
 stimuli, and perturbations by `user`, `burst` and `world`, each with a recovery.
@@ -115,8 +117,9 @@ expected cells drift from `src/store.ts`. Its artifact check names (`sheets`, `h
 ## The inventory
 
 `inventory.yaml` lists 14 behaviours (12 conversation, 2 task), 5 flows and 2 channels. A spec covers
-behaviours through `covers`, joins a flow through its `flow:<id>` tag, and runs on one `channel`. A
-behaviour without `channels` applies to every channel.
+behaviours through `covers` and runs on one `channel`. It joins a flow through its `flow:<id>` tag, or by
+covering one of the flow's behaviours. Its perturbations and its injection blocks cover deviation
+classes for every flow it joins. A behaviour without `channels` applies to every channel.
 
 The gaps are deliberate, so the matrix shows covered and missing cells:
 
@@ -136,7 +139,9 @@ The gaps are deliberate, so the matrix shows covered and missing cells:
 * Worlds accumulate: the spec's, then each block's from that block onwards, then the perturbation's. For
   each tool, the later one wins.
 * Recovery holds when a block within `within_blocks` of the injection, the injection itself counting as 0,
-  ends in `step_after`.
+  ends in `stage_after`.
+* An expected guard with a `verdict` counts only the events with that verdict. Without `count` it must
+  fire at least once; `count: 0` means it never fires.
 * The end state is checked on unperturbed runs. A tool with no `count` must run at least once. Input
   assertions hold on every call of the tool in the block.
 * `lang_stable` is read as "no reply carries a word of another language", a stand-in for the language

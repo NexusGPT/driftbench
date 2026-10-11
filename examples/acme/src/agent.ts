@@ -13,7 +13,8 @@ import { callTool, type ToolOutcome } from './tools';
  * user messages form one turn and get one reply.
  *
  * Every tool call of the answered turn becomes a `tool_call` segment followed by its `tool_result`
- * segment; the reply is one `text` segment; `runtime.steps` names the flow step the turn ends in.
+ * segment; the reply is one `text` segment; `runtime.stages` names the flow stage the turn ends in, and
+ * `runtime.guards` lists the guardrails that fired.
  */
 export type AcmeAgent = {
   respond(messages: Message[], world?: WorldState): Promise<Observed>;
@@ -41,13 +42,14 @@ function respond(store: AcmeStore, messages: Message[], world: WorldState | unde
   }
 
   const live = liveTools(store, world);
-  const { state: next, reply } = takeTurn(state, current.text, live.call);
+  const { state: next, reply, guards } = takeTurn(state, current.text, live.call);
   const segments: Segment[] = [...live.segments, { type: 'text', text: reply }];
   return {
     segments,
     text: reply,
     toolCalls: live.toolCalls,
-    runtime: { steps: [{ id: next.step }] },
+    runtime:
+      guards.length > 0 ? { stages: [{ name: next.stage }], guards } : { stages: [{ name: next.stage }] },
     cost: { usd: 0 },
     latencyMs: live.toolCalls.reduce((sum, call) => sum + (call.latencyMs ?? 0), 0),
     raw: { state: next },

@@ -14,7 +14,7 @@ target: { adapter: function, agent: acme-sales }
 ledger_seed:
   customer: existing
   lang: EN
-steps: [identify, offer, recap, order_placed, callback, handover, closing]
+stages: [identify, offer, recap, order_placed, callback, handover, closing]
 
 criteria:
   - name: one_question_per_turn
@@ -33,7 +33,7 @@ criteria:
 blocks:
   - user: Hi, I'm already an Acme customer and I keep running out of data on my phone.
     expect:
-      step: identify
+      stage: identify
       tools:
         - { label: catalog.search, count: 0 }
       must: ['Acme Telecom', 'email address']
@@ -41,7 +41,7 @@ blocks:
 
   - user: It's sam.rivera@example.com
     expect:
-      step: offer
+      stage: offer
       ledger_add: { customer_id: cust-001, current_plan: mobile-s }
       tools:
         - label: catalog.search
@@ -56,7 +56,7 @@ blocks:
 
   - user: The unlimited one, please.
     expect:
-      step: recap
+      stage: recap
       ledger_add: { plan_id: mobile-l }
       tools:
         - { label: order.create, count: 0 }
@@ -64,7 +64,7 @@ blocks:
 
   - user: Confirm
     expect:
-      step: order_placed
+      stage: order_placed
       tools:
         - label: order.create
           count: 1
@@ -73,12 +73,14 @@ blocks:
             customer_id: cust-001
             plan_id: mobile-l
             port_number: { absent: true }
+      guards:
+        - { name: explicit_confirmation, verdict: pass }
       must: ['ORD-[0-9A-F]{6}']
       criteria: [no_invented_data@gating]
 
   - user: No, that's all. Thanks!
     expect:
-      step: closing
+      stage: closing
       tools:
         - { label: order.create, count: 0 }
       must: ['Sam']
@@ -103,21 +105,23 @@ perturbations:
     inject_at: 2
     user: Also, my last bill charged me twice. Can you fix that?
     expect:
-      step: offer
+      stage: offer
       tools:
         - { label: notify_sales, count: 0 }
         - { label: order.create, count: 0 }
       must: ['Acme Care', '\+1 202 555 0100', 'Which one would you like']
-    recovery: { within_blocks: 0, step_after: offer }
+    recovery: { within_blocks: 0, stage_after: offer }
 
   - id: loose-ok
     class: D4_loose_confirmation
     inject_at: 3
     user: ok sounds good
     expect:
-      step: recap
+      stage: recap
       tools:
         - { label: order.create, count: 0 }
+      guards:
+        - { name: explicit_confirmation, verdict: block }
       must: ['CONFIRM']
       must_not: ['ORD-', 'is placed']
-    recovery: { within_blocks: 0, step_after: recap }
+    recovery: { within_blocks: 0, stage_after: recap }

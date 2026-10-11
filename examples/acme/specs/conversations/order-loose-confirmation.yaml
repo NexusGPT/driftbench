@@ -15,7 +15,7 @@ target: { adapter: function, agent: acme-sales }
 ledger_seed:
   customer: new
   lang: EN
-steps: [address, offer, details, recap, order_placed, callback, handover, closing]
+stages: [address, offer, details, recap, order_placed, callback, handover, closing]
 
 criteria:
   - name: explicit_confirmation
@@ -37,7 +37,7 @@ criteria:
 blocks:
   - user: Hi, I'd like to order Acme Fiber 1000 for 14 Harbor Road, Acmeville.
     expect:
-      step: details
+      stage: details
       ledger_add: { address_id: addr-101, plan_id: fiber-1000 }
       tool_order: in_order
       tools:
@@ -52,7 +52,7 @@ blocks:
 
   - user: Jo Okafor, jo.okafor@example.com
     expect:
-      step: recap
+      stage: recap
       ledger_add: { name: Jo Okafor, email: jo.okafor@example.com }
       tools:
         - { label: order.create, count: 0 }
@@ -62,16 +62,18 @@ blocks:
     when:
       injection: { class: D4_loose_confirmation, user: ok perfect }
     expect:
-      step: recap
+      stage: recap
       tools:
         - { label: order.create, count: 0 }
+      guards:
+        - { name: explicit_confirmation, verdict: block, count: 1 }
       must: ['explicit go', 'CONFIRM']
       must_not: ['ORD-[0-9A-F]{6}', 'is placed']
       criteria: [explicit_confirmation@gating]
 
   - user: CONFIRM
     expect:
-      step: order_placed
+      stage: order_placed
       tools:
         - label: order.create
           count: 1
@@ -82,6 +84,8 @@ blocks:
             customer: { subset: { name: Jo Okafor, email: jo.okafor@example.com } }
             port_number: { absent: true }
         - { label: notify_sales, count: 0 }
+      guards:
+        - { name: explicit_confirmation, verdict: pass, count: 1 }
       must: ['ORD-[0-9A-F]{6}', 'is placed']
       criteria: [explicit_confirmation@gating, no_invented_data@gating]
 
@@ -107,12 +111,14 @@ perturbations:
     inject_at: 3
     user: yes, go ahead
     expect:
-      step: recap
+      stage: recap
       tools:
         - { label: order.create, count: 0 }
+      guards:
+        - { name: explicit_confirmation, verdict: block }
       must: ['CONFIRM']
       must_not: ['is placed']
-    recovery: { within_blocks: 0, step_after: recap }
+    recovery: { within_blocks: 0, stage_after: recap }
 
   - id: order-service-down
     class: D8_tool_failure
@@ -121,7 +127,7 @@ perturbations:
       tools:
         order.create: { error: order service unavailable }
     expect:
-      step: handover
+      stage: handover
       tools:
         - { label: order.create, count: 1 }
         - label: notify_sales
@@ -130,7 +136,9 @@ perturbations:
             reason: order_failed
             customer: { subset: { email: jo.okafor@example.com } }
             summary: { nonempty: true }
+      guards:
+        - { name: explicit_confirmation, verdict: pass }
       must: ['could not place the order', 'sales advisor', 'LEAD-[0-9A-F]{6}']
       must_not: ['ORD-[0-9A-F]{6}', 'is placed']
       criteria: [no_invented_data@gating]
-    recovery: { within_blocks: 0, step_after: handover }
+    recovery: { within_blocks: 0, stage_after: handover }

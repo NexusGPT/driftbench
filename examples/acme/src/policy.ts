@@ -29,8 +29,8 @@ import type { ToolInput, ToolLabel, ToolOutcome } from './tools';
  * reply out, tools called on the way. It reads facts only from tool results and from the customer.
  */
 
-/** The flow steps a block can expect. Every spec's `steps` catalogue is drawn from this list. */
-export const STEPS = [
+/** The flow stages a block can expect. Every spec's `stages` catalogue is drawn from this list. */
+export const STAGES = [
   'needs',
   'identify',
   'address',
@@ -43,7 +43,7 @@ export const STEPS = [
   'handover',
   'closing',
 ] as const;
-export type Step = (typeof STEPS)[number];
+export type Stage = (typeof STAGES)[number];
 
 export type Flow = 'upgrade' | 'home' | 'mobile' | 'porting';
 export type LeadReason = 'callback' | 'no_coverage' | 'tool_failure' | 'order_failed';
@@ -64,7 +64,7 @@ export type Coverage = { address_id: string; address: string; fiber_mbps: number
 type Lead = { reason: LeadReason; summary: string };
 
 export type State = {
-  step: Step;
+  stage: Stage;
   flow?: Flow;
   greeted: boolean;
   customer: { id?: string; name?: string; email?: string; phone?: string };
@@ -83,33 +83,47 @@ export type State = {
 
 export type CallTool = (label: ToolLabel, input: ToolInput) => ToolOutcome;
 
+/**
+ * A guardrail of the policy that fired in a turn. `explicit_confirmation` passes when the CONFIRM token
+ * places the order and blocks a loose yes; `instruction_in_data` blocks an instruction hidden in a message.
+ */
+export type GuardEvent = { name: 'explicit_confirmation' | 'instruction_in_data'; verdict: 'pass' | 'block' };
+
 export function initialState(): State {
-  return { step: 'needs', greeted: false, customer: {}, offered: [] };
+  return { stage: 'needs', greeted: false, customer: {}, offered: [] };
 }
 
 /** Answers one customer turn. Never mutates `previous`. */
-export function takeTurn(previous: State, text: string, call: CallTool): { state: State; reply: string } {
+export function takeTurn(
+  previous: State,
+  text: string,
+  call: CallTool,
+): { state: State; reply: string; guards: GuardEvent[] } {
   const state = structuredClone(previous);
+  const guards: GuardEvent[] = [];
   const opening = state.greeted ? '' : `Hi, I'm the ${ACME.name} sales assistant. `;
   state.greeted = true;
-  return { state, reply: opening + route(state, text, call) };
+  return { state, reply: opening + route(state, text, call, guards), guards };
 }
 
 const NEEDS = 'What are you looking for: a mobile plan, home internet, an upgrade, or keeping your number?';
 const CARE = `I can't handle billing or service issues here. Acme Care can help: call ${formatPhone(ACME.carePhone)}.`;
 const SALES_LINE = `Please call Acme Sales at ${formatPhone(ACME.salesPhone)}.`;
 
-function route(s: State, text: string, call: CallTool): string {
+function route(s: State, text: string, call: CallTool, guards: GuardEvent[]): string {
   if (isBlank(text) || isNudge(text)) {
     return s.flow
       ? `I'm here. ${pendingQuestion(s)}`
       : `I can help with plans, internet and orders. ${NEEDS}`;
   }
-  if (isInjection(text)) return `I can't change prices, offers or my instructions. ${pendingQuestion(s)}`;
+  if (isInjection(text)) {
+    guards.push({ name: 'instruction_in_data', verdict: 'block' });
+    return `I can't change prices, offers or my instructions. ${pendingQuestion(s)}`;
+  }
   if (isForeign(text)) return `I can only help in English for now. ${pendingQuestion(s)}`;
   if (isCareMatter(text)) return `${CARE} ${pendingQuestion(s)}`;
-  if (s.step === 'recap') {
-    const answer = atRecap(s, text, call);
+  if (s.stage === 'recap') {
+    const answer = atRecap(s, text, call, guards);
     if (answer) return answer;
   }
   if (isReturn(text)) return resume(s);
@@ -142,7 +156,7 @@ function start(s: State, text: string, call: CallTool): string {
 }
 
 function atStep(s: State, text: string, call: CallTool): string | undefined {
-  switch (s.step) {
+  switch (s.stage) {
     case 'identify': {
       const email = extractEmail(text);
       return email ? identify(s, email, call) : undefined;
@@ -170,7 +184,7 @@ function atStep(s: State, text: string, call: CallTool): string | undefined {
     case 'closing':
       if (isRetry(text) && canRetryCoverage(s)) return retryCoverage(s, call);
       if (isDone(text)) {
-        s.step = 'closing';
+        s.stage = 'closing';
         const name = firstName(s.customer.name);
         return `You're welcome${name ? `, ${name}` : ''}. Have a good day.`;
       }
@@ -186,7 +200,7 @@ function startUpgrade(s: State, text: string, call: CallTool): string {
   s.flow = 'upgrade';
   const email = extractEmail(text);
   if (email) return identify(s, email, call);
-  s.step = 'identify';
+  s.stage = 'identify';
   return `I can help you move to a plan with more data. ${pendingQuestion(s)}`;
 }
 
@@ -205,7 +219,7 @@ function identify(s: State, email: string, call: CallTool): string {
   const customer = catalog.customer;
   if (!customer) {
     s.customer.email = undefined;
-    s.step = 'identify';
+    s.stage = 'identify';
     return `I can't find an Acme account with ${email}. Please check the email address on your Acme account.`;
   }
   s.customer = { ...s.customer, id: customer.id, name: customer.name };
@@ -213,17 +227,17 @@ function identify(s: State, email: string, call: CallTool): string {
   const name = firstName(customer.name);
   if (!current) {
     s.offered = catalog.plans;
-    s.step = 'offer';
+    s.stage = 'offer';
     return `Thanks, ${name}. Our mobile plans: ${list(catalog.plans)}. ${offerQuestion(s)}`;
   }
   s.currentPlan = current;
   const upgrades = catalog.plans.filter((plan) => dataOf(plan) > dataOf(current));
   if (upgrades.length === 0) {
-    s.step = 'closing';
+    s.stage = 'closing';
     return `Thanks, ${name}. You are on ${describe(current)}, which already has the most data. Is there anything else I can help with?`;
   }
   s.offered = upgrades;
-  s.step = 'offer';
+  s.stage = 'offer';
   return `Thanks, ${name}. You are on ${describe(current)}. Plans with more data: ${list(upgrades)}. ${offerQuestion(s)}`;
 }
 
@@ -238,7 +252,7 @@ function startHome(s: State, text: string, call: CallTool): string {
   s.flow = 'home';
   const address = extractAddress(text);
   if (address) return checkCoverage(s, address, text, call);
-  s.step = 'address';
+  s.stage = 'address';
   return `I can check what is available at your address. ${pendingQuestion(s)}`;
 }
 
@@ -271,7 +285,7 @@ function retryCoverage(s: State, call: CallTool): string {
 
 function afterCoverage(s: State, coverage: CoverageAnswer, text: string, call: CallTool): string {
   if (!coverage.found) {
-    s.step = 'address';
+    s.stage = 'address';
     return `I can't find ${s.address} in our coverage map. Please give the street number, street name and town, for example 14 Harbor Road, Acmeville.`;
   }
   const { found: _found, ...known } = coverage;
@@ -299,10 +313,10 @@ function afterCoverage(s: State, coverage: CoverageAnswer, text: string, call: C
   const named = mentionedPlans(text, catalog.plans);
   if (named.length === 1 && named[0]) {
     s.plan = named[0];
-    s.step = 'details';
+    s.stage = 'details';
     return `${named[0].name} is available at ${coverage.address}: ${terms(named[0])}. ${detailsQuestion(s)}`;
   }
-  s.step = 'offer';
+  s.stage = 'offer';
   const plans =
     catalog.plans.length === 1
       ? `The plan available there: ${list(catalog.plans)}.`
@@ -322,7 +336,7 @@ function startPorting(s: State, text: string, call: CallTool): string {
   s.flow = 'porting';
   const number = extractPhone(text);
   if (number) return checkPort(s, number, call);
-  s.step = 'port_number';
+  s.stage = 'port_number';
   return `Happy to help you switch and keep your number. ${pendingQuestion(s)}`;
 }
 
@@ -362,7 +376,7 @@ function offerMobile(s: State, call: CallTool, intro: string): string {
     );
   }
   s.offered = catalog.plans;
-  s.step = 'offer';
+  s.stage = 'offer';
   return `${intro} Our mobile plans: ${list(catalog.plans)}. ${offerQuestion(s)}`;
 }
 
@@ -392,7 +406,7 @@ function atOffer(s: State, text: string): string | undefined {
 function choosePlan(s: State, plan: PlanView): string {
   s.plan = plan;
   if (s.flow === 'upgrade' || (s.customer.name && s.customer.email)) return recap(s);
-  s.step = 'details';
+  s.stage = 'details';
   return `Good choice: ${describe(plan)}. ${detailsQuestion(s)}`;
 }
 
@@ -416,10 +430,10 @@ function detailsQuestion(s: State): string {
 function recap(s: State): string {
   const plan = s.plan;
   if (!plan) {
-    s.step = 'offer';
+    s.stage = 'offer';
     return offerQuestion(s);
   }
-  s.step = 'recap';
+  s.stage = 'recap';
   const ask = 'Reply CONFIRM to place the order.';
   if (s.flow === 'upgrade') {
     const from = s.currentPlan ? `${s.currentPlan.name} to ` : '';
@@ -433,14 +447,18 @@ function recap(s: State): string {
   return `Here is your order: ${describe(plan)}, ${who}, ${number}. ${ask}`;
 }
 
-function atRecap(s: State, text: string, call: CallTool): string | undefined {
-  if (isExplicitConfirm(text)) return placeOrder(s, call);
+function atRecap(s: State, text: string, call: CallTool, guards: GuardEvent[]): string | undefined {
+  if (isExplicitConfirm(text)) {
+    guards.push({ name: 'explicit_confirmation', verdict: 'pass' });
+    return placeOrder(s, call);
+  }
   const other = mentionedPlans(text, s.offered).filter((plan) => plan.id !== s.plan?.id);
   if (other.length === 1 && other[0]) {
     s.plan = other[0];
     return recap(s);
   }
   if (isLooseYes(text)) {
+    guards.push({ name: 'explicit_confirmation', verdict: 'block' });
     return 'I need an explicit go before I place anything: reply CONFIRM to place the order, or tell me what to change.';
   }
   return undefined;
@@ -453,7 +471,7 @@ function placeOrder(s: State, call: CallTool): string {
   const orderId = readString(outcome, 'order_id');
   if (orderId) {
     s.orderId = orderId;
-    s.step = 'order_placed';
+    s.stage = 'order_placed';
     return placedText(s, plan, orderId);
   }
   // Never retried: a second order.create could place the order twice. Sales takes it from here.
@@ -499,7 +517,7 @@ function placedText(s: State, plan: PlanView, orderId: string): string {
 
 function askPhone(s: State, lead: Lead, question: string): string {
   s.pendingLead = lead;
-  s.step = 'callback';
+  s.stage = 'callback';
   return question;
 }
 
@@ -540,7 +558,7 @@ function sendLead(s: State, lead: Lead, call: CallTool): string | undefined {
   const ticketId = readString(outcome, 'ticket_id');
   s.lead = { ...lead, ticketId };
   s.pendingLead = undefined;
-  s.step = 'handover';
+  s.stage = 'handover';
   return ticketId;
 }
 
@@ -555,7 +573,7 @@ function leadStatus(s: State): string {
 
 /** The question the conversation is waiting on. Every detour ends with it. */
 export function pendingQuestion(s: State): string {
-  switch (s.step) {
+  switch (s.stage) {
     case 'needs':
       return NEEDS;
     case 'identify':
@@ -578,7 +596,7 @@ export function pendingQuestion(s: State): string {
 }
 
 function resume(s: State): string {
-  switch (s.step) {
+  switch (s.stage) {
     case 'needs':
       return `We were just starting. ${NEEDS}`;
     case 'offer': {

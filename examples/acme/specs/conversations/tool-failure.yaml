@@ -21,7 +21,7 @@ given:
     tools:
       notify_sales:
         result: { ticket_id: LEAD-TEST01, queued: true }
-steps: [address, offer, callback, handover, closing]
+stages: [address, offer, callback, handover, closing]
 
 criteria:
   - name: honest_failure
@@ -40,7 +40,7 @@ blocks:
         tools:
           coverage.check: { error: coverage service timeout, latency_ms: 1500 }
     expect:
-      step: callback
+      stage: callback
       tools:
         - label: coverage.check
           count: 2
@@ -53,7 +53,7 @@ blocks:
 
   - user: '+1 202 555 0188'
     expect:
-      step: handover
+      stage: handover
       ledger_add: { phone: '+12025550188', ticket_id: LEAD-TEST01 }
       tools:
         - label: notify_sales
@@ -66,7 +66,7 @@ blocks:
 
   - user: Can you try the check again now?
     expect:
-      step: handover
+      stage: handover
       tools:
         - { label: coverage.check, count: { min: 1, max: 2 } }
         - { label: notify_sales, count: 0 }
@@ -94,10 +94,10 @@ perturbations:
       tools:
         notify_sales: { error: sales queue unavailable }
     expect:
-      step: handover
+      stage: handover
       tools:
         - { label: notify_sales, count: 1 }
       must: ['could not book the callback', 'Acme Sales', '\+1 202 555 0101']
       must_not: ['LEAD-', 'will call you']
       criteria: [honest_failure@gating]
-    recovery: { within_blocks: 0, step_after: handover }
+    recovery: { within_blocks: 0, stage_after: handover }

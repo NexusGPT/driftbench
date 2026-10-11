@@ -30,11 +30,11 @@ describe('the Acme spec tree', () => {
     }
   });
 
-  it('perturbs with at least four deviation classes, each perturbation with a recovery step', () => {
+  it('perturbs with at least four deviation classes, each perturbation with a recovery stage', () => {
     const perturbations = loaded.flatMap((entry) => entry.spec.perturbations ?? []);
     expect(new Set(perturbations.map((perturbation) => perturbation.class)).size).toBeGreaterThanOrEqual(4);
     for (const perturbation of perturbations) {
-      expect(perturbation.recovery?.step_after, perturbation.id).toBeTruthy();
+      expect(perturbation.recovery?.stage_after, perturbation.id).toBeTruthy();
     }
   });
 
@@ -48,6 +48,17 @@ describe('the Acme spec tree', () => {
     );
     expect(specs.find((spec) => spec.id === 'acme-order-loose-confirmation')?.end_state).toBeDefined();
     expect(specs.every((spec) => (spec.criteria?.length ?? 0) > 0)).toBe(true);
+    const guarded = specs.filter((spec) =>
+      [...spec.blocks.map((block) => block.expect), ...(spec.perturbations ?? []).map((p) => p.expect)].some(
+        (expect) => (expect?.guards?.length ?? 0) > 0,
+      ),
+    );
+    expect(guarded.map((spec) => spec.kind).sort()).toEqual([
+      'conversation',
+      'conversation',
+      'conversation',
+      'task',
+    ]);
   });
 });
 
@@ -102,15 +113,27 @@ describe('the hand-rolled checks fail on a broken agent', () => {
   );
 
   it.each(conversations.map((spec) => ({ id: spec.id, spec })))(
-    'flags $id when the agent reports the wrong step',
+    'flags $id when the agent reports the wrong stage',
     async ({ spec }) => {
       const wrap = broken((observed) => {
-        observed.runtime = { steps: [{ id: 'needs' }] };
+        observed.runtime = { stages: [{ name: 'needs' }] };
       });
       const run = await driveSpec(spec, { wrap });
-      expect(run.failures.some((failure) => failure.includes('step: expected'))).toBe(true);
+      expect(run.failures.some((failure) => failure.includes('stage: expected'))).toBe(true);
     },
   );
+
+  it('flags a guardrail that never reports firing', async () => {
+    const spec = conversations.find((entry) => entry.id === 'acme-order-loose-confirmation');
+    if (!spec) throw new Error('missing spec');
+    const wrap = broken((observed) => {
+      observed.runtime = { stages: observed.runtime?.stages ?? [] };
+    });
+    const run = await driveSpec(spec, { wrap });
+    expect(run.failures).toContain(
+      'block 2 (loose-yes): guard explicit_confirmation with verdict block: expected exactly 1, saw 0',
+    );
+  });
 
   it('flags an order number invented on a loose yes', async () => {
     const spec = conversations.find((entry) => entry.id === 'acme-order-loose-confirmation');

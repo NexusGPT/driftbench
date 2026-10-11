@@ -1,100 +1,69 @@
-import { readFile } from 'node:fs/promises';
-import { DeviationClass } from '@driftbench/core';
+import { computeCoverage, type Inventory, loadInventory, loadSpecs } from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
-import { INVENTORY_PATH, loadAcmeSpecs } from './support/specs';
-import { parseYaml } from './support/yaml';
+import { INVENTORY_PATH, SPECS_DIR } from './support/specs';
 
-/** The inventory contract shared with the coverage tool. */
-type Behaviour = { id: string; title: string; kind?: 'conversation' | 'task'; channels?: string[] };
-type Flow = { id: string; title: string; behaviours: string[]; deviations?: string[] };
-type Inventory = { behaviours: Behaviour[]; flows: Flow[]; channels?: string[] };
+const loaded = await loadInventory(INVENTORY_PATH);
+if (!loaded.ok) throw new Error(`invalid inventory: ${JSON.stringify(loaded.errors, null, 2)}`);
+const inventory: Inventory = loaded.inventory;
+const coverage = computeCoverage(await loadSpecs([SPECS_DIR]), inventory);
 
-const inventory = parseYaml(await readFile(INVENTORY_PATH, 'utf8')) as Inventory;
-const specs = (await loadAcmeSpecs()).map((entry) => entry.spec);
-const channels = inventory.channels ?? [];
-const kindOf = (behaviour: Behaviour) => behaviour.kind ?? 'conversation';
-const flowOf = (tags: string[] | undefined) => tags?.find((tag) => tag.startsWith('flow:'))?.slice(5);
+const cells = (status: 'covered' | 'missing') =>
+  coverage.behaviours.flatMap((behaviour) =>
+    behaviour.cells.filter((cell) => cell.status === status).map((cell) => `${behaviour.id}@${cell.channel}`),
+  );
+const deviations = (status: 'covered' | 'missing') =>
+  coverage.flows.flatMap((flow) =>
+    flow.cells.filter((cell) => cell.status === status).map((cell) => `${flow.id}/${cell.deviation}`),
+  );
 
 describe('the inventory', () => {
-  it('keeps the contract: top-level keys, id patterns, kinds and channels', () => {
-    expect(Object.keys(inventory).sort()).toEqual(['behaviours', 'channels', 'flows']);
-    for (const behaviour of inventory.behaviours) {
-      expect(Object.keys(behaviour).every((key) => ['id', 'title', 'kind', 'channels'].includes(key))).toBe(
-        true,
-      );
-      expect(behaviour.id).toMatch(/^[A-Z]+-\d+$/);
-      expect(behaviour.title.length).toBeGreaterThan(0);
-      expect(['conversation', 'task']).toContain(kindOf(behaviour));
-      for (const channel of behaviour.channels ?? []) expect(channels).toContain(channel);
-    }
-    for (const flow of inventory.flows) {
-      expect(
-        Object.keys(flow).every((key) => ['id', 'title', 'behaviours', 'deviations'].includes(key)),
-      ).toBe(true);
-      expect(flow.id).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
-      for (const deviation of flow.deviations ?? []) expect(DeviationClass.options).toContain(deviation);
-    }
+  it('loads with the inventory loader of the coverage command', () => {
+    expect(loaded.ok).toBe(true);
+    expect(inventory.channels).toEqual(['chat', 'whatsapp']);
   });
 
   it('has at least 10 behaviours (two of kind task), 4 flows, and required deviations on 2 flows', () => {
-    const ids = inventory.behaviours.map((behaviour) => behaviour.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    expect(ids.length).toBeGreaterThanOrEqual(10);
-    expect(inventory.behaviours.filter((behaviour) => kindOf(behaviour) === 'task')).toHaveLength(2);
+    expect(inventory.behaviours.length).toBeGreaterThanOrEqual(10);
+    expect(inventory.behaviours.filter((behaviour) => behaviour.kind === 'task')).toHaveLength(2);
     expect(inventory.flows.length).toBeGreaterThanOrEqual(4);
     expect(
       inventory.flows.filter((flow) => (flow.deviations?.length ?? 0) > 0).length,
     ).toBeGreaterThanOrEqual(2);
-    for (const flow of inventory.flows) {
-      for (const id of flow.behaviours) expect(ids).toContain(id);
-    }
   });
 });
 
-describe('the specs against the inventory', () => {
-  it('cover only known behaviours of their own kind, on a known channel, in a known flow', () => {
-    const byId = new Map(inventory.behaviours.map((behaviour) => [behaviour.id, behaviour]));
-    for (const spec of specs) {
-      expect(channels, spec.id).toContain(spec.channel);
-      expect(
-        inventory.flows.map((flow) => flow.id),
-        spec.id,
-      ).toContain(flowOf(spec.tags));
-      for (const id of spec.covers ?? []) {
-        const behaviour = byId.get(id);
-        expect(behaviour, `${spec.id} covers ${id}`).toBeDefined();
-        if (behaviour) expect(kindOf(behaviour), `${spec.id} covers ${id}`).toBe(spec.kind);
-      }
-    }
+describe('coverage of the inventory by the Acme specs', () => {
+  it('counts every spec, with no warning: known behaviours, flows and channels, kinds that match', () => {
+    expect(coverage.invalidSpecs).toEqual([]);
+    expect(coverage.warnings).toEqual([]);
+    expect(coverage.channels).toEqual(['chat', 'whatsapp']);
   });
 
-  it('leave both covered and missing cells in the behaviour by channel matrix', () => {
-    const cells = inventory.behaviours.flatMap((behaviour) =>
-      (behaviour.channels ?? channels).map((channel) => ({
-        cell: `${behaviour.id}@${channel}`,
-        covered: specs.some((spec) => spec.channel === channel && spec.covers?.includes(behaviour.id)),
-      })),
-    );
-    const missing = cells.filter((cell) => !cell.covered).map((cell) => cell.cell);
-    expect(missing).toContain('B-007@chat');
-    expect(missing).toContain('B-006@chat');
-    expect(cells.filter((cell) => cell.covered).map((cell) => cell.cell)).toEqual(
+  it('shows covered and missing cells in the behaviour by channel matrix', () => {
+    expect(cells('missing')).toEqual([
+      'B-002@whatsapp',
+      'B-003@whatsapp',
+      'B-004@whatsapp',
+      'B-005@whatsapp',
+      'B-006@chat',
+      'B-007@chat',
+      'B-007@whatsapp',
+      'B-009@whatsapp',
+      'B-010@whatsapp',
+      'B-011@whatsapp',
+      'B-012@whatsapp',
+    ]);
+    expect(cells('covered')).toEqual(
       expect.arrayContaining(['B-001@chat', 'B-006@whatsapp', 'B-008@whatsapp', 'B-013@chat', 'B-014@chat']),
     );
+    expect(coverage.perChannel).toEqual([
+      { channel: 'chat', applicable: 14, covered: 12, missing: 2 },
+      { channel: 'whatsapp', applicable: 11, covered: 2, missing: 9 },
+    ]);
   });
 
-  it('leave both covered and missing cells in the flow by deviation matrix', () => {
-    const cells = inventory.flows.flatMap((flow) =>
-      (flow.deviations ?? []).map((deviation) => ({
-        cell: `${flow.id}/${deviation}`,
-        covered: specs.some(
-          (spec) =>
-            flowOf(spec.tags) === flow.id &&
-            (spec.perturbations ?? []).some((perturbation) => perturbation.class === deviation),
-        ),
-      })),
-    );
-    expect(cells.filter((cell) => cell.covered).map((cell) => cell.cell)).toEqual([
+  it('shows covered and missing cells in the flow by deviation matrix, the task flow included', () => {
+    expect(deviations('covered')).toEqual([
       'new-home/D1_off_topic',
       'new-home/D6_instruction_in_data',
       'new-home/D8_tool_failure',
@@ -103,10 +72,27 @@ describe('the specs against the inventory', () => {
       'order/D8_tool_failure',
       'price-sheet/D6_instruction_in_data',
     ]);
-    expect(cells.filter((cell) => !cell.covered).map((cell) => cell.cell)).toEqual([
+    expect(deviations('missing')).toEqual([
       'new-home/D5_language_switch',
       'order/D2_goal_shift',
       'order/D3_contradiction',
     ]);
+  });
+
+  it('counts injection blocks and perturbations as deviation sources', () => {
+    const newHome = coverage.flows.find((flow) => flow.id === 'new-home');
+    const comeBack = newHome?.cells.find((cell) => cell.deviation === 'D10_return');
+    expect(comeBack?.sources).toEqual([
+      { spec: 'acme-off-topic-return', source: 'injection', path: 'blocks.3' },
+      { spec: 'acme-off-topic-return', source: 'perturbation', path: 'perturbations.0' },
+    ]);
+  });
+
+  it('fails on purpose while the gaps stay open: 4 of 14 behaviours, 7 of 10 deviations', () => {
+    expect(coverage.summary).toEqual({
+      behaviours: { covered: 4, total: 14 },
+      deviations: { covered: 7, total: 10 },
+    });
+    expect(coverage.ok).toBe(false);
   });
 });

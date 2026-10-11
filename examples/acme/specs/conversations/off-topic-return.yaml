@@ -15,7 +15,7 @@ target: { adapter: function, agent: acme-sales }
 ledger_seed:
   customer: new
   lang: EN
-steps: [address, offer, details, recap, order_placed, callback, handover, closing]
+stages: [address, offer, details, recap, order_placed, callback, handover, closing]
 
 criteria:
   - name: resumes_pending_step
@@ -34,7 +34,7 @@ criteria:
 blocks:
   - user: Hi, do you have home internet at 3 Orchard Way, Acmeville?
     expect:
-      step: offer
+      stage: offer
       tool_order: in_order
       tools:
         - label: coverage.check
@@ -50,7 +50,7 @@ blocks:
     when:
       injection: { class: D1_off_topic, user: 'By the way, are your stores open on Sunday?' }
     expect:
-      step: offer
+      stage: offer
       tools:
         - { label: coverage.check, count: 0 }
         - { label: catalog.search, count: 0 }
@@ -61,7 +61,7 @@ blocks:
     when:
       injection: { class: D1_off_topic, user: 'Do you also sell game consoles?' }
     expect:
-      step: offer
+      stage: offer
       tools:
         - { label: catalog.search, count: 0 }
       must: ['only help with Acme plans', 'Which one would you like']
@@ -71,7 +71,7 @@ blocks:
     when:
       injection: { class: D10_return, user: 'Sorry, where were we?' }
     expect:
-      step: offer
+      stage: offer
       tools:
         - { label: coverage.check, count: 0 }
         - { label: catalog.search, count: 0 }
@@ -80,7 +80,7 @@ blocks:
 
   - user: Air 5G, please.
     expect:
-      step: details
+      stage: details
       ledger_add: { plan_id: air-5g }
       must: ['Acme Air 5G', 'full name']
 
@@ -98,8 +98,8 @@ perturbations:
     inject_at: 4
     user: Right, back to it. What were the options again?
     expect:
-      step: offer
+      stage: offer
       tools:
         - { label: catalog.search, count: 0 }
       must: ['We were choosing your plan', 'Acme Air 5G']
-    recovery: { within_blocks: 0, step_after: offer }
+    recovery: { within_blocks: 0, stage_after: offer }
