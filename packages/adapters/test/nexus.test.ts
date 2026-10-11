@@ -224,7 +224,7 @@ describe('nexus turn readers, on the captured shapes', () => {
 });
 
 describe('nexus adapter, against the fake platform', () => {
-  it('opens a golden conversation for the target agent, deployment and variant, and leaves the prefix to the runner', async () => {
+  it('opens a golden conversation for the target agent, deployment and variant, the prefix in the history only', async () => {
     const fake = createFakeNexus({ apiKey: KEY, stubs });
     const adapter = on(fake);
     expect(adapter.capabilities()).toEqual({
@@ -249,7 +249,8 @@ describe('nexus adapter, against the fake platform', () => {
       },
     });
     expect(fake.conversations.has(session.id)).toBe(true);
-    expect(session.history).toEqual([]);
+    expect(session.history, 'the record the runner keeps').toEqual([{ role: 'user', content: 'earlier' }]);
+    expect(fake.conversations.get(session.id)?.turns, 'the platform conversation holds no turn').toEqual([]);
   });
 
   it('needs the agent, the deployment and the key, and asks nothing of the platform without them', async () => {

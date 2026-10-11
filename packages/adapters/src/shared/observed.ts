@@ -9,8 +9,8 @@ import {
 } from '@driftbench/core';
 
 /**
- * Helpers the function, http and nexus adapters share: the messages a stimulus delivers, the text of a
- * turn, the check on an Observed an agent returns, end-state sources, and the error rule.
+ * What the adapters share about a turn: the messages a stimulus delivers, the text of a turn, the check on
+ * an Observed an agent returns, end-state sources, and the error rule.
  */
 
 /** Text segments join with a newline into `Observed.text`: one line for each message the agent sent. */

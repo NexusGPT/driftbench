@@ -9,8 +9,7 @@ import {
   type Session,
   type TargetRef,
 } from '@driftbench/core';
-import { readSource, stimulusMessages, type ToolPayload } from '../function/shared';
-import type { FetchLike } from '../http/transport';
+import { type FetchLike, readSource, stimulusMessages, type ToolPayload } from '../shared';
 import { type Answer, createClient, DEFAULT_BASE_URL, type NexusClient } from './client';
 import {
   type Candidate,
@@ -36,8 +35,8 @@ import {
  *
  * The key is read from NEXUS_API_KEY and the server from NEXUS_BASE_URL (default the public API). Neither
  * ever reaches a message, a log or an Observed. The platform cannot seed an agent turn without running the
- * agent and cannot force a tool result, so `seedPrefix` and `toolStubs` are false: the runner replays a
- * prefix through `send`.
+ * agent and cannot force a tool result, so `seedPrefix` and `toolStubs` are false: the agent never sees a
+ * prefix, though the session history holds it, as the record the runner keeps.
  */
 
 export const NEXUS_ADAPTER_VERSION = '0.1.0';
@@ -247,7 +246,14 @@ export function nexusAdapter(options: NexusAdapterOptions = {}): AgentAdapter {
         blocks: 0,
         calls: [],
       };
-      return { id: conversationId, adapter: id, target, given, history: [], state };
+      return {
+        id: conversationId,
+        adapter: id,
+        target,
+        given,
+        history: structuredClone(given.prefix),
+        state,
+      };
     },
 
     async send(session, turn) {

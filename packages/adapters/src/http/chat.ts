@@ -1,4 +1,5 @@
 import { isPlainObject, type Message } from '@driftbench/core';
+import { contentText, parseArguments } from '../shared';
 
 /**
  * The OpenAI-compatible chat shape the http adapter speaks: the messages it sends, and the completion an
@@ -80,32 +81,6 @@ export function readCompletion(body: unknown): ChatReply | undefined {
     if (counts.inputTokens !== undefined || counts.outputTokens !== undefined) reply.usage = counts;
   }
   return reply;
-}
-
-/** The text of a message content: a string, or the text parts of a content list. */
-export function contentText(content: unknown): string {
-  if (typeof content === 'string') return content;
-  if (!Array.isArray(content)) return '';
-  return content
-    .flatMap((part: unknown) =>
-      isPlainObject(part) &&
-      typeof part.text === 'string' &&
-      (part.type === 'text' || part.type === undefined)
-        ? [part.text]
-        : [],
-    )
-    .join('');
-}
-
-/** Tool arguments arrive as JSON text; text that does not parse is kept as it is. */
-export function parseArguments(value: unknown): unknown {
-  if (typeof value !== 'string') return value ?? {};
-  if (value.trim() === '') return {};
-  try {
-    return JSON.parse(value);
-  } catch {
-    return value;
-  }
 }
 
 function isCount(value: unknown): value is number {

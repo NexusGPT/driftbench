@@ -1,5 +1,5 @@
 import { AdapterTransportError, AgentFailure, isPlainObject } from '@driftbench/core';
-import { excerpt, type FetchLike, type HttpReply, sendRequest } from '../http/transport';
+import { excerpt, type FetchLike, type HttpReply, sendRequest } from '../shared';
 
 /**
  * A small client for the Nexus public API v1: every path is relative to `<base>/api/public/v1`, the key
