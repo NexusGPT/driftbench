@@ -99,6 +99,38 @@ describe('generate on the approved Acme map', () => {
     }
   });
 
+  it('gives each metamorphic family one cell and one Then: only the phrasing differs', () => {
+    const family = (spec: Spec) =>
+      (spec.metadata as { generated: { metamorphic?: { family: string } } }).generated.metamorphic?.family;
+    const groups = new Map<string, Spec[]>();
+    for (const spec of result.all) {
+      const name = family(spec);
+      if (name) groups.set(name, [...(groups.get(name) ?? []), spec]);
+    }
+    expect([...groups.keys()]).toHaveLength(2);
+    const strip = (spec: Spec) => {
+      const copy = JSON.parse(JSON.stringify(spec));
+      copy.id = '';
+      copy.title = '';
+      copy.lang = '';
+      delete copy.metadata.generated.metamorphic;
+      for (const record of copy.metadata.generated.blocks) {
+        record.phrase = null;
+        record.cell = {};
+      }
+      for (const block of copy.blocks) {
+        if (block.when.injection) block.when.injection.user = '';
+        else block.when.user = '';
+      }
+      return JSON.stringify(copy);
+    };
+    for (const specs of groups.values()) {
+      expect(specs.length).toBeGreaterThanOrEqual(2);
+      expect(new Set(specs.map(strip)).size).toBe(1);
+      expect(new Set(specs.flatMap(userTexts)).size).toBeGreaterThanOrEqual(specs.length);
+    }
+  });
+
   it('lists the values with no approved phrase: every stage transition, every data value', () => {
     const gaps = new Set(result.report.no_phrase.map((gap) => gap.dimension));
     expect(gaps.has('stage_transition')).toBe(true);

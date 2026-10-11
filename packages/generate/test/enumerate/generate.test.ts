@@ -4,7 +4,7 @@ import { parse as parseYaml } from 'yaml';
 import { generateSuite, INCOMPLETE_DIR, REPORT_FILE } from '../../src/enumerate/generate';
 import { NO_THEN_CRITERION, PLACEHOLDER_CRITERION } from '../../src/seed/assemble';
 import { prepareMap } from '../../src/seed/map';
-import { userTexts, zedPrepared, zedProposal } from './support';
+import { userTexts, ZED_TOOLS, zedPrepared, zedProposal } from './support';
 
 const run = (options: { seed?: number; t?: number; max?: number } = {}) =>
   generateSuite(zedPrepared(), { mapPath: '../map.yaml', ...options });
@@ -247,6 +247,27 @@ describe('generateSuite on a small fictional map', () => {
     expect(
       lean.complete.every((spec) => spec.blocks.every((block) => Object.keys(block.expect ?? {}).length > 0)),
     ).toBe(true);
+  });
+
+  it('deviation: a probe is injected only at a stage the constraints allow for its class', () => {
+    const proposal = zedProposal();
+    const evidence = { source: 'prompt.md', quote: 'Stages, in order: greet, verify, help.' };
+    for (const stage of ['greet', 'verify']) {
+      proposal.constraints.push({
+        forbid: { deviation: 'D1_off_topic', stage },
+        reason: 'test',
+        evidence,
+        approved: true,
+      });
+    }
+    for (const seed of [1, 2, 3, 4, 5, 6]) {
+      const constrained = generateSuite(prepareMap(proposal, { tools: ZED_TOOLS }), {
+        mapPath: '../map.yaml',
+        seed,
+      });
+      const probe = constrained.report.deviation.probes.find((entry) => entry.class === 'D1_off_topic');
+      expect(probe?.stage, `seed ${seed}`).toBe('help');
+    }
   });
 
   it('writes YAML that reads back to the same spec', () => {
