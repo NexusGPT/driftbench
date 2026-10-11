@@ -639,10 +639,20 @@ describe('failures', () => {
       checks: minimalChecks,
       mode: 'F',
       repeat: 0,
-      retry: { sleep: async (ms) => void waits.push(ms) },
+      retry: { sleep: async (ms) => void waits.push(ms), jitter: false },
     });
     expect(run.status).toBe('completed');
-    expect(waits).toEqual([200, 400]);
+    expect(waits).toEqual([500, 1_000]);
+    expect(run.blocks[1]?.observed.retries?.map(({ at: _at, ...event }) => event)).toEqual([
+      { call: 'send on block 1', attempt: 1, reason: 'AdapterTransportError: socket hang up', delayMs: 500 },
+      {
+        call: 'send on block 1',
+        attempt: 2,
+        reason: 'AdapterTransportError: socket hang up',
+        delayMs: 1_000,
+      },
+    ]);
+    expect(run.blocks[0]?.observed.retries).toBeUndefined();
     expect(run.blocks.every((block) => block.pass)).toBe(true);
   });
 
@@ -664,7 +674,7 @@ describe('failures', () => {
       checks: minimalChecks,
       mode: 'F',
       repeat: 0,
-      retry: { sleep: async (ms) => void waits.push(ms) },
+      retry: { sleep: async (ms) => void waits.push(ms), jitter: false },
     });
     expectValid(run);
     expect(run.status).toBe('failed');
@@ -672,12 +682,131 @@ describe('failures', () => {
       'send on block 2 failed after 4 attempts: AdapterTransportError: 503 from the platform',
     );
     expect(attempts).toBe(4);
-    expect(waits).toEqual([200, 400, 800]);
+    expect(waits).toEqual([500, 1_000, 2_000]);
     expect(run.blocks).toHaveLength(2);
     // The end state is read after the failure too: the order was never placed.
     expect(run.endState?.match).toBe(false);
     expect(run.endState?.diff.map((entry) => entry.field)).toEqual(['type', 'customer_id', 'plan_id']);
     expect(adapter.calls.close).toBe(1);
+  });
+
+  it('retries under the spec target settings, the run settings over them, and hands the policy to the adapter', async () => {
+    const adapter = acmeAdapter();
+    const send = adapter.send.bind(adapter);
+    const policies: unknown[] = [];
+    let attempts = 0;
+    adapter.send = async (session, turn) => {
+      policies.push(turn.retry);
+      if (turn.index === 0) {
+        attempts += 1;
+        throw new AdapterTransportError('overloaded', { status: 529 });
+      }
+      return send(session, turn);
+    };
+    const target = { adapter: adapter.id, retry: { max_attempts: 2, base_delay_ms: 50, jitter: false } };
+    const waits: number[] = [];
+    const run = await runSpec(spec(), {
+      adapter,
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      target,
+      retry: { sleep: async (ms) => void waits.push(ms) },
+    });
+    expect(run.status).toBe('failed');
+    expect(attempts, 'max_attempts 2 from the spec target').toBe(2);
+    expect(waits).toEqual([50]);
+    expect(policies[0]).toEqual({
+      maxAttempts: 2,
+      baseDelayMs: 50,
+      maxDelayMs: 30_000,
+      jitter: false,
+      retryAfter: true,
+    });
+
+    attempts = 0;
+    const overridden = await runSpec(spec(), {
+      adapter,
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      target,
+      retry: { sleep: async () => {}, maxAttempts: 3 },
+    });
+    expect(overridden.status).toBe('failed');
+    expect(attempts, 'the run settings win over the spec target').toBe(3);
+  });
+
+  it('waits what Retry-After asks, and never retries a 408 or a call the adapter already retried in full', async () => {
+    const waits: number[] = [];
+    const run = async (errors: AdapterTransportError[]) => {
+      const adapter = acmeAdapter();
+      const send = adapter.send.bind(adapter);
+      let attempts = 0;
+      adapter.send = async (session, turn) => {
+        const error = turn.index === 0 ? errors[attempts] : undefined;
+        if (turn.index === 0) attempts += 1;
+        if (error) throw error;
+        return send(session, turn);
+      };
+      const result = await runSpec(spec(), {
+        adapter,
+        driver,
+        checks: minimalChecks,
+        mode: 'F',
+        repeat: 0,
+        retry: { sleep: async (ms) => void waits.push(ms), jitter: false },
+      });
+      return { result, attempts };
+    };
+    const asked = await run([new AdapterTransportError('slow down', { status: 429, retryAfterMs: 4_000 })]);
+    expect(asked.result.status).toBe('completed');
+    expect(waits).toEqual([4_000]);
+    expect(asked.result.blocks[0]?.observed.retries?.[0]).toMatchObject({
+      status: 429,
+      retryAfterMs: 4_000,
+      delayMs: 4_000,
+    });
+
+    const timeout = await run([new AdapterTransportError('request timeout', { status: 408 })]);
+    expect(timeout.attempts).toBe(1);
+    expect(timeout.result.error).toBe('send on block 0 failed: AdapterTransportError: request timeout');
+
+    const spent = await run([
+      new AdapterTransportError('messages.create failed after 4 attempts', { status: 503, exhausted: true }),
+    ]);
+    expect(spent.attempts).toBe(1);
+    expect(spent.result.status).toBe('failed');
+  });
+
+  it('keeps the retries out of the cache, so a replayed block reports none', async () => {
+    const cache = memoryCache();
+    const adapter = acmeAdapter();
+    const send = adapter.send.bind(adapter);
+    let failures = 1;
+    adapter.send = async (session, turn) => {
+      if (turn.index === 0 && failures > 0) {
+        failures -= 1;
+        throw new AdapterTransportError('socket hang up');
+      }
+      return send(session, turn);
+    };
+    const options = {
+      adapter,
+      driver,
+      checks: minimalChecks,
+      mode: 'F' as const,
+      repeat: 0,
+      cache,
+      retry: noWait,
+    };
+    const live = await runSpec(spec(), options);
+    expect(live.blocks[0]?.observed.retries).toHaveLength(1);
+    const replayed = await runSpec(spec(), options);
+    expect(replayed.cacheHit).toBe(true);
+    expect(replayed.blocks[0]?.observed.retries).toBeUndefined();
   });
 
   it('records an agent failure as a failed run, without a retry', async () => {

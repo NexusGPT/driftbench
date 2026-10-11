@@ -7,6 +7,7 @@ import {
   contentHash,
   isPlainObject,
   type Observed,
+  retryableStatus,
   Segment,
   type Session,
   type ToolCall,
@@ -35,8 +36,9 @@ export type { ChatMessage, ChatToolCall } from './chat';
  * OpenAI-compatible chat completion. A completion that asks for tools is answered from `world.tools` and
  * posted again, round after round, until a completion asks for none.
  *
- * Errors: no connection, a timeout, 408 or 429 is an AdapterTransportError, which the runner may retry; any
- * other failing status (5xx included) or a body of neither shape is an AgentFailure.
+ * Errors: no connection, a timeout, a 429 or a 5xx is an AdapterTransportError, which the runner retries under
+ * the shared policy, honouring Retry-After; any other failing status (408 included) or a body of neither shape
+ * is an AgentFailure.
  */
 
 export const HTTP_ADAPTER_VERSION = '0.1.0';
@@ -103,8 +105,11 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
       timeoutMs,
       label,
     );
-    if (reply.status === 408 || reply.status === 429) {
-      throw new AdapterTransportError(`${label} answered ${reply.status}: ${excerpt(reply.text)}`);
+    if (retryableStatus(reply.status)) {
+      throw new AdapterTransportError(`${label} answered ${reply.status}: ${excerpt(reply.text)}`, {
+        status: reply.status,
+        ...(reply.retryAfterMs === undefined ? {} : { retryAfterMs: reply.retryAfterMs }),
+      });
     }
     return reply;
   }

@@ -1,18 +1,17 @@
-import { AdapterTransportError, AgentFailure, isPlainObject } from '@driftbench/core';
+import { AdapterTransportError, AgentFailure, isPlainObject, retryableStatus } from '@driftbench/core';
 import { excerpt, type FetchLike, type HttpReply, sendRequest } from '../shared';
 
 /**
  * A small client for the Nexus public API v1: every path is relative to `<base>/api/public/v1`, the key
  * travels in the `api-key` header, and an answer `{ success: true, data, meta }` is unwrapped to its data.
  *
- * Errors: no connection, a timeout, 408, 429, 502, 503 or 504 is an AdapterTransportError, which the runner
- * may retry; any other failing status is an AgentFailure carrying the platform's error code and message.
+ * Errors: no connection, a timeout, a 429 or a 5xx is an AdapterTransportError, which the runner retries under
+ * the shared policy, honouring Retry-After; any other failing status is an AgentFailure carrying the platform's
+ * error code and message.
  * Messages name the method and the path, never a header, so the key reaches no message and no log.
  */
 
 export const DEFAULT_BASE_URL = 'https://api.nexusgpt.io';
-
-const RETRYABLE = new Set([408, 429, 502, 503, 504]);
 
 export type Query = Record<string, string | number | undefined>;
 
@@ -88,7 +87,11 @@ function unwrap(reply: HttpReply, label: string): Answer {
 
 function failure(reply: HttpReply, label: string): AdapterTransportError | AgentFailure {
   const message = `${label} answered ${reply.status}: ${errorDetail(reply.json) ?? excerpt(reply.text)}`;
-  return RETRYABLE.has(reply.status) ? new AdapterTransportError(message) : new AgentFailure(message);
+  if (!retryableStatus(reply.status)) return new AgentFailure(message);
+  return new AdapterTransportError(message, {
+    status: reply.status,
+    ...(reply.retryAfterMs === undefined ? {} : { retryAfterMs: reply.retryAfterMs }),
+  });
 }
 
 /** The platform's own words for an error: `error.code: error.message`, or a top-level `message`. */

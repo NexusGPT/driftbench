@@ -4,6 +4,7 @@ import {
   AgentFailure,
   contentHash,
   isPlainObject,
+  type RetryPolicy,
   type Segment,
   type Session,
   type Turn,
@@ -11,6 +12,7 @@ import {
 import {
   addUsage,
   answerTool,
+  callModel,
   measureOnce,
   newUsage,
   observedOf,
@@ -18,13 +20,14 @@ import {
   outputText,
   ownState,
   payloadLog,
+  policyOf,
+  type RetryOption,
   readPayloads,
   recordPayloads,
   type SdkState,
   type SdkTool,
   type SdkTools,
   stepCap,
-  vendorError,
   WireNames,
 } from './common';
 import {
@@ -58,7 +61,7 @@ export type {
 
 export const ANTHROPIC_ADAPTER_VERSION = '0.1.0';
 
-export type AnthropicAdapterOptions = {
+export type AnthropicAdapterOptions = RetryOption & {
   /** The client. The adapter calls `client.messages.create(body)` and nothing else. */
   client: AnthropicClientLike;
   /** The model id, such as `claude-sonnet-5-5`. */
@@ -96,13 +99,17 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
     deterministic: options.deterministic ?? false,
   };
 
-  async function create(body: AnthropicCreateParams, block: number): Promise<AnthropicMessage> {
-    let answer: unknown;
-    try {
-      answer = await options.client.messages.create(body);
-    } catch (cause) {
-      throw vendorError(cause, `messages.create (${options.model}) failed on block ${block}`);
-    }
+  async function create(
+    body: AnthropicCreateParams,
+    block: number,
+    policy: RetryPolicy,
+  ): Promise<AnthropicMessage> {
+    const answer: unknown = await callModel(
+      `messages.create (${options.model}) on block ${block}`,
+      () => options.client.messages.create(body),
+      policy,
+      options,
+    );
     if (!isPlainObject(answer) || !Array.isArray(answer.content)) {
       throw new AgentFailure(`messages.create (${options.model}) answered without a content list`);
     }
@@ -139,6 +146,7 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
         input_schema: tool.inputSchema ?? { type: 'object' },
       }));
       const cap = stepCap(maxSteps, turn.budget?.steps);
+      const policy = policyOf(turn, session, options);
       const context = {
         sessionId: session.id,
         blockIndex: turn.index,
@@ -161,6 +169,7 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
             ...(tools.length === 0 ? {} : { tools }),
           },
           turn.index,
+          policy,
         );
         const callMs = Math.round(performance.now() - started);
         latencyMs += callMs;

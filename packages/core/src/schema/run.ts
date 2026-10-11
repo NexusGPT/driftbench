@@ -123,6 +123,20 @@ export const RuntimeTrace = z.strictObject({
 });
 export type RuntimeTrace = z.infer<typeof RuntimeTrace>;
 
+/** One retry of a model or adapter call: which call, which attempt failed, why, and how long it waited. */
+export const RetryEvent = z.strictObject({
+  call: z.string().min(1),
+  /** The attempt that failed, counted from 1. */
+  attempt: z.number().int().min(1),
+  status: z.number().int().optional(),
+  reason: z.string(),
+  delayMs: z.number().nonnegative(),
+  /** What the server's Retry-After asked, when it sent one. */
+  retryAfterMs: z.number().nonnegative().optional(),
+  at: z.string().optional(),
+});
+export type RetryEvent = z.infer<typeof RetryEvent>;
+
 /** Everything observed in one block. */
 export const Observed = z.strictObject({
   segments: z.array(Segment),
@@ -138,6 +152,8 @@ export const Observed = z.strictObject({
     .optional(),
   cost: Cost,
   latencyMs: z.number().nonnegative(),
+  /** Every retry the block's calls took, the adapter's own and the runner's, in order. Absent when none. */
+  retries: z.array(RetryEvent).optional(),
   raw: z.unknown().optional(),
 });
 export type Observed = z.infer<typeof Observed>;
@@ -147,6 +163,8 @@ export const Vote = z.strictObject({
   outcome: Outcome,
   score: z.number().optional(),
   reasoning: z.string().optional(),
+  /** Every retry the judge's call took. Absent when none. */
+  retries: z.array(RetryEvent).optional(),
 });
 
 /** One check's result on one block. Machine verdicts are final; judge verdicts carry their votes. */

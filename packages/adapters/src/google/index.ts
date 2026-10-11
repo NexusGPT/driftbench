@@ -4,6 +4,7 @@ import {
   AgentFailure,
   contentHash,
   isPlainObject,
+  type RetryPolicy,
   type Segment,
   type Session,
   type Turn,
@@ -11,19 +12,21 @@ import {
 import {
   addUsage,
   answerTool,
+  callModel,
   measureOnce,
   newUsage,
   observedOf,
   openSession,
   ownState,
   payloadLog,
+  policyOf,
+  type RetryOption,
   readPayloads,
   recordPayloads,
   type SdkState,
   type SdkTool,
   type SdkTools,
   stepCap,
-  vendorError,
   WireNames,
 } from '../anthropic/common';
 import {
@@ -58,7 +61,7 @@ export type {
 
 export const GOOGLE_ADAPTER_VERSION = '0.1.0';
 
-export type GoogleAdapterOptions = {
+export type GoogleAdapterOptions = RetryOption & {
   /** The client. The adapter calls `client.models.generateContent(params)` and nothing else. */
   client: GoogleClientLike;
   /** The model id, such as `gemini-3-pro`. */
@@ -95,13 +98,17 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
     deterministic: options.deterministic ?? false,
   };
 
-  async function generate(params: GoogleGenerateParams, block: number): Promise<GoogleGenerateResponse> {
-    let answer: unknown;
-    try {
-      answer = await options.client.models.generateContent(params);
-    } catch (cause) {
-      throw vendorError(cause, `generateContent (${options.model}) failed on block ${block}`);
-    }
+  async function generate(
+    params: GoogleGenerateParams,
+    block: number,
+    policy: RetryPolicy,
+  ): Promise<GoogleGenerateResponse> {
+    const answer: unknown = await callModel(
+      `generateContent (${options.model}) on block ${block}`,
+      () => options.client.models.generateContent(params),
+      policy,
+      options,
+    );
     if (!isPlainObject(answer)) {
       throw new AgentFailure(`generateContent (${options.model}) answered something that is not an object`);
     }
@@ -143,6 +150,7 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
         ...(options.maxOutputTokens === undefined ? {} : { maxOutputTokens: options.maxOutputTokens }),
       };
       const cap = stepCap(maxSteps, turn.budget?.steps);
+      const policy = policyOf(turn, session, options);
       const context = {
         sessionId: session.id,
         blockIndex: turn.index,
@@ -156,7 +164,7 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
       let latencyMs = 0;
       for (let step = 1; ; step++) {
         const started = performance.now();
-        const answer = await generate({ model: options.model, contents, config }, turn.index);
+        const answer = await generate({ model: options.model, contents, config }, turn.index, policy);
         const callMs = Math.round(performance.now() - started);
         latencyMs += callMs;
         const meta = answer.usageMetadata;
