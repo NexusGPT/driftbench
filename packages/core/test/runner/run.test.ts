@@ -346,7 +346,7 @@ describe('verdicts, pass and drift', () => {
     expect(failures(run)).toContain('block 0: must.0: /Acme Fiber 1000 is available/ is missing');
   });
 
-  it('passes a block whose only failing verdict does not gate, and names X4 for lang and cards', async () => {
+  it('passes a block whose only failing verdict does not gate, with no drift, and names X4 for lang and cards', async () => {
     const spec = specOf({ id: 'drift', blocks: [{ user: 'a', expect: { must: ['ok'] } }] });
     const fixed = (verdicts: ReturnType<typeof machineVerdict>[]): Check => ({
       name: 'fixed',
@@ -360,7 +360,7 @@ describe('verdicts, pass and drift', () => {
       mode: 'F',
       repeat: 0,
     });
-    expect(soft.blocks[0]).toMatchObject({ pass: true, drift: ['X5_tool'] });
+    expect(soft.blocks[0]).toMatchObject({ pass: true, drift: [] });
 
     const format = await runSpec(spec, {
       adapter: echoAdapter(),
@@ -375,7 +375,7 @@ describe('verdicts, pass and drift', () => {
       mode: 'F',
       repeat: 0,
     });
-    expect(format.blocks[0]).toMatchObject({ pass: false, drift: ['X4_format'] });
+    expect(format.blocks[0]).toMatchObject({ pass: false, drift: ['X1_local', 'X4_format'] });
 
     const unsure = await runSpec(spec, {
       adapter: echoAdapter(),
@@ -395,12 +395,20 @@ describe('verdicts, pass and drift', () => {
     ['lang.reply', ['X4_format']],
     ['cards.offer.count', ['X4_format']],
     ['cards.one_message_per_turn', ['X4_format']],
-    ['must.0', []],
+    ['must.0', ['X1_local']],
+    ['must_not.1', ['X1_local']],
+    ['pii.email', ['X4_format']],
+    ['safety.max_destructive_ops', ['X5_tool']],
+    ['judge.no_invented_data', ['X1_local']],
+    ['ledger.plan_id', ['X2_contradiction']],
+    ['flow.stage', ['X3_flow']],
+    ['execution.exit_code', ['X1_local']],
+    ['unknown.thing', []],
     ['stage.reached', ['X3_flow']],
     ['forbidden.max_calls.coverage.check', ['X5_tool']],
     ['custom.tools.reply', []],
-    ['artifacts.out/acme-price-sheet.xlsx.0.sheets', []],
-    ['end_state.plan_id', []],
+    ['artifacts.out/acme-price-sheet.xlsx.0.sheets', ['X1_local']],
+    ['end_state.plan_id', ['X1_local']],
   ])('gives a failing %s verdict the drift %j', async (id, drift) => {
     const spec = specOf({ id: 'drift-map', blocks: [{ user: 'a', expect: { must: ['ok'] } }] });
     const [check, ...rest] = id.split('.');

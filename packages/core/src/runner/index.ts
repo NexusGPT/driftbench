@@ -43,6 +43,7 @@ export {
   isDriverInjected,
   specBlocks,
 } from './compounding';
+export { DRIFT_BY_FAMILY, driftOf } from './drift';
 export {
   addFacts,
   assistantMessage,
@@ -55,8 +56,23 @@ export {
   resolveGiven,
   stimulusMessages,
 } from './given';
+export {
+  describeContradiction,
+  type LedgerContradiction,
+  ledgerContradictions,
+  ledgerVerdicts,
+} from './ledger';
 export { CallFailure, describeError, isTransportError, type RetryOptions, withRetry } from './retry';
 export { type RunOptions, runSpec } from './run';
+export {
+  canonicalPreviousStage,
+  classifyStage,
+  flowVerdicts,
+  readStage,
+  type StageReading,
+  type StageSource,
+  stageSignatures,
+} from './stages';
 export { succession } from './succession';
 export {
   compareTranscripts,

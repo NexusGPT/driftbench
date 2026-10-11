@@ -3,13 +3,14 @@ import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import { type CheckContext, type CheckSet, machineVerdict } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
 import type { Store } from '../contracts/store';
-import { DriftClass, type Message, type TargetRef, type WorldState } from '../schema/common';
+import type { Message, TargetRef, WorldState } from '../schema/common';
 import { type BlockResult, Observed, type RunMode, RunResult, Verdict } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
 import { cellId } from './cell';
+import { driftOf } from './drift';
 import {
   addFacts,
   assistantMessage,
@@ -19,7 +20,9 @@ import {
   resolveGiven,
   stimulusMessages,
 } from './given';
+import { describeContradiction, ledgerVerdicts } from './ledger';
 import { CallFailure, describeError, type RetryOptions, withRetry } from './retry';
+import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
 import { succession } from './succession';
 
 export type RunOptions = {
@@ -114,6 +117,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     maxSteps: options.maxSteps ?? Math.max(16, 4 * spec.blocks.length),
     endState,
     sources: endStateSources(endState),
+    signatures: stageSignatures(spec),
   };
 
   const replayed = cache ? await execute(run, replayChannel(cache)) : undefined;
@@ -148,6 +152,8 @@ type RunContext = {
   endState: EndState | undefined;
   /** The sources read after the last spec block: each mapping's own, or `*` for `end_state: none`. */
   sources: string[];
+  /** The tools each stage of the spec's catalogue expects, for the step classifier. */
+  signatures: Map<string, Set<string>>;
 };
 
 /** One step of the driver, resolved against the spec. */
@@ -279,18 +285,34 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         artifacts: run.artifacts,
         readArtifact: channel.readArtifact(),
       });
-      const stage = observed.runtime?.stages?.at(-1)?.name;
+      // The stage reached: the runtime's, else the step classifier's. Before the block: in T the stage the
+      // spec expects of the blocks before it, in F and P the stage the run's previous block reached.
+      const previous =
+        run.mode === 'T' && step.kind === 'block'
+          ? canonicalPreviousStage(spec, step.blockIndex)
+          : blocks.at(-1)?.stageObserved;
+      const reading = readStage(spec, observed, {
+        mode: run.mode,
+        history: run.mode === 'T' ? [] : blocks,
+        previous,
+        signatures: run.signatures,
+      });
+      const flow = flowVerdicts(spec, planned.expect, reading, previous);
+      const userMessages = [...given.prefix, ...user].filter((message) => message.role === 'user');
+      const ledger = ledgerVerdicts(facts.ledger, observed, userMessages);
+      const all = [...verdicts, ...flow, ...ledger.verdicts];
+      const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
       blocks.push({
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
         givenHash: given.hash,
         observed,
-        verdicts,
-        ...(stage !== undefined ? { stageObserved: stage } : {}),
-        ledgerCheck: { ok: facts.contradictions.length === 0, contradictions: facts.contradictions },
-        drift: driftOf(verdicts),
-        pass: verdicts.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
+        verdicts: all,
+        ...(reading !== undefined ? { stageObserved: reading.stage } : {}),
+        ledgerCheck: { ok: contradictions.length === 0, contradictions },
+        drift: driftOf(all),
+        pass: all.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
       });
     }
   } catch (cause) {
@@ -479,33 +501,6 @@ async function applyChecks(checks: CheckSet, ctx: CheckContext): Promise<Verdict
     }
   }
   return verdicts;
-}
-
-/**
- * Drift classes before the phase 3 classifier, by the check a failing verdict comes from: the text of its
- * id before the first dot (check names hold no dot; tool labels and paths after it may). Tool, forbidden,
- * skill and guard checks give X5_tool; language and card checks (one_message_per_turn among them) give
- * X4_format; the stage check, which reads the stage the runtime reports, gives X3_flow. A custom check's
- * ids start with `custom`, so a custom check never takes a family's class by its name.
- */
-const DRIFT_BY_CHECK: Readonly<Record<string, DriftClass>> = {
-  tools: 'X5_tool',
-  forbidden: 'X5_tool',
-  skills: 'X5_tool',
-  guards: 'X5_tool',
-  lang: 'X4_format',
-  cards: 'X4_format',
-  stage: 'X3_flow',
-};
-
-function driftOf(verdicts: readonly Verdict[]): DriftClass[] {
-  const found = new Set<DriftClass>();
-  for (const verdict of verdicts) {
-    if (verdict.outcome !== 'fail') continue;
-    const drift = DRIFT_BY_CHECK[verdict.id.split('.', 1)[0] ?? ''];
-    if (drift) found.add(drift);
-  }
-  return DriftClass.options.filter((drift) => found.has(drift));
 }
 
 /** The block's cost: the total the adapter reported, or else the sum of its segments' costs. */
