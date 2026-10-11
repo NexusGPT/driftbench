@@ -85,11 +85,11 @@ describe('toolsPrepass on the Acme tools', () => {
 
   it('quotes only text the tools file holds, and leaves every entry unapproved', () => {
     expect(quotesFound(acme, acmeText)).toEqual([]);
+    const dimensions = ok(acme).dimensions;
     expect(
-      ok(acme)
-        .dimensions.flatMap((d) => d.values)
-        .every((value) => value.approved === false),
+      dimensions.every((d) => d.role === 'detail' && d.produced_by === 'code' && d.approved === false),
     ).toBe(true);
+    expect(dimensions.flatMap((d) => d.values).every((value) => value.approved === undefined)).toBe(true);
   });
 });
 

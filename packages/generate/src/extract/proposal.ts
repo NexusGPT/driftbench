@@ -8,8 +8,10 @@ import { checkSpaceMap } from './space';
 
 /**
  * The map proposal: the places where an agent's behaviour is specified, as dimensions, values, constraints
- * and a phrase bank. Code and a model propose every entry with the quote that justifies it and
- * `approved: false`; a person flips `approved`. Code enumerates blocks later from the approved entries only.
+ * and a phrase bank. Code and a model propose every entry with the quote that justifies it; each entry says
+ * which of the two proposed it. A person approves a dimension with one flag, which its values inherit
+ * (a value may override it), and approves each constraint and phrase. A dimension is an axis of the space
+ * map or a detail the generator varies inside a cell. Code enumerates blocks later from approved entries.
  */
 
 export const PROPOSAL_VERSION = 1;
@@ -77,12 +79,29 @@ const Approved = z
   .boolean({ error: 'approved must be true or false' })
   .describe('False until a person approves the entry.');
 
+export const ORIGINS = ['code', 'model'] as const;
+export const Origin = z
+  .enum(ORIGINS, { error: 'produced_by is code or model' })
+  .describe('Who proposed the entry: code (the pre-pass) or a model (a section answer).');
+export type Origin = z.infer<typeof Origin>;
+
+export const ROLES = ['axis', 'detail'] as const;
+export const Role = z
+  .enum(ROLES, { error: 'role is axis or detail' })
+  .describe(
+    'axis: a dimension of the space map, crossed with the other axes. detail: varied by the generator inside a cell, as boundary values.',
+  );
+export type Role = z.infer<typeof Role>;
+
 export const ProposalValue = z
   .strictObject({
     id: ValueId,
     title: z.string().min(1).describe('What the value means, in a few words.'),
     evidence: Evidence,
-    approved: Approved,
+    produced_by: Origin,
+    approved: Approved.optional().describe(
+      "Overrides the dimension's flag for this value. Absent: the value inherits it.",
+    ),
   })
   .describe('One value of a dimension.');
 export type ProposalValue = z.infer<typeof ProposalValue>;
@@ -92,6 +111,9 @@ export const ProposalDimension = z
     id: DimensionId,
     title: z.string().min(1).describe('What the dimension varies.'),
     kind: DimensionKind,
+    role: Role,
+    produced_by: Origin,
+    approved: Approved.describe('The approval of the dimension and every value without its own flag.'),
     values: z.array(ProposalValue).min(1, { error: 'a dimension needs at least one value' }),
   })
   .describe('One axis a situation varies on, with its values.');
@@ -107,6 +129,7 @@ export const ProposalConstraint = z
       .describe('A combination of values, one per dimension, that can never occur together.'),
     reason: z.string().min(1).describe('Why the combination cannot occur.'),
     evidence: Evidence,
+    produced_by: Origin,
     approved: Approved,
   })
   .describe('A combination of values that cannot occur.');
@@ -119,6 +142,7 @@ export const ProposalPhrase = z
     text: z.string().min(1).max(500).describe('One user message that expresses the value.'),
     lang: Lang,
     evidence: Evidence.optional().describe('The source example the phrase copies, when there is one.'),
+    produced_by: Origin,
     approved: Approved,
   })
   .describe('One phrasing of a value, for the phrase bank.');
@@ -285,26 +309,40 @@ export function evidences(proposal: Proposal): Array<{ path: string; evidence: E
   return found;
 }
 
-/** Counts the entries a person approves: values, constraints and phrases. */
+/** Whether a value counts as approved: its own flag, else its dimension's. */
+export function valueApproved(dimension: ProposalDimension, value: ProposalValue): boolean {
+  return value.approved ?? dimension.approved;
+}
+
+/**
+ * Counts what a person decides: one flag per dimension, constraint and phrase (`total`, `approved`), and
+ * the values those flags reach (`valuesApproved`, overrides included).
+ */
 export function countEntries(proposal: Proposal): {
+  dimensions: number;
   values: number;
   constraints: number;
   phrases: number;
   total: number;
   approved: number;
+  valuesApproved: number;
 } {
   const flags = [
-    ...proposal.dimensions.flatMap((dimension) => dimension.values.map((value) => value.approved)),
+    ...proposal.dimensions.map((dimension) => dimension.approved),
     ...proposal.constraints.map((constraint) => constraint.approved),
     ...proposal.phrases.map((phrase) => phrase.approved),
   ];
-  const values = proposal.dimensions.reduce((sum, dimension) => sum + dimension.values.length, 0);
   return {
-    values,
+    dimensions: proposal.dimensions.length,
+    values: proposal.dimensions.reduce((sum, dimension) => sum + dimension.values.length, 0),
     constraints: proposal.constraints.length,
     phrases: proposal.phrases.length,
     total: flags.length,
     approved: flags.filter(Boolean).length,
+    valuesApproved: proposal.dimensions.reduce(
+      (sum, dimension) => sum + dimension.values.filter((value) => valueApproved(dimension, value)).length,
+      0,
+    ),
   };
 }
 
@@ -315,8 +353,10 @@ export function renderProposal(proposal: Proposal): string {
   doc.commentBefore = [
     ` driftbench map proposal for ${proposal.agent}: where the agent's behaviour is specified.`,
     ' Code and a model proposed each entry with the quote that justifies it. Nothing counts until a person',
-    ' approves it: read each entry and set approved to true, or approve every entry with',
-    '   driftbench extract approve <this file> --all',
+    ' approves it. A dimension has one approved flag, which its values inherit (a value may set its own);',
+    ' each constraint and phrase has its own. role axis puts a dimension in the space map; detail keeps it',
+    ' for the generator, inside a cell. Approve with',
+    '   driftbench extract approve <this file> --dimension <id>   or   --all',
     ' An entry whose quote is missing, or no longer found in its source, is refused.',
   ].join('\n');
   const sources = doc.get('sources', true);

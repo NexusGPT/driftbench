@@ -7,6 +7,7 @@ import {
   type ProposalDimension,
   type ProposalValue,
 } from './proposal';
+import { proposeRole } from './space';
 
 /** A short name for each deviation class, from the spec reference. */
 export const DEVIATION_TITLES: Record<DeviationClass, string> = {
@@ -62,6 +63,9 @@ export function inventoryPrepass(
       id: 'behaviour',
       title: 'The behaviours the inventory lists',
       kind: 'behaviour',
+      role: proposeRole(dimensions, 'behaviour', false),
+      produced_by: 'code',
+      approved: false,
       values: inventory.behaviours.map((behaviour, index) =>
         value(behaviour.id, behaviour.title, behaviourQuotes[index] ?? evidence(undefined, behaviour.title)),
       ),
@@ -75,6 +79,9 @@ export function inventoryPrepass(
       id: 'flow',
       title: 'The flows the inventory lists',
       kind: 'behaviour',
+      role: proposeRole(dimensions, 'behaviour', false),
+      produced_by: 'code',
+      approved: false,
       values: inventory.flows.map((flow, index) =>
         value(flow.id, flow.title, evidence(itemText(flowNodes[index]), flow.title)),
       ),
@@ -96,6 +103,9 @@ export function inventoryPrepass(
       id: 'deviation',
       title: 'The deviation classes the flows must be perturbed with',
       kind: 'deviation',
+      role: proposeRole(dimensions, 'deviation', false),
+      produced_by: 'code',
+      approved: false,
       values: deviations.map((deviation) =>
         value(deviation, DEVIATION_TITLES[deviation], evidence(deviationQuotes.get(deviation), deviation)),
       ),
@@ -122,6 +132,9 @@ export function inventoryPrepass(
       id: 'channel',
       title: 'The channels the inventory names',
       kind: 'channel',
+      role: proposeRole(dimensions, 'channel', false),
+      produced_by: 'code',
+      approved: false,
       values: channels.map((channel) =>
         value(channel, `On ${channel}`, evidence(channelQuotes.get(channel), channel)),
       ),
@@ -138,6 +151,7 @@ export function inventoryPrepass(
         forbid: { behaviour: behaviour.id, channel },
         reason: `${behaviour.id} applies only on ${behaviour.channels.join(' and ')}`,
         evidence: { ...(behaviourQuotes[index] ?? evidence(undefined, behaviour.id)) },
+        produced_by: 'code',
         approved: false,
       });
     }
@@ -147,7 +161,7 @@ export function inventoryPrepass(
 }
 
 function value(id: string, title: string, evidence: { source: string; quote: string }): ProposalValue {
-  return { id, title, evidence, approved: false };
+  return { id, title, evidence, produced_by: 'code' };
 }
 
 function items(node: unknown): unknown[] {

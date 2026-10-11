@@ -149,9 +149,10 @@ describe('driftbench extract: the proposal', () => {
     const { code, out, err } = await run([...base(), '--no-model'], dir);
     expect(err).toBe('');
     expect(code).toBe(0);
-    expect(out.split('\n').slice(0, 3)).toEqual([
+    expect(out.split('\n').slice(0, 4)).toEqual([
       'Wrote map/proposal.yaml: 3 dimensions, 3 values, 0 constraints, 0 phrases, none approved.',
       '  Code pre-pass: 3 dimensions, 3 values, 0 constraints.',
+      '  Roles: 2 axes (behaviour, channel), 1 details; the axes make a full grid of 1 cell.',
       '  No model call: the code pre-pass alone (--no-model).',
     ]);
     const loaded = await loadProposal(join(dir, 'map/proposal.yaml'));
@@ -288,20 +289,19 @@ describe('driftbench extract approve', () => {
     return dir;
   }
 
-  it('lists what is not approved yet and exits 0', async () => {
+  it('lists the decisions left, one per dimension, with the axis grid, and exits 0', async () => {
     const dir = await withProposal();
     const { code, out } = await run(['extract', 'approve', 'map/proposal.yaml'], dir);
     expect(code).toBe(0);
     expect(out).toBe(
       [
-        'map/proposal.yaml: 3 of 3 entries are not approved yet.',
-        '  value  behaviour/B-001  Verify the customer before any balance',
-        '         ../inventory.yaml: "id: B-001 title: Verify the customer before any balance"',
-        '  value  flow/balance  A customer asks for their balance',
-        '         ../inventory.yaml: "id: balance title: A customer asks for their balance behaviours: [B-001]"',
-        '  value  channel/chat  On chat',
-        '         ../inventory.yaml: "channels: [chat]"',
-        'Set approved: true on each entry you accept, or approve every entry with --all.',
+        'map/proposal.yaml: 3 of 3 decisions are open (3 dimensions, 0 constraints, 0 phrases).',
+        'Axes: 2 of 3 dimensions, a full grid of 1 cell (the space commands accept 250000).',
+        '  dimension  behaviour  behaviour axis, by code, 1 value: The behaviours the inventory lists',
+        '  dimension  flow  behaviour detail, by code, 1 value: The flows the inventory lists',
+        '  dimension  channel  channel axis, by code, 1 value: The channels the inventory names',
+        'Approve a dimension and its values with --dimension <id>, or every entry with --all. In the file, set',
+        'approved: true; a value may set its own flag, and role: axis or detail decides what enters the space map.',
         '',
       ].join('\n'),
     );
@@ -311,12 +311,53 @@ describe('driftbench extract approve', () => {
     const dir = await withProposal();
     const all = await run(['extract', 'approve', 'map/proposal.yaml', '--all'], dir);
     expect(all.code).toBe(0);
-    expect(all.out).toBe('Approved 3 entries in map/proposal.yaml; 0 were already approved.\n');
+    expect(all.out).toBe('Approved 3 flags in map/proposal.yaml; 0 were already set.\n');
     const again = await run(['extract', 'approve', 'map/proposal.yaml'], dir);
-    expect(again.out).toBe('map/proposal.yaml: all 3 entries are approved.\n');
+    expect(again.out).toBe(
+      'map/proposal.yaml: all 3 decisions are made.\nAxes: 2 of 3 dimensions, a full grid of 1 cell (the space commands accept 250000).\n',
+    );
     const loaded = await loadProposal(join(dir, 'map/proposal.yaml'));
-    expect(loaded.ok && loaded.proposal.dimensions.every((d) => d.values.every((v) => v.approved))).toBe(
-      true,
+    expect(loaded.ok && loaded.proposal.dimensions.every((d) => d.approved)).toBe(true);
+  });
+
+  it('approves dimensions by id, writes to another file with --to, and refuses an unknown id', async () => {
+    const dir = await withProposal();
+    const some = await run(
+      [
+        'extract',
+        'approve',
+        'map/proposal.yaml',
+        '--dimension',
+        'channel',
+        '--dimension',
+        'flow',
+        '--to',
+        'map/approved.yaml',
+      ],
+      dir,
+    );
+    expect(some.code).toBe(0);
+    expect(some.out).toBe('Approved 2 dimensions in map/approved.yaml: flow, channel.\n');
+    const written = await loadProposal(join(dir, 'map/approved.yaml'));
+    expect(written.ok && written.proposal.dimensions.map((d) => [d.id, d.approved])).toEqual([
+      ['behaviour', false],
+      ['flow', true],
+      ['channel', true],
+    ]);
+    const untouched = await loadProposal(join(dir, 'map/proposal.yaml'));
+    expect(untouched.ok && untouched.proposal.dimensions.every((d) => !d.approved)).toBe(true);
+    const unknown = await run(['extract', 'approve', 'map/proposal.yaml', '--dimension', 'mood'], dir);
+    expect(unknown.code).toBe(1);
+    expect(unknown.err).toContain('PROPOSAL_UNKNOWN_DIMENSION  dimension "mood" is not in the proposal');
+    const both = await run(['extract', 'approve', 'map/proposal.yaml', '--all', '--dimension', 'flow'], dir);
+    expect(both.code).toBe(2);
+    const away = await run(
+      ['extract', 'approve', 'map/proposal.yaml', '--all', '--to', 'elsewhere.yaml'],
+      dir,
+    );
+    expect(away.code).toBe(2);
+    expect(away.err).toBe(
+      'error: --to must stay in the folder of the proposal, where its source paths resolve\n',
     );
   });
 
@@ -353,5 +394,38 @@ describe('driftbench extract approve', () => {
     const { code, err } = await run(['extract', 'approve', 'missing.yaml'], dir);
     expect(code).toBe(2);
     expect(err).toBe('Cannot find missing.yaml.\n');
+  });
+});
+
+describe('driftbench extract map', () => {
+  it('writes the space map of the approved axes, which driftbench space reads', async () => {
+    const dir = await project();
+    await run([...base(), '--no-model', '--agent', 'zed'], dir);
+    const none = await run(['extract', 'map', 'map/proposal.yaml', '--to', 'map/space.yaml'], dir);
+    expect(none.code).toBe(1);
+    expect(none.err).toContain('(no approved axis dimension)');
+    await run(['extract', 'approve', 'map/proposal.yaml', '--all'], dir);
+    const map = await run(['extract', 'map', 'map/proposal.yaml', '--to', 'map/space.yaml'], dir);
+    expect(map.code).toBe(0);
+    expect(map.out).toBe(
+      'Wrote map/space.yaml: 2 axes (behaviour, channel), 0 constraints, a full grid of 1 cell.\n',
+    );
+    const coverage = await run(['space', 'coverage', '--map', 'map/space.yaml', 'map', '--t', '2'], dir);
+    expect(coverage.err).not.toContain('over the limit');
+    expect(coverage.out.split('\n')[0]).toBe(
+      'Map zed, version 1: 2 dimensions, 1 cells, 0 constraints, prior uniform (no weight declared)',
+    );
+  });
+
+  it('runs space coverage on the Acme approved map without a grid refusal', async () => {
+    const { code, out, err } = await run(
+      ['space', 'coverage', '--map', join(ACME, 'map/space.yaml'), join(ACME, 'specs'), '--t', '2'],
+      ACME,
+    );
+    expect(err).not.toContain('over the limit');
+    expect(code).toBe(1);
+    expect(out.split('\n')[0]).toBe(
+      'Map acme, version 1: 7 dimensions, 81312 cells, 3 constraints, prior uniform (no weight declared)',
+    );
   });
 });

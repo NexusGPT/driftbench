@@ -1,0 +1,90 @@
+# The space map of approved.yaml: its approved axis dimensions and their constraints.
+# Written by driftbench extract map; edit the proposal and write it again rather than editing this file.
+version: '1'
+agent: acme
+inventory: ../inventory.yaml
+dimensions:
+  - id: behaviour
+    title: The behaviours the inventory lists
+    kind: behaviour
+    values:
+      - { id: B-001, title: Identify an existing customer by the email on the account before quoting their plan }
+      - { id: B-002, title: Offer an existing customer only plans with more data than their current plan }
+      - { id: B-003, title: Check coverage at the street address before offering home internet }
+      - { id: B-004, title: Offer only the home plans available at the checked address }
+      - { id: B-005, title: Book a sales callback with a phone number when the customer asks or a check cannot be done }
+      - { id: B-006, title: Check that a number can move to Acme before promising to keep it }
+      - { id: B-007, title: Explain a transfer lock and offer a new Acme number when a number cannot move }
+      - { id: B-008, title: Recap the order and place it only after an explicit CONFIRM }
+      - { id: B-009, title: Treat a loose yes as no confirmation and ask for CONFIRM again }
+      - { id: B-010, title: 'Report a failed tool honestly, invent none of its answer, and offer a fallback' }
+      - { id: B-011, title: Answer an off-topic question in one line and resume the pending step }
+      - { id: B-012, title: 'Send billing and service matters to Acme Care, never to sales' }
+      - { id: B-013, title: 'Build the price sheet workbook from the catalog file, one sheet per category' }
+      - { id: B-014, title: Add a summary sheet to the existing workbook and leave every other file untouched }
+  - id: deviation
+    title: The deviation classes the flows must be perturbed with
+    kind: deviation
+    values:
+      - { id: none, title: No deviation }
+      - { id: D1_off_topic, title: An off-topic question in the middle of the flow }
+      - { id: D2_goal_shift, title: The user changes the goal }
+      - { id: D3_contradiction, title: The user gives a value that contradicts an earlier one }
+      - { id: D4_loose_confirmation, title: A vague confirmation where the flow needs an explicit one }
+      - { id: D5_language_switch, title: One message in another language }
+      - { id: D6_instruction_in_data, title: Data carries an instruction }
+      - { id: D8_tool_failure, title: A tool or a command fails or returns an error }
+      - { id: D10_return, title: The user returns to the flow after a deviation }
+      - { id: D7_silence_or_burst, title: An empty message or a nudge gets one reply and the pending question }
+      - { id: D9_out_of_scope, title: A billing or service matter goes to Acme Care }
+  - id: channel
+    title: The channels the inventory names
+    kind: channel
+    values:
+      - { id: chat, title: On chat }
+      - { id: whatsapp, title: On whatsapp }
+  - id: stage
+    title: The flow stage a turn ends in
+    kind: stage
+    values:
+      - { id: needs, title: The agent asks what the customer is looking for }
+      - { id: identify, title: The agent asks for the email on the Acme account }
+      - { id: address, title: The agent asks for the street address }
+      - { id: port_number, title: The agent asks which number moves to Acme }
+      - { id: offer, title: The agent lists plans and asks which one }
+      - { id: details, title: The agent asks for the full name and email of a new customer }
+      - { id: recap, title: The agent recaps the order and waits for CONFIRM }
+      - { id: order_placed, title: The order is placed }
+      - { id: callback, title: The agent asks for a phone number so a sales advisor can call back }
+      - { id: handover, title: The lead has gone to a sales advisor }
+      - { id: closing, title: The conversation closes }
+  - id: user_type
+    title: Who is talking to the agent
+    kind: persona
+    values:
+      - { id: existing-customer, title: An Acme customer with an account and a plan }
+      - { id: new-customer, title: Someone who is not an Acme customer yet }
+      - { id: sales-operations, title: Acme sales operations staff working with the code agent }
+  - id: coverage_result
+    title: What the coverage check says about the address
+    kind: data
+    values:
+      - { id: fiber, title: Fiber reaches the address }
+      - { id: 5g-only, title: 'No fiber, but 5G home internet' }
+      - { id: no-service, title: Neither fiber nor 5G reaches the address }
+      - { id: not-in-map, title: The address is not in the coverage map }
+  - id: workspace_start
+    title: What the code agent's workspace holds at the start
+    kind: task
+    values:
+      - { id: catalog-only, title: The catalog file only; the agent builds the workbook }
+      - { id: existing-workbook, title: An existing workbook; the agent adds a summary sheet and leaves every other file untouched }
+constraints:
+  - forbid: { behaviour: B-001, channel: whatsapp }
+    reason: B-001 applies only on chat
+  - forbid: { behaviour: B-013, channel: whatsapp }
+    reason: B-013 applies only on chat
+  - forbid: { behaviour: B-014, channel: whatsapp }
+    reason: B-014 applies only on chat
+prior:
+  kind: declared

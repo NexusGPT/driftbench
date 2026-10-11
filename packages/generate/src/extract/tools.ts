@@ -2,11 +2,13 @@ import { isMap, isScalar, isSeq, type Pair, parseDocument, type YAMLMap } from '
 import { entry, keyOf, mapAt, pairText, plain, stringItems } from './nodes';
 import type { ProposalDimension, ProposalValue } from './proposal';
 import { foldQuote } from './quote';
+import { proposeRole } from './space';
 
 /**
  * The code pre-pass on tool schemas. Every input and output property whose JSON Schema states a partition
  * (an enum, a const, a boolean, a numeric bound, a length bound, a format or pattern, an array, a null, or
- * an optional flag) becomes a data dimension with its boundary values, each value id prefixed with its
+ * an optional flag) becomes a data dimension with its boundary values, role detail (the generator varies it
+ * inside a cell; it is no axis of the space map), each value id prefixed with its
  * dimension id (`coverage.check.out.found.true`). A property the schema leaves open,
  * such as a required string with no constraint, gives no value: code proposes only what the schema says.
  *
@@ -124,11 +126,19 @@ function addDimension(ctx: Walk, path: string[], partitions: Partition[]): void 
       id: valueId,
       title: partition.title,
       evidence: { source: ctx.source, quote: partition.quote },
-      approved: false,
+      produced_by: 'code',
     };
   });
   const side = ctx.direction === 'in' ? 'input' : 'output';
-  ctx.dimensions.push({ id, title: `${ctx.tool.name} ${side} ${path.join('.')}`, kind: 'data', values });
+  ctx.dimensions.push({
+    id,
+    title: `${ctx.tool.name} ${side} ${path.join('.')}`,
+    kind: 'data',
+    role: proposeRole(ctx.dimensions, 'data', true),
+    produced_by: 'code',
+    approved: false,
+    values,
+  });
 }
 
 /** The partitions a property's schema states, each with the keyword whose text justifies it. */

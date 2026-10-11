@@ -81,12 +81,16 @@ describe('inventoryPrepass on the Acme inventory', () => {
     }
   });
 
-  it('leaves every entry for a person to approve', () => {
-    const flags = [
-      ...result.dimensions.flatMap((d) => d.values.map((value) => value.approved)),
-      ...result.constraints.map((constraint) => constraint.approved),
-    ];
-    expect(flags.every((flag) => flag === false)).toBe(true);
+  it('leaves every dimension and constraint for a person to approve, marked as proposed by code', () => {
+    expect(result.dimensions.map((d) => [d.id, d.role, d.produced_by, d.approved])).toEqual([
+      ['behaviour', 'axis', 'code', false],
+      ['flow', 'detail', 'code', false],
+      ['deviation', 'axis', 'code', false],
+      ['channel', 'axis', 'code', false],
+    ]);
+    const values = result.dimensions.flatMap((d) => d.values);
+    expect(values.every((value) => value.produced_by === 'code' && value.approved === undefined)).toBe(true);
+    expect(result.constraints.every((c) => c.produced_by === 'code' && c.approved === false)).toBe(true);
   });
 
   it('reads the same inventory written as JSON to the same entries', () => {
