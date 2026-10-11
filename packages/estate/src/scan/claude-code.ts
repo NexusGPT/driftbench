@@ -165,10 +165,16 @@ function classify(path: string, text: string): { kind: FileKind; owner?: string 
   return { kind: 'other' };
 }
 
+/** A step list: a top-level `steps` list, or a `processes` map whose entries each hold a `steps` list. */
 function isStepList(text: string): boolean {
   try {
     const parsed: unknown = JSON.parse(text);
-    return isRecord(parsed) && Array.isArray(parsed.steps);
+    if (!isRecord(parsed)) return false;
+    if (Array.isArray(parsed.steps)) return true;
+    return (
+      isRecord(parsed.processes) &&
+      Object.values(parsed.processes).some((process) => isRecord(process) && Array.isArray(process.steps))
+    );
   } catch {
     return false;
   }
@@ -536,28 +542,75 @@ function parseEnforces(cell: string): RegistryRow['enforces'] {
   return found;
 }
 
+/**
+ * Reads a step list: the top-level `steps` list, then each process of a `processes` map as a stage
+ * catalogue of its own. A process step goes by `<process>/<id>`, so two processes may share a step name.
+ * A step is an object with an `id` (or a `name`), a `title`, a `next` list and `anytime`, or a plain
+ * string. When no step of a process says what comes next, the steps follow the order of the list.
+ */
 function readSteps(file: EstateFile, estate: RawEstate): void {
-  const json: unknown = JSON.parse(file.text);
-  if (!isRecord(json) || !Array.isArray(json.steps)) return;
-  const cursor = { at: 0 };
-  for (const step of json.steps) {
-    if (!isRecord(step) || typeof step.id !== 'string') continue;
-    const found = seekPattern(
-      file,
-      new RegExp(`"id"\\s*:\\s*${escapeRegex(JSON.stringify(step.id))}`),
-      cursor,
-    );
+  let json: unknown;
+  try {
+    json = JSON.parse(file.text);
+  } catch (cause) {
+    estate.notes.push({ file: file.path, message: `not JSON: ${String(cause)}` });
+    return;
+  }
+  if (!isRecord(json)) return;
+  if (Array.isArray(json.steps)) readStepList(file, json.steps, undefined, { at: 0 }, estate);
+  if (!isRecord(json.processes)) return;
+  const start = file.text.search(/"processes"\s*:/);
+  for (const [name, process] of Object.entries(json.processes)) {
+    if (!isRecord(process) || !Array.isArray(process.steps)) continue;
+    const cursor = { at: Math.max(0, start) };
+    const key = seek(file, JSON.stringify(name), cursor);
+    if (!key) continue;
+    readStepList(file, process.steps, name, cursor, estate);
+  }
+}
+
+function readStepList(
+  file: EstateFile,
+  steps: readonly unknown[],
+  process: string | undefined,
+  cursor: { at: number },
+  estate: RawEstate,
+): void {
+  const qualify = (id: string) => (process === undefined ? id : `${process}/${id}`);
+  const read: StepDecl[] = [];
+  let declaresNext = false;
+  for (const step of steps) {
+    const record = isRecord(step) ? step : {};
+    const key = typeof record.id === 'string' ? 'id' : 'name';
+    const id = typeof step === 'string' ? step : record[key];
+    if (typeof id !== 'string' || id === '') continue;
+    const found =
+      typeof step === 'string'
+        ? seek(file, JSON.stringify(step), cursor)
+        : seekPattern(file, new RegExp(`"${key}"\\s*:\\s*${escapeRegex(JSON.stringify(id))}`), cursor);
     if (!found) continue;
     const line = linesOf(file.text)[found.startLine - 1]?.text ?? found.quote;
+    if (Array.isArray(record.next)) declaresNext = true;
     const decl: StepDecl = {
-      id: step.id,
-      next: Array.isArray(step.next) ? step.next.filter((next) => typeof next === 'string') : [],
-      anytime: step.anytime === true,
+      id: qualify(id),
+      next: Array.isArray(record.next)
+        ? record.next.filter((next): next is string => typeof next === 'string').map(qualify)
+        : [],
+      anytime: record.anytime === true,
       at: { ...found, endLine: found.startLine, quote: line },
     };
-    if (typeof step.title === 'string') decl.title = step.title;
-    estate.steps.push(decl);
+    if (typeof record.title === 'string') decl.title = record.title;
+    if (process !== undefined) decl.process = process;
+    read.push(decl);
   }
+  if (process !== undefined && !declaresNext) {
+    const ordered = read.filter((step) => !step.anytime);
+    ordered.forEach((step, index) => {
+      const following = ordered[index + 1];
+      if (following) step.next = [following.id];
+    });
+  }
+  estate.steps.push(...read);
 }
 
 function addProse(estate: RawEstate, file: EstateFile, startLine: number, endLine: number): void {

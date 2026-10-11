@@ -1,0 +1,21 @@
+{
+  "processes": {
+    "claim": {
+      "title": "File a carrier claim",
+      "steps": [
+        { "id": "scan", "title": "Read the delivery scan" },
+        { "id": "photos", "title": "Collect a photo of each damaged parcel" },
+        { "id": "file", "title": "File the claim with the carrier" }
+      ]
+    },
+    "month-close": {
+      "title": "Close the month",
+      "steps": [
+        { "id": "reconcile", "title": "Reconcile every open invoice", "next": ["audit"] },
+        { "id": "audit", "title": "Have the ledger audited", "next": ["report"] },
+        { "id": "report", "title": "Report the month to the operations team", "next": [] },
+        { "id": "note", "title": "Write a tracker note", "anytime": true }
+      ]
+    }
+  }
+}

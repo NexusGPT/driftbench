@@ -111,8 +111,18 @@ export type RegistryRow = {
   at: Located;
 };
 
-/** One step of a step list. `anytime` steps may happen at any point; the others follow `next`. */
-export type StepDecl = { id: string; title?: string; next: string[]; anytime: boolean; at: Located };
+/**
+ * One step of a step list. `anytime` steps may happen at any point; the others follow `next`. A step of a
+ * named process carries the process, and its id and `next` are the ids the reader gave it in that process.
+ */
+export type StepDecl = {
+  id: string;
+  title?: string;
+  next: string[];
+  anytime: boolean;
+  process?: string;
+  at: Located;
+};
 
 /** A passage of prose a model splits into atoms: the body of an instruction file. */
 export type ProseChunk = { id: string; file: string; startLine: number; endLine: number; text: string };

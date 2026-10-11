@@ -295,7 +295,12 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
       title: `Stage ${step.id}${step.title ? `: ${step.title}` : ''}`,
       at: step.at,
       evidence: [{ type: 'stage_reached', name: step.id }],
-      fields: { id: step.id, next: step.next, anytime: step.anytime },
+      fields: {
+        id: step.id,
+        next: step.next,
+        anytime: step.anytime,
+        ...(step.process !== undefined ? { process: step.process } : {}),
+      },
     });
   }
 
