@@ -6,5 +6,5 @@
   { "id": "interval", "name": "PASS RATE AND INTERVAL", "y": 190, "rule": [752, 940], "text": "end" },
   { "id": "validity", "name": "VALIDITY GATE", "y": 177, "rule": [74, 202], "lead": "end", "text": "end", "inset": 10 },
   { "id": "council", "name": "JUDGE COUNCIL", "y": 540, "rule": [510, 639], "text": "end", "inset": 10 },
-  { "id": "gate", "name": "CI GATE", "y": 360, "rule": [884, 950], "join": 884, "inset": 4 }
+  { "id": "gate", "name": "CI GATE", "y": 506, "rule": [862, 950], "inset": 8 }
 ]

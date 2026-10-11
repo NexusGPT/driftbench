@@ -662,7 +662,7 @@ const ANCHORS = {
   council: [X4 + 27, -50, 33],
   drift: [CHART.x + 52, FACE_Y + 2, CHART.z0 - 12],
   interval: [DIAL.x + 12, FACE_Y + 3.6, DIAL.z + 12],
-  gate: [GATE.x + 3.4, GATE.y, 48],
+  gate: [GATE.x + 3.4, GATE.y, 24],
 };
 if (process.argv.includes('--anchors')) for (const [name, p] of Object.entries(ANCHORS)) console.log(name, at(p).map(f2).join(' '));
 const CALLOUTS = JSON.parse(readFileSync(join(HERE, 'callouts.json'), 'utf8'));
