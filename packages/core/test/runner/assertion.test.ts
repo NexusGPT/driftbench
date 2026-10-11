@@ -95,6 +95,24 @@ describe('compareEndState', () => {
     });
   });
 
+  it('fails every field of a read mapping in exact mode with an empty expect, and passes any other state', () => {
+    const bare: EndState = { source: 'tool:order.create', mode: 'exact', expect: {} };
+    expect(compareEndState(bare, { plan_id: 'mobile-l', type: 'upgrade' })).toEqual({
+      match: false,
+      diff: [
+        { field: 'plan_id', expected: absent, observed: 'mobile-l' },
+        { field: 'type', expected: absent, observed: 'upgrade' },
+      ],
+    });
+    expect(compareEndState(bare, {})).toEqual({ match: true, diff: [] });
+    expect(compareEndState(bare, 'order placed')).toEqual({ match: true, diff: [] });
+    expect(compareEndState(bare, [])).toEqual({ match: true, diff: [] });
+    expect(compareEndState(bare, null)).toEqual({
+      match: false,
+      diff: [{ field: 'tool:order.create', expected: { nonempty: true }, observed: absent }],
+    });
+  });
+
   it('passes none on nothing recorded and gives one entry per payload otherwise', () => {
     for (const nothing of [undefined, null, [], {}])
       expect(compareEndState('none', nothing).match).toBe(true);
