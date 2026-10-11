@@ -20,7 +20,6 @@ import {
   compoundingIndex,
   contentHash,
   type DriftClass,
-  injectingDriver,
   type LoadedSpec,
   loadSpecs,
   type MinimumDetectableEffect,
@@ -41,7 +40,7 @@ import {
 import { localProvider } from '@driftbench/sandbox';
 import { bootstrapCI } from '@driftbench/stats';
 import { openMemoryStore, openStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+import { createPerturbingDriver, createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 
@@ -62,8 +61,11 @@ export type CampaignDeps = {
   checks: CheckSet;
   /** The readers the artifact checks open produced files with. */
   artifacts?: ArtifactReaderRegistry;
-  /** A fresh driver for one run: in mode P, one that injects the cell's perturbation. */
-  driver(cell?: PlannedCell): UserDriver;
+  /**
+   * A fresh driver for one run: in mode P, one that injects the cell's perturbation into the spec it runs.
+   * Without a cell, the scripted driver.
+   */
+  driver(cell?: PlannedCell, spec?: Spec): UserDriver;
   /** Tools whose call is a consequential act, for the recovery metrics of mode P. */
   consequential?: (label: string) => boolean;
   /** The store at a path, or one held in memory without a path. A failure to open is reported, exit 2. */
@@ -99,10 +101,13 @@ export const defaultDeps: CampaignDeps = {
   },
   checks: defaultChecks(),
   artifacts: defaultReaders(),
-  driver: (cell) =>
-    cell?.perturbationId === undefined
-      ? createScriptedDriver()
-      : injectingDriver(createScriptedDriver(), cell.perturbationId),
+  driver: (cell, spec) => {
+    if (cell?.perturbationId === undefined) return createScriptedDriver();
+    if (spec === undefined) {
+      throw new Error(`campaign: the perturbed cell ${cell.cellId} needs its spec for the perturbing driver`);
+    }
+    return createPerturbingDriver({ spec, perturbation: cell.perturbationId });
+  },
   consequential: (label) => classifyTool(label) !== undefined,
   openStore: async (path) => (path === undefined ? openMemoryStore() : openStore(path)),
   now: () => new Date(),
@@ -448,7 +453,7 @@ async function executeCampaign(
     cells: plan.cells,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
-    driver: (cell) => deps.driver(cell),
+    driver: (cell, spec) => deps.driver(cell, spec),
     ...(deps.consequential ? { consequential: deps.consequential } : {}),
     checks: deps.checks,
     ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),

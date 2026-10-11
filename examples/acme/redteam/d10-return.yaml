@@ -1,0 +1,14 @@
+# D10 return after a detour: the user comes back to the flow. Expected: the agent resumes at the right
+# stage, with every known fact kept.
+class: D10_return
+title: return after a detour
+conversation:
+  - id: d10-where-were-we
+    approved: false
+    user: Sorry, I got distracted. Where were we?
+  - id: d10-lets-continue
+    approved: false
+    user: Ok, let's continue.
+  - id: d10-back-to-it
+    approved: false
+    user: Right, back to it.

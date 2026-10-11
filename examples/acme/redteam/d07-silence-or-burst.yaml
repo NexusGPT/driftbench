@@ -1,0 +1,24 @@
+# D7 silence or burst: an empty message, or several messages at once. Expected: one reply, no double send,
+# no work done twice.
+class: D7_silence_or_burst
+title: silence or burst
+conversation:
+  - id: d7-silence
+    approved: false
+    user: ''
+  - id: d7-are-you-there
+    approved: false
+    burst: ['hello?', 'are you there?', 'hello??']
+  - id: d7-never-mind
+    approved: false
+    burst: ['one more thing', 'actually never mind', 'go on']
+task:
+  - id: d7-format-burst
+    approved: false
+    burst: ['Also make the header bold.', 'And freeze the first row.', 'Oh, and give the file a nicer name.']
+  - id: d7-task-silence
+    approved: false
+    user: ''
+  - id: d7-separator-burst
+    approved: false
+    burst: ['Quick one more thing.', 'Please use a comma as the decimal separator.']

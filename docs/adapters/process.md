@@ -143,4 +143,4 @@ target:
   agent: office-agent
 ```
 
-The adapter reads no field of the target: the command and its arguments are set in code. The command line does not reach the process adapter yet; a run uses it from code. See [running](../running.md#runspec).
+The adapter reads no field of the target: the command and its arguments are set in code. The command line reaches one process target, `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`), run by the CLI's own Node.js in a local sandbox, one temporary folder per run, declared deterministic. Any other process agent is used from code. See [running](../running.md#runspec).

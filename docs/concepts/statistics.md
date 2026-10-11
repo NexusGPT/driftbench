@@ -6,6 +6,7 @@ What is built and what is not:
 
 * Built, phase 1: repeats in a campaign, and the minimum detectable effect `campaign plan` prints. See [running](../running.md).
 * Built: every function below, as a library.
+* Built, used by other parts: `campaign status --detail` puts a `bootstrapCI` interval on the compounding index ([run modes](run-modes.md#the-compounding-index)); the gate uses `passK` and `wilson` ([generating tests](../generating.md)); judge calibration uses `cohenKappa`, `krippendorffAlpha` and `wilson` ([judges](judges.md)); the variance pilot uses the variance components ([generating tests](../generating.md)).
 * Planned, phase 4: wiring them into the run records and reports, the parity verdict of a whole campaign, the scorecard, and the `stats`, `compare` and `ci` commands.
 
 The same statistics serve conversations and tasks. One conversation, or one task, is one cluster. An artifact check is a pass or a fail per repeat, so pass^k reads the same way for a workbook as for a reply.

@@ -1,0 +1,17 @@
+# A fictional person who just moved and needs home internet. Plays the new customer coverage spec.
+id: alex-newhome
+name: Alex Moreau
+persona: >
+  Has just moved house and is new to Acme. Writes casually, in lower case at times, and wants fiber if it
+  can be had, or a call back when it arrives.
+goal: >
+  Find out which home internet plans reach the new address, and if fiber is not there yet, get a sales
+  advisor to call back about it.
+facts:
+  address: 88 Summit Avenue, Acmeville
+  phone: '+1 202 555 0131'
+reveal_when_asked:
+  address: ['address']
+  phone: ['phone', '\bnumber\b']
+stop_token: '###STOP###'
+spec: ../specs/conversations/new-customer-coverage.yaml

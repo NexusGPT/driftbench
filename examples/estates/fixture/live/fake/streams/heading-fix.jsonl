@@ -1,0 +1,13 @@
+{"fake":"step","step":"plan"}
+{"type":"assistant","message":{"id":"msg_hf_1","type":"message","role":"assistant","model":"fake-model","content":[{"type":"tool_use","id":"toolu_hf_01","name":"Read","input":{"file_path":"{{cwd}}/reports/2026-W41.md"}}],"usage":{"input_tokens":140,"output_tokens":20}},"parent_tool_use_id":null}
+{"type":"user","message":{"role":"user","content":[{"tool_use_id":"toolu_hf_01","type":"tool_result","content":"# Week 41\n## Invoices reconciled\n2\n## Shipments late\n"}]},"parent_tool_use_id":null}
+{"fake":"step","step":"do"}
+{"fake":"decision","event":"PreToolUse","check":"read-before-edit.py","verdict":"allow"}
+{"type":"assistant","message":{"id":"msg_hf_2","type":"message","role":"assistant","model":"fake-model","content":[{"type":"tool_use","id":"toolu_hf_02","name":"Edit","input":{"file_path":"{{cwd}}/reports/2026-W41.md","old_string":"# Week 41\n","new_string":"# Week 41 report\n"}}],"usage":{"input_tokens":160,"output_tokens":30}},"parent_tool_use_id":null}
+{"fake":"edit","path":"reports/2026-W41.md","old":"# Week 41\n","new":"# Week 41 report\n"}
+{"type":"user","message":{"role":"user","content":[{"tool_use_id":"toolu_hf_02","type":"tool_result","content":"The file reports/2026-W41.md has been updated."}]},"parent_tool_use_id":null}
+{"fake":"step","step":"verify"}
+{"type":"assistant","message":{"id":"msg_hf_3","type":"message","role":"assistant","model":"fake-model","content":[{"type":"tool_use","id":"toolu_hf_03","name":"Bash","input":{"command":"head -1 reports/2026-W41.md","description":"Check the heading"}}],"usage":{"input_tokens":180,"output_tokens":20}},"parent_tool_use_id":null}
+{"type":"user","message":{"role":"user","content":[{"tool_use_id":"toolu_hf_03","type":"tool_result","content":"# Week 41 report"}]},"parent_tool_use_id":null}
+{"fake":"step","step":"report"}
+{"type":"assistant","message":{"id":"msg_hf_4","type":"message","role":"assistant","model":"fake-model","content":[{"type":"text","text":"The heading of reports/2026-W41.md now reads: Week 41 report. I read the file first, as the rules ask."}],"usage":{"input_tokens":200,"output_tokens":30}},"parent_tool_use_id":null}
