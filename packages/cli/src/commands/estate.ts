@@ -270,7 +270,9 @@ export async function estateLintCommand(
     io.err(`✗ ${show(file, io)}\n${loaded.errors.map(issueLine).join('')}`);
     return 1;
   }
-  const reader = readerFor(loaded.map.runtime, { ignore: options.ignore ?? [] });
+  // The scan's own ignore list comes with the map, so lint reads the same files.
+  const ignore = [...new Set([...(loaded.map.ignore ?? []), ...(options.ignore ?? [])])];
+  const reader = readerFor(loaded.map.runtime, { ignore });
   if (!reader) {
     io.err(`The map was read by the runtime "${loaded.map.runtime}", which this driftbench cannot read.\n`);
     return 2;

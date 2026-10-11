@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-11T21:41:39.440Z
+readAt: 2026-10-11T21:49:08.903Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -595,6 +595,27 @@ atoms:
       exists: true
       readWhen: The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
       from: CLAUDE.md
+  - id: reference.standing.read-claude-aliases-md
+    kind: reference
+    title: Read .claude/ALIASES.md
+    provenance:
+      file: CLAUDE.md
+      startLine: 25
+      endLine: 25
+      quote: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
+      hash: b7b602626bf9339fea1e38c0f2cb5f69e7a4107a473611ee9558eb0ff12dab73
+    producedBy: code
+    role: detail
+    approved: true
+    situation: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
+    evidence:
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/ALIASES.md } } }
+    enforcement: []
+    fields:
+      path: .claude/ALIASES.md
+      exists: true
+      readWhen: Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.
+      from: CLAUDE.md
   - id: route.standing.an-ask-to-file-a-claim
     kind: route
     title: An ask to file a claim for a damaged or missing parcel loads parcel-claims
@@ -718,6 +739,74 @@ atoms:
       exists: true
       readWhen: "- A claim follows `references/claim-rules.md`."
       from: .claude/skills/parcel-claims/SKILL.md
+  - id: reference.parcel-claims.read-ref-notes-md
+    kind: reference
+    title: Read REF/notes.md
+    provenance:
+      file: .claude/skills/parcel-claims/SKILL.md
+      startLine: 13
+      endLine: 13
+      quote: "- Open the claim with the wording in `REF/notes.md`."
+      hash: 5e63f0de33ed598a5be81d8f511a858caf3212b2c2cdcb5f7d65eb31f931234b
+    producedBy: code
+    role: detail
+    approved: true
+    situation: "- Open the claim with the wording in `REF/notes.md`."
+    evidence:
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/notes.md } } }
+    enforcement: []
+    fields:
+      path: .claude/skills/parcel-claims/references/notes.md
+      exists: true
+      readWhen: "- Open the claim with the wording in `REF/notes.md`."
+      from: .claude/skills/parcel-claims/SKILL.md
+      resolvedBy: alias
+  - id: reference.shipment-tracker.read-claim-rules-md
+    kind: reference
+    title: Read claim-rules.md
+    provenance:
+      file: .claude/skills/shipment-tracker/SKILL.md
+      startLine: 11
+      endLine: 11
+      quote: "- For a damaged parcel, the claim follows `claim-rules.md`."
+      hash: 9c0daa3ea4bb646160d9c2dbe8a5cdadd6a49ba3b9e63bd767539914a8c5939d
+    producedBy: code
+    role: detail
+    approved: true
+    situation: "- For a damaged parcel, the claim follows `claim-rules.md`."
+    evidence:
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/claim-rules.md } } }
+    enforcement: []
+    fields:
+      path: .claude/skills/parcel-claims/references/claim-rules.md
+      exists: true
+      readWhen: "- For a damaged parcel, the claim follows `claim-rules.md`."
+      from: .claude/skills/shipment-tracker/SKILL.md
+      resolvedBy: suffix
+  - id: reference.shipment-tracker.read-notes-md
+    kind: reference
+    title: Read notes.md
+    provenance:
+      file: .claude/skills/shipment-tracker/SKILL.md
+      startLine: 12
+      endLine: 12
+      quote: "- Carrier habits are in `notes.md`."
+      hash: 665dd30a07d32e94f007fbf987697bfedc9b8844981f1485e68544047ae0a7a9
+    producedBy: code
+    role: detail
+    approved: true
+    situation: "- Carrier habits are in `notes.md`."
+    evidence:
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/shipment-tracker/notes.md } } }
+    enforcement: []
+    fields:
+      path: .claude/skills/shipment-tracker/notes.md
+      exists: false
+      readWhen: "- Carrier habits are in `notes.md`."
+      from: .claude/skills/shipment-tracker/SKILL.md
+      candidates:
+        - .claude/skills/parcel-claims/references/notes.md
+        - .claude/skills/shipment-tracker/references/notes.md
   - id: instruction.standing.never-force-push
     kind: instruction
     title: Never force-push
@@ -936,6 +1025,23 @@ atoms:
     enforcement: []
     fields:
       polarity: obligation
+  - id: instruction.parcel-claims.a-claim-opens-with-the-order
+    kind: instruction
+    title: A claim opens with the order number and the scan date
+    provenance:
+      file: .claude/skills/parcel-claims/references/notes.md
+      startLine: 3
+      endLine: 3
+      quote: A claim opens with the order number and the date of the delivery scan.
+      hash: 0797c95189ad9034100f9d29ef2e1f651811fda3a9425877373edad06db46496
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: claim_opening }
+    enforcement: []
+    fields:
+      polarity: obligation
   - id: instruction.parcel-claims.write-to-each-supplier-in-its
     kind: instruction
     title: Write to each supplier in its language
@@ -1005,7 +1111,7 @@ atoms:
     fields:
       check: standing_size
       ceiling: 40000
-      characters: 1287
+      characters: 1361
       holds: true
   - id: invariant.standing.no-file-of-the-estate-is
     kind: invariant
@@ -1024,8 +1130,9 @@ atoms:
     enforcement: []
     fields:
       check: no_orphans
-      orphans: []
-      holds: true
+      orphans:
+        - .claude/skills/shipment-tracker/references/notes.md
+      holds: false
   - id: invariant.settings.every-guard-finds-its-script-from
     kind: invariant
     title: Every guard finds its script from an anchor
@@ -1082,18 +1189,23 @@ edges:
   - { from: route.standing.an-ask-to-know-where-a, to: skill.shipment-tracker.skill-shipment-tracker, kind: route }
   - { from: skill.parcel-claims.skill-parcel-claims, to: tool.parcel-claims.declared-bash, kind: allows }
   - { from: skill.parcel-claims.skill-parcel-claims, to: tool.settings.allow-read, kind: allows }
+  - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-ref-notes-md, kind: reference }
   - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-references-claim-rules-md, kind: reference }
   - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-references-supplier-languages-md, kind: reference }
   - { from: skill.parcel-claims.skill-parcel-claims, to: script.parcel-claims.script-scripts-track-sh, kind: script }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: tool.parcel-claims.declared-bash, kind: allows }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: tool.settings.allow-read, kind: allows }
+  - { from: skill.shipment-tracker.skill-shipment-tracker, to: reference.shipment-tracker.read-claim-rules-md, kind: reference }
+  - { from: skill.shipment-tracker.skill-shipment-tracker, to: reference.shipment-tracker.read-notes-md, kind: reference }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: script.shipment-tracker.script-scripts-track-sh, kind: script }
   - { from: stage.steps.stage-claim-photos-collect-a-photo, to: stage.steps.stage-claim-file-file-the-claim, kind: next }
   - { from: stage.steps.stage-claim-scan-read-the-delivery, to: stage.steps.stage-claim-photos-collect-a-photo, kind: next }
   - { from: stage.steps.stage-month-close-audit-have-the, to: stage.steps.stage-month-close-report-report-the, kind: next }
   - { from: stage.steps.stage-month-close-reconcile-reconcile-every, to: stage.steps.stage-month-close-audit-have-the, kind: next }
+ignore:
+  - archive
 producedBy:
   family: lane
   model: claude-opus-5-5 as the reader lane, by hand
-  at: 2026-10-11T21:41:39.440Z
-hash: 56bb1cb6741aae19a2be8a534231c560f3c04bd2f6ec429f1de7e21618012948
+  at: 2026-10-11T21:49:08.903Z
+hash: 7643ab3b84f607e37cd7d59a41df68b4eb57310abfcf952d1fa2031417f3efd5

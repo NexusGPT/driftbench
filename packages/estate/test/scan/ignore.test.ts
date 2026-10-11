@@ -37,6 +37,8 @@ describe('the ignore list', () => {
       'tests/fixtures',
       'hooks/**/tests',
       'hooks/**/test',
+      '.trash',
+      'skills/synced',
     ]);
   });
 
@@ -80,7 +82,7 @@ describe('the ignore list', () => {
     expect(raw.notes).toEqual([{ file: ESTATE_CONFIG, message: 'ignore: must be a list of globs' }]);
   });
 
-  it('removes every orphan of the reader-cases files no runtime loads', async () => {
+  it('removes every orphan of the reader-cases files no runtime loads, and records the config list in the map', async () => {
     const { map, raw } = await scanEstate({ root: CASES, reader: new ClaudeCodeReader(), now: NOW });
     expect(raw.ignored?.patterns.filter((entry) => entry.files > 0).map((entry) => entry.pattern)).toEqual([
       'node_modules',
@@ -88,9 +90,17 @@ describe('the ignore list', () => {
       '*.log',
       'tests/fixtures',
       'hooks/**/tests',
+      '.trash',
       'skills/synced',
+      'archive',
     ]);
-    expect(lintEstate(map, raw).findings.filter((finding) => finding.code === 'ORPHAN')).toEqual([]);
+    // The one orphan left is the file a planted ambiguous reference leaves unnamed (cases.test.ts).
+    expect(
+      lintEstate(map, raw)
+        .findings.filter((finding) => finding.code === 'ORPHAN')
+        .map((finding) => finding.subject),
+    ).toEqual(['.claude/skills/shipment-tracker/references/notes.md']);
+    expect(map.ignore).toEqual(['archive']);
   });
 });
 
@@ -149,9 +159,16 @@ describe('reference bases', () => {
       '.claude/skills/parcel-claims/references/claim-rules.md',
       true,
     ]);
-    expect(map.atoms.filter((atom) => atom.kind === 'reference' && atom.fields?.exists === false)).toEqual(
-      [],
-    );
+    expect(
+      map.atoms
+        .filter((atom) => atom.kind === 'reference' && atom.fields?.exists === false)
+        .map((atom) => atom.fields?.candidates),
+    ).toEqual([
+      [
+        '.claude/skills/parcel-claims/references/notes.md',
+        '.claude/skills/shipment-tracker/references/notes.md',
+      ],
+    ]);
   });
 
   it('marks a reference to a skipped file as found and ignored, not missing', async () => {

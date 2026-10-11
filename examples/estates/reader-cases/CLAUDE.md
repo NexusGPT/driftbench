@@ -22,3 +22,4 @@ A carrier claim and the month close follow their steps in `.claude/processes.jso
 `.claude/memory/MEMORY.md` at the start of every session.
 
 The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.
+Paths that start with `REF/` follow the alias table `.claude/ALIASES.md`.

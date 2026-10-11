@@ -106,3 +106,14 @@ answers:
         quote: never guess a status.
         polarity: prohibition
         evidence: [{ type: custom, name: grounded_values }]
+  .claude/skills/parcel-claims/references/notes.md:
+    chunk: .claude/skills/parcel-claims/references/notes.md
+    atoms:
+      - kind: instruction
+        title: A claim opens with the order number and the scan date
+        quote: A claim opens with the order number and the date of the delivery scan.
+        polarity: obligation
+        evidence: [{ type: custom, name: claim_opening }]
+  .claude/skills/shipment-tracker/references/notes.md:
+    chunk: .claude/skills/shipment-tracker/references/notes.md
+    atoms: []
