@@ -1,15 +1,19 @@
-import { defineLadder, type Item, type Ladder } from '../../../ladder';
+import { type BankEntry, bankMeasure, defineLadder, type Ladder } from '../../../ladder';
 import { runItem } from './run';
 import { type BankDeps, type BankItem, LEVELS } from './types';
 
+/** The ladder version of the bank (docs/validators.md section 12.5); version 1 was the seven-level ladder. */
+export const MAP_LADDER_VERSION = 2;
+
 /**
- * The ladder of a bank: one level per entry of LEVELS, each the sub-bank of its items with threshold 1. A
- * level's value is the share of its items that pass on the seed; the failing items are named with their
- * family, tier and the oracle's reason. The run stops at the first failing level.
+ * The ladder of a bank: one level per entry of LEVELS, each the sub-bank of its items with threshold 1. Each
+ * level returns its whole bank (`bankMeasure`), so `--items` lists every item with its family and tier and
+ * the value is the share of the level's items that pass on the seed. The run stops at the first failing level.
  */
 export function bankLadder(component: string, items: readonly BankItem[], deps: BankDeps = {}): Ladder {
   return defineLadder({
     component,
+    version: MAP_LADDER_VERSION,
     levels: LEVELS.map((level, index) => {
       const own = items.filter((item) => item.level === index + 1);
       return {
@@ -18,18 +22,19 @@ export function bankLadder(component: string, items: readonly BankItem[], deps: 
         metric: `items passing / items of the level (${own.length}): ${level.what}`,
         threshold: 1,
         compute: async ({ seed }) => {
-          const failing: Item[] = [];
+          const entries: BankEntry[] = [];
           for (const item of own) {
             const outcome = await runItem(item, seed, deps);
-            if (!outcome.pass) {
-              failing.push({
-                id: item.id,
-                component: item.component,
-                detail: `[${item.family}, tier ${item.tier}] ${item.title}: ${outcome.detail}`,
-              });
-            }
+            entries.push({
+              id: item.id,
+              component: item.component,
+              family: item.family,
+              tier: item.tier,
+              pass: outcome.pass,
+              detail: `[${item.family}, tier ${item.tier}] ${item.title}: ${outcome.detail}`,
+            });
           }
-          return { value: own.length === 0 ? 1 : (own.length - failing.length) / own.length, items: failing };
+          return bankMeasure(entries, component);
         },
       };
     }),
