@@ -66,8 +66,13 @@ export function registerReplayCommand(
     .description('Run a spec suite over recorded sessions, offline, with no model call.')
     .argument('<sessions...>', 'session transcripts (JSONL)')
     .requiredOption('--suite <dir>', 'the spec files or folder to run')
-    .option('--decisions <log>', 'a guard decision log (JSONL); repeat for several sessions', collect, [])
-    .option('--steps <feed>', 'a step feed (JSONL); repeat for several sessions', collect, [])
+    .option(
+      '--decisions <logs...>',
+      'guard decision logs (JSONL), one per session, matched by file name',
+      collectAll,
+      [],
+    )
+    .option('--steps <feeds...>', 'step feeds (JSONL), one per session, matched by file name', collectAll, [])
     .option('--store <db>', 'keep the runs in this store; in memory without it')
     .option('--json', 'print one JSON document')
     .action(async (sessions: string[], options: ReplayOptions) => {
@@ -95,6 +100,13 @@ export async function replayCommand(
   io: Io,
   deps: ReplayDeps = defaultReplayDeps,
 ): Promise<number> {
+  const misplaced = sessionPaths.filter((path) => /\.(decisions|steps)\.jsonl$/.test(path));
+  if (misplaced.length > 0) {
+    io.err(
+      `${misplaced.join(', ')} ${misplaced.length === 1 ? 'is a log' : 'are logs'}, not ${misplaced.length === 1 ? 'a session' : 'sessions'}. Pass decision logs after --decisions and step feeds after --steps.\n`,
+    );
+    return 2;
+  }
   const paths = sessionPaths.map((path) => resolve(io.cwd, path));
   const names = paths.map(sessionName);
   const duplicate = names.find((name, index) => names.indexOf(name) !== index);
@@ -394,7 +406,8 @@ async function closeStore(store: Store, io: Io): Promise<boolean> {
   }
 }
 
-function collect(value: string, previous: string[]): string[] {
+/** A repeated variadic option accumulates: `--decisions a b --decisions c` gives `[a, b, c]`. */
+function collectAll(value: string, previous: string[]): string[] {
   return [...previous, value];
 }
 

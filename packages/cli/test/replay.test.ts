@@ -244,4 +244,33 @@ describe('driftbench replay: alignment', () => {
     expect(none.code).toBe(2);
     expect(none.err).toContain('No spec is aligned with the sessions given');
   });
+
+  it('takes several logs after one flag, and refuses a log given as a session', async () => {
+    const names = ['clean-build', 'gate-violated', 'skill-skipped'];
+    const together = await replayJson([
+      'replay',
+      ...SESSIONS,
+      '--suite',
+      `${DIR}/specs`,
+      '--decisions',
+      ...names.map((name) => `${DIR}/${name}.decisions.jsonl`),
+      '--decisions',
+      `${DIR}/forbidden-act.decisions.jsonl`,
+      `${DIR}/subagent-dispatch.decisions.jsonl`,
+      '--steps',
+      ...['clean-build', 'skill-skipped', 'gate-violated'].map((name) => `${DIR}/${name}.steps.jsonl`),
+    ]);
+    const repeated = await replayJson(['replay', ...SESSIONS, '--suite', `${DIR}/specs`, ...LOGS]);
+    expect(together.code).toBe(repeated.code);
+    expect({ ...together.json, campaignId: undefined }).toEqual({ ...repeated.json, campaignId: undefined });
+    const wrong = await cli([
+      'replay',
+      `${DIR}/clean-build.jsonl`,
+      `${DIR}/clean-build.decisions.jsonl`,
+      '--suite',
+      `${DIR}/specs`,
+    ]);
+    expect(wrong.code).toBe(2);
+    expect(wrong.err).toContain('is a log, not a session');
+  });
 });
