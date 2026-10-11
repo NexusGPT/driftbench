@@ -21,6 +21,19 @@ export {
   renderEstateDiff,
 } from './diff';
 export {
+  checkGuardState,
+  diffGuardStates,
+  GUARD_STATE_FILE,
+  GuardState,
+  GuardStateEntry,
+  type GuardStateResult,
+  guardNeed,
+  guardStateBeside,
+  type LoadedGuardState,
+  loadGuardState,
+  parseGuardState,
+} from './guards';
+export {
   type EstateTest,
   EstateTestMeta,
   estateImpact,

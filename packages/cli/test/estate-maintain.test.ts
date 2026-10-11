@@ -355,3 +355,104 @@ describe('driftbench estate impact --replay', () => {
     expect(store.err).toContain('--suite and --store belong to --replay');
   });
 });
+
+const GUARDS = [
+  'guard.settings.pretooluse-bash-guard-block-force-push',
+  'guard.settings.pretooluse-edit-write-guard-read-before',
+  'guard.settings.posttooluse-bash-guard-ledger-guard-py',
+  'guard.settings.userpromptsubmit-guard-stop-word-sh',
+  'guard.settings.stop-guard-reply-length-py',
+  'guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh',
+];
+
+function guardState(ledger: string, extra = ''): string {
+  return [
+    'version: 1',
+    'guards:',
+    ...GUARDS.map((guard) =>
+      guard.includes('ledger-guard')
+        ? `  - { guard: ${guard}, ${ledger} }`
+        : `  - { guard: ${guard}, mode: enforce }`,
+    ),
+    extra,
+  ].join('\n');
+}
+
+describe('driftbench estate diff with guard state', () => {
+  async function versions(): Promise<string> {
+    const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-guards-'));
+    await mkdir(join(root, 'v1'));
+    await mkdir(join(root, 'v2'));
+    await cp(join(FIXTURE, 'approved.yaml'), join(root, 'v1', 'map.yaml'));
+    await cp(join(FIXTURE, 'approved.yaml'), join(root, 'v2', 'map.yaml'));
+    return root;
+  }
+
+  it('reads the state beside each map and reports the promotion with its evidence', async () => {
+    const root = await versions();
+    await writeFile(join(root, 'v1', 'guard-state.yaml'), guardState('mode: warn'));
+    await writeFile(
+      join(root, 'v2', 'guard-state.yaml'),
+      guardState('mode: enforce, evidence: { log: logs/ledger.decisions.jsonl, decisions: 12, wrong: 0 }'),
+    );
+    const result = await cli(['estate', 'diff', 'v1/map.yaml', 'v2/map.yaml', '--out', 'diff.json'], root);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    expect(result.out).toContain(
+      '  Guards: 1 of 6 changed enforcement state:\n    promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 12 decisions, 0 wrong, logs/ledger.decisions.jsonl)',
+    );
+    const diff = parseEstateDiff(await readFile(join(root, 'diff.json'), 'utf8'));
+    expect(diff.ok && diff.diff.guards?.filter((entry) => entry.move === 'promoted').length).toBe(1);
+
+    await mkdir(join(root, 'tests'));
+    await writeFile(join(root, 'tests', 'ledger.yaml'), spec('t-ledger', [GUARDS[2] as string]));
+    const impact = await cli(['estate', 'impact', 'diff.json', '--tests', 'tests'], root);
+    expect(impact.code).toBe(0);
+    expect(impact.out).toContain(`  t-ledger (ledger.yaml): ${GUARDS[2]} guard state`);
+    expect(impact.out).toContain('Nothing needs a person.');
+  });
+
+  it('takes a state file named on the command line, and needs a person for a promotion with no evidence', async () => {
+    const root = await versions();
+    await writeFile(join(root, 'old-state.yaml'), guardState('mode: observe'));
+    await writeFile(join(root, 'v2', 'guard-state.yaml'), guardState('mode: enforce'));
+    const result = await cli(
+      [
+        'estate',
+        'diff',
+        'v1/map.yaml',
+        'v2/map.yaml',
+        '--old-guards',
+        'old-state.yaml',
+        '--out',
+        'diff.json',
+      ],
+      root,
+    );
+    expect(result.code).toBe(0);
+    expect(result.out).toContain(`promoted ${GUARDS[2]}: observe to enforce`);
+    await mkdir(join(root, 'tests'));
+    const impact = await cli(['estate', 'impact', 'diff.json', '--tests', 'tests'], root);
+    expect(impact.code).toBe(1);
+    expect(impact.out).toContain(
+      `  - the guard ${GUARDS[2]} went from observe to enforce with no decision evidence`,
+    );
+  });
+
+  it('has no guards without a state file, and exits 2 on a state that does not fit its map', async () => {
+    const root = await versions();
+    const none = await cli(['estate', 'diff', 'v1/map.yaml', 'v2/map.yaml', '--json'], root);
+    expect(none.code).toBe(0);
+    expect(JSON.parse(none.out)).not.toHaveProperty('guards');
+    await writeFile(join(root, 'v2', 'guard-state.yaml'), 'version: 1\nguards: []\n');
+    const short = await cli(['estate', 'diff', 'v1/map.yaml', 'v2/map.yaml'], root);
+    expect(short.code).toBe(2);
+    expect(short.err).toContain('The guard state v2/guard-state.yaml does not fit the map v2/map.yaml:');
+    expect(short.err).toContain(`  the guard ${GUARDS[0]} has no state`);
+    const missing = await cli(
+      ['estate', 'diff', 'v1/map.yaml', 'v1/map.yaml', '--old-guards', 'nowhere.yaml'],
+      root,
+    );
+    expect(missing.code).toBe(2);
+  });
+});

@@ -5,7 +5,8 @@ import { shortQuote } from '@driftbench/generate';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
 import { AtomKind } from '../schema';
-import type { EstateDiff } from './diff';
+import { type EstateDiff, GuardMode } from './diff';
+import { guardNeed } from './guards';
 import { Regression, regressionNeeds, renderRegression } from './regression';
 
 /**
@@ -125,6 +126,20 @@ export const ImpactReport = z.strictObject({
       line: z.number().int().min(1),
     }),
   ),
+  guards: z
+    .array(
+      z.strictObject({
+        guard: z.string().min(1),
+        move: z.enum(['promoted', 'demoted', 'added', 'removed']),
+        from: GuardMode.nullable(),
+        to: GuardMode.nullable(),
+        tests: z
+          .array(z.string())
+          .describe('Live tests that name the guard; a new mode changes their verdict'),
+        need: z.string().nullable().describe('What a person must decide, if anything'),
+      }),
+    )
+    .describe('Guards whose enforcement state changed'),
   unaffected: z.strictObject({
     moved: z.number().int().min(0).describe('Atoms moved with the same quote: no test changes'),
     tests: z.number().int().min(0).describe('Live tests the diff does not touch'),
@@ -155,6 +170,11 @@ export function estateImpact(
   for (const entry of diff.atoms.restated) if (!why.has(entry.id)) why.set(entry.id, 'restated');
   const removed = new Set(diff.atoms.removed.map((atom) => atom.id));
   for (const id of removed) why.set(id, 'removed');
+  for (const entry of diff.guards ?? []) {
+    if ((entry.move === 'promoted' || entry.move === 'demoted') && !why.has(entry.guard)) {
+      why.set(entry.guard, 'guard_state');
+    }
+  }
 
   const live = tests.filter((test) => test.retired === undefined);
   const retiredBefore = tests.length - live.length;
@@ -209,12 +229,28 @@ export function estateImpact(
       line: atom.at.startLine,
     }));
 
+  const guards = (diff.guards ?? []).flatMap((entry) =>
+    entry.move === 'unchanged'
+      ? []
+      : [
+          {
+            guard: entry.guard,
+            move: entry.move,
+            from: entry.from,
+            to: entry.to,
+            tests: testsOf(entry.guard),
+            need: guardNeed(entry) ?? null,
+          },
+        ],
+  );
+
   const needsPerson = [
     ...reapprove.map(
       (entry) =>
         `re-approve ${entry.atom}: its meaning changed${entry.tests.length > 0 ? `; ${entry.tests.length} ${entry.tests.length === 1 ? 'test waits' : 'tests wait'}` : ''}`,
     ),
     ...fresh.map((entry) => `approve the tests of the new atom ${entry.atom}: no test covers it yet`),
+    ...guards.flatMap((entry) => (entry.need === null ? [] : [entry.need])),
     ...(options.regression ? regressionNeeds(options.regression) : []),
   ];
 
@@ -226,6 +262,7 @@ export function estateImpact(
     reapprove,
     retire,
     new: fresh,
+    guards,
     unaffected: { moved: diff.atoms.moved.length, tests: untouched },
     ...(options.regression ? { regression: options.regression } : {}),
     needsPerson,
@@ -319,6 +356,15 @@ export function renderImpact(report: ImpactReport): string {
   if (report.new.length > 0) {
     lines.push('New atoms with no test:');
     for (const entry of report.new) lines.push(`  ${entry.atom} (${entry.kind}) ${entry.file}:${entry.line}`);
+  }
+  if (report.guards.length > 0) {
+    lines.push('Guards whose enforcement state changed:');
+    for (const entry of report.guards) {
+      const tests = entry.tests.length > 0 ? `; tests: ${entry.tests.join(', ')}` : '';
+      lines.push(
+        `  ${entry.move} ${entry.guard}: ${entry.from ?? 'no state'} to ${entry.to ?? 'no state'}${tests}`,
+      );
+    }
   }
   if (report.regression) lines.push(...renderRegression(report.regression));
   if (report.needsPerson.length === 0) lines.push('Nothing needs a person.');

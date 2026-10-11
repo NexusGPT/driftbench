@@ -3,11 +3,15 @@ import { dirname, join, relative, resolve } from 'node:path';
 import {
   compareReplays,
   diffEstateMaps,
+  diffGuardStates,
   type EstateMap,
   estateImpact,
+  type GuardState,
+  guardStateBeside,
   latestReplay,
   loadEstateMap,
   loadEstateTests,
+  loadGuardState,
   parseEstateDiff,
   type Regression,
   type ReplayOutcome,
@@ -19,7 +23,7 @@ import type { Command } from 'commander';
 import type { Io } from '../io';
 import { defaultReplayDeps, type ReplayDeps, replayCommand } from './replay';
 
-export type EstateDiffOptions = { json?: boolean; out?: string };
+export type EstateDiffOptions = { json?: boolean; out?: string; oldGuards?: string; newGuards?: string };
 export type EstateImpactOptions = {
   tests?: string;
   write?: boolean;
@@ -54,6 +58,8 @@ export function registerEstateMaintainCommands(
     .argument('<new>', 'the later estate map')
     .option('--json', 'print the diff as one JSON document')
     .option('--out <file>', 'also write the diff as JSON, for estate impact')
+    .option('--old-guards <file>', 'the guard state of the old map (default: guard-state.yaml beside it)')
+    .option('--new-guards <file>', 'the guard state of the new map (default: guard-state.yaml beside it)')
     .action(async (before: string, after: string, options: EstateDiffOptions) => {
       setExit(await estateDiffCommand(before, after, options, io));
     });
@@ -74,7 +80,11 @@ export function registerEstateMaintainCommands(
     });
 }
 
-/** Exit 0 when the diff is computed (with or without changes), 2 when a map cannot be read. */
+/**
+ * Exit 0 when the diff is computed (with or without changes), 2 when a map or a guard state file cannot be
+ * read. The guard state of each map is the file named with --old-guards / --new-guards, else the
+ * guard-state.yaml beside the map when there is one; with neither side holding a state, the diff has no guards.
+ */
 export async function estateDiffCommand(
   beforeArg: string,
   afterArg: string,
@@ -84,9 +94,15 @@ export async function estateDiffCommand(
   const before = await readMap(beforeArg, io);
   const after = await readMap(afterArg, io);
   if (!before || !after) return 2;
+  const oldState = await readGuards(beforeArg, options.oldGuards, before, io);
+  const newState = await readGuards(afterArg, options.newGuards, after, io);
+  if (oldState === false || newState === false) return 2;
   const diff = diffEstateMaps(before, after, {
     oldPath: beforeArg,
     newPath: afterArg,
+    ...(oldState === undefined && newState === undefined
+      ? {}
+      : { guards: diffGuardStates(oldState, newState) }),
   });
   const json = `${JSON.stringify(diff, null, 2)}\n`;
   if (options.out !== undefined && !(await writeOut(resolve(io.cwd, options.out), json, io))) return 2;
@@ -243,6 +259,20 @@ async function replayCorpus(
     ...compareReplays(previous?.outcomes, replay.runs),
     notes: replay.notes,
   };
+}
+
+async function readGuards(
+  mapArg: string,
+  given: string | undefined,
+  map: EstateMap,
+  io: Io,
+): Promise<GuardState | undefined | false> {
+  const path = given === undefined ? guardStateBeside(resolve(io.cwd, mapArg)) : resolve(io.cwd, given);
+  const loaded = await loadGuardState(path, map, given !== undefined);
+  if (loaded.ok) return loaded.state;
+  io.err(`The guard state ${show(path, io)} does not fit the map ${mapArg}:\n`);
+  for (const error of loaded.errors) io.err(`  ${error}\n`);
+  return false;
 }
 
 async function readMap(path: string, io: Io): Promise<EstateMap | undefined> {
