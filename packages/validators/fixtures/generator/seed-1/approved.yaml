@@ -1,0 +1,1059 @@
+# driftbench map proposal for hidden-1: where the agent's behaviour is specified.
+# Code and a model proposed each entry with the quote that justifies it. Nothing counts until a person
+# approves it. A dimension has one approved flag, which its values inherit (a value may set its own);
+# each constraint and phrase has its own. role axis puts a dimension in the space map; detail keeps it
+# for the generator, inside a cell. Approve with
+#   driftbench extract approve <this file> --dimension <id>   or   --all
+# An entry whose quote is missing, or no longer found in its source, is refused.
+
+version: 1
+agent: hidden-1
+produced_by:
+  family: code
+  model: driftbench validate generator, the hidden specification
+  at: 2026-10-11T00:00:00.000Z
+sources:
+  - { kind: prompt, path: ./prompt.md }
+  - { kind: inventory, path: ./inventory.yaml }
+  - { kind: tools, path: ./tools.yaml }
+dimensions:
+  - id: behaviour
+    title: The behaviours the inventory lists
+    kind: behaviour
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - id: B-001
+        title: Answer in English only and keep the pending question
+        evidence:
+          source: ./inventory.yaml
+          quote: |-
+            id: B-001
+                title: Answer in English only and keep the pending question
+        produced_by: code
+      - id: B-002
+        title: Treat a loose yes as no confirmation and ask for CONFIRM again
+        evidence:
+          source: ./inventory.yaml
+          quote: |-
+            id: B-002
+                title: Treat a loose yes as no confirmation and ask for CONFIRM again
+        produced_by: code
+      - id: B-003
+        title: Report a failed tool honestly, invent none of its answer, and offer a fallback
+        evidence:
+          source: ./inventory.yaml
+          quote: |-
+            id: B-003
+                title: Report a failed tool honestly, invent none of its answer, and offer a fallback
+        produced_by: code
+      - id: B-004
+        title: Answer an off-topic question in one line and resume the pending step
+        evidence:
+          source: ./inventory.yaml
+          quote: |-
+            id: B-004
+                title: Answer an off-topic question in one line and resume the pending step
+        produced_by: code
+  - id: flow
+    title: The flows the inventory lists
+    kind: behaviour
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: new-request
+        title: A user opens a new request and submits it
+        evidence:
+          source: ./inventory.yaml
+          quote: |-
+            id: new-request
+                title: A user opens a new request and submits it
+        produced_by: code
+      - id: change-request
+        title: A user changes a request before it is submitted
+        evidence:
+          source: ./inventory.yaml
+          quote: |-
+            id: change-request
+                title: A user changes a request before it is submitted
+        produced_by: code
+      - id: status-check
+        title: A user asks for the status of a record
+        evidence:
+          source: ./inventory.yaml
+          quote: |-
+            id: status-check
+                title: A user asks for the status of a record
+        produced_by: code
+  - id: deviation
+    title: The deviation classes the flows must be perturbed with
+    kind: deviation
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - id: D1_off_topic
+        title: An off-topic question gets one line, then the pending question.
+        evidence:
+          source: ./inventory.yaml
+          quote: "deviations: [D1_off_topic, D2_goal_shift, D5_language_switch]"
+        produced_by: code
+      - id: D2_goal_shift
+        title: When the user changes the goal, go back to the intake question.
+        evidence:
+          source: ./inventory.yaml
+          quote: "deviations: [D2_goal_shift, D4_loose_confirmation, D7_silence_or_burst, D8_tool_failure]"
+        produced_by: code
+      - id: D4_loose_confirmation
+        title: "A loose yes is not a confirmation: ask for CONFIRM again."
+        evidence:
+          source: ./inventory.yaml
+          quote: "deviations: [D2_goal_shift, D4_loose_confirmation, D7_silence_or_burst, D8_tool_failure]"
+        produced_by: code
+      - id: D5_language_switch
+        title: Reply in English only, whatever language the user writes in.
+        evidence:
+          source: ./inventory.yaml
+          quote: "deviations: [D1_off_topic, D2_goal_shift, D5_language_switch]"
+        produced_by: code
+      - id: D7_silence_or_burst
+        title: An empty message or a nudge gets one reply with the pending question.
+        evidence:
+          source: ./inventory.yaml
+          quote: "deviations: [D2_goal_shift, D4_loose_confirmation, D7_silence_or_burst, D8_tool_failure]"
+        produced_by: code
+      - id: D8_tool_failure
+        title: A failed read-only tool gets one retry; a side-effecting tool none; report the failure honestly.
+        evidence:
+          source: ./inventory.yaml
+          quote: "deviations: [D2_goal_shift, D4_loose_confirmation, D7_silence_or_burst, D8_tool_failure]"
+        produced_by: code
+      - id: D9_out_of_scope
+        title: A billing matter goes to the billing desk, outside this flow.
+        evidence:
+          source: ./inventory.yaml
+          quote: "deviations: [D1_off_topic, D5_language_switch, D9_out_of_scope]"
+        produced_by: code
+  - id: channel
+    title: The channels the inventory names
+    kind: channel
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - id: web
+        title: On web
+        evidence:
+          source: ./inventory.yaml
+          quote: "channels: [web, messaging]"
+        produced_by: code
+      - id: messaging
+        title: On messaging
+        evidence:
+          source: ./inventory.yaml
+          quote: "channels: [web, messaging]"
+        produced_by: code
+  - id: lookup_record.in.kind
+    title: lookup_record input kind
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: lookup_record.in.kind.basic
+        title: kind is basic
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [basic, standard, small]"
+        produced_by: code
+      - id: lookup_record.in.kind.standard
+        title: kind is standard
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [basic, standard, small]"
+        produced_by: code
+      - id: lookup_record.in.kind.small
+        title: kind is small
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [basic, standard, small]"
+        produced_by: code
+  - id: lookup_record.in.quantity
+    title: lookup_record input quantity
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: lookup_record.in.quantity.below-minimum
+        title: quantity below its minimum 1
+        evidence:
+          source: ./tools.yaml
+          quote: "minimum: 1"
+        produced_by: code
+      - id: lookup_record.in.quantity.at-minimum
+        title: quantity at its minimum 1
+        evidence:
+          source: ./tools.yaml
+          quote: "minimum: 1"
+        produced_by: code
+      - id: lookup_record.in.quantity.above-minimum
+        title: quantity just above its minimum 1
+        evidence:
+          source: ./tools.yaml
+          quote: "minimum: 1"
+        produced_by: code
+      - id: lookup_record.in.quantity.below-maximum
+        title: quantity just below its maximum 9
+        evidence:
+          source: ./tools.yaml
+          quote: "maximum: 9"
+        produced_by: code
+      - id: lookup_record.in.quantity.at-maximum
+        title: quantity at its maximum 9
+        evidence:
+          source: ./tools.yaml
+          quote: "maximum: 9"
+        produced_by: code
+      - id: lookup_record.in.quantity.above-maximum
+        title: quantity above its maximum 9
+        evidence:
+          source: ./tools.yaml
+          quote: "maximum: 9"
+        produced_by: code
+  - id: lookup_record.out.found
+    title: lookup_record output found
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: lookup_record.out.found.true
+        title: found is true
+        evidence:
+          source: ./tools.yaml
+          quote: "found: { type: boolean }"
+        produced_by: code
+      - id: lookup_record.out.found.false
+        title: found is false
+        evidence:
+          source: ./tools.yaml
+          quote: "found: { type: boolean }"
+        produced_by: code
+  - id: lookup_record.out.status
+    title: lookup_record output status
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: lookup_record.out.status.south
+        title: status is south
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [south, monthly]"
+        produced_by: code
+      - id: lookup_record.out.status.monthly
+        title: status is monthly
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [south, monthly]"
+        produced_by: code
+  - id: submit_request.in.plan
+    title: submit_request input plan
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: submit_request.in.plan.inland
+        title: plan is inland
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [inland, coastal, west]"
+        produced_by: code
+      - id: submit_request.in.plan.coastal
+        title: plan is coastal
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [inland, coastal, west]"
+        produced_by: code
+      - id: submit_request.in.plan.west
+        title: plan is west
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [inland, coastal, west]"
+        produced_by: code
+  - id: submit_request.in.units
+    title: submit_request input units
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: submit_request.in.units.below-minimum
+        title: units below its minimum 2
+        evidence:
+          source: ./tools.yaml
+          quote: "minimum: 2"
+        produced_by: code
+      - id: submit_request.in.units.at-minimum
+        title: units at its minimum 2
+        evidence:
+          source: ./tools.yaml
+          quote: "minimum: 2"
+        produced_by: code
+      - id: submit_request.in.units.above-minimum
+        title: units just above its minimum 2
+        evidence:
+          source: ./tools.yaml
+          quote: "minimum: 2"
+        produced_by: code
+      - id: submit_request.in.units.below-maximum
+        title: units just below its maximum 12
+        evidence:
+          source: ./tools.yaml
+          quote: "maximum: 12"
+        produced_by: code
+      - id: submit_request.in.units.at-maximum
+        title: units at its maximum 12
+        evidence:
+          source: ./tools.yaml
+          quote: "maximum: 12"
+        produced_by: code
+      - id: submit_request.in.units.above-maximum
+        title: units above its maximum 12
+        evidence:
+          source: ./tools.yaml
+          quote: "maximum: 12"
+        produced_by: code
+  - id: submit_request.out.accepted
+    title: submit_request output accepted
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: submit_request.out.accepted.true
+        title: accepted is true
+        evidence:
+          source: ./tools.yaml
+          quote: "accepted: { type: boolean }"
+        produced_by: code
+      - id: submit_request.out.accepted.false
+        title: accepted is false
+        evidence:
+          source: ./tools.yaml
+          quote: "accepted: { type: boolean }"
+        produced_by: code
+  - id: submit_request.out.route
+    title: submit_request output route
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: submit_request.out.route.amber
+        title: route is amber
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [amber, green]"
+        produced_by: code
+      - id: submit_request.out.route.green
+        title: route is green
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [amber, green]"
+        produced_by: code
+  - id: list_options.in.category
+    title: list_options input category
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: list_options.in.category.daily
+        title: category is daily
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [daily, weekly, large]"
+        produced_by: code
+      - id: list_options.in.category.weekly
+        title: category is weekly
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [daily, weekly, large]"
+        produced_by: code
+      - id: list_options.in.category.large
+        title: category is large
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [daily, weekly, large]"
+        produced_by: code
+  - id: list_options.in.limit
+    title: list_options input limit
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: list_options.in.limit.below-minimum
+        title: limit below its minimum 2
+        evidence:
+          source: ./tools.yaml
+          quote: "minimum: 2"
+        produced_by: code
+      - id: list_options.in.limit.at-minimum
+        title: limit at its minimum 2
+        evidence:
+          source: ./tools.yaml
+          quote: "minimum: 2"
+        produced_by: code
+      - id: list_options.in.limit.above-minimum
+        title: limit just above its minimum 2
+        evidence:
+          source: ./tools.yaml
+          quote: "minimum: 2"
+        produced_by: code
+      - id: list_options.in.limit.below-maximum
+        title: limit just below its maximum 12
+        evidence:
+          source: ./tools.yaml
+          quote: "maximum: 12"
+        produced_by: code
+      - id: list_options.in.limit.at-maximum
+        title: limit at its maximum 12
+        evidence:
+          source: ./tools.yaml
+          quote: "maximum: 12"
+        produced_by: code
+      - id: list_options.in.limit.above-maximum
+        title: limit above its maximum 12
+        evidence:
+          source: ./tools.yaml
+          quote: "maximum: 12"
+        produced_by: code
+  - id: list_options.out.available
+    title: list_options output available
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: list_options.out.available.true
+        title: available is true
+        evidence:
+          source: ./tools.yaml
+          quote: "available: { type: boolean }"
+        produced_by: code
+      - id: list_options.out.available.false
+        title: available is false
+        evidence:
+          source: ./tools.yaml
+          quote: "available: { type: boolean }"
+        produced_by: code
+  - id: list_options.out.order
+    title: list_options output order
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: list_options.out.order.medium
+        title: order is medium
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [medium, east]"
+        produced_by: code
+      - id: list_options.out.order.east
+        title: order is east
+        evidence:
+          source: ./tools.yaml
+          quote: "enum: [medium, east]"
+        produced_by: code
+  - id: stage
+    title: The flow stage a turn ends in
+    kind: stage
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - id: opening
+        title: The agent greets and asks what is needed
+        evidence:
+          source: ./prompt.md
+          quote: "opening: The agent greets and asks what is needed."
+        produced_by: code
+      - id: intake
+        title: The agent asks which item the request is about
+        evidence:
+          source: ./prompt.md
+          quote: "intake: The agent asks which item the request is about."
+        produced_by: code
+      - id: check
+        title: The agent looks up the record
+        evidence:
+          source: ./prompt.md
+          quote: "check: The agent looks up the record."
+        produced_by: code
+      - id: choice
+        title: The agent lists the options and asks for one
+        evidence:
+          source: ./prompt.md
+          quote: "choice: The agent lists the options and asks for one."
+        produced_by: code
+      - id: details
+        title: The agent asks for the name on the request
+        evidence:
+          source: ./prompt.md
+          quote: "details: The agent asks for the name on the request."
+        produced_by: code
+      - id: recap
+        title: The agent recaps the request and waits for CONFIRM
+        evidence:
+          source: ./prompt.md
+          quote: "recap: The agent recaps the request and waits for CONFIRM."
+        produced_by: code
+      - id: done
+        title: The request is submitted
+        evidence:
+          source: ./prompt.md
+          quote: "done: The request is submitted."
+        produced_by: code
+  - id: stage_transition
+    title: A move from one stage to the next
+    kind: behaviour
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: opening-to-intake
+        title: "From opening the agent moves to intake: the agent asks which item the request is about"
+        evidence:
+          source: ./prompt.md
+          quote: After opening, the next step is intake.
+        produced_by: code
+      - id: intake-to-check
+        title: "From intake the agent moves to check: the agent looks up the record"
+        evidence:
+          source: ./prompt.md
+          quote: After intake, the next step is check.
+        produced_by: code
+      - id: check-to-choice
+        title: "From check the agent moves to choice: the agent lists the options and asks for one"
+        evidence:
+          source: ./prompt.md
+          quote: After check, the next step is choice.
+        produced_by: code
+      - id: choice-to-details
+        title: "From choice the agent moves to details: the agent asks for the name on the request"
+        evidence:
+          source: ./prompt.md
+          quote: After choice, the next step is details.
+        produced_by: code
+      - id: details-to-recap
+        title: "From details the agent moves to recap: the agent recaps the request and waits for confirm"
+        evidence:
+          source: ./prompt.md
+          quote: After details, the next step is recap.
+        produced_by: code
+      - id: recap-to-done
+        title: "From recap the agent moves to done: the request is submitted"
+        evidence:
+          source: ./prompt.md
+          quote: After recap, the next step is done.
+        produced_by: code
+      - id: intake-to-intake
+        title: The item named is unclear, so the agent asks again
+        evidence:
+          source: ./prompt.md
+          quote: The item named is unclear, so the agent asks again.
+        produced_by: code
+      - id: check-to-recap
+        title: The record already holds every choice, so the agent goes to the recap
+        evidence:
+          source: ./prompt.md
+          quote: The record already holds every choice, so the agent goes to the recap.
+        produced_by: code
+      - id: recap-to-intake
+        title: The user wants to change the item at the recap
+        evidence:
+          source: ./prompt.md
+          quote: The user wants to change the item at the recap.
+        produced_by: code
+  - id: user_type
+    title: Who is talking to the agent
+    kind: persona
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - id: returning
+        title: A user who has made requests before
+        evidence:
+          source: ./prompt.md
+          quote: "returning: A user who has made requests before."
+        produced_by: code
+      - id: newcomer
+        title: A user who has never made a request
+        evidence:
+          source: ./prompt.md
+          quote: "newcomer: A user who has never made a request."
+        produced_by: code
+      - id: staff
+        title: A member of staff working on a request
+        evidence:
+          source: ./prompt.md
+          quote: "staff: A member of staff working on a request."
+        produced_by: code
+constraints:
+  - forbid: { user_type: staff, channel: messaging }
+    reason: staff work on web only
+    evidence:
+      source: ./prompt.md
+      quote: Staff reach the agent on web only, never on messaging.
+    produced_by: code
+    approved: true
+  - forbid: { behaviour: B-004, channel: messaging }
+    reason: B-004 applies only on web
+    evidence:
+      source: ./inventory.yaml
+      quote: |-
+        id: B-004
+            title: Answer an off-topic question in one line and resume the pending step
+            channels: [web]
+    produced_by: code
+    approved: true
+  - forbid: { behaviour: B-002, channel: messaging }
+    reason: B-002 applies only on web
+    evidence:
+      source: ./inventory.yaml
+      quote: |-
+        id: B-002
+            title: Treat a loose yes as no confirmation and ask for CONFIRM again
+            channels: [web]
+    produced_by: code
+    approved: true
+phrases:
+  - dimension: stage_transition
+    value: opening-to-intake
+    text: Hello, I would like to start a new request.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: intake-to-check
+    text: It is about item number four, please look it up.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: check-to-choice
+    text: Yes, that record is the right one.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: choice-to-details
+    text: The second option suits me best.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: details-to-recap
+    text: Put the request under the name Robin Vale.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: recap-to-done
+    text: CONFIRM
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: intake-to-intake
+    text: I am not sure which item it is.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: check-to-recap
+    text: Use the same choices as last time.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: stage_transition
+    value: recap-to-intake
+    text: Wait, I want to change the item first.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D1_off_topic
+    text: By the way, is the office open on Saturday?
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D1_off_topic
+    text: Quick question, do you like the weather today?
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D2_goal_shift
+    text: Actually, I want something else instead.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D4_loose_confirmation
+    text: yeah sounds good
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D4_loose_confirmation
+    text: ok perfect
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D5_language_switch
+    text: Kunt u dat ook in het Nederlands uitleggen?
+    lang: nl
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D5_language_switch
+    text: Kunt u mij in het Nederlands helpen met deze vraag?
+    lang: nl
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D7_silence_or_burst
+    text: hello?
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D7_silence_or_burst
+    text: are you still there?
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: deviation
+    value: D9_out_of_scope
+    text: Can you fix a problem with my last invoice?
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.in.kind
+    value: lookup_record.in.kind.basic
+    text: Please run lookup record with kind set to basic.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.in.kind
+    value: lookup_record.in.kind.standard
+    text: Please run lookup record with kind set to standard.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.in.kind
+    value: lookup_record.in.kind.small
+    text: Please run lookup record with kind set to small.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.in.quantity
+    value: lookup_record.in.quantity.below-minimum
+    text: Please run lookup record with quantity set to 0.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.in.quantity
+    value: lookup_record.in.quantity.at-minimum
+    text: Please run lookup record with quantity set to 1.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.in.quantity
+    value: lookup_record.in.quantity.above-minimum
+    text: Please run lookup record with quantity set to 2.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.in.quantity
+    value: lookup_record.in.quantity.below-maximum
+    text: Please run lookup record with quantity set to 8.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.in.quantity
+    value: lookup_record.in.quantity.at-maximum
+    text: Please run lookup record with quantity set to 9.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.in.quantity
+    value: lookup_record.in.quantity.above-maximum
+    text: Please run lookup record with quantity set to 10.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.out.found
+    value: lookup_record.out.found.true
+    text: Please run lookup record and tell me whether found comes back as true.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.out.found
+    value: lookup_record.out.found.false
+    text: Please run lookup record and tell me whether found comes back as false.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.out.status
+    value: lookup_record.out.status.south
+    text: Please run lookup record and tell me whether status comes back as south.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: lookup_record.out.status
+    value: lookup_record.out.status.monthly
+    text: Please run lookup record and tell me whether status comes back as monthly.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.in.plan
+    value: submit_request.in.plan.inland
+    text: Please run submit request with plan set to inland.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.in.plan
+    value: submit_request.in.plan.coastal
+    text: Please run submit request with plan set to coastal.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.in.plan
+    value: submit_request.in.plan.west
+    text: Please run submit request with plan set to west.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.in.units
+    value: submit_request.in.units.below-minimum
+    text: Please run submit request with units set to 1.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.in.units
+    value: submit_request.in.units.at-minimum
+    text: Please run submit request with units set to 2.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.in.units
+    value: submit_request.in.units.above-minimum
+    text: Please run submit request with units set to 3.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.in.units
+    value: submit_request.in.units.below-maximum
+    text: Please run submit request with units set to 11.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.in.units
+    value: submit_request.in.units.at-maximum
+    text: Please run submit request with units set to 12.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.in.units
+    value: submit_request.in.units.above-maximum
+    text: Please run submit request with units set to 13.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.out.accepted
+    value: submit_request.out.accepted.true
+    text: Please run submit request and tell me whether accepted comes back as true.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.out.accepted
+    value: submit_request.out.accepted.false
+    text: Please run submit request and tell me whether accepted comes back as false.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.out.route
+    value: submit_request.out.route.amber
+    text: Please run submit request and tell me whether route comes back as amber.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: submit_request.out.route
+    value: submit_request.out.route.green
+    text: Please run submit request and tell me whether route comes back as green.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.in.category
+    value: list_options.in.category.daily
+    text: Please run list options with category set to daily.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.in.category
+    value: list_options.in.category.weekly
+    text: Please run list options with category set to weekly.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.in.category
+    value: list_options.in.category.large
+    text: Please run list options with category set to large.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.in.limit
+    value: list_options.in.limit.below-minimum
+    text: Please run list options with limit set to 1.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.in.limit
+    value: list_options.in.limit.at-minimum
+    text: Please run list options with limit set to 2.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.in.limit
+    value: list_options.in.limit.above-minimum
+    text: Please run list options with limit set to 3.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.in.limit
+    value: list_options.in.limit.below-maximum
+    text: Please run list options with limit set to 11.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.in.limit
+    value: list_options.in.limit.at-maximum
+    text: Please run list options with limit set to 12.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.in.limit
+    value: list_options.in.limit.above-maximum
+    text: Please run list options with limit set to 13.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.out.available
+    value: list_options.out.available.true
+    text: Please run list options and tell me whether available comes back as true.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.out.available
+    value: list_options.out.available.false
+    text: Please run list options and tell me whether available comes back as false.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.out.order
+    value: list_options.out.order.medium
+    text: Please run list options and tell me whether order comes back as medium.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: list_options.out.order
+    value: list_options.out.order.east
+    text: Please run list options and tell me whether order comes back as east.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: behaviour
+    value: B-001
+    text: I need you to answer in English only and keep the pending question.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: behaviour
+    value: B-002
+    text: I need you to treat a loose yes as no confirmation and ask for CONFIRM again.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: behaviour
+    value: B-003
+    text: I need you to report a failed tool honestly, invent none of its answer, and offer a fallback.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: behaviour
+    value: B-004
+    text: I need you to answer an off-topic question in one line and resume the pending step.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: flow
+    value: new-request
+    text: I want to open a new request.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: flow
+    value: new-request
+    text: Can you help me file a request?
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: flow
+    value: change-request
+    text: I need to change my request.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: flow
+    value: change-request
+    text: Something in my request is wrong.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: flow
+    value: status-check
+    text: What is the status of my record?
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: user_type
+    value: returning
+    text: I have used this service before.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: user_type
+    value: newcomer
+    text: This is my first time here.
+    lang: en
+    produced_by: model
+    approved: true
+  - dimension: user_type
+    value: staff
+    text: I am on the staff side and need to check something.
+    lang: en
+    produced_by: model
+    approved: true

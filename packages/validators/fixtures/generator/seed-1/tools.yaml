@@ -1,0 +1,44 @@
+# The hidden-1 tools, drawn by the generator validator. Fictional.
+tools:
+  - name: lookup_record
+    description: Looks up the record of an item
+    input_schema:
+      type: object
+      required: [kind, quantity]
+      properties:
+        kind: { type: string, enum: [basic, standard, small] }
+        quantity: { type: integer, minimum: 1, maximum: 9 }
+    output_schema:
+      type: object
+      required: [found, status]
+      properties:
+        found: { type: boolean }
+        status: { type: string, enum: [south, monthly] }
+  - name: submit_request
+    description: Submits the confirmed request
+    input_schema:
+      type: object
+      required: [plan, units]
+      properties:
+        plan: { type: string, enum: [inland, coastal, west] }
+        units: { type: integer, minimum: 2, maximum: 12 }
+    output_schema:
+      type: object
+      required: [accepted, route]
+      properties:
+        accepted: { type: boolean }
+        route: { type: string, enum: [amber, green] }
+  - name: list_options
+    description: Lists the options for an item
+    input_schema:
+      type: object
+      required: [category, limit]
+      properties:
+        category: { type: string, enum: [daily, weekly, large] }
+        limit: { type: integer, minimum: 2, maximum: 12 }
+    output_schema:
+      type: object
+      required: [available, order]
+      properties:
+        available: { type: boolean }
+        order: { type: string, enum: [medium, east] }
