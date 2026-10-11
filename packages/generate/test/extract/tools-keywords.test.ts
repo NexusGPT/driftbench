@@ -113,4 +113,20 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       't.x.in.p': ['below-min-properties', 'at-min-properties', 'at-max-properties', 'above-max-properties'],
     });
   });
+
+  it('reads Gemini function declarations, at the root or inside a tools list', () => {
+    const declaration = {
+      name: 'findAccount',
+      parameters: { type: 'object', required: ['flag'], properties: { flag: { type: 'boolean' } } },
+    };
+    for (const file of [
+      { functionDeclarations: [declaration] },
+      { tools: [{ functionDeclarations: [declaration] }] },
+    ]) {
+      const result = toolsPrepass(stringify(file), 'tools.yaml');
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      expect(result.tools).toEqual(['findAccount']);
+      expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
+    }
+  });
 });
