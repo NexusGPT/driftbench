@@ -3,8 +3,10 @@ import { isSeq, parseDocument } from 'yaml';
 import { entry, nodeText, pairText } from './nodes';
 import {
   MAX_QUOTE_LENGTH,
+  PENDING_STAGE,
   type ProposalConstraint,
   type ProposalDimension,
+  type ProposalRelation,
   type ProposalValue,
 } from './proposal';
 import { proposeRole } from './space';
@@ -24,13 +26,36 @@ export const DEVIATION_TITLES: Record<DeviationClass, string> = {
 };
 
 export type InventoryPrepass =
-  | { ok: true; dimensions: ProposalDimension[]; constraints: ProposalConstraint[]; notes: string[] }
+  | {
+      ok: true;
+      dimensions: ProposalDimension[];
+      constraints: ProposalConstraint[];
+      relations: ProposalRelation[];
+      notes: string[];
+    }
   | { ok: false; errors: InventoryIssue[] };
+
+/**
+ * The classes after which a conversation is back at the stage it had reached, by their definition in the
+ * spec reference (docs/reference/spec.md, DeviationClass): every class but a goal shift, which moves to the
+ * stage that owns the change, and a tool failure, which moves to a fallback.
+ */
+export const DETOUR_CLASSES: ReadonlySet<DeviationClass> = new Set([
+  'D1_off_topic',
+  'D3_contradiction',
+  'D4_loose_confirmation',
+  'D5_language_switch',
+  'D6_instruction_in_data',
+  'D7_silence_or_burst',
+  'D9_out_of_scope',
+  'D10_return',
+]);
 
 /**
  * The code pre-pass on a behaviour inventory, without a model. Behaviours, flows, the deviation classes the
  * flows require and the channels become dimensions. A behaviour limited to some channels becomes one
- * constraint per channel it leaves out. Every entry quotes the inventory text it comes from, verbatim.
+ * constraint per channel it leaves out. A detour class a flow requires becomes a recovery that returns to
+ * the pending stage. Every entry quotes the inventory text it comes from, verbatim.
  */
 export function inventoryPrepass(
   text: string,
@@ -157,7 +182,24 @@ export function inventoryPrepass(
     }
   });
 
-  return { ok: true, dimensions, constraints, notes };
+  const relations: ProposalRelation[] = [];
+  inventory.flows.forEach((flow, index) => {
+    const quote = pairText(text, entry(flowNodes[index], 'deviations'));
+    for (const deviation of flow.deviations ?? []) {
+      if (!DETOUR_CLASSES.has(deviation)) continue;
+      relations.push({
+        kind: 'recovery',
+        class: deviation,
+        flows: [flow.id],
+        stage_after: PENDING_STAGE,
+        evidence: evidence(quote, deviation),
+        produced_by: 'code',
+        approved: false,
+      });
+    }
+  });
+
+  return { ok: true, dimensions, constraints, relations, notes };
 }
 
 function value(id: string, title: string, evidence: { source: string; quote: string }): ProposalValue {

@@ -3,26 +3,57 @@ import { generatorFamily, stimulusText } from './then';
 import type { GateOptions, StageVerdict } from './types';
 
 /**
- * Stage 2, leakage. Three ways a block gives its answer away: an expected value (a tool input value, an
- * end-state value) already written in the When or the Given; an n-gram overlap with the specs it came
- * from above a threshold; a generator of the same model family as the judge.
+ * Stage 2, leakage. Three ways a block gives its answer away: an expected value already written where the
+ * agent reads it (an end-state value in the When or the Given, a tool input value in the Given); an n-gram
+ * overlap with the specs it came from above a threshold; a generator of the same model family as the
+ * judge.
+ *
+ * The rule on values (the lead's call, G8): an end-state value stays strict, in the When and in the
+ * Given. A tool input value the user supplies in the When is exempt: the agent is meant to pass on what
+ * the user says (an email, an address), so finding it there is the test, not a leak. A tool input value
+ * in the Given still counts. Enum words of 4 letters or fewer (new, home) are ignored: too common to
+ * count as given away. Numbers always count.
  */
 
 /** A value shorter than this, as text, is too common to count as leaked. Numbers always count. */
 const MIN_VALUE_LENGTH = 3;
+/** An enum word of this many letters or fewer is too common to count as leaked. */
+const MAX_ENUM_WORD = 4;
 
-/** The literal values a block's Then expects: tool input values and, on the last block, end-state values. */
-export function expectedValues(spec: Spec, index: number): string[] {
-  const values = new Set<string>();
+export type ExpectedValues = {
+  /** Tool input values the block's Then asserts. */
+  inputs: string[];
+  /** End-state values, on the last block only. */
+  endState: string[];
+};
+
+/** The literal values a block's Then expects, by where they come from, without the ones too common to count. */
+export function expectedValuesBySource(spec: Spec, index: number): ExpectedValues {
+  const inputs = new Set<string>();
   for (const tool of spec.blocks[index]?.expect?.tools ?? []) {
-    for (const assertion of Object.values(tool.input ?? {})) collect(assertion, values);
+    for (const assertion of Object.values(tool.input ?? {})) collect(assertion, inputs);
   }
+  const endState = new Set<string>();
   if (index === spec.blocks.length - 1 && spec.end_state !== undefined && spec.end_state !== 'none') {
     const entries: EndStateSpec[] = [spec.end_state].flat();
     for (const entry of entries)
-      for (const assertion of Object.values(entry.expect)) collect(assertion, values);
+      for (const assertion of Object.values(entry.expect)) collect(assertion, endState);
   }
-  return [...values].filter((value) => /^-?\d/.test(value) || value.trim().length >= MIN_VALUE_LENGTH);
+  return { inputs: [...inputs].filter(counts), endState: [...endState].filter(counts) };
+}
+
+/** Every literal value a block's Then expects: tool input values and, on the last block, end-state values. */
+export function expectedValues(spec: Spec, index: number): string[] {
+  const { inputs, endState } = expectedValuesBySource(spec, index);
+  return [...new Set([...inputs, ...endState])];
+}
+
+/** Whether a value counts as leaked when found: a number always; not a short text or a short enum word. */
+function counts(value: string): boolean {
+  if (/^-?\d/.test(value)) return true;
+  const text = value.trim();
+  if (text.length < MIN_VALUE_LENGTH) return false;
+  return !new RegExp(`^[A-Za-z]{1,${MAX_ENUM_WORD}}$`).test(text);
 }
 
 function collect(assertion: Assertion, into: Set<string>): void {
@@ -116,16 +147,19 @@ export function leakageStage(
   const block = spec.blocks[index];
   if (!block) return { status: 'skip', detail: 'no such block' };
   const notes: string[] = [];
-  const values = expectedValues(spec, index);
+  const { inputs, endState } = expectedValuesBySource(spec, index);
+  const values = [...new Set([...inputs, ...endState])];
   const when = stimulusText(block.when);
-  const inWhen = values.filter((value) => containsToken(when, value));
+  const inWhen = endState.filter((value) => containsToken(when, value));
   if (inWhen.length > 0) {
     return {
       status: 'reject',
       reason: 'expected-value-in-when',
-      detail: `the When already holds the expected ${listed(inWhen)}`,
+      detail: `the When already holds the expected end-state ${listed(inWhen)}`,
     };
   }
+  const supplied = inputs.filter((value) => !endState.includes(value) && containsToken(when, value));
+  if (supplied.length > 0) notes.push(`${listed(supplied)} supplied by the user in the When, exempt`);
   const given = givenText(spec, index);
   const inGiven = values.filter((value) => containsToken(given, value));
   if (inGiven.length > 0) {
