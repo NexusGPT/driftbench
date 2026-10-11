@@ -256,6 +256,26 @@ describe('stage 4, contrast', () => {
     expect(result.blocks[0]?.stages.contrast).toMatchObject({ status: 'reject', reason: 'twins-disagree' });
   });
 
+  it('rejects twins whose Thens differ even when both pass on the reference', async () => {
+    const loose = makeSpec({
+      ...twin('t2', 'Kindly order the red one.', 'ordered', 2),
+      blocks: [
+        {
+          id: 'b1',
+          when: { user: 'Kindly order the red one.' },
+          expect: { stage: 'ordered', tools: [{ label: 'order.create', count: { min: 1 } }] },
+        },
+      ],
+    });
+    const result = await gate([twin('t1', 'Please order the red one.', 'ordered', 1), loose]);
+    expect(result.blocks.map((record) => record.reference[0])).toEqual(['pass', 'pass']);
+    expect(result.blocks[0]?.stages.contrast).toMatchObject({
+      status: 'reject',
+      reason: 'twins-disagree',
+      detail: 'its twin t2#b1 expects something else',
+    });
+  });
+
   it('rejects twins that expect the same and come out differently on the reference', async () => {
     const result = await gate([
       twin('t1', 'Please order the red one.', 'ordered', 1),
@@ -298,6 +318,26 @@ describe('stage 5, red first', () => {
     expect(result.blocks[0]?.stages.red_first).toMatchObject({
       status: 'reject',
       reason: 'not-green-on-reference',
+    });
+  });
+
+  it('rejects a block no gating verdict of its Then decided on the reference', async () => {
+    const spec = makeSpec({
+      id: 'unjudged',
+      blocks: [
+        {
+          id: 'b1',
+          when: { injection: { class: 'D5_language_switch', user: 'xyz' } },
+          expect: { lang: 'EN' },
+        },
+      ],
+    });
+    const result = await gate([spec]);
+    expect(result.blocks[0]?.reference[0]).toBe('unjudged');
+    expect(result.blocks[0]?.stages.red_first).toMatchObject({
+      status: 'reject',
+      reason: 'not-green-on-reference',
+      detail: 'no gating machine verdict decided it on the reference',
     });
   });
 
