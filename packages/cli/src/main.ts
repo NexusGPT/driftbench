@@ -7,6 +7,7 @@ import { registerGateCommand } from './commands/gate';
 import { registerGenerateCommand } from './commands/generate';
 import { registerIntakeCommand } from './commands/intake';
 import { registerJudgeCommand } from './commands/judge';
+import { registerPerturbCommand } from './commands/perturb';
 import { registerPilotCommand } from './commands/pilot';
 import { registerReplayCommand } from './commands/replay';
 import { registerSmokeCommand } from './commands/smoke';
@@ -40,6 +41,7 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerGateCommand(program, io, setExit);
   registerFamilyCommand(program, io, setExit);
   registerPilotCommand(program, io, setExit);
+  registerPerturbCommand(program, io, setExit);
   registerJudgeCommand(program, io, setExit);
   registerValidateCommand(program, io, setExit);
 
