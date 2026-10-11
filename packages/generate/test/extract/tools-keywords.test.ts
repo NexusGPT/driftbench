@@ -27,4 +27,13 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum', 'multiple', 'not-multiple'],
     });
   });
+
+  it('uniqueItems adds duplicate-items to the array partitions', () => {
+    expect(partitions({ type: 'array', items: { type: 'string' }, uniqueItems: true })).toEqual({
+      't.x.in.p': ['empty', 'one-item', 'several-items', 'duplicate-items'],
+    });
+    expect(partitions({ type: 'array', items: { type: 'string' }, uniqueItems: false })).toEqual({
+      't.x.in.p': ['empty', 'one-item', 'several-items'],
+    });
+  });
 });
