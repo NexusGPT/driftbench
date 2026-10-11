@@ -1,0 +1,15 @@
+# The review of a code-agent task family. A person reads the family file, the oracle and one
+# instance, answers the questions below, then fills signed_by and signed_on. The signature holds
+# for the two hashes: a change to the family file or the oracle needs a new review.
+family: acme-price-sheet
+family_sha256: 2222640acdfb55641addd960011d87570ed387a613886dc5143f075267b522da
+oracle_sha256: 2d8692b70af5c67ee9b8214b953506fed776b201308675b1cb3c151fda0ec257
+questions:
+  - Every knob, value and constraint describes a real variation of the task, and the knob classes are right (difficulty, structure, style).
+  - Every phrase is one a real user could send, and no phrase gives away an expected value.
+  - The oracle computes the expected cells, files and workspace diff from the seed alone, as the instruction defines them, and never from an agent output.
+  - The reader checks the family emits are the ones that decide the task; nothing that matters is left unchecked.
+  - Each corner-case kind keeps the workspace inside the task contract, and the planted variant keeps the same expected outcome.
+  - The style knobs change nothing the oracle expects (the generator checks it on every instance).
+signed_by: null
+signed_on: null
