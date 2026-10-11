@@ -29,7 +29,7 @@ What lies above, measured by computing every level without the stop on seeds 1 t
 
 * Level 3 (green on the reference): 1.0 on every seed.
 * Level 4 (every class killed): 0.5 to 0.917. Never killed: X2_contradiction on all 20 seeds (no Then reads the reply's facts), D2_goal_shift on all 12 seeds that hold it (D2 is not a detour, so its probe states no stage), D8_tool_failure on all 11 seeds that hold it (the generated tool failure is a perturbation, which the free-running runner never applies).
-* Level 5 (mutation score): 0 on every seed because of X2; X1_local, X5_tool and X4_format stay below 0.9 on most seeds because the every-second-time instance survives.
+* Level 5 (mutation score): 0 on every seed because of X2; X1_local and X5_tool are below 0.9 on all 20 seeds and X4_format on 16 (on seed 1 the survivors are the every-second-time instances).
 * Level 6 (coverage of the hidden cells): 0.8 to 1.0; the stage axis is below the hand-written baseline on 19 seeds (graph specs carry no `covers`).
 * Level 7 (stability): 1.0 on every seed.
 
