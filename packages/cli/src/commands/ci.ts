@@ -372,22 +372,30 @@ function goldenOf(run: RunResult): string {
   );
 }
 
-function armOf(runs: readonly RunResult[], flags: ReadonlySet<string>): ArmResult {
-  const outcomes: CellOutcome[] = runs.map((run) =>
-    outcomeOf(
-      {
-        cellId: cellIdOf(run),
-        specId: run.specId,
-        specHash: run.specHash,
-        target: run.target,
-        mode: run.mode,
-        repeat: run.repeat,
-        ...(run.perturbationId === undefined ? {} : { perturbationId: run.perturbationId }),
-        blocks: run.blocks.length,
-      },
-      run,
-    ),
+/** The outcome of a stored run, by the rule `campaign status` applies: completed, every block passes, the end state matches. */
+export function outcomeOfRun(run: RunResult): CellOutcome {
+  return outcomeOf(
+    {
+      cellId: cellIdOf(run),
+      specId: run.specId,
+      specHash: run.specHash,
+      target: run.target,
+      mode: run.mode,
+      repeat: run.repeat,
+      ...(run.perturbationId === undefined ? {} : { perturbationId: run.perturbationId }),
+      blocks: run.blocks.length,
+    },
+    run,
   );
+}
+
+/** Whether a stored run passes, as `campaign status` counts it. */
+export function runPasses(run: RunResult): boolean {
+  return outcomeOfRun(run).state === 'pass';
+}
+
+function armOf(runs: readonly RunResult[], flags: ReadonlySet<string>): ArmResult {
+  const outcomes: CellOutcome[] = runs.map(outcomeOfRun);
   const passing = outcomes.filter((outcome) => outcome.state === 'pass').length;
   const flagged = runs.some((run) =>
     run.blocks.some((block) =>

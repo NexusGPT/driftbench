@@ -42,3 +42,24 @@ The first `ci` call compares the agent with itself: exit 0. The second runs the 
 `action/action.yml` at the repository root is a composite action around the command. Inputs: `specs`, `target`, `baseline`, `store`, `margin`, `repeats`, `mode`, `budget-usd`, `faults`, `report-path`, `working-directory`, `driftbench` (the command that runs the CLI). Outputs: `verdict` and `report-path`. The step exits with the CLI's code, so a regression fails the job.
 
 `driftbench-ci.yml` in this folder is a complete workflow. Copy it to `.github/workflows/`. It checks out the pull request's base and head, runs the baseline campaign on the base, runs the action on the head, and uploads the summary.
+
+## Watching a store over time: `driftbench monitor`
+
+```
+driftbench monitor --store <file> --metric pass_rate|cost|latency [--window 20] [--series] [--json]
+```
+
+- **The series** is one value per campaign of the store, oldest first by creation time: the share of runs that pass, the mean cost per run, or the mean latency per run. A campaign with no run is left out and named.
+- **The in-control level** comes from the first `--window` campaigns. Its sd is the largest of three: the spread of those campaign values, the standard error of each campaign from its own runs, and a floor for the metric. The second keeps a quiet warmup from understating the noise.
+- **Three detectors** read the series: a two-sided CUSUM (allowance 0.5 sd, threshold 5 sd), Page-Hinkley (delta 0.5 sd, lambda 5 sd), and a sliding two-sample KS test between the `--window` campaigns before each index and the `--window` from it, each split tested at 0.05 divided by the number of splits.
+- **Exit 1 when two of the three alarm**, 0 otherwise, 2 on bad input. One detector alone false-alarms too often on a short warmup, because the in-control mean is itself an estimate.
+
+Measured on 200 synthetic series of 60 campaigns of 20 runs each, pass rate 90% with binomial noise, window 20 (the test `false-alarms on few no-shift series` in `packages/cli/test/monitor.test.ts`, 2026-10-11):
+
+| Series | Count of 200 |
+|---|---|
+| No shift: at least one detector alarms | 41 |
+| No shift: two of three alarm (exit 1) | 16 |
+| Drop to 60% at campaign 30: exit 1, and two detectors place it within 3 campaigns | 193 |
+
+These rates hold for that series shape only. A cost or latency series with heavier tails, or fewer runs per campaign, needs its own measurement.
