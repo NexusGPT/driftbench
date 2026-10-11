@@ -13,10 +13,13 @@ import {
   type CampaignPlan,
   type CellOutcome,
   type CheckSet,
+  type CompoundingIndex,
   type CostLine,
   type CostUnit,
   canonicalJson,
+  compoundingIndex,
   contentHash,
+  type DriftClass,
   injectingDriver,
   type LoadedSpec,
   loadSpecs,
@@ -27,6 +30,7 @@ import {
   type PlanOptions,
   planCampaign,
   RunMode,
+  type RunResult,
   runCampaign,
   runsByCell,
   type Spec,
@@ -35,6 +39,7 @@ import {
   type UserDriver,
 } from '@driftbench/core';
 import { localProvider } from '@driftbench/sandbox';
+import { bootstrapCI } from '@driftbench/stats';
 import { openMemoryStore, openStore } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
@@ -131,6 +136,7 @@ type StoredCommandOptions = {
   concurrency?: string;
   budgetUsd?: string;
   json?: boolean;
+  detail?: boolean;
 };
 
 export function registerCampaignCommands(
@@ -195,6 +201,10 @@ export function registerCampaignCommands(
     .description('Print the state of every cell of a stored campaign. Exit 0 when every cell passes.')
     .argument('[campaignId]', 'the campaign id; the latest campaign of the store without it')
     .requiredOption('--store <file>', 'the store that holds the campaign')
+    .option(
+      '--detail',
+      'also print the compounding index (T minus F), the succession of every run and the recovery of every perturbed run',
+    )
     .option('--json', 'print one JSON document')
     .action(async (campaignId: string | undefined, options: StoredCommandOptions) => {
       setExit(await campaignStatusCommand(campaignId, options, io, deps));
@@ -248,13 +258,24 @@ export async function campaignPlanCommand(
   );
   io.out(
     `${table([
-      ['cell', 'spec', 'target', 'mode', 'repeat', 'blocks'],
+      [
+        'cell',
+        'spec',
+        'target',
+        'mode',
+        'repeat',
+        ...(plan.cells.some((cell) => cell.perturbationId !== undefined) ? ['perturbation'] : []),
+        'blocks',
+      ],
       ...plan.cells.map((cell) => [
         cell.cellId,
         cell.specId,
         showTarget(cell.target),
         cell.mode,
         String(cell.repeat),
+        ...(plan.cells.some((other) => other.perturbationId !== undefined)
+          ? [cell.perturbationId ?? '']
+          : []),
         String(cell.blocks),
       ]),
     ]).join('\n')}\n`,
@@ -387,12 +408,16 @@ export async function campaignStatusCommand(
     const plan = planOf(campaign, stored.specs);
     const byCell = await runsByCell(store, campaign.campaignId);
     const outcomes = plan.cells.map((cell) => outcomeOf(cell, byCell.get(cell.cellId)));
+    const detail = options.detail ? detailOf(outcomes, stored.specs) : undefined;
     if (options.json) {
-      io.out(`${JSON.stringify(report(campaign.campaignId, outcomes, true, []), null, 2)}\n`);
+      io.out(
+        `${JSON.stringify({ ...report(campaign.campaignId, outcomes, true, []), ...(detail ? { detail } : {}) }, null, 2)}\n`,
+      );
     } else {
       io.out(`Campaign ${campaign.campaignId}, created ${campaign.createdAt}.\n`);
       for (const outcome of outcomes) io.out(cellLine(outcome));
       io.out(`${summaryLine(outcomes)}\n`);
+      if (detail) io.out(detailText(detail));
     }
     return outcomes.every((outcome) => outcome.state === 'pass') ? 0 : 1;
   } finally {
@@ -849,6 +874,195 @@ function report(campaignId: string, outcomes: readonly CellOutcome[], kept: bool
       pending: outcomes.filter((outcome) => outcome.state === 'pending').length,
     },
   };
+}
+
+/** The tables `campaign status --detail` prints, from the runs that stand for the cells. */
+export type CampaignDetail = {
+  compounding: CompoundingIndex;
+  succession: Array<{
+    specId: string;
+    target: TargetRef;
+    mode: RunMode;
+    repeat: number;
+    perturbationId?: string;
+    blocks: number;
+    succession: RunResult['succession'];
+    /** Blocks carrying each drift class. */
+    drift: Partial<Record<DriftClass, number>>;
+  }>;
+  recovery: Array<{
+    specId: string;
+    target: TargetRef;
+    repeat: number;
+    perturbationId: string;
+    deviation?: string;
+    recovery?: RunResult['recovery'];
+  }>;
+};
+
+/**
+ * The detail of a campaign: the compounding index of every spec run in T and F, with the clustered
+ * bootstrap interval of @driftbench/stats (blocks resampled within a spec, specs across the campaign);
+ * the succession metrics and drift classes of every run; the recovery of every perturbed run.
+ */
+export function detailOf(outcomes: readonly CellOutcome[], specs: readonly LoadedSpec[]): CampaignDetail {
+  const runs = outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
+  const bySpec = new Map(specs.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
+  return {
+    compounding: compoundingIndex(runs, {
+      interval: (values, clusters) => bootstrapCI(values, { clusters }),
+    }),
+    succession: runs.map((run) => {
+      const drift: Partial<Record<DriftClass, number>> = {};
+      for (const block of run.blocks) for (const cls of block.drift) drift[cls] = (drift[cls] ?? 0) + 1;
+      return {
+        specId: run.specId,
+        target: run.target,
+        mode: run.mode,
+        repeat: run.repeat,
+        ...(run.perturbationId === undefined ? {} : { perturbationId: run.perturbationId }),
+        blocks: run.blocks.length,
+        succession: run.succession,
+        drift,
+      };
+    }),
+    recovery: runs
+      .filter((run) => run.mode === 'P' && run.perturbationId !== undefined)
+      .map((run) => {
+        const deviation = bySpec
+          .get(`${run.specId}@${run.specHash}`)
+          ?.perturbations?.find((entry) => entry.id === run.perturbationId)?.class;
+        return {
+          specId: run.specId,
+          target: run.target,
+          repeat: run.repeat,
+          perturbationId: run.perturbationId as string,
+          ...(deviation === undefined ? {} : { deviation }),
+          ...(run.recovery ? { recovery: run.recovery } : {}),
+        };
+      }),
+  };
+}
+
+function detailText(detail: CampaignDetail): string {
+  const lines: string[] = [''];
+  const { compounding } = detail;
+  lines.push(
+    'Compounding index: the T pass rate minus the F pass rate over the blocks both modes ran. 95% interval: clustered bootstrap (blocks within a spec, specs across).',
+  );
+  if (compounding.specs.length === 0) {
+    lines.push('  No spec ran in both T and F.');
+  } else {
+    const rows = compounding.specs.map((line) => [
+      line.specId,
+      showTarget(JSON.parse(line.target) as TargetRef),
+      String(line.blocks.length),
+      `${line.runsT}/${line.runsF}`,
+      percent(line.passT),
+      percent(line.passF),
+      points(line.index),
+      line.interval ? `[${points(line.interval.lower)}, ${points(line.interval.upper)}]` : '',
+    ]);
+    const overall = compounding.overall;
+    if (overall) {
+      rows.push([
+        'all specs',
+        '',
+        String(overall.blocks),
+        '',
+        percent(overall.passT),
+        percent(overall.passF),
+        points(overall.index),
+        overall.interval ? `[${points(overall.interval.lower)}, ${points(overall.interval.upper)}]` : '',
+      ]);
+    }
+    lines.push(...table([['spec', 'target', 'blocks', 'runs T/F', 'T', 'F', 'index', 'interval'], ...rows]));
+  }
+  lines.push('');
+  lines.push(
+    'Succession, per run: the first block that fails, how many fail, their share, the longest passing stretch, and whether every block passes; then the blocks carrying each drift class.',
+  );
+  lines.push(
+    ...table([
+      [
+        'spec',
+        'mode',
+        'repeat',
+        'perturbation',
+        'blocks',
+        'first drift',
+        'drifts',
+        'rate',
+        'longest clean',
+        'all pass',
+        'classes',
+      ],
+      ...detail.succession.map((row) => [
+        row.specId,
+        row.mode,
+        String(row.repeat),
+        row.perturbationId ?? '',
+        String(row.blocks),
+        row.succession.firstDriftBlock === undefined ? 'none' : String(row.succession.firstDriftBlock),
+        String(row.succession.driftCount),
+        percent(row.succession.driftRate),
+        String(row.succession.longestClean),
+        row.succession.minOverBlocks ? 'yes' : 'no',
+        Object.entries(row.drift)
+          .map(([cls, n]) => `${cls} ${n}`)
+          .join(', ') || 'none',
+      ]),
+    ]),
+  );
+  lines.push('');
+  lines.push(
+    'Recovery, per perturbed run: the block injected, the blocks until it passed at its stage again, the label against within_blocks, blocks failing what passed in F, no forbidden or unnamed consequential act, and a question before the first consequential act.',
+  );
+  if (detail.recovery.length === 0) {
+    lines.push('  No perturbed run.');
+  } else {
+    lines.push(
+      ...table([
+        [
+          'spec',
+          'perturbation',
+          'class',
+          'repeat',
+          'injected at',
+          'turns',
+          'label',
+          'collateral',
+          'safe action',
+          'clarified',
+        ],
+        ...detail.recovery.map((row) => {
+          const rec = row.recovery;
+          return [
+            row.specId,
+            row.perturbationId,
+            row.deviation ?? '',
+            String(row.repeat),
+            rec ? String(rec.injectedAt) : '',
+            rec?.turnsToRecover === undefined ? (rec ? 'none' : '') : String(rec.turnsToRecover),
+            rec ? rec.label : 'not measured',
+            rec ? String(rec.collateral) : '',
+            rec?.safeAction === undefined ? '' : rec.safeAction ? 'yes' : 'no',
+            rec?.clarified === undefined ? '' : rec.clarified ? 'yes' : 'no',
+          ];
+        }),
+      ]),
+    );
+  }
+  return `${lines.join('\n')}\n`;
+}
+
+function percent(rate: number): string {
+  return `${(rate * 100).toFixed(1)}%`;
+}
+
+function points(difference: number): string {
+  const value = (difference * 100).toFixed(1);
+  return difference > 0 ? `+${value}` : value === '-0.0' ? '0.0' : value;
 }
 
 function costLine(plan: CampaignPlan): string {

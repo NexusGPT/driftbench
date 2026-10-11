@@ -274,6 +274,87 @@ describe('driftbench campaign in mode P', () => {
   });
 });
 
+describe('driftbench campaign status --detail', () => {
+  /** Loses the thread once it has written three replies of its own: free-running runs drift after block 2. */
+  const drifting = () =>
+    realAcmeAdapter((agent) => ({
+      async respond(messages, world) {
+        const observed = await agent.respond(messages, world);
+        const own = messages.filter((message) => message.role === 'assistant' && message.content !== '');
+        if (own.length >= 3) {
+          observed.text = 'Sorry, let me start again. What is your email address?';
+          observed.segments = [{ type: 'text', text: observed.text }];
+        }
+        return observed;
+      },
+    }));
+
+  it('prints the compounding index, the succession and the recovery of every run', async () => {
+    const store = await storePath();
+    const spec = 'examples/acme/specs/conversations/plan-upgrade.yaml';
+    const deps = { adapterFor: async () => drifting() };
+    const ran = await cli(
+      [
+        'campaign',
+        'run',
+        spec,
+        '--target',
+        'function:acme',
+        '--mode',
+        'T,F,P',
+        '--store',
+        store,
+        '--campaign',
+        'c-detail',
+      ],
+      deps,
+    );
+    expect(ran.code).toBe(1);
+    const { code, out } = await cli(['campaign', 'status', 'c-detail', '--store', store, '--detail'], deps);
+    expect(code).toBe(1);
+    // Checked by hand: T passes all 5 blocks; F fails blocks 3 and 4 (the agent's own third reply on).
+    expect(out).toContain(
+      '  acme-plan-upgrade  function:acme  5       1/1       100.0%  60.0%  +40.0  [0.0, +80.0]',
+    );
+    expect(out).toContain('  all specs                         5                 100.0%  60.0%  +40.0\n');
+    expect(out).toContain(
+      '  acme-plan-upgrade  F     0                      5       3            2       40.0%  3              no        X1_local 2',
+    );
+    // billing-aside: the aside passes, then the recap (passed in F) fails: collateral 1.
+    expect(out).toContain(
+      '  acme-plan-upgrade  billing-aside  D9_out_of_scope        0       2            0      immediate  1           yes          yes',
+    );
+    // loose-ok: injected after three replies of its own, so it never comes back.
+    expect(out).toContain(
+      '  acme-plan-upgrade  loose-ok       D4_loose_confirmation  0       3            none   never      0           yes          yes',
+    );
+    const json = await cli(['campaign', 'status', 'c-detail', '--store', store, '--detail', '--json'], deps);
+    const detail = (JSON.parse(json.out) as { detail: { compounding: { overall: { index: number } } } })
+      .detail;
+    expect(detail.compounding.overall.index).toBeCloseTo(0.4, 12);
+  });
+
+  it('prints no detail without --detail', async () => {
+    const store = await storePath();
+    await cli([
+      'campaign',
+      'run',
+      SPECS,
+      '--target',
+      'function:acme',
+      '--store',
+      store,
+      '--campaign',
+      'c-plain',
+    ]);
+    const { out } = await cli(['campaign', 'status', 'c-plain', '--store', store]);
+    expect(out).not.toContain('Compounding index');
+    const detailed = await cli(['campaign', 'status', 'c-plain', '--store', store, '--detail']);
+    expect(detailed.out).toContain('  No spec ran in both T and F.');
+    expect(detailed.out).toContain('  No perturbed run.');
+  });
+});
+
 describe('driftbench campaign run', () => {
   it('runs every cell against the Acme agent with every default check, and prints pass per cell', async () => {
     const { code, out } = await cli([

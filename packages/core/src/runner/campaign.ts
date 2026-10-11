@@ -8,6 +8,7 @@ import type { RunMode, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import type { ObservedCache } from './cache';
 import { cellId } from './cell';
+import { replacesBlock } from './inject';
 import type { RetryOptions } from './retry';
 import { runSpec } from './run';
 
@@ -20,7 +21,8 @@ export type PlannedCell = {
   mode: RunMode;
   repeat: number;
   perturbationId?: string;
-  /** Blocks the cell sends: the spec's blocks, plus the injected one in P mode. */
+  /** Blocks the cell sends: the spec's blocks, plus the injected one in P mode unless it writes only a
+   *  world, which runs under its own block. */
   blocks: number;
 };
 
@@ -105,9 +107,10 @@ export function planCampaign(
   for (const { spec, hash } of specs) {
     for (const target of targets) {
       for (const mode of modes) {
-        const perturbations =
-          mode === 'P' ? (spec.perturbations ?? []).map((perturbation) => perturbation.id) : [undefined];
-        for (const perturbationId of perturbations) {
+        const perturbations = mode === 'P' ? (spec.perturbations ?? []) : [undefined];
+        for (const perturbation of perturbations) {
+          const perturbationId = perturbation?.id;
+          const extra = perturbation === undefined || replacesBlock(perturbation) ? 0 : 1;
           for (let repeat = 0; repeat < repeatsOf(mode); repeat++) {
             const key = { specHash: hash, target, mode, repeat, perturbationId };
             cells.push({
@@ -115,7 +118,7 @@ export function planCampaign(
               specId: spec.id,
               ...key,
               ...(perturbationId === undefined ? {} : { perturbationId }),
-              blocks: spec.blocks.length + (perturbationId === undefined ? 0 : 1),
+              blocks: spec.blocks.length + extra,
             });
           }
         }

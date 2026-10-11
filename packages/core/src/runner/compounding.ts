@@ -35,7 +35,8 @@ export type CompoundingLine = {
 
 export type CompoundingIndex = {
   specs: CompoundingLine[];
-  /** Over every shared block of every spec; one spec (and target) is one cluster. Absent with no shared block. */
+  /** Over every shared block of every spec; one spec (and target) is one cluster, so the interval needs two
+   *  specs at least. Absent with no shared block. */
   overall?: { blocks: number; passT: number; passF: number; index: number; interval?: IntervalEstimate };
 };
 
@@ -120,7 +121,8 @@ export function compoundingIndex(
       passT,
       passF,
       index: passT - passF,
-      ...(options.interval ? { interval: options.interval(allValues, allClusters) } : {}),
+      // One spec is one cluster: resampling it always draws the same blocks, so no interval is given.
+      ...(options.interval && specs.length > 1 ? { interval: options.interval(allValues, allClusters) } : {}),
     },
   };
 }
