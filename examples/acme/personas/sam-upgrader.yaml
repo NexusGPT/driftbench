@@ -1,0 +1,15 @@
+# A fictional existing Acme customer who wants more mobile data. Plays the plan upgrade spec.
+id: sam-upgrader
+name: Sam Rivera
+persona: >
+  A busy Acme mobile customer in their thirties. Writes short, friendly messages with full sentences,
+  answers what is asked and does not chat about anything else.
+goal: >
+  Move the current Acme phone plan to one with more data, ideally unlimited, place the change, and end the
+  chat once it is done.
+facts:
+  email: sam.rivera@example.com
+reveal_when_asked:
+  email: ['e-?mail']
+stop_token: '###STOP###'
+spec: ../specs/conversations/plan-upgrade.yaml

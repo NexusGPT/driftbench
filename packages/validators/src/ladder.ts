@@ -4,18 +4,64 @@
  * failing level, so a builder never chases two causes at once. Design: docs/validators.md section 1.
  */
 
-/** One named item behind a count: what failed, the one component it points at, and what to look at. */
+/** A difficulty tier of the hardness contract (docs/validators.md section 12.1), 1 the easiest. */
+export type Tier = 1 | 2 | 3 | 4 | 5;
+
+/**
+ * One named item behind a count: what failed, the one component it points at, and what to look at. Under the
+ * hardness contract an item also names its family and its difficulty tier.
+ */
 export type Item = {
   id: string;
   component: string;
   detail: string;
+  family?: string;
+  tier?: Tier;
 };
 
-/** What a level computes: the observed value of its metric and the items behind it. */
+/** One item of a level's bank and whether it passed on this seed. */
+export type BankEntry = {
+  id: string;
+  component: string;
+  family?: string;
+  tier?: Tier;
+  pass: boolean;
+  detail?: string;
+};
+
+/**
+ * What a level computes: the observed value of its metric and the items behind it. A level built on a bank
+ * also returns the whole bank, passing items included, so `--items` can list it.
+ */
 export type Measure = {
   value: number;
   items: Item[];
+  bank?: BankEntry[];
 };
+
+/**
+ * The measure of a level whose metric is its bank: the value is the share of entries that pass, the items are
+ * the failing entries. An empty bank measures 0 with one item saying so.
+ */
+export function bankMeasure(entries: readonly BankEntry[], component = 'bank'): Measure {
+  if (entries.length === 0) {
+    return {
+      value: 0,
+      items: [{ id: 'bank:empty', component, detail: 'the level holds no item' }],
+      bank: [],
+    };
+  }
+  const items: Item[] = entries
+    .filter((entry) => !entry.pass)
+    .map((entry) => ({
+      id: entry.id,
+      component: entry.component,
+      detail: entry.detail ?? 'failed',
+      ...(entry.family !== undefined ? { family: entry.family } : {}),
+      ...(entry.tier !== undefined ? { tier: entry.tier } : {}),
+    }));
+  return { value: (entries.length - items.length) / entries.length, items, bank: [...entries] };
+}
 
 /** What a level computes from. `root` is the repository root, `hidden` marks the hidden seed. */
 export type LadderContext = {
@@ -39,8 +85,15 @@ export type LevelDef = {
 
 export type Ladder = {
   component: string;
+  /** The ladder version (docs/validators.md section 12.5); a floor holds per version. Default 1. */
+  version?: number;
   levels: readonly LevelDef[];
 };
+
+/** The version of a ladder: its declared version, or 1. */
+export function ladderVersion(ladder: Pick<Ladder, 'version'>): number {
+  return ladder.version ?? 1;
+}
 
 /** Names the command keeps for itself: a ladder cannot take them. */
 export const RESERVED_COMPONENTS = ['all', 'floors', 'protect', 'list'] as const;
@@ -59,6 +112,9 @@ export function defineLadder(def: Ladder): Ladder {
     throw new TypeError(`"${def.component}" is reserved by driftbench validate.`);
   }
   if (def.levels.length === 0) throw new TypeError(`The ladder ${def.component} has no level.`);
+  if (def.version !== undefined && (!Number.isSafeInteger(def.version) || def.version < 1)) {
+    throw new TypeError(`The version of the ladder ${def.component} is a whole number of at least 1.`);
+  }
   const seen = new Set<string>();
   for (const level of def.levels) {
     if (!LEVEL_ID.test(level.id)) {
@@ -76,11 +132,16 @@ export function defineLadder(def: Ladder): Ladder {
   }
   return Object.freeze({
     component: def.component,
+    version: def.version ?? 1,
     levels: Object.freeze(def.levels.map((level) => Object.freeze({ ...level }))),
   });
 }
 
-/** One row of the ladder table. `observed`, `pass` and `itemCount` are null for a level not run. */
+/**
+ * One row of the ladder table. `observed`, `pass` and `itemCount` are null for a level not run. `bank` is the
+ * level's bank when it returned one. `beyond` marks a level computed above the first failing level in a full
+ * run: it lists the bank and never changes the level.
+ */
 export type LevelRow = {
   level: number;
   id: string;
@@ -91,6 +152,8 @@ export type LevelRow = {
   observed: number | null;
   pass: boolean | null;
   itemCount: number | null;
+  bank?: BankEntry[];
+  beyond?: boolean;
 };
 
 /** The run of one ladder on one seed. `level` is the highest level passed, 0 when level 1 fails. */
@@ -108,7 +171,23 @@ export type RunOptions = {
   /** True when this seed is the hidden seed; it changes only the label of the run. */
   hiddenSeed?: boolean;
   root?: string;
+  /**
+   * Compute every level, also above the first failing one, so the whole bank is known (`--items`). The
+   * level, the failing level and its items are the same as in a stopping run.
+   */
+  full?: boolean;
 };
+
+const TIERS = new Set([1, 2, 3, 4, 5]);
+
+/** Throws when a measure carries an item or bank entry whose tier is not 1 to 5. */
+function checkTiers(measure: Measure): void {
+  for (const entry of [...measure.items, ...(measure.bank ?? [])]) {
+    if (entry.tier !== undefined && !TIERS.has(entry.tier)) {
+      throw new RangeError(`the item ${entry.id} has tier ${entry.tier}; a tier is 1 to 5`);
+    }
+  }
+}
 
 /** Whether an observed value passes a threshold. NaN never passes. */
 export function passes(value: number, threshold: number, direction: Direction = 'atLeast'): boolean {
@@ -139,13 +218,14 @@ export async function runLadder(ladder: Ladder, options: RunOptions): Promise<Se
       threshold: def.threshold,
       direction,
     };
-    if (failing) {
+    if (failing && !options.full) {
       rows.push({ ...base, observed: null, pass: null, itemCount: null });
       continue;
     }
     let measure: Measure;
     try {
       measure = await def.compute(ctx);
+      checkTiers(measure);
     } catch (cause) {
       measure = {
         value: Number.NaN,
@@ -159,7 +239,15 @@ export async function runLadder(ladder: Ladder, options: RunOptions): Promise<Se
       };
     }
     const pass = passes(measure.value, def.threshold, direction);
-    rows.push({ ...base, observed: measure.value, pass, itemCount: measure.items.length });
+    rows.push({
+      ...base,
+      observed: measure.value,
+      pass,
+      itemCount: measure.items.length,
+      ...(measure.bank ? { bank: measure.bank } : {}),
+      ...(failing ? { beyond: true } : {}),
+    });
+    if (failing) continue;
     if (pass) {
       level = index + 1;
     } else {
@@ -182,6 +270,8 @@ export type SeedSpec = { seed: number; hidden: boolean };
 /** The run of one ladder over several seeds. `level` is the minimum over the seeds. */
 export type LadderReport = {
   component: string;
+  /** The version of the ladder that ran. */
+  ladderVersion: number;
   level: number;
   top: number;
   seeds: SeedRun[];
@@ -192,16 +282,23 @@ export async function runSeeds(
   ladder: Ladder,
   seeds: readonly SeedSpec[],
   root?: string,
+  options: { full?: boolean } = {},
 ): Promise<LadderReport> {
   if (seeds.length === 0) throw new RangeError('runSeeds needs at least one seed.');
   const runs: SeedRun[] = [];
   for (const spec of seeds) {
     runs.push(
-      await runLadder(ladder, { seed: spec.seed, hiddenSeed: spec.hidden, ...(root ? { root } : {}) }),
+      await runLadder(ladder, {
+        seed: spec.seed,
+        hiddenSeed: spec.hidden,
+        ...(root ? { root } : {}),
+        ...(options.full ? { full: true } : {}),
+      }),
     );
   }
   return {
     component: ladder.component,
+    ladderVersion: ladderVersion(ladder),
     level: Math.min(...runs.map((run) => run.level)),
     top: ladder.levels.length,
     seeds: runs,

@@ -11,6 +11,7 @@ import { registerHoldoutCommand } from './commands/holdout';
 import { registerIntakeCommand } from './commands/intake';
 import { registerJudgeCommand } from './commands/judge';
 import { registerMonitorCommand } from './commands/monitor';
+import { registerPerturbCommand } from './commands/perturb';
 import { registerPilotCommand } from './commands/pilot';
 import { registerReplayCommand } from './commands/replay';
 import { registerReportCommand } from './commands/report';
@@ -46,6 +47,7 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerGateCommand(program, io, setExit);
   registerFamilyCommand(program, io, setExit);
   registerPilotCommand(program, io, setExit);
+  registerPerturbCommand(program, io, setExit);
   registerJudgeCommand(program, io, setExit);
   registerValidateCommand(program, io, setExit);
   registerReportCommand(program, io, setExit);

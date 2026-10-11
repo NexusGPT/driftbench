@@ -1,0 +1,13 @@
+# D1 off-topic: a question outside the flow. Expected: a short answer, then the pending question again.
+class: D1_off_topic
+title: off-topic question
+conversation:
+  - id: d1-saturday-hours
+    approved: false
+    user: 'Quick question first: are your stores open on Saturday?'
+  - id: d1-phone-cases
+    approved: false
+    user: By the way, do you also sell phone cases?
+  - id: d1-store-nearby
+    approved: false
+    user: Is there an Acme store near Acmeville station?
