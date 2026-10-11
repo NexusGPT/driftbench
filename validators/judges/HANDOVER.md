@@ -30,45 +30,47 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 1 |
 <!-- level-table:end -->
 
-No executor iteration has run yet, so the table is empty. The V3 lane's own run (`pnpm driftbench validate judges --seeds 1..20 --hidden`, with the good cassette) reached level 7 of 7 on seeds 1 to 20 and on the hidden seed.
+This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, 574 deterministic items in 19 levels, each level's threshold 1. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails on 3 items. Bank score after the ten-iteration pilot: 222 of 574 items pass on every seed (0.3868); iteration 0 was 208 (0.3624). Hardness: 1.4 items fixed per iteration, 352 remaining, forecast 251 iterations. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10, each with the bank summary; `pnpm driftbench validate judges --hardness` prints the measurement and its gate (holds).
 
 ## Floor
 
-See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The judges validator has no floor yet.
+Floors are per ladder version (section 12.5); `validators/floors.json` is the maintainer's. The judges floor of 7 belongs to version 1. Version 2 starts at the level the pilot reached: 1.
 
 ## Open items
 
-None on the good cassette: levels 1 to 7 pass on seeds 1 to 20 and the hidden seed. The cassettes are scripted (no model), so the ladder measures the judge path (cassette replay, the answer contract, the council and its cascade) and the labelled set, not a real judge. The next real item comes from a cassette recorded from a live judge on the same requests (a billed mode the owner approves).
+Level 2, contract: `contract/probability-above-one`, `contract/probability-below-zero` (outcomeFromProbability reads a probability outside 0 to 1 as a verdict), `contract/probability-crossed-bounds` (bounds with failAt over passAt are accepted). Then level 3, consistency: `judgeRepeated` does not exist (6 items) and chat clients send no temperature (3 items). `pnpm driftbench validate judges --seeds 1..20 --hidden --items` lists the whole bank with a verdict per seed.
 
 ## Hypotheses tried
 
-None yet. Each entry: the hypothesis, the evidence, and why it was rejected.
+Iterations 1 to 10 each fixed one cause in `packages/judges/src/contract.ts`, each with its test in `packages/judges/test/contract.test.ts`: the first object that meets the contract (5 items: two contract items and three scale items that time a parse after many brace pairs), the outcome without case, a score in quotes, single quotes, a trailing comma, a comment line, typographic quotes, a score that contradicts the outcome, two answers that disagree, a key given twice (1 item each). None was rejected.
 
 ## Next actions
 
-1. Record a live judge on every request of `requestsToRecord` (in `packages/validators/test/judges/record.ts`) with `recordingClient`, in the billed mode the owner approves, and run `judgesLadder({ cassette })` on it: its first failing level is the first open item.
-2. Run `pnpm driftbench validate judges --seeds 1..20 --hidden` and record the level per seed with `--journal`.
-3. Raise the floor to 2 with `pnpm driftbench validate floors --raise judges 2 --evidence <run.json>` once a `--json` run on seeds 1 to 20 and the hidden seed reaches level 2 on every seed; levels 1 and 2 are the ones the brief requires on current code.
+1. Make `outcomeFromProbability` read a probability that is not finite or outside 0 to 1 as inconclusive, and refuse bounds whose failAt is not under passAt with a RangeError; run the measurement and record iteration 11.
+2. Add `judgeRepeated(client, request, k)` to packages/judges (the spec is in the comment of `families/consistency.ts`), then pin temperature 0 in the three chat clients.
+3. Every fix: one cause, its test in packages/judges/test, then `measure.ts --iteration N ...` and `validate judges --journal row.json` (see How to run).
 
 ## Pitfalls
 
-* The cassettes are keyed by a hash of what the judge reads. A change to the Acme agent, its criteria files, the fault family, the phrase bank or a transform changes the keys: every level then fails with "no recording" items. Re-record with `pnpm exec tsx packages/validators/test/judges/record.ts`; the cassette test fails until you do.
-* Levels 2 to 7 score the hidden split only. The split is stratified by criterion and label, so each criterion keeps both labels; the item count per criterion is small (4 to 11 per label in the pool), so one wrong answer moves a criterion's accuracy by a lot.
-* Level 2 holds the kappa point estimate to 0.8 and prints its bootstrap interval; it does not hold the lower bound.
-* Level 5 counts every injected hidden item; a planted instruction only matters on a fail item, so a judge that obeys it fails about half the edits.
+* Never edit the bank (`packages/validators/src/ladders/judges/**`): a wrong item goes to the maintainer with the oracle's answer and a counter-example.
+* Do not read `packages/validators/test/judges/v2/witness.ts`. It proves every item can pass and holds an implementation of most of the roadmap; copying it would empty the ladder without building anything.
+* Scale items run under time budgets on the whole seed set; a laptop under load can push one over. Re-measure before you treat a scale failure as real.
+* One capability can flip a family at once (the screen flips injection, precision and attacks together; `agreementInterval` flips 15 calibration items). The pilot forecast comes from contract fixes of one or two items each; expect larger steps later and re-measure the forecast every ten iterations.
+* The ladder v1 cassettes are keyed by request hash: a change to the Acme agent or criteria needs `pnpm exec tsx packages/validators/test/judges/record.ts`.
 
 ## How to run
 
 ```
-pnpm driftbench validate judges --seeds 1..20 --hidden
-pnpm driftbench validate judges --seed 1 --json
-pnpm driftbench validate judges --brief
-pnpm exec tsx packages/validators/test/judges/record.ts
+pnpm driftbench validate judges --seeds 1..3 --hidden            # stops at the first failing level
+pnpm driftbench validate judges --seeds 1..20 --hidden --items   # the whole bank, pass or fail per seed
+pnpm exec tsx packages/validators/test/judges/v2/measure.ts --iteration N --hypothesis "..." \
+  --files a,b --commit <sha> --tests "test name" --out row.json
+pnpm driftbench validate judges --journal row.json
+pnpm driftbench validate judges --hardness
 ```
 
 ## Fixtures
 
-* The labelled set: `packages/validators/src/ladders/judges/pool.ts` drives the Acme sales assistant (`examples/acme/src`) through the fault family (`examples/acme/faults`) and slices the conversations; the criteria and their fixture pairs are `examples/acme/criteria/*.yaml`.
-* The phrase bank and the swap lists: `packages/validators/fixtures/judges/phrases.yaml`.
-* The cassettes: `packages/validators/fixtures/judges/{good,brittle,injectable,flaky,council}.cassette.json`, written by `packages/validators/test/judges/record.ts` from the scripted reading in `packages/validators/test/judges/scripted.ts`.
-* The fixed table from a failure to its component: `JUDGE_COMPONENTS` in `packages/validators/src/ladders/judges/index.ts`.
+* The items: `packages/validators/src/ladders/judges/v2/families/*.ts`, one file per family, each with its spec in the head comment.
+* The labelled slices and transforms reused from version 1: `packages/validators/src/ladders/judges/pool.ts`, `transforms.ts`, `packages/validators/fixtures/judges/`.
+* Live items (20) run only with `DRIFTBENCH_BILLED_APPROVAL` set to the id of an owner-approved sized card.
