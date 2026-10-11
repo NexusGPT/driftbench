@@ -1,0 +1,127 @@
+{
+  "source": "@langchain/langgraph 1.4.21 with @langchain/core 1.2.17, a StateGraph with ToolNode and MemorySaver, recorded 2026-10-11; the state messages as JSON.stringify writes them; fictional Acme values",
+  "messages": [
+    {
+      "lc": 1,
+      "type": "constructor",
+      "id": ["langchain_core", "messages", "HumanMessage"],
+      "kwargs": {
+        "content": "Hi, do you have home internet at 3 Orchard Way, Acmeville?",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "id": "da1564bd-1649-4da3-9f83-92de98f67840"
+      }
+    },
+    {
+      "lc": 1,
+      "type": "constructor",
+      "id": ["langchain_core", "messages", "AIMessage"],
+      "kwargs": {
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_1",
+            "name": "coverage_check",
+            "args": {
+              "address": "3 Orchard Way, Acmeville"
+            },
+            "type": "tool_call"
+          }
+        ],
+        "usage_metadata": {
+          "input_tokens": 10,
+          "output_tokens": 5,
+          "total_tokens": 15
+        },
+        "invalid_tool_calls": [],
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "id": "ed9ad89c-6e1e-4aa6-9da7-38fdb6b31518"
+      }
+    },
+    {
+      "lc": 1,
+      "type": "constructor",
+      "id": ["langchain_core", "messages", "ToolMessage"],
+      "kwargs": {
+        "status": "success",
+        "content": "{\"found\":true,\"address_id\":\"addr-102\",\"address\":\"3 Orchard Way, Acmeville\",\"fiber_mbps\":300,\"five_g\":true}",
+        "tool_call_id": "call_1",
+        "name": "coverage_check",
+        "metadata": {
+          "versions": {
+            "@langchain/core": "1.2.17"
+          }
+        },
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "id": "82b7cfbb-ed34-4144-944b-b5896ff184cb"
+      }
+    },
+    {
+      "lc": 1,
+      "type": "constructor",
+      "id": ["langchain_core", "messages", "AIMessage"],
+      "kwargs": {
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_2",
+            "name": "catalog_search",
+            "args": {
+              "category": "home",
+              "address_id": "addr-102"
+            },
+            "type": "tool_call"
+          }
+        ],
+        "usage_metadata": {
+          "input_tokens": 10,
+          "output_tokens": 5,
+          "total_tokens": 15
+        },
+        "invalid_tool_calls": [],
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "id": "fe1d459f-17d5-4203-bcb9-e5afd320b8f5"
+      }
+    },
+    {
+      "lc": 1,
+      "type": "constructor",
+      "id": ["langchain_core", "messages", "ToolMessage"],
+      "kwargs": {
+        "status": "success",
+        "content": "{\"plans\":[{\"id\":\"fiber-300\",\"name\":\"Acme Fiber 300\",\"category\":\"home\",\"monthly_usd\":40,\"speed_mbps\":300,\"access\":\"fiber\"},{\"id\":\"air-5g\",\"name\":\"Acme Air 5G\",\"category\":\"home\",\"monthly_usd\":35,\"speed_mbps\":200,\"access\":\"5g\"}]}",
+        "tool_call_id": "call_2",
+        "name": "catalog_search",
+        "metadata": {
+          "versions": {
+            "@langchain/core": "1.2.17"
+          }
+        },
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "id": "86cf61d0-eff2-498b-9663-339163ba4220"
+      }
+    },
+    {
+      "lc": 1,
+      "type": "constructor",
+      "id": ["langchain_core", "messages", "AIMessage"],
+      "kwargs": {
+        "content": "Hi, I'm the Acme Telecom sales assistant. Good news: 3 Orchard Way, Acmeville has fiber up to 300 Mbps. Plans available there: Acme Fiber 300, 300 Mbps for $40 a month; Acme Air 5G, up to 200 Mbps for $35 a month. Which one would you like: Acme Fiber 300 or Acme Air 5G?",
+        "usage_metadata": {
+          "input_tokens": 10,
+          "output_tokens": 5,
+          "total_tokens": 15
+        },
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "id": "d25368b5-44ad-4185-a071-5e6e772533b4"
+      }
+    }
+  ]
+}
