@@ -65,6 +65,10 @@
     {
       "ask": "Move last week's report into reports/archive/.",
       "stream": "streams/archive-report.jsonl"
+    },
+    {
+      "ask": "Push the fix branch over the old one.",
+      "stream": "streams/hook-events.jsonl"
     }
   ]
 }

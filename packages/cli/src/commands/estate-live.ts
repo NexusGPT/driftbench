@@ -55,6 +55,18 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
       "names of the evaluator's variables the runtime receives (its credentials)",
     )
     .option('--timeout <ms>', 'kill a turn after this long')
+    .option('--model <name>', 'the model the runtime runs (passed as --model)')
+    .option('--max-turns <n>', 'the most agent turns per spec block (passed as --max-turns)')
+    .option('--max-budget-usd <usd>', 'the most a spec block may spend (passed as --max-budget-usd)')
+    .option('--permission-mode <mode>', 'the permission mode of the run (passed as --permission-mode)')
+    .option(
+      '--trust-estate',
+      "allow the tools the estate's settings allow, and Skill, as a trusted folder would",
+    )
+    .option(
+      '--config <where>',
+      'the config folder: host (the login lives there) or isolated; default host, isolated for a stand-in',
+    )
     .option('--allow-billed', 'run a command that is not a stand-in: a billed live run')
     .option('--json', 'print one JSON document')
     .action(async (specs: string[], options: EstateRunOptions) => {
@@ -76,6 +88,12 @@ export type EstateRunOptions = {
   passEnv?: string[];
   timeout?: string;
   allowBilled?: boolean;
+  model?: string;
+  maxTurns?: string;
+  maxBudgetUsd?: string;
+  permissionMode?: string;
+  trustEstate?: boolean;
+  config?: string;
   json?: boolean;
 };
 
@@ -132,6 +150,30 @@ export async function estateRunCommand(
       return 2;
     }
   }
+
+  const args: string[] = [];
+  if (options.model !== undefined) args.push('--model', options.model);
+  if (options.maxTurns !== undefined) {
+    if (!/^[1-9]\d*$/.test(options.maxTurns)) {
+      io.err(`--max-turns is a whole number of at least 1, got "${options.maxTurns}".\n`);
+      return 2;
+    }
+    args.push('--max-turns', options.maxTurns);
+  }
+  if (options.maxBudgetUsd !== undefined) {
+    const value = Number(options.maxBudgetUsd);
+    if (!Number.isFinite(value) || value <= 0) {
+      io.err(`--max-budget-usd is a positive amount, got "${options.maxBudgetUsd}".\n`);
+      return 2;
+    }
+    args.push('--max-budget-usd', options.maxBudgetUsd);
+  }
+  if (options.permissionMode !== undefined) args.push('--permission-mode', options.permissionMode);
+  if (options.config !== undefined && options.config !== 'host' && options.config !== 'isolated') {
+    io.err(`--config is host or isolated, got "${options.config}".\n`);
+    return 2;
+  }
+  const config = (options.config ?? (standIn ? 'isolated' : 'host')) as 'host' | 'isolated';
 
   const notes: string[] = [];
   let pins: string[] = [];
@@ -230,6 +272,9 @@ export async function estateRunCommand(
         pins,
         ...(library === undefined ? {} : { library }),
         env,
+        args,
+        config,
+        ...(options.trustEstate ? { trustEstate: true } : {}),
         ...(timeoutMs === undefined ? {} : { timeoutMs }),
         ...(standIn ? { retries: { backoffMs: 0 } } : {}),
       });
