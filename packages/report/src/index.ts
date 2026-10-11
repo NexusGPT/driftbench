@@ -2,6 +2,18 @@
 export const packageName = '@driftbench/report';
 
 export {
+  type CompareOptions,
+  type CompareResult,
+  type CompareVerdict,
+  type CriterionComparison,
+  compareCampaigns,
+  criterionOf,
+  DEFAULT_FLAG_FAMILIES,
+  type UnitPair,
+  type UnitSide,
+  unitsOf,
+} from './compare';
+export {
   blockScore,
   type CampaignData,
   loadCampaign,
@@ -21,3 +33,4 @@ export {
   type SuccessionSummary,
   successionOf,
 } from './reliability';
+export { compareText, textTable } from './text';
