@@ -22,7 +22,7 @@ export function patternError(source: string): string | undefined {
 }
 
 type Context = {
-  steps: Set<string> | undefined;
+  stages: Set<string> | undefined;
   defined: Set<string> | undefined;
   forbidden: Set<string>;
 };
@@ -49,7 +49,7 @@ export function checkSemantics(spec: Spec): Issue[] {
   for (const [label, max] of Object.entries(spec.rules?.max_calls ?? {})) {
     if (max === 0) forbidden.add(label);
   }
-  const ctx: Context = { steps: spec.steps ? new Set(spec.steps) : undefined, defined, forbidden };
+  const ctx: Context = { stages: spec.stages ? new Set(spec.stages) : undefined, defined, forbidden };
 
   const blockIds = new Set<string>();
   spec.blocks.forEach((block, index) => {
@@ -94,10 +94,14 @@ export function checkSemantics(spec: Spec): Issue[] {
       issues.push(error('PERTURBATION_EMPTY', path, 'a perturbation needs `user`, `burst` or `world`'));
     }
     if (perturbation.expect) checkExpect(perturbation.expect, `${path}.expect`, ctx, issues);
-    const after = perturbation.recovery?.step_after;
-    if (after !== undefined && ctx.steps && !ctx.steps.has(after)) {
+    const after = perturbation.recovery?.stage_after;
+    if (after !== undefined && ctx.stages && !ctx.stages.has(after)) {
       issues.push(
-        error('STEP_UNKNOWN', `${path}.recovery.step_after`, `step "${after}" is not in the spec's steps`),
+        error(
+          'STAGE_UNKNOWN',
+          `${path}.recovery.stage_after`,
+          `stage "${after}" is not in the spec's stages`,
+        ),
       );
     }
   });
@@ -161,6 +165,9 @@ function checkExpect(expect: Expect, path: string, ctx: Context, issues: Issue[]
   for (const [index, skill] of (expect.skills ?? []).entries()) {
     checkCount(skill.count, `${path}.skills.${index}.count`, issues);
   }
+  for (const [index, guard] of (expect.guards ?? []).entries()) {
+    checkCount(guard.count, `${path}.guards.${index}.count`, issues);
+  }
 
   expect.criteria?.forEach((ref, index) => {
     const parsed = parseCriterionRef(ref);
@@ -185,8 +192,10 @@ function checkExpect(expect: Expect, path: string, ctx: Context, issues: Issue[]
     }
   });
 
-  if (expect.step !== undefined && ctx.steps && !ctx.steps.has(expect.step)) {
-    issues.push(error('STEP_UNKNOWN', `${path}.step`, `step "${expect.step}" is not in the spec's steps`));
+  if (expect.stage !== undefined && ctx.stages && !ctx.stages.has(expect.stage)) {
+    issues.push(
+      error('STAGE_UNKNOWN', `${path}.stage`, `stage "${expect.stage}" is not in the spec's stages`),
+    );
   }
 }
 
