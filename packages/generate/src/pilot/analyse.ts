@@ -1,8 +1,10 @@
 import {
+  benjaminiHochberg,
   bootstrapCI,
   designEffect,
   effectiveSampleSize,
   icc,
+  incompleteBeta,
   mulberry32,
   neymanAllocation,
   type Observation,
@@ -90,6 +92,15 @@ export type WordingSensitivity = {
   /** Largest range of pass rates across one conversation's wordings; undefined with no such conversation. */
   maxRange?: number;
   meanRange?: number;
+  /**
+   * The F test of the wording level inside the cell (wording mean square over repeat mean square, df of
+   * each): the chance of a spread across wordings this large with no wording effect. Undefined when no
+   * conversation of the cell has two wordings.
+   */
+  pValue?: number;
+  /** The p value adjusted over the cells by Benjamini-Hochberg. */
+  adjusted?: number;
+  /** True when some conversation's range is above the threshold and the adjusted p value is under 0.05. */
   flagged: boolean;
 };
 
@@ -142,7 +153,8 @@ export type PilotAnalysis = {
     reached: number;
   };
   flip: { blocks: number; mean: number; flipping: number; top: BlockFlip[] };
-  wording: { threshold: number; flagged: string[] };
+  /** threshold: the range a flagged cell exceeds; q: the false discovery rate of its F test over the cells. */
+  wording: { threshold: number; q: number; flagged: string[] };
   cells: CellAnalysis[];
   planted?: PlantedCheck;
 };
@@ -167,6 +179,7 @@ export type PlantedCheck = {
 };
 
 const LEVELS = ['cell', 'conversation', 'wording'] as const;
+const WORDING_Q = 0.05;
 const CELL_LEVELS = ['conversation', 'wording'] as const;
 
 /** Analyses the observations of a pilot. Throws when no run completed. */
@@ -192,9 +205,27 @@ export function analysePilot(
   const conversations = groupBy(observations, (row) => `${row.cell}\u0000${row.conversation}`);
   const m = observations.length / conversations.size;
 
+  const repeatVariance = pooledLevels.find((level) => level.level === 'repeat')?.variance ?? 0;
+  const repeatsRun = Math.max(
+    1,
+    Math.round(mean([...groupBy(observations, variantKey).values()].map((rows) => rows.length))),
+  );
+  const reached = Z95 * Math.sqrt((2 * repeatVariance) / repeatsRun);
+
   const cells = [...groupBy(observations, (row) => row.cell).entries()].map(([cell, rows]) =>
     analyseCell(cell, rows, o),
   );
+  // A wide range alone can be repeat noise: the flag also needs the cell's wording F test to hold after
+  // the Benjamini-Hochberg adjustment over the cells that can be tested.
+  const tested = cells.filter((cell) => cell.wording.pValue !== undefined);
+  const bh = benjaminiHochberg(
+    tested.map((cell) => cell.wording.pValue as number),
+    WORDING_Q,
+  );
+  tested.forEach((cell, i) => {
+    cell.wording.adjusted = bh.adjusted[i] as number;
+    cell.wording.flagged = (cell.wording.maxRange ?? 0) > o.sensitivity && (bh.rejected[i] as boolean);
+  });
   const allocation = neymanAllocation({
     sizes: cells.map((cell) => Math.max(cell.suite, cell.conversations)),
     sds: cells.map((cell) => cell.sd),
@@ -207,14 +238,9 @@ export function analysePilot(
     };
   });
 
-  const repeatVariance = pooledLevels.find((level) => level.level === 'repeat')?.variance ?? 0;
   const perBlock = repeatsForFloor({ variance: repeatVariance, floor: o.floor });
   const cellBlocks = Math.max(1, Math.round(mean(cells.map((cell) => cell.conversations))));
   const perCell = repeatsForFloor({ variance: repeatVariance, floor: o.floor, blocks: cellBlocks });
-  const repeatsRun = Math.max(
-    1,
-    Math.round(mean([...groupBy(observations, variantKey).values()].map((rows) => rows.length))),
-  );
 
   const flips = blockFlips(observations);
   const flipping = flips.filter((flip) => flip.flip > 0);
@@ -271,7 +297,7 @@ export function analysePilot(
       variance: repeatVariance,
       perBlock,
       perCell: { blocks: cellBlocks, ...perCell },
-      reached: Z95 * Math.sqrt((2 * repeatVariance) / repeatsRun),
+      reached,
     },
     flip: {
       blocks: flips.length,
@@ -281,6 +307,7 @@ export function analysePilot(
     },
     wording: {
       threshold: o.sensitivity,
+      q: WORDING_Q,
       flagged: cells.filter((cell) => cell.wording.flagged).map((cell) => cell.cell),
     },
     cells,
@@ -334,7 +361,8 @@ function analyseCell(
     wording: {
       conversations: ranges.length,
       ...(ranges.length > 0 ? { maxRange: Math.max(...ranges), meanRange: mean(ranges) } : {}),
-      flagged: ranges.some((range) => range > o.sensitivity),
+      ...(ranges.length > 0 ? { pValue: wordingPValue(result) } : {}),
+      flagged: false,
     },
     flip: {
       blocks: flips.length,
@@ -343,6 +371,28 @@ function analyseCell(
       flipping: flips.filter((flip) => flip.flip > 0).length,
     },
   };
+}
+
+/**
+ * The p value of the wording level of a cell model (conversation > wording > repeat): F = MS_wording /
+ * MS_repeat on (df_wording, df_repeat). With no repeat spread, any wording spread is certain (0) and none
+ * is no evidence (1).
+ */
+export function wordingPValue(result: VarianceComponentsResult): number {
+  const wording = result.components.find((component) => component.level === 'wording');
+  const residual = result.components.at(-1);
+  if (!wording || !residual || wording.df <= 0) return 1;
+  const msW = wording.meanSquare;
+  const msE = residual.df > 0 ? residual.meanSquare : 0;
+  if (!(msW > 1e-12)) return 1;
+  if (!(msE > 1e-12)) return 0;
+  return fSurvival(msW / msE, wording.df, residual.df);
+}
+
+/** P(F > f) for an F distribution on (d1, d2) degrees of freedom: I_{d2 / (d2 + d1 f)}(d2 / 2, d1 / 2). */
+export function fSurvival(f: number, d1: number, d2: number): number {
+  if (!(f > 0)) return 1;
+  return Math.min(1, Math.max(0, incompleteBeta(d2 / (d2 + d1 * f), d2 / 2, d1 / 2)));
 }
 
 /** The flip rate of every block of every variant that ran at least twice. */

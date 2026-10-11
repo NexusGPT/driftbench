@@ -173,8 +173,8 @@ export function formatPilotReport(report: PilotReport): string {
   );
   lines.push(
     a.wording.flagged.length > 0
-      ? `Wording-sensitive cells (a conversation's pass rates span more than ${pct(a.wording.threshold)} across wordings): ${a.wording.flagged.join(', ')}.`
-      : `No cell is wording-sensitive at ${pct(a.wording.threshold)}.`,
+      ? `Wording-sensitive cells (a conversation's pass rates span more than ${pct(a.wording.threshold)} across wordings, and the cell's wording F test holds at a false discovery rate of ${a.wording.q}): ${a.wording.flagged.join(', ')}.`
+      : `No cell is wording-sensitive (a range above ${pct(a.wording.threshold)} with the cell's wording F test holding at a false discovery rate of ${a.wording.q}).`,
   );
   lines.push(`Per cell, and Neyman allocation of a pool of ${a.allocation.pool} conversations:`);
   lines.push(

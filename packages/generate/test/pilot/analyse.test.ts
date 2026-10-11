@@ -1,6 +1,6 @@
 import { varianceComponents } from '@driftbench/stats';
 import { describe, expect, it } from 'vitest';
-import { analysePilot, blockFlips } from '../../src/pilot/analyse';
+import { analysePilot, blockFlips, fSurvival } from '../../src/pilot/analyse';
 import type { PilotObservation } from '../../src/pilot/run';
 import { deterministicRows, simulate } from './support';
 
@@ -57,7 +57,14 @@ describe('analysePilot on a deterministic agent', () => {
   it('flags the cell whose outcome depends on the wording, and only that one', () => {
     expect(analysis.wording.flagged).toEqual(['cell-1']);
     const cell = analysis.cells.find((c) => c.cell === 'cell-1');
-    expect(cell?.wording).toEqual({ conversations: 3, maxRange: 1, meanRange: 1 / 3, flagged: true });
+    expect(cell?.wording).toEqual({
+      conversations: 3,
+      maxRange: 1,
+      meanRange: 1 / 3,
+      pValue: 0,
+      adjusted: 0,
+      flagged: true,
+    });
   });
 
   it('allocates the estimation pool to the cell with spread (Neyman)', () => {
@@ -175,5 +182,41 @@ describe('analysePilot input', () => {
 
   it('refuses a pilot where no run completed', () => {
     expect(() => analysePilot([row({ status: 'failed' })])).toThrow(/no run completed/);
+  });
+});
+
+describe('wording sensitivity under repeat noise', () => {
+  it('reads the F distribution as the reference tables do', () => {
+    // Upper 5% points of F: (1, 10) 4.9646, (3, 10) 3.7083, (2, 20) 3.4928; upper 1% of (4, 30) 4.0179.
+    expect(fSurvival(4.9646, 1, 10)).toBeCloseTo(0.05, 4);
+    expect(fSurvival(3.7083, 3, 10)).toBeCloseTo(0.05, 4);
+    expect(fSurvival(3.4928, 2, 20)).toBeCloseTo(0.05, 4);
+    expect(fSurvival(4.0179, 4, 30)).toBeCloseTo(0.01, 4);
+    expect(fSurvival(0, 2, 20)).toBe(1);
+  });
+
+  const noisy = (wording: number, seed: number) =>
+    analysePilot(
+      simulate({
+        cells: 10,
+        conversations: 10,
+        wordings: 3,
+        repeats: 5,
+        sd: { cell: 0, conversation: 0, wording },
+        base: 0.5,
+        seed,
+      }),
+      { iterations: 10 },
+    );
+
+  it('does not flag a noisy agent whose wordings do not matter, though its ranges are wide', () => {
+    const analysis = noisy(0, 21);
+    expect(Math.max(...analysis.cells.map((cell) => cell.wording.maxRange ?? 0))).toBeGreaterThan(0.2);
+    expect(analysis.wording.flagged).toEqual([]);
+  });
+
+  it('flags the cells of a noisy agent whose wordings do matter', () => {
+    const analysis = noisy(0.25, 22);
+    expect(analysis.wording.flagged.length).toBeGreaterThanOrEqual(5);
   });
 });
