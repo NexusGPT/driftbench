@@ -244,7 +244,9 @@ A validator is merged only with its hardness measured, not asserted.
 1. Iteration 0. The builder lane runs the finished validator on seeds 1 to 20 and the hidden seed and records the bank score (items passing on every seed over the bank) and the level.
 2. The pilot. The builder lane then runs ten iterations of the executor loop (section 10) on the component, honestly, as an executor would, and records each iteration's bank score.
 3. The forecast. Items fixed per iteration is the mean over the pilot. Iterations to 100 percent is the remaining failing items divided by that mean. The gate: the forecast is at least 100, and the bank score after the pilot is at most 0.4.
-4. A forecast under 100 sends the lane back to section 12.2 to extend the bank, with the families it extended named in the handoff. A pilot that fixes nothing in ten iterations means the items are miswritten or the component is missing a foundation; both go to the maintainer.
+4. Distinct causes. Many items can fail for one reason, so one fix turns them all green and the forecast overstates the work. Every item carries a `cause`: the one change that would make it pass, written by the bank's author. The gate also requires at least 100 distinct causes among the failing items after the pilot. Items sharing a cause count once.
+5. A forecast under 100, or fewer than 100 distinct causes, sends the lane back to section 12.2 to extend the bank, with the families it extended named in the handoff.
+6. A pilot that fixes nothing in ten iterations means the items are miswritten or the component is missing a foundation; both go to the maintainer.
 
 The iteration 0 row and the ten pilot rows are the first rows of `validators/<component>/journal.jsonl`, and `driftbench validate <component> --hardness` prints the measurement from them: bank size per family and tier, score at iteration 0, score after the pilot, items fixed per iteration, the forecast, and whether the gate holds.
 

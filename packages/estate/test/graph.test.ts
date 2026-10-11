@@ -164,8 +164,8 @@ describe('the fixture graph', () => {
     ]);
     expect(analysis.missingScripts).toEqual([]);
     const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind));
-    expect(rules).toHaveLength(58);
-    expect(analysis.unenforced).toHaveLength(51);
+    expect(rules).toHaveLength(61);
+    expect(analysis.unenforced).toHaveLength(54);
     expect(analysis.reachableFiles.has('.claude/skills/weekly-report/templates/report.md')).toBe(true);
     expect(analysis.reachableAtoms.has('subagent.inbox-triager.helper-inbox-triager')).toBe(false);
   });

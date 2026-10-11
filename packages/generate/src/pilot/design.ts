@@ -1,4 +1,9 @@
 import { type LoadedSpec, type Spec, validateSpec } from '@driftbench/core';
+import type { Slots, When } from '../extract/proposal';
+import { TRANSITION_DIMENSION } from '../seed/map';
+import { fillText, matches } from '../seed/relations';
+
+const STAGE = 'stage';
 
 /**
  * The pilot design: per cell of the approved map, up to C conversations of the generated suite, each run
@@ -28,8 +33,16 @@ export type PilotMap = {
   agent: string;
   hash: string;
   /** Approved phrases by `dimension=value`, in file order. */
-  phrasesOf: ReadonlyMap<string, ReadonlyArray<{ text: string; lang?: string }>>;
+  phrasesOf: ReadonlyMap<string, ReadonlyArray<PilotPhrase>>;
+  /**
+   * The slot values each cell value binds (`dimension=value` to slots), the map's approved `binds`
+   * relations. A phrase's `{slot}` is filled from these, then from the binds of the phrases said before it.
+   */
+  binds?: ReadonlyMap<string, Slots>;
 };
+
+/** An approved phrase as the pilot reads it: its text with `{slot}`s, the cells it fits, the slots it states. */
+export type PilotPhrase = { text: string; lang?: string; when?: When; binds?: Slots };
 
 /** The factors a variant spec carries under `metadata.pilot`. */
 export type PilotFactors = {
@@ -93,7 +106,11 @@ export const PILOT_DEFAULTS: Required<PilotOptions> = {
   by: ['behaviour'],
 };
 
-type GeneratedBlock = { block?: unknown; phrase?: { dimension?: unknown; value?: unknown } };
+type GeneratedBlock = {
+  block?: unknown;
+  cell?: Record<string, unknown>;
+  phrase?: { dimension?: unknown; value?: unknown };
+};
 type Generated = {
   cell?: Record<string, unknown>;
   blocks?: GeneratedBlock[];
@@ -189,23 +206,77 @@ function conversationOf(
   const { spec } = entry;
   const generated = generatedOf(spec);
   const phrased: PhrasedBlock[] = [];
-  for (const meta of generated?.blocks ?? []) {
+  const metas = (generated?.blocks ?? []).filter(
+    (meta): meta is GeneratedBlock & { block: string } => typeof meta.block === 'string',
+  );
+  const base = stringsOf(generated?.cell);
+  // The slots the cell's values bind, first value first, as the generator fills them.
+  const slots: Record<string, string> = {};
+  for (const [dimension, value] of Object.entries(base)) {
+    for (const [slot, bound] of Object.entries(map.binds?.get(`${dimension}=${value}`) ?? {})) {
+      if (slots[slot] === undefined) slots[slot] = bound;
+    }
+  }
+  let reached: string | undefined;
+  metas.forEach((meta, position) => {
+    const transition = transitionOf(meta);
+    // The stage a phrase is said at: a transition's own from-stage; any other block (a probe) is said at
+    // the stage the previous transition reached, which is the next transition's from-stage.
+    const stage =
+      transition?.from ??
+      reached ??
+      metas
+        .slice(position + 1)
+        .map(transitionOf)
+        .find((next) => next !== undefined)?.from;
+    if (transition) reached = transition.to;
     const dimension = meta.phrase?.dimension;
     const value = meta.phrase?.value;
-    if (typeof dimension !== 'string' || typeof value !== 'string' || typeof meta.block !== 'string')
-      continue;
+    if (typeof dimension !== 'string' || typeof value !== 'string') return;
     const index = spec.blocks.findIndex((block) => block.id === meta.block);
     const block = spec.blocks[index];
-    if (!block) continue;
+    if (!block) return;
     const text = stimulusText(block.when);
-    if (text === undefined) continue;
-    const bank = map.phrasesOf.get(`${dimension}=${value}`);
-    if (!bank || bank.length === 0) {
+    if (text === undefined) return;
+    const bank = map.phrasesOf.get(`${dimension}=${value}`) ?? [];
+    if (bank.length === 0) {
       warnings.add(`${dimension}=${value} has no approved phrase in the map, so its block keeps one wording`);
     }
-    const options = [text, ...(bank ?? []).map((phrase) => phrase.text).filter((other) => other !== text)];
+    const context: Record<string, string> = { ...base, ...stringsOf(meta.cell) };
+    delete context.spec;
+    if (stage !== undefined) context[STAGE] = stage;
+    const filled = (phrase: PilotPhrase): string | undefined => {
+      const result = fillText(phrase.text, { ...slots, ...(phrase.binds ?? {}) });
+      return result.ok ? result.value : undefined;
+    };
+    // The phrase the generator chose: the one whose filled text is the block's text.
+    const original = bank.find((phrase) => filled(phrase) === text);
+    const options = [text];
+    if (!original) {
+      if (bank.length > 0) {
+        warnings.add(
+          `a ${dimension}=${value} block reads no approved phrase as filled, so it keeps its one wording`,
+        );
+      }
+    } else {
+      // Another wording must fit where the original fit (its `when` holds in this cell and stage, or reads
+      // the same as the original's), fill every slot, and state the same slots: a phrase that binds another
+      // plan would make the later turns expect another plan.
+      const fitsHere = matches(original.when, context);
+      const sameBinds = canonical(original.binds);
+      for (const phrase of bank) {
+        if (phrase === original) continue;
+        const fits = fitsHere
+          ? matches(phrase.when, context)
+          : canonical(phrase.when) === canonical(original.when);
+        if (!fits || canonical(phrase.binds) !== sameBinds) continue;
+        const other = filled(phrase);
+        if (other !== undefined) options.push(other);
+      }
+      for (const [slot, bound] of Object.entries(original.binds ?? {})) slots[slot] = bound;
+    }
     phrased.push({ index, blockId: meta.block, dimension, value, options: unique(options) });
-  }
+  });
   const available = phrased.reduce((product, block) => product * block.options.length, 1);
   const count = Math.min(wordings, available);
   const variants: PilotVariant[] = [];
@@ -233,6 +304,30 @@ function conversationOf(
     available,
     variants,
   };
+}
+
+/** The from- and to-stage of a stage transition block, from its phrase value `<from>-to-<to>`. */
+function transitionOf(meta: GeneratedBlock): { from: string; to: string } | undefined {
+  if (meta.phrase?.dimension !== TRANSITION_DIMENSION || typeof meta.phrase.value !== 'string')
+    return undefined;
+  const match = /^(.+?)-to-(.+)$/.exec(meta.phrase.value);
+  return match ? { from: match[1] as string, to: match[2] as string } : undefined;
+}
+
+function stringsOf(record: Record<string, unknown> | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(record ?? {})) if (typeof value === 'string') out[key] = value;
+  return out;
+}
+
+/** A stable text of a `when` or `binds` record, keys sorted, for comparing two of them. */
+function canonical(record: Record<string, unknown> | undefined): string {
+  if (!record) return '';
+  return JSON.stringify(
+    Object.keys(record)
+      .sort()
+      .map((key) => [key, record[key]]),
+  );
 }
 
 /** Mixed-radix digits of `n`, the first block varying fastest. */

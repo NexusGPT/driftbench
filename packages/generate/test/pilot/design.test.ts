@@ -162,5 +162,103 @@ describe('planPilot', () => {
     const wordings = design.cells.flatMap((cell) => cell.conversations.map((c) => c.variants.length));
     expect(Math.max(...wordings)).toBeLessThanOrEqual(3);
     expect(wordings.some((count) => count > 1)).toBe(true);
+    // Every wording is said as the generator would say it: no slot left unfilled.
+    const texts = design.cells.flatMap((cell) =>
+      cell.conversations.flatMap((c) =>
+        c.variants.flatMap((v) => v.loaded.spec.blocks.map((block) => stimulusText(block.when) ?? '')),
+      ),
+    );
+    expect(texts.filter((text) => /\{[a-z][a-z0-9_]*\}/.test(text))).toEqual([]);
+  });
+});
+
+describe('designPilot with slots, when and binds', () => {
+  // Fictional data only. Phrase texts carry slots, `when` and `binds`, as the generator reads them.
+  type Phrase = { text: string; when?: Record<string, string[]>; binds?: Record<string, string> };
+  const phrases: Record<string, Phrase[]> = {
+    'stage_transition=offer-to-details': [
+      {
+        text: "I'll take Zed Fiber 1000.",
+        when: { coverage_result: ['fiber'] },
+        binds: { plan: 'Zed Fiber 1000' },
+      },
+      {
+        text: "I'll take the fastest fiber.",
+        when: { coverage_result: ['fiber'] },
+        binds: { plan: 'Zed Fiber 1000' },
+      },
+      {
+        text: "I'll take Zed Air 5G.",
+        when: { coverage_result: ['5g-only'] },
+        binds: { plan: 'Zed Air 5G' },
+      },
+      { text: 'Zed Fiber 300 then.', when: { coverage_result: ['fiber'] }, binds: { plan: 'Zed Fiber 300' } },
+    ],
+    'stage_transition=details-to-recap': [
+      { text: '{name}, {email}', when: { customer_details: ['name-and-email'] } },
+      { text: "I'm {name} and my email is {email}.", when: { customer_details: ['name-and-email'] } },
+      { text: 'Just {email}.', when: { customer_details: ['email-only'] } },
+    ],
+    'deviation=D4_loose_confirmation': [
+      { text: 'yeah sounds good', when: { stage: ['recap'] } },
+      { text: 'ok perfect', when: { stage: ['recap'] } },
+      { text: 'sure thing', when: { stage: ['offer'] } },
+    ],
+  };
+  const SLOTTED = {
+    path: 'map.yaml',
+    agent: 'zed',
+    hash: 'map-1',
+    phrasesOf: new Map(Object.entries(phrases)),
+    binds: new Map([
+      ['customer_details=name-and-email', { name: 'Jo Okafor', email: 'jo.okafor@example.com' }],
+    ]),
+  };
+  const spec = generatedSpec(
+    's9',
+    { behaviour: 'B-1', flow: 'order', coverage_result: 'fiber', customer_details: 'name-and-email' },
+    [
+      {
+        id: 'b1-offer-to-details',
+        user: "I'll take Zed Fiber 1000.",
+        phrase: { dimension: 'stage_transition', value: 'offer-to-details' },
+      },
+      {
+        id: 'b2-details-to-recap',
+        user: 'Jo Okafor, jo.okafor@example.com',
+        phrase: { dimension: 'stage_transition', value: 'details-to-recap' },
+      },
+      {
+        id: 'b3-D4',
+        injection: { class: 'D4_loose_confirmation', user: 'yeah sounds good' },
+        phrase: { dimension: 'deviation', value: 'D4_loose_confirmation' },
+      },
+    ],
+  );
+
+  it('fills every slot of another wording from the cell, as the generator does', () => {
+    const design = designPilot(SLOTTED, [spec], { wordings: 8 });
+    const conversation = design.cells[0]?.conversations[0];
+    expect(conversation?.phrased[1]?.options).toEqual([
+      'Jo Okafor, jo.okafor@example.com',
+      "I'm Jo Okafor and my email is jo.okafor@example.com.",
+    ]);
+    const texts = conversation?.variants.flatMap((variant) =>
+      variant.loaded.spec.blocks.map((block) => stimulusText(block.when) ?? ''),
+    );
+    expect(texts?.some((text) => text.includes('{'))).toBe(false);
+  });
+
+  it('keeps only wordings whose `when` holds in the cell and stage, and whose `binds` match', () => {
+    const design = designPilot(SLOTTED, [spec], { wordings: 8 });
+    const conversation = design.cells[0]?.conversations[0];
+    // Not Air 5G (5g-only cell), not Fiber 300 (binds another plan, so the recap would name another).
+    expect(conversation?.phrased[0]?.options).toEqual([
+      "I'll take Zed Fiber 1000.",
+      "I'll take the fastest fiber.",
+    ]);
+    // At the recap: not the offer-stage confirmation.
+    expect(conversation?.phrased[2]?.options).toEqual(['yeah sounds good', 'ok perfect']);
+    expect(conversation?.available).toBe(8);
   });
 });

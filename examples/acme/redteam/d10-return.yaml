@@ -4,11 +4,11 @@ class: D10_return
 title: return after a detour
 conversation:
   - id: d10-where-were-we
-    approved: false
+    approved: true
     user: Sorry, I got distracted. Where were we?
   - id: d10-lets-continue
-    approved: false
+    approved: true
     user: Ok, let's continue.
   - id: d10-back-to-it
-    approved: false
+    approved: true
     user: Right, back to it.

@@ -136,6 +136,15 @@ describe('driftbench space coverage', () => {
     expect(out).toContain('Coverage: 0 of 2 required cells covered');
   });
 
+  it('says in its help that --t runs from 1 to the number of dimensions', async () => {
+    const { code, out } = await run(['space', 'coverage', '--help'], process.cwd());
+    expect(code).toBe(0);
+    expect(out.replace(/\s+/g, ' ')).toContain(
+      'cells on every subset of n dimensions, n from 1 to the number of dimensions; default: the full grid',
+    );
+    expect(out).not.toContain('2 or 3');
+  });
+
   it('prints the grid at t = 2 with --t 2', async () => {
     const dir = await project(FILES);
     const { code, out } = await run(coverage('--t', '2'), dir);

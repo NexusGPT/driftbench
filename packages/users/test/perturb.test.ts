@@ -10,7 +10,16 @@ import {
   PerturbationError,
   type RedteamPack,
 } from '../src/index';
-import { acmeSales, acmeSpec, block, CONVERSATIONS, PACK_DIR, runP, spec } from './support';
+import {
+  acmeSales,
+  acmeSpec,
+  block,
+  CONVERSATIONS,
+  PACK_DIR,
+  runP,
+  spec,
+  UNAPPROVED_PACK_DIR,
+} from './support';
 
 /**
  * Steps a driver the way the runner does: the block index advances on spec blocks only, and each step
@@ -241,18 +250,31 @@ describe('perturbations drawn from the red-team pack', () => {
     expect(driver.perturbation.id).toBe('aside');
   });
 
-  it('refuses a draw from unapproved phrasings unless drafts are asked for, and says so', () => {
+  it('refuses a draw from unapproved phrasings unless drafts are asked for, and says so', async () => {
+    const fixture = await loadRedteamPack(UNAPPROVED_PACK_DIR);
     expect(() =>
       createPerturbingDriver({
         spec: THREE,
-        perturbation: { class: 'D3_contradiction', inject_at: 1, pack },
+        perturbation: { class: 'D2_goal_shift', inject_at: 1, pack: fixture },
       }),
-    ).toThrow(/holds no approved conversation phrasing for D3_contradiction/);
-    const driver = createPerturbingDriver({
+    ).toThrow(/d02-goal-shift\.yaml holds no approved conversation phrasing for D2_goal_shift/);
+    const draft = createPerturbingDriver({
       spec: THREE,
-      perturbation: { class: 'D3_contradiction', inject_at: 1, pack, seed: 4, drafts: true },
+      perturbation: { class: 'D2_goal_shift', inject_at: 1, pack: fixture, seed: 4, drafts: true },
     });
-    expect(driver.source).toMatchObject({ kind: 'drawn', approved: false, seed: 4 });
+    expect(draft.source).toMatchObject({ kind: 'drawn', approved: false, seed: 4 });
+    // Without drafts, only the one approved phrasing is ever drawn, whatever the seed.
+    const ids = new Set(
+      Array.from(
+        { length: 20 },
+        (_, seed) =>
+          createPerturbingDriver({
+            spec: THREE,
+            perturbation: { class: 'D3_contradiction', inject_at: 1, pack: fixture, seed },
+          }).perturbation.id,
+      ),
+    );
+    expect([...ids]).toEqual(['fx-d3-approved@1']);
   });
 
   it('keeps the pending stage for a user class on a conversation, and expects the declared language for D5', () => {

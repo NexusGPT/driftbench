@@ -122,7 +122,7 @@ describe('the Claude Code reader', () => {
     ]);
   });
 
-  it('gives the prose of standing files, memory and the bodies of skills and helpers to the model, never a frontmatter', async () => {
+  it('gives the prose of standing files, memory, skill bodies, skill files and helper bodies to the model, never a frontmatter', async () => {
     const raw = await new ClaudeCodeReader().read(FIXTURE);
     expect(raw.prose.map((chunk) => [chunk.id, chunk.startLine])).toEqual([
       ['CLAUDE.md', 1],
@@ -132,9 +132,13 @@ describe('the Claude Code reader', () => {
       ['.claude/memory/MEMORY.md', 1],
       ['.claude/memory/supplier-languages.md', 1],
       ['.claude/skills/invoice-reconcile/SKILL.md', 6],
+      ['.claude/skills/invoice-reconcile/references/currency-table.md', 1],
+      ['.claude/skills/invoice-reconcile/references/matching-rules.md', 1],
+      ['.claude/skills/invoice-reconcile/references/old-tolerances.md', 1],
       ['.claude/skills/shipment-tracker/SKILL.md', 12],
       ['.claude/skills/supplier-email/SKILL.md', 5],
       ['.claude/skills/weekly-report/SKILL.md', 6],
+      ['.claude/skills/weekly-report/templates/report.md', 1],
     ]);
     for (const chunk of raw.prose) expect(chunk.text).not.toMatch(/^name:/m);
   });

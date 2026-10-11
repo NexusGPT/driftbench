@@ -13,6 +13,7 @@ const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const UPGRADE = 'examples/acme/specs/conversations/plan-upgrade.yaml';
 const COVERAGE = 'examples/acme/specs/conversations/new-customer-coverage.yaml';
 const SHEET = 'examples/acme/specs/tasks/price-sheet.yaml';
+const FIXTURE_PACK = join(ROOT, 'packages/users/test/fixtures/unapproved-pack');
 
 /** Runs `driftbench perturb ...` the way main does: one program, the command registered, exit 2 on a usage error. */
 async function perturb(argv: string[], cwd = ROOT, deps = defaultDeps) {
@@ -86,7 +87,7 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
   });
 
   it('refuses an unapproved phrasing, exit 2 and nothing run, and draws it with --drafts', async () => {
-    const refused = await perturb([UPGRADE, '--class', 'D2', '--at', '2']);
+    const refused = await perturb([UPGRADE, '--class', 'D2', '--at', '2', '--pack', FIXTURE_PACK]);
     expect(refused.code).toBe(2);
     expect(refused.out).toBe('');
     expect(refused.err).toContain(
@@ -94,20 +95,18 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
     );
     expect(refused.err).toContain('Run with --drafts to draw from phrasings nobody has approved yet.');
 
-    const drawn = await perturb([
-      UPGRADE,
-      '--class',
-      'D2_goal_shift',
-      '--at',
-      '2',
-      '--drafts',
-      '--seed',
-      '0',
-    ]);
+    const drawn = await perturb([UPGRADE, '--class', 'D2', '--at', '2', '--pack', FIXTURE_PACK, '--drafts']);
+    expect(drawn.code).toBe(0);
+    expect(drawn.out).toMatch(/phrasing fx-d2-\w+, seed 0, a draft nobody has approved yet\)/);
+  });
+
+  it('draws an approved phrasing of the shipped pack without --drafts', async () => {
+    const drawn = await perturb([UPGRADE, '--class', 'D2_goal_shift', '--at', '2', '--seed', '0']);
     expect(drawn.code).toBe(0);
     expect(drawn.out).toContain(
-      '(drawn from examples/acme/redteam/d02-goal-shift.yaml, phrasing d2-cheaper-plan, seed 0, a draft nobody has approved yet)',
+      '(drawn from examples/acme/redteam/d02-goal-shift.yaml, phrasing d2-cheaper-plan, seed 0).',
     );
+    expect(drawn.out).not.toContain('a draft');
     // A drawn goal shift sets no stage for the injected block: by the runner's rule, passing is enough.
     expect(drawn.out).toContain(
       '✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0',
