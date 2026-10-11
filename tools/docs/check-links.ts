@@ -3,11 +3,14 @@
  *
  * Every relative link in docs/ must point at a file or folder that exists, and at a heading that
  * exists when it names one. Every page must be reachable from docs/index.md by following links.
- * External URLs are not fetched. docs/lanes holds local working files and is skipped.
+ * External URLs are not fetched. Pages are the markdown files git tracks or would track, so a file
+ * git ignores or excludes (a local working file) is not a page; outside a git repository every
+ * markdown file counts, except docs/lanes.
  *
  * Usage:  tsx tools/docs/check-links.ts [folder]
  * Exit:   0 clean, 1 broken links or unreachable pages.
  */
+import { execFileSync } from 'node:child_process';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -89,13 +92,40 @@ export function isRelative(target: string): boolean {
   return !SCHEME.test(target) && !target.startsWith('//');
 }
 
-/** Every markdown file under the folder, skipping local working folders. */
+/** The markdown files under the folder that git tracks or would track, or every markdown file outside a repository. */
 export async function markdownFiles(dir: string): Promise<string[]> {
+  const listed = gitMarkdownFiles(dir);
+  if (listed) return listed;
+  return walkMarkdownFiles(dir);
+}
+
+function gitMarkdownFiles(dir: string): string[] | undefined {
+  try {
+    const out = execFileSync(
+      'git',
+      ['ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', dir],
+      {
+        cwd: dir,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      },
+    );
+    return out
+      .split('\0')
+      .filter((file) => file !== '' && extname(file).toLowerCase() === '.md')
+      .map((file) => resolve(dir, file))
+      .sort();
+  } catch {
+    return undefined;
+  }
+}
+
+async function walkMarkdownFiles(dir: string): Promise<string[]> {
   const out: string[] = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     if (entry.name.startsWith('.') || SKIP.has(entry.name)) continue;
     const full = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await markdownFiles(full)));
+    if (entry.isDirectory()) out.push(...(await walkMarkdownFiles(full)));
     else if (extname(entry.name).toLowerCase() === '.md') out.push(full);
   }
   return out.sort();
