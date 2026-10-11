@@ -163,7 +163,10 @@ function partitionsOf(name: string, property: YAMLMap, quote: (keyword?: string)
     if (types.includes('object') && types.includes('null')) add('present', `${name} is an object`, 'type');
   }
   const nullable = plain(entry(property, 'nullable')?.value) === true;
-  if (types.includes('null') || nullable) add('null', `${name} is null`, nullable ? 'nullable' : 'type');
+  // An enum that lists null already gave the null partition.
+  const listed = out.some((partition) => partition.id === 'null');
+  if ((types.includes('null') || nullable) && !listed)
+    add('null', `${name} is null`, nullable ? 'nullable' : 'type');
   return out;
 }
 

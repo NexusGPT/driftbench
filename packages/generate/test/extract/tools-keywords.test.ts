@@ -67,4 +67,13 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       't.x.in.p': ['empty', 'one-item', 'several-items', 'at-max-items', 'above-max-items'],
     });
   });
+
+  it('gives null once when an enum of a nullable type already holds it', () => {
+    expect(partitions({ type: ['string', 'null'], enum: ['low', 'high', null] })).toEqual({
+      't.x.in.p': ['low', 'high', 'null'],
+    });
+    expect(partitions({ type: ['string', 'null'], enum: ['low', 'high'] })).toEqual({
+      't.x.in.p': ['low', 'high', 'null'],
+    });
+  });
 });
