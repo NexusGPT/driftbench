@@ -1,7 +1,8 @@
 # The Acme price-sheet family: the task of specs/tasks/price-sheet.yaml, made a family. Code draws the
 # knobs with a seed, builds the workspace from the grammar below, writes each instruction from the approved
 # phrases, and asks oracle.mjs for the expected outcome before any agent runs. A person reviews the family
-# once (review.yaml). The phrases were approved on the owner's delegation for this fictional demo.
+# once (review.yaml). The families lane marked the phrases approved for this fictional demo; the review a
+# person signs covers them, and no instance is released before it is signed.
 # Fictional data only.
 version: 1
 id: acme-price-sheet

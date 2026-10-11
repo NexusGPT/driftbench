@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -14,7 +15,7 @@ import {
   type Instance,
   writeInstances,
 } from '../../src/families/instances';
-import { type VerifyDeps, verifyInstances } from '../../src/families/verify';
+import { type VerifyDeps, verifyInstances, withoutSandbox } from '../../src/families/verify';
 import { ACME_FAMILY, load } from './support';
 
 const AGENT = fileURLToPath(new URL('../../../../examples/acme/ops/agent.mjs', import.meta.url));
@@ -111,4 +112,19 @@ describe('verify on the reference build (process:acme-ops)', () => {
     expect(broken?.state).toBe('invalid');
     expect(report.rejected).toContain(`${csv[0]?.name}/broken.yaml`);
   }, 120_000);
+});
+
+describe('the verify report', () => {
+  it('writes the sandbox folder of a run as <sandbox>, so the report holds no machine path and no run id', () => {
+    const real = realpathSync(tmpdir());
+    expect(withoutSandbox(`ENOENT: realpath '${real}/driftbench-aocR4M/out/a.xlsx'`)).toBe(
+      "ENOENT: realpath '<sandbox>/out/a.xlsx'",
+    );
+    expect(withoutSandbox(`${tmpdir()}/driftbench-sandboxes-1/driftbench-x1Y2/out/a.xlsx`)).toBe(
+      '<sandbox>/out/a.xlsx',
+    );
+    expect(withoutSandbox('out/acme-price-sheet.xlsx was not created')).toBe(
+      'out/acme-price-sheet.xlsx was not created',
+    );
+  });
 });

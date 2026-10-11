@@ -99,7 +99,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-bWfYj0/out/acme-prices.xlsx'"
+          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
         },
         {
           "block": 1,
@@ -127,7 +127,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-bWfYj0/out/acme-prices.xlsx'"
+          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
         }
       ]
     },
@@ -171,7 +171,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-WOgrWm/out/acme-prices.xlsx'"
+          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
         },
         {
           "block": 1,
@@ -199,7 +199,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-WOgrWm/out/acme-prices.xlsx'"
+          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
         }
       ]
     },
@@ -243,7 +243,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-dy2AgB/out/acme-prices.xlsx'"
+          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
         },
         {
           "block": 1,
@@ -271,7 +271,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-dy2AgB/out/acme-prices.xlsx'"
+          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
         }
       ]
     },
@@ -315,7 +315,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-coKD2a/out/acme-prices.xlsx'"
+          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
         },
         {
           "block": 1,
@@ -343,7 +343,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/acme-prices.xlsx",
-          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-coKD2a/out/acme-prices.xlsx'"
+          "evidence": "out/acme-prices.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-prices.xlsx'"
         }
       ]
     },
@@ -555,7 +555,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-F7Hjvb/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -599,7 +599,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-CjJGYu/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -643,7 +643,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-0TutHx/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -687,7 +687,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-v6VE5t/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -731,7 +731,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-6VZ953/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -871,7 +871,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-fpMlIi/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -915,7 +915,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-nKjrcq/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -959,7 +959,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-i0VTQ0/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1003,7 +1003,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-FuCul7/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1047,7 +1047,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-Lz6Qf7/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1163,7 +1163,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-rnjmSj/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         },
         {
           "block": 1,
@@ -1191,7 +1191,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-rnjmSj/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1235,7 +1235,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-jIIt3X/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         },
         {
           "block": 1,
@@ -1263,7 +1263,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-jIIt3X/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1307,7 +1307,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-Kd8Bie/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         },
         {
           "block": 1,
@@ -1335,7 +1335,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-Kd8Bie/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1379,7 +1379,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-h7CWnb/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         },
         {
           "block": 1,
@@ -1407,7 +1407,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-h7CWnb/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1451,7 +1451,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-yzUKzo/out/price-sheet.xlsx'"
+          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
         },
         {
           "block": 1,
@@ -1479,7 +1479,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-yzUKzo/out/price-sheet.xlsx'"
+          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
         }
       ]
     },
@@ -1523,7 +1523,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-ZMvkTx/out/price-sheet.xlsx'"
+          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
         },
         {
           "block": 1,
@@ -1551,7 +1551,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-ZMvkTx/out/price-sheet.xlsx'"
+          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
         }
       ]
     },
@@ -1595,7 +1595,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-qZf0BZ/out/price-sheet.xlsx'"
+          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
         },
         {
           "block": 1,
@@ -1623,7 +1623,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-qZf0BZ/out/price-sheet.xlsx'"
+          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
         }
       ]
     },
@@ -1667,7 +1667,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-me5hkY/out/price-sheet.xlsx'"
+          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
         },
         {
           "block": 1,
@@ -1695,7 +1695,7 @@
           "blockId": "summary",
           "check": "artifacts",
           "id": "artifacts.out/price-sheet.xlsx",
-          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-me5hkY/out/price-sheet.xlsx'"
+          "evidence": "out/price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/price-sheet.xlsx'"
         }
       ]
     },
@@ -1771,7 +1771,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-pRJDwM/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1815,7 +1815,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-MbTbOP/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1859,7 +1859,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-HtVLXm/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1903,7 +1903,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-caS9Tn/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },
@@ -1947,7 +1947,7 @@
           "blockId": "build",
           "check": "artifacts",
           "id": "artifacts.out/acme-price-sheet.xlsx",
-          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '/private/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/driftbench-apIsiB/out/acme-price-sheet.xlsx'"
+          "evidence": "out/acme-price-sheet.xlsx is missing or unreadable: ENOENT: no such file or directory, realpath '<sandbox>/out/acme-price-sheet.xlsx'"
         }
       ]
     },

@@ -103,4 +103,5 @@ export {
   type VerifyReport,
   verifyInstances,
   verifySpec,
+  withoutSandbox,
 } from './verify';

@@ -599,7 +599,7 @@ blocks:
 metadata:
   family:
     id: acme-price-sheet
-    family_sha256: 0a901007c409e35211a410bcb7e086beaf04eebd5ada01c4a477b936f0df9715
+    family_sha256: 2222640acdfb55641addd960011d87570ed387a613886dc5143f075267b522da
     oracle_sha256: 2d8692b70af5c67ee9b8214b953506fed776b201308675b1cb3c151fda0ec257
     review: pending
     instance: i04

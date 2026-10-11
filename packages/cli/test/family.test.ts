@@ -175,6 +175,21 @@ describe('driftbench family instances', () => {
   });
 });
 
+describe('the committed Acme instances', () => {
+  it('are the ones driftbench family instances writes today, with seed 1 and n 20', async () => {
+    const repo = fileURLToPath(new URL('../../../', import.meta.url));
+    const out = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    const result = await run(
+      ['family', 'instances', 'examples/acme/families/price-sheet', '--n', '20', '--seed', '1', '--out', out],
+      repo,
+    );
+    expect(result.code).toBe(0);
+    const committed = await tree(join(ACME_FAMILY, 'instances'));
+    delete committed['verify-report.json'];
+    expect(await tree(out)).toEqual(committed);
+  }, 60_000);
+});
+
 describe('driftbench family review', () => {
   it('says pending for the Acme family, and writes a pending review for a family with none', async () => {
     const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));

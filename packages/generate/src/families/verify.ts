@@ -1,3 +1,5 @@
+import { realpathSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { isAbsolute, relative, resolve } from 'node:path';
 import {
   type AgentAdapter,
@@ -55,6 +57,33 @@ export type VerifyReport = {
   results: SpecVerdict[];
 };
 
+/** The temporary folders a sandbox may sit in, as evidence names them: the temp folder and its real path. */
+const TEMP_ROOTS = [...new Set([tmpdir(), safeRealpath(tmpdir())])].sort((a, b) => b.length - a.length);
+
+function safeRealpath(path: string): string {
+  try {
+    return realpathSync(path);
+  } catch {
+    return path;
+  }
+}
+
+/**
+ * Evidence with the run's sandbox folder written as <sandbox>: the folder is new on every run, so a
+ * report that kept it would change each time it is written, and it would carry this machine's paths.
+ */
+export function withoutSandbox(evidence: string): string {
+  let out = evidence;
+  for (const root of TEMP_ROOTS) {
+    const escaped = root.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    out = out.replace(
+      new RegExp(`${escaped}/(?:[^\\s'"/]+/)*driftbench-[\\w-]+(?=/|['"\\s]|$)`, 'g'),
+      '<sandbox>',
+    );
+  }
+  return out;
+}
+
 function familyOf(spec: Spec): { instance?: string; variant?: string } {
   const meta = spec.metadata?.family;
   if (meta === null || typeof meta !== 'object') return {};
@@ -88,7 +117,7 @@ function verdictOf(file: string, spec: Spec, run: RunResult): SpecVerdict {
         ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
         check: verdict.name,
         id: verdict.id,
-        evidence: verdict.evidence,
+        evidence: withoutSandbox(verdict.evidence),
       })),
   );
   if (run.status !== 'completed') {
@@ -98,7 +127,7 @@ function verdictOf(file: string, spec: Spec, run: RunResult): SpecVerdict {
       ...where,
       state: 'failed',
       failing,
-      ...(run.error ? { error: run.error } : {}),
+      ...(run.error ? { error: withoutSandbox(run.error) } : {}),
     };
   }
   const pass =
@@ -127,7 +156,7 @@ export async function verifySpec(file: string, spec: Spec, deps: VerifyDeps): Pr
       ...familyOf(spec),
       state: 'failed',
       failing: [],
-      error: cause instanceof Error ? cause.message : String(cause),
+      error: withoutSandbox(cause instanceof Error ? cause.message : String(cause)),
     };
   }
 }
