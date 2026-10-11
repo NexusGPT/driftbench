@@ -34,3 +34,13 @@ export {
   retirementReason,
   writeRetirements,
 } from './impact';
+export {
+  compareReplays,
+  Flip,
+  latestReplay,
+  Regression,
+  type ReplayOutcome,
+  regressionNeeds,
+  renderRegression,
+  runPassed,
+} from './regression';

@@ -237,3 +237,121 @@ describe('driftbench estate impact', () => {
     expect(broken.err).toContain('The tests in tests cannot be read:');
   });
 });
+
+/** A copy of the recorded session corpus, its specs included, and a diff with nothing in it. */
+async function corpus(): Promise<string> {
+  const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-replay-'));
+  await cp(join(ROOT, 'examples/estates/sessions'), join(root, 'sessions'), { recursive: true });
+  await mkdir(join(root, 'tests'));
+  const diff = await cli(
+    ['estate', 'diff', join(FIXTURE, 'map.yaml'), join(FIXTURE, 'approved.yaml'), '--out', 'none.json'],
+    root,
+  );
+  expect(diff.code).toBe(0);
+  return root;
+}
+
+type ImpactJson = {
+  needsPerson: string[];
+  regression: {
+    campaign: string;
+    previous: string | null;
+    store: string | null;
+    counts: Record<string, number>;
+    runs: { spec: string; session: string; flip: string }[];
+  };
+};
+
+async function impact(root: string, extra: string[] = []) {
+  const result = await cli(
+    ['estate', 'impact', 'none.json', '--tests', 'tests', '--replay', 'sessions', ...extra, '--json'],
+    root,
+  );
+  if (result.code === 2) throw new Error(result.err);
+  return { code: result.code, report: JSON.parse(result.out) as ImpactJson };
+}
+
+describe('driftbench estate impact --replay', () => {
+  it('replays the corpus with its suite and says there is nothing to compare without a store', async () => {
+    const root = await corpus();
+    const { code, report } = await impact(root);
+    expect(code).toBe(0);
+    expect(report.regression.previous).toBeNull();
+    expect(report.regression.store).toBeNull();
+    expect(report.regression.counts).toEqual({
+      pass_to_pass: 0,
+      fail_to_pass: 0,
+      pass_to_fail: 0,
+      fail_to_fail: 0,
+      no_previous: 7,
+    });
+    const text = await cli(
+      ['estate', 'impact', 'none.json', '--tests', 'tests', '--replay', 'sessions'],
+      root,
+    );
+    expect(text.out).toMatch(/Replay of 7 runs, campaign replay-\w+, no store given: nothing to compare\./);
+    expect(text.out).toContain('Nothing needs a person.');
+  });
+
+  it('reports flips against the stored previous replay: held, fixed, and broken for a person', async () => {
+    const root = await corpus();
+    const first = await impact(root, ['--store', 'runs.db']);
+    expect(first.report.regression.counts.no_previous).toBe(7);
+
+    const second = await impact(root, ['--store', 'runs.db']);
+    expect(second.report.regression.previous).toBe(first.report.regression.campaign);
+    expect(second.report.regression.counts).toMatchObject({
+      pass_to_pass: 3,
+      fail_to_fail: 4,
+      no_previous: 0,
+    });
+    expect(second.code).toBe(0);
+
+    const clean = join(root, 'sessions', 'specs', 'clean-build.yaml');
+    const original = await readFile(clean, 'utf8');
+    await edit(
+      clean,
+      '- { name: read-before-write, verdict: deny, count: 0 }',
+      '- { name: read-before-write, verdict: deny, count: 1 }',
+    );
+    const broken = await impact(root, ['--store', 'runs.db']);
+    expect(broken.code).toBe(1);
+    expect(broken.report.regression.counts).toMatchObject({
+      pass_to_pass: 2,
+      pass_to_fail: 1,
+      fail_to_fail: 4,
+    });
+    expect(broken.report.needsPerson).toEqual([
+      'regression: replay-clean-build on the session clean-build passed before and fails now',
+    ]);
+
+    await writeFile(clean, original);
+    const fixed = await impact(root, ['--store', 'runs.db']);
+    expect(fixed.code).toBe(0);
+    expect(fixed.report.regression.runs.find((entry) => entry.spec === 'replay-clean-build')?.flip).toBe(
+      'fail_to_pass',
+    );
+    const text = await cli(
+      ['estate', 'impact', 'none.json', '--tests', 'tests', '--replay', 'sessions', '--store', 'runs.db'],
+      root,
+    );
+    expect(text.out).toMatch(/Replay of 7 runs, campaign replay-\w+, against replay-\w+\./);
+  });
+
+  it('exits 2 on a sessions folder with no session, a missing suite, or --store without --replay', async () => {
+    const root = await corpus();
+    await mkdir(join(root, 'empty'));
+    const empty = await cli(['estate', 'impact', 'none.json', '--tests', 'tests', '--replay', 'empty'], root);
+    expect(empty.code).toBe(2);
+    expect(empty.err).toContain('holds no session');
+    const suite = await cli(
+      ['estate', 'impact', 'none.json', '--tests', 'tests', '--replay', 'sessions', '--suite', 'nowhere'],
+      root,
+    );
+    expect(suite.code).toBe(2);
+    expect(suite.err).toContain('The replay suite nowhere does not exist');
+    const store = await cli(['estate', 'impact', 'none.json', '--tests', 'tests', '--store', 'x.db'], root);
+    expect(store.code).toBe(2);
+    expect(store.err).toContain('--suite and --store belong to --replay');
+  });
+});

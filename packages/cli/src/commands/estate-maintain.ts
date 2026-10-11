@@ -1,21 +1,39 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, relative, resolve } from 'node:path';
+import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { dirname, join, relative, resolve } from 'node:path';
 import {
+  compareReplays,
   diffEstateMaps,
   type EstateMap,
   estateImpact,
+  latestReplay,
   loadEstateMap,
   loadEstateTests,
   parseEstateDiff,
+  type Regression,
+  type ReplayOutcome,
   renderEstateDiff,
   renderImpact,
   writeRetirements,
 } from '@driftbench/estate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { defaultReplayDeps, type ReplayDeps, replayCommand } from './replay';
 
 export type EstateDiffOptions = { json?: boolean; out?: string };
-export type EstateImpactOptions = { tests?: string; write?: boolean; json?: boolean; out?: string };
+export type EstateImpactOptions = {
+  tests?: string;
+  write?: boolean;
+  json?: boolean;
+  out?: string;
+  replay?: string;
+  suite?: string;
+  store?: string;
+};
+
+export type EstateMaintainDeps = {
+  /** The store and the clock of the replay run; tests pass their own. */
+  replay?: ReplayDeps;
+};
 
 /**
  * `driftbench estate diff` and `driftbench estate impact`: what changed between two versions of an estate
@@ -25,6 +43,7 @@ export function registerEstateMaintainCommands(
   estate: Command,
   io: Io,
   setExit: (code: number) => void,
+  deps: EstateMaintainDeps = {},
 ): void {
   estate
     .command('diff')
@@ -47,8 +66,11 @@ export function registerEstateMaintainCommands(
     .option('--write', 'write each retirement reason into its spec as metadata.retired')
     .option('--json', 'print the impact as one JSON document')
     .option('--out <file>', 'also write the impact as JSON')
+    .option('--replay <sessions>', 'replay the suite over this folder of recorded sessions (JSONL)')
+    .option('--suite <dir>', 'the replay suite (default: the specs folder inside the sessions folder)')
+    .option('--store <db>', 'compare with the previous replay kept in this store, and keep this one')
     .action(async (diff: string, options: EstateImpactOptions) => {
-      setExit(await estateImpactCommand(diff, options, io));
+      setExit(await estateImpactCommand(diff, options, io, deps));
     });
 }
 
@@ -74,16 +96,21 @@ export async function estateDiffCommand(
 }
 
 /**
- * Exit 0 when nothing needs a person, 1 when an atom waits for re-approval, a new atom has no test, or a
- * retirement could not be written, 2 on a usage or input error.
+ * Exit 0 when nothing needs a person, 1 when an atom waits for re-approval, a new atom has no test, a replay
+ * that passed before fails now, or a retirement could not be written, 2 on a usage or input error.
  */
 export async function estateImpactCommand(
   diffArg: string,
   options: EstateImpactOptions,
   io: Io,
+  deps: EstateMaintainDeps = {},
 ): Promise<number> {
   if (options.tests === undefined) {
     io.err("error: required option '--tests <dir>' not specified\n");
+    return 2;
+  }
+  if (options.replay === undefined && (options.suite !== undefined || options.store !== undefined)) {
+    io.err('error: --suite and --store belong to --replay <sessions>\n');
     return 2;
   }
   let text: string;
@@ -104,7 +131,16 @@ export async function estateImpactCommand(
     for (const error of loaded.errors) io.err(`  ${error}\n`);
     return 2;
   }
-  const report = estateImpact(parsed.diff, loaded.tests, { others: loaded.others });
+  let regression: Regression | undefined;
+  if (options.replay !== undefined) {
+    const ran = await replayCorpus(options.replay, options, io, deps.replay ?? defaultReplayDeps);
+    if (ran === undefined) return 2;
+    regression = ran;
+  }
+  const report = estateImpact(parsed.diff, loaded.tests, {
+    others: loaded.others,
+    ...(regression ? { regression } : {}),
+  });
   if (options.write) {
     for (const result of await writeRetirements(report, loaded.tests)) {
       if (!result.ok) report.needsPerson.push(`retire ${result.file} by hand: ${result.message}`);
@@ -115,6 +151,98 @@ export async function estateImpactCommand(
   io.out(options.json ? json : renderImpact(report));
   if (options.out !== undefined && !options.json) io.out(`Wrote ${options.out}.\n`);
   return report.needsPerson.length > 0 ? 1 : 0;
+}
+
+type ReplayJson = { campaignId: string; notes: string[]; runs: ReplayOutcome[] };
+
+/**
+ * Runs `driftbench replay` over a folder of sessions: every `*.jsonl` there is a session, except the decision
+ * logs (`*.decisions.jsonl`) and step feeds (`*.steps.jsonl`), which go with the session their name starts
+ * with. The previous replay is read from the store before this one is kept in it.
+ */
+async function replayCorpus(
+  dirArg: string,
+  options: EstateImpactOptions,
+  io: Io,
+  deps: ReplayDeps,
+): Promise<Regression | undefined> {
+  const dir = resolve(io.cwd, dirArg);
+  let names: string[];
+  try {
+    names = (await readdir(dir)).filter((name) => name.endsWith('.jsonl')).sort();
+  } catch (cause) {
+    io.err(
+      `Cannot read the sessions folder ${dirArg}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+    );
+    return undefined;
+  }
+  const log = (name: string) => /\.(decisions|steps)\.jsonl$/.test(name);
+  const sessions = names.filter((name) => !log(name)).map((name) => join(dir, name));
+  if (sessions.length === 0) {
+    io.err(`The sessions folder ${dirArg} holds no session (*.jsonl).\n`);
+    return undefined;
+  }
+  const decisions = names.filter((name) => name.endsWith('.decisions.jsonl')).map((name) => join(dir, name));
+  const steps = names.filter((name) => name.endsWith('.steps.jsonl')).map((name) => join(dir, name));
+  const suite = resolve(io.cwd, options.suite ?? join(dirArg, 'specs'));
+  if (!(await stat(suite).catch(() => undefined))) {
+    io.err(`The replay suite ${show(suite, io)} does not exist; name it with --suite.\n`);
+    return undefined;
+  }
+
+  let previous: Awaited<ReturnType<typeof latestReplay>>;
+  const storePath = options.store === undefined ? undefined : resolve(io.cwd, options.store);
+  if (storePath !== undefined) {
+    try {
+      const store = await deps.openStore(storePath);
+      try {
+        previous = await latestReplay(store);
+      } finally {
+        await store.close();
+      }
+    } catch (cause) {
+      io.err(
+        `Cannot read the store ${options.store}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+      );
+      return undefined;
+    }
+  }
+
+  let out = '';
+  let err = '';
+  const captured: Io = {
+    out: (text) => {
+      out += text;
+    },
+    err: (text) => {
+      err += text;
+    },
+    cwd: io.cwd,
+  };
+  const code = await replayCommand(
+    sessions,
+    { suite, decisions, steps, json: true, ...(storePath === undefined ? {} : { store: storePath }) },
+    captured,
+    deps,
+  );
+  if (code === 2 || out === '') {
+    io.err(`The replay did not run (exit ${code}):\n${err}`);
+    return undefined;
+  }
+  let replay: ReplayJson;
+  try {
+    replay = JSON.parse(out) as ReplayJson;
+  } catch (cause) {
+    io.err(`The replay printed no JSON: ${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return undefined;
+  }
+  return {
+    campaign: replay.campaignId,
+    previous: previous?.campaignId ?? null,
+    store: options.store ?? null,
+    ...compareReplays(previous?.outcomes, replay.runs),
+    notes: replay.notes,
+  };
 }
 
 async function readMap(path: string, io: Io): Promise<EstateMap | undefined> {

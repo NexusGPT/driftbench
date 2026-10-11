@@ -6,6 +6,7 @@ import { parseDocument } from 'yaml';
 import { z } from 'zod';
 import { AtomKind } from '../schema';
 import type { EstateDiff } from './diff';
+import { Regression, regressionNeeds, renderRegression } from './regression';
 
 /**
  * The impact of an estate diff on the tests written for the estate. Tests index by atom id: a spec names the
@@ -128,6 +129,7 @@ export const ImpactReport = z.strictObject({
     moved: z.number().int().min(0).describe('Atoms moved with the same quote: no test changes'),
     tests: z.number().int().min(0).describe('Live tests the diff does not touch'),
   }),
+  regression: Regression.optional().describe('The replay of the corpus with the suite, when asked'),
   needsPerson: z.array(z.string()),
 });
 export type ImpactReport = z.infer<typeof ImpactReport>;
@@ -139,6 +141,8 @@ export function retirementReason(atoms: readonly string[]): string {
 export type ImpactOptions = {
   /** Specs read beside the estate tests that carry no `metadata.estate`. */
   others?: number;
+  /** The replay of the corpus, compared with the stored previous replay. */
+  regression?: Regression;
 };
 
 export function estateImpact(
@@ -211,6 +215,7 @@ export function estateImpact(
         `re-approve ${entry.atom}: its meaning changed${entry.tests.length > 0 ? `; ${entry.tests.length} ${entry.tests.length === 1 ? 'test waits' : 'tests wait'}` : ''}`,
     ),
     ...fresh.map((entry) => `approve the tests of the new atom ${entry.atom}: no test covers it yet`),
+    ...(options.regression ? regressionNeeds(options.regression) : []),
   ];
 
   return {
@@ -222,6 +227,7 @@ export function estateImpact(
     retire,
     new: fresh,
     unaffected: { moved: diff.atoms.moved.length, tests: untouched },
+    ...(options.regression ? { regression: options.regression } : {}),
     needsPerson,
   };
 }
@@ -314,6 +320,7 @@ export function renderImpact(report: ImpactReport): string {
     lines.push('New atoms with no test:');
     for (const entry of report.new) lines.push(`  ${entry.atom} (${entry.kind}) ${entry.file}:${entry.line}`);
   }
+  if (report.regression) lines.push(...renderRegression(report.regression));
   if (report.needsPerson.length === 0) lines.push('Nothing needs a person.');
   else {
     lines.push(`Needs a person: ${report.needsPerson.length}.`);
