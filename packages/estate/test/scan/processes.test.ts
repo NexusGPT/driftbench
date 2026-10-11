@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
-import { estate, FIXTURE, NOW } from '../support';
+import { estate, NOW } from '../support';
+import { CASES } from './cases';
 
 describe('step lists in a processes map', () => {
   it('reads one stage catalogue per process, beside the top-level steps', async () => {
@@ -44,9 +45,8 @@ describe('step lists in a processes map', () => {
   });
 
   it('turns each process step into a stage atom linked to the next one of its own process', async () => {
-    const { map } = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({ root: CASES, reader: new ClaudeCodeReader(), now: NOW });
     const stages = map.atoms.filter((atom) => atom.kind === 'stage');
-    // Files are read in name order: processes.json comes before steps.json.
     expect(stages.map((stage) => stage.fields?.id)).toEqual([
       'claim/scan',
       'claim/photos',
@@ -55,11 +55,6 @@ describe('step lists in a processes map', () => {
       'month-close/audit',
       'month-close/report',
       'month-close/note',
-      'plan',
-      'do',
-      'verify',
-      'report',
-      'note',
     ]);
     const next = map.edges
       .filter((edge) => edge.kind === 'next')
@@ -70,7 +65,7 @@ describe('step lists in a processes map', () => {
     expect(next).toContainEqual(['claim/scan', 'claim/photos']);
     expect(next).toContainEqual(['claim/photos', 'claim/file']);
     expect(next).toContainEqual(['month-close/audit', 'month-close/report']);
-    expect(next).not.toContainEqual(['month-close/audit', 'report']);
+    expect(next).not.toContainEqual(['month-close/report', 'claim/scan']);
     expect(stages.find((stage) => stage.fields?.id === 'claim/file')?.evidence).toEqual([
       { type: 'stage_reached', name: 'claim/file' },
     ]);

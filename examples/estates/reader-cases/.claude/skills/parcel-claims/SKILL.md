@@ -8,5 +8,5 @@ allowed-tools: Read, Bash(./scripts/track.sh *)
 
 - Run `./scripts/track.sh <carrier> <number>` first; a claim needs the delivery scan it prints.
 - Write the claim in the supplier's language, from `references/supplier-languages.md`.
-- A claim lists the order number, the parcel count and a photo of each damaged parcel.
+- A claim follows `references/claim-rules.md`.
 - Never promise the user a refund date; the carrier sets it.

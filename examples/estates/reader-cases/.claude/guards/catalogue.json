@@ -14,7 +14,7 @@
       "id": "C2",
       "kind": "judge",
       "event": "Stop",
-      "watches": "R9",
+      "watches": "R2",
       "work": "reads the last reply and counts its questions",
       "status": "observe"
     },
@@ -22,7 +22,7 @@
       "id": "C3",
       "kind": "nudge",
       "event": "Stop",
-      "watches": ["R17"],
+      "watches": ["R3"],
       "work": "asks where a number in the reply was read",
       "status": "off"
     }

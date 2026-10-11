@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
-import { estate, FIXTURE, NOW } from '../support';
+import { estate, NOW } from '../support';
+import { CASES } from './cases';
 
 const RULES = [
   '# Rules',
@@ -135,7 +136,7 @@ describe('a catalogue of checks', () => {
   });
 
   it('lets a registry table name a catalogue check by its id', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+    const raw = await new ClaudeCodeReader().read(CASES);
     expect(
       raw.guards.filter((guard) => guard.check).map((guard) => [guard.check?.id, guard.check?.state]),
     ).toEqual([
