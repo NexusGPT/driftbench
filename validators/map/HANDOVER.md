@@ -30,7 +30,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 0 |
 <!-- level-table:end -->
 
-After pilot iteration 8 (commit 2e61ff9): level 0 of 8 on every seed. The bank (`validators/map/bank.jsonl`): 177 of 456 items pass on seeds 1 to 20 and the hidden seed, score 0.3882; iteration 0 was 166 of 456, score 0.364. Items fixed per iteration so far: 1.38; failing items left: 279; forecast 202.9 iterations.
+After pilot iteration 9 (commit a3e43ca): level 0 of 8 on every seed. The bank (`validators/map/bank.jsonl`): 178 of 456 items pass on seeds 1 to 20 and the hidden seed, score 0.3904; iteration 0 was 166 of 456, score 0.364. Items fixed per iteration so far: 1.33; failing items left: 278; forecast 208.5 iterations.
 
 ## Floor
 
@@ -38,7 +38,7 @@ None: `validators/floors.json` holds no floor for map, so CI reads it as 0. Unde
 
 ## Open items
 
-Level 1 (structured files) passes 64 of 98 items on every seed. Its failing items: inventory-forms.long-item, inventory-forms.markdown-tables, inventory-forms.csv, tool-formats.gemini, tool-formats.gemini-nested, tool-formats.bedrock, tool-formats.openapi, tool-formats.swagger, tool-formats.legacy-functions, tool-formats.agent-config, tool-formats.stringified-parameters, tool-formats.multi-document, tool-formats.jsonc, tool-formats.cohere-v1, tool-formats.vercel-json-schema, schema-keywords.min-max-properties, schema-keywords.one-of, schema-keywords.any-of, schema-keywords.any-of-null, schema-keywords.all-of, schema-keywords.depth-three, schema-keywords.array-of-objects, schema-keywords.array-items-enum, schema-keywords.prefix-items, schema-keywords.contains, schema-keywords.dependent-required, schema-keywords.dependencies, schema-keywords.if-then-else, schema-keywords.not, schema-keywords.closed-object, schema-keywords.additional-properties-schema, schema-keywords.pattern-properties, schema-keywords.discriminator, schema-keywords.recursive-ref. Each item's title names the partition ids the pre-pass must give.
+Level 1 (structured files) passes 65 of 98 items on every seed. Its failing items: inventory-forms.long-item, inventory-forms.markdown-tables, inventory-forms.csv, tool-formats.gemini, tool-formats.gemini-nested, tool-formats.bedrock, tool-formats.openapi, tool-formats.swagger, tool-formats.legacy-functions, tool-formats.agent-config, tool-formats.stringified-parameters, tool-formats.multi-document, tool-formats.jsonc, tool-formats.cohere-v1, tool-formats.vercel-json-schema, schema-keywords.one-of, schema-keywords.any-of, schema-keywords.any-of-null, schema-keywords.all-of, schema-keywords.depth-three, schema-keywords.array-of-objects, schema-keywords.array-items-enum, schema-keywords.prefix-items, schema-keywords.contains, schema-keywords.dependent-required, schema-keywords.dependencies, schema-keywords.if-then-else, schema-keywords.not, schema-keywords.closed-object, schema-keywords.additional-properties-schema, schema-keywords.pattern-properties, schema-keywords.discriminator, schema-keywords.recursive-ref. Each item's title names the partition ids the pre-pass must give.
 
 ## Hypotheses tried
 
@@ -50,6 +50,7 @@ Level 1 (structured files) passes 64 of 98 items on every seed. Its failing item
 * Iteration 6: packages/generate/src/extract/tools.ts: partitionsOf adds null for a type list with null even when the enum already listed null, so schema-keywords.type-null gains a duplicate null-2 value. Result: held; the item passes on every seed (commit c5d444e).
 * Iteration 7: packages/generate/src/extract/tools.ts: walk reads a property's keywords where it stands, so a property that is a $ref gives no partition; schema-keywords.ref-defs and ref-definitions prove it. Result: held; the item passes on every seed (commit ebf9a7a).
 * Iteration 8: packages/generate/src/extract/tools.ts: stringPartitions reads format and pattern only, so a base64 contentEncoding gives no partition; schema-keywords.content-encoding proves it. Result: held; the item passes on every seed (commit 2e61ff9).
+* Iteration 9: packages/generate/src/extract/tools.ts: partitionsOf gives an object no partition from its key count, so schema-keywords.min-max-properties loses its four edges. Result: held; the item passes on every seed (commit a3e43ca).
 
 None was rejected: each iteration fixed the one keyword or shape its item named.
 

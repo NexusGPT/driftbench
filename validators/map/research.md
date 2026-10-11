@@ -97,3 +97,15 @@ Sources read:
 What others do: contentEncoding states a string shape like format does; the shape gives a valid and an invalid partition.
 
 What to try, and why: the tool pre-pass reads contentEncoding: well-formed and malformed, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
+
+## Iteration 9
+
+Question: packages/generate/src/extract/tools.ts: partitionsOf gives an object no partition from its key count, so schema-keywords.min-max-properties loses its four edges.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-validation sections 6.5.1 and 6.5.2 (maxProperties, minProperties)
+* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/research/testgen/dossier-specification.md (source 34: boundary values on and either side of each edge)
+
+What others do: minProperties and maxProperties bound the number of keys like minItems and maxItems bound items; boundary analysis tests each edge and the side outside it.
+
+What to try, and why: the tool pre-pass reads minProperties and maxProperties, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
