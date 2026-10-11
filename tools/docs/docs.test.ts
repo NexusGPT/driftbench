@@ -1,0 +1,113 @@
+import { readFile } from 'node:fs/promises';
+import { basename, join, relative } from 'node:path';
+import { IssueCodes, type LoadResult, parseSpecText } from '@driftbench/core';
+import { describe, expect, it } from 'vitest';
+import { DOCS, markdownFiles } from './check-links';
+
+type Page = { path: string; text: string };
+
+async function pages(): Promise<Page[]> {
+  const files = await markdownFiles(DOCS);
+  return Promise.all(
+    files.map(async (file) => ({ path: relative(DOCS, file), text: await readFile(file, 'utf8') })),
+  );
+}
+
+/** The body of every fenced block with the given language. */
+function fences(markdown: string, lang: string): string[] {
+  const blocks: string[] = [];
+  const pattern = new RegExp(`^\`\`\`${lang}\\n([\\s\\S]*?)^\`\`\`$`, 'gm');
+  for (const match of markdown.matchAll(pattern)) blocks.push(match[1] ?? '');
+  return blocks;
+}
+
+/** Loads a YAML example: a whole spec, a list of blocks, or a top-level fragment such as `target:`. */
+function loadExample(yaml: string): { kind: 'spec' | 'blocks' | 'fragment'; result: LoadResult } {
+  if (/^id:/m.test(yaml) && /^blocks:/m.test(yaml))
+    return { kind: 'spec', result: parseSpecText(yaml, 'yaml') };
+  if (yaml.startsWith('- ')) {
+    const indented = yaml.replace(/^(?=.)/gm, '  ');
+    return { kind: 'blocks', result: parseSpecText(`id: example\nblocks:\n${indented}`, 'yaml') };
+  }
+  return {
+    kind: 'fragment',
+    result: parseSpecText(
+      `id: example\nblocks:\n  - user: hi\n    expect: { must: [hello] }\n${yaml}`,
+      'yaml',
+    ),
+  };
+}
+
+describe('docs content', () => {
+  it('has no em dash and no en dash on any page', async () => {
+    const offending = (await pages()).filter((page) => /[–—]/.test(page.text)).map((page) => page.path);
+    expect(offending).toEqual([]);
+  });
+
+  it('loads every YAML example, and every whole spec lints clean', async () => {
+    let specs = 0;
+    let checked = 0;
+    for (const page of await pages()) {
+      for (const yaml of fences(page.text, 'yaml')) {
+        const { kind, result } = loadExample(yaml);
+        const where = `${page.path}: ${yaml.split('\n')[0]}`;
+        expect(result.ok ? [] : result.errors, where).toEqual([]);
+        if (kind === 'spec') {
+          specs += 1;
+          expect(result.warnings, where).toEqual([]);
+        }
+        checked += 1;
+      }
+    }
+    expect(specs).toBeGreaterThanOrEqual(4);
+    expect(checked).toBeGreaterThanOrEqual(12);
+  });
+
+  it('shows one conversation spec and one task spec on the block page', async () => {
+    const text = await readFile(join(DOCS, 'concepts', 'block.md'), 'utf8');
+    const kinds = fences(text, 'yaml')
+      .map((yaml) => parseSpecText(yaml, 'yaml'))
+      .map((result) => (result.ok ? result.spec.kind : 'invalid'));
+    expect(kinds).toEqual(['conversation', 'task']);
+  });
+
+  it('covers both kinds of block on every concept page, with no separate code-agent page', async () => {
+    const all = await pages();
+    const concepts = all.filter((page) => page.path.startsWith('concepts'));
+    expect(concepts.map((page) => basename(page.path)).sort()).toEqual([
+      'block.md',
+      'drift.md',
+      'given-when-then.md',
+      'judges.md',
+      'recovery.md',
+      'run-modes.md',
+      'statistics.md',
+    ]);
+    for (const page of concepts) {
+      expect(page.text, page.path).toMatch(/conversation/i);
+      expect(page.text, page.path).toMatch(/\btask/i);
+    }
+    expect(all.filter((page) => /code.?agent/i.test(page.path)).map((page) => page.path)).toEqual([]);
+  });
+
+  it('lists every issue code the loader reports on the CLI page', async () => {
+    const text = await readFile(join(DOCS, 'reference', 'cli.md'), 'utf8');
+    expect(IssueCodes.filter((code) => !text.includes(`| \`${code}\` |`))).toEqual([]);
+  });
+
+  it('gives every reference tool cell of the comparison one source and a read date', async () => {
+    const text = await readFile(join(DOCS, 'comparison.md'), 'utf8');
+    const rows = text.split('\n').filter((line) => /^\| \d+ \| /.test(line));
+    expect(rows).toHaveLength(30);
+    for (const row of rows) {
+      const cells = row.split(' | ').slice(2, 9);
+      expect(cells).toHaveLength(7);
+      for (const cell of cells) {
+        const sourced =
+          /^(yes|partial|not found), \[source\]\(https:\/\/[^)\s]+\), read \d{4}-\d{2}-\d{2}$/.test(cell);
+        const unsourced = /^not documented in its docs, read \d{4}-\d{2}-\d{2}$/.test(cell);
+        expect(sourced || unsourced, `${row.slice(0, 40)}: ${cell}`).toBe(true);
+      }
+    }
+  });
+});
