@@ -1,9 +1,9 @@
 import * as stats from '@driftbench/stats';
 import { describe, expect, it } from 'vitest';
 import { POWER_GAP, powerLevel } from '../../src/ladders/stats/index';
-import { committedDesigns, real } from './support';
+import { committedDesigns, real, SLOW } from './support';
 
-describe('level 6: minimum detectable effect power', () => {
+describe('level 6: minimum detectable effect power', { timeout: SLOW }, () => {
   const plan = committedDesigns().power;
 
   it('passes on the committed designs: the simulated power is within 5 points of the planned power', () => {

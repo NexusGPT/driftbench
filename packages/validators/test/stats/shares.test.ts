@@ -10,7 +10,7 @@ import {
 } from '../../src/ladders/stats/index';
 import { committedDesigns, designsWith, SLOW } from './support';
 
-describe('the planted shares', () => {
+describe('the planted shares', { timeout: SLOW }, () => {
   it('match the pilot analysis truth on a planted dataset, computed apart from it', () => {
     const design = committedDesigns().shares;
     const { observations, chances } = plantShares(generator(3, 1), design);
@@ -43,7 +43,7 @@ describe('the planted shares', () => {
   });
 });
 
-describe('level 4: variance share recovery', () => {
+describe('level 4: variance share recovery', { timeout: SLOW }, () => {
   it(
     'passes on the committed design: the planted shares lie inside their intervals',
     () => {

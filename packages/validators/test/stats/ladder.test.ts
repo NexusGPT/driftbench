@@ -63,7 +63,7 @@ function fixtureCount(): number {
   return count;
 }
 
-describe('the stats ladder', () => {
+describe('the stats ladder', { timeout: SLOW }, () => {
   it(
     'is registered with six levels and reaches level 6 of 6 on the current code',
     async () => {

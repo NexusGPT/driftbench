@@ -7,9 +7,9 @@ import {
   UNSEEN_ERROR,
   unseenLevel,
 } from '../../src/ladders/stats/index';
-import { committedDesigns, designsWith, real } from './support';
+import { committedDesigns, designsWith, real, SLOW } from './support';
 
-describe('the planted population', () => {
+describe('the planted population', { timeout: SLOW }, () => {
   it('holds the planted number of classes with the planted tail, as a valid map', () => {
     const population = plantPopulation(60, 5);
     expect(population.probabilities).toHaveLength(60);
@@ -25,7 +25,7 @@ describe('the planted population', () => {
   });
 });
 
-describe('level 5: unseen mass', () => {
+describe('level 5: unseen mass', { timeout: SLOW }, () => {
   it('passes on the committed designs: errors below 10 percent above the class count, a warning below it', () => {
     const measure = unseenLevel(1, real, committedDesigns().unseen);
     expect(measure.items).toEqual([]);

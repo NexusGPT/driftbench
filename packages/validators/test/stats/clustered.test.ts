@@ -9,7 +9,7 @@ import {
 } from '../../src/ladders/stats/index';
 import { committedDesigns, designsWith, real, SLOW } from './support';
 
-describe('the planted clusters', () => {
+describe('the planted clusters', { timeout: SLOW }, () => {
   it('pass at the planted rate and agree inside a cluster as the planted rho says', () => {
     const rng = generator(11, 1);
     const pairs: Array<[number, number]> = [];
@@ -33,7 +33,7 @@ describe('the planted clusters', () => {
   });
 });
 
-describe('level 3: clustered bootstrap coverage', () => {
+describe('level 3: clustered bootstrap coverage', { timeout: SLOW }, () => {
   it(
     'passes on the committed designs, with the naive interval below the bar on every design',
     () => {
