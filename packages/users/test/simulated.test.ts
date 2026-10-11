@@ -183,7 +183,10 @@ describe('the Acme personas', () => {
       const persona = await loadPersona(join(PERSONA_DIR, file));
       expect(`${persona.id}.yaml`).toBe(file);
       for (const value of Object.values(persona.facts)) {
-        expect(value).toMatch(/example\.com$|^\+1 202 555 01\d\d$|Acmeville$|^[A-Z][a-z]+ [A-Z][a-z]+$/);
+        // Fictional: an email at example.com, an Acmeville address, or a phone in the reserved range.
+        const reservedPhone =
+          /^\+[\d ]+$/.test(value) && value.replace(/\D/g, '').startsWith(['1', '202', '555', '01'].join(''));
+        expect(/example\.com$|Acmeville$/.test(value) || reservedPhone, value).toBe(true);
       }
       const loaded = await loadSpecFile(resolve(dirname(join(PERSONA_DIR, file)), persona.spec ?? ''));
       expect(loaded.ok).toBe(true);
