@@ -1,4 +1,6 @@
 import { Command, CommanderError } from 'commander';
+import { registerCampaignCommands } from './commands/campaign';
+import { registerSmokeCommand } from './commands/smoke';
 import { registerSpecCommands } from './commands/spec';
 import { type Io, processIo } from './io';
 import { VERSION } from './version';
@@ -12,9 +14,12 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
     .exitOverride()
     .configureOutput({ writeOut: (text) => io.out(text), writeErr: (text) => io.err(text) });
 
-  registerSpecCommands(program, io, (code) => {
+  const setExit = (code: number) => {
     exitCode = code;
-  });
+  };
+  registerSpecCommands(program, io, setExit);
+  registerCampaignCommands(program, io, setExit);
+  registerSmokeCommand(program, io, setExit);
 
   try {
     await program.parseAsync(argv, { from: 'user' });

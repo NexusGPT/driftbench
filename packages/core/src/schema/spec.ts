@@ -50,6 +50,7 @@ export const GivenDefaults = z
       .describe('Runtime variables, such as the clock, the channel or the sender.'),
   })
   .describe('Initial conditions set on the whole spec.');
+export type GivenDefaults = z.infer<typeof GivenDefaults>;
 
 /**
  * Initial conditions set on one block. A prefix lets the block start without replaying the ones before;
@@ -72,6 +73,7 @@ export const GivenOverride = z
   .describe(
     'Initial conditions set on one block. A prefix lets the block start without replaying the ones before.',
   );
+export type GivenOverride = z.infer<typeof GivenOverride>;
 
 export const ToolExpect = z
   .strictObject({
@@ -91,6 +93,7 @@ export const CardExpect = z
     count: Count.optional().describe('How many times the card is sent.'),
   })
   .describe('One expected card.');
+export type CardExpect = z.infer<typeof CardExpect>;
 
 export const SkillExpect = z
   .strictObject({
@@ -98,6 +101,7 @@ export const SkillExpect = z
     count: Count.optional().describe('How many times the skill is loaded.'),
   })
   .describe('One expected skill.');
+export type SkillExpect = z.infer<typeof SkillExpect>;
 
 /** A runtime check that fired during the block: a hook, a guardrail, a policy. The adapter maps the runtime's own names. */
 export const GuardExpect = z
@@ -122,11 +126,13 @@ export const ExecutionExpect = z
     max_commands: z.number().int().min(0).optional().describe('The most commands the block may run.'),
   })
   .describe('What the agent runs in the block.');
+export type ExecutionExpect = z.infer<typeof ExecutionExpect>;
 
 /** One check on a produced file. The key names the check, for example `{ sheets: [North, South] }`. */
 export const ArtifactCheck = z
   .record(z.string(), z.unknown())
   .describe('One check on a produced file. The key names the check, for example { sheets: [North, South] }.');
+export type ArtifactCheck = z.infer<typeof ArtifactCheck>;
 
 export const ArtifactExpect = z
   .strictObject({
@@ -138,6 +144,7 @@ export const ArtifactExpect = z
     checks: z.array(ArtifactCheck).optional().describe('Checks on the content of the file.'),
   })
   .describe('A file the block must produce.');
+export type ArtifactExpect = z.infer<typeof ArtifactExpect>;
 
 export const WorkspaceExpect = z
   .strictObject({
@@ -147,6 +154,7 @@ export const WorkspaceExpect = z
     others_untouched: z.boolean().optional().describe('True when no other path may change.'),
   })
   .describe('The workspace diff of the block.');
+export type WorkspaceExpect = z.infer<typeof WorkspaceExpect>;
 
 export const SafetyExpect = z
   .strictObject({
@@ -162,6 +170,7 @@ export const SafetyExpect = z
       .describe('Operations that need a confirmation first, such as delete or send.'),
   })
   .describe('Limits on destructive or irreversible operations.');
+export type SafetyExpect = z.infer<typeof SafetyExpect>;
 
 /**
  * The expected output and state delta of a block. Every field is optional.
@@ -226,6 +235,7 @@ export const RecoveryExpect = z
       .describe('A pattern the first in-flow reply after the deviation must match.'),
   })
   .describe('How the agent should come back after an injected deviation.');
+export type RecoveryExpect = z.infer<typeof RecoveryExpect>;
 
 /** A deviation inserted before block `inject_at` (0-based) when the spec runs in perturbed mode. */
 export const PerturbationSpec = z
@@ -271,6 +281,7 @@ export const Rules = z
       .describe('Reserved for user-registered checks (planned, phase 1).'),
   })
   .describe('Rules that hold for the whole conversation.');
+export type Rules = z.infer<typeof Rules>;
 
 /** The expected end state of the world, read from a source the adapter knows, such as a tool's recorded payload. */
 export const EndStateSpec = z
@@ -285,11 +296,13 @@ export const EndStateSpec = z
   .describe(
     'The expected end state of the world, read from a source the adapter knows, such as a tool payload.',
   );
+export type EndStateSpec = z.infer<typeof EndStateSpec>;
 export const EndState = z
   .union([z.literal('none'), EndStateSpec, z.array(EndStateSpec).min(1)])
   .describe(
     'none asserts that nothing was submitted; a mapping or a list of mappings names what to check; absent means no end-state check.',
   );
+export type EndState = z.infer<typeof EndState>;
 
 /** A judged criterion. Blocks reference it by name, with `@gating` when a fail fails the conversation. */
 export const CriterionDef = z

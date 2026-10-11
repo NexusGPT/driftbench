@@ -17,5 +17,9 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
+  },
+  "dependencies": {
+    "@driftbench/core": "workspace:*",
+    "franc-min": "^6.2.0"
   }
 }

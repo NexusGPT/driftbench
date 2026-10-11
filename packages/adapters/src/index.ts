@@ -1,2 +1,9 @@
-/** Agent adapters: function, HTTP, SDK agents, graphs, processes and Nexus. Implementation lands in Phase 1 and Phase 5. */
+/**
+ * @driftbench/adapters: the agent adapters (function, http, nexus, process) and the contract suite
+ * every adapter passes. Phase 1.
+ */
 export const packageName = '@driftbench/adapters';
+export * from './function';
+export * from './http';
+export * from './nexus';
+export * from './process';

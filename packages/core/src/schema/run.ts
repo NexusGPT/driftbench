@@ -34,14 +34,28 @@ export const ToolCall = z.strictObject({
 });
 export type ToolCall = z.infer<typeof ToolCall>;
 
+export const Cost = z.strictObject({
+  usd: z.number().nonnegative().optional(),
+  inputTokens: z.number().int().nonnegative().optional(),
+  outputTokens: z.number().int().nonnegative().optional(),
+});
+export type Cost = z.infer<typeof Cost>;
+
+/** Cost and latency an adapter can attach to one segment when its runtime reports them. */
+const segmentMeasure = {
+  cost: Cost.optional(),
+  latencyMs: z.number().nonnegative().optional(),
+};
+
 /** One piece of what the agent produced in a block, in order. */
 export const Segment = z.discriminatedUnion('type', [
-  z.strictObject({ type: z.literal('text'), text: z.string() }),
+  z.strictObject({ type: z.literal('text'), text: z.string(), ...segmentMeasure }),
   z.strictObject({
     type: z.literal('tool_call'),
     id: z.string().optional(),
     label: z.string().min(1),
     input: z.unknown(),
+    ...segmentMeasure,
   }),
   z.strictObject({
     type: z.literal('tool_result'),
@@ -49,10 +63,45 @@ export const Segment = z.discriminatedUnion('type', [
     label: z.string().min(1),
     output: z.unknown(),
     error: z.string().optional(),
+    ...segmentMeasure,
   }),
-  z.strictObject({ type: z.literal('card'), name: z.string().min(1), data: z.unknown().optional() }),
+  z.strictObject({
+    type: z.literal('card'),
+    name: z.string().min(1),
+    data: z.unknown().optional(),
+    ...segmentMeasure,
+  }),
 ]);
 export type Segment = z.infer<typeof Segment>;
+
+/** A file the agent left in its workspace. */
+export const ArtifactRef = z.strictObject({
+  path: z.string(),
+  kind: z.string().optional(),
+  sha256: z.string().optional(),
+  bytes: z.number().int().nonnegative().optional(),
+});
+export type ArtifactRef = z.infer<typeof ArtifactRef>;
+
+/** What changed in the workspace during a block. */
+export const WorkspaceDiff = z.strictObject({
+  created: z.array(z.string()),
+  changed: z.array(z.string()),
+  deleted: z.array(z.string()),
+});
+export type WorkspaceDiff = z.infer<typeof WorkspaceDiff>;
+
+/** One command the agent ran, with bounded output. */
+export const ExecutionRecord = z.strictObject({
+  command: z.string(),
+  exitCode: z.number().int(),
+  stdout: z.string().optional(),
+  stderr: z.string().optional(),
+  startedAt: z.string().optional(),
+  latencyMs: z.number().nonnegative().optional(),
+  truncated: z.boolean().optional(),
+});
+export type ExecutionRecord = z.infer<typeof ExecutionRecord>;
 
 /**
  * What the agent's runtime did around the model: capabilities loaded, checks that fired, stages reached.
@@ -67,38 +116,15 @@ export const RuntimeTrace = z.strictObject({
 });
 export type RuntimeTrace = z.infer<typeof RuntimeTrace>;
 
-export const Cost = z.strictObject({
-  usd: z.number().nonnegative().optional(),
-  inputTokens: z.number().int().nonnegative().optional(),
-  outputTokens: z.number().int().nonnegative().optional(),
-});
-
 /** Everything observed in one block. */
 export const Observed = z.strictObject({
   segments: z.array(Segment),
   text: z.string(),
   toolCalls: z.array(ToolCall),
   runtime: RuntimeTrace.optional(),
-  artifacts: z
-    .array(z.strictObject({ path: z.string(), kind: z.string().optional(), sha256: z.string().optional() }))
-    .optional(),
-  workspaceDiff: z
-    .strictObject({
-      created: z.array(z.string()),
-      changed: z.array(z.string()),
-      deleted: z.array(z.string()),
-    })
-    .optional(),
-  executions: z
-    .array(
-      z.strictObject({
-        command: z.string(),
-        exitCode: z.number().int(),
-        stdout: z.string().optional(),
-        stderr: z.string().optional(),
-      }),
-    )
-    .optional(),
+  artifacts: z.array(ArtifactRef).optional(),
+  workspaceDiff: WorkspaceDiff.optional(),
+  executions: z.array(ExecutionRecord).optional(),
   cost: Cost,
   latencyMs: z.number().nonnegative(),
   raw: z.unknown().optional(),

@@ -12,6 +12,7 @@ const packages = [
   'store',
   'report',
   'battery',
+  'artifacts',
 ];
 
 export default defineConfig({

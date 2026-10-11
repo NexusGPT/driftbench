@@ -1,3 +1,4 @@
+export * from './contracts';
 export * from './coverage';
 export * from './schema/common';
 export * from './schema/run';
