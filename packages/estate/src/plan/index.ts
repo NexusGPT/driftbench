@@ -19,3 +19,10 @@ export {
   START,
   transitionId,
 } from './journeys';
+export {
+  type PairwiseCell,
+  type PairwiseOptions,
+  type PairwiseResult,
+  pairwiseCells,
+  TARGET_PREFIX,
+} from './pairwise';
