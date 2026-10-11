@@ -1,6 +1,6 @@
-import type { Message, TargetRef, WorldState } from '../schema/common';
+import type { Assertion, Count, Message, TargetRef, WorldState } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
-import type { GivenOverride, Spec, Stimulus } from '../schema/spec';
+import type { Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { contentHash } from '../spec/hash';
 import { deepEqual } from './assertion';
 
@@ -85,6 +85,73 @@ export function addFacts(
     }
   }
   return { ledger: { ...ledger, ...facts }, contradictions };
+}
+
+/**
+ * The canonical Given of spec block `blockIndex`, for teacher-forced mode: what the block starts from when
+ * every earlier block went as the spec writes it, never from what an agent did.
+ *
+ * Ledger, world and vars: the spec's `given`, then each block's own `given` up to and including this one,
+ * merged as in a free-running run; the ledger also holds the `ledger_add` of every earlier block.
+ *
+ * Prefix: the latest `given.prefix` a block up to this one writes (empty when none does), then, for each
+ * block from there to the one before this, its user message(s) and a canonical assistant message. The spec
+ * format holds no reply text, so that message has empty text; it carries the tool calls the block expects
+ * (each expected tool as many times as its count asks, at least its `min`, once when no count is given),
+ * with the input fields the spec asserts as exact values, and the result or error the spec's world forces
+ * for that tool at that block. A tool the world does not force has no recorded result: an agent that
+ * replays its past turns reads it again.
+ */
+export function canonicalGiven(spec: Spec, blockIndex: number): { state: RunningGiven; prefix: Message[] } {
+  let state = initialGiven(spec);
+  let prefix: Message[] = [];
+  for (let index = 0; index <= blockIndex; index++) {
+    const block = spec.blocks[index];
+    if (!block) break;
+    state = enterBlock(state, block.given);
+    if (block.given?.prefix) prefix = structuredClone(block.given.prefix);
+    if (index === blockIndex) break;
+    prefix.push(...stimulusMessages(block.when), canonicalReply(block.expect, state.world));
+    state = { ...state, ledger: { ...state.ledger, ...block.expect?.ledger_add } };
+  }
+  return { state, prefix };
+}
+
+/** The assistant message a teacher-forced prefix keeps for one earlier block: no text, the expected calls. */
+export function canonicalReply(expect: Expect | undefined, world: WorldState): Message {
+  const calls: RecordedCall[] = [];
+  for (const tool of expect?.tools ?? []) {
+    const times = canonicalCount(tool.count);
+    const input: { [field: string]: Json } = {};
+    for (const [field, assertion] of Object.entries(tool.input ?? {})) {
+      const exact = exactValue(assertion);
+      if (exact.known) input[field] = exact.value;
+    }
+    const forced = world.tools?.[tool.label];
+    for (let n = 0; n < times; n++) {
+      const call: RecordedCall = { label: tool.label, input: structuredClone(input) as Json };
+      if (forced?.error !== undefined) call.error = forced.error;
+      else if (forced?.result !== undefined) call.output = structuredClone(forced.result);
+      calls.push(call);
+    }
+  }
+  return calls.length > 0
+    ? { role: 'assistant', content: '', tool_calls: calls }
+    : { role: 'assistant', content: '' };
+}
+
+/** How many calls a canonical reply records for an expected count: the count, its min, or 1 without one. */
+function canonicalCount(count: Count | undefined): number {
+  if (count === undefined) return 1;
+  if (typeof count === 'number') return count;
+  return count.min ?? 0;
+}
+
+/** The value an assertion pins exactly: a bare scalar, or `{ exact }`. Patterns and ranges pin none. */
+function exactValue(assertion: Assertion): { known: true; value: Json } | { known: false } {
+  if (assertion === null || typeof assertion !== 'object') return { known: true, value: assertion };
+  if ('exact' in assertion) return { known: true, value: assertion.exact as Json };
+  return { known: false };
 }
 
 /** The user messages a stimulus sends: one message, the messages of a burst, or the injected message. */

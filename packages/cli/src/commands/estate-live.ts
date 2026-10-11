@@ -1,0 +1,445 @@
+import { mkdir, open, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@driftbench/adapters';
+import { type Campaign, contentHash, type RunResult, runSpec, type Store } from '@driftbench/core';
+import {
+  copyEstate,
+  type EstateMap,
+  loadEstateMap,
+  MutantError,
+  type MutantResult,
+  mutateEstate,
+  quoteDrift,
+  renderEstateMap,
+} from '@driftbench/estate';
+import { localProvider } from '@driftbench/sandbox';
+import { openStore } from '@driftbench/store';
+import { createScriptedDriver } from '@driftbench/users';
+import type { Command } from 'commander';
+import type { Io } from '../io';
+import { loadValidSpecs } from './campaign';
+import { replayChecks } from './replay';
+
+/** Adds `estate mutate` and `estate run` to `driftbench estate`. */
+export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (code: number) => void): void {
+  estate
+    .command('mutate')
+    .description('Copy the estate and delete or invert one atom in the copy, for the adequacy of its tests')
+    .argument('<map>', 'the approved estate map')
+    .requiredOption('--atom <id>', 'the atom to mutate')
+    .option('--delete', 'remove the quoted span from its file')
+    .option('--invert', 'replace the quote by its negation, by the fixed table of forms')
+    .requiredOption(
+      '--to <dir>',
+      'the folder of the mutant estate (it receives the copy, map.yaml, mutant.json)',
+    )
+    .option('--force', 'replace an earlier mutant in the folder')
+    .option('--json', 'print the result as JSON')
+    .action(async (map: string, options: EstateMutateOptions) => {
+      setExit(await estateMutateCommand(map, options, io));
+    });
+  estate
+    .command('run')
+    .description(
+      'Run live estate specs through the runtime headless, in a sandbox holding a copy of the estate',
+    )
+    .argument('<specs...>', 'the live spec files or folders')
+    .requiredOption('--estate <root>', 'the estate root (or a mutant folder of estate mutate)')
+    .requiredOption('--runtime <name>', 'the runtime adapter: claude-code')
+    .option('--command <bin>', `the headless command (default ${DEFAULT_RUNTIME_COMMAND})`)
+    .requiredOption('--store <db>', 'the store the runs are written to')
+    .option('--map <file>', "the estate's approved map: pins the copy to its hash and checks its quotes")
+    .option('--states <file>', 'the state library: operations by session state and event')
+    .option(
+      '--pass-env <names...>',
+      "names of the evaluator's variables the runtime receives (its credentials)",
+    )
+    .option('--timeout <ms>', 'kill a turn after this long')
+    .option('--allow-billed', 'run a command that is not a stand-in: a billed live run')
+    .option('--json', 'print one JSON document')
+    .action(async (specs: string[], options: EstateRunOptions) => {
+      setExit(await estateRunCommand(specs, options, io));
+    });
+}
+
+export const DEFAULT_RUNTIME_COMMAND = 'claude';
+/** The line a stand-in command carries in its first lines. Any other command is billed. */
+export const STAND_IN_MARKER = '@driftbench-stand-in';
+
+export type EstateRunOptions = {
+  estate: string;
+  runtime: string;
+  command?: string;
+  store: string;
+  map?: string;
+  states?: string;
+  passEnv?: string[];
+  timeout?: string;
+  allowBilled?: boolean;
+  json?: boolean;
+};
+
+type RunLine = {
+  spec: string;
+  runId: string;
+  status: RunResult['status'];
+  pass: boolean;
+  failing: string[];
+  costUsd: number | null;
+  error?: string;
+};
+
+/**
+ * Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs): an unknown
+ * runtime, an estate that is not a folder or drifted from its map, invalid specs, a billed command without
+ * --allow-billed.
+ *
+ * The command is billed unless it is a file that carries the stand-in marker in its first lines: without
+ * --allow-billed only a stand-in runs (the sizing card rule: a billed run waits for its card). The copy is
+ * pinned to the map's hash with --map, to the original and the mutant hash in a mutant folder, and left
+ * unpinned otherwise (a note says so). Each spec runs once, in mode F, through the runner with the default
+ * checks and the ordered-pair check; judged criteria are not run. The cost of a run is what the stream's
+ * result records say.
+ */
+export async function estateRunCommand(
+  specPaths: string[],
+  options: EstateRunOptions,
+  io: Io,
+): Promise<number> {
+  if (options.runtime !== 'claude-code') {
+    io.err(`--runtime ${options.runtime} is not supported; the live runner exists for claude-code.\n`);
+    return 2;
+  }
+  const root = resolve(io.cwd, options.estate);
+  if (!(await stat(root).catch(() => undefined))?.isDirectory()) {
+    io.err(`The estate ${options.estate} is not a folder.\n`);
+    return 2;
+  }
+  const command = options.command ?? DEFAULT_RUNTIME_COMMAND;
+  const commandPath = command.includes('/') ? resolve(io.cwd, command) : command;
+  const standIn = await isStandIn(commandPath);
+  if (!standIn && !options.allowBilled) {
+    io.err(
+      `${command} is not a stand-in: a live run of the real runtime is billed. Size it first, then pass --allow-billed.\n`,
+    );
+    return 2;
+  }
+  let timeoutMs: number | undefined;
+  if (options.timeout !== undefined) {
+    timeoutMs = Number(options.timeout);
+    if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) {
+      io.err(`--timeout is a whole number of milliseconds, got "${options.timeout}".\n`);
+      return 2;
+    }
+  }
+
+  const notes: string[] = [];
+  let pins: string[] = [];
+  if (options.map !== undefined) {
+    const loaded = await loadEstateMap(resolve(io.cwd, options.map));
+    if (!loaded.ok) {
+      io.err(`The map ${options.map} is not valid:\n`);
+      for (const issue of loaded.errors)
+        io.err(`    ${issue.path || '(file)'}  ${issue.code}  ${issue.message}\n`);
+      return 2;
+    }
+    const drift = await driftOf(root, loaded.map);
+    if (drift.length > 0) {
+      io.err(`The estate ${options.estate} does not match the map ${options.map}:\n`);
+      for (const message of drift.slice(0, 10)) io.err(`    ${message}\n`);
+      return 2;
+    }
+    pins = [loaded.map.hash];
+  } else {
+    const mutant = await readMutant(root);
+    if (mutant !== undefined) {
+      pins = [mutant.originalMapHash, mutant.mapHash];
+      notes.push(
+        `mutant of ${mutant.atom} (${mutant.op}): specs of the map ${mutant.originalMapHash.slice(0, 12)} run on it`,
+      );
+    } else notes.push('the estate copy is not pinned to a map hash; pass --map to pin it');
+  }
+
+  let library: StateLibrary | undefined;
+  if (options.states !== undefined) {
+    try {
+      library = await loadStateLibrary(resolve(io.cwd, options.states));
+    } catch (cause) {
+      io.err(`The state library ${options.states} cannot be read: ${describe(cause)}\n`);
+      return 2;
+    }
+  }
+  const env: Record<string, string> = {};
+  for (const name of options.passEnv ?? []) {
+    const value = process.env[name];
+    if (value === undefined) notes.push(`${name} is not set; the runtime runs without it`);
+    else env[name] = value;
+  }
+
+  const loaded = await loadValidSpecs(specPaths, io);
+  if (!loaded) return 2;
+  const specs = loaded.filter((entry) => {
+    const adapter = entry.spec.target?.adapter;
+    if (adapter !== undefined && adapter !== 'claude-code') {
+      notes.push(`${entry.spec.id} targets ${adapter}; skipped`);
+      return false;
+    }
+    if (entry.spec.criteria?.length || entry.spec.blocks.some((block) => block.expect?.criteria?.length)) {
+      notes.push(`${entry.spec.id}: judged criteria are not run`);
+    }
+    return true;
+  });
+  if (specs.length === 0) {
+    io.err('No spec targets the claude-code runtime: nothing ran.\n');
+    return 2;
+  }
+
+  let store: Store;
+  const storePath = resolve(io.cwd, options.store);
+  try {
+    store = await openStore(storePath);
+  } catch (cause) {
+    io.err(`Cannot open the store at ${storePath}: ${describe(cause)}\n`);
+    return 2;
+  }
+  const lines: RunLine[] = [];
+  let campaignId: string;
+  try {
+    const createdAt = new Date().toISOString();
+    const target = { adapter: 'claude-code', agent: pins[pins.length - 1]?.slice(0, 12) ?? 'unpinned' };
+    const entries = specs.map((entry) => ({ id: entry.spec.id, hash: entry.hash }));
+    campaignId = `estate-run-${contentHash({ entries, target, command, createdAt })}`;
+    for (const entry of specs) await store.putSpec(entry);
+    const campaign: Campaign = {
+      campaignId,
+      specs: entries,
+      targets: [target],
+      modes: ['F'],
+      repeats: { T: 0, F: 1, P: 0 },
+      budgetUsd: 0,
+      judge: { mode: 'system1', judges: [] },
+      createdAt,
+    };
+    await store.putCampaign(campaign);
+    const checks = replayChecks();
+    for (const entry of specs) {
+      const adapter = claudeCodeLiveAdapter({
+        command: commandPath,
+        estateRoot: root,
+        provider: localProvider(),
+        pins,
+        ...(library === undefined ? {} : { library }),
+        env,
+        ...(timeoutMs === undefined ? {} : { timeoutMs }),
+        ...(standIn ? { retries: { backoffMs: 0 } } : {}),
+      });
+      const run = await runSpec(entry.spec, {
+        adapter,
+        driver: createScriptedDriver(),
+        checks,
+        mode: 'F',
+        repeat: 0,
+        target,
+        store,
+        campaignId,
+      });
+      lines.push(lineOf(run));
+    }
+  } catch (cause) {
+    io.err(`The live run stopped: ${describe(cause)}\n`);
+    await store.close().catch(() => undefined);
+    return 2;
+  }
+  await store.close();
+
+  const passed = lines.filter((line) => line.pass).length;
+  const costs = lines.map((line) => line.costUsd).filter((cost): cost is number => cost !== null);
+  const total = costs.reduce((sum, cost) => sum + cost, 0);
+  if (options.json) {
+    io.out(
+      `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, runs: lines, passed, failed: lines.length - passed, costUsd: total }, null, 2)}\n`,
+    );
+  } else {
+    for (const note of notes) io.out(`note: ${note}\n`);
+    for (const line of lines) {
+      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : '✗';
+      const cost = line.costUsd === null ? 'no cost in the stream' : `${line.costUsd.toFixed(4)} USD`;
+      io.out(`${mark} ${line.spec}  (${cost})\n`);
+      if (line.error) io.out(`    error: ${line.error}\n`);
+      if (line.failing.length > 0) io.out(`    failing: ${line.failing.join(', ')}\n`);
+    }
+    io.out(
+      `${lines.length} spec${lines.length === 1 ? '' : 's'} run live${standIn ? ' on a stand-in' : ''}: ${passed} pass, ${lines.length - passed} fail. Cost ${total.toFixed(4)} USD over ${costs.length} run${costs.length === 1 ? '' : 's'} that report one. Campaign ${campaignId}.\n`,
+    );
+  }
+  return passed === lines.length ? 0 : 1;
+}
+
+function lineOf(run: RunResult): RunLine {
+  const failing = run.blocks.flatMap((block) =>
+    block.verdicts
+      .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
+      .map(
+        (verdict) =>
+          `block ${block.index}: ${verdict.id}${verdict.outcome === 'inconclusive' ? ' (inconclusive)' : ''}`,
+      ),
+  );
+  const reported = run.blocks.filter((block) => block.observed.cost.usd !== undefined);
+  return {
+    spec: run.specId,
+    runId: run.runId,
+    status: run.status,
+    pass:
+      run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false,
+    failing,
+    costUsd:
+      reported.length === 0 ? null : reported.reduce((sum, block) => sum + (block.observed.cost.usd ?? 0), 0),
+    ...(run.error === undefined ? {} : { error: run.error }),
+  };
+}
+
+/** True when the command is a file that names itself a stand-in in its first lines. */
+async function isStandIn(command: string): Promise<boolean> {
+  if (!command.includes('/')) return false;
+  const handle = await open(command, 'r').catch(() => undefined);
+  if (!handle) return false;
+  try {
+    const buffer = Buffer.alloc(2048);
+    const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
+    return buffer.subarray(0, bytesRead).toString('utf8').includes(STAND_IN_MARKER);
+  } finally {
+    await handle.close();
+  }
+}
+
+async function readMutant(root: string): Promise<MutantRecord | undefined> {
+  const text = await readFile(join(root, MUTANT_FILE), 'utf8').catch(() => undefined);
+  if (text === undefined) return undefined;
+  const record = JSON.parse(text) as MutantRecord;
+  return typeof record.originalMapHash === 'string' && typeof record.mapHash === 'string'
+    ? record
+    : undefined;
+}
+
+export type EstateMutateOptions = {
+  atom: string;
+  delete?: boolean;
+  invert?: boolean;
+  to: string;
+  force?: boolean;
+  json?: boolean;
+};
+
+/** The file a mutant folder carries beside its estate copy, naming what was mutated and from which map. */
+export const MUTANT_FILE = 'mutant.json';
+export const MUTANT_MAP_FILE = 'map.yaml';
+
+export type MutantRecord = {
+  atom: string;
+  op: 'delete' | 'invert';
+  file: string;
+  before: string;
+  after: string;
+  originalMapHash: string;
+  mapHash: string;
+  collateral: string[];
+};
+
+/**
+ * Exit 0 when the mutant is written, 2 on a usage or input error (nothing is written): an invalid map, an
+ * estate whose quotes drifted from the map, an unknown atom, a quote the table cannot invert, a folder that
+ * is not empty without --force.
+ */
+export async function estateMutateCommand(
+  mapArg: string,
+  options: EstateMutateOptions,
+  io: Io,
+): Promise<number> {
+  if (Boolean(options.delete) === Boolean(options.invert)) {
+    io.err('Name one mutation: --delete or --invert.\n');
+    return 2;
+  }
+  const mapPath = resolve(io.cwd, mapArg);
+  const loaded = await loadEstateMap(mapPath);
+  if (!loaded.ok) {
+    io.err(`The map ${mapArg} is not valid:\n`);
+    for (const issue of loaded.errors)
+      io.err(`    ${issue.path || '(file)'}  ${issue.code}  ${issue.message}\n`);
+    return 2;
+  }
+  const map = loaded.map;
+  const root = resolve(dirname(mapPath), map.root);
+  const drift = await driftOf(root, map);
+  if (drift.length > 0) {
+    io.err(`The estate at ${root} no longer matches the map; scan it again first:\n`);
+    for (const message of drift.slice(0, 10)) io.err(`    ${message}\n`);
+    return 2;
+  }
+  if (!map.atoms.some((atom) => atom.id === options.atom)) {
+    io.err(`Atom ${options.atom} is not in the map.\n`);
+    return 2;
+  }
+  const to = resolve(io.cwd, options.to);
+  const existing = await readdir(to).catch(() => undefined);
+  if (existing !== undefined && existing.length > 0) {
+    if (!options.force) {
+      io.err(`${options.to} is not empty; pass --force to replace an earlier mutant.\n`);
+      return 2;
+    }
+    if (!existing.includes(MUTANT_FILE)) {
+      io.err(`${options.to} holds no ${MUTANT_FILE}; --force replaces a mutant folder only.\n`);
+      return 2;
+    }
+    await rm(to, { recursive: true, force: true });
+  }
+  await mkdir(to, { recursive: true });
+  let result: MutantResult;
+  try {
+    await copyEstate(root, to, map);
+    result = await mutateEstate(
+      { root: to, map },
+      options.delete ? { delete: options.atom } : { invert: options.atom },
+    );
+  } catch (cause) {
+    await rm(to, { recursive: true, force: true });
+    io.err(`${cause instanceof MutantError ? '' : 'The mutant could not be made: '}${describe(cause)}\n`);
+    return 2;
+  }
+  const record: MutantRecord = {
+    atom: result.atom,
+    op: result.op,
+    file: result.file,
+    before: result.before,
+    after: result.after,
+    originalMapHash: result.originalMapHash,
+    mapHash: result.mapHash,
+    collateral: result.collateral,
+  };
+  await writeFile(join(to, MUTANT_FILE), `${JSON.stringify(record, null, 2)}\n`);
+  await writeFile(join(to, MUTANT_MAP_FILE), renderEstateMap({ ...result.map, root: '.' }));
+  if (options.json) io.out(`${JSON.stringify(record, null, 2)}\n`);
+  else {
+    io.out(`Mutant: ${result.op} ${result.atom} in ${result.file}.\n`);
+    io.out(`  before: ${result.before}\n`);
+    io.out(`  after:  ${result.after === '' ? '(the line is gone)' : result.after}\n`);
+    io.out(`  map ${result.originalMapHash.slice(0, 12)} -> ${result.mapHash.slice(0, 12)}\n`);
+    if (result.collateral.length > 0) io.out(`  collateral: ${result.collateral.join(', ')}\n`);
+    io.out(`Wrote ${options.to}: the estate copy, ${MUTANT_MAP_FILE} and ${MUTANT_FILE}.\n`);
+  }
+  return 0;
+}
+
+/** The atoms whose quote is not at its span in the estate, as messages. */
+async function driftOf(root: string, map: EstateMap): Promise<string[]> {
+  const texts = new Map<string, string>();
+  for (const file of new Set(map.atoms.map((atom) => atom.provenance.file))) {
+    const text = await readFile(join(root, file), 'utf8').catch(() => undefined);
+    if (text !== undefined) texts.set(file, text);
+  }
+  if ((await stat(root).catch(() => undefined)) === undefined) return [`${root} does not exist`];
+  return quoteDrift(map.atoms, texts).map((issue) => issue.message);
+}
+
+function describe(cause: unknown): string {
+  return cause instanceof Error ? cause.message : String(cause);
+}

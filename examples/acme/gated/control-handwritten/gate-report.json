@@ -64,8 +64,8 @@
     "specs": 7,
     "specs_run": 7,
     "blocks": 28,
-    "accepted": 21,
-    "rejected": 7,
+    "accepted": 24,
+    "rejected": 4,
     "gated_specs": 7,
     "dev_specs": 5,
     "holdout_specs": 2,
@@ -85,74 +85,73 @@
     {
       "stage": "leakage",
       "entered": 28,
-      "rejected": 5,
+      "rejected": 2,
       "marked": 0,
-      "passed": 23,
+      "passed": 26,
       "reasons": {
-        "expected-value-in-given": 3,
-        "expected-value-in-when": 2
+        "expected-value-in-given": 2
       }
     },
     {
       "stage": "shortcut",
-      "entered": 23,
+      "entered": 26,
       "rejected": 2,
       "marked": 0,
-      "passed": 21,
+      "passed": 24,
       "reasons": {
         "passed-by-echo": 2
       }
     },
     {
       "stage": "contrast",
-      "entered": 21,
+      "entered": 24,
       "rejected": 0,
       "marked": 0,
-      "passed": 21,
+      "passed": 24,
       "reasons": {}
     },
     {
       "stage": "red_first",
-      "entered": 21,
+      "entered": 24,
       "rejected": 0,
       "marked": 0,
-      "passed": 21,
+      "passed": 24,
       "reasons": {}
     },
     {
       "stage": "stability",
-      "entered": 21,
+      "entered": 24,
       "rejected": 0,
       "marked": 0,
-      "passed": 21,
+      "passed": 24,
       "reasons": {}
     },
     {
       "stage": "difficulty",
-      "entered": 21,
+      "entered": 24,
       "rejected": 0,
       "marked": 0,
-      "passed": 21,
+      "passed": 24,
       "reasons": {}
     },
     {
       "stage": "label_audit",
-      "entered": 21,
+      "entered": 24,
       "rejected": 0,
       "marked": 3,
-      "passed": 21,
+      "passed": 24,
       "reasons": {
         "sampled": 3
       }
     },
     {
       "stage": "freshness",
-      "entered": 21,
+      "entered": 24,
       "rejected": 0,
-      "marked": 6,
-      "passed": 21,
+      "marked": 7,
+      "passed": 24,
       "reasons": {
-        "sealed-holdout": 6
+        "sealed-holdout": 7
       }
     }
   ],
@@ -284,23 +283,23 @@
         "changedOn": 5,
         "equivalent": false,
         "suite": {
-          "targeting": 16,
-          "red": 3,
+          "targeting": 19,
+          "red": 4,
           "killed": true,
           "rate": {
-            "estimate": 0.188,
-            "low": 0.066,
-            "high": 0.43
+            "estimate": 0.211,
+            "low": 0.085,
+            "high": 0.433
           }
         },
         "pool": {
-          "targeting": 18,
-          "red": 3,
+          "targeting": 21,
+          "red": 4,
           "killed": true,
           "rate": {
-            "estimate": 0.167,
-            "low": 0.058,
-            "high": 0.392
+            "estimate": 0.19,
+            "low": 0.077,
+            "high": 0.4
           }
         }
       },
@@ -336,23 +335,23 @@
         "changedOn": 3,
         "equivalent": false,
         "suite": {
-          "targeting": 9,
-          "red": 5,
+          "targeting": 11,
+          "red": 6,
           "killed": true,
           "rate": {
-            "estimate": 0.556,
-            "low": 0.267,
-            "high": 0.811
+            "estimate": 0.545,
+            "low": 0.28,
+            "high": 0.787
           }
         },
         "pool": {
-          "targeting": 10,
-          "red": 5,
+          "targeting": 12,
+          "red": 6,
           "killed": true,
           "rate": {
             "estimate": 0.5,
-            "low": 0.237,
-            "high": 0.763
+            "low": 0.254,
+            "high": 0.746
           }
         }
       },
@@ -367,22 +366,22 @@
         "changedOn": 6,
         "equivalent": false,
         "suite": {
-          "targeting": 19,
-          "red": 19,
+          "targeting": 22,
+          "red": 22,
           "killed": true,
           "rate": {
             "estimate": 1,
-            "low": 0.832,
+            "low": 0.851,
             "high": 1
           }
         },
         "pool": {
-          "targeting": 21,
-          "red": 21,
+          "targeting": 24,
+          "red": 24,
           "killed": true,
           "rate": {
             "estimate": 1,
-            "low": 0.845,
+            "low": 0.862,
             "high": 1
           }
         }
@@ -398,23 +397,23 @@
         "changedOn": 4,
         "equivalent": false,
         "suite": {
-          "targeting": 13,
-          "red": 5,
+          "targeting": 15,
+          "red": 6,
           "killed": true,
           "rate": {
-            "estimate": 0.385,
-            "low": 0.177,
-            "high": 0.645
+            "estimate": 0.4,
+            "low": 0.198,
+            "high": 0.643
           }
         },
         "pool": {
-          "targeting": 14,
-          "red": 5,
+          "targeting": 16,
+          "red": 6,
           "killed": true,
           "rate": {
-            "estimate": 0.357,
-            "low": 0.163,
-            "high": 0.612
+            "estimate": 0.375,
+            "low": 0.185,
+            "high": 0.614
           }
         }
       },
@@ -450,23 +449,23 @@
         "changedOn": 1,
         "equivalent": false,
         "suite": {
-          "targeting": 3,
-          "red": 1,
+          "targeting": 4,
+          "red": 2,
           "killed": true,
           "rate": {
-            "estimate": 0.333,
-            "low": 0.061,
-            "high": 0.792
+            "estimate": 0.5,
+            "low": 0.15,
+            "high": 0.85
           }
         },
         "pool": {
-          "targeting": 3,
-          "red": 1,
+          "targeting": 4,
+          "red": 2,
           "killed": true,
           "rate": {
-            "estimate": 0.333,
-            "low": 0.061,
-            "high": 0.792
+            "estimate": 0.5,
+            "low": 0.15,
+            "high": 0.85
           }
         }
       },
@@ -554,23 +553,23 @@
         "changedOn": 0,
         "equivalent": true,
         "suite": {
-          "targeting": 19,
+          "targeting": 22,
           "red": 0,
           "killed": false,
           "rate": {
             "estimate": 0,
             "low": 0,
-            "high": 0.168
+            "high": 0.149
           }
         },
         "pool": {
-          "targeting": 21,
+          "targeting": 24,
           "red": 0,
           "killed": false,
           "rate": {
             "estimate": 0,
             "low": 0,
-            "high": 0.155
+            "high": 0.138
           }
         }
       },
@@ -850,7 +849,7 @@
         },
         "leakage": {
           "status": "pass",
-          "detail": "2 expected values absent; n-gram check skipped: no origin specs; family check skipped: no judge family given"
+          "detail": "1 expected values absent; n-gram check skipped: no origin specs; family check skipped: no judge family given"
         },
         "shortcut": {
           "status": "pass",
@@ -1572,7 +1571,7 @@
         "leakage": {
           "status": "reject",
           "reason": "expected-value-in-given",
-          "detail": "the Given already holds the expected values \"new\", \"+12025550150\""
+          "detail": "the Given already holds the expected value \"+12025550150\""
         },
         "shortcut": {
           "status": "skip",
@@ -1662,46 +1661,44 @@
       "family": "hand-written",
       "target": "function:acme-sales",
       "fields": ["tools", "stage", "text", "lang", "format"],
-      "status": "rejected",
-      "stage": "leakage",
-      "reason": "expected-value-in-when",
+      "status": "accepted",
       "stages": {
         "observed": {
           "status": "pass",
           "detail": "reads tools, stage"
         },
         "leakage": {
-          "status": "reject",
-          "reason": "expected-value-in-when",
-          "detail": "the When already holds the expected value \"home\""
+          "status": "pass",
+          "detail": "1 expected values absent; n-gram check skipped: no origin specs; family check skipped: no judge family given"
         },
         "shortcut": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "constant fail, echo fail, first-tool fail"
         },
         "contrast": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "no one-slot sibling or twin to compare"
         },
         "red_first": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "red on x4-wrong-language, x5-drops-coverage-check"
         },
         "stability": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "5 of 5 repeats pass"
         },
         "difficulty": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "5 of 10 agents pass it"
         },
         "label_audit": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "not in the hand-written sample"
         },
         "freshness": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "mark",
+          "reason": "sealed-holdout",
+          "detail": "created 2026-10-11, map none; sealed in the holdout, never run here"
         }
       },
       "reference": ["pass", "pass", "pass", "pass", "pass"],
@@ -1755,7 +1752,12 @@
           "outcome": "pass",
           "changed": false
         }
-      }
+      },
+      "pass_k": 1,
+      "pass_probability": 0.5,
+      "agents": 10,
+      "created": "2026-10-11",
+      "split": "holdout"
     },
     {
       "key": "acme-off-topic-return#store-hours",
@@ -1900,8 +1902,9 @@
           "detail": "6 of 10 agents pass it"
         },
         "label_audit": {
-          "status": "pass",
-          "detail": "not in the hand-written sample"
+          "status": "mark",
+          "reason": "sampled",
+          "detail": "one of 3 of 24 hand-written blocks sampled for a person"
         },
         "freshness": {
           "status": "mark",
@@ -2005,9 +2008,8 @@
           "detail": "5 of 10 agents pass it"
         },
         "label_audit": {
-          "status": "mark",
-          "reason": "sampled",
-          "detail": "one of 3 of 21 hand-written blocks sampled for a person"
+          "status": "pass",
+          "detail": "not in the hand-written sample"
         },
         "freshness": {
           "status": "mark",
@@ -2191,7 +2193,7 @@
         },
         "leakage": {
           "status": "pass",
-          "detail": "2 expected values absent; n-gram check skipped: no origin specs; family check skipped: no judge family given"
+          "detail": "1 expected values absent; n-gram check skipped: no origin specs; family check skipped: no judge family given"
         },
         "shortcut": {
           "status": "pass",
@@ -2421,9 +2423,8 @@
           "detail": "4 of 10 agents pass it"
         },
         "label_audit": {
-          "status": "mark",
-          "reason": "sampled",
-          "detail": "one of 3 of 21 hand-written blocks sampled for a person"
+          "status": "pass",
+          "detail": "not in the hand-written sample"
         },
         "freshness": {
           "status": "pass",
@@ -2494,46 +2495,43 @@
       "family": "hand-written",
       "target": "function:acme-sales",
       "fields": ["tools", "stage", "end_state", "guards", "text", "lang", "format"],
-      "status": "rejected",
-      "stage": "leakage",
-      "reason": "expected-value-in-given",
+      "status": "accepted",
       "stages": {
         "observed": {
           "status": "pass",
           "detail": "reads tools, stage, end_state, guards"
         },
         "leakage": {
-          "status": "reject",
-          "reason": "expected-value-in-given",
-          "detail": "the Given already holds the expected value \"new\""
+          "status": "pass",
+          "detail": "4 expected values absent; n-gram check skipped: no origin specs; family check skipped: no judge family given"
         },
         "shortcut": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "constant fail, echo fail, first-tool fail"
         },
         "contrast": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "no one-slot sibling or twin to compare"
         },
         "red_first": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "red on x3-skips-recap, x4-wrong-language, d4-order-on-loose-yes"
         },
         "stability": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "5 of 5 repeats pass"
         },
         "difficulty": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "4 of 10 agents pass it"
         },
         "label_audit": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "not in the hand-written sample"
         },
         "freshness": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "created 2026-10-11, map none; dev split"
         }
       },
       "reference": ["pass", "pass", "pass", "pass", "pass"],
@@ -2587,7 +2585,12 @@
           "outcome": "pass",
           "changed": false
         }
-      }
+      },
+      "pass_k": 1,
+      "pass_probability": 0.4,
+      "agents": 10,
+      "created": "2026-10-11",
+      "split": "dev"
     },
     {
       "key": "acme-plan-upgrade#0",
@@ -2699,46 +2702,44 @@
       "family": "hand-written",
       "target": "function:acme-sales",
       "fields": ["tools", "stage", "text", "lang", "format"],
-      "status": "rejected",
-      "stage": "leakage",
-      "reason": "expected-value-in-when",
+      "status": "accepted",
       "stages": {
         "observed": {
           "status": "pass",
           "detail": "reads tools, stage"
         },
         "leakage": {
-          "status": "reject",
-          "reason": "expected-value-in-when",
-          "detail": "the When already holds the expected value \"sam.rivera@example.com\""
+          "status": "pass",
+          "detail": "value \"sam.rivera@example.com\" supplied by the user in the When, exempt; 2 expected values absent; n-gram check skipped: no origin specs; family check skipped: no judge family given"
         },
         "shortcut": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "constant fail, echo fail, first-tool fail"
         },
         "contrast": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "no one-slot sibling or twin to compare"
         },
         "red_first": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "red on x1-invents-price, x4-wrong-language"
         },
         "stability": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "5 of 5 repeats pass"
         },
         "difficulty": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "5 of 10 agents pass it"
         },
         "label_audit": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "mark",
+          "reason": "sampled",
+          "detail": "one of 3 of 24 hand-written blocks sampled for a person"
         },
         "freshness": {
-          "status": "skip",
-          "detail": "an earlier stage rejected the block"
+          "status": "pass",
+          "detail": "created 2026-10-11, map none; dev split"
         }
       },
       "reference": ["pass", "pass", "pass", "pass", "pass"],
@@ -2792,7 +2793,12 @@
           "outcome": "pass",
           "changed": false
         }
-      }
+      },
+      "pass_k": 1,
+      "pass_probability": 0.5,
+      "agents": 10,
+      "created": "2026-10-11",
+      "split": "dev"
     },
     {
       "key": "acme-plan-upgrade#2",
@@ -3037,9 +3043,8 @@
           "detail": "6 of 10 agents pass it"
         },
         "label_audit": {
-          "status": "mark",
-          "reason": "sampled",
-          "detail": "one of 3 of 21 hand-written blocks sampled for a person"
+          "status": "pass",
+          "detail": "not in the hand-written sample"
         },
         "freshness": {
           "status": "pass",
@@ -3460,8 +3465,9 @@
           "detail": "1 of 8 agents pass it"
         },
         "label_audit": {
-          "status": "pass",
-          "detail": "not in the hand-written sample"
+          "status": "mark",
+          "reason": "sampled",
+          "detail": "one of 3 of 24 hand-written blocks sampled for a person"
         },
         "freshness": {
           "status": "mark",

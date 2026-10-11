@@ -110,15 +110,33 @@ export class AtomBuilder {
   }
 }
 
-/** The name a trace gives a guard: its script's file name, else a slug of its command. */
-export function guardName(guard: Pick<GuardDecl, 'script' | 'command'>): string {
+/** The name a trace gives a guard: a catalogue check's id, else its script's file name, else a slug of its command. */
+export function guardName(guard: Pick<GuardDecl, 'script' | 'command' | 'check'>): string {
+  if (guard.check) return guard.check.id;
   return guard.script ? basename(guard.script) : slug(guard.command, 8);
 }
 
-/** The registry row of a guard, matched on the guard's name. */
-export function registryRowOf(guard: GuardDecl, registry: readonly RegistryRow[]): RegistryRow | undefined {
+/** Every registry row that names a guard, matched on the guard's name, in registry order. */
+export function registryRowsOf(guard: GuardDecl, registry: readonly RegistryRow[]): RegistryRow[] {
   const name = guardName(guard);
-  return registry.find((row) => basename(row.guard) === name);
+  return registry.filter((row) => basename(row.guard) === name);
+}
+
+/**
+ * The registry row of a guard. When several rows name the guard (one guard script runs several checks),
+ * one row stands for them all: the first row's id, event, verdict and place, the first state written, and
+ * the rules every row enforces.
+ */
+export function registryRowOf(guard: GuardDecl, registry: readonly RegistryRow[]): RegistryRow | undefined {
+  const rows = registryRowsOf(guard, registry);
+  const [first, ...rest] = rows;
+  if (!first || rest.length === 0) return first;
+  const state = rows.find((row) => row.state !== undefined)?.state;
+  return {
+    ...first,
+    enforces: rows.flatMap((row) => row.enforces),
+    ...(state !== undefined ? { state } : {}),
+  };
 }
 
 /** Every atom code reads, in a fixed order, so ids are the same on every run. */
@@ -186,6 +204,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
   for (const guard of raw.guards) {
     const name = guardName(guard);
     const row = registryRowOf(guard, raw.registry);
+    const rows = registryRowsOf(guard, raw.registry).filter((entry) => entry.origin !== 'catalogue');
     builder.add({
       kind: 'guard',
       title: `${guard.event}${guard.matcher ? ` ${guard.matcher}` : ''} guard ${name}`,
@@ -199,8 +218,20 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
         scope: guard.scope,
         ...(guard.matcher ? { matcher: guard.matcher } : {}),
         ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
+        ...(guard.dispatcher ? { dispatcher: guard.dispatcher } : {}),
         ...(guard.timeout !== undefined ? { timeout: guard.timeout } : {}),
         ...(row ? { registry: row.id } : {}),
+        ...(rows.length > 1 ? { registryRows: rows.map((entry) => entry.id) } : {}),
+        ...(row?.state !== undefined ? { state: row.state } : {}),
+        ...(guard.check
+          ? {
+              check: guard.check.id,
+              ...(guard.check.kind !== undefined ? { checkKind: guard.check.kind } : {}),
+              ...(guard.check.state !== undefined ? { state: guard.check.state } : {}),
+              ...(guard.check.work !== undefined ? { work: guard.check.work } : {}),
+              ...(guard.check.steps.length > 0 ? { steps: guard.check.steps } : {}),
+            }
+          : {}),
       },
     });
   }
@@ -265,7 +296,12 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
       title: `Stage ${step.id}${step.title ? `: ${step.title}` : ''}`,
       at: step.at,
       evidence: [{ type: 'stage_reached', name: step.id }],
-      fields: { id: step.id, next: step.next, anytime: step.anytime },
+      fields: {
+        id: step.id,
+        next: step.next,
+        anytime: step.anytime,
+        ...(step.process !== undefined ? { process: step.process } : {}),
+      },
     });
   }
 
@@ -291,22 +327,17 @@ function scriptAtoms(
   raw: RawEstate,
   builder: AtomBuilder,
 ): void {
-  const body = raw.prose.find((chunk) => chunk.file === definition);
+  // A long body may be cut into several chunks: the mention is looked for in each, in order.
+  const body = raw.prose.filter((chunk) => chunk.file === definition).flatMap((chunk) => chunkLines(chunk));
   for (const file of raw.files) {
     if (file.kind !== 'skill_file' || file.owner !== skill) continue;
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    const mention = body ? linesOf(body.text).find((line) => line.text.includes(name)) : undefined;
-    const at: Located =
-      mention && body
-        ? {
-            file: definition,
-            startLine: body.startLine + mention.line - 1,
-            endLine: body.startLine + mention.line - 1,
-            quote: mention.text,
-          }
-        : firstLine(file);
+    const mention = body.find((line) => line.text.includes(name));
+    const at: Located = mention
+      ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.text }
+      : firstLine(file);
     builder.add({
       kind: 'script',
       title: `Script ${relative}`,

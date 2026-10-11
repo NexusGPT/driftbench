@@ -1,0 +1,111 @@
+# Gated by driftbench gate from graph/gen-graph-007.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-graph-007
+version: badea3d3df7a
+kind: conversation
+title: "Stage path 7: Path home-address-not-found of new-home: needs > address > address"
+channel: whatsapp
+lang: EN
+tier: generated
+tags:
+  - flow:new-home
+  - persona:new-customer
+  - data:not-in-map
+  - task:existing-workbook
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+criteria:
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
+    gating: false
+    scope: conversation
+blocks:
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+      lang: EN
+      criteria:
+        - flow.new-home
+  - id: b2-address-to-address
+    when:
+      user: The address is 21 Willow Court, Acmeville.
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 21 Willow Court, Acmeville
+      lang: EN
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: graph
+    seed: 1
+    stream: 3333407949
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: badea3d3df7a
+    path: home-address-not-found
+    cell:
+      flow: new-home
+      user_type: new-customer
+      coverage_result: not-in-map
+      channel: whatsapp
+      workspace_start: existing-workbook
+    blocks:
+      - block: b1-needs-to-address
+        seeder: graph
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-address-to-address
+        seeder: graph
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-address
+          coverage_result: not-in-map
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: address-to-address
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-address-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+rules:
+  forbidden_tools:
+    - catalog.search
+    - port.check
+    - order.create
+    - notify_sales

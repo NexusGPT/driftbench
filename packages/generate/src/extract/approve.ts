@@ -1,9 +1,9 @@
 import { isMap, isPair, isScalar, isSeq, parseDocument, visit } from 'yaml';
-import { type Proposal, type ProposalIssue, parseProposalText } from './proposal';
+import { type Proposal, type ProposalIssue, parseProposalText, relationLabel } from './proposal';
 
-/** A decision a person has not made yet: a dimension, a constraint or a phrase. */
+/** A decision a person has not made yet: a dimension, a constraint, a phrase or a relation. */
 export type PendingEntry = {
-  kind: 'dimension' | 'constraint' | 'phrase';
+  kind: 'dimension' | 'constraint' | 'phrase' | 'relation';
   /** Where it sits in the file, such as `dimensions.3` or `constraints.0`. */
   path: string;
   /** What it is: the dimension id, `behaviour=B-001 + channel=whatsapp`, or the phrase's value. */
@@ -16,7 +16,7 @@ export type PendingEntry = {
 };
 
 /**
- * Every decision left, in file order: dimensions, then constraints, then phrases. A dimension is pending
+ * Every decision left, in file order: dimensions, constraints, phrases, then relations. A dimension is pending
  * while its own flag is false, whatever its values' overrides say: the listing names those overrides.
  */
 export function pendingEntries(proposal: Proposal): PendingEntry[] {
@@ -54,6 +54,17 @@ export function pendingEntries(proposal: Proposal): PendingEntry[] {
       label: `${phrase.dimension}/${phrase.value}`,
       detail: `"${phrase.text}" (${phrase.lang})`,
       ...(phrase.evidence ? { source: phrase.evidence.source, quote: phrase.evidence.quote } : {}),
+    });
+  });
+  (proposal.relations ?? []).forEach((relation, r) => {
+    if (relation.approved) return;
+    pending.push({
+      kind: 'relation',
+      path: `relations.${r}`,
+      label: relation.kind,
+      detail: relationLabel(relation),
+      source: relation.evidence.source,
+      quote: relation.evidence.quote,
     });
   });
   return pending;
@@ -109,8 +120,8 @@ export type ApproveAll =
   | { ok: false; errors: ProposalIssue[] };
 
 /**
- * Sets `approved: true` on every flag of a valid proposal (dimensions, value overrides, constraints and
- * phrases) and returns the new text. Comments, order and layout stay as they were: only the flags change.
+ * Sets `approved: true` on every flag of a valid proposal (dimensions, value overrides, constraints,
+ * phrases and relations) and returns the new text. Comments, order and layout stay as they were: only the flags change.
  * `approved` counts the flags flipped, `already` the ones that were true before.
  */
 export function approveAll(text: string): ApproveAll {
