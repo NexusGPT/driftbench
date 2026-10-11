@@ -10,7 +10,16 @@ import { asModelWrites, type Planted } from './perfect';
  */
 
 /** Keys a richer contract may carry on a value; read from the proposal whenever present. */
-export const VALUE_FIELDS = ['polarity', 'when', 'weight', 'required'] as const;
+export const VALUE_FIELDS = [
+  'polarity',
+  'when',
+  'unless',
+  'limit',
+  'within',
+  'priority',
+  'weight',
+  'required',
+] as const;
 
 export type Parts = {
   /** Dimensions, values and their kinds. */
@@ -133,6 +142,8 @@ export function expectedFacts(
     }
   }
   for (const entry of planted) {
+    // A silent entry is one a reader must not report: it makes no fact.
+    if (entry.silent) continue;
     if (entry.type === 'value') {
       value(entry.dimension.id, entry.dimension.kind, entry.value.id, 'model', entry.fields);
       if (parts.roles && entry.dimension.role && keep(entry.dimension.id)) {
@@ -177,7 +188,7 @@ export function quotesOffAnchor(proposal: Proposal, planted: readonly Planted[])
   const out: string[] = [];
   const norm = (text: string) => fold(asModelWrites(text));
   for (const entry of planted) {
-    if (entry.type !== 'value') continue;
+    if (entry.type !== 'value' || entry.silent) continue;
     const value = proposal.dimensions
       .find((dimension) => dimension.id === entry.dimension.id)
       ?.values.find((candidate) => candidate.id === entry.value.id);

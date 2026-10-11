@@ -31,7 +31,7 @@ export function bankLadder(component: string, items: readonly BankItem[], deps: 
               family: item.family,
               tier: item.tier,
               pass: outcome.pass,
-              detail: `[${item.family}, tier ${item.tier}] ${item.title}: ${outcome.detail}`,
+              detail: `[${item.family}, tier ${item.tier}, cause ${item.cause}] ${item.title}: ${outcome.detail}`,
             });
           }
           return bankMeasure(entries, component);

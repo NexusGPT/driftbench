@@ -1,5 +1,6 @@
 import { BANK_MIN_FAMILY, BANK_MIN_SIZE } from '../../../hardness';
 import type { Ladder } from '../../../ladder';
+import { adversarialItems } from './families/adversarial';
 import { containerItems } from './families/containers';
 import { formatItems } from './families/formats';
 import { hostileItems } from './families/hostile';
@@ -29,6 +30,7 @@ export function mapBank(): BankItem[] {
     ...schemaItems(),
     ...containerItems(),
     ...hostileItems(),
+    ...adversarialItems(),
     ...styleItems(),
     ...pairItems(),
     ...relationItems(),
@@ -77,4 +79,10 @@ export function bankByFamilyTier(items: readonly BankItem[]): Record<string, Rec
     out[item.family] = tiers;
   }
   return out;
+}
+
+/** The distinct causes among the items that fail (section 12.4): items sharing a cause count once. */
+export function distinctCauses(items: readonly BankItem[], failing: Iterable<string>): string[] {
+  const ids = new Set(failing);
+  return [...new Set(items.filter((item) => ids.has(item.id)).map((item) => item.cause))].sort();
 }

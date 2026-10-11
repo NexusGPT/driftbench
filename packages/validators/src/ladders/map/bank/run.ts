@@ -127,10 +127,12 @@ export function mapItem(meta: {
   level: number;
   component: string;
   title: string;
+  cause: string;
   build: (seed: number) => Built;
 }): BankItem {
   return {
     id: meta.id,
+    cause: meta.cause,
     family: meta.family,
     tier: meta.tier,
     level: meta.level,
