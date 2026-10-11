@@ -2,7 +2,7 @@
 
 A check reads one part of what the agent did and returns verdicts with their evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 18 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 18 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The stage classifier and the judge that reads a reply against the ledger are planned, phase 3.
+Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 18 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 18 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
 
 The checks read the agent's runtime through four concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages).
 
@@ -71,8 +71,8 @@ Every field is optional and open to both kinds of block.
 
 | Field | What it checks | Read by |
 |---|---|---|
-| `stage` | the stage the agent reaches in the block, against the spec's `stages` | `stage` (the stage the runtime reports); the stage classifier is planned, phase 3 |
-| `ledger_add` | the facts the block establishes; they join the ledger | the runner, see [stage and facts](#stage-and-facts); the ledger judge is planned, phase 3 |
+| `stage` | the stage the agent reaches in the block, against the spec's `stages` | `stage` (the stage the runtime reports); when the runtime reports none, the runner's stage classifier (`flow.stage`) |
+| `ledger_add` | the facts the block establishes; they join the ledger | the runner, see [stage and facts](#stage-and-facts); the ledger check (`ledger.<fact>`) |
 | `tools` | each expected tool call: `label`, `count`, and assertions on its `input` | `tools`; a tool expected 0 times, `forbidden` |
 | `tool_order` | how the expected tools line up with the observed calls: `exact`, `in_order` or `any_order` | `tools` |
 | `skills` | each expected skill: `name` and `count` | `skills` |
@@ -317,8 +317,8 @@ A verdict from the Acme campaign run with a council that replays the campaign ca
 
 ## Stage and facts
 
-* `stage` reads the last stage the runtime reports in the block. A runtime that reports a stage only when it changes leaves some blocks without one: in a free-running or perturbed run, the last stage an earlier block reported still holds. When no stage was ever reported, the check does not apply. The stage classifier that labels the stage from the reply is planned, phase 3. A name missing from `stages` is an error (`STAGE_UNKNOWN`).
-* `ledger_add` adds facts to the ledger, which every later check sees. The runner records a ledger check per block: a fact the block adds with a value other than the one the ledger already holds is a contradiction, named with both values. It does not change whether the block passes. The judge that asks whether a reply contradicts the ledger is planned, phase 3.
+* `stage` reads the last stage the runtime reports in the block. A runtime that reports a stage only when it changes leaves some blocks without one: in a free-running or perturbed run, the last stage an earlier block reported still holds. When no stage was ever reported, the check does not apply, and the runner's stage classifier reads the stage from the block's tool calls instead and gives `flow.stage` or `flow.order` verdicts. See [the stage classifier](../concepts/drift.md#the-stage-classifier). A name missing from `stages` is an error (`STAGE_UNKNOWN`).
+* `ledger_add` adds facts to the ledger, which every later check sees. The runner records a ledger check per block: a fact the block adds with a value other than the one the ledger already holds is a contradiction, named with both values. It does not change whether the block passes. The ledger check compares the block's tool inputs, and the email addresses and phone numbers its reply states, with the ledger, in code, and gives one gating verdict `ledger.<fact>` per fact stated. See [the ledger check](../concepts/drift.md#the-ledger-check).
 
 ## Budget
 

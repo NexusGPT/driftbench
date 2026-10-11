@@ -15,7 +15,7 @@ A spec sets Given in two places.
 * `given` at the top of the spec: the default for every block. It holds `ledger`, `world` and `vars`.
 * `given` on a block: the same three parts, plus `prefix`, the messages that come before the block.
 
-A block's `prefix` starts the block in the middle of a conversation, without replaying the blocks before it. In a free-running run, the block opens a new session from that prefix, and the blocks after it continue from there. Whether the agent itself sees the prefix depends on the adapter's `seedPrefix` capability; see [adapters](../adapters/index.md#capabilities). The block's `ledger`, `world` and `vars` merge into the running state from that block onwards, in free-running and perturbed modes. In teacher-forced mode, planned, phase 3, every block starts from its own resolved Given. See [run modes](run-modes.md).
+A block's `prefix` starts the block in the middle of a conversation, without replaying the blocks before it. In a free-running run, the block opens a new session from that prefix, and the blocks after it continue from there. Whether the agent itself sees the prefix depends on the adapter's `seedPrefix` capability; see [adapters](../adapters/index.md#capabilities). The block's `ledger`, `world` and `vars` merge into the running state from that block onwards, in free-running and perturbed modes. In teacher-forced mode, every block starts from its own resolved Given. See [run modes](run-modes.md).
 
 | Part | What it holds | Example |
 |---|---|---|
@@ -29,7 +29,7 @@ A block's `prefix` starts the block in the middle of a conversation, without rep
 
 An adapter applies `world.tools` only when it has the `toolStubs` capability; see [adapters](../adapters/index.md#capabilities).
 
-The facts grow block by block: `ledger_add` in a block's `expect` adds the facts that block establishes, and every later check sees them. The judge that asks whether a reply contradicts them is planned, phase 3.
+The facts grow block by block: `ledger_add` in a block's `expect` adds the facts that block establishes, and every later check sees them. The ledger check compares what each block states with them, in code; see [drift](drift.md#the-ledger-check).
 
 For a task step, Given includes the workspace. The adapter that owns the workspace takes a snapshot of it before the step and a diff after; see the [process adapter](../adapters/process.md).
 
