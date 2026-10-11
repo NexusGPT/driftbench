@@ -75,11 +75,11 @@ pnpm driftbench validate map --seed 1
 pnpm driftbench validate map --seeds 1..20 --hidden
 pnpm tsx packages/validators/src/ladders/map/bank/cli.ts
 pnpm tsx packages/validators/src/ladders/map/bank/cli.ts --run --record <n> --note "<text>"
-pnpm vitest run packages/generate/test/extract/tools-keywords.test.ts
+pnpm vitest run packages/generate/test/extract/tools-keywords.test.ts   # on exec/map-pilot, where the pilot's fixes are
 ```
 
 ## Fixtures
 
 * The bank is `packages/validators/src/ladders/map/bank/`: `types.ts` (items and levels), `perfect.ts` (the perfect model), `facts.ts` (the oracle's facts), `run.ts`, `ladder.ts`, `hardness.ts`, `styled.ts` (fourteen prompt styles), and one file per family under `families/`. Schema keywords: `families/schema.ts`.
 * The first ladder of section 2 is `first.ts`; its seven levels are items of the bank (`families/v1.ts`).
-* The hardness rows are `validators/map/bank.jsonl`, iteration 0 first; the pilot's keyword tests are `packages/generate/test/extract/tools-keywords.test.ts`.
+* The hardness rows are `validators/map/bank.jsonl`, iteration 0 first; the pilot's fixes and their keyword tests (`packages/generate/test/extract/tools-keywords.test.ts`) are on the branch `exec/map-pilot`; the extractor is not this lane's, so they wait for its owner.
