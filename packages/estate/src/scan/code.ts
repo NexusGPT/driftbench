@@ -327,22 +327,17 @@ function scriptAtoms(
   raw: RawEstate,
   builder: AtomBuilder,
 ): void {
-  const body = raw.prose.find((chunk) => chunk.file === definition);
+  // A long body may be cut into several chunks: the mention is looked for in each, in order.
+  const body = raw.prose.filter((chunk) => chunk.file === definition).flatMap((chunk) => chunkLines(chunk));
   for (const file of raw.files) {
     if (file.kind !== 'skill_file' || file.owner !== skill) continue;
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    const mention = body ? linesOf(body.text).find((line) => line.text.includes(name)) : undefined;
-    const at: Located =
-      mention && body
-        ? {
-            file: definition,
-            startLine: body.startLine + mention.line - 1,
-            endLine: body.startLine + mention.line - 1,
-            quote: mention.text,
-          }
-        : firstLine(file);
+    const mention = body.find((line) => line.text.includes(name));
+    const at: Located = mention
+      ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.text }
+      : firstLine(file);
     builder.add({
       kind: 'script',
       title: `Script ${relative}`,

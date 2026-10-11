@@ -1,7 +1,14 @@
 import { ClaudeCodeReader } from './claude-code';
 import type { EstateReader } from './reader';
 
-export { ClaudeCodeReader, scriptOf, splitList } from './claude-code';
+export {
+  ClaudeCodeReader,
+  type ClaudeCodeReaderOptions,
+  cutLines,
+  DEFAULT_CHUNK_CHARACTERS,
+  scriptOf,
+  splitList,
+} from './claude-code';
 export {
   AtomBuilder,
   chunkLines,
@@ -33,10 +40,15 @@ export {
   estateRecordingPort,
   loadEstateRecording,
   PROSE_KINDS,
+  PROSE_SOURCES,
   PROSE_SYSTEM_PROMPT,
   type ProseAnswer,
+  type ProseInventory,
   type ProseRefusal,
+  type ProseSource,
   parseProseAnswer,
+  proseInventory,
+  proseInventoryLines,
   proseRequest,
   runChunk,
 } from './prose';

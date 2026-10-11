@@ -48,10 +48,24 @@ const INTERPRETERS = new Set([
 const SCRIPT_EXTENSION = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/;
 const ANCHORS = [/^\$\{?CLAUDE_PROJECT_DIR\}?\//, /^\$\{?CLAUDE_PLUGIN_ROOT\}?\//];
 
+/** The most characters one prose chunk holds; a longer passage is cut into several chunks. */
+export const DEFAULT_CHUNK_CHARACTERS = 20_000;
+
+export type ClaudeCodeReaderOptions = {
+  /** The size budget of one prose chunk, in characters. Default `DEFAULT_CHUNK_CHARACTERS`. */
+  chunkCharacters?: number;
+};
+
 export class ClaudeCodeReader implements EstateReader {
   readonly runtime = 'claude-code';
+  private readonly budget: number;
+
+  constructor(options: ClaudeCodeReaderOptions = {}) {
+    this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
+  }
 
   async read(root: string): Promise<RawEstate> {
+    const budget = this.budget;
     const notes: ReadNote[] = [];
     const paths = [
       ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md'])),
@@ -79,12 +93,15 @@ export class ClaudeCodeReader implements EstateReader {
     };
     for (const file of files) {
       if (file.kind === 'settings') readSettings(file, estate);
-      if (file.kind === 'skill') readSkill(file, estate);
-      if (file.kind === 'subagent') readSubagent(file, estate);
+      if (file.kind === 'skill') readSkill(file, estate, budget);
+      if (file.kind === 'subagent') readSubagent(file, estate, budget);
       if (file.kind === 'step_list') readSteps(file, estate);
-      if (file.kind === 'standing' || file.kind === 'memory') {
-        const count = file.text.replace(/\n+$/, '').split('\n').length;
-        addProse(estate, file, 1, count);
+      if (file.kind === 'standing' || file.kind === 'memory')
+        addProse(estate, file, 1, lastLine(file.text), budget);
+      // A markdown file beside a skill (a reference, a template) is prose the skill loads on demand.
+      if (file.kind === 'skill_file' && /\.(md|markdown)$/i.test(file.path)) {
+        const frontmatter = readFrontmatter(file.text);
+        addProse(estate, file, frontmatter.bodyLine, lastLine(file.text), budget);
       }
     }
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
@@ -425,7 +442,7 @@ function anchorOf(token: string): { script: string; anchored: boolean } {
   return { script: posix.normalize(token), anchored: false };
 }
 
-function readSkill(file: EstateFile, estate: RawEstate): void {
+function readSkill(file: EstateFile, estate: RawEstate, budget: number): void {
   const frontmatter = readFrontmatter(file.text);
   noteFrontmatter(file, frontmatter, estate);
   const fields = frontmatter.fields;
@@ -455,10 +472,10 @@ function readSkill(file: EstateFile, estate: RawEstate): void {
       file,
     );
   }
-  addProse(estate, file, skill.body.startLine, skill.body.endLine);
+  addProse(estate, file, skill.body.startLine, skill.body.endLine, budget);
 }
 
-function readSubagent(file: EstateFile, estate: RawEstate): void {
+function readSubagent(file: EstateFile, estate: RawEstate, budget: number): void {
   const frontmatter = readFrontmatter(file.text);
   noteFrontmatter(file, frontmatter, estate);
   const fields = frontmatter.fields;
@@ -479,7 +496,7 @@ function readSubagent(file: EstateFile, estate: RawEstate): void {
   const effort = valueAt(file, frontmatter, 'effort', fields.effort);
   if (effort) subagent.effort = effort;
   estate.subagents.push(subagent);
-  addProse(estate, file, subagent.body.startLine, subagent.body.endLine);
+  addProse(estate, file, subagent.body.startLine, subagent.body.endLine, budget);
 }
 
 /** Header cells that name a registry table's columns. A table is a registry table by its first column. */
@@ -848,11 +865,62 @@ function readStepList(
   estate.steps.push(...read);
 }
 
-function addProse(estate: RawEstate, file: EstateFile, startLine: number, endLine: number): void {
+/**
+ * Adds the prose of a file's lines as chunks of at most `budget` characters. A passage within the budget is
+ * one chunk whose id is the file path; a longer one is cut at line ends (before a heading when the second
+ * half of the chunk holds one, else after a blank line, else where the budget runs out) into chunks
+ * `<path>#1`, `<path>#2`, ... A single line longer than the budget is a chunk of its own.
+ */
+function addProse(
+  estate: RawEstate,
+  file: EstateFile,
+  startLine: number,
+  endLine: number,
+  budget: number,
+): void {
   const lines = file.text.split('\n').slice(startLine - 1, endLine);
   if (lines.every((line) => line.trim() === '')) return;
-  const chunk: ProseChunk = { id: file.path, file: file.path, startLine, endLine, text: lines.join('\n') };
-  estate.prose.push(chunk);
+  const parts = cutLines(lines, budget).filter(({ from, to }) =>
+    lines.slice(from, to).some((line) => line.trim() !== ''),
+  );
+  parts.forEach(({ from, to }, index) => {
+    const chunk: ProseChunk = {
+      id: parts.length === 1 ? file.path : `${file.path}#${index + 1}`,
+      file: file.path,
+      startLine: startLine + from,
+      endLine: startLine + to - 1,
+      text: lines.slice(from, to).join('\n'),
+    };
+    estate.prose.push(chunk);
+  });
+}
+
+/** Line ranges (`from` inclusive, `to` exclusive) of at most `budget` characters each, newlines counted. */
+export function cutLines(lines: readonly string[], budget: number): Array<{ from: number; to: number }> {
+  const parts: Array<{ from: number; to: number }> = [];
+  let from = 0;
+  while (from < lines.length) {
+    let size = 0;
+    let to = from;
+    while (to < lines.length && (to === from || size + (lines[to]?.length ?? 0) + 1 <= budget)) {
+      size += (lines[to]?.length ?? 0) + 1;
+      to++;
+    }
+    if (to < lines.length) {
+      const half = from + Math.ceil((to - from) / 2);
+      let cut = -1;
+      for (let index = to - 1; index >= half && cut < 0; index--) {
+        if (/^#{1,6}\s/.test(lines[index] ?? '')) cut = index;
+      }
+      for (let index = to - 1; index >= half && cut < 0; index--) {
+        if ((lines[index] ?? '').trim() === '') cut = index + 1;
+      }
+      if (cut > from) to = cut;
+    }
+    parts.push({ from, to });
+    from = to;
+  }
+  return parts;
 }
 
 function nameAt(file: EstateFile, frontmatter: ReturnType<typeof readFrontmatter>, name: string): Located {
