@@ -1,5 +1,12 @@
 export { type Accepted, acceptAnswer, type Draft, type Refusal } from './accept';
-export { type ApproveAll, approveAll, type PendingEntry, pendingEntries } from './approve';
+export {
+  type ApproveAll,
+  type ApproveDimensions,
+  approveAll,
+  approveDimensions,
+  type PendingEntry,
+  pendingEntries,
+} from './approve';
 export {
   type Answer,
   type AnswerParse,
@@ -37,6 +44,8 @@ export {
   type LoadedProposal,
   loadProposal,
   MAX_QUOTE_LENGTH,
+  ORIGINS,
+  Origin,
   PROPOSAL_VERSION,
   ProducedBy,
   Proposal,
@@ -50,14 +59,24 @@ export {
   ProposalSource,
   ProposalValue,
   parseProposalText,
+  ROLES,
+  Role,
   renderProposal,
   SOURCE_KINDS,
   SourceKind,
   ValueId,
   validateProposal,
+  valueApproved,
   verifyQuotes,
 } from './proposal';
 export { foldQuote, QuoteIndex, shortQuote } from './quote';
 export { loadRecording, Recording, type RecordingResult, recordingPort } from './replay';
-export { checkSpaceMap, SINGLE_KINDS, type SpaceMapOptions, toSpaceMap } from './space';
+export {
+  axisGrid,
+  checkSpaceMap,
+  proposeRole,
+  SINGLE_KINDS,
+  type SpaceMapOptions,
+  toSpaceMap,
+} from './space';
 export { type ToolsIssue, type ToolsPrepass, toolSlug, toolsPrepass } from './tools';

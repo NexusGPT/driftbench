@@ -13,6 +13,7 @@ import {
   toSpaceMap,
   validateProposal,
 } from '../../src/extract';
+import { axisGrid } from '../../src/extract/space';
 import { FakeModelPort } from '../../src/model';
 import { GOOD_ANSWERS, INVENTORY, PROMPT, SOURCES } from './support';
 
@@ -41,11 +42,13 @@ describe('the proposal schema', () => {
     expect(validateProposal(proposal).ok).toBe(true);
     expect(checkQuotes(proposal, TEXTS)).toEqual([]);
     expect(countEntries(proposal)).toEqual({
+      dimensions: 7,
       values: 13,
       constraints: 2,
       phrases: 2,
-      total: 17,
+      total: 11,
       approved: 0,
+      valuesApproved: 0,
     });
   });
 
@@ -78,6 +81,19 @@ describe('mutations a proposal must refuse', () => {
     const evidence = noQuote.constraints[0]?.evidence as { quote?: unknown } | undefined;
     if (evidence) delete evidence.quote;
     expect(codes(noQuote)).toEqual(['constraints.0.evidence.quote PROPOSAL_EVIDENCE_MISSING']);
+  });
+
+  it('refuses an entry that does not say who proposed it, or says someone else did', async () => {
+    const mutant = copy(await build());
+    const value = mutant.dimensions[0]?.values[0] as { produced_by?: unknown } | undefined;
+    if (value) delete value.produced_by;
+    expect(codes(mutant)).toEqual(['dimensions.0.values.0.produced_by SCHEMA_INVALID_VALUE']);
+    const human = copy(await build());
+    (human.constraints[0] as { produced_by: unknown }).produced_by = 'person';
+    expect(codes(human)).toEqual(['constraints.0.produced_by SCHEMA_INVALID_VALUE']);
+    const role = copy(await build());
+    (role.dimensions[0] as { role: unknown }).role = 'axe';
+    expect(codes(role)).toEqual(['dimensions.0.role SCHEMA_INVALID_VALUE']);
   });
 
   it('refuses a blank quote', async () => {
@@ -183,14 +199,37 @@ describe('the proposal as a space map', () => {
     const repeated = copy(proposal);
     const stage = repeated.dimensions.find((dimension) => dimension.id === 'stage');
     if (stage) repeated.dimensions.push({ ...structuredClone(stage), id: 'phase' });
-    expect(codes(repeated)).toEqual([`dimensions.${proposal.dimensions.length}.kind SPACE_KIND_REPEATED`]);
+    // Paths point into the map, which holds the axes only: the copy is its last dimension.
+    const last = toSpaceMap(repeated).dimensions.length - 1;
+    expect(codes(repeated)).toEqual([`dimensions.${last}.kind SPACE_KIND_REPEATED`]);
     const ambiguous = copy(proposal);
     const language = ambiguous.dimensions.find((dimension) => dimension.id === 'language');
     if (language) ambiguous.dimensions.push({ ...structuredClone(language), id: 'tongue' });
     expect(codes(ambiguous)).toEqual([
-      `dimensions.${proposal.dimensions.length}.values.0.id SPACE_AMBIGUOUS_VALUE`,
-      `dimensions.${proposal.dimensions.length}.values.1.id SPACE_AMBIGUOUS_VALUE`,
+      `dimensions.${last}.values.0.id SPACE_AMBIGUOUS_VALUE`,
+      `dimensions.${last}.values.1.id SPACE_AMBIGUOUS_VALUE`,
     ]);
+    const tongue = ambiguous.dimensions.at(-1);
+    if (tongue) tongue.role = 'detail';
+    expect(codes(ambiguous)).toEqual([]);
+  });
+
+  it('keeps the axis dimensions in the map and the details out of it', async () => {
+    const proposal = await build();
+    expect(proposal.dimensions.filter((d) => d.role === 'detail').map((d) => d.id)).toEqual(['flow', 'rule']);
+    const map = toSpaceMap(proposal);
+    expect(map.dimensions.map((dimension) => dimension.id)).toEqual([
+      'behaviour',
+      'deviation',
+      'channel',
+      'stage',
+      'language',
+    ]);
+    const flipped = copy(proposal);
+    const flow = flipped.dimensions.find((dimension) => dimension.id === 'flow');
+    if (flow) flow.role = 'axis';
+    expect(toSpaceMap(flipped).dimensions.map((dimension) => dimension.id)).toContain('flow');
+    expect(axisGrid(proposal)).toEqual({ cells: 2 * 3 * 2 * 3 * 2, limit: 250000 });
   });
 
   it('keeps only approved entries on request, and a constraint only when its values stay', async () => {
@@ -198,14 +237,19 @@ describe('the proposal as a space map', () => {
     const language = proposal.dimensions.find((dimension) => dimension.id === 'language');
     const english = language?.values.find((value) => value.id === 'english');
     if (english) english.approved = true;
+    const stage = proposal.dimensions.find((dimension) => dimension.id === 'stage');
+    if (stage) stage.approved = true;
+    const help = stage?.values.find((value) => value.id === 'help');
+    if (help) help.approved = false;
     for (const constraint of proposal.constraints) constraint.approved = true;
     const map = toSpaceMap(proposal, { approvedOnly: true });
     expect(
       map.dimensions.map((dimension) => [dimension.id, dimension.values.map((value) => value.id)]),
     ).toEqual([
-      ['deviation', ['none']],
+      ['stage', ['greet', 'verify']],
       ['language', ['english']],
     ]);
+    expect(countEntries(proposal)).toMatchObject({ approved: 3, valuesApproved: 3 });
     expect(map.constraints).toEqual([]);
     expect(toSpaceMap(proposal).constraints.map((constraint) => constraint.forbid)).toEqual([
       { behaviour: 'B-002', channel: 'email' },

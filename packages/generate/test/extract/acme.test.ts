@@ -1,6 +1,8 @@
-import { loadSpaceMap, NONE, validateSpaceMap } from '@driftbench/space';
+import { DEFAULT_MAX_CELLS, gridSize, loadSpaceMap, NONE, validateSpaceMap } from '@driftbench/space';
 import { describe, expect, it } from 'vitest';
 import {
+  approveAll,
+  axisGrid,
   countEntries,
   extractMap,
   loadProposal,
@@ -25,8 +27,34 @@ describe('the Acme map proposal', () => {
     const loaded = await loadProposal(PROPOSAL);
     if (!loaded.ok) throw new Error('invalid');
     const counts = countEntries(loaded.proposal);
-    expect(counts.approved).toBe(0);
-    expect(counts.total).toBeGreaterThan(200);
+    expect(counts).toMatchObject({ dimensions: 46, constraints: 34, phrases: 21, total: 101, approved: 0 });
+    expect(counts.valuesApproved).toBe(0);
+  });
+
+  it('marks who proposed each entry and proposes one axis per kind', async () => {
+    const loaded = await loadProposal(PROPOSAL);
+    if (!loaded.ok) throw new Error('invalid');
+    const { dimensions } = loaded.proposal;
+    const axes = dimensions.filter((dimension) => dimension.role === 'axis');
+    expect(axes.map((dimension) => [dimension.id, dimension.kind, dimension.produced_by])).toEqual([
+      ['behaviour', 'behaviour', 'code'],
+      ['deviation', 'deviation', 'code'],
+      ['channel', 'channel', 'code'],
+      ['stage', 'stage', 'model'],
+      ['user_type', 'persona', 'model'],
+      ['coverage_result', 'data', 'model'],
+      ['workspace_start', 'task', 'model'],
+    ]);
+    const tools = dimensions.filter((dimension) => /\.(in|out)\./.test(dimension.id));
+    expect(tools).toHaveLength(25);
+    expect(tools.every((dimension) => dimension.role === 'detail' && dimension.produced_by === 'code')).toBe(
+      true,
+    );
+    const deviation = dimensions.find((dimension) => dimension.id === 'deviation');
+    expect(
+      deviation?.values.filter((value) => value.produced_by === 'model').map((value) => value.id),
+    ).toEqual(['D7_silence_or_burst', 'D9_out_of_scope']);
+    expect(axisGrid(loaded.proposal)).toEqual({ cells: 81312, limit: DEFAULT_MAX_CELLS });
   });
 
   it('is exactly what the extractor writes from the sources and the recorded lane answers', async () => {
@@ -132,15 +160,25 @@ describe('the Acme map proposal', () => {
     }
   });
 
-  it('stays a valid space map once the owner approves everything', async () => {
-    const loaded = await loadProposal(PROPOSAL);
-    if (!loaded.ok) throw new Error('invalid');
-    const approved = structuredClone(loaded.proposal);
-    for (const dimension of approved.dimensions) for (const value of dimension.values) value.approved = true;
-    for (const constraint of approved.constraints) constraint.approved = true;
-    const map = toSpaceMap(approved, { approvedOnly: true });
-    expect(map.dimensions).toHaveLength(approved.dimensions.length);
-    expect(map.constraints).toHaveLength(approved.constraints.length);
+  it('is approved in approved.yaml, which is the proposal with every flag set and nothing else changed', async () => {
+    const proposal = await loadProposal(PROPOSAL);
+    const approved = await loadProposal(`${ACME}map/approved.yaml`);
+    if (!proposal.ok || !approved.ok) throw new Error('invalid');
+    const flipped = approveAll(proposal.text);
+    if (!flipped.ok) throw new Error('cannot approve');
+    expect(approved.text).toBe(flipped.text);
+    expect(countEntries(approved.proposal)).toMatchObject({ total: 101, approved: 101, valuesApproved: 175 });
+  });
+
+  it('gives the space commands a map of seven axes they accept, written in space.yaml', async () => {
+    const approved = await loadProposal(`${ACME}map/approved.yaml`);
+    if (!approved.ok) throw new Error('invalid');
+    const map = toSpaceMap(approved.proposal, { approvedOnly: true });
     expect(validateSpaceMap(map).ok).toBe(true);
+    expect(gridSize(map)).toBe(81312);
+    expect(gridSize(map)).toBeLessThanOrEqual(DEFAULT_MAX_CELLS);
+    const written = await loadSpaceMap(`${ACME}map/space.yaml`);
+    if (!written.ok) throw new Error(JSON.stringify(written.errors));
+    expect(written.map).toEqual(map);
   });
 });
