@@ -282,7 +282,13 @@ function typesOf(property: YAMLMap): string[] {
   const type = entry(property, 'type')?.value;
   if (isScalar(type) && typeof type.value === 'string') return [type.value];
   if (isSeq(type)) return stringItems(type);
-  return entry(property, 'properties') ? ['object'] : [];
+  if (entry(property, 'properties')) return ['object'];
+  // No type: the keywords say which type the schema constrains (JSON Schema validation, sections 6.2 to 6.4).
+  const has = (keys: string[]) => keys.some((key) => entry(property, key) !== undefined);
+  if (has(['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf'])) return ['number'];
+  if (has(['format', 'pattern', 'minLength', 'maxLength'])) return ['string'];
+  if (has(['items', 'minItems', 'maxItems', 'uniqueItems'])) return ['array'];
+  return [];
 }
 
 function locate(root: unknown): { node: unknown; path: string } | undefined {

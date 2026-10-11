@@ -57,4 +57,14 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum'],
     });
   });
+
+  it('infers the type from the keywords when a property states none', () => {
+    expect(partitions({ format: 'email' })).toEqual({ 't.x.in.p': ['well-formed', 'malformed'] });
+    expect(partitions({ minimum: 3 })).toEqual({
+      't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum'],
+    });
+    expect(partitions({ maxItems: 4 })).toEqual({
+      't.x.in.p': ['empty', 'one-item', 'several-items', 'at-max-items', 'above-max-items'],
+    });
+  });
 });
