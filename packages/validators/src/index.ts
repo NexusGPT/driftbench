@@ -4,6 +4,19 @@
  */
 export const packageName = '@driftbench/validators';
 
+export {
+  checkFloors,
+  FLOORS_FILE,
+  type FloorCheck,
+  type FloorEvidence,
+  type FloorsFile,
+  FloorsFileSchema,
+  floorOf,
+  type RaiseRequest,
+  raiseFloor,
+  readFloors,
+  writeFloors,
+} from './floors';
 export { type FormatOptions, formatLadder, showNumber } from './format';
 export {
   type Direction,
