@@ -15,7 +15,8 @@ import { proposeRole } from './space';
  * Accepted files: a list of tools; or a mapping with `tools`, `tool_schemas` or `metadata.tool_schemas` (a
  * spec), holding a list of tools or a mapping from tool name to tool. A tool has a name and an input schema
  * under `input_schema`, `inputSchema` or `parameters`, and may have an output schema under `output_schema`,
- * `outputSchema` or `returns`. The OpenAI form `{ type: function, function: {...} }` is read too.
+ * `outputSchema` or `returns`. The OpenAI form `{ type: function, function: {...} }` is read too, and so are Gemini
+ * function declarations, at the root or grouped in the tools list.
  */
 
 export type ToolsIssue = {
@@ -340,7 +341,7 @@ function typesOf(property: YAMLMap): string[] {
 function locate(root: unknown): { node: unknown; path: string } | undefined {
   if (isSeq(root)) return { node: root, path: '' };
   if (!isMap(root)) return undefined;
-  for (const key of ['tools', 'tool_schemas']) {
+  for (const key of ['tools', 'tool_schemas', 'functionDeclarations']) {
     const found = entry(root, key);
     if (found) return { node: found.value, path: key };
   }
@@ -353,6 +354,18 @@ function readTools(node: unknown, path: string): { tools: Tool[] } | { errors: T
   const at = (index: string | number) => (path ? `${path}.${index}` : String(index));
   if (isSeq(node)) {
     node.items.forEach((item, index) => {
+      // Gemini groups its tools as { functionDeclarations: [...] } inside the tools list.
+      const declarations = entry(item, 'functionDeclarations')?.value;
+      if (isSeq(declarations)) {
+        declarations.items.forEach((declaration, inner) => {
+          raw.push({
+            name: plain(entry(declaration, 'name')?.value),
+            map: declaration,
+            path: at(`${index}.functionDeclarations.${inner}`),
+          });
+        });
+        return;
+      }
       const map = unwrap(item);
       raw.push({ name: plain(entry(map, 'name')?.value), map, path: at(index) });
     });
