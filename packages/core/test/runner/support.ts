@@ -234,6 +234,15 @@ export function broken(change: (observed: Observed) => void) {
   });
 }
 
+/** The Acme agent at one cent a block, for the budget. */
+export function pricedAcmeAdapter(): AcmeAdapter {
+  return acmeAdapter({
+    wrap: broken((observed) => {
+      observed.cost = { usd: 0.01 };
+    }),
+  });
+}
+
 /** A known-bad agent: it drops the first tool call of every block, the call and its result. */
 export const dropsFirstToolCall = broken((observed) => {
   const [first] = observed.toolCalls;

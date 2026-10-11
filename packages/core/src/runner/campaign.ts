@@ -195,6 +195,8 @@ export type CellOutcome = {
   state: 'pass' | 'fail' | 'failed' | 'stopped' | 'pending';
   /** Gating verdicts that did not pass, as `block <index> <verdict id>`, and end-state fields that differ. */
   failing: string[];
+  /** Set when the budget stopped the cell before it started: the budget, and what the campaign had spent. */
+  budgetStop?: { budgetUsd: number; spentUsd: number };
 };
 
 /** The outcome of a cell from its run: pass when the run completed, every block passed and the end state matched. */
@@ -218,9 +220,13 @@ export function outcomeOf(cell: PlannedCell, run: RunResult | undefined, reused 
 
 /** The run that stands for each cell of a campaign: its latest completed run, else its latest run. */
 export async function runsByCell(store: Store, campaignId: string): Promise<Map<string, RunResult>> {
+  return byCell(await store.listRuns({ campaignId }));
+}
+
+function byCell(runs: readonly RunResult[]): Map<string, RunResult> {
   const byCell = new Map<string, RunResult>();
   const rank = (run: RunResult) => (run.status === 'completed' ? 1 : 0);
-  for (const run of await store.listRuns({ campaignId })) {
+  for (const run of runs) {
     const id = cellIdOf(run);
     const held = byCell.get(id);
     if (!held || rank(run) > rank(held) || (rank(run) === rank(held) && run.finishedAt >= held.finishedAt)) {
@@ -243,42 +249,82 @@ export type CampaignRunOptions = {
   cache?: ObservedCache;
   retry?: RetryOptions;
   now?: () => Date;
-  /** Called once per cell, in order, as soon as its outcome is known. */
+  /** Cells that run at the same time. Default 4. */
+  concurrency?: number;
+  /**
+   * A hard stop on spend, in US dollars, over the whole campaign: the runs already in the store count, runs
+   * replayed from the cache do not. Once it is reached no new cell starts; the cells in flight finish.
+   */
+  budgetUsd?: number;
+  /** Called once per cell in cell order, as soon as the cell and every cell before it have an outcome. */
   onCell?(outcome: CellOutcome): void;
 };
 
 /**
- * Runs the cells of a campaign one after the other and files every run in the store. A cell whose
- * completed run is already in the store is reused, not run again: that is how `resume` works. Failed and
- * stopped cells run again.
+ * Runs the cells of a campaign on a pool of workers and files every run in the store as it finishes. A cell
+ * whose completed run is already in the store is reused, not run again: that is how `resume` works. Failed
+ * and stopped cells run again. Outcomes come back, and `onCell` hears them, in cell order. With a budget, a
+ * cell that would start once the campaign's spend has reached it is stopped instead and never starts.
  */
 export async function runCampaign(options: CampaignRunOptions): Promise<CellOutcome[]> {
-  const done = await runsByCell(options.store, options.campaignId);
-  const outcomes: CellOutcome[] = [];
-  for (const cell of options.cells) {
+  const stored = await options.store.listRuns({ campaignId: options.campaignId });
+  const done = byCell(stored);
+  const { cells, budgetUsd } = options;
+  let spentUsd = stored.filter((run) => !run.cacheHit).reduce((sum, run) => sum + run.cost, 0);
+  const outcomes: Array<CellOutcome | undefined> = cells.map(() => undefined);
+  let next = 0;
+  let heard = 0;
+  let failure: { cause: unknown } | undefined;
+
+  const start = async (cell: PlannedCell): Promise<CellOutcome> => {
     const previous = done.get(cell.cellId);
-    let outcome: CellOutcome;
-    if (previous?.status === 'completed') {
-      outcome = outcomeOf(cell, previous, true);
-    } else {
-      const run = await runSpec(options.specFor(cell), {
-        adapter: options.adapterFor(cell.target),
-        driver: options.driver(cell),
-        checks: options.checks,
-        mode: cell.mode,
-        repeat: cell.repeat,
-        target: cell.target,
-        ...(cell.perturbationId === undefined ? {} : { perturbationId: cell.perturbationId }),
-        store: options.store,
-        campaignId: options.campaignId,
-        ...(options.cache ? { cache: options.cache } : {}),
-        ...(options.retry ? { retry: options.retry } : {}),
-        ...(options.now ? { now: options.now } : {}),
-      });
-      outcome = outcomeOf(cell, run);
+    if (previous?.status === 'completed') return outcomeOf(cell, previous, true);
+    if (budgetUsd !== undefined && spentUsd >= budgetUsd) {
+      return { cell, reused: false, state: 'stopped', failing: [], budgetStop: { budgetUsd, spentUsd } };
     }
-    options.onCell?.(outcome);
-    outcomes.push(outcome);
-  }
-  return outcomes;
+    const run = await runSpec(options.specFor(cell), {
+      adapter: options.adapterFor(cell.target),
+      driver: options.driver(cell),
+      checks: options.checks,
+      mode: cell.mode,
+      repeat: cell.repeat,
+      target: cell.target,
+      ...(cell.perturbationId === undefined ? {} : { perturbationId: cell.perturbationId }),
+      store: options.store,
+      campaignId: options.campaignId,
+      ...(options.cache ? { cache: options.cache } : {}),
+      ...(options.retry ? { retry: options.retry } : {}),
+      ...(options.now ? { now: options.now } : {}),
+    });
+    if (!run.cacheHit) spentUsd += run.cost;
+    return outcomeOf(cell, run);
+  };
+
+  const hear = () => {
+    for (let outcome = outcomes[heard]; outcome; outcome = outcomes[heard]) {
+      options.onCell?.(outcome);
+      heard += 1;
+    }
+  };
+
+  const worker = async () => {
+    while (!failure && next < cells.length) {
+      const index = next;
+      next += 1;
+      const cell = cells[index];
+      if (!cell) return;
+      try {
+        outcomes[index] = await start(cell);
+      } catch (cause) {
+        failure ??= { cause };
+        return;
+      }
+      hear();
+    }
+  };
+
+  const workers = Math.max(1, Math.min(Math.floor(options.concurrency ?? 4), cells.length));
+  await Promise.all(Array.from({ length: workers }, () => worker()));
+  if (failure) throw failure.cause;
+  return outcomes.filter((outcome): outcome is CellOutcome => outcome !== undefined);
 }

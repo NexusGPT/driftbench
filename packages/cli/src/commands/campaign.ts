@@ -72,10 +72,18 @@ type RunCommandOptions = {
   campaign?: string;
   store?: string;
   cache: boolean;
+  concurrency: string;
+  budgetUsd?: string;
   json?: boolean;
 };
 
-type StoredCommandOptions = { store: string; cache?: boolean; json?: boolean };
+type StoredCommandOptions = {
+  store: string;
+  cache?: boolean;
+  concurrency?: string;
+  budgetUsd?: string;
+  json?: boolean;
+};
 
 export function registerCampaignCommands(
   program: Command,
@@ -112,6 +120,8 @@ export function registerCampaignCommands(
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
+    .option('--concurrency <n>', 'cells run at the same time', '4')
+    .option('--budget-usd <usd>', 'a hard stop: no cell starts once the campaign has spent this much')
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: RunCommandOptions) => {
       setExit(await campaignRunCommand(paths, options, io, deps));
@@ -123,6 +133,8 @@ export function registerCampaignCommands(
     .argument('<campaignId>', 'the campaign id')
     .requiredOption('--store <file>', 'the store that holds the campaign')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
+    .option('--concurrency <n>', 'cells run at the same time', '4')
+    .option('--budget-usd <usd>', "a hard stop on the campaign's spend; default: the budget it was run with")
     .option('--json', 'print one JSON document')
     .action(async (campaignId: string, options: StoredCommandOptions) => {
       setExit(await campaignResumeCommand(campaignId, options, io, deps));
@@ -208,7 +220,8 @@ export async function campaignRunCommand(
   deps: CampaignDeps,
 ): Promise<number> {
   const shape = parseShape(options, io);
-  if (!shape) return 2;
+  const pool = parsePool(options, io);
+  if (!shape || !pool) return 2;
   const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
   const adapters = await adaptersFor(shape.targets, deps, io);
@@ -236,7 +249,8 @@ export async function campaignRunCommand(
       targets: shape.targets,
       modes: [shape.mode],
       repeats,
-      budgetUsd: 0,
+      // 0 when no budget was given: the schema has no field for "no budget".
+      budgetUsd: pool.budgetUsd ?? 0,
       judge: { mode: 'system1', judges: [] },
       createdAt,
     };
@@ -245,6 +259,7 @@ export async function campaignRunCommand(
       cache: options.cache,
       json: options.json === true,
       kept: options.store !== undefined,
+      ...pool,
     });
   } finally {
     await store.close();
@@ -258,6 +273,8 @@ export async function campaignResumeCommand(
   io: Io,
   deps: CampaignDeps,
 ): Promise<number> {
+  const pool = parsePool({ concurrency: options.concurrency ?? '4', budgetUsd: options.budgetUsd }, io);
+  if (!pool) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   try {
@@ -265,10 +282,14 @@ export async function campaignResumeCommand(
     if (!stored) return 2;
     const adapters = await adaptersFor(stored.campaign.targets, deps, io);
     if (!adapters) return 2;
+    const budgetUsd =
+      pool.budgetUsd ?? (stored.campaign.budgetUsd > 0 ? stored.campaign.budgetUsd : undefined);
     return await executeCampaign(stored.campaign, stored.specs, adapters, store, deps, io, {
       cache: options.cache !== false,
       json: options.json === true,
       kept: true,
+      concurrency: pool.concurrency,
+      ...(budgetUsd === undefined ? {} : { budgetUsd }),
     });
   } finally {
     await store.close();
@@ -310,14 +331,15 @@ async function executeCampaign(
   store: Store,
   deps: CampaignDeps,
   io: Io,
-  flags: { cache: boolean; json: boolean; kept: boolean },
+  flags: { cache: boolean; json: boolean; kept: boolean; concurrency: number; budgetUsd?: number },
 ): Promise<number> {
   const plan = planOf(campaign, loaded);
   const specs = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
   const checks = deps.checks.map((check) => check.name);
   if (!flags.json) {
+    const budget = flags.budgetUsd === undefined ? '' : ` Budget ${usd(flags.budgetUsd)}.`;
     io.out(
-      `Campaign ${campaign.campaignId}: ${count(plan.cells.length, 'cell')}. Checks: ${checks.length > 0 ? checks.join(', ') : 'none loaded'}.\n`,
+      `Campaign ${campaign.campaignId}: ${count(plan.cells.length, 'cell')}, ${flags.concurrency} at a time.${budget} Checks: ${checks.length > 0 ? checks.join(', ') : 'none loaded'}.\n`,
     );
   }
   const outcomes = await runCampaign({
@@ -330,6 +352,8 @@ async function executeCampaign(
     store,
     ...(flags.cache ? { cache: store } : {}),
     now: () => deps.now(),
+    concurrency: flags.concurrency,
+    ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
     ...(flags.json ? {} : { onCell: (outcome: CellOutcome) => io.out(cellLine(outcome)) }),
   });
   if (flags.json) {
@@ -384,6 +408,22 @@ async function storedCampaign(
 }
 
 type Shape = { targets: TargetRef[]; mode: RunMode; repeats: number };
+
+type Pool = { concurrency: number; budgetUsd?: number };
+
+function parsePool(
+  options: { concurrency: string; budgetUsd?: string | undefined },
+  io: Io,
+): Pool | undefined {
+  const concurrency = Number(options.concurrency);
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    io.err(`--concurrency takes a whole number of at least 1, not "${options.concurrency}".\n`);
+    return undefined;
+  }
+  if (options.budgetUsd === undefined) return { concurrency };
+  const budgetUsd = parseNumber(options.budgetUsd, '--budget-usd', io);
+  return budgetUsd === null ? undefined : { concurrency, budgetUsd };
+}
 
 function parseShape(options: { target: string[]; mode: string; repeats: string }, io: Io): Shape | undefined {
   if (options.target.length === 0) {
@@ -497,6 +537,9 @@ function cellLine(outcome: CellOutcome): string {
   let detail = '';
   if (outcome.state === 'fail') {
     detail = `  ${outcome.failing.length > 0 ? outcome.failing.join(', ') : 'no block ran'}`;
+  } else if (outcome.budgetStop) {
+    const { budgetUsd, spentUsd } = outcome.budgetStop;
+    detail = `  not started: the campaign spent ${usd(spentUsd)} of its ${usd(budgetUsd)} budget`;
   } else if (outcome.state === 'failed' || outcome.state === 'stopped') detail = `  ${run?.error ?? ''}`;
   else if (outcome.state === 'pass' && run) detail = `  ${count(run.blocks.length, 'block')}`;
   return `${MARK[outcome.state]} ${name}  ${outcome.state}${notes.length > 0 ? ` (${notes.join(', ')})` : ''}${detail}\n`;
@@ -506,10 +549,12 @@ function summaryLine(outcomes: readonly CellOutcome[]): string {
   const states = (state: CellOutcome['state']) =>
     outcomes.filter((outcome) => outcome.state === state).length;
   const reused = outcomes.filter((outcome) => outcome.reused).length;
+  const budgetStops = outcomes.filter((outcome) => outcome.budgetStop).length;
   const parts = [
     `${states('pass')} pass`,
     `${states('fail')} fail`,
-    `${states('failed') + states('stopped')} failed`,
+    `${states('failed') + states('stopped') - budgetStops} failed`,
+    ...(budgetStops > 0 ? [`${budgetStops} stopped by the budget`] : []),
     ...(states('pending') > 0 ? [`${states('pending')} pending`] : []),
   ];
   const spent = outcomes
@@ -523,7 +568,7 @@ function report(campaignId: string, outcomes: readonly CellOutcome[], kept: bool
     campaignId,
     stored: kept,
     checks,
-    cells: outcomes.map(({ cell, run, reused, state, failing }) => ({
+    cells: outcomes.map(({ cell, run, reused, state, failing, budgetStop }) => ({
       cellId: cell.cellId,
       specId: cell.specId,
       specHash: cell.specHash,
@@ -534,6 +579,7 @@ function report(campaignId: string, outcomes: readonly CellOutcome[], kept: bool
       state,
       reused,
       failing,
+      ...(budgetStop ? { budgetStop } : {}),
       ...(run
         ? {
             runId: run.runId,
@@ -547,7 +593,10 @@ function report(campaignId: string, outcomes: readonly CellOutcome[], kept: bool
       cells: outcomes.length,
       pass: outcomes.filter((outcome) => outcome.state === 'pass').length,
       fail: outcomes.filter((outcome) => outcome.state === 'fail').length,
-      failed: outcomes.filter((outcome) => outcome.state === 'failed' || outcome.state === 'stopped').length,
+      failed: outcomes.filter(
+        (outcome) => (outcome.state === 'failed' || outcome.state === 'stopped') && !outcome.budgetStop,
+      ).length,
+      stoppedByBudget: outcomes.filter((outcome) => outcome.budgetStop).length,
       pending: outcomes.filter((outcome) => outcome.state === 'pending').length,
     },
   };

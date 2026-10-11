@@ -6,7 +6,12 @@ import { AgentFailure } from '@driftbench/core';
 import { openStore } from '@driftbench/store';
 import { Command, CommanderError } from 'commander';
 import { describe, expect, it } from 'vitest';
-import { acmeAdapter, dropsFirstToolCall, minimalChecks } from '../../core/test/runner/support';
+import {
+  acmeAdapter,
+  dropsFirstToolCall,
+  minimalChecks,
+  pricedAcmeAdapter,
+} from '../../core/test/runner/support';
 import { type CampaignDeps, interimDeps, registerCampaignCommands } from '../src/commands/campaign';
 import { type Io, main } from '../src/index';
 
@@ -167,7 +172,7 @@ describe('driftbench campaign run', () => {
       'c-main',
     ]);
     expect(code).toBe(0);
-    expect(out).toContain('Campaign c-main: 6 cells. Checks: none loaded.');
+    expect(out).toContain('Campaign c-main: 6 cells, 4 at a time. Checks: none loaded.');
     expect(out).toContain('✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks');
     expect(out).toContain('6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.');
     expect(out).toContain('The runs are not kept: pass --store <file> to keep them.');
@@ -208,7 +213,7 @@ describe('driftbench campaign run', () => {
       summary: Record<string, number>;
     };
     expect(report.stored).toBe(false);
-    expect(report.summary).toEqual({ cells: 6, pass: 5, fail: 0, failed: 1, pending: 0 });
+    expect(report.summary).toEqual({ cells: 6, pass: 5, fail: 0, failed: 1, stoppedByBudget: 0, pending: 0 });
     expect(report.cells.find((cell) => cell.state === 'failed')).toMatchObject({
       specId: 'acme-number-porting',
       error: 'send on block 0 failed: AgentFailure: the porting service is down',
@@ -265,6 +270,85 @@ describe('driftbench campaign run', () => {
     expect(replayed.out).toContain('pass (replayed from the cache)  5 blocks');
     const fresh = await cli([...base, '--campaign', 'c-third', '--store', path, '--no-cache']);
     expect(fresh.out).toContain('✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks');
+  });
+});
+
+describe('driftbench campaign run on a pool, with a budget', () => {
+  const priced = pricedAcmeAdapter;
+
+  it('stops starting cells once the budget is spent, and names the cells it stopped', async () => {
+    const path = await storePath();
+    const run = await cli(
+      [
+        'campaign',
+        'run',
+        SPECS,
+        '--target',
+        'function:acme',
+        '--campaign',
+        'c-budget',
+        '--store',
+        path,
+        '--concurrency',
+        '1',
+        '--budget-usd',
+        '0.05',
+      ],
+      { adapterFor: async () => priced(), checks: minimalChecks },
+    );
+    expect(run.code).toBe(1);
+    expect(run.out).toContain(
+      'Campaign c-budget: 6 cells, 1 at a time. Budget $0.05. Checks: tools, must, must_not, stage.',
+    );
+    expect(run.out).toContain('✓ acme-number-porting · function:acme · F · repeat 0  pass  5 blocks');
+    expect(run.out).toContain(
+      '! acme-off-topic-return · function:acme · F · repeat 0  stopped  not started: the campaign spent $0.09 of its $0.05 budget',
+    );
+    expect(run.out).toContain('6 cells: 2 pass, 0 fail, 0 failed, 4 stopped by the budget. Spent $0.09.');
+
+    // Resumed without --budget-usd, the budget the campaign was run with still holds.
+    const held = await cli(['campaign', 'resume', 'c-budget', '--store', path], {
+      adapterFor: async () => priced(),
+      checks: minimalChecks,
+    });
+    expect(held.code).toBe(1);
+    expect(held.out).toContain('Budget $0.05.');
+    expect(held.out).toContain(
+      '6 cells: 2 pass, 0 fail, 0 failed, 4 stopped by the budget, 2 reused. Spent $0.00.',
+    );
+
+    const raised = await cli(['campaign', 'resume', 'c-budget', '--store', path, '--budget-usd', '1'], {
+      adapterFor: async () => priced(),
+      checks: minimalChecks,
+    });
+    expect(raised.code).toBe(0);
+    expect(raised.out).toContain('6 cells: 6 pass, 0 fail, 0 failed, 2 reused. Spent $0.17.');
+  });
+
+  it('runs four cells at a time by default and prints them in cell order', async () => {
+    const { code, out } = await cli(['campaign', 'run', SPECS, '--target', 'function:acme'], {
+      checks: minimalChecks,
+    });
+    expect(code).toBe(0);
+    const order = [...out.matchAll(/^✓ (\S+) /gm)].map((match) => match[1]);
+    expect(order).toEqual([
+      'acme-new-customer-coverage',
+      'acme-number-porting',
+      'acme-off-topic-return',
+      'acme-order-loose-confirmation',
+      'acme-plan-upgrade',
+      'acme-tool-failure',
+    ]);
+  });
+
+  it.each([
+    [['--concurrency', '0'], '--concurrency takes a whole number of at least 1, not "0".'],
+    [['--concurrency', 'two'], '--concurrency takes a whole number of at least 1, not "two".'],
+    [['--budget-usd', '-1'], '--budget-usd takes a number of at least 0, not "-1".'],
+  ])('exits 2 on %j', async (options, message) => {
+    const { code, err } = await cli(['campaign', 'run', SPECS, '--target', 'function:acme', ...options]);
+    expect(code).toBe(2);
+    expect(err).toContain(message);
   });
 });
 

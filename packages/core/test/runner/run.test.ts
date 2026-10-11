@@ -342,6 +342,36 @@ describe('verdicts, pass and drift', () => {
     expect(unsure.blocks[0]).toMatchObject({ pass: false, drift: [] });
   });
 
+  it.each([
+    ['tools.order.create.count', ['X5_tool']],
+    ['skills.xlsx.count', ['X5_tool']],
+    ['guards.explicit_confirmation.block', ['X5_tool']],
+    ['forbidden.port.check', ['X5_tool']],
+    ['lang.reply', ['X4_format']],
+    ['cards.offer.count', ['X4_format']],
+    ['cards.one_message_per_turn', ['X4_format']],
+    ['rules.one_message_per_turn', ['X4_format']],
+    ['must.0', []],
+    ['stage.offer', []],
+  ])('gives a failing %s verdict the drift %j', async (id, drift) => {
+    const spec = specOf({ id: 'drift-map', blocks: [{ user: 'a', expect: { must: ['ok'] } }] });
+    const [check, ...rest] = id.split('.');
+    const failing: Check = {
+      name: check ?? 'x',
+      applies: () => true,
+      evaluate: () => [machineVerdict(check ?? 'x', rest.join('.'), 'fail', 'planted failure')],
+    };
+    const run = await runSpec(spec, {
+      adapter: echoAdapter(),
+      driver,
+      checks: [failing],
+      mode: 'F',
+      repeat: 0,
+    });
+    expect(run.blocks[0]?.verdicts[0]?.id).toBe(id);
+    expect(run.blocks[0]?.drift).toEqual(drift);
+  });
+
   it('turns a check that throws or returns a bad verdict into an inconclusive gating verdict', async () => {
     const spec = specOf({ id: 'bad-check', blocks: [{ user: 'a', expect: { must: ['ok'] } }] });
     const throws: Check = {
@@ -445,7 +475,7 @@ describe('the end state', () => {
     });
     expect(run.endState).toEqual({
       match: false,
-      diff: [{ field: 'tool:notify_sales.reason', expected: { nonempty: true }, observed: undefined }],
+      diff: [{ field: 'tool:notify_sales.reason', expected: { nonempty: true }, observed: { absent: true } }],
     });
   });
 
@@ -471,20 +501,45 @@ describe('the end state', () => {
       match: false,
       diff: [
         {
-          field: '*',
-          expected: [],
-          observed: [
-            {
-              tool: 'order.create',
-              input: { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' },
-            },
-          ],
+          field: '*.0',
+          expected: { absent: true },
+          observed: {
+            tool: 'order.create',
+            input: { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' },
+          },
         },
       ],
     });
   });
 
-  it('reads nothing when the adapter cannot read an end state', async () => {
+  it('gives one diff entry per payload found under end_state none', async () => {
+    const twice = { ...acmeSpec(loaded, 'acme-tool-failure'), end_state: 'none' as const };
+    const run = await runSpec(twice, {
+      adapter: acmeAdapter(),
+      driver,
+      checks: [],
+      mode: 'F',
+      repeat: 0,
+      perturbationId: undefined,
+    });
+    // The stubbed notify_sales records one payload; the coverage check fails and records none.
+    expect(run.endState?.match).toBe(false);
+    expect(run.endState?.diff.map((entry) => entry.field)).toEqual(['*.0']);
+    const store = acmeAdapter();
+    const upgrade = await runSpec(
+      {
+        ...acmeSpec(loaded, 'acme-order-loose-confirmation'),
+        end_state: 'none',
+        perturbations: undefined,
+      },
+      { adapter: store, driver, checks: [], mode: 'F', repeat: 0 },
+    );
+    expect(
+      upgrade.endState?.diff.map((entry) => [entry.field, (entry.observed as { tool: string }).tool]),
+    ).toEqual([['*.0', 'order.create']]);
+  });
+
+  it('fails the end state, and says why, when the adapter cannot read one', async () => {
     const blind = acmeAdapter({ capabilities: { endState: false } });
     const unread = await runSpec(acmeSpec(loaded, 'acme-plan-upgrade'), {
       adapter: blind,
@@ -494,7 +549,16 @@ describe('the end state', () => {
       repeat: 0,
     });
     expect(blind.calls.endState).toBe(0);
-    expect(unread.endState).toBeUndefined();
+    expect(unread.endState).toEqual({
+      match: false,
+      diff: [
+        {
+          field: 'tool:order.create',
+          expected: 'an end state read through adapter.endState',
+          observed: 'the adapter function cannot read end states',
+        },
+      ],
+    });
   });
 });
 
@@ -554,7 +618,9 @@ describe('failures', () => {
     expect(attempts).toBe(4);
     expect(waits).toEqual([200, 400, 800]);
     expect(run.blocks).toHaveLength(2);
-    expect(run.endState).toBeUndefined();
+    // The end state is read after the failure too: the order was never placed.
+    expect(run.endState?.match).toBe(false);
+    expect(run.endState?.diff.map((entry) => entry.field)).toEqual(['type', 'customer_id', 'plan_id']);
     expect(adapter.calls.close).toBe(1);
   });
 
@@ -575,7 +641,36 @@ describe('failures', () => {
     expect(run.error).toBe('send on block 3 failed: AgentFailure: the agent crashed on the order');
     expect(attempts).toBe(1);
     expect(run.blocks).toHaveLength(3);
-    expect(adapter.calls.close).toBe(1);
+    expect(adapter.calls).toMatchObject({ endState: 1, close: 1 });
+    expect(run.endState).toEqual({
+      match: false,
+      diff: [
+        { field: 'type', expected: 'upgrade', observed: { absent: true } },
+        { field: 'customer_id', expected: 'cust-001', observed: { absent: true } },
+        { field: 'plan_id', expected: 'mobile-l', observed: { absent: true } },
+      ],
+    });
+  });
+
+  it('carries an end state that says why when no block ran', async () => {
+    const adapter = acmeAdapter();
+    adapter.open = async () => {
+      throw new AgentFailure('the agent would not start');
+    };
+    const run = await runSpec(spec(), { adapter, driver, checks: [], mode: 'F', repeat: 0 });
+    expectValid(run);
+    expect(run.status).toBe('failed');
+    expect(run.error).toBe('open on block 0 failed: AgentFailure: the agent would not start');
+    expect(run.endState).toEqual({
+      match: false,
+      diff: [
+        {
+          field: 'tool:order.create',
+          expected: 'an end state read through adapter.endState',
+          observed: 'no block ran, so no session was open to read from',
+        },
+      ],
+    });
   });
 
   it('fails the run when the adapter returns an Observed the schema refuses', async () => {
@@ -583,7 +678,47 @@ describe('failures', () => {
     adapter.send = async () => ({ text: 'no segments' }) as unknown as Observed;
     const run = await runSpec(spec(), { adapter, driver, checks: [], mode: 'F', repeat: 0 });
     expect(run.status).toBe('failed');
-    expect(run.error).toMatch(/^the adapter's Observed for block 0 does not match the schema: segments /);
+    expect(run.error).toMatch(
+      /^the adapter's Observed for block 0 does not match the schema as JSON: segments /,
+    );
+  });
+
+  it('fails the run when an Observed holds an undefined that JSON would drop', async () => {
+    const adapter = acmeAdapter({
+      wrap: broken((observed) => {
+        const [call] = observed.toolCalls;
+        if (call) call.input = undefined;
+      }),
+    });
+    const run = await runSpec(spec(), { adapter, driver, checks: [], mode: 'F', repeat: 0 });
+    expectValid(run);
+    expect(run.status).toBe('failed');
+    expect(run.error).toBe(
+      "the adapter's Observed for block 1 does not match the schema as JSON: toolCalls.0.input Invalid input: expected nonoptional, received undefined",
+    );
+  });
+
+  it('returns what the store gives back, an end state with absent fields included', async () => {
+    const store = openMemoryStore();
+    await putCampaign(store, 'c-json', loaded);
+    const adapter = acmeAdapter();
+    const send = adapter.send.bind(adapter);
+    adapter.send = async (session, turn) => {
+      if (turn.index === 3) throw new AgentFailure('the agent crashed on the order');
+      return send(session, turn);
+    };
+    const run = await runSpec(spec(), {
+      adapter,
+      driver,
+      checks: [],
+      mode: 'F',
+      repeat: 0,
+      store,
+      campaignId: 'c-json',
+    });
+    expect(run.endState?.diff[0]).toEqual({ field: 'type', expected: 'upgrade', observed: { absent: true } });
+    expect(await store.getRun(run.runId, 'c-json')).toEqual(run);
+    await store.close();
   });
 
   it('fails the run when the driver asks for a block the spec does not have', async () => {

@@ -17,6 +17,7 @@ import {
   dropsFirstToolCall,
   loadAcmeConversations,
   minimalChecks,
+  pricedAcmeAdapter,
   putCampaign,
 } from './support';
 
@@ -286,6 +287,156 @@ describe('runCampaign', () => {
     const [cell] = options.cells;
     expect((await store.getRun(cell?.cellId ?? '', 'c-one'))?.runId).toBe(cell?.cellId);
     expect((await store.getRun(cell?.cellId ?? '', 'c-two'))?.runId).toBe(cell?.cellId);
+    await store.close();
+  });
+});
+
+describe('the worker pool', () => {
+  const plan = planCampaign(loaded, [acme], ['F'], 1);
+
+  /** The Acme agent with a delay per block: long on the first spec, short on the others. */
+  function timed() {
+    const adapter = acmeAdapter();
+    const send = adapter.send.bind(adapter);
+    const flight = { now: 0, max: 0 };
+    adapter.send = async (session, turn) => {
+      flight.now += 1;
+      flight.max = Math.max(flight.max, flight.now);
+      const slow = turn.index === 0 && JSON.stringify(turn.stimulus).includes("I'm new here");
+      await new Promise((resolve) => setTimeout(resolve, slow ? 30 : 2));
+      flight.now -= 1;
+      return send(session, turn);
+    };
+    return { adapter, flight };
+  }
+
+  async function campaign(concurrency: number) {
+    const store = openMemoryStore();
+    await putCampaign(store, 'c-pool', loaded);
+    const { adapter, flight } = timed();
+    const heard: string[] = [];
+    const finished: string[] = [];
+    adapter.close = async (session) => {
+      finished.push(session.id);
+    };
+    const outcomes = await runCampaign({
+      campaignId: 'c-pool',
+      cells: plan.cells,
+      specFor: specOf,
+      adapterFor: () => adapter,
+      driver: () => createScriptedDriver(),
+      checks: minimalChecks,
+      store,
+      concurrency,
+      onCell: (outcome) => heard.push(outcome.cell.specId),
+    });
+    const stored = await store.listRuns({ campaignId: 'c-pool' });
+    await store.close();
+    return { outcomes, heard, flight, stored, finished };
+  }
+
+  it('runs up to 4 cells at once by default and reports them in cell order', async () => {
+    const { outcomes, heard, flight, stored, finished } = await campaign(4);
+    const order = plan.cells.map((cell) => cell.specId);
+    expect(flight.max).toBe(4);
+    expect(outcomes.map((outcome) => outcome.cell.specId)).toEqual(order);
+    expect(heard).toEqual(order);
+    expect(outcomes.every((outcome) => outcome.state === 'pass')).toBe(true);
+    expect(stored).toHaveLength(6);
+    // The slow first cell finished after cells that started after it.
+    expect(finished.indexOf('acme-1')).toBeGreaterThan(finished.indexOf('acme-2'));
+  });
+
+  it('runs one cell at a time with a concurrency of 1', async () => {
+    const { flight, heard } = await campaign(1);
+    expect(flight.max).toBe(1);
+    expect(heard).toEqual(plan.cells.map((cell) => cell.specId));
+  });
+});
+
+describe('the budget', () => {
+  const plan = planCampaign(loaded, [acme], ['F'], 1);
+  const priced = pricedAcmeAdapter;
+  const options = (store: ReturnType<typeof openMemoryStore>, adapter: ReturnType<typeof priced>) => ({
+    campaignId: 'c-budget',
+    cells: plan.cells,
+    specFor: specOf,
+    adapterFor: () => adapter,
+    driver: () => createScriptedDriver(),
+    checks: minimalChecks,
+    store,
+    concurrency: 1,
+  });
+
+  it('starts no cell once the spend reaches the budget, and says which cells it stopped', async () => {
+    const store = openMemoryStore();
+    await putCampaign(store, 'c-budget', loaded);
+    const adapter = priced();
+    const outcomes = await runCampaign({ ...options(store, adapter), budgetUsd: 0.05 });
+    // 4 blocks then 5 blocks at one cent: $0.04 is under the budget, $0.09 is past it.
+    expect(outcomes.map((outcome) => outcome.state)).toEqual([
+      'pass',
+      'pass',
+      'stopped',
+      'stopped',
+      'stopped',
+      'stopped',
+    ]);
+    const stop = outcomes[2]?.budgetStop;
+    expect(stop?.budgetUsd).toBe(0.05);
+    expect(stop?.spentUsd).toBeCloseTo(0.09, 10);
+    expect(outcomes[2]?.run).toBeUndefined();
+    expect(adapter.calls.open).toBe(2);
+    expect(await store.listRuns({ campaignId: 'c-budget' })).toHaveLength(2);
+
+    // Resumed, the spend already in the store counts: with the same budget nothing starts.
+    const again = priced();
+    const held = await runCampaign({ ...options(store, again), budgetUsd: 0.05 });
+    expect(held.map((outcome) => outcome.state)).toEqual([
+      'pass',
+      'pass',
+      'stopped',
+      'stopped',
+      'stopped',
+      'stopped',
+    ]);
+    expect(again.calls.open).toBe(0);
+
+    // A larger budget lets the stopped cells run until it is reached again.
+    const more = priced();
+    const resumed = await runCampaign({ ...options(store, more), budgetUsd: 0.15 });
+    expect(resumed.map((outcome) => [outcome.state, outcome.reused])).toEqual([
+      ['pass', true],
+      ['pass', true],
+      ['pass', false],
+      ['pass', false],
+      ['stopped', false],
+      ['stopped', false],
+    ]);
+    expect(resumed[4]?.budgetStop?.spentUsd).toBeCloseTo(0.18, 10);
+    await store.close();
+  });
+
+  it('never counts a run replayed from the cache as spend', async () => {
+    const store = openMemoryStore();
+    await putCampaign(store, 'c-budget', loaded);
+    await putCampaign(store, 'c-replay', loaded);
+    await runCampaign({ ...options(store, priced()), cache: store });
+    const replayed = await runCampaign({
+      ...options(store, priced()),
+      campaignId: 'c-replay',
+      cache: store,
+      budgetUsd: 0,
+    });
+    // Budget 0: no cell may start; every cell is stopped, and the cache is never asked.
+    expect(replayed.every((outcome) => outcome.state === 'stopped')).toBe(true);
+    const free = await runCampaign({
+      ...options(store, priced()),
+      campaignId: 'c-replay',
+      cache: store,
+      budgetUsd: 0.01,
+    });
+    expect(free.every((outcome) => outcome.state === 'pass' && outcome.run?.cacheHit)).toBe(true);
     await store.close();
   });
 });

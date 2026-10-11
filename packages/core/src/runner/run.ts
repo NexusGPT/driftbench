@@ -7,7 +7,7 @@ import { DriftClass, type Message, type TargetRef, type WorldState } from '../sc
 import { type BlockResult, Observed, type RunMode, RunResult, Verdict } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { contentHash } from '../spec/hash';
-import { compareEndState } from './assertion';
+import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
 import { cellId } from './cell';
 import {
@@ -108,7 +108,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const replayed = options.cache ? await execute(run, replayChannel(options.cache)) : undefined;
   const result = replayed ?? (await execute(run, liveChannel(run)));
   if (!result) throw new Error('runSpec: a live run always gives a result');
-  const parsed = RunResult.parse(result);
+  // The run as the store keeps it: written as JSON and read back, so what is returned is what is stored.
+  const parsed = RunResult.parse(JSON.parse(JSON.stringify(result)));
   if (options.store && options.campaignId !== undefined)
     await options.store.putRun(options.campaignId, parsed);
   return parsed;
@@ -264,15 +265,6 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         pass: verdicts.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
       });
     }
-
-    // The run's end state is the read taken after the last spec block, unless a block ran after it.
-    if (status === 'completed' && lastKey !== undefined && sources.length > 0) {
-      if (endRead?.afterBlock !== blocks.length - 1) {
-        const read = await channel.endState(sources, lastKey);
-        if (read.kind === 'miss') return undefined;
-        endRead = read.kind === 'read' ? { states: read.states, afterBlock: blocks.length - 1 } : undefined;
-      }
-    }
   } catch (cause) {
     if (channel.replay) return undefined;
     status = 'failed';
@@ -280,12 +272,38 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       cause instanceof CallFailure || cause instanceof RunnerError ? cause.message : describeError(cause);
   }
 
+  // Every run of a spec that names an end state carries it, failed and stopped runs too: the read taken
+  // after the last spec block when no block ran after it, else a read now. A read that cannot happen fails
+  // the end state and says why.
+  let endState: EndStateMatch | undefined;
+  if (run.endState !== undefined) {
+    let states = endRead?.afterBlock === blocks.length - 1 ? endRead.states : undefined;
+    let unreadable = 'no block ran, so no session was open to read from';
+    if (!states && lastKey !== undefined) {
+      try {
+        const read = await channel.endState(sources, lastKey);
+        if (read.kind === 'miss') return undefined;
+        if (read.kind === 'read') states = read.states;
+        else unreadable = `the adapter ${run.adapter.id} cannot read end states`;
+      } catch (cause) {
+        if (channel.replay) return undefined;
+        unreadable = cause instanceof CallFailure ? cause.message : describeError(cause);
+      }
+    }
+    endState = states
+      ? compareEndState(run.endState, endStateValue(run.endState, sources, states))
+      : {
+          match: false,
+          diff: sources.map((source) => ({
+            field: source,
+            expected: 'an end state read through adapter.endState',
+            observed: unreadable,
+          })),
+        };
+  }
+
   const note = await channel.close();
   if (channel.replay && blocks.length === 0) return undefined;
-  const endState =
-    status === 'completed' && endRead && run.endState !== undefined
-      ? compareEndState(run.endState, endStateValue(run.endState, sources, endRead.states))
-      : undefined;
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
     runId: run.runId,
@@ -419,9 +437,16 @@ async function applyChecks(checks: CheckSet, ctx: CheckContext): Promise<Verdict
   return verdicts;
 }
 
-/** Drift classes before the phase 3 classifier: a failing tools verdict is X5, a failing lang or cards verdict X4. */
+/**
+ * Drift classes before the phase 3 classifier, by the check a failing verdict comes from (the prefix of
+ * its id): tool, skill and guard checks give X5_tool; language and card checks give X4_format, and so
+ * does a one_message_per_turn verdict from any check.
+ */
 const DRIFT_BY_CHECK: Readonly<Record<string, DriftClass>> = {
   tools: 'X5_tool',
+  forbidden: 'X5_tool',
+  skills: 'X5_tool',
+  guards: 'X5_tool',
   lang: 'X4_format',
   cards: 'X4_format',
 };
@@ -430,7 +455,10 @@ function driftOf(verdicts: readonly Verdict[]): DriftClass[] {
   const found = new Set<DriftClass>();
   for (const verdict of verdicts) {
     if (verdict.outcome !== 'fail') continue;
-    const drift = DRIFT_BY_CHECK[verdict.id.split('.')[0] ?? ''];
+    const segments = verdict.id.split('.');
+    const drift =
+      DRIFT_BY_CHECK[segments[0] ?? ''] ??
+      (segments.includes('one_message_per_turn') ? 'X4_format' : undefined);
     if (drift) found.add(drift);
   }
   return DriftClass.options.filter((drift) => found.has(drift));
@@ -478,11 +506,12 @@ function liveChannel(run: RunContext): Channel {
       if (run.capabilities.trace && trace) {
         observed = await call(`trace on block ${turn.index}`, () => trace.call(adapter, current, turn));
       }
-      const parsed = Observed.safeParse(observed);
+      // Checked as JSON, the form the cache and the store keep: an undefined that JSON drops is a fault here.
+      const parsed = Observed.safeParse(asJson(observed, turn.index));
       if (!parsed.success) {
         const issue = parsed.error.issues[0];
         throw new RunnerError(
-          `the adapter's Observed for block ${turn.index} does not match the schema: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
+          `the adapter's Observed for block ${turn.index} does not match the schema as JSON: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
         );
       }
       current.history.push(assistantMessage(parsed.data));
@@ -512,6 +541,18 @@ function liveChannel(run: RunContext): Channel {
       return notes.length > 0 ? notes.join('; ') : undefined;
     },
   };
+}
+
+/** A value written as JSON and read back. */
+function asJson(value: unknown, block: number): unknown {
+  try {
+    const text = JSON.stringify(value);
+    return text === undefined ? undefined : JSON.parse(text);
+  } catch (cause) {
+    throw new RunnerError(
+      `the adapter's Observed for block ${block} cannot be written as JSON: ${describeError(cause)}`,
+    );
+  }
 }
 
 function replayChannel(cache: ObservedCache): Channel {

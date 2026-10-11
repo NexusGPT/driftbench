@@ -42,13 +42,22 @@ export type EndStateMatch = { match: boolean; diff: EndStateDiff[] };
  * keyed by source, and `none` gives the list that source `*` returned. `subset` (the default) checks the
  * listed fields; `exact` also fails every other field of the state, expected absent. One diff entry per
  * field that does not hold; in a list a field is named `<source>.<field>`. `none` holds when nothing was
- * recorded (undefined, null, an empty list or object) and otherwise gives one entry for `*`.
+ * recorded (undefined, null, an empty list or object) and otherwise gives one entry per payload found,
+ * `*.<index>`, expected absent. A value that is absent is written `{ absent: true }`, the assertion that
+ * names it, so a diff keeps its meaning through JSON, where an undefined value would vanish.
  */
 export function compareEndState(endState: EndState, value: unknown): EndStateMatch {
   if (endState === 'none') {
-    return isEmpty(value)
-      ? { match: true, diff: [] }
-      : { match: false, diff: [{ field: '*', expected: [], observed: value }] };
+    if (isEmpty(value)) return { match: true, diff: [] };
+    const found = Array.isArray(value) ? value : [value];
+    return {
+      match: false,
+      diff: found.map((payload, index) => ({
+        field: `*.${index}`,
+        expected: { absent: true },
+        observed: shown(payload),
+      })),
+    };
   }
   const list = Array.isArray(endState);
   const entries: EndStateSpec[] = Array.isArray(endState) ? endState : [endState];
@@ -59,8 +68,9 @@ export function compareEndState(endState: EndState, value: unknown): EndStateMat
     const name = (field: string) => (list ? `${entry.source}.${field}` : field);
     for (const [field, assertion] of Object.entries(entry.expect)) {
       const observed = record?.[field];
-      if (!matchAssertion(observed, assertion))
-        diff.push({ field: name(field), expected: assertion, observed });
+      if (!matchAssertion(observed, assertion)) {
+        diff.push({ field: name(field), expected: assertion, observed: shown(observed) });
+      }
     }
     if (entry.mode === 'exact' && record) {
       for (const [field, observed] of Object.entries(record)) {
@@ -71,6 +81,10 @@ export function compareEndState(endState: EndState, value: unknown): EndStateMat
     }
   }
   return { match: diff.length === 0, diff };
+}
+
+function shown(value: unknown): unknown {
+  return value === undefined ? { absent: true } : value;
 }
 
 function holds(value: unknown, expected: unknown): boolean {
