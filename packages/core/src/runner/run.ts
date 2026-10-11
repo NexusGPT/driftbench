@@ -73,7 +73,9 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const now = options.now ?? (() => new Date());
   const specHash = contentHash(spec);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
-  const endState = spec.end_state;
+  // In P mode the spec's end state describes the unperturbed run, so it is neither read nor compared, as
+  // the Acme light runner and the end_state check do; phase 3 decides what a perturbed run should leave.
+  const endState = options.mode === 'P' ? undefined : spec.end_state;
   const run: RunContext = {
     spec,
     specHash,
@@ -438,9 +440,11 @@ async function applyChecks(checks: CheckSet, ctx: CheckContext): Promise<Verdict
 }
 
 /**
- * Drift classes before the phase 3 classifier, by the check a failing verdict comes from (the prefix of
- * its id): tool, skill and guard checks give X5_tool; language and card checks give X4_format, and so
- * does a one_message_per_turn verdict from any check.
+ * Drift classes before the phase 3 classifier, by the check a failing verdict comes from: the text of its
+ * id before the first dot (check names hold no dot; tool labels and paths after it may). Tool, forbidden,
+ * skill and guard checks give X5_tool; language and card checks (one_message_per_turn among them) give
+ * X4_format; the stage check, which reads the stage the runtime reports, gives X3_flow. A custom check's
+ * ids start with `custom`, so a custom check never takes a family's class by its name.
  */
 const DRIFT_BY_CHECK: Readonly<Record<string, DriftClass>> = {
   tools: 'X5_tool',
@@ -449,16 +453,14 @@ const DRIFT_BY_CHECK: Readonly<Record<string, DriftClass>> = {
   guards: 'X5_tool',
   lang: 'X4_format',
   cards: 'X4_format',
+  stage: 'X3_flow',
 };
 
 function driftOf(verdicts: readonly Verdict[]): DriftClass[] {
   const found = new Set<DriftClass>();
   for (const verdict of verdicts) {
     if (verdict.outcome !== 'fail') continue;
-    const segments = verdict.id.split('.');
-    const drift =
-      DRIFT_BY_CHECK[segments[0] ?? ''] ??
-      (segments.includes('one_message_per_turn') ? 'X4_format' : undefined);
+    const drift = DRIFT_BY_CHECK[verdict.id.split('.', 1)[0] ?? ''];
     if (drift) found.add(drift);
   }
   return DriftClass.options.filter((drift) => found.has(drift));

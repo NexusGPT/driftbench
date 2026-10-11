@@ -350,9 +350,12 @@ describe('verdicts, pass and drift', () => {
     ['lang.reply', ['X4_format']],
     ['cards.offer.count', ['X4_format']],
     ['cards.one_message_per_turn', ['X4_format']],
-    ['rules.one_message_per_turn', ['X4_format']],
     ['must.0', []],
-    ['stage.offer', []],
+    ['stage.reached', ['X3_flow']],
+    ['forbidden.max_calls.coverage.check', ['X5_tool']],
+    ['custom.tools.reply', []],
+    ['artifacts.out/acme-price-sheet.xlsx.0.sheets', []],
+    ['end_state.plan_id', []],
   ])('gives a failing %s verdict the drift %j', async (id, drift) => {
     const spec = specOf({ id: 'drift-map', blocks: [{ user: 'a', expect: { must: ['ok'] } }] });
     const [check, ...rest] = id.split('.');
@@ -800,8 +803,9 @@ describe('injected blocks', () => {
       },
     };
     const watch = spy();
+    const adapter = acmeAdapter();
     const run = await runSpec(spec, {
-      adapter: acmeAdapter(),
+      adapter,
       driver: perturbing,
       checks: [...minimalChecks, watch],
       mode: 'P',
@@ -820,7 +824,10 @@ describe('injected blocks', () => {
     expect(watch.seen[1]?.expect).toEqual(perturbation.expect);
     expect(run.perturbationId).toBe('shop-hours');
     expect(run.mode).toBe('P');
-    expect(run.endState).toEqual({ match: true, diff: [] });
+    // In P mode the spec's end state is not read: it describes the unperturbed run.
+    expect(run.endState).toBeUndefined();
+    expect(watch.seen.every((ctx) => ctx.endState === undefined)).toBe(true);
+    expect(adapter.calls.endState).toBe(0);
   });
 
   it("merges an injected perturbation's world from that block onwards", async () => {
