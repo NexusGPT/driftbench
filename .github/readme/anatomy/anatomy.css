@@ -1,0 +1,395 @@
+/* The anatomy of driftbench, in the Nexus design system v1: Libre Caslon for the title, Geist for text,
+   Geist Mono for labels, a page of #F6F8FB, white panels on frosted glass over a faint blue silk, and the
+   #FF6600 spark spent once, on the deviation punch's lamp. The kit's tones are cooled toward the brand's
+   navy ink. Light ships first; dark is the same figure on DeepBlue silk. */
+.iso[data-theme="light"] {
+  --anatomy-page: #f6f8fb;
+  --anatomy-card: #ffffff;
+  --anatomy-text: #4a5873;
+  --anatomy-strong: #0e1116;
+  --anatomy-muted: #7d879a;
+  --anatomy-paper: #ffffff;
+  --anatomy-face: #ffffff;
+  --anatomy-top: #ffffff;
+  --anatomy-shade-0: #d6dce8;
+  --anatomy-shade-1: #e1e6ef;
+  --anatomy-shade-2: #eaeef5;
+  --anatomy-shade-3: #f3f5f9;
+  --anatomy-lit-top: #ffffff;
+  --anatomy-lit-shade: #eef1f6;
+  --anatomy-hi: #1b2a44;
+  --anatomy-mid: #76829a;
+  --anatomy-lo: #aab3c4;
+  --anatomy-faint: #d2d8e3;
+  --anatomy-lit: #0e1116;
+  --anatomy-halo: #4a5873;
+  --anatomy-halo-opacity: 0.24;
+  --anatomy-dot: #1b2a44;
+  --an-silk: url("../src/silk/silkrow-1920x1080.jpg");
+  --an-silk-fallback: #d6e3f9;
+  --an-glass: rgba(255, 255, 255, 0.46);
+  --an-glass-border: rgba(255, 255, 255, 0.6);
+  --an-glass-rim: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --an-glass-shadow: 0 20px 40px -28px rgba(14, 30, 60, 0.35);
+  --an-panel-shadow: 0 8px 18px rgba(14, 30, 60, 0.12), 0 0 0 1px rgba(14, 17, 22, 0.06);
+  --an-chart-paper: #fbfcfe;
+  --an-window: #f1f4f9;
+  --an-spark: #ff6600;
+}
+.iso[data-theme="dark"] {
+  --anatomy-page: #060a14;
+  --anatomy-card: #12161e;
+  --anatomy-text: #b9c2d3;
+  --anatomy-strong: #f5f3f0;
+  --anatomy-muted: #7d879a;
+  --anatomy-paper: #12161e;
+  --anatomy-face: #171c26;
+  --anatomy-top: #1b212c;
+  --anatomy-shade-0: #0c1017;
+  --anatomy-shade-1: #0f131b;
+  --anatomy-shade-2: #12171f;
+  --anatomy-shade-3: #161b24;
+  --anatomy-lit-top: #232a37;
+  --anatomy-lit-shade: #1a202b;
+  --anatomy-hi: #e3e8f2;
+  --anatomy-mid: #7d889c;
+  --anatomy-lo: #4b5466;
+  --anatomy-faint: #2c3340;
+  --anatomy-lit: #ffffff;
+  --anatomy-halo: #000000;
+  --anatomy-halo-opacity: 0.8;
+  --anatomy-dot: #e3e8f2;
+  --an-silk: url("../src/silk/deepblue-1920x1080.jpg");
+  --an-silk-fallback: #06122b;
+  --an-glass: rgba(7, 11, 20, 0.38);
+  --an-glass-border: rgba(255, 255, 255, 0.2);
+  --an-glass-rim: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  --an-glass-shadow: 0 20px 40px -28px rgba(0, 0, 0, 0.6);
+  --an-panel-shadow: 0 8px 18px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --an-chart-paper: #0f131b;
+  --an-window: #0c1017;
+  --an-spark: #ff6600;
+}
+.iso {
+  --anatomy-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --an-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --an-serif: "Libre Caslon Display", Georgia, serif;
+}
+body.iso {
+  font-family: var(--an-sans);
+}
+.an-head {
+  margin: 0 4px 22px;
+}
+.an-kicker {
+  margin: 0 0 10px;
+  font: 500 11px/1 var(--anatomy-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--anatomy-muted);
+}
+.an-title {
+  margin: 0;
+  font: 400 34px/1.1 var(--an-serif);
+  letter-spacing: -0.012em;
+  color: var(--anatomy-strong);
+}
+.an-frame {
+  border-radius: 24px;
+  padding: 10px;
+  background: var(--an-silk-fallback) var(--an-silk) center / cover;
+}
+.an-frame .iso-figure {
+  margin: 0;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--an-glass);
+  border: 1px solid var(--an-glass-border);
+  box-shadow: var(--an-glass-rim), var(--an-glass-shadow);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+.an-frame .iso-plate {
+  border-radius: 12px;
+  box-shadow: var(--an-panel-shadow);
+  padding: 44px 18px 48px;
+}
+.an-frame .iso-plate-corner {
+  font-size: 11px;
+}
+.an-stage {
+  outline: none;
+  touch-action: pan-y;
+}
+.an-stage:focus-visible {
+  outline: 1px solid var(--anatomy-muted);
+  outline-offset: 6px;
+}
+.an-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.an-parts {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px 18px;
+  margin: 18px 4px 0;
+  padding: 0;
+}
+.an-part {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "n name" "n text";
+  column-gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.an-part:hover,
+.an-part:focus-visible,
+.an-part[data-on] {
+  background: color-mix(in srgb, var(--anatomy-card) 70%, transparent);
+  box-shadow: var(--an-panel-shadow);
+  outline: none;
+}
+.an-n {
+  grid-area: n;
+  font: 500 11px/1.5 var(--anatomy-mono);
+  color: var(--anatomy-muted);
+}
+.an-name {
+  grid-area: name;
+  font: 600 13px/1.35 var(--an-sans);
+  color: var(--anatomy-strong);
+}
+.an-text {
+  grid-area: text;
+  font: 400 12.5px/1.45 var(--an-sans);
+  color: var(--anatomy-text);
+}
+.an-caption {
+  margin: 18px 4px 0;
+  font: 400 13.5px/1.6 var(--an-sans);
+  color: var(--anatomy-text);
+}
+.an-tools {
+  margin: 14px 4px 0;
+}
+.an-theme {
+  padding: 6px 12px;
+  border: 1px solid color-mix(in srgb, var(--anatomy-muted) 40%, transparent);
+  border-radius: 999px;
+  background: none;
+  color: var(--anatomy-text);
+  font: 500 11px/1 var(--anatomy-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+@media (max-width: 760px) {
+  .an-parts {
+    grid-template-columns: 1fr;
+  }
+  .an-title {
+    font-size: 26px;
+  }
+}
+/* On a phone the machine runs edge to edge: the drawing is scaled up and its empty corners are cropped. */
+@media (max-width: 560px) {
+  .an-frame .iso-plate {
+    overflow: hidden;
+    padding: 40px 0 70px;
+  }
+  .an-frame .iso-plate .iso-svg {
+    width: 116%;
+    margin: -10px -8% -12px;
+  }
+  .an-frame .iso-plate-corners {
+    inset: 14px 14px;
+  }
+  .an-frame .iso-plate-corner[data-corner="hint"] {
+    display: none;
+  }
+  .an-frame .iso-plate-corner[data-corner="readout"] {
+    left: 0;
+    white-space: normal;
+    text-align: right;
+    line-height: 1.45;
+  }
+}
+
+/* parts the live script drives */
+[data-lamp][data-on] .iso-top,
+[data-lamp][data-on] .iso-shade,
+[data-lamp][data-on] .iso-fill {
+  fill: var(--anatomy-hi);
+  stroke: var(--anatomy-hi);
+}
+.an-peg {
+  fill: var(--anatomy-paper);
+  stroke: var(--anatomy-lo);
+  stroke-width: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+.an-peg[data-on] {
+  fill: var(--anatomy-hi);
+  stroke: var(--anatomy-hi);
+}
+.an-spark-dot {
+  fill: var(--anatomy-lo);
+  transition: fill 160ms linear;
+}
+.an-spark[data-on] .an-spark-dot {
+  fill: var(--an-spark);
+}
+.an-paper {
+  fill: var(--an-chart-paper);
+  stroke: var(--anatomy-lo);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+.an-chart-mid,
+.an-grid {
+  fill: none;
+  stroke: var(--anatomy-faint);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+.an-chart-mid {
+  stroke: var(--anatomy-lo);
+}
+.an-trace {
+  fill: none;
+  stroke: var(--anatomy-hi);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.an-event {
+  fill: none;
+  stroke: var(--anatomy-mid);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+.an-pen {
+  fill: var(--anatomy-hi);
+}
+.an-pen-arm {
+  fill: none;
+  stroke: var(--anatomy-mid);
+  stroke-width: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+.an-dial-face {
+  fill: var(--an-chart-paper);
+  stroke: var(--anatomy-lo);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+.an-tick {
+  fill: none;
+  stroke: var(--anatomy-lo);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+.an-tick[data-major] {
+  stroke: var(--anatomy-mid);
+}
+.an-band {
+  fill: var(--anatomy-shade-0);
+  stroke: var(--anatomy-mid);
+  stroke-width: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+.an-notch {
+  fill: var(--anatomy-hi);
+}
+.an-needle {
+  fill: none;
+  stroke: var(--anatomy-hi);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.an-pointer {
+  fill: var(--anatomy-mid);
+  stroke: none;
+}
+.an-hub {
+  fill: var(--anatomy-paper);
+  stroke: var(--anatomy-hi);
+  stroke-width: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+.an-window {
+  fill: var(--an-window);
+  stroke: var(--anatomy-lo);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+.an-digits {
+  fill: var(--anatomy-hi);
+  font: 500 6.6px/1 var(--anatomy-mono);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.an-car [data-flag][data-fail] .iso-top,
+.an-car [data-flag][data-fail] .iso-shade {
+  fill: var(--anatomy-hi);
+}
+.an-car [data-obs] {
+  fill: var(--anatomy-hi);
+  opacity: 0;
+  transition: opacity 180ms linear;
+}
+.an-car [data-pad][data-seen] [data-obs] {
+  opacity: 1;
+}
+.an-car [data-pad] [data-x] {
+  opacity: 0;
+}
+.an-car [data-pad][data-bad] [data-x] {
+  opacity: 1;
+}
+.an-car [data-token] {
+  opacity: 0;
+}
+.an-car[data-injected] [data-token] {
+  opacity: 1;
+}
+.an-car [data-pad][data-off] .an-bump {
+  display: none;
+}
+.an-car[data-kind="task"] [data-given="talk"],
+.an-car[data-kind="conversation"] [data-given="work"] {
+  display: none;
+}
+.an-line .it,
+.an-cars {
+  transition: opacity 260ms linear;
+}
+.an-stage[data-focus] .an-line .it:not([data-on]) {
+  opacity: 0.22;
+}
+.an-stage[data-focus]:not([data-focus="blocks"]) [data-part="cars"] {
+  opacity: 0.22;
+}
+@media (prefers-reduced-motion: reduce) {
+  .an-line .it,
+  .an-car [data-obs],
+  .an-spark-dot {
+    transition: none;
+  }
+}
