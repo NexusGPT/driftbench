@@ -29,6 +29,11 @@ export interface Store {
 
   putCampaign(campaign: Campaign): Promise<void>;
   getCampaign(campaignId: string): Promise<Campaign | undefined>;
+  /**
+   * Every campaign the store holds, newest first by `createdAt` read as a date (a time that is not a date
+   * comes after the dates), then by campaign id. The first one is the latest campaign.
+   */
+  listCampaigns(): Promise<Campaign[]>;
 
   /** Stores a run under its campaign; the campaign must exist. A run put twice replaces the first (resume). */
   putRun(campaignId: string, run: RunResult): Promise<void>;

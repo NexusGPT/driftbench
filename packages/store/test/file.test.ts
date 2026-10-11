@@ -70,6 +70,7 @@ describe('a store on disk', () => {
 
     store = openStore(path);
     expect(await store.getCampaign(ID)).toStrictEqual(campaign());
+    expect(await store.listCampaigns()).toStrictEqual([campaign()]);
     expect(await store.getRun(stored.runId)).toStrictEqual(stored);
     expect(await store.cacheGet('cache-key-1')).toStrictEqual(observed());
     expect(await store.listUnits()).toHaveLength(1);
@@ -166,6 +167,8 @@ describe('a corrupt row raises a clear error', () => {
 
     const campaignError = await storeError(() => store.getCampaign(ID));
     expect(campaignError.message).toContain(`the campaigns row ${ID} holds corrupt JSON in column json`);
+    const listError = await storeError(() => store.listCampaigns());
+    expect(listError.message).toContain(`the campaigns row ${ID} holds corrupt JSON in column json`);
     const cacheError = await storeError(() => store.cacheGet('cache-key-1'));
     expect(cacheError.message).toContain('the cache row cache-key-1 does not match the Observed schema');
     const loaded = parseSpecText(SPEC, 'yaml');
@@ -173,7 +176,7 @@ describe('a corrupt row raises a clear error', () => {
     expect(specError.message).toMatch(/the specs row acme-greeting@\w+ holds spec acme-greeting@\w+/);
     const unitError = await storeError(() => store.listUnits());
     expect(unitError.message).toContain('the units row function/block is invalid: usd');
-    for (const error of [campaignError, cacheError, specError, unitError])
+    for (const error of [campaignError, listError, cacheError, specError, unitError])
       expect(error.code).toBe('CORRUPT_ROW');
   });
 });

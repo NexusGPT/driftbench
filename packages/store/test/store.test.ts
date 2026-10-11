@@ -103,6 +103,41 @@ describe('campaigns', () => {
     expect(error.message).toContain('modes');
     expect(await store.getCampaign('acme-c2')).toBeUndefined();
   });
+
+  it('list none from an empty store', async () => {
+    expect(await store.listCampaigns()).toEqual([]);
+  });
+
+  it('list newest first by createdAt, then by id, whatever the order they were put in', async () => {
+    const day1 = campaign('acme-day-1', { createdAt: '2026-10-10T09:00:00.000Z' });
+    const day2b = campaign('acme-day-2-b', { createdAt: '2026-10-11T17:10:55.000Z' });
+    const day2a = campaign('acme-day-2-a', { createdAt: '2026-10-11T17:10:55.000Z' });
+    const day3 = campaign('acme-day-3', { createdAt: '2026-10-12T08:00:00.000Z' });
+    for (const each of [day2b, day1, day3, day2a]) await store.putCampaign(each);
+    const listed = await store.listCampaigns();
+    expect(listed.map((each) => each.campaignId)).toEqual([
+      'acme-day-3',
+      'acme-day-2-a',
+      'acme-day-2-b',
+      'acme-day-1',
+    ]);
+    expect(listed[0]).toStrictEqual(day3);
+  });
+
+  it('list times as dates, not as text, and put a time that is not a date after the dates', async () => {
+    // As text "...55Z" sorts after "...55.649Z"; as a date it is 649 milliseconds earlier.
+    await store.putCampaign(campaign('acme-whole-second', { createdAt: '2026-10-11T17:10:55Z' }));
+    await store.putCampaign(campaign('acme-later', { createdAt: '2026-10-11T17:10:55.649Z' }));
+    // Date.parse reads neither, so they come after the dates, the larger text first.
+    await store.putCampaign(campaign('acme-undated-1', { createdAt: 'first run' }));
+    await store.putCampaign(campaign('acme-undated-2', { createdAt: 'second run' }));
+    expect((await store.listCampaigns()).map((each) => each.campaignId)).toEqual([
+      'acme-later',
+      'acme-whole-second',
+      'acme-undated-2',
+      'acme-undated-1',
+    ]);
+  });
 });
 
 describe('runs', () => {
@@ -222,6 +257,7 @@ describe('a closed store', () => {
     await closing.close();
     await expect(closing.close()).resolves.toBeUndefined();
     expect((await storeError(() => closing.listRuns())).code).toBe('CLOSED');
+    expect((await storeError(() => closing.listCampaigns())).code).toBe('CLOSED');
     expect((await storeError(() => closing.cacheGet('k'))).code).toBe('CLOSED');
   });
 });
