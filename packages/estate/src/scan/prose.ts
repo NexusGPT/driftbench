@@ -13,7 +13,7 @@ import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { type Atom, EvidencePredicate } from '../schema';
 import type { AtomBuilder } from './code';
-import type { ProseChunk } from './reader';
+import type { ProseChunk, RawEstate } from './reader';
 import { type Located, locateQuote, quoteAtSpan } from './text';
 
 /**
@@ -331,4 +331,78 @@ function issue(error: z.ZodError): string {
       : first.message.replace(/received undefined$/, 'missing');
   const path = first.path.map(String).join('.');
   return path ? `${path}: ${message}` : message;
+}
+
+/** Where a prose chunk comes from, by the kind of its file. */
+export const PROSE_SOURCES = ['standing', 'memory', 'skill', 'reference', 'subagent', 'other'] as const;
+export type ProseSource = (typeof PROSE_SOURCES)[number];
+
+const SOURCE_NAMES: Record<ProseSource, string> = {
+  standing: 'standing',
+  memory: 'memory',
+  skill: 'skill bodies',
+  reference: 'skill files',
+  subagent: 'helper bodies',
+  other: 'other',
+};
+
+export type ProseInventory = {
+  chunks: Array<{
+    id: string;
+    file: string;
+    source: ProseSource;
+    startLine: number;
+    endLine: number;
+    characters: number;
+  }>;
+  characters: number;
+  bySource: Record<ProseSource, { chunks: number; characters: number }>;
+};
+
+/** The prose chunks of an estate with their sizes: what a model call would be given, chunk by chunk. */
+export function proseInventory(raw: RawEstate): ProseInventory {
+  const kinds = new Map(raw.files.map((file) => [file.path, file.kind]));
+  const bySource = Object.fromEntries(
+    PROSE_SOURCES.map((source) => [source, { chunks: 0, characters: 0 }]),
+  ) as ProseInventory['bySource'];
+  const chunks = raw.prose.map((chunk) => {
+    const kind = kinds.get(chunk.file);
+    const source: ProseSource =
+      kind === 'standing' || kind === 'memory' || kind === 'skill' || kind === 'subagent'
+        ? kind
+        : kind === 'skill_file'
+          ? 'reference'
+          : 'other';
+    const characters = chunk.text.length;
+    bySource[source].chunks++;
+    bySource[source].characters += characters;
+    return {
+      id: chunk.id,
+      file: chunk.file,
+      source,
+      startLine: chunk.startLine,
+      endLine: chunk.endLine,
+      characters,
+    };
+  });
+  return { chunks, characters: chunks.reduce((sum, chunk) => sum + chunk.characters, 0), bySource };
+}
+
+/**
+ * The lines a scan prints about its prose: the count by source, and, when no model ran, every chunk left
+ * unanswered with its size, so the owner sees what a model call would cost before funding it.
+ */
+export function proseInventoryLines(inventory: ProseInventory, answered: boolean): string[] {
+  const { chunks, characters, bySource } = inventory;
+  if (chunks.length === 0) return ['  Prose: none.'];
+  const parts = PROSE_SOURCES.filter((source) => bySource[source].chunks > 0).map(
+    (source) => `${SOURCE_NAMES[source]} ${bySource[source].chunks}`,
+  );
+  const lines = [
+    `  Prose: ${chunks.length} ${chunks.length === 1 ? 'chunk' : 'chunks'}, ${characters} characters (${parts.join(', ')}).`,
+  ];
+  if (answered) return lines;
+  lines.push(`  Unanswered prose chunks (no model call): ${chunks.length}, ${characters} characters.`);
+  for (const chunk of chunks) lines.push(`    ${chunk.id}  ${chunk.characters} characters`);
+  return lines;
 }
