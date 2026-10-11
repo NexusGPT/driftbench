@@ -69,3 +69,10 @@ describe('the outcome without case', () => {
     expect(parseAnswerText('{"outcome":"YES","reasoning":"r"}').unparsed).toBe(true);
   });
 });
+
+describe('a score in quotes', () => {
+  it('reads "0.92" as 0.92 and refuses a score that is not a number', () => {
+    expect(parseAnswerText('{"outcome":"pass","score":"0.92","reasoning":"r"}').answer.score).toBe(0.92);
+    expect(parseAnswerText('{"outcome":"pass","score":"high","reasoning":"r"}').unparsed).toBe(true);
+  });
+});

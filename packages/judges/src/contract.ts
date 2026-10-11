@@ -122,8 +122,11 @@ export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(va
 /** A model writing PASS or Fail means the outcome: the outcome is read without case or surrounding space. */
 function normalized(value: unknown): unknown {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return value;
-  const outcome = (value as Record<string, unknown>).outcome;
-  return typeof outcome === 'string' ? { ...value, outcome: outcome.trim().toLowerCase() } : value;
+  const out = { ...(value as Record<string, unknown>) };
+  if (typeof out.outcome === 'string') out.outcome = out.outcome.trim().toLowerCase();
+  // A score written as a number in quotes is the number; any other string stays and breaks the contract.
+  if (typeof out.score === 'string' && /^\s*\d*\.?\d+\s*$/.test(out.score)) out.score = Number(out.score);
+  return out;
 }
 
 /** Every balanced top-level JSON object in a text, in order; fences and prose around them ignored. */
