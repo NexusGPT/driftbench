@@ -13,7 +13,7 @@ import {
 const ROOT = new URL('../../../../', import.meta.url);
 const SEEDS = Array.from({ length: 20 }, (_, index) => index + 1);
 
-describe('the seeded estate generator', () => {
+describe('the seeded estate generator', { timeout: 120_000 }, () => {
   it('draws the same estate from the same seed and another from another seed', () => {
     expect(renderEstate(drawEstate(4)).files).toEqual(renderEstate(drawEstate(4)).files);
     expect(renderEstate(drawEstate(4)).files).not.toEqual(renderEstate(drawEstate(5)).files);

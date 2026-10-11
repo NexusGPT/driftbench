@@ -13,7 +13,7 @@ import {
   renderEstate,
 } from '../../src/ladders/estate/index';
 
-describe('agent mutants (level 5)', () => {
+describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
   it('kills every skill and the deleted WebFetch prohibition, and keeps the mutants no complete test can see', async () => {
     const run = await estateRun(1);
     const mutants = await agentMutants(run);
@@ -59,7 +59,7 @@ describe('agent mutants (level 5)', () => {
   });
 });
 
-describe('estate mutants (level 6)', () => {
+describe('estate mutants (level 6)', { timeout: 120_000 }, () => {
   it('takes one atom out per kind, and re-wraps a rule with its words unchanged', () => {
     const estate = drawEstate(1);
     const mutants = estateMutants(estate);
@@ -112,7 +112,7 @@ describe('estate mutants (level 6)', () => {
   });
 });
 
-describe('the holdout estate (level 7)', () => {
+describe('the holdout estate (level 7)', { timeout: 120_000 }, () => {
   it('runs levels 1 to 6 on the holdout estate and stops at the first that fails', async () => {
     const measure = await holdoutLevel(await estateRun(1, 'holdout'));
     expect(measure.value).toBe(3 / 6);

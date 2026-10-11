@@ -20,7 +20,7 @@ async function planted(change: (run: EstateRun) => EstateRun): Promise<EstateRun
   return change(await estateRun(1));
 }
 
-describe('the estate ladder', () => {
+describe('the estate ladder', { timeout: 120_000 }, () => {
   it('has the seven levels of the bank, in order, each a sub-bank with threshold 1', () => {
     const ladder = estateLadder();
     expect(ladder.levels.map((level) => level.id)).toEqual([

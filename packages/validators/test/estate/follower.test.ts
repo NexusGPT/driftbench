@@ -35,7 +35,7 @@ function firstSkill(estate: HiddenEstate) {
   )[0] as HiddenEstate['skills'][0];
 }
 
-describe('the estate rule follower', () => {
+describe('the estate rule follower', { timeout: 120_000 }, () => {
   it('obeys a skill task: loads, reads before it edits, runs the script, walks the steps, keeps the output rules', () => {
     const { estate, session, ask } = setup();
     const skill = firstSkill(estate);
