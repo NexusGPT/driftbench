@@ -1,6 +1,6 @@
 # CLI
 
-`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), proposes that map (`extract`, `extract approve`, `extract map`), generates specs from it by code (`generate`), passes candidate blocks through the validity gate (`gate`), builds the reference set of user turns (`intake`), measures where results vary (`pilot`), judges criteria with the council (`judge`), builds code-agent task families (`family`), reads an agent estate into a map and derives its tests (`estate`), runs specs over recorded sessions (`replay`), and runs the validators that prove driftbench works (`validate`). The campaign and smoke commands, their output and their exit codes are on the [running](../running.md) page. What generation, the gate, intake, the pilot and families do is on the [generating](../generating.md) page.
+`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), proposes that map (`extract`, `extract approve`, `extract map`), generates specs from it by code (`generate`), passes candidate blocks through the validity gate (`gate`), builds the reference set of user turns (`intake`), measures where results vary (`pilot`), judges criteria with the council (`judge`), builds code-agent task families (`family`), reads an agent estate into a map and derives its tests (`estate`), runs specs over recorded sessions (`replay`), imports specs from a CSV file or a spreadsheet (`import`), versions spec sets and prompts in the store (`dataset`, `prompt`), and runs the validators that prove driftbench works (`validate`). The campaign and smoke commands, their output and their exit codes are on the [running](../running.md) page. What generation, the gate, intake, the pilot and families do is on the [generating](../generating.md) page.
 
 ## Running it
 
@@ -261,7 +261,7 @@ These commands run specs on a target. Each has its options, its output and its e
 
 ```
 driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
-driftbench campaign run <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>]... [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
 driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
@@ -283,6 +283,8 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | `--budget-usd <usd>` | `plan`: compare the projected cost with this budget. `run`: no cell starts once the campaign has spent this much. `resume`: the same stop, by default the budget the campaign was run with |
 | `--baseline-rate <rate>` | the pass rate the minimum detectable effect assumes; default 0.5 |
 | `--campaign <id>` | the campaign id; without it, one is made from the content and the clock |
+| `--dataset <ref>` | `run` only: run the specs of this dataset version of the store and record it in the campaign; needs `--store`. See [datasets](../datasets.md) |
+| `--prompt <ref>` | `run` only: record this prompt version of the store in the campaign; repeat for several; needs `--store` |
 | `--store <file>` | `plan`: read the measured unit costs from this store. The others: the store that keeps the campaign, its runs and the cache; required by `resume` and `status` |
 | `--no-cache` | neither replay runs from the cache nor write to it |
 | `--concurrency <n>` | cells run at the same time; default 4 |
@@ -1113,6 +1115,52 @@ Floors (validators/floors.json): stats = 1.
 | 64 | an input error: an unknown component, a bad seed, an unreadable file, a mode given the wrong options |
 
 An option error the argument parser reports (an unknown option, a missing component) exits 2, as for every command.
+
+## `driftbench import`
+
+```
+driftbench import csv <file> --mapping <yaml> --out <dir> [--force] [--json]
+driftbench import xlsx <file> --mapping <yaml> --out <dir> [--force] [--json]
+```
+
+Turns the rows of a CSV file or of one sheet of a workbook into spec files, one `<id>.yaml` per spec, through a mapping file. The mapping, its templates and an example are on the [datasets](../datasets.md#import-specs-from-a-table) page.
+
+| Option | Effect |
+|---|---|
+| `--mapping <yaml>` | the mapping file: which columns fill which spec and block fields |
+| `--out <dir>` | the folder the spec files are written to |
+| `--force` | overwrite spec files that exist with other content |
+| `--json` | print one JSON document: the source, the folder, the row count and each spec with its file, rows, block count and hash |
+
+| Exit code | When |
+|---|---|
+| 0 | every spec is written |
+| 1 | a row makes an invalid spec; nothing is written |
+| 2 | bad input: the mapping, the file, a column the table lacks, a spec file that exists with other content |
+
+## `driftbench dataset` and `driftbench prompt`
+
+```
+driftbench dataset push <name> <path> --store <file> [--note <text>] [--json]
+driftbench dataset list [name] --store <file> [--json]
+driftbench dataset diff <ref> [other] --store <file> [--dir <path>] [--json]
+driftbench dataset restore <ref> --store <file> [--out <path>] [--force] [--json]
+```
+
+`driftbench prompt push|list|diff|restore` take the same arguments. The registry keeps immutable, numbered, content-addressed versions of a folder of specs or of prompt files in the store. What each command does, with its output, is on the [datasets](../datasets.md#the-registry) page.
+
+| Command | Does |
+|---|---|
+| `push` | stores the files as the next version of the name; the same content again gives back the version that holds it. `dataset push` refuses a folder with an invalid spec |
+| `list` | prints every version: `name@version`, the hash, the file count, the time and the note |
+| `diff` | prints the files added (`A`), removed (`D`) and changed (`M`) between two versions, or between a version and a folder with `--dir`; without `[other]`, the version before `<ref>` |
+| `restore` | writes the exact bytes of every file to where they were pushed from, or to `--out`; a file with other bytes stops it unless `--force` is given |
+
+| Exit code | When |
+|---|---|
+| 0 | `push`, `list`, `restore`: done. `diff`: no difference |
+| 1 | `push`: an invalid spec. `diff`: they differ. `restore`: a file differs and `--force` was not given |
+| 2 | bad input: an unknown name or version, a path that cannot be read, a store that cannot be opened |
 
 ## Not built yet
 
