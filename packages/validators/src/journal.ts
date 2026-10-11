@@ -57,6 +57,8 @@ export const JournalRowSchema = z
     bankSize: count,
     passing: count,
     failingByFamily: z.record(z.string().min(1), count),
+    failingCauses: count.optional(),
+    failingWithoutCause: count.optional(),
     bankByFamilyTier: z
       .record(z.string().min(1), z.record(z.string().regex(/^([1-5]|none)$/), count))
       .optional(),
@@ -145,6 +147,38 @@ export const JournalRowSchema = z
         path: ['failingByFamily'],
         message: `failingByFamily sums to ${failing}, but bankSize minus passing is ${row.bankSize - row.passing}`,
       });
+    }
+    const failingItems = row.bankSize - row.passing;
+    if (row.failingCauses !== undefined) {
+      if (row.failingCauses > failingItems) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingCauses'],
+          message: `failingCauses ${row.failingCauses} exceeds the ${failingItems} failing items`,
+        });
+      }
+      if (failingItems > 0 && row.failingCauses === 0) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingCauses'],
+          message: `${failingItems} items fail, so at least one cause does`,
+        });
+      }
+    }
+    if (row.failingWithoutCause !== undefined) {
+      if (row.failingCauses === undefined) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingWithoutCause'],
+          message: 'failingWithoutCause goes with failingCauses',
+        });
+      } else if (row.failingWithoutCause > row.failingCauses) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['failingWithoutCause'],
+          message: 'each item without a cause is one of the failingCauses, so it cannot exceed them',
+        });
+      }
     }
     const perTier = row.bankByFamilyTier;
     const banked = Object.values(perTier ?? {})
