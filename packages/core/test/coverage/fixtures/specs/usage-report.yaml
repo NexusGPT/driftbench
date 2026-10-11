@@ -13,3 +13,10 @@ blocks:
             - sheets: [Line 1, Line 2]
       workspace:
         created: [usage.xlsx]
+  - when:
+      injection:
+        class: D2_goal_shift
+        user: Actually, one tab per month instead.
+    expect:
+      workspace:
+        changed: [usage.xlsx]

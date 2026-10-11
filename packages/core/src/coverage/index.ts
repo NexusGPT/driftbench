@@ -12,6 +12,7 @@ export {
   channelUniverse,
   computeCoverage,
   type DeviationCell,
+  type DeviationSource,
   type FlowCoverage,
   type InvalidSpec,
 } from './compute';

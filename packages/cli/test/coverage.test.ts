@@ -101,7 +101,7 @@ describe('driftbench spec coverage', () => {
         '',
         'Flows by required deviation',
         '  ✓  plan-upgrade  2 specs  D1_off_topic covered · D4_loose_confirmation covered  Plan upgrade from greeting to submission',
-        '  ✗  usage-report  1 spec   D8_tool_failure missing                               Monthly usage report built in the workspace',
+        '  ✗  usage-report  1 spec   D2_goal_shift covered · D8_tool_failure missing       Monthly usage report built in the workspace',
         '  -  offer-card    1 spec   no deviation required                                 Offer card on chat',
         '',
         'Warnings',
@@ -110,7 +110,7 @@ describe('driftbench spec coverage', () => {
         'Invalid specs, not counted',
         '  ✗ specs/broken.yaml  blocks.0  BLOCK_STIMULUS_MISSING  a block needs `user`, `burst` or `when`',
         '',
-        'Coverage: 4 of 5 behaviours covered, 2 of 3 flow deviations covered.',
+        'Coverage: 4 of 5 behaviours covered, 3 of 4 flow deviations covered.',
         '',
       ].join('\n'),
     );
@@ -125,7 +125,7 @@ describe('driftbench spec coverage', () => {
     expect(out).toContain('     id     kind          whatsapp  title\n');
     expect(out).toContain('  -  B-003  conversation  n/a       Sends the offer card once\n');
     expect(out).toContain('D1_off_topic missing · D4_loose_confirmation covered');
-    expect(out).toContain('Coverage: 3 of 4 behaviours covered, 1 of 3 flow deviations covered.\n');
+    expect(out).toContain('Coverage: 3 of 4 behaviours covered, 2 of 4 flow deviations covered.\n');
   });
 
   it('prints one JSON document with the same facts under --json', async () => {
@@ -161,10 +161,28 @@ describe('driftbench spec coverage', () => {
     ]);
     expect(report.behaviours.find((row) => row.id === 'T-001')?.kind).toBe('task');
     expect(report.perChannel[1]).toEqual({ channel: 'whatsapp', applicable: 4, covered: 3, missing: 1 });
-    expect(report.flows[1]).toMatchObject({
+    // Each deviation cell names its sources: a perturbation, or a block whose stimulus is an injection.
+    expect(report.flows[0]).toMatchObject({
+      id: 'plan-upgrade',
+      cells: [
+        { sources: [{ spec: 'upgrade-chat', source: 'perturbation', path: 'perturbations.0' }] },
+        { sources: [{ spec: 'upgrade-whatsapp', source: 'perturbation', path: 'perturbations.0' }] },
+      ],
+    });
+    expect(report.flows[1]).toEqual({
       id: 'usage-report',
+      title: 'Monthly usage report built in the workspace',
       status: 'missing',
-      cells: [{ deviation: 'D8_tool_failure', status: 'missing', specs: [] }],
+      specs: ['usage-report'],
+      cells: [
+        {
+          deviation: 'D2_goal_shift',
+          status: 'covered',
+          specs: ['usage-report'],
+          sources: [{ spec: 'usage-report', source: 'injection', path: 'blocks.1' }],
+        },
+        { deviation: 'D8_tool_failure', status: 'missing', specs: [], sources: [] },
+      ],
     });
     expect(report.warnings).toMatchObject([
       { code: 'UNKNOWN_BEHAVIOUR', subject: 'B-099', specs: ['stray'] },
@@ -174,7 +192,7 @@ describe('driftbench spec coverage', () => {
     ]);
     expect(report.summary).toEqual({
       behaviours: { covered: 4, total: 5 },
-      deviations: { covered: 2, total: 3 },
+      deviations: { covered: 3, total: 4 },
     });
     expect(report.ok).toBe(false);
   });

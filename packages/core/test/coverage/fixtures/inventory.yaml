@@ -22,7 +22,7 @@ flows:
   - id: usage-report
     title: Monthly usage report built in the workspace
     behaviours: [T-001]
-    deviations: [D8_tool_failure]
+    deviations: [D2_goal_shift, D8_tool_failure]
   - id: offer-card
     title: Offer card on chat
     behaviours: [B-003]

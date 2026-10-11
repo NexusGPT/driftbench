@@ -23,8 +23,22 @@ export type BehaviourCoverage = {
 /** Behaviour counts on one channel. `applicable` is `covered` plus `missing`. */
 export type ChannelTotals = { channel: string; applicable: number; covered: number; missing: number };
 
-/** One required deviation class of a flow, and the ids of the member specs perturbed with it. */
-export type DeviationCell = { deviation: DeviationClass; status: 'covered' | 'missing'; specs: string[] };
+/** Where a spec exercises a deviation class: a perturbation, or a block whose stimulus is an injection. */
+export type DeviationSource = {
+  spec: string;
+  source: 'perturbation' | 'injection';
+  /** `perturbations.<n>` or `blocks.<n>`, counted from 0, like the loader's issue paths. */
+  path: string;
+};
+
+/** One required deviation class of a flow, and the member specs that exercise it. */
+export type DeviationCell = {
+  deviation: DeviationClass;
+  status: 'covered' | 'missing';
+  specs: string[];
+  /** Every perturbation and injection block of a member spec with this class, spec by spec. */
+  sources: DeviationSource[];
+};
 
 export type FlowCoverage = {
   id: string;
@@ -139,12 +153,9 @@ export function computeCoverage(
         spec.tags?.includes(`flow:${flow.id}`) || spec.covers?.some((id) => flow.behaviours.includes(id)),
     );
     const cells = (flow.deviations ?? []).map((deviation): DeviationCell => {
-      const ids = specIds(
-        members.filter((spec) =>
-          spec.perturbations?.some((perturbation) => perturbation.class === deviation),
-        ),
-      );
-      return { deviation, status: ids.length > 0 ? 'covered' : 'missing', specs: ids };
+      const sources = members.flatMap((spec) => deviationSources(spec, deviation));
+      const ids = [...new Set(sources.map((source) => source.spec))];
+      return { deviation, status: ids.length > 0 ? 'covered' : 'missing', specs: ids, sources };
     });
     const { id, title } = flow;
     return { id, title, status: rollUp(cells.map((cell) => cell.status)), specs: specIds(members), cells };
@@ -249,6 +260,22 @@ function warningsFor(specs: Spec[], inventory: Inventory): CoverageWarning[] {
     });
   }
   return warnings;
+}
+
+/** The injection blocks and the perturbations of a spec with this class, in file order. */
+function deviationSources(spec: Spec, deviation: DeviationClass): DeviationSource[] {
+  const sources: DeviationSource[] = [];
+  spec.blocks.forEach((block, index) => {
+    if ('injection' in block.when && block.when.injection.class === deviation) {
+      sources.push({ spec: spec.id, source: 'injection', path: `blocks.${index}` });
+    }
+  });
+  spec.perturbations?.forEach((perturbation, index) => {
+    if (perturbation.class === deviation) {
+      sources.push({ spec: spec.id, source: 'perturbation', path: `perturbations.${index}` });
+    }
+  });
+  return sources;
 }
 
 /** Adds a spec id under a key, each id once, in the order first seen. */

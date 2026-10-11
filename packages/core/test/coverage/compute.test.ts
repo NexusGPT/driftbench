@@ -194,8 +194,13 @@ describe('flow x deviation cells', () => {
     const upgrade = result.flows[0];
     expect(upgrade?.specs).toEqual(['all', 'p']);
     expect(upgrade?.cells).toEqual([
-      { deviation: 'D1_off_topic', status: 'covered', specs: ['p'] },
-      { deviation: 'D4_loose_confirmation', status: 'missing', specs: [] },
+      {
+        deviation: 'D1_off_topic',
+        status: 'covered',
+        specs: ['p'],
+        sources: [{ spec: 'p', source: 'perturbation', path: 'perturbations.0' }],
+      },
+      { deviation: 'D4_loose_confirmation', status: 'missing', specs: [], sources: [] },
     ]);
     expect(upgrade?.status).toBe('missing');
   });
@@ -223,6 +228,80 @@ describe('flow x deviation cells', () => {
     const result = computeCoverage([everything, outside], FLOWS);
     expect(result.flows[0]?.cells[0]?.status).toBe('missing');
     expect(result.flows[1]?.specs).toEqual(['all', 'o']);
+  });
+
+  it('counts a block whose stimulus is an injection like a perturbation, and names each source', () => {
+    const injected = spec({
+      id: 'i',
+      covers: ['B-001'],
+      blocks: [
+        { user: 'hi', expect: { must: ['hello'] } },
+        {
+          when: { injection: { class: 'D4_loose_confirmation', user: 'ok perfect' } },
+          expect: { must: ['confirm'] },
+        },
+      ],
+      perturbations: [perturbed('x', 'D1_off_topic'), perturbed('y', 'D4_loose_confirmation')],
+    });
+    const result = computeCoverage([injected], FLOWS);
+    expect(result.flows[0]?.cells).toEqual([
+      {
+        deviation: 'D1_off_topic',
+        status: 'covered',
+        specs: ['i'],
+        sources: [{ spec: 'i', source: 'perturbation', path: 'perturbations.0' }],
+      },
+      {
+        deviation: 'D4_loose_confirmation',
+        status: 'covered',
+        specs: ['i'],
+        sources: [
+          { spec: 'i', source: 'injection', path: 'blocks.1' },
+          { spec: 'i', source: 'perturbation', path: 'perturbations.1' },
+        ],
+      },
+    ]);
+  });
+
+  it('covers a cell with an injection block alone', () => {
+    const injected = spec({
+      id: 'j',
+      tags: ['flow:upgrade'],
+      blocks: [
+        {
+          when: { injection: { class: 'D1_off_topic', user: 'is the shop open?' } },
+          expect: { must: ['open'] },
+        },
+      ],
+    });
+    const result = computeCoverage([everything, injected], FLOWS);
+    expect(result.flows[0]?.cells[0]).toEqual({
+      deviation: 'D1_off_topic',
+      status: 'covered',
+      specs: ['j'],
+      sources: [{ spec: 'j', source: 'injection', path: 'blocks.0' }],
+    });
+    expect(result.flows[0]?.cells[1]?.status).toBe('missing');
+  });
+
+  it('ignores an injection of another class, or in a spec outside the flow', () => {
+    const otherClass = spec({
+      id: 'k',
+      tags: ['flow:upgrade'],
+      blocks: [
+        { when: { injection: { class: 'D9_out_of_scope', user: 'refund me' } }, expect: { must: ['care'] } },
+      ],
+    });
+    const outside = spec({
+      id: 'o',
+      covers: ['B-003'],
+      blocks: [{ when: { injection: { class: 'D1_off_topic', user: 'hey' } }, expect: { must: ['a'] } }],
+    });
+    const result = computeCoverage([everything, otherClass, outside], FLOWS);
+    expect(result.flows[0]?.cells.map((cell) => [cell.status, cell.sources])).toEqual([
+      ['missing', []],
+      ['missing', []],
+    ]);
   });
 
   it('fails when a required deviation is missing, even with every behaviour covered', () => {
@@ -303,6 +382,7 @@ describe('the channel filter', () => {
       deviation: 'D1_off_topic',
       status: 'covered',
       specs: ['chat'],
+      sources: [{ spec: 'chat', source: 'perturbation', path: 'perturbations.0' }],
     });
     expect(result.ok).toBe(true);
   });
@@ -392,6 +472,16 @@ describe('the synthetic inventory under test/coverage/fixtures', () => {
       ['D1_off_topic', ['upgrade-chat']],
       ['D4_loose_confirmation', ['upgrade-whatsapp']],
     ]);
+    // The task spec exercises D2 through an injection block; nothing exercises D8.
+    expect(result.flows[1]?.cells).toEqual([
+      {
+        deviation: 'D2_goal_shift',
+        status: 'covered',
+        specs: ['usage-report'],
+        sources: [{ spec: 'usage-report', source: 'injection', path: 'blocks.1' }],
+      },
+      { deviation: 'D8_tool_failure', status: 'missing', specs: [], sources: [] },
+    ]);
     expect(result.warnings.map((warning) => [warning.code, warning.subject])).toEqual([
       ['UNKNOWN_BEHAVIOUR', 'B-099'],
     ]);
@@ -400,7 +490,7 @@ describe('the synthetic inventory under test/coverage/fixtures', () => {
     ).toEqual([['specs/broken.yaml', 'BLOCK_STIMULUS_MISSING']]);
     expect(result.summary).toEqual({
       behaviours: { covered: 4, total: 5 },
-      deviations: { covered: 2, total: 3 },
+      deviations: { covered: 3, total: 4 },
     });
     expect(result.ok).toBe(false);
   });
