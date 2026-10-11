@@ -7,6 +7,27 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
+| 1 | 1 |
+| 2 | 1 |
+| 3 | 1 |
+| 4 | 1 |
+| 5 | 1 |
+| 6 | 1 |
+| 7 | 1 |
+| 8 | 1 |
+| 9 | 1 |
+| 10 | 1 |
+| 11 | 1 |
+| 12 | 1 |
+| 13 | 1 |
+| 14 | 1 |
+| 15 | 1 |
+| 16 | 1 |
+| 17 | 1 |
+| 18 | 1 |
+| 19 | 1 |
+| 20 | 1 |
+| hidden | 1 |
 <!-- level-table:end -->
 
 No executor iteration has run yet, so the table is empty. The lane's own run (`pnpm driftbench validate generator --seeds 1..20 --hidden`, before the first executor) reached level 1 of 7 on seeds 1 to 20 and on the hidden seed. Level 2 (cheater resistance) failed on every seed, between 0.603 and 0.778 against the bar of 0.8.

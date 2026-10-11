@@ -37,7 +37,7 @@ import {
   type ThenField,
   thenFields,
 } from '@driftbench/generate';
-import { createScriptedDriver } from '@driftbench/users';
+import { createPerturbingDriver, createScriptedDriver } from '@driftbench/users';
 import { baselineSuite } from './baseline';
 import { CHEATERS, type Cheater, cheaterAdapter, replayCalls } from './cheaters';
 import { combinedFault, FAULT_CLASSES, faultFamily, type HiddenFault } from './faults';
@@ -543,20 +543,26 @@ export async function modeKills(
   if (perturbed.length > 0) {
     let followerOk = true;
     for (const { spec, id } of perturbed) {
-      const options = {
-        driver: createScriptedDriver(),
-        checks: context.checks,
-        mode: 'P' as const,
-        repeat: 1,
-        perturbationId: id,
+      // The perturbing driver of the users package injects the declared perturbation; the runner reads it
+      // from the spec the driver hands back.
+      const perturbedRun = (adapter: AgentAdapter) => {
+        const driver = createPerturbingDriver({ spec, perturbation: id });
+        return runSpec(driver.spec, {
+          adapter,
+          driver,
+          checks: context.checks,
+          mode: 'P',
+          repeat: 1,
+          perturbationId: id,
+        });
       };
-      const base = await runSpec(spec, { ...options, adapter: follower });
+      const base = await perturbedRun(follower);
       if (base.blocks.some((block) => !block.pass)) {
         followerOk = false;
         continue;
       }
       for (const fault of planted) {
-        const run = await runSpec(spec, { ...options, adapter: faultAdapter(fault.def, provider) });
+        const run = await perturbedRun(faultAdapter(fault.def, provider));
         if (run.blocks.some((block) => !block.pass)) result.P.killed.add(fault.class);
       }
     }

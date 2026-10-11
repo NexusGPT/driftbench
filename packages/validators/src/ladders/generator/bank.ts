@@ -3,6 +3,7 @@ import { type Proposal, renderProposal, rngFor } from '@driftbench/generate';
 import { coverage, type SpaceCoverage } from '@driftbench/space';
 import { researchItems } from './bank2';
 import { moreItems } from './bank3';
+import { gateFamilyItems } from './bank4';
 import { CHEATERS } from './cheaters';
 import { FAULT_CLASSES, type FaultClass } from './faults';
 import { DEVIATION_POOL, type HiddenSpec, phrasePattern, type ToolRole } from './hidden';
@@ -58,6 +59,7 @@ export const BANK_LEVELS = [
   { id: 'hostile', name: 'hostile and degenerate maps' },
   { id: 'reference', name: 'green on the rule follower' },
   { id: 'cheaters', name: 'cheater resistance' },
+  { id: 'gate', name: 'the validity gate' },
   { id: 'boundary', name: 'boundary values' },
   { id: 'paths', name: 'paths of every flow' },
   { id: 'phrases', name: 'phrase bank expansion' },
@@ -2094,6 +2096,7 @@ export function bankItems(): BankItem[] {
     ...scaleItems(),
     ...researchItems(),
     ...moreItems(),
+    ...gateFamilyItems(),
   ];
 }
 

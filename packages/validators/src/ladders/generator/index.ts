@@ -1,4 +1,4 @@
-import { defineLadder, type Item, type Ladder, type Measure } from '../../ladder';
+import { bankMeasure, defineLadder, type Ladder, type Measure } from '../../ladder';
 import { BANK_LEVELS, type BankItem, bankItems, SeedData, type Tier, type Verdict } from './bank';
 import type { GeneratorParts } from './measure';
 import { type ScaleReport, scaleReport } from './scale';
@@ -96,17 +96,17 @@ export async function evaluate(
 }
 
 function toMeasure(results: Array<{ item: BankItem; verdict: Verdict }>): Measure {
-  const failing: Item[] = results
-    .filter((result) => !result.verdict.pass)
-    .map((result) => ({
-      id: result.item.id,
-      component: result.item.component,
-      detail: `[${result.item.family}, tier ${result.item.tier}] ${result.verdict.detail}`,
-    }));
-  return {
-    value: results.length === 0 ? Number.NaN : (results.length - failing.length) / results.length,
-    items: failing,
-  };
+  return bankMeasure(
+    results.map(({ item, verdict }) => ({
+      id: item.id,
+      component: item.component,
+      family: item.family,
+      tier: item.tier,
+      pass: verdict.pass,
+      detail: verdict.detail,
+    })),
+    'generator',
+  );
 }
 
 export type GeneratorLadderOptions = GeneratorParts & {
