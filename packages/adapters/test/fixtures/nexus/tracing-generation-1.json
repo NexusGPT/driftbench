@@ -1,0 +1,92 @@
+{
+  "success": true,
+  "data": {
+    "id": "9e000000-0000-4000-8000-000000000001",
+    "traceId": "7ace0000-0000-4000-8000-000000000001",
+    "provider": "ANTHROPIC",
+    "modelName": "example-model-1",
+    "status": "COMPLETED",
+    "inputTokens": 1610,
+    "outputTokens": 74,
+    "cacheReadInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "reasoningTokens": null,
+    "costUsd": 0.0112,
+    "durationMs": 2100,
+    "thinkingDurationMs": 0,
+    "ttftMs": null,
+    "streamDurationMs": 1980,
+    "taskId": null,
+    "taskName": null,
+    "nodeId": null,
+    "startedAt": "2026-01-15T10:00:01.000Z",
+    "completedAt": "2026-01-15T10:00:03.100Z",
+    "errorMessage": null,
+    "metadata": null,
+    "isAborted": false,
+    "temperature": null,
+    "finishReason": "tool_use",
+    "responseId": "msg_acme_0001",
+    "systemPrompt": "You are the Acme Telecom sales assistant. Check coverage before you offer a home plan.",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "text": "Hi, do you have home internet at 3 Orchard Way, Acmeville?",
+            "type": "text"
+          }
+        ]
+      }
+    ],
+    "tools": [
+      {
+        "name": "coverage.check",
+        "description": "Checks whether Acme reaches an address, and how fast.",
+        "input_schema": {
+          "type": "object",
+          "required": ["address"],
+          "properties": {
+            "address": {
+              "type": "string",
+              "description": "The street address."
+            }
+          }
+        }
+      },
+      {
+        "name": "catalog.search",
+        "description": "Lists the Acme plans of a category, the ones available at an address.",
+        "input_schema": {
+          "type": "object",
+          "required": ["category"],
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "mobile or home."
+            },
+            "address_id": {
+              "type": "string",
+              "description": "An address id from coverage.check."
+            }
+          }
+        }
+      }
+    ],
+    "response": null,
+    "responseJson": {
+      "role": "assistant",
+      "content": "Let me check what reaches 3 Orchard Way.",
+      "tool_calls": [
+        {
+          "id": "toolu_acme_coverage_0001",
+          "type": "function",
+          "function": {
+            "name": "coverage.check",
+            "arguments": "{\"address\":\"3 Orchard Way, Acmeville\"}"
+          }
+        }
+      ]
+    }
+  }
+}

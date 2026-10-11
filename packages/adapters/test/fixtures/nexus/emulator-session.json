@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "data": {
+    "id": "eeeeeeee-0000-4000-8000-000000000001",
+    "deploymentId": "dddddddd-0000-4000-8000-000000000001",
+    "chatId": "cafecafe-0000-4000-8000-000000000001",
+    "participants": [
+      {
+        "id": "participant_1",
+        "identifier": "emulator-user-01",
+        "displayName": "Test User"
+      }
+    ],
+    "emulatedChannelType": "EMBED",
+    "createdAt": "2026-01-15T10:00:00.800Z",
+    "messages": [
+      {
+        "id": "5e550000-0000-4000-8000-000000000001",
+        "content": "Hi, do you have home internet at 3 Orchard Way, Acmeville?",
+        "toolCalls": [],
+        "type": "HUMAN",
+        "createdAt": "2026-01-15T10:00:00.900Z",
+        "participantId": "participant_1",
+        "hasToolCalls": false
+      },
+      {
+        "id": "5e550000-0000-4000-8000-000000000002",
+        "content": "Good news: 3 Orchard Way, Acmeville has fiber up to 300 Mbps. Plans available there: Acme Fiber 300, 300 Mbps for $40 a month; Acme Air 5G, up to 200 Mbps for $35 a month. Which one would you like: Acme Fiber 300 or Acme Air 5G?",
+        "toolCalls": [],
+        "type": "AI",
+        "createdAt": "2026-01-15T10:00:08.300Z",
+        "hasToolCalls": false
+      }
+    ]
+  }
+}
