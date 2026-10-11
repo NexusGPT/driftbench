@@ -2,6 +2,7 @@ import { chmod, mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promis
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import {
   approveAllTurns,
+  fidelity,
   fromInterview,
   gitWorkTreeOf,
   type IntakeMap,
@@ -9,6 +10,7 @@ import {
   intakeLogs,
   loadIntakeMap,
   loadTurnRecording,
+  loadTurns,
   ModelError,
   type ModelPort,
   parseApproval,
@@ -125,6 +127,21 @@ export function registerIntakeCommand(program: Command, io: Io, setExit: (code: 
     });
 
   intake
+    .command('fidelity')
+    .description(
+      'Compare generated user turns with the reference set: cells, length, questions, words, copies',
+    )
+    .option('--reference <set>', 'the reference set: a folder, reference.yaml, or a turns file')
+    .option('--candidate <turns>', 'the generated user turns: JSON Lines or YAML of {text, cell}')
+    .option('--dims <list>', 'the cell dimensions to compare on, comma separated (default: the shared ones)')
+    .option('--threshold <cosine>', 'the near-duplicate threshold', '0.9')
+    .option('--include-unapproved', 'count reference turns a person has not approved (marked in the output)')
+    .option('--json', 'print one JSON document')
+    .action(async (options: FidelityOptions) => {
+      setExit(await fidelityCommand(options, io));
+    });
+
+  intake
     .command('approve')
     .description('List the reference turns not approved yet; --all approves every turn')
     .argument('<approval>', 'the approval file')
@@ -132,6 +149,84 @@ export function registerIntakeCommand(program: Command, io: Io, setExit: (code: 
     .action(async (path: string, options: { all?: boolean }) => {
       setExit(await approveCommand(path, options, io));
     });
+}
+
+export type FidelityOptions = {
+  reference?: string;
+  candidate?: string;
+  dims?: string;
+  threshold?: string;
+  includeUnapproved?: boolean;
+  json?: boolean;
+};
+
+/** Exit 0 after printing the comparison, 2 on a usage or input error. Fidelity measures; it never gates. */
+export async function fidelityCommand(options: FidelityOptions, io: Io): Promise<number> {
+  if (!options.reference || !options.candidate) {
+    io.err("error: required options '--reference <set>' and '--candidate <turns>'\n");
+    return 2;
+  }
+  const threshold = share(options.threshold ?? '0.9');
+  if (threshold === undefined) {
+    io.err('error: --threshold takes a number from 0 to 1\n');
+    return 2;
+  }
+  const reference = await loadTurns(resolve(io.cwd, options.reference), {
+    includeUnapproved: options.includeUnapproved ?? false,
+  });
+  if (!reference.ok) {
+    io.err(`Cannot use the reference ${options.reference}: ${reference.message}\n`);
+    return 2;
+  }
+  const candidate = await loadTurns(resolve(io.cwd, options.candidate), { includeUnapproved: true });
+  if (!candidate.ok) {
+    io.err(`Cannot use the candidate ${options.candidate}: ${candidate.message}\n`);
+    return 2;
+  }
+  if (reference.turns.length === 0) {
+    io.err(
+      `The reference ${options.reference} has no approved turn${reference.unapproved > 0 ? ` (${reference.unapproved} wait for approval)` : ''}.\n`,
+    );
+    return 2;
+  }
+  if (candidate.turns.length === 0) {
+    io.err(`The candidate ${options.candidate} holds no turn.\n`);
+    return 2;
+  }
+  const dimensions = options.dims
+    ?.split(',')
+    .map((dimension) => dimension.trim())
+    .filter(Boolean);
+  const result = fidelity(reference.turns, candidate.turns, {
+    threshold,
+    ...(dimensions ? { dimensions } : {}),
+  });
+  if (options.json) {
+    io.out(
+      `${JSON.stringify({ ...result, includeUnapproved: options.includeUnapproved ?? false }, null, 2)}\n`,
+    );
+    return 0;
+  }
+  const f = (value: number) => value.toFixed(3);
+  const pct = (value: number) => `${(value * 100).toFixed(1)} percent`;
+  const verdict = (ks: number, critical: number) =>
+    ks > critical ? 'differs at the 5 percent level' : 'no difference shown at the 5 percent level';
+  const lines = [
+    `Reference ${options.reference}: ${result.n.reference} turns${reference.kind === 'reference-set' ? (options.includeUnapproved ? ', approved or not (--include-unapproved)' : `, approved only (${reference.unapproved} not approved, left out)`) : ''}. Candidate ${options.candidate}: ${result.n.candidate} turns.`,
+    `  Cells on ${result.dimensions.length > 0 ? result.dimensions.join(', ') : 'no shared dimension (every turn in one cell)'}: total variation ${f(result.cells.tv)}; ${result.cells.reference} cells in the reference, ${result.cells.candidate} in the candidate, ${result.cells.unseen} of them never in the reference.`,
+    ...result.cells.worst
+      .filter((cell) => cell.reference !== cell.candidate)
+      .map((cell) => `    ${cell.key}  reference ${pct(cell.reference)}, candidate ${pct(cell.candidate)}`),
+    `  Length in words: KS ${f(result.length.ks)} against ${f(result.length.critical)} (n = ${result.n.reference}, m = ${result.n.candidate}): ${verdict(result.length.ks, result.length.critical)}. Medians ${result.length.medianReference} and ${result.length.medianCandidate}.`,
+    `  Question rate: KS ${f(result.questions.ks)} against ${f(result.questions.critical)}: ${verdict(result.questions.ks, result.questions.critical)}. Rates ${pct(result.questions.rateReference)} and ${pct(result.questions.rateCandidate)}.`,
+    `  Vocabulary: Jaccard ${f(result.vocabulary.jaccard)} over ${result.vocabulary.reference} and ${result.vocabulary.candidate} word types; ${pct(result.vocabulary.candidateCovered)} of candidate words appear in the reference.`,
+    `  Near-duplicates (character n-gram TF-IDF cosine at least ${result.duplicates.threshold}): ${pct(result.duplicates.copyRate)} of candidate turns copy a reference turn; ${pct(result.duplicates.candidateRate)} repeat another candidate turn, against ${pct(result.duplicates.referenceRate)} within the reference.`,
+  ];
+  if (result.n.reference < 30 || result.n.candidate < 30) {
+    lines.push('  Small samples: under 30 turns on a side, every number above is rough.');
+  }
+  io.out(`${lines.join('\n')}\n`);
+  return 0;
 }
 
 /** Exit 0 when written, 2 on a usage or input error. */

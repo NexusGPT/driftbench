@@ -4,6 +4,16 @@
  * against the map and approved turn by turn. Fidelity compares generated user turns with the set.
  */
 export {
+  type Fidelity,
+  type FidelityTurn,
+  fidelity,
+  ksCritical,
+  ksStatistic,
+  type LoadedTurns,
+  loadTurns,
+  totalVariation,
+} from './fidelity';
+export {
   Interview,
   type InterviewIssue,
   type InterviewResult,

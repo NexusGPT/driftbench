@@ -400,3 +400,88 @@ describe('driftbench intake approve', () => {
     expect((await run(['intake', 'approve', 'nope.yaml'], dir)).code).toBe(2);
   });
 });
+
+describe('driftbench intake fidelity', () => {
+  async function withSet() {
+    const dir = await zed();
+    const { io } = capture(dir);
+    await fromInterviewCommand('answers.yaml', { out: 'set', turns: '3' }, io, { port: writer() });
+    await writeFile(
+      join(dir, 'candidate.jsonl'),
+      [
+        { text: 'what is my balance please?', cell: { stage: 'greet', flow: 'balance', channel: 'chat' } },
+        {
+          text: 'how much money is on the account',
+          cell: { stage: 'greet', flow: 'balance', channel: 'chat' },
+        },
+        { text: 'block my card, it is lost', cell: { stage: 'verify', flow: 'card-lost', channel: 'chat' } },
+      ]
+        .map((line) => JSON.stringify(line))
+        .join('\n'),
+    );
+    return dir;
+  }
+
+  it('refuses a reference set with no approved turn', async () => {
+    const dir = await withSet();
+    const result = await run(
+      ['intake', 'fidelity', '--reference', 'set', '--candidate', 'candidate.jsonl'],
+      dir,
+    );
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('has no approved turn (6 wait for approval)');
+  });
+
+  it('prints every measure with the sample sizes once turns are approved', async () => {
+    const dir = await withSet();
+    await run(['intake', 'approve', 'set/approval.yaml', '--all'], dir);
+    const result = await run(
+      ['intake', 'fidelity', '--reference', 'set', '--candidate', 'candidate.jsonl'],
+      dir,
+    );
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    expect(result.out).toContain(
+      'Reference set: 6 turns, approved only (0 not approved, left out). Candidate candidate.jsonl: 3 turns.',
+    );
+    expect(result.out).toContain('Cells on stage, flow, channel: total variation');
+    expect(result.out).toMatch(/Length in words: KS \d\.\d{3} against \d\.\d{3} \(n = 6, m = 3\)/);
+    expect(result.out).toContain('Question rate: KS');
+    expect(result.out).toContain('Vocabulary: Jaccard');
+    expect(result.out).toContain('of candidate turns copy a reference turn');
+    expect(result.out).toContain('Small samples');
+    const json = await run(
+      [
+        'intake',
+        'fidelity',
+        '--reference',
+        'set',
+        '--candidate',
+        'candidate.jsonl',
+        '--json',
+        '--dims',
+        'flow',
+      ],
+      dir,
+    );
+    expect(JSON.parse(json.out)).toMatchObject({ n: { reference: 6, candidate: 3 }, dimensions: ['flow'] });
+  });
+
+  it('counts unapproved turns only when asked, and says so', async () => {
+    const dir = await withSet();
+    const result = await run(
+      [
+        'intake',
+        'fidelity',
+        '--reference',
+        'set/reference.yaml',
+        '--candidate',
+        'candidate.jsonl',
+        '--include-unapproved',
+      ],
+      dir,
+    );
+    expect(result.code).toBe(0);
+    expect(result.out).toContain('6 turns, approved or not (--include-unapproved)');
+  });
+});
