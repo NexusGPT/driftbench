@@ -1,6 +1,7 @@
 /** Judge clients, the judge council, the prompt kit and cassettes. */
 export const packageName = '@driftbench/judges';
 
+export { summarizeDiff, type TaskArtifactOptions, taskArtifactText } from './artifacts';
 export {
   AssignmentTable,
   assignmentTable,

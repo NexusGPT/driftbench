@@ -8,6 +8,7 @@ import {
   parseCriterionRef,
   type Verdict,
 } from '@driftbench/core';
+import { taskArtifactText } from './artifacts';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import type { Council, CouncilResult } from './council';
 
@@ -25,7 +26,11 @@ import type { Council, CouncilResult } from './council';
 export const JUDGE_CHECK = 'judge';
 
 export type JudgeCheckOptions = {
-  /** The text of the artifact a block produced, for task steps. Absent gives no artifact section. */
+  /**
+   * The text of the artifacts a block produced. Default `taskArtifactText`: for a task block, the files
+   * read through `ctx.readArtifact` and rendered by the artifact readers, plus the workspace diff; for a
+   * conversation block, nothing.
+   */
   artifactText?: (ctx: CheckContext) => Promise<string | undefined> | string | undefined;
   /** How many earlier messages a block-scope request carries as context. Default 2. */
   contextMessages?: number;
@@ -36,7 +41,7 @@ export function judgeCheck(council: Council, options: JudgeCheckOptions = {}): C
     name: JUDGE_CHECK,
     applies: (ctx) => (ctx.expect.criteria?.length ?? 0) > 0,
     async evaluate(ctx) {
-      const artifact = options.artifactText ? await options.artifactText(ctx) : undefined;
+      const artifact = await (options.artifactText ?? taskArtifactText)(ctx);
       const verdicts: Verdict[] = [];
       for (const ref of ctx.expect.criteria ?? []) {
         const parsed = parseCriterionRef(ref);
