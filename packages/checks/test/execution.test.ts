@@ -96,6 +96,23 @@ describe('execution', () => {
       );
     });
 
+    it('mutation: the agent process crashes after a clean last command; exit_code reads the crash, names both', async () => {
+      const crashed: ExecutionRecord = { ...agent, exitCode: 1, stderr: 'Error: out of memory' };
+      const verdicts = await run(
+        execution,
+        context(task, 0, observed(built, [], { executions: [...reported, crashed] })),
+      );
+      expect(verdict(verdicts, 'execution.exit_code')).toMatchObject({
+        outcome: 'fail',
+        evidence:
+          'the agent process exited with 1, 0 expected; stderr "Error: out of memory"; the last command "python check_sheet.py out/acme-price-sheet.xlsx" exited with 0',
+      });
+      const alone = await run(execution, context(task, 0, observed(built, [], { executions: [crashed] })));
+      expect(verdict(alone, 'execution.exit_code').evidence).toBe(
+        'the agent process exited with 1, 0 expected; stderr "Error: out of memory"; the agent reported no command',
+      );
+    });
+
     it('mutation: the last command fails while the agent process exits 0; exit_code reads the command', async () => {
       const failed = [...reported.slice(0, 2), { ...(reported[2] as ExecutionRecord), exitCode: 2 }, agent];
       const verdicts = await run(execution, context(task, 0, observed(built, [], { executions: failed })));
