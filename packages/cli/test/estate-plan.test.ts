@@ -38,16 +38,16 @@ describe('driftbench estate plan', () => {
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
     expect(result.out).toContain(
-      'Wrote plan.yaml: 1338 rows (348 from the contract, 10 journeys, 980 pairwise), all proposed. Summary in plan.summary.json.',
+      'Wrote plan.yaml: 1379 rows (357 from the contract, 10 journeys, 1012 pairwise), all proposed. Summary in plan.summary.json.',
     );
-    expect(result.out).toContain('Covering array: 980 rows, t = 2, 4710 of 4710 allowed 2-tuples covered');
-    expect(result.out).toContain('the full grid of 1992646656000 cells is never enumerated');
-    expect(result.out).toContain('Unenforced: 51 approved rules no guard enforces.');
-    expect(result.out).toContain('Cells with no approved phrase: 1205 of 1205.');
+    expect(result.out).toContain('Covering array: 1012 rows, t = 2, 4842 of 4842 allowed 2-tuples covered');
+    expect(result.out).toContain('the full grid of 2142095155200 cells is never enumerated');
+    expect(result.out).toContain('Unenforced: 54 approved rules no guard enforces.');
+    expect(result.out).toContain('Cells with no approved phrase: 1240 of 1240.');
     expect(result.out).toContain('Edges with no journey: 7.');
     expect(result.out).toContain('The map has no phrase bank yet');
     const summary = JSON.parse(await readFile(join(root, 'plan.summary.json'), 'utf8'));
-    expect(summary.coveringArraySize).toBe(980);
+    expect(summary.coveringArraySize).toBe(1012);
     expect(summary.uncoveredEdges).toHaveLength(7);
     expect(parsePlanText(await readFile(join(root, 'plan.yaml'), 'utf8')).ok).toBe(true);
   }, 60_000);
@@ -120,7 +120,7 @@ describe('driftbench estate plan approve', () => {
     const root = await folder();
     expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
     const list = await run(['estate', 'plan', 'approve', 'plan.yaml'], root);
-    expect(list.out).toContain('plan.yaml: 1338 rows, 1338 proposed, 0 approved, 0 struck.');
+    expect(list.out).toContain('plan.yaml: 1379 rows, 1379 proposed, 0 approved, 0 struck.');
     const strike = await run(
       ['estate', 'plan', 'approve', 'plan.yaml', '--row', 'journey.01', '--strike'],
       root,
@@ -128,9 +128,9 @@ describe('driftbench estate plan approve', () => {
     expect(strike.code).toBe(0);
     expect(strike.out).toContain('Struck 1 row in plan.yaml');
     const all = await run(['estate', 'plan', 'approve', 'plan.yaml', '--all'], root);
-    expect(all.out).toContain('Approved 1337 rows in plan.yaml');
+    expect(all.out).toContain('Approved 1378 rows in plan.yaml');
     const after = await run(['estate', 'plan', 'approve', 'plan.yaml'], root);
-    expect(after.out).toContain('1338 rows, 0 proposed, 1337 approved, 1 struck.');
+    expect(after.out).toContain('1379 rows, 0 proposed, 1378 approved, 1 struck.');
     const unknown = await run(['estate', 'plan', 'approve', 'plan.yaml', '--row', 'no.such.row'], root);
     expect(unknown.code).toBe(1);
     expect(unknown.err).toContain('PLAN_UNKNOWN_ROW');

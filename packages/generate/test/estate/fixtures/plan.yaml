@@ -3,7 +3,7 @@
 # every row approved but one struck. The summary counts the rows below; no covering array was computed.
 # Fictional data only.
 version: 1
-mapHash: ab256ba636f4b315e09b13501fb64dcf47cad30b4bdc7006fabe7b1ba4c75102
+mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
 rows:
   - id: p01
     atomIds:
