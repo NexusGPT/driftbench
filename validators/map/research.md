@@ -109,3 +109,15 @@ Sources read:
 What others do: minProperties and maxProperties bound the number of keys like minItems and maxItems bound items; boundary analysis tests each edge and the side outside it.
 
 What to try, and why: the tool pre-pass reads minProperties and maxProperties, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
+
+## Iteration 10
+
+Question: packages/generate/src/extract/tools.ts: locate and readTools know tools and tool_schemas only, so a Gemini file ({ functionDeclarations } at the root or inside the tools list) gives no tool; tool-formats.gemini and gemini-nested prove it.
+
+Sources read:
+* https://ai.google.dev/gemini-api/docs/function-calling (tools hold functionDeclarations, each with name, description and parameters)
+* packages/generate/src/extract/tools.ts doc comment (the shapes read today: lists, tools, tool_schemas, metadata.tool_schemas, the OpenAI wrapper)
+
+What others do: Gemini groups declarations as tools: [{ functionDeclarations: [...] }] and some exports keep the declarations list alone; each declaration has the OpenAI name and parameters keys.
+
+What to try, and why: the tool pre-pass reads Gemini function declarations, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.

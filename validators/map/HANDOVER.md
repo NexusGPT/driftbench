@@ -30,7 +30,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 0 |
 <!-- level-table:end -->
 
-After pilot iteration 9 (commit a3e43ca): level 0 of 8 on every seed. The bank (`validators/map/bank.jsonl`): 178 of 456 items pass on seeds 1 to 20 and the hidden seed, score 0.3904; iteration 0 was 166 of 456, score 0.364. Items fixed per iteration so far: 1.33; failing items left: 278; forecast 208.5 iterations.
+After pilot iteration 10 (commit a6f767c): level 0 of 8 on every seed. The bank (`validators/map/bank.jsonl`): 180 of 456 items pass on seeds 1 to 20 and the hidden seed, score 0.3947; iteration 0 was 166 of 456, score 0.364. Items fixed per iteration so far: 1.40; failing items left: 276; forecast 197.1 iterations.
 
 ## Floor
 
@@ -38,7 +38,7 @@ None: `validators/floors.json` holds no floor for map, so CI reads it as 0. Unde
 
 ## Open items
 
-Level 1 (structured files) passes 65 of 98 items on every seed. Its failing items: inventory-forms.long-item, inventory-forms.markdown-tables, inventory-forms.csv, tool-formats.gemini, tool-formats.gemini-nested, tool-formats.bedrock, tool-formats.openapi, tool-formats.swagger, tool-formats.legacy-functions, tool-formats.agent-config, tool-formats.stringified-parameters, tool-formats.multi-document, tool-formats.jsonc, tool-formats.cohere-v1, tool-formats.vercel-json-schema, schema-keywords.one-of, schema-keywords.any-of, schema-keywords.any-of-null, schema-keywords.all-of, schema-keywords.depth-three, schema-keywords.array-of-objects, schema-keywords.array-items-enum, schema-keywords.prefix-items, schema-keywords.contains, schema-keywords.dependent-required, schema-keywords.dependencies, schema-keywords.if-then-else, schema-keywords.not, schema-keywords.closed-object, schema-keywords.additional-properties-schema, schema-keywords.pattern-properties, schema-keywords.discriminator, schema-keywords.recursive-ref. Each item's title names the partition ids the pre-pass must give.
+Level 1 (structured files) passes 67 of 98 items on every seed. Its failing items: inventory-forms.long-item, inventory-forms.markdown-tables, inventory-forms.csv, tool-formats.bedrock, tool-formats.openapi, tool-formats.swagger, tool-formats.legacy-functions, tool-formats.agent-config, tool-formats.stringified-parameters, tool-formats.multi-document, tool-formats.jsonc, tool-formats.cohere-v1, tool-formats.vercel-json-schema, schema-keywords.one-of, schema-keywords.any-of, schema-keywords.any-of-null, schema-keywords.all-of, schema-keywords.depth-three, schema-keywords.array-of-objects, schema-keywords.array-items-enum, schema-keywords.prefix-items, schema-keywords.contains, schema-keywords.dependent-required, schema-keywords.dependencies, schema-keywords.if-then-else, schema-keywords.not, schema-keywords.closed-object, schema-keywords.additional-properties-schema, schema-keywords.pattern-properties, schema-keywords.discriminator, schema-keywords.recursive-ref. Each item's title names the partition ids the pre-pass must give.
 
 ## Hypotheses tried
 
@@ -51,14 +51,15 @@ Level 1 (structured files) passes 65 of 98 items on every seed. Its failing item
 * Iteration 7: packages/generate/src/extract/tools.ts: walk reads a property's keywords where it stands, so a property that is a $ref gives no partition; schema-keywords.ref-defs and ref-definitions prove it. Result: held; the item passes on every seed (commit ebf9a7a).
 * Iteration 8: packages/generate/src/extract/tools.ts: stringPartitions reads format and pattern only, so a base64 contentEncoding gives no partition; schema-keywords.content-encoding proves it. Result: held; the item passes on every seed (commit 2e61ff9).
 * Iteration 9: packages/generate/src/extract/tools.ts: partitionsOf gives an object no partition from its key count, so schema-keywords.min-max-properties loses its four edges. Result: held; the item passes on every seed (commit a3e43ca).
+* Iteration 10: packages/generate/src/extract/tools.ts: locate and readTools know tools and tool_schemas only, so a Gemini file ({ functionDeclarations } at the root or inside the tools list) gives no tool; tool-formats.gemini and gemini-nested prove it. Result: held; the item passes on every seed (commit a6f767c).
 
 None was rejected: each iteration fixed the one keyword or shape its item named.
 
 ## Next actions
 
-1. Run `pnpm driftbench validate map --seed 1` and take the next failing item of level 1 (schema keywords first: uniqueItems, minItems, the draft-04 boolean bounds).
-2. Write the test in `packages/generate/test/extract/tools-keywords.test.ts` from the item's title, see it red, fix `packages/generate/src/extract/tools.ts`.
-3. Run the bank with `--record <n>` and append the journal row.
+1. Run `pnpm driftbench validate map --seed 1` and take the next failing item of level 1. The schema keywords left are oneOf, anyOf and anyOf with null, allOf, depth three, array items (objects and enums), prefixItems, contains, dependentRequired and dependencies, if-then-else, not, closed objects, additionalProperties and patternProperties, discriminators, recursive references. The tool shapes left are Bedrock, OpenAPI, Swagger, legacy functions, agent configs, stringified parameters, YAML streams, JSON with comments, Cohere and Vercel. The inventory forms left are a title longer than a quote, markdown tables and CSV.
+2. Write the test in `packages/generate/test/extract/tools-keywords.test.ts` (or the prepass tests for an inventory form) from the item's title, see it red, fix `packages/generate/src/extract/tools.ts` or `prepass.ts`.
+3. Run the bank with `pnpm tsx packages/validators/src/ladders/map/bank/cli.ts --run --record <n> --note "<what changed>"` and append the journal row; every third iteration ask the maintainer for the handover test of section 10.4.
 
 ## Pitfalls
 
