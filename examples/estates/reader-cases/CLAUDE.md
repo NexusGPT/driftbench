@@ -20,3 +20,5 @@ missed; the README lists them. Northwind Traders and its carriers are invented.
 
 A carrier claim and the month close follow their steps in `.claude/processes.json`. Read
 `.claude/memory/MEMORY.md` at the start of every session.
+
+The check registry is `guards/CHECK-REGISTRY.md`; claims follow `parcel-claims/references/claim-rules.md`.

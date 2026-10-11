@@ -29,6 +29,8 @@ import { registerEstateMaintainCommands } from './estate-maintain';
 import { registerEstatePlanCommands } from './estate-plan';
 
 export type EstateScanOptions = {
+  /** More globs to skip, beside the defaults and the estate configuration. Repeatable. */
+  ignore?: string[];
   runtime?: string;
   out?: string;
   replay?: string;
@@ -65,6 +67,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--no-model', 'read the structured atoms only; no prose atom')
     .option('--provider <name>', 'anthropic or openai (default: the first whose key is set)')
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
+    .option('--ignore <glob>', 'skip the paths this glob matches, beside the defaults; repeat it', collect)
     .option('--force', 'replace an existing map; the approvals in it are lost')
     .action(async (root: string, options: EstateScanOptions) => {
       setExit(await estateScanCommand(root, options, io));
@@ -77,7 +80,8 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     )
     .argument('<map>', 'the estate map')
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
-    .action(async (path: string, options: { ceiling?: string }) => {
+    .option('--ignore <glob>', 'skip the paths this glob matches, as the scan did; repeat it', collect)
+    .action(async (path: string, options: { ceiling?: string; ignore?: string[] }) => {
       setExit(await estateLintCommand(path, options, io));
     });
 
@@ -127,7 +131,7 @@ export async function estateScanCommand(
     return 2;
   }
   const runtime = options.runtime ?? 'claude-code';
-  const reader = readerFor(runtime);
+  const reader = readerFor(runtime, { ignore: options.ignore ?? [] });
   if (!reader) {
     io.err(`error: unknown runtime "${runtime}": use ${RUNTIMES.join(', ')}\n`);
     return 2;
@@ -184,6 +188,19 @@ export async function estateScanCommand(
   return failed || result.refusals.length > 0 ? 1 : 0;
 }
 
+/** What the reader skipped, per glob, so an owner sees what the ignore list hides. */
+function ignoredLines(result: ScanEstateResult): string[] {
+  const ignored = result.raw.ignored;
+  if (!ignored) return [];
+  const hits = ignored.patterns.filter((entry) => entry.files > 0);
+  if (hits.length === 0) return ['  Ignored: none.'];
+  const total = hits.reduce((sum, entry) => sum + entry.files, 0);
+  return [
+    `  Ignored: ${total} ${plural(total, 'file', 'files')} no runtime loads.`,
+    ...hits.map((entry) => `    ${entry.pattern}  ${entry.files}`),
+  ];
+}
+
 function scanReport(result: ScanEstateResult, out: string, io: Io): string {
   const { map, analysis } = result;
   const byModel = map.atoms.filter((atom) => atom.producedBy === 'model').length;
@@ -222,6 +239,7 @@ function scanReport(result: ScanEstateResult, out: string, io: Io): string {
     );
     for (const duplicate of result.duplicates) lines.push(`    ${duplicate}`);
   }
+  lines.push(...ignoredLines(result));
   lines.push(listLine('Orphans', analysis.orphans));
   lines.push(listLine('Unreachable from the standing instructions', analysis.unreachableFiles));
   const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind)).length;
@@ -237,7 +255,7 @@ function scanReport(result: ScanEstateResult, out: string, io: Io): string {
 /** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
 export async function estateLintCommand(
   path: string,
-  options: { ceiling?: string },
+  options: { ceiling?: string; ignore?: string[] },
   io: Io,
 ): Promise<number> {
   const ceiling = parseCeiling(options.ceiling, io);
@@ -252,7 +270,7 @@ export async function estateLintCommand(
     io.err(`✗ ${show(file, io)}\n${loaded.errors.map(issueLine).join('')}`);
     return 1;
   }
-  const reader = readerFor(loaded.map.runtime);
+  const reader = readerFor(loaded.map.runtime, { ignore: options.ignore ?? [] });
   if (!reader) {
     io.err(`The map was read by the runtime "${loaded.map.runtime}", which this driftbench cannot read.\n`);
     return 2;

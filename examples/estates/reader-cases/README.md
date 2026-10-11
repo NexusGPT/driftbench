@@ -12,6 +12,9 @@ missed on a real estate. Northwind Traders, its carriers and its checks are inve
 | 5. A guard behind a prefix and a dispatcher | The Stop guard in `settings.json`: a shell test, an assignment, then `lib/dispatch.py claim-window.py`. |
 | 6. Frontmatter the strict YAML parser refuses | `parcel-claims/SKILL.md`: a description holding a colon. |
 | 7. Markdown beside a skill as prose | `parcel-claims/references/claim-rules.md`. |
+| 8. Files no runtime loads | a test fixture, a pycache file, a log, a test under hooks and a node_modules file (skipped by default), and a synced skill copy (skipped by `driftbench.estate.yaml`). |
+| 9. Paths named from another base | the last line of `CLAUDE.md` names `guards/CHECK-REGISTRY.md` (under `.claude/`) and `parcel-claims/references/claim-rules.md` (under `.claude/skills/`). |
+| 10. Several ids in one registry cell | the rows `` `W4` `W5` `` and `` HANDBACK` / `STOP-WAKE ``; `claim-window.py` holds the last two ids. |
 
 `answers.yaml` holds the model's part, written by the reader lane under the answer contract. `map.yaml` is
 the scan with those answers; `approved.yaml` is that map with every atom approved. Made with:

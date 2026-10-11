@@ -6,6 +6,9 @@ export {
   type ClaudeCodeReaderOptions,
   cutLines,
   DEFAULT_CHUNK_CHARACTERS,
+  DEFAULT_IGNORE,
+  ESTATE_CONFIG,
+  ignoreRule,
   scriptOf,
   splitList,
 } from './claude-code';
@@ -94,6 +97,9 @@ export {
 export const RUNTIMES = ['claude-code'] as const;
 
 /** A reader for a runtime, or undefined for a runtime the scanner does not know. */
-export function readerFor(runtime: string): EstateReader | undefined {
-  return runtime === 'claude-code' ? new ClaudeCodeReader() : undefined;
+export function readerFor(
+  runtime: string,
+  options: { ignore?: readonly string[] } = {},
+): EstateReader | undefined {
+  return runtime === 'claude-code' ? new ClaudeCodeReader(options) : undefined;
 }
