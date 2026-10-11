@@ -721,6 +721,12 @@ export function boundarySeeder(
           });
         }
       }
+      // Every other tool of the map is expected 0 times: the turn asks for one tool and nothing else.
+      if (found) {
+        for (const other of prepared.tools) {
+          if (other.name !== found.tool.name) tools.push({ label: other.name, count: 0 });
+        }
+      }
       const world = worldFor(prepared, cell);
       cell.push(...contextAxes(prepared, cell, rng));
       unsupported.push(...world.unsupported.filter((entry) => !unsupported.includes(entry)));
