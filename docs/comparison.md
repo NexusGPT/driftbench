@@ -87,6 +87,15 @@ $ pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --
 
 Proof: [recovery.test.ts](../packages/core/test/runner/recovery.test.ts), [perturb.test.ts](../packages/cli/test/perturb.test.ts).
 
+## Tool approval limit for runtimes that run their own tools
+
+Driftbench refuses a denied tool call before it runs wherever the harness runs the tool: the Vercel AI, function and process adapters, and the HTTP chat adapter, where the harness answers each requested tool from the spec. For a runtime that runs its own tools (Nexus, the Claude Code runtime, traces, and SDK loops that own their tool objects), the harness receives the call only after the runtime has run it. The gate then marks the call as denied and fails the block, but the call has already happened. Gating before the call would need each runtime to ask the harness before every call, which none does today.
+
+## Known limits of driftbench's sandbox cleanup
+
+- A process killed with SIGKILL cannot run its cleanup. A workspace folder and a command it started are left behind. SIGTERM, SIGINT and a normal exit are handled.
+- A docker container is not stopped when the run ends unclean: docker containers are not part of the exit cleanup. Measured only with a mocked docker command line, since the host this was built on has no docker.
+
 ## Where no tool reads yes
 
 In six rows, none of the seven tools shows the capability in full in the pages read: end state assertions (row 9), judge calibration (row 12), drift across turns (row 14), recovery metrics (row 15), intervals and significance tests (row 17), and multi-language handling (row 28). driftbench covers all six. End state assertions and multi-language handling are built, phase 1: see [checks](reference/checks.md). Judge calibration (phase 2), the five drift classes and the recovery metrics of each perturbed run (phase 3) are built: see [judges](concepts/judges.md), [drift](concepts/drift.md) and [recovery](concepts/recovery.md). Intervals and significance tests are built, phase 4, in the statistics library, the scorecard and `driftbench compare`: see [statistics](concepts/statistics.md) and [scorecards](scorecards.md).
