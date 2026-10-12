@@ -12,3 +12,4 @@ export * from './langgraph';
 export * from './nexus';
 export * from './openai-agents';
 export * from './process';
+export * from './traces';

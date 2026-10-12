@@ -553,14 +553,6 @@ Wrote 269 files to _captures/docs3/cli/generated.
 | 1 | the suite is written with incomplete specs, a seeder cut by `--max`, or a generator defect, each listed |
 | 2 | usage or input error, nothing written: an invalid or unapproved map, a bad number, an invalid baseline spec, an earlier output without `--force` |
 
-## `driftbench perturb`
-
-```
-driftbench perturb <spec> (--class <D> --at <n> | --perturbation <id>) [--target <adapter[:agent]>] [--seed <n>] [--pack <dir>] [--drafts] [--json]
-```
-
-Runs one spec in mode P with one deviation injected, the spec's own or one drawn from the red-team pack, and prints each block and the runner's recovery record. Exit 0 when the agent comes back within the spec's window, 1 when not, 2 on bad input. See [recovery](../concepts/recovery.md).
-
 ## `driftbench simulate`
 
 ```
@@ -717,6 +709,35 @@ Cells: 20, 44 model turns to request, 0 cells dropped by the map.
 | 0 | the set is written | written | the set is written and every cell got its turns | the comparison printed | listed, or approved |
 | 1 | written, but the model check failed on a conversation | | written, but a cell failed or fell short, each listed | | the approval file is invalid |
 | 2 | usage or input error, or an output folder inside a git work tree; nothing written | usage or input error | usage or input error; nothing written | usage or input error | the file is not found |
+
+## `driftbench import traces` and `import approve`
+
+The `import` command also reads tables: see [`driftbench import`](#driftbench-import) for `import csv` and `import xlsx`. These two subcommands draft specs from production traces: OpenTelemetry spans with the GenAI semantic conventions, Nexus platform traces, or a recorded Claude Code session. See [production traces](../traces.md).
+
+```
+driftbench import traces <path> --from otel|nexus|claude-code --out <dir> [--prices <file>] [--no-redact] [--force]
+driftbench import approve <path> [--all]
+```
+
+| Command | Does |
+|---|---|
+| `import traces` | one draft spec per traced conversation: each observed user turn a block, the observed state before it the block's `given.prefix`, no `expect`, `metadata.imported.approved: false`, personal data redacted |
+| `import approve` | lists the drafts not approved yet; `--all` approves them |
+
+| Option | Effect |
+|---|---|
+| `<path>` | a trace file, a folder of `.json` and `.jsonl` files, or `-` for standard input (otel and nexus) |
+| `--from` | `otel`, `nexus` or `claude-code`. Required |
+| `--out <dir>` | the folder for the drafts, `draft-<source>-<id>.yaml`. Required |
+| `--prices <file>` | JSON prices in USD per million tokens by model, for spans that carry tokens and no cost |
+| `--no-redact` | keep personal data; by default the intake privacy rules redact it |
+| `--force` | replace drafts that already exist |
+
+| Exit code | When |
+|---|---|
+| 0 | `traces`: every draft is written; `approve`: listed or approved |
+| 1 | `approve`: a file is not an imported draft |
+| 2 | usage or input error, nothing written: no `--from` or `--out`, an unreadable path, no trace found, an existing draft without `--force`, standard input for a Claude Code session |
 
 ## `driftbench pilot`
 
@@ -1233,11 +1254,31 @@ Verdict: REGRESSION. The upper bound 81.24 points of the regression effect is no
 
 ## `driftbench monitor`
 
+Watches one metric for a shift with CUSUM, Page-Hinkley and a sliding two-sample KS test, and alarms when two of the three agree. The series is the campaigns of a store, or time windows of production traces. See [production traces](../traces.md#monitoring-driftbench-monitor---source-traces).
+
 ```
-driftbench monitor --store <file> --metric <pass_rate|cost|latency> [--window <n>] [--series] [--json]
+driftbench monitor --store <file> --metric pass_rate|cost|latency [--window <n>] [--series] [--json]
+driftbench monitor --source traces <path> --metric latency|cost|tokens|tool_calls|tool_errors|turns [--from otel|nexus|claude-code] [--every <duration>] [--window <n>] [--prices <file>] [--series] [--json]
 ```
 
-Watches one metric across the campaigns of a store, oldest first, for a shift: CUSUM, Page-Hinkley and a sliding Kolmogorov-Smirnov test. The first `--window` campaigns (default 20) set the in-control level. Exit 1 when two of the three detectors alarm, 0 otherwise, 2 on bad input, such as fewer than twice `--window` campaigns.
+| Option | Effect |
+|---|---|
+| `--source` | `store` (default): the campaigns of `--store`, oldest first; `traces`: the traces at `<path>` |
+| `--metric` | the value of each point. Required |
+| `--window <n>` | the points that set the in-control level, and the length of each KS segment. Default 20; the series needs at least twice as many |
+| `--every <duration>` | traces: the time window of one point, a whole number and s, m, h or d. Default `1h` |
+| `--from` | traces: `otel` (default), `nexus` or `claude-code` |
+| `--prices <file>` | traces: JSON prices per million tokens by model, for cost |
+| `--series` | print every point with its statistics |
+| `--json` | one JSON document, with `alarm`, `votes`, each detector's alarms and, on a shift, `alert`: the point where the second detector first alarmed |
+
+| Exit code | When |
+|---|---|
+| 0 | no shift: fewer than two detectors alarmed |
+| 1 | a shift: two or three detectors alarmed |
+| 2 | bad input: an unknown metric for the source, no store or no path, a bad `--every` or `--window`, too few points |
+
+On a store:
 
 ```
 $ pnpm driftbench monitor --store <db> --metric pass_rate --window 2
@@ -1344,4 +1385,4 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 | `battery run` | the runtime battery on agent traces | 4 |
 | a rerun of one stored cell | run one cell of a stored campaign again | no phase assigned |
 | `init` | start a project | no phase assigned |
-| `spec import`, `spec synth` | specs from recorded conversations, or from traffic clusters | no phase assigned |
+| `spec synth` | specs from traffic clusters | no phase assigned |

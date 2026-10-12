@@ -10,6 +10,7 @@ import { registerGateCommand } from './commands/gate';
 import { registerGenerateCommand } from './commands/generate';
 import { registerHoldoutCommand } from './commands/holdout';
 import { registerImportCommand } from './commands/import';
+import { registerTraceImportCommands } from './commands/import-traces';
 import { registerIntakeCommand } from './commands/intake';
 import { registerJudgeCommand } from './commands/judge';
 import { registerMonitorCommand } from './commands/monitor';
@@ -66,6 +67,7 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerViewCommand(program, io, setExit);
   registerImportCommand(program, io, setExit);
   registerRegistryCommands(program, io, setExit);
+  registerTraceImportCommands(program, io, setExit);
 
   try {
     await program.parseAsync(argv, { from: 'user' });
