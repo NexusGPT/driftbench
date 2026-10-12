@@ -1,4 +1,5 @@
 import type { JudgeAnswer, JudgeRequest } from './contract';
+import { renderEntry } from './transcript';
 
 /** What `groundEvidence` returns: whether the quote is in the data, and the first place that holds it. */
 export type Grounding = { readonly grounded: boolean; readonly where?: string };
@@ -40,25 +41,54 @@ export function groundEvidence(request: JudgeRequest, answer: JudgeAnswer): Grou
   const parts = quote.split(/\s*\.\.\.\s*/).filter(Boolean);
   if (parts.length === 0) return { grounded: false };
   const places: [string, string][] = [
-    ...request.transcript.map((entry, i): [string, string] => [`transcript.${i}`, entry.text]),
+    ...request.transcript.flatMap((entry, i): [string, string][] => {
+      const label = fold(`[${entry.role}${entry.tool ? ` ${entry.tool}` : ''}]`);
+      const tail = quote.startsWith(`${label} `)
+        ? quote
+            .slice(label.length)
+            .replace(/\s*\.\.\.\s*/g, '')
+            .trim()
+        : '';
+      return [
+        [`transcript.${i}`, entry.text],
+        ...(tail
+          ? [
+              [
+                `transcript.${i}`,
+                request.answerContract === 'legacy'
+                  ? `[${entry.role}${entry.tool ? ` ${entry.tool}` : ''}] ${entry.text}`
+                  : renderEntry(entry),
+              ] as [string, string],
+            ]
+          : []),
+      ];
+    }),
     ...(request.artifact === undefined ? [] : [['artifact', request.artifact] as [string, string]]),
     ...(request.given === undefined ? [] : [['given', JSON.stringify(request.given)] as [string, string]]),
     ...(request.inputs ?? []).map((input): [string, string] => [`input.${input.path}`, input.text]),
     ...(request.reference === undefined ? [] : [['reference', request.reference] as [string, string]]),
   ];
   for (const [where, text] of places) {
-    const hay = fold(text);
-    let from = 0;
-    let found = true;
-    for (const part of parts) {
-      const at = findOnWords(hay, part, from);
-      if (at < 0) {
-        found = false;
-        break;
-      }
-      from = at + part.length;
-    }
-    if (found) return { grounded: true, where };
+    if (containsParts(text, parts)) return { grounded: true, where };
   }
   return { grounded: false };
+}
+
+function containsParts(text: string, parts: readonly string[]): boolean {
+  const hay = fold(text);
+  let from = 0;
+  for (const part of parts) {
+    const at = findOnWords(hay, part, from);
+    if (at < 0) return false;
+    from = at + part.length;
+  }
+  return true;
+}
+
+/** Presence only: every supplied quote segment occurs in order in one text, on word boundaries. */
+export function textContainsQuote(text: string, evidence: string): boolean {
+  let quote = fold(evidence);
+  if (/^".*"$/.test(quote)) quote = quote.slice(1, -1).trim();
+  const parts = quote.split(/\s*\.\.\.\s*/).filter(Boolean);
+  return parts.length > 0 && containsParts(text, parts);
 }

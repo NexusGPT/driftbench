@@ -143,3 +143,36 @@ it('rejects whitespace-only and ambiguous opening quotes', () => {
     ).toBe(true);
   }
 });
+
+it('accepts a unique passage after a shared opening, using all supplied following words', () => {
+  const request = {
+    ...pair,
+    candidates: {
+      A: 'Shared opening. Wrong final result: 3.',
+      B: 'Shared opening. Correct final result: 4.',
+    },
+  };
+  for (const winnerQuote of ['Correct final result: 4.', 'Shared opening. Correct final result: 4.']) {
+    expect(
+      parseJudgeText(JSON.stringify({ winner: 'B', winnerQuote, reasoning: 'B is correct' }), request).winner,
+    ).toBe('B');
+  }
+  const ambiguous = JSON.stringify({
+    winner: 'B',
+    winnerQuote: 'Shared opening.',
+    reasoning: 'B is correct',
+    evidence: 'Reply B: "Correct final result: 4."',
+  });
+  expect(parseJudgeText(ambiguous, request).winner).toBe('B');
+  expect(
+    parseJudgeText(
+      JSON.stringify({
+        winner: 'B',
+        winnerQuote: 'Shared opening.',
+        reasoning: 'B',
+        evidence: 'Reply A: "Wrong final result: 3."',
+      }),
+      request,
+    ).unparsed,
+  ).toBe(true);
+});

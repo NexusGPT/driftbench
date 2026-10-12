@@ -50,8 +50,10 @@ export function singleJudgeCheck(client: JudgeClient, options: SingleJudgeOption
           if (result.costUsd !== undefined) options.onCost?.(result.costUsd);
           if (
             request.answerContract !== 'legacy' &&
+            client.cls === 'system2' &&
             result.unparsed &&
-            result.answer.reasoning.startsWith('invalid criterion ledger:')
+            (result.answer.reasoning.startsWith('invalid criterion ledger:') ||
+              result.answer.reasoning.startsWith('answer breaks the assessment contract:'))
           ) {
             result = await client.judge({ ...request, budget: 'large' });
             if (result.costUsd !== undefined) {

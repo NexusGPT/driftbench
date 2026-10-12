@@ -244,3 +244,23 @@ it('a reference-guided rubric exposes every caller item and the reference to the
     ['format', 'requested_fact'],
   ]);
 });
+
+it('specifies that the quote matched both candidates on its one ambiguous-quote re-ask', async () => {
+  const { parseJudgeText } = await import('../src/assessment');
+  const systems: string[] = [];
+  const judge = {
+    id: 'ambiguous',
+    family: 'test',
+    cls: 'system2' as const,
+    cost: 1,
+    async judge(request: JudgeRequest) {
+      systems.push(request.system ?? '');
+      return parseJudgeText('{"winner":"B","winnerQuote":"Shared opening.","reasoning":"B"}', request);
+    },
+  };
+  const result = await judgePairwise(judge, criterion, [], 'Shared opening. One.', 'Shared opening. Two.');
+  expect(result.choice).toBe('tie');
+  expect(result.calls).toBe(4);
+  expect(systems[1]).toContain('your quote matches both replies');
+  expect(systems[3]).toContain('your quote matches both replies');
+});

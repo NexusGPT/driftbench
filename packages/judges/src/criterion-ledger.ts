@@ -9,6 +9,11 @@ export function requirementsFor(request: JudgeRequest): readonly CriterionRequir
   const requirements = request.requirements ?? [
     { id: request.criterion.name, requirement: request.criterion.rubric },
   ];
+  if (
+    !Array.isArray(requirements) ||
+    requirements.some((r) => !r || typeof r.id !== 'string' || typeof r.requirement !== 'string')
+  )
+    throw new RangeError('criterion requirement ids and definitions must be strings');
   const normalized = requirements.map((r) => ({ id: r.id.trim(), requirement: r.requirement.trim() }));
   if (
     !normalized.length ||

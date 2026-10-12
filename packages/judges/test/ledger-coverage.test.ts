@@ -18,6 +18,22 @@ const check = (id: string, met: boolean | null = true) => ({
 });
 
 describe('caller-owned requirement coverage', () => {
+  it('names an invalid caller requirement set instead of reporting invalid JSON', () => {
+    const raw = JSON.stringify({ checks: [check('upload'), check('setup')] });
+    for (const requirements of [
+      [],
+      [
+        { id: 'upload', requirement: 'one' },
+        { id: 'upload', requirement: 'two' },
+      ],
+      [{ id: '', requirement: 'one' }],
+    ]) {
+      const result = parseJudgeText(raw, { ...request, requirements });
+      expect(result.unparsed).toBe(true);
+      expect(result.answer.reasoning).toContain('invalid caller requirements');
+      expect(result.answer.reasoning).not.toContain('invalid JSON');
+    }
+  });
   it('never accepts an omitted or invented requirement from the former open-ended contract', () => {
     const raw = JSON.stringify({
       checks: [

@@ -6,13 +6,16 @@ import {
   type JudgeRequest,
   type JudgeResult,
   repairAnswerText,
+  repeatedObjectKey,
 } from './contract';
-import { CriterionLedger, parseCriterionLedger } from './criterion-ledger';
+import { CriterionLedger, parseCriterionLedger, requirementsFor } from './criterion-ledger';
+import { textContainsQuote } from './evidence';
 import { FactLedgerAnswer, parseFactLedger } from './fact-audit';
 import {
   parseAnswerText as parseLegacyAnswerText,
   parseAnswerValue as parseLegacyAnswerValue,
 } from './legacy-contract';
+import { renderEntryText } from './transcript';
 
 /** A caller-supplied rubric item. Weights belong to the caller, never to the model. */
 export type RubricItem = {
@@ -126,8 +129,12 @@ export function responseSchema(request: JudgeRequest): Record<string, unknown> &
 /** Parse only the final complete object. No binary fallback can reverse an explicit winner. */
 export function parseJudgeText(raw: string, request: JudgeRequest): JudgeResult {
   if (request.answerContract === 'legacy') return parseLegacyAnswerText(raw);
+  const callerError = requirementsError(request);
+  if (callerError) return invalid(raw, callerError);
   const text = extractObject(raw);
   if (text === undefined) return invalid(raw, 'no final complete JSON object');
+  const duplicate = repeatedObjectKey(repairAnswerText(text));
+  if (duplicate !== undefined) return invalid(raw, `repeated key ${duplicate}`);
   try {
     return parseJudgeValue(JSON.parse(text), request, raw);
   } catch {
@@ -147,6 +154,10 @@ export function parseJudgeValue(
   raw = JSON.stringify(value),
 ): JudgeResult {
   if (request.answerContract === 'legacy') return parseLegacyAnswerValue(value, raw);
+  const callerError = requirementsError(request);
+  if (callerError) return invalid(raw, callerError);
+  const duplicate = repeatedObjectKey(repairAnswerText(raw));
+  if (duplicate !== undefined) return invalid(raw, `repeated key ${duplicate}`);
   const assessment = request.assessment;
   if (!assessment) return parseCriterionLedger(value, request, raw);
   validateAssessment(assessment);
@@ -156,15 +167,29 @@ export function parseJudgeValue(
     if (!parsed.success) return invalid(raw, parsed.error.issues[0]?.message ?? 'invalid winner');
     const { winner, winnerQuote, ...answer } = parsed.data;
     if (winner === 'A' || winner === 'B') {
-      const fold = (text: string) => text.normalize('NFKC').replace(/\s+/g, ' ').trim();
-      const matches =
-        winnerQuote === null || !fold(winnerQuote) || !request.candidates
-          ? []
-          : (['A', 'B'] as const).filter((side) =>
-              fold(request.candidates?.[side] ?? '').startsWith(fold(winnerQuote)),
-            );
+      const matching = (quote: string) =>
+        (['A', 'B'] as const).filter((side) => {
+          const text = request.candidates?.[side];
+          return (
+            text !== undefined &&
+            (textContainsQuote(text, quote) || textContainsQuote(renderEntryText(text), quote))
+          );
+        });
+      let matches = winnerQuote === null || !request.candidates ? [] : matching(winnerQuote);
+      if (matches.length === 2 && winnerQuote !== null && answer.evidence) {
+        // Extend only with text the model actually supplied. Never invent the next words from the
+        // candidate selected by its label. The whole continuation must occur after the shared quote.
+        for (const following of evidencePassages(answer.evidence, winner)) {
+          const extended = matching(`${winnerQuote} ... ${following}`);
+          if (extended.length === 1 && extended[0] === winner) {
+            matches = extended;
+            break;
+          }
+        }
+      }
+      if (matches.length === 2) return invalid(raw, 'your quote matches both replies');
       if (matches.length !== 1 || matches[0] !== winner)
-        return invalid(raw, 'winnerQuote must uniquely quote the opening of the named winner');
+        return invalid(raw, 'winnerQuote must quote a passage present only in the named winner');
     } else if (winnerQuote !== null) return invalid(raw, 'a tie or inconclusive has no winnerQuote');
     return {
       raw,
@@ -235,8 +260,41 @@ export function parseJudgeValue(
   };
 }
 
+function evidencePassages(evidence: string, winner: 'A' | 'B'): string[] {
+  const markers = [...evidence.matchAll(/\bReply\s+([AB])\s*:\s*/g)];
+  const blocks =
+    markers.length === 0
+      ? [evidence]
+      : markers.flatMap((marker, i) =>
+          marker[1] === winner
+            ? [
+                evidence.slice(
+                  (marker.index ?? 0) + marker[0].length,
+                  markers[i + 1]?.index ?? evidence.length,
+                ),
+              ]
+            : [],
+        );
+  return blocks.flatMap((block) => {
+    const quoted = [...block.matchAll(/"((?:\\.|[^"\\])*)"|“([^”]*)”/g)]
+      .map((m) => m[1] ?? m[2] ?? '')
+      .filter((text) => text.trim());
+    return quoted.length ? quoted : [block.trim()].filter(Boolean);
+  });
+}
+
 function invalid(raw: string, why: string): JudgeResult {
   return { raw, answer: inconclusive(`answer breaks the assessment contract: ${why}`), unparsed: true };
+}
+
+function requirementsError(request: JudgeRequest): string | undefined {
+  if (request.assessment) return undefined;
+  try {
+    requirementsFor(request);
+    return undefined;
+  } catch (cause) {
+    return `invalid caller requirements: ${cause instanceof Error ? cause.message : String(cause)}`;
+  }
 }
 
 /** One batched model call, one score per caller-supplied item, arithmetic in code. */
