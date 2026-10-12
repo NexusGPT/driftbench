@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
 import { orderedCheck, type ReplaySession, readSession, replayAdapter } from '@driftbench/adapters';
 import { defaultReaders } from '@driftbench/artifacts';
@@ -53,6 +54,10 @@ export type ReplayOptions = {
   steps: string[];
   store?: string;
   json?: boolean;
+  /** The owner's own values (an email, a phone, an IBAN) the pii check leaves out. */
+  owner?: string[];
+  /** A file of owner values, one per line; blank lines and lines starting with # are skipped. */
+  ownerFile?: string;
 };
 
 /** Registers `driftbench replay`. */
@@ -75,6 +80,13 @@ export function registerReplayCommand(
     )
     .option('--steps <feeds...>', 'step feeds (JSONL), one per session, matched by file name', collectAll, [])
     .option('--store <db>', 'keep the runs in this store; in memory without it')
+    .option(
+      '--owner <values...>',
+      "the owner's own email, phone, IBAN or national number: the pii check leaves exactly these out",
+      collectAll,
+      [],
+    )
+    .option('--owner-file <file>', 'owner values, one per line, for the pii check; # starts a comment line')
     .option('--json', 'print one JSON document')
     .action(async (sessions: string[], options: ReplayOptions) => {
       setExit(await replayCommand(sessions, options, io, deps));
@@ -129,6 +141,8 @@ export async function replayCommand(
     io.err(`Two sessions share the name ${duplicate}; give each transcript its own file name.\n`);
     return 2;
   }
+  const owner = await ownerValues(options, io);
+  if (!owner) return 2;
   const decisions = assign(options.decisions, names, '--decisions', io);
   const steps = assign(options.steps, names, '--steps', io);
   if (!decisions || !steps) return 2;
@@ -199,7 +213,7 @@ export async function replayCommand(
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks();
+    const checks = replayChecks({ piiOwner: owner });
     const artifacts = defaultReaders();
     for (const alignment of aligned.alignments) {
       const session = await sessionFor(alignment);
@@ -291,15 +305,18 @@ function referencesOf(spec: LoadedSpec): string[] {
   ];
 }
 
-/** The checks of a replay: every default check, with the ordered-pair check added to the custom registry. */
-export function replayChecks(): CheckSet {
+/**
+ * The checks of a replay: every default check, with the ordered-pair check added to the custom registry.
+ * `piiOwner` lists the owner's own values the pii check leaves out; empty by default.
+ */
+export function replayChecks(options: { piiOwner?: readonly string[] } = {}): CheckSet {
   const registry = new CheckRegistry();
   for (const name of defaultRegistry.names()) {
     const check = defaultRegistry.get(name);
     if (check) registry.register(name, check);
   }
   if (!registry.get('ordered')) registry.register('ordered', orderedCheck);
-  return defaultChecks({ registry });
+  return defaultChecks({ registry, ...(options.piiOwner?.length ? { piiOwner: options.piiOwner } : {}) });
 }
 
 /** A session's name: its file name without `.jsonl`. */
@@ -489,4 +506,24 @@ function collectAll(value: string, previous: string[]): string[] {
 
 function describe(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
+}
+
+/** The owner values from --owner and --owner-file. Undefined, with the reason printed, when the file cannot be read. */
+async function ownerValues(options: ReplayOptions, io: Io): Promise<string[] | undefined> {
+  const values = [...(options.owner ?? [])];
+  if (options.ownerFile !== undefined) {
+    const path = resolve(io.cwd, options.ownerFile);
+    let text: string;
+    try {
+      text = await readFile(path, 'utf8');
+    } catch (cause) {
+      io.err(`Cannot read the owner file ${path}: ${describe(cause)}\n`);
+      return undefined;
+    }
+    for (const line of text.split(/\r?\n/)) {
+      const value = line.trim();
+      if (value !== '' && !value.startsWith('#')) values.push(value);
+    }
+  }
+  return values.map((value) => value.trim()).filter((value) => value !== '');
 }

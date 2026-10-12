@@ -234,6 +234,7 @@ class BlockBuilder {
 
 /** Maps parsed session files onto blocks. Pure: the same input gives the same output. */
 export function mapSession(input: SessionInput): ReplaySession {
+  assertTranscript(input);
   const meta: SessionMeta = {
     ...(input.file === undefined ? {} : { file: input.file }),
     records: input.transcript.length,
@@ -692,4 +693,37 @@ function relativeTo(cwd: string | undefined, path: string): string {
   if (cwd === undefined) return path;
   const base = cwd.endsWith('/') ? cwd : `${cwd}/`;
   return path.startsWith(base) ? path.slice(base.length) : path;
+}
+
+/** Thrown when a file is not a Claude Code transcript, so a corpus in another shape never reads as empty sessions. */
+export class NotATranscriptError extends Error {
+  override name = 'NotATranscriptError';
+}
+
+const TRANSCRIPT_TYPES = new Set(['user', 'assistant']);
+
+/**
+ * A transcript holds at least one record of type user or assistant. A file with none (another JSONL shape,
+ * only lines that are not JSON, or nothing at all) is refused with what its first line holds.
+ */
+function assertTranscript(input: SessionInput): void {
+  const where = input.file === undefined ? 'the transcript' : input.file;
+  const parsed = input.transcript.filter((entry) => entry.ok);
+  const typed = parsed.some(
+    (entry) => entry.ok && isRecord(entry.value) && TRANSCRIPT_TYPES.has(String(entry.value.type)),
+  );
+  if (typed) return;
+  if (input.transcript.length === 0) {
+    throw new NotATranscriptError(`${where} is not a Claude Code transcript: it holds no record`);
+  }
+  const first = input.transcript[0];
+  const shape =
+    first === undefined || !first.ok
+      ? `line ${first?.line ?? 1} is not JSON`
+      : isRecord(first.value)
+        ? `line ${first.line} has the keys ${Object.keys(first.value).slice(0, 6).join(', ') || '(none)'}`
+        : `line ${first.line} is not an object`;
+  throw new NotATranscriptError(
+    `${where} is not a Claude Code transcript: no record has type user or assistant (${shape})`,
+  );
 }
