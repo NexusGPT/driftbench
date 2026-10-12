@@ -247,6 +247,8 @@ export type LabelAgreement = {
   readonly kappa?: number;
   /** The Wilson 95% interval on agree / n. */
   readonly agreement: Interval;
+  /** PABAK: 2 * agree / n - 1, the raw agreement rescaled to a chance-free kappa. Undefined with no blocks. */
+  readonly pabak?: number;
   /** Per block: the human label and the judge's answer. */
   readonly blocks: readonly {
     readonly id: string;
@@ -451,6 +453,7 @@ export function agreement(
     n,
     agree,
     ...(kappa === undefined ? {} : { kappa }),
+    ...(n === 0 ? {} : { pabak: (2 * agree) / n - 1 }),
     agreement: interval,
     blocks: ids.map((id, i) => {
       const anchor = anchors[i];
