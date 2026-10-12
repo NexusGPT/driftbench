@@ -6,9 +6,9 @@ These pages compare driftbench with five evaluation tools, one page per tool. Ev
 
 | Tool | Ahead | Equal | Behind | In progress | Limit | Page |
 |---|---|---|---|---|---|---|
-| promptfoo | 22 | 5 | 1 | 1 | 7 | [promptfoo](promptfoo.md) |
+| promptfoo | 16 | 8 | 1 | 1 | 10 | [promptfoo](promptfoo.md) |
 | LangWatch | 9 | 4 | 0 | 1 | 2 | [LangWatch](langwatch.md) |
-| DeepEval | 8 | 4 | 0 | 0 | 2 | [DeepEval](deepeval.md) |
+| DeepEval | 7 | 5 | 0 | 0 | 2 | [DeepEval](deepeval.md) |
 | Inspect | 20 | 0 | 0 | 0 | 3 | [Inspect](inspect.md) |
 | Langfuse | 10 | 2 | 0 | 0 | 3 | [Langfuse](langfuse.md) |
 
