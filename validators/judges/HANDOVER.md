@@ -94,6 +94,7 @@ Iteration 65 (cause: invisible characters): reading without zero-width, soft hyp
 Iteration 66 (cause: Cyrillic lookalikes): reading with lookalike letters folded to Latin inside mixed-script words. Test: screen.test.ts (red proved). Bank 466 -> 468.
 Iteration 67 (cause: leetspeak): reading with 4 3 1 0 5 7 folded to letters inside letter words. Test: screen.test.ts (red proved). Bank 468 -> 469.
 Iteration 68 (cause: letters spaced one by one): reading with single spaces between letters dropped. Test: screen.test.ts (red proved). Bank 469 -> 470.
+Iteration 69 (cause: letters separated by dots): reading with dots between letters dropped. Test: screen.test.ts (red proved). Bank 470 -> 471.
 
 ## Next actions
 
