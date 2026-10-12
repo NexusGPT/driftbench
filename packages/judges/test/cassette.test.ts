@@ -181,3 +181,20 @@ describe('the request key and a reference answer', () => {
     expect(requestKey(base)).not.toBe(a);
   });
 });
+
+describe('loading a cassette that lists a judge twice', () => {
+  it('refuses it, naming the judge', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'judges-cassette-'));
+    try {
+      const path = join(dir, 'c.json');
+      const cassette = emptyCassette();
+      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(REQUEST);
+      await saveCassette(path, { ...cassette, judges: [...cassette.judges, ...cassette.judges] });
+      await expect(loadCassette(path)).rejects.toThrow(/judge.*j|j.*twice/);
+      await saveCassette(path, cassette);
+      expect(await loadCassette(path)).toEqual(cassette);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+});

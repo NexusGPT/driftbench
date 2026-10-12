@@ -213,6 +213,11 @@ export async function loadCassette(path: string): Promise<Cassette> {
       `${path}: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
     );
   }
+  const seen = new Set<string>();
+  for (const judge of parsed.data.judges) {
+    if (seen.has(judge.id)) throw new JudgeError('config', `${path}: judge ${judge.id} is listed twice`);
+    seen.add(judge.id);
+  }
   return parsed.data;
 }
 
