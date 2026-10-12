@@ -143,7 +143,7 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
         id: dimension.id,
         title: dimension.title,
         kind: dimension.kind,
-        role: proposeRole(draft.dimensions, dimension.kind, false),
+        role: dimension.role ?? proposeRole(draft.dimensions, dimension.kind, false),
         produced_by: 'model',
         approved: false,
         values,

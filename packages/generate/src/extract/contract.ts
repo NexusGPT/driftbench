@@ -11,6 +11,7 @@ import {
   type ProposalDimension,
   RecoveryRelation,
   ReplyLanguageRelation,
+  Role,
   Slots,
   type SourceKind,
   StatesRelation,
@@ -57,7 +58,7 @@ Rules:
 {
   "section": "<the section you were asked for>",
   "dimensions": [
-    {"id": "<dimension id>", "title": "<what it varies>", "kind": "<kind>",
+    {"id": "<dimension id>", "title": "<what it varies>", "kind": "<kind>", "role": "<axis or detail, only when the source declares it>",
      "values": [{"id": "<value id>", "title": "<what the value means>", "polarity": "<must or must_not, on a rule only>", "when": {"<dimension id>": ["<value id>"]}, "unless": {"<dimension id>": ["<value id>"]}, "limit": 3, "within": {"minutes": 5}, "priority": "first", "weight": <share of users between 0 and 1>, "required": <true when a test plan must include the value>, "source": "<path>", "quote": "<verbatim text>"}]}
   ],
   "constraints": [
@@ -70,7 +71,7 @@ Rules:
     {"kind": "<path, uses_tool, states, task_family, binds, recovery or reply_language>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
   ]
 }
-On a rule, "polarity" says whether the agent must do it or must not do it; leave it out on every other value. On a persona or data value, "required" is true when the source says every test plan must include it; leave it out otherwise. On a kind of customer or other persona value, "weight" is the share of users it stands for, between 0 and 1; leave it out otherwise. On a rule, "priority" is "first" when the source says the rule comes before every other rule; leave it out otherwise. On a rule, "within" gives the minutes within which the action happens; leave it out otherwise. On a rule, "limit" is the most times the action may happen in one conversation; leave it out otherwise. On a rule, "unless" lists the cell values the rule does not hold in ("except on sms"); leave it out otherwise. On a rule, "when" lists the cell values the rule applies in, when the source limits it (a channel, a kind of customer, a stage); leave it out for a rule that holds everywhere. A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen. A phrase may hold {slot} where a value the cell binds goes, such as "It's {email}"; "when" and "binds" are optional. Relations come from the relations section only.`;
+On a rule, "polarity" says whether the agent must do it or must not do it; leave it out on every other value. On a persona or data value, "required" is true when the source says every test plan must include it; leave it out otherwise. On a kind of customer or other persona value, "weight" is the share of users it stands for, between 0 and 1; leave it out otherwise. On a rule, "priority" is "first" when the source says the rule comes before every other rule; leave it out otherwise. On a rule, "within" gives the minutes within which the action happens; leave it out otherwise. On a rule, "limit" is the most times the action may happen in one conversation; leave it out otherwise. On a rule, "unless" lists the cell values the rule does not hold in ("except on sms"); leave it out otherwise. On a rule, "when" lists the cell values the rule applies in, when the source limits it (a channel, a kind of customer, a stage); leave it out for a rule that holds everywhere. Give a dimension "role" only when a source declares it: "axis" when it says the values make a different kind of conversation, "detail" when it says they can show up inside any conversation; otherwise leave it out. A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen. A phrase may hold {slot} where a value the cell binds goes, such as "It's {email}"; "when" and "binds" are optional. Relations come from the relations section only.`;
 
 const TASKS: Record<Section, string> = {
   stages: `List the stages the agent moves through, and the moves between them that the sources specify.
@@ -221,6 +222,7 @@ export const AnswerDimension = z.strictObject({
   id: DimensionId,
   title: z.string({ error: 'the title is missing' }).min(1),
   kind: DimensionKind,
+  role: Role.optional(),
   values: z.array(z.unknown()),
 });
 

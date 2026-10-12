@@ -787,3 +787,14 @@ Sources read:
 What others do: A closed tuple rejects an item past its positions.
 
 What to try, and why: a closed tuple gives an extra-item case
+
+## Iteration 68
+
+Question: packages/generate/src/extract/contract.ts: the answer template shows no role key on a dimension, so a declared axis or detail is lost and the first dimension of a kind stays the axis; contract:dimension-role (roles, transforms) proves it.
+
+Sources read:
+* docs/generating.md section Planned: declared roles
+
+What others do: A model writes only the keys the template lists.
+
+What to try, and why: a dimension records the role a source declares

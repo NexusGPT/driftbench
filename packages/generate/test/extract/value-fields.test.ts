@@ -35,9 +35,9 @@ describe('what a rule states', () => {
     };
     const result = acceptAnswer('rules', answer as never, target as never, quotes);
     expect(result.refusals).toEqual([]);
-    expect((target.dimensions[0] as { values: Array<{ polarity?: string }> }).values[0]?.polarity).toBe(
-      'must_not',
-    );
+    expect(
+      (target.dimensions[0] as unknown as { values: Array<{ polarity?: string }> }).values[0]?.polarity,
+    ).toBe('must_not');
   });
 
   it('the answer template shows when, and the model may scope a rule to a cell', () => {
@@ -68,7 +68,9 @@ describe('what a rule states', () => {
     };
     const result = acceptAnswer('rules', answer as never, target as never, quotes);
     expect(result.refusals).toEqual([]);
-    expect((target.dimensions[0] as { values: Array<{ when?: unknown }> }).values[0]?.when).toEqual({
+    expect(
+      (target.dimensions[0] as unknown as { values: Array<{ when?: unknown }> }).values[0]?.when,
+    ).toEqual({
       channel: ['sms'],
     });
   });
@@ -101,7 +103,9 @@ describe('what a rule states', () => {
     };
     const result = acceptAnswer('rules', answer as never, target as never, quotes);
     expect(result.refusals).toEqual([]);
-    expect((target.dimensions[0] as { values: Array<Record<string, unknown>> }).values[0]?.unless).toEqual({
+    expect(
+      (target.dimensions[0] as unknown as { values: Array<Record<string, unknown>> }).values[0]?.unless,
+    ).toEqual({
       channel: ['sms'],
     });
   });
@@ -134,7 +138,9 @@ describe('what a rule states', () => {
     };
     const result = acceptAnswer('rules', answer as never, target as never, quotes);
     expect(result.refusals).toEqual([]);
-    expect((target.dimensions[0] as { values: Array<Record<string, unknown>> }).values[0]?.limit).toEqual(3);
+    expect(
+      (target.dimensions[0] as unknown as { values: Array<Record<string, unknown>> }).values[0]?.limit,
+    ).toEqual(3);
   });
 
   it('the answer template shows within, and the model may state it on a rule', () => {
@@ -165,7 +171,9 @@ describe('what a rule states', () => {
     };
     const result = acceptAnswer('rules', answer as never, target as never, quotes);
     expect(result.refusals).toEqual([]);
-    expect((target.dimensions[0] as { values: Array<Record<string, unknown>> }).values[0]?.within).toEqual({
+    expect(
+      (target.dimensions[0] as unknown as { values: Array<Record<string, unknown>> }).values[0]?.within,
+    ).toEqual({
       minutes: 5,
     });
   });
@@ -198,9 +206,9 @@ describe('what a rule states', () => {
     };
     const result = acceptAnswer('rules', answer as never, target as never, quotes);
     expect(result.refusals).toEqual([]);
-    expect((target.dimensions[0] as { values: Array<Record<string, unknown>> }).values[0]?.priority).toEqual(
-      'first',
-    );
+    expect(
+      (target.dimensions[0] as unknown as { values: Array<Record<string, unknown>> }).values[0]?.priority,
+    ).toEqual('first');
   });
 
   it('the answer template shows weight, and the model may state it on a rule', () => {
@@ -231,9 +239,9 @@ describe('what a rule states', () => {
     };
     const result = acceptAnswer('rules', answer as never, target as never, quotes);
     expect(result.refusals).toEqual([]);
-    expect((target.dimensions[0] as { values: Array<Record<string, unknown>> }).values[0]?.weight).toEqual(
-      0.4,
-    );
+    expect(
+      (target.dimensions[0] as unknown as { values: Array<Record<string, unknown>> }).values[0]?.weight,
+    ).toEqual(0.4);
   });
 
   it('the answer template shows required, and the model may state it on a rule', () => {
@@ -264,8 +272,33 @@ describe('what a rule states', () => {
     };
     const result = acceptAnswer('rules', answer as never, target as never, quotes);
     expect(result.refusals).toEqual([]);
-    expect((target.dimensions[0] as { values: Array<Record<string, unknown>> }).values[0]?.required).toEqual(
-      true,
-    );
+    expect(
+      (target.dimensions[0] as unknown as { values: Array<Record<string, unknown>> }).values[0]?.required,
+    ).toEqual(true);
+  });
+
+  it('keeps the role a source declares for a dimension, and shows the key in the template', () => {
+    expect(SYSTEM_PROMPT).toContain('"kind": "<kind>", "role": "<axis or detail');
+    const target = { dimensions: [], constraints: [], phrases: [], relations: [] };
+    const answer = {
+      section: 'personas',
+      dimensions: [
+        {
+          id: 'tone',
+          title: 'Tone',
+          kind: 'persona',
+          role: 'axis',
+          values: [
+            { id: 'calm', title: 'Calm', source: 'prompt.md', quote: 'Never promise a delivery date.' },
+          ],
+        },
+      ],
+      constraints: [],
+      phrases: [],
+      relations: [],
+    };
+    const result = acceptAnswer('personas', answer as never, target as never, quotes);
+    expect(result.refusals).toEqual([]);
+    expect((target.dimensions[0] as unknown as { role: string }).role).toBe('axis');
   });
 });
