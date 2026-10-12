@@ -33,7 +33,14 @@ import { describeError, joinText, parseObserved, readSource, type ToolPayload } 
  * else (a bad request, a refused key) is the agent's. A transport error passes through as it came.
  */
 export function vendorError(cause: unknown, context: string): AdapterTransportError | AgentFailure {
-  if (cause instanceof AdapterTransportError || cause instanceof AgentFailure) return cause;
+  // A framework may wrap the error a model call ended with; the contract's own error inside wins.
+  for (
+    let inner: unknown = cause, depth = 0;
+    inner instanceof Error && depth < 5;
+    inner = inner.cause, depth++
+  ) {
+    if (inner instanceof AdapterTransportError || inner instanceof AgentFailure) return inner;
+  }
   const message = `${context}: ${describeError(cause)}`;
   const decision = retryDecision(cause);
   if (!decision.retry) return new AgentFailure(message, { cause });

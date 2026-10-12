@@ -57,6 +57,7 @@ export type {
  * `tool_use` blocks, the adapter answers each call (a forced result or error from the block's
  * `world.tools` first, else the tool's own `run`), sends the `tool_result` blocks back, and asks again, up
  * to a step cap. The block's Observed holds every text block and every tool call with its result, in order.
+ * Each model call runs under the shared retry policy, with the client's own retries off (`maxRetries: 0`).
  */
 
 export const ANTHROPIC_ADAPTER_VERSION = '0.1.0';
@@ -106,7 +107,7 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
   ): Promise<AnthropicMessage> {
     const answer: unknown = await callModel(
       `messages.create (${options.model}) on block ${block}`,
-      () => options.client.messages.create(body),
+      () => options.client.messages.create(body, { maxRetries: 0 }),
       policy,
       options,
     );

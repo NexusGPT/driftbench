@@ -88,8 +88,17 @@ describe('anthropic adapter', () => {
 
   it('sends tool names the API accepts and reads them back as the spec labels', async () => {
     const client = fakeAnthropic();
+    const passed: unknown[] = [];
+    const create = client.messages.create.bind(client.messages);
+    client.messages.create = (body, options) => {
+      passed.push(options);
+      return create(body, options);
+    };
     const adapter = anthropicAdapter({ client, model: MODEL, tools: () => acmeTools().tools });
     await sendUser(adapter, await adapter.open(given), COVERAGE_QUESTION, 0);
+    expect(passed[0], "the SDK's own retries are off: the shared policy owns them").toEqual({
+      maxRetries: 0,
+    });
     expect(client.requests[0]?.tools?.map((tool) => tool.name)).toEqual([
       'catalog_search',
       'coverage_check',
