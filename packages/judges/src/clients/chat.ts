@@ -25,6 +25,19 @@ function budgetOf(request: JudgeRequest): number {
   return MAX_TOKENS[request.budget ?? 'normal'];
 }
 
+/** The answer contract as a JSON schema, for providers that take one. The keys and the outcome words are the contract's. */
+const ANSWER_SCHEMA = {
+  type: 'object',
+  properties: {
+    outcome: { type: 'string', enum: ['pass', 'fail', 'inconclusive'] },
+    score: { type: 'number', minimum: 0, maximum: 1 },
+    reasoning: { type: 'string' },
+    evidence: { type: 'string' },
+  },
+  required: ['outcome', 'reasoning'],
+  additionalProperties: false,
+} as const;
+
 /** A truncated answer: unparsed, so the council re-judges it once with the large budget. */
 function truncated(raw: string, model: string): JudgeResult {
   return {
@@ -58,7 +71,10 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
           model,
           max_completion_tokens: budgetOf(request),
           temperature: 0,
-          response_format: { type: 'json_object' },
+          response_format: {
+            type: 'json_schema',
+            json_schema: { name: 'judge_answer', strict: false, schema: ANSWER_SCHEMA },
+          },
           messages: [
             { role: 'system', content: prompt.system },
             { role: 'user', content: prompt.user },

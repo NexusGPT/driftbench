@@ -458,3 +458,23 @@ describe('an error body that echoes a short header value', () => {
     expect((error as Error).message).toContain('plain');
   });
 });
+
+describe('the OpenAI client asks for the answer schema', () => {
+  it('sends response_format json_schema with the contract keys', async () => {
+    const bodies: any[] = [];
+    const client = createOpenAiJudge({
+      env: { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' },
+      maxRetries: 0,
+      fetch: async (_u: string, init: { body: string }) => {
+        bodies.push(JSON.parse(init.body));
+        return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
+      },
+    });
+    await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    const format = bodies[0].response_format;
+    expect(format.type).toBe('json_schema');
+    expect(Object.keys(format.json_schema.schema.properties).sort()).toEqual(['evidence', 'outcome', 'reasoning', 'score']);
+    expect(format.json_schema.schema.required).toEqual(['outcome', 'reasoning']);
+    expect(format.json_schema.schema.properties.outcome.enum).toEqual(['pass', 'fail', 'inconclusive']);
+  });
+});
