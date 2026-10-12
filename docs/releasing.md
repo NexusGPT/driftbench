@@ -1,6 +1,6 @@
 # Releasing
 
-driftbench ships as sixteen npm packages under the `@driftbench` scope and one Python package. They share one version. Version 0.1.0 is prepared and not published.
+driftbench ships as sixteen npm packages under the `@agent-nexus` scope and one Python package. They share one version. Version 0.1.0 is prepared and not published.
 
 | Package | What it holds |
 | --- | --- |
@@ -66,4 +66,4 @@ node tools/rename-scope.mjs
 pnpm install
 ```
 
-The codemod is safe to run more than once: a second run changes nothing.
+The codemod is safe to run more than once: a second run changes nothing. It keeps the `driftbench` command name and leaves the Python package, recordings and fixtures with pinned hashes unchanged. The battery package stays private as `@agent-nexus/driftbench-battery`.

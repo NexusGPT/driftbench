@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// biome-ignore-all lint/suspicious/noTemplateCurlyInString: the codemod matches literal JavaScript source.
 // Renames the npm scope of driftbench's packages: @driftbench/cli becomes @agent-nexus/driftbench,
 // and every other @driftbench/<name> becomes @agent-nexus/driftbench-<name>.
 //
@@ -13,7 +14,25 @@ import { fileURLToPath } from 'node:url';
 const ROOT = process.argv[2] ?? fileURLToPath(new URL('..', import.meta.url));
 const NEW_SCOPE = '@agent-nexus/driftbench';
 
-const SKIP_DIRS = new Set(['node_modules', 'dist', '.git', '.worktrees', 'recordings', '_captures']);
+const SKIP_DIRS = new Set([
+  'node_modules',
+  'dist',
+  '.git',
+  '.worktrees',
+  '.pnpm-store',
+  '.cache',
+  'recordings',
+  '_captures',
+]);
+// These trees pin hashes or exact scan output. They are inputs and saved evidence, not npm source.
+const SKIP_PATHS = new Set([
+  'python',
+  'examples/estates/fixture',
+  'examples/estates/fixture-v2',
+  'examples/estates/reader-cases',
+  'packages/validators/fixtures/estate',
+  'packages/validators/fixtures/map',
+]);
 // The codemod and its test name the old scope in their own source, so they are never edited.
 const SKIP_FILES = new Set(['pnpm-lock.yaml', 'rename-scope.mjs', 'rename-scope.test.mjs']);
 const SKIP_FILE_PATTERN = /\.cassette\.json$/;
@@ -62,6 +81,9 @@ const LITERAL_RULES = [
     'the `@driftbench/` name',
     'the scoped name (`@agent-nexus/driftbench` for the cli, `@agent-nexus/driftbench-<name>` for the rest)',
   ],
+  ['docs/releasing.md', 'under the `@driftbench` scope', 'under the `@agent-nexus` scope'],
+  ['.github/workflows/ci.yml', 'run: pnpm test\n', 'run: pnpm test --maxWorkers=2\n'],
+  ['.github/workflows/release.yml', 'run: pnpm test\n', 'run: pnpm test --maxWorkers=2\n'],
 ];
 
 const SCOPED_NAME = /@driftbench\/([a-z0-9][a-z0-9-]*)/g;
@@ -74,7 +96,8 @@ function* walk(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (!SKIP_DIRS.has(entry.name)) yield* walk(full);
+      const rel = relative(ROOT, full).split(sep).join('/');
+      if (!SKIP_DIRS.has(entry.name) && !SKIP_PATHS.has(rel)) yield* walk(full);
     } else if (entry.isFile()) {
       yield full;
     }

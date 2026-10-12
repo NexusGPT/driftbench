@@ -1,11 +1,17 @@
+// biome-ignore-all lint/suspicious/noTemplateCurlyInString: fixtures hold literal JavaScript source.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 const SCRIPT = fileURLToPath(new URL('./rename-scope.mjs', import.meta.url));
+const roots = [];
+
+afterEach(() => {
+  for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
+});
 
 function write(root, rel, text) {
   mkdirSync(dirname(join(root, rel)), { recursive: true });
@@ -14,6 +20,12 @@ function write(root, rel, text) {
 
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'rename-scope-'));
+  roots.push(root);
+  write(
+    root,
+    'packages/battery/package.json',
+    JSON.stringify({ name: '@driftbench/battery', private: true }),
+  );
   write(
     root,
     'packages/cli/package.json',
@@ -39,7 +51,7 @@ function fixture() {
   write(
     root,
     'packages/core/src/run.ts',
-    "import { run } from '@driftbench/core';\nimport type { X } from '@driftbench/cli';\nvi.mock('@driftbench/battery/src/x');\n",
+    "import { run } from '@driftbench/core';\nimport type { X } from '@driftbench/cli';\nvi.mock('@driftbench/battery/src/x');\nconst x = require('@driftbench/checks');\nexport * from '@driftbench/users';\nconst y = import('@driftbench/cli/subpath');\n",
   );
   write(root, 'packages/core/test/run.test.ts', "const name = '@driftbench/judges';\n");
   write(
@@ -57,12 +69,30 @@ function fixture() {
     'tools/release/check.mjs',
     "const SCOPE = '@driftbench/';\nconst x = short === 'cli' ? `${SCOPE}cli` : `${SCOPE}${short}`;\n",
   );
-  write(root, 'docs/releasing.md', 'Check the `@driftbench/` name.\n');
+  write(
+    root,
+    'docs/releasing.md',
+    'Packages under the `@driftbench` scope. Check the `@driftbench/` name.\n',
+  );
   write(root, 'docs/usage.md', 'Install `@driftbench/cli` and run `driftbench`.\n');
+  write(root, 'CHANGELOG.md', '- `@driftbench/cli` and `@driftbench/core` ship together.\n');
+  write(root, '.github/workflows/ci.yml', 'run: pnpm test\n# npm install @driftbench/cli\n');
+  write(root, '.github/workflows/release.yml', 'run: pnpm test\n# npm publish @driftbench/core\n');
+  write(root, '.git/config.json', '{"pkg":"@driftbench/core"}\n');
   write(root, 'node_modules/@driftbench/core/index.js', "export const v = '@driftbench/core';\n");
   write(root, 'packages/core/dist/index.js', "export const v = '@driftbench/core';\n");
   write(root, 'examples/acme/recordings/run.cassette.json', '{"pkg":"@driftbench/core"}\n');
+  write(root, 'packages/core/test/saved.cassette.json', '{"pkg":"@driftbench/core"}\n');
+  for (const rel of [
+    'examples/estates/fixture',
+    'examples/estates/fixture-v2',
+    'examples/estates/reader-cases',
+    'packages/validators/fixtures/estate',
+    'packages/validators/fixtures/map',
+  ])
+    write(root, `${rel}/hashed.md`, 'A frozen @driftbench/core input.\n');
   write(root, 'python/driftbench/pyproject.toml', 'name = "driftbench"\n');
+  write(root, 'python/driftbench/README.md', 'Install @driftbench/cli.\n');
   return root;
 }
 
@@ -94,6 +124,13 @@ describe('rename-scope codemod', () => {
     expect(src).toContain("from '@agent-nexus/driftbench-core'");
     expect(src).toContain("from '@agent-nexus/driftbench'");
     expect(src).toContain("vi.mock('@agent-nexus/driftbench-battery/src/x')");
+    expect(src).toContain("require('@agent-nexus/driftbench-checks')");
+    expect(src).toContain("export * from '@agent-nexus/driftbench-users'");
+    expect(src).toContain("import('@agent-nexus/driftbench/subpath')");
+    expect(JSON.parse(readFileSync(join(root, 'packages/battery/package.json'), 'utf8'))).toEqual({
+      name: '@agent-nexus/driftbench-battery',
+      private: true,
+    });
   });
 
   it('keeps the driftbench bin name', () => {
@@ -126,13 +163,34 @@ describe('rename-scope codemod', () => {
     expect(tree(root)).toEqual(once);
   });
 
-  it('skips node_modules, dist, recordings and the python package', () => {
+  it('rewrites docs, changelog package lines and workflows', () => {
     const root = fixture();
     runCodemod(root);
     const after = tree(root);
-    expect(after['node_modules/@driftbench/core/index.js']).toContain('@driftbench/core');
-    expect(after['packages/core/dist/index.js']).toContain('@driftbench/core');
-    expect(after['examples/acme/recordings/run.cassette.json']).toContain('@driftbench/core');
-    expect(after['python/driftbench/pyproject.toml']).toBe('name = "driftbench"\n');
+    expect(after['docs/releasing.md']).toContain('under the `@agent-nexus` scope');
+    expect(after['docs/usage.md']).toContain('Install `@agent-nexus/driftbench` and run `driftbench`');
+    expect(after['CHANGELOG.md']).toContain('`@agent-nexus/driftbench` and `@agent-nexus/driftbench-core`');
+    expect(after['.github/workflows/ci.yml']).toContain('run: pnpm test --maxWorkers=2');
+    expect(after['.github/workflows/ci.yml']).toContain('npm install @agent-nexus/driftbench');
+    expect(after['.github/workflows/release.yml']).toContain('npm publish @agent-nexus/driftbench-core');
+  });
+
+  it('skips dependencies, builds, git, recordings, frozen fixtures and the python package', () => {
+    const root = fixture();
+    const before = tree(root);
+    runCodemod(root);
+    const after = tree(root);
+    for (const [rel, content] of Object.entries(before)) {
+      if (
+        rel.startsWith('node_modules/') ||
+        rel.includes('/dist/') ||
+        rel.startsWith('.git/') ||
+        rel.includes('/recordings/') ||
+        rel.endsWith('.cassette.json') ||
+        rel.endsWith('/hashed.md') ||
+        rel.startsWith('python/')
+      )
+        expect(after[rel], rel).toBe(content);
+    }
   });
 });

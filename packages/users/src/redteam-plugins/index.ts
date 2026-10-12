@@ -1,4 +1,4 @@
-import { type Spec, validateSpec } from '@driftbench/core';
+import { type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import { HARM_PLUGINS } from './harm';
 import { POLICY_PLUGINS } from './policy';
 import { renderPlugin } from './render';

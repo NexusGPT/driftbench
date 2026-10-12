@@ -57,7 +57,7 @@ The plugins are written for the agent under test, so each one names its purpose 
 Turn a plugin into a driftbench spec with `pluginToSpec`. The spec is checked with the spec loader, and an invalid one throws.
 
 ```ts
-import { pluginToSpec, REDTEAM_PLUGINS } from '@driftbench/users';
+import { pluginToSpec, REDTEAM_PLUGINS } from '@agent-nexus/driftbench-users';
 
 const plugin = REDTEAM_PLUGINS.find((candidate) => candidate.id === 'sql-injection');
 if (!plugin) throw new Error('no such plugin');

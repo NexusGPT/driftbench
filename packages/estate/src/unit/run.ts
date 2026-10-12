@@ -4,8 +4,14 @@ import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'nod
 import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, extname, join } from 'node:path';
-import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@driftbench/generate';
-import { reapFolder, trackFolder, trackGroup, untrackFolder, untrackGroup } from '@driftbench/sandbox';
+import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
+import {
+  reapFolder,
+  trackFolder,
+  trackGroup,
+  untrackFolder,
+  untrackGroup,
+} from '@agent-nexus/driftbench-sandbox';
 import { parse as parseYaml } from 'yaml';
 import { guardName } from '../scan/code';
 import type { EstateReader, GuardDecl } from '../scan/reader';
