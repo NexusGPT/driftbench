@@ -399,8 +399,9 @@ function classify(path: string, text: string): { kind: FileKind; owner?: string 
       : { kind: 'skill_file', owner };
   }
   if (parts[1] === 'agents' && parts.length === 3 && path.endsWith('.md')) return { kind: 'subagent' };
-  if (/registry|catalogu?e?/i.test(basename(path)) && /\.(md|json)$/.test(path)) return { kind: 'registry' };
-  if (path.endsWith('.json') && isStepList(text)) return { kind: 'step_list' };
+  if (/registry|catalogu?e?/i.test(basename(path)) && /\.(md|json|ya?ml)$/.test(path))
+    return { kind: 'registry' };
+  if (/\.(json|ya?ml)$/.test(path) && isStepList(text, path)) return { kind: 'step_list' };
   if (path.endsWith('.json') && catalogueEntries(text) !== undefined) return { kind: 'registry' };
   return { kind: 'other' };
 }
@@ -444,9 +445,19 @@ function isCatalogueEntry(value: unknown): boolean {
 }
 
 /** A step list: a top-level `steps` list, or a `processes` map whose entries each hold a `steps` list. */
-function isStepList(text: string): boolean {
+/** A data file's content: YAML for `.yaml` and `.yml`, else JSON. Throws when it does not parse. */
+function parseData(text: string, path: string): unknown {
+  return /\.ya?ml$/.test(path) ? parseYaml(text) : JSON.parse(text);
+}
+
+/** Where a key holding a value is written, in JSON or YAML: `"id": "G1"` or `id: G1`. */
+function keyValue(key: string, value: string): RegExp {
+  return new RegExp(`["']?${escapeRegex(key)}["']?\\s*:\\s*["']?${escapeRegex(value)}["']?(?![\\w-])`);
+}
+
+function isStepList(text: string, path = '.json'): boolean {
   try {
-    const parsed: unknown = JSON.parse(text);
+    const parsed: unknown = parseData(text, path);
     if (!isRecord(parsed)) return false;
     if (Array.isArray(parsed.steps)) return true;
     return (
@@ -751,7 +762,7 @@ function noteFrontmatter(
 }
 
 function readRegistry(file: EstateFile, estate: RawEstate): void {
-  if (file.path.endsWith('.json')) {
+  if (/\.(json|ya?ml)$/.test(file.path)) {
     readJsonRegistry(file, estate);
     return;
   }
@@ -1016,7 +1027,7 @@ function stripAnchor(token: string): string {
 function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
   let json: unknown;
   try {
-    json = JSON.parse(file.text);
+    json = parseData(file.text, file.path);
   } catch (cause) {
     estate.notes.push({ file: file.path, message: `not JSON: ${String(cause)}` });
     return;
@@ -1037,11 +1048,7 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
     );
     if (typeof named !== 'string') continue;
     const guard = basename(named);
-    const found = seekPattern(
-      file,
-      new RegExp(`"id"\\s*:\\s*${escapeRegex(JSON.stringify(row.id))}`),
-      cursor,
-    );
+    const found = seekPattern(file, keyValue('id', row.id), cursor);
     if (!found) continue;
     const listed = [row.enforces, row.rules, row.gates].find((value) => Array.isArray(value)) as
       | unknown[]
@@ -1081,7 +1088,7 @@ function parseEnforces(cell: string): RegistryRow['enforces'] {
 function readSteps(file: EstateFile, estate: RawEstate): void {
   let json: unknown;
   try {
-    json = JSON.parse(file.text);
+    json = parseData(file.text, file.path);
   } catch (cause) {
     estate.notes.push({ file: file.path, message: `not JSON: ${String(cause)}` });
     return;
@@ -1117,7 +1124,7 @@ function readStepList(
     const found =
       typeof step === 'string'
         ? seek(file, JSON.stringify(step), cursor)
-        : seekPattern(file, new RegExp(`"${key}"\\s*:\\s*${escapeRegex(JSON.stringify(id))}`), cursor);
+        : seekPattern(file, keyValue(key, id), cursor);
     if (!found) continue;
     const line = linesOf(file.text)[found.startLine - 1]?.text ?? found.quote;
     if (Array.isArray(record.next)) declaresNext = true;

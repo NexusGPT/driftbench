@@ -137,3 +137,23 @@ describe('dispatchers (executor pilot)', () => {
     });
   });
 });
+
+describe('YAML data files (executor pilot)', () => {
+  it('reads a YAML registry and a YAML step list', async () => {
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/settings.json': SETTINGS,
+      '.claude/hooks/shell.py': 'import sys\nsys.exit(0)\n',
+      '.claude/hooks/registry.yaml': 'checks:\n  - id: G1\n    guard: shell.py\n    enforces: [R1]\n',
+      '.claude/steps.yaml': 'steps:\n  - id: plan\n    next: [do]\n  - id: do\n    next: []\n',
+    });
+    const raw = await new ClaudeCodeReader().read(root);
+    expect(raw.registry.map((row) => [row.id, row.guard, row.enforces])).toEqual([
+      ['G1', 'shell.py', [{ id: 'R1' }]],
+    ]);
+    expect(raw.steps.map((step) => [step.id, step.at.startLine, step.next])).toEqual([
+      ['plan', 2, ['do']],
+      ['do', 4, []],
+    ]);
+  });
+});
