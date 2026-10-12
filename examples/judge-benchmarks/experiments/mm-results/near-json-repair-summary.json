@@ -1,0 +1,60 @@
+{
+  "total": {
+    "items": 26,
+    "games": 32,
+    "parseableGames": 0,
+    "correctGames": 0,
+    "wrongGames": 0,
+    "unparseableGames": 32,
+    "unresolvedItems": 26
+  },
+  "byGroup": {
+    "reasoning": {
+      "items": 2,
+      "games": 2,
+      "parseableGames": 0,
+      "correctGames": 0,
+      "wrongGames": 0,
+      "unparseableGames": 2,
+      "unresolvedItems": 2
+    },
+    "chat": {
+      "items": 0,
+      "games": 0,
+      "parseableGames": 0,
+      "correctGames": 0,
+      "wrongGames": 0,
+      "unparseableGames": 0,
+      "unresolvedItems": 0
+    },
+    "linguistics": {
+      "items": 0,
+      "games": 0,
+      "parseableGames": 0,
+      "correctGames": 0,
+      "wrongGames": 0,
+      "unparseableGames": 0,
+      "unresolvedItems": 0
+    },
+    "language mixing": {
+      "items": 24,
+      "games": 30,
+      "parseableGames": 0,
+      "correctGames": 0,
+      "wrongGames": 0,
+      "unparseableGames": 30,
+      "unresolvedItems": 24
+    },
+    "safety": {
+      "items": 0,
+      "games": 0,
+      "parseableGames": 0,
+      "correctGames": 0,
+      "wrongGames": 0,
+      "unparseableGames": 0,
+      "unresolvedItems": 0
+    }
+  },
+  "newSpendUsd": 0,
+  "method": "Existing @driftbench/judges repairAnswerText, then parseAnswerText. No model call or outcome recovery by regex."
+}

@@ -1,0 +1,134 @@
+{
+  "phase": "pilot",
+  "sourceSample": 1500,
+  "sampleBeforeSplit": true,
+  "bench": "mmeval",
+  "model": "haiku",
+  "items": 100,
+  "contestants": [
+    {
+      "contestant": "driftbench-mm-direct-contract",
+      "source": "MM-Eval DEV candidate: direct winner with explicit comparison checks (this repository); recover an explicit final winner after invalid reasoning JSON, without changing prompts",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8899999999999999,
+          "lower": 0.839527297038401,
+          "upper": 0.9404727029615988
+        },
+        "n": 100,
+        "byGroup": {
+          "reasoning": {
+            "n": 20,
+            "value": 0.9
+          },
+          "chat": {
+            "n": 20,
+            "value": 0.625
+          },
+          "linguistics": {
+            "n": 20,
+            "value": 0.95
+          },
+          "language mixing": {
+            "n": 20,
+            "value": 1
+          },
+          "safety": {
+            "n": 20,
+            "value": 0.975
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.93
+      },
+      "costUsd": 0.13639759000000004,
+      "calls": 200
+    },
+    {
+      "contestant": "driftbench-mm-language-contract",
+      "source": "MM-Eval DEV candidate: direct winner with explicit comparison checks (this repository); recover an explicit final winner after invalid reasoning JSON, without changing prompts",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8799999999999999,
+          "lower": 0.8276591298765056,
+          "upper": 0.9323408701234942
+        },
+        "n": 100,
+        "byGroup": {
+          "reasoning": {
+            "n": 20,
+            "value": 0.95
+          },
+          "chat": {
+            "n": 20,
+            "value": 0.55
+          },
+          "linguistics": {
+            "n": 20,
+            "value": 0.925
+          },
+          "language mixing": {
+            "n": 20,
+            "value": 1
+          },
+          "safety": {
+            "n": 20,
+            "value": 0.975
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.96
+      },
+      "costUsd": 0.15011030000000003,
+      "calls": 200
+    },
+    {
+      "contestant": "driftbench-mm-rubric-contract",
+      "source": "MM-Eval DEV candidate: direct winner with explicit comparison checks (this repository); recover an explicit final winner after invalid reasoning JSON, without changing prompts",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.89,
+          "lower": 0.8434881965284039,
+          "upper": 0.9365118034715961
+        },
+        "n": 100,
+        "byGroup": {
+          "reasoning": {
+            "n": 20,
+            "value": 0.925
+          },
+          "chat": {
+            "n": 20,
+            "value": 0.575
+          },
+          "linguistics": {
+            "n": 20,
+            "value": 0.95
+          },
+          "language mixing": {
+            "n": 20,
+            "value": 1
+          },
+          "safety": {
+            "n": 20,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.92
+      },
+      "costUsd": 0.14589799999999994,
+      "calls": 200
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 600,
+  "failedCalls": 0
+}

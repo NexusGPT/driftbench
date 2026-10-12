@@ -1,0 +1,134 @@
+{
+  "phase": "pilot",
+  "sourceSample": 1500,
+  "sampleBeforeSplit": true,
+  "bench": "mmeval",
+  "model": "haiku",
+  "items": 100,
+  "contestants": [
+    {
+      "contestant": "driftbench-mm-direct",
+      "source": "MM-Eval DEV candidate: direct winner with explicit comparison checks (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.835,
+          "lower": 0.7828526272860745,
+          "upper": 0.8871473727139254
+        },
+        "n": 100,
+        "byGroup": {
+          "reasoning": {
+            "n": 20,
+            "value": 0.8875
+          },
+          "chat": {
+            "n": 20,
+            "value": 0.5875
+          },
+          "linguistics": {
+            "n": 20,
+            "value": 0.9125
+          },
+          "language mixing": {
+            "n": 20,
+            "value": 0.8125
+          },
+          "safety": {
+            "n": 20,
+            "value": 0.975
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.75
+      },
+      "costUsd": 0.13639759000000004,
+      "calls": 200
+    },
+    {
+      "contestant": "driftbench-mm-language",
+      "source": "MM-Eval DEV candidate: direct winner with explicit comparison checks (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.825,
+          "lower": 0.7716784754304451,
+          "upper": 0.8783215245695548
+        },
+        "n": 100,
+        "byGroup": {
+          "reasoning": {
+            "n": 20,
+            "value": 0.925
+          },
+          "chat": {
+            "n": 20,
+            "value": 0.5
+          },
+          "linguistics": {
+            "n": 20,
+            "value": 0.8875
+          },
+          "language mixing": {
+            "n": 20,
+            "value": 0.85
+          },
+          "safety": {
+            "n": 20,
+            "value": 0.9625
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.77
+      },
+      "costUsd": 0.15011030000000003,
+      "calls": 200
+    },
+    {
+      "contestant": "driftbench-mm-rubric",
+      "source": "MM-Eval DEV candidate: direct winner with explicit comparison checks (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8474999999999999,
+          "lower": 0.8002202451881527,
+          "upper": 0.8947797548118471
+        },
+        "n": 100,
+        "byGroup": {
+          "reasoning": {
+            "n": 20,
+            "value": 0.9
+          },
+          "chat": {
+            "n": 20,
+            "value": 0.5375000000000001
+          },
+          "linguistics": {
+            "n": 20,
+            "value": 0.95
+          },
+          "language mixing": {
+            "n": 20,
+            "value": 0.8625
+          },
+          "safety": {
+            "n": 20,
+            "value": 0.9875
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.77
+      },
+      "costUsd": 0.14589799999999994,
+      "calls": 200
+    }
+  ],
+  "newSpendUsd": 0.3558457900000002,
+  "newCalls": 485,
+  "replayed": 115,
+  "failedCalls": 0
+}

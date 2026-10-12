@@ -1,0 +1,502 @@
+[
+  {
+    "id": "1066",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1149",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1308",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1387",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1404",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1441",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1552",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1691",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1748",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1951",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "234",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "237",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "32",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "474",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "534",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "729",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "750",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "904",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "933",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "95",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "3197",
+    "group": "chat",
+    "language": "ca"
+  },
+  {
+    "id": "3198",
+    "group": "chat",
+    "language": "ca"
+  },
+  {
+    "id": "3244",
+    "group": "chat",
+    "language": "de"
+  },
+  {
+    "id": "3259",
+    "group": "chat",
+    "language": "de"
+  },
+  {
+    "id": "3320",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3342",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3352",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3358",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3450",
+    "group": "chat",
+    "language": "es"
+  },
+  {
+    "id": "3458",
+    "group": "chat",
+    "language": "es"
+  },
+  {
+    "id": "3485",
+    "group": "chat",
+    "language": "fr"
+  },
+  {
+    "id": "3496",
+    "group": "chat",
+    "language": "fr"
+  },
+  {
+    "id": "3500",
+    "group": "chat",
+    "language": "fr"
+  },
+  {
+    "id": "3539",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3540",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3554",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3561",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3582",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3584",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3591",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3639",
+    "group": "linguistics",
+    "language": "ca"
+  },
+  {
+    "id": "3682",
+    "group": "linguistics",
+    "language": "ca"
+  },
+  {
+    "id": "3684",
+    "group": "linguistics",
+    "language": "ca"
+  },
+  {
+    "id": "3695",
+    "group": "linguistics",
+    "language": "de"
+  },
+  {
+    "id": "3723",
+    "group": "linguistics",
+    "language": "de"
+  },
+  {
+    "id": "3729",
+    "group": "linguistics",
+    "language": "de"
+  },
+  {
+    "id": "3769",
+    "group": "linguistics",
+    "language": "en"
+  },
+  {
+    "id": "3856",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3859",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3881",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3883",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3906",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3913",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3918",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "3925",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "3965",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "3982",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "4008",
+    "group": "linguistics",
+    "language": "it"
+  },
+  {
+    "id": "4032",
+    "group": "linguistics",
+    "language": "it"
+  },
+  {
+    "id": "4048",
+    "group": "linguistics",
+    "language": "it"
+  },
+  {
+    "id": "2017",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2026",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2114",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2155",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2185",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2207",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2286",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2399",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2487",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2539",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2576",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2638",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2778",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2791",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2817",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2901",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2902",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2998",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3126",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3131",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "4118",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4143",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4153",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4181",
+    "group": "safety",
+    "language": "ar"
+  },
+  {
+    "id": "4209",
+    "group": "safety",
+    "language": "ar"
+  },
+  {
+    "id": "4286",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4299",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4316",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4384",
+    "group": "safety",
+    "language": "gl"
+  },
+  {
+    "id": "4392",
+    "group": "safety",
+    "language": "gl"
+  },
+  {
+    "id": "4455",
+    "group": "safety",
+    "language": "it"
+  },
+  {
+    "id": "4588",
+    "group": "safety",
+    "language": "ja"
+  },
+  {
+    "id": "4594",
+    "group": "safety",
+    "language": "ja"
+  },
+  {
+    "id": "4680",
+    "group": "safety",
+    "language": "ko"
+  },
+  {
+    "id": "4761",
+    "group": "safety",
+    "language": "sw"
+  },
+  {
+    "id": "4783",
+    "group": "safety",
+    "language": "sw"
+  },
+  {
+    "id": "4835",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4870",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4877",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4961",
+    "group": "safety",
+    "language": "vn"
+  }
+]

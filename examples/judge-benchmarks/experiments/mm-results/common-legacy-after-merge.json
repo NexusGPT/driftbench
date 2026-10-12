@@ -1,0 +1,110 @@
+{
+  "phase": "common",
+  "sourceSample": 1500,
+  "sampleBeforeSplit": true,
+  "bench": "mmeval",
+  "model": "haiku",
+  "items": 89,
+  "contestants": [
+    {
+      "contestant": "driftbench",
+      "source": "packages/judges/src/prompt.ts and pairwise.ts (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8028619528619529,
+          "lower": 0.6909578723938243,
+          "upper": 0.9147660333300816
+        },
+        "n": 89,
+        "byGroup": {
+          "reasoning": {
+            "n": 66,
+            "value": 0.928030303030303
+          },
+          "language mixing": {
+            "n": 18,
+            "value": 0.9305555555555556
+          },
+          "chat": {
+            "n": 5,
+            "value": 0.55
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8539325842696629
+      },
+      "costUsd": 0.10744880000000001,
+      "calls": 178
+    },
+    {
+      "contestant": "deepeval",
+      "source": "DeepEval 4598fe8: ArenaGEval (pairs) and GEval (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8414141414141415,
+          "lower": 0.7177238225535043,
+          "upper": 0.9651044602747787
+        },
+        "n": 89,
+        "byGroup": {
+          "reasoning": {
+            "n": 66,
+            "value": 0.9242424242424242
+          },
+          "language mixing": {
+            "n": 18,
+            "value": 1
+          },
+          "chat": {
+            "n": 5,
+            "value": 0.6
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9325842696629213
+      },
+      "costUsd": 0.13963409999999998,
+      "calls": 179
+    },
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.7900673400673401,
+          "lower": 0.6610655576216693,
+          "upper": 0.919069122513011
+        },
+        "n": 89,
+        "byGroup": {
+          "reasoning": {
+            "n": 66,
+            "value": 0.9090909090909091
+          },
+          "language mixing": {
+            "n": 18,
+            "value": 0.8611111111111112
+          },
+          "chat": {
+            "n": 5,
+            "value": 0.6
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8764044943820225
+      },
+      "costUsd": 0.06503204999999995,
+      "calls": 178
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 535,
+  "failedCalls": 0
+}

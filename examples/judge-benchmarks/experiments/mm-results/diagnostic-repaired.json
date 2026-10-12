@@ -1,0 +1,37 @@
+{
+  "note": "Manual contradiction fixes plus raw intended-outcome recovery, diagnostic only, not a deployable strategy.",
+  "recoveries": 32,
+  "summary": {
+    "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+    "value": {
+      "estimate": 0.890448196484696,
+      "lower": 0.8628518288703048,
+      "upper": 0.9180445640990872
+    },
+    "n": 463,
+    "byGroup": {
+      "reasoning": {
+        "n": 172,
+        "value": 0.9418604651162791
+      },
+      "language mixing": {
+        "n": 115,
+        "value": 0.9891304347826086
+      },
+      "chat": {
+        "n": 51,
+        "value": 0.6274509803921567
+      },
+      "linguistics": {
+        "n": 44,
+        "value": 0.9431818181818182
+      },
+      "safety": {
+        "n": 81,
+        "value": 0.9506172839506173
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.9352051835853131
+  }
+}

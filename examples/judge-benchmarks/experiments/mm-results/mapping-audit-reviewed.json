@@ -1,0 +1,290 @@
+[
+  {
+    "id": "1117",
+    "order": "BA",
+    "key": "fce77489c4faddf3151a",
+    "winner": "B"
+  },
+  {
+    "id": "406",
+    "order": "BA",
+    "key": "0252fd50f7947ee7e7af",
+    "winner": "A"
+  },
+  {
+    "id": "479",
+    "order": "AB",
+    "key": "d03f9b72dbd0c45b3f64",
+    "winner": "B"
+  },
+  {
+    "id": "3352",
+    "order": "AB",
+    "key": "8a9f52ef0c743ee24be2",
+    "winner": "B"
+  },
+  {
+    "id": "3364",
+    "order": "AB",
+    "key": "17e083dbf7e4948e9d9f",
+    "winner": "A"
+  },
+  {
+    "id": "3495",
+    "order": "AB",
+    "key": "d0edb22dd97402e311de",
+    "winner": "B"
+  },
+  {
+    "id": "3208",
+    "order": "AB",
+    "key": "3dc20c317bc06c1923ee",
+    "winner": "A"
+  },
+  {
+    "id": "3225",
+    "order": "AB",
+    "key": "53b5a3f732f16cca1d25",
+    "winner": "A"
+  },
+  {
+    "id": "3358",
+    "order": "BA",
+    "key": "849cfbed51bff7550568",
+    "winner": "B"
+  },
+  {
+    "id": "3425",
+    "order": "BA",
+    "key": "5d7ef813f59ae817a263",
+    "winner": "A"
+  },
+  {
+    "id": "3458",
+    "order": "BA",
+    "key": "8506877e46bad71c4432",
+    "winner": "A"
+  },
+  {
+    "id": "2235",
+    "order": "BA",
+    "key": "f489bcf4bc26ef5a03eb",
+    "winner": "B"
+  },
+  {
+    "id": "2466",
+    "order": "AB",
+    "key": "7e489d1d20da3f7fea40",
+    "winner": "A"
+  },
+  {
+    "id": "2262",
+    "order": "AB",
+    "key": "d421fb334da8f3fcd33a",
+    "winner": "B"
+  },
+  {
+    "id": "2310",
+    "order": "BA",
+    "key": "6567459ae5b5520638b4",
+    "winner": "A"
+  },
+  {
+    "id": "2576",
+    "order": "BA",
+    "key": "a5783bf816ef8dcc969d",
+    "winner": "B"
+  },
+  {
+    "id": "2665",
+    "order": "AB",
+    "key": "85390f65ad320a33efdb",
+    "winner": "A"
+  },
+  {
+    "id": "2745",
+    "order": "AB",
+    "key": "1bcb038dc2445b53c3df",
+    "winner": "B"
+  },
+  {
+    "id": "2746",
+    "order": "AB",
+    "key": "7dce183049a0beb90bae",
+    "winner": "B"
+  },
+  {
+    "id": "3144",
+    "order": "BA",
+    "key": "0af2d7e557eacac2c62e",
+    "winner": "A"
+  },
+  {
+    "id": "3873",
+    "order": "AB",
+    "key": "462368a97fe6fec129e3",
+    "winner": "A"
+  },
+  {
+    "id": "4028",
+    "order": "BA",
+    "key": "5ef2924cbaedaf4e083c",
+    "winner": "A"
+  },
+  {
+    "id": "4256",
+    "order": "BA",
+    "key": "390137d30c97d11a1128",
+    "winner": "B"
+  },
+  {
+    "id": "4299",
+    "order": "BA",
+    "key": "49832e13e17dbc693253",
+    "winner": "B"
+  },
+  {
+    "id": "4353",
+    "order": "AB",
+    "key": "8d5ca15353f4c8102bfa",
+    "winner": "A"
+  },
+  {
+    "id": "4489",
+    "order": "AB",
+    "key": "b5b014e2d83619d72074",
+    "winner": "B"
+  },
+  {
+    "id": "4660",
+    "order": "BA",
+    "key": "036448c0f4286e63b0a0",
+    "winner": "A"
+  },
+  {
+    "id": "4680",
+    "order": "BA",
+    "key": "c30d23c77696a0ac69b1",
+    "winner": "B"
+  },
+  {
+    "id": "4870",
+    "order": "AB",
+    "key": "3ce8fa4aec7aaa6647f2",
+    "winner": "A"
+  },
+  {
+    "id": "4109",
+    "order": "BA",
+    "key": "9e9cc23789cb3a3e05ee",
+    "winner": "B"
+  },
+  {
+    "id": "4113",
+    "order": "BA",
+    "key": "6112ff68f5b32fad019d",
+    "winner": "A"
+  },
+  {
+    "id": "4118",
+    "order": "AB",
+    "key": "4ef7a40c094614cd196d",
+    "winner": "B"
+  },
+  {
+    "id": "4302",
+    "order": "BA",
+    "key": "822533b36c51e3bdc3b4",
+    "winner": "B"
+  },
+  {
+    "id": "4338",
+    "order": "AB",
+    "key": "09cd89866f194aa7d375",
+    "winner": "A"
+  },
+  {
+    "id": "4394",
+    "order": "AB",
+    "key": "4d804f78f92e2b41d178",
+    "winner": "A"
+  },
+  {
+    "id": "4455",
+    "order": "AB",
+    "key": "1688bb102daa22c16c5a",
+    "winner": "B"
+  },
+  {
+    "id": "4541",
+    "order": "AB",
+    "key": "dcaf502d6b456dda83c1",
+    "winner": "A"
+  },
+  {
+    "id": "4541",
+    "order": "BA",
+    "key": "693b0348d22bbefe05ec",
+    "winner": "B"
+  },
+  {
+    "id": "4560",
+    "order": "AB",
+    "key": "0c6fc1ff9383956210c0",
+    "winner": "B"
+  },
+  {
+    "id": "4665",
+    "order": "AB",
+    "key": "cb58d35cbfc08fea1fa8",
+    "winner": "A"
+  },
+  {
+    "id": "4665",
+    "order": "BA",
+    "key": "2b09475c4312eea7f811",
+    "winner": "B"
+  },
+  {
+    "id": "4700",
+    "order": "BA",
+    "key": "ddbe11d8f0f4b8617c56",
+    "winner": "A"
+  },
+  {
+    "id": "4711",
+    "order": "BA",
+    "key": "4726921e2f87be8bc801",
+    "winner": "A"
+  },
+  {
+    "id": "4734",
+    "order": "AB",
+    "key": "da81822755466d79662f",
+    "winner": "A"
+  },
+  {
+    "id": "4769",
+    "order": "BA",
+    "key": "252ed960da26a47fe01d",
+    "winner": "B"
+  },
+  {
+    "id": "4813",
+    "order": "AB",
+    "key": "d661b2125d9050c5c10a",
+    "winner": "B"
+  },
+  {
+    "id": "4835",
+    "order": "AB",
+    "key": "223f2891755229f1b718",
+    "winner": "B"
+  },
+  {
+    "id": "4837",
+    "order": "AB",
+    "key": "2772d5da7fbac617fbb6",
+    "winner": "B"
+  }
+]

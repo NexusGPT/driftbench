@@ -1,0 +1,2317 @@
+[
+  {
+    "id": "1000",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "1031",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "104",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "1040",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1044",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1066",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1082",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "110",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "1117",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1126",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1141",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1149",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1153",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1163",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1164",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1171",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1173",
+    "group": "reasoning",
+    "language": "ru"
+  },
+  {
+    "id": "1197",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1215",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1217",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "124",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "1251",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1269",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1287",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1292",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1297",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1306",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1308",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1330",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1337",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1365",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1375",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1376",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1386",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1387",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1390",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1394",
+    "group": "reasoning",
+    "language": "sw"
+  },
+  {
+    "id": "1404",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1436",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1441",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1465",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1473",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1495",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "15",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "1500",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1515",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1533",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1543",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1545",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1547",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1552",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1558",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1575",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1579",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1582",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1585",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1606",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1612",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1617",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1619",
+    "group": "reasoning",
+    "language": "te"
+  },
+  {
+    "id": "1625",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1647",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1663",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1671",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1681",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1691",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1702",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1710",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1714",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1725",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1734",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1748",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1755",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1801",
+    "group": "reasoning",
+    "language": "th"
+  },
+  {
+    "id": "1828",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "1831",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "1839",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "1859",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "1868",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "1898",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "1903",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "194",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "1951",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "1952",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "1965",
+    "group": "reasoning",
+    "language": "zh"
+  },
+  {
+    "id": "1970",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "1988",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "1995",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "20",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "2016",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2017",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2026",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2036",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2040",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2044",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2057",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2063",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2067",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2068",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2114",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2121",
+    "group": "language mixing",
+    "language": "bn"
+  },
+  {
+    "id": "2155",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2157",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2158",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2165",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2172",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2185",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2189",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2194",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2207",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2216",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2225",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2235",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2236",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2241",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2248",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2262",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2268",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "227",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "2286",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2288",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2300",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2306",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2310",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2315",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "2332",
+    "group": "language mixing",
+    "language": "ar"
+  },
+  {
+    "id": "234",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "237",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "238",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "239",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "2397",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2399",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2417",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2424",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2434",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2439",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2459",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2466",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2487",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2496",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2506",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2507",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2519",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2522",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2523",
+    "group": "language mixing",
+    "language": "es"
+  },
+  {
+    "id": "2539",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2545",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2551",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2565",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2576",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2578",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2584",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2601",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2614",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2622",
+    "group": "language mixing",
+    "language": "ca"
+  },
+  {
+    "id": "2638",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2652",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2665",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "27",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "2706",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2710",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2714",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2718",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2729",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2732",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2736",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2745",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2746",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2749",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2778",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "278",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "2782",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2791",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2807",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2808",
+    "group": "language mixing",
+    "language": "ko"
+  },
+  {
+    "id": "2817",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2835",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2842",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2851",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2888",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2895",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2901",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2902",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2903",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2907",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2917",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2922",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2923",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2937",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2941",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2944",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2956",
+    "group": "language mixing",
+    "language": "eu"
+  },
+  {
+    "id": "2998",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "300",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "3002",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3021",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3035",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3066",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3070",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3089",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "309",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "3090",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3093",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3097",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "310",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "3125",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3126",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3131",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3136",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3144",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3148",
+    "group": "language mixing",
+    "language": "vn"
+  },
+  {
+    "id": "3174",
+    "group": "chat",
+    "language": "ca"
+  },
+  {
+    "id": "3197",
+    "group": "chat",
+    "language": "ca"
+  },
+  {
+    "id": "3198",
+    "group": "chat",
+    "language": "ca"
+  },
+  {
+    "id": "32",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "3202",
+    "group": "chat",
+    "language": "ca"
+  },
+  {
+    "id": "3208",
+    "group": "chat",
+    "language": "ca"
+  },
+  {
+    "id": "3225",
+    "group": "chat",
+    "language": "de"
+  },
+  {
+    "id": "323",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "3240",
+    "group": "chat",
+    "language": "de"
+  },
+  {
+    "id": "3244",
+    "group": "chat",
+    "language": "de"
+  },
+  {
+    "id": "3259",
+    "group": "chat",
+    "language": "de"
+  },
+  {
+    "id": "3265",
+    "group": "chat",
+    "language": "de"
+  },
+  {
+    "id": "3279",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3290",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3294",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3310",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3320",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3342",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3349",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3352",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "3358",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "336",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "3364",
+    "group": "chat",
+    "language": "en"
+  },
+  {
+    "id": "337",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "3398",
+    "group": "chat",
+    "language": "es"
+  },
+  {
+    "id": "340",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "3419",
+    "group": "chat",
+    "language": "es"
+  },
+  {
+    "id": "3425",
+    "group": "chat",
+    "language": "es"
+  },
+  {
+    "id": "3450",
+    "group": "chat",
+    "language": "es"
+  },
+  {
+    "id": "3458",
+    "group": "chat",
+    "language": "es"
+  },
+  {
+    "id": "346",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "3478",
+    "group": "chat",
+    "language": "fr"
+  },
+  {
+    "id": "3482",
+    "group": "chat",
+    "language": "fr"
+  },
+  {
+    "id": "3485",
+    "group": "chat",
+    "language": "fr"
+  },
+  {
+    "id": "3488",
+    "group": "chat",
+    "language": "fr"
+  },
+  {
+    "id": "3495",
+    "group": "chat",
+    "language": "fr"
+  },
+  {
+    "id": "3496",
+    "group": "chat",
+    "language": "fr"
+  },
+  {
+    "id": "3500",
+    "group": "chat",
+    "language": "fr"
+  },
+  {
+    "id": "3508",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3524",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3529",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3539",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3540",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3549",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3554",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3555",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3561",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3568",
+    "group": "chat",
+    "language": "ru"
+  },
+  {
+    "id": "3580",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3582",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3584",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3590",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3591",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3593",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3600",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3601",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3609",
+    "group": "chat",
+    "language": "zh"
+  },
+  {
+    "id": "3622",
+    "group": "linguistics",
+    "language": "ca"
+  },
+  {
+    "id": "3639",
+    "group": "linguistics",
+    "language": "ca"
+  },
+  {
+    "id": "3642",
+    "group": "linguistics",
+    "language": "ca"
+  },
+  {
+    "id": "3646",
+    "group": "linguistics",
+    "language": "ca"
+  },
+  {
+    "id": "3655",
+    "group": "linguistics",
+    "language": "ca"
+  },
+  {
+    "id": "367",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "3682",
+    "group": "linguistics",
+    "language": "ca"
+  },
+  {
+    "id": "3684",
+    "group": "linguistics",
+    "language": "ca"
+  },
+  {
+    "id": "3695",
+    "group": "linguistics",
+    "language": "de"
+  },
+  {
+    "id": "3713",
+    "group": "linguistics",
+    "language": "de"
+  },
+  {
+    "id": "3716",
+    "group": "linguistics",
+    "language": "de"
+  },
+  {
+    "id": "3723",
+    "group": "linguistics",
+    "language": "de"
+  },
+  {
+    "id": "3729",
+    "group": "linguistics",
+    "language": "de"
+  },
+  {
+    "id": "3748",
+    "group": "linguistics",
+    "language": "de"
+  },
+  {
+    "id": "3760",
+    "group": "linguistics",
+    "language": "de"
+  },
+  {
+    "id": "3769",
+    "group": "linguistics",
+    "language": "en"
+  },
+  {
+    "id": "3820",
+    "group": "linguistics",
+    "language": "en"
+  },
+  {
+    "id": "3829",
+    "group": "linguistics",
+    "language": "en"
+  },
+  {
+    "id": "3846",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3856",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3858",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3859",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3863",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3873",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3881",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3883",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3888",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3893",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3906",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3913",
+    "group": "linguistics",
+    "language": "es"
+  },
+  {
+    "id": "3918",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "3923",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "3925",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "3929",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "3930",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "394",
+    "group": "reasoning",
+    "language": "de"
+  },
+  {
+    "id": "3955",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "3965",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "3969",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "398",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "3982",
+    "group": "linguistics",
+    "language": "gl"
+  },
+  {
+    "id": "3993",
+    "group": "linguistics",
+    "language": "it"
+  },
+  {
+    "id": "4",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "4008",
+    "group": "linguistics",
+    "language": "it"
+  },
+  {
+    "id": "4028",
+    "group": "linguistics",
+    "language": "it"
+  },
+  {
+    "id": "4032",
+    "group": "linguistics",
+    "language": "it"
+  },
+  {
+    "id": "4048",
+    "group": "linguistics",
+    "language": "it"
+  },
+  {
+    "id": "4050",
+    "group": "linguistics",
+    "language": "it"
+  },
+  {
+    "id": "406",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "4099",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4107",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4109",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4112",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4113",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4118",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4140",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4143",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4145",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4147",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4152",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4153",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4156",
+    "group": "safety",
+    "language": "en"
+  },
+  {
+    "id": "4161",
+    "group": "safety",
+    "language": "ar"
+  },
+  {
+    "id": "4168",
+    "group": "safety",
+    "language": "ar"
+  },
+  {
+    "id": "418",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "4180",
+    "group": "safety",
+    "language": "ar"
+  },
+  {
+    "id": "4181",
+    "group": "safety",
+    "language": "ar"
+  },
+  {
+    "id": "4209",
+    "group": "safety",
+    "language": "ar"
+  },
+  {
+    "id": "4239",
+    "group": "safety",
+    "language": "ar"
+  },
+  {
+    "id": "4246",
+    "group": "safety",
+    "language": "ar"
+  },
+  {
+    "id": "4256",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4266",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4286",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4299",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "430",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "4302",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4303",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4311",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4316",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4318",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4319",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "4338",
+    "group": "safety",
+    "language": "eu"
+  },
+  {
+    "id": "434",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "4347",
+    "group": "safety",
+    "language": "gl"
+  },
+  {
+    "id": "4353",
+    "group": "safety",
+    "language": "gl"
+  },
+  {
+    "id": "4369",
+    "group": "safety",
+    "language": "gl"
+  },
+  {
+    "id": "438",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "4384",
+    "group": "safety",
+    "language": "gl"
+  },
+  {
+    "id": "4392",
+    "group": "safety",
+    "language": "gl"
+  },
+  {
+    "id": "4394",
+    "group": "safety",
+    "language": "gl"
+  },
+  {
+    "id": "44",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "4402",
+    "group": "safety",
+    "language": "gl"
+  },
+  {
+    "id": "4428",
+    "group": "safety",
+    "language": "gl"
+  },
+  {
+    "id": "4455",
+    "group": "safety",
+    "language": "it"
+  },
+  {
+    "id": "4468",
+    "group": "safety",
+    "language": "it"
+  },
+  {
+    "id": "4472",
+    "group": "safety",
+    "language": "it"
+  },
+  {
+    "id": "4483",
+    "group": "safety",
+    "language": "it"
+  },
+  {
+    "id": "4489",
+    "group": "safety",
+    "language": "it"
+  },
+  {
+    "id": "4524",
+    "group": "safety",
+    "language": "ja"
+  },
+  {
+    "id": "4541",
+    "group": "safety",
+    "language": "ja"
+  },
+  {
+    "id": "4560",
+    "group": "safety",
+    "language": "ja"
+  },
+  {
+    "id": "4569",
+    "group": "safety",
+    "language": "ja"
+  },
+  {
+    "id": "4586",
+    "group": "safety",
+    "language": "ja"
+  },
+  {
+    "id": "4588",
+    "group": "safety",
+    "language": "ja"
+  },
+  {
+    "id": "4590",
+    "group": "safety",
+    "language": "ja"
+  },
+  {
+    "id": "4594",
+    "group": "safety",
+    "language": "ja"
+  },
+  {
+    "id": "46",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "4628",
+    "group": "safety",
+    "language": "ko"
+  },
+  {
+    "id": "4660",
+    "group": "safety",
+    "language": "ko"
+  },
+  {
+    "id": "4665",
+    "group": "safety",
+    "language": "ko"
+  },
+  {
+    "id": "4669",
+    "group": "safety",
+    "language": "ko"
+  },
+  {
+    "id": "4680",
+    "group": "safety",
+    "language": "ko"
+  },
+  {
+    "id": "4700",
+    "group": "safety",
+    "language": "ko"
+  },
+  {
+    "id": "4711",
+    "group": "safety",
+    "language": "sw"
+  },
+  {
+    "id": "4733",
+    "group": "safety",
+    "language": "sw"
+  },
+  {
+    "id": "4734",
+    "group": "safety",
+    "language": "sw"
+  },
+  {
+    "id": "474",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "4760",
+    "group": "safety",
+    "language": "sw"
+  },
+  {
+    "id": "4761",
+    "group": "safety",
+    "language": "sw"
+  },
+  {
+    "id": "4769",
+    "group": "safety",
+    "language": "sw"
+  },
+  {
+    "id": "4783",
+    "group": "safety",
+    "language": "sw"
+  },
+  {
+    "id": "479",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "4813",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4815",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4817",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4820",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4828",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4835",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4837",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4854",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4869",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4870",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4877",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4888",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "4889",
+    "group": "safety",
+    "language": "th"
+  },
+  {
+    "id": "49",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "4940",
+    "group": "safety",
+    "language": "vn"
+  },
+  {
+    "id": "4961",
+    "group": "safety",
+    "language": "vn"
+  },
+  {
+    "id": "4971",
+    "group": "safety",
+    "language": "vn"
+  },
+  {
+    "id": "503",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "504",
+    "group": "reasoning",
+    "language": "en"
+  },
+  {
+    "id": "516",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "517",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "524",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "534",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "539",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "543",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "553",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "56",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "564",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "607",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "616",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "642",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "652",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "661",
+    "group": "reasoning",
+    "language": "es"
+  },
+  {
+    "id": "677",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "68",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "699",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "711",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "720",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "729",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "74",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "748",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "750",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "752",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "758",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "761",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "774",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "784",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "786",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "795",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "801",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "806",
+    "group": "reasoning",
+    "language": "fr"
+  },
+  {
+    "id": "812",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "819",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "836",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "838",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "849",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "88",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "881",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "888",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "895",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "897",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "904",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "905",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "922",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "927",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "929",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "93",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "933",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "947",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "95",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "96",
+    "group": "reasoning",
+    "language": "bn"
+  },
+  {
+    "id": "974",
+    "group": "reasoning",
+    "language": "ja"
+  },
+  {
+    "id": "987",
+    "group": "reasoning",
+    "language": "ja"
+  }
+]

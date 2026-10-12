@@ -1,0 +1,37 @@
+{
+  "reasoning": {
+    "items": 172,
+    "mappingItems": 3,
+    "mappingGames": 3,
+    "invalidJsonItems": 2,
+    "invalidJsonGames": 2
+  },
+  "language mixing": {
+    "items": 115,
+    "mappingItems": 9,
+    "mappingGames": 9,
+    "invalidJsonItems": 24,
+    "invalidJsonGames": 30
+  },
+  "chat": {
+    "items": 51,
+    "mappingItems": 8,
+    "mappingGames": 8,
+    "invalidJsonItems": 0,
+    "invalidJsonGames": 0
+  },
+  "linguistics": {
+    "items": 44,
+    "mappingItems": 2,
+    "mappingGames": 2,
+    "invalidJsonItems": 0,
+    "invalidJsonGames": 0
+  },
+  "safety": {
+    "items": 81,
+    "mappingItems": 24,
+    "mappingGames": 26,
+    "invalidJsonItems": 0,
+    "invalidJsonGames": 0
+  }
+}

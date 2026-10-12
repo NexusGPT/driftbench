@@ -1,0 +1,94 @@
+{
+  "phase": "pilot",
+  "sourceSample": 1500,
+  "sampleBeforeSplit": true,
+  "bench": "mmeval",
+  "model": "haiku",
+  "items": 100,
+  "contestants": [
+    {
+      "contestant": "driftbench-mm-language-code",
+      "source": "MM-Eval DEV candidate: direct winner with explicit comparison checks, franc-all language ID and Unicode script observations (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.9099999999999999,
+          "lower": 0.8699082646497348,
+          "upper": 0.950091735350265
+        },
+        "n": 100,
+        "byGroup": {
+          "reasoning": {
+            "n": 20,
+            "value": 0.95
+          },
+          "chat": {
+            "n": 20,
+            "value": 0.65
+          },
+          "linguistics": {
+            "n": 20,
+            "value": 0.975
+          },
+          "language mixing": {
+            "n": 20,
+            "value": 1
+          },
+          "safety": {
+            "n": 20,
+            "value": 0.975
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9
+      },
+      "costUsd": 0.1948285000000001,
+      "calls": 200
+    },
+    {
+      "contestant": "driftbench-mm-language-safety-code",
+      "source": "MM-Eval DEV candidate: direct winner with explicit comparison checks, franc-all language ID and Unicode script observations (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.5349999999999999,
+          "lower": 0.5135532252245861,
+          "upper": 0.5564467747754137
+        },
+        "n": 100,
+        "byGroup": {
+          "reasoning": {
+            "n": 20,
+            "value": 0.675
+          },
+          "chat": {
+            "n": 20,
+            "value": 0.5
+          },
+          "linguistics": {
+            "n": 20,
+            "value": 0.5
+          },
+          "language mixing": {
+            "n": 20,
+            "value": 0.5
+          },
+          "safety": {
+            "n": 20,
+            "value": 0.5
+          }
+        },
+        "missing": 184,
+        "positionConsistency": 0.07
+      },
+      "costUsd": 0.01588205,
+      "calls": 16
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 216,
+  "failedCalls": 184
+}

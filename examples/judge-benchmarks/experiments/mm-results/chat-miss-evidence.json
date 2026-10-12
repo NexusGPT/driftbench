@@ -1,0 +1,502 @@
+[
+  {
+    "item": {
+      "kind": "pair",
+      "id": "3244",
+      "question": "['Wie kann man sich am besten vor Krankheiten und Co. Schützen, ohne auf Ärzte und Pharmamedizin angewiesen zu sein?', 'Es gibt vieles, auf das man zur Verringerung des Risikos einer Erkrankung achten sollte:\\n\\n- Hygiene des eigenen Körpers und seines Umfelds\\n- Körperliche Bewegung\\n- Ausgewogene Ernährung\\n- Vermeidung von Stress\\n- Vermeidung von Drogen\\n- Vermeidung schädlicher Emissionen (Lärm, Abgase, Industrieabfälle, usw.)\\n- Vermeidung von Kontakt mit infizierten Personen oder Tragen von angemessenem Schutzequipment (Atemwegsmasken, Handschuhe, Kondome, usw.)\\n\\nAllerdings können Krankheiten unterschiedliche Ursachen haben, denen man nicht immer eigenständig entgegenwirken kann. Für einen effektiven Schutz gegen Viren oder Erbkrankheiten ist es empfehlenswert, ärztlichen Rat zu suchen. Ebenfalls ist es für psychische Krankheiten oft nicht möglich, diese ohne Hilfe von Außen zu bewältigen.', 'Ich arbeite derzeit auf einer Baustelle und bin mehrere Stunden täglich Lärm ausgesetzt und habe teilweise Kontakt mit schädlichen Materialien. Besonders der Baustaub macht mir momentan zu schaffen. Welche Tipps hast du für mich um meine Gesundheit nicht zu gefärden?']",
+      "a": "Es ist wichtig, dass du dich auf der Baustelle vor gesundheitlichen Risiken schützt. Hier sind einige Tipps, die dir helfen können:\n\n- Verwende persönliche Schutzausrüstung (PSA) wie Gehörschutz, Atemschutzmaske und Schutzbrille, um dich vor Lärm und schädlichen Materialien zu schützen. Achte darauf, dass deine PSA richtig sitzt und ordnungsgemäß verwendet wird.\n\n- Vermeide es, in der Nähe von Maschinen zu arbeiten, die Lärm verursachen, wenn es möglich ist. Schütze deine Ohren, indem du Gehörschutz verwendest, wenn du in der Nähe von lauten Maschinen arbeitest.\n\n- Wasche dir häufig die Hände, um Staub und Schmutz zu entfernen. Vermeide es, deine Hände im Gesicht zu berühren, um zu verhindern, dass Schmutz und Staub in deine Augen und Lunge gelangen.\n\n- Trage eng anliegende Kleidung, um zu verhindern, dass Staubpartikel auf deiner Haut bleiben.\n\n- Trinke viel Wasser, um deinen Körper hydratisiert zu halten und deine Lungen feucht zu halten.\n\n- Vermeide es, auf der Baustelle zu rauchen, da dies deine Lungen weiter schädigen kann.\n\n- Während der Arbeit auf der Baustelle solltest du regelmäßige Pausen einlegen und an einen ruhigen Ort gehen, um dich zu entspannen und den Lärm zu reduzieren.\n\nEs ist wichtig, dass du dich regelmäßig untersuchen lässt, um sicherzustellen, dass du keine gesundheitlichen Probleme durch die Arbeit auf der Baustelle entwickelst. Wenn du besorgt bist, solltest du deinen Arbeitgeber informieren und dich beraten lassen.",
+      "b": "Mögliche Maßnahmen um den Einfluss deiner Arbeit auf deine Gesundheit reduzieren zu können hängen von den einzelnen Gefährdungen ab:\n\n* Lärm: Trage, wenn möglich, qualitativ hochwertige Gehörschützer welche fest auf deinem Ohr liegen und dieses allumfassend bedecken.\n* Gesundheitsgefährdende Stoffe: Vermeide, wenn möglich, den direkten Haut- sowie Kleidungskontakt zu diesen Stoffen. Dies kannst du durch den Stoffen angemessene Handschuhe sowie Schutzbekleidung erzielen welche aus Materialien bestehen die die jeweiligen Stoffe nicht durchlassen.\n* Staub: Trage Masken welche selbst feine Partikel filtern können. Ein Beispiel sind hierfür die handelsüblichen FFP2-Masken.",
+      "label": "A",
+      "group": "chat",
+      "language": "de"
+    },
+    "decision": {
+      "id": "3244",
+      "group": "chat",
+      "language": "de",
+      "label": "A",
+      "complete": true,
+      "games": [
+        "A",
+        "B"
+      ],
+      "score": 0.5,
+      "keys": [
+        "59b0565630441c98f398",
+        "5be09e17168d180026c9"
+      ]
+    },
+    "judgeOutputs": [
+      {
+        "key": "59b0565630441c98f398",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Both replies are in German and address noise, harmful substances, and dust. Reply A is more helpful and comprehensive, covering PPE fit, hand washing, breaks, smoking, and medical checkups, though its claim that drinking water keeps the lungs moist is dubious and some tips are vague. Reply B is accurate and specific (FFP2 masks, fitted hearing protection, material-appropriate gloves) but much thinner and has clumsier German phrasing. On balance, A's broader practical coverage outweighs its minor inaccuracies.\",\"winner\":\"A\"}",
+        "costUsd": 0.0009127,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3244",
+        "order": "AB"
+      },
+      {
+        "key": "5be09e17168d180026c9",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"The user asked in German for health-protection tips for construction workers facing noise, building dust and harmful materials. Reply A is concise, German, and gives specific, relevant measures per hazard (quality hearing protection, gloves and protective clothing, FFP2 masks for dust), though it omits respiratory-protection fit and general hygiene. Reply B is more comprehensive and German but contains questionable advice: it says to drink water to keep lungs moist, touch-avoidance and washing are generic, and 'eng anliegende Kleidung' is dubious for dust; it also lacks the specific FFP2 recommendation. Reply A is more accurate and targeted, so it is the better reply.\",\"winner\":\"A\"}",
+        "costUsd": 0.0006782,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3244",
+        "order": "BA"
+      }
+    ]
+  },
+  {
+    "item": {
+      "kind": "pair",
+      "id": "3320",
+      "question": "['What is the family guy pipeline incident on tiktok?', 'The family guy pipeline incident was an algorithm glitch which occurred on the short-form video sharing platform Tik Tok. To avoid automated copyright filters on the platform, creators will regularly add random footage below copyrighted footage they wish to post. In mid-November 2022, a user posted footage from the animated TV series Family Guy above footage of a man filling pipes with objects such as cigarettes or carrots. As a result, the Tik Tok algorithm started to suggest to users the search query \"family guy pipeline incident\".', 'What were the consequences of this glitch?']",
+      "a": "Seemingly nothing as these sorts of video formats have spread to other popular animated shows that pair a clip with random footage.",
+      "b": "In the hypothetical scenario you described where a user posted footage from Family Guy and the TikTok algorithm started suggesting the search query \"family guy pipeline incident,\" it's plausible that users could have changed their behavior in response to this suggestion.\n\nFor example, some users might have searched for this phrase out of curiosity, which could have led to the creation of more content related to it. Other users might have started to include references to \"family guy pipeline incident\" in their own videos in order to attract more views and engagement. These changes in user behavior could then have a ripple effect on the platform's algorithm and the type of content it promotes.\n\nHowever, without more information about the specific details of the glitch and the behavior of users on TikTok, it's difficult to say for certain what the consequences would be.",
+      "label": "B",
+      "group": "chat",
+      "language": "en"
+    },
+    "decision": {
+      "id": "3320",
+      "group": "chat",
+      "language": "en",
+      "label": "B",
+      "complete": true,
+      "games": [
+        "A",
+        "A"
+      ],
+      "score": 0,
+      "keys": [
+        "a60dc50f5d0b1dcf97af",
+        "d1ceffe642844c1dc618"
+      ]
+    },
+    "judgeOutputs": [
+      {
+        "key": "a60dc50f5d0b1dcf97af",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Reply A gives a brief, unsupported claim that there were no consequences, which is an answer but offers little explanation and doesn't engage with the user's hypothetical framing. Reply B speculates at length about hypothetical user behavior, presenting invented consequences as plausible without any factual basis, and then hedges that it can't be sure. Neither is accurate about real-world consequences, but Reply A is more concise and doesn't fabricate a narrative of effects, while Reply B's speculation is padded and not grounded.\",\"winner\":\"A\"}",
+        "costUsd": 0.00042080000000000004,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3320",
+        "order": "AB"
+      },
+      {
+        "key": "d1ceffe642844c1dc618",
+        "model": "haiku",
+        "text": "{\"reasoning\": \"Reply A treats the incident as hypothetical and offers generic speculation about user behavior without giving any concrete consequence, even though the conversation already established it as real. Reply B answers directly, saying the format spread to other animated shows, which is closer to what actually happened, though it is terse and unsourced. Reply B is the more helpful and accurate answer, though neither is strong.\", \"winner\": \"B\"}",
+        "costUsd": 0.0005473,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3320",
+        "order": "BA"
+      }
+    ]
+  },
+  {
+    "item": {
+      "kind": "pair",
+      "id": "3352",
+      "question": "['Did Jesus realy exist']",
+      "a": "Jesus as a biblical entity is certainly fictional. however many cultures and historical finds suggest a person of that name (or a similar one) existed. unlikely that he was actually some kind of god or god-like entity, he was most likely a soothsayer or peach preacher that saw great success, a similar example of this is the origin of Buddhism. Buddha himself was not a god or deity as some religions or belief systems would have you believe, but rather a monk who was very successful in his teachings. his success contributed to his legacy.",
+      "b": "As an AI language model, I cannot provide a definitive answer to this question. However, it is widely accepted among historians that Jesus of Nazareth was a real historical figure who lived in the first century CE. The existence of Jesus is mentioned in many ancient sources, including the Gospels of the New Testament, as well as non-Christian sources such as the Jewish historian Josephus and the Roman historian Tacitus. While there is some debate among scholars about the details of Jesus' life and teachings, his existence as a historical figure is generally accepted.",
+      "label": "A",
+      "group": "chat",
+      "language": "en"
+    },
+    "decision": {
+      "id": "3352",
+      "group": "chat",
+      "language": "en",
+      "label": "A",
+      "complete": true,
+      "games": [
+        "B",
+        "B"
+      ],
+      "score": 0,
+      "keys": [
+        "4ceb9d0ab1c474bb34b2",
+        "51d4a86fa9acb77845fb"
+      ]
+    },
+    "judgeOutputs": [
+      {
+        "key": "4ceb9d0ab1c474bb34b2",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Reply A is muddled: it says Jesus as a biblical entity is 'certainly fictional' (overstated and misleading), contains typos ('peach preacher'), and makes dubious claims about Buddhism's origins that don't address the question. Reply B gives the clear, accurate scholarly consensus that Jesus was a historical figure, citing Josephus and Tacitus, though its opening 'As an AI language model' hedge is unnecessary. Reply B is clearly more correct and helpful.\",\"winner\":\"B\"}",
+        "costUsd": 0.0003890000000000001,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3352",
+        "order": "AB"
+      },
+      {
+        "key": "51d4a86fa9acb77845fb",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Reply A gives the accurate scholarly consensus that Jesus was a real first-century figure, supported by named non-Christian sources (Josephus, Tacitus), and it stays in English. Its opening 'As an AI language model' disclaimer is unnecessary but harmless. Reply B is muddled and inaccurate: it calls Jesus 'certainly fictional' as a biblical entity, speculates he was a 'soothsayer or peach preacher' (a typo), and gives an unclear, tangential comparison to Buddha that doesn't answer the question. Reply A is clearly better.\",\"winner\":\"A\"}",
+        "costUsd": 0.0004930000000000001,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3352",
+        "order": "BA"
+      }
+    ]
+  },
+  {
+    "item": {
+      "kind": "pair",
+      "id": "3450",
+      "question": "['¿Qué películas me recomendarías si me gustó \"Requiem for a dream\"?']",
+      "a": "Te dejo las 20 mejores películas sobre adicciones en la que está requiem for a dream lo que podría servirte para elegir una película para ver:\n\nEl precio del poder (1983)\nRéquiem por un sueño (2000)\nEl lobo de Wall Street (2013)\nTrainspotting (1996)\nEl buscavidas (1961)\nBlack Tar Heroin: The Dark End of the Street (2000)\nDías sin huella (1945)\nDías de vino y rosas (1962)\nThe Fighter (2010)\nRay (2004)\nWithnail y yo (1987)\nBlow (2001)\nMiedo y asco en Las Vegas (1998)\nTraffic (2000)\nYo, Cristina F (1981)\nLeaving Las Vegas (1995)\nMi nombre es Joe (1998)\nSin límites (2011)\nEl hombre del brazo de oro (1955)\nEl vuelo (2012)",
+      "b": "Te paso unas cuantas películas que son similares y podrían gustarte:\n- Trainspotting\n- Drugstore Cowboy\n- Leaving Las Vegas\n- The Basketball Diaries\n- Sid and Nancy\n- The Panic in Needle Park",
+      "label": "A",
+      "group": "chat",
+      "language": "es"
+    },
+    "decision": {
+      "id": "3450",
+      "group": "chat",
+      "language": "es",
+      "label": "A",
+      "complete": true,
+      "games": [
+        "B",
+        "B"
+      ],
+      "score": 0,
+      "keys": [
+        "90eded1e990660ecec88",
+        "5cffc735600b266ecf1a"
+      ]
+    },
+    "judgeOutputs": [
+      {
+        "key": "90eded1e990660ecec88",
+        "model": "haiku",
+        "text": "{\"reasoning\": \"Reply A is in Spanish and gives a long list, but it claims to be the \\\"20 mejores\\\" films about addiction while listing only 20 items with many errors and irrelevant picks (e.g., El precio del poder is fine, but The Fighter, Ray, Withnail y yo, El vuelo, Mi nombre es Joe are weakly related, and the Spanish titles are sometimes inaccurate or mislabeled). Reply B is also in Spanish, concise, and gives a focused list of genuinely similar gritty addiction dramas (Trainspotting, Drugstore Cowboy, Leaving Las Vegas, Sid and Nancy, The Panic in Needle Park), which are highly relevant recommendations for someone who liked Requiem for a Dream. Reply B is more accurate and helpful, while Reply A's padded and loosely relevant list with an awkward opening sentence is weaker.\", \"winner\": \"B\"}",
+        "costUsd": 0.00048059999999999997,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3450",
+        "order": "AB"
+      },
+      {
+        "key": "5cffc735600b266ecf1a",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Reply A gives six tightly relevant films (Trainspotting, Drugstore Cowboy, Leaving Las Vegas, and others) that share Requiem's focus on addiction and dark drug drama, in Spanish. Reply B offers twenty options, which adds breadth and Spanish titles, but it includes Requiem itself, a garbled intro, and several picks that don't fit (Limitless, The Fighter, The Hustler, The Wolf of Wall Street). Its mislabeling of the list as the 'mejores' films about addiction also weakens its accuracy. Reply A is more accurate and better matched to the request.\",\"winner\":\"A\"}",
+        "costUsd": 0.0008041000000000001,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3450",
+        "order": "BA"
+      }
+    ]
+  },
+  {
+    "item": {
+      "kind": "pair",
+      "id": "3458",
+      "question": "['Estoy escribiendo mi proyecto de fin de grado. Necesito algunos consejos para mejorar la presentación del documento en Word.']",
+      "a": "Para que un documento sea atractivo y claro es importante:\n- diseñar una portada con contenido visual que condense de manera creativa el contenido del documento.\n- añadir un índice con los principales subtemas y las páginas donde encontrarlos. \n- escoger una tipografía legible y atractiva.\n- usar imágenes o infografías que ilustren el contenido.",
+      "b": "Para mejorar la presentación de un documento en Microsoft Word, hay varias cosas que puedes hacer. Primero, debes asegurarte de que todas tus fuentes estén correctamente citadas. Puedes usar el Editor de Microsoft para verificar la ortografía y la gramática y obtener sugerencias para mejorar el estilo y la estructura del documento. También puedes usar herramientas de edición de imágenes y gráficos para mejorar la apariencia visual del documento. Además, asegúrate de utilizar un diseño de página adecuado para tu trabajo. Esto puede ayudar a darle una sensación de profesionalismo y coherencia. Algunas otras cosas que puedes considerar son agregar un índice, dividir tu trabajo en secciones y subtítulos claros, y usar un tema de estilo adecuado.",
+      "label": "B",
+      "group": "chat",
+      "language": "es"
+    },
+    "decision": {
+      "id": "3458",
+      "group": "chat",
+      "language": "es",
+      "label": "B",
+      "complete": true,
+      "games": [
+        "B",
+        "A"
+      ],
+      "score": 0.5,
+      "keys": [
+        "6888f7eb007f3dda403f",
+        "186885a116f8f76a629c"
+      ]
+    },
+    "judgeOutputs": [
+      {
+        "key": "6888f7eb007f3dda403f",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Both replies are in Spanish and offer relevant advice. Reply A is concise and presentation-focused, with a cover, index, typography, and illustrations, but it is generic and its creative-cover suggestion suits a thesis poorly. Reply B is vaguer and includes off-topic citation advice, but it gives more Word-specific guidance, such as the spell-checker, page layout, headings and subtitles, and style themes. That Word-specific guidance makes B slightly more helpful for this request.\",\"winner\":\"B\"}",
+        "costUsd": 0.0006302,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3458",
+        "order": "AB"
+      },
+      {
+        "key": "186885a116f8f76a629c",
+        "model": "haiku",
+        "text": "{\"reasoning\": \"Both replies are in Spanish and relevant to improving a thesis document's presentation. Reply B gives four concrete, actionable tips (cover design, index with page numbers, legible typography, illustrative images) that directly address visual presentation. Reply A is longer but more generic, refers to a nonexistent \\\"Editor de Microsoft\\\" instead of Word's editor, and its suggestions about citations and sections are less specific to presentation. Reply B is better, though its brevity leaves room for more detail.\", \"winner\": \"B\"}",
+        "costUsd": 0.0005167,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3458",
+        "order": "BA"
+      }
+    ]
+  },
+  {
+    "item": {
+      "kind": "pair",
+      "id": "3496",
+      "question": "['Quelle est la différence entre un disque dur HDD et un SSD ?', \"Il y a plusieurs différences entre les HDD et les SSD. La principale différence est la technologie utilisée pour stocker les données. Les disques durs HDD lisent les données écrites sur des plateaux par magnétisation grâce à une tête de lecture, tandis que les disques durs SSD accèdent aux données sans pièce mécanique mobile, les données sont stockées sur des semi-conducteurs. \\nDe ce fait les disques durs SSD sont moins fragiles aux chocs par exemple. L'autre grande différence est le temps d'accès aux données qui est beaucoup plus rapide sur les disques durs SSD.\", \"On m'a dit que les disques HDD sont plus fragiles. Est-ce vrai ?\"]",
+      "a": "En général, les disques HDD sont plus sujets aux dommages physiques tels que les chocs et les vibrations que les disques SSD en raison de leur mécanisme de fonctionnement interne avec des pièces mobiles. Cependant, cela ne signifie pas que tous les disques HDD sont fragiles et tous les disques SSD sont robustes.",
+      "b": "Oui, c'est vrai. Les disques durs HDD sont plus fragiles que les disques durs SSD car ils utilisent des pièces mécaniques mobiles pour lire et écrire des données. Les têtes de lecture peuvent être endommagées en cas de choc ou de vibration, ce qui peut entraîner une perte de données ou même la défaillance du disque dur. Les disques durs SSD, quant à eux, n'ont pas de pièces mobiles, ce qui les rend plus résistants aux chocs et aux vibrations.",
+      "label": "B",
+      "group": "chat",
+      "language": "fr"
+    },
+    "decision": {
+      "id": "3496",
+      "group": "chat",
+      "language": "fr",
+      "label": "B",
+      "complete": true,
+      "games": [
+        "tie",
+        "B"
+      ],
+      "score": 0.75,
+      "keys": [
+        "cb33d05285d66d6b4dd1",
+        "a1b01f27dae6493c7a44"
+      ]
+    },
+    "judgeOutputs": [
+      {
+        "key": "cb33d05285d66d6b4dd1",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"The user asks in French whether HDDs are more fragile than SSDs. Reply A answers in French, correctly confirms HDDs are more vulnerable to shocks and vibrations due to moving parts, and adds a nuance that not all drives fit this generalization. Reply B also answers in French and correctly confirms the claim with a clear explanation, but is more assertive and omits the caveat; it does add a useful detail about read heads and data loss. Both are accurate and in the right language; A's nuance is slightly more precise, while B is more informative about consequences.\",\"winner\":\"tie\"}",
+        "costUsd": 0.0004449,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3496",
+        "order": "AB"
+      },
+      {
+        "key": "a1b01f27dae6493c7a44",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Both replies answer in French and correctly confirm that HDDs are more vulnerable to shocks and vibrations because of their moving parts. Reply A is more helpful: it answers directly and explains the mechanism, namely that read/write heads can be damaged and cause data loss. Reply B is better calibrated, noting that not every HDD is fragile and not every SSD is robust, but it explains less. The edge goes to Reply A for its directness and fuller explanation.\",\"winner\":\"A\"}",
+        "costUsd": 0.0006704,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3496",
+        "order": "BA"
+      }
+    ]
+  },
+  {
+    "item": {
+      "kind": "pair",
+      "id": "3500",
+      "question": "['Mon copain est plutôt bon poète mais moi je ne suis pas top. Pour notre anniversaire, écris un poème encore meilleur que celui qu’il va m’offrir. Il a 27 ans, il adore les pistaches, il a des fossettes et des cheveux roux frisés, et il travaille dans la réparation automobile. Je travaille comme RH d’une entreprise. On s’est rencontré dans un club d’escalade.']",
+      "a": "Tu es mon soleil, mon éternelle joie,\nMon bonheur que je chéris sans effroi,\nMon cher amour, aux belle boucles d'or,\nRappelle toi que je t'aime, encore.\n\nSi je te declare ma flamme mon bel artiste,\nC'est que tu es le plus doué des garagistes,\nMon coeur était en panne tu l'as réparé,\nTu as le plus beau des CV je t'ai embauché.\n\nNos mains se sont croisées le long d'une paroi,\nEt depuis s'en est allé mon désarroi,\nNe plus être à tes cotés serait une hérésie,\nCar tu m'es plus vital que de la magnésie.\n\nVivons pour toujours d'amour et de pistache,\nNotre histoire est si forte que rien ne la gâche,\nSi tu es la pistache, alors je suis la rose,\nUn savoureux mélange qui m'inspire cette prose.\n\nAujourd'hui, mon cher amour, pour notre anniversaire,\nC'est l'expression de notre bonheur que je réitère,\nTu es ma joie, ma vie, mon oxygène,\nNulle doute que notre union sera pérenne.",
+      "b": "Cher [nom],\n\nAujourd'hui marque un jour spécial,\nNotre amour grandit plus que jamais.\nDe l'escalade à la réparation automobile,\nNotre rencontre a été un miracle.\n\nTes fossettes, tes cheveux roux frisés,\nSont des traits que j'adore chez toi.\nEt ta passion pour les pistaches,\nFait de toi un amoureux si rare.\n\nJe suis fière de travailler dans les RH,\nEt de te soutenir dans ta carrière.\nEnsemble, nous formons une équipe solide,\nEt notre amour ne fera que grandir.\n\nMerci d'être mon compagnon de vie,\nMon amoureux, mon ami le plus cher.\nJe t'aime plus que les mots ne peuvent dire,\nEt je suis heureuse d'être avec toi ici.\n\nJoyeux anniversaire mon amour,\nJe te souhaite tout le bonheur du monde.\nJe suis impatiente de voir ce que l'avenir nous réserve,\nEt je sais que notre amour est indestructible.\n\nJe t'aime pour toujours et à jamais.\n\n[Ton nom]",
+      "label": "B",
+      "group": "chat",
+      "language": "fr"
+    },
+    "decision": {
+      "id": "3500",
+      "group": "chat",
+      "language": "fr",
+      "label": "B",
+      "complete": true,
+      "games": [
+        "A",
+        "A"
+      ],
+      "score": 0,
+      "keys": [
+        "41293e24f53baaa76518",
+        "643783a78abb378adad9"
+      ]
+    },
+    "judgeOutputs": [
+      {
+        "key": "41293e24f53baaa76518",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Reply A is a rhymed French poem that weaves in the user's details (pistachios, curls, mechanic work, HR, climbing wall) with playful wordplay, and it stays in French and is genuinely more creative and poetic, which fits the request for a poem better than the boyfriend's. Reply B is a generic, mostly unrhymed and clichéd text with a placeholder '[nom]', and it lacks the wit and craft the user asked for. Reply A has some minor meter and rhyme imperfections, but it clearly better satisfies the request.\",\"winner\":\"A\"}",
+        "costUsd": 0.0005272,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3500",
+        "order": "AB"
+      },
+      {
+        "key": "643783a78abb378adad9",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Both replies are in French and attempt a poem for the anniversary using the given details. Reply A is clear, warm, and well-structured, but its rhymes are weak in places and it is generic, with only light use of the specifics (pistachios, dimples, curls, mechanic, HR, climbing gym is barely present). Reply B is more creative and personal, weaving in climbing (paroi, magnésie), mechanic work (garagistes, cœur en panne réparé), HR (CV, embauché), and pistachios, with more playful rhyme and wit, though it has some awkward lines and a typo or two. Reply B better meets the request for a more impressive, specific poem.\",\"winner\":\"B\"}",
+        "costUsd": 0.000545,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3500",
+        "order": "BA"
+      }
+    ]
+  },
+  {
+    "item": {
+      "kind": "pair",
+      "id": "3539",
+      "question": "['Расскажи мне, кто такой Янник Килчер (Yannic Kilcher)?']",
+      "a": "Янник Килчер (Yannic Kilcher) - это немецкий исследователь и разработчик в области искусственного интеллекта (ИИ), который известен благодаря своим видео на YouTube, в которых он объясняет сложные темы в области ИИ и машинного обучения (ML) в доступной форме для широкой аудитории.\n\nЯнник родился в 1996 году в Штутгарте, Германия, и получил степень бакалавра по компьютерным наукам в Цюрихском технологическом институте (ETH Zurich) в 2018 году. В том же году он начал работать над своей диссертацией в области ИИ в университете Лугано (Università della Svizzera italiana).\n\nС 2019 года Янник начал создавать образовательные видео на YouTube, в которых он объясняет сложные концепции ИИ и МЛ на примерах, используя различные алгоритмы и методы. Его видео получили широкую популярность, и на данный момент на его канале более 300 тысяч подписчиков.\n\nКроме создания видео, Янник продолжает свои исследования в области ИИ и МЛ и работает в компании \"Geometric Intelligence\", которая занимается разработкой интеллектуальных систем для различных приложений.",
+      "b": "Янник Килчер это доктор математических наук, ставший известным благодаря каналу на youtube, где он объяснял научные статьи об искуственном интеллекте и нейронных сетях. На его канале больше 100 тысяч подписчиков, большое discord сообщество. В последнее время занимается разработкой и продвижением аналога chatGPT с открытым исходным кодом open assistant.",
+      "label": "A",
+      "group": "chat",
+      "language": "ru"
+    },
+    "decision": {
+      "id": "3539",
+      "group": "chat",
+      "language": "ru",
+      "label": "A",
+      "complete": true,
+      "games": [
+        "B",
+        "B"
+      ],
+      "score": 0,
+      "keys": [
+        "674a332ab0ff2289ea34",
+        "e3125a2b1345201106a5"
+      ]
+    },
+    "judgeOutputs": [
+      {
+        "key": "674a332ab0ff2289ea34",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Reply A is more detailed and fluent in Russian, but it contains several likely fabrications: the Lugano dissertation, the birthplace and birth year, and the 'Geometric Intelligence' employer. Reply B is terse, has typos, and wrongly calls him a doctor of mathematics, but its core facts are closer to the record: the YouTube paper-explainer channel, the Discord community, and the Open Assistant involvement. Since correctness is weighted most, B is the better reply despite its brevity.\",\"winner\":\"B\"}",
+        "costUsd": 0.0007026000000000001,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3539",
+        "order": "AB"
+      },
+      {
+        "key": "e3125a2b1345201106a5",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Reply A is brief and mostly accurate: it correctly describes Kilcher's YouTube paper explanations, his Discord community, and his involvement with Open Assistant, though calling him a doctor of mathematics is wrong (his doctorate is in computer science from ETH Zurich). Reply B is longer but contains more fabricated specifics, including a German birthplace and birth year, a Lugano thesis, and a supposed role at Geometric Intelligence, and it omits Open Assistant. Its detail makes it look more authoritative without being more reliable.\",\"winner\":\"A\"}",
+        "costUsd": 0.0006936,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3539",
+        "order": "BA"
+      }
+    ]
+  },
+  {
+    "item": {
+      "kind": "pair",
+      "id": "3584",
+      "question": "['传统社会中“自然的”事情，现在变得“不自然”了，你在生活中有没有发现过这样的例子？你认为在这个变化背后有什么观念转变呢', '是的,随着社会的发展,许多原本被视为“自然”的事物变得不那么“自然”了。这背后反映出社会观念和价值观的巨大转变。\\n例如,传统社会中男尊女卑、男外女内是被视为默认的自然秩序。但现代社会中,推崇男女平等和女性权益已成为主流价值观,这种变化反映了人们对性别地位和角色的重新认识。\\n再如,随着医疗卫生条件的提高,生老病死变得不那么“自然”。人们期望通过各种医疗手段改变这些自然进程,追求更长的预期寿命和生活质量。这显示出人们对生命价值和身体完整性的观念发生变化。\\n社会维度上,随着城市化进程,血亲关系变得不那么紧密,邻里互助也不那么自然。这反映出人们对家庭、亲情以及社区关系的重视程度发生转变。\\n总之,社会发展使人们的思想观念得到提高,但同时也减弱了人与自然界的联系。一些原本被视为默认的自然事物或秩序变得不再顺理成章。这些变化背后,是人们对生命、身体、性别、家庭以及社会等方面观念的深刻变迁,这些传统观念正在被现代观念所替代。\\n社会的进步需要观念的变革。“自然”的事物变得“不自然”也就无法避免。重要的是新观念能够构建起更为人性化的社会秩序与理念体系。', '举几个传统社会中“自然的”事情，现在变得“不自然”的例子。']",
+      "a": "医疗方面，中世纪的鼠疫使欧洲人大量死亡，这在当时看来很“自然”，但在现在看来，鼠疫使人大量死亡非常“不自然”。\n社会方面，传统社会上人分三六九等，这在传统社会中很“自然”，但在追求人人平等现在来看，人分等级则是非常“不自然”",
+      "b": "好的，以下是一些傳統社會中原本是「自然的」但現在變得「不自然」的例子：\n\n1. 生產和食用非季節性食物——在傳統社會中，人們只能食用當地季節性的水果和蔬菜。然而現代社會中，隨著全球化和現代運輸技術的進步，人們可以隨時食用來自其他國家或地區的食物，這顯然是一種不自然的狀態。\n\n2. 現代醫療技術——在傳統社會中，人們依賴自然療法和民間醫學來治療疾病。而現代醫療技術的出現使得人們可以使用高科技設備和藥物來治療疾病，這也被認爲是不自然的。\n\n3. 人工授精和試管嬰兒——傳統社會中，人們只能通過自然方式生育。但是現代的人工授精和試管嬰兒技術，使得人們可以在實驗室中控制受孕過程，這也被認爲是不自然的。\n\n4. 大型農業和畜牧業——傳統社會中，農業和畜牧業通常以小型、家庭式的方式經營。然而現代社會中，大型農業和畜牧業已經成為主流，使用大量化學肥料、農藥和飼料等產品來促進生長，這也被認爲是一種不自然的方式。\n\n5. 電子設備的使用——在傳統社會中，人們主要依賴手工和自然的力量來完成各種任務。然而，在現代社會中，人們已經習慣使用各種電子設備來完成日常工作和娛樂活動，這也被認爲是一種不自然的狀態。\n\n6. 使用自然材料——在傳統社會中，人們使用自然材料來建造居所、製造衣服和生產器具。而現代科技讓人造材料獲得更廣地泛使用，導致自然材料變得越來越不常見。\n\n7. 在自然環境中生活——過去人們通常生活在自然環境中，與動植物共存。然而，現代城市化和工業化已經使得人們越來越遠離自然環境，使得這種生活方式變得越來越不自然。",
+      "label": "B",
+      "group": "chat",
+      "language": "zh"
+    },
+    "decision": {
+      "id": "3584",
+      "group": "chat",
+      "language": "zh",
+      "label": "B",
+      "complete": true,
+      "games": [
+        "A",
+        "A"
+      ],
+      "score": 0,
+      "keys": [
+        "4957dd1c7daea0f536ba",
+        "f3306c6b03142e264138"
+      ]
+    },
+    "judgeOutputs": [
+      {
+        "key": "4957dd1c7daea0f536ba",
+        "model": "haiku",
+        "text": "{\"reasoning\": \"The user wrote in Simplified Chinese, and Reply A answers in Simplified Chinese. Reply B answers in Traditional Chinese, which fails the explicit language requirement. Reply B is more thorough, with seven examples, several of them apt (seasonal produce, natural materials, living in nature), but some are weak, such as electronics use. Reply A gives only two examples, and the plague example is a loose fit, but both are relevant and correctly framed. The language mismatch is a clear defect that outweighs Reply B's greater breadth.\", \"winner\": \"A\"}",
+        "costUsd": 0.0009163,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3584",
+        "order": "AB"
+      },
+      {
+        "key": "f3306c6b03142e264138",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Reply A gives seven detailed, relevant examples, but it is written in Traditional Chinese even though the user wrote in Simplified Chinese, which the criterion explicitly requires matching. Its examples also include some weak framings, such as calling electronic devices or large-scale farming simply 'unnatural.' Reply B is in Simplified Chinese, directly answers the request with two clear, on-topic examples (plague deaths and social hierarchy), and is concise. Its coverage is thinner, but it meets the language requirement and is accurate.\",\"winner\":\"B\"}",
+        "costUsd": 0.0007815000000000001,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3584",
+        "order": "BA"
+      }
+    ]
+  },
+  {
+    "item": {
+      "kind": "pair",
+      "id": "3591",
+      "question": "['NaOH+HCl反应方程式', '反应的化学方程式为：$NaOH+HCl=NaCl+H_2O$\\n表示氢氧化钠 （$NaOH$）与盐酸（$HCI$）发生中和反应，生成氯化钠（$NaCI$）和水（$H_2O$）\\n氢氧化钠与盐酸之间的反应属于典型的强酸强碱中和反应，是复分解反应的一种。\\n反应规律是强酸加强碱中和生成盐（氯化钠）和水。', '常见的中和反应还有哪些？']",
+      "a": "# 酸 + 碱 -------- 盐 + 水\n1. 盐酸和氢氧化钾反应：HCl + KOH ==== KCl +H2O\n2. 盐酸和氢氧化铜反应：2HCl + Cu(OH)2 ==== CuCl2 + 2H2O\n3. 盐酸和氢氧化钙反应：2HCl + Ca(OH)2 ==== CaCl2 + 2H2O\n4. 盐酸和氢氧化铁反应：3HCl + Fe(OH)3 ==== FeCl3 + 3H2O\n5. 氢氧化铝药物治疗胃酸过多：3HCl + Al(OH)3 ==== AlCl3 + 3H2O\n6. 硫酸和烧碱反应：H2SO4 + 2NaOH ==== Na2SO4 + 2H2O\n7. 硫酸和氢氧化钾反应：H2SO4 + 2KOH ==== K2SO4 + 2H2O\n8. 硫酸和氢氧化铜反应：H2SO4 + Cu(OH)2 ==== CuSO4 + 2H2O\n9. 硫酸和氢氧化铁反应：3H2SO4 + 2Fe(OH)3==== Fe2(SO4)3 + 6H2O\n10. 硝酸和烧碱反应：HNO3+ NaOH ==== NaNO3 +H2O\n# 酸 + 盐 -------- 另一种酸 + 另一种盐\n1. 大理石与稀盐酸反应：CaCO3 + 2HCl === CaCl2 + H2O + CO2↑\n2. 碳酸钠与稀盐酸反应: Na2CO3 + 2HCl === 2NaCl + H2O + CO2↑\n3. 碳酸镁与稀盐酸反应: MgCO3 + 2HCl === MgCl2 + H2O + CO2↑\n4. 盐酸和硝酸银溶液反应：HCl + AgNO3 === AgCl↓ + HNO3\n5. 硫酸和碳酸钠反应：Na2CO3 + H2SO4 === Na2SO4 + H2O + CO2↑\n6. 硫酸和氯化钡溶液反应：H2SO4 + BaCl2 ==== BaSO4 ↓+ 2HCl\n# 碱 + 盐 -------- 另一种碱 + 另一种盐\n1. 氢氧化钠与硫酸铜：2NaOH + CuSO4 ==== Cu(OH)2↓ + Na2SO4\n2. 氢氧化钠与氯化铁：3NaOH + FeCl3 ==== Fe(OH)3↓ + 3NaCl\n3. 氢氧化钠与氯化镁：2NaOH + MgCl2 ==== Mg(OH)2↓ + 2NaCl\n4. 氢氧化钠与氯化铜：2NaOH + CuCl2 ==== Cu(OH)2↓ + 2NaCl\n5. 氢氧化钙与碳酸钠：Ca(OH)2 + Na2CO3 === CaCO3↓+ 2NaOH\n# 盐 + 盐 ----- 两种新盐\n1. 氯化钠溶液和硝酸银溶液：NaCl + AgNO3 ==== AgCl↓ + NaNO3\n2. 硫酸钠和氯化钡：Na2SO4 + BaCl2 ==== BaSO4↓ + 2NaCl",
+      "b": "##### 酸+碱 => 盐+水\n1. 盐酸和烧碱起反应：HCl + NaOH => NaCl +H2O\n2. 盐酸和氢氧化钾反应：HCl + KOH => KCl +H2O\n3. 盐酸和氢氧化铜反应：2HCl + Cu(OH)2 => CuCl2 + 2H2O\n4. 盐酸和氢氧化钙反应：2HCl + Ca(OH)2 => CaCl2 + 2H2O\n5. 盐酸和氢氧化铁反应：3HCl + Fe(OH)3 => FeCl3 + 3H2O\n6. 氢氧化铝药物治疗胃酸过多：3HCl + Al(OH)3 => AlCl3 + 3H2O\n7. 硫酸和烧碱反应：H2SO4 + 2NaOH => Na2SO4 + 2H2O\n8. 硫酸和氢氧化钾反应：H2SO4 + 2KOH => K2SO4 + 2H2O\n9. 硫酸和氢氧化铜反应：H2SO4 + Cu(OH)2 => CuSO4 + 2H2O\n10. 硫酸和氢氧化铁反应：3H2SO4 + 2Fe(OH)3 => Fe2(SO4)3 + 6H2O\n11. 硝酸和烧碱反应：HNO3+ NaOH => NaNO3 +H2O\n##### 酸+盐 => 另一种酸 + 另一种盐\n12. 大理石与稀盐酸反应：CaCO3 + 2HCl => CaCl2 + H2O + CO2↑\n13. 碳酸钠与稀盐酸反应: Na2CO3 + 2HCl => 2NaCl + H2O + CO2↑\n14. 碳酸镁与稀盐酸反应: MgCO3 + 2HCl => MgCl2 + H2O + CO2↑\n15. 盐酸和硝酸银溶液反应：HCl + AgNO3 => AgCl↓ + HNO3\n16. 硫酸和碳酸钠反应：Na2CO3 + H2SO4 => Na2SO4 + H2O + CO2↑\n17. 硫酸和氯化钡溶液反应：H2SO4 + BaCl2 => BaSO4 ↓+ 2HCl\n##### 碱 + 盐 => 另一种碱 + 另一种盐\n18. 氢氧化钠与硫酸铜：2NaOH + CuSO4 => Cu(OH)2↓ + Na2SO4\n19. 氢氧化钠与氯化铁：3NaOH + FeCl3 => Fe(OH)3↓ + 3NaCl\n20. 氢氧化钠与氯化镁：2NaOH + MgCl2 => Mg(OH)2↓ + 2NaCl\n21. 氢氧化钠与氯化铜：2NaOH + CuCl2 => Cu(OH)2↓ + 2NaCl\n22. 氢氧化钙与碳酸钠：Ca(OH)2 + Na2CO3 => CaCO3↓+ 2NaOH\n##### 盐 + 盐 => 两种新盐\n23. 氯化钠溶液和硝酸银溶液：NaCl + AgNO3 => AgCl↓ + NaNO3\n24. 硫酸钠和氯化钡：Na2SO4 + BaCl2 => BaSO4↓ + 2NaCl",
+      "label": "B",
+      "group": "chat",
+      "language": "zh"
+    },
+    "decision": {
+      "id": "3591",
+      "group": "chat",
+      "language": "zh",
+      "label": "B",
+      "complete": true,
+      "games": [
+        "tie",
+        "B"
+      ],
+      "score": 0.75,
+      "keys": [
+        "5e5ed73c217f38963849",
+        "2185335ff8bd9d7e0011"
+      ]
+    },
+    "judgeOutputs": [
+      {
+        "key": "5e5ed73c217f38963849",
+        "model": "haiku",
+        "text": "{\"reasoning\":\"Both replies give the same set of reactions in Chinese, with essentially identical chemistry, and both share the same scope issue: the acid-salt, base-salt, and salt-salt reactions are not neutralization reactions. Reply B includes the NaOH+HCl example the user already gave, which is redundant, but its headers and continuous numbering are cleaner. Reply A's oversized H1 headers and odd dash-style titles are slightly less tidy. These differences are cosmetic, so the replies are effectively equal.\",\"winner\":\"tie\"}",
+        "costUsd": 0.0012529000000000002,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3591",
+        "order": "AB"
+      },
+      {
+        "key": "2185335ff8bd9d7e0011",
+        "model": "haiku",
+        "text": "{\"reasoning\": \"Both replies answer in Chinese with largely the same set of correct, balanced equations, and both include precipitation and salt-salt reactions that are not strictly neutralization. Reply A is more complete and uses consistent continuous numbering and standard arrows, though it repeats the NaOH+HCl example the user already gave. Reply B drops that repeat, but its restarted numbering per section and non-standard \\\"====\\\" arrows and dashed headings make it slightly less clean. The difference is small, with A marginally ahead.\", \"winner\": \"A\"}",
+        "costUsd": 0.0014309000000000001,
+        "bench": "mmeval",
+        "contestant": "driftbench-mm-direct",
+        "item": "3591",
+        "order": "BA"
+      }
+    ]
+  }
+]

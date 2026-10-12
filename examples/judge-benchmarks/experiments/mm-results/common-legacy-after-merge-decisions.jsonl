@@ -1,0 +1,267 @@
+{"contestant":"driftbench","id":"1000","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["fa98de5b0517eaff7338","e276f57fb7bc451b3e72"]}
+{"contestant":"driftbench","id":"104","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["382d0a4efcd7ad85ec2e","f258f1a5f503c5c32e74"]}
+{"contestant":"driftbench","id":"1082","group":"reasoning","language":"ru","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["c1d5bc30cb1d3ed27de4","f5262678959647447682"]}
+{"contestant":"driftbench","id":"1215","group":"reasoning","language":"sw","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["d3da1987e7b16420b4f8","88e8193929878e471503"]}
+{"contestant":"driftbench","id":"1217","group":"reasoning","language":"sw","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["33a28e52c49344359fd3","b0f57e3743861ab4aee7"]}
+{"contestant":"driftbench","id":"124","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["028e3edac0c1fb597b7f","b3460f839fded6e3c744"]}
+{"contestant":"driftbench","id":"1386","group":"reasoning","language":"sw","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["a11900530933a797c1d3","d7e6816e96967b178df4"]}
+{"contestant":"driftbench","id":"1465","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["03f9a415387a14e347e4","b43d9b0b3cd34b185d8a"]}
+{"contestant":"driftbench","id":"1515","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["8d1f7532040b1b196c81","027afdfbe49e051edb20"]}
+{"contestant":"driftbench","id":"1547","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["1a52b3305a2dbac56b9a","9a851d7505f8006f47f4"]}
+{"contestant":"driftbench","id":"1552","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["f666a0e385bbd5da48ce","5074c97e602123c73f44"]}
+{"contestant":"driftbench","id":"1585","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["c77e2ff28b3c90cdf427","b1715b9a8936e0a3c1b5"]}
+{"contestant":"driftbench","id":"1831","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["1fec21ef5761500abc17","9d3aca0c4a2c31f98f72"]}
+{"contestant":"driftbench","id":"1839","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["97eca22d22299768a8cc","c77fd460c2cc506a6a1a"]}
+{"contestant":"driftbench","id":"1868","group":"reasoning","language":"zh","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["23891ad8725d21dea46e","b53cb03e06d6be9a2fea"]}
+{"contestant":"driftbench","id":"194","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["c5351ac17666b48dbf7e","aae00d9b6f984a7a1a1e"]}
+{"contestant":"driftbench","id":"1952","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["e130448b45cc129f6573","ba4565a6140bbbc599f7"]}
+{"contestant":"driftbench","id":"1965","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["0dd54ffa7bb9221823cf","de6345a403f3ab8011d5"]}
+{"contestant":"driftbench","id":"20","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["0cbdcc7b74247c342235","9439e9da787058389234"]}
+{"contestant":"driftbench","id":"2036","group":"language mixing","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["c5784b7cf295934a01cf","e5b599e69eb24824caca"]}
+{"contestant":"driftbench","id":"2121","group":"language mixing","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["2e48a2989268e17d2bad","49361fbf8026ef4208b7"]}
+{"contestant":"driftbench","id":"2155","group":"language mixing","language":"ar","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["3edb54fbfc7e59704238","de37ba09762fbfdcf5c2"]}
+{"contestant":"driftbench","id":"2216","group":"language mixing","language":"ar","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["74699ba5f773dcfb325f","f5e3f3ebdc0348484f8c"]}
+{"contestant":"driftbench","id":"227","group":"reasoning","language":"de","label":"B","complete":true,"games":["B","A"],"score":0.5,"keys":["b4c1489f3710e74002ba","a1ba00ce2ac9d63f984b"]}
+{"contestant":"driftbench","id":"237","group":"reasoning","language":"de","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["04eeeb0bac38dc5ad1c2","1ac59b2e700f8147447b"]}
+{"contestant":"driftbench","id":"238","group":"reasoning","language":"de","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["6dbb449b383dab6f11f4","30057d2019f751e2c762"]}
+{"contestant":"driftbench","id":"2539","group":"language mixing","language":"ca","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["b174d0ff4f26a0ccdae9","88336e21c710ea3b8e5f"]}
+{"contestant":"driftbench","id":"2817","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["4db7fdc8fbb70dd17f32","8d71ead35d92c22e70a4"]}
+{"contestant":"driftbench","id":"2895","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["92af57e42a8ea31a2c76","e128505518cb49a123a6"]}
+{"contestant":"driftbench","id":"2901","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["813fcbc2b755d05c7009","622a3177d459bc7c7921"]}
+{"contestant":"driftbench","id":"2902","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["a1baaa7470deaf6837b7","89e8dc690d877c16a8b1"]}
+{"contestant":"driftbench","id":"2903","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["b974fd45266b801a23cd","1bb690f654bdb1b14ac4"]}
+{"contestant":"driftbench","id":"2907","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["1a87e1e7084d0bd72e94","947f32b2985e951a3bba"]}
+{"contestant":"driftbench","id":"2917","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","tie"],"score":0.75,"keys":["9290e9bead08d9fc2d88","d721ad1b0310c07a0aaa"]}
+{"contestant":"driftbench","id":"2922","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["034957a632af6339f39f","a5f5c2678122baccbeba"]}
+{"contestant":"driftbench","id":"2923","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["07696ecaa21169ca10f9","119e81470614cfca0522"]}
+{"contestant":"driftbench","id":"2937","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["b37ed4f71b109671686a","c2f6e7860d2e9742a544"]}
+{"contestant":"driftbench","id":"2941","group":"language mixing","language":"eu","label":"A","complete":true,"games":["tie","tie"],"score":0.5,"keys":["3ea9c93f62c2a66d59f8","33cf05f1cf17be227bbd"]}
+{"contestant":"driftbench","id":"2944","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","tie"],"score":0.75,"keys":["9d213b79d0e950ce3f3d","53ab9446519c194622cb"]}
+{"contestant":"driftbench","id":"2956","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","tie"],"score":0.75,"keys":["b3ef46691f1ea9465056","5307cf5d8aa7a3a0f5d7"]}
+{"contestant":"driftbench","id":"300","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["8fb5d8cb6122f805fa58","e273a946070a9ff0c495"]}
+{"contestant":"driftbench","id":"3198","group":"chat","language":"ca","label":"B","complete":true,"games":["tie","B"],"score":0.75,"keys":["fed96e486ed7f974b9e7","f86e3ee1502dc499e097"]}
+{"contestant":"driftbench","id":"32","group":"reasoning","language":"bn","label":"A","complete":true,"games":["B","B"],"score":0,"keys":["7b4d7be29bcb50cf1597","5a557034195dbe02a134"]}
+{"contestant":"driftbench","id":"323","group":"reasoning","language":"de","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["bae06c5a726a36476094","50c3a8c7b03246f5902a"]}
+{"contestant":"driftbench","id":"3352","group":"chat","language":"en","label":"A","complete":true,"games":["A","B"],"score":0.5,"keys":["8a9f52ef0c743ee24be2","deb6c6bddf427af65ddf"]}
+{"contestant":"driftbench","id":"336","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["91251bf24d35765b1a1c","76ab9b9e363a5295e886"]}
+{"contestant":"driftbench","id":"340","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["f6a4572d84ca2fdace2f","cbde3b2894605b46325d"]}
+{"contestant":"driftbench","id":"346","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["bdc83ad0db6ec24287c3","cd486cb6071dddf70fc8"]}
+{"contestant":"driftbench","id":"3496","group":"chat","language":"fr","label":"B","complete":true,"games":["A","A"],"score":0,"keys":["29dbd89a06121979a766","678a523beb6570a95d51"]}
+{"contestant":"driftbench","id":"3540","group":"chat","language":"ru","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["8a3f6e644f7ab7c19588","58fc93673aa2d15521da"]}
+{"contestant":"driftbench","id":"3549","group":"chat","language":"ru","label":"A","complete":true,"games":["B","A"],"score":0.5,"keys":["1788c55b0f01a47f65b2","b912376681d289c503a5"]}
+{"contestant":"driftbench","id":"430","group":"reasoning","language":"en","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["0f7d3e2b2dd1fe1c64d9","3d68a7502c67f3e1cb17"]}
+{"contestant":"driftbench","id":"44","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["34210a8922118dbc09e1","0af1fea0ec3092cd0832"]}
+{"contestant":"driftbench","id":"46","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["9b6b67a2905f26a21839","15d753d8a160be45a5f5"]}
+{"contestant":"driftbench","id":"474","group":"reasoning","language":"en","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["999127b74576e83fb605","20cd6b53be307daeda8b"]}
+{"contestant":"driftbench","id":"49","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["4f8a555deb49f39deb31","cccb9c4d6448f1b2bb8e"]}
+{"contestant":"driftbench","id":"503","group":"reasoning","language":"en","label":"A","complete":true,"games":["A","B"],"score":0.5,"keys":["862ff313daac2ec25726","07f0e4c913d4da7121b4"]}
+{"contestant":"driftbench","id":"516","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["cab7c9dec745d4bd1c3d","135212c3ebccf9d147b8"]}
+{"contestant":"driftbench","id":"524","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["87f5bb94063cf653c1bc","9fefd3bc510685006250"]}
+{"contestant":"driftbench","id":"534","group":"reasoning","language":"es","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["5102c6dbcc212bc0f9db","fb472194896e0bd8b178"]}
+{"contestant":"driftbench","id":"56","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["5e2aae65828515609d66","03bca60528d75f16ef4f"]}
+{"contestant":"driftbench","id":"616","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["a27a1cdcc5a4ac02bd58","39bdff33828e1a699e19"]}
+{"contestant":"driftbench","id":"642","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["98ca7666008005ae6855","beaf243c18287f709f7c"]}
+{"contestant":"driftbench","id":"677","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["91705e967b165b2f1992","7a32609a6ced3bd381fd"]}
+{"contestant":"driftbench","id":"68","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["ef5a1b53c8f4f1fa5bca","f41800347ce59a6d2691"]}
+{"contestant":"driftbench","id":"699","group":"reasoning","language":"fr","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["ecaa815a093ba7be9612","e0befa560d95f6a86eae"]}
+{"contestant":"driftbench","id":"711","group":"reasoning","language":"fr","label":"B","complete":true,"games":["A","B"],"score":0.5,"keys":["691b984943dcf7e9b919","4af96a068dc3b0b78ae8"]}
+{"contestant":"driftbench","id":"729","group":"reasoning","language":"fr","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["c473c3a5cc2d38266b43","a8900415cfd7b73380eb"]}
+{"contestant":"driftbench","id":"74","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["d972743e5c88b33c7a3c","6a536e89a9c0f1430e48"]}
+{"contestant":"driftbench","id":"758","group":"reasoning","language":"fr","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["c5598ad4c6a6129bad6e","0aeb4d8f20ffd209be7d"]}
+{"contestant":"driftbench","id":"761","group":"reasoning","language":"fr","label":"A","complete":true,"games":["tie","A"],"score":0.75,"keys":["01c65db16a1543befe99","8a38b8875dbb2847e2f5"]}
+{"contestant":"driftbench","id":"786","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["1cc11805cadc26c63e25","bbbbc3a8464d53e38fd3"]}
+{"contestant":"driftbench","id":"806","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["8a4317bdbcc99db5b2cc","14d6ad6a09b91a2a46bc"]}
+{"contestant":"driftbench","id":"836","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["5df52c9702bf0f04265b","eed14c5033d928d48736"]}
+{"contestant":"driftbench","id":"838","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["1488f634be613bbc39f9","f52a0ad67099b9c8b317"]}
+{"contestant":"driftbench","id":"849","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["5c46968318a4fe605d24","53f8e6ce815da1ef9069"]}
+{"contestant":"driftbench","id":"88","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["e118bd9a21e51bb157bc","45ed73841ad6602c9e07"]}
+{"contestant":"driftbench","id":"881","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["a76aa1b17f1a17817449","c261bf13b1dd53826175"]}
+{"contestant":"driftbench","id":"888","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","B"],"score":0.5,"keys":["11a29f9781d18cd24cf2","43e6b21abe0e3f8c6c1c"]}
+{"contestant":"driftbench","id":"897","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["688b732c0d1fea98d1b7","d75e121aab2a07f42bca"]}
+{"contestant":"driftbench","id":"904","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["d041724d873d434a870a","50758d8ac0a55e9f6332"]}
+{"contestant":"driftbench","id":"922","group":"reasoning","language":"ja","label":"B","complete":true,"games":["A","A"],"score":0,"keys":["0095ef5c58fcf6d3eb6f","ea02333ea9c4a76ae2dd"]}
+{"contestant":"driftbench","id":"927","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["52c5bc8925581b7b1246","c506f34342a648feb181"]}
+{"contestant":"driftbench","id":"929","group":"reasoning","language":"ja","label":"B","complete":true,"games":["A","B"],"score":0.5,"keys":["00d22e58ddd19155e3d7","db0acfc34b52a587e2cd"]}
+{"contestant":"driftbench","id":"947","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["02f542313148f7a2f757","3a09cb2f472ba155f06a"]}
+{"contestant":"driftbench","id":"95","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["bb114a2c6cb5d6573707","a230d51f8a3c9a4750e0"]}
+{"contestant":"driftbench","id":"96","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["ff92b7e3e5908a728868","0d5c6aa7abd9dd98b9c3"]}
+{"contestant":"driftbench","id":"974","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["ba9d654b1c1150de3177","a2cbba673df47bb3d061"]}
+{"contestant":"driftbench","id":"987","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["54b0d16124008054d1d1","c45822fca87bac3f2689"]}
+{"contestant":"deepeval","id":"1000","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["93979119388b5d692b74","72e27af59649c0b5e36c"]}
+{"contestant":"deepeval","id":"104","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["9a61594bcd1157b2442e","8643a0ab9b91310fca9a"]}
+{"contestant":"deepeval","id":"1082","group":"reasoning","language":"ru","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["d3c9ed6cd1f0034edd40","853717a9a96326d8cf56"]}
+{"contestant":"deepeval","id":"1215","group":"reasoning","language":"sw","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["cfdec20eff9c2551c762","53d67886c82323afdd2a"]}
+{"contestant":"deepeval","id":"1217","group":"reasoning","language":"sw","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["caf5d1186fbcfdfb5618","9cce07838e0ac8b9afa7"]}
+{"contestant":"deepeval","id":"124","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["d396bfbc100c465ef0fe","aa57cbe15f0983bae817"]}
+{"contestant":"deepeval","id":"1386","group":"reasoning","language":"sw","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["33f40fcf5e21ced8bf9f","755f5fdb5727ae6e4b41"]}
+{"contestant":"deepeval","id":"1465","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["e53b0dcafd5a798eb44f","a2af8b5ee74248938862"]}
+{"contestant":"deepeval","id":"1515","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["1899c23cc6da08674e34","e7f6ebbeaa128888788d"]}
+{"contestant":"deepeval","id":"1547","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["d118bb49da10f8390125","a11ec9b157247e4301a2"]}
+{"contestant":"deepeval","id":"1552","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["d8e6eb9f921c3e0a396a","d46ec8ff8fba30d2ff08"]}
+{"contestant":"deepeval","id":"1585","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["0609157f837cdb4a99e8","6d0ba485571c810b2ec3"]}
+{"contestant":"deepeval","id":"1831","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["534d4ee347e680e8ad39","475aa707f92679cd64a4"]}
+{"contestant":"deepeval","id":"1839","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["891a2458207417d1eae6","8cfeb398285a04234af6"]}
+{"contestant":"deepeval","id":"1868","group":"reasoning","language":"zh","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["e362d61d0c7c0fbe1730","62527b1ceda130855c2a"]}
+{"contestant":"deepeval","id":"194","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["48414e8b52ed195074c9","73932a336c145a25a658"]}
+{"contestant":"deepeval","id":"1952","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["fb903067110cd2f4d2a0","858c4325dfd84adb9949"]}
+{"contestant":"deepeval","id":"1965","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["b1c7f75f37a67e39457a","4d2969b82ef61f9c3ec2"]}
+{"contestant":"deepeval","id":"20","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["417e8d92765c2018a50c","4978b720bdf003c99309"]}
+{"contestant":"deepeval","id":"2036","group":"language mixing","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["ae6644799b1c22bd3a11","c1650ed2735838ea91ab"]}
+{"contestant":"deepeval","id":"2121","group":"language mixing","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["0903861f04aee0d170d7","067a895980f902cbc525"]}
+{"contestant":"deepeval","id":"2155","group":"language mixing","language":"ar","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["b1800f464fb104fcec35","2cb4954c1c566cbe36ae"]}
+{"contestant":"deepeval","id":"2216","group":"language mixing","language":"ar","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["9e8474c1fe42e569f30e","c901e80a93bc6e5a3963"]}
+{"contestant":"deepeval","id":"227","group":"reasoning","language":"de","label":"B","complete":true,"games":["A","A"],"score":0,"keys":["f9117301246b8f364c04","226f8f9aea6a5770353e"]}
+{"contestant":"deepeval","id":"237","group":"reasoning","language":"de","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["e82da57096b4aece8256","bc04554c75106a96c9dd"]}
+{"contestant":"deepeval","id":"238","group":"reasoning","language":"de","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["a3b5969017812baaa3fd","1219e5d60dd88e2e0fd0"]}
+{"contestant":"deepeval","id":"2539","group":"language mixing","language":"ca","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["c82295c8a997bd933f17","d1667fbbd5dccf448210"]}
+{"contestant":"deepeval","id":"2817","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["877e365868c2fbc2fa83","889961e826505dd925d6"]}
+{"contestant":"deepeval","id":"2895","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["8e7bcbece1dd20bfb17a","1781abb2664f7affca03"]}
+{"contestant":"deepeval","id":"2901","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["1d648e1855a09886ddc8","f0e90d3011c726e29273"]}
+{"contestant":"deepeval","id":"2902","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["d9f4ea8d39a6855a07f5","2ab6dbc9c00c3bc20548"]}
+{"contestant":"deepeval","id":"2903","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["cffb6f1d124cb43c25d2","ca62fabefd125c9b7b15"]}
+{"contestant":"deepeval","id":"2907","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["28d80e0a1ea81c79f27a","2859dc64194301d473cf"]}
+{"contestant":"deepeval","id":"2917","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["4b911276bb7de9e99ce5","dfaf0c3ed086551bfe15"]}
+{"contestant":"deepeval","id":"2922","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["e9ef7889d5c14b62b88b","d8455717d8e7a7de0ed1"]}
+{"contestant":"deepeval","id":"2923","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["5a190913ce3cd8123260","bb195a482317bb272ccc"]}
+{"contestant":"deepeval","id":"2937","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["f1db0f021828ebb45915","2edaacdf5f960114fe08"]}
+{"contestant":"deepeval","id":"2941","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["ab3dc84d1be1737d69ae","d03154457fc14a6df701"]}
+{"contestant":"deepeval","id":"2944","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["b843c77ca3db36b66d17","2314b04b3b246a4c881a"]}
+{"contestant":"deepeval","id":"2956","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["7045eb390bc56aa91fd0","5d961641de8f2f527ff3"]}
+{"contestant":"deepeval","id":"300","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["79003f13f551b01d3a0f","99513fffbb3592f09334"]}
+{"contestant":"deepeval","id":"3198","group":"chat","language":"ca","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["752bbde1b423e06fb3e4","6f16bd581cb2594ff717"]}
+{"contestant":"deepeval","id":"32","group":"reasoning","language":"bn","label":"A","complete":true,"games":["B","A"],"score":0.5,"keys":["0ec8ea99f5afcb40030a","930cacfafd86a6540d76"]}
+{"contestant":"deepeval","id":"323","group":"reasoning","language":"de","label":"B","complete":true,"games":["A","B"],"score":0.5,"keys":["ccb529b64022edf59990","15ed91f37274412c291c"]}
+{"contestant":"deepeval","id":"3352","group":"chat","language":"en","label":"A","complete":true,"games":["B","B"],"score":0,"keys":["5a7cf68bfcd43a01b65f","97c9ceafe2cc241f01da"]}
+{"contestant":"deepeval","id":"336","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["1d6588f987f1e3866d97","3587fc99d40e5fca47f2"]}
+{"contestant":"deepeval","id":"340","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["a73c57307a1a075961be","b6ef83610ee7160ca0f4"]}
+{"contestant":"deepeval","id":"346","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["9d944ada92cb4840ea92","741bd00749637efcd23b"]}
+{"contestant":"deepeval","id":"3496","group":"chat","language":"fr","label":"B","complete":true,"games":["A","B"],"score":0.5,"keys":["0b7113c462d17610b636","1c83c9f0fa5c85a6e4b6"]}
+{"contestant":"deepeval","id":"3540","group":"chat","language":"ru","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["45bbffc72b8161761319","df142531c4d110a8532c"]}
+{"contestant":"deepeval","id":"3549","group":"chat","language":"ru","label":"A","complete":true,"games":["B","A"],"score":0.5,"keys":["0fd52818b8f9e8abccea","abb3361e008e0acf12b8"]}
+{"contestant":"deepeval","id":"430","group":"reasoning","language":"en","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["bdd2e2fd83411be46091","11509f108b9ba65ba08b"]}
+{"contestant":"deepeval","id":"44","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["a9cce0897394f0f914b5","0f12b51059e43228e07f"]}
+{"contestant":"deepeval","id":"46","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["bc10ddb6c26ece4cfc7d","91470e110dcebb13eff4"]}
+{"contestant":"deepeval","id":"474","group":"reasoning","language":"en","label":"A","complete":true,"games":["B","A"],"score":0.5,"keys":["0aabab15bf97b96ae2f7","599abf55af815ef9152e"]}
+{"contestant":"deepeval","id":"49","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["7fe8a5f027fe845f3133","b6c5937e7921bab13da2"]}
+{"contestant":"deepeval","id":"503","group":"reasoning","language":"en","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["ceb1b3eb998b46bb3bff","9f487d16978833daeb39"]}
+{"contestant":"deepeval","id":"516","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["a6e0f4b0646261dd89cc","98b8d153fcf4563fcdc8"]}
+{"contestant":"deepeval","id":"524","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["7d8bdfa8b784e20da47f","522abcc80eec5f31fbea"]}
+{"contestant":"deepeval","id":"534","group":"reasoning","language":"es","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["ecb4fd4bb31b3b513a33","f1d0742e426dea671991"]}
+{"contestant":"deepeval","id":"56","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["d5c5244dcae8573c4242","24c7b963e25965be3e56"]}
+{"contestant":"deepeval","id":"616","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["cc1239fb6c08174651c1","35517379b5a704d044c9"]}
+{"contestant":"deepeval","id":"642","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["c89e3178d4bd9554dd2a","34c6f73f9fad9f7d5a8a"]}
+{"contestant":"deepeval","id":"677","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["98dcccb5888f027f6a32","71853a86da6c611a42be"]}
+{"contestant":"deepeval","id":"68","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["0b1a3b15d5b92cc63a89","05029b1fefda1eef2a69"]}
+{"contestant":"deepeval","id":"699","group":"reasoning","language":"fr","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["211634aa12cebc46d09b","bae6bfce589089af1ee4"]}
+{"contestant":"deepeval","id":"711","group":"reasoning","language":"fr","label":"B","complete":true,"games":["B","A"],"score":0.5,"keys":["a82cf48f83cbc1859221","13c81164e99702474eda"]}
+{"contestant":"deepeval","id":"729","group":"reasoning","language":"fr","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["5bc5b93c1bcecabfd217","60c45caf79ca4f5985e0"]}
+{"contestant":"deepeval","id":"74","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["339ae6668c2de832b98c","4367b8945f28cc6ecd95"]}
+{"contestant":"deepeval","id":"758","group":"reasoning","language":"fr","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["f4a4a8c7e97b3ee8f89c","55818316529524cdd1f5"]}
+{"contestant":"deepeval","id":"761","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["86362707448e28a70ccd","1e21a9318ff0e4d53bac"]}
+{"contestant":"deepeval","id":"786","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["9dbb9ed4e1b6d51469de","ec6b609fed66a899254c"]}
+{"contestant":"deepeval","id":"806","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["66613cf69e1160749a13","63b941bd0ed27451337f"]}
+{"contestant":"deepeval","id":"836","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["e95c4942869ce49014e6","7abb470c3824c1521ffe"]}
+{"contestant":"deepeval","id":"838","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["62087d697dabbba67456","96d369cd4be6697602d1"]}
+{"contestant":"deepeval","id":"849","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["b45547258ce8323922c0","0040d6dfed46abd067bc"]}
+{"contestant":"deepeval","id":"88","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["e77a165b3c6def5cec9f","3c1d1c8fa747780fa49e"]}
+{"contestant":"deepeval","id":"881","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["aeff01b7a87f13cacb12","c8af83ba75038bf265cd"]}
+{"contestant":"deepeval","id":"888","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["778e57b6e95e40f8de80","3a4ef2872e59d7ee792a"]}
+{"contestant":"deepeval","id":"897","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["258cffd7a719ee34ae61","95e9064232fdbd404bcb"]}
+{"contestant":"deepeval","id":"904","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["c8e27c94488231fc825c","3d4dce177676e102a4f9"]}
+{"contestant":"deepeval","id":"922","group":"reasoning","language":"ja","label":"B","complete":true,"games":["A","A"],"score":0,"keys":["a7956ecced201fff14c6","4ec02fe63372071438cf"]}
+{"contestant":"deepeval","id":"927","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["761859c8c4d0bc8468ec","7c4061b5da204ac8f411"]}
+{"contestant":"deepeval","id":"929","group":"reasoning","language":"ja","label":"B","complete":true,"games":["A","A"],"score":0,"keys":["bd27724dd6ec0dc5f694","f1c67942120fcad0e265"]}
+{"contestant":"deepeval","id":"947","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["f95be7ae82a4094b1e09","84012b6e2bdfa3ec89db"]}
+{"contestant":"deepeval","id":"95","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["9921953eec53952d6203","fb9f3a21b7103f010943"]}
+{"contestant":"deepeval","id":"96","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["e0cc6cfd449fd1e93a67","5b76ceeaa3b943076350"]}
+{"contestant":"deepeval","id":"974","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["47249741d792a0dfc134","933d30444aaeccfeb69f"]}
+{"contestant":"deepeval","id":"987","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["1b492b6d208a03841362","3e58baa6fed9fcc84f94"]}
+{"contestant":"promptfoo","id":"1000","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["d874e92259e0040e7eb1","094f6b6e8a887c5cc9c0"]}
+{"contestant":"promptfoo","id":"104","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["fd366b6f51b682f0d145","0f9d6ac949f3f7fc9e9a"]}
+{"contestant":"promptfoo","id":"1082","group":"reasoning","language":"ru","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["75efc6b7c6ba34e0c593","0826cdf4a36ac06e5003"]}
+{"contestant":"promptfoo","id":"1215","group":"reasoning","language":"sw","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["ec2b6a5b81cfb509e17c","6c891c62a369df666f12"]}
+{"contestant":"promptfoo","id":"1217","group":"reasoning","language":"sw","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["cc3a7b7265f4d0ec9645","2d4c14a2e4fef5f13548"]}
+{"contestant":"promptfoo","id":"124","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["5a7c44a1cab2f17bd93b","476dbd0cc2738a630a8b"]}
+{"contestant":"promptfoo","id":"1386","group":"reasoning","language":"sw","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["56e396b2f28e43e46765","63fca15349df833a4bf4"]}
+{"contestant":"promptfoo","id":"1465","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["de6b76ec9a8d1881960e","12bff4e4471be37e71ed"]}
+{"contestant":"promptfoo","id":"1515","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["02d2df222454b56ca54d","480cc090e863fdef0514"]}
+{"contestant":"promptfoo","id":"1547","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["3469bcbdc3ddb4b1b080","77385a8b0b51b9c4a0a8"]}
+{"contestant":"promptfoo","id":"1552","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["4a4ffef720fe15e1b2de","ce97242ebf1629c808fd"]}
+{"contestant":"promptfoo","id":"1585","group":"reasoning","language":"te","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["36995d2b527b72b530ba","178e6544823c7b615184"]}
+{"contestant":"promptfoo","id":"1831","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["2a9fe9b1c865cbfb399a","20c44efc04119e6a863f"]}
+{"contestant":"promptfoo","id":"1839","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["05e0b18806d436d34b31","16d28ef17bdb83676caa"]}
+{"contestant":"promptfoo","id":"1868","group":"reasoning","language":"zh","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["35e0bc18fb1b5455636d","74e35dc611ae2e3e310e"]}
+{"contestant":"promptfoo","id":"194","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["11e7a1066667ea731595","732c3b101f8cbf69c326"]}
+{"contestant":"promptfoo","id":"1952","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["0ea4ec8537ca7d57a271","e0cd87544455153e0693"]}
+{"contestant":"promptfoo","id":"1965","group":"reasoning","language":"zh","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["067010fc4a7240b171f8","0d2dd44cf61d7ba2d14b"]}
+{"contestant":"promptfoo","id":"20","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["ab02ac959ea7556950de","7de9f29bc0c898314304"]}
+{"contestant":"promptfoo","id":"2036","group":"language mixing","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["7d8402d2806a52aad1f7","ccdbb40a747265b98e2b"]}
+{"contestant":"promptfoo","id":"2121","group":"language mixing","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["8fc2f38efc56c6f9edc0","ca5ab30e7442c1125250"]}
+{"contestant":"promptfoo","id":"2155","group":"language mixing","language":"ar","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["7e1d5a8159207cec5b7b","2bdd283b2a612f9cf964"]}
+{"contestant":"promptfoo","id":"2216","group":"language mixing","language":"ar","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["83ef653d3f2b322562e4","54be6e6b6cb918aced0d"]}
+{"contestant":"promptfoo","id":"227","group":"reasoning","language":"de","label":"B","complete":true,"games":["A","A"],"score":0,"keys":["699907543060b691c078","2fcf31e7b627d1ee4078"]}
+{"contestant":"promptfoo","id":"237","group":"reasoning","language":"de","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["501cabfafccd4ce513ad","a38b8f8e5ed4188f7c29"]}
+{"contestant":"promptfoo","id":"238","group":"reasoning","language":"de","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["89e9be4b20339ad55ba7","d30b026e0e6fa1dc0138"]}
+{"contestant":"promptfoo","id":"2539","group":"language mixing","language":"ca","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["92e6f2293ff6b62262e1","af24e5a0af75c22ba3db"]}
+{"contestant":"promptfoo","id":"2817","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["b0cf3b0a9635b7cbf4d4","4eefc6798451bf52e7b4"]}
+{"contestant":"promptfoo","id":"2895","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","A"],"score":0.5,"keys":["bd06b69075ccade57973","6caf23efa8a021b314b3"]}
+{"contestant":"promptfoo","id":"2901","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["1d5fdde5cb33c0774d58","193578f2c83ef4f66b77"]}
+{"contestant":"promptfoo","id":"2902","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","A"],"score":0.5,"keys":["58f53aa8b2af9e5debbc","eeb1525181e5324d7b70"]}
+{"contestant":"promptfoo","id":"2903","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["12ca98fe11a2f16e28b8","a1d2142103c8278e03d9"]}
+{"contestant":"promptfoo","id":"2907","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["7376b52e90b996c36747","df5f31cbafe018089f2a"]}
+{"contestant":"promptfoo","id":"2917","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","B"],"score":0.5,"keys":["692c20ec88fb072a727d","26c38c56528e9ad47284"]}
+{"contestant":"promptfoo","id":"2922","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["d2579349e1545b268947","1c936bb7752634e1f172"]}
+{"contestant":"promptfoo","id":"2923","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","A"],"score":0.5,"keys":["353193696e9d89d9bdd0","4fd68ebf8205197daad6"]}
+{"contestant":"promptfoo","id":"2937","group":"language mixing","language":"eu","label":"A","complete":true,"games":["B","A"],"score":0.5,"keys":["25013402010d9f862ee1","deee50e516f4cfbb9ff2"]}
+{"contestant":"promptfoo","id":"2941","group":"language mixing","language":"eu","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["f210ed8d902330023fd0","72c605f403326226f9ae"]}
+{"contestant":"promptfoo","id":"2944","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["391656509ea7f7e04e26","da1aa343cb1e4856d22b"]}
+{"contestant":"promptfoo","id":"2956","group":"language mixing","language":"eu","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["a017c974e33282d584aa","ef1fc5458fd55675e6ca"]}
+{"contestant":"promptfoo","id":"300","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["c2d55c31f93879c1401c","540f3d8a56473ecbb77f"]}
+{"contestant":"promptfoo","id":"3198","group":"chat","language":"ca","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["40eed94aa1ff2272276c","ad343fdc72e06812d4b1"]}
+{"contestant":"promptfoo","id":"32","group":"reasoning","language":"bn","label":"A","complete":true,"games":["B","B"],"score":0,"keys":["97bb588370efa1487221","fe175f462365f364403c"]}
+{"contestant":"promptfoo","id":"323","group":"reasoning","language":"de","label":"B","complete":true,"games":["B","A"],"score":0.5,"keys":["4e794cf60eb7f48d2c7a","c6debb1464d4827ffd65"]}
+{"contestant":"promptfoo","id":"3352","group":"chat","language":"en","label":"A","complete":true,"games":["B","B"],"score":0,"keys":["9789310462f6cddceac0","05fe451de0d566bfd84d"]}
+{"contestant":"promptfoo","id":"336","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["18266f6529af6d8304c8","ae1547fc7e56bd08c122"]}
+{"contestant":"promptfoo","id":"340","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["9f5296454cd3ecff5d0d","21a3d5fc92103aa61c46"]}
+{"contestant":"promptfoo","id":"346","group":"reasoning","language":"de","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["f5e74342ece6dcfc539b","98f80ee39368378fbe1b"]}
+{"contestant":"promptfoo","id":"3496","group":"chat","language":"fr","label":"B","complete":true,"games":["B","A"],"score":0.5,"keys":["d156a102fd0b9e6ebe57","0f32f843d73d06114521"]}
+{"contestant":"promptfoo","id":"3540","group":"chat","language":"ru","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["66e6713caf826ef72eeb","58cae320394427ef13ad"]}
+{"contestant":"promptfoo","id":"3549","group":"chat","language":"ru","label":"A","complete":true,"games":["B","A"],"score":0.5,"keys":["3bede99ada73d50081a1","0d22dfe4e603939eed43"]}
+{"contestant":"promptfoo","id":"430","group":"reasoning","language":"en","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["10d478d584d09893de04","378af9f76ed9dc0ed584"]}
+{"contestant":"promptfoo","id":"44","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["bebe68ed00a3e146384b","fc88fec4e5ad2a1ad927"]}
+{"contestant":"promptfoo","id":"46","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["8f937605a07999594d8a","099efabfe423dde85232"]}
+{"contestant":"promptfoo","id":"474","group":"reasoning","language":"en","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["fe5b03ad14c7dc918b2e","adcc94793839db6284a6"]}
+{"contestant":"promptfoo","id":"49","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","A"],"score":0.5,"keys":["d2013609488d472cb8c7","b499cfb849f954e360f7"]}
+{"contestant":"promptfoo","id":"503","group":"reasoning","language":"en","label":"A","complete":true,"games":["A","B"],"score":0.5,"keys":["a3c6b52f629f73aa4247","b1df969ad72fa8b2bc65"]}
+{"contestant":"promptfoo","id":"516","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["301f8ac591ee43613c99","5ef2cbc574c472c647ee"]}
+{"contestant":"promptfoo","id":"524","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["0a4bfee7ec0b1c0e97ec","ac000710ef3fea06d9ab"]}
+{"contestant":"promptfoo","id":"534","group":"reasoning","language":"es","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["912dd82765ca14ca24d2","62ba78ca83be048fccf8"]}
+{"contestant":"promptfoo","id":"56","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["085d0dd8565c4f95d846","355d8763acf7b47ba4e5"]}
+{"contestant":"promptfoo","id":"616","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["0fbb1a5154780710dff3","87801fbda7b8bc4f81aa"]}
+{"contestant":"promptfoo","id":"642","group":"reasoning","language":"es","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["c314c6642b7402c4d6b8","bb7960ffa7eccedbf25f"]}
+{"contestant":"promptfoo","id":"677","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["e411938c73199d185042","de6f96ca996f1097d02f"]}
+{"contestant":"promptfoo","id":"68","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["aa484607dc9210ce8fa6","4bf5e6a03a7443d0b634"]}
+{"contestant":"promptfoo","id":"699","group":"reasoning","language":"fr","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["b8fd31e27144b27e41e1","24e522a14eadec20223e"]}
+{"contestant":"promptfoo","id":"711","group":"reasoning","language":"fr","label":"B","complete":true,"games":["A","A"],"score":0,"keys":["7a0d22d22b1406b11b4b","da5fd2d589b85c26368d"]}
+{"contestant":"promptfoo","id":"729","group":"reasoning","language":"fr","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["04e748eebf6e85b64a20","7d7229783fe3473527f9"]}
+{"contestant":"promptfoo","id":"74","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["9c352df97fb3f34197e7","9af11094a6d0bc81ba50"]}
+{"contestant":"promptfoo","id":"758","group":"reasoning","language":"fr","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["dc68c9cf0ae252a71d04","ef036b9cf4ca97ebabf7"]}
+{"contestant":"promptfoo","id":"761","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["a65437b86e11fd651577","df35f57a7882493d97b4"]}
+{"contestant":"promptfoo","id":"786","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["7b191e1d07af229fef70","bd060d03b7afa4025188"]}
+{"contestant":"promptfoo","id":"806","group":"reasoning","language":"fr","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["81b4d00601116bb3a4c7","2d0de265b8b547065de9"]}
+{"contestant":"promptfoo","id":"836","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["0aeae22370720463159c","12a0d40f3e9a6ab0dd8b"]}
+{"contestant":"promptfoo","id":"838","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["a6996c1e4f48ad8c5f6a","bd829f5e01c3a10730c7"]}
+{"contestant":"promptfoo","id":"849","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["fce396a820dad1c7875f","0662d59acf952a7e2581"]}
+{"contestant":"promptfoo","id":"88","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["ae2afe89cdaeb85327c3","d85e246b10c2bfa010ad"]}
+{"contestant":"promptfoo","id":"881","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["1808ca05645a6e90892c","dee1d13044869dd46d77"]}
+{"contestant":"promptfoo","id":"888","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","B"],"score":0.5,"keys":["49ee116bfd4e53636daf","c993694ab7303f386358"]}
+{"contestant":"promptfoo","id":"897","group":"reasoning","language":"ja","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["f7e069b1a0864082097a","a31ab52723b4b64f4521"]}
+{"contestant":"promptfoo","id":"904","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["0f2bcc23651a6d31e1b9","d31c0fcf93b13ad398c4"]}
+{"contestant":"promptfoo","id":"922","group":"reasoning","language":"ja","label":"B","complete":true,"games":["A","A"],"score":0,"keys":["342c0372ff8513196d7e","24c224ca7de9dddf38f6"]}
+{"contestant":"promptfoo","id":"927","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["63aac6aed5cec1c52ee5","29cf7133a6562593c7df"]}
+{"contestant":"promptfoo","id":"929","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["9036c9ec36525c5f7490","d6679211e0dcef59fe45"]}
+{"contestant":"promptfoo","id":"947","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["9b374c7dc22a8feaedf2","6816ac988b4e3e42ec74"]}
+{"contestant":"promptfoo","id":"95","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["57d4421409a84574bf1b","783553df2c874264c181"]}
+{"contestant":"promptfoo","id":"96","group":"reasoning","language":"bn","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["f00c38ba80d7eb1c32d9","4fc5212e744e8a7025ea"]}
+{"contestant":"promptfoo","id":"974","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["264f778f7791948504a1","b5421861409e68838355"]}
+{"contestant":"promptfoo","id":"987","group":"reasoning","language":"ja","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["8fb414f5ce09f603fcdd","1b4d8e021f2a991feb87"]}

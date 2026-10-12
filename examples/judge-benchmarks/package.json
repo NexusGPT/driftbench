@@ -1,0 +1,8 @@
+{
+  "name": "@driftbench/judge-benchmarks",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "franc-all": "7.2.0"
+  }
+}

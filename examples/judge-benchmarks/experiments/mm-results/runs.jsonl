@@ -1,0 +1,13 @@
+{"time":"2026-10-12T20:01:29.326Z","tag":"pilot-baselines","phase":"pilot","contestants":["driftbench","deepeval","promptfoo"],"capUsd":0,"newSpendUsd":0,"newCalls":0}
+{"time": "2026-10-12T20:09:34.837395+00:00", "tag": "prior-interrupted", "phase": "pilot", "contestants": ["driftbench-mm-direct"], "capUsd": 0, "newSpendUsd": 0.0182543, "newCalls": 28}
+{"time":"2026-10-12T20:16:43.552Z","tag":"recovered-before-pilot-candidates","phase":"pilot","contestants":[],"capUsd":0,"newSpendUsd":0.0310225,"newCalls":0}
+{"time":"2026-10-12T20:21:37.375Z","tag":"recovered-before-pilot-candidates","phase":"pilot","contestants":[],"capUsd":0,"newSpendUsd":0.02728329999999999,"newCalls":0}
+{"time":"2026-10-12T20:23:52.937Z","tag":"recovered-before-common-baselines","phase":"common","contestants":[],"capUsd":0,"newSpendUsd":0.01677609000000002,"newCalls":0}
+{"time":"2026-10-12T20:23:55.786Z","tag":"common-baselines","phase":"common","contestants":["driftbench","deepeval","promptfoo"],"capUsd":0,"newSpendUsd":0,"newCalls":0}
+{"time":"2026-10-12T21:06:22.013Z","tag":"pilot-candidates","phase":"pilot","contestants":["driftbench-mm-direct","driftbench-mm-language","driftbench-mm-rubric"],"capUsd":1,"newSpendUsd":0.3558457900000002,"newCalls":485}
+{"time":"2026-10-12T21:06:36.608Z","tag":"pilot-contracts","phase":"pilot","contestants":["driftbench-mm-direct-contract","driftbench-mm-language-contract","driftbench-mm-rubric-contract"],"capUsd":0,"newSpendUsd":0,"newCalls":0}
+{"tag": "reconcile-live-replay-overlap", "newSpendUsd": -0.01677609000000002, "newCalls": 0, "time": "2026-10-12T21:13:23.128127+00:00"}
+{"time":"2026-10-12T21:30:28.252Z","tag":"common-legacy-after-merge","phase":"common","contestants":["driftbench","deepeval","promptfoo"],"capUsd":0,"newSpendUsd":0,"newCalls":0}
+{"time":"2026-10-12T21:33:05.369Z","tag":"common-frozen-payload","phase":"common","contestants":["driftbench","deepeval","promptfoo"],"capUsd":0,"newSpendUsd":0,"newCalls":0}
+{"time": "2026-10-12T21:35:46.360674+00:00", "tag": "interrupted-code-pilot", "newSpendUsd": 0.21071054999999983, "newCalls": 0, "phase": "pilot", "reason": "Stopped obsolete sweep after importing the shared winner contract; successful calls recovered from recordings."}
+{"time":"2026-10-12T21:35:52.493Z","tag":"pilot-code-interrupted","phase":"pilot","contestants":["driftbench-mm-language-code","driftbench-mm-language-safety-code"],"capUsd":0,"newSpendUsd":0,"newCalls":0}
