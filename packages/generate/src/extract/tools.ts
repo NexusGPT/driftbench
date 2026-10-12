@@ -418,16 +418,18 @@ function readTools(node: unknown, path: string): { tools: Tool[] } | { errors: T
   return errors.length > 0 ? { errors } : { tools };
 }
 
-/** Reads past the OpenAI wrapper `{ type: function, function: {...} }`. */
+/** Reads past the OpenAI wrapper `{ type: function, function: {...} }` and the Bedrock wrapper `{ toolSpec: {...} }`. */
 function unwrap(node: unknown): unknown {
   const fn = mapAt(node, 'function');
-  return fn && plain(entry(node, 'type')?.value) === 'function' ? fn : node;
+  if (fn && plain(entry(node, 'type')?.value) === 'function') return fn;
+  return mapAt(node, 'toolSpec') ?? node;
 }
 
 function firstMap(map: unknown, keys: string[]): YAMLMap | undefined {
   for (const key of keys) {
     const found = mapAt(map, key);
-    if (found) return found;
+    // Bedrock holds the schema one step down, as inputSchema.json.
+    if (found) return (!entry(found, 'properties') && mapAt(found, 'json')) || found;
   }
   return undefined;
 }

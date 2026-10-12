@@ -147,3 +147,15 @@ Sources read:
 What others do: The legacy functions list holds declarations with the same name and parameters keys as the tools form, at the root.
 
 What to try, and why: the tool pre-pass reads the legacy OpenAI functions list
+
+## Iteration 13
+
+Question: packages/generate/src/extract/tools.ts: readTools reads a tool's schema at inputSchema and does not unwrap toolSpec, so a Bedrock file { toolSpec: { name, inputSchema: { json } } } gives no tool schema; tool-formats.bedrock proves it.
+
+Sources read:
+* https://docs.aws.amazon.com/bedrock/latest/userguide/tool-use-inference-call.html (toolSpec: name, description, inputSchema with a json key)
+* packages/validators/src/ladders/map/bank/families/formats.ts (bedrock)
+
+What others do: Bedrock Converse wraps each tool in toolSpec and the JSON Schema in inputSchema.json.
+
+What to try, and why: the tool pre-pass reads Bedrock tool specs

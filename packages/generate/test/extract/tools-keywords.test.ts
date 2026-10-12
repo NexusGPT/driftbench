@@ -156,4 +156,24 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     expect(result.tools).toEqual(['findAccount']);
     expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
   });
+
+  it('reads Bedrock tool specs: toolSpec with inputSchema.json', () => {
+    const file = {
+      tools: [
+        {
+          toolSpec: {
+            name: 'findAccount',
+            description: 'x',
+            inputSchema: {
+              json: { type: 'object', required: ['flag'], properties: { flag: { type: 'boolean' } } },
+            },
+          },
+        },
+      ],
+    };
+    const result = toolsPrepass(stringify(file), 'tools.yaml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.tools).toEqual(['findAccount']);
+    expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
+  });
 });
