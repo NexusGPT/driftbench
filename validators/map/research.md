@@ -854,3 +854,15 @@ Sources read:
 What others do: A quote check that is strict about bytes refuses a faithful copy.
 
 What to try, and why: quote folding ignores accent form, invisible characters and markdown escapes
+
+## Iteration 74
+
+Question: packages/generate/src/extract/extract.ts: one request carries the whole prompt, so an answer for a 100k character prompt is cut at the output limit and the section fails; scale.100k.* (28 items) prove it.
+
+Sources read:
+* docs/generating.md section Planned: long prompts
+* packages/validators/src/ladders/map/bank/perfect.ts (output limit 16000 tokens)
+
+What others do: A prompt over 40000 characters is cut in chunks of 12000 at line boundaries; the answers are merged by the draft.
+
+What to try, and why: a long prompt is read in chunks

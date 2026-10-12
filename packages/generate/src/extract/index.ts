@@ -7,6 +7,7 @@ export {
   type PendingEntry,
   pendingEntries,
 } from './approve';
+export { CHUNK_CHARS, CHUNK_THRESHOLD, chunkSources, chunkText } from './chunks';
 export { promptView, rawizeAnswer, rawQuote, viewSources } from './containers';
 export {
   type Answer,

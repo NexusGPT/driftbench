@@ -1,5 +1,6 @@
 import { ModelError, type ModelPort } from '../model/port';
 import { acceptAnswer, type Draft, type Refusal } from './accept';
+import { chunkSources } from './chunks';
 import { rawizeAnswer, viewSources } from './containers';
 import { parseAnswer, retryNote, SECTIONS, type Section, type SourceText, sectionRequest } from './contract';
 import { inventoryPrepass } from './prepass';
@@ -160,6 +161,37 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
 }
 
 async function runSection(
+  section: Section,
+  port: ModelPort,
+  sources: readonly SourceText[],
+  draft: Draft,
+  quotes: QuoteIndex,
+  maxTokens: number | undefined,
+  files: readonly SourceText[],
+): Promise<{ run: SectionRun; refusals: Refusal[]; duplicates: string[] }> {
+  // A long prompt is read in chunks, one request each; the short sources go in every request.
+  const rounds = chunkSources(sources);
+  const total: { run: SectionRun; refusals: Refusal[]; duplicates: string[] } = {
+    run: { section, calls: 0, status: 'done', accepted: 0 },
+    refusals: [],
+    duplicates: [],
+  };
+  for (const chunk of rounds) {
+    const one = await runRequest(section, port, chunk, draft, quotes, maxTokens, files);
+    total.run.calls += one.run.calls;
+    total.run.accepted += one.run.accepted;
+    if (one.run.status === 'failed') {
+      total.run.status = 'failed';
+      total.run.error = one.run.error;
+      if (one.run.excerpt) total.run.excerpt = one.run.excerpt;
+    }
+    total.refusals.push(...one.refusals);
+    total.duplicates.push(...one.duplicates);
+  }
+  return total;
+}
+
+async function runRequest(
   section: Section,
   port: ModelPort,
   sources: readonly SourceText[],
