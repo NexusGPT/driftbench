@@ -35,6 +35,15 @@ import { succession } from './succession';
  */
 export type RunEvent =
   | { type: 'block_start'; index: number; at: string }
+  | {
+      type: 'model_call';
+      index: number;
+      inputTokens?: number;
+      outputTokens?: number;
+      usd?: number;
+      latencyMs?: number;
+      at: string;
+    }
   | { type: 'tool_call'; index: number; label: string; error?: string; at: string }
   | { type: 'retry'; index: number; at: string }
   | { type: 'block_end'; index: number; pass: boolean; at: string }
@@ -310,6 +319,20 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
       const observed = await channel.observe(turn, user, key);
       if (!observed) return undefined;
+      // A model call the adapter reported on a segment: its tokens, cost and latency. The time is when the reply came back;
+      // the call began latencyMs earlier.
+      for (const segment of observed.segments) {
+        if (segment.cost === undefined && segment.latencyMs === undefined) continue;
+        run.onEvent?.({
+          type: 'model_call',
+          index: position,
+          ...(segment.cost?.inputTokens === undefined ? {} : { inputTokens: segment.cost.inputTokens }),
+          ...(segment.cost?.outputTokens === undefined ? {} : { outputTokens: segment.cost.outputTokens }),
+          ...(segment.cost?.usd === undefined ? {} : { usd: segment.cost.usd }),
+          ...(segment.latencyMs === undefined ? {} : { latencyMs: segment.latencyMs }),
+          at: new Date().toISOString(),
+        });
+      }
       for (const call of observed.toolCalls) {
         run.onEvent?.({
           type: 'tool_call',

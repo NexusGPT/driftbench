@@ -30,3 +30,43 @@ describe('runSpec reports its events as they happen', () => {
     expect(firstStart).toBeLessThan(firstEnd);
   });
 });
+
+describe('model calls on the event stream carry their token counts and latency', () => {
+  it('a model call reported on a segment is an event with its tokens, usd and latency, and its own end time', async () => {
+    const events: RunEvent[] = [];
+    const inner = realAcmeAdapter();
+    const adapter = {
+      ...inner,
+      async send(session: never, turn: never) {
+        const observed = await inner.send(session, turn);
+        return {
+          ...observed,
+          segments: observed.segments.map((segment, i) =>
+            i === 0
+              ? { ...segment, cost: { inputTokens: 120, outputTokens: 40, usd: 0.0021 }, latencyMs: 640 }
+              : segment,
+          ),
+        };
+      },
+    } as typeof inner;
+    await runSpec(spec, {
+      adapter,
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      onEvent: (event) => events.push(event),
+    });
+    const calls = events.filter((event) => event.type === 'model_call');
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls[0]).toMatchObject({
+      type: 'model_call',
+      index: 0,
+      inputTokens: 120,
+      outputTokens: 40,
+      usd: 0.0021,
+      latencyMs: 640,
+    });
+    expect(typeof (calls[0] as { at: string }).at).toBe('string');
+  });
+});

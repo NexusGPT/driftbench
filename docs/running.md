@@ -481,7 +481,7 @@ To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.
 
 ## Run events
 
-The runner reports each run as it happens through the `onEvent` option: a block starting, each tool call the adapter recorded, each retry a block took, a block ending with its verdict, and the run ending. `eventLogSink(path)` appends each event to a JSON-lines file synchronously, so a run killed mid-way keeps every event written before the kill; `readEventLog(path)` reads them back and skips a line cut short by the kill.
+The runner reports each run as it happens through the `onEvent` option: a block starting, each model call the adapter reported (its input and output tokens, its cost in USD when the adapter gives one, and its latency; the call began latencyMs before the event), each tool call the adapter recorded, each retry a block took, a block ending with its verdict, and the run ending. `eventLogSink(path)` appends each event to a JSON-lines file synchronously, so a run killed mid-way keeps every event written before the kill; `readEventLog(path)` reads them back and skips a line cut short by the kill.
 
 A run resumes from its first unfinished block. Blocks the cache holds are read back, and the first block it does not hold goes to the adapter, which opens a session from the history so far; no later cached block is read back, because the live session carries the run from there. A run that was killed mid-way and resumed gives the same verdicts as an uninterrupted run when the adapter keeps no state between blocks. For an adapter with state (an agent that stores what it did, such as a record it wrote), the state of the finished blocks is not recreated: the resumed run then reflects the adapter as it is at the resume, not as it was at the kill.
 
