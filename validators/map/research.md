@@ -597,3 +597,14 @@ Sources read:
 What others do: A basic string and a quoted env value use the escapes of JSON strings.
 
 What to try, and why: double-quoted values in TOML and environment files are decoded
+
+## Iteration 51
+
+Question: packages/generate/src/extract/containers.ts: a properties value is sent with its \n escapes and backslash line continuations; prompt-containers.properties proves it.
+
+Sources read:
+* https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html#load-java.io.Reader- (escapes and line continuation)
+
+What others do: A backslash at the end of a line continues the value; the next line's leading white space is dropped.
+
+What to try, and why: Java properties escapes and continuations are decoded

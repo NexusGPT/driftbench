@@ -169,3 +169,15 @@ describe('a prompt in a TOML basic string or an environment file', () => {
     expect(promptView('.env', env)?.text).toContain(rule);
   });
 });
+
+describe('a prompt in a Java properties file', () => {
+  const props = 'prompt=Keep it short.\\n\\\n    Never promise a date.\\n\\\n    Use a C:\\\\ path.\n';
+  it('decodes escapes and joins continued lines', () => {
+    const text = promptView('agent.properties', props)?.text ?? '';
+    expect(text).toContain('Keep it short.\nNever promise a date.\nUse a C:\\ path.');
+  });
+  it('quotes a passage of the file', () => {
+    const sources = [{ kind: 'prompt' as const, path: 'agent.properties', text: props }];
+    expect(props).toContain(rawQuote(sources, 'agent.properties', 'Never promise a date.'));
+  });
+});

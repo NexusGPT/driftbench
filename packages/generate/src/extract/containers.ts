@@ -480,13 +480,54 @@ function markupView(raw: string, html: boolean): View | undefined {
   return tokens.length === 0 ? undefined : inPlace(raw, tokens);
 }
 
+/** A Java properties file: `\n`, `\\` and `\uXXXX` decoded, and a backslash at the end of a line joins the next. */
+function propertiesView(raw: string): View | undefined {
+  const tokens: Token[] = [];
+  const pattern = /^[ \t]*([^#!\s=:][^=:\n]*?)[ \t]*[=:][ \t]*/gm;
+  for (const match of raw.matchAll(pattern)) {
+    const from = (match.index as number) + match[0].length;
+    const chars: Array<[string, number, number]> = [];
+    let i = from;
+    while (i < raw.length) {
+      const c = raw[i] as string;
+      if (c === '\n') break;
+      if (c !== '\\') {
+        chars.push([c, i, i + 1]);
+        i++;
+        continue;
+      }
+      const e = raw[i + 1] ?? '';
+      if (e === '\n') {
+        let j = i + 2;
+        while (raw[j] === ' ' || raw[j] === '\t') j++;
+        i = j;
+      } else if (e === 'u') {
+        const code = Number.parseInt(raw.slice(i + 2, i + 6), 16);
+        if (Number.isNaN(code)) break;
+        chars.push([String.fromCharCode(code), i, i + 6]);
+        i += 6;
+      } else {
+        chars.push([(CODE_ESCAPES[e] ?? e) as string, i, i + 2]);
+        i += 2;
+      }
+    }
+    tokens.push({ start: from, end: i, chars });
+  }
+  const changed = tokens.some((token) => token.chars.length !== token.end - token.start);
+  return changed ? inPlace(raw, tokens) : undefined;
+}
+
 const VIEWS: Array<[RegExp, (raw: string) => View | undefined]> = [
   [/\.jsonl$/i, jsonLinesView],
   [/\.json$/i, jsonView],
   [/\.ya?ml$/i, yamlView],
 ];
 
-VIEWS.push([/\.html?$/i, (raw) => markupView(raw, true)], [/\.(xml|svg)$/i, (raw) => markupView(raw, false)]);
+VIEWS.push(
+  [/\.properties$/i, propertiesView],
+  [/\.html?$/i, (raw) => markupView(raw, true)],
+  [/\.(xml|svg)$/i, (raw) => markupView(raw, false)],
+);
 
 for (const [pattern, language] of LANGUAGES) VIEWS.push([pattern, (raw) => codeView(raw, language)]);
 
