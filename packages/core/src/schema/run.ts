@@ -119,7 +119,10 @@ export type ExecutionRecord = z.infer<typeof ExecutionRecord>;
  * Runtime-specific events (a harness hook, a process step, a board write) are mapped onto these by its adapter.
  */
 export const RuntimeTrace = z.strictObject({
-  skills: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
+  /** Skills loaded in the block. A load that failed is marked failed and is not a use of the skill. */
+  skills: z
+    .array(z.strictObject({ name: z.string(), at: z.string().optional(), failed: z.boolean().optional() }))
+    .optional(),
   guards: z
     .array(
       z.strictObject({

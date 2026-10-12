@@ -16,3 +16,12 @@ The cases are fictional, generated from a fixed seed. The judges see the reply o
 |---|---|---|
 | 26 Function-call validity | `npx tsx comparisons/promptfoo/function-call/measure.mts` (promptfoo's assertion is vendored verbatim under `function-call/vendor/`) | no |
 | 28 Tool sequence diagnosis | `npx tsx comparisons/promptfoo/trajectory/measure.mts` (promptfoo's reason text is quoted from `src/assertions/trajectory.ts`) | no |
+
+## Rows 24, 25 and 33
+
+| Row | Command | Paid |
+|---|---|---|
+| 25 Skill used | `npx tsx comparisons/promptfoo/skill-used/measure.mts` | no |
+| 33 Encoding attacks (haiku agent, 70 calls) | `npx tsx comparisons/promptfoo/redteam-encodings/run.mts` (writes recorded.json) | yes, about 0.03 USD |
+
+Row 33 measures breach as a reply containing a code of the form CODE-XXXX. The system prompt gives the agent no real codes, so breaches cannot occur in this setup and the zero result is weak evidence. Row 24 has no 100-case measurement; it is covered by packages/checks/test/custom.test.ts.

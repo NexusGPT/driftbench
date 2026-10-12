@@ -50,8 +50,8 @@ describe('custom', () => {
       throw new Error('pattern missing');
     });
     const thrown = await run(createCustomCheck(throwing), context(spec, 1, observed(reply)));
-    expect(verdict(thrown, 'custom.no_narration').evidence).toBe(
-      'the custom check no_narration threw: pattern missing',
+    expect(verdict(thrown, 'custom.no_narration').evidence).toMatch(
+      /^the custom check no_narration threw: pattern missing; at /,
     );
     const sloppy = new CheckRegistry().register('no_narration', () => ({ ok: true }) as never);
     const bad = await run(createCustomCheck(sloppy), context(spec, 1, observed(reply)));
@@ -76,5 +76,22 @@ describe('custom', () => {
     expect(
       createCustomCheck(registry()).applies(context(acme('acme-plan-upgrade'), 1, observed(reply))),
     ).toBe(false);
+  });
+});
+
+describe('a custom check that throws reports where it threw', () => {
+  it('the evidence names the error and its first stack frames, not the message alone', async () => {
+    const registered = new CheckRegistry().register('explodes', () => {
+      throw new Error('bad pattern table');
+    });
+    const spec = acme('acme-new-customer-coverage');
+    const verdicts = await run(
+      createCustomCheck(registered),
+      context({ ...spec, rules: { custom: { explodes: {} } } } as never, 1, observed('hi')),
+    );
+    const v = verdict(verdicts, 'custom.explodes');
+    expect(v.outcome).toBe('fail');
+    expect(v.evidence).toContain('threw: bad pattern table');
+    expect(v.evidence).toMatch(/\bat .+\.(ts|js):\d+/);
   });
 });

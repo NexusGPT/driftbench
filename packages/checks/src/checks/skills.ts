@@ -7,7 +7,7 @@ const NAME = 'skills';
 /**
  * `expect.skills`: how many times each skill loads in the block, with Count semantics, read from
  * `observed.runtime.skills`. A runtime trace without a skills list loaded none. Without any runtime trace
- * the adapter observed nothing, and each verdict is inconclusive. Order is not checked.
+ * the adapter observed nothing, and each verdict is inconclusive. A load marked failed does not count. Order is not checked.
  */
 export const skills: Check = {
   name: NAME,
@@ -16,7 +16,13 @@ export const skills: Check = {
     const expected = ctx.expect.skills ?? [];
     const keys = entryKeys(expected.map((skill) => skill.name));
     const runtime = ctx.observed.runtime;
-    const loaded = (runtime?.skills ?? []).map((skill) => skill.name);
+    // A load that failed is not a use: only the loads that succeeded count.
+    const loaded = (runtime?.skills ?? [])
+      .filter((skill) => skill.failed !== true)
+      .map((skill) => skill.name);
+    const failed = (runtime?.skills ?? [])
+      .filter((skill) => skill.failed === true)
+      .map((skill) => skill.name);
     return expected.map((skill, index): Verdict => {
       const id = keys[index] ?? skill.name;
       if (runtime === undefined) {
@@ -32,8 +38,12 @@ export const skills: Check = {
         NAME,
         id,
         countAllows(skill.count, count) ? 'pass' : 'fail',
-        `${skill.name} loaded ${times(count)}, expected ${describeCount(skill.count)}; skills loaded in this block: ${listed(loaded)}`,
+        `${skill.name} loaded ${times(count)}, expected ${describeCount(skill.count)}; skills loaded in this block: ${listed(loaded)}${failedNote(failed.filter((name) => name === skill.name).length)}`,
       );
     });
   },
 };
+
+function failedNote(count: number): string {
+  return count === 0 ? '' : `; ${count} failed ${count === 1 ? 'load' : 'loads'} not counted`;
+}

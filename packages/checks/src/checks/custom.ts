@@ -80,7 +80,14 @@ export function createCustomCheck(registry: CheckRegistry = defaultRegistry): Ch
         try {
           result = await check(ctx, options);
         } catch (cause) {
-          out.push(machineVerdict(NAME, name, 'fail', `the custom check ${name} threw: ${message(cause)}`));
+          out.push(
+            machineVerdict(
+              NAME,
+              name,
+              'fail',
+              `the custom check ${name} threw: ${message(cause)}${frames(cause)}`,
+            ),
+          );
           continue;
         }
         out.push(...adopt(name, Array.isArray(result) ? result : [result]));
@@ -123,4 +130,15 @@ function adopt(name: string, results: unknown[]): Verdict[] {
       ...(verdict.reasoning === undefined ? {} : { reasoning: verdict.reasoning }),
     };
   });
+}
+
+/** The first three stack frames of an error, where it was thrown; none when the error has no stack. */
+function frames(cause: unknown): string {
+  if (!(cause instanceof Error) || cause.stack === undefined) return '';
+  const lines = cause.stack
+    .split('\n')
+    .slice(1, 4)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return lines.length === 0 ? '' : `; at ${lines.join(' | ')}`;
 }
