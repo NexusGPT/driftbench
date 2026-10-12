@@ -95,6 +95,28 @@ describe('the council seats the size it is given', () => {
   });
 });
 
+describe('a cascade threshold can be set per judge', () => {
+  it('uses a judge own threshold in place of the default, so a sure pass of the cheapest judge is not enough', async () => {
+    const judges = [s1('cheap', [PASS(0.95)], 1), s1('mid', [FAIL], 5), s1('dear', [FAIL], 9)];
+    const own = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      cascade: { threshold: 0.9, thresholds: { cheap: 0.98 } },
+      judges,
+    });
+    const result = await own.judge(REQUEST);
+    expect(result.cascaded).toBe(false);
+    expect(result.votes.length).toBe(3);
+    const shared = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      cascade: { threshold: 0.9 },
+      judges: [s1('cheap', [PASS(0.95)], 1), s1('mid', [FAIL], 5), s1('dear', [FAIL], 9)],
+    });
+    expect((await shared.judge(REQUEST)).cascaded).toBe(true);
+  });
+});
+
 describe('the cascade threshold is a score above one half and at most one', () => {
   it('refuses a threshold outside (0.5, 1] when the council is built', () => {
     const judges = [s1('a', [PASS(0.99)]), s1('b', [PASS(0.99)]), s1('c', [PASS(0.99)])];

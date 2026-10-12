@@ -59,7 +59,9 @@ export type CouncilConfig = {
    * Cascade from the cheapest judge. `true` uses a threshold of 0.9. It stops early only on a pass that
    * carries a score: a judge that leaves `score` out (most chat models) always brings in the other two.
    */
-  readonly cascade?: boolean | { readonly threshold?: number };
+  readonly cascade?:
+    | boolean
+    | { readonly threshold?: number; readonly thresholds?: Readonly<Record<string, number>> };
 };
 
 export type RoundOutcome = JudgeOutcome | 'split';
@@ -175,7 +177,8 @@ export function createCouncil(config: CouncilConfig): Council {
       const rounds: CouncilRound[] = [];
       const counter = { errors: 0, cost: 0 };
 
-      const first = await runRound(request, row.cls, pick(row.judges), 'normal', threshold, counter);
+      const own = typeof config.cascade === 'object' ? (config.cascade.thresholds ?? {}) : {};
+      const first = await runRound(request, row.cls, pick(row.judges), 'normal', threshold, counter, own);
       rounds.push(first);
       let decided: CouncilRound | undefined = first.outcome === 'split' ? undefined : first;
       if (!decided && row.rejudge.length > 0) {
@@ -327,6 +330,7 @@ async function runRound(
   budget: Budget,
   threshold: number | undefined,
   counter: { errors: number; cost: number },
+  own: Readonly<Record<string, number>> = {},
 ): Promise<CouncilRound> {
   const ordered = [...judges].sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id));
   const votes: Vote[] = [];
@@ -335,7 +339,8 @@ async function runRound(
     const [cheap, ...rest] = ordered;
     const vote = await castVote(request, cheap as JudgeClient, budget, counter);
     votes.push(vote);
-    if (vote.outcome === 'pass' && vote.score !== undefined && vote.score >= threshold) {
+    const bar = own[cheap?.id ?? ''] ?? threshold;
+    if (vote.outcome === 'pass' && vote.score !== undefined && vote.score >= bar) {
       cascaded = true;
     } else {
       votes.push(...(await Promise.all(rest.map((judge) => castVote(request, judge, budget, counter)))));
