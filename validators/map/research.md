@@ -135,3 +135,15 @@ What others do: schema-driven generators send an omitted optional property as it
 What to try, and why: the tool pre-pass adds at-default before absent for an optional property that states a default, because the item names that convention and the keyword states a distinct input class.
 
 Also found and not fixed: schema-keywords.closed-object conflicts with styles.v1-precision. See HANDOVER.md.
+
+## Iteration 12
+
+Question: packages/generate/src/extract/tools.ts: locate knows tools, tool_schemas and functionDeclarations only, so a legacy { functions: [...] } file gives no tool; tool-formats.legacy-functions proves it.
+
+Sources read:
+* https://platform.openai.com/docs/api-reference/chat/create (the deprecated functions parameter: name, description, parameters)
+* packages/validators/src/ladders/map/bank/families/formats.ts (legacy-functions)
+
+What others do: The legacy functions list holds declarations with the same name and parameters keys as the tools form, at the root.
+
+What to try, and why: the tool pre-pass reads the legacy OpenAI functions list

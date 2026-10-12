@@ -16,7 +16,7 @@ import { proposeRole } from './space';
  * spec), holding a list of tools or a mapping from tool name to tool. A tool has a name and an input schema
  * under `input_schema`, `inputSchema` or `parameters`, and may have an output schema under `output_schema`,
  * `outputSchema` or `returns`. The OpenAI form `{ type: function, function: {...} }` is read too, and so are Gemini
- * function declarations, at the root or grouped in the tools list.
+ * function declarations, at the root or grouped in the tools list, and the legacy OpenAI `functions` list.
  */
 
 export type ToolsIssue = {
@@ -349,7 +349,7 @@ function typesOf(property: YAMLMap): string[] {
 function locate(root: unknown): { node: unknown; path: string } | undefined {
   if (isSeq(root)) return { node: root, path: '' };
   if (!isMap(root)) return undefined;
-  for (const key of ['tools', 'tool_schemas', 'functionDeclarations']) {
+  for (const key of ['tools', 'tool_schemas', 'functionDeclarations', 'functions']) {
     const found = entry(root, key);
     if (found) return { node: found.value, path: key };
   }

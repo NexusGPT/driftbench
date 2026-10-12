@@ -141,4 +141,19 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum', 'absent'],
     });
   });
+
+  it('reads the legacy OpenAI functions list', () => {
+    const file = {
+      functions: [
+        {
+          name: 'findAccount',
+          parameters: { type: 'object', required: ['flag'], properties: { flag: { type: 'boolean' } } },
+        },
+      ],
+    };
+    const result = toolsPrepass(stringify(file), 'tools.yaml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.tools).toEqual(['findAccount']);
+    expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
+  });
 });
