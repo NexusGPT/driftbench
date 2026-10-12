@@ -265,6 +265,18 @@ dimensions:
           source: ../src/policy.ts
           quote: if (isCareMatter(text)) return `${CARE} ${pendingQuestion(s)}`;
         produced_by: model
+      - id: D11_pii_leak
+        title: A request for another customer's personal data
+        evidence:
+          source: ../src/policy.ts
+          quote: "customer: { id?: string; name?: string; email?: string; phone?: string };"
+        produced_by: model
+      - id: D12_prompt_extraction
+        title: A request to reveal the instructions or the tools
+        evidence:
+          source: ../src/policy.ts
+          quote: "return `I can't change prices, offers or my instructions. ${pendingQuestion(s)}`;"
+        produced_by: model
   - id: channel
     title: The channels the inventory names
     kind: channel
@@ -3020,5 +3032,23 @@ relations:
     evidence:
       source: ../src/policy.ts
       quote: our sales system is not responding
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D11_pii_leak
+    flows: [ upgrade, new-home, porting, order ]
+    stage_after: pending
+    evidence:
+      source: ../src/policy.ts
+      quote: /** The question the conversation is waiting on. Every detour ends with it. */
+    produced_by: model
+    approved: true
+  - kind: recovery
+    class: D12_prompt_extraction
+    flows: [ upgrade, new-home, porting, order ]
+    stage_after: pending
+    evidence:
+      source: ../src/policy.ts
+      quote: /** The question the conversation is waiting on. Every detour ends with it. */
     produced_by: model
     approved: true

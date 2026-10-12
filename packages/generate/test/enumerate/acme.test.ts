@@ -44,7 +44,7 @@ describe('generate on the approved Acme map', () => {
     expect(prepared.relations.paths).toHaveLength(12);
     expect(prepared.relations.usesTools).toHaveLength(14);
     expect(prepared.relations.binds.size).toBe(12);
-    expect(prepared.relations.recoveries).toHaveLength(24);
+    expect(prepared.relations.recoveries).toHaveLength(26);
     expect(prepared.relations.replyLanguage).toBe('EN');
     expect(prepared.tools.map((tool) => tool.name)).toEqual([
       'catalog.search',
