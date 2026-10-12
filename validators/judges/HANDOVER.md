@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 7 (check) passes since iteration 38. Level 8, rubric (20 items, all failing): `rubric/two-questions`, `subjective`, `vague-quantity`, `double-negative`, `no-observable`; read the head comment of families/rubric*.ts for the capability. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
+Level 7 (check) passes since iteration 38. Level 8, rubric (19 items): `rubric/subjective`, `vague-quantity`, `double-negative`, `no-observable`; read the head comment of families/rubric*.ts for the capability. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
 
 ## Hypotheses tried
 
@@ -63,11 +63,12 @@ Iteration 34 (cause: usageFromResponse missing): packages/judges/src/clients/usa
 Iteration 36 (cause: duplicate judge ids): `combineVerdicts` refuses two judge verdicts with one id. Test: check.test.ts "two judge verdicts with one id" (red first). Bank 300 -> 301 (0.4718).
 Iteration 37 (cause: safe-id collision): `uniqueIds` in judgeCheck (suffix -2, -3). Test: check.test.ts "two criterion names that map to one safe id" (red first). Bank 301 -> 302 (0.4734).
 The first commit of iteration 34 lacked the index export; a second commit added it and the row is of that second commit.
-Iteration 38 (cause: raw file names in diff summary): `oneLine` in artifacts.ts. Test: task.test.ts "a diff summary with a line break in a file name" (red proved by reverting the source). Bank 302 -> 303 (0.4749). Level 6 -> 7. Pitfall: a heredoc turns \u2028 in test text into the raw character; write such escapes with python and a doubled backslash.
+Iteration 38 (cause: raw file names in diff summary): `oneLine` in artifacts.ts. Test: task.test.ts "a diff summary with a line break in a file name" (red proved by reverting the source). Bank 302 -> 303 (0.4749). Level 6 -> 7.
+Iteration 39 (cause: lintCriterion missing): packages/judges/src/lint.ts, a RULES table with `two-questions`, exported. Test: packages/judges/test/lint.test.ts (red proved by removing the export). Bank 303 -> 304 (0.4765). Add each next code as one row of RULES. Pitfall: a heredoc turns \u2028 in test text into the raw character; write such escapes with python and a doubled backslash.
 
 ## Next actions
 
-1. Level 8 rubric: find the capability in packages/validators/src/ladders/judges/v2/families (rubric file head comment) and the Planned/rubric lines of docs/concepts/judges.md; build it in packages/judges, one cause per iteration.
+1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"): subjective, vague-quantity, double-negative, no-observable, too-long, no-fail-picture, ... The clean twin of every item must still give no issue.
 2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`. PR 86 takes every push.
 
