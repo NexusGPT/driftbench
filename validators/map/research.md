@@ -754,3 +754,14 @@ Sources read:
 What others do: A model writes only the keys the template lists.
 
 What to try, and why: a value records that a test plan must include it
+
+## Iteration 65
+
+Question: packages/generate/src/extract/tools.ts: propertySlug keeps a dot, but the updated item adr.property-name-with-dot expects user_email; the item proves it.
+
+Sources read:
+* packages/validators/src/ladders/map/bank/families/adversarial.ts (updated by PR 90)
+
+What others do: A dot in a dimension id reads as a path; the item wants one field.
+
+What to try, and why: a dot in a property name becomes an underscore (the item now says one field, not a path)

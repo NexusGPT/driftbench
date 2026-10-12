@@ -1090,7 +1090,7 @@ export function toolSlug(name: string): string {
 }
 
 function propertySlug(name: string): string {
-  const slug = snake(name).replace(/[^a-z0-9_.-]+/g, '_');
+  const slug = snake(name).replace(/[^a-z0-9_-]+/g, '_');
   return slug === '' ? 'p' : slug;
 }
 

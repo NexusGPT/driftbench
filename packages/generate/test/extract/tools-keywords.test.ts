@@ -480,7 +480,7 @@ type = "boolean"
     }
   });
 
-  it('keeps a dot in a property name whole', () => {
+  it('turns a dot in a property name into an underscore: one field, not a path', () => {
     const read = (name: string) => {
       const schema = {
         type: 'object',
@@ -494,7 +494,7 @@ type = "boolean"
       if (!result.ok) throw new Error(JSON.stringify(result.errors));
       return result.dimensions.map((d) => d.id);
     };
-    expect(read('user.email')).toEqual(['t.x.in.user.email']);
+    expect(read('user.email')).toEqual(['t.x.in.user_email']);
   });
 
   it('oneOf and anyOf give a value per branch, a const branch its const, a null branch null; allOf merges', () => {
