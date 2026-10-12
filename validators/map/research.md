@@ -699,3 +699,14 @@ Sources read:
 What others do: A model writes only the keys the template lists.
 
 What to try, and why: a rule records the case it excludes (unless)
+
+## Iteration 60
+
+Question: packages/generate/src/extract/contract.ts: the answer template shows no limit key on a value; contract:rule-limit proves it.
+
+Sources read:
+* docs/generating.md section Planned: what a rule states (a count limit)
+
+What others do: A model writes only the keys the template lists.
+
+What to try, and why: a rule records a count limit
