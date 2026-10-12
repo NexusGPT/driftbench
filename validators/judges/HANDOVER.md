@@ -7,27 +7,27 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 10 |
-| 2 | 10 |
-| 3 | 10 |
-| 4 | 10 |
-| 5 | 10 |
-| 6 | 10 |
-| 7 | 10 |
-| 8 | 10 |
-| 9 | 10 |
-| 10 | 10 |
-| 11 | 10 |
-| 12 | 10 |
-| 13 | 10 |
-| 14 | 10 |
-| 15 | 10 |
-| 16 | 10 |
-| 17 | 10 |
-| 18 | 10 |
-| 19 | 10 |
-| 20 | 10 |
-| hidden | 10 |
+| 1 | 11 |
+| 2 | 11 |
+| 3 | 11 |
+| 4 | 11 |
+| 5 | 11 |
+| 6 | 11 |
+| 7 | 11 |
+| 8 | 11 |
+| 9 | 11 |
+| 10 | 11 |
+| 11 | 11 |
+| 12 | 11 |
+| 13 | 11 |
+| 14 | 11 |
+| 15 | 11 |
+| 16 | 11 |
+| 17 | 11 |
+| 18 | 11 |
+| 19 | 11 |
+| 20 | 11 |
+| hidden | 11 |
 <!-- level-table:end -->
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 769 items; 111 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 638 deterministic items in 20 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails. Bank score after the ten-iteration pilot: 260 of 638 items pass on every seed (0.4075); iteration 0 was 249 (0.3903). Hardness: 1.1 items fixed per iteration, 378 remaining, forecast 343.6 iterations, 150 distinct failing causes. `validators/judges/GATE.md` lowers the score bar for judges to 0.41 (`Max score after the pilot: 0.41`, read by `--hardness`), which the pilot meets; the gate then waits only on `audit.md`. These rows are the pilot's package; on main's judges package the bank gives 258 of 638 (0.4044) and 153 causes, and the next executor starts there. The judges page's "Planned" section (docs/concepts/judges.md) is the roadmap most failing items point at. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Levels 1 to 10 pass since iteration 61. Level 11, evidence (21 items): `groundEvidence(request, answer)`, first `evidence/exact-quote`. Then injection (102), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test last run at iteration 58; next due after 61 (run it).
+Levels 1 to 11 pass since iteration 62. Level 12, injection (102 items), precision (20), attacks (22) all hang on `screenData(request)` (base screen first; see the Fix line). Then council, cascade, turns, pairwise, calibration, scale. Handover test last run after 61 (reproduced level 10).
 
 ## Hypotheses tried
 
@@ -87,11 +87,12 @@ Iteration 58 (cause: line breaks forged transcript entries): `renderEntry` shows
 Iteration 59 (cause: lookalike tags unescaped): escapeData folds NFKC and drops invisible characters before matching. Test: prompt.test.ts (red proved). Bank 333 -> 339 (0.5313).
 Iteration 60 (cause: reference answer not rendered): `reference_data` tag guarded (GUARDED_TAGS) and rendered after the transcript; the system prompt names it only when a reference exists, so DATA_TAGS and the prompt fingerprint stay unchanged (adding it to DATA_TAGS broke 16 cassette tests). Test: prompt.test.ts (red proved). Bank 339 -> 342 (0.5361). Level 8 -> 9.
 Iteration 61 (cause: fitPrompt missing): packages/judges/src/budget.ts, exported. Test: budget.test.ts (red proved: 4 failed). Bank 342 -> 362 (0.5674): 20 budget items from one capability. Level 9 -> 10.
+Iteration 62 (cause: groundEvidence missing): packages/judges/src/evidence.ts, exported. Test: evidence.test.ts (red proved: 5 failed). Bank 362 -> 383 (0.6003). Level 10 -> 11.
 
 ## Next actions
 
-1. Level 11 evidence: `groundEvidence(request, answer)` returns { grounded, where? } (docs/concepts/judges.md, "Evidence grounding"); packages/judges, new file.
-2. Then injection (level 12, `screenData`).
+1. Base screen: `screenData(request)` in a new packages/judges/src/screen.ts, exported from the index, exactly as the Fix line of injection/english-1 says; it flips injection, precision and attacks items together.
+2. Then each remaining injection/precision/attacks item by its Fix line, then council (level 15).
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N`, `validate judges --journal row.json`. PR 86 takes every push. Keep the prompt fingerprint stable. At the top level, raise the floor in its own commit.
 
 ## Pitfalls
