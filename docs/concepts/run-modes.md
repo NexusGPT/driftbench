@@ -88,7 +88,7 @@ These parts of the runner serve every mode. They are described on the [running](
 
 * Repeats: a campaign runs each spec several times. One run proves nothing; [statistics](statistics.md) turns repeats into claims.
 * Cache: an observed block is reused when the spec's content hash, the repeat, the block's position, its whole resolved Given, its stimulus, the target and the adapter's version are the same. The spec's `version` is a free label and plays no part. A run replays only when every block and end-state read is in the cache. A run on an adapter that makes sandboxes is never cached.
-* Budget: a hard stop on spend over a campaign; no cell starts once the spend reaches it. Stopping a spec early when its first two free-running repeats both fail a gating machine check is planned, with no phase assigned yet.
+* Budget: a hard stop on spend over a campaign; no cell starts once the spend reaches it. `runCampaign({ earlyStop: true })` stops a spec early: once repeats 0 and 1 of a spec in mode F both fail a gating machine check, its later F repeats are not run. They come back as `stopped` with `earlyStop: { after: 2 }`, and no run is stored for them. A spec that passes repeat 0 or 1 runs every repeat. The command line has no flag for it yet.
 * Determinism: `driftbench smoke` runs a spec several times, three by default, with the cache off and reports whether the transcripts differ.
 * Resume: `campaign resume` reuses the completed runs of a stored campaign and runs the rest.
 * Retries: transport errors are retried with backoff. A run the agent fails is recorded as failed, never skipped.

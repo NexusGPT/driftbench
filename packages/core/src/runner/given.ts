@@ -1,7 +1,7 @@
 import type { Assertion, Count, Message, TargetRef, WorldState } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
-import { contentHash } from '../spec/hash';
+import { contentHashWithList } from '../spec/hash';
 import { deepEqual } from './assertion';
 
 /**
@@ -37,20 +37,24 @@ export function enterBlock(
   };
 }
 
-/** The resolved Given of one block: what it starts from, and the content hash of all of it. */
+/**
+ * The resolved Given of one block: what it starts from, and the content hash of all of it. The prefix is a
+ * new list of the same message objects: the run owns them and never changes one after it joined the
+ * history, so the cost of a block does not grow with the messages before it.
+ */
 export function resolveGiven(
   state: RunningGiven,
   prefix: readonly Message[],
   target: TargetRef,
 ): ResolvedGiven {
   const body = {
-    prefix: structuredClone([...prefix]),
+    prefix: [...prefix],
     ledger: structuredClone(state.ledger),
     world: structuredClone(state.world),
     vars: structuredClone(state.vars),
     target: structuredClone(target),
   };
-  return { ...body, hash: contentHash(body) };
+  return { ...body, hash: contentHashWithList(body, 'prefix') };
 }
 
 /** Merges a later world into an earlier one: tools, store keys and fixtures by name, the workspace whole. */
@@ -103,11 +107,19 @@ export function addFacts(
  * replays its past turns reads it again.
  */
 export function canonicalGiven(spec: Spec, blockIndex: number): { state: RunningGiven; prefix: Message[] } {
-  let state = initialGiven(spec);
-  let prefix: Message[] = [];
-  for (let index = 0; index <= blockIndex; index++) {
+  // A run asks for block 0, 1, 2 in turn. The situation before block k's own given, kept from the last ask,
+  // lets the next ask build one block more, not the whole prefix again; its messages are the same objects,
+  // which the prefix cache and the hashes read once.
+  const kept = canonicalKept.get(spec);
+  const resume = kept && kept.blocks === spec.blocks && kept.next <= blockIndex ? kept : undefined;
+  let state = resume ? resume.state : initialGiven(spec);
+  let prefix: Message[] = resume ? [...resume.prefix] : [];
+  for (let index = resume ? resume.next : 0; index <= blockIndex; index++) {
     const block = spec.blocks[index];
     if (!block) break;
+    if (index === blockIndex) {
+      canonicalKept.set(spec, { blocks: spec.blocks, next: index, state, prefix: [...prefix] });
+    }
     state = enterBlock(state, block.given);
     if (block.given?.prefix) prefix = structuredClone(block.given.prefix);
     if (index === blockIndex) break;
@@ -116,6 +128,11 @@ export function canonicalGiven(spec: Spec, blockIndex: number): { state: Running
   }
   return { state, prefix };
 }
+
+const canonicalKept = new WeakMap<
+  Spec,
+  { blocks: Spec['blocks']; next: number; state: RunningGiven; prefix: Message[] }
+>();
 
 /** The assistant message a teacher-forced prefix keeps for one earlier block: no text, the expected calls. */
 export function canonicalReply(expect: Expect | undefined, world: WorldState): Message {

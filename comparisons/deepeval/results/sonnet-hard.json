@@ -1,0 +1,811 @@
+{
+  "model": "sonnet",
+  "sets": ["relevancy-hard"],
+  "cost_usd": 0.0,
+  "calls": 0,
+  "replays": 300,
+  "fails": 0,
+  "seconds": 0,
+  "rows": [
+    {
+      "set": "relevancy-hard",
+      "id": "H012",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H043",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H049",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H008",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H019",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H079",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H097",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H084",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H036",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H085",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H050",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H001",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H029",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H042",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H027",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H076",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H060",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H009",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H096",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H034",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H045",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H080",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H028",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H025",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H074",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H073",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H092",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H003",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H099",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H051",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H082",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H010",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H017",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H078",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H062",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H054",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H095",
+      "label": "irrelevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H081",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H063",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H046",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H061",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H018",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H002",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H032",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H020",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H064",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H067",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H004",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H098",
+      "label": "irrelevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H048",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H037",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H075",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H068",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H026",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H031",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H083",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H069",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H044",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H071",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H015",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H038",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H005",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H059",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H014",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H077",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H091",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H087",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H088",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H023",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H035",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H040",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H030",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H058",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H033",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H090",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H089",
+      "label": "irrelevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H065",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H011",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H024",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H047",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H053",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H066",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H057",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H016",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H100",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H052",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H072",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H022",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H086",
+      "label": "irrelevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H094",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H007",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H039",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H055",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H013",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H093",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H070",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H041",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H056",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H021",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard",
+      "id": "H006",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    }
+  ]
+}

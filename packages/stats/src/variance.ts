@@ -204,6 +204,71 @@ export function varianceComponents(
   return { method: 'anova', balanced, n: N, mean: (sums[0]?.get('') as number) / N, components, total };
 }
 
+/**
+ * ICC(1) from the one-way ANOVA of values grouped by cluster, unbalanced: (MSB - MSW) / (MSB + (n0 - 1) MSW)
+ * with n0 = (N - sum n_g^2 / N) / (k - 1) (Shrout and Fleiss 1979; Donner 1986). It is not truncated at zero:
+ * a negative value says the clusters differ less than chance. Throws a RangeError on no values, mismatched
+ * lengths, a value that is not finite, fewer than two clusters, or no cluster with two values.
+ */
+export function iccOneWay(values: readonly number[], clusters: readonly (string | number)[]): number {
+  if (values.length === 0) throw new RangeError('iccOneWay of an empty sample');
+  if (values.length !== clusters.length) {
+    throw new RangeError(
+      `iccOneWay: values and clusters must have the same length, got ${values.length} and ${clusters.length}`,
+    );
+  }
+  const groups = new Map<string | number, { n: number; sum: number }>();
+  let total = 0;
+  for (let i = 0; i < values.length; i += 1) {
+    const v = values[i] as number;
+    if (!Number.isFinite(v)) throw new RangeError(`iccOneWay: values[${i}] must be finite, got ${v}`);
+    const key = clusters[i] as string | number;
+    const g = groups.get(key) ?? { n: 0, sum: 0 };
+    g.n += 1;
+    g.sum += v;
+    groups.set(key, g);
+    total += v;
+  }
+  const k = groups.size;
+  const N = values.length;
+  if (k < 2) throw new RangeError(`iccOneWay needs at least two clusters, got ${k}`);
+  if (N === k) throw new RangeError('iccOneWay needs at least one cluster with two values');
+  const grand = total / N;
+  let ssb = 0;
+  let sumSquaredSizes = 0;
+  for (const g of groups.values()) {
+    ssb += g.n * (g.sum / g.n - grand) ** 2;
+    sumSquaredSizes += g.n * g.n;
+  }
+  let ssw = 0;
+  for (let i = 0; i < N; i += 1) {
+    const g = groups.get(clusters[i] as string | number) as { n: number; sum: number };
+    ssw += ((values[i] as number) - g.sum / g.n) ** 2;
+  }
+  const msb = ssb / (k - 1);
+  const msw = ssw / (N - k);
+  const n0 = (N - sumSquaredSizes / N) / (k - 1);
+  const denominator = msb + (n0 - 1) * msw;
+  if (!(denominator > 0))
+    throw new RangeError(
+      'iccOneWay: the clusters and the values are all equal, so the correlation is undefined',
+    );
+  return (msb - msw) / denominator;
+}
+
+/**
+ * The design effect measured from the data: 1 + (mbar - 1) ICC(1), mbar the mean cluster size and ICC(1) as
+ * `iccOneWay` (Kish 1965). Throws what `iccOneWay` throws.
+ */
+export function designEffectFromData(
+  values: readonly number[],
+  clusters: readonly (string | number)[],
+): number {
+  const rho = iccOneWay(values, clusters);
+  const mbar = values.length / new Set(clusters).size;
+  return 1 + (mbar - 1) * rho;
+}
+
 export interface LevelCorrelation {
   readonly level: string;
   /**
@@ -319,4 +384,61 @@ export function repeatsForFloor(input: RepeatsForFloorInput): RepeatsForFloorRes
   const rounded = Math.round(exact);
   const repeats = Math.max(1, Math.abs(exact - rounded) < 1e-9 ? rounded : Math.ceil(exact));
   return { repeats, floor: z * Math.sqrt((factor * variance) / (repeats * blocks)) };
+}
+
+export interface StratifiedMeanInput {
+  /** The sample mean of each stratum. */
+  readonly means: readonly number[];
+  /** The population size N_h of each stratum. */
+  readonly sizes: readonly number[];
+  /** The sample standard deviation s_h of each stratum. */
+  readonly sds: readonly number[];
+  /** The sample size n_h of each stratum. */
+  readonly samples: readonly number[];
+}
+
+/**
+ * The stratified estimator of a mean (Cochran, Sampling Techniques, 5.4): sum W_h ybar_h with W_h = N_h / N,
+ * and variance sum W_h^2 (1 - n_h / N_h) s_h^2 / n_h, the finite population correction included. Throws a
+ * RangeError on no strata, arrays of different lengths, a mean or sd that is not finite, an sd below zero, a
+ * size below one, or a sample that is not a whole number from 1 to its stratum size.
+ */
+export function stratifiedMean(input: StratifiedMeanInput): { estimate: number; variance: number } {
+  const { means, sizes, sds, samples } = input;
+  const H = means.length;
+  if (H === 0) throw new RangeError('stratifiedMean of no strata');
+  if (sizes.length !== H || sds.length !== H || samples.length !== H) {
+    throw new RangeError(
+      `stratifiedMean: means, sizes, sds and samples must have the same length, got ${H}, ${sizes.length}, ${sds.length} and ${samples.length}`,
+    );
+  }
+  let population = 0;
+  for (let h = 0; h < H; h += 1) {
+    const N = sizes[h] as number;
+    const n = samples[h] as number;
+    if (!Number.isFinite(means[h] as number)) {
+      throw new RangeError(`stratifiedMean: means[${h}] must be finite, got ${means[h]}`);
+    }
+    if (!Number.isFinite(sds[h] as number) || (sds[h] as number) < 0) {
+      throw new RangeError(`stratifiedMean: sds[${h}] must be finite and not negative, got ${sds[h]}`);
+    }
+    if (!Number.isFinite(N) || N < 1) {
+      throw new RangeError(`stratifiedMean: sizes[${h}] must be at least 1, got ${N}`);
+    }
+    if (!Number.isInteger(n) || n < 1 || n > N) {
+      throw new RangeError(
+        `stratifiedMean: samples[${h}] must be a whole number from 1 to sizes[${h}] (${N}), got ${n}`,
+      );
+    }
+    population += N;
+  }
+  let estimate = 0;
+  let variance = 0;
+  for (let h = 0; h < H; h += 1) {
+    const W = (sizes[h] as number) / population;
+    const n = samples[h] as number;
+    estimate += W * (means[h] as number);
+    variance += (W * W * (1 - n / (sizes[h] as number)) * (sds[h] as number) ** 2) / n;
+  }
+  return { estimate, variance };
 }

@@ -114,7 +114,11 @@ describe('spread', () => {
     expect(s.source).toBe('pilot');
     expect(s.mode).toBe('F');
     const byName = new Map(s.cells.map((cell) => [cell.cell, cell]));
-    expect(byName.get('B')?.rate).toMatchObject({ estimate: 0.75, method: 'cluster bootstrap', clusters: 4 });
+    expect(byName.get('B')?.rate).toMatchObject({
+      estimate: 0.75,
+      method: 'wilson, design effect',
+      clusters: 4,
+    });
     expect(byName.get('A')?.rate.method).toBe('wilson, clusters');
     // One conversation: Wilson over its runs.
     expect(byName.get('D')?.rate).toMatchObject({ estimate: 0.25, method: 'wilson', k: 1, n: 4 });

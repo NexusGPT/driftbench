@@ -82,7 +82,7 @@ describe('reliability per line', () => {
       estimate: 8 / 9,
       n: 9,
       clusters: 3,
-      method: 'cluster bootstrap',
+      method: 'wilson, design effect',
     });
   });
 
