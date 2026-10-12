@@ -255,6 +255,40 @@ describe('driftbench estate run', () => {
     ]);
   });
 
+  it('passes the model, turn and budget limits and the trusted tools to the command, in its own config folder on a stand-in', async () => {
+    const calls = join(await folder(), 'calls.jsonl');
+    process.env.FAKE_CALLS = calls;
+    try {
+      const spec = join(LIVE, PROOF.route_positive ?? '');
+      const result = await estateRun(
+        FIXTURE,
+        [spec],
+        '--model',
+        'haiku',
+        '--max-turns',
+        '3',
+        '--max-budget-usd',
+        '0.5',
+        '--trust-estate',
+        '--pass-env',
+        'FAKE_CALLS',
+      );
+      expect(result.code).toBe(0);
+    } finally {
+      delete process.env.FAKE_CALLS;
+    }
+    const [call] = (await readFile(calls, 'utf8'))
+      .trim()
+      .split('\n')
+      .map((text) => JSON.parse(text));
+    const argv = call.argv as string[];
+    expect(argv.slice(0, 6)).toEqual(['--model', 'haiku', '--max-turns', '3', '--max-budget-usd', '0.5']);
+    expect(argv).toContain('--allowed-tools');
+    expect(call.configDir).not.toBeNull();
+    const bad = await estateRun(FIXTURE, [join(LIVE, PROOF.route_positive ?? '')], '--max-turns', 'three');
+    expect(bad.code).toBe(2);
+  });
+
   it('fails a spec of another map on a pinned copy, and notes an unpinned one', async () => {
     const spec = join(LIVE, PROOF.route_positive ?? '');
     const to = join(await folder(), 'mutant');

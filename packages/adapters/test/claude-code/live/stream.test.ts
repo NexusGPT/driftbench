@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseJsonl } from '../../../src/claude-code/format';
-import { isOverloaded, normaliseStream, parseStream } from '../../../src/claude-code/live';
+import { hookDecisions, isOverloaded, normaliseStream, parseStream } from '../../../src/claude-code/live';
 import { mapSession } from '../../../src/claude-code/session';
 
 /** The headless stream read alone: parsing, overload detection, and the records one turn becomes. */
@@ -72,6 +72,17 @@ describe('parseStream', () => {
       usage: { inputTokens: 150, outputTokens: 20 },
     });
     expect(parsed.issues).toEqual([]);
+  });
+
+  it('reads the tools the runtime offered, from the init record', () => {
+    const offered = line({
+      type: 'system',
+      subtype: 'init',
+      session_id: 's-1',
+      tools: ['Read', 'Edit', 'WebSearch'],
+    });
+    expect(parseStream(offered).tools).toEqual(['Read', 'Edit', 'WebSearch']);
+    expect(parseStream(reply).tools).toBeUndefined();
   });
 
   it('names a stream with no init, no result, or a line that is not JSON', () => {
@@ -152,5 +163,151 @@ describe('normaliseStream', () => {
     const kept = (raw?.kept ?? []).map((entry) => entry.reason);
     expect(kept.filter((reason) => reason.includes('injected'))).toHaveLength(2);
     expect(kept).toContain('a helper record (sidechain)');
+  });
+});
+
+/**
+ * Shapes seen in the first real headless run (runtime 2.1.296, 2026-10-12), written here by hand: the
+ * structured tool result is `tool_use_result`, hooks arrive as `hook_started` and `hook_response` system
+ * records with `--include-hook-events`, a denied tool as a `permission_denied` system record, and the
+ * provider's rate state as a `rate_limit_event` record.
+ */
+describe('the real stream shapes', () => {
+  const sid = 's-real';
+  const bash = line({
+    type: 'assistant',
+    session_id: sid,
+    parent_tool_use_id: null,
+    timestamp: '2026-10-12T10:00:01.000Z',
+    message: {
+      id: 'm1',
+      role: 'assistant',
+      content: [
+        { type: 'tool_use', id: 'b1', name: 'Bash', input: { command: 'git push --force origin fix' } },
+      ],
+    },
+  });
+  const started = line({
+    type: 'system',
+    subtype: 'hook_started',
+    hook_id: 'h1',
+    hook_name: 'PreToolUse:Bash',
+    hook_event: 'PreToolUse',
+    session_id: sid,
+  });
+  const denied = line({
+    type: 'system',
+    subtype: 'hook_response',
+    hook_id: 'h1',
+    hook_name: 'PreToolUse:Bash',
+    hook_event: 'PreToolUse',
+    output: 'Force pushes are blocked.',
+    stdout: '',
+    stderr: 'Force pushes are blocked.',
+    exit_code: 2,
+    outcome: 'blocking',
+    session_id: sid,
+  });
+  const allowed = line({
+    type: 'system',
+    subtype: 'hook_response',
+    hook_id: 'h2',
+    hook_name: 'Stop',
+    hook_event: 'Stop',
+    stdout: '',
+    stderr: '',
+    exit_code: 0,
+    outcome: 'success',
+    session_id: sid,
+  });
+  const decided = line({
+    type: 'system',
+    subtype: 'hook_response',
+    hook_id: 'h3',
+    hook_name: 'PreToolUse:Edit|Write',
+    hook_event: 'PreToolUse',
+    stdout: JSON.stringify({ hookSpecificOutput: { permissionDecision: 'deny' } }),
+    stderr: '',
+    exit_code: 0,
+    outcome: 'success',
+    session_id: sid,
+  });
+  const result = line({
+    type: 'user',
+    session_id: sid,
+    parent_tool_use_id: null,
+    timestamp: '2026-10-12T10:00:02.000Z',
+    message: {
+      role: 'user',
+      content: [{ type: 'tool_result', tool_use_id: 'b1', content: 'done', is_error: false }],
+    },
+    tool_use_result: { stdout: 'done', stderr: '', interrupted: false, exitCode: 3 },
+  });
+  const permission = line({
+    type: 'system',
+    subtype: 'permission_denied',
+    tool_name: 'WebFetch',
+    tool_use_id: 'w1',
+    message: 'Permission to use WebFetch has been denied.',
+    session_id: sid,
+  });
+  const rate = line({ type: 'rate_limit_event', rate_limit_info: { status: 'allowed' }, session_id: sid });
+  const stream = () =>
+    parseStream([init, bash, started, denied, result, permission, rate, allowed, decided, reply].join('\n'));
+  const settings = {
+    hooks: {
+      PreToolUse: [
+        {
+          matcher: 'Bash',
+          hooks: [{ type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.claude/guards/block-force-push.sh' }],
+        },
+        {
+          matcher: 'Edit|Write',
+          hooks: [
+            { type: 'command', command: 'python3 "$CLAUDE_PROJECT_DIR"/.claude/guards/read-before-edit.py' },
+          ],
+        },
+      ],
+      Stop: [
+        {
+          hooks: [
+            { type: 'command', command: 'python3 "$CLAUDE_PROJECT_DIR"/.claude/guards/reply-length.py' },
+            { type: 'command', command: './other.sh' },
+          ],
+        },
+      ],
+    },
+  };
+
+  it('reads the structured tool result under its stream name, so a Bash exit code is kept', () => {
+    const records = normaliseStream({
+      parsed: stream(),
+      ask: 'Push.',
+      startedAt: '2026-10-12T10:00:00.000Z',
+      cwd: '/w',
+    });
+    const mapped = mapSession({ transcript: parseJsonl(records.join('\n')) });
+    expect(mapped.blocks[0]?.observed.executions?.[0]?.exitCode).toBe(3);
+  });
+
+  it('turns each hook response into a guard row named by its script when the estate names one hook', () => {
+    const rows = hookDecisions(stream(), settings, '2026-10-12T10:00:00.000Z');
+    expect(rows.map(({ check, verdict, event }) => ({ check, verdict, event }))).toEqual([
+      { check: 'block-force-push.sh', verdict: 'deny', event: 'PreToolUse' },
+      { check: 'permission:WebFetch', verdict: 'deny', event: 'PermissionRequest' },
+      { check: 'Stop', verdict: 'allow', event: 'Stop' },
+      { check: 'read-before-edit.py', verdict: 'deny', event: 'PreToolUse' },
+    ]);
+    expect(rows.every((row) => row.at === '2026-10-12T10:00:00.000Z')).toBe(true);
+  });
+
+  it('names a hook by its event and matcher when the settings hold none or several commands for it', () => {
+    const rows = hookDecisions(stream(), undefined, '2026-10-12T10:00:00.000Z');
+    expect(rows.map((row) => row.check)).toEqual([
+      'PreToolUse:Bash',
+      'permission:WebFetch',
+      'Stop',
+      'PreToolUse:Edit|Write',
+    ]);
   });
 });

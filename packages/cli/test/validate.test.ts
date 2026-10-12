@@ -3,7 +3,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
-import { bankLadder, journalOf, journalRow, plantedLadder } from '../../validators/test/support';
+import {
+  bankLadder,
+  journalOf,
+  journalRow,
+  PASSING_AUDIT,
+  plantedLadder,
+} from '../../validators/test/support';
 import { USAGE_EXIT, type ValidateDeps, validateCommand } from '../src/commands/validate';
 import { main } from '../src/index';
 import type { Io } from '../src/io';
@@ -366,7 +372,9 @@ describe('driftbench validate --items and --hardness', () => {
     expect(calls).toEqual({ core: 2, deep: 2 });
     expect(output.out).toContain('Level per seed: 1 = 1, 2 = 0');
     expect(output.out).toContain('Bank of banked: 10 items in 3 families, 8 pass on every seed (score 0.8).');
-    expect(output.out).toContain('Family gamma: 4 items, 1 failing; per tier 2: 1, 3: 2, 5: 1');
+    expect(output.out).toContain(
+      'Family gamma: 4 items, 1 failing, 1 distinct failing causes; per tier 2: 1, 3: 2, 5: 1',
+    );
     const json = capture(root);
     await validateCommand('banked', { seeds: '1..2', items: true, json: true }, json.io, d);
     const report = JSON.parse(json.output.out);
@@ -395,6 +403,7 @@ describe('driftbench validate --items and --hardness', () => {
           .map((row) => JSON.stringify(row))
           .join('\n')}\n`,
       );
+      await writeFile(join(root, 'validators/banked/audit.md'), PASSING_AUDIT);
     };
     await write([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]);
     const holds = capture(root);
@@ -424,5 +433,72 @@ describe('driftbench validate --items and --hardness', () => {
     expect(await validateCommand('banked', { checkFloor: true }, io, d)).toBe(0);
     expect(output.out).toContain('Floor: 0. At or above the floor.');
     expect(output.out).toContain('The floor 2 belongs to ladder version 1; version 2 has no floor yet.');
+  });
+});
+
+describe('driftbench validate --hardness and distinct causes', () => {
+  it('exits 1 with fewer than 100 distinct failing causes and prints the count', async () => {
+    const root = await temp();
+    const { ladder } = bankLadder();
+    const d: ValidateDeps = { ladders: () => ({ banked: ladder }), root };
+    await mkdir(join(root, 'validators/banked'), { recursive: true });
+    await writeFile(
+      join(root, 'validators/banked/journal.jsonl'),
+      `${journalOf([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 300, { '1': 300 }, () => 40)
+        .map((row) => JSON.stringify(row))
+        .join('\n')}\n`,
+    );
+    const { io, output } = capture(root);
+    expect(await validateCommand('banked', { hardness: true }, io, d)).toBe(1);
+    expect(output.out).toContain(
+      'Distinct failing causes after the pilot: 40 (0 failing items name no cause',
+    );
+    expect(output.out).toContain('40 distinct failing causes after the pilot, under 100');
+    const json = capture(root);
+    await validateCommand('banked', { hardness: true, json: true }, json.io, d);
+    expect(JSON.parse(json.output.out).causes).toEqual({ distinct: 40, withoutCause: 0 });
+  });
+});
+
+describe('driftbench validate --hardness with the audit', () => {
+  it('reads blind rows and validators/<component>/audit.md', async () => {
+    const root = await temp();
+    const { ladder } = bankLadder();
+    const d: ValidateDeps = { ladders: () => ({ banked: ladder }), root };
+    await mkdir(join(root, 'validators/banked'), { recursive: true });
+    const tiers = { '1': 100, '2': 80, '3': 60, '4': 40, '5': 20 };
+    const builder = journalOf([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 300, tiers, () => 150);
+    const blind = journalOf([30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50], 300, tiers, () => 150)
+      .slice(1)
+      .map((row) => ({ ...(row as object), executor: 'blind' }));
+    await writeFile(
+      join(root, 'validators/banked/journal.jsonl'),
+      `${[...builder, ...blind].map((row) => JSON.stringify(row)).join('\n')}\n`,
+    );
+    const absent = capture(root);
+    expect(await validateCommand('banked', { hardness: true }, absent.io, d)).toBe(1);
+    expect(absent.output.out).toContain('audit.md is absent: no validator merges without the audit (12.7)');
+    await writeFile(
+      join(root, 'validators/banked/audit.md'),
+      '| blind pilot | pass | ok |\n| cheater | pending | |\n',
+    );
+    const partial = capture(root);
+    expect(await validateCommand('banked', { hardness: true }, partial.io, d)).toBe(1);
+    expect(partial.output.out).toContain(
+      'the audit check cheater is pending; the audit check cause review is missing; the audit check planted bugs is missing',
+    );
+    await writeFile(
+      join(root, 'validators/banked/audit.md'),
+      PASSING_AUDIT.replace('| blind pilot | pass | |', '| blind pilot | pass | ok |'),
+    );
+    const { io, output } = capture(root);
+    expect(await validateCommand('banked', { hardness: true }, io, d)).toBe(0);
+    expect(output.out).toContain('Flag: the builder pilot fixed 1 items per iteration');
+    expect(output.out).toContain('  blind pilot: PASS, ok\n');
+    const json = capture(root);
+    await validateCommand('banked', { hardness: true, json: true }, json.io, d);
+    const measured = JSON.parse(json.output.out);
+    expect(measured.source).toBe('blind');
+    expect(measured.audit[0]).toEqual({ check: 'blind pilot', verdict: 'pass', note: 'ok' });
   });
 });

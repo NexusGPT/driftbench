@@ -141,6 +141,51 @@ export const SubagentExpect = z
   .describe('A helper the agent must dispatch during the block, with an optional model.');
 export type SubagentExpect = z.infer<typeof SubagentExpect>;
 
+/** A reference text the reply must be close to, scored by the similarity check's embedder. */
+export const SimilarityExpect = z
+  .strictObject({
+    reference: z.string().min(1).describe('The text the reply is compared with.'),
+    min: z
+      .number()
+      .min(0)
+      .max(1)
+      .describe('The lowest similarity that passes, from 0 to 1, as the embedder scores it.'),
+  })
+  .describe('A reference text the reply must be close to, with the lowest score that passes.');
+export type SimilarityExpect = z.infer<typeof SimilarityExpect>;
+
+/** The reply must address the ask of the block: its key terms appear in the reply. */
+export const RelevancyExpect = z
+  .strictObject({
+    min: z
+      .number()
+      .min(0)
+      .max(1)
+      .optional()
+      .describe('The share of the key terms that must appear in the reply, from 0 to 1. Default 0.5.'),
+    terms: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('The key terms of the ask. Without them, the check takes the words of the stimulus.'),
+  })
+  .describe('The reply addresses the ask of the block: a share of its key terms appears in the reply.');
+export type RelevancyExpect = z.infer<typeof RelevancyExpect>;
+
+/** A fact the ledger holds that the reply must not ask for again, and may have to use. */
+export const RetentionExpect = z
+  .strictObject({
+    fact: z.string().min(1).describe('The ledger key of the fact, given in an earlier block.'),
+    use: z
+      .boolean()
+      .optional()
+      .describe('True when the block must use the fact: its value appears in the reply or a tool input.'),
+    ask: Pattern.optional().describe(
+      'A pattern that marks a question asking for the fact again. Default: the words of the key.',
+    ),
+  })
+  .describe('A fact the user gave earlier: the block must not ask for it again, and may have to use it.');
+export type RetentionExpect = z.infer<typeof RetentionExpect>;
+
 export const ExecutionExpect = z
   .strictObject({
     ran_code: z.boolean().optional().describe('True when the block must run code; false when it must not.'),
@@ -216,6 +261,15 @@ export const Expect = z
       .describe('How the expected tools line up with the observed calls: exact, in_order or any_order.'),
     must: z.array(Pattern).optional().describe('Patterns the visible text must match.'),
     must_not: z.array(Pattern).optional().describe('Patterns the visible text must not match.'),
+    similarity: z
+      .array(SimilarityExpect)
+      .optional()
+      .describe('Reference texts the reply must be close to, each with its lowest passing score.'),
+    relevancy: RelevancyExpect.optional().describe('The reply addresses the ask of the block.'),
+    knowledge_retention: z
+      .array(RetentionExpect)
+      .optional()
+      .describe('Facts given earlier that the block must not ask for again, and may have to use.'),
     lang: Lang.optional().describe('The language of the reply.'),
     cards: z.array(CardExpect).optional().describe('The cards expected in the block.'),
     criteria: z

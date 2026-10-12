@@ -1,4 +1,4 @@
-import { bankMeasure, defineLadder, type Ladder } from '../src/index';
+import { bankMeasure, defineLadder, type JournalRow, type Ladder, measureHardness } from '../src/index';
 
 /** A fixture ladder of three levels. Level 2 fails on the seeds listed in `failOn`; the calls are counted. */
 export function plantedLadder(failOn: readonly number[] = [1, 2, 3], component = 'planted') {
@@ -96,6 +96,7 @@ export function journalOf(
   passing: readonly number[],
   bankSize: number,
   tiers: Record<string, number> = {},
+  causes: (failing: number) => number | undefined = (failing) => failing,
 ): unknown[] {
   return passing.map((value, iteration) =>
     journalRow(iteration, {
@@ -108,6 +109,9 @@ export function journalOf(
       passing: value,
       failingByFamily: { core: bankSize - value },
       bankByFamilyTier: { core: Object.keys(tiers).length > 0 ? tiers : { '1': bankSize } },
+      ...(causes(bankSize - value) !== undefined
+        ? { failingCauses: causes(bankSize - value), failingWithoutCause: 0 }
+        : {}),
       result: iteration === 0 ? 'baseline' : 'unchanged',
     }),
   );
@@ -141,6 +145,7 @@ export function bankLadder(failOn: readonly number[] = [2]) {
                 tier: 3,
                 pass: !failOn.includes(seed),
                 detail: `a3 missed on seed ${seed}`,
+                cause: 'the parser drops the last field',
               },
               { id: 'b1', component: 'fixture/b', family: 'beta', tier: 1, pass: true },
               { id: 'b2', component: 'fixture/b', family: 'beta', tier: 4, pass: true },
@@ -168,6 +173,7 @@ export function bankLadder(failOn: readonly number[] = [2]) {
               tier: 5,
               pass: false,
               detail: 'g4 is unsolved',
+              cause: 'the parser drops the last field',
             },
           ]);
         },
@@ -175,4 +181,20 @@ export function bankLadder(failOn: readonly number[] = [2]) {
     ],
   });
   return { ladder, calls };
+}
+
+/** An audit.md where all four checks pass (section 12.7). */
+export const PASSING_AUDIT = [
+  '| Check | Verdict | Note |',
+  '|---|---|---|',
+  '| blind pilot | pass | |',
+  '| cheater | pass | |',
+  '| cause review | pass | |',
+  '| planted bugs | pass | |',
+  '',
+].join('\n');
+
+/** The hardness of journal rows with a passing audit by default, so a test measures everything else; null: no audit.md. */
+export function hard(rows: readonly JournalRow[], audit: string | null = PASSING_AUDIT) {
+  return measureHardness(rows, audit === null ? {} : { audit });
 }

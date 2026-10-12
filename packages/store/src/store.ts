@@ -14,6 +14,16 @@ import {
 } from '@driftbench/core';
 import { type CampaignBundle, readCampaignBundle, writeCampaignBundle } from './bundle';
 import { describeCause, describeIssues, StoreError } from './errors';
+import {
+  checkName,
+  entriesOf,
+  REGISTRY_KINDS,
+  type RegistryFile,
+  type RegistryKind,
+  type RegistryVersion,
+  sha256,
+  versionHash,
+} from './registry';
 import { SCHEMA_SQL, SCHEMA_VERSION } from './schema';
 import { loadSqlite } from './sqlite';
 import { unitProblems } from './units';
@@ -375,6 +385,108 @@ export class SqliteStore implements Store {
     return bundle;
   }
 
+  /**
+   * Stores a set of files as the next version of a dataset or prompt. Content the name already holds
+   * gives back that version, with `created: false`: a version never changes once pushed.
+   */
+  async pushVersion(
+    kind: RegistryKind,
+    name: string,
+    files: readonly RegistryFile[],
+    meta: { source?: string; single?: boolean; note?: string } = {},
+  ): Promise<{ version: RegistryVersion; created: boolean }> {
+    this.live();
+    checkKind(kind);
+    checkName(name);
+    const entries = entriesOf(files);
+    const hash = versionHash(entries);
+    const held = this.db
+      .prepare('SELECT json FROM versions WHERE kind = ? AND name = ? AND hash = ?')
+      .get(kind, name, hash);
+    if (held !== undefined) return { version: readVersion(held, `${kind} ${name}`), created: false };
+    return transaction(this.db, () => {
+      const insertBlob = this.db.prepare(
+        'INSERT OR IGNORE INTO blobs (sha256, size, bytes) VALUES (?, ?, ?)',
+      );
+      for (const file of files) insertBlob.run(sha256(file.bytes), file.bytes.byteLength, file.bytes);
+      const last = this.db
+        .prepare('SELECT max(version) AS last FROM versions WHERE kind = ? AND name = ?')
+        .get(kind, name);
+      const version: RegistryVersion = {
+        kind,
+        name,
+        version: Number(last?.last ?? 0) + 1,
+        hash,
+        files: entries,
+        ...(meta.source === undefined ? {} : { source: meta.source }),
+        ...(meta.single === true ? { single: true } : {}),
+        ...(meta.note === undefined ? {} : { note: meta.note }),
+        createdAt: now(),
+      };
+      this.db
+        .prepare(
+          'INSERT INTO versions (kind, name, version, hash, json, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+        )
+        .run(kind, name, version.version, hash, JSON.stringify(version), version.createdAt);
+      return { version, created: true };
+    });
+  }
+
+  /** The versions of one kind, for one name when it is given, by name then version. */
+  async listVersions(kind: RegistryKind, name?: string): Promise<RegistryVersion[]> {
+    this.live();
+    checkKind(kind);
+    const rows =
+      name === undefined
+        ? this.db.prepare('SELECT json FROM versions WHERE kind = ? ORDER BY name, version').all(kind)
+        : this.db
+            .prepare('SELECT json FROM versions WHERE kind = ? AND name = ? ORDER BY version')
+            .all(kind, name);
+    return rows.map((row) => readVersion(row, `${kind} ${name ?? ''}`.trim()));
+  }
+
+  /**
+   * One version: by number (`3`), by a prefix of its hash of 6 or more characters, or the latest
+   * when the ref is absent or `latest`.
+   */
+  async getVersion(kind: RegistryKind, name: string, ref?: string): Promise<RegistryVersion | undefined> {
+    const versions = await this.listVersions(kind, name);
+    if (ref === undefined || ref === 'latest') return versions.at(-1);
+    if (/^\d+$/.test(ref)) return versions.find((each) => each.version === Number(ref));
+    if (/^[0-9a-f]{6,64}$/.test(ref)) {
+      const found = versions.filter((each) => each.hash.startsWith(ref));
+      if (found.length > 1) {
+        throw new StoreError(
+          'INVALID_RECORD',
+          `${kind} ${name}@${ref} matches versions ${found.map((each) => each.version).join(', ')}; give more of the hash`,
+        );
+      }
+      return found[0];
+    }
+    throw new StoreError(
+      'INVALID_RECORD',
+      `"${ref}" is not a version: give a number, latest, or 6 or more hex characters of the hash`,
+    );
+  }
+
+  /** The bytes of every file of a version, in path order, each checked against its hash. */
+  async readVersionFiles(version: RegistryVersion): Promise<RegistryFile[]> {
+    this.live();
+    const select = this.db.prepare('SELECT bytes FROM blobs WHERE sha256 = ?');
+    const label = `${version.kind} ${version.name}@${version.version}`;
+    return version.files.map((entry) => {
+      const row = select.get(entry.sha256);
+      const bytes = row?.bytes;
+      if (!(bytes instanceof Uint8Array)) {
+        throw corrupt(`the blobs row for ${entry.path} of ${label} is missing`);
+      }
+      if (sha256(bytes) !== entry.sha256) {
+        throw corrupt(`the file ${entry.path} of ${label} no longer hashes to ${entry.sha256}`);
+      }
+      return { path: entry.path, bytes: new Uint8Array(bytes) };
+    });
+  }
+
   async close(): Promise<void> {
     if (this.closed) return;
     this.closed = true;
@@ -525,6 +637,40 @@ function newestFirst(a: Campaign, b: Campaign): number {
 function textOrder(a: string, b: string): number {
   if (a < b) return -1;
   return a > b ? 1 : 0;
+}
+
+function checkKind(kind: string): asserts kind is RegistryKind {
+  if (!REGISTRY_KINDS.includes(kind as RegistryKind)) {
+    throw new StoreError('INVALID_RECORD', `the registry holds ${REGISTRY_KINDS.join(' and ')}, not ${kind}`);
+  }
+}
+
+/** A versions row as a record, checked field by field. */
+function readVersion(row: Row, label: string): RegistryVersion {
+  const where = `the versions row of ${label}`;
+  const value = parseObject(row, 'json', where);
+  const files = value.files;
+  const ok =
+    REGISTRY_KINDS.includes(value.kind as RegistryKind) &&
+    typeof value.name === 'string' &&
+    Number.isInteger(value.version) &&
+    typeof value.hash === 'string' &&
+    typeof value.createdAt === 'string' &&
+    Array.isArray(files) &&
+    files.every(
+      (file) =>
+        file !== null &&
+        typeof file === 'object' &&
+        typeof file.path === 'string' &&
+        typeof file.sha256 === 'string' &&
+        Number.isInteger(file.size),
+    );
+  if (!ok) throw corrupt(`${where} is not a version record`);
+  const version = value as RegistryVersion;
+  if (versionHash(version.files) !== version.hash) {
+    throw corrupt(`${where} lists files that no longer hash to ${version.hash}`);
+  }
+  return version;
 }
 
 function corrupt(message: string): StoreError {

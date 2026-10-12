@@ -14,6 +14,14 @@ export const STATES = fileURLToPath(
   new URL('../../../../../examples/estates/fixture/live/states/library.json', import.meta.url),
 );
 
+/** The flags the runner adds after the headless shape, as the first real run settled them. */
+export const RUNTIME_FLAGS = [
+  '--include-hook-events',
+  '--setting-sources',
+  'project,local',
+  '--strict-mcp-config',
+] as const;
+
 export const MAP_HASH = 'be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10';
 
 export const ASK_WEEKLY = "Add the late shipment count to this week's report, reports/2026-W41.md.";
