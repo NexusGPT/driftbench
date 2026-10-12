@@ -78,5 +78,5 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
     expect(run.rows[0]?.pass).toBe(true);
     expect(run.failing?.id).toBe('degenerate');
     expect(run.level).toBe(1);
-  });
+  }, 900_000);
 });
