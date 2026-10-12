@@ -53,6 +53,11 @@ function brief(s: string, n = 300): string {
 
 const ITEMS: BankItem[] = [];
 
+/** Causes one change in a shared component fixes, so items here and in other files count them once. */
+const SHARED_CAUSES = new Set([
+  'compareCampaigns gives an incomplete result, not an error, when the candidate ran no golden, so ci reports INCOMPLETE and report aggregates read inconclusive',
+]);
+
 function add(
   family: string,
   slug: string,
@@ -72,7 +77,9 @@ function add(
     component,
     source,
     title: `${quote}: ${claim}`,
-    cause: `${component}: ${claim}`,
+    // A cause shared with another file, or already naming its command or file, is kept word for word.
+    cause:
+      SHARED_CAUSES.has(claim) || /^(driftbench |packages\/)/.test(claim) ? claim : `${component}: ${claim}`,
     check,
   });
 }
