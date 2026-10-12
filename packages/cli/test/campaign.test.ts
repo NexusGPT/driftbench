@@ -401,7 +401,7 @@ describe('driftbench campaign run', () => {
     ]);
     expect(code).toBe(0);
     expect(out).toContain(
-      'Campaign c-main: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+      'Campaign c-main: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
     );
     expect(out).toContain('✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks');
     expect(out).toContain('6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.');
@@ -502,6 +502,24 @@ describe('driftbench campaign run', () => {
     expect(again.err).toContain(
       'Campaign c-twice already exists. Resume it with: driftbench campaign resume c-twice',
     );
+  });
+
+  it('--cache-suite with a new name does not replay a cell from another suite, and the same name does', async () => {
+    const path = await storePath();
+    const base = [
+      'campaign',
+      'run',
+      'examples/acme/specs/conversations/plan-upgrade.yaml',
+      '--target',
+      'function:acme',
+      '--store',
+      path,
+    ];
+    await cli([...base, '--campaign', 'c-s1', '--cache-suite', 'nightly-1']);
+    const other = await cli([...base, '--campaign', 'c-s2', '--cache-suite', 'nightly-2']);
+    expect(other.out).not.toContain('replayed from the cache');
+    const same = await cli([...base, '--campaign', 'c-s3', '--cache-suite', 'nightly-1']);
+    expect(same.out).toContain('replayed from the cache');
   });
 
   it('replays a cell from the cache in a later campaign on the same store, unless --no-cache', async () => {
@@ -747,7 +765,7 @@ describe('each spec on its own target, without --target', () => {
       ]);
       expect(code, out).toBe(0);
       expect(out).toContain(
-        'Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+        'Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
       );
       expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks');
       expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 1  pass  2 blocks');

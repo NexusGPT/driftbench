@@ -73,7 +73,9 @@ describe('annotation anchors', () => {
 
   it('a field anchor is a path into the ledger of the block', () => {
     expect(anchorProblem(block({ kind: 'field', path: 'order.total' }))).toBeUndefined();
-    expect(anchorProblem(block({ kind: 'field', path: 'order.tax' }))).toMatch(/no ledger field order\.tax/);
+    expect(anchorProblem(block({ kind: 'field', path: 'order.tax' }))).toMatch(
+      /no ledger field or tool output field order\.tax/,
+    );
   });
 
   it('a span anchor is accepted, with a note that the transcript cannot check it', () => {
@@ -128,5 +130,41 @@ describe('calibrate reads anchors', () => {
     const row = report.criteria.find((entry) => entry.criterion === named)?.judges[0]?.labels.blocks[0];
     expect(row?.id).toBe(blocks[0]?.id);
     expect(row?.anchor).toEqual({ kind: 'message', index: 1 });
+  });
+});
+
+describe('field anchors may name a field of a tool output, and a span names a runtime event', () => {
+  const withOutput = {
+    id: 'b2',
+    label: 'pass' as const,
+    transcript: [
+      { role: 'user' as const, text: 'Is fiber available?' },
+      { role: 'tool_call' as const, text: '{"address":"12 Main St"}', tool: 'coverage.lookup' },
+      {
+        role: 'tool_result' as const,
+        text: '{"coverage":{"fiber":true},"price":35}',
+        tool: 'coverage.lookup',
+      },
+      { role: 'agent' as const, text: 'Yes.' },
+    ],
+  } as LabelledBlock;
+
+  it('resolves a field path against the JSON output of a tool result in the transcript', () => {
+    expect(
+      anchorProblem({ ...withOutput, anchor: { kind: 'field', path: 'coverage.fiber' } }),
+    ).toBeUndefined();
+    expect(anchorProblem({ ...withOutput, anchor: { kind: 'field', path: 'price' } })).toBeUndefined();
+    expect(anchorProblem({ ...withOutput, anchor: { kind: 'field', path: 'coverage.tax' } })).toMatch(
+      /no ledger field/,
+    );
+  });
+
+  it('a span anchor is accepted for a runtime event such as a guard, with the note', () => {
+    expect(
+      anchorProblem({ ...withOutput, anchor: { kind: 'span', span_id: 'guard:billing' } }),
+    ).toBeUndefined();
+    expect(anchorNote({ ...withOutput, anchor: { kind: 'span', span_id: 'guard:billing' } })).toMatch(
+      /not checkable/,
+    );
   });
 });

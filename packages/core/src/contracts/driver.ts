@@ -20,7 +20,7 @@ export type DriverContext = {
 export type DriverStep =
   | { kind: 'block'; blockIndex: number; stimulus: Stimulus }
   | { kind: 'injected'; perturbationId: string; stimulus: Stimulus; beforeBlock: number }
-  | { kind: 'stop'; reason: string };
+  | { kind: 'stop'; reason: string; verdict?: 'success' | 'failure' };
 
 export interface UserDriver {
   readonly id: string;

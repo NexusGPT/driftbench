@@ -147,3 +147,24 @@ describe('review queue agreement between reviewers', () => {
     });
   });
 });
+
+describe('a reviewer can give a score with the label', () => {
+  it('stores the score on the vote, and refuses a score outside 0 to 1', async () => {
+    const dir = await folder();
+    const taken = assign(enqueue(emptyQueue(), [item(2)]), 'tone', 'run-1.b2', 'Ana');
+    const done = await completeItem(
+      dir,
+      taken,
+      'tone',
+      'run-1.b2',
+      'Ana',
+      { id: 'run-1.b2', label: 'pass', transcript },
+      0.8,
+    );
+    expect(done.entries[0]?.votes).toEqual([{ reviewer: 'Ana', label: 'pass', score: 0.8 }]);
+    const again = assign(enqueue(emptyQueue(), [item(3)]), 'tone', 'run-1.b3', 'Ana');
+    await expect(
+      completeItem(dir, again, 'tone', 'run-1.b3', 'Ana', { id: 'run-1.b3', label: 'pass', transcript }, 1.5),
+    ).rejects.toThrow(/score must be from 0 to 1/);
+  });
+});
