@@ -6,3 +6,4 @@ export * from './mutants';
 export * from './plan';
 export * from './scan';
 export * from './schema';
+export * from './static';

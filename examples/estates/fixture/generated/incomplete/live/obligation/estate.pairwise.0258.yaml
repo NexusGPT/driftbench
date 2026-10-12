@@ -81,6 +81,8 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: ledger-auditor-brief
     phrase: 0
+    ask: bank
+    outcome: bank
     needs:
       - marker: needs-registered-check
         atom: instruction.ledger-auditor.look-for-double-payments-and-unapplied

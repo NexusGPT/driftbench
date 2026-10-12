@@ -1,0 +1,12 @@
+{
+  "id": "estate.setting.setting.settings.setting-env-northwind-ledger-dir",
+  "planRow": "setting.setting.settings.setting-env-northwind-ledger-dir",
+  "testType": "setting",
+  "atom": "setting.settings.setting-env-northwind-ledger-dir",
+  "title": "Setting env.NORTHWIND_LEDGER_DIR",
+  "check": {
+    "kind": "setting",
+    "key": "env.NORTHWIND_LEDGER_DIR"
+  },
+  "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10"
+}
