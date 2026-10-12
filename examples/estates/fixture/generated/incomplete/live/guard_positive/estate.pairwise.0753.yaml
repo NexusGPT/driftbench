@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "[no approved phrase: trigger situation for guard.settings.posttooluse-bash-guard-ledger-guard-py]"
+      user: "[no approved phrase: forced situation for guard.settings.posttooluse-bash-guard-ledger-guard-py]"
     expect:
       guards:
         - name: ledger-guard.py
@@ -58,7 +58,7 @@ metadata:
     needs:
       - marker: needs-approved-phrase
         atom: guard.settings.posttooluse-bash-guard-ledger-guard-py
-        detail: a trigger situation for guard.settings.posttooluse-bash-guard-ledger-guard-py
+        detail: a forced situation for guard.settings.posttooluse-bash-guard-ledger-guard-py
       - marker: needs-workspace-outcome
         atom: guard.settings.posttooluse-bash-guard-ledger-guard-py
         detail: no situation of the bank declares the paths the ask may touch

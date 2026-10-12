@@ -147,7 +147,7 @@ print({
   session_id: sessionId,
   cwd,
   model: 'fake-model',
-  tools: ['Read', 'Edit', 'Write', 'Bash', 'Skill', 'Agent', 'WebFetch'],
+  tools: offeredTools(),
   timestamp: stamp(),
 });
 const written = [
@@ -233,6 +233,19 @@ function findSession(id) {
     if (existsSync(path)) return path;
   }
   return undefined;
+}
+
+/** The tools offered, as the runtime does: a tool the copy's settings deny whole is not offered. */
+function offeredTools() {
+  const all = ['Read', 'Edit', 'Write', 'Bash', 'Skill', 'Agent', 'WebFetch'];
+  const text = readText(join(cwd, '.claude', 'settings.json'));
+  let deny = [];
+  try {
+    deny = text === undefined ? [] : (JSON.parse(text).permissions?.deny ?? []);
+  } catch {
+    deny = [];
+  }
+  return all.filter((tool) => !deny.includes(tool));
 }
 
 function readHelpers() {

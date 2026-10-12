@@ -147,11 +147,11 @@ Between the two pushes, one line was added to `plan-upgrade.yaml`. `diff` withou
 
 ## A campaign records the versions it ran
 
-`campaign run --dataset <ref>` runs the specs of a dataset version: they are restored, byte for byte, into the campaign's temporary folder and loaded from there. `--prompt <ref>` names a prompt version the campaign ran with; repeat it for several. Both need `--store`, and the campaign records each version by name, number and hash in its `sources`, so a later reader knows exactly which inputs produced the runs.
+`campaign run --dataset <ref>` runs the specs of a dataset version: they are restored, byte for byte, into the campaign's temporary folder and loaded from there. `--prompt <ref>` gives the agent a prompt version: see the next section. Both need `--store`, and the campaign records each version by name, number and hash in its `sources`, so a later reader knows exactly which inputs produced the runs. A spec restored from a dataset is stored under its dataset reference, such as `acme-specs@1/plan-upgrade.yaml`, never under the temporary folder.
 
 ```
 $ pnpm -s driftbench campaign run --dataset acme-specs@1 --prompt acme-sales --target function:acme --campaign c-demo --store _demo/store.db
-Campaign c-demo: 6 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-demo: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass  5 blocks
 ✓ acme-off-topic-return · function:acme · F · repeat 0  pass  5 blocks
@@ -172,7 +172,53 @@ The stored campaign then holds:
 
 Hashes are shortened here; the record keeps all 64 characters.
 
+## The prompt reaches the agent
+
+`--prompt <ref>` takes one prompt version of a single UTF-8 text file. Its text, byte for byte, goes on every target of the campaign as `target.prompt` (`name`, `version`, `hash`, `text`; see the [spec reference](reference/spec.md#targetprompt)), so the cells, the cache key and `campaign resume` all carry it. Each adapter hands it over its own way:
+
+| Adapter | How the agent receives the prompt |
+|---|---|
+| [function](adapters/function.md) | the fifth argument of the agent function, `context.prompt` |
+| [process](adapters/process.md) | the file `driftbench-prompt.txt` in the workspace, named by `DRIFTBENCH_PROMPT_FILE` |
+| [http](adapters/http.md) | `target.prompt` in the request, and a leading system message in `messages` |
+| [anthropic](adapters/anthropic.md), [google](adapters/google.md) | the system prompt, in place of the `system` option |
+| [openai-agents](adapters/openai-agents.md), [langgraph](adapters/langgraph.md) | a leading system message in the input |
+| [nexus](adapters/nexus.md) | refused: the platform runs its own prompt variants, so push the version as a variant and name it in `target.variant` |
+
+A prompt version of several files, two `--prompt` options, or bytes that are not UTF-8 are refused with exit 2.
+
+## Run a campaign again elsewhere
+
+```
+driftbench campaign export <campaignId> --store <file> --out <dir>
+driftbench campaign import <folder> --store <file>
+```
+
+`campaign export` writes `<dir>/<campaignId>/`: `campaign.json`, `runs/`, the specs the campaign ran in `specs/` (each with its path and hash), and for every version in its `sources`, `sources/<kind>/<name>@<version>/version.json` with the exact files under `files/`. `campaign import` checks every spec against its hash and every file against its SHA-256, then stores the campaign, its runs, its specs and its versions under their own numbers, all or nothing. A version number the other store already holds with other content stops the import.
+
+```
+$ pnpm -s driftbench campaign run --dataset acme-specs --prompt acme-sales --target function:acme --campaign c-ship --store _demo/store.db
+6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.
+$ pnpm -s driftbench campaign export c-ship --store _demo/store.db --out _demo/bundles
+Exported campaign c-ship to _demo/bundles/c-ship: 6 runs, 6 specs, 2 sources (dataset acme-specs@1, prompt acme-sales@1).
+```
+
+On another machine, with only the bundle folder:
+
+```
+$ pnpm -s driftbench campaign import bundles/c-ship --store there.db
+Imported campaign c-ship into there.db: 6 runs, 6 specs, 2 sources.
+$ pnpm -s driftbench campaign run --dataset acme-specs@1 --prompt acme-sales@1 --target function:acme --campaign c-again --store there.db
+6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.
+```
+
+(The per-cell lines are left out.) `campaign status c-ship --store there.db` reads the imported campaign as it read the original, and `c-again` records the same dataset and prompt hashes as `c-ship`.
+
+| Exit code | When |
+|---|---|
+| 0 | written, or stored |
+| 2 | an unknown campaign, a source the store no longer holds, a bundle that does not read or whose files do not match their hashes, a version conflict |
+
 ## Not built yet
 
-* Handing a prompt version to an adapter: today `--prompt` records the version; each adapter reads its prompt the way its page says.
-* Pushing a version to a shared remote registry: versions live in one store file, and a campaign bundle (`exportCampaign`) carries the campaign with its `sources`, not the files.
+* A shared remote registry: versions live in one store file, and a campaign bundle is the way to carry them to another store.

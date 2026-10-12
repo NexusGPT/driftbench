@@ -152,3 +152,9 @@ vite.config.ts.timestamp-*
 # Local leak-guard denylist (CI reads the GUARD_DENYLIST secret)
 .guard-denylist
 _captures/
+
+# Python
+__pycache__/
+.pytest_cache/
+*.egg-info/
+.venv/

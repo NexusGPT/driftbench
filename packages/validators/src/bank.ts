@@ -161,12 +161,17 @@ function sortKeys<T>(record: Record<string, T>): Record<string, T> {
  * The bank listing of `--items`: one block per family, items ordered by tier then level then id, each with its
  * verdict per seed; then the bank score and the counts per family and tier.
  */
-export function formatItems(summary: BankSummary, component: string): string {
+export function formatItems(
+  summary: BankSummary,
+  component: string,
+  options: { blind?: boolean } = {},
+): string {
   const families = Object.keys(summary.byFamilyTier);
   let text = `Bank of ${component}: ${summary.size} items in ${families.length} famil${
     families.length === 1 ? 'y' : 'ies'
   }, ${summary.passing} pass on every seed (score ${round(summary.score)}).\n`;
-  text += `Failing: ${summary.size - summary.passing} items, ${summary.failingCauses} distinct causes (${summary.failingWithoutCause} items name no cause and count as their own).\n`;
+  if (!options.blind)
+    text += `Failing: ${summary.size - summary.passing} items, ${summary.failingCauses} distinct causes (${summary.failingWithoutCause} items name no cause and count as their own).\n`;
   const header = ['Item', 'Tier', 'Level', 'Component', ...summary.seeds.map((seed) => `seed ${seed}`)];
   for (const family of families) {
     const members = summary.rows
@@ -178,9 +183,12 @@ export function formatItems(summary: BankSummary, component: string): string {
           a.id.localeCompare(b.id, undefined, { numeric: true }),
       );
     const failing = summary.failingByFamily[family] ?? 0;
-    text += `\nFamily ${family}: ${members.length} items, ${failing} failing, ${
-      summary.failingCausesByFamily[family] ?? 0
-    } distinct failing causes; per tier ${tierCounts(summary.byFamilyTier[family] ?? {})}\n`;
+    const causes = options.blind
+      ? ''
+      : `, ${summary.failingCausesByFamily[family] ?? 0} distinct failing causes`;
+    text += `\nFamily ${family}: ${members.length} items, ${failing} failing${causes}; per tier ${tierCounts(
+      summary.byFamilyTier[family] ?? {},
+    )}\n`;
     text += table(
       header,
       members.map((row) => [

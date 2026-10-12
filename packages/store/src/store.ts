@@ -12,11 +12,12 @@ import {
   type Store,
   validateSpec,
 } from '@driftbench/core';
-import { type CampaignBundle, readCampaignBundle, writeCampaignBundle } from './bundle';
+import { type BundleSource, type CampaignBundle, readCampaignBundle, writeCampaignBundle } from './bundle';
 import { describeCause, describeIssues, StoreError } from './errors';
 import {
   checkName,
   entriesOf,
+  isVersionRecord,
   REGISTRY_KINDS,
   type RegistryFile,
   type RegistryKind,
@@ -367,7 +368,24 @@ export class SqliteStore implements Store {
     if (campaign === undefined) {
       throw new StoreError('CAMPAIGN_MISSING', `exportCampaign: campaign ${campaignId} is not in the store`);
     }
-    return writeCampaignBundle(dir, campaign, await this.listRuns({ campaignId }));
+    const specs: LoadedSpec[] = [];
+    for (const { id, hash } of campaign.specs) {
+      const spec = await this.getSpec(id, hash);
+      if (spec !== undefined && !specs.some((each) => each.spec.id === id && each.hash === hash))
+        specs.push(spec);
+    }
+    const sources: BundleSource[] = [];
+    for (const source of campaign.sources ?? []) {
+      const version = await this.getVersion(source.kind, source.name, String(source.version));
+      if (version === undefined || version.hash !== source.hash) {
+        throw new StoreError(
+          'BUNDLE_INVALID',
+          `campaign ${campaignId} records ${source.kind} ${source.name}@${source.version}, which this store does not hold`,
+        );
+      }
+      sources.push({ version, files: await this.readVersionFiles(version) });
+    }
+    return writeCampaignBundle(dir, campaign, await this.listRuns({ campaignId }), { specs, sources });
   }
 
   /**
@@ -379,6 +397,10 @@ export class SqliteStore implements Store {
     const bundle = await readCampaignBundle(folder);
     this.live();
     transaction(this.db, () => {
+      for (const source of bundle.sources) this.importVersionNow(source.version, source.files);
+      for (const spec of bundle.specs) {
+        this.sql.upsertSpec.run(spec.spec.id, spec.hash, spec.path, canonicalJson(spec.spec), now());
+      }
       this.putCampaignNow(bundle.campaign);
       for (const run of bundle.runs) this.putRunNow(bundle.campaign.campaignId, run);
     });
@@ -485,6 +507,38 @@ export class SqliteStore implements Store {
       }
       return { path: entry.path, bytes: new Uint8Array(bytes) };
     });
+  }
+
+  /**
+   * Stores a version read from a bundle under its own number. The same content already held is left;
+   * other content under that number raises `VERSION_CONFLICT`. The caller has checked every file hash.
+   */
+  private importVersionNow(version: RegistryVersion, files: readonly RegistryFile[]): void {
+    checkKind(version.kind);
+    checkName(version.name);
+    const label = `${version.kind} ${version.name}@${version.version}`;
+    const held = this.db
+      .prepare('SELECT hash FROM versions WHERE kind = ? AND name = ? AND (hash = ? OR version = ?)')
+      .all(version.kind, version.name, version.hash, version.version);
+    if (held.some((row) => row.hash === version.hash)) return;
+    if (held.length > 0) {
+      throw new StoreError(
+        'VERSION_CONFLICT',
+        `${label} in this store holds other content than the bundle's; import into another store`,
+      );
+    }
+    const insertBlob = this.db.prepare('INSERT OR IGNORE INTO blobs (sha256, size, bytes) VALUES (?, ?, ?)');
+    for (const file of files) insertBlob.run(sha256(file.bytes), file.bytes.byteLength, file.bytes);
+    this.db
+      .prepare('INSERT INTO versions (kind, name, version, hash, json, created_at) VALUES (?, ?, ?, ?, ?, ?)')
+      .run(
+        version.kind,
+        version.name,
+        version.version,
+        version.hash,
+        JSON.stringify(version),
+        version.createdAt,
+      );
   }
 
   async close(): Promise<void> {
@@ -649,28 +703,11 @@ function checkKind(kind: string): asserts kind is RegistryKind {
 function readVersion(row: Row, label: string): RegistryVersion {
   const where = `the versions row of ${label}`;
   const value = parseObject(row, 'json', where);
-  const files = value.files;
-  const ok =
-    REGISTRY_KINDS.includes(value.kind as RegistryKind) &&
-    typeof value.name === 'string' &&
-    Number.isInteger(value.version) &&
-    typeof value.hash === 'string' &&
-    typeof value.createdAt === 'string' &&
-    Array.isArray(files) &&
-    files.every(
-      (file) =>
-        file !== null &&
-        typeof file === 'object' &&
-        typeof file.path === 'string' &&
-        typeof file.sha256 === 'string' &&
-        Number.isInteger(file.size),
-    );
-  if (!ok) throw corrupt(`${where} is not a version record`);
-  const version = value as RegistryVersion;
-  if (versionHash(version.files) !== version.hash) {
-    throw corrupt(`${where} lists files that no longer hash to ${version.hash}`);
+  if (!isVersionRecord(value)) throw corrupt(`${where} is not a version record`);
+  if (versionHash(value.files) !== value.hash) {
+    throw corrupt(`${where} lists files that no longer hash to ${value.hash}`);
   }
-  return version;
+  return value;
 }
 
 function corrupt(message: string): StoreError {

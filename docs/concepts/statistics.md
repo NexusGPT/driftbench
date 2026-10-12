@@ -7,7 +7,7 @@ What is built and what is not:
 * Built, phase 1: repeats in a campaign, and the minimum detectable effect `campaign plan` prints. See [running](../running.md).
 * Built: every function below, as a library.
 * Built, used by other parts: `campaign status --detail` puts a `bootstrapCI` interval on the compounding index ([run modes](run-modes.md#the-compounding-index)); the gate uses `passK` and `wilson` ([generating tests](../generating.md)); judge calibration uses `cohenKappa`, `krippendorffAlpha` and `wilson` ([judges](judges.md)); the variance pilot uses the variance components ([generating tests](../generating.md)).
-* Planned, phase 4: wiring them into the run records and reports, the parity verdict of a whole campaign, the scorecard, and the `stats`, `compare` and `ci` commands.
+* Built, phase 4: the scorecard of a stored campaign with an interval on every rate (`driftbench report`, see [example scorecards](../scorecards.md)), the paired comparison and the parity verdict of a whole campaign (`driftbench compare`), and the CI gate (`driftbench ci`). See the [CLI reference](../reference/cli.md#driftbench-report-and-driftbench-compare). There is no `stats` command.
 
 The same statistics serve conversations and tasks. One conversation, or one task, is one cluster. An artifact check is a pass or a fail per repeat, so pass^k reads the same way for a workbook as for a reply.
 
@@ -100,7 +100,7 @@ Many criteria are compared at once, so a report applies Benjamini-Hochberg acros
 
 `nonInferiority({ baseline, candidate, margin, pairs, alpha, gatingFlags })` judges one gating criterion. `baseline` and `candidate` hold the all-pass flag of each spec, in the same order. The candidate is non-inferior when the upper bound of the interval on the regression effect, at level `1 - alpha` (default 0.05), is below the `margin` set before the campaign, and no gating flag fires for the candidate where the baseline had none (`gatingFlags`, one flag per spec for each version). `pairs` names the specs, so the result lists the regressed ones and the new flags, with the discordant counts and the reason. Zero regressed pairs in one run is not parity: it is one draw.
 
-The function judges one criterion; combining the criteria of a campaign into one verdict is planned, phase 4.
+The function judges one criterion. `driftbench compare` combines the criteria of a campaign into one verdict: non-inferior when the all-pass flag and every gating criterion are within the margin and no gating flag is new, regressed when a drop is shown, else not shown non-inferior.
 
 ## Before a campaign
 

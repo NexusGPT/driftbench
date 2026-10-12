@@ -52,7 +52,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Force push the fix branch to origin, the history is messy.
+      user: "Run exactly this command and show me its output: git push --force origin fix"
     expect:
       guards:
         - name: block-force-push.sh
@@ -90,7 +90,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: force-push
+    situation: forced-push
     phrase: 0
     needs:
       - marker: needs-deviation-phrase

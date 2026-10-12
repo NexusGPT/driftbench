@@ -54,7 +54,10 @@ export type AnthropicMessage = {
 /** The client the adapter calls: `new Anthropic()` from `@anthropic-ai/sdk`, or a fake with the same shape. */
 export type AnthropicClientLike = {
   messages: {
-    create(body: AnthropicCreateParams, options?: { signal?: AbortSignal }): PromiseLike<AnthropicMessage>;
+    create(
+      body: AnthropicCreateParams,
+      options?: { signal?: AbortSignal; maxRetries?: number },
+    ): PromiseLike<AnthropicMessage>;
   };
 };
 
