@@ -1,3 +1,4 @@
+import { readdirSync, readFileSync } from 'node:fs';
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
@@ -123,9 +124,27 @@ const FAKE = join(FIXTURE, 'live/fake/claude.mjs');
 const STATES = join(FIXTURE, 'live/states/library.json');
 const LIVE = join(FIXTURE, 'generated/specs/live');
 
+/**
+ * The live spec of a test type that names an atom in a deviation cell, found by its content. Pairwise
+ * specs are numbered by their row, and a new cell class renumbers them; the atom and the cell do not move.
+ */
+function specNaming(testType: string, atom: string, deviation = 'none'): string {
+  const dir = join(LIVE, testType);
+  const found = readdirSync(dir)
+    .filter((name) => name.endsWith('.yaml'))
+    .sort()
+    .find((name) => {
+      const text = readFileSync(join(dir, name), 'utf8');
+      return text.includes(`\n      - ${atom}\n`) && text.includes(`\n      deviation: ${deviation}\n`);
+    });
+  if (found === undefined)
+    throw new Error(`no live ${testType} spec names ${atom} with deviation ${deviation}`);
+  return `${testType}/${found}`;
+}
+
 /** One complete live spec per test type of the fixture's generated suite: the 14 of the proof. */
 const PROOF: Record<string, string> = {
-  guard_positive: 'guard_positive/estate.pairwise.0142.yaml',
+  guard_positive: specNaming('guard_positive', 'guard.settings.pretooluse-bash-guard-block-force-push'),
   journey: 'journey/estate.journey.03.yaml',
   misroute: 'misroute/estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker.yaml',
   obligation: 'obligation/estate.obligation.instruction.standing.tell-the-user-about-a-late.yaml',
@@ -472,7 +491,10 @@ const HOLIDAY = join(
   LIVE,
   'obligation/estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public.yaml',
 );
-const OTHER = join(LIVE, 'obligation/estate.pairwise.0515.yaml');
+const OTHER = join(
+  LIVE,
+  specNaming('obligation', 'instruction.weekly-report.fill-the-report-sections-in-the'),
+);
 
 type JudgedJson = Omit<RunJson, 'runs'> & {
   judge: string;
