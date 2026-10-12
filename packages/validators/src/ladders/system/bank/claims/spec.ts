@@ -974,7 +974,7 @@ function issueCodes(out: BankItem[]): void {
         v(
           base(seed, {
             blocks: [
-              block(seed, 0, { expect: { subagents: [{ name: 'reader', count: { min: 5, max: seed } }] } }),
+              block(seed, 0, { expect: { subagents: [{ name: 'reader', count: { min: 5, max: seed % 5 } }] } }),
             ],
           }),
         ),

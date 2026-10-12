@@ -2339,7 +2339,7 @@ setTimeout(() => {}, 5000);`;
       source: 'hostile',
       title:
         'process.md "Sandboxes": everything the agent started is killed at the timeout, also a child it started in its own process group',
-      cause: 'the sandbox kills children that left the agent process group at the timeout',
+      cause: 'the sandbox kills children that left the agent process group, at the timeout and at the exit',
       async check(ctx) {
         const body = `cp.spawn('/bin/sh', ['-c', 'sleep 0.4; echo late > late.txt'], { stdio: 'ignore', detached: true }).unref();
 setTimeout(() => {}, 5000);`;
@@ -2351,6 +2351,30 @@ setTimeout(() => {}, 5000);`;
             ? PASS
             : fail(
                 `expected the detached child killed with the agent at the timeout, but it ran on and wrote late.txt in ${root}`,
+              );
+        });
+      },
+    }),
+    adapterItem({
+      slug: 'process/exit-kills-detached-child',
+      tier: 4,
+      level: 3,
+      component: RUN,
+      source: 'hostile',
+      title:
+        'packages/sandbox/src/run.ts and process.md "Sandboxes": when the agent exits, a background child it left running is killed with it, also one it started in its own process group',
+      cause: 'the sandbox kills children that left the agent process group, at the timeout and at the exit',
+      async check(ctx) {
+        const body = `cp.spawn('/bin/sh', ['-c', 'sleep 0.4; echo late > late.txt'], { stdio: 'ignore', detached: true }).unref();
+console.log('R-${1000 + ctx.seed}');`;
+        return withProcess(ctx, 'exit-detached', body, { timeoutMs: 5000, keep: true }, async (h) => {
+          const o = await h.send('go');
+          await sleep(700);
+          const root = o.sandbox?.root ?? '';
+          return root !== '' && !existsSync(join(root, 'late.txt'))
+            ? PASS
+            : fail(
+                `expected the detached child killed when the agent exited, but it ran on and wrote late.txt in ${root}`,
               );
         });
       },
@@ -3308,6 +3332,70 @@ await store.close();
           ? PASS
           : fail(
               `listRuns({ status: '${other}' }) returned ${wrong.length} run(s) whose status is ${wrong[0]?.status}`,
+            );
+      },
+    }),
+    storeItem({
+      slug: 'hand-edit-spec-id-column',
+      tier: 3,
+      level: 1,
+      component: STORE,
+      source: 'hostile',
+      title:
+        'docs/running.md "The store" and errors.ts CORRUPT_ROW: listRuns filtered by specId never returns a run whose record holds another specId, even when the spec_id column was edited by hand',
+      cause: 'listRuns checks the filter columns against the record it read',
+      async check(ctx) {
+        const { path, run } = await seededFile(ctx, 'edit-spec-id');
+        const other = 's-other';
+        editByHand(path, 'UPDATE runs SET spec_id = ? WHERE run_id = ?', other, run.runId);
+        let got: RunResult[] = [];
+        const error = await caught(
+          withStore(path, async (store) => {
+            got = await store.listRuns({ specId: other } as never);
+          }),
+        );
+        if (error !== undefined) {
+          return error instanceof StoreError && error.code === 'CORRUPT_ROW'
+            ? PASS
+            : fail(`expected CORRUPT_ROW or an empty list, got ${kindOf(error)}`);
+        }
+        const wrong = got.filter((r) => r.specId !== other);
+        return wrong.length === 0
+          ? PASS
+          : fail(
+              `listRuns({ specId: '${other}' }) returned ${wrong.length} run(s) whose specId is ${wrong[0]?.specId}`,
+            );
+      },
+    }),
+    storeItem({
+      slug: 'hand-edit-mode-column',
+      tier: 3,
+      level: 1,
+      component: STORE,
+      source: 'hostile',
+      title:
+        'docs/running.md "The store" and errors.ts CORRUPT_ROW: listRuns filtered by mode never returns a run whose record holds another mode, even when the mode column was edited by hand',
+      cause: 'listRuns checks the filter columns against the record it read',
+      async check(ctx) {
+        const { path, run } = await seededFile(ctx, 'edit-mode');
+        const other = run.mode === 'T' ? 'F' : 'T';
+        editByHand(path, 'UPDATE runs SET mode = ? WHERE run_id = ?', other, run.runId);
+        let got: RunResult[] = [];
+        const error = await caught(
+          withStore(path, async (store) => {
+            got = await store.listRuns({ mode: other } as never);
+          }),
+        );
+        if (error !== undefined) {
+          return error instanceof StoreError && error.code === 'CORRUPT_ROW'
+            ? PASS
+            : fail(`expected CORRUPT_ROW or an empty list, got ${kindOf(error)}`);
+        }
+        const wrong = got.filter((r) => r.mode !== other);
+        return wrong.length === 0
+          ? PASS
+          : fail(
+              `listRuns({ mode: '${other}' }) returned ${wrong.length} run(s) whose mode is ${wrong[0]?.mode}`,
             );
       },
     }),

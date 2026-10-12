@@ -14,7 +14,7 @@ export {
 } from './family';
 
 /** The version of the system ladder: version 2 is the item bank of docs/validators.md section 12. */
-export const SYSTEM_LADDER_VERSION = 3;
+export const SYSTEM_LADDER_VERSION = 4;
 
 export type SystemLadderOptions = {
   /** Replaces the bank: tests run a few items, or plant a failing one. */

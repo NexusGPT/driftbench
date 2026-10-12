@@ -3,12 +3,14 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type BankEntry, bankMeasure, type Measure } from '../../../ladder';
 import { adaptersItems } from './claims/adapters';
+import { breakerItems } from './claims/breaker';
 import { checksItems } from './claims/checks';
 import { cliItems as cliClaimItems } from './claims/cli';
 import { conceptsItems } from './claims/concepts';
 import { reportItems } from './claims/report';
 import { specItems } from './claims/spec';
 import { cliItems } from './cli';
+import { comboItems } from './combos';
 import { fieldItems } from './fields';
 import { precisionItems } from './precision';
 import { reachItems } from './reach';
@@ -29,6 +31,7 @@ export const MIN_FAMILY = 20;
 export function systemBank(): BankItem[] {
   const items = [
     ...recordItems(),
+    ...comboItems(),
     ...reachItems(),
     ...precisionItems(),
     ...fieldItems(),
@@ -40,6 +43,7 @@ export function systemBank(): BankItem[] {
     ...conceptsItems(),
     ...cliClaimItems(),
     ...adaptersItems(),
+    ...breakerItems(),
     ...replayItems(),
     ...cliItems(),
     ...scaleItems(),
