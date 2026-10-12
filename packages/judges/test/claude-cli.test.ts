@@ -160,3 +160,13 @@ describe('the claude command judge', () => {
     expect(replayed).toEqual(recorded);
   });
 });
+
+describe('the claude command judge cost', () => {
+  it('ranks the models by list price, so the cascade and calibration try haiku first', () => {
+    const cost = (model: string) => createClaudeCliJudge({ model, env: {} }).cost;
+    expect([cost('haiku'), cost('sonnet'), cost('opus')]).toEqual([10, 30, 50]);
+    expect(cost('claude-sonnet-5-5')).toBe(30);
+    expect(cost('some-other-model')).toBe(10);
+    expect(createClaudeCliJudge({ model: 'opus', env: {}, cost: 7 }).cost).toBe(7);
+  });
+});

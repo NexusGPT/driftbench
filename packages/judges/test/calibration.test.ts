@@ -393,3 +393,31 @@ describe('the recorded haiku calibration (a real judge on the claude command, 20
     expect(report.pooled[0]?.kappa).toBeCloseTo(0.81, 2);
   });
 });
+
+describe('a council of one model family', () => {
+  it('assigns criteria and marks the council single-family in the report and the table', async () => {
+    const { criteria, labels } = await acme();
+    const claude = [
+      { id: 'claude-haiku', family: 'anthropic', cls: 'system2' as const, cost: 10 },
+      { id: 'claude-sonnet', family: 'anthropic', cls: 'system2' as const, cost: 30 },
+      { id: 'claude-opus', family: 'anthropic', cls: 'system2' as const, cost: 50 },
+    ];
+    const cassette = scriptedCalibrationCassette(criteria, labels, { judges: claude });
+    const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels, mode: 'llm' });
+    expect(assignmentOf(report, 'care_redirect')).toMatchObject({
+      status: 'assigned',
+      owner: 'claude-haiku',
+      judges: ['claude-haiku', 'claude-sonnet', 'claude-opus'],
+      singleFamily: 'anthropic',
+    });
+    const table = assignmentTable(report);
+    expect(table.criteria[0]).toMatchObject({ single_family: 'anthropic' });
+    // The six-judge Acme council spans four families: no row is single-family.
+    const mixed = await calibrate({
+      judges: cassettePlayers(await loadCassette(CASSETTE)),
+      criteria,
+      labels,
+    });
+    expect(mixed.criteria.every((c) => !('singleFamily' in c.assignment))).toBe(true);
+  });
+});

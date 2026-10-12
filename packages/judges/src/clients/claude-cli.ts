@@ -33,7 +33,16 @@ export type ClaudeCliOptions = Pick<ClientOptions, 'env' | 'id' | 'model' | 'cos
   maxBudgetUsd?: number;
 };
 
-const CLAUDE_COST = 10;
+/**
+ * Relative cost by model, from the list price ratio of the three Claude tiers (1 : 3 : 5), on the scale
+ * where a chat model costs 10. A model name that names none of them costs 10.
+ */
+export function claudeCost(model: string): number {
+  const name = model.toLowerCase();
+  if (name.includes('opus')) return 50;
+  if (name.includes('sonnet')) return 30;
+  return 10;
+}
 
 type Ran = { code: number | null; stdout: string; stderr: string };
 
@@ -54,7 +63,7 @@ export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClien
     family: 'anthropic',
     cls: 'system2',
     model,
-    cost: options.cost ?? CLAUDE_COST,
+    cost: options.cost ?? claudeCost(model),
     async judge(request) {
       const prompt = buildPrompt(request);
       const args = [

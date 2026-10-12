@@ -57,6 +57,7 @@ export function requestKey(request: JudgeRequest): string {
     criterion: request.criterion,
     transcript: request.transcript,
     artifact: request.artifact,
+    inputs: request.inputs,
     given: request.given,
     budget: request.budget === 'large' ? 'large' : undefined,
   });

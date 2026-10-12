@@ -363,7 +363,7 @@ function describeCalibration(criterion: CriterionCalibration, report: Calibratio
   const a = criterion.assignment;
   const head =
     a.status === 'assigned'
-      ? `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: owned by ${a.owner} (${a.cls}: ${a.judges.join(', ')}${a.rejudge.length > 0 ? `; re-judge ${a.rejudge.join(', ')}` : ''})`
+      ? `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: owned by ${a.owner} (${a.cls}: ${a.judges.join(', ')}${a.rejudge.length > 0 ? `; re-judge ${a.rejudge.join(', ')}` : ''})${a.singleFamily ? ` [single family: ${a.singleFamily}]` : ''}`
       : `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: UNASSIGNED, judged but not gating: ${a.reason}`;
   const lines = [head];
   for (const row of criterion.judges) {

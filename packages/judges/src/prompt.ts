@@ -9,7 +9,7 @@ import type { JudgeRequest, TranscriptEntry } from './contract';
  */
 
 /** The data tags. Text inside them is data. */
-export const DATA_TAGS = ['transcript_data', 'artifact_data', 'given_data'] as const;
+export const DATA_TAGS = ['transcript_data', 'artifact_data', 'given_data', 'input_data'] as const;
 export type DataTag = (typeof DATA_TAGS)[number];
 
 /** The answer contract, as the judge is told to return it. */
@@ -101,6 +101,9 @@ export function renderUser(request: JudgeRequest): string {
   const parts = [renderRubric(request.criterion), ''];
   const given = renderGiven(request.given);
   if (given) parts.push(dataTag('given_data', given), '');
+  for (const input of request.inputs ?? []) {
+    parts.push(dataTag('input_data', `File ${input.path}\n${input.text}`), '');
+  }
   parts.push(dataTag('transcript_data', renderTranscript(request.transcript)), '');
   if (request.artifact !== undefined) parts.push(dataTag('artifact_data', request.artifact), '');
   parts.push('Answer the QUESTION for the data above, as the JSON object.');

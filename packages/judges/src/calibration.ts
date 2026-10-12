@@ -6,8 +6,8 @@ import { z } from 'zod';
 import type { JudgeClient } from './client';
 import { JudgeClass, type JudgeOutcome, type JudgeRequest } from './contract';
 import type { AssignmentRow, CouncilMode, UnassignedCriterion } from './council';
-import { CriterionFixture, fixtureRequest, type LoadedCriterion } from './criteria';
-import { sameFamily } from './family';
+import { CriterionFixture, fixtureInputs, fixtureRequest, type LoadedCriterion } from './criteria';
+import { normalizeFamily, sameFamily } from './family';
 
 /**
  * Calibration (P2.3): a judge earns a criterion, it is never assumed to own one.
@@ -125,6 +125,8 @@ export function labelRequest(criterion: LoadedCriterion, block: LabelledBlock): 
     transcript: block.transcript,
     ...(block.artifact === undefined ? {} : { artifact: block.artifact }),
     ...(block.given === undefined ? {} : { given: block.given }),
+    // A block that carries no input of its own reads those of the criterion's pass fixture.
+    ...fixtureInputs(criterion.def.inputs, block.inputs ?? criterion.fixtures.pass.inputs),
   };
 }
 
@@ -187,6 +189,11 @@ export type CriterionAssignment =
       readonly cls: JudgeClass;
       readonly judges: readonly string[];
       readonly rejudge: readonly string[];
+      /**
+       * The one model family every judge of the row belongs to, when they share one. Judges of one family
+       * share its blind spots: such a council is weaker evidence than one across families.
+       */
+      readonly singleFamily?: string;
     }
   | { readonly status: 'unassigned'; readonly reason: string };
 
@@ -410,12 +417,18 @@ function assign(
       if (pool.length < COUNCIL_SIZE) continue;
       rejudge = pool.slice(0, COUNCIL_SIZE).map((judge) => judge.id);
     }
+    const seatedIds = seated.slice(0, COUNCIL_SIZE).map((judge) => judge.id);
+    const families = new Set(
+      [...seatedIds, ...rejudge].map((id) => normalizeFamily(judges.find((j) => j.id === id)?.family ?? id)),
+    );
+    const [only] = families;
     return {
       status: 'assigned',
       owner: owner.id,
       cls: owner.cls,
-      judges: seated.slice(0, COUNCIL_SIZE).map((judge) => judge.id),
+      judges: seatedIds,
       rejudge,
+      ...(families.size === 1 && only !== undefined ? { singleFamily: only } : {}),
     };
   }
   const counts = classes
@@ -451,6 +464,8 @@ const AssignedEntry = z.strictObject({
   class: JudgeClass,
   judges: z.array(z.string().min(1)),
   rejudge: z.array(z.string().min(1)),
+  /** Every judge of the row is of this one family: weaker evidence than a council across families. */
+  single_family: z.string().optional(),
   /** The owner's separation, as "k of n". */
   separation: z.string(),
   /** The owner's kappa against the labels. */
@@ -492,6 +507,7 @@ export function assignmentTable(report: CalibrationReport): AssignmentTable {
         class: a.cls,
         judges: [...a.judges],
         rejudge: [...a.rejudge],
+        ...(a.singleFamily === undefined ? {} : { single_family: a.singleFamily }),
         separation: `${owner.separation.separated} of ${owner.separation.repeats}`,
         kappa: Number(fixed(owner.labels.kappa ?? 0)),
       };
