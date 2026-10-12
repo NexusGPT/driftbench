@@ -108,7 +108,7 @@ It prints a line per cell and a summary. From a run in this repo, the first line
 
 ```
 Note: acme-price-sheet names the process adapter; --target runs it on function:acme.
-Campaign c-36ef44014561: 14 cells, 4 at a time. Checks: tools, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-36ef44014561: 14 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks
 14 cells: 12 pass, 2 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.

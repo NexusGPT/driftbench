@@ -58,7 +58,7 @@ Next: write each block's expect from the agent spec, then driftbench import appr
 
 An excerpt of the draft, the tool output folded onto one line:
 
-```yaml
+```text
 blocks:
   - user: Hi, do you have home internet at [ADDRESS_1], Acmeville?
   - user: Yes please, how much is it per month?

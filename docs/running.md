@@ -106,7 +106,7 @@ With `--dataset <ref>`, the specs come from a dataset version of the store inste
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
-Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass  5 blocks
@@ -127,7 +127,7 @@ The command exits 0. A failing cell lists the gating verdicts that did not pass,
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --target function:acme
 Note: acme-price-sheet names the process adapter; --target runs it on function:acme.
-Campaign c-334a2d1abc96: 1 cell, 4 at a time. Checks: tools, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-334a2d1abc96: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✗ acme-price-sheet · function:acme · F · repeat 0  fail  block 0 must.0, block 0 stage.reached, block 0 skills.xlsx, block 0 guards.no_destructive_ops.pass, block 0 execution.ran_code, block 0 execution.exit_code, block 0 execution.max_commands, block 0 workspace.created, block 0 workspace.changed, block 0 workspace.deleted, block 0 workspace.others_untouched, block 0 artifacts.out/acme-price-sheet.xlsx, block 1 stage.reached, block 1 skills.xlsx, block 1 guards.no_destructive_ops.pass, block 1 execution.ran_code, block 1 execution.exit_code, block 1 workspace.created, block 1 workspace.changed, block 1 workspace.deleted, block 1 workspace.others_untouched, block 1 artifacts.out/acme-price-sheet.xlsx
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -137,7 +137,7 @@ That command exits 1. The execution and workspace verdicts are inconclusive and 
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml
-Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -154,6 +154,8 @@ The process target runs each cell in a sandbox, a temporary folder under one fol
 | `--concurrency <n>` | cells that run at the same time, at least 1. Default 4. |
 | `--budget-usd <usd>` | a hard stop on the campaign's spend. See [the budget](#the-budget). |
 | `--process-command <command>` | the command that runs the agent of any `process:<name>` target other than `process:acme-ops`, through the [process adapter](adapters/process.md) in a local sandbox: a JSON list of strings such as `["python3", "agent.py"]`, or words split on spaces, with no quoting. The [Python package](python.md) passes it for a Python function agent. |
+| `--retry-attempts <n>`, `--retry-base-ms <ms>`, `--retry-max-ms <ms>` | how model calls are retried, over the spec target's `retry`. See [retries](retries.md). |
+| `--driver <driver>`, `--persona <file>`, `--recording <file>`, `--model`, `--agent-family <family>`, `--judge-family <family>` | who writes the user turns: `scripted` (the default) or `simulated`, a persona through the model port or a recording. See [simulated user](simulated-user.md). |
 | `--json` | print one JSON document: `campaignId`, `stored`, `checks`, `cells` and `summary`. Each cell holds its state, its failing list, its run id, its end state when the spec has one, and `blocks`: each block's `index`, `blockId`, `pass`, observed `stage`, and its `verdicts`, each with `id`, `outcome`, `gating` and `evidence` |
 
 The store needs Node.js 22.13 or newer, for `node:sqlite`.
@@ -164,7 +166,7 @@ The store needs Node.js 22.13 or newer, for `node:sqlite`.
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --mode T,F,P --repeats 2 --store modes.db
-Campaign c-9d34273e590c: 44 cells, 4 at a time. Checks: tools, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-9d34273e590c: 44 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · T · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · T · repeat 1  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
@@ -420,7 +422,7 @@ A campaign keeps its targets, not the commands behind them: a campaign run with 
 
 ```
 $ pnpm -s driftbench campaign resume c-3e6aff180724 --store acme.db
-Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass (reused)  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass (reused)  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass (reused)  5 blocks
@@ -517,7 +519,7 @@ The campaign record stores a budget of 0 when none was given. `resume` reads a s
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --repeats 2 --budget-usd 0
-Campaign c-7572a9cb7069: 2 cells, 4 at a time. Budget $0.00. Checks: tools, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-7572a9cb7069: 2 cells, 4 at a time. Budget $0.00. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ! acme-plan-upgrade · function:acme · F · repeat 0  stopped  not started: the campaign spent $0.00 of its $0.00 budget
 ! acme-plan-upgrade · function:acme · F · repeat 1  stopped  not started: the campaign spent $0.00 of its $0.00 budget
 2 cells: 0 pass, 0 fail, 0 failed, 2 stopped by the budget. Spent $0.00.
@@ -676,7 +678,7 @@ On the command line the store is the cache. A second campaign over the same spec
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
-Campaign c-868fb474970f: 12 cells, 4 at a time. Checks: tools, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-868fb474970f: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass (replayed from the cache)  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass (replayed from the cache)  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass (replayed from the cache)  5 blocks

@@ -22,6 +22,7 @@ The loader rewrites these forms before it validates a spec.
 * [Spec](#spec)
 * [TargetRef](#targetref)
 * [TargetPrompt](#targetprompt)
+* [RetrySettings](#retrysettings)
 * [GivenDefaults](#givendefaults)
 * [WorldState](#worldstate)
 * [ToolOverride](#tooloverride)
@@ -38,6 +39,7 @@ The loader rewrites these forms before it validates a spec.
 * [ToolExpect](#toolexpect)
 * [Count](#count)
 * [Assertion](#assertion)
+* [ToolsOfferedExpect](#toolsofferedexpect)
 * [SimilarityExpect](#similarityexpect)
 * [RelevancyExpect](#relevancyexpect)
 * [RetentionExpect](#retentionexpect)
@@ -99,6 +101,7 @@ Which agent a spec runs against. The adapter decides what the other fields mean.
 | `deployment` | string, not empty | no |  | A deployment of the agent, as the adapter names it. |
 | `options` | map of string to any value | no |  | Adapter settings. Each adapter defines their names. |
 | `prompt` | [TargetPrompt](#targetprompt) | no |  | The prompt the agent runs with, from the registry. campaign run --prompt sets it; each adapter page says how it reaches the agent. |
+| `retry` | [RetrySettings](#retrysettings) | no |  | How the model calls of this target are retried. |
 
 ## TargetPrompt
 
@@ -110,6 +113,18 @@ A prompt version from the registry, handed to the agent as its system prompt. ca
 | `version` | integer, at least 1 | yes |  | The version number. |
 | `hash` | string matching `^[0-9a-f]{64}$` | yes |  | The version hash: the SHA-256 of its file list. |
 | `text` | string | yes |  | The prompt text, restored byte for byte from the store. |
+
+## RetrySettings
+
+How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `max_attempts` | integer, 1 to 20 | no |  | Attempts per model call, the first included. Default 4. |
+| `base_delay_ms` | integer, at least 0 | no |  | The wait before the first retry; each later retry doubles it. Default 500. |
+| `max_delay_ms` | integer, at least 0 | no |  | The longest wait between two attempts. Default 30000. |
+| `jitter` | boolean | no |  | Draw each wait at random below the backoff (full jitter). Default true. |
+| `retry_after` | boolean | no |  | Wait at least what the server's Retry-After header asks. Default true. |
 
 ## GivenDefaults
 
@@ -258,6 +273,7 @@ The expected output and state delta of a block. Every field is optional.
 | `stage` | string, not empty | no |  | The stage the agent must reach after the block, one of the spec stages. |
 | `ledger_add` | map of string to any value | no |  | Facts the block establishes. They join the ledger. |
 | `tools` | list of [ToolExpect](#toolexpect) | no |  | The tool calls expected in the block. |
+| `tools_offered` | [ToolsOfferedExpect](#toolsofferedexpect) | no |  | The tools the runtime must offer and must not offer, whether or not the agent calls them. |
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
 | `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
 | `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
@@ -321,6 +337,15 @@ Write one of these forms.
 | `nonempty` | `true` | Present and not empty. |
 | `absent` | `true` | Absent. |
 | `subset` | map of string to JSON value | Holds at least these keys with these values. |
+
+## ToolsOfferedExpect
+
+The tools the runtime offers the agent, read from the runtime trace; calls do not count.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `include` | list of strings, each not empty | no |  | Tools the runtime must offer. |
+| `exclude` | list of strings, each not empty | no |  | Tools the runtime must not offer, such as a tool a setting denies. |
 
 ## SimilarityExpect
 
