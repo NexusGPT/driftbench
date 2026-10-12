@@ -34,7 +34,22 @@ const RULES: readonly Rule[] = [
     code: 'same-pictures',
     found: (c) => foldText(c.pass) !== '' && foldText(c.pass) === foldText(c.fail),
   },
+  // One picture is the other with "not": the pair says the same thing twice and separates nothing.
+  {
+    code: 'picture-contradicts-rubric',
+    found: (c) => negationOnly(c.pass, c.fail) || negationOnly(c.fail, c.pass),
+  },
 ];
+
+const countNot = (text: string): number => (text.match(/\bnot\b/gi) ?? []).length;
+const withoutNot = (text: string): string =>
+  foldText(text.replace(/\b(not|do|does|did)\b/gi, ' ').replace(/\bname\b|\bnames\b|\bnamed\b/gi, 'name'));
+
+/** True when `b` is `a` with "not" added (the auxiliary verbs do, does and did are ignored). */
+function negationOnly(a: string | undefined, b: string | undefined): boolean {
+  if (a === undefined || b === undefined || a.trim() === '' || b.trim() === '') return false;
+  return countNot(b) > countNot(a) && withoutNot(a) === withoutNot(b);
+}
 
 const foldText = (text: string | undefined): string => (text ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
 

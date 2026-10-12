@@ -86,4 +86,13 @@ describe('lintCriterion', () => {
     const blank = lintCriterion({ ...clean, pass: '', fail: '' }).issues.map((i) => i.code);
     expect(blank).not.toContain('same-pictures');
   });
+
+  it('reports picture-contradicts-rubric when one picture is the other with "not"', () => {
+    const pass = 'The reply does what the rubric asks.';
+    for (const fail of ['The reply does not do what the rubric asks.', 'The reply does not what the rubric asks.']) {
+      expect(lintCriterion({ ...clean, pass, fail }).issues.map((i) => i.code), fail).toContain('picture-contradicts-rubric');
+    }
+    expect(lintCriterion({ ...clean, pass: 'The reply names Acme Care.', fail: 'The reply does not name Acme Care.' }).issues.map((i) => i.code)).toContain('picture-contradicts-rubric');
+    expect(lintCriterion({ ...clean, pass, fail: 'The reply leaves out what the rubric asks.' }).issues.map((i) => i.code)).not.toContain('picture-contradicts-rubric');
+  });
 });
