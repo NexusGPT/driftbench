@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please do this: never change an invoice amount; report the difference."
+      user: Please change an invoice amount.
     expect:
       workspace:
         deleted: []
