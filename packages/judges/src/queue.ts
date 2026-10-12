@@ -20,6 +20,8 @@ export type QueueEntry = {
   index: number;
   state: QueueState;
   assignee?: string;
+  /** Each reviewer's label on the block, in the order they voted. Two votes make an agreement figure. */
+  votes?: Array<{ reviewer: string; label: 'pass' | 'fail' }>;
 };
 
 export type ReviewQueue = { version: 1; entries: QueueEntry[] };
@@ -90,7 +92,11 @@ export async function completeItem(
   if (entry.state === 'open') throw new Error(`${id} is not assigned: assign it first`);
   if (entry.assignee !== reviewer) throw new Error(`${id} is assigned to ${entry.assignee}`);
   await saveLabel(dir, criterion, { ...block, id }, reviewer);
-  return replaceEntry(queue, { ...entry, state: 'done' });
+  return replaceEntry(queue, {
+    ...entry,
+    state: 'done',
+    votes: [...(entry.votes ?? []), { reviewer, label: block.label }],
+  });
 }
 
 /** Reads the queue of a labels folder; a folder with no queue yet has an empty one. */
@@ -116,4 +122,49 @@ export async function writeQueue(dir: string, queue: ReviewQueue): Promise<void>
   const temporary = `${path}.${process.pid}.tmp`;
   await writeFile(temporary, `${JSON.stringify(queue, null, 2)}\n`);
   await rename(temporary, path);
+}
+
+/**
+ * Adds one reviewer's label to an item, without writing the label file: a second reviewer's view of the same
+ * block. Refused when this reviewer already voted on the item.
+ */
+export function addVote(
+  queue: ReviewQueue,
+  criterion: string,
+  id: string,
+  reviewer: string,
+  label: 'pass' | 'fail',
+): ReviewQueue {
+  const entry = entryOf(queue, criterion, id);
+  const votes = entry.votes ?? [];
+  if (votes.some((vote) => vote.reviewer === reviewer)) throw new Error(`${reviewer} already voted on ${id}`);
+  return replaceEntry(queue, { ...entry, votes: [...votes, { reviewer, label }] });
+}
+
+export type Agreement = {
+  /** Items with at least two votes. */
+  items: number;
+  /** Items whose first two votes agree. */
+  agreed: number;
+  /** Share of items that agree. Undefined with no item. */
+  percent: number | undefined;
+  /** Cohen's kappa between the first two reviewers: agreement beyond chance. Undefined when chance is certain. */
+  kappa: number | undefined;
+};
+
+/** Agreement between the first two reviewers of each item that has two votes. */
+export function agreementOf(queue: ReviewQueue): Agreement {
+  const pairs = queue.entries
+    .map((entry) => entry.votes ?? [])
+    .filter((votes) => votes.length >= 2)
+    .map((votes) => [votes[0]?.label, votes[1]?.label] as const);
+  const items = pairs.length;
+  if (items === 0) return { items: 0, agreed: 0, percent: undefined, kappa: undefined };
+  const agreed = pairs.filter(([a, b]) => a === b).length;
+  const percent = agreed / items;
+  const passA = pairs.filter(([a]) => a === 'pass').length / items;
+  const passB = pairs.filter(([, b]) => b === 'pass').length / items;
+  const chance = passA * passB + (1 - passA) * (1 - passB);
+  const kappa = chance === 1 ? undefined : (percent - chance) / (1 - chance);
+  return { items, agreed, percent, kappa };
 }

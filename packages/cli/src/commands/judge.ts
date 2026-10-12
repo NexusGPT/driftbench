@@ -1,22 +1,31 @@
+import { writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import {
   assignmentTable,
   type CalibrationReport,
+  type CascadeReport,
   type CouncilAssignment,
   type CouncilMode,
   type CouncilResult,
   type CriterionCalibration,
   calibrate,
+  calibrateCascade,
   cassettePlayers,
   councilAssignment,
+  createClaudeCliJudge,
   createCouncil,
   DEFAULT_REPEATS,
+  emptyCassette,
   fixtureRequest,
+  type JudgeClient,
+  JudgeError,
   type LoadedCriterion,
   loadAssignmentTable,
   loadCassette,
   loadCriteria,
   loadLabels,
+  recordingClient,
+  saveCassette,
   writeAssignmentTable,
 } from '@driftbench/judges';
 import type { Command } from 'commander';
@@ -42,6 +51,12 @@ export type JudgeCalibrateOptions = {
   repeats: string;
   mode: string;
   agentFamily: string;
+  claude?: string[];
+  claudeCommand?: string;
+  record?: string;
+  spendCapUsd?: string;
+  cascade?: boolean;
+  only?: string[];
   json?: boolean;
 };
 
@@ -87,7 +102,21 @@ export function registerJudgeCommand(program: Command, io: Io, setExit: (code: n
       '--labels <dir>',
       'the labels folder: one YAML file of hand-labelled blocks per criterion',
     )
-    .requiredOption('--cassette <file>', 'the recorded answers of every judge, as a cassette JSON file')
+    .option('--cassette <file>', 'the recorded answers of every judge, as a cassette JSON file')
+    .option(
+      '--claude <model>',
+      'add a live judge on the local claude command with this model, such as haiku; repeat for several. Paid calls',
+      collectValues,
+      [],
+    )
+    .option('--claude-command <path>', 'the claude command to run', 'claude')
+    .option('--record <file>', 'save every live answer, with its cost, as a cassette to replay later')
+    .option('--spend-cap-usd <usd>', 'stop calling live judges once their calls have cost this much')
+    .option(
+      '--cascade',
+      'the first judge answers everything; the others only where it is unsure or disagrees with the label. Writes the cascade report as JSON to --out',
+    )
+    .option('--only <criterion>', 'calibrate only this criterion; repeat for several', collectValues, [])
     .requiredOption('--out <file>', 'where to write the assignment table (YAML)')
     .option('--repeats <n>', 'how many times each judge answers each fixture', String(DEFAULT_REPEATS))
     .option('--mode <mode>', `the council mode the table is for: ${MODES.join(', ')}`, 'hybrid')
@@ -240,8 +269,16 @@ async function judgeCriterion(
  * stays unassigned or a judge gave no answer (the table is still written), 2 on bad input.
  */
 export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: Io): Promise<number> {
-  if (!options.criteria || !options.labels || !options.cassette || !options.out) {
-    io.err('judge calibrate needs --criteria <dir>, --labels <dir>, --cassette <file> and --out <file>.\n');
+  const live = options.claude ?? [];
+  if (!options.criteria || !options.labels || (!options.cassette && live.length === 0) || !options.out) {
+    io.err(
+      'judge calibrate needs --criteria <dir>, --labels <dir>, --out <file>, and --cassette <file> or --claude <model>.\n',
+    );
+    return 2;
+  }
+  const cap = options.spendCapUsd === undefined ? undefined : Number(options.spendCapUsd);
+  if (cap !== undefined && !(Number.isFinite(cap) && cap > 0)) {
+    io.err(`--spend-cap-usd takes a positive number, not "${options.spendCapUsd}".\n`);
     return 2;
   }
   if (!MODES.includes(options.mode as CouncilMode)) {
@@ -268,11 +305,49 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
   }
 
   let report: CalibrationReport;
+  const recorded = emptyCassette();
   try {
-    const cassette = await loadCassette(resolve(io.cwd, options.cassette));
+    const judges: JudgeClient[] = options.cassette
+      ? cassettePlayers(await loadCassette(resolve(io.cwd, options.cassette)))
+      : [];
+    const spend = { usd: 0 };
+    for (const model of live) {
+      let client: JudgeClient = createClaudeCliJudge({
+        model,
+        ...(options.claudeCommand ? { command: options.claudeCommand } : {}),
+      });
+      if (options.record) client = recordingClient(client, recorded);
+      judges.push(capped(client, spend, cap));
+    }
+    const only = options.only ?? [];
+    const unknown = only.filter((name) => !known.has(name));
+    if (unknown.length > 0) {
+      io.err(`judge calibrate: --only names no criterion ${unknown.join(', ')}.\n`);
+      return 2;
+    }
+    const chosen =
+      only.length > 0 ? loaded.criteria.filter((c) => only.includes(c.def.name)) : loaded.criteria;
+    if (options.cascade) {
+      const [head, ...rest] = judges;
+      if (!head || rest.length === 0) {
+        io.err('judge calibrate --cascade needs a first judge and at least one to escalate to.\n');
+        return 2;
+      }
+      const cascade = await calibrateCascade({
+        first: head,
+        escalateTo: rest,
+        criteria: chosen,
+        labels: labels.labels,
+        repeats,
+      });
+      const out = resolve(io.cwd, options.out);
+      await writeFile(out, `${JSON.stringify(cascade, null, 2)}\n`, 'utf8');
+      if (options.record) await saveCassette(resolve(io.cwd, options.record), recorded);
+      return printCascade(cascade, io, options, out);
+    }
     report = await calibrate({
-      judges: cassettePlayers(cassette),
-      criteria: loaded.criteria,
+      judges,
+      criteria: chosen,
       labels: labels.labels,
       repeats,
       mode: options.mode as CouncilMode,
@@ -284,6 +359,7 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
   }
   const out = resolve(io.cwd, options.out);
   await writeAssignmentTable(out, assignmentTable(report));
+  if (options.record) await saveCassette(resolve(io.cwd, options.record), recorded);
 
   const unassigned = report.criteria.filter((c) => c.assignment.status === 'unassigned');
   const gatingUnassigned = unassigned.filter((c) => c.gating);
@@ -312,7 +388,10 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
     );
   }
   if (report.errors > 0) io.out(` ${report.errors} judge call(s) gave no answer.`);
-  io.out(`\nWrote ${show(io, out)}.\n`);
+  if (report.spentUsd > 0) io.out(` Spent ${report.spentUsd.toFixed(4)} USD.`);
+  io.out(
+    `\nWrote ${show(io, out)}${options.record ? ` and ${show(io, resolve(io.cwd, options.record))}` : ''}.\n`,
+  );
   return code;
 }
 
@@ -320,7 +399,7 @@ function describeCalibration(criterion: CriterionCalibration, report: Calibratio
   const a = criterion.assignment;
   const head =
     a.status === 'assigned'
-      ? `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: owned by ${a.owner} (${a.cls}: ${a.judges.join(', ')}${a.rejudge.length > 0 ? `; re-judge ${a.rejudge.join(', ')}` : ''})`
+      ? `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: owned by ${a.owner} (${a.cls}: ${a.judges.join(', ')}${a.rejudge.length > 0 ? `; re-judge ${a.rejudge.join(', ')}` : ''})${a.singleFamily ? ` [single family: ${a.singleFamily}]` : ''}`
       : `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: UNASSIGNED, judged but not gating: ${a.reason}`;
   const lines = [head];
   for (const row of criterion.judges) {
@@ -371,4 +450,56 @@ export async function judgeCheckCommand(dir: string, options: { json?: boolean }
 function show(io: Io, path: string): string {
   const rel = relative(io.cwd, path);
   return rel === '' ? '.' : rel;
+}
+
+function collectValues(value: string, previous: string[] = []): string[] {
+  return [...previous, value];
+}
+
+/**
+ * A live judge under a shared spend cap: once the calls of every capped judge have cost `cap` US dollars,
+ * the next call gives no answer instead of spending more.
+ */
+function capped(client: JudgeClient, spend: { usd: number }, cap: number | undefined): JudgeClient {
+  return {
+    id: client.id,
+    family: client.family,
+    cls: client.cls,
+    ...(client.model ? { model: client.model } : {}),
+    cost: client.cost,
+    async judge(request) {
+      if (cap !== undefined && spend.usd >= cap) {
+        throw new JudgeError('config', `the spend cap of ${cap} USD is reached: no more live calls`);
+      }
+      const result = await client.judge(request);
+      spend.usd += result.costUsd ?? 0;
+      return result;
+    },
+  };
+}
+
+/** Exit 0, or 1 when a call gave no answer. */
+function printCascade(report: CascadeReport, io: Io, options: JudgeCalibrateOptions, out: string): number {
+  const errors = report.criteria.reduce((sum, c) => sum + c.errors, 0);
+  if (options.json) {
+    io.out(`${JSON.stringify(report, null, 2)}\n`);
+    return errors > 0 ? 1 : 0;
+  }
+  io.out(
+    `Cascade: ${report.first} answers everything; ${report.escalateTo.join(' and ')} answer where it is unsure or disagrees with the label.\n`,
+  );
+  const kappa = (k: number | undefined) => (k === undefined ? 'n/a' : k.toFixed(2));
+  for (const c of report.criteria) {
+    const ups = c.escalated.length === 0 ? 'none' : c.escalated.map((e) => `${e.item} (${e.why})`).join(', ');
+    io.out(
+      `${c.criterion}: separation ${c.separation.separated}/${c.separation.repeats}, kappa ${kappa(c.labels.kappa)} (${c.labels.agree}/${c.labels.n}), ${c.spentUsd.toFixed(4)} USD; escalated: ${ups}\n`,
+    );
+    io.out(
+      `    unsure only: separation ${c.unsureOnly.separation.separated}/${c.unsureOnly.separation.repeats}, kappa ${kappa(c.unsureOnly.labels.kappa)} (${c.unsureOnly.labels.agree}/${c.unsureOnly.labels.n}), ${c.unsureOnly.spentUsd.toFixed(4)} USD\n`,
+    );
+  }
+  io.out(
+    `\nSpent ${report.spentUsd.toFixed(4)} USD${errors > 0 ? `; ${errors} call(s) gave no answer` : ''}. Wrote ${show(io, out)}${options.record ? ` and ${show(io, resolve(io.cwd, options.record))}` : ''}.\n`,
+  );
+  return errors > 0 ? 1 : 0;
 }

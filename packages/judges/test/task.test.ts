@@ -85,6 +85,13 @@ describe('the sheet_matches_catalog fixture pair is a real workbook', () => {
     expect(text).toContain('| 3 | Acme Mobile M | 40 GB | 29 | 300 (=C3*12) |');
   });
 
+  it('gives the judge the catalog the agent was given, in both fixtures', () => {
+    const seed = spec.given?.world?.workspace?.files?.['catalog.csv'];
+    expect(sheet.def.inputs).toEqual(['catalog.csv']);
+    expect(sheet.fixtures.pass.inputs?.['catalog.csv']).toBe(seed);
+    expect(sheet.fixtures.fail.inputs?.['catalog.csv']).toBe(seed);
+  });
+
   it('keeps the agent reply the same in both fixtures: only the workbook tells them apart', () => {
     expect(sheet.fixtures.pass.transcript).toEqual(sheet.fixtures.fail.transcript);
     expect(sheet.fixtures.pass.transcript.at(-1)?.text).toBe(good.reply);

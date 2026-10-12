@@ -347,6 +347,7 @@ async function castVote(
       result = await ask('large');
       note = 'unparsed at the normal budget, asked again with the large budget; ';
     }
+    if (result.repaired) note += 'answer repaired (unescaped quotes escaped); ';
     const { answer } = result;
     return {
       judge: name,

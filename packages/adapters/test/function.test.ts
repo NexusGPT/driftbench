@@ -59,6 +59,29 @@ const reply = (text: string): Observed => ({
 });
 
 describe('function adapter', () => {
+  it('an agent that calls a tool through context.callTool: a denied tool never runs', async () => {
+    let ran = 0;
+    const adapter = functionAdapter({
+      toolPolicy: [{ pattern: 'order.create', action: 'deny' }],
+      respond: async (_messages, _world, _vars, _session, context) => {
+        let error: string | undefined;
+        try {
+          await context.callTool('order.create', () => {
+            ran += 1;
+            return { ok: true };
+          });
+        } catch (cause) {
+          error = cause instanceof Error ? cause.message : String(cause);
+        }
+        return { ...reply(error ?? 'ran'), toolCalls: [{ label: 'order.create', input: {}, error }] };
+      },
+    });
+    const session = await adapter.open(acmeGiven(target));
+    const observed = await sendUser(adapter, session, COVERAGE_QUESTION, 0);
+    expect(ran, 'the denied tool was not called').toBe(0);
+    expect(observed.text).toBe('denied by tool policy rule order.create');
+  });
+
   it('wraps a plain (messages, world, vars) function such as createAcmeAgent().respond', async () => {
     const adapter = functionAdapter({ respond: createAcmeAgent().respond });
     expect(adapter.capabilities()).toEqual({

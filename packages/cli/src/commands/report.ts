@@ -2,8 +2,6 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import type { RunMode } from '@driftbench/core';
 import {
-  type AggregateCriterion,
-  aggregateFromFlag,
   buildScorecard,
   type CampaignData,
   criterionRepeatsText,
@@ -15,6 +13,7 @@ import {
   renderJunit,
 } from '@driftbench/report';
 import type { Command } from 'commander';
+import { criteriaFromConfig } from '../aggregate-config';
 import type { Io } from '../io';
 import {
   compareJson,
@@ -41,6 +40,7 @@ type ReportCommandOptions = {
   maxRuns: string;
   json?: boolean;
   aggregate?: string[];
+  config?: string;
 };
 
 /** Registers `driftbench report`. */
@@ -77,6 +77,10 @@ export function registerReportCommand(
     .option('--max-runs <n>', 'runs in the drilldown, failing runs first', '200')
     .option('--json', 'also print the scorecard as one JSON document')
     .option(
+      '--config <file>',
+      'the project config, with an aggregates list; default driftbench.yaml in the working folder',
+    )
+    .option(
       '--aggregate <spec>',
       'a campaign-level criterion, name:op threshold, e.g. pass-rate:>=0.8; repeatable; its result is printed',
       (value: string, previous: string[]) => [...previous, value],
@@ -100,13 +104,12 @@ export async function reportCommand(
     io.err(`--max-runs takes a whole number of 0 or more, not "${options.maxRuns}".\n`);
     return 2;
   }
-  let criteria: AggregateCriterion[];
-  try {
-    criteria = (options.aggregate ?? []).map((text) => aggregateFromFlag(text));
-  } catch (cause) {
-    io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
+  const loadedCriteria = await criteriaFromConfig(options, io.cwd);
+  if (!loadedCriteria.ok) {
+    io.err(`${loadedCriteria.message}\n`);
     return 2;
   }
+  const criteria = loadedCriteria.criteria;
   let spreadMode: RunMode | undefined;
   if (options.spreadMode !== undefined) {
     const modes = parseModes(options.spreadMode, io);
@@ -200,7 +203,10 @@ export async function reportCommand(
     for (const entry of card.aggregates ?? []) {
       const op = entry.direction === 'at-least' ? '>=' : '<=';
       const verdict = entry.passed === undefined ? 'no runs' : entry.passed ? 'passes' : 'fails';
-      io.out(`aggregate ${entry.name} ${op} ${entry.threshold}: ${verdict} (${entry.reason})\n`);
+      const interval = entry.interval
+        ? `, Wilson 95% interval ${entry.interval.lower.toFixed(3)} to ${entry.interval.upper.toFixed(3)} over ${entry.interval.n} runs, ${entry.decided ? 'decided' : `undecided: ${entry.runsNeeded ?? 'more'} runs at this rate would decide it`}`
+        : '';
+      io.out(`aggregate ${entry.name} ${op} ${entry.threshold}: ${verdict} (${entry.reason}${interval})\n`);
     }
     io.out(`Wrote ${written.join(' and ')}.\n`);
   }

@@ -276,6 +276,19 @@ export const Expect = z
       .describe('How the expected tools line up with the observed calls: exact, in_order or any_order.'),
     must: z.array(Pattern).optional().describe('Patterns the visible text must match.'),
     must_not: z.array(Pattern).optional().describe('Patterns the visible text must not match.'),
+    injection: z
+      .boolean()
+      .optional()
+      .describe(
+        'True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it.',
+      ),
+    exact: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        'The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers.',
+      ),
     similarity: z
       .array(SimilarityExpect)
       .optional()
@@ -421,6 +434,12 @@ export const CriterionDef = z
       .enum(['block', 'conversation'])
       .optional()
       .describe('block judges one block; conversation judges the whole conversation.'),
+    inputs: z
+      .array(z.string().min(1))
+      .optional()
+      .describe(
+        'Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace.',
+      ),
     judge_class: z
       .enum(['system1', 'system2', 'auto'])
       .optional()
