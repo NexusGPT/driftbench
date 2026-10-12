@@ -15,6 +15,7 @@ import { lang } from './checks/lang';
 import { length } from './checks/length';
 import { markup } from './checks/markup';
 import { must, mustNot } from './checks/must';
+import { regex } from './checks/regex';
 import { createPiiCheck, pii } from './checks/pii';
 import { references } from './checks/references';
 import { refusal } from './checks/refusal';
@@ -66,6 +67,7 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     forbidden,
     must,
     mustNot,
+    regex,
     exact,
     injection,
     length,

@@ -12,6 +12,7 @@ const NAMES = [
   'forbidden',
   'must',
   'must_not',
+  'regex',
   'exact',
   'injection',
   'length',

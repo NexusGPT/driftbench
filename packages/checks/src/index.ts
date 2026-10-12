@@ -47,6 +47,7 @@ export { createLangCheck, lang } from './checks/lang';
 export { length } from './checks/length';
 export { markup } from './checks/markup';
 export { must, mustNot } from './checks/must';
+export { regex } from './checks/regex';
 export { createPiiCheck, ownerKey, type PiiCheckOptions, pii } from './checks/pii';
 export { references } from './checks/references';
 export { refusal } from './checks/refusal';
