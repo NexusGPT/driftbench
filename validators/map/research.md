@@ -489,3 +489,15 @@ Sources read:
 What others do: A model reads the prompt, not the escapes; a decoded quote is still a passage of the prompt.
 
 What to try, and why: a request shows the prompt decoded from a JSON file
+
+## Iteration 42
+
+Question: packages/generate/src/extract/extract.ts: the extractor accepts a model quote only as written in the file, but a model quotes the decoded prompt, so a rule with an escape gives PROPOSAL_QUOTE_NOT_FOUND; prompt-containers.json-messages, json-ascii, json-prompt-key and jsonl prove it. Iteration 41 showed the decoded view alone is not enough.
+
+Sources read:
+* https://www.rfc-editor.org/rfc/rfc8259 section 7 (string escapes)
+* packages/validators/src/ladders/map/bank/run.ts (quotes are checked against the file as written)
+
+What others do: A model reads the decoded prompt; the proposal must quote the file, so each quote is mapped through a character table back to the file passage.
+
+What to try, and why: a quote from a decoded JSON prompt is mapped back to the file

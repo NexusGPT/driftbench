@@ -1,6 +1,6 @@
 import { ModelError, type ModelPort } from '../model/port';
 import { acceptAnswer, type Draft, type Refusal } from './accept';
-import { sourceTexts, viewSources } from './containers';
+import { rawizeAnswer, viewSources } from './containers';
 import { parseAnswer, retryNote, SECTIONS, type Section, type SourceText, sectionRequest } from './contract';
 import { inventoryPrepass } from './prepass';
 import { checkQuotes, PROPOSAL_VERSION, type Proposal, validateProposal } from './proposal';
@@ -109,7 +109,7 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
     relations: draft.relations.length,
   };
 
-  const texts = sourceTexts(input.sources);
+  const texts = new Map(input.sources.map((source) => [source.path, source.text]));
   const seen = viewSources(input.sources);
   const quotes = new QuoteIndex(texts);
   const sections: SectionRun[] = [];
@@ -117,7 +117,7 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
   const duplicates: string[] = [];
   if (input.port) {
     for (const section of SECTIONS) {
-      const run = await runSection(section, input.port, seen, draft, quotes, input.maxTokens);
+      const run = await runSection(section, input.port, seen, draft, quotes, input.maxTokens, input.sources);
       sections.push(run.run);
       refusals.push(...run.refusals);
       duplicates.push(...run.duplicates);
@@ -166,6 +166,7 @@ async function runSection(
   draft: Draft,
   quotes: QuoteIndex,
   maxTokens: number | undefined,
+  files: readonly SourceText[],
 ): Promise<{ run: SectionRun; refusals: Refusal[]; duplicates: string[] }> {
   const request = sectionRequest(section, sources, draft, maxTokens);
   let reason = '';
@@ -191,7 +192,7 @@ async function runSection(
     }
     const parsed = parseAnswer(section, text);
     if (parsed.ok) {
-      const accepted = acceptAnswer(section, parsed.answer, draft, quotes);
+      const accepted = acceptAnswer(section, rawizeAnswer(parsed.answer, files), draft, quotes);
       return {
         run: { section, calls: attempt, status: 'done', accepted: accepted.accepted },
         refusals: accepted.refusals,
