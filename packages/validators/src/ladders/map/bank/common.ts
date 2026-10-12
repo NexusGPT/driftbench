@@ -162,3 +162,24 @@ export const MEMBER_POOL = [
   ['basic', 'plus', 'max'],
   ['moved', 'unhappy', 'duplicate'],
 ];
+
+/**
+ * The block of a YAML key as written: the first line that starts with `key:` after `after` (when given),
+ * and every following line indented deeper. A quote of that key must hold the whole block.
+ */
+export function blockOf(text: string, key: string, after = ''): string {
+  const lines = text.split('\n');
+  const from = after ? lines.findIndex((line) => line.includes(after)) : 0;
+  const index = lines.findIndex(
+    (line, position) => position >= Math.max(0, from) && line.trimStart().startsWith(`${key}:`),
+  );
+  if (index < 0) throw new Error(`no line ${key}: in the file`);
+  const indent = (line: string) => line.length - line.trimStart().length;
+  const head = lines[index] as string;
+  const block = [head.trimStart()];
+  for (const line of lines.slice(index + 1)) {
+    if (line.trim() === '' || indent(line) <= indent(head)) break;
+    block.push(line);
+  }
+  return block.join('\n');
+}

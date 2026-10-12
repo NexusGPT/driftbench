@@ -2,6 +2,7 @@ import { stringify } from 'yaml';
 import type { Draw } from '../../spec';
 import {
   BANK_COMPONENTS,
+  blockOf,
   drawFor,
   inventoryCode,
   inventorySource,
@@ -9,7 +10,7 @@ import {
   miniInventory,
   TOOL_POOL,
 } from '../common';
-import type { CodeEntry } from '../facts';
+import type { CodeEntry, Parts } from '../facts';
 import { mapItem } from '../run';
 import { type BankItem, levelOf, type Tier } from '../types';
 
@@ -38,7 +39,15 @@ type Case = {
     required: string[];
     extra?: Record<string, unknown>;
     expected: Expected;
+    /** Per partition, the YAML key whose whole block (after the property's own line) the quote must be. */
+    quotes?: Record<string, string>;
+    /** Per partition, text its title must hold. */
+    titles?: Record<string, string>;
   };
+  /** The tool name as written, and its slug in the dimension ids, when not drawn from the pool. */
+  tool?: { name: string; slug: string };
+  /** The parts of the proposal the item compares (all of them when absent). */
+  parts?: Parts;
 };
 
 const range = (draw: Draw) => draw.int(1, 9);
@@ -954,16 +963,82 @@ export const SCHEMA_CASES: readonly Case[] = [
     slug: 'long-pattern',
     tier: 4,
     title:
-      'a property whose pattern line is longer than a quote may be still gives well-formed and malformed, with a valid proposal',
+      'a property whose pattern line is over 1000 characters gives well-formed and malformed, each quoting the whole pattern line, with a valid proposal',
+    make: quoting(
+      one(
+        () => ({
+          type: 'string',
+          pattern: `^(${Array.from({ length: 160 }, (_, i) => `code${i}`).join('|')})$`,
+        }),
+        () => ['well-formed', 'malformed'],
+      ),
+      { 'well-formed': 'pattern', malformed: 'pattern' },
+    ),
+  },
+  {
+    slug: 'long-bounds',
+    tier: 2,
+    title:
+      'a property longer than 300 characters with a minimum and a maximum: each minimum value quotes the minimum line, each maximum value the maximum line',
+    make: quoting(
+      one(
+        (d) => ({
+          type: 'integer',
+          description:
+            `${'A fictional amount the map validator writes, long enough that its whole property is not one quote. '.repeat(4)}`.trim(),
+          minimum: range(d),
+          maximum: range(d) + 20,
+        }),
+        () => [...MIN, ...MAX],
+      ),
+      Object.fromEntries([...MIN.map((p) => [p, 'minimum']), ...MAX.map((p) => [p, 'maximum'])]),
+    ),
+  },
+  {
+    slug: 'min-items-title',
+    tier: 2,
+    title:
+      'the empty value of an array with a minItems of N and a different maxItems says "below its minItems N" in its title',
+    parts: { values: false, produced: false, constraints: false, relations: false },
+    make: (draw, name) => {
+      const minItems = range(draw) + 1;
+      return {
+        properties: {
+          [name]: { type: 'array', items: { type: 'string' }, minItems, maxItems: minItems + 5 },
+        },
+        required: [name],
+        expected: [{ path: [name], partitions: ['empty'] }],
+        titles: { empty: `below its minItems ${minItems}` },
+      };
+    },
+  },
+  {
+    slug: 'camel-digit-tool',
+    tier: 2,
+    title:
+      'a tool named checkV2Slot gives dimension ids under check_v2_slot: a digit before a capital splits too',
+    tool: { name: 'checkV2Slot', slug: 'check_v2_slot' },
     make: one(
-      () => ({
-        type: 'string',
-        pattern: `^(${Array.from({ length: 160 }, (_, i) => `code${i}`).join('|')})$`,
-      }),
-      () => ['well-formed', 'malformed'],
+      (d) => ({ type: 'string', enum: members(d) }),
+      (s) => (s.enum as string[]).map(String),
+    ),
+  },
+  {
+    slug: 'punctuated-members',
+    tier: 2,
+    title:
+      'enum members ending in punctuation (high!, low?) give the value ids high and low, with no trailing dash',
+    make: one(
+      () => ({ type: 'string', enum: ['high!', 'low?'] }),
+      () => ['high', 'low'],
     ),
   },
 ];
+
+/** A case whose partitions must quote the block of the given key. */
+function quoting(make: Case['make'], quotes: Record<string, string>): Case['make'] {
+  return (draw, name) => ({ ...make(draw, name), quotes });
+}
 
 /** The enum at a path of keys inside a schema object. */
 function enumAt(root: unknown, ...keys: string[]): string[] {
@@ -1066,7 +1141,8 @@ function derivedExpected(
 /** Builds the tools file of a case and the code entries the pre-pass must give. */
 export function schemaCase(item: Case, seed: number) {
   const draw = drawFor(seed, `schema-keywords.${item.slug}`);
-  const tool = draw.pick(TOOL_POOL);
+  const drawnTool = draw.pick(TOOL_POOL);
+  const tool = item.tool?.slug ?? drawnTool;
   const side: 'in' | 'out' = draw.chance(0.5) ? 'in' : 'out';
   const name = draw.pick(['status', 'amount', 'note', 'tier', 'count', 'reason', 'slot', 'owner']);
   const made = item.make(draw, name);
@@ -1077,7 +1153,7 @@ export function schemaCase(item: Case, seed: number) {
     ...(made.extra ?? {}),
   };
   const toolEntry = {
-    name: tool,
+    name: item.tool?.name ?? tool,
     description: 'A fictional tool of the map validator.',
     [side === 'in' ? 'input_schema' : 'output_schema']: schema,
   };
@@ -1087,7 +1163,17 @@ export function schemaCase(item: Case, seed: number) {
   for (const dimension of derivedExpected(item.slug, name, made, side)) {
     const id = [tool, side, ...dimension.path].join('.');
     for (const partition of dimension.partitions) {
-      code.push({ type: 'value', dimension: id, kind: 'data', value: `${id}.${partition}`, role: 'detail' });
+      const key = made.quotes?.[partition];
+      const title = made.titles?.[partition];
+      code.push({
+        type: 'value',
+        dimension: id,
+        kind: 'data',
+        value: `${id}.${partition}`,
+        role: 'detail',
+        ...(key ? { quote: blockOf(text, key, `${name}:`) } : {}),
+        ...(title ? { titleIncludes: title } : {}),
+      });
     }
   }
   return {
@@ -1121,7 +1207,7 @@ export function schemaItems(): BankItem[] {
         return {
           case: { label: item.slug, sources: built.sources, planted: [] },
           code: built.code,
-          parts: { values: true, produced: true, constraints: true, relations: true },
+          parts: item.parts ?? { values: true, produced: true, constraints: true, relations: true },
         };
       },
     }),

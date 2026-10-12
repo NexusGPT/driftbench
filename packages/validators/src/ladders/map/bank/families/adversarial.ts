@@ -2,6 +2,7 @@ import { stringify } from 'yaml';
 import type { Draw } from '../../spec';
 import {
   BANK_COMPONENTS,
+  blockOf,
   drawFor,
   inventoryCode,
   inventorySource,
@@ -55,7 +56,11 @@ function inputOf(draw: Draw, name: string, schema: Schema, partitions: string[],
   const tool = draw.pick(TOOL_POOL);
   return {
     tools: [{ name: tool, input_schema: object({ [name]: schema }, optional ? [] : [name]) }] as ToolEntry[],
-    expected: [{ dimension: `${tool}.in.${name}`, partitions }],
+    expected: [{ dimension: `${tool}.in.${name}`, partitions }] as Array<{
+      dimension: string;
+      partitions: string[];
+      quoteKey?: string;
+    }>,
   };
 }
 
@@ -207,10 +212,13 @@ const TOOL_CASES: readonly ToolCase[] = [
     slug: 'very-long-enum',
     cause: 'tools:very-long-enum',
     tier: 3,
-    title: 'an enum of 400 members gives 400 values',
+    title: 'an enum of 400 members gives 400 values, each quoting the whole enum (over 1000 characters)',
     make: (d) => {
       const list = Array.from({ length: 400 }, (_, i) => `member-${String(i + 1).padStart(3, '0')}`);
-      return inputOf(d, 'status', { type: 'string', enum: list }, list);
+      const made = inputOf(d, 'status', { type: 'string', enum: list }, list);
+      // The quote is the whole enum, over 1000 characters: a clamped quote is not this one.
+      for (const dimension of made.expected) dimension.quoteKey = 'enum';
+      return made;
     },
   },
   {
@@ -339,6 +347,12 @@ function toolBuild(item: ToolCase, seed: number) {
     }
   }
   const text = `${header}${stringify({ tools: made.tools }, { lineWidth: 0 })}`;
+  for (const dimension of made.expected as Array<{ dimension: string; quoteKey?: string }>) {
+    if (!dimension.quoteKey) continue;
+    const quote = blockOf(text, dimension.quoteKey);
+    for (const entry of code)
+      if (entry.type === 'value' && entry.dimension === dimension.dimension) entry.quote = quote;
+  }
   return {
     case: {
       label: item.slug,

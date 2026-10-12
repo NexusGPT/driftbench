@@ -102,7 +102,18 @@ export function proposalFacts(proposal: Proposal, parts: Parts): Set<string> {
 
 /** An entry code proposes from a structured file, with no model: the expected side of the pre-pass. */
 export type CodeEntry =
-  | { type: 'value'; dimension: string; kind: string; value: string; role?: 'axis' | 'detail' }
+  | {
+      type: 'value';
+      dimension: string;
+      kind: string;
+      value: string;
+      role?: 'axis' | 'detail';
+      /** The quote the value must carry, whole: folded unless `exact`. */
+      quote?: string;
+      exact?: boolean;
+      /** Text the value's title must hold. */
+      titleIncludes?: string;
+    }
   | { type: 'constraint'; forbid: Record<string, string> }
   | { type: 'relation'; relation: Record<string, unknown> };
 
