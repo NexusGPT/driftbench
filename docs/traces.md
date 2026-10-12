@@ -26,7 +26,7 @@ The reader follows the GenAI semantic conventions in the two shapes SDKs write t
 
 The span events of the earlier conventions (`gen_ai.user.message`, `gen_ai.choice`) are read too. A tool result comes from its tool span, matched by call id, else by name; else from the tool message a later chat span sent. Times are read in nanoseconds exactly. The conventions define no cost attribute: the reader takes `gen_ai.usage.cost` when an SDK writes it, else computes one from a price table (`--prices`, USD per million tokens by model, `{"example-model-1": {"input": 2, "output": 8}}`). A turn has a cost only when every chat span in it has one.
 
-Every span of the conversation is also kept as an observation on the trace: its id, its parent span id, its kind (chat, tool or other), its name and its start and end as ISO 8601 times. The tree is what the spans said, so a tool span sits under the span that ran it. Nexus and Claude Code traces carry no tree and have no observations.
+Every span of the conversation is also kept as an observation on the trace: its id, its parent span id, its kind (chat, tool or other), its name and its start and end as ISO 8601 times. The tree is what the spans said, so a tool span sits under the span that ran it. Nexus and Claude Code traces carry no tree and have no observations. A workflow that gates a suite built from traces is in [running](running.md#project-config-and-the-pull-request-gate).
 
 A conversation with no chat span gives no trace and is named in a note. The fixtures, fictional, are in `packages/adapters/test/traces/fixtures`: `otel-semconv.json` (current conventions, two traces of one conversation) and `otel-flat.jsonl` (flat attributes, one trace per turn joined by session id).
 

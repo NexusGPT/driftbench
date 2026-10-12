@@ -48,4 +48,4 @@ aggregate pass-rate >= 0.99: fails (0.75 >= 0.99)
 
 The `driftbench ci` GitHub Action takes the same criteria in its `aggregate` input, one `name:op threshold` per line. A failing one gives the job the verdict `aggregate-failed` and fails it.
 
-Declaring aggregates inside a spec or campaign file is not built: the CLI has no campaign file, and a spec holds one golden, not a campaign.
+Aggregates can also be declared in `driftbench.yaml`, under `aggregates:`, read by `report` and `ci`. A flag with the same name replaces the file's entry. See [running](running.md#project-config-and-the-pull-request-gate).
