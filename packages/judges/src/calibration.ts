@@ -251,6 +251,18 @@ export type LabelAgreement = {
   readonly pabak?: number;
   /** Gwet's AC1 for two categories, pass and not pass. Undefined with no blocks, or when chance agreement is 1. */
   readonly ac1?: number;
+  /** The confusion counts and the rates drawn from them; fail is the positive class and inconclusive counts as wrong. A rate with an empty denominator is left out. */
+  readonly metrics: {
+    readonly tp: number;
+    readonly fp: number;
+    readonly tn: number;
+    readonly fn: number;
+    readonly sensitivity?: number;
+    readonly specificity?: number;
+    readonly balancedAccuracy?: number;
+    readonly falsePositiveRate?: number;
+    readonly falseNegativeRate?: number;
+  };
   /** Per block: the human label and the judge's answer. */
   readonly blocks: readonly {
     readonly id: string;
@@ -461,9 +473,34 @@ export function agreement(
   if (n > 0) {
     kappa = cohenKappa([...judged], [...human], { categories: ['pass', 'fail', 'inconclusive'] }).kappa;
   }
+  let tp = 0;
+  let fp = 0;
+  let tn = 0;
+  let fn = 0;
+  human.forEach((label, i) => {
+    const hit = judged[i] === (label === 'fail' ? 'fail' : 'pass');
+    if (label === 'fail') {
+      if (hit) tp += 1;
+      else fn += 1;
+    } else if (hit) tn += 1;
+    else fp += 1;
+  });
+  const sensitivity = tp + fn === 0 ? undefined : tp / (tp + fn);
+  const specificity = tn + fp === 0 ? undefined : tn / (tn + fp);
   return {
     n,
     agree,
+    metrics: {
+      tp,
+      fp,
+      tn,
+      fn,
+      ...(sensitivity === undefined ? {} : { sensitivity, falseNegativeRate: 1 - sensitivity }),
+      ...(specificity === undefined ? {} : { specificity, falsePositiveRate: 1 - specificity }),
+      ...(sensitivity === undefined || specificity === undefined
+        ? {}
+        : { balancedAccuracy: (sensitivity + specificity) / 2 }),
+    },
     ...(kappa === undefined ? {} : { kappa }),
     ...(n === 0 ? {} : { pabak: (2 * agree) / n - 1 }),
     ...(ac1Of(human, judged) === undefined ? {} : { ac1: ac1Of(human, judged) }),
