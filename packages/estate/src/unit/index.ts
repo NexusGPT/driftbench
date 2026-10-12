@@ -1,5 +1,7 @@
 export {
+  casesFromSource,
   ESTATE_CONFIG_FILE,
+  neutral,
   outcomeOf,
   runUnitTests,
   sandboxProfile,

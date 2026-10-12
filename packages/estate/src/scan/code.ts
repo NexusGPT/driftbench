@@ -230,6 +230,10 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
               ...(guard.check.state !== undefined ? { state: guard.check.state } : {}),
               ...(guard.check.work !== undefined ? { work: guard.check.work } : {}),
               ...(guard.check.steps.length > 0 ? { steps: guard.check.steps } : {}),
+              ...(guard.check.trigger && guard.check.trigger.length > 0
+                ? { trigger: guard.check.trigger }
+                : {}),
+              ...(guard.check.host !== undefined ? { host: guard.check.host } : {}),
             }
           : {}),
       },

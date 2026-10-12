@@ -36,7 +36,7 @@ import {
   type ThenParts,
   thenOf,
 } from './then';
-import { UNIT_DIR, UNIT_TEST_TYPES, type UnitTest, unitTestOf } from './unit';
+import { CHECK_GAP, UNIT_DIR, UNIT_TEST_TYPES, type UnitTest, unitTestOf } from './unit';
 
 /**
  * `driftbench estate generate`: every approved plan row becomes one or more task specs, by code only.
@@ -201,7 +201,15 @@ export type EstateReport = {
   options: { seed: number; checks: string[]; fallback: boolean; judge: boolean };
   summary: { specs: number; blocks: number; complete: number; incomplete: number; judged: number };
   /** Unit tests (unit/): guards and scripts run directly, with no model; the rows with none, and why. */
-  unit: { tests: number; guards: number; scripts: number; cases: number; skipped: string[] };
+  unit: {
+    tests: number;
+    guards: number;
+    scripts: number;
+    cases: number;
+    /** Catalogue checks: tested through their host hook, or a gap for want of a trigger or a host. */
+    checks: { tested: number; needsTrigger: number; needsHost: number };
+    skipped: string[];
+  };
   /** Where the asks and outcomes of the complete specs come from. */
   sources: {
     asks: { bank: number; code: number; session: number; none: number };
@@ -568,6 +576,12 @@ export function generateEstateSuite(
         .size,
       scripts: unitWritten.filter((test) => test.target.kind === 'script').length,
       cases: unitWritten.reduce((sum, test) => sum + test.cases.length, 0),
+      checks: {
+        tested: unitWritten.filter((test) => test.target.kind === 'guard' && test.target.check !== undefined)
+          .length,
+        needsTrigger: unitSkipped.filter((line) => line.endsWith(CHECK_GAP.trigger)).length,
+        needsHost: unitSkipped.filter((line) => line.endsWith(CHECK_GAP.host)).length,
+      },
       skipped: unitSkipped,
     },
     sources: {
@@ -1211,6 +1225,7 @@ export function renderEstateSummary(report: EstateReport): string {
   if (report.unit.tests > 0) {
     lines.push(
       `Unit tests: ${report.unit.tests} in ${UNIT_DIR}/ (${report.unit.guards} guards, ${report.unit.scripts} scripts, ${report.unit.cases} payloads), run by driftbench estate unit: --record on the original first, then on any copy.`,
+      `Catalogue checks: ${report.unit.checks.tested} tested through their host hook, ${report.unit.checks.needsTrigger} need a trigger, ${report.unit.checks.needsHost} need a host hook.`,
     );
   }
   if (report.gaps.length > 0) {
