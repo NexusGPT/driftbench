@@ -24,6 +24,7 @@ import type { CustomCheckFunction } from './custom';
  * - `grounded_values`: every number, identifier and date of the reply was seen during the run.
  * - `max_words`: a word limit on a named part of the reply: a draft, or the whole reply.
  * - `no_delete_under`: nothing deleted under a folder.
+ * - `stage_seen`: a step allowed at any point was reached at least once.
  */
 
 type SomeCallOption = { label: string; input: Record<string, Assertion>; count: Count; block?: number };
@@ -496,6 +497,31 @@ export const noDeleteUnder: CustomCheckFunction = (ctx, options) => {
   ];
 };
 
+/**
+ * `{ name, block? }`. A step a step list allows at any point is reached when the runtime reports it once in
+ * the block, wherever: no order can show it. Inconclusive when the runtime reports no stages.
+ */
+export const stageSeen: CustomCheckFunction = (ctx, options) => {
+  if (!isRecord(options) || typeof options.name !== 'string' || options.name === '') {
+    throw new Error('stage_seen needs { name }');
+  }
+  if (typeof options.block === 'number' && options.block !== ctx.blockIndex) return [];
+  const id = options.name.replace(/[^A-Za-z0-9_-]/g, '_');
+  const reported = ctx.observed.runtime?.stages;
+  if (reported === undefined) {
+    return [machineVerdict('stage_seen', id, 'inconclusive', 'the runtime reports no stages for this block')];
+  }
+  const seen = reported.some((stage) => stage.name === options.name);
+  return [
+    machineVerdict(
+      'stage_seen',
+      id,
+      seen ? 'pass' : 'fail',
+      `${options.name} ${seen ? 'reached' : 'not reached'}; stages of this block: ${reported.map((stage) => stage.name).join(', ') || 'none'}`,
+    ),
+  ];
+};
+
 /** The checks by the names the estate generator writes under `rules.custom`. */
 export const ESTATE_CHECKS: Readonly<Record<string, CustomCheckFunction>> = {
   grounded_values: groundedValues,
@@ -504,4 +530,5 @@ export const ESTATE_CHECKS: Readonly<Record<string, CustomCheckFunction>> = {
   no_delete_under: noDeleteUnder,
   permission,
   some_call: someCall,
+  stage_seen: stageSeen,
 };

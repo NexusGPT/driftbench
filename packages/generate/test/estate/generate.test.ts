@@ -211,13 +211,12 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     for (const row of ['p12', 'p15', 'p25', 'p26', 'p31']) expect(markers[row], row).toEqual([]);
     expect(markers.p22).toEqual([MARKERS.guardTiming]);
     expect(markers.p23).toEqual([MARKERS.guardMessage]);
-    expect(markers.p28).toEqual([MARKERS.stageReach]);
+    expect(markers.p28).toEqual([]);
     expect(markers.p32).toEqual([]);
     expect(result.specs.find((spec) => spec.row === 'p32')?.path).toBe('static/invariant/estate.p32.json');
     expect(result.report.gaps.map((entry) => entry.marker)).toEqual([
       MARKERS.guardMessage,
       MARKERS.guardTiming,
-      MARKERS.stageReach,
     ]);
   });
 
@@ -486,9 +485,9 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1383,
       blocks: 1378,
-      complete: 1309,
-      incomplete: 74,
-      judged: 382,
+      complete: 1351,
+      incomplete: 32,
+      judged: 399,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);

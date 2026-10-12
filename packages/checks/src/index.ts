@@ -26,6 +26,7 @@ export {
   noDeleteUnder,
   permission,
   someCall,
+  stageSeen,
 } from './checks/estate';
 export { execution } from './checks/execution';
 export { forbidden } from './checks/forbidden';

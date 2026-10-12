@@ -59,15 +59,15 @@ describe('driftbench estate generate', () => {
   it('writes the suite and its report, and exits 1 while specs are incomplete', async () => {
     expect(first.err).toBe('');
     expect(first.code).toBe(1);
-    expect(first.out).toMatch(/total\s+44\s+41\s+3/);
+    expect(first.out).toMatch(/total\s+44\s+42\s+2/);
     expect(first.out).toContain('Replay: 12 specs aligned to sessions, 10 planned to pass, 2 to fail.');
     const written = await files(out);
     expect(written).toContain('estate-generate-report.json');
-    expect(written.filter((path) => path.startsWith('specs/'))).toHaveLength(40);
+    expect(written.filter((path) => path.startsWith('specs/'))).toHaveLength(41);
     expect(written.filter((path) => path.startsWith('static/'))).toEqual([
       'static/invariant/estate.p32.json',
     ]);
-    expect(written.filter((path) => path.startsWith('incomplete/'))).toHaveLength(3);
+    expect(written.filter((path) => path.startsWith('incomplete/'))).toHaveLength(2);
     expect(written).toContain('run-order.txt');
   });
 
@@ -130,7 +130,7 @@ describe('driftbench estate generate', () => {
   it('lints the complete specs clean', async () => {
     const lint = await run(['spec', 'lint', join(out, 'specs'), '--strict']);
     expect(lint.code).toBe(0);
-    expect(lint.out).toContain('Checked 40 specs: 40 valid, 0 invalid, 0 warnings.');
+    expect(lint.out).toContain('Checked 41 specs: 41 valid, 0 invalid, 0 warnings.');
   });
 
   it('refuses an earlier output without --force, and replaces it with --force', async () => {

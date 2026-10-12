@@ -8,6 +8,7 @@ import {
   noDeleteUnder,
   permission,
   someCall,
+  stageSeen,
 } from '../src/checks/estate';
 import { type Call, context, observed } from './support/context';
 
@@ -198,6 +199,7 @@ describe('permission: what a permission rule allows or denies', () => {
       'no_delete_under',
       'permission',
       'some_call',
+      'stage_seen',
     ]);
   });
 });
@@ -344,5 +346,29 @@ describe('no_delete_under: nothing deleted under a folder', () => {
     ).toBe('pass');
     const blind = await verdicts(noDeleteUnder, ctx('ok'), { path: 'ledger/' });
     expect(blind[0]?.outcome).toBe('inconclusive');
+  });
+});
+
+describe('stage_seen: a step allowed at any point was reached at least once', () => {
+  const stages = (names: string[]) => ({ runtime: { stages: names.map((name) => ({ name })) } });
+
+  it('passes when the stage shows anywhere in the block, fails when it does not', async () => {
+    expect(
+      (await verdicts(stageSeen, ctx('ok', [], stages(['plan', 'note', 'do'])), { name: 'note' }))[0],
+    ).toMatchObject({
+      id: 'stage_seen.note',
+      outcome: 'pass',
+    });
+    expect(
+      (await verdicts(stageSeen, ctx('ok', [], stages(['plan', 'do'])), { name: 'note' }))[0]?.outcome,
+    ).toBe('fail');
+  });
+
+  it('is inconclusive when the runtime reports no stages, and checks only its block', async () => {
+    expect((await verdicts(stageSeen, ctx('ok'), { name: 'note' }))[0]?.outcome).toBe('inconclusive');
+    expect(await verdicts(stageSeen, ctx('ok', [], stages(['note']), 1), { name: 'note', block: 0 })).toEqual(
+      [],
+    );
+    expect(() => stageSeen(ctx('ok'), {})).toThrow(/name/);
   });
 });

@@ -88,6 +88,7 @@ export const REPLAY_CUSTOM_CHECKS: readonly string[] = [
   'ordered',
   'permission',
   'some_call',
+  'stage_seen',
 ];
 
 /** The situation each test type is asked in; `none` for a test that needs no ask. */

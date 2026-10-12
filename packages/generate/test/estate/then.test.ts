@@ -534,8 +534,61 @@ describe('domain predicates as judged criteria, and the scoped word and folder c
       judged,
     );
     expect(folder.custom).toEqual({ no_delete_under: { path: 'ledger/', block: 0 } });
+    // In a control it has no machine inverse: with a judge, the judged control.
     expect(
-      thenOf([rule('no_delete_under', 'x', { path: 'ledger/' })], 'negative', judged).gaps[0]?.marker,
-    ).toBe(MARKERS.negation);
+      thenOf([rule('no_delete_under', 'x', { path: 'ledger/' })], 'negative', judged).criteria[0]?.name,
+    ).toBe('instruction.x.no_delete_under.control');
+  });
+});
+
+describe('ordered pairs between two calls of one tool, and a step allowed at any point', () => {
+  const runner: ThenContext = { ...ctx, customChecks: new Set(['ordered', 'stage_seen']) };
+
+  it('anchors both ends of a Bash before Bash gate on what each call holds', () => {
+    const gate = atom('gate.standing.git-status', [{ type: 'ordered', before: 'Bash', after: 'Bash' }], {
+      kind: 'gate',
+      fields: { first: 'git status', trigger: 'commit to git' },
+    });
+    const then = thenOf([gate], 'positive', runner);
+    expect(then.gaps).toEqual([]);
+    expect(then.ordered).toEqual([{ before: 'Bash~git status', after: 'Bash~commit' }]);
+  });
+
+  it('still names a gap for an end that is no act, such as matching any line', () => {
+    const gate = atom('gate.x', [{ type: 'ordered', before: 'Read', after: 'matching any line' }], {
+      kind: 'gate',
+      fields: { first: 'references/matching-rules.md', trigger: 'matching any line' },
+    });
+    expect(thenOf([gate], 'positive', runner).gaps.map((entry) => entry.marker)).toEqual([MARKERS.anchor]);
+  });
+
+  it('checks that a step allowed at any point was reached at least once, when the runner registers stage_seen', () => {
+    const note = stage('note', [], true);
+    const then = thenOf([note], 'positive', runner);
+    expect(then.gaps).toEqual([]);
+    expect(then.custom).toEqual({ stage_seen: { name: 'note', block: 0 } });
+    expect(thenOf([note], 'positive', ctx).gaps.map((entry) => entry.marker)).toEqual([MARKERS.stageReach]);
+  });
+});
+
+describe('a control with no machine inverse', () => {
+  const runner: ThenContext = { ...ctx, judge: true, customChecks: new Set(['ordered', 'some_call']) };
+
+  it('is judged as the rule not acting outside its situation when a judge runs, a needs-negation gap otherwise', () => {
+    const never = atom('instruction.standing.never-fetch', [{ type: 'tool_not_called', label: 'WebFetch' }], {
+      provenance: { quote: 'Never fetch a web page.' },
+    });
+    const command = atom('instruction.standing.no-force', [
+      { type: 'custom', name: 'command_not_run', options: { contains: 'git push --force' } },
+    ]);
+    const judged = thenOf([never, command], 'negative', runner);
+    expect(judged.gaps).toEqual([]);
+    expect(judged.criteria.map((criterion) => [criterion.name, criterion.gating])).toEqual([
+      ['instruction.standing.never-fetch.control', true],
+      ['instruction.standing.no-force.control', true],
+    ]);
+    expect(judged.judged).toEqual(['instruction.standing.never-fetch', 'instruction.standing.no-force']);
+    const plain = thenOf([never, command], 'negative', { ...runner, judge: false });
+    expect(plain.gaps.map((entry) => entry.marker)).toEqual([MARKERS.negation, MARKERS.negation]);
   });
 });

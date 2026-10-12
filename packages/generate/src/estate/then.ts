@@ -212,12 +212,17 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       return;
     case 'ordered': {
-      const pair = anchorPair(evidence.before, evidence.after, ctx);
+      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
       if (typeof pair === 'string') gap(then, MARKERS.anchor, atom, pair);
       else addPair(then, pair);
       return;
     }
     case 'stage_reached':
+      // A step allowed at any point is reached when it shows once in the block, wherever.
+      if (ctx.stages.anytime.has(evidence.name) && ctx.customChecks.has('stage_seen')) {
+        then.custom.stage_seen = { name: evidence.name, block: 0 };
+        return;
+      }
       reachStage(then, atom, evidence.name, ctx.stages);
       return;
     case 'workspace':
@@ -357,7 +362,7 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'text':
       if ((evidence.must ?? []).length === 0) {
-        gap(then, MARKERS.negation, atom, 'a text predicate with no required words');
+        noInverse(then, atom, 'a text predicate with no required words', ctx);
         return;
       }
       for (const word of evidence.must ?? []) addUnique(then.mustNot, literal(word));
@@ -371,7 +376,7 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         evidence.name === 'no_delete_under' ||
         evidence.name === 'permission'
       ) {
-        gap(then, MARKERS.negation, atom, `${evidence.name} has no negative control`);
+        noInverse(then, atom, `${evidence.name} has no negative control`, ctx);
         return;
       }
       if (ctx.judge && atom.kind !== 'register') {
@@ -384,7 +389,7 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       gap(then, MARKERS.static, atom, evidence.check);
       return;
     default:
-      gap(then, MARKERS.negation, atom, `${evidence.type} has no negative control`);
+      noInverse(then, atom, `${evidence.type} has no negative control`, ctx);
   }
 }
 
@@ -392,7 +397,12 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
  * An ordered pair in the names the ordered check reads: a tool label as is, `skill:<name>`, `stage:<name>`.
  * A string says why the pair cannot be anchored.
  */
-export function anchorPair(before: string, after: string, ctx: ThenContext): OrderedPair | string {
+export function anchorPair(
+  before: string,
+  after: string,
+  ctx: ThenContext,
+  fields?: Record<string, unknown>,
+): OrderedPair | string {
   const a = anchor(before, ctx);
   const b = anchor(after, ctx);
   if (a === undefined || b === undefined) {
@@ -400,6 +410,13 @@ export function anchorPair(before: string, after: string, ctx: ThenContext): Ord
       (name): name is string => name !== undefined,
     );
     return `${before} before ${after}: ${which.map((name) => `"${name}"`).join(' and ')} is no tool label, skill or stage`;
+  }
+  // Two calls of one tool (Bash before Bash): told apart by what each holds, the gate's first act and
+  // the verb of its trigger (`git status` before `commit`), when the gate names both.
+  const first = typeof fields?.first === 'string' ? fields.first.trim() : '';
+  const verb = typeof fields?.trigger === 'string' ? (fields.trigger.trim().split(/\s+/)[0] ?? '') : '';
+  if (a === b && TOOL_LABEL.test(a) && first !== '' && verb !== '') {
+    return { before: `${a}~${first}`, after: `${b}~${verb}` };
   }
   if (a === b)
     return `${before} before ${after}: both ends are ${a}, so the pair cannot tell the two acts apart`;
@@ -497,6 +514,15 @@ function dominates(by: string, target: string, start: string, next: ReadonlyMap<
     }
   }
   return true;
+}
+
+/**
+ * A control whose predicate has no machine inverse: with a judge, the judged control (the rule does not
+ * act outside its situation); without one, a needs-negation gap.
+ */
+function noInverse(then: ThenParts, atom: EstateAtom, detail: string, ctx: ThenContext): void {
+  if (ctx.judge && atom.kind !== 'register') judgeRule(then, atom, 'negative');
+  else gap(then, MARKERS.negation, atom, detail);
 }
 
 /**
