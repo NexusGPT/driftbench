@@ -4,6 +4,7 @@ import type { RunMode } from '@driftbench/core';
 import {
   buildScorecard,
   type CampaignData,
+  MIN_GOLDENS,
   type PilotReport,
   ReportInputError,
   readPilotReport,
@@ -17,9 +18,10 @@ import {
   defaultReportDeps,
   loadReported,
   openReported,
-  parseMargin,
+  parseGate,
   parseModes,
   type ReportDeps,
+  resolveMargin,
 } from './compare';
 
 type ReportCommandOptions = {
@@ -28,6 +30,8 @@ type ReportCommandOptions = {
   junit?: string;
   baseline?: string;
   margin: string;
+  minGoldens: string;
+  strict?: boolean;
   pilot?: string;
   by?: string;
   spreadMode?: string;
@@ -52,7 +56,17 @@ export function registerReportCommand(
     .requiredOption('--out <file.html>', 'where to write the scorecard')
     .option('--junit <file.xml>', 'also write JUnit XML: one test suite per golden, one test case per run')
     .option('--baseline <campaign>', 'a baseline campaign in the same store: adds the compare diff')
-    .option('--margin <points>', 'the non-inferiority margin in percentage points', '2')
+    .option(
+      '--margin <points|auto>',
+      'the non-inferiority margin in percentage points; auto: the smallest margin at which the baseline (or, without one, the campaign) compared with itself is non-inferior',
+      'auto',
+    )
+    .option(
+      '--min-goldens <n>',
+      'a gating criterion decided on fewer goldens is underpowered and left out of the parity test',
+      String(MIN_GOLDENS),
+    )
+    .option('--strict', 'underpowered criteria gate too')
     .option('--pilot <path>', 'a pilot report, pilot-report.json or its folder, rendered in the spread view')
     .option('--by <dimensions>', 'the generated-cell dimensions that name a spread cell, separated by commas')
     .option('--spread-mode <mode>', 'the mode the spread view reads; default F when the campaign ran it')
@@ -70,7 +84,7 @@ export async function reportCommand(
   io: Io,
   deps: ReportDeps,
 ): Promise<number> {
-  const margin = parseMargin(options.margin, io);
+  const gate = parseGate(options, io);
   const maxRuns = Number(options.maxRuns);
   if (!Number.isInteger(maxRuns) || maxRuns < 0) {
     io.err(`--max-runs takes a whole number of 0 or more, not "${options.maxRuns}".\n`);
@@ -86,7 +100,7 @@ export async function reportCommand(
     }
     spreadMode = modes[0];
   }
-  if (margin === undefined) return 2;
+  if (gate === undefined) return 2;
   let pilot: PilotReport | undefined;
   if (options.pilot !== undefined) {
     try {
@@ -117,10 +131,18 @@ export async function reportCommand(
     await store.close();
   }
 
+  const margin = resolveMargin(
+    gate,
+    baseline ?? data,
+    { minGoldens: gate.minGoldens, strict: gate.strict },
+    options.json ? undefined : io,
+  );
   let card: ReturnType<typeof buildScorecard>;
   try {
     card = buildScorecard(data, {
       margin,
+      minGoldens: gate.minGoldens,
+      strict: gate.strict,
       maxRuns,
       ...(baseline ? { baseline } : {}),
       ...(pilot ? { pilot } : {}),

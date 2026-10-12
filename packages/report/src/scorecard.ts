@@ -38,6 +38,10 @@ export type ScorecardOptions = {
   baseline?: CampaignData;
   /** The non-inferiority margin, as a proportion. Default 0.02 (2 points). */
   margin?: number;
+  /** Passed to the compare diff: gating criteria on fewer goldens are underpowered. Default MIN_GOLDENS. */
+  minGoldens?: number;
+  /** Passed to the compare diff: underpowered criteria gate too. */
+  strict?: boolean;
   /** A pilot report to render beside the spread view. */
   pilot?: PilotReport;
   /** Dimensions of the generated cell that name a spread cell. */
@@ -179,7 +183,15 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
       ...optional('by', options.by),
       ...optional('baseline', options.baseline),
     }),
-    ...(options.baseline ? { compare: compareCampaigns(options.baseline, data, { margin }) } : {}),
+    ...(options.baseline
+      ? {
+          compare: compareCampaigns(options.baseline, data, {
+            margin,
+            ...optional('minGoldens', options.minGoldens),
+            ...optional('strict', options.strict),
+          }),
+        }
+      : {}),
     ...optional('pilot', options.pilot),
     drilldown: shown.map((run) => runDetailOf(data, run)),
     omittedRuns: runs.length - shown.length,
