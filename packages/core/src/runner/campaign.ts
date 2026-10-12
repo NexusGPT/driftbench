@@ -253,6 +253,8 @@ export type CampaignRunOptions = {
   artifacts?: ArtifactReaderRegistry;
   store: Store;
   cache?: ObservedCache;
+  /** Each run keeps its events on its record, for the viewer's timeline. */
+  recordEvents?: boolean;
   retry?: RetryOptions;
   now?: () => Date;
   /** Cells that run at the same time. Default 4. */
@@ -331,6 +333,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       store: options.store,
       campaignId: options.campaignId,
       ...(options.cache ? { cache: options.cache } : {}),
+      ...(options.recordEvents ? { recordEvents: true } : {}),
       ...(options.retry ? { retry: options.retry } : {}),
       ...(options.now ? { now: options.now } : {}),
       ...(reference ? { reference } : {}),

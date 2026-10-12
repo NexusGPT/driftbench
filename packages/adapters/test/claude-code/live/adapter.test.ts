@@ -145,6 +145,43 @@ describe('claudeCodeLiveAdapter', () => {
     });
   });
 
+  it('leaves out of the diff what the runtime writes in the estate folder, and keeps what the agent edits there', async () => {
+    const { adapter } = await setup();
+    const { session, given } = await openRun(adapter);
+    const observed = await adapter.send(session, turnOf(0, 'Add a note to the memory file.', given));
+    expect(observed.workspaceDiff).toEqual({
+      created: [],
+      changed: ['.claude/memory/MEMORY.md'],
+      deleted: [],
+    });
+    expect((observed.raw as { live: { runtimeWrites: string[] } }).live.runtimeWrites).toEqual([
+      '.claude/hooks/__pycache__/guard.cpython-312.pyc',
+      '.claude/hooks/state/last-sweep',
+    ]);
+  });
+
+  it('counts a new file under the estate folder as written by the runtime when the estate files are listed one by one', async () => {
+    const { adapter } = await setup({
+      estateFiles: [
+        'CLAUDE.md',
+        '.claude/settings.json',
+        '.claude/memory/MEMORY.md',
+        '.claude/skills/weekly-report/SKILL.md',
+      ],
+    });
+    const { session, given } = await openRun(adapter);
+    const observed = await adapter.send(session, turnOf(0, 'Add a note to the memory file.', given));
+    expect(observed.workspaceDiff).toEqual({
+      created: [],
+      changed: ['.claude/memory/MEMORY.md'],
+      deleted: [],
+    });
+    expect((observed.raw as { live: { runtimeWrites: string[] } }).live.runtimeWrites).toEqual([
+      '.claude/hooks/__pycache__/guard.cpython-312.pyc',
+      '.claude/hooks/state/last-sweep',
+    ]);
+  });
+
   it('resumes the session the runtime named on the next turn, and gives each turn its own rows', async () => {
     const { adapter, work } = await setup();
     const { session, given } = await openRun(adapter);

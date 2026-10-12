@@ -72,6 +72,7 @@ metadata:
     atoms:
       - skill.supplier-email.skill-supplier-email
     planRow: pairwise.0301
+    focusVariant: 300
     cell:
       ask_class: debug
       ask_shape: ambiguous
@@ -89,3 +90,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: supplier-email
     phrase: 1
+    ask: bank
+    outcome: bank

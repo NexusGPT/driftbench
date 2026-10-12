@@ -21,6 +21,28 @@ describe('stageGraph', () => {
   });
 });
 
+describe('stageGraph on stage ids that hold -to- themselves', () => {
+  it('splits each transition at every -to- and keeps the first pair in stage order', () => {
+    const prepared = zedPrepared();
+    const stage = prepared.space.dimensions[prepared.stage ?? -1];
+    const transition = prepared.space.dimensions[prepared.transition ?? -1];
+    if (!stage || !transition) throw new Error('no stage dimensions');
+    const ids = ['a', 'a-to-b', 'b', 'b-to-c', 'c'];
+    stage.values = ids.map((id) => ({ ...stage.values[0], id })) as typeof stage.values;
+    transition.values = ['a-to-b-to-c', 'a-to-b', 'b-to-c-to-a', 'x-to-y'].map((id) => ({
+      ...transition.values[0],
+      id,
+    })) as typeof transition.values;
+    const graph = stageGraph(prepared);
+    expect(graph?.edges.map((edge) => [edge.id, edge.from, edge.to])).toEqual([
+      ['a-to-b-to-c', 'a', 'b-to-c'],
+      ['a-to-b', 'a', 'b'],
+      ['b-to-c-to-a', 'b-to-c', 'a'],
+    ]);
+    expect(graph?.unparsed).toEqual(['x-to-y']);
+  });
+});
+
 describe('walkGraph', () => {
   it('covers every edge reachable from the start, and names the unreachable one', () => {
     const prepared = zedPrepared();

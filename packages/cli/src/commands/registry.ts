@@ -79,7 +79,7 @@ export function registerRegistryCommands(program: Command, io: Io, setExit: (cod
   }
 }
 
-async function pushCommand(
+export async function pushCommand(
   kind: RegistryKind,
   name: string,
   path: string,
@@ -141,6 +141,11 @@ async function pushCommand(
 async function listCommand(kind: RegistryKind, name: string | undefined, options: StoreOption, io: Io) {
   return withStore(options.store, io, async (store) => {
     const versions = await store.listVersions(kind, name);
+    // A name the store does not hold is bad input, exit 2, as for diff and restore; an empty registry is not.
+    if (name !== undefined && versions.length === 0) {
+      io.err(`No ${kind} ${name} in ${options.store}.\n`);
+      return 2;
+    }
     if (options.json) {
       io.out(`${JSON.stringify(versions, null, 2)}\n`);
       return 0;

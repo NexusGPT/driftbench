@@ -51,7 +51,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Add the late shipment count to this week's report, reports/2026-W41.md.
+      user: Fill in the shipments late section of the week 41 report.
     expect:
       skills:
         - name: weekly-report
@@ -67,6 +67,7 @@ metadata:
       - route.weekly-report.an-ask-that-fits-weekly-report
       - skill.weekly-report.skill-weekly-report
     planRow: route_positive.route.weekly-report.an-ask-that-fits-weekly-report.3
+    focusVariant: 2
     cell:
       atoms.route: route.weekly-report.an-ask-that-fits-weekly-report
     seeder: estate
@@ -77,4 +78,6 @@ metadata:
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: weekly-report-update
-    phrase: 0
+    phrase: 1
+    ask: bank
+    outcome: bank

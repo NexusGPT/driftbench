@@ -183,6 +183,7 @@ export const TestType = z.enum([
   'register_sample',
   'hazard_recovery',
   'invariant',
+  'setting',
   'journey',
 ]);
 export type TestType = z.infer<typeof TestType>;

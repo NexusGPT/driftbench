@@ -1,9 +1,10 @@
-import type { DriftClass, Verdict } from '@driftbench/core';
+import type { DriftClass, RunEvent, Verdict } from '@driftbench/core';
 import type { CompareResult } from './compare';
 import type { Estimate } from './estimate';
 import { count, esc, fixed, interval, json, pct, points, pValue, usd } from './format';
 import type { PilotReport } from './pilot';
 import type { RecoverySummary, ReliabilityLine } from './reliability';
+import type { CriterionRepeat } from './repeats';
 import type { BlockDetail, RunDetail, Scorecard } from './scorecard';
 import type { CellSpread, Spread } from './spread';
 
@@ -27,6 +28,7 @@ export function renderHtml(card: Scorecard, options: RenderOptions = {}): string
     summary(card),
     card.compare ? compareSection(card.compare) : '',
     reliabilitySection(card.lines),
+    repeatsSection(card.criterionRepeats),
     successionSection(card),
     compoundingSection(card),
     recoverySection(card),
@@ -311,6 +313,29 @@ ${table(
 )}
 ${ks.length > 0 ? table('pass^k for every k', ['golden', 'mode', 'perturbation', ...Array.from({ length: maxK }, (_, i) => `k=${i + 1}`)], ks) : ''}
 </section>`;
+}
+
+/** One row per reduced criterion and line: each repeat's outcome, then the reduced verdict. Empty when none. */
+export function repeatsSection(lines: readonly CriterionRepeat[]): string {
+  if (lines.length === 0) return '';
+  const rows = lines.map(
+    (line) =>
+      `<tr>${textCell(line.specId, 'mono')}${textCell(line.criterion, 'mono')}${textCell(line.mode)}${textCell(line.perturbationId ?? '', 'mono')}${textCell(line.reducer, 'mono')}${textCell(line.outcomes.map(outcomeWord).join(' '), 'mono')}${textCell(verdictText(line.verdict))}</tr>`,
+  );
+  return table(
+    'Criteria across repeats',
+    ['Spec', 'Criterion', 'Mode', 'Perturbation', 'Reducer', 'Repeats', 'Verdict'],
+    rows,
+    'A repeat is P (pass), F (fail) or - (undecided). A run folds its blocks: any fail is a fail. Each criterion is reduced by its own repeat reducer.',
+  );
+}
+
+export function outcomeWord(outcome: 0 | 1 | undefined): string {
+  return outcome === 1 ? 'P' : outcome === 0 ? 'F' : '-';
+}
+
+export function verdictText(verdict: 0 | 1 | undefined): string {
+  return verdict === 1 ? 'pass' : verdict === 0 ? 'fail' : 'undecided';
 }
 
 function lineTarget(line: ReliabilityLine): string {
@@ -639,9 +664,49 @@ export function renderRun(run: RunDetail, blockExtra: (block: BlockDetail) => st
   return `<section id="run">
 <h2 class="mono">${esc(name)}</h2>
 ${header.replace('</details>', '')}
+${timelineSection(run.events)}
 ${run.blocks.map((block) => blockDetail(block, blockExtra(block))).join('\n')}
 </details>
 </section>`;
+}
+
+/** The events a run reported, in order, as a list. Plain HTML: no script, so it reads with scripts off. */
+export function timelineSection(events: readonly RunEvent[] | undefined): string {
+  if (events === undefined)
+    return '<h3>Timeline</h3>\n<p class="muted">No events were recorded for this run.</p>';
+  const items = events.map((event) => `<li class="event ${event.type}">${esc(eventText(event))}</li>`);
+  return `<h3>Timeline</h3>\n<ol class="timeline">\n${items.join('\n')}\n</ol>`;
+}
+
+function eventText(event: RunEvent): string {
+  switch (event.type) {
+    case 'block_start':
+      return `${event.at} block ${event.index} starts`;
+    case 'model_call': {
+      const tokens = [
+        event.inputTokens === undefined ? undefined : `${event.inputTokens} in`,
+        event.outputTokens === undefined ? undefined : `${event.outputTokens} out`,
+      ]
+        .filter(Boolean)
+        .join(', ');
+      const parts = [
+        `model call on block ${event.index}`,
+        `starts ${event.startedAt}, ends ${event.at}`,
+        tokens,
+        event.usd === undefined ? undefined : `${event.usd} USD`,
+        event.latencyMs === undefined ? undefined : `${event.latencyMs} ms`,
+      ];
+      return parts.filter(Boolean).join('; ');
+    }
+    case 'tool_call':
+      return `${event.at} tool ${event.label} on block ${event.index}${event.error === undefined ? '' : `, refused: ${event.error}`}`;
+    case 'retry':
+      return `${event.at} a retry on block ${event.index}`;
+    case 'block_end':
+      return `${event.at} block ${event.index} ${event.pass ? 'passes' : 'fails'}`;
+    case 'run_end':
+      return `${event.at} run ends: ${event.status}`;
+  }
 }
 
 /** The compare section of a scorecard, on its own. */

@@ -74,6 +74,7 @@ metadata:
     atoms:
       - route.weekly-report.an-ask-that-fits-weekly-report
     planRow: pairwise.0772
+    focusVariant: 771
     cell:
       ask_class: build
       ask_shape: ambiguous
@@ -91,3 +92,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: weekly-report-update
     phrase: 0
+    ask: bank
+    outcome: bank

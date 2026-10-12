@@ -16,6 +16,7 @@ import { registerJudgeCommand } from './commands/judge';
 import { registerMonitorCommand } from './commands/monitor';
 import { registerPerturbCommand } from './commands/perturb';
 import { registerPilotCommand } from './commands/pilot';
+import { registerQueueCommand } from './commands/queue';
 import { registerRegistryCommands } from './commands/registry';
 import { registerReplayCommand } from './commands/replay';
 import { registerReportCommand } from './commands/report';
@@ -64,6 +65,7 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerMonitorCommand(program, io, setExit);
   registerSelectCommand(program, io, setExit);
   registerHoldoutCommand(program, io, setExit);
+  registerQueueCommand(program, io, setExit);
   registerViewCommand(program, io, setExit);
   registerImportCommand(program, io, setExit);
   registerRegistryCommands(program, io, setExit);
@@ -73,7 +75,33 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
     await program.parseAsync(argv, { from: 'user' });
   } catch (cause) {
     if (cause instanceof CommanderError) return cause.exitCode === 0 ? 0 : 2;
+    // A path the user gave that cannot be used as asked (a file where a folder must go, a folder where a file
+    // must go, a missing file) is an input error: exit 2 with the reason, never a stack trace.
+    const path = pathError(cause);
+    if (path !== undefined) {
+      io.err(`driftbench: ${path}\n`);
+      return 2;
+    }
     throw cause;
   }
   return exitCode;
+}
+
+const PATH_CODES = new Set([
+  'ENOENT',
+  'ENOTDIR',
+  'EISDIR',
+  'EEXIST',
+  'EACCES',
+  'EPERM',
+  'ENAMETOOLONG',
+  'ELOOP',
+]);
+
+/** The message of a file system error on a path, or undefined for any other error. */
+function pathError(cause: unknown): string | undefined {
+  if (!(cause instanceof Error)) return undefined;
+  const { code, path } = cause as Error & { code?: unknown; path?: unknown };
+  if (typeof code !== 'string' || !PATH_CODES.has(code) || typeof path !== 'string') return undefined;
+  return `cannot use ${path}: ${cause.message}`;
 }

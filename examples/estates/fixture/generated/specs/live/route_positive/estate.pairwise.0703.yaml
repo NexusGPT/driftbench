@@ -74,6 +74,7 @@ metadata:
     atoms:
       - skill.weekly-report.skill-weekly-report
     planRow: pairwise.0703
+    focusVariant: 702
     cell:
       ask_class: change_estate
       ask_shape: correction
@@ -91,3 +92,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: weekly-report-update
     phrase: 0
+    ask: bank
+    outcome: bank

@@ -108,9 +108,19 @@ This is how a code-agent harness reports its runtime: its hooks as guards, its s
 | Provider | Isolation | What it is |
 |---|---|---|
 | `localProvider()` | weak | a fresh temporary folder on this machine. Commands run there through `/bin/sh` as the current user: the folder bounds what the run records, not what the agent can reach. |
-| `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. |
+| `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. The container has no network unless `network: 'bridge'` is given. |
+
+A sandbox folder that a run leaves open is removed when the process exits, including on SIGINT and SIGTERM, so an interrupted run leaves no workspace behind. A kept sandbox is not removed. A command still running at that point is killed with its process group. Only SIGKILL, which no process can catch, leaves them behind.
 
 Each provider reports whether it can run on this machine (`available()`); the adapter does not fall back from one to the other. The sandbox's isolation is on every Observed.
+
+An approval policy is opt-in. Wrap a provider with `withApprovalPolicy(provider, policy)` and each sandbox it makes checks its commands and reads against the policy. Without it, the sandbox runs as before and its records carry no approval field.
+
+* A rule matches a command (the whole command text) or a path. A path is a command's `cwd` or a file the harness reads through the sandbox. A `*` in a pattern matches any run of characters.
+* The first matching rule decides. `allow` and `deny` decide alone. `ask` calls the approver. With no approver, or one that throws, the answer is a denial.
+* No matching rule allows. A denied command does not run: its exit code is 126 and its record names the rule. A denied read throws `SandboxApprovalError`.
+* Every decision rides on the command's record as `approval`, and reads are kept in the sandbox's `approvals()` log.
+* Path rules do not read the paths a shell command names. A command that reaches a file by name is checked only by a command rule.
 
 Bounds, so a runaway agent cannot exhaust the run:
 

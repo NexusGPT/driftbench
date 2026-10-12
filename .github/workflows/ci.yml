@@ -34,6 +34,7 @@ jobs:
       - run: pnpm build
       - run: pnpm docs:reference --check
       - run: pnpm docs:links
+      - run: pnpm docs:site:build
       - name: CLI smoke
         run: node packages/cli/dist/bin.js --version
 

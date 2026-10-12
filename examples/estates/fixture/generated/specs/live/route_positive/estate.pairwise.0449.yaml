@@ -72,6 +72,7 @@ metadata:
     atoms:
       - route.supplier-email.an-ask-that-fits-supplier-email
     planRow: pairwise.0449
+    focusVariant: 448
     cell:
       ask_class: compose
       ask_shape: problem
@@ -89,3 +90,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: supplier-email
     phrase: 1
+    ask: bank
+    outcome: bank

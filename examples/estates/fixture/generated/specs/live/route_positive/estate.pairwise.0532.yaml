@@ -72,6 +72,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-know-where-a
     planRow: pairwise.0532
+    focusVariant: 531
     cell:
       ask_class: change_estate
       ask_shape: ambiguous
@@ -89,3 +90,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: shipment-late
     phrase: 0
+    ask: bank
+    outcome: bank

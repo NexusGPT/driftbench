@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdtempSync } from 'node:fs';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -9,7 +9,7 @@ import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { pricedAcmeAdapter } from '../../core/test/runner/support';
 import { type CampaignDeps, defaultDeps } from '../src/commands/campaign';
-import { type CiSummary, DEFAULT_FLAGS, registerCiCommand } from '../src/commands/ci';
+import { aggregateVerdict, type CiSummary, DEFAULT_FLAGS, registerCiCommand } from '../src/commands/ci';
 import { type Io, main } from '../src/index';
 
 /** Fictional data only: the Acme Telecom example agents and their planted faults. */
@@ -596,6 +596,43 @@ describe('driftbench ci baselines', () => {
   );
 });
 
+describe('driftbench ci with a budget that stops every candidate cell', () => {
+  it(
+    'is incomplete, exit 1, not bad input, when no golden of the candidate ran',
+    async () => {
+      const dir = await tempFolder();
+      const base = join(dir, 'base.db');
+      await baselineCampaign(CONVERSATIONS, base);
+      const out = join(dir, 'none-ran.json');
+      const result = await cli(
+        [
+          'ci',
+          '--specs',
+          CONVERSATIONS,
+          '--target',
+          'function:acme-sales',
+          '--baseline',
+          base,
+          '--store',
+          join(dir, 'cand.db'),
+          '--budget-usd',
+          '0',
+          '--out',
+          out,
+        ],
+        { adapterFor: async () => pricedAcmeAdapter() },
+      );
+      expect(result.err).not.toContain('cannot be compared');
+      expect(result.code).toBe(1);
+      expect(result.out).toContain('Verdict: INCOMPLETE.');
+      const summary = await summaryAt(out);
+      expect(summary.verdict).toBe('incomplete');
+      expect(summary.pairs).toBe(0);
+    },
+    SLOW,
+  );
+});
+
 describe('driftbench ci input', () => {
   let dir: string;
   let base: string;
@@ -718,9 +755,37 @@ describe('driftbench ci input', () => {
 });
 
 describe('the driftbench ci GitHub Action', () => {
+  it(
+    'run.sh passes each aggregate line to ci, and exits 2 on one it cannot read, before any campaign loads',
+    () => {
+      const dir = mkdtempSync(join(tmpdir(), 'driftbench-action-aggregate-'));
+      made.push(dir);
+      const output = join(dir, 'output.txt');
+      const tsx = join(ROOT, 'node_modules/.bin/tsx');
+      const result = spawnSync('bash', [join(ROOT, 'action/run.sh')], {
+        cwd: ROOT,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          GITHUB_OUTPUT: output,
+          INPUT_SPECS: GATED,
+          INPUT_TARGET: 'function:acme-sales',
+          INPUT_BASELINE: join(dir, 'missing.db'),
+          INPUT_STORE: join(dir, 'cand.db'),
+          INPUT_AGGREGATE: 'nope:>=1',
+          INPUT_REPORT_PATH: join(dir, 'report.json'),
+          INPUT_DRIFTBENCH: `${tsx} packages/cli/src/bin.ts`,
+        },
+      });
+      expect(result.status).toBe(2);
+      expect(result.stderr).toContain('unknown aggregate nope');
+    },
+    SLOW,
+  );
+
   it('declares the inputs and outputs the brief names and runs run.sh', async () => {
     const yml = await readFile(join(ROOT, 'action/action.yml'), 'utf8');
-    for (const input of ['specs', 'target', 'baseline', 'store', 'margin']) {
+    for (const input of ['specs', 'target', 'baseline', 'store', 'margin', 'aggregate']) {
       expect(yml).toMatch(new RegExp(`^  ${input}:\\n    description: `, 'm'));
     }
     expect(yml).toContain('verdict:\n    description:');
@@ -768,6 +833,7 @@ describe('the driftbench ci GitHub Action', () => {
           .filter((l) => l !== '' && !/ExperimentalWarning|--trace-warnings/.test(l)),
       ).toEqual([]);
       expect(parity.result.status).toBe(0);
+      expect(parity.result.stdout).toMatch(/Margin [0-9.]+ points \((auto|given)/);
       expect(await readFile(parity.output, 'utf8')).toBe(`verdict=parity\nreport-path=${parity.report}\n`);
       expect((await summaryAt(parity.report)).verdict).toBe('parity');
 
@@ -777,4 +843,41 @@ describe('the driftbench ci GitHub Action', () => {
     },
     SLOW,
   );
+});
+
+describe('driftbench ci --aggregate', () => {
+  it('exits 2 on an aggregate flag it cannot read, before any campaign runs', async () => {
+    const result = await cli([
+      'ci',
+      '--specs',
+      CONVERSATIONS,
+      '--target',
+      'function:acme-sales',
+      '--baseline',
+      'c-nothing',
+      '--store',
+      'unused.db',
+      '--aggregate',
+      'nope:>=0.5',
+    ]);
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('unknown aggregate nope');
+  });
+
+  it('turns a passing verdict into aggregate-failed when a campaign-level criterion fails, and keeps incomplete', () => {
+    const failed = {
+      name: 'pass-rate',
+      direction: 'at-least' as const,
+      threshold: 0.8,
+      value: 0.5,
+      passed: false,
+      reason: '0.5 >= 0.8',
+    };
+    const passed = { ...failed, value: 0.9, passed: true };
+    const inconclusive = { ...failed, value: undefined, passed: undefined };
+    expect(aggregateVerdict('parity', [passed])).toBe('parity');
+    expect(aggregateVerdict('parity', [failed])).toBe('aggregate-failed');
+    expect(aggregateVerdict('parity', [inconclusive])).toBe('parity');
+    expect(aggregateVerdict('incomplete', [failed])).toBe('incomplete');
+  });
 });

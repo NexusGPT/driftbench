@@ -74,6 +74,7 @@ metadata:
     atoms:
       - route.weekly-report.an-ask-that-fits-weekly-report
     planRow: pairwise.0874
+    focusVariant: 873
     cell:
       ask_class: compose
       ask_shape: correction
@@ -91,3 +92,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: weekly-report-update
     phrase: 0
+    ask: bank
+    outcome: bank

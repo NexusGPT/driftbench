@@ -16,6 +16,7 @@ import {
 } from '@driftbench/generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { defaultGateDeps, type GateDeps, gateCommand } from './gate';
 
 /** What generate runs with. Tests pass a fake model port. */
@@ -331,7 +332,7 @@ function table(rows: string[][]): string[] {
 
 function whole(text: string | undefined, name: string, minimum: number): number | string | undefined {
   if (text === undefined) return undefined;
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!/^\d+$/.test(text.trim()) || !Number.isSafeInteger(value) || value < minimum) {
     return `--${name} must be a whole number of at least ${minimum}, got "${text}".`;
   }
