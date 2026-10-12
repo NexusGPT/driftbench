@@ -227,6 +227,15 @@ export const JudgeConfig = z.strictObject({
   assignment: z.string().optional(),
 });
 
+/** One immutable registry version a campaign ran with: a dataset of specs or a prompt. */
+export const RegistrySource = z.strictObject({
+  kind: z.enum(['dataset', 'prompt']),
+  name: z.string().min(1),
+  version: z.number().int().min(1),
+  hash: z.string().regex(/^[0-9a-f]{64}$/),
+});
+export type RegistrySource = z.infer<typeof RegistrySource>;
+
 /** A campaign pins spec versions, targets, modes and repeats. A re-run is a new campaign. */
 export const Campaign = z.strictObject({
   campaignId: z.string().min(1),
@@ -250,5 +259,7 @@ export const Campaign = z.strictObject({
   budgetUsd: z.number().nonnegative(),
   judge: JudgeConfig,
   createdAt: z.string().min(1),
+  /** The registry versions the campaign ran: the dataset its specs came from, the prompts it pinned. */
+  sources: z.array(RegistrySource).optional(),
 });
 export type Campaign = z.infer<typeof Campaign>;

@@ -315,15 +315,21 @@ export const XLSX_CHECKS: CheckTable<Workbook> = {
   ...TEXT_CHECKS,
 };
 
+/** Every sheet of a workbook, read once. Throws when the bytes are not a workbook. */
+export async function readWorkbook(bytes: Uint8Array): Promise<Sheet[]> {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(ownBuffer(bytes));
+  const read = workbook.worksheets.map(readSheet);
+  if (read.length === 0) throw new Error('the file holds no worksheet');
+  return read;
+}
+
 export const xlsxReader: KindReader = {
   kind: 'xlsx',
   checkNames: Object.keys(XLSX_CHECKS),
   async open(bytes, path) {
     try {
-      const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(ownBuffer(bytes));
-      const read = workbook.worksheets.map(readSheet);
-      if (read.length === 0) throw new Error('the file holds no worksheet');
+      const read = await readWorkbook(bytes);
       return new ReaderDocument<Workbook>('xlsx', path, renderWorkbook(read), XLSX_CHECKS, { sheets: read });
     } catch (cause) {
       return unreadable('xlsx', path, XLSX_CHECKS, cause);

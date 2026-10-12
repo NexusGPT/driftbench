@@ -1,5 +1,15 @@
 export * from './contracts';
 export * from './coverage';
+export {
+  type ImportError,
+  type ImportedSpec,
+  type ImportResult,
+  importTable,
+  parseTableMapping,
+  type TableCell,
+  type TableInput,
+  type TableMapping,
+} from './import/table';
 export * from './runner';
 export * from './schema/common';
 export * from './schema/run';
@@ -19,3 +29,13 @@ export {
 } from './spec/load';
 export { isPlainObject, normalizeSpec } from './spec/normalize';
 export { checkSemantics, isZero, parseCriterionRef, patternError } from './spec/semantics';
+export { type DenseEmbedderOptions, denseEmbedder, localEmbedder } from './text/embedder';
+export {
+  charGrams,
+  type GramOptions,
+  type GramVector,
+  gramCosine,
+  gramTfidf,
+  normaliseText,
+  wordsOf,
+} from './text/grams';
