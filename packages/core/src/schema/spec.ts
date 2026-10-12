@@ -438,6 +438,13 @@ export const CriterionDef = z
       .enum(['system1', 'system2', 'auto'])
       .optional()
       .describe('system1, system2, or auto: calibration assigns the class, ties go to system1.'),
+    repeat_reducer: z
+      .string()
+      .regex(/^(mode|median|at_least:[1-9][0-9]*)$/)
+      .optional()
+      .describe(
+        'How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>.',
+      ),
   })
   .describe(
     'A judged criterion. Blocks reference it by name, with @gating when a fail fails the conversation.',

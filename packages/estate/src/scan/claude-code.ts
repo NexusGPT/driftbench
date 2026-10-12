@@ -70,6 +70,12 @@ export const DEFAULT_IGNORE = [
   'hooks/**/test',
   '.trash',
   'skills/synced',
+  // Files an operating system or an editor leaves beside the estate's own.
+  '.DS_Store',
+  'Thumbs.db',
+  '*.swp',
+  '*~',
+  '.idea',
 ] as const;
 
 /** The estate's own configuration file, at its root: `ignore:` lists more globs to skip. */

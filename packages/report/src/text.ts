@@ -1,5 +1,6 @@
 import { type CompareResult, PLANNING_MARGIN, PLANNING_POWER } from './compare';
 import { count, fixed, interval, pct, points, pValue } from './format';
+import type { CriterionRepeat } from './repeats';
 
 /** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
 export function textTable(rows: readonly string[][]): string[] {
@@ -103,4 +104,15 @@ export function compareText(result: CompareResult): string {
 
 function detectable(value: number | null): string {
   return value === null ? 'none' : `${fixed(value * 100, 1)} points`;
+}
+
+/** One line per reduced criterion, for the command line: the criterion, its line and the reduced verdict. */
+export function criterionRepeatsText(lines: readonly CriterionRepeat[]): string[] {
+  return lines.map((line) => {
+    const outcomes = line.outcomes
+      .map((outcome) => (outcome === 1 ? 'P' : outcome === 0 ? 'F' : '-'))
+      .join(' ');
+    const verdict = line.verdict === 1 ? 'pass' : line.verdict === 0 ? 'fail' : 'undecided';
+    return `Criterion ${line.criterion} (${line.specId}, mode ${line.mode}): ${line.reducer} over ${line.outcomes.length} repeats, ${verdict} (${outcomes}).`;
+  });
 }

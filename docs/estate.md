@@ -39,7 +39,7 @@ No command on this page calls a paid model. The Northwind map is scanned with re
 | `driftbench estate map <map> --to <space.yaml>` | Writes the space map of the situation axes and the approved axis atoms, for `driftbench space`. `--all` takes unapproved atoms too; `--agent <name>` names the agent (default: the estate folder name). | 0 written; 1 invalid map or space map; 2 missing file or `--to` |
 | `driftbench estate plan <map> --out <plan.yaml>` | Derives the test plan from the approved map, and writes `<plan>.summary.json` beside it. `--t <n>` (default 2), `--space <file>`, `--k <n>` (default 3), `--force`. | 0 written; 1 invalid map, invalid space map, or a space map that does not match the map; 2 usage or input error, nothing written |
 | `driftbench estate plan approve <plan>` | With no flag, counts the rows by status. `--all` approves every proposed row; `--row <id>` (repeatable) approves a row; `--row <id> --strike` strikes it. | 0 listed or changed; 1 invalid plan or unknown row; 2 options that do not fit |
-| `driftbench estate generate --map <map> --plan <plan> --out <dir>` | Writes task specs from the approved plan rows, by code, and `estate-generate-report.json`. `--seed <n>` (default 1), `--phrases <bank>` (default `phrases.yaml` beside the map), `--sessions <index>` (default `sessions/index.yaml` beside the map, when it exists), `--force`, `--json`. | 0 every approved row gave complete specs; 1 written with incomplete specs, rows waiting for approval or a generator defect; 2 usage or input error, nothing written |
+| `driftbench estate generate --map <map> --plan <plan> --out <dir>` | Writes task specs from the approved plan rows, by code, and `estate-generate-report.json`. `--seed <n>` (default 1), `--phrases <bank>` (default `phrases.yaml` beside the map), `--sessions <index>` (default `sessions/index.yaml` beside the map, when it exists), `--focus <file>` (atom ids whose complete specs come first in `run-order.txt`), `--no-fallback` (no ask written by code, no outcome read from the atoms), `--force`, `--json`. With no bank beside the map, every ask is written by code. | 0 every approved row gave complete specs; 1 written with incomplete specs, rows waiting for approval or a generator defect; 2 usage or input error, nothing written |
 | `driftbench estate diff <old map> <new map>` | Atoms added, removed, changed (white space or semantic), moved and restated, edges added and removed, and guard state changes. `--json`, `--out <file>` (the JSON that `estate impact` reads), `--old-guards <file>`, `--new-guards <file>`. | 0 computed; 2 a map or a guard state cannot be read |
 | `driftbench estate impact <diff> --tests <dir>` | What the diff does to the tests: regenerate, re-approve, retire, new. `--write` writes each retirement into its spec, `--json`, `--out <file>`; `--replay <sessions> [--suite <dir>] [--store <db>]` adds the regression run. | 0 nothing needs a person; 1 something needs a person; 2 usage or input error |
 | `driftbench replay <session.jsonl...> --suite <specs>` | Runs a suite over recorded sessions, offline, with no model call. `--decisions <logs...>`, `--steps <feeds...>`, `--store <db>` (in memory without it), `--json`. | 0 every aligned spec passes; 1 a spec fails; 2 bad input |
@@ -427,6 +427,7 @@ How a row becomes a spec:
 
 * Given: `vars.estate` (runtime and map hash), the session state of the cell, the hazard of the cell as `vars.event`, and the workspace seed of the situation, inlined as `world.workspace.files`.
 * When: the situation the test type needs, found by the row's first atom (the situation holding most of the row's atoms wins; pinned cell values must agree); its approved phrases shuffled by the seed; the twin takes the second phrase. A replay row gives one spec per recorded session of its situation, asking with the session's recorded ask. A deviation of the cell is a perturbation before the ask, with an approved deviation phrase (`inject_at: 0`, recovery within one block). `stop_resume` adds a resume block.
+* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), the name of another skill (misroute), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off.
 * Then, from the evidence predicates of the row's atoms:
 
 | Predicate | Check |
@@ -434,27 +435,38 @@ How a row becomes a spec:
 | `skill_loaded`, `skill_not_loaded` | `expect.skills` with a count |
 | `guard` | `expect.guards` (name, verdict, count) |
 | `tool_called` without input, `tool_not_called` | `expect.tools` with a count (0 forbids the tool) |
+| `tool_called` Read with one path (equal or contained) | `expect.references`, the glob `**/<path>` with a count |
+| `tool_called` Agent with a helper name | `expect.subagents` with a count |
 | `ordered` | the ordered-pair check, `rules.custom.ordered` |
 | `stage_reached` | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last; stage order uses the immediate dominator in the step list, so a verify to do loop never makes do follow verify |
 | `workspace`, `artifact` | `expect.workspace`, `expect.artifacts`; the outcome is the situation's declared paths, every other path untouched |
 | `text` | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
 | `custom` on a register atom | a judged criterion whose rubric is the atom's title, word for word, not gating |
+| `tool_called` with any other input | `rules.custom.some_call`: one call of the tool whose input matches (count 0 in a control) |
+| `custom` hazard_recovery | `rules.custom.hazard_recovery`: after the hazard the agent goes on, rereads the paths its passage names, and does nothing destructive |
+| `custom` grounded_values | `rules.custom.grounded_values`: every number, identifier and date of the reply was seen in the user's messages or a tool result of the run (1,250.00 and 1250 are one value, 5 October 2026 and 2026-10-05 one date); a value only the agent wrote fails; whole numbers up to 10 are left alone |
+| `custom` permission | `rules.custom.permission`: deny, no call the rule covers; allow or declared, a covered call none refused; ask stays a gap |
+| `custom` with a name the generator compiles | `command_not_run` to some_call; `max_characters`, `max_questions`, `no_secret_in_reply`, `currency_after_amount`, `stopped_and_confirmed` to `must_not` (and `execution.max_commands: 0`); `json_only`, `asks_for`, `route_table` to `must`; `same_language_as_user` to `lang`; `confirmed_before_send`, `asks_again_on_loose_yes` to `safety.confirm_before: [send]` |
+
+* The outcome, when neither the situation nor the atoms name a path, is read from the atoms (`metadata.estate.outcome`): nothing changes (`others_untouched`) for a negative control, a denied tool, a guard that denies or blocks, or a row whose skills and helpers may use no writing tool; otherwise nothing is deleted (`deleted: []`). `--no-fallback` turns this off.
+* Invariant and setting rows are static tests: JSON under `static/<test type>/`, run by `driftbench estate static <suite>/static --estate <root>` on the original or a mutant copy. An invariant passes when it still holds on the files; a setting when the settings still declare its key and value. The replay and live runners register `some_call`, `hazard_recovery`, `permission` and `grounded_values` next to `ordered`.
+* `--focus <file>` (atom ids, one per line) orders `run-order.txt`, the list of complete specs: rows naming a focus atom first, then rows naming a guard, a gate or an invariant, then the rest. The report counts the complete specs per focus atom and names the gaps of the ones with none.
 
 * Negative controls (`outside_trigger`, `route_near_miss`, `guard_negative`): skills count 0, guard count 0, tool count 0, required words moved to `must_not`.
 * Every spec records `metadata.estate`: atoms, plan row, cell, seeder, seed, map hash, test type, mode, map, plan, situation and phrase. Replay specs add the session and the planned outcome, and `metadata.replay` (session, first block). The same map, plan, bank and seed give the same specs.
-* What no existing check can say is a named gap, and the spec goes to `incomplete/`: it is valid, and `spec lint --strict` fails it by name. A `tool_called` with input assertions is never mapped onto `expect.tools`, because that check asserts the input on every call of the tool and the atom asks for one call that matches.
+* What no existing check can say is a named gap, and the spec goes to `incomplete/`: it is valid, and `spec lint --strict` fails it by name. A `tool_called` with input assertions is never mapped onto `expect.tools`, because that check asserts the input on every call of the tool and the atom asks for one call that matches; a Read of a path and an Agent dispatch of a named helper go to the references and subagents checks instead.
 
 | Gap marker | What is missing |
 |---|---|
-| `needs-approved-phrase` | no approved phrase for the situation |
-| `needs-second-phrase` | a twin needs a second approved phrase |
-| `needs-deviation-phrase` | no approved phrase for the cell's deviation class |
-| `needs-workspace-outcome` | the situation declares no paths its ask may touch |
+| `needs-approved-phrase` | no approved phrase for the situation (with `--no-fallback` only) |
+| `needs-second-phrase` | a twin needs a second approved phrase (with `--no-fallback` only) |
+| `needs-deviation-phrase` | no approved phrase for the cell's deviation class (with `--no-fallback` only) |
+| `needs-workspace-outcome` | the situation declares no paths its ask may touch (with `--no-fallback` only) |
 | `needs-some-call-check` | a tool call with input assertions: a check that some call matches |
-| `needs-registered-check` | a custom predicate no registered check runs |
+| `needs-registered-check` | a custom predicate no registered check runs and the generator does not compile |
 | `needs-ordered-anchor` | an ordered pair whose ends are not a tool label, a skill or a stage, or are the same label |
 | `needs-stage-reach-check` | a stage reachable at any time, or a step list with no single closing stage |
-| `needs-static-runner` | a static property of the estate files |
+| `needs-static-runner` | a static property of the estate files that names no check the static runner knows |
 | `needs-negation` | in a negative control, a predicate with no inverse |
 | `needs-recorded-session` | a replay row whose situation no recorded session holds |
 | `needs-guard-timing` | the speed of a guard |
@@ -466,58 +478,57 @@ Layout: `<specs|incomplete>/<mode>/<test type>/<id>.yaml`, so `driftbench replay
 The suite of the Northwind plan. The plan must be approved first; the committed suite reads an approved copy of `plan.yaml`, `packages/generate/test/estate/fixtures/planner-plan.approved.yaml` (every row approved with `estate plan approve --all`), because the committed `plan.yaml` stays a fresh, all-proposed `estate plan` output.
 
 ```
-$ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs3/estate/generated
-Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash ab256ba636f4: 122 atoms.
-Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1338 rows, 1338 approved, 0 waiting, 0 struck.
-Phrases ../../../../examples/estates/fixture/phrases.yaml: 20 situations, 38 approved phrases.
-Sessions ../../../../examples/estates/fixture/sessions/index.yaml: 3.
+$ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
+Map ../../../examples/estates/fixture/approved.yaml (claude-code), hash be2e7a0919cb: 125 atoms.
+Plan ../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1379 rows, 1379 approved, 0 waiting, 0 struck.
+Phrases ../../../examples/estates/fixture/phrases.yaml: 21 situations, 40 approved phrases.
+Sessions ../../../examples/estates/fixture/sessions/index.yaml: 3.
 Seed 1; custom checks the runner registers: ordered.
 
 Test type           rows  specs  complete  incomplete
-obligation           480    480        14         466
-outside_trigger       40     40         1          39
-twin                  40     40         2          38
-ordered_pair          96     96        10          86
-skip_pressure          8      8         1           7
-route_positive       227    227        73         154
-route_near_miss       13     13         2          11
-misroute              13     13         2          11
-read_when              9      9         0           9
+obligation           516    516       120         396
+outside_trigger       43     43         7          36
+twin                  43     43        10          33
+ordered_pair          96     96        48          48
+skip_pressure          8      8         4           4
+route_positive       226    226       226           0
+route_near_miss       13     13        13           0
+misroute              13     13        13           0
+read_when              9      9         9           0
 script_fixture         2      2         0           2
-dispatch              36     36         0          36
-contract_alone         3      3         2           1
-stop_resume            3      3         0           3
-guard_positive        72     72         8          64
-guard_negative         6      6         1           5
-guard_hostile          6      6         3           3
+dispatch              36     36        36           0
+contract_alone         3      3         3           0
+stop_resume            3      3         3           0
+guard_positive        72     72        66           6
+guard_negative         6      6         6           0
+guard_hostile          6      6         6           0
 guard_speed            6      6         0           6
 guard_register         6      6         0           6
 tool_boundary          9      9         0           9
 tool_denied            3      3         1           2
-stage_order           59     59        20          39
-stage_skip             4      4         1           3
+stage_order           59     59        48          11
+stage_skip             4      4         4           0
 stage_anytime          1      1         0           1
-register_sample      180    180        92          88
+register_sample      180    180       180           0
 hazard_recovery        2      2         0           2
 invariant              4      4         0           4
-journey               10     10         2           8
-total                      1338       235        1103
+journey               10     10        10           0
+total                      1379       813         566
 
+Asks of the complete specs: 298 approved phrases, 515 written by code, 0 recorded sessions, 0 with no ask.
+Outcomes of the complete specs: 575 bank, 23 no-change:guard, 22 no-change:negative, 27 no-change:read-only, 166 no-delete.
+Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Gaps (what keeps a spec incomplete):
-  needs-approved-phrase      566 specs
-  needs-deviation-phrase     623 specs
   needs-guard-message-check  6 specs
   needs-guard-timing         6 specs
   needs-negation             3 specs
   needs-ordered-anchor       26 specs
   needs-recorded-session     6 specs
-  needs-registered-check     418 specs
-  needs-second-phrase        3 specs
-  needs-some-call-check      336 specs
+  needs-registered-check     460 specs
+  needs-some-call-check      56 specs
   needs-stage-reach-check    12 specs
   needs-static-runner        4 specs
-  needs-workspace-outcome    565 specs
-Wrote 1339 files to _captures/docs3/estate/generated.
+Wrote 1381 files to _captures/docs/estate/generated.
 ```
 
 It exits 1: 1103 specs are incomplete. The complete ones pass strict lint (the last line of the output):

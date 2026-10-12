@@ -18,4 +18,16 @@ export {
   TIMEOUT_EXIT_CODE,
 } from './limits';
 export { type LocalProviderOptions, LocalSandbox, localProvider } from './local';
+export {
+  type ApprovalAction,
+  type ApprovalDecision,
+  type ApprovalPolicy,
+  type ApprovalRequest,
+  type ApprovalRule,
+  decide,
+  globToRegExp,
+  type PolicedSandbox,
+  SandboxApprovalError,
+  withApprovalPolicy,
+} from './policy';
 export { diffSnapshots } from './walk';

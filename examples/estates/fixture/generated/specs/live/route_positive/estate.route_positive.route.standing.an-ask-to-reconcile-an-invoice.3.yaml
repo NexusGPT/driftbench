@@ -76,3 +76,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: invoice-reconcile
     phrase: 2
+    ask: bank
+    outcome: bank

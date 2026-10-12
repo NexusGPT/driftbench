@@ -17,6 +17,7 @@ export {
   registerCheck,
 } from './checks/custom';
 export { endState } from './checks/end_state';
+export { ESTATE_CHECKS, groundedValues, hazardRecovery, permission, someCall } from './checks/estate';
 export { exact, normaliseExact } from './checks/exact';
 export { execution } from './checks/execution';
 export { forbidden } from './checks/forbidden';

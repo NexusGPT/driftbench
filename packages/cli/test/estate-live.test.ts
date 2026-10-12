@@ -1,6 +1,6 @@
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@driftbench/estate';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -309,6 +309,32 @@ describe('driftbench estate run', () => {
     expect(unpinned.json?.notes).toContain(
       'the estate copy is not pinned to a map hash; pass --map to pin it',
     );
+  });
+});
+
+describe('many specs in one estate run', () => {
+  it('reads a run-order file, from its own folder, with comments, and runs the same as the list', async () => {
+    const dir = await folder();
+    const specs = [PROOF.route_positive ?? '', PROOF.tool_denied ?? ''];
+    await writeFile(
+      join(dir, 'order.txt'),
+      ['# the batch', ...specs.map((spec) => relative(dir, join(LIVE, spec))), ''].join('\n'),
+    );
+    const listed = await estateRun(
+      FIXTURE,
+      specs.map((spec) => join(LIVE, spec)),
+      '--map',
+      MAP,
+    );
+    const ordered = await estateRun(FIXTURE, [], '--order', join(dir, 'order.txt'), '--map', MAP);
+    expect(outcomes(ordered.json)).toEqual(outcomes(listed.json));
+    expect(Object.keys(outcomes(ordered.json))).toHaveLength(2);
+    expect(ordered.json?.pins).toEqual(listed.json?.pins);
+  }, 120_000);
+
+  it('refuses a run with no spec and an order file it cannot read', async () => {
+    expect((await estateRun(FIXTURE, [])).code).toBe(2);
+    expect((await estateRun(FIXTURE, [], '--order', join(await folder(), 'missing.txt'))).code).toBe(2);
   });
 });
 

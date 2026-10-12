@@ -80,6 +80,40 @@ describe('the docker sandbox, on the fake docker command line', () => {
     }
   });
 
+  it('starts the container with no network by default, so a command cannot reach a host or the internet', async () => {
+    const fake = await fakeDocker('network-default');
+    const provider = dockerProvider({ image: 'acme/agent:1', binary: fake.binary, dir: fake.workspaces });
+    const box = (await provider.create()) as DockerSandbox;
+    try {
+      const [run] = await fake.calls();
+      const at = run?.indexOf('--network') ?? -1;
+      expect(at).toBeGreaterThan(-1);
+      expect(run?.[at + 1]).toBe('none');
+      expect(run).toContain('acme/agent:1');
+    } finally {
+      await box.destroy();
+    }
+  });
+
+  it('starts the container on the network the provider names', async () => {
+    const fake = await fakeDocker('network-bridge');
+    const provider = dockerProvider({
+      image: 'acme/agent:1',
+      binary: fake.binary,
+      dir: fake.workspaces,
+      network: 'bridge',
+    });
+    const box = (await provider.create()) as DockerSandbox;
+    try {
+      const [run] = await fake.calls();
+      const at = run?.indexOf('--network') ?? -1;
+      expect(at).toBeGreaterThan(-1);
+      expect(run?.[at + 1]).toBe('bridge');
+    } finally {
+      await box.destroy();
+    }
+  });
+
   it('runs commands in the container path with only the given variables, and diffs the mounted folder', async () => {
     const fake = await fakeDocker('exec');
     const box = (await dockerProvider({

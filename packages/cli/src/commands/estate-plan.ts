@@ -15,6 +15,7 @@ import {
 import { loadSpaceMap, type SpaceMap } from '@driftbench/space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { mapCacheOptions } from './map-cache';
 
 export type EstatePlanOptions = { out?: string; t?: string; space?: string; k?: string; force?: boolean };
 export type EstatePlanApproveOptions = { all?: boolean; row?: string[]; strike?: boolean };
@@ -81,7 +82,7 @@ export async function estatePlanCommand(path: string, options: EstatePlanOptions
     io.err(`${show(out, io)} already exists: pass --force to replace it (the approvals in it are lost).\n`);
     return 2;
   }
-  const loaded = await loadEstateMap(file);
+  const loaded = await loadEstateMap(file, mapCacheOptions());
   if (!loaded.ok) {
     io.err(`✗ ${show(file, io)}\n${loaded.errors.map(issueLine).join('')}`);
     return 1;
