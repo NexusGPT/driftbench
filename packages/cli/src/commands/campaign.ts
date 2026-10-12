@@ -29,6 +29,7 @@ import {
   type PlanOptions,
   planCampaign,
   type RegistrySource,
+  type RetryOptions,
   RunMode,
   type RunResult,
   runCampaign,
@@ -220,9 +221,12 @@ type RunCommandOptions = {
   model?: boolean;
   agentFamily?: string;
   judgeFamily?: string[];
-};
+} & RetryFlags;
 
-type StoredCommandOptions = {
+/** The retry flags of `campaign run` and `campaign resume`: the run's settings over the spec target's. */
+type RetryFlags = { retryAttempts?: string; retryBaseMs?: string; retryMaxMs?: string };
+
+type StoredCommandOptions = RetryFlags & {
   store: string;
   cache?: boolean;
   concurrency?: string;
@@ -303,6 +307,15 @@ export function registerCampaignCommands(
       'the model family of the agent under test; none for an agent that is not a model',
     )
     .option('--judge-family <family>', 'a model family of the judges; repeat it', collect, [])
+    .option(
+      '--retry-attempts <n>',
+      'attempts per model call, the first included; over the spec target retry (default 4)',
+    )
+    .option(
+      '--retry-base-ms <ms>',
+      'the wait before the first retry, doubled for each later one (default 500)',
+    )
+    .option('--retry-max-ms <ms>', 'the longest wait between two attempts (default 30000)')
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: RunCommandOptions) => {
       setExit(await campaignRunCommand(paths, options, io, deps));
@@ -319,6 +332,15 @@ export function registerCampaignCommands(
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', "a hard stop on the campaign's spend; default: the budget it was run with")
     .option('--process-command <command>', PROCESS_COMMAND_HELP)
+    .option(
+      '--retry-attempts <n>',
+      'attempts per model call, the first included; over the spec target retry (default 4)',
+    )
+    .option(
+      '--retry-base-ms <ms>',
+      'the wait before the first retry, doubled for each later one (default 500)',
+    )
+    .option('--retry-max-ms <ms>', 'the longest wait between two attempts (default 30000)')
     .option('--json', 'print one JSON document')
     .action(async (campaignId: string | undefined, options: StoredCommandOptions) => {
       setExit(await campaignResumeCommand(campaignId, options, io, deps));
@@ -688,7 +710,7 @@ export async function campaignResumeCommand(
   io: Io,
   deps: CampaignDeps,
 ): Promise<number> {
-  const pool = parsePool({ concurrency: options.concurrency ?? '4', budgetUsd: options.budgetUsd }, io);
+  const pool = parsePool({ ...options, concurrency: options.concurrency ?? '4' }, io);
   const withCommand = processDeps(deps, options.processCommand, io);
   if (!pool || !withCommand) return 2;
   deps = withCommand;
@@ -708,6 +730,7 @@ export async function campaignResumeCommand(
       kept: true,
       concurrency: pool.concurrency,
       ...(budgetUsd === undefined ? {} : { budgetUsd }),
+      ...(pool.retry ? { retry: pool.retry } : {}),
     });
   } finally {
     // closeScope never throws, so the store is closed whatever happens to the folder.
@@ -756,7 +779,14 @@ async function executeCampaign(
   store: Store,
   deps: CampaignDeps,
   io: Io,
-  flags: { cache: boolean; json: boolean; kept: boolean; concurrency: number; budgetUsd?: number },
+  flags: {
+    cache: boolean;
+    json: boolean;
+    kept: boolean;
+    concurrency: number;
+    budgetUsd?: number;
+    retry?: RetryOptions;
+  },
 ): Promise<number> {
   const plan = planOf(campaign, loaded);
   const specs = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
@@ -782,6 +812,7 @@ async function executeCampaign(
     now: () => deps.now(),
     concurrency: flags.concurrency,
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
+    ...(flags.retry ? { retry: flags.retry } : {}),
     ...(flags.json ? {} : { onCell: (outcome: CellOutcome) => io.out(cellLine(outcome)) }),
   });
   if (flags.json) {
@@ -847,10 +878,10 @@ async function storedCampaign(
 
 type Shape = { targets: TargetRef[]; modes: RunMode[]; repeats: number };
 
-type Pool = { concurrency: number; budgetUsd?: number };
+type Pool = { concurrency: number; budgetUsd?: number; retry?: RetryOptions };
 
 function parsePool(
-  options: { concurrency: string; budgetUsd?: string | undefined },
+  options: { concurrency: string; budgetUsd?: string | undefined } & RetryFlags,
   io: Io,
 ): Pool | undefined {
   const concurrency = Number(options.concurrency);
@@ -858,9 +889,33 @@ function parsePool(
     io.err(`--concurrency takes a whole number of at least 1, not "${options.concurrency}".\n`);
     return undefined;
   }
-  if (options.budgetUsd === undefined) return { concurrency };
+  const retry = parseRetry(options, io);
+  if (retry === null) return undefined;
+  const pool: Pool = { concurrency, ...(retry ? { retry } : {}) };
+  if (options.budgetUsd === undefined) return pool;
   const budgetUsd = parseNumber(options.budgetUsd, '--budget-usd', io);
-  return budgetUsd === null ? undefined : { concurrency, budgetUsd };
+  return budgetUsd === null ? undefined : { ...pool, budgetUsd };
+}
+
+/** The retry flags as runner settings: undefined when none is given, null (after a message) when one is bad. */
+function parseRetry(flags: RetryFlags, io: Io): RetryOptions | undefined | null {
+  const read = (text: string | undefined, flag: string, min: number): number | undefined | null => {
+    if (text === undefined) return undefined;
+    const value = Number(text);
+    if (Number.isInteger(value) && value >= min) return value;
+    io.err(`${flag} takes a whole number of at least ${min}, not "${text}".\n`);
+    return null;
+  };
+  const maxAttempts = read(flags.retryAttempts, '--retry-attempts', 1);
+  const baseDelayMs = read(flags.retryBaseMs, '--retry-base-ms', 0);
+  const maxDelayMs = read(flags.retryMaxMs, '--retry-max-ms', 0);
+  if (maxAttempts === null || baseDelayMs === null || maxDelayMs === null) return null;
+  const retry: RetryOptions = {
+    ...(maxAttempts === undefined ? {} : { maxAttempts }),
+    ...(baseDelayMs === undefined ? {} : { baseDelayMs }),
+    ...(maxDelayMs === undefined ? {} : { maxDelayMs }),
+  };
+  return Object.keys(retry).length > 0 ? retry : undefined;
 }
 
 /**

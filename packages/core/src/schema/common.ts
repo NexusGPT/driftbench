@@ -85,6 +85,40 @@ export const TargetPrompt = z
   );
 export type TargetPrompt = z.infer<typeof TargetPrompt>;
 
+/** How model calls are retried: attempts, waits, jitter and the server's Retry-After. */
+export const RetrySettings = z
+  .strictObject({
+    max_attempts: z
+      .number()
+      .int()
+      .min(1)
+      .max(20)
+      .optional()
+      .describe('Attempts per model call, the first included. Default 4.'),
+    base_delay_ms: z
+      .number()
+      .int()
+      .min(0)
+      .optional()
+      .describe('The wait before the first retry; each later retry doubles it. Default 500.'),
+    max_delay_ms: z
+      .number()
+      .int()
+      .min(0)
+      .optional()
+      .describe('The longest wait between two attempts. Default 30000.'),
+    jitter: z
+      .boolean()
+      .optional()
+      .describe('Draw each wait at random below the backoff (full jitter). Default true.'),
+    retry_after: z
+      .boolean()
+      .optional()
+      .describe("Wait at least what the server's Retry-After header asks. Default true."),
+  })
+  .describe('How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.');
+export type RetrySettings = z.infer<typeof RetrySettings>;
+
 /** Which agent a spec runs against. The adapter decides what the other fields mean. */
 export const TargetRef = z
   .strictObject({
@@ -102,6 +136,7 @@ export const TargetRef = z
     prompt: TargetPrompt.optional().describe(
       'The prompt the agent runs with, from the registry. campaign run --prompt sets it; each adapter page says how it reaches the agent.',
     ),
+    retry: RetrySettings.optional().describe('How the model calls of this target are retried.'),
   })
   .describe('Which agent a spec runs against. The adapter decides what the other fields mean.');
 export type TargetRef = z.infer<typeof TargetRef>;

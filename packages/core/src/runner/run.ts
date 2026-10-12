@@ -3,8 +3,9 @@ import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import { type CheckContext, type CheckSet, machineVerdict } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
 import type { Store } from '../contracts/store';
+import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
-import { type BlockResult, Observed, type RunMode, RunResult, Verdict } from '../schema/run';
+import { type BlockResult, Observed, type RetryEvent, type RunMode, RunResult, Verdict } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
@@ -22,7 +23,7 @@ import {
 } from './given';
 import { describeContradiction, ledgerVerdicts } from './ledger';
 import { type RecoveryOptions, recoveryOf } from './recovery';
-import { CallFailure, describeError, type RetryOptions, withRetry } from './retry';
+import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
 import { succession } from './succession';
 
@@ -111,6 +112,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     cacheTtlMs: options.cacheTtlMs,
     artifacts: options.artifacts,
     retry: options.retry,
+    // The spec target's retry settings, the run's own (the command line) over them.
+    policy: retryPolicy(target.retry, retryLayer(options.retry)),
     now,
     runId:
       options.runId ??
@@ -157,6 +160,7 @@ type RunContext = {
   cacheTtlMs: number | undefined;
   artifacts: ArtifactReaderRegistry | undefined;
   retry: RetryOptions | undefined;
+  policy: RetryPolicy;
   now: () => Date;
   runId: string;
   startedAt: string;
@@ -264,6 +268,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         stimulus: planned.stimulus,
         given,
         ...(planned.budget ? { budget: planned.budget } : {}),
+        retry: run.policy,
       };
       const key = blockCacheKey({
         specHash: run.specHash,
@@ -534,6 +539,13 @@ async function applyChecks(checks: CheckSet, ctx: CheckContext): Promise<Verdict
   return verdicts;
 }
 
+/** The Observed with the block's retries added after any the adapter reported itself. */
+function withRetries(observed: unknown, retries: RetryEvent[]): unknown {
+  if (retries.length === 0 || observed === null || typeof observed !== 'object') return observed;
+  const own = (observed as { retries?: unknown }).retries;
+  return { ...observed, retries: [...(Array.isArray(own) ? own : []), ...retries] };
+}
+
 /** The block's cost: the total the adapter reported, or else the sum of its segments' costs. */
 function blockCost(observed: Observed): number {
   if (observed.cost.usd !== undefined) return observed.cost.usd;
@@ -544,7 +556,8 @@ function liveChannel(run: RunContext): Channel {
   const { adapter } = run;
   const notes: string[] = [];
   let session: Session | undefined;
-  const call = <T>(what: string, attempt: () => Promise<T>) => withRetry(what, attempt, run.retry);
+  const call = <T>(what: string, attempt: () => Promise<T>) =>
+    withRetry(what, attempt, run.retry, run.policy);
   const remember = async (key: string, observed: Observed) => {
     if (!run.cache) return;
     try {
@@ -573,14 +586,20 @@ function liveChannel(run: RunContext): Channel {
       return true;
     },
     async observe(turn, user, key) {
-      if (!session) session = await call(`open on block ${turn.index}`, () => adapter.open(turn.given));
-      const current = session;
-      current.history.push(...structuredClone(user));
-      let observed: unknown = await call(`send on block ${turn.index}`, () => adapter.send(current, turn));
-      const trace = adapter.trace;
-      if (run.capabilities.trace && trace) {
-        observed = await call(`trace on block ${turn.index}`, () => trace.call(adapter, current, turn));
-      }
+      // Every retry of the block, the adapter's own model calls and the runner's, lands in its Observed.
+      const { value: answer, retries } = await collectRetries(async () => {
+        if (!session) session = await call(`open on block ${turn.index}`, () => adapter.open(turn.given));
+        const current = session;
+        current.history.push(...structuredClone(user));
+        let sent: unknown = await call(`send on block ${turn.index}`, () => adapter.send(current, turn));
+        const trace = adapter.trace;
+        if (run.capabilities.trace && trace) {
+          sent = await call(`trace on block ${turn.index}`, () => trace.call(adapter, current, turn));
+        }
+        return { sent, current };
+      });
+      const current = answer.current;
+      const observed: unknown = withRetries(answer.sent, retries);
       // Checked as JSON, the form the cache and the store keep: an undefined that JSON drops is a fault here.
       const parsed = Observed.safeParse(asJson(observed, turn.index));
       if (!parsed.success) {
@@ -590,7 +609,9 @@ function liveChannel(run: RunContext): Channel {
         );
       }
       current.history.push(assistantMessage(parsed.data));
-      await remember(key, parsed.data);
+      // The cache keeps the block without its retries: a replay retries nothing.
+      const { retries: _spent, ...kept } = parsed.data;
+      await remember(key, kept);
       return parsed.data;
     },
     async endState(sources, key) {

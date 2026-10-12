@@ -33,6 +33,7 @@ The options are those of the [anthropic adapter](anthropic.md#options), with `ma
 | `sideEffects` | the spec labels of the tools that change the world. It enables `endState`. |
 | `deterministic` | true when the same input gives the same output. Default false. |
 | `version` | the version the runner's cache key carries. Default the adapter's version with a hash of the model and the system instruction. |
+| `retry`, `sleep` | the adapter's own [retry settings](../retries.md), under the spec target's `retry` and the run's, and how a wait is spent (tests). Each model call runs under the policy; the client's own retry settings stay as you built it. |
 
 ## The agent loop
 
@@ -69,7 +70,7 @@ As on the anthropic adapter: each call of a `sideEffects` tool that did not fail
 
 | Error | Becomes |
 |---|---|
-| an `ApiError` with a 408, 409, 429 or any 5xx status, or a connection, timeout or abort error in the error or its causes (a `fetch failed` with `ECONNREFUSED` in its cause) | `AdapterTransportError` |
+| an `ApiError` with a 429 or any 5xx status, or a network error in the error or its causes (a `fetch failed` with `ECONNREFUSED` in its cause), after the [shared retry policy](../retries.md)'s attempts | `AdapterTransportError`, marked exhausted: the runner does not retry the block on top |
 | any other status or error | `AgentFailure` |
 | an answer that is not an object | `AgentFailure` |
 | an answer with no candidate: the block fails, naming `promptFeedback.blockReason` when the prompt was blocked | `AgentFailure` |

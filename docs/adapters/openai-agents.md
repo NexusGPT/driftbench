@@ -80,7 +80,7 @@ Each call of a `sideEffects` tool that did not fail is a payload, recorded by bl
 
 | Error | Becomes |
 |---|---|
-| a 408, 409, 429 or any 5xx status, or a connection, timeout or abort error, in the error or its causes | `AdapterTransportError` |
+| a 429 or any 5xx status, or a network error (refused, reset, timed out, `fetch failed`), in the error or its causes | `AdapterTransportError`: the runner retries the block under the [shared policy](../retries.md) |
 | `MaxTurnsExceededError`, any other status or error | `AgentFailure` |
 | a run that returns no `newItems` list | `AgentFailure` |
 | a guardrail tripwire | no error: a guard with the verdict `block` |

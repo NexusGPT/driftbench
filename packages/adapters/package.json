@@ -25,7 +25,9 @@
     "@anthropic-ai/sdk": ">=0.133.0",
     "@google/genai": ">=2.28.0",
     "@langchain/langgraph": ">=1.4.21",
-    "@openai/agents": ">=0.20.0"
+    "@openai/agents": ">=0.20.0",
+    "ai": ">=7.0.137",
+    "openai": ">=7.32.0"
   },
   "peerDependenciesMeta": {
     "@anthropic-ai/sdk": {
@@ -38,6 +40,12 @@
       "optional": true
     },
     "@openai/agents": {
+      "optional": true
+    },
+    "ai": {
+      "optional": true
+    },
+    "openai": {
       "optional": true
     }
   }
