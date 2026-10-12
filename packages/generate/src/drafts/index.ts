@@ -130,7 +130,7 @@ export function draftSpec(trace: DraftTrace, options: DraftOptions): TraceDraft 
     },
   };
   const header = [
-    `# Draft spec imported from a ${trace.source} trace. Not approved: nothing here counts until a person`,
+    `# Draft spec imported from a production trace (${trace.source}). Not approved: nothing counts until a person`,
     '# reviews it, writes the expect of each block from the agent spec, and approves it with',
     '#   driftbench import approve <this file> --all',
     '# metadata.imported.observed holds what production did, for that review. Never copy it into an expect.',

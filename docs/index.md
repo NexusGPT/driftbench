@@ -21,6 +21,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Running](running.md): `runSpec`, campaigns in modes T, F and P (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), the determinism smoke test, the cache, the budget and the run record.
 * [Generating tests](generating.md): the map of situations and its relations, `extract` and its approval, `generate`, the validity gate and its funnel, task families, the variance pilot and intake.
 * [Testing an estate](estate.md): how driftbench tests a code-interpreter agent as a whole estate (instructions, skills, subagents, guards, tools, settings): atoms, the estate graph, the plan, generated tests, replay over recorded sessions, maintenance.
+* [Production traces](traces.md): `driftbench import traces` drafts specs from OpenTelemetry, Nexus or Claude Code traces; `driftbench monitor --source traces` watches production for drift in time windows, with the measured delay and false alarms.
 * [Validators](validators.md): code that proves driftbench works: six ladders (map, generator, judges, system, estate, statistics) and the executor loop that drives each to 100 percent.
 
 ## Reference
@@ -73,7 +74,7 @@ Phases 0, 1 and 2 are built, and most of phases 3 and G, with parts of phase 4 a
 
 The command line reaches the Acme example agents (`function:acme-sales`, `process:acme-ops`, and the pilot's control agent `function:acme-random`) and recorded sessions; the other adapters are used from code.
 
-Not built yet: the simulated user and the perturbing driver, the live estate runner (`estate run`, `estate mutate`), and the commands `report`, `compare`, `ci`, `monitor`, `select` and `holdout`, which print that they are not built yet. See [CLI](reference/cli.md#not-built-yet).
+Not built yet: the simulated user and the perturbing driver, the live estate runner (`estate run`, `estate mutate`), and the commands `report`, `compare`, `ci`, `select` and `holdout`, which print that they are not built yet. See [CLI](reference/cli.md#not-built-yet).
 
 ## Roadmap
 
