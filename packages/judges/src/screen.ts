@@ -375,6 +375,17 @@ const DECODERS: readonly ((text: string) => string | undefined)[] = [
     );
     return decoded === text ? undefined : decoded;
   },
+  // HTML numeric entities (&#65; and &#x41;): read as the characters they stand for.
+  (text) => {
+    const decoded = text.replace(
+      /&#(?:x([0-9a-f]{1,6})|(\d{1,7}));/gi,
+      (entity, hex?: string, dec?: string) => {
+        const code = hex !== undefined ? Number.parseInt(hex, 16) : Number(dec);
+        return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : entity;
+      },
+    );
+    return decoded === text ? undefined : decoded;
+  },
   // Hexadecimal runs written 0x...: the bytes read as UTF-8.
   (text) => {
     const decoded = text.replace(
