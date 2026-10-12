@@ -437,7 +437,7 @@ driftbench extract approve <proposal> [--dimension <id>]... [--all] [--to <file>
 driftbench extract map <proposal> --to <file> [--all]
 ```
 
-Proposes the map of situations from an agent's prompt or policy, its inventory and its tool schemas, for a person to approve. Code reads the inventory and the tools first; a model then proposes stages, rules, personas, data and phrases, each value quoting the text that justifies it. Each dimension has a role: an `axis` enters the space map, a `detail` stays in the proposal for generation. The proposal is a valid space map. Nothing counts until a person approves it.
+Proposes the map of situations from an agent's prompt or policy, its inventory and its tool schemas, for a person to approve. Code reads the inventory and the tools first; a model then proposes stages, rules, personas, data and phrases, each value quoting the text that justifies it. Each dimension has a role: an `axis` enters the space map, a `detail` stays in the proposal for generation. The proposal is not a space map: the space commands read it only through `extract map`, which writes the map of the approved axes. Nothing counts until a person approves it.
 
 | Option | Effect |
 |---|---|

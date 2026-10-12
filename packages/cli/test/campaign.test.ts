@@ -461,6 +461,13 @@ describe('driftbench campaign run', () => {
     });
   });
 
+  it('plan exits 2 on a target no adapter is set up for, as run does, and prints no plan', async () => {
+    const target = await cli(['campaign', 'plan', SPECS, '--target', 'http:acme']);
+    expect(target.code).toBe(2);
+    expect(target.err).toContain('No adapter is set up for http:acme.');
+    expect(target.out).not.toContain('Plan:');
+  });
+
   it('exits 2 on an unknown target, an invalid spec, or a campaign id already in the store', async () => {
     const target = await cli(['campaign', 'run', SPECS, '--target', 'http:acme']);
     expect(target.code).toBe(2);
