@@ -732,3 +732,14 @@ Sources read:
 What others do: A model writes only the keys the template lists.
 
 What to try, and why: a rule records that it comes first
+
+## Iteration 63
+
+Question: packages/generate/src/extract/contract.ts: the answer template shows no weight key on a value; contract:value-weight proves it.
+
+Sources read:
+* docs/generating.md section Planned: what a value states (the share of users it stands for)
+
+What others do: A model writes only the keys the template lists.
+
+What to try, and why: a value records the share of users it stands for

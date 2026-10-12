@@ -202,4 +202,37 @@ describe('what a rule states', () => {
       'first',
     );
   });
+
+  it('the answer template shows weight, and the model may state it on a rule', () => {
+    expect(SYSTEM_PROMPT).toContain('"weight": <share of users between 0 and 1>');
+    const target = { dimensions: [], constraints: [], phrases: [], relations: [] };
+    const answer = {
+      section: 'rules',
+      dimensions: [
+        {
+          id: 'rule',
+          title: 'Rules',
+          kind: 'behaviour',
+          values: [
+            {
+              id: 'R-03',
+              title: 'A rule',
+              polarity: 'must',
+              weight: 0.4,
+              source: 'prompt.md',
+              quote: 'Never promise a delivery date.',
+            },
+          ],
+        },
+      ],
+      constraints: [],
+      phrases: [],
+      relations: [],
+    };
+    const result = acceptAnswer('rules', answer as never, target as never, quotes);
+    expect(result.refusals).toEqual([]);
+    expect((target.dimensions[0] as { values: Array<Record<string, unknown>> }).values[0]?.weight).toEqual(
+      0.4,
+    );
+  });
 });
