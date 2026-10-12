@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 7 (check) passes since iteration 38. Level 8, rubric (8 items left); next code: unbalanced-quotes. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
+Level 7 (check) passes since iteration 38. Level 8, rubric (7 items left); next code: empty-rubric. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
 
 ## Hypotheses tried
 
@@ -76,10 +76,11 @@ Iteration 47 (cause: no same-pictures rule). Test: lint.test.ts (red proved). Ba
 Iteration 48 (cause: no picture-contradicts-rubric rule): one picture is the other with not (do, does, did ignored). Test: lint.test.ts (red proved). Bank 312 -> 313 (0.4906).
 Iteration 49 (cause: no scope-mismatch rule, conversation side). Test: lint.test.ts (red proved). Bank 313 -> 314 (0.4922). Block side (rubric/block-scope-whole-conversation) is its own item.
 Iteration 50 (cause: no placeholder rule). Test: lint.test.ts (red proved). Bank 314 -> 315 (0.4937).
+Iteration 51 (cause: no unbalanced-quotes rule). Test: lint.test.ts (red proved). Bank 315 -> 316 (0.4953).
 
 ## Next actions
 
-1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"), next: unbalanced-quotes. The clean twin of every item must still give no issue.
+1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"), next: empty-rubric. The clean twin of every item must still give no issue.
 2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`. PR 86 takes every push.
 
