@@ -1261,7 +1261,7 @@ export function acmeOpsAgent(): string | undefined {
 function cliPackageRoot(from: string): string | undefined {
   for (let dir = from; ; dir = dirname(dir)) {
     const manifest = join(dir, 'package.json');
-    if (existsSync(manifest) && packageName(manifest) === 'driftbench') return dir;
+    if (existsSync(manifest) && packageName(manifest) === '@driftbench/cli') return dir;
     if (dirname(dir) === dir) return undefined;
   }
 }

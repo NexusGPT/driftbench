@@ -38,7 +38,7 @@ It targets conversational agents and code interpreter agents, the ones that writ
 
 ## Get started
 
-driftbench is not on npm yet. Run it from source with Node 22 or newer and pnpm.
+driftbench is not on npm yet: version 0.1.0 is prepared as `@driftbench/cli` and its sibling packages (see [CHANGELOG.md](CHANGELOG.md)). Until it is published, run it from source with Node 22 or newer and pnpm.
 
 ```bash
 git clone https://github.com/achammah/driftbench

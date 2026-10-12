@@ -1,9 +1,32 @@
 {
   "name": "@driftbench/adapters",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "version": "0.1.0",
+  "description": "The adapters that connect driftbench to the agent under test: function, http, process, nexus and agent SDKs, with the contract suite every adapter passes.",
+  "keywords": [
+    "driftbench",
+    "ai-agents",
+    "evaluation",
+    "llm",
+    "testing",
+    "adapter",
+    "agents",
+    "openai-agents",
+    "langgraph"
+  ],
+  "homepage": "https://github.com/achammah/driftbench#readme",
+  "bugs": {
+    "url": "https://github.com/achammah/driftbench/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achammah/driftbench.git",
+    "directory": "packages/adapters"
+  },
   "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -40,5 +63,9 @@
     "@openai/agents": {
       "optional": true
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

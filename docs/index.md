@@ -22,6 +22,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Generating tests](generating.md): the map of situations and its relations, `extract` and its approval, `generate`, the validity gate and its funnel, task families, the variance pilot and intake.
 * [Testing an estate](estate.md): how driftbench tests a code-interpreter agent as a whole estate (instructions, skills, subagents, guards, tools, settings): atoms, the estate graph, the plan, generated tests, replay over recorded sessions, maintenance.
 * [Datasets and prompts](datasets.md): `import` specs from a CSV file or a spreadsheet through a mapping, and the registry of immutable dataset and prompt versions (`dataset`, `prompt`) that a campaign records.
+* [Releasing](releasing.md): the 0.1.0 packages, the release check and the tag-only release workflow.
 * [Validators](validators.md): code that proves driftbench works: six ladders (map, generator, judges, system, estate, statistics) and the executor loop that drives each to 100 percent.
 
 ## Reference
@@ -88,7 +89,7 @@ Not built yet: the simulated user and the perturbing driver, the live estate run
 | G, the space of situations | the map of situations, its coverage and completeness, the map extractor, generation, the gate, task families, the variance pilot and intake | in progress: `space`, `extract`, `generate`, `gate`, `family`, `pilot` and `intake` are built; `select` and `holdout` are registered and not built |
 | E, estates | estate scan, lint, approval and map; the plan; test generation; replay; maintenance; the live runner and estate mutants | in progress: everything but the live runner and the mutants is built |
 | V, validators | the validator frame and six ladders | in progress: the frame, the judge ladder and the statistics ladder are built |
-| Release | SDK agent adapters, docs site, version 0.1.0 on npm | in progress: the four SDK adapters are built; the docs site and the npm release are planned |
+| Release | SDK agent adapters, docs site, version 0.1.0 on npm | in progress: the four SDK adapters and the docs site are built; version 0.1.0 is prepared (manifests, [release workflow and check](releasing.md)) and not published |
 
 There is no separate phase for code agents. A task spec runs through each phase with the conversation specs.
 
