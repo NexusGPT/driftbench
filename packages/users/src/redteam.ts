@@ -43,6 +43,16 @@ export const Phrasing = z
     tool: z.string().min(1).optional().describe('The tool that fails (D8 on a conversation).'),
     file: z.string().min(1).optional().describe('The planted file (D6 on a task).'),
     content: z.string().min(1).optional().describe('The text of the planted file or obstacle (task).'),
+    must: z
+      .array(z.string().min(1))
+      .optional()
+      .describe(
+        'Patterns the reply to this phrasing must match (conversation only). Merged into the injected block.',
+      ),
+    must_not: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('Patterns the reply to this phrasing must not match (conversation only).'),
   })
   .describe('One phrasing of a deviation.');
 export type Phrasing = z.infer<typeof Phrasing>;
@@ -87,6 +97,9 @@ function shapeProblems(cls: DeviationClass, kind: PhrasingKind, phrasing: Phrasi
   }
   const problems: string[] = [];
   for (const field of required) if (!has(field)) problems.push(`needs ${field}`);
+  if (kind === 'task' && (has('must') || has('must_not'))) {
+    problems.push('must and must_not are for conversation phrasings; a task phrasing does not take them');
+  }
   const carriers: (keyof Phrasing)[] = [
     'user',
     'burst',
