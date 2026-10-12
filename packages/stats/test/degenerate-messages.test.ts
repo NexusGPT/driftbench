@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { mean, quantile, quantileSorted, sampleVariance } from '../src/index';
+import {
+  benjaminiHochberg,
+  bootstrapCI,
+  cusum,
+  ksTest,
+  mean,
+  pageHinkley,
+  quantile,
+  quantileSorted,
+  sampleVariance,
+  unreliability,
+  wilcoxonSignedRank,
+} from '../src/index';
 
 /**
  * The degenerate-input contract, rule 1: a RangeError begins `<function>: <argument>`, so the caller sees which
@@ -45,5 +57,35 @@ describe('RangeError names the function and the argument', () => {
 
   it('quantileSorted of an infinite value names sorted and its index', () => {
     expect(() => quantileSorted([1, Number.POSITIVE_INFINITY], 0.5)).toThrow(/^quantileSorted: sorted\[1\]/);
+  });
+
+  it('cusum of a NaN value names series and its index', () => {
+    expect(() => cusum([1, Number.NaN], { sd: 1 })).toThrow(/^cusum: series\[1\]/);
+  });
+
+  it('pageHinkley of an infinite value names series and its index', () => {
+    expect(() => pageHinkley([1, Number.POSITIVE_INFINITY])).toThrow(/^pageHinkley: series\[1\]/);
+  });
+
+  it('ksTest of a NaN value in the first sample names a and its index', () => {
+    expect(() => ksTest([1, Number.NaN], [1, 2])).toThrow(/^ksTest: a\[1\]/);
+  });
+
+  it('wilcoxonSignedRank of an infinite value names x and its index', () => {
+    expect(() => wilcoxonSignedRank([1, Number.POSITIVE_INFINITY], [1, 2])).toThrow(
+      /^wilcoxonSignedRank: x\[1\]/,
+    );
+  });
+
+  it('unreliability of a NaN sample names samples and its index', () => {
+    expect(() => unreliability([0.5, Number.NaN])).toThrow(/^unreliability: samples\[1\]/);
+  });
+
+  it('benjaminiHochberg of a NaN p-value names pvalues and its index', () => {
+    expect(() => benjaminiHochberg([0.01, Number.NaN])).toThrow(/^benjaminiHochberg: pvalues\[1\]/);
+  });
+
+  it('bootstrapCI of an infinite value names values and its index', () => {
+    expect(() => bootstrapCI([1, Number.NEGATIVE_INFINITY])).toThrow(/^bootstrapCI: values\[1\]/);
   });
 });
