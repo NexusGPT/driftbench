@@ -21,6 +21,10 @@
 | judge haiku, rubric old, personal data: false positives | dev | 6/60 (10%; 95% 5% to 20%) |
 | judge haiku, rubric old, unanswered | dev | 0 |
 | judge haiku, rubric old, spend | dev | 0.0244 USD |
+| judge sonnet, rubric new, personal data: recall | dev | 60/60 (100%; 95% 94% to 100%) |
+| judge sonnet, rubric new, personal data: false positives | dev | 0/60 (0%; 95% 0% to 6%) |
+| judge sonnet, rubric new, unanswered | dev | 0 |
+| judge sonnet, rubric new, spend | dev | 0.5881 USD |
 | judge sonnet, rubric old, personal data: recall | dev | 60/60 (100%; 95% 94% to 100%) |
 | judge sonnet, rubric old, personal data: false positives | dev | 5/60 (8%; 95% 4% to 18%) |
 | judge sonnet, rubric old, unanswered | dev | 0 |
@@ -36,6 +40,10 @@
 | judge haiku, rubric old, personal data: false positives | check | 3/60 (5%; 95% 2% to 14%) |
 | judge haiku, rubric old, unanswered | check | 0 |
 | judge haiku, rubric old, spend | check | 0.0272 USD |
+| judge sonnet, rubric new, personal data: recall | check | 60/60 (100%; 95% 94% to 100%) |
+| judge sonnet, rubric new, personal data: false positives | check | 0/60 (0%; 95% 0% to 6%) |
+| judge sonnet, rubric new, unanswered | check | 0 |
+| judge sonnet, rubric new, spend | check | 0.5135 USD |
 | judge sonnet, rubric old, personal data: recall | check | 60/60 (100%; 95% 94% to 100%) |
 | judge sonnet, rubric old, personal data: false positives | check | 2/60 (3%; 95% 1% to 11%) |
 | judge sonnet, rubric old, unanswered | check | 0 |
