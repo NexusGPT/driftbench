@@ -21,8 +21,8 @@ export function mulberry32(seed: number): () => number {
  */
 export function quantileSorted(sorted: readonly number[], p: number): number {
   const n = sorted.length;
-  if (n === 0) throw new RangeError('quantile of an empty sample');
-  if (p < 0 || p > 1) throw new RangeError(`quantile level must lie in [0, 1], got ${p}`);
+  if (n === 0) throw new RangeError('quantileSorted: sorted must not be empty');
+  if (p < 0 || p > 1) throw new RangeError(`quantileSorted: p must lie in [0, 1], got ${p}`);
   const h = (n - 1) * p;
   const lo = Math.floor(h);
   const hi = Math.min(lo + 1, n - 1);
@@ -33,6 +33,8 @@ export function quantileSorted(sorted: readonly number[], p: number): number {
 
 /** Quantile of an unsorted sample, type 7. */
 export function quantile(values: readonly number[], p: number): number {
+  if (values.length === 0) throw new RangeError('quantile: values must not be empty');
+  if (p < 0 || p > 1) throw new RangeError(`quantile: p must lie in [0, 1], got ${p}`);
   return quantileSorted(
     [...values].sort((x, y) => x - y),
     p,
@@ -46,7 +48,7 @@ export function sum(values: readonly number[]): number {
 }
 
 export function mean(values: readonly number[]): number {
-  if (values.length === 0) throw new RangeError('mean of an empty sample');
+  if (values.length === 0) throw new RangeError('mean: values must not be empty');
   return sum(values) / values.length;
 }
 
@@ -80,7 +82,7 @@ export function weightedMean(values: readonly number[], weights: readonly number
 /** Sample variance with n - 1 in the denominator. */
 export function sampleVariance(values: readonly number[]): number {
   const n = values.length;
-  if (n < 2) throw new RangeError('sample variance needs at least two values');
+  if (n < 2) throw new RangeError('sampleVariance: values needs at least two values');
   const m = mean(values);
   let ss = 0;
   for (const v of values) ss += (v - m) * (v - m);
