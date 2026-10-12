@@ -1637,7 +1637,7 @@ def icc1(v, cl):
     return float((msb - msw) / (msb + (n0 - 1) * msw)), n0, k
 
 
-method('roadmap-shrinkage-clustering', 'iccOneWay', 'packages/stats/src/variance.ts',
+method('roadmap-weighting', 'iccOneWay', 'packages/stats/src/variance.ts',
        'iccOneWay(values: readonly number[], clusters: readonly (string | number)[]): number',
        'ICC(1) from the one-way ANOVA, unbalanced: (MSB - MSW) / (MSB + (n0 - 1) MSW), n0 = (N - sum n_g^2 / N) / (k - 1); not truncated',
        'Shrout and Fleiss 1979; Donner 1986 (n0)', [dict(args=[v, c], expect=icc1(v, c)[0]) for v, c in CLV], tol=1e-12, tier=3)
@@ -1649,11 +1649,11 @@ def deff_data(v, cl):
     return float(1 + (mbar - 1) * r)
 
 
-method('roadmap-shrinkage-clustering', 'designEffectFromData', 'packages/stats/src/intervals.ts',
+method('roadmap-weighting', 'designEffectFromData', 'packages/stats/src/intervals.ts',
        'designEffectFromData(values: readonly number[], clusters: readonly (string | number)[]): number',
        'The design effect measured from the data: 1 + (mbar - 1) ICC(1), mbar the mean cluster size and ICC(1) as iccOneWay',
        'Kish 1965; dossier section 3.1', [dict(args=[v, c], expect=deff_data(v, c)) for v, c in CLV], tol=1e-12, tier=3)
-method('roadmap-shrinkage-clustering', 'kishWeightDesignEffect', 'packages/stats/src/intervals.ts',
+method('roadmap-weighting', 'kishWeightDesignEffect', 'packages/stats/src/intervals.ts',
        'kishWeightDesignEffect(weights: readonly number[]): number',
        "Kish's design effect of unequal weights: n sum w^2 / (sum w)^2 (that is 1 + the squared coefficient of variation)",
        'Kish 1992', [dict(args=[w], expect=len(w) * sum(x * x for x in w) / sum(w) ** 2) for w in W], tol=1e-12, tier=2)
@@ -1669,7 +1669,7 @@ def cl_rate_iv(v, cl, a=0.05):
     return dict(estimate=float(m), lower=float(m - t * se), upper=float(m + t * se))
 
 
-method('roadmap-shrinkage-clustering', 'clusteredMeanInterval', 'packages/stats/src/intervals.ts',
+method('roadmap-weighting', 'clusteredMeanInterval', 'packages/stats/src/intervals.ts',
        'clusteredMeanInterval(values: readonly number[], clusters: readonly (string | number)[], alpha = 0.05): Interval',
        'Interval for a mean of clustered values: mean -/+ t(1 - alpha/2, G - 1) SE, SE = sqrt(sum over clusters of (sum of x - mean)^2) / n (the clusteredStandardError), G the clusters',
        'dossier S22 (clustered standard errors with G - 1 degrees of freedom)', [dict(args=[v, c], expect=cl_rate_iv(v, c)) for v, c in CLV], tol=1e-9, tier=4)

@@ -4207,7 +4207,7 @@
       ]
     },
     {
-      "family": "roadmap-shrinkage-clustering",
+      "family": "roadmap-weighting",
       "name": "iccOneWay",
       "file": "packages/stats/src/variance.ts",
       "signature": "iccOneWay(values: readonly number[], clusters: readonly (string | number)[]): number",
@@ -4231,7 +4231,7 @@
       ]
     },
     {
-      "family": "roadmap-shrinkage-clustering",
+      "family": "roadmap-weighting",
       "name": "designEffectFromData",
       "file": "packages/stats/src/intervals.ts",
       "signature": "designEffectFromData(values: readonly number[], clusters: readonly (string | number)[]): number",
@@ -4255,7 +4255,7 @@
       ]
     },
     {
-      "family": "roadmap-shrinkage-clustering",
+      "family": "roadmap-weighting",
       "name": "kishWeightDesignEffect",
       "file": "packages/stats/src/intervals.ts",
       "signature": "kishWeightDesignEffect(weights: readonly number[]): number",
@@ -4279,7 +4279,7 @@
       ]
     },
     {
-      "family": "roadmap-shrinkage-clustering",
+      "family": "roadmap-weighting",
       "name": "clusteredMeanInterval",
       "file": "packages/stats/src/intervals.ts",
       "signature": "clusteredMeanInterval(values: readonly number[], clusters: readonly (string | number)[], alpha = 0.05): Interval",

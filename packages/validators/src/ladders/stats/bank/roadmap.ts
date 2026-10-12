@@ -56,13 +56,36 @@ export function matches(got: unknown, want: unknown, tol: number, path = 'result
   return got === want ? undefined : `${path}: got ${show(got)}, expected ${show(want)}`;
 }
 
-let cached: { path: string; methods: Method[] } | undefined;
-function methods(root: string): Method[] {
+/**
+ * Methods without a product need (validators/stats/NEEDS.md, from packages/validators/fixtures/stats/needs.json)
+ * are quarantined: their items are not in the bank and do not count toward hardness until a docs page, a
+ * design section or a command needs them.
+ */
+export const NEEDS_FIXTURES = 'packages/validators/fixtures/stats/needs.json';
+
+let cached: { path: string; methods: Method[]; quarantined: Method[] } | undefined;
+function load(root: string): { methods: Method[]; quarantined: Method[] } {
   const path = join(root, ROADMAP_FIXTURES);
   if (cached?.path !== path) {
-    cached = { path, methods: (JSON.parse(readFileSync(path, 'utf8')) as { methods: Method[] }).methods };
+    const all = (JSON.parse(readFileSync(path, 'utf8')) as { methods: Method[] }).methods;
+    const needs = JSON.parse(readFileSync(join(root, NEEDS_FIXTURES), 'utf8')) as {
+      quarantine: Record<string, string>;
+    };
+    cached = {
+      path,
+      methods: all.filter((m) => !(m.name in needs.quarantine)),
+      quarantined: all.filter((m) => m.name in needs.quarantine),
+    };
   }
-  return cached.methods;
+  return cached;
+}
+function methods(root: string): Method[] {
+  return load(root).methods;
+}
+
+/** The quarantined methods' names: defined with their cases, kept out of the bank. */
+export function quarantinedMethods(root: string): string[] {
+  return load(root).quarantined.map((m) => m.name);
 }
 
 const argText = (args: unknown[]): string => args.map((a) => show(a)).join(', ');
