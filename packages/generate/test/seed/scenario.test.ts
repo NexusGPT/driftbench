@@ -529,18 +529,26 @@ describe('pilot iteration 5: a boundary block asks for one tool', () => {
   it('expects every other tool of the map 0 times', () => {
     const prepared = prepare();
     const result = generateSuite(prepared, { seed: 1, mapPath: 'map.yaml', t: 2 });
-    const single = result.all.filter(
-      (spec) =>
-        (spec.metadata?.generated as { seeder?: string } | undefined)?.seeder === 'boundary' &&
-        spec.blocks.length === 1 &&
-        (spec.blocks[0]?.expect?.tools ?? []).some((tool) => tool.label === 'lookup'),
+    const asking = result.all.flatMap((spec) =>
+      (spec.metadata?.generated as { seeder?: string } | undefined)?.seeder === 'boundary'
+        ? spec.blocks
+            .filter(
+              (block) =>
+                block.id?.endsWith('-value') &&
+                (block.expect?.tools ?? []).some((tool) => tool.label === 'lookup'),
+            )
+            .map((block) => ({ id: spec.id, block }))
+        : [],
     );
-    expect(single.length).toBeGreaterThan(0);
-    for (const spec of single) {
+    expect(asking.length).toBeGreaterThan(0);
+    for (const { id, block } of asking) {
       expect(
-        (spec.blocks[0]?.expect?.tools ?? []).find((tool) => tool.label === 'notify'),
-        spec.id,
-      ).toEqual({ label: 'notify', count: 0 });
+        (block.expect?.tools ?? []).find((tool) => tool.label === 'notify'),
+        id,
+      ).toEqual({
+        label: 'notify',
+        count: 0,
+      });
     }
   });
 });
@@ -914,5 +922,28 @@ describe('iteration 18: a flow phrase opens a path of its flow', () => {
     expect(texts(said.blocks)[0]).toBe('What is my balance?');
     expect(said.blocks[0]?.stage).toBe(plain.blocks[0]?.stage);
     expect(texts(said.blocks).slice(1)).toEqual(texts(plain.blocks).slice(1));
+  });
+});
+
+describe('iteration 19: a turn that must not move the conversation', () => {
+  it('says the turn after the first move and expects the conversation to stay on that stage', () => {
+    const prepared = prepare();
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      turn: {
+        stimulus: {
+          kind: 'phrase',
+          phrase: phrase('flow', 'balance', 'Please run lookup with account set to 1.'),
+        },
+        carries: [],
+        tools: [{ label: 'lookup', count: 0 }],
+      },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'verify']);
+    expect(texts(built.blocks)[1]).toBe('Please run lookup with account set to 1.');
+    expect(built.blocks[1]?.tools).toContainEqual({ label: 'lookup', count: 0 });
+    expect(built.endState).toBeUndefined();
   });
 });

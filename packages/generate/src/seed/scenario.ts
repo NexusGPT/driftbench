@@ -45,6 +45,12 @@ export type ScenarioRequest = {
   probe?: ProbeRequest;
   /** A phrase used wherever its value is said: one variant of a metamorphic family. */
   force?: ProposalPhrase;
+  /**
+   * A turn said after the walk's first move that must not move the conversation: a request the agent
+   * refuses or defers (a value outside what a tool accepts, a write asked for before the confirmation).
+   * Its Then is the stage the walk had reached, with the tool counts given; the walk ends there.
+   */
+  turn?: { stimulus: Stimulus; carries: Pick[]; tools: ToolExpect[] };
 };
 
 export type Scenario =
@@ -225,7 +231,20 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   const blocks: BlockDraft[] = [];
   const lang = relations.replyLanguage;
   let movedAway = false;
+  let turnPlaced = false;
   for (let index = 0; index < path.stages.length; index += 1) {
+    if (request.turn && index === 1) {
+      blocks.push({
+        id: `b${blocks.length + 1}-value`,
+        stimulus: request.turn.stimulus,
+        stage: path.stages[index] as string,
+        carries: request.turn.carries,
+        tools: request.turn.tools,
+        ...(lang === undefined ? {} : { lang }),
+      });
+      turnPlaced = true;
+      break;
+    }
     if (probeAt === index && probe && deviationKey !== undefined && recovery) {
       const stage = path.stages[index] as string;
       const deviation = dimensions[prepared.deviation ?? -1]?.index.get(probe.classId);
@@ -348,7 +367,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   }
 
   let placed: Built['probe'];
-  let truncated = false;
+  let truncated = turnPlaced;
   if (probe && probe.classId === TOOL_FAILURE) {
     const failed = toolFailure(prepared, rng, path, blocks, cell, probe);
     if (!failed.ok) return fail(failed.reason);
@@ -378,7 +397,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   // conversation on the stage it reached, said before the turn that leaves that stage, with the recovery as
   // its Then. The rest of the walk stays valid after it, so the perturbed run checks every later block too.
   const perturbations: PerturbationSpec[] = [];
-  if (!probe && deviationKey !== undefined && prepared.deviation !== undefined) {
+  if (!probe && !request.turn && deviationKey !== undefined && prepared.deviation !== undefined) {
     const options: Array<{ classId: string; index: number; expect: Expect; user: string }> = [];
     for (const value of dimensions[prepared.deviation]?.values ?? []) {
       const classId = value.id;

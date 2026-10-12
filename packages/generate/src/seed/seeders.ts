@@ -22,7 +22,7 @@ import { type Edge, type StageGraph, stageGraph, walkGraph } from './graph';
 import { dimensionId, type PreparedMap, partitionOf, phraseKey, valueId } from './map';
 import { impossibleConstraints } from './possible';
 import { pick, type Rng, rngFor, shuffle, streamSeed } from './random';
-import { buildScenario, type ProbeRequest } from './scenario';
+import { buildScenario, type ProbeRequest, type ScenarioRequest } from './scenario';
 import { coveringArray } from './twise';
 import { concreteValue, INVALID_PARTITIONS, inputAssertion, toolAnswer } from './values';
 
@@ -75,7 +75,12 @@ function scenarioDraft(
   prefix: string,
   fixed: readonly Pick[],
   candidates: { preferred: PathRelation[]; others: PathRelation[] },
-  options: { probe?: ProbeRequest; force?: ProposalPhrase; rngLabel?: string } = {},
+  options: {
+    probe?: ProbeRequest;
+    force?: ProposalPhrase;
+    rngLabel?: string;
+    turn?: ScenarioRequest['turn'];
+  } = {},
 ): PathTry {
   const rng = rngFor(context.seed, options.rngLabel ?? id);
   const order = [...shuffle(rng, candidates.preferred), ...shuffle(rng, candidates.others)];
@@ -86,6 +91,7 @@ function scenarioDraft(
       fixed,
       ...(options.probe ? { probe: options.probe } : {}),
       ...(options.force ? { force: options.force } : {}),
+      ...(options.turn ? { turn: options.turn } : {}),
     });
     if (!built.ok) {
       reasons.push(built.reason);
@@ -807,6 +813,26 @@ export function boundarySeeder(
       // an echo and a copy of the Given all pass it. The map supplies no word or stage for a refusal, so
       // the spec has no machine Then and goes to incomplete/.
       const forbidsOnly = found !== undefined && tools.length > 0 && tools.every((tool) => tool.count === 0);
+      if (forbidsOnly && hasPaths(prepared)) {
+        // A request that only forbids calls is passed by a reply that does nothing. Said after the walk's
+        // first move, the conversation must also stay on the stage it reached: a reply that does nothing
+        // for the walk fails.
+        const built = scenarioDraft(
+          prepared,
+          context,
+          id,
+          'boundary',
+          `Boundary value ${value.id}`,
+          [target],
+          { preferred: prepared.relations.paths.filter((path) => path.stages.length >= 3), others: [] },
+          { turn: { stimulus: choosePhrase(prepared, rng, [target]), carries: [target], tools } },
+        );
+        if ('draft' in built) {
+          if (Object.keys(concrete).length > 0) built.draft.concrete = concrete;
+          drafts.push(built.draft);
+          return;
+        }
+      }
       const draft: SpecDraft = {
         id,
         seeder: 'boundary',
@@ -819,6 +845,8 @@ export function boundarySeeder(
             stimulus: choosePhrase(prepared, rng, [target]),
             carries: [target],
             ...(tools.length > 0 ? { tools } : {}),
+              ? {}
+              : { lang: prepared.relations.replyLanguage }),
             ...(criteria.length > 0 ? { criteria: criteria.map((criterion) => criterion.name) } : {}),
           },
         ],
