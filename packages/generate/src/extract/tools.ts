@@ -343,6 +343,11 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
   if (!properties) return;
   const requiredPair = ctx.cohere ? undefined : entry(schema, 'required');
   const required = new Set(stringItems(requiredPair?.value));
+  // A required list inside an allOf member counts as the schema's own.
+  const allOf = entry(schema, 'allOf')?.value;
+  if (isSeq(allOf))
+    for (const member of allOf.items)
+      for (const key of stringItems(entry(member, 'required')?.value)) required.add(key);
   if (ctx.cohere) {
     for (const pair of properties.items as Pair[]) {
       const name = keyOf(pair);
@@ -370,7 +375,7 @@ function field(
 ): void {
   const path = [...prefix, name];
   const quote = quoter(ctx.text, pair, property);
-  const partitions = partitionsOf(name, property, quote);
+  const partitions = partitionsOf(name, property, quote, (node) => resolveRef(ctx.root, node));
   const types = typesOf(property);
   if (!isRequired) {
     // An optional property with a default is left out and the default applies: that is a case of its own.
@@ -436,8 +441,81 @@ function addDimension(ctx: Walk, path: string[], partitions: Partition[]): void 
   });
 }
 
+const TYPE_NULL = (node: unknown) => isMap(node) && plain(entry(node, 'type')?.value) === 'null';
+
+/**
+ * oneOf, anyOf and allOf. A oneOf or anyOf of consts reads like an enum; a branch beside a null branch gives
+ * its own partitions and null; any other gives one value per branch, `variant-<title>`, `variant-<key>` for
+ * an OpenAPI discriminator mapping, else `variant-<n>`. allOf gives the partitions of every member.
+ */
+function compositionPartitions(
+  name: string,
+  property: YAMLMap,
+  quote: (keyword?: string) => string,
+  resolve: (node: unknown) => unknown,
+): Partition[] | undefined {
+  const allOf = entry(property, 'allOf')?.value;
+  if (isSeq(allOf)) {
+    const merged: Partition[] = [];
+    for (const member of allOf.items) {
+      const node = resolve(member);
+      if (!isMap(node)) continue;
+      for (const partition of partitionsOf(name, node, () => quote('allOf'), resolve)) {
+        if (!merged.some((seen) => seen.id === partition.id)) merged.push(partition);
+      }
+    }
+    if (merged.length > 0) return merged;
+  }
+  for (const keyword of ['oneOf', 'anyOf']) {
+    const list = entry(property, keyword)?.value;
+    if (!isSeq(list)) continue;
+    const branches = list.items.map((item) => ({ raw: item, node: resolve(item) }));
+    const maps = branches.filter((branch) => isMap(branch.node));
+    if (maps.length === 0) continue;
+    if (maps.every((branch) => entry(branch.node, 'const'))) {
+      return maps.map((branch) => {
+        const constant = plain(entry(branch.node, 'const')?.value);
+        return { id: valueSlug(constant), title: `${name} is ${show(constant)}`, quote: quote(keyword) };
+      });
+    }
+    const nonNull = maps.filter((branch) => !TYPE_NULL(branch.node));
+    if (nonNull.length === 1 && maps.length === 2) {
+      const only = nonNull[0]?.node;
+      const inner = isMap(only) ? partitionsOf(name, only, () => quote(keyword), resolve) : [];
+      return [...inner, { id: 'null', title: `${name} is null`, quote: quote(keyword) }];
+    }
+    const mapping = mapAt(entry(property, 'discriminator')?.value, 'mapping');
+    const keys = new Map<string, string>();
+    for (const pair of (mapping?.items ?? []) as Pair[]) {
+      const target = plain(pair.value);
+      if (typeof target === 'string') keys.set(target, keyOf(pair) ?? '');
+    }
+    const used = new Set<string>();
+    return maps.map((branch, index) => {
+      const ref = isMap(branch.raw) ? plain(entry(branch.raw, '$ref')?.value) : undefined;
+      const title = plain(entry(branch.node, 'title')?.value);
+      const label =
+        (typeof ref === 'string' && keys.get(ref)) ||
+        (typeof title === 'string' && title) ||
+        String(index + 1);
+      let id = `variant-${valueSlug(label)}`;
+      for (let n = 2; used.has(id); n++) id = `variant-${valueSlug(label)}-${n}`;
+      used.add(id);
+      return { id, title: `${name} takes the form ${label}`, quote: quote(keyword) };
+    });
+  }
+  return undefined;
+}
+
 /** The partitions a property's schema states, each with the keyword whose text justifies it. */
-function partitionsOf(name: string, property: YAMLMap, quote: (keyword?: string) => string): Partition[] {
+function partitionsOf(
+  name: string,
+  property: YAMLMap,
+  quote: (keyword?: string) => string,
+  resolve: (node: unknown) => unknown = (node) => node,
+): Partition[] {
+  const composed = compositionPartitions(name, property, quote, resolve);
+  if (composed) return composed;
   const out: Partition[] = [];
   const add = (id: string, title: string, keyword?: string) => out.push({ id, title, quote: quote(keyword) });
   const types = typesOf(property);

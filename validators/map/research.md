@@ -363,3 +363,15 @@ Sources read:
 What others do: Tables are read into the same mapping an inventory holds, and each quote is the row of the table it came from.
 
 What to try, and why: an inventory kept as markdown tables or CSV is read
+
+## Iteration 31
+
+Question: packages/generate/src/extract/tools.ts: partitionsOf reads no composition keyword, so a property made of oneOf, anyOf or allOf gives no partition; schema-keywords.one-of, any-of, any-of-null, all-of, one-of-consts, discriminator and all-of-required prove it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-core section 10.2 (applicators: allOf, anyOf, oneOf)
+* https://spec.openapis.org/oas/v3.0.3#discriminator-object
+
+What others do: Each branch of a oneOf or anyOf is a case; allOf is the conjunction, so its members' partitions all apply.
+
+What to try, and why: the tool pre-pass reads oneOf, anyOf and allOf

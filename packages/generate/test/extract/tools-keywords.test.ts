@@ -496,4 +496,65 @@ type = "boolean"
     };
     expect(read('user.email')).toEqual(['t.x.in.user.email']);
   });
+
+  it('oneOf and anyOf give a value per branch, a const branch its const, a null branch null; allOf merges', () => {
+    expect(
+      partitions({
+        oneOf: [
+          { title: 'by-email', type: 'string', format: 'email' },
+          { title: 'by-code', type: 'string', pattern: '^x$' },
+        ],
+      }),
+    ).toEqual({ 't.x.in.p': ['variant-by-email', 'variant-by-code'] });
+    expect(partitions({ anyOf: [{ type: 'integer' }, { type: 'string', format: 'date' }] })).toEqual({
+      't.x.in.p': ['variant-1', 'variant-2'],
+    });
+    expect(partitions({ anyOf: [{ type: 'integer', minimum: 2 }, { type: 'null' }] })).toEqual({
+      't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum', 'null'],
+    });
+    expect(partitions({ oneOf: [{ const: 'north', title: 'North' }, { const: 'south' }] })).toEqual({
+      't.x.in.p': ['north', 'south'],
+    });
+    expect(partitions({ allOf: [{ type: 'integer', minimum: 2 }, { maximum: 9 }] })).toEqual({
+      't.x.in.p': [
+        'below-minimum',
+        'at-minimum',
+        'above-minimum',
+        'below-maximum',
+        'at-maximum',
+        'above-maximum',
+      ],
+    });
+  });
+
+  it('a discriminator mapping names the variants of a oneOf of $refs', () => {
+    const schema = {
+      type: 'object',
+      required: ['p'],
+      properties: {
+        p: {
+          oneOf: [{ $ref: '#/$defs/Card' }, { $ref: '#/$defs/Transfer' }],
+          discriminator: {
+            propertyName: 'method',
+            mapping: { card: '#/$defs/Card', transfer: '#/$defs/Transfer' },
+          },
+        },
+      },
+      $defs: { Card: { type: 'object' }, Transfer: { type: 'object' } },
+    };
+    const result = toolsPrepass(stringify({ tools: [{ name: 't.x', input_schema: schema }] }), 'tools.yaml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.dimensions[0]?.values.map((v) => v.id)).toEqual([
+      't.x.in.p.variant-card',
+      't.x.in.p.variant-transfer',
+    ]);
+  });
+
+  it('a required list inside an allOf member makes its property required', () => {
+    expect(partitions({ type: 'string', enum: ['a', 'b'] }, false, { allOf: [{ required: ['p'] }] })).toEqual(
+      {
+        't.x.in.p': ['a', 'b'],
+      },
+    );
+  });
 });
