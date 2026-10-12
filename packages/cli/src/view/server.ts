@@ -2,7 +2,7 @@ import { readdir } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { basename, extname } from 'node:path';
 import type { Campaign, RunResult, Spec, Store } from '@driftbench/core';
-import { labelFilePath, readLabelFile, saveLabel } from '@driftbench/judges';
+import { type AnnotationAnchor, labelFilePath, readLabelFile, saveLabel } from '@driftbench/judges';
 import {
   type BlockDetail,
   buildScorecard,
@@ -323,9 +323,13 @@ async function runPage(
       criteria.length > 0
         ? `<select name="criterion" aria-label="Criterion">${criteria.map((name) => `<option value="${esc(name)}">${esc(name)}</option>`).join('')}</select>`
         : '<input name="criterion" aria-label="Criterion" placeholder="criterion" required pattern="[A-Za-z0-9][A-Za-z0-9._-]*">';
+    const anchorField = `<label>Anchor <select name="anchor" aria-label="Anchor"><option value="none">no anchor</option>${anchorOptions(block)
+      .map((option) => `<option value="${esc(option.value)}">${esc(option.label)}</option>`)
+      .join('')}</select></label>`;
     return `<div class="labels"><p class="label">Your label for this block${existing.length > 0 ? `, ${existing.length} saved` : ''}</p>${shown ? `<ul>${shown}</ul>` : ''}<form method="post" action="/labels">
 <input type="hidden" name="campaign" value="${esc(campaignId)}"><input type="hidden" name="run" value="${esc(run.runId)}"><input type="hidden" name="block" value="${block.index}">
 ${criterionField}
+${anchorField}
 <label><input type="radio" name="label" value="pass" required> pass</label><label><input type="radio" name="label" value="fail"> fail</label>
 <input name="note" aria-label="Note" placeholder="note: why">
 <button type="submit">Save label</button></form></div>`;
@@ -356,6 +360,53 @@ ${criterionField}
 }
 
 /** Saves the label a form posted and returns where the browser goes next. */
+/** The transcript a label judges: the stimulus, each tool call with its result, then the reply. */
+function transcriptOf(block: BlockDetail) {
+  return [
+    ...(block.stimulus === undefined ? [] : [{ role: 'user' as const, text: block.stimulus }]),
+    ...block.toolCalls.flatMap((call) => [
+      { role: 'tool_call' as const, text: JSON.stringify(call.input ?? null), tool: call.label },
+      ...(call.output === undefined && call.error === undefined
+        ? []
+        : [
+            {
+              role: 'tool_result' as const,
+              text: call.error ?? JSON.stringify(call.output),
+              tool: call.label,
+            },
+          ]),
+    ]),
+    { role: 'agent' as const, text: block.text },
+  ];
+}
+
+/**
+ * The anchors a label can pick in this block: each transcript line by its index, and each tool call by its name
+ * and occurrence. The value is what the form posts; the anchor is what the label file keeps.
+ */
+export function anchorOptions(block: BlockDetail): { value: string; label: string; anchor: AnnotationAnchor }[] {
+  const options: { value: string; label: string; anchor: AnnotationAnchor }[] = [];
+  const occurrences = new Map<string, number>();
+  transcriptOf(block).forEach((entry, index) => {
+    options.push({
+      value: `message:${index}`,
+      label: `line ${index}: ${entry.role}`,
+      anchor: { kind: 'message', index },
+    });
+    if (entry.role === 'tool_call') {
+      const tool = entry.tool ?? '';
+      const occurrence = (occurrences.get(tool) ?? 0) + 1;
+      occurrences.set(tool, occurrence);
+      options.push({
+        value: `tool:${tool}:${occurrence}`,
+        label: `tool ${tool}, call ${occurrence}`,
+        anchor: { kind: 'tool_call', tool, occurrence },
+      });
+    }
+  });
+  return options;
+}
+
 async function saveFromForm(
   store: Store,
   labelsDir: string,
@@ -387,22 +438,14 @@ async function saveFromForm(
   const block = detail.blocks.find((entry) => entry.index === index);
   if (!Number.isInteger(index) || !block)
     throw new HttpError(400, `The run has no block ${fields.get('block')}.`);
-  const transcript = [
-    ...(block.stimulus === undefined ? [] : [{ role: 'user' as const, text: block.stimulus }]),
-    ...block.toolCalls.flatMap((call) => [
-      { role: 'tool_call' as const, text: JSON.stringify(call.input ?? null), tool: call.label },
-      ...(call.output === undefined && call.error === undefined
-        ? []
-        : [
-            {
-              role: 'tool_result' as const,
-              text: call.error ?? JSON.stringify(call.output),
-              tool: call.label,
-            },
-          ]),
-    ]),
-    { role: 'agent' as const, text: block.text },
-  ];
+  const transcript = transcriptOf(block);
+  const picked = fields.get('anchor') ?? 'none';
+  let anchor: AnnotationAnchor | undefined;
+  if (picked !== 'none') {
+    const option = anchorOptions(block).find((entry) => entry.value === picked);
+    if (!option) throw new HttpError(400, `${picked} is not an anchor of this block.`);
+    anchor = option.anchor;
+  }
   await saveLabel(
     labelsDir,
     criterion,
@@ -411,6 +454,7 @@ async function saveFromForm(
       label,
       ...(note === '' ? {} : { note }),
       transcript,
+      ...(anchor === undefined ? {} : { anchor }),
     },
     labelledBy,
   );
