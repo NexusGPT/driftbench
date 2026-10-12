@@ -267,3 +267,15 @@ Sources read:
 What others do: LangChain tools expose args as a mapping from argument name to schema, with no required list, so each argument is optional.
 
 What to try, and why: the tool pre-pass reads a LangChain args mapping
+
+## Iteration 23
+
+Question: packages/generate/src/extract/tools.ts: locate finds no tools in a document with paths, so an OpenAPI or Swagger file gives TOOLS_NOT_FOUND; tool-formats.openapi, swagger, openapi-components-ref and openapi-shared-path prove it.
+
+Sources read:
+* https://spec.openapis.org/oas/v3.0.3 (operation, requestBody, responses, components)
+* https://swagger.io/specification/v2/ (body parameter, response schema, definitions)
+
+What others do: OpenAPI generators and agent toolkits turn each operationId into one tool, the JSON body into its input and the 200 response into its output.
+
+What to try, and why: the tool pre-pass reads OpenAPI 3 and Swagger 2 documents

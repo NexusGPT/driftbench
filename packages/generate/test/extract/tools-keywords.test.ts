@@ -312,4 +312,54 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       ['find_account.in.urgent', ['true', 'false', 'absent']],
     ]);
   });
+
+  it('reads an OpenAPI 3 or Swagger 2 document: one tool per operationId, body as input, 200 as output', () => {
+    const input = { type: 'object', required: ['flag'], properties: { flag: { type: 'boolean' } } };
+    const output = { type: 'object', required: ['ok'], properties: { ok: { type: 'boolean' } } };
+    const three = {
+      openapi: '3.0.3',
+      paths: {
+        '/find': {
+          put: {
+            operationId: 'findAccount',
+            requestBody: { content: { 'application/json': { schema: input } } },
+            responses: { '200': { content: { 'application/json': { schema: output } } } },
+          },
+          post: {
+            operationId: 'placeOrder',
+            requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/In' } } } },
+            responses: { '200': { content: { 'application/json': { schema: { $ref: '#/components/schemas/Out' } } } } },
+          },
+        },
+      },
+      components: { schemas: { In: input, Out: output } },
+    };
+    const two = {
+      swagger: '2.0',
+      paths: {
+        '/find': {
+          post: {
+            operationId: 'findAccount',
+            parameters: [{ in: 'body', name: 'body', schema: input }],
+            responses: { '200': { schema: output } },
+          },
+        },
+      },
+    };
+    for (const file of [three, two]) {
+      const result = toolsPrepass(stringify(JSON.parse(JSON.stringify(file))), 'api.yaml');
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      expect(result.tools[0]).toBe('findAccount');
+      expect(result.dimensions.map((d) => d.id).slice(0, 2)).toEqual(['find_account.in.flag', 'find_account.out.ok']);
+    }
+    const first = toolsPrepass(stringify(JSON.parse(JSON.stringify(three))), 'api.yaml');
+    if (!first.ok) throw new Error('x');
+    expect(first.tools).toEqual(['findAccount', 'placeOrder']);
+    expect(first.dimensions.map((d) => d.id)).toEqual([
+      'find_account.in.flag',
+      'find_account.out.ok',
+      'place_order.in.flag',
+      'place_order.out.ok',
+    ]);
+  });
 });

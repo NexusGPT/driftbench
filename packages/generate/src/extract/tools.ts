@@ -75,6 +75,8 @@ export function toolsPrepass(text: string, source: string): ToolsPrepass {
     return fail('TOOLS_PARSE', '', first.message.split('\n')[0] ?? 'the file is not valid YAML or JSON');
   const stream = docs.length > 1 ? new YAMLSeq() : undefined;
   if (stream) for (const doc of docs) if (doc.contents) stream.items.push(doc.contents);
+  const openApi = stream ? undefined : readOpenApi(docs[0]?.contents);
+  if (openApi) return toolsOf(text, source, openApi);
   const located = locate(stream ?? docs[0]?.contents);
   if (!located) {
     return fail(
@@ -83,7 +85,14 @@ export function toolsPrepass(text: string, source: string): ToolsPrepass {
       'no tools found: expected a list of tools, or a mapping with tools, tool_schemas or metadata.tool_schemas',
     );
   }
-  const read = readTools(located.node, located.path);
+  return toolsOf(text, source, readTools(located.node, located.path));
+}
+
+function toolsOf(
+  text: string,
+  source: string,
+  read: { tools: Tool[] } | { errors: ToolsIssue[] },
+): ToolsPrepass {
   if ('errors' in read) return { ok: false, errors: read.errors };
 
   const dimensions: ProposalDimension[] = [];
@@ -136,6 +145,56 @@ function blankComments(text: string): string {
     }
   }
   return out;
+}
+
+const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options'];
+
+/**
+ * An OpenAPI 3 or Swagger 2 document: one tool per operation with an operationId. The input is the JSON
+ * request body (OpenAPI 3) or the body parameter (Swagger 2); the output is the schema of the 200 response.
+ * A `$ref` to the document's components or definitions is followed one step.
+ */
+function readOpenApi(root: unknown): { tools: Tool[] } | { errors: ToolsIssue[] } | undefined {
+  const paths = mapAt(root, 'paths');
+  if (!paths || (!entry(root, 'openapi') && !entry(root, 'swagger'))) return undefined;
+  const follow = (node: unknown): unknown => {
+    const ref = isMap(node) ? plain(entry(node, '$ref')?.value) : undefined;
+    if (typeof ref !== 'string' || !ref.startsWith('#/')) return node;
+    let target: unknown = root;
+    for (const part of ref.slice(2).split('/'))
+      target = mapAt(target, part.replace(/~1/g, '/').replace(/~0/g, '~'));
+    return isMap(target) ? target : node;
+  };
+  const tools: Tool[] = [];
+  const errors: ToolsIssue[] = [];
+  const seen = new Set<string>();
+  for (const pathPair of paths.items as Pair[]) {
+    for (const operationPair of (isMap(pathPair.value) ? pathPair.value.items : []) as Pair[]) {
+      const method = keyOf(operationPair);
+      const operation = operationPair.value;
+      if (!method || !HTTP_METHODS.includes(method) || !isMap(operation)) continue;
+      const name = plain(entry(operation, 'operationId')?.value);
+      if (typeof name !== 'string' || name.trim() === '') continue;
+      const where = `paths.${keyOf(pathPair) ?? '?'}.${method}`;
+      if (seen.has(name)) {
+        errors.push({ code: 'TOOLS_DUPLICATE', path: where, message: `tool "${name}" is listed twice` });
+        continue;
+      }
+      seen.add(name);
+      const body = follow(entry(operation, 'requestBody')?.value);
+      const bodyParameter = (entry(operation, 'parameters')?.value as { items?: unknown[] } | undefined)?.items
+        ?.map(follow)
+        .find((parameter) => plain(entry(parameter, 'in')?.value) === 'body');
+      const ok = follow(mapAt(mapAt(operation, 'responses'), '200'));
+      const schema = (node: unknown) => {
+        const found = mapAt(mapAt(mapAt(node, 'content'), 'application/json'), 'schema') ?? mapAt(node, 'schema');
+        const resolved = follow(found);
+        return isMap(resolved) ? resolved : undefined;
+      };
+      tools.push({ name, path: where, input: schema(body) ?? schema(bodyParameter), output: schema(ok) });
+    }
+  }
+  return errors.length > 0 ? { errors } : { tools };
 }
 
 type Walk = {
