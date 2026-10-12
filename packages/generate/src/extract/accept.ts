@@ -371,7 +371,7 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
 function valueClash(draft: Draft, dimension: string, kind: string, id: string): string | undefined {
   if (id === NONE) return `"${NONE}" is reserved: code adds it where a dimension needs it`;
   if (kind === 'deviation' && !DeviationClass.safeParse(id).success) {
-    return `"${id}" is not a deviation class: use D1_off_topic to D10_return`;
+    return `"${id}" is not a deviation class: use D1_off_topic to D12_prompt_extraction`;
   }
   if (kind === 'stage' || kind === 'deviation' || kind === 'channel') return undefined;
   const owner = draft.dimensions.find(

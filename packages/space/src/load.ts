@@ -123,7 +123,7 @@ function checkReferences(map: SpaceMap): SpaceMapIssue[] {
           issue(
             'SPACE_UNKNOWN_DEVIATION',
             at,
-            `"${value.id}" is not a deviation class: use D1_off_topic to D10_return, or ${NONE}`,
+            `"${value.id}" is not a deviation class: use D1_off_topic to D12_prompt_extraction, or ${NONE}`,
           ),
         );
       }

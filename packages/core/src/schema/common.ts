@@ -59,6 +59,8 @@ export const DeviationClass = z
     'D8_tool_failure',
     'D9_out_of_scope',
     'D10_return',
+    'D11_pii_leak',
+    'D12_prompt_extraction',
   ])
   .describe('The ten deviation classes a perturbed run can inject.');
 export type DeviationClass = z.infer<typeof DeviationClass>;

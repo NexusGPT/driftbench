@@ -4,7 +4,7 @@
 id: estate.pairwise.0995
 version: be2e7a0919cb
 kind: task
-title: "obligation: A line matches on article code and quantity"
+title: "obligation: Write in the supplier's language from the memory table"
 lang: EN
 tier: generated
 tags:
@@ -13,7 +13,6 @@ tags:
   - mode:live
   - kind:instruction
   - ask:code
-  - judged
 target:
   adapter: claude-code
 given:
@@ -21,44 +20,38 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: helpers_running
-    event: stale_tracker
-criteria:
-  - name: instruction.invoice-reconcile.a-line-matches-on-article-code
-    rubric: 'Does the reply follow this rule of the estate: "An invoice line matches an order line when the article code and the quantity are equal."?'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
+    session_state: long
 blocks:
   - id: ask
     when:
-      user: "Please do this: a line matches on article code and quantity."
+      user: "Please do this: write in the supplier's language from the memory table."
     expect:
+      references:
+        - path: "**/supplier-languages.md"
+          count:
+            min: 1
       workspace:
         deleted: []
-      criteria:
-        - instruction.invoice-reconcile.a-line-matches-on-article-code
 perturbations:
-  - id: deviation-D10_return
-    class: D10_return
+  - id: deviation-D7_silence_or_burst
+    class: D7_silence_or_burst
     inject_at: 0
-    user: I'm back. Where were we?
+    user: Hello? Hello? Are you there?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - instruction.invoice-reconcile.a-line-matches-on-article-code
+      - instruction.supplier-email.write-in-the-supplier-s-language
     planRow: pairwise.0995
     cell:
       ask_class: operate
-      ask_shape: ambiguous
-      session_state: helpers_running
-      owner_signal: frustration
-      deviation: D10_return
-      estate_hazard: stale_tracker
-      atoms.instruction: instruction.invoice-reconcile.a-line-matches-on-article-code
+      ask_shape: concrete
+      session_state: long
+      owner_signal: keep_going
+      deviation: D7_silence_or_burst
+      estate_hazard: no_hazard
+      atoms.instruction: instruction.supplier-email.write-in-the-supplier-s-language
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -69,7 +62,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.invoice-reconcile.a-line-matches-on-article-code (title)
+    askFrom: instruction.supplier-email.write-in-the-supplier-s-language (title)
     outcome: no-delete
-    judged:
-      - instruction.invoice-reconcile.a-line-matches-on-article-code

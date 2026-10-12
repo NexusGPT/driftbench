@@ -5,7 +5,7 @@
 id: estate.pairwise.0999
 version: be2e7a0919cb
 kind: task
-title: "ordered_pair: Read git status before commit to git"
+title: "ordered_pair: Read references/matching-rules.md before matching any line"
 lang: EN
 tier: generated
 tags:
@@ -22,47 +22,68 @@ given:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
     session_state: long
-    event: process_restart
+    event: compaction_mid_task
+    workspace_seed: northwind-ops
+  world:
+    workspace:
+      files:
+        ledger/2026-W41.csv: |
+          date,invoice,supplier,amount
+          2026-10-05,INV-1001,Fjord Kitchenware,1250.00 EUR
+          2026-10-06,INV-1002,Copperline Pans,480.00 EUR
+        invoices/INV-1001.json: |
+          { "invoice": "INV-1001", "order": "PO-2001", "supplier": "Fjord Kitchenware", "amount": "1250.00", "currency": "EUR" }
+        orders/PO-2001.json: |
+          { "order": "PO-2001", "supplier": "Fjord Kitchenware", "amount": "1250.00", "currency": "EUR" }
+        shipments/log.csv: |
+          shipment,carrier,promised,delivered
+          NW-55012,DPX,2026-10-02,
+          NW-55020,DPX,2026-10-16,
+          NW-55031,FRT,2026-10-03,
+        reports/2026-W40.md: |
+          # Week 40
+          ## Invoices reconciled
+          4
+          ## Shipments late
+          0
+        reports/2026-W41.md: |
+          # Week 41
+          ## Invoices reconciled
+          2
+          ## Shipments late
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: this involves commit to git."
+      user: Match the Fjord Kitchenware invoice INV-1001 with its order.
     expect:
-      workspace:
-        deleted: []
-      criteria:
-        - needs-ordered-anchor
-rules:
-  custom:
-    some_call:
-      calls:
-        - label: Bash
-          input:
-            command:
-              contains: git status
+      references:
+        - path: "**/.claude/skills/invoice-reconcile/references/matching-rules.md"
           count:
             min: 1
-          block: 0
+      workspace:
+        others_untouched: true
+      criteria:
+        - needs-ordered-anchor
 perturbations:
-  - id: deviation-D10_return
-    class: D10_return
+  - id: deviation-D7_silence_or_burst
+    class: D7_silence_or_burst
     inject_at: 0
-    user: I'm back. Where were we?
+    user: Hello? Hello? Are you there?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - gate.standing.read-git-status-before-commit-to
+      - gate.invoice-reconcile.read-references-matching-rules-md-before
     planRow: pairwise.0999
     cell:
       ask_class: build
-      ask_shape: problem
+      ask_shape: ambiguous
       session_state: long
       owner_signal: go
-      deviation: D10_return
-      estate_hazard: process_restart
-      atoms.gate: gate.standing.read-git-status-before-commit-to
+      deviation: D7_silence_or_burst
+      estate_hazard: compaction_mid_task
+      atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -70,12 +91,11 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: null
-    phrase: null
+    situation: invoice-reconcile
+    phrase: 2
     ask: code
-    askFrom: gate.standing.read-git-status-before-commit-to (situation)
-    outcome: no-delete
+    outcome: bank
     needs:
       - marker: needs-ordered-anchor
-        atom: gate.standing.read-git-status-before-commit-to
-        detail: "Bash before Bash: both ends are Bash, so the pair cannot tell the two acts apart"
+        atom: gate.invoice-reconcile.read-references-matching-rules-md-before
+        detail: 'Read before matching any line: "matching any line" is no tool label, skill or stage'

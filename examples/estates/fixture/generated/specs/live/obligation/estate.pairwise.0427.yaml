@@ -4,7 +4,7 @@
 id: estate.pairwise.0427
 version: be2e7a0919cb
 kind: task
-title: "obligation: A line matches on article code and quantity"
+title: "obligation: Write to each supplier in its language"
 lang: EN
 tier: generated
 tags:
@@ -21,11 +21,11 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: resumed
-    event: stale_tracker
+    session_state: after_compaction
+    event: rate_wave
 criteria:
-  - name: instruction.invoice-reconcile.a-line-matches-on-article-code
-    rubric: 'Does the reply follow this rule of the estate: "An invoice line matches an order line when the article code and the quantity are equal."?'
+  - name: instruction.memory-supplier-languages.write-to-each-supplier-in-its
+    rubric: 'Does the reply follow this rule of the estate: "Write to each supplier in the language it reads."?'
     pass: The reply does what the rule asks, or avoids what it forbids.
     fail: The reply breaks the rule, or ignores it where it applies.
     gating: true
@@ -33,32 +33,25 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Please do this: a line matches on article code and quantity."
+      user: "Please do this: write to each supplier in its language."
     expect:
       workspace:
         deleted: []
       criteria:
-        - instruction.invoice-reconcile.a-line-matches-on-article-code
-perturbations:
-  - id: deviation-D1_off_topic
-    class: D1_off_topic
-    inject_at: 0
-    user: Before that, what time is it in Oslo right now?
-    recovery:
-      within_blocks: 1
+        - instruction.memory-supplier-languages.write-to-each-supplier-in-its
 metadata:
   estate:
     atoms:
-      - instruction.invoice-reconcile.a-line-matches-on-article-code
+      - instruction.memory-supplier-languages.write-to-each-supplier-in-its
     planRow: pairwise.0427
     cell:
       ask_class: compose
-      ask_shape: multi_part
-      session_state: resumed
-      owner_signal: go
-      deviation: D1_off_topic
-      estate_hazard: stale_tracker
-      atoms.instruction: instruction.invoice-reconcile.a-line-matches-on-article-code
+      ask_shape: prescribed
+      session_state: after_compaction
+      owner_signal: frustration
+      deviation: none
+      estate_hazard: rate_wave
+      atoms.instruction: instruction.memory-supplier-languages.write-to-each-supplier-in-its
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -69,7 +62,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.invoice-reconcile.a-line-matches-on-article-code (title)
+    askFrom: instruction.memory-supplier-languages.write-to-each-supplier-in-its (title)
     outcome: no-delete
     judged:
-      - instruction.invoice-reconcile.a-line-matches-on-article-code
+      - instruction.memory-supplier-languages.write-to-each-supplier-in-its

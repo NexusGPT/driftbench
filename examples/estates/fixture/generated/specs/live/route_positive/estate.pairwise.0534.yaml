@@ -4,7 +4,7 @@
 id: estate.pairwise.0534
 version: be2e7a0919cb
 kind: task
-title: "route_positive: An ask to prepare the weekly report loads weekly-report"
+title: "route_positive: An ask that fits supplier-email loads it"
 lang: EN
 tier: generated
 tags:
@@ -20,8 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: helpers_running
-    event: stale_tracker
+    session_state: after_restart
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -53,15 +52,13 @@ given:
 blocks:
   - id: ask
     when:
-      user: Write up last week in the usual weekly report.
+      user: Chase Copperline Pans about the missing lids on PO-2002.
     expect:
       skills:
-        - name: weekly-report
+        - name: supplier-email
           count:
             min: 1
       workspace:
-        created:
-          - reports/2026-W42.md
         others_untouched: true
 perturbations:
   - id: deviation-D2_goal_shift
@@ -73,16 +70,16 @@ perturbations:
 metadata:
   estate:
     atoms:
-      - route.standing.an-ask-to-prepare-the-weekly
+      - route.supplier-email.an-ask-that-fits-supplier-email
     planRow: pairwise.0534
     cell:
       ask_class: change_estate
-      ask_shape: problem
-      session_state: helpers_running
-      owner_signal: no_questions
+      ask_shape: ambiguous
+      session_state: after_restart
+      owner_signal: frustration
       deviation: D2_goal_shift
-      estate_hazard: stale_tracker
-      atoms.route: route.standing.an-ask-to-prepare-the-weekly
+      estate_hazard: no_hazard
+      atoms.route: route.supplier-email.an-ask-that-fits-supplier-email
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -90,7 +87,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: weekly-report-new
+    situation: supplier-email
     phrase: 1
     ask: code
     outcome: bank

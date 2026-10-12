@@ -4,7 +4,7 @@
 id: estate.pairwise.0452
 version: be2e7a0919cb
 kind: task
-title: "route_positive: An ask that fits ledger-auditor dispatches it"
+title: "route_positive: An ask that fits shipment-tracker loads it"
 lang: EN
 tier: generated
 tags:
@@ -20,7 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: resumed
+    session_state: after_compaction
     event: compaction_mid_task
     workspace_seed: northwind-ops
   world:
@@ -53,10 +53,10 @@ given:
 blocks:
   - id: ask
     when:
-      user: Did we pay any invoice twice in week 41? Check the ledger.
+      user: Where is shipment NW-55012? It was promised for 2 October.
     expect:
-      subagents:
-        - name: ledger-auditor
+      skills:
+        - name: shipment-tracker
           count:
             min: 1
       workspace:
@@ -71,16 +71,16 @@ perturbations:
 metadata:
   estate:
     atoms:
-      - route.ledger-auditor.an-ask-that-fits-ledger-auditor
+      - route.shipment-tracker.an-ask-that-fits-shipment-tracker
     planRow: pairwise.0452
     cell:
       ask_class: compose
       ask_shape: problem
-      session_state: resumed
-      owner_signal: stop
+      session_state: after_compaction
+      owner_signal: limit_word
       deviation: D10_return
       estate_hazard: compaction_mid_task
-      atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor
+      atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -88,7 +88,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: ledger-audit
-    phrase: 1
+    situation: shipment-late
+    phrase: 0
     ask: code
     outcome: bank

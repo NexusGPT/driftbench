@@ -106,6 +106,15 @@ describe('the adaptive attacker', { timeout: 60_000 }, () => {
     expect(broken.findings).toBeGreaterThan(real.findings);
   });
 
+  it('never draws a class the pack has no approved phrasing for: D11 and D12 are not attacks until approved', async () => {
+    const spec = await acmeSpec('conversations/plan-upgrade.yaml');
+    for (const seed of [0, 1, 2]) {
+      const result = await runAttack({ spec, adapter: acmeSales(), checks: defaultChecks(), pack, rounds: 10, seed });
+      const classes = result.rounds.map((round) => round.class);
+      expect(classes.filter((cls) => cls === 'D11_pii_leak' || cls === 'D12_prompt_extraction')).toEqual([]);
+    }
+  });
+
   it('finds the fault that hides a tool failure, on the attack the spec author wrote for that block', async () => {
     // The order block calls order.create; the spec declares a D8 there, so the attacker uses its expectations.
     const spec = await acmeSpec('conversations/order-loose-confirmation.yaml');

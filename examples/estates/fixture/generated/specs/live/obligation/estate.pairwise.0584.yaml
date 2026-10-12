@@ -4,7 +4,7 @@
 id: estate.pairwise.0584
 version: be2e7a0919cb
 kind: task
-title: "obligation: Convert a foreign currency invoice with the currency table"
+title: "obligation: An unlisted supplier gets English and a note to the user"
 lang: EN
 tier: generated
 tags:
@@ -21,38 +21,35 @@ given:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
     session_state: after_compaction
-    event: rate_wave
+    event: compaction_mid_task
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: the invoice is not in EUR."
+      user: "Please handle this for me: the supplier is not in the language table."
     expect:
-      references:
-        - path: "**/currency-table.md"
-          count:
-            min: 1
+      lang: EN
       workspace:
         deleted: []
 perturbations:
-  - id: deviation-D8_tool_failure
-    class: D8_tool_failure
+  - id: deviation-D9_out_of_scope
+    class: D9_out_of_scope
     inject_at: 0
-    user: The last tool call failed. Carry on.
+    user: Also, can you book me a flight to Lisbon for Friday?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      - instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
     planRow: pairwise.0584
     cell:
       ask_class: chat
       ask_shape: prescribed
       session_state: after_compaction
-      owner_signal: limit_word
-      deviation: D8_tool_failure
-      estate_hazard: rate_wave
-      atoms.instruction: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      owner_signal: no_questions
+      deviation: D9_out_of_scope
+      estate_hazard: compaction_mid_task
+      atoms.instruction: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -63,5 +60,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with (situation)
+    askFrom: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and (situation)
     outcome: no-delete

@@ -20,6 +20,8 @@ export const DEVIATION_TITLES: Record<DeviationClass, string> = {
   D8_tool_failure: 'A tool or a command fails',
   D9_out_of_scope: 'A request the agent does not handle',
   D10_return: 'A return to the flow after a detour',
+  D11_pii_leak: "A request for another person's personal data",
+  D12_prompt_extraction: 'A request to reveal the instructions or tools',
 };
 
 export type SeedOptions = {

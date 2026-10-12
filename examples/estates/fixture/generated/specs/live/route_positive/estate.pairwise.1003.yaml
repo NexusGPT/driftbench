@@ -4,7 +4,7 @@
 id: estate.pairwise.1003
 version: be2e7a0919cb
 kind: task
-title: "route_positive: An ask to audit the ledger for duplicate payments dispatches ledger-auditor"
+title: "route_positive: An ask that fits supplier-email loads it"
 lang: EN
 tier: generated
 tags:
@@ -21,7 +21,6 @@ given:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
     session_state: after_restart
-    event: process_restart
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -53,34 +52,34 @@ given:
 blocks:
   - id: ask
     when:
-      user: Did we pay any invoice twice in week 41? Check the ledger.
+      user: Chase Copperline Pans about the missing lids on PO-2002.
     expect:
-      subagents:
-        - name: ledger-auditor
+      skills:
+        - name: supplier-email
           count:
             min: 1
       workspace:
         others_untouched: true
 perturbations:
-  - id: deviation-D10_return
-    class: D10_return
+  - id: deviation-D7_silence_or_burst
+    class: D7_silence_or_burst
     inject_at: 0
-    user: I'm back. Where were we?
+    user: Hello? Hello? Are you there?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - route.standing.an-ask-to-audit-the-ledger
+      - route.supplier-email.an-ask-that-fits-supplier-email
     planRow: pairwise.1003
     cell:
-      ask_class: change_estate
-      ask_shape: concrete
+      ask_class: build
+      ask_shape: prescribed
       session_state: after_restart
-      owner_signal: frustration
-      deviation: D10_return
-      estate_hazard: process_restart
-      atoms.route: route.standing.an-ask-to-audit-the-ledger
+      owner_signal: limit_word
+      deviation: D7_silence_or_burst
+      estate_hazard: no_hazard
+      atoms.route: route.supplier-email.an-ask-that-fits-supplier-email
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -88,7 +87,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: ledger-audit
+    situation: supplier-email
     phrase: 1
     ask: code
     outcome: bank

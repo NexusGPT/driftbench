@@ -4,7 +4,7 @@
 id: estate.pairwise.0919
 version: be2e7a0919cb
 kind: task
-title: "obligation: Never guess a shipment status"
+title: "obligation: Ask for the tracking number when none is given"
 lang: EN
 tier: generated
 tags:
@@ -21,38 +21,37 @@ given:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
     session_state: after_restart
-    event: rate_wave
+    event: dead_helper
 blocks:
   - id: ask
     when:
-      user: "Please do this: never guess a shipment status."
+      user: "Please handle this for me: the user gives no tracking number."
     expect:
+      must:
+        - tracking number
+        - \?
       workspace:
         deleted: []
-rules:
-  custom:
-    grounded_values:
-      block: 0
 perturbations:
-  - id: deviation-D7_silence_or_burst
-    class: D7_silence_or_burst
+  - id: deviation-D5_language_switch
+    class: D5_language_switch
     inject_at: 0
-    user: Hello? Hello? Are you there?
+    user: Kannst du ab jetzt bitte auf Deutsch antworten?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - instruction.shipment-tracker.never-guess-a-shipment-status
+      - instruction.shipment-tracker.ask-for-the-tracking-number-when
     planRow: pairwise.0919
     cell:
-      ask_class: compose
-      ask_shape: correction
+      ask_class: change_estate
+      ask_shape: multi_part
       session_state: after_restart
-      owner_signal: stop
-      deviation: D7_silence_or_burst
-      estate_hazard: rate_wave
-      atoms.instruction: instruction.shipment-tracker.never-guess-a-shipment-status
+      owner_signal: language_switch
+      deviation: D5_language_switch
+      estate_hazard: dead_helper
+      atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -63,5 +62,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.shipment-tracker.never-guess-a-shipment-status (title)
+    askFrom: instruction.shipment-tracker.ask-for-the-tracking-number-when (situation)
     outcome: no-delete

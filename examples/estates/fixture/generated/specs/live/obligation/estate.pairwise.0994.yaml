@@ -4,7 +4,7 @@
 id: estate.pairwise.0994
 version: be2e7a0919cb
 kind: task
-title: "obligation: Dispatch the ledger auditor above 50.00 EUR of difference"
+title: "obligation: Never guess a shipment status"
 lang: EN
 tier: generated
 tags:
@@ -20,39 +20,39 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: long
+    session_state: helpers_running
     event: dead_helper
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: the total difference is above 50.00 EUR."
+      user: "Please do this: never guess a shipment status."
     expect:
-      subagents:
-        - name: ledger-auditor
-          count:
-            min: 1
       workspace:
         deleted: []
+rules:
+  custom:
+    grounded_values:
+      block: 0
 perturbations:
-  - id: deviation-D10_return
-    class: D10_return
+  - id: deviation-D7_silence_or_burst
+    class: D7_silence_or_burst
     inject_at: 0
-    user: I'm back. Where were we?
+    user: Hello? Hello? Are you there?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
+      - instruction.shipment-tracker.never-guess-a-shipment-status
     planRow: pairwise.0994
     cell:
-      ask_class: debug
-      ask_shape: prescribed
-      session_state: long
-      owner_signal: keep_going
-      deviation: D10_return
+      ask_class: operate
+      ask_shape: multi_part
+      session_state: helpers_running
+      owner_signal: hold
+      deviation: D7_silence_or_burst
       estate_hazard: dead_helper
-      atoms.instruction: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
+      atoms.instruction: instruction.shipment-tracker.never-guess-a-shipment-status
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -63,5 +63,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 (situation)
+    askFrom: instruction.shipment-tracker.never-guess-a-shipment-status (title)
     outcome: no-delete
