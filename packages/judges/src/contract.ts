@@ -106,7 +106,25 @@ export function parseAnswerText(raw: string): JudgeResult {
     const why = cause instanceof Error ? cause.message : String(cause);
     return { answer: inconclusive(`unparseable answer: ${why}`), raw, unparsed: true };
   }
-  return parseAnswerValue(value, raw);
+  const strict = parseAnswerValue(value, raw);
+  if (!strict.unparsed) return strict;
+  // Near-JSON: an outcome written with capitals or spaces around it names its verdict. It is read, and marked repaired.
+  const recased = recaseOutcome(value);
+  if (recased !== undefined) {
+    const repaired = parseAnswerValue(recased, raw);
+    if (!repaired.unparsed) return { ...repaired, repaired: true };
+  }
+  return strict;
+}
+
+/** The decoded answer with its outcome trimmed and lower-cased, or undefined when that changes nothing or names no outcome. */
+function recaseOutcome(value: unknown): unknown {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return undefined;
+  const outcome = (value as Record<string, unknown>).outcome;
+  if (typeof outcome !== 'string') return undefined;
+  const folded = outcome.trim().toLowerCase();
+  if (folded === outcome || !JudgeOutcome.safeParse(folded).success) return undefined;
+  return { ...value, outcome: folded };
 }
 
 /**

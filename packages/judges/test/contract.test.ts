@@ -47,3 +47,22 @@ describe('the answer contract', () => {
     expect(outcomeFromProbability(0.7, { passAt: 0.8 })).toBe('inconclusive');
   });
 });
+
+describe('near-JSON: the outcome written with capitals', () => {
+  it('reads Pass, FAIL and Inconclusive as the verdict they spell, and marks the result repaired', () => {
+    for (const [written, outcome] of [['Pass', 'pass'], ['FAIL', 'fail'], [' Inconclusive ', 'inconclusive']] as const) {
+      const result = parseAnswerText(`{"outcome":"${written}","reasoning":"r"}`);
+      expect(result.answer.outcome).toBe(outcome);
+      expect(result.unparsed).toBeUndefined();
+      expect(result.repaired).toBe(true);
+    }
+  });
+
+  it('leaves an exact outcome unmarked and an unknown word unparsed', () => {
+    expect(parseAnswerText('{"outcome":"pass","reasoning":"r"}').repaired).toBeUndefined();
+    const unknown = parseAnswerText('{"outcome":"Yes","reasoning":"r"}');
+    expect(unknown.unparsed).toBe(true);
+    expect(unknown.answer.outcome).toBe('inconclusive');
+  });
+});
+
