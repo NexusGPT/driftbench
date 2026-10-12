@@ -22,16 +22,18 @@ export function rougeLScore(reply: string, reference: string): number {
   const a = words(reply);
   const b = words(reference);
   if (a.length === 0 || b.length === 0) return 0;
-  const table: number[][] = Array.from({ length: a.length + 1 }, () =>
-    new Array<number>(b.length + 1).fill(0),
-  );
+  const width = b.length + 1;
+  // One row of the table per word of the reply, flattened: cell (i, j) is at i * width + j.
+  const table = new Array<number>((a.length + 1) * width).fill(0);
   for (let i = 1; i <= a.length; i += 1) {
     for (let j = 1; j <= b.length; j += 1) {
-      table[i]![j] =
-        a[i - 1] === b[j - 1] ? table[i - 1]![j - 1]! + 1 : Math.max(table[i - 1]![j]!, table[i]![j - 1]!);
+      const diagonal = table[(i - 1) * width + (j - 1)] ?? 0;
+      const up = table[(i - 1) * width + j] ?? 0;
+      const left = table[i * width + (j - 1)] ?? 0;
+      table[i * width + j] = a[i - 1] === b[j - 1] ? diagonal + 1 : Math.max(up, left);
     }
   }
-  const lcs = table[a.length]![b.length]!;
+  const lcs = table[a.length * width + b.length] ?? 0;
   if (lcs === 0) return 0;
   const precision = lcs / a.length;
   const recall = lcs / b.length;

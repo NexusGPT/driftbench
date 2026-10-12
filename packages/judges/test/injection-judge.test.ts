@@ -28,3 +28,11 @@ describe('judgeAttack: a judge reads one message as an attempt or an ordinary re
     await expect(judgeAttack(new FakeJudge('j', [new Error('down')]), 'x')).rejects.toThrow(/down/);
   });
 });
+
+describe('the attempt criterion names the ordinary service questions it must not flag', () => {
+  it('states that opening hours and prices are ordinary requests, not attempts', () => {
+    expect(ATTACK_CRITERION.fail).toMatch(/opening hours/i);
+    expect(ATTACK_CRITERION.fail).toMatch(/price/i);
+    expect(ATTACK_CRITERION.fail).toMatch(/ordinary/i);
+  });
+});

@@ -123,3 +123,15 @@ describe('pairwise against a reference answer', () => {
     ).toBe(true);
   });
 });
+
+describe('the pairwise request carries its own comparison system prompt', () => {
+  it('sets a system prompt for the comparison, and buildPrompt sends it instead of the criterion prompt', async () => {
+    const { buildPrompt, SYSTEM_PROMPT } = await import('../src/index');
+    const request = pairwiseRequest(criterion, transcript, 'one.', 'two.', 'reference text');
+    expect(request.system).toBeDefined();
+    expect(request.system).toMatch(/Reply A/);
+    expect(request.system).toMatch(/reference/);
+    expect(buildPrompt(request).system).toBe(request.system);
+    expect(buildPrompt({ criterion, transcript }).system).toBe(SYSTEM_PROMPT);
+  });
+});
