@@ -1,0 +1,165 @@
+{
+  "split": "dev",
+  "pilotRowKeys": [
+    "9a0ec0ed193fdbcb1b8d",
+    "940ecafd5cfce547c277",
+    "efbf2721b2f6e93d8878",
+    "e91c4dd43e2a660fefa8",
+    "dc663e330e63205d306e",
+    "1abaaf3a63d3b080562e",
+    "5f9d82cdc611fbcd3cfb",
+    "8a1bfb7ff0c8c44bbc8d",
+    "a223f611a92a6605ee86",
+    "ebf7409185f6d88ff350"
+  ],
+  "partition": {
+    "pilotPairs": 10,
+    "validationPairs": 80,
+    "pilotPromptIds": 7,
+    "validationPromptIds": 43,
+    "sharedPromptIds": 1
+  },
+  "rule": "Owner explicitly freezes holistic after stopping V3 on its complete Chinese segment. No full-80 candidate comparison is available; the baseline other-80 score is preserved, not a V3 result.",
+  "costScope": "Cost per 100 is the complete 90-pair recipe, including shared request extraction where applicable.",
+  "baseline": {
+    "path": "examples/judge-benchmarks/census/wp-holistic-freeze-candidate-dev.json",
+    "variant": "anchor-raw-legacy",
+    "costPer100": 0.5718106555555555,
+    "full90": {
+      "items": 90,
+      "games": 180,
+      "correct": 116,
+      "accuracy": 0.6444444444444445,
+      "perOrder": [
+        {
+          "items": 90,
+          "games": 90,
+          "correct": 57,
+          "accuracy": 0.6333333333333333
+        },
+        {
+          "items": 90,
+          "games": 90,
+          "correct": 59,
+          "accuracy": 0.6555555555555556
+        }
+      ],
+      "byGroup": {
+        "zh": {
+          "items": 49,
+          "games": 98,
+          "correct": 75,
+          "accuracy": 0.7653061224489796
+        },
+        "en": {
+          "items": 41,
+          "games": 82,
+          "correct": 41,
+          "accuracy": 0.5
+        }
+      },
+      "interval95": {
+        "level": 0.95,
+        "method": "Stratified question-id cluster bootstrap; both orders and repeated drafts kept together",
+        "replicates": 5000,
+        "clusters": 49,
+        "estimate": 0.6444444444444445,
+        "lower": 0.5461933134723601,
+        "upper": 0.7446031746031746
+      }
+    },
+    "tunedPilot10": {
+      "items": 10,
+      "games": 20,
+      "correct": 9,
+      "accuracy": 0.45,
+      "perOrder": [
+        {
+          "items": 10,
+          "games": 10,
+          "correct": 4,
+          "accuracy": 0.4
+        },
+        {
+          "items": 10,
+          "games": 10,
+          "correct": 5,
+          "accuracy": 0.5
+        }
+      ],
+      "byGroup": {
+        "zh": {
+          "items": 5,
+          "games": 10,
+          "correct": 7,
+          "accuracy": 0.7
+        },
+        "en": {
+          "items": 5,
+          "games": 10,
+          "correct": 2,
+          "accuracy": 0.2
+        }
+      },
+      "interval95": {
+        "level": 0.95,
+        "method": "Stratified question-id cluster bootstrap; both orders and repeated drafts kept together",
+        "replicates": 5000,
+        "clusters": 7,
+        "estimate": 0.45,
+        "lower": 0.2916666666666667,
+        "upper": 0.725
+      }
+    },
+    "validation80": {
+      "items": 80,
+      "games": 160,
+      "correct": 107,
+      "accuracy": 0.66875,
+      "perOrder": [
+        {
+          "items": 80,
+          "games": 80,
+          "correct": 53,
+          "accuracy": 0.6625
+        },
+        {
+          "items": 80,
+          "games": 80,
+          "correct": 54,
+          "accuracy": 0.675
+        }
+      ],
+      "byGroup": {
+        "zh": {
+          "items": 44,
+          "games": 88,
+          "correct": 68,
+          "accuracy": 0.7727272727272727
+        },
+        "en": {
+          "items": 36,
+          "games": 72,
+          "correct": 39,
+          "accuracy": 0.5416666666666666
+        }
+      },
+      "interval95": {
+        "level": 0.95,
+        "method": "Stratified question-id cluster bootstrap; both orders and repeated drafts kept together",
+        "replicates": 5000,
+        "clusters": 43,
+        "estimate": 0.66875,
+        "lower": 0.5612612612612613,
+        "upper": 0.771765350877193
+      }
+    }
+  },
+  "candidates": [],
+  "selection": {
+    "variant": "anchor-raw-legacy",
+    "path": "examples/judge-benchmarks/census/wp-holistic-freeze-candidate-dev.json",
+    "validationAccuracy": 0.66875
+  },
+  "ownerDirective": "Stop v3 now: 68/98 against holistic's 75/98 on Chinese means it cannot beat holistic on the 80 unseen pairs, and the remaining spend buys nothing. Keep every recording, and report v3's partial result honestly as a loss. Freeze the holistic design now, log its commit, and run it once on the test split (stratified sample if needed, with the size and a 95% interval stated) by 06:30."
+}
