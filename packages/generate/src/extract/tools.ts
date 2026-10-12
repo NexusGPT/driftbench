@@ -411,6 +411,10 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
 /** What an object accepts beyond its named properties: a key it does not allow, a typed extra key, a pattern key. */
 function objectCases(ctx: Walk, schema: YAMLMap, prefix: string[]): void {
   const cases: Array<[string, string, Array<[string, string]>]> = [];
+  // A closed input (additionalProperties false) rejects a key the schema does not name: a case sends one.
+  if (ctx.direction === 'in' && plain(entry(schema, 'additionalProperties')?.value) === false) {
+    cases.push(['additionalProperties', 'unknown-key', [['sent', 'a key the schema does not name is sent']]]);
+  }
   if (plain(entry(schema, 'unevaluatedProperties')?.value) === false) {
     cases.push([
       'unevaluatedProperties',

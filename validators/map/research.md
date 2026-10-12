@@ -765,3 +765,14 @@ Sources read:
 What others do: A dot in a dimension id reads as a path; the item wants one field.
 
 What to try, and why: a dot in a property name becomes an underscore (the item now says one field, not a path)
+
+## Iteration 66
+
+Question: packages/generate/src/extract/tools.ts: additionalProperties false on an input gives no case; schema-keywords.closed-object proves it (PR 90 fixed the contradiction with v1-precision).
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-core section 10.3.2.3
+
+What others do: A closed object rejects an unknown key; a test sends one.
+
+What to try, and why: a closed input gives an unknown-key case

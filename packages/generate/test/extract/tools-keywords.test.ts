@@ -835,4 +835,31 @@ type = "boolean"
       't.x.in.p.transfer.urgent': ['true', 'false'],
     });
   });
+
+  it('additionalProperties false on an input gives unknown-key with sent; on an output it gives none', () => {
+    const schema = (extra: Record<string, unknown>) => ({
+      type: 'object',
+      required: ['p'],
+      properties: { p: { type: 'boolean' } },
+      ...extra,
+    });
+    const read = (side: 'input_schema' | 'output_schema', extra: Record<string, unknown>) => {
+      const result = toolsPrepass(
+        stringify({ tools: [{ name: 't.x', [side]: schema(extra) }] }),
+        'tools.yaml',
+      );
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      return result.dimensions.map((d) => d.values.map((v) => v.id));
+    };
+    expect(read('input_schema', { additionalProperties: false })).toEqual([
+      ['t.x.in.p.true', 't.x.in.p.false'],
+      ['t.x.in.unknown-key.sent'],
+    ]);
+    expect(read('output_schema', { additionalProperties: false })).toEqual([
+      ['t.x.out.p.true', 't.x.out.p.false'],
+    ]);
+    expect(read('input_schema', { additionalProperties: true })).toEqual([
+      ['t.x.in.p.true', 't.x.in.p.false'],
+    ]);
+  });
 });
