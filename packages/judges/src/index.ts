@@ -134,6 +134,7 @@ export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, post
 export { ATTACK_CRITERION, type AttackVerdict, judgeAttack } from './injection-judge';
 export { labelFilePath, readLabelFile, saveLabel } from './labels';
 export { type LintIssue, lintCriterion } from './lint';
+export { buildPairPrompt } from './pair-prompt';
 export {
   judgePairwise,
   type PairwiseChoice,
