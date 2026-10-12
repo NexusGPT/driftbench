@@ -57,6 +57,16 @@ export function sum(values: readonly number[]): number {
 export function mean(values: readonly number[]): number {
   if (values.length === 0) throw new RangeError('mean of an empty sample');
   assertFiniteValues('mean', values);
+  // An all-equal sample has its value as mean exactly; summing and dividing can drift by an ulp.
+  const first = values[0] as number;
+  let allEqual = true;
+  for (const v of values) {
+    if (v !== first) {
+      allEqual = false;
+      break;
+    }
+  }
+  if (allEqual) return first;
   return sum(values) / values.length;
 }
 
