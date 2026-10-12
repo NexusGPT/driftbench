@@ -351,6 +351,17 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
   },
 ];
 
+/** The text of some bytes when they are UTF-8 and at least 90 percent of the characters print. */
+const readable = (bytes: Uint8Array): string | undefined => {
+  try {
+    const out = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    const printable = [...out].filter((ch) => /[\p{L}\p{N}\p{P}\p{Z}]/u.test(ch)).length;
+    return printable >= 0.9 * [...out].length ? out : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 /**
  * Encodings undone before the other readings: each result is screened as written and again through every reading
  * (a base64 text that holds ROT13).
@@ -360,17 +371,15 @@ const DECODERS: readonly ((text: string) => string | undefined)[] = [
   (text) => {
     const decoded = text.replace(
       /(?<![A-Za-z0-9+/_-])[A-Za-z0-9+/_-]{16,}={0,2}(?![A-Za-z0-9+/=_-])/g,
-      (run) => {
-        const bytes = Buffer.from(run.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
-        const plain = new TextDecoder('utf-8', { fatal: true });
-        try {
-          const out = plain.decode(bytes);
-          const printable = [...out].filter((ch) => /[\p{L}\p{N}\p{P}\p{Z}]/u.test(ch)).length;
-          return printable >= 0.9 * [...out].length ? out : run;
-        } catch {
-          return run;
-        }
-      },
+      (run) => readable(Buffer.from(run.replace(/-/g, '+').replace(/_/g, '/'), 'base64')) ?? run,
+    );
+    return decoded === text ? undefined : decoded;
+  },
+  // Hexadecimal runs written 0x...: the bytes read as UTF-8.
+  (text) => {
+    const decoded = text.replace(
+      /(?<![\p{L}\p{N}])0x((?:[0-9a-f]{2}){8,})(?![\p{L}\p{N}])/giu,
+      (run, hex: string) => readable(Buffer.from(hex, 'hex')) ?? run,
     );
     return decoded === text ? undefined : decoded;
   },
