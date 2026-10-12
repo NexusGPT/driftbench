@@ -69,3 +69,32 @@ export const BUILT_IN_AGGREGATES = {
     measure: (data) => data.runs.filter((run) => run.status !== 'completed').length / data.runs.length,
   }),
 };
+
+const MEASURES: Record<string, (data: CampaignData) => number | undefined> = {
+  'pass-rate': (data) => data.runs.filter((run) => runPassed(run)).length / data.runs.length,
+  'broken-share': (data) => data.runs.filter((run) => run.status !== 'completed').length / data.runs.length,
+};
+
+/**
+ * Reads one `--aggregate` flag: `name:op threshold`, for example `pass-rate:>=0.8`. The operator sets the
+ * direction: `>=` is at-least, `<=` is at-most. Throws a message that names the fix.
+ */
+export function aggregateFromFlag(text: string): AggregateCriterion {
+  const match = /^([a-z-]+):(>=|<=)(.+)$/.exec(text);
+  if (!match) throw new Error(`--aggregate takes name:op threshold, e.g. pass-rate:>=0.8, not "${text}"`);
+  const [, name = '', op = '', raw = ''] = match;
+  const measure = MEASURES[name];
+  if (!measure) {
+    throw new Error(`unknown aggregate ${name}: use ${Object.keys(MEASURES).join(' or ')}`);
+  }
+  const threshold = Number(raw);
+  if (raw.trim() === '' || !Number.isFinite(threshold)) {
+    throw new Error(`the threshold of ${name} must be a number, not "${raw}"`);
+  }
+  return {
+    name,
+    direction: op === '>=' ? 'at-least' : 'at-most',
+    threshold,
+    measure,
+  };
+}

@@ -9,7 +9,7 @@ import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { pricedAcmeAdapter } from '../../core/test/runner/support';
 import { type CampaignDeps, defaultDeps } from '../src/commands/campaign';
-import { type CiSummary, DEFAULT_FLAGS, registerCiCommand } from '../src/commands/ci';
+import { aggregateVerdict, type CiSummary, DEFAULT_FLAGS, registerCiCommand } from '../src/commands/ci';
 import { type Io, main } from '../src/index';
 
 /** Fictional data only: the Acme Telecom example agents and their planted faults. */
@@ -777,4 +777,41 @@ describe('the driftbench ci GitHub Action', () => {
     },
     SLOW,
   );
+});
+
+describe('driftbench ci --aggregate', () => {
+  it('exits 2 on an aggregate flag it cannot read, before any campaign runs', async () => {
+    const result = await cli([
+      'ci',
+      '--specs',
+      CONVERSATIONS,
+      '--target',
+      'function:acme-sales',
+      '--baseline',
+      'c-nothing',
+      '--store',
+      'unused.db',
+      '--aggregate',
+      'nope:>=0.5',
+    ]);
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('unknown aggregate nope');
+  });
+
+  it('turns a passing verdict into aggregate-failed when a campaign-level criterion fails, and keeps incomplete', () => {
+    const failed = {
+      name: 'pass-rate',
+      direction: 'at-least' as const,
+      threshold: 0.8,
+      value: 0.5,
+      passed: false,
+      reason: '0.5 >= 0.8',
+    };
+    const passed = { ...failed, value: 0.9, passed: true };
+    const inconclusive = { ...failed, value: undefined, passed: undefined };
+    expect(aggregateVerdict('parity', [passed])).toBe('parity');
+    expect(aggregateVerdict('parity', [failed])).toBe('aggregate-failed');
+    expect(aggregateVerdict('parity', [inconclusive])).toBe('parity');
+    expect(aggregateVerdict('incomplete', [failed])).toBe('incomplete');
+  });
 });

@@ -2,6 +2,8 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import type { RunMode } from '@driftbench/core';
 import {
+  type AggregateCriterion,
+  aggregateFromFlag,
   buildScorecard,
   type CampaignData,
   MIN_GOLDENS,
@@ -37,6 +39,7 @@ type ReportCommandOptions = {
   spreadMode?: string;
   maxRuns: string;
   json?: boolean;
+  aggregate?: string[];
 };
 
 /** Registers `driftbench report`. */
@@ -72,6 +75,12 @@ export function registerReportCommand(
     .option('--spread-mode <mode>', 'the mode the spread view reads; default F when the campaign ran it')
     .option('--max-runs <n>', 'runs in the drilldown, failing runs first', '200')
     .option('--json', 'also print the scorecard as one JSON document')
+    .option(
+      '--aggregate <spec>',
+      'a campaign-level criterion, name:op threshold, e.g. pass-rate:>=0.8; repeatable; its result is printed',
+      (value: string, previous: string[]) => [...previous, value],
+      [] as string[],
+    )
     .action(async (campaignId: string | undefined, options: ReportCommandOptions) => {
       setExit(await reportCommand(campaignId, options, io, deps));
     });
@@ -88,6 +97,13 @@ export async function reportCommand(
   const maxRuns = Number(options.maxRuns);
   if (!Number.isInteger(maxRuns) || maxRuns < 0) {
     io.err(`--max-runs takes a whole number of 0 or more, not "${options.maxRuns}".\n`);
+    return 2;
+  }
+  let criteria: AggregateCriterion[];
+  try {
+    criteria = (options.aggregate ?? []).map((text) => aggregateFromFlag(text));
+  } catch (cause) {
+    io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
     return 2;
   }
   let spreadMode: RunMode | undefined;
@@ -144,6 +160,7 @@ export async function reportCommand(
       minGoldens: gate.minGoldens,
       strict: gate.strict,
       maxRuns,
+      ...(criteria.length > 0 ? { aggregates: criteria } : {}),
       ...(baseline ? { baseline } : {}),
       ...(pilot ? { pilot } : {}),
       ...(by && by.length > 0 ? { by } : {}),
@@ -177,6 +194,11 @@ export async function reportCommand(
       io.out(
         `Against baseline ${card.compare.baseline.campaignId}: ${card.compare.verdict}, margin ${(margin * 100).toFixed(1)} points.\n`,
       );
+    }
+    for (const entry of card.aggregates ?? []) {
+      const op = entry.direction === 'at-least' ? '>=' : '<=';
+      const verdict = entry.passed === undefined ? 'no runs' : entry.passed ? 'passes' : 'fails';
+      io.out(`aggregate ${entry.name} ${op} ${entry.threshold}: ${verdict} (${entry.reason})\n`);
     }
     io.out(`Wrote ${written.join(' and ')}.\n`);
   }

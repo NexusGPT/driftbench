@@ -1,6 +1,6 @@
 # Campaign-level criteria
 
-A campaign-level criterion scores one number over every run of a campaign together, then compares it with a threshold. A block check or a per-run verdict cannot express a rule such as "at least 80 percent of runs pass" or "at most 20 percent of runs break". This page covers the library API. There is no command-line flag for it yet.
+A campaign-level criterion scores one number over every run of a campaign together, then compares it with a threshold. A block check or a per-run verdict cannot express a rule such as "at least 80 percent of runs pass" or "at most 20 percent of runs break". This page covers the library API and the `--aggregate` flag on `driftbench report` and `driftbench ci`.
 
 ## The shape
 
@@ -34,3 +34,16 @@ card.aggregates?.[0]; // { name: 'pass-rate', value: 0.75, passed: false, ... }
 ```
 
 The example value is illustrative: three passing runs and one failing run in a four-run campaign give 0.75, which is below 0.8. The behaviour is pinned by `packages/report/test/aggregate.test.ts`.
+
+## On the command line
+
+`--aggregate <name>:<op><threshold>` is repeatable on `driftbench report` and `driftbench ci`. The operator sets the direction: `>=` is at-least, `<=` is at-most. The built-in names are `pass-rate` and `broken-share`.
+
+```text
+driftbench report c-x3 --store store.db --out card.html --aggregate pass-rate:>=0.99
+aggregate pass-rate >= 0.99: fails (0.75 >= 0.99)
+```
+
+`report` prints each result and still exits 0. `ci` exits 1 when any aggregate fails, and its verdict becomes `AGGREGATE FAILED`, unless the verdict was already incomplete. An aggregate with no runs is inconclusive and does not fail the gate. A flag it cannot read exits 2 before any campaign loads.
+
+Declaring aggregates inside a spec or campaign file is not built: the CLI has no campaign file, and a spec holds one golden, not a campaign.
