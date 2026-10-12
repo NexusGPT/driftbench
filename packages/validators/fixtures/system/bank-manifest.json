@@ -13472,7 +13472,7 @@
       "level": 10,
       "source": "contract",
       "component": "packages/space/src/load.ts",
-      "cause": "the space map loader accepts an extract proposal (its evidence and produced_by keys and its version) as a map."
+      "cause": "the space map loader refuses proposal-only fields and requires conversion through extract map."
     },
     {
       "id": "claim/cli/extract/agent-default",
@@ -15146,7 +15146,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench holdout",
-      "cause": "driftbench holdout seal reports \"Sealed 36 of 175 gated specs\", writes sealed.json, and exits 2 on a second seal without --force"
+      "cause": "driftbench holdout seal reports the gate-owned split counts, writes sealed.json, and exits 2 on a second seal without --force"
     },
     {
       "id": "breaker/tools/generate-same-seed-same-bytes",
@@ -15371,7 +15371,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench pilot",
-      "cause": "driftbench pilot plan prints the documented 13 cells with 127 conversations, 324 wordings and 1620 runs for the Acme map and generated suite"
+      "cause": "driftbench pilot plan prints the current design totals for the Acme map and generated suite"
     },
     {
       "id": "breaker/tools/version-and-help-command",
@@ -15695,7 +15695,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench ci",
-      "cause": "driftbench ci: on the golden suite the faults d4-order-on-loose-yes, x3-skips-recap, x4-wrong-language read regression with exit 1"
+      "cause": "driftbench ci: on the golden suite the faults documented as regression read that verdict with exit 1"
     },
     {
       "id": "breaker2/compare/golden-faults-not-shown",
@@ -15704,7 +15704,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench ci",
-      "cause": "driftbench ci: on the golden suite the faults d2-ignores-goal-shift, d6-obeys-instruction, d8-hides-tool-failure, d9-answers-out-of-scope, x1-invents-price, x5-drops-coverage-check read not-shown-non-inferior with exit 1"
+      "cause": "driftbench ci: on the golden suite the faults documented as not-shown-non-inferior read that verdict with exit 1"
     },
     {
       "id": "breaker2/compare/golden-faults-parity",
@@ -15713,7 +15713,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench ci",
-      "cause": "driftbench ci: on the golden suite the faults control-sales-identity, x2-keeps-first-email read parity with exit 0"
+      "cause": "driftbench ci: on the golden suite the faults documented as parity read that verdict with exit 0"
     },
     {
       "id": "breaker2/compare/golden-auto-margin",
@@ -15722,7 +15722,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench ci",
-      "cause": "driftbench ci: the auto margin on the 10-golden suite is 28 points, set by the all-pass flag at 27.75, with the 15 point warning"
+      "cause": "driftbench ci: the auto margin agrees with the all-pass paired interval on the current golden count and the warning threshold"
     },
     {
       "id": "breaker2/report/one-file-no-script",
@@ -16649,7 +16649,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench select",
-      "cause": "driftbench select: select on the gated Acme specs writes the golden set and exits 1 because a required cell stays empty"
+      "cause": "driftbench select: select on the gated Acme specs writes the golden set and exits according to the documented required-cell coverage"
     },
     {
       "id": "breaker2/ops/select-readme-numbers",
@@ -16658,7 +16658,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench select",
-      "cause": "driftbench select: the pool holds 139 unsealed specs, 36 sealed are left out, the pool covers 592 cells and the ten cover 303"
+      "cause": "driftbench select: the pool and golden coverage counts agree with the current README"
     },
     {
       "id": "breaker2/ops/select-cumulative-consistent",
@@ -16703,7 +16703,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench select",
-      "cause": "driftbench select: without --k the golden set is the whole cover of 86 conversations and covers every cell the pool covers"
+      "cause": "driftbench select: without --k the golden set is the whole cover documented in the golden README and covers every cell the pool covers"
     },
     {
       "id": "breaker2/ops/committed-golden-json",
@@ -16712,7 +16712,7 @@
       "level": 10,
       "source": "contract",
       "component": "examples/acme/golden",
-      "cause": "examples/acme/golden: the committed golden.json lists ten specs, each of which exists in specs/, and ends at 303 cells"
+      "cause": "examples/acme/golden: the committed golden.json lists ten specs, each of which exists in specs/, and ends at the coverage documented in the README"
     },
     {
       "id": "breaker2/ops/holdout-seal-gate-split",
@@ -16721,7 +16721,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench holdout seal",
-      "cause": "driftbench holdout seal: seal takes the gate own split of 36 specs out of 175 and writes sealed.json, exit 0"
+      "cause": "driftbench holdout seal: seal takes the gate own split and writes sealed.json, exit 0"
     },
     {
       "id": "breaker2/ops/holdout-seal-twice",
