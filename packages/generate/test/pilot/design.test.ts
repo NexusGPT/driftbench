@@ -156,7 +156,12 @@ describe('planPilot', () => {
 
   it('designs the Acme pilot from the approved map: 10 conversations a cell, wordings the bank allows', async () => {
     const design = designPilot(await acmePilotMap(), await acmeSuite());
-    expect(design.skipped).toEqual([]);
+    // The price-sheet task specs are skipped, each with the reason; every conversation is designed.
+    expect(design.skipped.length).toBeGreaterThan(0);
+    for (const entry of design.skipped) {
+      expect(entry.spec).toMatch(/^acme-price-sheet-/);
+      expect(entry.reason).toBe('a code-agent task: the pilot measures conversations');
+    }
     expect(design.warnings).toEqual([]);
     for (const cell of design.cells) expect(cell.conversations.length).toBe(Math.min(10, cell.suite));
     const wordings = design.cells.flatMap((cell) => cell.conversations.map((c) => c.variants.length));

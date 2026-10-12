@@ -2,6 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { registeredLadders } from '@driftbench/validators';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   bankLadder,
@@ -304,22 +305,30 @@ describe('driftbench validate through main', () => {
 
   it('runs the registered stats ladder and exits with its level', async () => {
     const result = await run(['validate', 'stats', '--seed', '1']);
-    expect(result.code).toBe(2);
+    expect(result.code).toBe(1);
     expect(result.out).toContain('Validator stats');
     expect(result.out).toMatch(
-      /1\s+reference values\s+fixture cases matched \/ fixture cases compared\s+>= 1\s+1 pass/,
+      /1\s+reference values\s+fixture groups matching scipy and numpy \/ groups\s+>= 1\s+1 pass/,
     );
-    expect(result.out).toContain('Level of the run: 2 of 2, the minimum over 1 seed.');
-  });
+    expect(result.out).toContain('Level of the run: 1 of 7, the minimum over 1 seed.');
+  }, 600_000);
 
-  it('holds the committed floors and handovers, as CI checks them', async () => {
-    expect((await run(['validate', 'all', '--seed', '1', '--check-floor'])).code).toBe(0);
+  // CI's job runs `validate all --check-floor`; here each registered ladder runs on its own, so each gets the
+  // whole budget: six ladders in one test passed 600 s. The judges ladder version 2 runs its whole bank, each
+  // item in a child process; the estate ladder runs its reader level on a bank of planted estates; the generator
+  // ladder generates and runs a suite; the system ladder's first level alone holds a few hundred items.
+  for (const component of Object.keys(registeredLadders()).sort()) {
+    it(`holds the committed floor of ${component}, as CI checks it`, async () => {
+      expect((await run(['validate', component, '--seed', '1', '--check-floor'])).code).toBe(0);
+    }, 600_000);
+  }
+
+  it('holds the committed handovers, as CI checks them', async () => {
     const handover = await run(['validate', 'all', '--check-handover']);
     expect(handover.code).toBe(0);
     expect(handover.out).toContain('validators/stats/HANDOVER.md: every section present');
-    // It runs every ladder to its first failing level, as the CI job does: the system ladder's first level
-    // alone holds a few hundred items, child processes among them.
-  }, 300_000);
+    expect(handover.out).toContain('validators/estate/HANDOVER.md: every section present');
+  }, 120_000);
 
   it('prints the stats brief from the real executor instruction', async () => {
     const result = await run(['validate', 'stats', '--brief', '--fresh']);
@@ -329,7 +338,7 @@ describe('driftbench validate through main', () => {
       'You drive one validator to 100 percent. The validator is `driftbench validate stats`.',
     );
     expect(result.out).toContain('validators/stats/HANDOVER.md');
-  });
+  }, 600_000);
 
   it('parses floors --raise <component> <level> and refuses a level below the committed floor', async () => {
     const result = await run([

@@ -13,7 +13,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import type * as Sqlite from 'node:sqlite';
 import { functionAdapter } from '@driftbench/adapters';
 import {
   type Campaign,
@@ -35,6 +35,10 @@ import { createScriptedDriver } from '@driftbench/users';
 import { migrateFloors, raiseFloor, readFloors, writeFloors } from '../../../../floors';
 import { type BankItem, expectAll, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../types';
 import { behavioursFor, plantedFlow, runScenario } from '../world';
+
+// Loaded at call time from the running Node.js: a bundler would turn a static import of node:sqlite into a
+// package named sqlite, which does not exist.
+const { DatabaseSync } = process.getBuiltinModule('node:sqlite') as typeof Sqlite;
 
 /**
  * Executable claims on four subjects of robustness, all at level 1 (records).
@@ -1634,7 +1638,7 @@ type SchemaOne = {
 };
 
 /** Writes a run as the schema 1 store split it: the summary in `runs`, each block in `blocks`. */
-function insertRunByHand(db: DatabaseSync, campaignId: string, run: RunResult): void {
+function insertRunByHand(db: Sqlite.DatabaseSync, campaignId: string, run: RunResult): void {
   const { blocks, ...summary } = run;
   db.prepare(
     `INSERT INTO runs (campaign_id, run_id, spec_id, spec_hash, target_json, mode, repeat, perturbation_id,

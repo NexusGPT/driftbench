@@ -12,6 +12,7 @@ import {
 } from '@driftbench/core';
 import type { Behaviour, RawSpec } from '../../plant';
 import { between, type Rng, rngFor } from '../../random';
+import { DOCUMENTED_CHECKS } from '../documented';
 import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from '../types';
 import { loadRaw, type RunScenario, runScenario } from '../world';
 
@@ -327,34 +328,10 @@ function verdictItems(out: BankItem[]): void {
     'defaults/order',
     1,
     DEFAULTS,
-    'defaultChecks() returns the 23 documented checks in the documented order ("Checks", first paragraph)',
-    'defaults: defaultChecks returns the 23 machine checks in the order the page lists',
+    `defaultChecks() returns the ${DOCUMENTED_CHECKS.length} documented checks in the documented order ("Checks", first paragraph)`,
+    `defaults: defaultChecks returns the ${DOCUMENTED_CHECKS.length} machine checks in the order the page lists`,
     async () => {
-      const want = [
-        'tools',
-        'forbidden',
-        'must',
-        'must_not',
-        'similarity',
-        'relevancy',
-        'knowledge_retention',
-        'lang',
-        'pii',
-        'cards',
-        'stage',
-        'skills',
-        'guards',
-        'references',
-        'subagents',
-        'execution',
-        'workspace',
-        'safety',
-        'artifacts',
-        'schema_strict',
-        'budget',
-        'end_state',
-        'custom',
-      ];
+      const want: readonly string[] = DOCUMENTED_CHECKS;
       const got = defaultChecks().map((check) => check.name);
       return got.join(',') === want.join(',')
         ? PASS
@@ -366,13 +343,14 @@ function verdictItems(out: BankItem[]): void {
     'defaults/judge-last',
     1,
     DEFAULTS,
-    'defaultChecks({ judges }) returns the same 23 and then the judge check last ("Checks", "Judged criteria")',
+    `defaultChecks({ judges }) returns the same ${DOCUMENTED_CHECKS.length} and then the judge check last ("Checks", "Judged criteria")`,
     'defaults: a judge source appends its check after custom',
     async () => {
       const judge: Check = { name: 'judge', applies: () => false, evaluate: () => [] };
       const got = defaultChecks({ judges: { check: () => judge } }).map((check) => check.name);
+      const want = DOCUMENTED_CHECKS.length + 1;
       return expectAll([
-        [got.length === 24, `defaultChecks({ judges }) returned ${got.length} checks, expected 24`],
+        [got.length === want, `defaultChecks({ judges }) returned ${got.length} checks, expected ${want}`],
         [got.at(-1) === 'judge', `the last check is ${got.at(-1)}, expected judge`],
         [got.at(-2) === 'custom', `the check before judge is ${got.at(-2)}, expected custom`],
       ]);

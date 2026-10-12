@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse, stringify } from 'yaml';
 import { between, rngFor } from '../random';
+import { DOCUMENTED_CHECKS } from './documented';
 import { type BankItem, type Draft, expectAll, fail, PASS, type Tier, withCauses } from './types';
 
 /**
@@ -500,9 +501,8 @@ jsonCase(
   'run --json lists the checks it applied, the default machine checks in order',
   (s) => ['campaign', 'run', s.clean, '--target', TARGET, '--json'],
   (doc) => {
-    const want =
-      // docs/running.md, the campaign run example: "Checks: tools, forbidden, ...".
-      'tools,forbidden,must,must_not,similarity,relevancy,knowledge_retention,lang,pii,cards,stage,skills,guards,references,subagents,execution,workspace,safety,artifacts,schema_strict,budget,end_state,custom';
+    // docs/running.md, the campaign run example: "Checks: tools, tools_offered, ...", the list of checks.md.
+    const want = DOCUMENTED_CHECKS.join(',');
     return expectAll([
       [
         (doc.checks as string[] | undefined)?.join() === want,

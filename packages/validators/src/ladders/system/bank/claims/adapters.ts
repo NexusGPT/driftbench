@@ -13,7 +13,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import type * as Sqlite from 'node:sqlite';
 import { functionAdapter, httpAdapter, processAdapter } from '@driftbench/adapters';
 import {
   AdapterTransportError,
@@ -36,6 +36,10 @@ import { localProvider } from '@driftbench/sandbox';
 import { BLOCK_METRIC, openStore, type SqliteStore, StoreError } from '@driftbench/store';
 import { type BankItem, expectAll, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../types';
 import { behavioursFor, plantedFlow, runScenario } from '../world';
+
+// Loaded at call time from the running Node.js: a bundler would turn a static import of node:sqlite into a
+// package named sqlite, which does not exist.
+const { DatabaseSync } = process.getBuiltinModule('node:sqlite') as typeof Sqlite;
 
 /**
  * Executable claims on two subjects.
@@ -1311,15 +1315,22 @@ function httpItems(): BankItem[] {
       level: 2,
       component: HTTP,
       source: 'contract',
-      title: 'http.md "Errors": any 5xx and any other failing status is an AgentFailure: the run fails',
-      cause: 'httpAdapter classes 5xx and other failing statuses as agent failures',
+      title:
+        'http.md "Errors": any 5xx is an AdapterTransportError the runner retries; any other failing status is an AgentFailure: the run fails',
+      cause: 'httpAdapter classes 5xx as transport errors and other failing statuses as agent failures',
       async check() {
         const got: string[] = [];
-        for (const status of [500, 502, 503, 400, 401, 404, 302]) {
-          const r = await httpSend(() => new Response('nope', { status }));
-          if (!(r.error instanceof AgentFailure)) got.push(`${status}: ${kindOf(r.error)}`);
+        for (const status of [500, 502, 503]) {
+          const r = await httpSend(() => new Response('busy', { status }));
+          if (!(r.error instanceof AdapterTransportError))
+            got.push(`${status}: ${kindOf(r.error)}, expected AdapterTransportError`);
         }
-        return got.length === 0 ? PASS : fail(`expected AgentFailure for each status, got ${got.join(', ')}`);
+        for (const status of [400, 401, 404, 302]) {
+          const r = await httpSend(() => new Response('nope', { status }));
+          if (!(r.error instanceof AgentFailure))
+            got.push(`${status}: ${kindOf(r.error)}, expected AgentFailure`);
+        }
+        return got.length === 0 ? PASS : fail(got.join('; '));
       },
     }),
     adapterItem({

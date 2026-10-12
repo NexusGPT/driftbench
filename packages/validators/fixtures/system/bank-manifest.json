@@ -3548,13 +3548,13 @@
       "cause": "driftbench campaign run --dataset records { kind, name, version, hash } with the full SHA-256 in the stored campaign sources"
     },
     {
-      "id": "breaker/datasets/campaign-records-repeated-prompts",
+      "id": "breaker/datasets/campaign-refuses-repeated-prompts",
       "family": "breaker-datasets",
       "tier": 4,
       "level": 1,
       "source": "contract",
       "component": "driftbench campaign",
-      "cause": "driftbench campaign run records one prompt source for every --prompt given"
+      "cause": "driftbench campaign run refuses a second --prompt and records the one prompt version it ran"
     },
     {
       "id": "breaker/cli/cell-id-is-campaign-independent",
@@ -5813,7 +5813,7 @@
       "level": 2,
       "source": "contract",
       "component": "packages/adapters/src/http/index.ts",
-      "cause": "httpAdapter classes 5xx and other failing statuses as agent failures"
+      "cause": "httpAdapter classes 5xx as transport errors and other failing statuses as agent failures"
     },
     {
       "id": "claim/adapters/http/body-not-object",
@@ -6324,9 +6324,9 @@
       "family": "hostile-inputs",
       "tier": 3,
       "level": 3,
-      "source": "hostile",
+      "source": "adversarial",
       "component": "packages/checks/src/checks/must.ts",
-      "cause": "a hostile but correct reply (case-of-must-not) passes every check"
+      "cause": "a hostile reply (case-of-must-not) fails the middle block on must_not only"
     },
     {
       "id": "hostile/claims-pass-without-code",
@@ -6509,13 +6509,13 @@
       "cause": "a single 408 is retried and the run completes"
     },
     {
-      "id": "failure/http-500-not-retried",
+      "id": "failure/http-500-past-retries",
       "family": "failure-handling",
-      "tier": 2,
+      "tier": 3,
       "level": 3,
       "source": "contract",
-      "component": "packages/adapters/src/http/index.ts",
-      "cause": "a 500 is an agent failure: one request, no retry, the run fails"
+      "component": "packages/core/src/runner/retry.ts",
+      "cause": "a 500 on every attempt is a transport error: retried three times, then the run fails naming the status"
     },
     {
       "id": "failure/http-not-json",
@@ -6632,7 +6632,7 @@
       "level": 3,
       "source": "contract",
       "component": "packages/checks/src/defaults.ts",
-      "cause": "defaults: defaultChecks returns the 23 machine checks in the order the page lists"
+      "cause": "defaults: defaultChecks returns the 26 machine checks in the order the page lists"
     },
     {
       "id": "claim/checks/defaults/judge-last",
@@ -8912,13 +8912,22 @@
       "cause": "the check named in \"relevancy half of terms passes\" lets the block pass"
     },
     {
-      "id": "breaker/checks/relevancy-quarter-of-terms-fails",
+      "id": "breaker/checks/relevancy-quarter-of-terms-inconclusive",
       "family": "breaker-checks",
       "tier": 2,
       "level": 3,
       "source": "contract",
       "component": "docs/reference/checks.md Similarity, relevancy and knowledge retention",
-      "cause": "the check named in \"relevancy quarter of terms fails\" fails the block with block 0: relevancy.terms"
+      "cause": "the check named in \"relevancy quarter of terms inconclusive\" lets the block pass"
+    },
+    {
+      "id": "breaker/checks/relevancy-no-term-fails",
+      "family": "breaker-checks",
+      "tier": 2,
+      "level": 3,
+      "source": "contract",
+      "component": "docs/reference/checks.md Similarity, relevancy and knowledge retention",
+      "cause": "the check named in \"relevancy no term fails\" fails the block with block 0: relevancy.terms"
     },
     {
       "id": "breaker/checks/similarity-unrelated-text",
@@ -15092,7 +15101,7 @@
       "level": 10,
       "source": "adversarial",
       "component": "driftbench compare",
-      "cause": "driftbench compare exits 2 for a campaign the store does not hold and for a missing margin"
+      "cause": "driftbench compare exits 2 for a campaign the store does not hold and for a margin that is not a number or auto"
     },
     {
       "id": "breaker/tools/report-bad-input-exit-2",
@@ -15272,7 +15281,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench judge calibrate",
-      "cause": "driftbench judge calibrate names the system1 judges s1p-a and s1p-b as the judges page shows"
+      "cause": "driftbench judge calibrate names each judge by the id its cassette gives"
     },
     {
       "id": "breaker/tools/validate-floors-line",
@@ -15281,7 +15290,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench validate floors",
-      "cause": "driftbench validate floors prints the floor of the stats validator as the CLI page shows, or the page lists every registered floor"
+      "cause": "driftbench validate floors prints one line naming every floor of validators/floors.json"
     },
     {
       "id": "breaker/tools/validate-input-errors-exit-64",

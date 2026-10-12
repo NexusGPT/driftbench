@@ -2,6 +2,9 @@ import { combinations } from '@driftbench/space';
 import type { Feasibility } from './feasible';
 import { type Rng, range, shuffle } from './random';
 
+/** What the covering array asks of the constraints: whether some picks can occur together. */
+export type AllowedCheck = Pick<Feasibility, 'allowed'>;
+
 /**
  * A greedy covering array of strength t under constraints, in the AETG style (Cohen, Dalal, Fredman and
  * Patton, 1997) with the constrained t-way coverage of NIST SP 800-142 (the one PICT and ACTS compute):
@@ -34,7 +37,7 @@ export function tupleKey(dimensions: readonly number[], values: readonly number[
 
 /** Every allowed t-tuple over the dimensions given, in lexicographic order. */
 export function allowedTuples(
-  feasibility: Feasibility,
+  feasibility: AllowedCheck,
   sizes: readonly number[],
   dimensions: readonly number[],
   t: number,
@@ -65,7 +68,7 @@ export function allowedTuples(
 }
 
 export function coveringArray(
-  feasibility: Feasibility,
+  feasibility: AllowedCheck,
   sizes: readonly number[],
   dimensions: readonly number[],
   t: number,

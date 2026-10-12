@@ -599,6 +599,8 @@ const HOSTILE: Hostile[] = [
     name: 'case-of-must-not',
     tier: 3,
     component: CHECK_COMPONENTS.must as string,
+    // checks.md, match_case: by default a pattern ignores the case of the reply, so REFUND hits refund.
+    fails: 'must_not',
     reply: (o, t) => text(o, `${o.text} No REFUND is due on reference ${t.code}.`),
   },
   {
@@ -946,10 +948,10 @@ function failureHandling(): Draft[] {
     },
   );
   add(
-    'http-500-not-retried',
-    2,
-    'packages/adapters/src/http/index.ts',
-    'a 500 is an agent failure: one request, no retry, the run fails',
+    'http-500-past-retries',
+    3,
+    'packages/core/src/runner/retry.ts',
+    'a 500 on every attempt is a transport error: retried three times, then the run fails naming the status',
     async ({ seed }) => {
       const { run, attempts } = await httpScenario(
         seed,
@@ -958,7 +960,7 @@ function failureHandling(): Draft[] {
       );
       return expectAll([
         [run.status === 'failed', `status ${run.status}`],
-        [attempts() === 2, `${attempts()} requests, 2 expected`],
+        [attempts() === 1 + 4, `${attempts()} requests, 5 expected (block 0, then four tries of block 1)`],
         [/500/.test(run.error ?? ''), `the error does not name the status: ${run.error}`],
       ]);
     },
