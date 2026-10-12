@@ -14,20 +14,20 @@ interface Frequencies {
   readonly f2: number;
 }
 
-function frequencies(counts: readonly number[]): Frequencies {
+function frequencies(fn: string, counts: readonly number[]): Frequencies {
   let n = 0;
   let observed = 0;
   let f1 = 0;
   let f2 = 0;
   counts.forEach((c, i) => {
     if (!Number.isInteger(c) || c < 0)
-      throw new RangeError(`counts[${i}] must be a non-negative integer, got ${c}`);
+      throw new RangeError(`${fn}: counts[${i}] must be a non-negative integer, got ${c}`);
     n += c;
     if (c > 0) observed += 1;
     if (c === 1) f1 += 1;
     if (c === 2) f2 += 1;
   });
-  if (n === 0) throw new RangeError('no observations');
+  if (n === 0) throw new RangeError(`${fn}: counts must hold at least one observation`);
   return { n, observed, f1, f2 };
 }
 
@@ -40,7 +40,7 @@ export interface GoodTuringResult extends Frequencies {
 
 /** Good-Turing: the discovery probability f1 / n and the coverage 1 - f1 / n, from the abundance per class. */
 export function goodTuring(counts: readonly number[]): GoodTuringResult {
-  const f = frequencies(counts);
+  const f = frequencies('goodTuring', counts);
   const discoveryProbability = f.f1 / f.n;
   return { ...f, discoveryProbability, coverage: 1 - discoveryProbability };
 }
@@ -60,7 +60,7 @@ export interface ChaoResult extends Frequencies {
  * S_obs + ((n - 1) / n) f1 (f1 - 1) / 2.
  */
 export function chaoCoverage(counts: readonly number[]): ChaoResult {
-  const f = frequencies(counts);
+  const f = frequencies('chaoCoverage', counts);
   const { n, observed, f1, f2 } = f;
   let coverage: number;
   if (f1 === 0) coverage = 1;
@@ -75,7 +75,7 @@ export function chaoCoverage(counts: readonly number[]): ChaoResult {
 
 /** The Hill number of order q (the effective number of classes), plug-in from the abundances. */
 export function hillNumber(counts: readonly number[], q: number): number {
-  const f = frequencies(counts);
+  const f = frequencies('hillNumber', counts);
   const ps = counts.filter((c) => c > 0).map((c) => c / f.n);
   if (q === 0) return ps.length;
   if (q === 1) return Math.exp(-ps.reduce((s, p) => s + p * Math.log(p), 0));
@@ -93,5 +93,6 @@ export interface HillNumbers {
 
 /** Hill numbers at q = 0, 1 and 2. */
 export function hillNumbers(counts: readonly number[]): HillNumbers {
+  frequencies('hillNumbers', counts);
   return { q0: hillNumber(counts, 0), q1: hillNumber(counts, 1), q2: hillNumber(counts, 2) };
 }

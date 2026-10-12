@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   benjaminiHochberg,
   bootstrapCI,
+  chaoCoverage,
   cusum,
+  goodTuring,
+  hillNumber,
+  hillNumbers,
   ksTest,
   mean,
   pageHinkley,
@@ -87,5 +91,45 @@ describe('RangeError names the function and the argument', () => {
 
   it('bootstrapCI of an infinite value names values and its index', () => {
     expect(() => bootstrapCI([1, Number.NEGATIVE_INFINITY])).toThrow(/^bootstrapCI: values\[1\]/);
+  });
+
+  it('unreliability of no samples names samples', () => {
+    expect(() => unreliability([])).toThrow(/^unreliability: samples/);
+  });
+
+  it('bootstrapCI of no values names values', () => {
+    expect(() => bootstrapCI([])).toThrow(/^bootstrapCI: values/);
+  });
+
+  it('wilcoxonSignedRank of no pairs names x', () => {
+    expect(() => wilcoxonSignedRank([], [])).toThrow(/^wilcoxonSignedRank: x/);
+  });
+
+  it('ksTest of an empty first sample names a', () => {
+    expect(() => ksTest([], [1])).toThrow(/^ksTest: a/);
+  });
+
+  it('cusum of an empty series names series', () => {
+    expect(() => cusum([], { sd: 1 })).toThrow(/^cusum: series/);
+  });
+
+  it('pageHinkley of an empty series names series', () => {
+    expect(() => pageHinkley([])).toThrow(/^pageHinkley: series/);
+  });
+
+  it('goodTuring of no observations names counts', () => {
+    expect(() => goodTuring([])).toThrow(/^goodTuring: counts/);
+  });
+
+  it('chaoCoverage of no observations names counts', () => {
+    expect(() => chaoCoverage([])).toThrow(/^chaoCoverage: counts/);
+  });
+
+  it('hillNumber of no observations names counts', () => {
+    expect(() => hillNumber([], 2)).toThrow(/^hillNumber: counts/);
+  });
+
+  it('hillNumbers of no observations names counts', () => {
+    expect(() => hillNumbers([])).toThrow(/^hillNumbers: counts/);
   });
 });

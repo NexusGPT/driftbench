@@ -129,7 +129,7 @@ export function wilcoxonSignedRank(
   assertFiniteValues('wilcoxonSignedRank', 'x', x);
   assertFiniteValues('wilcoxonSignedRank', 'y', y);
   const total = x.length;
-  if (total === 0) throw new RangeError('wilcoxonSignedRank: no pairs');
+  if (total === 0) throw new RangeError('wilcoxonSignedRank: x must not be empty');
   const diffs = x.map((v, i) => v - (y[i] as number));
   const nonzero = diffs.filter((d) => d !== 0);
   const zeros = total - nonzero.length;

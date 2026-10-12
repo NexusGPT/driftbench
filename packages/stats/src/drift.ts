@@ -37,7 +37,7 @@ export interface CusumResult {
  * upper = max(0, upper + z - k), lower = max(0, lower - z - k); an alarm when either exceeds h.
  */
 export function cusum(series: readonly number[], options: CusumOptions = {}): CusumResult {
-  if (series.length === 0) throw new RangeError('cusum: empty series');
+  if (series.length === 0) throw new RangeError('cusum: series must not be empty');
   assertFiniteValues('cusum', 'series', series);
   const warmup = options.warmup ?? Math.min(20, series.length);
   const head = series.slice(0, warmup);
@@ -94,6 +94,7 @@ export interface PageHinkleyResult {
  * state resets after an alarm.
  */
 export function pageHinkley(series: readonly number[], options: PageHinkleyOptions = {}): PageHinkleyResult {
+  if (series.length === 0) throw new RangeError('pageHinkley: series must not be empty');
   assertFiniteValues('pageHinkley', 'series', series);
   const delta = options.delta ?? 0.005;
   const threshold = options.threshold ?? 50;
@@ -173,7 +174,8 @@ export function ksTest(
 ): KsResult {
   const m = a.length;
   const n = b.length;
-  if (m === 0 || n === 0) throw new RangeError('ksTest: both samples need at least one value');
+  if (m === 0) throw new RangeError('ksTest: a must not be empty');
+  if (n === 0) throw new RangeError('ksTest: b must not be empty');
   assertFiniteValues('ksTest', 'a', a);
   assertFiniteValues('ksTest', 'b', b);
   const x = [...a].sort((p, q) => p - q);
