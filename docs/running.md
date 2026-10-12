@@ -13,14 +13,14 @@ Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (
 
 Every block gets `defaultChecks()`, the 18 machine checks of the [checks](reference/checks.md) page, with the artifact readers of `@driftbench/artifacts`. Other adapters are used from code: see [runSpec](#runspec).
 
-A target is written `<adapter>` or `<adapter>:<agent>`. Without `--target`, each spec runs on the target it names, and a spec that names none is refused. A `--target` overrides the target every spec names, and `plan` and `run` print a note for each spec whose own target names another adapter.
+A target is written `<adapter>` or `<adapter>:<agent>`. Without `--target`, each spec runs on the target it names, and a spec that names none is refused. A `--target` overrides the target every spec names, and `plan` and `run` print a note for each spec whose own target names another adapter. `--route <tag=target>` keeps a part of a mixed suite on its own agent: a spec carrying the tag runs on that target instead, and no note is printed for it. On the Acme suites, `--route flow:price-sheet=process:acme-ops` keeps the price-sheet task specs on the ops agent while `--target` names the sales agent; `ci` takes the same option, where a route may also name a `fault:<id>` of `--faults`, such as a fault of the ops agent.
 
 The examples below run from the repository root. `pnpm -s` keeps pnpm's own lines out of the output.
 
 ## `driftbench campaign plan`
 
 ```
-driftbench campaign plan <paths...> [--target <adapter[:agent]>] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
+driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
 ```
 
 Expands the cells, projects their cost and prints the minimum detectable effect. Nothing runs.
@@ -85,6 +85,7 @@ Minimum detectable effect, mode F: 74.9 points on a 50% pass rate, with 7 runs p
 | Option | Effect |
 |---|---|
 | `--target <adapter[:agent]>` | a target to run every spec on; repeat it for several. Without it, each spec runs on its own target. |
+| `--route <tag=target>` | a spec carrying the tag runs on this target instead of the `--target` list; repeat it; needs `--target`. |
 | `--mode <modes>` | the run mode: `T`, `F` or `P`, or several separated by commas, such as `T,F,P`. Default `F`. |
 | `--repeats <n>` | runs per spec, target and mode, at least 1. Default 1. |
 | `--budget-usd <usd>` | compare the projected cost with this budget |
@@ -97,7 +98,7 @@ The projected cost of an adapter is its blocks times the latest cost per block m
 ## `driftbench campaign run`
 
 ```
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>] [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
 ```
 
 Creates a campaign over the specs, runs every cell and prints one line per cell, in cell order.

@@ -559,6 +559,41 @@ constraints:
       behaviour: B-005
       channel: sms
     from: inventory
+  - id: behaviour=B-001,flow=cancellation
+    forbid:
+      behaviour: B-001
+      flow: cancellation
+    from: inventory
+  - id: behaviour=B-002,flow=renewal
+    forbid:
+      behaviour: B-002
+      flow: renewal
+    from: inventory
+  - id: behaviour=B-002,flow=address-change
+    forbid:
+      behaviour: B-002
+      flow: address-change
+    from: inventory
+  - id: behaviour=B-002,flow=cancellation
+    forbid:
+      behaviour: B-002
+      flow: cancellation
+    from: inventory
+  - id: behaviour=B-003,flow=address-change
+    forbid:
+      behaviour: B-003
+      flow: address-change
+    from: inventory
+  - id: behaviour=B-003,flow=new-order
+    forbid:
+      behaviour: B-003
+      flow: new-order
+    from: inventory
+  - id: behaviour=B-003,flow=cancellation
+    forbid:
+      behaviour: B-003
+      flow: cancellation
+    from: inventory
   - id: customer_type=member,channel=voice
     forbid:
       customer_type: member

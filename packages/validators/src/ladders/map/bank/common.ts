@@ -119,6 +119,15 @@ export function inventoryCode(inventory: MiniInventory): CodeEntry[] {
       }
     }
   }
+  // A behaviour a flow lists belongs to that flow: one constraint per flow that does not list it.
+  for (const behaviour of inventory.behaviours) {
+    const owners = inventory.flows.filter((flow) => (flow.behaviours ?? []).includes(behaviour.id));
+    if (owners.length === 0) continue;
+    for (const flow of inventory.flows) {
+      if (!owners.includes(flow))
+        out.push({ type: 'constraint', forbid: { behaviour: behaviour.id, flow: flow.id } });
+    }
+  }
   for (const flow of inventory.flows) {
     for (const deviation of flow.deviations ?? []) {
       if (!DETOURS.has(deviation)) continue;
