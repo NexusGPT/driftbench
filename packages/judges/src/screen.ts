@@ -38,6 +38,23 @@ const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?;])\s+|[\r\n
 const instructs = (sentence: string): boolean => JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence));
 
 /**
+ * The readings of a text a screen looks at: the text as written, then each way a writer can hide words in it. Each
+ * reading is a whole text that is split into sentences like the original.
+ */
+const READINGS: readonly ((text: string) => string | undefined)[] = [
+  // Compatibility forms: fullwidth letters and the like read as plain letters.
+  (text) => {
+    const folded = text.normalize('NFKC');
+    return folded === text ? undefined : folded;
+  },
+];
+
+const readingsOf = (text: string): string[] => [
+  text,
+  ...READINGS.map((read) => read(text)).filter((reading): reading is string => reading !== undefined),
+];
+
+/**
  * Screens a request before a judge reads it. Every sentence (split after . ! ? ; and at line breaks) of each place is
  * read: each transcript entry with its tool name, the artifact, and the Given as JSON. A sentence that holds a judge
  * word and a verdict word is an instruction to the judge, and its place is a finding.
@@ -51,6 +68,6 @@ export function screenData(request: JudgeRequest): ScreenReport {
     ...(request.artifact === undefined ? [] : [['artifact', request.artifact] as [string, string]]),
     ...(request.given === undefined ? [] : [['given', JSON.stringify(request.given)] as [string, string]]),
   ];
-  const findings = places.filter(([, text]) => sentencesOf(text).some(instructs)).map(([where]) => ({ where }));
+  const findings = places.filter(([, text]) => readingsOf(text).some((reading) => sentencesOf(reading).some(instructs))).map(([where]) => ({ where }));
   return { flagged: findings.length > 0, findings };
 }
