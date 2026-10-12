@@ -20,6 +20,10 @@ type AggregateCriterion = {
 * `BUILT_IN_AGGREGATES.passRate(threshold = 0.5)`: the share of all runs that pass. A run passes when it completed, every block passed and its end state matched. Direction: at least.
 * `BUILT_IN_AGGREGATES.brokenShare(threshold)`: the share of runs that did not complete, failed or stopped. Direction: at most.
 
+## Interval and planning
+
+A rate criterion (`pass-rate`, `broken-share`) also gives its Wilson 95% interval over the runs, the same interval the scorecard uses. The interval decides the threshold when it lies entirely on one side of it. When it does not, `runsNeeded` is the smallest number of runs, at the same rate, whose interval would decide it. `report` prints both; the `ci` summary carries them in its `aggregates` field, and the GitHub Action writes them to the job summary.
+
 ## Inconclusive, not failed
 
 A campaign with no runs gives `value` and `passed` undefined, with the reason `no runs in the campaign: inconclusive`. Nothing is reported as a failure from an empty campaign.

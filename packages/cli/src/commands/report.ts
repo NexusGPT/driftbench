@@ -201,7 +201,10 @@ export async function reportCommand(
     for (const entry of card.aggregates ?? []) {
       const op = entry.direction === 'at-least' ? '>=' : '<=';
       const verdict = entry.passed === undefined ? 'no runs' : entry.passed ? 'passes' : 'fails';
-      io.out(`aggregate ${entry.name} ${op} ${entry.threshold}: ${verdict} (${entry.reason})\n`);
+      const interval = entry.interval
+        ? `, Wilson 95% interval ${entry.interval.lower.toFixed(3)} to ${entry.interval.upper.toFixed(3)} over ${entry.interval.n} runs, ${entry.decided ? 'decided' : `undecided: ${entry.runsNeeded ?? 'more'} runs at this rate would decide it`}`
+        : '';
+      io.out(`aggregate ${entry.name} ${op} ${entry.threshold}: ${verdict} (${entry.reason}${interval})\n`);
     }
     io.out(`Wrote ${written.join(' and ')}.\n`);
   }
