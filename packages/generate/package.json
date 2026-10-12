@@ -41,17 +41,18 @@
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
-    "zod": "^4.6.5",
-    "yaml": "^2.9.1",
-    "@driftbench/space": "workspace:*",
-    "@driftbench/stats": "workspace:*",
-    "@driftbench/checks": "workspace:*",
     "@driftbench/adapters": "workspace:*",
     "@driftbench/artifacts": "workspace:*",
+    "@driftbench/checks": "workspace:*",
+    "@driftbench/core": "workspace:*",
     "@driftbench/sandbox": "workspace:*",
+    "@driftbench/space": "workspace:*",
+    "@driftbench/stats": "workspace:*",
     "@driftbench/store": "workspace:*",
-    "@driftbench/users": "workspace:*"
+    "@driftbench/users": "workspace:*",
+    "smol-toml": "1.3.1",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
   },
   "publishConfig": {
     "access": "public",

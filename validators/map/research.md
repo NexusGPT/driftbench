@@ -303,3 +303,15 @@ Sources read:
 What others do: The legacy format names each parameter and its type and states no required flag, so each parameter has an absent case.
 
 What to try, and why: the tool pre-pass reads legacy XML tool descriptions
+
+## Iteration 26
+
+Question: packages/generate/src/extract/tools.ts: toolsPrepass reads YAML or JSON only, so a TOML file fails to parse; tool-formats.toml proves it.
+
+Sources read:
+* https://toml.io/en/v1.0.0 (tables and arrays of tables)
+* https://github.com/squirrelchat/smol-toml (maintained TOML 1.0 parser)
+
+What others do: Tool configs in TOML are read by a TOML parser into the same data; quotes stay lines of the file.
+
+What to try, and why: the tool pre-pass reads TOML

@@ -1,3 +1,4 @@
+import { parse as parseToml } from 'smol-toml';
 import { isMap, isScalar, isSeq, type Pair, parseAllDocuments, parseDocument, YAMLMap, YAMLSeq } from 'yaml';
 import { entry, keyOf, mapAt, pairText, plain, stringItems } from './nodes';
 import type { ProposalDimension, ProposalValue } from './proposal';
@@ -34,6 +35,8 @@ const MAX_DEPTH = 2;
 /** A property's whole text is its quote when it is this short; a longer one is quoted by its keyword. */
 const WHOLE_PROPERTY_QUOTE = 300;
 
+type Requote = (quote: string, path: string[]) => string;
+
 type Tool = {
   name: string;
   path: string;
@@ -52,9 +55,40 @@ type Tool = {
 type Partition = { id: string; title: string; quote: string };
 
 export function toolsPrepass(text: string, source: string): ToolsPrepass {
+  const read = toolsPrepassOf(text, source);
+  if (read.ok || !read.errors.some((error) => error.code === 'TOOLS_PARSE')) return read;
+  // TOML: read it as the same data, written as JSON; quotes are then lines of the TOML file itself.
+  let data: unknown;
+  try {
+    data = parseToml(text);
+  } catch {
+    return read;
+  }
+  const json = JSON.stringify(data, null, 2);
+  const converted = toolsPrepassOf(json, source, (quote, path) => tomlLine(text, quote, path));
+  return converted.ok ? converted : read;
+}
+
+/** The line of a TOML file a quote of its JSON form stands for: the key's own line, else its table header. */
+function tomlLine(toml: string, quote: string, path: string[]): string {
+  const lines = toml.split('\n').map((line) => line.trimEnd());
+  const key = /^\s*"?([^"\s:]+)"?\s*:/.exec(quote.split('\n')[0] ?? '')?.[1] ?? path[path.length - 1] ?? '';
+  const name = path[path.length - 1] ?? key;
+  const own = (re: RegExp) => lines.find((line) => re.test(line));
+  const escaped = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return own(new RegExp(`^\\s*\\[+[^\\]]*\\.${escaped(name)}\\]+\\s*$`)) && key !== 'enum' && key !== 'const'
+    ? (own(new RegExp(`^\\s*${escaped(key)}\\s*=`)) ??
+        (own(new RegExp(`^\\s*\\[+[^\\]]*\\.${escaped(name)}\\]+\\s*$`)) as string))
+    : (own(new RegExp(`^\\s*"?${escaped(key)}"?\\s*=`)) ??
+        own(new RegExp(`^\\s*\\[+[^\\]]*\\.${escaped(name)}\\]+\\s*$`)) ??
+        lines.find((line) => line.trim() !== '' && !line.trim().startsWith('#')) ??
+        '');
+}
+
+function toolsPrepassOf(text: string, source: string, requote?: Requote): ToolsPrepass {
   if (text.trimStart().startsWith('<')) {
     const xml = readXml(text);
-    if (xml) return toolsOf(text, source, xml);
+    if (xml) return toolsOf(text, source, xml, requote);
   }
   // A stream of documents (`---` between them) holds one tool per document: read as a list of tools.
   let docs = parseAllDocuments(text, { uniqueKeys: true, prettyErrors: true });
@@ -84,7 +118,7 @@ export function toolsPrepass(text: string, source: string): ToolsPrepass {
   const stream = docs.length > 1 ? new YAMLSeq() : undefined;
   if (stream) for (const doc of docs) if (doc.contents) stream.items.push(doc.contents);
   const openApi = stream ? undefined : readOpenApi(docs[0]?.contents);
-  if (openApi) return toolsOf(text, source, openApi);
+  if (openApi) return toolsOf(text, source, openApi, requote);
   const located = locate(stream ?? docs[0]?.contents);
   if (!located) {
     return fail(
@@ -93,13 +127,14 @@ export function toolsPrepass(text: string, source: string): ToolsPrepass {
       'no tools found: expected a list of tools, or a mapping with tools, tool_schemas or metadata.tool_schemas',
     );
   }
-  return toolsOf(text, source, readTools(located.node, located.path));
+  return toolsOf(text, source, readTools(located.node, located.path), requote);
 }
 
 function toolsOf(
   text: string,
   source: string,
   read: { tools: Tool[] } | { errors: ToolsIssue[] },
+  requote?: Requote,
 ): ToolsPrepass {
   if ('errors' in read) return { ok: false, errors: read.errors };
 
@@ -125,6 +160,7 @@ function toolsOf(
         open,
         root: schema ?? new YAMLMap(),
         cohere: direction === 'in' && tool.cohere === true,
+        requote,
       };
       if (direction === 'in' && tool.xml) walkXml(ctx, tool.xml);
       else if (direction === 'in' && tool.query) walkQuery(ctx, tool.query);
@@ -203,18 +239,26 @@ function readOpenApi(root: unknown): { tools: Tool[] } | { errors: ToolsIssue[] 
       }
       seen.add(name);
       const body = follow(entry(operation, 'requestBody')?.value);
-      const bodyParameter = (entry(operation, 'parameters')?.value as { items?: unknown[] } | undefined)?.items
+      const bodyParameter = (
+        entry(operation, 'parameters')?.value as { items?: unknown[] } | undefined
+      )?.items
         ?.map(follow)
         .find((parameter) => plain(entry(parameter, 'in')?.value) === 'body');
       const ok = follow(mapAt(mapAt(operation, 'responses'), '200'));
       const schema = (node: unknown) => {
-        const found = mapAt(mapAt(mapAt(node, 'content'), 'application/json'), 'schema') ?? mapAt(node, 'schema');
+        const found =
+          mapAt(mapAt(mapAt(node, 'content'), 'application/json'), 'schema') ?? mapAt(node, 'schema');
         const resolved = follow(found);
         return isMap(resolved) ? resolved : undefined;
       };
-      const query = ((entry(operation, 'parameters')?.value as { items?: unknown[] } | undefined)?.items ?? [])
+      const query = (
+        (entry(operation, 'parameters')?.value as { items?: unknown[] } | undefined)?.items ?? []
+      )
         .map(follow)
-        .filter((parameter): parameter is YAMLMap => isMap(parameter) && plain(entry(parameter, 'in')?.value) === 'query');
+        .filter(
+          (parameter): parameter is YAMLMap =>
+            isMap(parameter) && plain(entry(parameter, 'in')?.value) === 'query',
+        );
       const input = schema(body) ?? schema(bodyParameter);
       tools.push({
         name,
@@ -240,6 +284,8 @@ type Walk = {
   root: YAMLMap;
   /** The schema is a Cohere parameter_definitions mapping. */
   cohere: boolean;
+  /** Rewrites a quote to the text of the file the data was converted from. */
+  requote?: Requote;
 };
 
 /** Legacy XML descriptions name a parameter and its type only: every parameter is optional. */
@@ -277,7 +323,16 @@ function walkQuery(ctx: Walk, parameters: YAMLMap[]): void {
     const name = plain(entry(parameter, 'name')?.value);
     const schemaPair = entry(parameter, 'schema');
     if (typeof name !== 'string' || !schemaPair || !isMap(schemaPair.value)) continue;
-    field(ctx, name, schemaPair, schemaPair.value, plain(entry(parameter, 'required')?.value) === true, undefined, [], 0);
+    field(
+      ctx,
+      name,
+      schemaPair,
+      schemaPair.value,
+      plain(entry(parameter, 'required')?.value) === true,
+      undefined,
+      [],
+      0,
+    );
   }
 }
 
@@ -360,7 +415,10 @@ function addDimension(ctx: Walk, path: string[], partitions: Partition[]): void 
     return {
       id: valueId,
       title: partition.title,
-      evidence: { source: ctx.source, quote: partition.quote },
+      evidence: {
+        source: ctx.source,
+        quote: ctx.requote ? ctx.requote(partition.quote, path) : partition.quote,
+      },
       produced_by: 'code',
     };
   });
@@ -544,7 +602,12 @@ function quoter(text: string, pair: Pair, property: YAMLMap): (keyword?: string)
   };
 }
 
-const SHORT_TYPES: Record<string, string> = { str: 'string', int: 'integer', bool: 'boolean', float: 'number' };
+const SHORT_TYPES: Record<string, string> = {
+  str: 'string',
+  int: 'integer',
+  bool: 'boolean',
+  float: 'number',
+};
 
 function typesOf(property: YAMLMap): string[] {
   const type = entry(property, 'type')?.value;
@@ -579,7 +642,8 @@ function readTools(node: unknown, path: string): { tools: Tool[] } | { errors: T
   if (isSeq(node)) {
     node.items.forEach((item, index) => {
       // Gemini groups its tools as { functionDeclarations: [...] } inside the tools list.
-      const declarations = (entry(item, 'functionDeclarations') ?? entry(item, 'function_declarations'))?.value;
+      const declarations = (entry(item, 'functionDeclarations') ?? entry(item, 'function_declarations'))
+        ?.value;
       if (isSeq(declarations)) {
         declarations.items.forEach((declaration, inner) => {
           raw.push({
@@ -625,7 +689,9 @@ function readTools(node: unknown, path: string): { tools: Tool[] } | { errors: T
     }
     names.add(candidate.name);
     const cohere = mapAt(candidate.map, 'parameter_definitions') ?? mapAt(candidate.map, 'args');
-    const input = cohere ? { map: cohere, text: undefined } : schemaOf(candidate.map, ['input_schema', 'inputSchema', 'parameters']);
+    const input = cohere
+      ? { map: cohere, text: undefined }
+      : schemaOf(candidate.map, ['input_schema', 'inputSchema', 'parameters']);
     const output = schemaOf(candidate.map, ['output_schema', 'outputSchema', 'returns']);
     tools.push({
       name: candidate.name,
@@ -655,7 +721,8 @@ function schemaOf(map: unknown, keys: string[]): { map: YAMLMap; text?: string }
     const value = entry(map, key)?.value;
     if (!isScalar(value) || typeof value.value !== 'string') continue;
     const parsed = parseDocument(value.value, { uniqueKeys: true });
-    if (parsed.errors.length === 0 && isMap(parsed.contents)) return { map: parsed.contents, text: value.value };
+    if (parsed.errors.length === 0 && isMap(parsed.contents))
+      return { map: parsed.contents, text: value.value };
   }
   return undefined;
 }
@@ -664,7 +731,8 @@ function firstMap(map: unknown, keys: string[]): YAMLMap | undefined {
   for (const key of keys) {
     const found = mapAt(map, key);
     // Bedrock holds the schema one step down as inputSchema.json, Vercel as parameters.jsonSchema.
-    if (found) return (!entry(found, 'properties') && (mapAt(found, 'json') ?? mapAt(found, 'jsonSchema'))) || found;
+    if (found)
+      return (!entry(found, 'properties') && (mapAt(found, 'json') ?? mapAt(found, 'jsonSchema'))) || found;
   }
   return undefined;
 }

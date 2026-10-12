@@ -220,7 +220,9 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     const result = toolsPrepass(stringify({ tools: [{ name: 'findAccount', parameters }] }), 'tools.yaml');
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
     expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
-    expect(result.dimensions[0]?.values.map((value) => value.evidence.quote).every((q) => q.length > 0)).toBe(true);
+    expect(result.dimensions[0]?.values.map((value) => value.evidence.quote).every((q) => q.length > 0)).toBe(
+      true,
+    );
   });
 
   it('reads a YAML stream with one tool per document', () => {
@@ -232,7 +234,10 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     const result = toolsPrepass(`${tool('findAccount')}---\n${tool('placeOrder')}`, 'tools.yaml');
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
     expect(result.tools).toEqual(['findAccount', 'placeOrder']);
-    expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag', 'place_order.in.flag']);
+    expect(result.dimensions.map((dimension) => dimension.id)).toEqual([
+      'find_account.in.flag',
+      'place_order.in.flag',
+    ]);
   });
 
   it('reads JSON with comments and keeps quotes from the original text', () => {
@@ -250,7 +255,10 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
     expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
     expect(text).toContain(result.dimensions[0]?.values[0]?.evidence.quote ?? '#');
-    const url = toolsPrepass('{"tools":[{"name":"a","input_schema":{"type":"object","properties":{"u":{"type":"string","pattern":"^http://x"}}}}]}', 'tools.json');
+    const url = toolsPrepass(
+      '{"tools":[{"name":"a","input_schema":{"type":"object","properties":{"u":{"type":"string","pattern":"^http://x"}}}}]}',
+      'tools.json',
+    );
     expect(url.ok).toBe(true);
   });
 
@@ -283,7 +291,8 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     const result = toolsPrepass(stringify(file), 'tools.yaml');
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
     const out: Record<string, string[]> = {};
-    for (const dimension of result.dimensions) out[dimension.id] = dimension.values.map((v) => v.id.slice(dimension.id.length + 1));
+    for (const dimension of result.dimensions)
+      out[dimension.id] = dimension.values.map((v) => v.id.slice(dimension.id.length + 1));
     expect(out).toEqual({
       'find_account.in.urgent': ['true', 'false', 'absent'],
     });
@@ -328,7 +337,9 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
           post: {
             operationId: 'placeOrder',
             requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/In' } } } },
-            responses: { '200': { content: { 'application/json': { schema: { $ref: '#/components/schemas/Out' } } } } },
+            responses: {
+              '200': { content: { 'application/json': { schema: { $ref: '#/components/schemas/Out' } } } },
+            },
           },
         },
       },
@@ -350,7 +361,10 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       const result = toolsPrepass(stringify(JSON.parse(JSON.stringify(file))), 'api.yaml');
       if (!result.ok) throw new Error(JSON.stringify(result.errors));
       expect(result.tools[0]).toBe('findAccount');
-      expect(result.dimensions.map((d) => d.id).slice(0, 2)).toEqual(['find_account.in.flag', 'find_account.out.ok']);
+      expect(result.dimensions.map((d) => d.id).slice(0, 2)).toEqual([
+        'find_account.in.flag',
+        'find_account.out.ok',
+      ]);
     }
     const first = toolsPrepass(stringify(JSON.parse(JSON.stringify(three))), 'api.yaml');
     if (!first.ok) throw new Error('x');
@@ -374,7 +388,15 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
               { in: 'query', name: 'urgent', required: false, schema: { type: 'boolean' } },
               { in: 'query', name: 'flag', required: true, schema: { type: 'boolean' } },
             ],
-            responses: { '200': { content: { 'application/json': { schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] } } } } },
+            responses: {
+              '200': {
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -406,6 +428,34 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       ['find_account.in.status', ['present', 'absent']],
       ['find_account.in.urgent', ['true', 'false', 'absent']],
     ]);
-    for (const dimension of result.dimensions) for (const value of dimension.values) expect(text).toContain(value.evidence.quote);
+    for (const dimension of result.dimensions)
+      for (const value of dimension.values) expect(text).toContain(value.evidence.quote);
+  });
+
+  it('reads TOML tools and quotes lines of the TOML file', () => {
+    const text = `# tools
+[[tools]]
+name = "findAccount"
+
+[tools.input_schema]
+type = "object"
+required = ["status"]
+
+[tools.input_schema.properties.status]
+type = "string"
+enum = ["open", "closed"]
+
+[tools.input_schema.properties.urgent]
+type = "boolean"
+`;
+    const result = toolsPrepass(text, 'tools.toml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.tools).toEqual(['findAccount']);
+    expect(result.dimensions.map((d) => [d.id, d.values.map((v) => v.id.slice(d.id.length + 1))])).toEqual([
+      ['find_account.in.status', ['open', 'closed']],
+      ['find_account.in.urgent', ['true', 'false', 'absent']],
+    ]);
+    for (const dimension of result.dimensions)
+      for (const value of dimension.values) expect(text).toContain(value.evidence.quote);
   });
 });
