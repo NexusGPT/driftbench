@@ -47,6 +47,7 @@ export {
   loadRedteamPlugins,
   PluginFamilies,
   type PluginFamily,
+  type PluginToSpecOptions,
   POLICY_PLUGINS,
   pluginToSpec,
   REDTEAM_PLUGINS,

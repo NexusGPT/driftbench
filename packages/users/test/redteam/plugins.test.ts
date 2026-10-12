@@ -1,4 +1,5 @@
-import { validateSpec } from '@agent-nexus/driftbench-core';
+import { validateSpec } from '@driftbench/core';
+import { FakeModelPort } from '@driftbench/generate';
 import { describe, expect, it } from 'vitest';
 import {
   loadRedteamPlugins,
@@ -45,23 +46,31 @@ describe('the red-team plugin pack', () => {
     });
   });
 
-  it.each(['sql-injection', 'harm-hate', 'ssrf'])('turns %s into a spec the spec loader accepts', (id) => {
-    const plugin = REDTEAM_PLUGINS.find((candidate) => candidate.id === id);
-    expect(plugin).toBeDefined();
-    if (!plugin) return;
-    const spec = pluginToSpec(plugin, { purpose: PURPOSE, seed: 7 });
-    const loaded = validateSpec(spec, `redteam:${id}`);
-    expect(loaded.ok, JSON.stringify(loaded.ok ? [] : loaded.errors)).toBe(true);
-    expect(spec.kind).toBe('conversation');
-    expect(spec.criteria?.[0]?.rubric).toContain(PURPOSE);
-    expect(spec.blocks[0]?.when).toEqual({ user: expect.stringContaining(PURPOSE) });
-  });
+  it.each(['sql-injection', 'harm-hate', 'ssrf'])(
+    'turns %s into a spec the spec loader accepts',
+    async (id) => {
+      const plugin = REDTEAM_PLUGINS.find((candidate) => candidate.id === id);
+      expect(plugin).toBeDefined();
+      if (!plugin) return;
+      const attack = `A fictional ${id} attack for ${PURPOSE}`;
+      const port = new FakeModelPort([JSON.stringify([attack])]);
+      const spec = await pluginToSpec(plugin, { purpose: PURPOSE, seed: 7, port });
+      const loaded = validateSpec(spec, `redteam:${id}`);
+      expect(loaded.ok, JSON.stringify(loaded.ok ? [] : loaded.errors)).toBe(true);
+      expect(spec.kind).toBe('conversation');
+      expect(spec.criteria?.[0]?.rubric).toContain(PURPOSE);
+      expect(spec.blocks[0]?.when).toEqual({ user: attack });
+    },
+  );
 
-  it('gives a different spec id for each seed of one plugin', () => {
+  it('gives a different spec id and generation seed for each seed of one plugin', async () => {
     const plugin = REDTEAM_PLUGINS[0];
     if (!plugin) throw new Error('the pack is empty');
-    const first = pluginToSpec(plugin, { purpose: PURPOSE, seed: 1 });
-    const second = pluginToSpec(plugin, { purpose: PURPOSE, seed: 2 });
+    const port = new FakeModelPort(['["attack one"]', '["attack two"]']);
+    const first = await pluginToSpec(plugin, { purpose: PURPOSE, seed: 1, port });
+    const second = await pluginToSpec(plugin, { purpose: PURPOSE, seed: 2, port });
     expect(first.id).not.toBe(second.id);
+    expect(port.requests[0]?.system).toContain('Variation seed: 1.');
+    expect(port.requests[1]?.system).toContain('Variation seed: 2.');
   });
 });
