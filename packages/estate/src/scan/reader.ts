@@ -174,4 +174,6 @@ export interface EstateReader {
   readonly runtime: string;
   /** Reads the estate at `root`. Paths in the result are relative to `root`, with forward slashes. */
   read(root: string): Promise<RawEstate>;
+  /** The files a copy of the estate needs, relative to `root`: what the runtime may load, ignored paths left out. */
+  listFiles?(root: string): Promise<string[]>;
 }

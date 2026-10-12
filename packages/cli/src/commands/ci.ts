@@ -6,34 +6,70 @@ import {
   cellIdOf,
   outcomeOf,
   type RunResult,
-  runsByCell,
   type Store,
   type TargetRef,
 } from '@driftbench/core';
 import { faultAdapter, importFaultSet } from '@driftbench/generate';
+import {
+  type AggregateCriterion,
+  type AggregateResult,
+  aggregateFromFlag,
+  autoMargin,
+  type CampaignData,
+  type CompareResult,
+  compareCampaigns,
+  DEFAULT_FLAG_FAMILIES,
+  evaluateAggregates,
+  loadCampaign,
+  MIN_GOLDENS,
+  unitsOf,
+} from '@driftbench/report';
 import { localProvider } from '@driftbench/sandbox';
-import { type NonInferiorityResult, nonInferiority, pairedRateDifference } from '@driftbench/stats';
+import { pairedRateDifference } from '@driftbench/stats';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { type CampaignDeps, campaignRunCommand, defaultDeps, parseTarget } from './campaign';
+import { parseGate } from './compare';
 
 /**
- * The checks whose failure is a gating FLAG: an act that must never happen, judged apart from the pass
- * rate. A flag that fires on the candidate where the baseline had none fails ci whatever the margin.
+ * The verdict families whose failing gating verdict is a gating FLAG, as `compare` counts them: an act that
+ * must never happen. A flag that fires on the candidate where the baseline had none is a regression.
  */
-export const DEFAULT_FLAGS = ['forbidden', 'pii', 'safety', 'guards'] as const;
+export const DEFAULT_FLAGS = DEFAULT_FLAG_FAMILIES;
 
 /** The summary file ci writes when `--out` is not given, relative to the working folder. */
 export const DEFAULT_SUMMARY = 'driftbench-ci.json';
 
-export type CiVerdict = 'parity' | 'regression' | 'gating' | 'incomplete';
+/**
+ * ci reads `compare`'s verdict, one rule for both commands: `parity` is compare's non-inferior, `regression`
+ * is compare's regressed (evidence of a drop or a new flag), `not-shown-non-inferior` is compare's unproven
+ * (the intervals are wider than the margin: too few goldens, never a regression), `incomplete` is a
+ * candidate cell that did not run.
+ */
+export type CiVerdict =
+  | 'parity'
+  | 'regression'
+  | 'not-shown-non-inferior'
+  | 'incomplete'
+  | 'aggregate-failed';
+
+const VERDICT_TEXT: Record<CiVerdict, string> = {
+  parity: 'PARITY',
+  regression: 'REGRESSION',
+  'not-shown-non-inferior': 'NOT SHOWN NON-INFERIOR',
+  incomplete: 'INCOMPLETE',
+  'aggregate-failed': 'AGGREGATE FAILED',
+};
 
 type CiCommandOptions = {
+  aggregate?: string[];
   specs: string;
   target: string;
   baseline: string;
   store: string;
   margin: string;
+  minGoldens: string;
+  strict?: boolean;
   mode: string;
   repeats: string;
   budgetUsd?: string;
@@ -45,36 +81,34 @@ type CiCommandOptions = {
   json?: boolean;
 };
 
-/** One golden as ci pairs it: a spec in one mode (and perturbation), every repeat of it. */
-export type ArmResult = {
-  /** Every repeat ran to completion and passed. */
-  pass: boolean;
-  runs: number;
-  passing: number;
-  /** A flag check failed in at least one repeat. */
-  flagged: boolean;
-  /** The gating checks that failed, in the first failing repeat. */
-  failing: string[];
-};
-
+/** One golden as `compare` pairs it: a spec in one mode (and perturbation), every repeat of it. */
 export type CiPair = {
   name: string;
   specId: string;
   mode: string;
   perturbationId?: string;
-  baseline: ArmResult;
-  candidate: ArmResult;
+  baseline: { pass: boolean; runs: number; flags: string[] };
+  candidate: { pass: boolean; runs: number; flags: string[]; failing: string[] };
   change: 'same' | 'regressed' | 'improved';
-  newFlag: boolean;
+  newFlags: string[];
 };
 
 export type CiSummary = {
   verdict: CiVerdict;
   exitCode: 0 | 1;
-  reason: string;
-  /** The margin in percentage points, as given. */
+  /** compare's reasons, in its words. */
+  reasons: string[];
+  /** Campaign-level criteria from --aggregate, scored over the candidate. */
+  aggregates: AggregateResult[];
+  /** The margin in percentage points, as given or as --margin auto chose it. */
   marginPoints: number;
-  /** The comparison the verdict rests on: see `compareArms`. */
+  /** Set when --margin auto chose the margin: what it had to clear, what set it, and any warning. */
+  marginAuto: { neededPoints: number; limitedBy: string; warning?: string } | null;
+  /** Gating criteria on fewer goldens are underpowered and left out of the parity test unless strict. */
+  minGoldens: number;
+  strict: boolean;
+  /** Underpowered gating criteria, with the goldens that decided them. */
+  underpowered: Array<{ criterion: string; goldens: number }>;
   comparator: string;
   flags: string[];
   baseline: { campaignId: string; store: string };
@@ -87,21 +121,27 @@ export type CiSummary = {
   };
   pairs: number;
   table: { bothPass: number; regressed: number; improved: number; bothFail: number };
-  /** Baseline pass rate minus candidate pass rate, in points: positive is a regression. */
+  /** All-pass: baseline pass rate minus candidate pass rate, in points. Positive is a regression. */
   effectPoints: { estimate: number; lower: number; upper: number };
   /** The smallest margin, in points, these many pairs can show parity at when every pair passes on both. */
   smallestMarginPoints: number;
+  /** Gating criteria whose interval is wider than the margin, with the goldens that decided them. */
+  criteriaNotShown: Array<{ criterion: string; goldens: number; upperPoints: number }>;
   regressed: string[];
   improved: string[];
+  /** `<golden> <family>` for each flag family new on the candidate. */
   newFlags: string[];
-  /** Goldens only one side ran: never compared. */
-  unpaired: { baselineOnly: string[]; candidateOnly: string[] };
+  /** Goldens only one side ran, or ran on another spec version: never compared. */
+  unpaired: Array<{ unit: string; reason: string }>;
   rows: CiPair[];
 };
 
+export const COMPARATOR = 'compareCampaigns of @driftbench/report, the rule `driftbench compare` applies';
+
 /**
- * Registers `driftbench ci`: run a candidate campaign, compare it with a baseline campaign golden by
- * golden, and exit 0 on parity, 1 on a regression, a new gating flag or an incomplete run, 2 on bad input.
+ * Registers `driftbench ci`: run a candidate campaign, compare it with a baseline campaign by the rule of
+ * `driftbench compare`, and exit 0 on parity, 1 on a regression, a comparison not shown non-inferior or an
+ * incomplete run, 2 on bad input.
  */
 export function registerCiCommand(
   program: Command,
@@ -112,7 +152,7 @@ export function registerCiCommand(
   program
     .command('ci')
     .description(
-      'Run the specs on a candidate target, compare with a baseline campaign and gate: exit 0 on parity, 1 on a regression or a new gating flag, 2 on bad input.',
+      'Run the specs on a candidate target, compare with a baseline campaign as `compare` does and gate: exit 0 on parity, 1 on a regression or a comparison not shown non-inferior, 2 on bad input.',
     )
     .requiredOption('--specs <path>', 'the spec file or folder the candidate runs')
     .requiredOption('--target <adapter[:agent]>', 'the candidate target, such as function:acme-sales')
@@ -121,7 +161,17 @@ export function registerCiCommand(
       'the baseline: a store file (its latest campaign), or a campaign id held in --store',
     )
     .requiredOption('--store <file>', 'the store the candidate campaign is kept in')
-    .requiredOption('--margin <points>', 'the largest drop in pass rate tolerated, in percentage points')
+    .option(
+      '--margin <points|auto>',
+      'the largest drop in pass rate tolerated, in percentage points; auto: the smallest margin at which the baseline compared with itself is non-inferior',
+      'auto',
+    )
+    .option(
+      '--min-goldens <n>',
+      'a gating criterion decided on fewer goldens is underpowered and left out of the parity test',
+      String(MIN_GOLDENS),
+    )
+    .option('--strict', 'underpowered criteria gate too, as compare did before the minimum existed')
     .option('--mode <modes>', 'the run mode: T, F or P, or several separated by commas', 'F')
     .option('--repeats <n>', 'runs per spec and mode', '1')
     .option(
@@ -133,8 +183,8 @@ export function registerCiCommand(
       'a fault set (module or folder) whose faults the target can name as fault:<id>',
     )
     .option(
-      '--flag <check>',
-      `a check whose failure is a gating flag; repeat for several (default: ${DEFAULT_FLAGS.join(', ')})`,
+      '--flag <family>',
+      `a verdict family whose failure is a gating flag; repeat for several (default: ${DEFAULT_FLAGS.join(', ')})`,
       collect,
       [],
     )
@@ -142,6 +192,12 @@ export function registerCiCommand(
     .option('--cache', 'replay runs from the cache; off by default, so every cell runs the agent')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--json', 'print the JSON summary instead of the table')
+    .option(
+      '--aggregate <spec>',
+      'a campaign-level criterion, name:op threshold, e.g. pass-rate:>=0.8; repeatable; a failing one fails the gate',
+      collect,
+      [] as string[],
+    )
     .action(async (options: CiCommandOptions) => {
       setExit(await ciCommand(options, io, deps));
     });
@@ -149,11 +205,15 @@ export function registerCiCommand(
 
 /** `driftbench ci`. Returns the exit code. */
 export async function ciCommand(options: CiCommandOptions, io: Io, deps: CampaignDeps): Promise<number> {
-  const marginPoints = Number(options.margin);
-  if (!Number.isFinite(marginPoints) || marginPoints <= 0 || marginPoints >= 100) {
-    io.err(`--margin takes a number of points between 0 and 100, not "${options.margin}".\n`);
+  let criteria: AggregateCriterion[];
+  try {
+    criteria = (options.aggregate ?? []).map((text) => aggregateFromFlag(text));
+  } catch (cause) {
+    io.err(`${message(cause)}\n`);
     return 2;
   }
+  const gate = parseGate(options, io);
+  if (!gate) return 2;
   const flags = options.flag.length > 0 ? options.flag : [...DEFAULT_FLAGS];
   const storePath = resolve(io.cwd, options.store);
   const outPath = resolve(io.cwd, options.out ?? DEFAULT_SUMMARY);
@@ -170,6 +230,20 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   // campaign is the baseline, not the candidate about to be added.
   const baseline = await readBaseline(options.baseline, storePath, deps, io);
   if (!baseline) return 2;
+  const shared = { flagFamilies: flags, minGoldens: gate.minGoldens, strict: gate.strict };
+  let margin: number;
+  let marginAuto: CiSummary['marginAuto'] = null;
+  if (gate.margin === 'auto') {
+    const auto = autoMargin(baseline.data, shared);
+    margin = auto.margin;
+    marginAuto = {
+      neededPoints: round(auto.needed * 100),
+      limitedBy: auto.limitedBy,
+      ...(auto.warning ? { warning: auto.warning } : {}),
+    };
+  } else {
+    margin = gate.margin;
+  }
 
   let out = '';
   const capture: Io = {
@@ -205,34 +279,39 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
 
   const store = await openReported(deps, storePath, io);
   if (!store) return 2;
-  let candidateRuns: RunResult[];
+  let candidate: CampaignData;
   try {
-    candidateRuns = [...(await runsByCell(store, report.campaignId)).values()];
+    candidate = await loadCampaign(store, report.campaignId);
+  } catch (cause) {
+    io.err(`Cannot read the candidate campaign ${report.campaignId}: ${message(cause)}\n`);
+    return 2;
   } finally {
     await store.close();
   }
 
-  const incompleteCells = report.summary.stoppedByBudget + report.summary.pending;
-  const paired = pairArms(baseline.runs, candidateRuns, flags);
-  if (paired.pairs.length === 0) {
+  let result: CompareResult;
+  try {
+    result = compareCampaigns(baseline.data, candidate, { ...shared, margin });
+  } catch (cause) {
     io.err(
-      `The baseline campaign ${baseline.campaignId} and the candidate share no golden (spec and mode): nothing to compare.\n`,
+      `The baseline campaign ${baseline.data.campaign.campaignId} and the candidate cannot be compared: ${message(cause)}.\n`,
     );
     return 2;
   }
-  const comparison = compareArms(paired.pairs, marginPoints / 100);
   const summary = summarize({
-    comparison,
-    paired,
+    aggregates: evaluateAggregates(candidate, criteria),
+    result,
+    candidateRuns: candidate.runs,
     flags,
-    marginPoints,
-    baseline: { campaignId: baseline.campaignId, store: baseline.store },
+    marginPoints: round(margin * 100),
+    marginAuto,
+    baseline: { campaignId: baseline.data.campaign.campaignId, store: baseline.store },
     candidate: {
       campaignId: report.campaignId,
       store: storePath,
       target: options.target,
       cells: report.summary.cells,
-      incompleteCells,
+      incompleteCells: report.summary.stoppedByBudget + report.summary.pending,
     },
   });
 
@@ -248,38 +327,17 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   return summary.exitCode;
 }
 
-/**
- * THE comparison ci gates on, the one function to swap: when the report lane's `compare` lands on main, its
- * call replaces this body. Until then it is `nonInferiority` of @driftbench/stats on the all-pass flag per
- * golden, with the flag checks as its gating flags.
- */
-export function compareArms(pairs: readonly CiPair[], margin: number): NonInferiorityResult {
-  return nonInferiority({
-    baseline: pairs.map((pair) => pair.baseline.pass),
-    candidate: pairs.map((pair) => pair.candidate.pass),
-    margin,
-    pairs: pairs.map((pair) => pair.name),
-    gatingFlags: {
-      baseline: pairs.map((pair) => pair.baseline.flagged),
-      candidate: pairs.map((pair) => pair.candidate.flagged),
-    },
-  });
-}
-
-export const COMPARATOR =
-  '@driftbench/stats nonInferiority (paired, Newcombe interval on the all-pass flag per golden)';
-
 /** The fields of the `campaign run --json` report ci reads. */
 type CampaignReport = {
   campaignId: string;
   summary: { cells: number; stoppedByBudget: number; pending: number };
 };
 
-type Baseline = { campaignId: string; store: string; runs: RunResult[] };
+type Baseline = { data: CampaignData; store: string };
 
 /**
- * The baseline runs. A `--baseline` that names an existing file is a store: its latest campaign. Anything
- * else is a campaign id in the `--store` file.
+ * The baseline campaign. A `--baseline` that names an existing file is a store: its latest campaign.
+ * Anything else is a campaign id in the `--store` file.
  */
 async function readBaseline(
   value: string,
@@ -315,12 +373,18 @@ async function readBaseline(
       }
       campaignId = campaign.campaignId;
     }
-    const runs = [...(await runsByCell(store, campaignId)).values()];
-    if (runs.length === 0) {
+    let data: CampaignData;
+    try {
+      data = await loadCampaign(store, campaignId);
+    } catch (cause) {
+      io.err(`Cannot read the baseline campaign ${campaignId}: ${message(cause)}\n`);
+      return undefined;
+    }
+    if (data.runs.length === 0) {
       io.err(`The baseline campaign ${campaignId} has no run.\n`);
       return undefined;
     }
-    return { campaignId, store: path, runs };
+    return { data, store: path };
   } finally {
     await store.close();
   }
@@ -365,14 +429,13 @@ function faultModule(path: string): string {
   throw new Error('the folder holds no index.ts, index.mjs or index.js');
 }
 
-/** The golden a run belongs to: spec, mode and perturbation. The target is what ci varies. */
-function goldenOf(run: RunResult): string {
-  return [run.specId, run.mode, ...(run.perturbationId === undefined ? [] : [run.perturbationId])].join(
-    ' · ',
-  );
+/** The outcome of a stored run, by the rule `campaign status` applies: completed, every block passes, the end state matches. */
+/** The verdict once campaign-level criteria are scored: a failing one turns a non-incomplete verdict into aggregate-failed. */
+export function aggregateVerdict(base: CiVerdict, aggregates: readonly AggregateResult[]): CiVerdict {
+  if (base === 'incomplete') return base;
+  return aggregates.some((entry) => entry.passed === false) ? 'aggregate-failed' : base;
 }
 
-/** The outcome of a stored run, by the rule `campaign status` applies: completed, every block passes, the end state matches. */
 export function outcomeOfRun(run: RunResult): CellOutcome {
   return outcomeOf(
     {
@@ -394,129 +457,113 @@ export function runPasses(run: RunResult): boolean {
   return outcomeOfRun(run).state === 'pass';
 }
 
-function armOf(runs: readonly RunResult[], flags: ReadonlySet<string>): ArmResult {
-  const outcomes: CellOutcome[] = runs.map(outcomeOfRun);
-  const passing = outcomes.filter((outcome) => outcome.state === 'pass').length;
-  const flagged = runs.some((run) =>
-    run.blocks.some((block) =>
-      block.verdicts.some(
-        (verdict) => verdict.gating && verdict.outcome === 'fail' && flags.has(verdict.name),
-      ),
-    ),
-  );
-  const firstFailing = outcomes.find((outcome) => outcome.state !== 'pass');
-  return {
-    pass: runs.length > 0 && passing === runs.length,
-    runs: runs.length,
-    passing,
-    flagged,
-    failing: firstFailing
-      ? firstFailing.failing.length > 0
-        ? firstFailing.failing
-        : [firstFailing.run?.error ?? firstFailing.state]
-      : [],
-  };
-}
-
-type Paired = { pairs: CiPair[]; baselineOnly: string[]; candidateOnly: string[] };
-
-/** Pairs the two campaigns golden by golden; a golden only one side ran is listed, never compared. */
-export function pairArms(
-  baseline: readonly RunResult[],
-  candidate: readonly RunResult[],
-  flags: readonly string[],
-): Paired {
-  const flagSet = new Set(flags);
-  const group = (runs: readonly RunResult[]) => {
-    const byGolden = new Map<string, RunResult[]>();
-    for (const run of runs) {
-      const key = goldenOf(run);
-      byGolden.set(key, [...(byGolden.get(key) ?? []), run]);
-    }
-    return byGolden;
-  };
-  const base = group(baseline);
-  const cand = group(candidate);
-  const pairs: CiPair[] = [];
-  for (const [name, runs] of [...cand.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-    const held = base.get(name);
-    if (!held) continue;
-    const first = runs[0] as RunResult;
-    const b = armOf(held, flagSet);
-    const c = armOf(runs, flagSet);
-    pairs.push({
-      name,
-      specId: first.specId,
-      mode: first.mode,
-      ...(first.perturbationId === undefined ? {} : { perturbationId: first.perturbationId }),
-      baseline: b,
-      candidate: c,
-      change: b.pass === c.pass ? 'same' : b.pass ? 'regressed' : 'improved',
-      newFlag: c.flagged && !b.flagged,
-    });
-  }
-  return {
-    pairs,
-    baselineOnly: [...base.keys()].filter((key) => !cand.has(key)).sort(),
-    candidateOnly: [...cand.keys()].filter((key) => !base.has(key)).sort(),
-  };
-}
-
 function summarize(input: {
-  comparison: NonInferiorityResult;
-  paired: Paired;
+  result: CompareResult;
+  aggregates: AggregateResult[];
+  candidateRuns: readonly RunResult[];
   flags: string[];
   marginPoints: number;
+  marginAuto: CiSummary['marginAuto'];
   baseline: CiSummary['baseline'];
   candidate: CiSummary['candidate'];
 }): CiSummary {
-  const { comparison, paired, candidate } = input;
-  const { pairs } = paired;
-  const table = {
-    bothPass: pairs.filter((pair) => pair.baseline.pass && pair.candidate.pass).length,
-    regressed: comparison.discordant.regressed,
-    improved: comparison.discordant.improved,
-    bothFail: pairs.filter((pair) => !pair.baseline.pass && !pair.candidate.pass).length,
-  };
-  const smallest = pairedRateDifference({ bothPass: pairs.length, regressed: 0, improved: 0, bothFail: 0 });
-  let verdict: CiVerdict;
-  let reason: string;
-  if (candidate.incompleteCells > 0) {
-    verdict = 'incomplete';
-    reason = `${count(candidate.incompleteCells, 'cell')} of the candidate did not run (budget or pending): parity cannot be shown on part of the suite`;
-  } else if (comparison.effect.upper >= comparison.margin) {
-    verdict = 'regression';
-    reason = `the upper bound ${pts(comparison.effect.upper)} points of the regression effect is not below the margin ${input.marginPoints} points`;
-  } else if (comparison.newFlags.length > 0) {
-    verdict = 'gating';
-    reason = `a gating flag fires on the candidate where the baseline had none: ${comparison.newFlags.join(', ')}`;
-  } else {
-    verdict = 'parity';
-    reason = `the upper bound ${pts(comparison.effect.upper)} points of the regression effect is below the margin ${input.marginPoints} points, and no new gating flag fires`;
-  }
+  const { result, candidate } = input;
+  const failing = failingByUnit(input.candidateRuns, input.flags);
+  const rows: CiPair[] = result.pairs.map((pair) => {
+    const b = pair.baseline;
+    const c = pair.candidate;
+    return {
+      name: pair.unit,
+      specId: pair.specId,
+      mode: pair.mode,
+      ...(pair.perturbationId === undefined ? {} : { perturbationId: pair.perturbationId }),
+      baseline: { pass: b.allPass, runs: b.runs, flags: [...b.flags].sort() },
+      candidate: {
+        pass: c.allPass,
+        runs: c.runs,
+        flags: [...c.flags].sort(),
+        failing: failing.get(pair.unit) ?? [],
+      },
+      change: b.allPass === c.allPass ? 'same' : b.allPass ? 'regressed' : 'improved',
+      newFlags: [...c.flags].filter((family) => !b.flags.has(family)).sort(),
+    };
+  });
+  const smallest = pairedRateDifference({ bothPass: rows.length, regressed: 0, improved: 0, bothFail: 0 });
+  const verdict: CiVerdict = aggregateVerdict(
+    candidate.incompleteCells > 0
+      ? 'incomplete'
+      : result.verdict === 'non-inferior'
+        ? 'parity'
+        : result.verdict === 'regressed'
+          ? 'regression'
+          : 'not-shown-non-inferior',
+    input.aggregates,
+  );
+  const failingAggregates = input.aggregates.filter((entry) => entry.passed === false);
+  const reasons =
+    verdict === 'incomplete'
+      ? [
+          `${count(candidate.incompleteCells, 'cell')} of the candidate did not run (budget or pending): parity cannot be shown on part of the suite`,
+          ...result.reasons,
+        ]
+      : [
+          ...result.reasons,
+          ...failingAggregates.map((entry) => `aggregate ${entry.name} fails: ${entry.reason}`),
+        ];
   return {
     verdict,
+    aggregates: input.aggregates,
     exitCode: verdict === 'parity' ? 0 : 1,
-    reason,
+    reasons,
     marginPoints: input.marginPoints,
+    marginAuto: input.marginAuto,
+    minGoldens: result.minGoldens,
+    strict: result.strict,
+    underpowered: result.criteria
+      .filter((entry) => entry.underpowered)
+      .map((entry) => ({ criterion: entry.criterion, goldens: entry.units })),
     comparator: COMPARATOR,
     flags: input.flags,
     baseline: input.baseline,
     candidate,
-    pairs: pairs.length,
-    table,
+    pairs: rows.length,
+    table: { ...result.allPass.table },
     effectPoints: {
-      estimate: round(comparison.effect.estimate * 100),
-      lower: round(comparison.effect.lower * 100),
-      upper: round(comparison.effect.upper * 100),
+      estimate: round(result.allPass.effect.estimate * 100),
+      lower: round(result.allPass.effect.lower * 100),
+      upper: round(result.allPass.effect.upper * 100),
     },
     smallestMarginPoints: round(smallest.upper * 100),
-    regressed: [...comparison.regressedPairs],
-    improved: pairs.filter((pair) => pair.change === 'improved').map((pair) => pair.name),
-    newFlags: [...comparison.newFlags],
-    unpaired: { baselineOnly: paired.baselineOnly, candidateOnly: paired.candidateOnly },
-    rows: pairs,
+    criteriaNotShown: result.criteria
+      .filter(
+        (entry) => entry.gating && entry.nonInferior === false && (result.strict || !entry.underpowered),
+      )
+      .map((entry) => ({
+        criterion: entry.criterion,
+        goldens: entry.units,
+        upperPoints: round(entry.effect.upper * 100),
+      })),
+    regressed: rows.filter((row) => row.change === 'regressed').map((row) => row.name),
+    improved: rows.filter((row) => row.change === 'improved').map((row) => row.name),
+    newFlags: result.newFlags.map((flag) => `${flag.unit} ${flag.family}`),
+    unpaired: result.unpaired.map((entry) => ({ ...entry })),
+    rows,
   };
+}
+
+/** The failing gating checks of the first failing repeat of each candidate unit, named as compare names units. */
+function failingByUnit(runs: readonly RunResult[], flags: readonly string[]): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  const units = unitsOf(runs, flags);
+  for (const run of runs) {
+    const outcome = outcomeOfRun(run);
+    if (outcome.state === 'pass') continue;
+    const base = `${run.specId} · ${run.mode}${run.perturbationId === undefined ? '' : ` · ${run.perturbationId}`}`;
+    const unit = units.has(base) ? base : [...units.keys()].find((key) => key.startsWith(`${base} · `));
+    if (unit === undefined || out.has(unit)) continue;
+    out.set(unit, outcome.failing.length > 0 ? outcome.failing : [run.error ?? outcome.state]);
+  }
+  return out;
 }
 
 /** Changed goldens the table prints; the summary file holds every one. */
@@ -526,8 +573,19 @@ const SHOWN_ROWS = 25;
 export function verdictText(summary: CiSummary, outPath: string): string {
   const lines: string[] = [];
   lines.push(
-    `driftbench ci: candidate ${summary.candidate.target} (campaign ${summary.candidate.campaignId}) against baseline campaign ${summary.baseline.campaignId}, paired golden by golden (spec and mode, every repeat).`,
+    `driftbench ci: candidate ${summary.candidate.target} (campaign ${summary.candidate.campaignId}) against baseline campaign ${summary.baseline.campaignId}, compared as driftbench compare does (golden by golden, every repeat).`,
   );
+  if (summary.marginAuto) {
+    lines.push(
+      `Margin auto: ${summary.marginPoints} points, the smallest half point at which the baseline compared with itself is non-inferior (set by ${summary.marginAuto.limitedBy}, ${summary.marginAuto.neededPoints} points).`,
+    );
+    if (summary.marginAuto.warning) lines.push(`Warning: ${summary.marginAuto.warning}.`);
+  }
+  if (summary.underpowered.length > 0) {
+    lines.push(
+      `Underpowered, under ${summary.minGoldens} goldens${summary.strict ? ', gating anyway (--strict)' : ', left out of the parity test'}: ${summary.underpowered.map((entry) => `${entry.criterion} (${count(entry.goldens, 'golden')})`).join(', ')}.`,
+    );
+  }
   lines.push(
     ...table([
       ['measure', 'value'],
@@ -537,46 +595,59 @@ export function verdictText(summary: CiSummary, outPath: string): string {
       ['improved', String(summary.table.improved)],
       ['both fail', String(summary.table.bothFail)],
       ['new gating flags', String(summary.newFlags.length)],
-      ['regression effect', `${signed(summary.effectPoints.estimate)} points`],
+      ['all-pass regression effect', `${signed(summary.effectPoints.estimate)} points`],
       [
         '95% interval',
         `[${signed(summary.effectPoints.lower)}, ${signed(summary.effectPoints.upper)}] points`,
       ],
-      ['margin', `${summary.marginPoints} points`],
+      ['margin', `${summary.marginPoints} points${summary.marginAuto ? ' (auto)' : ''}`],
       ['smallest margin these pairs can show', `${summary.smallestMarginPoints} points`],
-      ['verdict', summary.verdict.toUpperCase()],
+      ['gating criteria not shown within the margin', String(summary.criteriaNotShown.length)],
+      [
+        `underpowered (under ${summary.minGoldens} goldens)`,
+        `${summary.underpowered.length}${summary.strict ? ', gating (--strict)' : ', left out of the parity test'}`,
+      ],
+      ['verdict', VERDICT_TEXT[summary.verdict]],
     ]),
   );
-  const changed = summary.rows.filter((row) => row.change !== 'same' || row.newFlag);
+  const changed = summary.rows.filter((row) => row.change !== 'same' || row.newFlags.length > 0);
   if (changed.length > 0) {
     lines.push('');
     lines.push('Goldens that changed:');
     lines.push(
       ...table([
-        ['golden', 'baseline', 'candidate', 'change', 'new flag', 'candidate failing'],
+        ['golden', 'baseline', 'candidate', 'change', 'new flags', 'candidate failing'],
         ...changed
           .slice(0, SHOWN_ROWS)
           .map((row) => [
             row.name,
-            `${row.baseline.passing}/${row.baseline.runs} pass`,
-            `${row.candidate.passing}/${row.candidate.runs} pass`,
+            row.baseline.pass ? 'pass' : 'fail',
+            row.candidate.pass ? 'pass' : 'fail',
             row.change,
-            row.newFlag ? 'yes' : 'no',
+            row.newFlags.join(', ') || 'none',
             row.candidate.failing.slice(0, 3).join(', '),
           ]),
       ]),
     );
+    if (changed.length > SHOWN_ROWS) {
+      lines.push(`  and ${changed.length - SHOWN_ROWS} more: every golden is in the summary file.`);
+    }
   }
-  if (changed.length > SHOWN_ROWS) {
-    lines.push(`  and ${changed.length - SHOWN_ROWS} more: every golden is in the summary file.`);
+  if (summary.unpaired.length > 0) {
+    lines.push(
+      `Not compared: ${summary.unpaired.map((entry) => `${entry.unit} (${entry.reason})`).join(', ')}.`,
+    );
   }
-  const { baselineOnly, candidateOnly } = summary.unpaired;
-  if (baselineOnly.length > 0) lines.push(`Not run by the candidate: ${baselineOnly.join(', ')}.`);
-  if (candidateOnly.length > 0) lines.push(`Not in the baseline, not compared: ${candidateOnly.join(', ')}.`);
   lines.push('');
-  lines.push(
-    `Verdict: ${summary.verdict.toUpperCase()}. ${capital(summary.reason)}. Exit ${summary.exitCode}.`,
-  );
+  lines.push('Why:');
+  for (const reason of summary.reasons) lines.push(`  - ${reason}`);
+  lines.push('');
+  lines.push(`Verdict: ${VERDICT_TEXT[summary.verdict]}. Exit ${summary.exitCode}.`);
+  if (summary.verdict === 'not-shown-non-inferior') {
+    lines.push(
+      'Not shown non-inferior is not a regression: no evidence of a drop, but the intervals are wider than the margin. Add goldens, widen the margin, or let --margin auto choose it.',
+    );
+  }
   lines.push(`Summary: ${outPath}`);
   return `${lines.join('\n')}\n`;
 }
@@ -611,17 +682,9 @@ function round(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-function pts(rate: number): string {
-  return (rate * 100).toFixed(2);
-}
-
 function signed(points: number): string {
   const text = points.toFixed(2);
   return points > 0 ? `+${text}` : text === '-0.00' ? '0.00' : text;
-}
-
-function capital(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /** Pads every column but the last to its widest cell, two spaces apart, indented by two. */

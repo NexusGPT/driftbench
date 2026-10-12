@@ -162,11 +162,11 @@ describe('driftbench estate scan and lint with an ignore list', () => {
     expect(scan.code).toBe(0);
     expect(scan.out).toContain(
       [
-        '  Ignored: 8 files no runtime loads.',
+        '  Ignored: 9 files no runtime loads.',
         '    node_modules  1',
         '    __pycache__  1',
         '    *.log  1',
-        '    tests/fixtures  1',
+        '    tests/fixtures  2',
         '    hooks/**/tests  1',
         '    .trash  1',
         '    skills/synced  1',

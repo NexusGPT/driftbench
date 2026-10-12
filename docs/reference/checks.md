@@ -2,9 +2,9 @@
 
 A check reads one part of what the agent did and returns verdicts with their evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 23 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `similarity`, `relevancy`, `knowledge_retention`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 23 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
+Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 24 checks, in the order the runner applies them: `tools`, `tools_offered`, `forbidden`, `must`, `must_not`, `similarity`, `relevancy`, `knowledge_retention`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 24 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
 
-The checks read the agent's runtime through four concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages). Two more fields of the runtime trace record what the agent consulted and delegated: the files it read (`references`) and the helpers it dispatched (`subagents`).
+The checks read the agent's runtime through four concepts: tools, skills, guards and stages. The runtime trace may also list the tools the runtime offered the agent (`offered`): `tools_offered` reads it, so a tool a setting denies, or a deny rule removed, shows even when the agent never calls the tool. See [block](../concepts/block.md#tools-skills-guards-and-stages). Two more fields of the runtime trace record what the agent consulted and delegated: the files it read (`references`) and the helpers it dispatched (`subagents`).
 
 Every check belongs to one family, whether it reads a reply or a workbook: one package, one verdict shape, one mutation test per check (break the target, see the check fail, restore). A machine check that fails is final; no judge overturns it. Which check gives which drift class is on the [drift](../concepts/drift.md) page. How the runner applies the checks is on the [running](../running.md) page.
 
@@ -22,13 +22,14 @@ Two kinds of verdict are inconclusive:
 | Inconclusive | Gating | When |
 |---|---|---|
 | the detector or the spec could not decide | no | `lang` when no text segment is long enough, when the detector has no model for the language, or, for `lang.stable`, when no reply so far is clear enough to set the language; `budget.cost_usd` when nothing reports a cost; `schema_strict` for a tool with no schema |
-| the adapter observed nothing | yes | `skills` and `guards` with no runtime trace at all; `execution` with no executions list; `workspace` with no workspace diff. The block cannot pass on that expectation. |
+| the adapter observed nothing | yes | `skills` and `guards` with no runtime trace at all; `tools_offered` with no offered list; `execution` with no executions list; `workspace` with no workspace diff. The block cannot pass on that expectation. |
 
 ## Every check and its verdict ids
 
 | Check | Applies to a block when | Verdict ids |
 |---|---|---|
 | `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.order`, `tools.argument_accuracy` |
+| `tools_offered` | `expect.tools_offered` names a tool to include or exclude | `tools_offered.include.<tool>`, `tools_offered.exclude.<tool>` |
 | `forbidden` | a tool is in `rules.forbidden_tools`, has `rules.max_calls`, or is expected 0 times in the block | `forbidden.<label>`, `forbidden.max_calls.<label>` |
 | `must` | `expect.must` holds a pattern | `must.<index>` |
 | `must_not` | `expect.must_not` holds a pattern | `must_not.<index>` |
@@ -227,7 +228,22 @@ A failing `similarity` or `relevancy` verdict gives drift class X1; a failing `k
 
 The `pii` check is always on in `defaultChecks()` and gates. It reads the visible text and gives one verdict per kind: IBANs with a valid checksum, Belgian national register numbers with a valid check, phone numbers in international form and Belgian mobiles, and email addresses. Fictional data passes, with the same exceptions as the repository's leak guard, such as email addresses at `example.com`, `example.org`, `example.net` and `localhost` or under `.example`, `.test`, `.invalid` and `.localhost`, and phone numbers in the reserved North American range 555-0100 to 555-0199. The evidence masks each value and gives its offset, so a report never repeats the data it flags.
 
-A spec cannot configure the check yet. Checking that the agent does not echo a field it must not repeat is not built.
+A spec cannot configure the check. A caller can give it the owner's own values, so a replay of the owner's own sessions does not flag the address they typed or read:
+
+```ts
+import { createPiiCheck, defaultChecks } from '@driftbench/checks';
+
+const checks = defaultChecks({ piiOwner: ['owner@example.org', '+1 202 555 0123'] });
+const pii = createPiiCheck({ owner: ['owner@example.org'] });
+```
+
+* The list is empty by default, so every finding counts.
+* A finding is left out only when it equals an owner value. An email address is compared with case folded; any other value is compared as its letters and digits, with spaces and punctuation dropped.
+* A domain, a pattern or a part of a value never matches. A third party at the owner's domain is still flagged.
+* Each form of a value is its own entry: a phone number written in national form and in international form needs both.
+* The evidence counts the owner values it left out, as `1 owner email address left out`, and never prints them.
+
+`driftbench replay` takes the list with `--owner` and `--owner-file`; see the [CLI page](cli.md#driftbench-replay). Checking that the agent does not echo a field it must not repeat is not built.
 
 ## Cards
 
@@ -343,6 +359,22 @@ rules:
 ```
 
 `registerCheck` adds to the default registry; `defaultChecks({ registry })` takes another `CheckRegistry`. A name takes letters, digits, dots, underscores and hyphens, and is registered once. Every verdict is filed under `custom.<name>`: the check above gives `custom.reply_length.words`. A name nobody registered, a check that throws, or a value that is not a verdict gives a failed verdict that says so.
+
+### The ordered pair
+
+`driftbench replay` registers one more custom check, `ordered`, from the Claude Code adapter. A gate says "before X, do Y"; the pair `{ before: Y, after: X }` holds in a block when every X has a Y before it, in this block or an earlier one of the run. The full rules are on the [Claude Code page](../adapters/claude-code.md#the-ordered-pair-check).
+
+```yaml
+rules:
+  custom:
+    ordered:
+      pairs:
+        - { before: Read, after: Edit, key: file_path, reset: compaction }
+        - { before: [Read, Grep], after: Edit, key: file_path }
+```
+
+* `before` is one name or a list. With a list, any one of its names before the X holds the pair. The verdict id joins the list with `_or_`: the second pair above is `custom.ordered.Read_or_Grep.Edit`.
+* A Write that succeeded counts as a Read of the file it wrote, since the agent then holds its content. So `before: Read` with `key: file_path` holds for an Edit that follows a Write of the same file. A Write that failed counts as nothing.
 
 ## Judged criteria
 

@@ -432,7 +432,9 @@ export function locateNamed(
     const candidate = posix.normalize(posix.join(folder, ...rest));
     if (known(candidate)) return { path: candidate, via: 'alias' };
   }
-  const byName = options.byName ?? fileNames(files, skipped);
+  // The ending is looked for among the estate's own files: a skipped file (node_modules, a test fixture)
+  // is found only by its place, never as a candidate for a name.
+  const byName = options.byName ?? fileNames(files);
   const segments = clean
     .split('/')
     .filter((segment) => segment !== '' && segment !== '.' && segment !== '..');
@@ -461,14 +463,10 @@ export function fileNames(
 
 /** The file-name index of an estate, built once per estate read. */
 const NAME_INDEX = new WeakMap<RawEstate, Map<string, string[]>>();
-function names(
-  raw: RawEstate,
-  files: ReadonlyMap<string, EstateFile>,
-  skipped: ReadonlySet<string>,
-): Map<string, string[]> {
+function names(raw: RawEstate, files: ReadonlyMap<string, EstateFile>): Map<string, string[]> {
   const cached = NAME_INDEX.get(raw);
   if (cached) return cached;
-  const built = fileNames(files, skipped);
+  const built = fileNames(files);
   NAME_INDEX.set(raw, built);
   return built;
 }
@@ -486,7 +484,7 @@ function referenceAtoms(
         bases: raw.bases ?? [],
         skipped,
         aliases: raw.aliases ?? {},
-        byName: names(raw, files, skipped),
+        byName: names(raw, files),
         externals: raw.externals ?? [],
       });
       const path = located.path;

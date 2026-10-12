@@ -55,6 +55,9 @@ blocks:
       tools:
         - label: WebFetch
           count: 0
+      tools_offered:
+        exclude:
+          - WebFetch
       workspace:
         others_untouched: true
 metadata:
@@ -72,3 +75,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: carrier-page
     phrase: 1
+    ask: bank
+    outcome: bank

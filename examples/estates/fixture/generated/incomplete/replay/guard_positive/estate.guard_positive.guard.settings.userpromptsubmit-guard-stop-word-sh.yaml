@@ -78,6 +78,8 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: stop-word
     phrase: 1
+    ask: bank
+    outcome: bank
     needs:
       - marker: needs-recorded-session
         atom: guard.settings.userpromptsubmit-guard-stop-word-sh

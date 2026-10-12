@@ -64,6 +64,7 @@ export {
 } from './paired';
 export { type MdeInput, type MdeResult, mde } from './power';
 export { passAtK, passK, unreliability } from './reliability';
+export { parseRepeatReducer, type RepeatReducer, reduceRepeats } from './repeat-reducers';
 export {
   betaQuantile,
   binomialCdf,

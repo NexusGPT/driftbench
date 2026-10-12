@@ -10,7 +10,7 @@ import { guards } from './checks/guards';
 import { knowledgeRetention } from './checks/knowledge_retention';
 import { lang } from './checks/lang';
 import { must, mustNot } from './checks/must';
-import { pii } from './checks/pii';
+import { createPiiCheck, pii } from './checks/pii';
 import { references } from './checks/references';
 import { relevancy } from './checks/relevancy';
 import { safety } from './checks/safety';
@@ -20,6 +20,7 @@ import { skills } from './checks/skills';
 import { stage } from './checks/stage';
 import { subagents } from './checks/subagents';
 import { tools } from './checks/tools';
+import { toolsOffered } from './checks/tools_offered';
 import { workspace } from './checks/workspace';
 
 /**
@@ -36,6 +37,8 @@ export type DefaultChecksOptions = {
   judges?: JudgeCheckSource;
   /** What the similarity check scores with. The local character n-gram embedder when absent. */
   embedder?: Embedder;
+  /** The owner's own values the pii check leaves out (see `createPiiCheck`). Empty when absent. */
+  piiOwner?: readonly string[];
 };
 
 /**
@@ -47,6 +50,7 @@ export type DefaultChecksOptions = {
 export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
   return [
     tools,
+    toolsOffered,
     forbidden,
     must,
     mustNot,
@@ -54,7 +58,7 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     relevancy,
     knowledgeRetention,
     lang,
-    pii,
+    options.piiOwner?.length ? createPiiCheck({ owner: options.piiOwner }) : pii,
     cards,
     stage,
     skills,

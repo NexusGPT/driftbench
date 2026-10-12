@@ -2,9 +2,11 @@
 export {
   copyEstate,
   ESTATE_COPY_FILES,
+  insideCopy,
   invertText,
   MutantError,
   type MutantResult,
   type MutationOp,
   mutateEstate,
+  parseJsonRanges,
 } from './mutate';

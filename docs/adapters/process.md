@@ -34,7 +34,7 @@ The evaluator's own environment does not pass to the agent. A local sandbox pass
 ## How a block runs
 
 1. `open` creates a sandbox from the provider, seeds it from the spec's workspace (`given.world.workspace`), and checks that the agent command is there. The workspace is the agent's working folder.
-2. Before each block, the adapter writes into the workspace what the block's Given adds or changes against the files already seeded; files the agent changed since stay as they are. It writes the session history to `driftbench-history.json`, and in file mode the instruction to `driftbench-stimulus.txt`. Then it takes a snapshot: the file list and a hash per file.
+2. Before each block, the adapter writes into the workspace what the block's Given adds or changes against the files already seeded; files the agent changed since stay as they are. It writes the session history to `driftbench-history.json`, in file mode the instruction to `driftbench-stimulus.txt`, and, when the target has a prompt (`campaign run --prompt`), its text, byte for byte, to `driftbench-prompt.txt`, whose path the agent reads in `DRIFTBENCH_PROMPT_FILE`. Without a prompt neither the file nor the variable exists. Then it takes a snapshot: the file list and a hash per file.
 3. It runs the agent command line through a POSIX shell, `/bin/sh`, in the workspace. In stdin mode the instruction arrives on standard input. In file mode the path of the stimulus file replaces `{stimulus_file}` in `args`, or is appended when no argument holds it. A burst arrives as its messages joined by a blank line.
 4. After the agent exits, it takes a second snapshot and diffs the two: created, changed and deleted paths. Every created or changed file is an artifact of the block, with its hash and size.
 5. It reads the two files the agent may write, and returns the Observed.
@@ -108,9 +108,17 @@ This is how a code-agent harness reports its runtime: its hooks as guards, its s
 | Provider | Isolation | What it is |
 |---|---|---|
 | `localProvider()` | weak | a fresh temporary folder on this machine. Commands run there through `/bin/sh` as the current user: the folder bounds what the run records, not what the agent can reach. |
-| `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. |
+| `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. The container has no network unless `network: 'bridge'` is given. |
 
 Each provider reports whether it can run on this machine (`available()`); the adapter does not fall back from one to the other. The sandbox's isolation is on every Observed.
+
+An approval policy is opt-in. Wrap a provider with `withApprovalPolicy(provider, policy)` and each sandbox it makes checks its commands and reads against the policy. Without it, the sandbox runs as before and its records carry no approval field.
+
+* A rule matches a command (the whole command text) or a path. A path is a command's `cwd` or a file the harness reads through the sandbox. A `*` in a pattern matches any run of characters.
+* The first matching rule decides. `allow` and `deny` decide alone. `ask` calls the approver. With no approver, or one that throws, the answer is a denial.
+* No matching rule allows. A denied command does not run: its exit code is 126 and its record names the rule. A denied read throws `SandboxApprovalError`.
+* Every decision rides on the command's record as `approval`, and reads are kept in the sandbox's `approvals()` log.
+* Path rules do not read the paths a shell command names. A command that reaches a file by name is checked only by a command rule.
 
 Bounds, so a runaway agent cannot exhaust the run:
 

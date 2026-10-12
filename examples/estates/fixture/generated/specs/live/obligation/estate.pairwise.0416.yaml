@@ -90,3 +90,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: ledger-auditor-brief
     phrase: 0
+    ask: bank
+    outcome: bank

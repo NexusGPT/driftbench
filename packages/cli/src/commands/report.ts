@@ -2,8 +2,12 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import type { RunMode } from '@driftbench/core';
 import {
+  type AggregateCriterion,
+  aggregateFromFlag,
   buildScorecard,
   type CampaignData,
+  criterionRepeatsText,
+  MIN_GOLDENS,
   type PilotReport,
   ReportInputError,
   readPilotReport,
@@ -17,9 +21,10 @@ import {
   defaultReportDeps,
   loadReported,
   openReported,
-  parseMargin,
+  parseGate,
   parseModes,
   type ReportDeps,
+  resolveMargin,
 } from './compare';
 
 type ReportCommandOptions = {
@@ -28,11 +33,14 @@ type ReportCommandOptions = {
   junit?: string;
   baseline?: string;
   margin: string;
+  minGoldens: string;
+  strict?: boolean;
   pilot?: string;
   by?: string;
   spreadMode?: string;
   maxRuns: string;
   json?: boolean;
+  aggregate?: string[];
 };
 
 /** Registers `driftbench report`. */
@@ -52,12 +60,28 @@ export function registerReportCommand(
     .requiredOption('--out <file.html>', 'where to write the scorecard')
     .option('--junit <file.xml>', 'also write JUnit XML: one test suite per golden, one test case per run')
     .option('--baseline <campaign>', 'a baseline campaign in the same store: adds the compare diff')
-    .option('--margin <points>', 'the non-inferiority margin in percentage points', '2')
+    .option(
+      '--margin <points|auto>',
+      'the non-inferiority margin in percentage points; auto: the smallest margin at which the baseline (or, without one, the campaign) compared with itself is non-inferior',
+      'auto',
+    )
+    .option(
+      '--min-goldens <n>',
+      'a gating criterion decided on fewer goldens is underpowered and left out of the parity test',
+      String(MIN_GOLDENS),
+    )
+    .option('--strict', 'underpowered criteria gate too')
     .option('--pilot <path>', 'a pilot report, pilot-report.json or its folder, rendered in the spread view')
     .option('--by <dimensions>', 'the generated-cell dimensions that name a spread cell, separated by commas')
     .option('--spread-mode <mode>', 'the mode the spread view reads; default F when the campaign ran it')
     .option('--max-runs <n>', 'runs in the drilldown, failing runs first', '200')
     .option('--json', 'also print the scorecard as one JSON document')
+    .option(
+      '--aggregate <spec>',
+      'a campaign-level criterion, name:op threshold, e.g. pass-rate:>=0.8; repeatable; its result is printed',
+      (value: string, previous: string[]) => [...previous, value],
+      [] as string[],
+    )
     .action(async (campaignId: string | undefined, options: ReportCommandOptions) => {
       setExit(await reportCommand(campaignId, options, io, deps));
     });
@@ -70,10 +94,17 @@ export async function reportCommand(
   io: Io,
   deps: ReportDeps,
 ): Promise<number> {
-  const margin = parseMargin(options.margin, io);
+  const gate = parseGate(options, io);
   const maxRuns = Number(options.maxRuns);
   if (!Number.isInteger(maxRuns) || maxRuns < 0) {
     io.err(`--max-runs takes a whole number of 0 or more, not "${options.maxRuns}".\n`);
+    return 2;
+  }
+  let criteria: AggregateCriterion[];
+  try {
+    criteria = (options.aggregate ?? []).map((text) => aggregateFromFlag(text));
+  } catch (cause) {
+    io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
     return 2;
   }
   let spreadMode: RunMode | undefined;
@@ -86,7 +117,7 @@ export async function reportCommand(
     }
     spreadMode = modes[0];
   }
-  if (margin === undefined) return 2;
+  if (gate === undefined) return 2;
   let pilot: PilotReport | undefined;
   if (options.pilot !== undefined) {
     try {
@@ -117,11 +148,20 @@ export async function reportCommand(
     await store.close();
   }
 
+  const margin = resolveMargin(
+    gate,
+    baseline ?? data,
+    { minGoldens: gate.minGoldens, strict: gate.strict },
+    options.json ? undefined : io,
+  );
   let card: ReturnType<typeof buildScorecard>;
   try {
     card = buildScorecard(data, {
       margin,
+      minGoldens: gate.minGoldens,
+      strict: gate.strict,
       maxRuns,
+      ...(criteria.length > 0 ? { aggregates: criteria } : {}),
       ...(baseline ? { baseline } : {}),
       ...(pilot ? { pilot } : {}),
       ...(by && by.length > 0 ? { by } : {}),
@@ -151,10 +191,16 @@ export async function reportCommand(
     io.out(
       `Campaign ${c.campaignId}: ${c.runs} runs, ${c.passing} pass, ${c.failing} fail, ${c.broken} did not complete.\n`,
     );
+    for (const line of criterionRepeatsText(card.criterionRepeats)) io.out(`${line}\n`);
     if (card.compare) {
       io.out(
         `Against baseline ${card.compare.baseline.campaignId}: ${card.compare.verdict}, margin ${(margin * 100).toFixed(1)} points.\n`,
       );
+    }
+    for (const entry of card.aggregates ?? []) {
+      const op = entry.direction === 'at-least' ? '>=' : '<=';
+      const verdict = entry.passed === undefined ? 'no runs' : entry.passed ? 'passes' : 'fails';
+      io.out(`aggregate ${entry.name} ${op} ${entry.threshold}: ${verdict} (${entry.reason})\n`);
     }
     io.out(`Wrote ${written.join(' and ')}.\n`);
   }

@@ -8,6 +8,7 @@ import { fakeXlsx, files, PRICE_SHEET, registry } from './support/readers';
 
 const NAMES = [
   'tools',
+  'tools_offered',
   'forbidden',
   'must',
   'must_not',

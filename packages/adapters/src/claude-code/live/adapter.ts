@@ -1,8 +1,20 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { cp, mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import {
+  cp,
+  lstat,
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  realpath,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises';
 import { homedir, tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, relative, sep } from 'node:path';
 import {
   type AdapterCapabilities,
   AdapterTransportError,
@@ -351,8 +363,11 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       };
       const tokens = block.observed.cost;
       const result = parsed.result;
+      const runtime = block.observed.runtime ?? {};
       const observed: Observed = {
         ...block.observed,
+        // What the runtime offered the agent, from the init record: a denied tool is absent.
+        ...(parsed.tools === undefined ? {} : { runtime: { ...runtime, offered: parsed.tools } }),
         artifacts,
         workspaceDiff,
         executions: [...(block.observed.executions ?? []), agentRecord],
@@ -448,6 +463,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
     }
     for (const op of ops) {
       if (op.op === 'plant') {
+        await insideCopy(folderOf(state.sandbox), op.path);
         await state.sandbox.seed({ files: { [op.path]: op.content } });
         notes.push(`plant: ${op.path}`);
       } else if (op.op === 'helper') {
@@ -499,18 +515,90 @@ function pinOf(given: ResolvedGiven, pins: readonly string[] | undefined): strin
   return match;
 }
 
-/** Copies the estate's own files into the project folder, modes kept (guard scripts stay runnable). */
+/**
+ * Copies the estate's own files into the project folder, modes kept (guard scripts stay runnable): the
+ * names given, a folder whole or one file each (the runner passes the estate's file list, so ignored
+ * folders stay out). Symbolic
+ * links are followed: the copy holds real files and never a link, so nothing the runner or the agent writes
+ * in the copy reaches the estate it came from. A link left in the copy refuses the open.
+ */
 async function copyEstate(root: string, names: readonly string[], folder: string): Promise<void> {
   const info = await stat(root).catch(() => undefined);
   if (!info?.isDirectory()) throw new AgentFailure(`the estate root ${root} is not a folder`);
   let copied = 0;
-  for (const name of names) {
+  // Sixteen copies at a time: an estate of thousands of small files is bound by the file system's latency.
+  await eachLimited(names, 16, async (name) => {
     const source = join(root, name);
-    if ((await stat(source).catch(() => undefined)) === undefined) continue;
-    await cp(source, join(folder, name), { recursive: true, verbatimSymlinks: true });
+    if ((await stat(source).catch(() => undefined)) === undefined) return;
+    // A copy-on-write clone where the file system has one, else a plain copy; never a hard link.
+    await mkdir(dirname(join(folder, name)), { recursive: true });
+    await cp(source, join(folder, name), {
+      recursive: true,
+      dereference: true,
+      mode: constants.COPYFILE_FICLONE,
+    });
     copied += 1;
-  }
+  });
   if (copied === 0) throw new AgentFailure(`the estate root ${root} holds none of ${names.join(', ')}`);
+  const left = await linksUnder(folder);
+  if (left.length > 0) throw new AgentFailure(`the estate copy holds symbolic links: ${left.join(', ')}`);
+}
+
+/** Runs `work` on every item, at most `limit` at a time. */
+async function eachLimited<T>(
+  items: readonly T[],
+  limit: number,
+  work: (item: T) => Promise<void>,
+): Promise<void> {
+  let next = 0;
+  const lanes = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const item = items[next++] as T;
+      await work(item);
+    }
+  });
+  await Promise.all(lanes);
+}
+
+async function linksUnder(dir: string): Promise<string[]> {
+  const out: string[] = [];
+  const walk = async (at: string): Promise<void> => {
+    for (const entry of await readdir(at, { withFileTypes: true })) {
+      const full = join(at, entry.name);
+      if ((await lstat(full)).isSymbolicLink()) out.push(relative(dir, full));
+      else if (entry.isDirectory()) await walk(full);
+    }
+  };
+  await walk(dir);
+  return out.sort();
+}
+
+/**
+ * Refuses a write into the copy whose real path leaves it: a link on the way (the file, or a folder above
+ * it) that leads out names where it leads.
+ */
+async function insideCopy(root: string, file: string): Promise<void> {
+  const base = await realpath(root);
+  const path = join(root, file);
+  let real: string;
+  try {
+    real = await realpath(path);
+  } catch {
+    let folder = dirname(path);
+    let tail = file.split('/').at(-1) ?? '';
+    for (;;) {
+      const found = await realpath(folder).catch(() => undefined);
+      if (found !== undefined) {
+        real = join(found, tail);
+        break;
+      }
+      tail = join(folder.split('/').at(-1) ?? '', tail);
+      folder = dirname(folder);
+    }
+  }
+  if (real !== base && !real.startsWith(`${base}${sep}`)) {
+    throw new AgentFailure(`${file} resolves to ${real}, outside the copy ${base}; refused`);
+  }
 }
 
 /** Fails the open with a transport error when the command is not there to run. */

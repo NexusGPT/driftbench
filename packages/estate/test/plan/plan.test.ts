@@ -48,8 +48,9 @@ describe('the estate plan', () => {
     expect(details.rows.total).toBe(details.rows.contract + details.rows.journey + details.rows.pairwise);
     expect(summary.coveringArraySize).toBe(details.rows.pairwise);
     expect(summary.perKind.instruction).toBe(129);
-    expect(summary.perKind.setting).toBeUndefined();
-    expect(details.noContract).toHaveLength(4);
+    expect(summary.perKind.setting).toBe(4);
+    expect(summary.perTestType.setting).toBe(4);
+    expect(details.noContract).toEqual([]);
     expect(summary.unenforcedAtoms).toEqual(
       map.atoms
         .filter(

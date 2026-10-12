@@ -1,6 +1,16 @@
 /** User drivers: scripted (phase 1), perturbing and simulated (phase 3), the red-team pack and recovery. */
 export const packageName = '@driftbench/users';
 export {
+  AttackError,
+  type AttackOptions,
+  type AttackRecording,
+  type AttackResult,
+  type AttackRound,
+  type Cue,
+  cuesOf,
+  runAttack,
+} from './attack';
+export {
   type Carrier,
   DEVIATIONS,
   type DeviationDef,
@@ -34,6 +44,7 @@ export {
 } from './redteam';
 export { createScriptedDriver } from './scripted';
 export {
+  checkUserFamilies,
   createSimulatedUser,
   describePersona,
   loadPersona,

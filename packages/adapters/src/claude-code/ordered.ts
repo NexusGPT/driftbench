@@ -12,10 +12,15 @@ import type { ReplayRaw } from './session';
  * file was read before it was edited). With `reset: compaction`, a Y before the last compaction preceding
  * the X does not count: what the agent read before a compaction is gone from its context.
  *
- * Options: one pair, or `{ pairs: [...] }`. One verdict per pair, `ordered.<before>.<after>`, and none for a
- * pair whose X does not occur in the block.
+ * `before` may be a list: any one of its names before the X holds the pair (`before: [Read, Write]`). A
+ * successful Write counts as a Read of what it wrote: after writing a file the agent holds its content, and
+ * the runtime accepts an Edit of it, so `before: Read` with `key: file_path` is met by a Write of that file.
+ * A Write that failed counts as nothing.
+ *
+ * Options: one pair, or `{ pairs: [...] }`. One verdict per pair, `ordered.<before>.<after>` (a list joined
+ * by `_or_`), and none for a pair whose X does not occur in the block.
  */
-export type OrderedPair = { before: string; after: string; key?: string; reset?: 'compaction' };
+export type OrderedPair = { before: string[]; after: string; key?: string; reset?: 'compaction' };
 
 type Event = { names: string[]; input: Record<string, unknown>; block: number; describe: string } | 'reset';
 
@@ -35,7 +40,8 @@ export function orderedCheck(ctx: CheckContext, options: unknown): Verdict[] {
       if (!hasBefore(all, at, pair, event)) missing.push(event.describe);
     }
     if (seen === 0) return [];
-    const id = `${safe(pair.before)}.${safe(pair.after)}`;
+    const id = `${pair.before.map(safe).join('_or_')}.${safe(pair.after)}`;
+    const before = pair.before.join(' or ');
     const same = pair.key === undefined ? '' : ` with the same ${pair.key}`;
     const reset = pair.reset === 'compaction' ? ' since the last compaction' : '';
     return [
@@ -44,8 +50,8 @@ export function orderedCheck(ctx: CheckContext, options: unknown): Verdict[] {
         id,
         missing.length === 0 ? 'pass' : 'fail',
         missing.length === 0
-          ? `every ${pair.after} in this block (${seen}) has a ${pair.before}${same} before it${reset}`
-          : `${missing.length} of ${seen} ${pair.after} in this block have no ${pair.before}${same} before them${reset}: ${missing.join('; ')}`,
+          ? `every ${pair.after} in this block (${seen}) has a ${before}${same} before it${reset}`
+          : `${missing.length} of ${seen} ${pair.after} in this block have no ${before}${same} before them${reset}: ${missing.join('; ')}`,
       ),
     ];
   });
@@ -63,7 +69,7 @@ function hasBefore(
       if (pair.reset === 'compaction') return false;
       continue;
     }
-    if (event === undefined || !event.names.includes(pair.before)) continue;
+    if (event === undefined || !pair.before.some((name) => event.names.includes(name))) continue;
     if (pair.key === undefined || sameValue(event.input[pair.key], after.input[pair.key])) return true;
   }
   return false;
@@ -79,6 +85,8 @@ function eventsOf(observed: Observed, block: number): Event[] {
   const events: Array<{ event: Event; order: number }> = calls.map((call, index) => {
     const input = isRecord(call.input) ? call.input : {};
     const names = [call.label];
+    // A successful Write holds the content of what it wrote, as a Read of it would.
+    if (call.label === 'Write' && call.error === undefined) names.push('Read');
     if (call.label === 'Skill') {
       const skill = input.skill ?? input.name;
       if (typeof skill === 'string') names.push(`skill:${skill}`);
@@ -122,9 +130,18 @@ function eventsOf(observed: Observed, block: number): Event[] {
 function parsePairs(options: unknown): OrderedPair[] {
   const list = isRecord(options) && Array.isArray(options.pairs) ? options.pairs : [options];
   return list.map((entry, index) => {
-    if (!isRecord(entry) || typeof entry.before !== 'string' || typeof entry.after !== 'string') {
+    const before = isRecord(entry)
+      ? typeof entry.before === 'string'
+        ? [entry.before]
+        : Array.isArray(entry.before) &&
+            entry.before.length > 0 &&
+            entry.before.every((name) => typeof name === 'string' && name !== '')
+          ? (entry.before as string[])
+          : undefined
+      : undefined;
+    if (!isRecord(entry) || before === undefined || typeof entry.after !== 'string') {
       throw new Error(
-        `pair ${index + 1} needs before and after, each a tool label, skill:<name> or stage:<name>`,
+        `pair ${index + 1} needs before (a name or a list of names) and after, each a tool label, skill:<name> or stage:<name>`,
       );
     }
     if (entry.key !== undefined && typeof entry.key !== 'string')
@@ -133,7 +150,7 @@ function parsePairs(options: unknown): OrderedPair[] {
       throw new Error(`pair ${index + 1}: reset takes only compaction`);
     }
     return {
-      before: entry.before,
+      before,
       after: entry.after,
       ...(entry.key === undefined ? {} : { key: entry.key as string }),
       ...(entry.reset === undefined ? {} : { reset: 'compaction' as const }),

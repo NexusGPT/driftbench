@@ -93,8 +93,40 @@ describe('orderedCheck', () => {
     expect(verdicts.map((verdict) => [verdict.id, verdict.outcome])).toEqual([['ordered.Edit.Read', 'fail']]);
   });
 
+  it('D12: a successful Write of the file counts as its Read, a failed one does not', () => {
+    const write = (path: string, error?: string): Call & { error?: string } => ({
+      label: 'Write',
+      input: { file_path: path },
+      ...(error ? { error } : {}),
+    });
+    const ok = observed([write('a'), edit('a')]);
+    expect(orderedCheck(context(ok), pair)[0]?.outcome).toBe('pass');
+    expect(orderedCheck(context(observed([write('b'), edit('a')])), pair)[0]?.outcome).toBe('fail');
+    const failed = observed([edit('a')]);
+    failed.toolCalls.unshift({ id: 'w', label: 'Write', input: { file_path: 'a' }, error: 'refused' });
+    expect(orderedCheck(context(failed), pair)[0]?.outcome).toBe('fail');
+  });
+
+  it('D12: before takes a list, any one of which holds the pair', () => {
+    const verdicts = orderedCheck(
+      context(observed([{ label: 'Grep', input: { file_path: 'a' } }, edit('a')])),
+      {
+        before: ['Read', 'Grep'],
+        after: 'Edit',
+        key: 'file_path',
+      },
+    );
+    expect(verdicts.map((verdict) => [verdict.id, verdict.outcome])).toEqual([
+      ['ordered.Read_or_Grep.Edit', 'pass'],
+    ]);
+    expect(() => orderedCheck(context(observed([])), { before: [], after: 'Edit' })).toThrow('needs before');
+    expect(() => orderedCheck(context(observed([])), { before: ['Read', 3], after: 'Edit' })).toThrow(
+      'needs before',
+    );
+  });
+
   it('refuses options it cannot read', () => {
-    expect(() => orderedCheck(context(observed([])), { before: 'Read' })).toThrow('needs before and after');
+    expect(() => orderedCheck(context(observed([])), { before: 'Read' })).toThrow('needs before');
     expect(() => orderedCheck(context(observed([])), { ...pair, reset: 'restart' })).toThrow(
       'reset takes only',
     );

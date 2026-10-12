@@ -1,6 +1,6 @@
 # Claude Code estates
 
-Status: the estate reader, the session reader, the replay adapter and the ordered-pair check are built, and `driftbench replay` runs a suite over recorded sessions. The live runner, a headless Claude Code run of a sandboxed estate, is not built yet: `driftbench estate run` and `driftbench estate mutate` say so. This page maps a Claude Code estate and its sessions onto the generic estate shapes of [testing an estate](../estate.md).
+Status: the estate reader, the session reader, the replay adapter, the ordered-pair check and the live runner are built; `driftbench replay` runs a suite over recorded sessions and `driftbench estate run` runs one live. This page maps a Claude Code estate and its sessions onto the generic estate shapes of [testing an estate](../estate.md).
 
 ## The estate
 
@@ -35,7 +35,13 @@ A session is up to three files. `packages/adapters/src/claude-code/format.ts` do
 
 `at` is an ISO 8601 time. In a decision row, `event` is the runtime event that fired the hook, `check` the guard's name and `verdict` its decision; `session` is optional, and rows of another session are left out and counted in the session's issues.
 
-`readSession({ transcript, decisions?, steps?, before?, after?, references? })` reads the files, and the pure `mapSession(input)` maps parsed lines. Both return `{ blocks: [{ stimulus, observed }], meta }`. Seven fictional sessions with their logs and feeds sit in `examples/estates/sessions/`: clean-build, skill-skipped, forbidden-act, gate-violated, compaction-mid-task, subagent-dispatch and price-sheet-build. The last one also keeps the workspace before and after the session, in `price-sheet-build/before` and `price-sheet-build/after`.
+`readSession({ transcript, decisions?, steps?, before?, after?, references? })` reads the files, and the pure `mapSession(input)` maps parsed lines. A file with no record of type `user` or `assistant` is not a transcript: both throw a `NotATranscriptError` that names the file and what its first line holds, so a corpus in another shape never reads as empty sessions.
+
+```text
+conv.jsonl is not a Claude Code transcript: no record has type user or assistant (line 1 has the keys id, turns)
+```
+
+An empty file gives `... is not a Claude Code transcript: it holds no record`, and a file whose first line is not JSON names that line. Both return `{ blocks: [{ stimulus, observed }], meta }`. Seven fictional sessions with their logs and feeds sit in `examples/estates/sessions/`: clean-build, skill-skipped, forbidden-act, gate-violated, compaction-mid-task, subagent-dispatch and price-sheet-build. The last one also keeps the workspace before and after the session, in `price-sheet-build/before` and `price-sheet-build/after`.
 
 ## The trace of a session
 
@@ -47,6 +53,7 @@ A block runs from one typed user message to the next. Tool results, injected mes
 | skills | Skill calls, by `input.skill` |
 | references | Read calls that succeeded, on a file inside a skill folder (a `skills/<name>/` segment in its path) or on a path a spec names in `expect.references`, relative to the session folder |
 | subagents | Agent and Task calls: the name from `input.subagent_type` (`general-purpose` when it has none) and the model from `input.model` |
+| offered | the `tools` of a `system` record with `subtype: init`: the tools the runtime offered, where a tool a setting denies is absent. The list holds for the block the record falls in and every later block, until the next init record. Before any init record the field is absent, never empty. |
 | guards | the hook decision log: each row is a guard (`check` as the name, `verdict`), in the block whose time window holds its `at` |
 | stages | the step feed, placed by time the same way |
 | executions | Bash calls: the command and the exit code, from the structured result when it has one, else `Exit code N` at the start of an error result, else 1 for an error and 0 for a success |
@@ -55,6 +62,8 @@ A block runs from one typed user message to the next. Tool results, injected mes
 | cost | the usage of each model message, counted once per message id |
 
 A block's time window runs from its user message to the next one; a row earlier than the first block goes to the first block. Read paths stay in the Read calls' input, so the ordered-pair check sees a read before a write. A compaction boundary is a marker in the block's `raw.markers`, with the number of tool calls before it. Every record not mapped (thinking, snapshots, helper records, unknown types, lines that are not JSON) is kept in `raw.kept` of its block, or in `meta.preamble` before the first turn, with its line and the reason.
+
+A saved transcript usually holds no init record, so its blocks carry no offered tools, and a `tools_offered` expectation is inconclusive on them: it neither passes nor fails. A capture of a headless run's stream (`--output-format stream-json --verbose`, as the live runner reads it) starts with the init record, so a replay of it reports what was offered, and a deny rule that removes a tool shows as a failing `tools_offered` verdict.
 
 Without a decision log, `runtime.guards` is absent, and without a step feed, `runtime.stages` is absent. `runtime.references` and `runtime.subagents` are always present, empty when the block read no such file or dispatched no helper. The trees come from `readSession({ before, after })`, two folders whose files are hashed; a replay spec names them, see below. `readSession({ references })` takes the paths or globs a spec names.
 
@@ -80,10 +89,12 @@ The spec's block k reads the session's block `fromBlock + k`. The stimulus the s
 An estate gate says "before X, do Y". `orderedCheck` is a custom check for it, registered as `rules.custom.ordered` by `driftbench replay`. The pair `{ before: Y, after: X }` holds in a block when every X of the block has a Y before it, in this block or an earlier one of the run.
 
 * A name matches a tool call by its label (`Read`), a skill load by `skill:<name>` and a stage by `stage:<name>`.
+* `before` is one name or a list, such as `before: [Read, Grep]`. Any one of the names before the X holds the pair.
+* A Write that succeeded counts as a Read of the file it wrote: the agent then holds the file's content, and the runtime accepts an Edit of it. So `before: Read` with `key: file_path` holds for an Edit after a Write of the same file. A Write that failed counts as nothing.
 * With `key`, the two must carry the same value in that input field: with `key: file_path`, the same file was read before it was edited.
 * With `reset: compaction`, a Y before the last compaction preceding the X does not count: what the agent read before a compaction is gone from its context.
 
-Its options are one pair, or `{ pairs: [...] }`. It gives one verdict per pair, filed as `custom.ordered.<before>.<after>`, and none for a pair whose X does not occur in the block. Characters outside letters, digits, `_` and `-` in a name become `_`: the pair `skill:shop-build` before `Edit` is `custom.ordered.skill_shop-build.Edit`.
+Its options are one pair, or `{ pairs: [...] }`. It gives one verdict per pair, filed as `custom.ordered.<before>.<after>` (a list of names joined by `_or_`, as in `custom.ordered.Read_or_Grep.Edit`), and none for a pair whose X does not occur in the block. Characters outside letters, digits, `_` and `-` in a name become `_`: the pair `skill:shop-build` before `Edit` is `custom.ordered.skill_shop-build.Edit`.
 
 ## `driftbench replay`
 
@@ -145,12 +156,17 @@ pnpm -s driftbench replay $S/clean-build.jsonl $S/compaction-mid-task.jsonl $S/f
 
 It exits 1, since four specs fail. The negative control runs on the faulty gate-violated session and checks only what that session did right, so it stays green. When a spec expects guards and its session has no decision log, the command prints a note, and a `count: 0` guard expectation then passes.
 
-## The live runner
+A session that is not a transcript stops the command before any spec runs, with exit 2 and the `NotATranscriptError` message after `Cannot read the session <name>:`.
 
-Not built yet. `driftbench estate run` prints:
+The default `pii` check flags any personal data in the visible text, so a replay of the owner's own sessions fails on the address they typed. `--owner` gives the owner's own values, and `--owner-file` a file of them, one per line, where a line starting with `#` is a comment:
 
-```text
-driftbench estate run is not built yet.
+```sh
+pnpm -s driftbench replay sessions/*.jsonl --suite specs --owner-file owner.txt
+pnpm -s driftbench replay sessions/one.jsonl --suite specs --owner owner@example.org
 ```
 
-and exits 2. `driftbench estate mutate` prints `driftbench estate mutate is not built yet.` and exits 2 too. The adapter exports nothing for a live run today.
+Only findings equal to an owner value are left out; a third party in the same session is still flagged. The rules are on the [checks page](../reference/checks.md#personal-data).
+
+## The live runner
+
+Built. `claudeCodeLiveAdapter` (in `packages/adapters/src/claude-code/live`) runs the runtime's headless command in a sandbox holding a copy of the estate, maps its stream into one observation per turn, and applies the session states and estate deviations of a state library as operations before a turn (`loadStateLibrary`, `opsForTurn`). `driftbench estate run` drives it, and `driftbench estate mutate` writes the estate mutants it runs against. Commands, options and a run on the fixture's stand-in command are in the [CLI reference](../reference/cli.md#driftbench-estate-run-and-driftbench-estate-mutate).

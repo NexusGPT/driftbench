@@ -55,7 +55,7 @@ A call of `send_message` or `display_html` adds a `card` segment of that name af
 
 | What happens | Error |
 |---|---|
-| no connection, a timeout, status 408, 429, 502, 503 or 504, a trace still incomplete after `traceWaitMs` | `AdapterTransportError`: the runner retries |
+| no connection, a timeout, status 429 or any 5xx, a trace still incomplete after `traceWaitMs` | `AdapterTransportError` with the status and the `Retry-After` wait: the runner retries under the [shared policy](../retries.md) |
 | any other failing status | `AgentFailure`, with the platform's `error.code: error.message` |
 | an answer that lacks a field the adapter reads | `AgentFailure` that names the field |
 
@@ -111,3 +111,5 @@ target:
     stubs:
       order.create: <workflow id>
 ```
+
+The adapter does not send prompt text: the platform runs its own prompt variants. A target with a prompt (`campaign run --prompt`) is refused at open, with the message to push that version to the agent as a variant and name it in `target.variant`. See [datasets](../datasets.md#the-prompt-reaches-the-agent).

@@ -1,0 +1,10 @@
+# A fictional spec the echo agent passes.
+id: py-echo-pass
+blocks:
+  - user: hello
+    expect:
+      stage: echoed
+      must: ['echo: hello \(1 messages\)']
+  - user: again
+    expect:
+      must: ['echo: again \(3 messages\)']

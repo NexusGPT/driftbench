@@ -8,6 +8,7 @@ import {
   type Verdict,
 } from '@driftbench/core';
 import { bootstrapCI } from '@driftbench/stats';
+import { type AggregateCriterion, type AggregateResult, evaluateAggregates } from './aggregate';
 import { type CompareResult, compareCampaigns } from './compare';
 import {
   blocksWithSpec,
@@ -31,6 +32,7 @@ import {
   reliability,
   successionOf,
 } from './reliability';
+import { type CriterionRepeat, criterionRepeats, repeatReducersOf } from './repeats';
 import { type Spread, spread } from './spread';
 
 export type ScorecardOptions = {
@@ -38,6 +40,10 @@ export type ScorecardOptions = {
   baseline?: CampaignData;
   /** The non-inferiority margin, as a proportion. Default 0.02 (2 points). */
   margin?: number;
+  /** Passed to the compare diff: gating criteria on fewer goldens are underpowered. Default MIN_GOLDENS. */
+  minGoldens?: number;
+  /** Passed to the compare diff: underpowered criteria gate too. */
+  strict?: boolean;
   /** A pilot report to render beside the spread view. */
   pilot?: PilotReport;
   /** Dimensions of the generated cell that name a spread cell. */
@@ -46,6 +52,8 @@ export type ScorecardOptions = {
   spreadMode?: RunMode;
   /** Runs shown in the drilldown, failing runs first. Default 200. */
   maxRuns?: number;
+  /** Campaign-level criteria, each scored over every run together. Absent when not given. */
+  aggregates?: readonly AggregateCriterion[];
 };
 
 export type ToolCall = { label: string; input?: unknown; output?: unknown; error?: string };
@@ -121,8 +129,12 @@ export type Scorecard = {
   /** Blocks carrying each drift class, over every run. */
   drift: Partial<Record<DriftClass, number>>;
   spread: Spread;
+  /** Criteria with a repeat reducer, reduced over the repeats of each line. Empty when no criterion names one. */
+  criterionRepeats: CriterionRepeat[];
   compare?: CompareResult;
   pilot?: PilotReport;
+  /** Campaign-level criteria, when the options asked for them. */
+  aggregates?: AggregateResult[];
   drilldown: RunDetail[];
   /** Runs left out of the drilldown by maxRuns. */
   omittedRuns: number;
@@ -173,20 +185,31 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
     ...optional('recovery', recovery),
     recoveryByClass,
     drift: successionOf(runs).classes,
+    criterionRepeats: criterionRepeats(runs, repeatReducersOf(data)),
     spread: spread(data, {
       margin,
       ...optional('mode', options.spreadMode),
       ...optional('by', options.by),
       ...optional('baseline', options.baseline),
     }),
-    ...(options.baseline ? { compare: compareCampaigns(options.baseline, data, { margin }) } : {}),
+    ...(options.baseline
+      ? {
+          compare: compareCampaigns(options.baseline, data, {
+            margin,
+            ...optional('minGoldens', options.minGoldens),
+            ...optional('strict', options.strict),
+          }),
+        }
+      : {}),
     ...optional('pilot', options.pilot),
-    drilldown: shown.map((run) => detailOf(data, run)),
+    ...(options.aggregates ? { aggregates: evaluateAggregates(data, options.aggregates) } : {}),
+    drilldown: shown.map((run) => runDetailOf(data, run)),
     omittedRuns: runs.length - shown.length,
   };
 }
 
-function detailOf(data: CampaignData, run: RunResult): RunDetail {
+/** The drilldown of one run: its blocks with stimulus, reply, tool calls and verdicts. */
+export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
   const spec = specOfRun(data, run);
   const deviation = deviationOf(spec, run);
   const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);

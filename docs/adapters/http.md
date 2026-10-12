@@ -120,8 +120,8 @@ A response with status 200 holds one of two shapes.
 
 | What happens | Error |
 |---|---|
-| no connection, a timeout, a body that breaks off, status 408 or 429 | `AdapterTransportError`: the runner retries |
-| any 5xx, any other failing status, a body that is not a JSON object, a body of neither shape | `AgentFailure`: the run fails |
+| no connection, a timeout, a body that breaks off, status 429 or any 5xx | `AdapterTransportError` with the status and the `Retry-After` wait: the runner retries under the [shared policy](../retries.md) |
+| any other failing status (408 included), a body that is not a JSON object, a body of neither shape | `AgentFailure`: the run fails |
 
 ## End state and close
 
@@ -144,3 +144,5 @@ target:
 ```
 
 `agent` becomes `model` in the request. The endpoint receives the whole target and decides what `variant`, `deployment` and `options` mean.
+
+With a prompt on the target (`campaign run --prompt`), the request's `target.prompt` holds it, and `messages` starts with a system message of its text, for both response shapes. See [datasets](../datasets.md#the-prompt-reaches-the-agent).

@@ -5,11 +5,13 @@ import { type Campaign, contentHash, type RunResult, runSpec, type Store } from 
 import {
   copyEstate,
   type EstateMap,
+  insideCopy,
   loadEstateMap,
   MutantError,
   type MutantResult,
   mutateEstate,
   quoteDrift,
+  readerFor,
   renderEstateMap,
 } from '@driftbench/estate';
 import { localProvider } from '@driftbench/sandbox';
@@ -18,6 +20,7 @@ import { createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { loadValidSpecs } from './campaign';
+import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
 
 /** Adds `estate mutate` and `estate run` to `driftbench estate`. */
@@ -43,7 +46,11 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     .description(
       'Run live estate specs through the runtime headless, in a sandbox holding a copy of the estate',
     )
-    .argument('<specs...>', 'the live spec files or folders')
+    .argument('[specs...]', 'the live spec files or folders')
+    .option(
+      '--order <file>',
+      'a run-order file: one spec file or folder per line, from its own folder; # starts a comment',
+    )
     .requiredOption('--estate <root>', 'the estate root (or a mutant folder of estate mutate)')
     .requiredOption('--runtime <name>', 'the runtime adapter: claude-code')
     .option('--command <bin>', `the headless command (default ${DEFAULT_RUNTIME_COMMAND})`)
@@ -80,6 +87,8 @@ export const STAND_IN_MARKER = '@driftbench-stand-in';
 
 export type EstateRunOptions = {
   estate: string;
+  /** A run-order file: one spec path per line, relative to the file's folder. */
+  order?: string;
   runtime: string;
   command?: string;
   store: string;
@@ -126,6 +135,25 @@ export async function estateRunCommand(
 ): Promise<number> {
   if (options.runtime !== 'claude-code') {
     io.err(`--runtime ${options.runtime} is not supported; the live runner exists for claude-code.\n`);
+    return 2;
+  }
+  let paths = [...specPaths];
+  if (options.order !== undefined) {
+    const orderPath = resolve(io.cwd, options.order);
+    const text = await readFile(orderPath, 'utf8').catch(() => undefined);
+    if (text === undefined) {
+      io.err(`The run-order file ${options.order} cannot be read.\n`);
+      return 2;
+    }
+    const listed = text
+      .split('\n')
+      .map((line) => line.replace(/#.*$/, '').trim())
+      .filter((line) => line !== '')
+      .map((line) => resolve(dirname(orderPath), line));
+    paths = [...paths, ...listed];
+  }
+  if (paths.length === 0) {
+    io.err('Name the specs to run: spec files or folders, or --order <file>.\n');
     return 2;
   }
   const root = resolve(io.cwd, options.estate);
@@ -177,8 +205,9 @@ export async function estateRunCommand(
 
   const notes: string[] = [];
   let pins: string[] = [];
+  let mapIgnore: readonly string[] = [];
   if (options.map !== undefined) {
-    const loaded = await loadEstateMap(resolve(io.cwd, options.map));
+    const loaded = await loadEstateMap(resolve(io.cwd, options.map), mapCacheOptions());
     if (!loaded.ok) {
       io.err(`The map ${options.map} is not valid:\n`);
       for (const issue of loaded.errors)
@@ -192,6 +221,16 @@ export async function estateRunCommand(
       return 2;
     }
     pins = [loaded.map.hash];
+    mapIgnore = loaded.map.ignore ?? [];
+    // A mutant folder with its own map: the specs were generated from the original, so its hash stays a
+    // pin beside the mutant's (as without --map); a spec of any other map still fails.
+    const mutant = await readMutant(root);
+    if (mutant !== undefined && mutant.mapHash === loaded.map.hash) {
+      pins = [mutant.originalMapHash, mutant.mapHash];
+      notes.push(
+        `mutant of ${mutant.atom} (${mutant.op}): specs of the map ${mutant.originalMapHash.slice(0, 12)} run on it`,
+      );
+    }
   } else {
     const mutant = await readMutant(root);
     if (mutant !== undefined) {
@@ -218,7 +257,7 @@ export async function estateRunCommand(
     else env[name] = value;
   }
 
-  const loaded = await loadValidSpecs(specPaths, io);
+  const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
   const specs = loaded.filter((entry) => {
     const adapter = entry.spec.target?.adapter;
@@ -264,10 +303,15 @@ export async function estateRunCommand(
     };
     await store.putCampaign(campaign);
     const checks = replayChecks();
+    // The files a run copies, listed once for every spec: what the runtime may load, never an ignored folder
+    // (node_modules, test runs), which made each spec's copy as large as the whole estate folder.
+    const lister = readerFor(options.runtime, { ignore: mapIgnore });
+    const estateFiles = lister?.listFiles ? await lister.listFiles(root) : undefined;
     for (const entry of specs) {
       const adapter = claudeCodeLiveAdapter({
         command: commandPath,
         estateRoot: root,
+        ...(estateFiles === undefined ? {} : { estateFiles }),
         provider: localProvider(),
         pins,
         ...(library === undefined ? {} : { library }),
@@ -405,7 +449,7 @@ export async function estateMutateCommand(
     return 2;
   }
   const mapPath = resolve(io.cwd, mapArg);
-  const loaded = await loadEstateMap(mapPath);
+  const loaded = await loadEstateMap(mapPath, mapCacheOptions());
   if (!loaded.ok) {
     io.err(`The map ${mapArg} is not valid:\n`);
     for (const issue of loaded.errors)
@@ -460,8 +504,9 @@ export async function estateMutateCommand(
     mapHash: result.mapHash,
     collateral: result.collateral,
   };
-  await writeFile(join(to, MUTANT_FILE), `${JSON.stringify(record, null, 2)}\n`);
-  await writeFile(join(to, MUTANT_MAP_FILE), renderEstateMap({ ...result.map, root: '.' }));
+  // The record and the map go beside the copy, never through a link out of it.
+  await writeFile(await insideCopy(to, MUTANT_FILE), `${JSON.stringify(record, null, 2)}\n`);
+  await writeFile(await insideCopy(to, MUTANT_MAP_FILE), renderEstateMap({ ...result.map, root: '.' }));
   if (options.json) io.out(`${JSON.stringify(record, null, 2)}\n`);
   else {
     io.out(`Mutant: ${result.op} ${result.atom} in ${result.file}.\n`);

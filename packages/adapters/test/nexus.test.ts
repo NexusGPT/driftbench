@@ -275,12 +275,12 @@ describe('nexus adapter, against the fake platform', () => {
     expect(fake.requests.every((request) => request.apiKey === KEY)).toBe(true);
     expect(JSON.stringify(fake.requests.map((request) => request.body))).not.toContain(KEY);
 
-    fake.failNext(/\/generate$/, 500);
+    fake.failNext(/\/generate$/, 400);
     const failure = await adapter
       .send(session, userTurn(1, 'Acme Fiber 300, please.', session.given))
       .catch((e) => e);
     expect(failure).toBeInstanceOf(AgentFailure);
-    expect((failure as Error).message).toContain('answered 500: HTTP_500: injected failure');
+    expect((failure as Error).message).toContain('answered 400: HTTP_400: injected failure');
     expect((failure as Error).message).not.toContain(KEY);
 
     const wrongKey = nexusAdapter({ env: { NEXUS_API_KEY: 'another-key' }, fetch: fake.fetch });
@@ -462,14 +462,15 @@ describe('nexus adapter, against the fake platform', () => {
     await expect(adapter.endState?.(session, 'payloads')).rejects.toThrow(/tool:<label> or \*/);
   });
 
-  it('maps platform failures: 503 and a dropped connection may be retried, 500 and 404 fail the block', async () => {
+  it('maps platform failures by the shared retry rule: 429, 5xx and a dropped connection may be retried, 408 and 404 fail the block', async () => {
     const fake = createFakeNexus({ apiKey: KEY, stubs });
     const adapter = on(fake);
     for (const [failure, kind] of [
       [503, AdapterTransportError],
       [429, AdapterTransportError],
+      [500, AdapterTransportError],
       ['network', AdapterTransportError],
-      [500, AgentFailure],
+      [408, AgentFailure],
       [404, AgentFailure],
     ] as const) {
       fake.failNext(/^\/prompt-eval\/golden-conversations$/, failure);

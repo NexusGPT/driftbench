@@ -1,10 +1,12 @@
 import { resolve } from 'node:path';
 import type { RunMode, Store } from '@driftbench/core';
 import {
+  autoMargin,
   type CampaignData,
   compareCampaigns,
   compareText,
   loadCampaign,
+  MIN_GOLDENS,
   ReportInputError,
 } from '@driftbench/report';
 import { openStore } from '@driftbench/store';
@@ -27,6 +29,8 @@ type CompareCommandOptions = {
   margin: string;
   mode?: string;
   q: string;
+  minGoldens: string;
+  strict?: boolean;
   json?: boolean;
 };
 
@@ -45,10 +49,17 @@ export function registerCompareCommand(
     .requiredOption('--baseline <campaign>', 'the baseline campaign id')
     .requiredOption('--candidate <campaign>', 'the candidate campaign id')
     .requiredOption('--store <file>', 'the store that holds both campaigns')
-    .requiredOption(
-      '--margin <points>',
-      'the largest drop in pass rate tolerated, in percentage points, such as 2',
+    .option(
+      '--margin <points|auto>',
+      'the largest drop in pass rate tolerated, in percentage points, such as 2; auto: the smallest margin at which the baseline compared with itself is non-inferior',
+      'auto',
     )
+    .option(
+      '--min-goldens <n>',
+      'a gating criterion decided on fewer goldens is underpowered and left out of the parity test',
+      String(MIN_GOLDENS),
+    )
+    .option('--strict', 'underpowered criteria gate too')
     .option('--mode <modes>', 'compare only these modes, such as F or T,F; default every mode both ran')
     .option('--q <rate>', 'false discovery rate of Benjamini-Hochberg across criteria', '0.05')
     .option('--json', 'print one JSON document')
@@ -63,10 +74,10 @@ export async function compareCommand(
   io: Io,
   deps: ReportDeps,
 ): Promise<number> {
-  const margin = parseMargin(options.margin, io);
+  const gate = parseGate(options, io);
   const q = parseRate(options.q, '--q', io);
   const modes = options.mode === undefined ? undefined : parseModes(options.mode, io);
-  if (margin === undefined || q === undefined || modes === null) return 2;
+  if (gate === undefined || q === undefined || modes === null) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   try {
@@ -75,7 +86,14 @@ export async function compareCommand(
     if (!baseline || !candidate) return 2;
     let result: ReturnType<typeof compareCampaigns>;
     try {
-      result = compareCampaigns(baseline, candidate, { margin, q, ...(modes ? { modes } : {}) });
+      const shared = {
+        q,
+        minGoldens: gate.minGoldens,
+        strict: gate.strict,
+        ...(modes ? { modes } : {}),
+      };
+      const margin = resolveMargin(gate, baseline, shared, options.json ? undefined : io);
+      result = compareCampaigns(baseline, candidate, { ...shared, margin });
     } catch (cause) {
       io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
       return 2;
@@ -127,6 +145,43 @@ export async function loadReported(
     }
     throw cause;
   }
+}
+
+/** The gate flags every comparing command takes: the margin (points or auto), the minimum goldens, strict. */
+export type Gate = { margin: number | 'auto'; minGoldens: number; strict: boolean };
+
+/** Parses --margin (points or auto), --min-goldens and --strict; undefined after printing why. */
+export function parseGate(
+  options: { margin: string; minGoldens: string; strict?: boolean },
+  io: Io,
+): Gate | undefined {
+  const minGoldens = Number(options.minGoldens);
+  if (!Number.isInteger(minGoldens) || minGoldens < 1) {
+    io.err(`--min-goldens takes a whole number of at least 1, not "${options.minGoldens}".\n`);
+    return undefined;
+  }
+  const margin = options.margin === 'auto' ? 'auto' : parseMargin(options.margin, io);
+  if (margin === undefined) return undefined;
+  return { margin, minGoldens, strict: options.strict === true };
+}
+
+/**
+ * The margin a comparison runs at: the one given, or with auto the smallest margin at which the baseline
+ * compared with itself is non-inferior. With `io`, the auto margin and any warning are printed.
+ */
+export function resolveMargin(
+  gate: Gate,
+  baseline: CampaignData,
+  options: Omit<Parameters<typeof compareCampaigns>[2], 'margin'>,
+  io?: Io,
+): number {
+  if (gate.margin !== 'auto') return gate.margin;
+  const auto = autoMargin(baseline, options);
+  io?.out(
+    `Margin auto: ${(auto.margin * 100).toFixed(1)} points, the smallest half point at which the baseline compared with itself is non-inferior (set by ${auto.limitedBy}, ${(auto.needed * 100).toFixed(1)} points).\n`,
+  );
+  if (auto.warning) io?.out(`Warning: ${auto.warning}.\n`);
+  return auto.margin;
 }
 
 /** A margin in points, such as 2, as a proportion; undefined after printing why it is not one. */

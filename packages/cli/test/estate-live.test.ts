@@ -1,6 +1,6 @@
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@driftbench/estate';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -291,9 +291,17 @@ describe('driftbench estate run', () => {
 
   it('fails a spec of another map on a pinned copy, and notes an unpinned one', async () => {
     const spec = join(LIVE, PROOF.route_positive ?? '');
-    const to = join(await folder(), 'mutant');
-    await run(['estate', 'mutate', MAP, '--atom', R7, '--invert', '--to', to]);
-    const pinned = await estateRun(to, [spec], '--map', join(to, 'map.yaml'));
+    const base = await folder();
+    const first = join(base, 'mutant');
+    await run(['estate', 'mutate', MAP, '--atom', R7, '--invert', '--to', first]);
+    // A mutant of the mutant answers to the first mutant's map and its own: a spec of the original map is
+    // of another map there.
+    const second = join(base, 'mutant-2');
+    expect(
+      (await run(['estate', 'mutate', join(first, 'map.yaml'), '--atom', R3, '--delete', '--to', second]))
+        .code,
+    ).toBe(0);
+    const pinned = await estateRun(second, [spec], '--map', join(second, 'map.yaml'));
     expect(pinned.code).toBe(1);
     expect(pinned.json?.runs[0]?.status).toBe('failed');
     const unpinned = await estateRun(FIXTURE, [spec]);
@@ -304,7 +312,47 @@ describe('driftbench estate run', () => {
   });
 });
 
-describe('the Northwind proof: 14 live specs on the fake command, and two estate mutants', () => {
+describe('many specs in one estate run', () => {
+  it('reads a run-order file, from its own folder, with comments, and runs the same as the list', async () => {
+    const dir = await folder();
+    const specs = [PROOF.route_positive ?? '', PROOF.tool_denied ?? ''];
+    await writeFile(
+      join(dir, 'order.txt'),
+      ['# the batch', ...specs.map((spec) => relative(dir, join(LIVE, spec))), ''].join('\n'),
+    );
+    const listed = await estateRun(
+      FIXTURE,
+      specs.map((spec) => join(LIVE, spec)),
+      '--map',
+      MAP,
+    );
+    const ordered = await estateRun(FIXTURE, [], '--order', join(dir, 'order.txt'), '--map', MAP);
+    expect(outcomes(ordered.json)).toEqual(outcomes(listed.json));
+    expect(Object.keys(outcomes(ordered.json))).toHaveLength(2);
+    expect(ordered.json?.pins).toEqual(listed.json?.pins);
+  }, 120_000);
+
+  it('refuses a run with no spec and an order file it cannot read', async () => {
+    expect((await estateRun(FIXTURE, [])).code).toBe(2);
+    expect((await estateRun(FIXTURE, [], '--order', join(await folder(), 'missing.txt'))).code).toBe(2);
+  });
+});
+
+describe('a mutant run with its own map (bench defect D6)', () => {
+  it('keeps the original map as a pin beside the mutant map, so the original specs run', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const to = join(await folder(), 'mutant');
+    await run(['estate', 'mutate', MAP, '--atom', R7, '--invert', '--to', to]);
+    const withMap = await estateRun(to, [spec], '--map', join(to, 'map.yaml'));
+    const without = await estateRun(to, [spec]);
+    expect(withMap.code).toBe(0);
+    expect(withMap.json?.runs[0]?.status).toBe('completed');
+    expect(withMap.json?.pins).toEqual(without.json?.pins);
+    expect(withMap.json?.pins).toHaveLength(2);
+  }, 120_000);
+});
+
+describe('the Northwind proof: 14 live specs on the fake command, and three estate mutants', () => {
   const FAULTS = [
     'estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker',
     'estate.tool_denied.tool.settings.deny-webfetch',
@@ -357,4 +405,17 @@ describe('the Northwind proof: 14 live specs on the fake command, and two estate
     },
     120_000,
   );
+  it('a mutant that deletes the WebFetch deny offers the tool, and tools_offered names it', async () => {
+    const to = join(await folder(), 'mutant');
+    const atom = 'tool.settings.deny-webfetch';
+    expect((await run(['estate', 'mutate', MAP, '--atom', atom, '--delete', '--to', to])).code).toBe(0);
+    const spec = join(LIVE, PROOF.tool_denied ?? '');
+    const original = await estateRun(FIXTURE, [spec], '--map', MAP);
+    const mutant = await estateRun(to, [spec]);
+    expect(original.json?.runs[0]?.failing).toEqual(['block 0: forbidden.WebFetch']);
+    expect(mutant.json?.runs[0]?.failing).toEqual([
+      'block 0: tools_offered.exclude.WebFetch',
+      'block 0: forbidden.WebFetch',
+    ]);
+  }, 120_000);
 });

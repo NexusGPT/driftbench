@@ -72,3 +72,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: shipment-on-time
     phrase: 1
+    ask: bank
+    outcome: bank
