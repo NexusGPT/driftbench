@@ -238,7 +238,9 @@ export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_
     let next = index + 2;
     for (; next < lines.length; next++) {
       const row = lines[next];
-      if (!row?.text.startsWith('|') || row.line > toLine) break;
+      // A table belongs to the range that holds its header, and runs to its last row: a chunk that ends
+      // inside a table must not cut it, and the next chunk never sees its header, so it would lose the rest.
+      if (!row?.text.startsWith('|')) break;
       table.rows.push({ line: row.line, text: row.text, cells: cells(row.text) });
     }
     tables.push(table);
