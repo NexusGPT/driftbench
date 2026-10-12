@@ -772,7 +772,11 @@ export function boundarySeeder(
       cell.push(...contextAxes(prepared, cell, rng));
       unsupported.push(...world.unsupported.filter((entry) => !unsupported.includes(entry)));
       const criteria = found ? [] : [draftCriterion(prepared, target)];
-      drafts.push({
+      // A block whose every call count is 0 asserts nothing a reply that does nothing fails: a constant,
+      // an echo and a copy of the Given all pass it. The map supplies no word or stage for a refusal, so
+      // the spec has no machine Then and goes to incomplete/.
+      const forbidsOnly = found !== undefined && tools.length > 0 && tools.every((tool) => tool.count === 0);
+      const draft: SpecDraft = {
         id,
         seeder: 'boundary',
         title: `Boundary value ${value.id}: ${value.title}`,
@@ -790,7 +794,14 @@ export function boundarySeeder(
         ...(world.world ? { world: world.world } : {}),
         criteria,
         ...(Object.keys(concrete).length > 0 ? { concrete } : {}),
-      });
+      };
+      drafts.push(
+        forbidsOnly
+          ? withReasons(draft, [
+              `${value.id}: the block only forbids tool calls, which a reply that does nothing passes`,
+            ])
+          : draft,
+      );
     });
   });
   return { drafts, summary: { values: drafts.length, tools: toolValues, unsupported } };
