@@ -163,13 +163,17 @@ function unfolded(text: string): string {
 }
 
 /**
- * The text with its escapes read: a hex run (0x...), HTML numeric entities, \uXXXX escapes and percent-encoding.
+ * The text with its escapes read: a hex run (0x...), HTML numeric entities, \uXXXX escapes, 8-bit binary groups and
+ * percent-encoding.
  * A value that does not decode is read as written.
  */
 function unescaped(text: string): string {
   return text
     .replace(/0x((?:[0-9a-f]{2}){8,})/gi, (_, hex: string) => Buffer.from(hex, 'hex').toString('utf8'))
     .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(Number(code)))
+    .replace(/(?:[01]{8} ){3,}[01]{8}/g, (run) =>
+      Buffer.from(run.split(' ').map((bits) => Number.parseInt(bits, 2))).toString('utf8'),
+    )
     .replace(/\\u([0-9a-f]{4})/gi, (_, code: string) => String.fromCharCode(Number.parseInt(code, 16)))
     .replace(/(?:%[0-9a-f]{2})+/gi, (run) => {
       try {
