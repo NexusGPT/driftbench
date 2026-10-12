@@ -164,7 +164,7 @@ The proposal is the committed `examples/acme/map/proposal.yaml`, byte for byte b
 
 These are capabilities users need from `extract` that the code lacks today. The map validator holds the items that check each one (`validators/map/NEEDS.md`). They fail until the capability ships.
 
-* **Declared roles.** A prompt may say which dimension makes a different kind of conversation ("Each of these makes a different kind of conversation") and which can show up inside any conversation. That dimension becomes the axis, whatever order the dimensions are read in. Without such a sentence, the first dimension of each kind stays the axis, as above.
+* **Declared roles.** A prompt may say which dimension makes a different kind of conversation ("Each of these makes a different kind of conversation") and which can show up inside any conversation. That dimension becomes the axis, whatever order the dimensions are read in. Without such a sentence, the first dimension of each kind stays the axis, as above. The purpose: the prompt's author already said which differences make a different conversation, so the space map crosses those and leaves the rest as details, and no person has to flip the roles the prompt already states.
 * **What a rule states.** Each rule records whether the agent must or must not do it, the cell it applies in (`when`), the case it excludes (`unless`), a count limit, a time limit (`within`), and whether it comes first when rules collide.
 * **What a value states.** A persona or data value records the share of users it stands for (`weight`) and whether a test plan must include it (`required`).
 * **More relations.** The order two tools are called in, the route a request takes to a flow, and the exact reply text a rule fixes.
