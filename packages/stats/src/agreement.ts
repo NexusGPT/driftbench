@@ -53,6 +53,9 @@ export function cohenKappa(
   const rows = table.map((row) => row.reduce((s, v) => s + v, 0) / n);
   const cols = categories.map((_, c) => table.reduce((s, row) => s + (row[c] as number), 0) / n);
   const weights = options.weights ?? 'none';
+  if (weights !== 'none' && weights !== 'linear' && weights !== 'quadratic') {
+    throw new RangeError(`cohenKappa: weights must be 'none', 'linear' or 'quadratic', got ${String(weights)}`);
+  }
   const disagreement = (i: number, j: number): number => {
     if (weights === 'none') return i === j ? 0 : 1;
     const d = Math.abs(i - j);
@@ -100,6 +103,9 @@ export function krippendorffAlpha(
   options: { level?: AlphaLevel } = {},
 ): AlphaResult {
   const level = options.level ?? 'nominal';
+  if (level !== 'nominal' && level !== 'ordinal' && level !== 'interval' && level !== 'ratio') {
+    throw new RangeError(`krippendorffAlpha: level must be nominal, ordinal, interval or ratio, got ${String(level)}`);
+  }
   if (matrix.length === 0) throw new RangeError('krippendorffAlpha: no raters');
   const units = Math.max(...matrix.map((row) => row.length));
   const valueSet = new Set<Label>();
