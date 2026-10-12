@@ -7,27 +7,27 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 1 |
-| 2 | 1 |
-| 3 | 1 |
-| 4 | 1 |
-| 5 | 1 |
-| 6 | 1 |
-| 7 | 1 |
-| 8 | 1 |
-| 9 | 1 |
-| 10 | 1 |
-| 11 | 1 |
-| 12 | 1 |
-| 13 | 1 |
-| 14 | 1 |
-| 15 | 1 |
-| 16 | 1 |
-| 17 | 1 |
-| 18 | 1 |
-| 19 | 1 |
-| 20 | 1 |
-| hidden | 1 |
+| 1 | 2 |
+| 2 | 2 |
+| 3 | 2 |
+| 4 | 2 |
+| 5 | 2 |
+| 6 | 2 |
+| 7 | 2 |
+| 8 | 2 |
+| 9 | 2 |
+| 10 | 2 |
+| 11 | 2 |
+| 12 | 2 |
+| 13 | 2 |
+| 14 | 2 |
+| 15 | 2 |
+| 16 | 2 |
+| 17 | 2 |
+| 18 | 2 |
+| 19 | 2 |
+| 20 | 2 |
+| hidden | 2 |
 <!-- level-table:end -->
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 769 items; 111 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 638 deterministic items in 20 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails. Bank score after the ten-iteration pilot: 260 of 638 items pass on every seed (0.4075); iteration 0 was 249 (0.3903). Hardness: 1.1 items fixed per iteration, 378 remaining, forecast 343.6 iterations, 150 distinct failing causes. `validators/judges/GATE.md` lowers the score bar for judges to 0.41 (`Max score after the pilot: 0.41`, read by `--hardness`), which the pilot meets; the gate then waits only on `audit.md`. These rows are the pilot's package; on main's judges package the bank gives 258 of 638 (0.4044) and 153 causes, and the next executor starts there. The judges page's "Planned" section (docs/concepts/judges.md) is the roadmap most failing items point at. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
