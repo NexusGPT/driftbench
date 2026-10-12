@@ -153,6 +153,10 @@ export type GenerateResult = {
 };
 
 export function generateSuite(prepared: PreparedMap, options: GenerateOptions): GenerateResult {
+  if ((prepared.numericSettings?.length ?? 0) > 0 && options.budget === undefined)
+    throw new RangeError(
+      'numeric_settings requires --budget; the other seeders do not sample numeric ranges',
+    );
   const t = options.t ?? DEFAULT_T;
   const seed = options.seed ?? DEFAULT_SEED;
   const max = options.max ?? Number.POSITIVE_INFINITY;

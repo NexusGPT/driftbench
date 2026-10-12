@@ -387,15 +387,15 @@ The idea in five lines:
 
 1. A map lists what varies: stages, behaviours, deviations, channels and data.
 2. A person approves the map. Nothing counts before that.
-3. Code places tests so that every allowed pair of values is covered.
+3. Code places tests to cover allowed pairs; budgets and limits can leave pairs uncovered.
 4. A gate runs every test against planted faults and a reference agent.
 5. The tests that pass the gate form the suite. It runs like any other campaign.
 
 ### The map
 
-The map lists dimensions, their values, and constraints that rule out impossible combinations. It also lists phrases, the user messages that express each value. A model proposes the entries from the agent's prompt, its behaviour inventory and its tool schemas. Each entry quotes the line that justifies it. Code checks every quote against its source, and a refused entry never enters the map.
+The map lists dimensions, their values, and constraints that rule out impossible combinations. It also lists phrases, the user messages that express each value. Code reads the behaviour inventory and tool schemas; an optional model proposes more entries from those sources and the agent's prompt. Each entry quotes the line that justifies it. Code checks every quote against its source, and a refused entry never enters the proposal.
 
-A person then approves the proposal, one dimension at a time or all at once. The Acme map has 46 dimensions, 180 values, 457 constraints and 51 approved phrases. This is one approved dimension from [`examples/acme/map/approved.yaml`](examples/acme/map/approved.yaml):
+A person then approves the proposal, one dimension at a time or all at once. The Acme proposal has 46 dimensions, 177 values, 111 written constraints and 51 approved phrases. The prepared generator map adds reserved `none` values and derived constraints, giving 180 values and 457 constraints. This is one approved dimension from [`examples/acme/map/approved.yaml`](examples/acme/map/approved.yaml):
 
 ```yaml
 dimensions:
@@ -429,12 +429,12 @@ Relations link values to stages, tools and end states. They are what lets code d
 Seven seeders write specs from the approved map. The Acme numbers come from [`generate-report.json`](examples/acme/generated/generate-report.json).
 
 - **Graph walk**: one spec per approved path through the stages. 12 specs, 48 blocks, 18 of 23 stage edges covered.
-- **Pairwise covering array**: every allowed pair of values appears in some spec. 132 specs, 675 blocks, 314 of 314 allowed pairs.
+- **Pairwise covering array**: covers allowed pairs over its selected conversation dimensions, subject to limits. 132 specs, 675 blocks, 314 of 314 allowed pairs.
 - **Boundary values**: one spec per value of each data detail. 80 specs, 113 blocks.
 - **Deviation probes**: one probe per deviation class. 10 specs, 52 blocks, all 10 classes.
-- **Metamorphic pairs**: specs that differ only in the wording of one value, with the same expected outcome. 40 specs in 20 families.
+- **Metamorphic pairs**: specs with different approved phrasings or context values, designed to preserve the observed outcome. 40 specs in 20 families.
 - **Task families**: instances of code-agent tasks, each with its own oracle. 34 specs, 47 blocks.
-- **Cover**: one scenario for each allowed pair that no other seeder covers. 13 specs, 71 blocks.
+- **Cover**: adds scenarios for gaps left by the other seeders, subject to limits and map support. One scenario can cover several pairs. 13 specs, 71 blocks.
 
 The complete specs cover all 637 allowed pairs of values. 251 of the 321 specs are complete. The other 70 wait in `incomplete/` until the map gives their values an approved phrase.
 
@@ -463,29 +463,29 @@ A block that the map cannot support for a machine check stays in `incomplete/`, 
 
 ### The gate
 
-Each generated block passes nine stages before it joins the gated suite. A stage rejects the block, or marks it with a reason.
+The gate has nine stages. It rejects or marks blocks with a reason; checks can be skipped when their inputs are absent. Accepted blocks join the gated suite.
 
 | Stage | What it checks |
 |---|---|
 | Observed | The expected outcome reads observed state, not only the agent's words. |
-| Leakage | No expected value sits in the input the agent reads. |
+| Leakage | Checks expected tool-input and end-state literals in Given, and end-state literals in When. User-supplied tool inputs in When are exempt. |
 | Shortcut | A trivial agent (constant, echo, first tool) must fail the block. |
-| Contrast | Sibling and twin blocks expect what they should. |
-| Red first | The block passes the reference and fails the faults it targets. |
+| Contrast | Eligible sibling and twin blocks obey the configured signature and outcome contrast rules. |
+| Red first | The block passes the reference, stays green on controls and fails at least one applicable targeted fault. |
 | Stability | The outcome holds across repeated runs. |
 | Difficulty | A block that every agent passes, or none passes, is marked saturated. |
-| Label audit | A seeded sample goes to a person to read. |
+| Label audit | Writes a seeded sample for manual review. |
 | Freshness | Each block records its date and map hash. Whole specs can be sealed as a holdout. |
 
-The planted faults are wrong versions of the agent. One answers in another language. One skips the recap. One invents a price. Each block runs on the faults it targets, and it must fail on them.
+The planted faults are wrong versions of the agent. One answers in another language. One skips the recap. One invents a price. The gate runs applicable faults on eligible specs. A block must fail at least one fault that changes its spec and targets a field or deviation it checks. Negative controls must stay green. Leakage also checks source-spec n-gram overlap and generator/judge family separation when those inputs are supplied; short common literal values are excluded from the literal check.
 
-On Acme, 1,100 of 1,106 blocks pass the gate. The 6 rejected blocks are first-turn probes that the echo agent passes. 13 of 13 scored faults are killed. One fault, which keeps the first email, changes nothing these specs observe, so it is excluded. The holdout seals 58 of the 251 specs, and the label audit samples 21 blocks for a person to read.
+In the committed [Acme gate report](examples/acme/gated/gate-report.json), 1,100 of 1,106 blocks pass the gate. The 6 rejected blocks are first-turn probes that the echo agent passes. 13 of 13 scored faults are killed. One fault, which keeps the first email, changes nothing these specs observe, so it is excluded. The holdout seals 58 of the 251 specs, and the label audit samples 21 blocks for manual review.
 
-The holdout is 20 percent of whole specs by default. The gate checks it like the rest. It is never run as an evaluation.
+The holdout targets 20 percent of whole specs by default; keeping groups together can change the final share. The gate checks it like the rest. The walkthrough below evaluates `gated/specs` and leaves the separate holdout out.
 
 ### Budget mode (in progress)
 
-Budget mode selects allowed conversation cells by pair coverage first, then value balance and a seeded tie-break. Numeric sliced Latin hypercube sampling is pending. See [generating](docs/generating.md) for the current pipeline.
+Budget mode selects allowed conversation rows by pair coverage first, then value balance and a seeded tie-break. Approved `numeric_settings` ranges use Latin quantiles across the budget and within each selected categorical combination, delivered through `given.vars`. Automatic range extraction is pending. See [generating](docs/generating.md) for the schema and sampling rules; the measured comparison is being completed.
 
 ### Command walkthrough
 

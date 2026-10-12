@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { dirname } from 'node:path';
 import { type LoadedSpec, loadSpecs, type Spec } from '@driftbench/core';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -5,6 +6,7 @@ import { generateSuite } from '../../src/enumerate/generate';
 import { loadApprovedMap } from '../../src/enumerate/load';
 import type { PreparedMap } from '../../src/seed/map';
 import { buildTaskInputs } from '../../src/seed/tasks';
+import beforeNumeric from './fixtures/budget-before-numeric.json';
 import { ACME, ACME_MAP } from './support';
 
 /** The budget mode on the approved Acme map: the report field, the determinism, the pair rule. */
@@ -68,5 +70,23 @@ describe('budget mode on the approved Acme map', () => {
     });
     expect(plain.report.budget).toBeUndefined();
     expect(plain.report.options).not.toHaveProperty('budget');
+  }, 120_000);
+
+  it('keeps every Acme output byte-identical to e13e7cb3 when numeric settings are absent', () => {
+    expect(prepared.hash).toBe(beforeNumeric.mapHash);
+    for (const budget of [undefined, 20, 50, 100, 200]) {
+      const result = generateSuite(prepared, {
+        t: 2,
+        seed: 1,
+        ...(budget === undefined ? {} : { budget }),
+        mapPath: '../map/approved.yaml',
+        tasks: taskInputs,
+        baseline: { label: 'examples/acme/specs', specs: handWritten },
+      });
+      const key = budget === undefined ? 'pairwise' : `budget-${budget}`;
+      const expected = (beforeNumeric.hashes as Record<string, string>)[key];
+      expect(createHash('sha256').update(JSON.stringify(result.files)).digest('hex')).toBe(expected);
+      expect(result.report.budget?.numeric).toBeUndefined();
+    }
   }, 120_000);
 });

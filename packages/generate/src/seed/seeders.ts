@@ -10,7 +10,7 @@ import {
   pickOf,
   type SpecDraft,
 } from './assemble';
-import { enumerateCells, selectBudget } from './budget';
+import { enumerateCells, selectBudget, slicedLhs } from './budget';
 import {
   DETOURS,
   MAX_CALLS_AFTER_FAILURE,
@@ -527,9 +527,9 @@ export type BudgetSummary = {
   dimensions: string[];
   /** Allowed cells of the pool. */
   pool: number;
-  /** Cells picked: the budget, or the pool when the budget is larger. */
+  /** Rows picked: the budget, or the pool limit when numeric settings are absent. */
   picked: number;
-  /** The budget is larger than the pool: every allowed cell is in the suite and nothing more can be placed. */
+  /** Selection stopped at the distinct-cell pool limit; always false with numeric settings. */
   capped: boolean;
   pairs: { allowed: number; covered: number; share: number };
   values: Array<{
@@ -539,6 +539,16 @@ export type BudgetSummary = {
   }>;
   /** The largest |count - fair share| over every value of every dimension. */
   maxDeviation: number;
+  /** Numeric quantiles are Latin globally and within each categorical cell. Integer values may repeat. */
+  numeric?: {
+    settings: Array<{ id: string; min: number; max: number; integer: boolean; unit?: string }>;
+    rows: Array<{
+      spec: string;
+      cell: Record<string, string>;
+      quantiles: Record<string, number>;
+      vars: Record<string, number>;
+    }>;
+  };
 };
 
 /**
@@ -552,21 +562,69 @@ export function budgetSeeder(
   options: { budget: number },
 ): { drafts: SpecDraft[]; summary: TwiseSummary; budget: BudgetSummary } {
   const { dimensions, sizes, allowed } = conversationOf(prepared);
-  const pool = enumerateCells(
-    sizes.filter((_, index) => dimensions.includes(index)),
-    (cell) => allowed.allowed(cell.map((value, index) => [dimensions[index] as number, value] as const)),
-  );
+  const settings = prepared.numericSettings ?? [];
+  const reuse = settings.length > 0;
+  const pool =
+    reuse && dimensions.length === 0 && allowed.allowed([])
+      ? [[]]
+      : enumerateCells(
+          sizes.filter((_, index) => dimensions.includes(index)),
+          (cell) =>
+            allowed.allowed(cell.map((value, index) => [dimensions[index] as number, value] as const)),
+        );
   const selection = selectBudget(
     pool,
     dimensions.map((dimension) => sizes[dimension] ?? 0),
     options.budget,
     rngFor(context.seed, 'budget'),
+    reuse,
   );
   const cells = selection.picked.map((index) =>
     dimensions.map((dimension, column): Pick => [dimension, pool[index]?.[column] ?? 0]),
   );
   const drafts = rowDrafts(prepared, context, cells, 'budget');
   const picked = selection.picked.length;
+  let numeric: BudgetSummary['numeric'];
+  if (reuse) {
+    if (picked === 0) throw new RangeError('numeric budget has no allowed categorical cell');
+    const slices = selection.picked.map((index) => JSON.stringify(pool[index]));
+    const rows = drafts.map((draft, index) => ({
+      spec: draft.id,
+      cell: Object.fromEntries(
+        (cells[index] ?? []).map(([dimension, value]) => [
+          dimensionId(prepared, dimension),
+          valueId(prepared, dimension, value),
+        ]),
+      ),
+      quantiles: {} as Record<string, number>,
+      vars: {} as Record<string, number>,
+    }));
+    for (const setting of settings) {
+      const quantiles = slicedLhs(rngFor(context.seed, `budget:numeric:${setting.id}`), 0, 1, picked, slices);
+      quantiles.forEach((quantile, index) => {
+        const row = rows[index];
+        if (!row) return;
+        row.quantiles[setting.id] = quantile;
+        row.vars[setting.id] = setting.integer
+          ? Math.ceil(setting.min) +
+            Math.floor(quantile * (Math.floor(setting.max) - Math.ceil(setting.min) + 1))
+          : setting.min + quantile * (setting.max - setting.min);
+      });
+    }
+    drafts.forEach((draft, index) => {
+      draft.vars = rows[index]?.vars;
+    });
+    numeric = {
+      settings: settings.map(({ id, min, max, integer, unit }) => ({
+        id,
+        min,
+        max,
+        integer: integer ?? false,
+        ...(unit === undefined ? {} : { unit }),
+      })),
+      rows,
+    };
+  }
   const share = selection.pairs.allowed === 0 ? 0 : selection.pairs.covered / selection.pairs.allowed;
   const summary: TwiseSummary = {
     t: 2,
@@ -604,10 +662,11 @@ export function budgetSeeder(
     dimensions: summary.dimensions,
     pool: pool.length,
     picked,
-    capped: options.budget > pool.length,
+    capped: !reuse && options.budget > pool.length,
     pairs: { ...selection.pairs, share },
     values,
     maxDeviation,
+    ...(numeric === undefined ? {} : { numeric }),
   };
   return { drafts, summary, budget };
 }

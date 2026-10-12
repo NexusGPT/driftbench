@@ -28,8 +28,39 @@ The map lists the dimensions a situation varies on, their values, and what links
 | Constraints | a combination of values, one per dimension, that can never occur, with the reason |
 | Phrases | user messages that express a value: the phrase bank the user turns come from |
 | Relations | what links values to stages, tools and end states |
+| Numeric settings | approved runtime variable ranges, sampled by budget mode into `given.vars` |
 
 A dimension has a role. An axis is a dimension of the space map, crossed with the other axes. A detail stays in the proposal: the generator varies it inside a cell, as boundary values. Code proposes the roles: every dimension read from a tool schema is a detail, and the first dimension of each kind is an axis, the others details. A person may flip any role.
+
+### Numeric runtime settings
+
+An optional top-level `numeric_settings` list declares runtime variables. It does not add a categorical dimension or change the pair-coverage denominator. Each range needs its own approval and source evidence. This range is used in the numeric CLI test:
+
+```yaml
+numeric_settings:
+  - id: iterations
+    min: 1
+    max: 5
+    integer: true
+    unit: attempts
+    evidence:
+      source: prompt.md
+      quote: "temperature ranges from 0 to 1; iterations range from 1 to 5 integer attempts."
+    produced_by: code
+    approved: true
+```
+
+| Field | Meaning |
+|---|---|
+| `id` | unique variable key, using the same lowercase id syntax as dimensions |
+| `min`, `max` | finite bounds, with `max >= min`; equal bounds give a constant |
+| `integer` | optional boolean, default false; true samples integer levels from `ceil(min)` through `floor(max)`, inclusive |
+| `unit` | optional nonempty label, retained in the report; no conversion is performed |
+| `evidence`, `produced_by`, `approved` | the source quote, proposer (`code` or `model`) and approval flag, as for other map entries |
+
+An integer range must contain at least one integer, and its rounded endpoints and integer level count must be safe integers. Quotes must match a listed source. Add ranges by editing the proposal, then approve each flag in the file or use `extract approve --all`; the listing includes open numeric settings. Automatic numeric range extraction is pending.
+
+Approved ranges require `generate --budget N`; generation without that flag refuses them. The sampled numbers are written into each selected spec's `given.vars`. The existing runner delivers those variables to the adapter. An adapter decides whether a variable maps to a target option, such as temperature; the generator does not perform that mapping. Other seeders do not sample these ranges.
 
 ### Relations
 
@@ -411,7 +442,7 @@ The output is identical to the committed `examples/acme/generated`. Exit 1 is th
 
 ## Budget mode
 
-`driftbench generate --budget N` selects up to N distinct conversation cells from the allowed pool, in place of the t-wise rows. Use it to spend a fixed number of selections on coverage and balance. It covers pairs regardless of `--t`.
+`driftbench generate --budget N` selects conversation rows from the allowed pool, in place of the t-wise rows. Use it to spend a fixed number of selections on coverage and balance. It covers pairs regardless of `--t`.
 
 Each pick follows these rules, in order:
 
@@ -419,7 +450,7 @@ Each pick follows these rules, in order:
 2. Break a tie by moving value counts toward their fair share: N divided by the number of allowed values in each dimension.
 3. Break any remaining tie by a seeded shuffle.
 
-Once all allowed pairs are covered, balance alone decides, followed by the seeded tie-break. The same map, seed and budget give the same suite. Constraints still apply. If N exceeds the allowed pool, every cell is selected once and the report sets `capped: true`. Constraints and pair coverage can prevent equal counts, so balance is a preference, not a guarantee.
+Once all allowed pairs are covered, balance alone decides, followed by the seeded tie-break. The same map, seed and budget give the same suite. Constraints still apply. Without approved numeric settings, cells are distinct: if N exceeds the allowed pool, every cell is selected once and the report sets `capped: true`. With numeric settings, categorical cells can repeat to place N numeric samples. Constraints and pair coverage can prevent equal counts, so categorical balance is a preference, not a guarantee.
 
 The budget controls only the replacement rows, which keep the `twise` seeder name and folder. Graph paths, boundary probes, deviation probes, metamorphic families, task instances and coverage completion still run. The whole suite can exceed N and can cover pairs that the budget rows miss. When both flags are given, `--max` still applies to the other seeders that use its limit. Task families keep their own `--tasks` count.
 
@@ -429,16 +460,31 @@ The report adds a `budget` block:
 |---|---|
 | `budget`, `seed` | requested selections and their seed |
 | `dimensions`, `pool` | dimensions crossed and allowed cells available |
-| `picked`, `capped` | selected cells and whether N exceeds the pool |
+| `picked`, `capped` | selected row count; `capped` means selection stopped at the distinct-cell pool limit |
 | `pairs` | allowed and covered pairs, with their covered share |
 | `values` | each allowed value's count, fair share and signed deviation |
 | `maxDeviation` | largest absolute difference between a count and its fair share |
+| `numeric` | present only with approved ranges: settings and each row's spec id, categorical cell, quantiles and runtime variables |
 
 Partial pair coverage does not set the seeder's cut flag. A complete map exits 0 even below the pair-cover size and prints `pairs covered X of Y`. Incomplete specs, generator defects and cuts in other seeders keep their usual exit codes. The Acme run at budget 20 has 69 incomplete specs and exits 1 for those specs, not for the budget.
 
-### Planned numeric support
+Selected lines from the Acme comparison command, run from the repository root:
 
-The space map has no numeric dimension kind yet. Numeric budget selection is planned: use a sliced Latin hypercube within each category combination. The exported `slicedLhs` helper is tested: it divides a range into equal bands, draws one value per band and shuffles their order with the seed. It has no generator call site yet. The boundary seeder continues to choose its own values.
+```
+$ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-20 --t 2 --seed 1 --budget 20 --force
+Budget 20: 20 cells of 747 allowed, pairs covered 154 of 314 (49.0%), max deviation from fair share 2.00.
+Coverage on the axis map at t = 2: complete specs 637 of 637 (100.0%), all specs 637 (100.0%).
+Wrote 321 files to _captures/budget/budget-20.
+exit 1
+```
+
+### Sliced numeric sampling
+
+Budget mode calls `slicedLhs` for every approved numeric setting. Rows with the same selected categorical combination form one slice. For each setting, its quantiles occupy every equal-width band once across the whole budget and every band once within each slice. Slice sizes can differ. Seeded interval matching assigns each slice band a global band, then draws inside their intersection. This supplies the global and within-slice Latin property described by [Qian's sliced Latin hypercube designs](https://doi.org/10.1080/01621459.2011.644132); it does not optimize distances between different numeric settings.
+
+Continuous ranges scale these quantiles to their bounds. Integer ranges map the quantiles to their inclusive integer levels. The Latin property applies to quantiles; integer values can repeat when there are fewer levels than rows. Constant ranges also repeat their single value. The report retains the quantiles so both global and within-slice balance can be checked.
+
+Without numeric settings, sampling is skipped and the output is unchanged. Golden tests compare every Acme generated file against the pre-numeric code for ordinary pairwise generation and budgets 20, 50, 100 and 200. The boundary seeder continues to choose its own categorical partition values.
 
 See the [measured budget comparison](../comparisons/budget/README.md) for selected-row coverage and balance beside whole-suite fault scores.
 

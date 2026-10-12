@@ -51,13 +51,15 @@ export function enumerateCells(sizes: readonly number[], allowed: (cell: number[
   return out;
 }
 
-/** Picks `budget` cells of the pool by the three rules above. The pool holds cells over `sizes.length` dimensions. */
+/** Picks cells by the three rules above. With reuse, numeric rows can share a categorical cell. */
 export function selectBudget(
   pool: readonly (readonly number[])[],
   sizes: readonly number[],
   budget: number,
   rng: Rng,
+  reuse = false,
 ): BudgetSelection {
+  if (reuse && budget > MAX_POOL) throw new RangeError(`a numeric budget cannot exceed ${MAX_POOL} rows`);
   const width = sizes.length;
   // One index per allowed pair of two dimensions: the pair's offset plus the two values' product.
   const offset: number[][] = [];
@@ -90,7 +92,7 @@ export function selectBudget(
   const taken = new Uint8Array(pool.length);
   const order = shuffle(rng, range(pool.length));
   const picked: number[] = [];
-  const steps = Math.min(budget, pool.length);
+  const steps = reuse && pool.length > 0 ? budget : Math.min(budget, pool.length);
   let coveredPairs = 0;
 
   for (let step = 0; step < steps; step += 1) {
@@ -98,7 +100,7 @@ export function selectBudget(
     let bestGain = -1;
     let bestBalance = Number.NEGATIVE_INFINITY;
     for (const index of order) {
-      if (taken[index]) continue;
+      if (!reuse && taken[index]) continue;
       const row = pool[index] ?? [];
       let gain = 0;
       for (let i = 0; i < width; i += 1)
@@ -136,14 +138,93 @@ export function selectBudget(
 }
 
 /**
- * Sliced Latin hypercube draw of `n` numbers in [low, high]: the range is cut into n equal bands, one value
- * is drawn uniformly inside each band, and the bands are shuffled, so the values spread between the band
- * boundaries and no band is visited twice. Returns the values in draw order.
+ * Latin hypercube draw, optionally sliced by categorical row. Without slices, preserves the ordinary
+ * seeded draw. With slices, interval matching assigns each slice band a distinct global band, then
+ * jitters inside their intersection. Every global band and every band of each slice has one point.
+ * Slice sizes may differ. Output positions correspond to the input slice labels.
  */
-export function slicedLhs(rng: Rng, low: number, high: number, n: number): number[] {
+export function slicedLhs(
+  rng: Rng,
+  low: number,
+  high: number,
+  n: number,
+  slices?: readonly string[],
+): number[] {
   if (!Number.isInteger(n) || n < 1) throw new RangeError('n must be a whole number of at least 1');
-  if (!(high >= low)) throw new RangeError('high must be at least low');
+  if (!Number.isFinite(low) || !Number.isFinite(high) || !Number.isFinite(high - low) || high < low)
+    throw new RangeError('low and high must give a finite range with high at least low');
+  if (slices !== undefined && n > MAX_POOL)
+    throw new RangeError(`a sliced draw cannot exceed ${MAX_POOL} rows`);
   const width = (high - low) / n;
   const bands = range(n);
-  return shuffle(rng, bands).map((band) => low + (band + rng()) * width);
+  if (slices === undefined) return shuffle(rng, bands).map((band) => low + (band + rng()) * width);
+  if (slices.length !== n) throw new RangeError('one categorical slice label is required per row');
+
+  const members = new Map<string, number[]>();
+  slices.forEach((slice, row) => {
+    const own = members.get(slice) ?? [];
+    own.push(row);
+    members.set(slice, own);
+  });
+  type Band = { row: number; band: number; size: number; start: number; end: number; priority: number };
+  const tokens = [...members.values()].flatMap((rows) =>
+    shuffle(rng, rows).map((row, band) => ({
+      row,
+      band,
+      size: rows.length,
+      start: Math.floor((n * band) / rows.length),
+      end: Math.ceil((n * (band + 1)) / rows.length) - 1,
+      priority: 0,
+    })),
+  );
+  shuffle(rng, tokens).forEach((token, priority) => {
+    token.priority = priority;
+  });
+  tokens.sort((a, b) => a.start - b.start || a.end - b.end || a.priority - b.priority);
+  // Earliest-deadline interval matching, using a min-heap: O(n log n), including unequal slices.
+  const heap: Band[] = [];
+  const before = (a: Band, b: Band) => a.end < b.end || (a.end === b.end && a.priority < b.priority);
+  const push = (token: Band) => {
+    let at = heap.length;
+    heap.push(token);
+    while (at > 0) {
+      const parent = Math.floor((at - 1) / 2);
+      const previous = heap[parent] as Band;
+      if (!before(token, previous)) break;
+      heap[at] = previous;
+      at = parent;
+    }
+    heap[at] = token;
+  };
+  const pop = (): Band | undefined => {
+    const first = heap[0];
+    const last = heap.pop();
+    if (heap.length > 0 && last) {
+      let at = 0;
+      while (at * 2 + 1 < heap.length) {
+        let child = at * 2 + 1;
+        if (child + 1 < heap.length && before(heap[child + 1] as Band, heap[child] as Band)) child++;
+        if (!before(heap[child] as Band, last)) break;
+        heap[at] = heap[child] as Band;
+        at = child;
+      }
+      heap[at] = last;
+    }
+    return first;
+  };
+  const values = new Array<number>(n);
+  let cursor = 0;
+  for (const fine of bands) {
+    while (cursor < tokens.length && (tokens[cursor]?.start ?? n) <= fine) push(tokens[cursor++] as Band);
+    const token = pop();
+    if (!token || token.end < fine) throw new Error('could not match a slice band to a global band');
+    const bottom = Math.max(fine / n, token.band / token.size);
+    const top = Math.min((fine + 1) / n, (token.band + 1) / token.size);
+    let quantile = bottom + rng() * (top - bottom);
+    // Endpoint rounding must never move a point into a neighbouring band.
+    if (Math.floor(quantile * n) !== fine || Math.floor(quantile * token.size) !== token.band)
+      quantile = (bottom + top) / 2;
+    values[token.row] = low + quantile * (high - low);
+  }
+  return values;
 }

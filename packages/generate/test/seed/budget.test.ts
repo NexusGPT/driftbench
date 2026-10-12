@@ -157,6 +157,14 @@ describe('selectBudget: balance', () => {
 });
 
 describe('selectBudget: determinism', () => {
+  it('reuses categorical cells only when numeric sampling requests slices', () => {
+    const pool = [[0], [1]];
+    expect(selectBudget(pool, [2], 12, rngFor(1, 'budget')).picked).toHaveLength(2);
+    const repeated = selectBudget(pool, [2], 12, rngFor(1, 'budget'), true);
+    expect(repeated.picked).toHaveLength(12);
+    expect(repeated.counts).toEqual([[6, 6]]);
+    expect(() => selectBudget(pool, [2], MAX_POOL + 1, rngFor(1, 'budget'), true)).toThrow(RangeError);
+  });
   it('caps at the pool without duplicates and counts only values present in allowed cells', () => {
     const pool = [
       [0, 0],
@@ -193,6 +201,39 @@ describe('selectBudget: determinism', () => {
 });
 
 describe('slicedLhs', () => {
+  it.each([
+    [2, 3],
+    [1, 3, 7],
+    [3, 4, 5],
+    [1, 1, 1],
+  ])('handles unequal slice sizes %j', (...sizes) => {
+    const slices = sizes.flatMap((size, index) => Array.from({ length: size }, () => String(index)));
+    const n = slices.length;
+    for (const rng of [rngFor(1, 'numeric'), () => 0, () => 1 - Number.EPSILON]) {
+      const values = slicedLhs(rng, 0, 1, n, slices);
+      expect(values.map((value) => Math.floor(value * n)).sort((a, b) => a - b)).toEqual(range(n));
+      sizes.forEach((size, index) => {
+        const own = values.filter((_, row) => slices[row] === String(index));
+        expect(own.map((value) => Math.floor(value * size)).sort((a, b) => a - b)).toEqual(range(size));
+      });
+    }
+  });
+
+  it('refuses a missing slice label and non-finite ranges before drawing', () => {
+    expect(() => slicedLhs(rngFor(1, 'numeric'), 0, 1, 2, ['a'])).toThrow(RangeError);
+    expect(() => slicedLhs(rngFor(1, 'numeric'), 0, Number.POSITIVE_INFINITY, 2)).toThrow(RangeError);
+    expect(() => slicedLhs(rngFor(1, 'numeric'), 0, 1, MAX_POOL + 1, [])).toThrow(RangeError);
+  });
+  it('covers bands globally and inside each categorical slice instead of clumping within a slice', () => {
+    const slices = [...Array.from({ length: 6 }, () => 'a'), ...Array.from({ length: 6 }, () => 'b')];
+    const draw = slicedLhs(rngFor(7, 'numeric'), 0, 1, 12, slices);
+    expect(draw.map((value) => Math.floor(value * 12)).sort((a, b) => a - b)).toEqual(range(12));
+    for (const slice of ['a', 'b']) {
+      const bands = draw.filter((_, index) => slices[index] === slice).map((value) => Math.floor(value * 6));
+      expect(bands.sort((a, b) => a - b)).toEqual(range(6));
+    }
+  });
+
   it('draws one value per band, so the values spread between the boundaries', () => {
     const values = slicedLhs(rngFor(3, 'numeric'), 0, 10, 5);
     expect(values).toHaveLength(5);
