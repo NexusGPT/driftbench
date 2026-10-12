@@ -19,6 +19,7 @@ import {
   quantileSorted,
   sampleVariance,
   unreliability,
+  varianceComponents,
   wilcoxonSignedRank,
   wilson,
   zeroFailureBound,
@@ -175,5 +176,25 @@ describe('RangeError names the function and the argument', () => {
 
   it('passAtK with k out of range names passAtK and k', () => {
     expect(() => passAtK(3, 5, 9)).toThrow(/^passAtK: k/);
+  });
+});
+
+describe('varianceComponents names the observations argument', () => {
+  const ok = { value: 1, path: ['a'] };
+  const opts = { levels: ['cell'] };
+  it('an empty list', () => {
+    expect(() => varianceComponents([], opts)).toThrow(/^varianceComponents: observations/);
+  });
+  it('a value that is not finite', () => {
+    for (const bad of [NaN, Infinity, -Infinity]) {
+      expect(() => varianceComponents([ok, { value: bad, path: ['b'] }], opts)).toThrow(
+        /^varianceComponents: observations\[1\]/,
+      );
+    }
+  });
+  it('a path of the wrong length', () => {
+    expect(() => varianceComponents([ok, { value: 2, path: ['a', 'b'] }], opts)).toThrow(
+      /^varianceComponents: observations\[1\]/,
+    );
   });
 });

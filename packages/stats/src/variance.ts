@@ -76,16 +76,16 @@ export function varianceComponents(
   const residual = options.residual ?? 'repeat';
   const L = levels.length;
   const N = observations.length;
-  if (N === 0) throw new RangeError('varianceComponents: no observations');
+  if (N === 0) throw new RangeError('varianceComponents: observations must not be empty');
   const ys = observations.map((o) => (typeof o.value === 'boolean' ? (o.value ? 1 : 0) : o.value));
   observations.forEach((o, i) => {
     if (o.path.length !== L) {
       throw new RangeError(
-        `varianceComponents: observation ${i} has ${o.path.length} path entries, expected ${L}`,
+        `varianceComponents: observations[${i}].path has ${o.path.length} entries, expected ${L}`,
       );
     }
     if (!Number.isFinite(ys[i] as number))
-      throw new RangeError(`varianceComponents: observation ${i} is not finite`);
+      throw new RangeError(`varianceComponents: observations[${i}].value must be finite, got ${ys[i]}`);
   });
 
   // Group sizes and sums per level; level 0 is the grand group.
