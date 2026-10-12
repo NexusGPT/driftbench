@@ -52,4 +52,4 @@ metadata:
     needs:
       - marker: needs-askable-act
         atom: reference.standing.read-claude-memory-memory-md
-        detail: "no task in the atom's words (reference.standing.read-claude-memory-memory-md (situation)): the act names the file .claude/memory/MEMORY.md: \"handle this for me: read .claude/memory/MEMORY.md at the start of every session\""
+        detail: "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act names the file .claude/memory/MEMORY.md: \"read .claude/memory/MEMORY.md\""

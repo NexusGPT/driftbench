@@ -247,12 +247,10 @@ export function actOf(
       described ??= `${atom.id} (description)`;
     }
   }
-  const situation = context ? clauseOf(context) : '';
-  if (letterWords(situation) >= 3) {
-    return { act: `handle this for me: ${lower(situation)}`, source: `${head?.id ?? 'row'} (situation)` };
-  }
-  // A title is a task only when it starts with a verb; a stage's title after its label ("Stage x/P4: ...").
-  const title = plain(head?.title ?? '');
+  // A situation says when a rule applies, never what to do: "handle this for me: the invoice is not in
+  // EUR" names no task, so it rides only with a task another atom gives. A guard's title is its event and
+  // its name ("Stop guard R34-DUE"), never an act.
+  const title = head?.kind === 'guard' ? '' : plain(head?.title ?? '');
   const task = title.includes(': ') ? title.slice(title.indexOf(': ') + 2) : title;
   // A rule that forbids an act ("Never paste a credential"): the ask is the act it forbids.
   const forbidden = /^(?:never|do not|don't|no one may|you must not)\s+(.+)$/i.exec(task)?.[1];

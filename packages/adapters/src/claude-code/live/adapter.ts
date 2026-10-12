@@ -163,6 +163,14 @@ export const RUNTIME_FLAGS = [
 
 export const DEFAULT_ESTATE_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'] as const;
 
+/**
+ * True for a file the runtime loads into its context by itself: a CLAUDE.md or CLAUDE.local.md, at the root
+ * or in a folder (loaded when the agent works there). No Read call ever shows it, so a test never expects one.
+ */
+export function loadedByRuntime(path: string): boolean {
+  return /(^|\/)CLAUDE(\.local)?\.md$/.test(path.replace(/^\.?\/+/, ''));
+}
+
 type LiveState = {
   sandbox: Sandbox;
   /** Outside the project folder: the runtime's config folder, the hook logs, the helper registry. */

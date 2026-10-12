@@ -52,4 +52,4 @@ metadata:
     needs:
       - marker: needs-askable-act
         atom: reference.memory-memory.read-supplier-languages-md
-        detail: "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (situation)): the act names the file languages](supplier-languages.md):: \"handle this for me: [Supplier languages](supplier-languages.md): which language each supplier reads\""
+        detail: "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (title)): the act names the file supplier-languages.md: \"read supplier-languages.md\""

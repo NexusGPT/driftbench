@@ -264,6 +264,39 @@ describe('the quality floor of a code-written ask', () => {
     expect(codeAsk('trigger', [thin], []).text).toBeUndefined();
   });
 
+  it('never asks to handle a situation: a situation names when, not what to do', () => {
+    // Bench run 3: "handle this for me: this involves the first sweep dispatch" names no task.
+    for (const situation of ['The invoice is not in EUR', 'This involves the first sweep of the vans']) {
+      const rule = atom('instruction.x.rule', { title: 'A rule with no verb', situation });
+      const ask = codeAsk('trigger', [rule], []);
+      expect(ask.text, situation).toBeUndefined();
+      expect(ask.refused, situation).toMatch(/no task/);
+    }
+    // The situation still rides with a task another atom of the row gives.
+    const rule = atom('instruction.x.rule', {
+      title: 'A rule with no verb',
+      situation: 'The invoice is not in EUR',
+    });
+    const skill = atom('skill.x.reconcile', {
+      fields: { name: 'reconcile', description: 'Reconcile a supplier invoice against its order.' },
+    });
+    expect(codeAsk('trigger', [rule, skill], []).text).toBe(
+      'Please reconcile a supplier invoice against its order. The invoice is not in EUR.',
+    );
+  });
+
+  it("never asks to act on a guard's own title: it is an event and a registry code", () => {
+    // Bench run 3: "Please stop guard R34-DUE", from the title "Stop guard R34-DUE" (event Stop).
+    for (const title of [
+      'Stop guard R34-DUE',
+      'Stop, PostToolUse guard O-HELPEREV',
+      'PreToolUse Bash guard VANLOCK',
+    ]) {
+      const guard = atom('guard.registry.x', { kind: 'guard', title, fields: { check: 'X' } });
+      expect(codeAsk('trigger', [guard], []).text, title).toBeUndefined();
+    }
+  });
+
   it('keeps an act with a verb, an object and at least four words in the ask', () => {
     expect(askable('reconcile an invoice against a purchase order')).toBeUndefined();
     expect(askable('sort the inbox')).toBeUndefined();

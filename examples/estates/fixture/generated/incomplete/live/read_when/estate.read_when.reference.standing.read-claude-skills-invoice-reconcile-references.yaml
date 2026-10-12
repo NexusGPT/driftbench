@@ -52,4 +52,4 @@ metadata:
     needs:
       - marker: needs-askable-act
         atom: reference.standing.read-claude-skills-invoice-reconcile-references
-        detail: "no task in the atom's words (reference.standing.read-claude-skills-invoice-reconcile-references (situation)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"handle this for me: before editing any invoice file: Read .claude/skills/invoice-reconcile/references/matching-rules.md\""
+        detail: "no task in the atom's words (reference.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md\""
