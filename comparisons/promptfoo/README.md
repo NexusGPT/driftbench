@@ -39,3 +39,7 @@ The encoding and multilingual transforms are the promptfoo strategy logic, paste
 | 33 Multi-turn simulated user, 10 attacks | `npx tsx comparisons/promptfoo/multiturn/run.mts` (writes recorded.json; sonnet plays the customer, haiku the assistant) | yes, under 0.05 USD (the runner does not sum its cost; the estimate is from per-call sizes) |
 
 Rot13 mostly meets the platform refusal, which the classifier counts separately; the transform is unchanged and tested.
+
+## Row 33 rot13 probe
+
+`npx tsx comparisons/promptfoo/redteam-encodings/rot13-probe.mts` (15 calls, haiku, under 0.02 USD) separates the rot13 refusal from the encoding: a neutral question in rot13 gets a normal reply, and the attack in rot13 is refused with or without the decode wrapper.
