@@ -201,3 +201,56 @@ describe('driftbench estate generate', () => {
     ).toBe(4);
   });
 });
+
+describe('estate generate with no phrase bank (bench defect D7)', () => {
+  const CASES = join(ROOT, 'examples/estates/reader-cases');
+
+  it('generates with an empty bank when none sits beside the map, and refuses a named one that is missing', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-nobank-'));
+    await copyFile(join(CASES, 'approved.yaml'), join(dir, 'approved.yaml'));
+    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], dir)).code).toBe(0);
+    expect((await run(['estate', 'plan', 'approve', 'plan.yaml', '--all'], dir)).code).toBe(0);
+    const result = await run(
+      ['estate', 'generate', '--map', 'approved.yaml', '--plan', 'plan.yaml', '--out', 'gen'],
+      dir,
+    );
+    expect(result.err).toBe('');
+    expect(result.code).toBe(1);
+    expect(result.out).toContain(
+      'No phrase bank at phrases.yaml: generating with an empty one; each live row names the phrase it needs.',
+    );
+    expect(result.out).toMatch(/needs-approved-phrase\s+\d+ specs/);
+    const report = JSON.parse(await readFile(join(dir, 'gen', 'estate-generate-report.json'), 'utf8'));
+    expect(report.summary.specs).toBeGreaterThan(0);
+
+    const hash = /^hash: (\S+)$/m.exec(await readFile(join(dir, 'approved.yaml'), 'utf8'))?.[1];
+    await writeFile(
+      join(dir, 'phrases.yaml'),
+      `version: 1\nestate: reader-cases\nmapHash: ${hash}\nworkspaces: []\nsituations: []\n`,
+    );
+    const empty = await run(
+      ['estate', 'generate', '--map', 'approved.yaml', '--plan', 'plan.yaml', '--out', 'gen', '--force'],
+      dir,
+    );
+    expect(empty.err).toBe('');
+    expect(empty.code).toBe(1);
+
+    const named = await run(
+      [
+        'estate',
+        'generate',
+        '--map',
+        'approved.yaml',
+        '--plan',
+        'plan.yaml',
+        '--out',
+        'g2',
+        '--phrases',
+        'none.yaml',
+      ],
+      dir,
+    );
+    expect(named.code).toBe(2);
+    expect(named.err).toContain('the phrase bank cannot be read or is invalid');
+  }, 120_000);
+});

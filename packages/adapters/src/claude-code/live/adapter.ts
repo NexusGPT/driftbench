@@ -1,5 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import { constants } from 'node:fs';
 import {
   cp,
   lstat,
@@ -515,7 +516,9 @@ function pinOf(given: ResolvedGiven, pins: readonly string[] | undefined): strin
 }
 
 /**
- * Copies the estate's own files into the project folder, modes kept (guard scripts stay runnable). Symbolic
+ * Copies the estate's own files into the project folder, modes kept (guard scripts stay runnable): the
+ * names given, a folder whole or one file each (the runner passes the estate's file list, so ignored
+ * folders stay out). Symbolic
  * links are followed: the copy holds real files and never a link, so nothing the runner or the agent writes
  * in the copy reaches the estate it came from. A link left in the copy refuses the open.
  */
@@ -523,15 +526,38 @@ async function copyEstate(root: string, names: readonly string[], folder: string
   const info = await stat(root).catch(() => undefined);
   if (!info?.isDirectory()) throw new AgentFailure(`the estate root ${root} is not a folder`);
   let copied = 0;
-  for (const name of names) {
+  // Sixteen copies at a time: an estate of thousands of small files is bound by the file system's latency.
+  await eachLimited(names, 16, async (name) => {
     const source = join(root, name);
-    if ((await stat(source).catch(() => undefined)) === undefined) continue;
-    await cp(source, join(folder, name), { recursive: true, dereference: true });
+    if ((await stat(source).catch(() => undefined)) === undefined) return;
+    // A copy-on-write clone where the file system has one, else a plain copy; never a hard link.
+    await mkdir(dirname(join(folder, name)), { recursive: true });
+    await cp(source, join(folder, name), {
+      recursive: true,
+      dereference: true,
+      mode: constants.COPYFILE_FICLONE,
+    });
     copied += 1;
-  }
+  });
   if (copied === 0) throw new AgentFailure(`the estate root ${root} holds none of ${names.join(', ')}`);
   const left = await linksUnder(folder);
   if (left.length > 0) throw new AgentFailure(`the estate copy holds symbolic links: ${left.join(', ')}`);
+}
+
+/** Runs `work` on every item, at most `limit` at a time. */
+async function eachLimited<T>(
+  items: readonly T[],
+  limit: number,
+  work: (item: T) => Promise<void>,
+): Promise<void> {
+  let next = 0;
+  const lanes = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const item = items[next++] as T;
+      await work(item);
+    }
+  });
+  await Promise.all(lanes);
 }
 
 async function linksUnder(dir: string): Promise<string[]> {
