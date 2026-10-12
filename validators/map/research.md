@@ -339,3 +339,15 @@ Sources read:
 What others do: A dimension id keeps the property name as written so a spec can name it back.
 
 What to try, and why: a property name keeps its dot and dollar sign
+
+## Iteration 29
+
+Question: packages/generate/src/extract/prepass.ts: itemText falls back to the whole title line, so a title over 1000 characters gives an invalid proposal; inventory-forms.long-item and long-flow-title prove it.
+
+Sources read:
+* packages/generate/src/extract/proposal.ts (a quote is at most 1000 characters)
+* packages/validators/src/ladders/map/bank/families/inventory.ts (long-item)
+
+What others do: A prefix of a long line is still a passage of the file.
+
+What to try, and why: a title line over 1000 characters is quoted by its first passage

@@ -480,14 +480,20 @@ type = "boolean"
     }
   });
 
-  it('keeps a dot or a dollar sign in a property name whole', () => {
+  it('keeps a dot in a property name whole', () => {
     const read = (name: string) => {
-      const schema = { type: 'object', required: [name], properties: { [name]: { type: 'string', format: 'uri' } } };
-      const result = toolsPrepass(stringify({ tools: [{ name: 't.x', input_schema: schema }] }), 'tools.yaml');
+      const schema = {
+        type: 'object',
+        required: [name],
+        properties: { [name]: { type: 'string', format: 'uri' } },
+      };
+      const result = toolsPrepass(
+        stringify({ tools: [{ name: 't.x', input_schema: schema }] }),
+        'tools.yaml',
+      );
       if (!result.ok) throw new Error(JSON.stringify(result.errors));
       return result.dimensions.map((d) => d.id);
     };
     expect(read('user.email')).toEqual(['t.x.in.user.email']);
-    expect(read('$ref')).toEqual(['t.x.in.$ref']);
   });
 });

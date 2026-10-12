@@ -143,3 +143,17 @@ flows: []
     if (!result.ok) expect(result.errors.map((issue) => issue.code)).toEqual(['INVENTORY_UNKNOWN_BEHAVIOUR']);
   });
 });
+
+describe('inventoryPrepass on an item whose title alone is over 1000 characters', () => {
+  it('quotes a passage of the source within the limit', () => {
+    const long = `${'a very long title '.repeat(80)}end`;
+    const source = `behaviours:\n  - id: B-001\n    title: ${long}\nflows:\n  - id: f1\n    title: ${long}\n    behaviours: [B-001]\n`;
+    const read = ok(inventoryPrepass(source, 'inventory.yaml'));
+    for (const dim of read.dimensions) {
+      for (const value of dim.values) {
+        expect(value.evidence.quote.length).toBeLessThanOrEqual(1000);
+        expect(source).toContain(value.evidence.quote);
+      }
+    }
+  });
+});
