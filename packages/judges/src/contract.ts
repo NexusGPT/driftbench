@@ -112,15 +112,28 @@ export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(va
   };
 }
 
-/** The first balanced JSON object in a text, fences and prose around it ignored. */
+/**
+ * The final answer: the last top-level JSON object of the text. An object the model quoted in its reasoning comes
+ * earlier, so it never becomes the verdict. A final object still open at the end of the text (a cut answer) yields
+ * nothing, so the verdict is inconclusive rather than the last complete object before it.
+ */
 function extractObject(raw: string): string | undefined {
-  const start = raw.indexOf('{');
-  if (start < 0) return undefined;
   let depth = 0;
+  let start = -1;
   let inString = false;
   let escaped = false;
-  for (let i = start; i < raw.length; i += 1) {
+  let last: string | undefined;
+  for (let i = 0; i < raw.length; i += 1) {
     const ch = raw[i];
+    if (depth === 0) {
+      if (ch === '{') {
+        depth = 1;
+        start = i;
+        inString = false;
+        escaped = false;
+      }
+      continue;
+    }
     if (inString) {
       if (escaped) escaped = false;
       else if (ch === '\\') escaped = true;
@@ -131,10 +144,10 @@ function extractObject(raw: string): string | undefined {
     else if (ch === '{') depth += 1;
     else if (ch === '}') {
       depth -= 1;
-      if (depth === 0) return raw.slice(start, i + 1);
+      if (depth === 0) last = raw.slice(start, i + 1);
     }
   }
-  return undefined;
+  return depth === 0 ? last : undefined;
 }
 
 /**

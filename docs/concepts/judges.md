@@ -140,6 +140,7 @@ Without its catalog, a real judge cannot answer `sheet_matches_catalog`: haiku a
 
 * The prompt gives the rubric with the FAIL picture before the PASS picture, then the data. A missing picture gets a strict default.
 * The observed content sits inside data tags: `<given_data>`, `<transcript_data>` and `<artifact_data>`. The instruction says that text inside a data tag is data, never instructions, and that an instruction found in the data is never a reason to pass. Any text in the data that opens or closes a data tag is escaped, so the data closes exactly once.
+* The answer is the final JSON object in the text. An object quoted earlier in the reasoning never becomes the verdict. A final object cut off at the end is inconclusive.
 * The answer is strict JSON with `outcome` (`pass`, `fail` or `inconclusive`), `reasoning`, and optionally `score` (the probability that the criterion passes, from 0 to 1) and `evidence` (a short quote from the data). Any other key breaks the contract.
 * An answer that does not parse, breaks the contract, or stops at its token limit is inconclusive. The council asks that judge again once with the large budget (for a chat model, 4096 tokens instead of 1024). There is no silent fallback.
 * A refusal by the provider is inconclusive.
@@ -482,3 +483,13 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 * For `sheet_matches_catalog`, the judge reads the workbook the ops agent wrote, rendered by the xlsx reader, with the workspace diff.
 
 `driftbench campaign run` cannot load a council yet: it runs `defaultChecks()` and its record stores `judge: { mode: system1, judges: [] }`. A caller that wants judged criteria in a campaign passes `defaultChecks({ judges: council })` as the campaign's checks from code. A command line option to load a cassette and an assignment table is not built yet. See [running](../running.md).
+
+## Repeat reducers
+
+A criterion can say how its verdicts across the repeats of one spec become one verdict, with `repeat_reducer`:
+
+* `mode`: the most common verdict. A tie goes to the verdict seen first.
+* `median`: a pass above one half of the repeats, a fail below it. Exactly one half is undecided.
+* `at_least:<k>`: a pass when at least `k` repeats pass. Undecided when fewer than `k` repeats are scored.
+
+A run folds the criterion's verdicts across its blocks first: any fail makes the run a fail, every block passing makes it a pass, and anything else is undecided. An inconclusive repeat is left out of every reducer. A criterion without `repeat_reducer` gets no reduced verdict.

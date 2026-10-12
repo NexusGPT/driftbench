@@ -20,6 +20,7 @@ import { createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { loadValidSpecs } from './campaign';
+import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
 
 /** Adds `estate mutate` and `estate run` to `driftbench estate`. */
@@ -45,7 +46,11 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     .description(
       'Run live estate specs through the runtime headless, in a sandbox holding a copy of the estate',
     )
-    .argument('<specs...>', 'the live spec files or folders')
+    .argument('[specs...]', 'the live spec files or folders')
+    .option(
+      '--order <file>',
+      'a run-order file: one spec file or folder per line, from its own folder; # starts a comment',
+    )
     .requiredOption('--estate <root>', 'the estate root (or a mutant folder of estate mutate)')
     .requiredOption('--runtime <name>', 'the runtime adapter: claude-code')
     .option('--command <bin>', `the headless command (default ${DEFAULT_RUNTIME_COMMAND})`)
@@ -82,6 +87,8 @@ export const STAND_IN_MARKER = '@driftbench-stand-in';
 
 export type EstateRunOptions = {
   estate: string;
+  /** A run-order file: one spec path per line, relative to the file's folder. */
+  order?: string;
   runtime: string;
   command?: string;
   store: string;
@@ -128,6 +135,25 @@ export async function estateRunCommand(
 ): Promise<number> {
   if (options.runtime !== 'claude-code') {
     io.err(`--runtime ${options.runtime} is not supported; the live runner exists for claude-code.\n`);
+    return 2;
+  }
+  let paths = [...specPaths];
+  if (options.order !== undefined) {
+    const orderPath = resolve(io.cwd, options.order);
+    const text = await readFile(orderPath, 'utf8').catch(() => undefined);
+    if (text === undefined) {
+      io.err(`The run-order file ${options.order} cannot be read.\n`);
+      return 2;
+    }
+    const listed = text
+      .split('\n')
+      .map((line) => line.replace(/#.*$/, '').trim())
+      .filter((line) => line !== '')
+      .map((line) => resolve(dirname(orderPath), line));
+    paths = [...paths, ...listed];
+  }
+  if (paths.length === 0) {
+    io.err('Name the specs to run: spec files or folders, or --order <file>.\n');
     return 2;
   }
   const root = resolve(io.cwd, options.estate);
@@ -181,7 +207,7 @@ export async function estateRunCommand(
   let pins: string[] = [];
   let mapIgnore: readonly string[] = [];
   if (options.map !== undefined) {
-    const loaded = await loadEstateMap(resolve(io.cwd, options.map));
+    const loaded = await loadEstateMap(resolve(io.cwd, options.map), mapCacheOptions());
     if (!loaded.ok) {
       io.err(`The map ${options.map} is not valid:\n`);
       for (const issue of loaded.errors)
@@ -231,7 +257,7 @@ export async function estateRunCommand(
     else env[name] = value;
   }
 
-  const loaded = await loadValidSpecs(specPaths, io);
+  const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
   const specs = loaded.filter((entry) => {
     const adapter = entry.spec.target?.adapter;
@@ -423,7 +449,7 @@ export async function estateMutateCommand(
     return 2;
   }
   const mapPath = resolve(io.cwd, mapArg);
-  const loaded = await loadEstateMap(mapPath);
+  const loaded = await loadEstateMap(mapPath, mapCacheOptions());
   if (!loaded.ok) {
     io.err(`The map ${mapArg} is not valid:\n`);
     for (const issue of loaded.errors)

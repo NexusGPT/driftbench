@@ -119,3 +119,15 @@ export {
   renderUser,
   SYSTEM_PROMPT,
 } from './prompt';
+export {
+  assign,
+  completeItem,
+  emptyQueue,
+  enqueue,
+  QUEUE_FILE,
+  type QueueEntry,
+  type QueueState,
+  type ReviewQueue,
+  readQueue,
+  writeQueue,
+} from './queue';
