@@ -57,6 +57,11 @@ const OTHER_LANGUAGES: readonly { readonly judge: readonly string[]; readonly ve
     judge: ['beoordelingscriteria', 'beoordelaar', 'rechter', 'criteria', 'rubriek', 'oordeel'],
     verdict: ['geslaagd', 'slaagt', 'voldoet', 'succes', 'gefaald', 'niet geslaagd', 'goedgekeurd'],
   },
+  {
+    // Polish
+    judge: ['kryteri[aó]w? oceny', 'kryteria', 'ocena', 'oceniaj[ąa]cy', 's[ęe]dzia', 'werdykt', 'rubryk[ia]'],
+    verdict: ['zaliczone', 'zaliczony', 'zaliczona', 'zdane', 'zdany', 'pozytywn[aey]', 'sukces', 'niezaliczone', 'oblane'],
+  },
 ];
 
 const VERDICT_WORDS = ['pass', 'passing', 'passed', 'passes', 'success', 'satisfied', 'compliant', 'met', 'fail', 'fails'];
