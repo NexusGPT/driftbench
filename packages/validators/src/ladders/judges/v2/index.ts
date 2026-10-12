@@ -14,6 +14,7 @@ import { evidenceItems } from './families/evidence';
 import { extraItems } from './families/extra';
 import { injectionItems, precisionItems } from './families/injection';
 import { billedMode, liveItems } from './families/live';
+import { moreItems } from './families/more';
 import { pairwiseItems } from './families/pairwise';
 import { renderItems } from './families/render';
 import { rubricItems } from './families/rubric';
@@ -87,6 +88,7 @@ export function judgesBank(): BankItem[] {
     ...scaleItems(),
     ...auditItems(),
     ...extraItems(),
+    ...moreItems(),
     ...liveItems(),
   ];
   return all.map((entry) => ({ ...entry, cause: causeOf(entry.id) }));

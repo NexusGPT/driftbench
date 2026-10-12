@@ -5,6 +5,8 @@
  * every item of the bank must match a rule (a test checks it).
  */
 
+import { MORE_CAUSES } from './causes-more';
+
 const S = 'packages/judges';
 export const SCREEN = `Add screenData(request) to ${S} (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words`;
 
@@ -667,6 +669,8 @@ const RULES: readonly (readonly [RegExp, string])[] = [
 
 /** The cause of one item id. Throws when no rule matches: every item must carry a cause. */
 export function causeOf(id: string): string {
+  const more = MORE_CAUSES[id];
+  if (more !== undefined) return more;
   if (BASE_SCREEN_ITEMS.has(id)) return SCREEN;
   for (const [pattern, cause] of RULES) {
     const match = pattern.exec(id);

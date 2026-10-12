@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { protectedChanges, runLadder } from '../../../src/index';
+import { MORE_CAUSES } from '../../../src/ladders/judges/v2/causes-more';
 import {
   BILLED_APPROVAL,
   bankShape,
@@ -92,7 +93,10 @@ describe('the judges bank, ladder version 2', () => {
       (r) => !r.passes[0] && !(r.family === 'scale' && /took/.test(r.detail)),
     );
     expect(failing.map((r) => r.family)).toEqual(new Array(failing.length).fill('evidence'));
-    expect(failing.length).toBe(judgesBank().filter((entry) => entry.family === 'evidence').length);
+    // The evidence items of families/more.ts ask for other exports (quoteSpan, levenshtein, ...).
+    expect(failing.length).toBe(
+      judgesBank().filter((entry) => entry.family === 'evidence' && !(entry.id in MORE_CAUSES)).length,
+    );
     expect(failing[0]?.detail).toMatch(/packages\/judges exports no function groundEvidence/);
   }, 240_000);
 

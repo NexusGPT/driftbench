@@ -20,6 +20,7 @@ import { firstPlace } from '../../../src/ladders/judges/v2/families/evidence';
 import { LANGUAGES } from '../../../src/ladders/judges/v2/families/injection';
 import { referenceBradleyTerry, stronglyConnected } from '../../../src/ladders/judges/v2/families/pairwise';
 import { referenceFit } from '../../../src/ladders/judges/v2/families/turns';
+import { moreWitness } from './witness-more';
 
 /**
  * The witness: a version of the judges package written only to show that every deterministic item of the bank
@@ -1153,6 +1154,7 @@ function pruneCassette(cassette: Cassette, keys: readonly string[]): Cassette {
 export function witnessApi(): JudgesApi {
   return {
     ...realApi,
+    ...moreWitness,
     parseAnswerText,
     outcomeFromProbability,
     escapeData,
