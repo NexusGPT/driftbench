@@ -739,7 +739,7 @@ describe('failures', () => {
     expect(attempts, 'the run settings win over the spec target').toBe(3);
   });
 
-  it('waits what Retry-After asks, and never retries a 408 or a call the adapter already retried in full', async () => {
+  it('waits what Retry-After asks, retries a 408 like a 429, and never retries a call the adapter already retried in full', async () => {
     const waits: number[] = [];
     const run = async (errors: AdapterTransportError[]) => {
       const adapter = acmeAdapter();
@@ -771,8 +771,9 @@ describe('failures', () => {
     });
 
     const timeout = await run([new AdapterTransportError('request timeout', { status: 408 })]);
-    expect(timeout.attempts).toBe(1);
-    expect(timeout.result.error).toBe('send on block 0 failed: AdapterTransportError: request timeout');
+    expect(timeout.attempts).toBe(2);
+    expect(timeout.result.status).toBe('completed');
+    expect(timeout.result.blocks[0]?.observed.retries?.[0]).toMatchObject({ status: 408 });
 
     const spent = await run([
       new AdapterTransportError('messages.create failed after 4 attempts', { status: 503, exhausted: true }),
@@ -1126,6 +1127,16 @@ describe('workspace reads and traces', () => {
 });
 
 describe('the cache', () => {
+  it('replays a spec whose version label alone changed', async () => {
+    const cache = memoryCache();
+    await runSpec(spec(), { adapter: acmeAdapter(), driver, checks: [], mode: 'F', repeat: 0, cache });
+    const relabelled = await runSpec(
+      { ...spec(), version: 'relabelled' },
+      { adapter: acmeAdapter(), driver, checks: [], mode: 'F', repeat: 0, cache },
+    );
+    expect(relabelled.cacheHit).toBe(true);
+  });
+
   const spec = () => acmeSpec(loaded, 'acme-plan-upgrade');
 
   it('returns the same Observed for the same key', async () => {
@@ -1144,8 +1155,10 @@ describe('the cache', () => {
     const key = (index: number) => {
       const ctx = watch.seen[index];
       if (!ctx) throw new Error('no context');
+      // The key carries the spec's hash without its version label, which plays no part in the cache.
+      const { version: _version, ...unlabelled } = spec();
       return blockCacheKey({
-        specHash: first.specHash,
+        specHash: contentHash(unlabelled),
         repeat: 0,
         position: index,
         given: ctx.given,

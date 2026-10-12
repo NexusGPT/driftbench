@@ -1,0 +1,502 @@
+[
+  {
+    "id": "G069",
+    "label": "forget",
+    "reply": "What email address should I use for the receipt?"
+  },
+  {
+    "id": "G018",
+    "label": "keep",
+    "reply": "A technician will call you on the number you gave us."
+  },
+  {
+    "id": "G067",
+    "label": "forget",
+    "reply": "Where should I send the confirmation, what is your email?"
+  },
+  {
+    "id": "G005",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G000",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G092",
+    "label": "forget",
+    "reply": "Which mailbox should the invoice go to?"
+  },
+  {
+    "id": "G050",
+    "label": "forget",
+    "reply": "Before I continue, which email can we reach you on?"
+  },
+  {
+    "id": "G056",
+    "label": "forget",
+    "reply": "Where should I send the confirmation, what is your email?"
+  },
+  {
+    "id": "G051",
+    "label": "forget",
+    "reply": "Where should I send the confirmation, what is your email?"
+  },
+  {
+    "id": "G086",
+    "label": "forget",
+    "reply": "Where should I send the confirmation, what is your email?"
+  },
+  {
+    "id": "G016",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com today."
+  },
+  {
+    "id": "G073",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G011",
+    "label": "keep",
+    "reply": "A technician will call you on the number you gave us."
+  },
+  {
+    "id": "G096",
+    "label": "forget",
+    "reply": "What is the best address to send the contract to, your email?"
+  },
+  {
+    "id": "G024",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G087",
+    "label": "forget",
+    "reply": "What email address should I use for the receipt?"
+  },
+  {
+    "id": "G098",
+    "label": "forget",
+    "reply": "Which mailbox should the invoice go to?"
+  },
+  {
+    "id": "G014",
+    "label": "keep",
+    "reply": "Your order is placed, Jo. Anything else?"
+  },
+  {
+    "id": "G031",
+    "label": "keep",
+    "reply": "Thanks, what else can I do for you?"
+  },
+  {
+    "id": "G085",
+    "label": "forget",
+    "reply": "Before I continue, which email can we reach you on?"
+  },
+  {
+    "id": "G015",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G023",
+    "label": "keep",
+    "reply": "A technician will call you on the number you gave us."
+  },
+  {
+    "id": "G071",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G047",
+    "label": "keep",
+    "reply": "Which plan would you like, Jo?"
+  },
+  {
+    "id": "G039",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G029",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com today."
+  },
+  {
+    "id": "G004",
+    "label": "keep",
+    "reply": "A technician will call you on the number you gave us."
+  },
+  {
+    "id": "G074",
+    "label": "forget",
+    "reply": "Where should I send the confirmation, what is your email?"
+  },
+  {
+    "id": "G054",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G097",
+    "label": "forget",
+    "reply": "Where should I send the confirmation, what is your email?"
+  },
+  {
+    "id": "G061",
+    "label": "forget",
+    "reply": "Before I continue, which email can we reach you on?"
+  },
+  {
+    "id": "G083",
+    "label": "forget",
+    "reply": "Could you give me the email for your account, please?"
+  },
+  {
+    "id": "G009",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com today."
+  },
+  {
+    "id": "G017",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com today."
+  },
+  {
+    "id": "G037",
+    "label": "keep",
+    "reply": "Thanks Jo, your order is confirmed for jo.okafor@example.com."
+  },
+  {
+    "id": "G053",
+    "label": "forget",
+    "reply": "Before I continue, which email can we reach you on?"
+  },
+  {
+    "id": "G090",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G095",
+    "label": "forget",
+    "reply": "Could you give me the email for your account, please?"
+  },
+  {
+    "id": "G035",
+    "label": "keep",
+    "reply": "Thanks Jo, your order is confirmed for jo.okafor@example.com."
+  },
+  {
+    "id": "G020",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com today."
+  },
+  {
+    "id": "G068",
+    "label": "forget",
+    "reply": "What email address should I use for the receipt?"
+  },
+  {
+    "id": "G063",
+    "label": "forget",
+    "reply": "Before I continue, which email can we reach you on?"
+  },
+  {
+    "id": "G033",
+    "label": "keep",
+    "reply": "Thanks, what else can I do for you?"
+  },
+  {
+    "id": "G006",
+    "label": "keep",
+    "reply": "Which plan would you like, Jo?"
+  },
+  {
+    "id": "G010",
+    "label": "keep",
+    "reply": "Which plan would you like, Jo?"
+  },
+  {
+    "id": "G060",
+    "label": "forget",
+    "reply": "What is the best address to send the contract to, your email?"
+  },
+  {
+    "id": "G066",
+    "label": "forget",
+    "reply": "What is the best address to send the contract to, your email?"
+  },
+  {
+    "id": "G021",
+    "label": "keep",
+    "reply": "Your order is placed, Jo. Anything else?"
+  },
+  {
+    "id": "G048",
+    "label": "keep",
+    "reply": "A technician will call you on the number you gave us."
+  },
+  {
+    "id": "G059",
+    "label": "forget",
+    "reply": "What email address should I use for the receipt?"
+  },
+  {
+    "id": "G007",
+    "label": "keep",
+    "reply": "Which plan would you like, Jo?"
+  },
+  {
+    "id": "G025",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com today."
+  },
+  {
+    "id": "G044",
+    "label": "keep",
+    "reply": "A technician will call you on the number you gave us."
+  },
+  {
+    "id": "G038",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G001",
+    "label": "keep",
+    "reply": "A technician will call you on the number you gave us."
+  },
+  {
+    "id": "G012",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G049",
+    "label": "keep",
+    "reply": "Thanks Jo, your order is confirmed for jo.okafor@example.com."
+  },
+  {
+    "id": "G055",
+    "label": "forget",
+    "reply": "Before I continue, which email can we reach you on?"
+  },
+  {
+    "id": "G075",
+    "label": "forget",
+    "reply": "What email address should I use for the receipt?"
+  },
+  {
+    "id": "G089",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G062",
+    "label": "forget",
+    "reply": "What is the best address to send the contract to, your email?"
+  },
+  {
+    "id": "G064",
+    "label": "forget",
+    "reply": "Before I continue, which email can we reach you on?"
+  },
+  {
+    "id": "G045",
+    "label": "keep",
+    "reply": "Which plan would you like, Jo?"
+  },
+  {
+    "id": "G088",
+    "label": "forget",
+    "reply": "What is the best address to send the contract to, your email?"
+  },
+  {
+    "id": "G022",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G042",
+    "label": "keep",
+    "reply": "Thanks Jo, your order is confirmed for jo.okafor@example.com."
+  },
+  {
+    "id": "G028",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com today."
+  },
+  {
+    "id": "G072",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G082",
+    "label": "forget",
+    "reply": "Could you give me the email for your account, please?"
+  },
+  {
+    "id": "G057",
+    "label": "forget",
+    "reply": "Could you give me the email for your account, please?"
+  },
+  {
+    "id": "G032",
+    "label": "keep",
+    "reply": "Your order is placed, Jo. Anything else?"
+  },
+  {
+    "id": "G043",
+    "label": "keep",
+    "reply": "Thanks, what else can I do for you?"
+  },
+  {
+    "id": "G002",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G036",
+    "label": "keep",
+    "reply": "A technician will call you on the number you gave us."
+  },
+  {
+    "id": "G052",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G070",
+    "label": "forget",
+    "reply": "Could you give me the email for your account, please?"
+  },
+  {
+    "id": "G078",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G058",
+    "label": "forget",
+    "reply": "Could you give me the email for your account, please?"
+  },
+  {
+    "id": "G091",
+    "label": "forget",
+    "reply": "Where should I send the confirmation, what is your email?"
+  },
+  {
+    "id": "G094",
+    "label": "forget",
+    "reply": "Before I continue, which email can we reach you on?"
+  },
+  {
+    "id": "G019",
+    "label": "keep",
+    "reply": "Which plan would you like, Jo?"
+  },
+  {
+    "id": "G081",
+    "label": "forget",
+    "reply": "What is the best address to send the contract to, your email?"
+  },
+  {
+    "id": "G077",
+    "label": "forget",
+    "reply": "Which mailbox should the invoice go to?"
+  },
+  {
+    "id": "G027",
+    "label": "keep",
+    "reply": "Thanks, what else can I do for you?"
+  },
+  {
+    "id": "G076",
+    "label": "forget",
+    "reply": "Where should I send the confirmation, what is your email?"
+  },
+  {
+    "id": "G065",
+    "label": "forget",
+    "reply": "Before I continue, which email can we reach you on?"
+  },
+  {
+    "id": "G030",
+    "label": "keep",
+    "reply": "Your order is placed, Jo. Anything else?"
+  },
+  {
+    "id": "G013",
+    "label": "keep",
+    "reply": "Thanks Jo, your order is confirmed for jo.okafor@example.com."
+  },
+  {
+    "id": "G080",
+    "label": "forget",
+    "reply": "What is the best address to send the contract to, your email?"
+  },
+  {
+    "id": "G040",
+    "label": "keep",
+    "reply": "Your order is placed, Jo. Anything else?"
+  },
+  {
+    "id": "G093",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G084",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G034",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G026",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G003",
+    "label": "keep",
+    "reply": "A technician will call you on the number you gave us."
+  },
+  {
+    "id": "G046",
+    "label": "keep",
+    "reply": "Your order is placed, Jo. Anything else?"
+  },
+  {
+    "id": "G079",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G099",
+    "label": "forget",
+    "reply": "Can you share your email so I can finish the booking?"
+  },
+  {
+    "id": "G041",
+    "label": "keep",
+    "reply": "What time would suit you for the technician?"
+  },
+  {
+    "id": "G008",
+    "label": "keep",
+    "reply": "Your order is placed, Jo. Anything else?"
+  }
+]

@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Use the invoice-reconcile skill to help me with the delivery plan of a day.
+      user: Please help me with the delivery plan of a day.
     expect:
       subagents:
         - name: route-planner
