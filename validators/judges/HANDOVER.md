@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 4 (cassette) passes since iteration 26. Level 5, clients (10 items): `clients/openai-content-parts`, `openai-content-filter`, `google-prompt-blocked`, `google-recitation`, `openai-asks-for-the-answer-schema`, and others; the Fix line of each names the change in packages/judges/src/clients. Then check, rubric, render, budget, evidence, injection and later families. Handover test (`--brief --fresh`) run at iteration 25: reproduced level 3 and named the two open cassette items.
+Level 4 (cassette) passes since iteration 26. Level 5, clients (9 items): `clients/openai-content-filter`, `google-prompt-blocked`, `google-recitation`, `openai-asks-for-the-answer-schema`, and others; the Fix line of each names the change in packages/judges/src/clients. Then check, rubric, render, budget, evidence, injection and later families. Handover test (`--brief --fresh`) run at iteration 25: reproduced level 3 and named the two open cassette items.
 
 ## Hypotheses tried
 
@@ -51,11 +51,12 @@ Iteration 12 (cause: score in quotes): `recaseOutcome` (now also coercing a quot
 Iteration 13 (cause: single quotes): `singleToDoubleQuotes` in the repair loop of `parseAnswerText`, and `extractObject` tracks the opening quote. Test: "near-JSON: an object written with single quotes". Bank 262 -> 264.
 Iteration 14 (cause: trailing comma): `dropTrailingComma`. Test: "near-JSON: a comma before a closing brace". Bank 264 -> 266.
 Iteration 15 (cause: comment line): `dropCommentLines`. Test: "near-JSON: a line that is only a comment". Bank 266 -> 268 (0.4201). Its source landed in the iteration 14 handover commit by a script slip; the row 15 measurement is of that code. The level stayed 1 for three iterations because level 2 needs all 48 contract items; the bank score rose each time, so the executor kept going (stop rule read as no progress).
-Iteration 26 (cause: key not hex): check in `loadCassette`. Test: "loading a cassette with a key that is not a request hash" (red before, green after). Bank 287 -> 289 (0.4530): the answer-breaking-contract item turned green too, so its failing state came from the same validation path (not separately fixed). Level 3 -> 4. PR 86 holds iterations 11 to 25.
+Iteration 26 (cause: key not hex): check in `loadCassette`. Test: "loading a cassette with a key that is not a request hash" (red before, green after). Bank 287 -> 289 (0.4530): the answer-breaking-contract item turned green too, so its failing state came from the same validation path (not separately fixed). Level 3 -> 4.
+Iteration 27 (cause: content parts): `contentText` in clients/chat.ts. Test: clients.test.ts "an OpenAI answer whose content is a list of parts" (red first). Bank 289 -> 290 (0.4545). PR 86 holds iterations 11 to 25.
 
 ## Next actions
 
-1. Level 5 clients, one cause per iteration, starting with `clients/openai-content-parts` (packages/judges/src/clients/chat.ts).
+1. Level 5 clients, one cause per iteration, starting with `clients/openai-content-filter` (packages/judges/src/clients/chat.ts).
 2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, then `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`; a PR to main every 3 iterations.
 
