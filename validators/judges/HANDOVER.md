@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 6 passes since iteration 34 (clients and criteria green). Level 7, check: `check/two-judge-verdicts-same-id-refused`, `verdict-ids-unique-across-names`, `diff-summary-one-line`, `no-verdict-is-not-a-pass`. Then level 8 rubric (20 items, `rubric/two-questions` first), render, budget, evidence, injection (102 items) and later. Handover test (`--brief --fresh`) last run at iteration 25 and reproduced the level.
+Level 6 passes since iteration 34 (clients and criteria green). Level 7, check: `check/two-judge-verdicts-same-id-refused`, `verdict-ids-unique-across-names`, `diff-summary-one-line`. Then level 8 rubric (20 items, `rubric/two-questions` first), render, budget, evidence, injection (102 items) and later. Handover test (`--brief --fresh`) last run at iteration 25 and reproduced the level.
 
 ## Hypotheses tried
 
@@ -59,7 +59,8 @@ Iteration 30 (cause: RECITATION): added to the Google decline branch. Test: "a G
 Iteration 31 (cause: short echoed header): `scrub` threshold in http.ts lowered from 8 to 1. Test: "an error body that echoes a short header value" (red first). Bank 293 -> 294 (0.4608).
 Iteration 32 (cause: OpenAI schema): `ANSWER_SCHEMA` and response_format json_schema (strict false) in clients/chat.ts. Test: "the OpenAI client asks for the answer schema" (red first). Bank 294 -> 295 (0.4624).
 Iteration 33 (cause: Google schema): `GOOGLE_ANSWER_SCHEMA`. Test: "the Google client gives a response schema" (red first). Bank 295 -> 296 (0.4639). PR 86 stays open and takes every push; a second PR from the same branch is not possible. PR 86 holds iterations 11 to 25.
-Iteration 34 (cause: usageFromResponse missing): packages/judges/src/clients/usage.ts, exported. Test: packages/judges/test/usage.test.ts (red first). Bank 296 -> 299 (0.4687). Level 4 -> 6. The first commit of the iteration lacked the index export; a second commit added it and the row is of that second commit.
+Iteration 34 (cause: usageFromResponse missing): packages/judges/src/clients/usage.ts, exported. Test: packages/judges/test/usage.test.ts (red first). Bank 296 -> 299 (0.4687). Level 4 -> 6. Iteration 35 (cause: empty verdict list passed): `combineVerdicts` needs at least one verdict. Test: check.test.ts "a block with no verdict at all" (red first). Bank 299 -> 300 (0.4702).
+The first commit of iteration 34 lacked the index export; a second commit added it and the row is of that second commit.
 
 ## Next actions
 
