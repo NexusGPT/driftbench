@@ -156,3 +156,13 @@ describe('bootstrapCI', () => {
     expect(() => bootstrapCI([1, 2, 3], { clusters: ['a', 'b'] })).toThrow(RangeError);
   });
 });
+
+describe('design effect bound', () => {
+  it('throws below the bound rho = -1 / (m - 1), where the design effect is zero or less', () => {
+    expect(() => designEffect(10, -0.5)).toThrow(RangeError);
+    expect(() => designEffect(10, -1 / 9)).toThrow(RangeError);
+    expect(() => effectiveSampleSize(100, 10, -0.2)).toThrow(RangeError);
+    expect(designEffect(10, -0.1)).toBeCloseTo(0.1, 12);
+    expect(designEffect(1, -1)).toBe(1);
+  });
+});

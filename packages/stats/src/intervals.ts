@@ -57,7 +57,13 @@ export function zeroFailureBound(p: number, alpha = 0.05): number {
 export function designEffect(m: number, rho: number): number {
   if (!(m >= 1)) throw new RangeError(`designEffect: cluster size must be at least 1, got ${m}`);
   if (!(rho >= -1 && rho <= 1)) throw new RangeError(`designEffect: rho must lie in [-1, 1], got ${rho}`);
-  return 1 + (m - 1) * rho;
+  const de = 1 + (m - 1) * rho;
+  if (!(de > 0)) {
+    throw new RangeError(
+      `designEffect: rho must be above -1 / (m - 1) = ${-1 / (m - 1)} for clusters of size ${m}, got ${rho}`,
+    );
+  }
+  return de;
 }
 
 /** The effective number of independent units: n divided by the design effect. */
