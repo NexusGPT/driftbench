@@ -33,6 +33,12 @@ The command runs until Ctrl+C. Exit 0 after a stop, 2 when the store is missing,
 | `/campaign/<id>/run/<runId>` | one run, every block in full: what the user sent, the reply, the tool calls with their results, every verdict that did not pass and every judged verdict with its evidence and reasoning; a label form under each block |
 | `/compare` | two campaigns picked from the store and a margin; the result is the paired comparison of [`driftbench compare`](concepts/statistics.md#comparing-a-baseline-and-a-candidate) with its verdict |
 
+## Review queue
+
+A review queue is the list of blocks a reviewer still has to label, kept as `<labels>/queue.json` beside the labels. Each entry is one block and criterion, in one of three states: open, assigned to a reviewer, or done. A reviewer takes an item with `assign`, and an assigned item can be completed only by its reviewer. `completeItem` writes the label through the same path the form uses, so `judge calibrate` reads it unchanged. A done item cannot be completed again.
+
+The queue is a library API (`enqueue`, `assign`, `completeItem`, `readQueue`, `writeQueue`). The viewer does not show a queue page yet, so reviewers still reach blocks from the run pages. Calibration needs at least one pass and one fail label per criterion, and it reports a file without both.
+
 ## Labelling a block
 
 The form under a block offers the judged criteria of its spec, and any judged criterion that voted on the block. Pick one, choose pass or fail, write why, and save. The page comes back on the same block with "Label saved". The label shows under the block, and the labelling section counts the labels per criterion.
