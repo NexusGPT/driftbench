@@ -642,3 +642,14 @@ Sources read:
 What others do: A message's parts are one text; labels such as role and type are not prompt text.
 
 What to try, and why: the parts of a JSON message run on as one text
+
+## Iteration 55
+
+Question: packages/generate/src/extract/containers.ts: the XML of a Word document is sent with each paragraph split into runs of tags; prompt-containers.docx-runs proves it.
+
+Sources read:
+* https://learn.microsoft.com/en-us/office/open-xml/word/structure-of-a-wordprocessingml-document (paragraphs hold runs, runs hold text)
+
+What others do: A paragraph's text is its runs joined; the tags between them are not text.
+
+What to try, and why: the runs of a Word document read as one paragraph

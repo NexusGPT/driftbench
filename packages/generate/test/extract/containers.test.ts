@@ -229,3 +229,15 @@ describe('a message whose content is a list of text parts', () => {
     expect(quote).toBe('promise a delivery date.');
   });
 });
+
+describe('the XML of a Word document', () => {
+  const run = (text: string) => `<w:r><w:t xml:space="preserve">${text}</w:t></w:r>`;
+  const docx = `<w:document><w:body>\n<w:p>${run('Keep answers sh')}${run('ort &amp; clear.')}</w:p>\n</w:body></w:document>\n`;
+  it('joins the runs of a paragraph into its text', () => {
+    expect(promptView('document.xml', docx)?.text).toContain('Keep answers short & clear.');
+  });
+  it('quotes a passage inside one run', () => {
+    const sources = [{ kind: 'prompt' as const, path: 'document.xml', text: docx }];
+    expect(docx).toContain(rawQuote(sources, 'document.xml', 'Keep answers short & clear.'));
+  });
+});

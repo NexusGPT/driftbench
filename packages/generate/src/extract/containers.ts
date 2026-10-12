@@ -571,7 +571,7 @@ VIEWS.push(
   [/\.properties$/i, propertiesView],
   [/\.csv$/i, csvView],
   [/\.html?$/i, (raw) => markupView(raw, true)],
-  [/\.(xml|svg)$/i, (raw) => markupView(raw, false)],
+  [/\.(xml|svg)$/i, (raw) => markupView(raw, /<w:(document|body|p|t)\b/.test(raw))],
 );
 
 for (const [pattern, language] of LANGUAGES) VIEWS.push([pattern, (raw) => codeView(raw, language)]);
