@@ -739,7 +739,7 @@ describe('failures', () => {
     expect(attempts, 'the run settings win over the spec target').toBe(3);
   });
 
-  it('waits what Retry-After asks, and never retries a 408 or a call the adapter already retried in full', async () => {
+  it('waits what Retry-After asks, retries a 408 like a 429, and never retries a call the adapter already retried in full', async () => {
     const waits: number[] = [];
     const run = async (errors: AdapterTransportError[]) => {
       const adapter = acmeAdapter();
@@ -771,8 +771,9 @@ describe('failures', () => {
     });
 
     const timeout = await run([new AdapterTransportError('request timeout', { status: 408 })]);
-    expect(timeout.attempts).toBe(1);
-    expect(timeout.result.error).toBe('send on block 0 failed: AdapterTransportError: request timeout');
+    expect(timeout.attempts).toBe(2);
+    expect(timeout.result.status).toBe('completed');
+    expect(timeout.result.blocks[0]?.observed.retries?.[0]).toMatchObject({ status: 408 });
 
     const spent = await run([
       new AdapterTransportError('messages.create failed after 4 attempts', { status: 503, exhausted: true }),

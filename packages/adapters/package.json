@@ -1,5 +1,5 @@
 {
-  "name": "@agent-nexus/driftbench-adapters",
+  "name": "@driftbench/adapters",
   "version": "0.1.0",
   "description": "The adapters that connect driftbench to the agent under test: function, http, process, nexus and agent SDKs, with the contract suite every adapter passes.",
   "keywords": [
@@ -42,7 +42,8 @@
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@agent-nexus/driftbench-core": "workspace:*"
+    "@driftbench/core": "workspace:*",
+    "@driftbench/sandbox": "workspace:*"
   },
   "peerDependencies": {
     "@anthropic-ai/sdk": ">=0.133.0",

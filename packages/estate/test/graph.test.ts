@@ -90,6 +90,28 @@ describe('what a guard enforces', () => {
     expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'id' }]);
   });
 
+  it('keeps on a rule the concrete spans of its whole source lines, beyond the words the model quoted', async () => {
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n**R#1 — Diagnostics.** Every failure reaches you, any spelling (e.g. `2>/dev/null`, `|| true`).\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': '#!/bin/sh\necho "swallowed (R#1)" >&2\nexit 2\n',
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'Failures reach you',
+          quote: 'Every failure reaches you, any spelling',
+          evidence: [{ type: 'custom', name: 'f' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const rule = map.atoms.find((atom) => atom.kind === 'instruction');
+    expect(rule?.fields?.spans).toEqual(['2>/dev/null', '|| true']);
+  });
+
   it('by nothing when the guard source names no label and repeats no rule', async () => {
     const result = await oneRule(
       '#!/bin/sh\necho "Something unrelated entirely here" >&2\n# R1 is not declared\nexit 2\n',

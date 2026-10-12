@@ -15,7 +15,7 @@ export type HttpOptions = {
   timeoutMs?: number;
   /**
    * The retry settings over the shared policy's defaults: four attempts, a 500 ms base doubled up to 30 s,
-   * full jitter, Retry-After honoured. Only a 429, a 5xx (529 included), a network failure or a timeout is
+   * full jitter, Retry-After honoured. Only a 408, a 429, a 5xx (529 included), a network failure or a timeout is
    * retried. Each retry goes to the current `collectRetries` scope: the council records it in the vote.
    */
   retry?: RetryLayer;

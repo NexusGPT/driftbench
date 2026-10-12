@@ -38,12 +38,15 @@ importers:
 
   packages/adapters:
     dependencies:
-      '@agent-nexus/driftbench-core':
-        specifier: workspace:*
-        version: link:../core
       '@anthropic-ai/sdk':
         specifier: '>=0.133.0'
         version: 0.133.0(zod@4.6.5)
+      '@driftbench/core':
+        specifier: workspace:*
+        version: link:../core
+      '@driftbench/sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
       '@google/genai':
         specifier: '>=2.28.0'
         version: 2.28.0
@@ -62,7 +65,7 @@ importers:
 
   packages/artifacts:
     dependencies:
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
       exceljs:
@@ -82,7 +85,7 @@ importers:
 
   packages/checks:
     dependencies:
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
       franc-min:
@@ -91,46 +94,46 @@ importers:
 
   packages/cli:
     dependencies:
-      '@agent-nexus/driftbench-adapters':
+      '@driftbench/adapters':
         specifier: workspace:*
         version: link:../adapters
-      '@agent-nexus/driftbench-artifacts':
+      '@driftbench/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@agent-nexus/driftbench-checks':
+      '@driftbench/checks':
         specifier: workspace:*
         version: link:../checks
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
-      '@agent-nexus/driftbench-estate':
+      '@driftbench/estate':
         specifier: workspace:*
         version: link:../estate
-      '@agent-nexus/driftbench-generate':
+      '@driftbench/generate':
         specifier: workspace:*
         version: link:../generate
-      '@agent-nexus/driftbench-judges':
+      '@driftbench/judges':
         specifier: workspace:*
         version: link:../judges
-      '@agent-nexus/driftbench-report':
+      '@driftbench/report':
         specifier: workspace:*
         version: link:../report
-      '@agent-nexus/driftbench-sandbox':
+      '@driftbench/sandbox':
         specifier: workspace:*
         version: link:../sandbox
-      '@agent-nexus/driftbench-space':
+      '@driftbench/space':
         specifier: workspace:*
         version: link:../space
-      '@agent-nexus/driftbench-stats':
+      '@driftbench/stats':
         specifier: workspace:*
         version: link:../stats
-      '@agent-nexus/driftbench-store':
+      '@driftbench/store':
         specifier: workspace:*
         version: link:../store
-      '@agent-nexus/driftbench-users':
+      '@driftbench/users':
         specifier: workspace:*
         version: link:../users
-      '@agent-nexus/driftbench-validators':
+      '@driftbench/validators':
         specifier: workspace:*
         version: link:../validators
       commander:
@@ -142,7 +145,7 @@ importers:
 
   packages/core:
     dependencies:
-      '@agent-nexus/driftbench-stats':
+      '@driftbench/stats':
         specifier: workspace:*
         version: link:../stats
       yaml:
@@ -154,16 +157,19 @@ importers:
 
   packages/estate:
     dependencies:
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
-      '@agent-nexus/driftbench-generate':
+      '@driftbench/generate':
         specifier: workspace:*
         version: link:../generate
-      '@agent-nexus/driftbench-space':
+      '@driftbench/sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
+      '@driftbench/space':
         specifier: workspace:*
         version: link:../space
-      '@agent-nexus/driftbench-stats':
+      '@driftbench/stats':
         specifier: workspace:*
         version: link:../stats
       yaml:
@@ -175,31 +181,31 @@ importers:
 
   packages/generate:
     dependencies:
-      '@agent-nexus/driftbench-adapters':
+      '@driftbench/adapters':
         specifier: workspace:*
         version: link:../adapters
-      '@agent-nexus/driftbench-artifacts':
+      '@driftbench/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@agent-nexus/driftbench-checks':
+      '@driftbench/checks':
         specifier: workspace:*
         version: link:../checks
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
-      '@agent-nexus/driftbench-sandbox':
+      '@driftbench/sandbox':
         specifier: workspace:*
         version: link:../sandbox
-      '@agent-nexus/driftbench-space':
+      '@driftbench/space':
         specifier: workspace:*
         version: link:../space
-      '@agent-nexus/driftbench-stats':
+      '@driftbench/stats':
         specifier: workspace:*
         version: link:../stats
-      '@agent-nexus/driftbench-store':
+      '@driftbench/store':
         specifier: workspace:*
         version: link:../store
-      '@agent-nexus/driftbench-users':
+      '@driftbench/users':
         specifier: workspace:*
         version: link:../users
       yaml:
@@ -211,13 +217,13 @@ importers:
 
   packages/judges:
     dependencies:
-      '@agent-nexus/driftbench-artifacts':
+      '@driftbench/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
-      '@agent-nexus/driftbench-stats':
+      '@driftbench/stats':
         specifier: workspace:*
         version: link:../stats
       yaml:
@@ -229,13 +235,13 @@ importers:
 
   packages/report:
     dependencies:
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
-      '@agent-nexus/driftbench-stats':
+      '@driftbench/stats':
         specifier: workspace:*
         version: link:../stats
-      '@agent-nexus/driftbench-store':
+      '@driftbench/store':
         specifier: workspace:*
         version: link:../store
       zod:
@@ -244,13 +250,13 @@ importers:
 
   packages/sandbox:
     dependencies:
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
 
   packages/space:
     dependencies:
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
       yaml:
@@ -264,13 +270,13 @@ importers:
 
   packages/store:
     dependencies:
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
 
   packages/users:
     dependencies:
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
       yaml:
@@ -282,40 +288,40 @@ importers:
 
   packages/validators:
     dependencies:
-      '@agent-nexus/driftbench-adapters':
+      '@driftbench/adapters':
         specifier: workspace:*
         version: link:../adapters
-      '@agent-nexus/driftbench-artifacts':
+      '@driftbench/artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@agent-nexus/driftbench-checks':
+      '@driftbench/checks':
         specifier: workspace:*
         version: link:../checks
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
-      '@agent-nexus/driftbench-estate':
+      '@driftbench/estate':
         specifier: workspace:*
         version: link:../estate
-      '@agent-nexus/driftbench-generate':
+      '@driftbench/generate':
         specifier: workspace:*
         version: link:../generate
-      '@agent-nexus/driftbench-judges':
+      '@driftbench/judges':
         specifier: workspace:*
         version: link:../judges
-      '@agent-nexus/driftbench-sandbox':
+      '@driftbench/sandbox':
         specifier: workspace:*
         version: link:../sandbox
-      '@agent-nexus/driftbench-space':
+      '@driftbench/space':
         specifier: workspace:*
         version: link:../space
-      '@agent-nexus/driftbench-stats':
+      '@driftbench/stats':
         specifier: workspace:*
         version: link:../stats
-      '@agent-nexus/driftbench-store':
+      '@driftbench/store':
         specifier: workspace:*
         version: link:../store
-      '@agent-nexus/driftbench-users':
+      '@driftbench/users':
         specifier: workspace:*
         version: link:../users
       yaml:
@@ -327,13 +333,13 @@ importers:
 
   packages/vitest:
     dependencies:
-      '@agent-nexus/driftbench-checks':
+      '@driftbench/checks':
         specifier: workspace:*
         version: link:../checks
-      '@agent-nexus/driftbench-core':
+      '@driftbench/core':
         specifier: workspace:*
         version: link:../core
-      '@agent-nexus/driftbench-users':
+      '@driftbench/users':
         specifier: workspace:*
         version: link:../users
       vitest:

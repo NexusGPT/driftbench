@@ -42,6 +42,21 @@ export {
   RedteamPackError,
   redteamPack,
 } from './redteam';
+export {
+  HARM_PLUGINS,
+  loadRedteamPlugins,
+  PluginFamilies,
+  type PluginFamily,
+  POLICY_PLUGINS,
+  pluginToSpec,
+  REDTEAM_PLUGINS,
+  RedteamPlugin,
+  renderPlugin,
+  renderText,
+  SECURITY_PLUGINS,
+  SKIPPED_PLUGINS,
+  type SkippedPlugin,
+} from './redteam-plugins/index';
 export { createScriptedDriver } from './scripted';
 export {
   checkUserFamilies,

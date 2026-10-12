@@ -392,8 +392,13 @@ describe('stage_seen: a step allowed at any point was reached at least once', ()
     ).toBe('fail');
   });
 
-  it('is inconclusive when the runtime reports no stages, and checks only its block', async () => {
-    expect((await verdicts(stageSeen, ctx('ok'), { name: 'note' }))[0]?.outcome).toBe('inconclusive');
+  it('is not applicable when the runtime reports no stages, and gates as a failure of the block', async () => {
+    expect(await verdicts(stageSeen, ctx('ok'), { name: 'note' })).toMatchObject([
+      { id: 'stage_seen.note', outcome: 'not_applicable', gating: true },
+    ]);
+  });
+
+  it('checks only its block when the runtime reports no stages', async () => {
     expect(await verdicts(stageSeen, ctx('ok', [], stages(['note']), 1), { name: 'note', block: 0 })).toEqual(
       [],
     );

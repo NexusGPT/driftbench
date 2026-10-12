@@ -145,7 +145,7 @@ Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, tools_offered, forb
 The runs are not kept: pass --store <file> to keep them.
 ```
 
-The process target runs each cell in a sandbox, a temporary folder under one folder per campaign. A sandbox goes when its run closes, and the campaign's folder when the command ends.
+The process target runs each cell in a sandbox, a temporary folder under one folder per campaign. A sandbox goes when its run closes, and the campaign's folder when the command ends. Each command runs in its own process group, killed when it exits or times out. `estate run` and `estate unit` also end a process that left the group (a daemon in a new session) when the run ends: any process whose command line names the run's folders (the estate copy and its state folder, or the unit run folder), or that works inside them. On an interrupt, every sandbox folder still open is reaped the same way.
 
 | Option | Effect |
 |---|---|
@@ -685,7 +685,7 @@ The runner gives every block its drift classes from the gating verdicts it fails
 
 A run ends `completed`, `failed` or `stopped`.
 
-* An `AdapterTransportError` with a 429, a 5xx or no status (a network failure) is retried under the [shared retry policy](retries.md): 4 attempts by default, a backoff from 500 ms with full jitter, at least the server's Retry-After. Each retry is recorded in the block's Observed as `retries`. Past the attempts, or on one marked `exhausted` by the adapter, the run fails.
+* An `AdapterTransportError` with a 408, a 429, a 5xx or no status (a network failure) is retried under the [shared retry policy](retries.md): 4 attempts by default, a backoff from 500 ms with full jitter, at least the server's Retry-After. Each retry is recorded in the block's Observed as `retries`. Past the attempts, or on one marked `exhausted` by the adapter, the run fails.
 * An `AgentFailure`, an Observed that does not match the schema as JSON, or any other error fails the run at once.
 * A driver that does not stop within `maxSteps` steps stops the run.
 

@@ -346,7 +346,10 @@ describe('anthropic adapter', () => {
         attempts: 4,
       });
     }
-    for (const status of [400, 401, 403, 404, 408, 409]) {
+    expect(await sent(new FakeAnthropicError(408, 'status 408')), 'status 408').toBeInstanceOf(
+      AdapterTransportError,
+    );
+    for (const status of [400, 401, 403, 404, 409]) {
       expect(
         await sent(new FakeAnthropicError(status, `status ${status}`)),
         `status ${status}`,

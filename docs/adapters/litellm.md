@@ -50,7 +50,7 @@ Text and tool calls in order, each tool call followed by its result. Tokens come
 
 | Error | Becomes |
 |---|---|
-| a 429 or a 5xx, or a connection or timeout error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
+| a 408, a 429 or a 5xx, or a connection or timeout error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
 | any other status, such as a 400 for a bad tool name or a 401 | `AgentFailure` |
 | a completion with no `choices[0].message`, or tool calls at the step cap | `AgentFailure` |
 

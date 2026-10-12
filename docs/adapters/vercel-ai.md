@@ -54,7 +54,7 @@ The `steps` of the result, in order: `text` parts become text, `tool-call` parts
 
 | Error | Becomes |
 |---|---|
-| a 429 or a 5xx (`statusCode`), or a network error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
+| a 408, a 429 or a 5xx (`statusCode`), or a network error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
 | any other error `generateText` throws | `AgentFailure` |
 
 ## Target

@@ -236,15 +236,20 @@ describe.each(CASES)('the $name judge client', (c) => {
     expect(retries[0]?.delayMs, 'never shorter than Retry-After').toBeGreaterThanOrEqual(2_000);
   });
 
-  it('never retries a 408 or a 409', async () => {
-    for (const status of [408, 409]) {
-      const { fetch, calls } = fakeFetch([[status, 'no']]);
-      await c
-        .make(fetch, c.env)
-        .judge(REQUEST)
-        .catch(() => undefined);
-      expect(calls, `status ${status}`).toHaveLength(1);
-    }
+  it('retries a 408 and never retries a 409', async () => {
+    const timeout = fakeFetch([
+      [408, 'slow'],
+      [200, c.ok],
+    ]);
+    const result = await c.make(timeout.fetch, c.env).judge(REQUEST);
+    expect(timeout.calls, 'status 408').toHaveLength(2);
+    expect(result.answer.outcome).toBe('fail');
+    const conflict = fakeFetch([[409, 'no']]);
+    await c
+      .make(conflict.fetch, c.env)
+      .judge(REQUEST)
+      .catch(() => undefined);
+    expect(conflict.calls, 'status 409').toHaveLength(1);
   });
 
   it('turns an unreadable answer into an unparsed inconclusive, never a pass', async () => {

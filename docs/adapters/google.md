@@ -70,7 +70,7 @@ As on the anthropic adapter: each call of a `sideEffects` tool that did not fail
 
 | Error | Becomes |
 |---|---|
-| an `ApiError` with a 429 or any 5xx status, or a network error in the error or its causes (a `fetch failed` with `ECONNREFUSED` in its cause), after the [shared retry policy](../retries.md)'s attempts | `AdapterTransportError`, marked exhausted: the runner does not retry the block on top |
+| an `ApiError` with a 408, 429 or any 5xx status, or a network error in the error or its causes (a `fetch failed` with `ECONNREFUSED` in its cause), after the [shared retry policy](../retries.md)'s attempts | `AdapterTransportError`, marked exhausted: the runner does not retry the block on top |
 | any other status or error | `AgentFailure` |
 | an answer that is not an object | `AgentFailure` |
 | an answer with no candidate: the block fails, naming `promptFeedback.blockReason` when the prompt was blocked | `AgentFailure` |
