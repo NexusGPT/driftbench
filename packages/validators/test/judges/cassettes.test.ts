@@ -37,6 +37,6 @@ describe('the scripted judge cassettes', () => {
 
   it('key every request by what the judge reads', async () => {
     const [first] = await requestsToRecord(ROOT);
-    expect(first && requestKey(first.request)).toBe(first?.key);
+    expect(first && requestKey(first.request, { cls: 'system1' })).toBe(first?.key);
   });
 });

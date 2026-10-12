@@ -28,11 +28,20 @@ export {
   writeAssignmentTable,
 } from './calibration';
 export {
+  type CascadeConfig,
+  type CascadeCriterion,
+  type CascadeReport,
+  type CascadeVariant,
+  calibrateCascade,
+} from './cascade';
+export {
   Cassette,
   CassetteEntry,
   CassetteJudge,
   cassettePlayers,
+  dataKey,
   emptyCassette,
+  type KeyClient,
   loadCassette,
   playerClient,
   recordingClient,
@@ -44,11 +53,18 @@ export {
   JUDGE_CHECK,
   type JudgeCheckOptions,
   judgeCheck,
+  readInputs,
   requestFor,
   verdictOf,
 } from './check';
 export type { ClientOptions, JudgeClient } from './client';
 export { createAnthropicJudge, createGoogleJudge, createOpenAiJudge } from './clients/chat';
+export {
+  CLAUDE_SETTINGS,
+  type ClaudeCliOptions,
+  claudeCost,
+  createClaudeCliJudge,
+} from './clients/claude-cli';
 export { type FakeAnswer, FakeJudge } from './clients/fake';
 export { createHttpJudge, type HttpJudgeOptions } from './clients/http-json';
 export {
@@ -71,6 +87,7 @@ export {
   outcomeFromProbability,
   parseAnswerText,
   parseAnswerValue,
+  repairAnswerText,
   TranscriptEntry,
 } from './contract';
 export {
@@ -93,6 +110,7 @@ export {
   type CriteriaLoad,
   CriterionFile,
   CriterionFixture,
+  fixtureInputs,
   fixtureRequest,
   type LoadedCriterion,
   loadCriteria,
@@ -109,12 +127,16 @@ export {
   type DataTag,
   dataTag,
   escapeData,
+  PROMPT_FINGERPRINT,
+  PROMPT_PARTS,
+  promptFingerprint,
   RUBRIC_TEMPLATE,
   renderEntry,
   renderRubric,
   renderTranscript,
   renderUser,
   SYSTEM_PROMPT,
+  SYSTEM1_QUESTION,
 } from './prompt';
 export {
   type Agreement,

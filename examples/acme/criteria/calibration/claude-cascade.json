@@ -1,0 +1,403 @@
+{
+  "first": "claude-haiku",
+  "escalateTo": ["claude-sonnet", "claude-opus"],
+  "repeats": 3,
+  "criteria": [
+    {
+      "criterion": "no_invented_data",
+      "separation": {
+        "pass": ["pass", "pass", "pass"],
+        "fail": ["fail", "fail", "fail"],
+        "separated": 3,
+        "repeats": 3
+      },
+      "labels": {
+        "n": 4,
+        "agree": 4,
+        "kappa": 1,
+        "agreement": {
+          "estimate": 1,
+          "lower": 0.5101091635454027,
+          "upper": 1
+        },
+        "blocks": [
+          {
+            "id": "no_invented_data.1",
+            "label": "pass",
+            "judged": "pass"
+          },
+          {
+            "id": "no_invented_data.2",
+            "label": "fail",
+            "judged": "fail"
+          },
+          {
+            "id": "no_invented_data.3",
+            "label": "fail",
+            "judged": "fail"
+          },
+          {
+            "id": "no_invented_data.4",
+            "label": "pass",
+            "judged": "pass"
+          }
+        ]
+      },
+      "spentUsd": 0.0020298000000000004,
+      "escalated": [],
+      "unsureOnly": {
+        "separation": {
+          "pass": ["pass", "pass", "pass"],
+          "fail": ["fail", "fail", "fail"],
+          "separated": 3,
+          "repeats": 3
+        },
+        "labels": {
+          "n": 4,
+          "agree": 4,
+          "kappa": 1,
+          "agreement": {
+            "estimate": 1,
+            "lower": 0.5101091635454027,
+            "upper": 1
+          },
+          "blocks": [
+            {
+              "id": "no_invented_data.1",
+              "label": "pass",
+              "judged": "pass"
+            },
+            {
+              "id": "no_invented_data.2",
+              "label": "fail",
+              "judged": "fail"
+            },
+            {
+              "id": "no_invented_data.3",
+              "label": "fail",
+              "judged": "fail"
+            },
+            {
+              "id": "no_invented_data.4",
+              "label": "pass",
+              "judged": "pass"
+            }
+          ]
+        },
+        "spentUsd": 0.0020298000000000004
+      },
+      "errors": 0
+    },
+    {
+      "criterion": "one_question_per_turn",
+      "separation": {
+        "pass": ["pass", "pass", "pass"],
+        "fail": ["fail", "fail", "fail"],
+        "separated": 3,
+        "repeats": 3
+      },
+      "labels": {
+        "n": 4,
+        "agree": 4,
+        "kappa": 1,
+        "agreement": {
+          "estimate": 1,
+          "lower": 0.5101091635454027,
+          "upper": 1
+        },
+        "blocks": [
+          {
+            "id": "one_question_per_turn.1",
+            "label": "pass",
+            "judged": "pass"
+          },
+          {
+            "id": "one_question_per_turn.2",
+            "label": "fail",
+            "judged": "fail"
+          },
+          {
+            "id": "one_question_per_turn.3",
+            "label": "pass",
+            "judged": "pass"
+          },
+          {
+            "id": "one_question_per_turn.4",
+            "label": "fail",
+            "judged": "fail"
+          }
+        ]
+      },
+      "spentUsd": 0.0016526300000000002,
+      "escalated": [],
+      "unsureOnly": {
+        "separation": {
+          "pass": ["pass", "pass", "pass"],
+          "fail": ["fail", "fail", "fail"],
+          "separated": 3,
+          "repeats": 3
+        },
+        "labels": {
+          "n": 4,
+          "agree": 4,
+          "kappa": 1,
+          "agreement": {
+            "estimate": 1,
+            "lower": 0.5101091635454027,
+            "upper": 1
+          },
+          "blocks": [
+            {
+              "id": "one_question_per_turn.1",
+              "label": "pass",
+              "judged": "pass"
+            },
+            {
+              "id": "one_question_per_turn.2",
+              "label": "fail",
+              "judged": "fail"
+            },
+            {
+              "id": "one_question_per_turn.3",
+              "label": "pass",
+              "judged": "pass"
+            },
+            {
+              "id": "one_question_per_turn.4",
+              "label": "fail",
+              "judged": "fail"
+            }
+          ]
+        },
+        "spentUsd": 0.0016526300000000002
+      },
+      "errors": 0
+    },
+    {
+      "criterion": "plain_language",
+      "separation": {
+        "pass": ["pass", "pass", "pass"],
+        "fail": ["fail", "fail", "fail"],
+        "separated": 3,
+        "repeats": 3
+      },
+      "labels": {
+        "n": 3,
+        "agree": 3,
+        "kappa": 1,
+        "agreement": {
+          "estimate": 1,
+          "lower": 0.43850296824495455,
+          "upper": 1
+        },
+        "blocks": [
+          {
+            "id": "plain_language.1",
+            "label": "pass",
+            "judged": "pass"
+          },
+          {
+            "id": "plain_language.2",
+            "label": "fail",
+            "judged": "fail"
+          },
+          {
+            "id": "plain_language.3",
+            "label": "fail",
+            "judged": "fail"
+          }
+        ]
+      },
+      "spentUsd": 0.0015813900000000002,
+      "escalated": [],
+      "unsureOnly": {
+        "separation": {
+          "pass": ["pass", "pass", "pass"],
+          "fail": ["fail", "fail", "fail"],
+          "separated": 3,
+          "repeats": 3
+        },
+        "labels": {
+          "n": 3,
+          "agree": 3,
+          "kappa": 1,
+          "agreement": {
+            "estimate": 1,
+            "lower": 0.43850296824495455,
+            "upper": 1
+          },
+          "blocks": [
+            {
+              "id": "plain_language.1",
+              "label": "pass",
+              "judged": "pass"
+            },
+            {
+              "id": "plain_language.2",
+              "label": "fail",
+              "judged": "fail"
+            },
+            {
+              "id": "plain_language.3",
+              "label": "fail",
+              "judged": "fail"
+            }
+          ]
+        },
+        "spentUsd": 0.0015813900000000002
+      },
+      "errors": 0
+    },
+    {
+      "criterion": "resumes_pending_step",
+      "separation": {
+        "pass": ["pass", "pass", "pass"],
+        "fail": ["fail", "fail", "fail"],
+        "separated": 3,
+        "repeats": 3
+      },
+      "labels": {
+        "n": 3,
+        "agree": 3,
+        "kappa": 1,
+        "agreement": {
+          "estimate": 1,
+          "lower": 0.43850296824495455,
+          "upper": 1
+        },
+        "blocks": [
+          {
+            "id": "resumes_pending_step.1",
+            "label": "pass",
+            "judged": "pass"
+          },
+          {
+            "id": "resumes_pending_step.2",
+            "label": "fail",
+            "judged": "fail"
+          },
+          {
+            "id": "resumes_pending_step.3",
+            "label": "fail",
+            "judged": "fail"
+          }
+        ]
+      },
+      "spentUsd": 0.0015347,
+      "escalated": [],
+      "unsureOnly": {
+        "separation": {
+          "pass": ["pass", "pass", "pass"],
+          "fail": ["fail", "fail", "fail"],
+          "separated": 3,
+          "repeats": 3
+        },
+        "labels": {
+          "n": 3,
+          "agree": 3,
+          "kappa": 1,
+          "agreement": {
+            "estimate": 1,
+            "lower": 0.43850296824495455,
+            "upper": 1
+          },
+          "blocks": [
+            {
+              "id": "resumes_pending_step.1",
+              "label": "pass",
+              "judged": "pass"
+            },
+            {
+              "id": "resumes_pending_step.2",
+              "label": "fail",
+              "judged": "fail"
+            },
+            {
+              "id": "resumes_pending_step.3",
+              "label": "fail",
+              "judged": "fail"
+            }
+          ]
+        },
+        "spentUsd": 0.0015347
+      },
+      "errors": 0
+    },
+    {
+      "criterion": "sheet_matches_catalog",
+      "separation": {
+        "pass": ["pass", "pass", "pass"],
+        "fail": ["fail", "fail", "fail"],
+        "separated": 3,
+        "repeats": 3
+      },
+      "labels": {
+        "n": 3,
+        "agree": 3,
+        "kappa": 1,
+        "agreement": {
+          "estimate": 1,
+          "lower": 0.43850296824495455,
+          "upper": 1
+        },
+        "blocks": [
+          {
+            "id": "sheet_matches_catalog.1",
+            "label": "fail",
+            "judged": "fail"
+          },
+          {
+            "id": "sheet_matches_catalog.2",
+            "label": "pass",
+            "judged": "pass"
+          },
+          {
+            "id": "sheet_matches_catalog.3",
+            "label": "fail",
+            "judged": "fail"
+          }
+        ]
+      },
+      "spentUsd": 0.0025816600000000004,
+      "escalated": [],
+      "unsureOnly": {
+        "separation": {
+          "pass": ["pass", "pass", "pass"],
+          "fail": ["fail", "fail", "fail"],
+          "separated": 3,
+          "repeats": 3
+        },
+        "labels": {
+          "n": 3,
+          "agree": 3,
+          "kappa": 1,
+          "agreement": {
+            "estimate": 1,
+            "lower": 0.43850296824495455,
+            "upper": 1
+          },
+          "blocks": [
+            {
+              "id": "sheet_matches_catalog.1",
+              "label": "fail",
+              "judged": "fail"
+            },
+            {
+              "id": "sheet_matches_catalog.2",
+              "label": "pass",
+              "judged": "pass"
+            },
+            {
+              "id": "sheet_matches_catalog.3",
+              "label": "fail",
+              "judged": "fail"
+            }
+          ]
+        },
+        "spentUsd": 0.0025816600000000004
+      },
+      "errors": 0
+    }
+  ],
+  "spentUsd": 0.009380180000000002
+}

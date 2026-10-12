@@ -178,6 +178,7 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 | `fail` | string | no |  | What a failing block looks like. |
 | `gating` | boolean | no |  | True gates every reference to this criterion; a reference can also add @gating. |
 | `scope` | `block` or `conversation` | no |  | block judges one block; conversation judges the whole conversation. |
+| `inputs` | list of strings, each not empty | no |  | Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace. |
 | `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
 | `repeat_reducer` | string matching `^(mode\|median\|at_least:[1-9][0-9]*)$` | no |  | How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>. |
 
