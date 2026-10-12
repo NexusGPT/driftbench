@@ -105,8 +105,10 @@ export function chunkSources<T extends Source>(
         let size = 0;
         for (const line of lines) {
           if (!UPDATE_LINE.test(line) || own.has(line) || size + line.length > UPDATES_CHARS) continue;
-          updates.push(line);
-          size += line.length + 1;
+          // Only the clause that retires the rule: the replacement itself is read in its own chunk.
+          const clause = /^.*?\b(?:no longer|replaces?|supersedes?)\b[^.]*\./i.exec(line)?.[0] ?? line;
+          updates.push(clause);
+          size += clause.length + 1;
         }
         return updates.length > 0 && all.length > 1 ? `${piece}\n\n${updates.join('\n')}` : piece;
       });

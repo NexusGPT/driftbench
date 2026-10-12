@@ -124,8 +124,10 @@ describe('extractMap on a long prompt', () => {
       const rounds = chunkSources([{ kind: 'prompt', path: 'p.md', text }], 200, 0);
       expect(rounds.length).toBeGreaterThan(3);
       const texts = rounds.map((round) => round[0]?.text ?? '');
-      expect(texts.every((t) => t.includes(update))).toBe(true);
-      expect(texts.at(-1)?.split(update).length).toBe(2);
+      const clause = 'Update: the earlier rule on "refunds" no longer holds.';
+      expect(texts.every((t) => t.includes(clause))).toBe(true);
+      expect(texts.slice(0, -1).some((t) => t.includes('Always refund within 5 days.'))).toBe(false);
+      expect(texts.at(-1)).toContain(update);
     });
   });
 });

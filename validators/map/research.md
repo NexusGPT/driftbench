@@ -888,3 +888,14 @@ Sources read:
 What others do: Update lines are lines of the file; a chunk that carries them lets the reader see the replacement.
 
 What to try, and why: every chunk carries the updates that retire earlier rules
+
+## Iteration 77
+
+Question: packages/generate/src/extract/chunks.ts: iteration 76 carried whole update lines, so every chunk also reported the replacing rules and its answer was cut at the limit; scale.chunk.replacements proves it.
+
+Sources read:
+* docs/generating.md section Planned: long prompts
+
+What others do: The replacement is read once, in its own chunk; others carry only the retiring clause.
+
+What to try, and why: a chunk carries only the clause of an update that retires a rule
