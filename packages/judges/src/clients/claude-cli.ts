@@ -44,6 +44,21 @@ export function claudeCost(model: string): number {
   return 10;
 }
 
+/** The flags that shape every answer: no tool, no settings file, no MCP server, no session, one turn. */
+const JUDGE_FLAGS = [
+  '--tools',
+  '',
+  '--setting-sources',
+  '',
+  '--strict-mcp-config',
+  '--no-session-persistence',
+  '--max-turns',
+  '1',
+] as const;
+
+/** The client settings a cassette keys on: the print-mode format and the judge flags (not the spend cap). */
+export const CLAUDE_SETTINGS = JSON.stringify(['-p', '--output-format', 'json', ...JUDGE_FLAGS]);
+
 type Ran = { code: number | null; stdout: string; stderr: string };
 
 export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClient {
@@ -64,6 +79,7 @@ export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClien
     cls: 'system2',
     model,
     cost: options.cost ?? claudeCost(model),
+    settings: CLAUDE_SETTINGS,
     async judge(request) {
       const prompt = buildPrompt(request);
       const args = [
@@ -75,14 +91,7 @@ export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClien
         model,
         '--system-prompt',
         prompt.system,
-        '--tools',
-        '',
-        '--setting-sources',
-        '',
-        '--strict-mcp-config',
-        '--no-session-persistence',
-        '--max-turns',
-        '1',
+        ...JUDGE_FLAGS,
         ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
       ];
       const ran = await run(command, args, prompt.user, { cwd: workdir(), env, timeoutMs });

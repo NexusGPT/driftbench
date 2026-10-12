@@ -47,6 +47,13 @@
     "incomplete": 22,
     "judged": 399
   },
+  "unit": {
+    "tests": 26,
+    "guards": 6,
+    "scripts": 2,
+    "cases": 62,
+    "skipped": []
+  },
   "sources": {
     "asks": {
       "bank": 425,

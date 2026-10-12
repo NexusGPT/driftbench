@@ -35,11 +35,78 @@ export const DEFAULT_REPEATS = 3;
 const COUNCIL_SIZE = 3;
 
 /** A block a human labelled: a fixture-shaped slice, its id, and the human's pass or fail. */
+/**
+ * The element of a labelled block a human label is about. A message is a transcript line by index; a tool
+ * call is a tool the transcript calls, by name and occurrence; a field is a dot path into the block's ledger;
+ * a span is a trace span id, which the transcript cannot show.
+ */
+export const AnnotationAnchor = z.discriminatedUnion('kind', [
+  z.strictObject({ kind: z.literal('message'), index: z.number().int().min(0) }),
+  z.strictObject({
+    kind: z.literal('tool_call'),
+    tool: z.string().min(1),
+    occurrence: z.number().int().min(1).optional(),
+  }),
+  z.strictObject({ kind: z.literal('field'), path: z.string().min(1) }),
+  z.strictObject({ kind: z.literal('span'), span_id: z.string().min(1) }),
+]);
+export type AnnotationAnchor = z.infer<typeof AnnotationAnchor>;
+
 export const LabelledBlock = CriterionFixture.extend({
   id: z.string().min(1),
   label: z.enum(['pass', 'fail']),
+  anchor: AnnotationAnchor.optional(),
 });
 export type LabelledBlock = z.infer<typeof LabelledBlock>;
+
+/**
+ * Why an anchor does not point at an element of its block, or undefined when it does or has none. A span
+ * anchor is never a problem here: the transcript cannot show a span (see `anchorNote`).
+ */
+export function anchorProblem(block: LabelledBlock): string | undefined {
+  const anchor = block.anchor;
+  if (anchor === undefined) return undefined;
+  switch (anchor.kind) {
+    case 'message': {
+      if (anchor.index >= block.transcript.length) {
+        return `anchor: no transcript line ${anchor.index} (the block has ${block.transcript.length})`;
+      }
+      return undefined;
+    }
+    case 'tool_call': {
+      const calls = block.transcript.filter(
+        (entry) => entry.role === 'tool_call' && entry.tool === anchor.tool,
+      );
+      if (calls.length === 0) return `anchor: calls no ${anchor.tool}`;
+      const wanted = anchor.occurrence ?? 1;
+      if (wanted > calls.length) return `anchor: calls ${anchor.tool} ${calls.length} times, not ${wanted}`;
+      return undefined;
+    }
+    case 'field': {
+      const found = fieldAt(block.given?.ledger ?? {}, anchor.path);
+      return found ? undefined : `anchor: no ledger field ${anchor.path}`;
+    }
+    case 'span':
+      return undefined;
+  }
+}
+
+/** The note an anchor carries for a reader, when the transcript cannot check it. */
+export function anchorNote(block: LabelledBlock): string | undefined {
+  if (block.anchor?.kind === 'span') {
+    return `span ${block.anchor.span_id}: not checkable from the transcript, the label stands as written`;
+  }
+  return undefined;
+}
+
+function fieldAt(root: unknown, path: string): boolean {
+  let at: unknown = root;
+  for (const key of path.split('.')) {
+    if (at === null || typeof at !== 'object' || !(key in at)) return false;
+    at = (at as Record<string, unknown>)[key];
+  }
+  return true;
+}
 
 /** One labels file: the hand-labelled blocks of one criterion. */
 export const LabelFile = z.strictObject({
@@ -104,6 +171,8 @@ export async function loadLabels(dir: string): Promise<LabelsLoad> {
       const twin = ids.get(block.id);
       if (twin) issues.push({ path, message: `block id ${block.id} is also used in ${twin}` });
       ids.set(block.id, path);
+      const problem = anchorProblem(block);
+      if (problem !== undefined) issues.push({ path, message: `block ${block.id}: ${problem}` });
     }
     const kinds = new Set(file.blocks.map((block) => block.label));
     if (kinds.size < 2) {
@@ -166,6 +235,8 @@ export type LabelAgreement = {
     readonly id: string;
     readonly label: 'pass' | 'fail';
     readonly judged: JudgeOutcome;
+    /** The element the human label is about, when the label names one. */
+    readonly anchor?: AnnotationAnchor;
   }[];
 };
 
@@ -265,6 +336,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
         blocks.map((block) => block.id),
         blocks.map((block) => block.label),
         judged,
+        blocks.map((block) => block.anchor),
       );
       const misses: string[] = [];
       if (separated < repeats) misses.push(`separates the fixture pair ${separated} of ${repeats} times`);
@@ -334,10 +406,11 @@ async function answer(
   }
 }
 
-function agreement(
+export function agreement(
   ids: readonly string[],
   human: readonly ('pass' | 'fail')[],
   judged: readonly JudgeOutcome[],
+  anchors: readonly (AnnotationAnchor | undefined)[] = [],
 ): LabelAgreement {
   const n = human.length;
   const agree = human.filter((label, i) => judged[i] === label).length;
@@ -351,11 +424,15 @@ function agreement(
     agree,
     ...(kappa === undefined ? {} : { kappa }),
     agreement: interval,
-    blocks: ids.map((id, i) => ({
-      id,
-      label: human[i] as 'pass' | 'fail',
-      judged: judged[i] as JudgeOutcome,
-    })),
+    blocks: ids.map((id, i) => {
+      const anchor = anchors[i];
+      return {
+        id,
+        label: human[i] as 'pass' | 'fail',
+        judged: judged[i] as JudgeOutcome,
+        ...(anchor === undefined ? {} : { anchor }),
+      };
+    }),
   };
 }
 

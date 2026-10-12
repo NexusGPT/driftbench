@@ -75,3 +75,17 @@ export {
   type ThenParts,
   thenOf,
 } from './then';
+export {
+  GuardCase,
+  hostileForms,
+  matcherTools,
+  materialOf,
+  payloadOf,
+  toolInput,
+  UNIT_DIR,
+  UNIT_TEST_TYPES,
+  UnitDecision,
+  UnitOutcome,
+  UnitTest,
+  unitTestOf,
+} from './unit';

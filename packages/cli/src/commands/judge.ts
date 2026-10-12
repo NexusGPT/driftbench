@@ -1,12 +1,15 @@
+import { writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import {
   assignmentTable,
   type CalibrationReport,
+  type CascadeReport,
   type CouncilAssignment,
   type CouncilMode,
   type CouncilResult,
   type CriterionCalibration,
   calibrate,
+  calibrateCascade,
   cassettePlayers,
   councilAssignment,
   createClaudeCliJudge,
@@ -52,6 +55,8 @@ export type JudgeCalibrateOptions = {
   claudeCommand?: string;
   record?: string;
   spendCapUsd?: string;
+  cascade?: boolean;
+  only?: string[];
   json?: boolean;
 };
 
@@ -107,6 +112,11 @@ export function registerJudgeCommand(program: Command, io: Io, setExit: (code: n
     .option('--claude-command <path>', 'the claude command to run', 'claude')
     .option('--record <file>', 'save every live answer, with its cost, as a cassette to replay later')
     .option('--spend-cap-usd <usd>', 'stop calling live judges once their calls have cost this much')
+    .option(
+      '--cascade',
+      'the first judge answers everything; the others only where it is unsure or disagrees with the label. Writes the cascade report as JSON to --out',
+    )
+    .option('--only <criterion>', 'calibrate only this criterion; repeat for several', collectValues, [])
     .requiredOption('--out <file>', 'where to write the assignment table (YAML)')
     .option('--repeats <n>', 'how many times each judge answers each fixture', String(DEFAULT_REPEATS))
     .option('--mode <mode>', `the council mode the table is for: ${MODES.join(', ')}`, 'hybrid')
@@ -309,9 +319,35 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
       if (options.record) client = recordingClient(client, recorded);
       judges.push(capped(client, spend, cap));
     }
+    const only = options.only ?? [];
+    const unknown = only.filter((name) => !known.has(name));
+    if (unknown.length > 0) {
+      io.err(`judge calibrate: --only names no criterion ${unknown.join(', ')}.\n`);
+      return 2;
+    }
+    const chosen =
+      only.length > 0 ? loaded.criteria.filter((c) => only.includes(c.def.name)) : loaded.criteria;
+    if (options.cascade) {
+      const [head, ...rest] = judges;
+      if (!head || rest.length === 0) {
+        io.err('judge calibrate --cascade needs a first judge and at least one to escalate to.\n');
+        return 2;
+      }
+      const cascade = await calibrateCascade({
+        first: head,
+        escalateTo: rest,
+        criteria: chosen,
+        labels: labels.labels,
+        repeats,
+      });
+      const out = resolve(io.cwd, options.out);
+      await writeFile(out, `${JSON.stringify(cascade, null, 2)}\n`, 'utf8');
+      if (options.record) await saveCassette(resolve(io.cwd, options.record), recorded);
+      return printCascade(cascade, io, options, out);
+    }
     report = await calibrate({
       judges,
-      criteria: loaded.criteria,
+      criteria: chosen,
       labels: labels.labels,
       repeats,
       mode: options.mode as CouncilMode,
@@ -440,4 +476,30 @@ function capped(client: JudgeClient, spend: { usd: number }, cap: number | undef
       return result;
     },
   };
+}
+
+/** Exit 0, or 1 when a call gave no answer. */
+function printCascade(report: CascadeReport, io: Io, options: JudgeCalibrateOptions, out: string): number {
+  const errors = report.criteria.reduce((sum, c) => sum + c.errors, 0);
+  if (options.json) {
+    io.out(`${JSON.stringify(report, null, 2)}\n`);
+    return errors > 0 ? 1 : 0;
+  }
+  io.out(
+    `Cascade: ${report.first} answers everything; ${report.escalateTo.join(' and ')} answer where it is unsure or disagrees with the label.\n`,
+  );
+  const kappa = (k: number | undefined) => (k === undefined ? 'n/a' : k.toFixed(2));
+  for (const c of report.criteria) {
+    const ups = c.escalated.length === 0 ? 'none' : c.escalated.map((e) => `${e.item} (${e.why})`).join(', ');
+    io.out(
+      `${c.criterion}: separation ${c.separation.separated}/${c.separation.repeats}, kappa ${kappa(c.labels.kappa)} (${c.labels.agree}/${c.labels.n}), ${c.spentUsd.toFixed(4)} USD; escalated: ${ups}\n`,
+    );
+    io.out(
+      `    unsure only: separation ${c.unsureOnly.separation.separated}/${c.unsureOnly.separation.repeats}, kappa ${kappa(c.unsureOnly.labels.kappa)} (${c.unsureOnly.labels.agree}/${c.unsureOnly.labels.n}), ${c.unsureOnly.spentUsd.toFixed(4)} USD\n`,
+    );
+  }
+  io.out(
+    `\nSpent ${report.spentUsd.toFixed(4)} USD${errors > 0 ? `; ${errors} call(s) gave no answer` : ''}. Wrote ${show(io, out)}${options.record ? ` and ${show(io, resolve(io.cwd, options.record))}` : ''}.\n`,
+  );
+  return errors > 0 ? 1 : 0;
 }

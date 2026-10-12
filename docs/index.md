@@ -13,6 +13,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Run modes](concepts/run-modes.md): teacher-forced, free-running and perturbed runs of the same spec.
 * [Drift](concepts/drift.md): the five drift classes, and the metrics across a succession of blocks.
 * [Recovery](concepts/recovery.md): the ten deviation classes, and how fast the agent comes back.
+* [Script](concepts/script.md): writing a conversation spec in code, with the steps `user`, `agent`, `judge` and `injection`, and the steps that have no spec form.
 * [Judges](concepts/judges.md): judged criteria, the judge council and calibration.
 * [Statistics](concepts/statistics.md): repeats, intervals, paired tests and the parity verdict.
 
@@ -27,6 +28,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Datasets and prompts](datasets.md): `import` specs from a CSV file or a spreadsheet through a mapping, and the registry of immutable dataset and prompt versions (`dataset`, `prompt`) that a campaign records.
 * [Python](python.md): run specs from Python, typed results, a pytest plugin (`pytest --driftbench specs/`), and a Python function as the agent.
 * [vitest](vitest.md): `describeSpec(path, target)`, one vitest test per block.
+* [Campaign-level criteria](aggregates.md): one threshold over every run of a campaign, for example a pass rate; a library API, no command flag yet.
 * [Production traces](traces.md): `driftbench import traces` drafts specs from OpenTelemetry, Nexus or Claude Code traces; `driftbench monitor --source traces` watches production for drift in time windows, with the measured delay and false alarms.
 * [Releasing](releasing.md): the 0.1.0 packages, the release check and the tag-only release workflow.
 * [Validators](validators.md): code that proves driftbench works: six ladders (map, generator, judges, system, estate, statistics) and the executor loop that drives each to 100 percent.

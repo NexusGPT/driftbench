@@ -1,7 +1,7 @@
 import type { ClientOptions, JudgeClient } from '../client';
 import { inconclusive, type JudgeRequest, type JudgeResult, outcomeFromProbability } from '../contract';
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
-import { buildPrompt, DATA_RULE, renderRubric } from '../prompt';
+import { buildPrompt, DATA_RULE, renderRubric, SYSTEM1_QUESTION } from '../prompt';
 
 /**
  * The system 1 judges: a fixed binary question per criterion, answered with a probability. Both shapes
@@ -18,7 +18,7 @@ export type System1Options = ClientOptions & ProbabilityBounds;
 
 /** The question a system 1 judge answers yes or no. Yes means the criterion passes. */
 export function binaryQuestion(request: JudgeRequest): string {
-  return `${renderRubric(request.criterion)}\n\nAnswer yes when the data passes the criterion, no when it fails.\n${DATA_RULE}`;
+  return `${renderRubric(request.criterion)}\n\n${SYSTEM1_QUESTION}\n${DATA_RULE}`;
 }
 
 function fromProbability(

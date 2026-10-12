@@ -1,6 +1,6 @@
 import type { Cost, Segment, ToolCall } from '@driftbench/core';
 import { joinText, parseObserved } from '../shared';
-import { type PriceTable, priced, type Trace, type TraceTurn } from './types';
+import { type PriceTable, priced, type Trace, type TraceObservation, type TraceTurn } from './types';
 
 /**
  * OpenTelemetry traces of an LLM application, read from OTLP JSON (the file exporter's format, or a
@@ -343,8 +343,42 @@ export function tracesFromOtel(
         candidates[0];
       owner?.others.push(span);
     }
-    const trace = traceOf(key, turns, options.prices);
-    traces.push(trace);
+    const observations = ordered.map((span): TraceObservation => {
+      const chat = isChat(span);
+      const inputTokens = chat
+        ? (numberAttr(span, 'gen_ai.usage.input_tokens') ?? numberAttr(span, 'gen_ai.usage.prompt_tokens'))
+        : undefined;
+      const outputTokens = chat
+        ? (numberAttr(span, 'gen_ai.usage.output_tokens') ??
+          numberAttr(span, 'gen_ai.usage.completion_tokens'))
+        : undefined;
+      const model = stringAttr(span, 'gen_ai.response.model') ?? stringAttr(span, 'gen_ai.request.model');
+      const usd = chat
+        ? (numberAttr(span, 'gen_ai.usage.cost') ??
+          (inputTokens === undefined
+            ? undefined
+            : priced(options.prices, model, inputTokens, outputTokens ?? 0)))
+        : undefined;
+      return {
+        id: span.spanId,
+        ...(span.parentSpanId === undefined ? {} : { parentId: span.parentSpanId }),
+        kind: chat ? 'chat' : isTool(span) ? 'tool' : 'other',
+        name: span.name,
+        start: new Date(span.start).toISOString(),
+        end: new Date(span.end).toISOString(),
+        level: span.status?.code === 2 ? 'error' : 'default',
+        ...(inputTokens === undefined && outputTokens === undefined
+          ? {}
+          : {
+              usage: {
+                ...(inputTokens === undefined ? {} : { inputTokens }),
+                ...(outputTokens === undefined ? {} : { outputTokens }),
+              },
+            }),
+        ...(usd === undefined ? {} : { usd }),
+      };
+    });
+    traces.push({ ...traceOf(key, turns, options.prices), observations });
   }
   traces.sort((a, b) => (a.startedAt ?? '').localeCompare(b.startedAt ?? '') || a.id.localeCompare(b.id));
   return { traces, issues };

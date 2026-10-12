@@ -276,6 +276,19 @@ export const Expect = z
       .describe('How the expected tools line up with the observed calls: exact, in_order or any_order.'),
     must: z.array(Pattern).optional().describe('Patterns the visible text must match.'),
     must_not: z.array(Pattern).optional().describe('Patterns the visible text must not match.'),
+    injection: z
+      .boolean()
+      .optional()
+      .describe(
+        'True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it.',
+      ),
+    exact: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        'The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers.',
+      ),
     similarity: z
       .array(SimilarityExpect)
       .optional()
@@ -431,6 +444,13 @@ export const CriterionDef = z
       .enum(['system1', 'system2', 'auto'])
       .optional()
       .describe('system1, system2, or auto: calibration assigns the class, ties go to system1.'),
+    repeat_reducer: z
+      .string()
+      .regex(/^(mode|median|at_least:[1-9][0-9]*)$/)
+      .optional()
+      .describe(
+        'How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>.',
+      ),
   })
   .describe(
     'A judged criterion. Blocks reference it by name, with @gating when a fail fails the conversation.',

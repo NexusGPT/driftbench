@@ -16,6 +16,7 @@ import { registerJudgeCommand } from './commands/judge';
 import { registerMonitorCommand } from './commands/monitor';
 import { registerPerturbCommand } from './commands/perturb';
 import { registerPilotCommand } from './commands/pilot';
+import { registerQueueCommand } from './commands/queue';
 import { registerRegistryCommands } from './commands/registry';
 import { registerReplayCommand } from './commands/replay';
 import { registerReportCommand } from './commands/report';
@@ -64,6 +65,7 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerMonitorCommand(program, io, setExit);
   registerSelectCommand(program, io, setExit);
   registerHoldoutCommand(program, io, setExit);
+  registerQueueCommand(program, io, setExit);
   registerViewCommand(program, io, setExit);
   registerImportCommand(program, io, setExit);
   registerRegistryCommands(program, io, setExit);

@@ -163,3 +163,37 @@ describe('tracesFromOtel: edge cases', () => {
     expect(tracesFromOtel([]).traces).toEqual([]);
   });
 });
+
+describe('tracesFromOtel keeps the span tree as observations', () => {
+  it('keeps every span with its kind, its parent link and its times', async () => {
+    const [trace] = tracesFromOtel(parseOtlp(await read('otel-flat.jsonl')).spans).traces;
+    const observations = trace?.observations ?? [];
+    expect(observations).toHaveLength(6);
+    const ids = new Set(observations.map((entry) => entry.id));
+    expect(observations.every((entry) => entry.parentId === undefined || ids.has(entry.parentId))).toBe(true);
+    const root = observations.find((entry) => entry.id === 'b200000000000001');
+    expect(root).toMatchObject({ kind: 'other', name: 'acme.turn.workflow' });
+    expect(root?.parentId).toBeUndefined();
+    const tool = observations.find((entry) => entry.id === 'b200000000000003');
+    expect(tool).toMatchObject({ kind: 'tool', name: 'port.check.tool', parentId: 'b200000000000001' });
+    expect(tool?.start).toBe(new Date(1772450431050).toISOString());
+  });
+});
+
+describe('tracesFromOtel observations carry level, usage and cost', () => {
+  it('gives a chat span its tokens and its priced cost, and a span with an error status the error level', async () => {
+    const prices = { 'example-model-2': { input: 2, output: 8 } };
+    const [trace] = tracesFromOtel(parseOtlp(await read('otel-flat.jsonl')).spans, { prices }).traces;
+    const chat = trace?.observations?.find((entry) => entry.id === 'b200000000000002');
+    expect(chat).toMatchObject({
+      kind: 'chat',
+      level: 'default',
+      usage: { inputTokens: 340, outputTokens: 30 },
+    });
+    expect(chat?.usd).toBeCloseTo((340 * 2) / 1e6 + (30 * 8) / 1e6, 12);
+    const tool = trace?.observations?.find((entry) => entry.id === 'b200000000000003');
+    expect(tool?.usage).toBeUndefined();
+    expect(tool?.usd).toBeUndefined();
+    expect(tool?.level).toBe('default');
+  });
+});

@@ -29,6 +29,8 @@ import { registerEstateLiveCommands } from './estate-live';
 import { registerEstateMaintainCommands } from './estate-maintain';
 import { registerEstatePlanCommands } from './estate-plan';
 import { registerEstateStaticCommand } from './estate-static';
+import { registerEstateUnitCommand } from './estate-unit';
+import { mapCacheOptions } from './map-cache';
 
 export type EstateScanOptions = {
   /** More globs to skip, beside the defaults and the estate configuration. Repeatable. */
@@ -117,6 +119,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
   registerEstateGenerateCommand(estate, io, setExit);
   registerEstateLiveCommands(estate, io, setExit);
   registerEstateStaticCommand(estate, io, setExit);
+  registerEstateUnitCommand(estate, io, setExit);
 }
 
 /**
@@ -274,7 +277,7 @@ export async function estateLintCommand(
     io.err(`Cannot find ${show(file, io)}.\n`);
     return 2;
   }
-  const loaded = await loadEstateMap(file);
+  const loaded = await loadEstateMap(file, mapCacheOptions());
   if (!loaded.ok) {
     io.err(`✗ ${show(file, io)}\n${loaded.errors.map(issueLine).join('')}`);
     return 1;
@@ -388,7 +391,7 @@ export async function estateMapCommand(
     io.err("error: required option '--to <file>' not specified\n");
     return 2;
   }
-  const loaded = await loadEstateMap(file);
+  const loaded = await loadEstateMap(file, mapCacheOptions());
   if (!loaded.ok) {
     io.err(`✗ ${show(file, io)}\n${loaded.errors.map(issueLine).join('')}`);
     return 1;

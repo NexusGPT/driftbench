@@ -73,6 +73,8 @@ export type JudgeResult = {
   readonly unparsed?: boolean;
   /** What the call cost in US dollars, when the provider reports it (the claude command does). */
   readonly costUsd?: number;
+  /** True when the answer parsed only after the strict repair of unescaped quotes in its string values. */
+  readonly repaired?: boolean;
 };
 
 /** An inconclusive answer that names why. */
@@ -93,10 +95,57 @@ export function parseAnswerText(raw: string): JudgeResult {
   try {
     value = JSON.parse(candidate);
   } catch (cause) {
+    // One strict repair: escape the double quotes inside string values, then read it again. A repaired
+    // answer still meets the whole contract or stays unparsed.
+    try {
+      const repaired = parseAnswerValue(JSON.parse(repairAnswerText(candidate)), raw);
+      if (!repaired.unparsed) return { ...repaired, repaired: true };
+    } catch {
+      // Not JSON after the repair either: the first error explains it.
+    }
     const why = cause instanceof Error ? cause.message : String(cause);
     return { answer: inconclusive(`unparseable answer: ${why}`), raw, unparsed: true };
   }
   return parseAnswerValue(value, raw);
+}
+
+/**
+ * The strict repair of a model's JSON: inside a string, a double quote that is not followed (after spaces)
+ * by `,`, `}`, `]`, `:` or the end of the text cannot close the string, so it is escaped. Nothing else
+ * changes: no key is added, removed or renamed, and no value outside a string is touched.
+ */
+export function repairAnswerText(text: string): string {
+  let out = '';
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i] as string;
+    if (!inString) {
+      if (ch === '"') inString = true;
+      out += ch;
+      continue;
+    }
+    if (escaped) {
+      escaped = false;
+      out += ch;
+      continue;
+    }
+    if (ch === '\\') {
+      escaped = true;
+      out += ch;
+      continue;
+    }
+    if (ch === '"') {
+      const next = text.slice(i + 1).match(/^\s*(.)/)?.[1];
+      if (next === undefined || ',}]:'.includes(next)) {
+        inString = false;
+        out += ch;
+      } else out += '\\"';
+      continue;
+    }
+    out += ch;
+  }
+  return out;
 }
 
 /** Validates an already decoded answer against the contract. */
@@ -112,15 +161,28 @@ export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(va
   };
 }
 
-/** The first balanced JSON object in a text, fences and prose around it ignored. */
+/**
+ * The final answer: the last top-level JSON object of the text. An object the model quoted in its reasoning comes
+ * earlier, so it never becomes the verdict. A final object still open at the end of the text (a cut answer) yields
+ * nothing, so the verdict is inconclusive rather than the last complete object before it.
+ */
 function extractObject(raw: string): string | undefined {
-  const start = raw.indexOf('{');
-  if (start < 0) return undefined;
   let depth = 0;
+  let start = -1;
   let inString = false;
   let escaped = false;
-  for (let i = start; i < raw.length; i += 1) {
+  let last: string | undefined;
+  for (let i = 0; i < raw.length; i += 1) {
     const ch = raw[i];
+    if (depth === 0) {
+      if (ch === '{') {
+        depth = 1;
+        start = i;
+        inString = false;
+        escaped = false;
+      }
+      continue;
+    }
     if (inString) {
       if (escaped) escaped = false;
       else if (ch === '\\') escaped = true;
@@ -131,10 +193,10 @@ function extractObject(raw: string): string | undefined {
     else if (ch === '{') depth += 1;
     else if (ch === '}') {
       depth -= 1;
-      if (depth === 0) return raw.slice(start, i + 1);
+      if (depth === 0) last = raw.slice(start, i + 1);
     }
   }
-  return undefined;
+  return depth === 0 ? last : undefined;
 }
 
 /**

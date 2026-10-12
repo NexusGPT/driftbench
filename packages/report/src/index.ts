@@ -2,6 +2,13 @@
 export const packageName = '@driftbench/report';
 
 export {
+  type AggregateCriterion,
+  type AggregateResult,
+  aggregateFromFlag,
+  BUILT_IN_AGGREGATES,
+  evaluateAggregates,
+} from './aggregate';
+export {
   AUTO_MARGIN_WARN,
   type AutoMargin,
   autoMargin,
@@ -32,6 +39,15 @@ export {
 export { type Estimate, type IntervalMethod, type Rate, rate } from './estimate';
 export { type RenderOptions, renderCompare, renderHtml, renderPage, renderRun, renderSpread } from './html';
 export { failures, renderJunit } from './junit';
+export {
+  comparePairwise,
+  type PairwiseCall,
+  type PairwiseChoice,
+  type PairwiseReport,
+  type ReplyPair,
+  replyPairs,
+  replyText,
+} from './pairwise';
 export { PilotReport, readPilotReport } from './pilot';
 export {
   type AtK,
@@ -44,6 +60,7 @@ export {
   type SuccessionSummary,
   successionOf,
 } from './reliability';
+export { type CriterionRepeat, criterionRepeats, runOutcome } from './repeats';
 export {
   type BlockDetail,
   buildScorecard,
@@ -64,4 +81,4 @@ export {
   type SpreadOptions,
   spread,
 } from './spread';
-export { compareText, textTable } from './text';
+export { compareText, criterionRepeatsText, textTable } from './text';

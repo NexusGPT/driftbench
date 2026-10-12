@@ -215,19 +215,15 @@ describe('driftbench judge calibrate', () => {
 
   it('exits 1 when a gating criterion stays unassigned, and still writes the table', async () => {
     const cassette = JSON.parse(await readFile(join(ROOT, CALIBRATION), 'utf8'));
-    // jev-a and google-chat now pass the care_redirect fail fixture: neither class seats three at the bar.
-    const fixtureKeys = new Set(
-      cassette.entries
-        .filter(
-          (e: { judge: string; criterion: string; answer?: { outcome: string }; raw?: string }) =>
-            e.judge === 'jev-a' && e.criterion === 'care_redirect' && e.answer?.outcome === 'fail',
-        )
-        .map((e: { key: string }) => e.key),
-    );
+    // jev-a and google-chat now pass every care_redirect block they failed: neither class seats three at the bar.
     for (const entry of cassette.entries) {
-      if (entry.criterion !== 'care_redirect' || !fixtureKeys.has(entry.key)) continue;
-      if (entry.judge === 'jev-a') entry.answer = { outcome: 'pass', score: 0.9, reasoning: 'flipped' };
-      if (entry.judge === 'google-chat') entry.raw = '{"outcome":"pass","reasoning":"flipped"}';
+      if (entry.criterion !== 'care_redirect') continue;
+      if (entry.judge === 'jev-a' && entry.answer?.outcome === 'fail') {
+        entry.answer = { outcome: 'pass', score: 0.9, reasoning: 'flipped' };
+      }
+      if (entry.judge === 'google-chat' && entry.raw?.includes('"outcome":"fail"')) {
+        entry.raw = '{"outcome":"pass","reasoning":"flipped"}';
+      }
     }
     const path = join(scratch, 'unassigned.json');
     await writeFile(path, JSON.stringify(cassette));
@@ -471,6 +467,9 @@ describe('the judge check in the default check set', () => {
     expect(request?.artifact).toContain('File out/acme-price-sheet.xlsx (xlsx)');
     expect(request?.artifact).toContain('| 3 | Acme Mobile M | 40 GB | 25 | 300 (=C3*12) |');
     expect(request?.artifact).toMatch(/Workspace changes: created out\/acme-price-sheet\.xlsx/);
+    // The criterion names catalog.csv as an input: the judge reads the seed the agent started from.
+    expect(request?.inputs?.map((input) => input.path)).toEqual(['catalog.csv']);
+    expect(request?.inputs?.[0]?.text).toContain('mobile-m,Acme Mobile M,mobile,40 GB,25');
   }, 120_000);
 });
 
@@ -550,6 +549,64 @@ process.stdin.on('end', () => {
     expect(code).toBe(1);
     expect(out).toContain('Spent 0.0030 USD.');
     expect(out).toContain('109 judge call(s) gave no answer.');
+  });
+
+  it('runs a cascade: the recorded haiku answers everything, the live judges only its unsure items', async () => {
+    const command = await fakeClaude();
+    const out = join(scratch, 'cascade.json');
+    const {
+      code,
+      out: text,
+      err,
+    } = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      'examples/acme/criteria/calibration/claude-haiku.cassette.json',
+      '--claude',
+      'sonnet',
+      '--claude',
+      'opus',
+      '--claude-command',
+      command,
+      '--cascade',
+      '--only',
+      'explicit_confirmation',
+      '--out',
+      out,
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(text).toContain('Cascade: claude-haiku answers everything; claude-sonnet and claude-opus answer');
+    expect(text).toMatch(
+      /explicit_confirmation: separation 3\/3, kappa .*escalated: explicit_confirmation\.3 \(unsure\)/,
+    );
+    const report = JSON.parse(await readFile(out, 'utf8'));
+    expect(report.criteria).toHaveLength(1);
+    expect(report.criteria[0].escalated).toEqual([{ item: 'explicit_confirmation.3', why: 'unsure' }]);
+  }, 60_000);
+
+  it('refuses --only with a name that is not a criterion', async () => {
+    const { code, err } = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      'examples/acme/criteria/calibration/claude-haiku.cassette.json',
+      '--only',
+      'nobody',
+      '--out',
+      join(scratch, 'n.yaml'),
+    ]);
+    expect(code).toBe(2);
+    expect(err).toContain('--only names no criterion nobody');
   });
 
   it('exits 2 without a cassette or a live judge, and on a bad cap', async () => {
