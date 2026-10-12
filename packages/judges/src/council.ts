@@ -320,20 +320,19 @@ async function runRound(
   } else {
     votes.push(...(await Promise.all(ordered.map((judge) => castVote(request, judge, budget, counter)))));
   }
-  const outcome: RoundOutcome = cascaded ? 'pass' : majority(votes, judges.length);
+  const outcome: RoundOutcome = cascaded ? 'pass' : majority(votes);
   return { cls, budget, votes, outcome, cascaded };
 }
 
 /**
- * The outcome a majority of the seated judges agree on: two of three, or the one vote of a row of one. An
- * inconclusive vote never counts.
+ * The outcome a majority agrees on: more than half of all votes cast, so two of three, or the one vote of a row
+ * of one. An inconclusive vote counts in the total and never for an outcome; otherwise the round is split.
  */
-export function majority(votes: readonly Vote[], seated: number = COUNCIL_SIZE): RoundOutcome {
+export function majority(votes: readonly Vote[]): RoundOutcome {
   const pass = votes.filter((vote) => vote.outcome === 'pass').length;
   const fail = votes.filter((vote) => vote.outcome === 'fail').length;
-  const needed = Math.floor(seated / 2) + 1;
-  if (pass >= needed && pass > fail) return 'pass';
-  if (fail >= needed && fail > pass) return 'fail';
+  if (pass * 2 > votes.length) return 'pass';
+  if (fail * 2 > votes.length) return 'fail';
   return 'split';
 }
 
@@ -385,7 +384,11 @@ export type RepeatedJudging = { readonly outcomes: JudgeOutcome[]; readonly cons
  * Asks one client the same request k times, one after the other. The result is consistent when all k outcomes are
  * equal and decisive: a run of inconclusive answers is not consistent. k must be a whole number from 1.
  */
-export async function judgeRepeated(client: JudgeClient, request: JudgeRequest, k: number): Promise<RepeatedJudging> {
+export async function judgeRepeated(
+  client: JudgeClient,
+  request: JudgeRequest,
+  k: number,
+): Promise<RepeatedJudging> {
   if (!Number.isInteger(k) || k < 1) throw new RangeError(`k must be a whole number from 1, got ${k}`);
   const outcomes: JudgeOutcome[] = [];
   for (let i = 0; i < k; i += 1) outcomes.push((await client.judge(request)).answer.outcome);

@@ -47,6 +47,16 @@ describe('majority of three', () => {
   });
 });
 
+describe('majority of any size: an outcome needs more than half of all votes cast', () => {
+  it('counts inconclusive votes in the total', () => {
+    const v = (outcome: 'pass' | 'fail' | 'inconclusive') => ({ judge: 'j', outcome });
+    expect(majority([v('pass'), v('pass'), v('inconclusive'), v('inconclusive')])).toBe('split');
+    expect(majority([v('pass'), v('pass'), v('pass'), v('fail'), v('inconclusive')])).toBe('pass');
+    expect(majority([v('pass')])).toBe('pass');
+    expect(majority([v('pass'), v('fail'), v('pass'), v('fail')])).toBe('split');
+  });
+});
+
 describe('the council', () => {
   it('records the retries each judge took in its own vote, and none in a vote that took none', async () => {
     /** A judge whose provider answers 503 once, then passes: the client retries under the shared policy. */
