@@ -97,6 +97,7 @@ Iteration 68 (cause: letters spaced one by one): reading with single spaces betw
 Iteration 69 (cause: letters separated by dots): reading with dots between letters dropped. Test: screen.test.ts (red proved). Bank 470 -> 471.
 Iteration 70 (cause: reversed text): reversed reading. Test: screen.test.ts (red proved). Bank 471 -> 472. The first measure run failed three scale items under a load average of 154 (they pass when re-run); re-measured.
 Iteration 71 (cause: ROT13): rotated reading. Test: screen.test.ts (red proved). Bank 472 -> 473 (0.7414).
+Iteration 72 (cause: no French words): OTHER_LANGUAGES row in screen.ts; each language is one row. Test: screen.test.ts (red proved). Bank 473 -> 474. Ownership: this lane keeps ALL of injection (lead, after the split).
 
 ## Next actions
 
