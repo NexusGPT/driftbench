@@ -108,6 +108,7 @@ Iteration 93 (cause: no base64 reading): a READINGS row in screen.ts replaces ba
 Iteration 94 (cause: English judge words flagged in narration): `instructive` gate in screen.ts (modal, clause-start or capitalised imperative, note or vocative to the judge, verdict field, slug file names read as sentences); the foreign-language rows use the English verdict fallback only when no English judge word is present. Test: screen.test.ts "flags English judge words only when the sentence instructs" and "keeps flagging instructions planted after other text". Two older tests got modal wording ('must') to stay consistent with the bank. Bank 575 -> 589 of 638 (0.9232). Remaining: 24 injection (languages tr ru zh ja ko ar hi sv id, decoders: url, hex, html entities, unicode escapes, binary, base64-url, caesar, double base64), calibration 11, council 4, pairwise 3, cascade 1, scale 1.
 Iteration 95 (cause: base64 run after an equals sign, URL-safe alphabet. Test: screen.test.ts reads URL-safe base64 (red first).)
 Iteration 96 (cause: decoded text was screened as written only. DECODERS list; readingsOf applies every reading to each decoded text, two levels deep. Test: screen.test.ts reads a base64 text that holds ROT13 or base64 again (red first). Add each later decoder as one DECODERS row.)
+Iteration 97 (cause: no hex reading. DECODERS row for 0x runs of 8 bytes or more; shared readable() for UTF-8 plus 90 percent printable. Test: screen.test.ts reads 0x hexadecimal runs.)
 
 ## Next actions
 
