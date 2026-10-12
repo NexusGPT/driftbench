@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/style/noNonNullAssertion: research script; each lookup uses a key the same script just built */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { requestKey } from '../../../packages/judges/src/cassette';

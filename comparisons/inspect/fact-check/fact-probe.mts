@@ -11,8 +11,7 @@ import { buildPrompt } from '../../../packages/judges/src/prompt';
 
 const CLAUDE = process.env.CLAUDE_BIN ?? 'claude';
 const variant = process.argv[2] ?? 'ours';
-const OUT = process.argv[3] ?? fileURLToPath(new URL('./out/fact-' + variant + '.json', import.meta.url));
-const EXPERT = 'Fiber at 300 Mbps is available at 3 Orchard Way.';
+const OUT = process.argv[3] ?? fileURLToPath(new URL(`./out/fact-${variant}.json`, import.meta.url));
 const REPEATS = 2;
 
 // Labelled by construction: pass = the reply states the expert fact; fail = it does not.

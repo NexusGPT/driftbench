@@ -1,0 +1,702 @@
+[
+  {
+    "id": "H030",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether my street is covered for fibre, and whether there is a family discount?",
+    "reply": "Fibre is live on your street from $60 a month. The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H039",
+    "label": "relevant",
+    "kind": "para",
+    "ask": "Can you tell me whether someone can call me back, and when my technician will arrive?",
+    "reply": "An advisor will ring you back on that number; a visit is set for Thursday morning, between eight and noon."
+  },
+  {
+    "id": "H029",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me when my technician will arrive, and whether there is a family discount?",
+    "reply": "Your technician is booked for Thursday between 8 and 12. The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H071",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me when my technician will arrive, and how I can pay my bill?",
+    "reply": "Your technician is booked for Thursday between 8 and 12. Your technician is booked for Thursday morning."
+  },
+  {
+    "id": "H017",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me which plan gives more data, and whether someone can call me back?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. A sales advisor will call you back on the number you gave."
+  },
+  {
+    "id": "H077",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me when my technician will arrive, and whether someone can call me back?",
+    "reply": "Your technician is booked for Thursday between 8 and 12. Our stores are open from nine to six."
+  },
+  {
+    "id": "H087",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me which plan gives more data, and whether my street is covered for fibre?",
+    "reply": "Both are good questions, let me look into which plan gives more data and whether my street is covered for fibre for you."
+  },
+  {
+    "id": "H036",
+    "label": "relevant",
+    "kind": "para",
+    "ask": "Can you tell me when my technician will arrive, and whether there is a family discount?",
+    "reply": "A visit is set for Thursday morning, between eight and noon; families get fifteen percent off every line after the first."
+  },
+  {
+    "id": "H100",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me which plan gives more data, and whether there is a family discount?",
+    "reply": "Both are good questions, let me look into which plan gives more data and whether there is a family discount for you."
+  },
+  {
+    "id": "H018",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether someone can call me back, and which plan gives more data?",
+    "reply": "A sales advisor will call you back on the number you gave. Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "H010",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether my street is covered for fibre, and whether there is a family discount?",
+    "reply": "Fibre is live on your street from $60 a month. The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H047",
+    "label": "relevant",
+    "kind": "extra",
+    "ask": "Can you tell me how I can pay my bill, and whether my street is covered for fibre?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing. Fibre is live on your street from $60 a month. We also have a football club offer this month."
+  },
+  {
+    "id": "H056",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me which plan gives more data, and whether someone can call me back?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "H096",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me whether there is a family discount, and when my technician will arrive?",
+    "reply": "Both are good questions, let me look into whether there is a family discount and when my technician will arrive for you."
+  },
+  {
+    "id": "H093",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me which plan gives more data, and how I can pay my bill?",
+    "reply": "Both are good questions, let me look into which plan gives more data and how I can pay my bill for you."
+  },
+  {
+    "id": "H054",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me which plan gives more data, and when my technician will arrive?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "H049",
+    "label": "relevant",
+    "kind": "extra",
+    "ask": "Can you tell me whether my street is covered for fibre, and when my technician will arrive?",
+    "reply": "Fibre is live on your street from $60 a month. Your technician is booked for Thursday between 8 and 12. We also have a football club offer this month."
+  },
+  {
+    "id": "H099",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me whether someone can call me back, and which plan gives more data?",
+    "reply": "Both are good questions, let me look into whether someone can call me back and which plan gives more data for you."
+  },
+  {
+    "id": "H043",
+    "label": "relevant",
+    "kind": "extra",
+    "ask": "Can you tell me how I can pay my bill, and whether my street is covered for fibre?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing. Fibre is live on your street from $60 a month. We also have a football club offer this month."
+  },
+  {
+    "id": "H051",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me whether someone can call me back, and when my technician will arrive?",
+    "reply": "A sales advisor will call you back on the number you gave."
+  },
+  {
+    "id": "H035",
+    "label": "relevant",
+    "kind": "para",
+    "ask": "Can you tell me which plan gives more data, and whether someone can call me back?",
+    "reply": "The Mobile L is our unlimited tier, thirty-five dollars monthly; an advisor will ring you back on that number."
+  },
+  {
+    "id": "H070",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me which plan gives more data, and whether my street is covered for fibre?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "H022",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether someone can call me back, and when my technician will arrive?",
+    "reply": "A sales advisor will call you back on the number you gave. Your technician is booked for Thursday between 8 and 12."
+  },
+  {
+    "id": "H092",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me whether there is a family discount, and whether someone can call me back?",
+    "reply": "Both are good questions, let me look into whether there is a family discount and whether someone can call me back for you."
+  },
+  {
+    "id": "H019",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether there is a family discount, and when my technician will arrive?",
+    "reply": "The family bundle gives 15 percent off each extra line. Your technician is booked for Thursday between 8 and 12."
+  },
+  {
+    "id": "H066",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me how I can pay my bill, and whether my street is covered for fibre?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing."
+  },
+  {
+    "id": "H079",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me whether someone can call me back, and how I can pay my bill?",
+    "reply": "A sales advisor will call you back on the number you gave. Your technician is booked for Thursday morning."
+  },
+  {
+    "id": "H013",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me which plan gives more data, and how I can pay my bill?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. Pay by card or bank transfer in the Acme app under Billing."
+  },
+  {
+    "id": "H033",
+    "label": "relevant",
+    "kind": "para",
+    "ask": "Can you tell me whether someone can call me back, and whether my street is covered for fibre?",
+    "reply": "An advisor will ring you back on that number; your street is inside the fibre rollout area."
+  },
+  {
+    "id": "H086",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me which plan gives more data, and when my technician will arrive?",
+    "reply": "Both are good questions, let me look into which plan gives more data and when my technician will arrive for you."
+  },
+  {
+    "id": "H028",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me when my technician will arrive, and which plan gives more data?",
+    "reply": "Your technician is booked for Thursday between 8 and 12. Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "H067",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me whether my street is covered for fibre, and which plan gives more data?",
+    "reply": "Fibre is live on your street from $60 a month."
+  },
+  {
+    "id": "H042",
+    "label": "relevant",
+    "kind": "extra",
+    "ask": "Can you tell me which plan gives more data, and whether there is a family discount?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. The family bundle gives 15 percent off each extra line. We also have a football club offer this month."
+  },
+  {
+    "id": "H085",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me whether my street is covered for fibre, and whether there is a family discount?",
+    "reply": "Fibre is live on your street from $60 a month. We can move your service to a new address."
+  },
+  {
+    "id": "H068",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me when my technician will arrive, and whether my street is covered for fibre?",
+    "reply": "Your technician is booked for Thursday between 8 and 12."
+  },
+  {
+    "id": "H001",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether my street is covered for fibre, and whether someone can call me back?",
+    "reply": "Fibre is live on your street from $60 a month. A sales advisor will call you back on the number you gave."
+  },
+  {
+    "id": "H060",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me whether my street is covered for fibre, and how I can pay my bill?",
+    "reply": "Fibre is live on your street from $60 a month."
+  },
+  {
+    "id": "H026",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me which plan gives more data, and when my technician will arrive?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. Your technician is booked for Thursday between 8 and 12."
+  },
+  {
+    "id": "H011",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether my street is covered for fibre, and which plan gives more data?",
+    "reply": "Fibre is live on your street from $60 a month. Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "H003",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me which plan gives more data, and whether someone can call me back?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. A sales advisor will call you back on the number you gave."
+  },
+  {
+    "id": "H081",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me whether there is a family discount, and which plan gives more data?",
+    "reply": "The family bundle gives 15 percent off each extra line. Our store on the high street sells phone cases."
+  },
+  {
+    "id": "H076",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me how I can pay my bill, and whether my street is covered for fibre?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing. You can pay your bill by card in the Acme app."
+  },
+  {
+    "id": "H004",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me which plan gives more data, and whether there is a family discount?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H094",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me how I can pay my bill, and whether my street is covered for fibre?",
+    "reply": "Both are good questions, let me look into how I can pay my bill and whether my street is covered for fibre for you."
+  },
+  {
+    "id": "H059",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me how I can pay my bill, and which plan gives more data?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing."
+  },
+  {
+    "id": "H082",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me whether there is a family discount, and whether someone can call me back?",
+    "reply": "The family bundle gives 15 percent off each extra line. Our stores are open from nine to six."
+  },
+  {
+    "id": "H090",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me whether someone can call me back, and when my technician will arrive?",
+    "reply": "Both are good questions, let me look into whether someone can call me back and when my technician will arrive for you."
+  },
+  {
+    "id": "H075",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me whether there is a family discount, and when my technician will arrive?",
+    "reply": "The family bundle gives 15 percent off each extra line. Our family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H064",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me which plan gives more data, and when my technician will arrive?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "H084",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me which plan gives more data, and how I can pay my bill?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. Your technician is booked for Thursday morning."
+  },
+  {
+    "id": "H044",
+    "label": "relevant",
+    "kind": "extra",
+    "ask": "Can you tell me whether my street is covered for fibre, and when my technician will arrive?",
+    "reply": "Fibre is live on your street from $60 a month. Your technician is booked for Thursday between 8 and 12. We also have a football club offer this month."
+  },
+  {
+    "id": "H016",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me when my technician will arrive, and whether my street is covered for fibre?",
+    "reply": "Your technician is booked for Thursday between 8 and 12. Fibre is live on your street from $60 a month."
+  },
+  {
+    "id": "H091",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me whether my street is covered for fibre, and which plan gives more data?",
+    "reply": "Both are good questions, let me look into whether my street is covered for fibre and which plan gives more data for you."
+  },
+  {
+    "id": "H007",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether there is a family discount, and when my technician will arrive?",
+    "reply": "The family bundle gives 15 percent off each extra line. Your technician is booked for Thursday between 8 and 12."
+  },
+  {
+    "id": "H078",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me which plan gives more data, and when my technician will arrive?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. Our family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H083",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me which plan gives more data, and when my technician will arrive?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. Our family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H015",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me how I can pay my bill, and whether there is a family discount?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing. The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H023",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me when my technician will arrive, and which plan gives more data?",
+    "reply": "Your technician is booked for Thursday between 8 and 12. Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "H058",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me whether my street is covered for fibre, and whether there is a family discount?",
+    "reply": "Fibre is live on your street from $60 a month."
+  },
+  {
+    "id": "H006",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me when my technician will arrive, and whether someone can call me back?",
+    "reply": "Your technician is booked for Thursday between 8 and 12. A sales advisor will call you back on the number you gave."
+  },
+  {
+    "id": "H065",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me how I can pay my bill, and whether someone can call me back?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing."
+  },
+  {
+    "id": "H080",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me which plan gives more data, and whether someone can call me back?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. Our stores are open from nine to six."
+  },
+  {
+    "id": "H052",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me which plan gives more data, and when my technician will arrive?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "H031",
+    "label": "relevant",
+    "kind": "para",
+    "ask": "Can you tell me how I can pay my bill, and whether my street is covered for fibre?",
+    "reply": "Settle the bill on the app's Billing page, by card or transfer; your street is inside the fibre rollout area."
+  },
+  {
+    "id": "H072",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me how I can pay my bill, and which plan gives more data?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing. Our store on the high street sells phone cases."
+  },
+  {
+    "id": "H024",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me which plan gives more data, and whether someone can call me back?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. A sales advisor will call you back on the number you gave."
+  },
+  {
+    "id": "H014",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether someone can call me back, and whether my street is covered for fibre?",
+    "reply": "A sales advisor will call you back on the number you gave. Fibre is live on your street from $60 a month."
+  },
+  {
+    "id": "H045",
+    "label": "relevant",
+    "kind": "extra",
+    "ask": "Can you tell me whether someone can call me back, and when my technician will arrive?",
+    "reply": "A sales advisor will call you back on the number you gave. Your technician is booked for Thursday between 8 and 12. We also have a football club offer this month."
+  },
+  {
+    "id": "H021",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me which plan gives more data, and whether there is a family discount?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H057",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me whether someone can call me back, and which plan gives more data?",
+    "reply": "A sales advisor will call you back on the number you gave."
+  },
+  {
+    "id": "H041",
+    "label": "relevant",
+    "kind": "extra",
+    "ask": "Can you tell me how I can pay my bill, and whether my street is covered for fibre?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing. Fibre is live on your street from $60 a month. We also have a football club offer this month."
+  },
+  {
+    "id": "H055",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me how I can pay my bill, and which plan gives more data?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing."
+  },
+  {
+    "id": "H037",
+    "label": "relevant",
+    "kind": "para",
+    "ask": "Can you tell me how I can pay my bill, and whether my street is covered for fibre?",
+    "reply": "Settle the bill on the app's Billing page, by card or transfer; your street is inside the fibre rollout area."
+  },
+  {
+    "id": "H012",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether someone can call me back, and how I can pay my bill?",
+    "reply": "A sales advisor will call you back on the number you gave. Pay by card or bank transfer in the Acme app under Billing."
+  },
+  {
+    "id": "H050",
+    "label": "relevant",
+    "kind": "extra",
+    "ask": "Can you tell me whether someone can call me back, and which plan gives more data?",
+    "reply": "A sales advisor will call you back on the number you gave. Acme Mobile L gives unlimited data for $35 a month. We also have a football club offer this month."
+  },
+  {
+    "id": "H038",
+    "label": "relevant",
+    "kind": "para",
+    "ask": "Can you tell me when my technician will arrive, and whether there is a family discount?",
+    "reply": "A visit is set for Thursday morning, between eight and noon; families get fifteen percent off every line after the first."
+  },
+  {
+    "id": "H046",
+    "label": "relevant",
+    "kind": "extra",
+    "ask": "Can you tell me whether there is a family discount, and when my technician will arrive?",
+    "reply": "The family bundle gives 15 percent off each extra line. Your technician is booked for Thursday between 8 and 12. We also have a football club offer this month."
+  },
+  {
+    "id": "H089",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me which plan gives more data, and how I can pay my bill?",
+    "reply": "Both are good questions, let me look into which plan gives more data and how I can pay my bill for you."
+  },
+  {
+    "id": "H073",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me which plan gives more data, and whether there is a family discount?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month. We can move your service to a new address."
+  },
+  {
+    "id": "H088",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me which plan gives more data, and whether someone can call me back?",
+    "reply": "Both are good questions, let me look into which plan gives more data and whether someone can call me back for you."
+  },
+  {
+    "id": "H048",
+    "label": "relevant",
+    "kind": "extra",
+    "ask": "Can you tell me whether someone can call me back, and whether there is a family discount?",
+    "reply": "A sales advisor will call you back on the number you gave. The family bundle gives 15 percent off each extra line. We also have a football club offer this month."
+  },
+  {
+    "id": "H062",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me how I can pay my bill, and whether someone can call me back?",
+    "reply": "Pay by card or bank transfer in the Acme app under Billing."
+  },
+  {
+    "id": "H098",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me whether my street is covered for fibre, and whether there is a family discount?",
+    "reply": "Both are good questions, let me look into whether my street is covered for fibre and whether there is a family discount for you."
+  },
+  {
+    "id": "H074",
+    "label": "irrelevant",
+    "kind": "wrong",
+    "ask": "Can you tell me whether my street is covered for fibre, and whether someone can call me back?",
+    "reply": "Fibre is live on your street from $60 a month. Our stores are open from nine to six."
+  },
+  {
+    "id": "H025",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether my street is covered for fibre, and whether there is a family discount?",
+    "reply": "Fibre is live on your street from $60 a month. The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H027",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether there is a family discount, and whether my street is covered for fibre?",
+    "reply": "The family bundle gives 15 percent off each extra line. Fibre is live on your street from $60 a month."
+  },
+  {
+    "id": "H063",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me whether there is a family discount, and how I can pay my bill?",
+    "reply": "The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H009",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether someone can call me back, and which plan gives more data?",
+    "reply": "A sales advisor will call you back on the number you gave. Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "H034",
+    "label": "relevant",
+    "kind": "para",
+    "ask": "Can you tell me which plan gives more data, and how I can pay my bill?",
+    "reply": "The Mobile L is our unlimited tier, thirty-five dollars monthly; settle the bill on the app's Billing page, by card or transfer."
+  },
+  {
+    "id": "H020",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me when my technician will arrive, and whether my street is covered for fibre?",
+    "reply": "Your technician is booked for Thursday between 8 and 12. Fibre is live on your street from $60 a month."
+  },
+  {
+    "id": "H069",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me whether my street is covered for fibre, and whether there is a family discount?",
+    "reply": "Fibre is live on your street from $60 a month."
+  },
+  {
+    "id": "H097",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me whether there is a family discount, and whether my street is covered for fibre?",
+    "reply": "Both are good questions, let me look into whether there is a family discount and whether my street is covered for fibre for you."
+  },
+  {
+    "id": "H005",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether my street is covered for fibre, and whether there is a family discount?",
+    "reply": "Fibre is live on your street from $60 a month. The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H053",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me whether there is a family discount, and which plan gives more data?",
+    "reply": "The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H008",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me whether my street is covered for fibre, and when my technician will arrive?",
+    "reply": "Fibre is live on your street from $60 a month. Your technician is booked for Thursday between 8 and 12."
+  },
+  {
+    "id": "H002",
+    "label": "relevant",
+    "kind": "full",
+    "ask": "Can you tell me when my technician will arrive, and whether someone can call me back?",
+    "reply": "Your technician is booked for Thursday between 8 and 12. A sales advisor will call you back on the number you gave."
+  },
+  {
+    "id": "H040",
+    "label": "relevant",
+    "kind": "para",
+    "ask": "Can you tell me when my technician will arrive, and which plan gives more data?",
+    "reply": "A visit is set for Thursday morning, between eight and noon; the Mobile L is our unlimited tier, thirty-five dollars monthly."
+  },
+  {
+    "id": "H061",
+    "label": "irrelevant",
+    "kind": "one",
+    "ask": "Can you tell me whether there is a family discount, and which plan gives more data?",
+    "reply": "The family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "H095",
+    "label": "irrelevant",
+    "kind": "vague",
+    "ask": "Can you tell me which plan gives more data, and whether my street is covered for fibre?",
+    "reply": "Both are good questions, let me look into which plan gives more data and whether my street is covered for fibre for you."
+  },
+  {
+    "id": "H032",
+    "label": "relevant",
+    "kind": "para",
+    "ask": "Can you tell me when my technician will arrive, and whether my street is covered for fibre?",
+    "reply": "A visit is set for Thursday morning, between eight and noon; your street is inside the fibre rollout area."
+  }
+]

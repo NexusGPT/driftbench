@@ -136,7 +136,8 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
         adapter: 'process',
         target: given.target,
         given,
-        history: [...given.prefix],
+        // A deep copy, as the function and http adapters make: the session never shares a message with the Given.
+        history: structuredClone(given.prefix),
         state,
       };
     },
@@ -221,7 +222,7 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
         ...(run.truncated ? { truncated: true } : {}),
       };
       // The reply is stdout, without the final line break a command line prints.
-      const reply = (run.stdout ?? '').replace(/[\r\n]+$/, '');
+      const reply = (run.stdout ?? '').replace(/\r?\n$/, '');
       const observed: Observed = {
         segments: reply === '' ? [] : [{ type: 'text', text: reply }],
         text: reply,

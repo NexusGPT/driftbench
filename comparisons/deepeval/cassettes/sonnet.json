@@ -1,0 +1,1802 @@
+{
+  "aababjeeagfcahfbdbfaebfbedeaaihfdgdfachbdcdjdicigcfihjccbacdfbcb": {
+    "cost": 0.0029315,
+    "result": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The reply states fibre is live on the user's street and gives the technician appointment (Thursday 8-12), answering both parts. The extra football club offer is a minor tangent but does not displace the answer.\",\"evidence\":\"Fibre is live on your street from $60 a month. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "aabdbfehagidbicebffbeihhbaeehehhdcgadfcbfdbhceejjdejaheeahihhfdd": {
+    "cost": 0.005986,
+    "result": "{\"outcome\":\"fail\",\"score\":0.1,\"reasoning\":\"The user asked two things: whether a callback is possible and which plan gives more data. The reply addresses only the callback and ignores the plan data question.\",\"evidence\":\"A sales advisor will call you back on the number you gave.\"}"
+  },
+  "aadbfdhibgefcibiegabeedebeacdadedebabdeehgbeaeefbchcagjcgghdagha": {
+    "cost": 0.006326,
+    "result": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"The reply addresses both parts of the question: a callback will happen and the street is within the fibre rollout area. It gives answers rather than promising to look into it.\",\"evidence\":\"An advisor will ring you back on that number; your street is inside the fibre rollout area.\"}"
+  },
+  "aadfdajbhbjebjijbdhbeccfcbeefaeffefbedbgggcfhdajfhbjbdaifhjeiibf": {
+    "cost": 0.00647,
+    "result": "{\"outcome\":\"pass\",\"score\":0.85,\"reasoning\":\"The reply answers both parts: a sales advisor will call back, and Acme Mobile L gives unlimited data. The football club offer is an extra aside but does not displace the answer.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "aaebdcfbafjigdbbcaahffbjfaffhegabdeehafjbedeggchebcbfejehhehagdh": {
+    "cost": 0.0024901,
+    "result": "{\"score\": 1, \"reason\": \"The reply confirms fibre is live on the user's street and gives the technician appointment (Thursday, 8 to 12), answering both parts of the ask. The extra football club offer is irrelevant but does not stop the ask from being answered.\"}"
+  },
+  "aaebfcedibbiajdafdeaaffacbcdadfeabdbhbifjgjjacadbeidcfffadebcdaj": {
+    "cost": 0.006406,
+    "result": "{\"outcome\":\"pass\",\"score\":0.85,\"reasoning\":\"The reply addresses both parts: an advisor will call back, and Mobile L (unlimited) is named as the plan with more data. It's slightly ambiguous in comparing plans, but it answers the ask.\",\"evidence\":\"An advisor will ring you back on that number; the Mobile L is our unlimited tier\"}"
+  },
+  "aagbigbfjcbdhgjjjfjcfehdhibaffebdaagdjdbibeadcfdeeffgfccajdbaeba": {
+    "cost": 0.0030350999999999998,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply answers both parts: how to pay (card or bank transfer in the app under Billing) and that fibre is live on the user's street. The extra mention of a football club offer is a minor tangent but does not undermine the answers.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. Fibre is live on your street from $60 a month.\"}"
+  },
+  "aaibddbdeifeahjbidicaibfdfggbjjagifffgfgfciccgedajcdfbjebeafddfa": {
+    "cost": 0.006328,
+    "result": "{\"outcome\":\"fail\",\"score\":0.25,\"reasoning\":\"The reply answers the first part (arrival window Thursday 8-12) but never addresses whether someone can call back; the store hours line is tangential and doesn't answer the callback request.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. Our stores are open from nine to six.\"}"
+  },
+  "abcecidicbcfecbidbebhfdcddchghfdjaecbdhachfdgdbbdbhbhiaebfdfcdeb": {
+    "cost": 0.0062039999999999994,
+    "result": "{\"outcome\":\"fail\",\"score\":0.1,\"reasoning\":\"The reply answers the callback question but ignores the fibre coverage question, and adds an unrelated statement about paying bills by card. Part of the ask is ignored and the subject is changed.\",\"evidence\":\"You can pay your bill by card in the Acme app.\"}"
+  },
+  "abcfbjedcgedadhhffjffcbdhbibejbejcfdfcfdfgccicffedheaeadiiffefbd": {
+    "cost": 0.0017580999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "abefhdabbfabbccaidbfbfcfeeejjedbfaidifedejgedcjbgefgffbcfgedadfb": {
+    "cost": 0.006502,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply addresses both parts: how to pay (card or bank transfer in the Acme app under Billing) and the family discount (15 percent off each extra line).\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "abfaeebcefedbdgadbcejgifghfcfaicdhgieaddaacjegbbfibbccfgddcaifbd": {
+    "cost": 0.0023929,
+    "result": "{\"score\": 0, \"reason\": \"The reply addresses the callback question, but for 'which plan gives more data' it names only Acme Mobile L with unlimited data and makes no comparison with any other plan, so the ask is only partly answered.\"}"
+  },
+  "abfbgifdffhffiafbhdbbbacdbidibegfbbebihafadifjefcbjbdcgeaeajecgd": {
+    "cost": 0.0026731000000000003,
+    "result": "{\"score\": 0, \"reason\": \"The reply confirms fibre coverage on the street, but for the plan question it only names one plan (Acme Mobile L, unlimited data) without comparing plans or saying which gives more data, and it mixes in a mobile plan rather than fibre plans, so the second part is not clearly answered.\"}"
+  },
+  "abfibfhggjgcbjdcaacgbcfihcfbifbigafefdfjajhecdbfhcafdejeedebdfeg": {
+    "cost": 0.006132,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts of the question: it confirms a family discount (15% off each line after the first) and says an advisor will call back.\",\"evidence\":\"Families get fifteen percent off every line after the first; an advisor will ring you back on that number.\"}"
+  },
+  "abiiddhcgeeiebeiebdcbihcbbbcfieagedjcbjiagbddciciahaacfdbdbffbbd": {
+    "cost": 0.005425999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "abjcfbjiajbieajcajcebcaddfbhidegbfgcddbcddegibaeibahfdafighcdcgh": {
+    "cost": 0.006326,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the bill payment part but completely ignores the second question about whether the user's street is covered for fibre. The ask had two parts and one was ignored.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "accaifiefbdififddafgfebfbihijbgdaeaeifciiedcdfadahgaaiaadcgbacjf": {
+    "cost": 0.006352,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply answers both parts: a sales advisor will call back, and fibre is live on the user's street. The football club offer is a minor extra but does not displace the answers.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Fibre is live on your street from $60 a month.\"}"
+  },
+  "acchfbcghaddbcjiahbbhdcaaibabigfedefeajcceffcajajjfeddebehabebbc": {
+    "cost": 0.006692,
+    "result": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The reply addresses both parts: it names the plan with more data (Acme Mobile L, unlimited) and explains how to pay the bill (card or bank transfer in the Acme app under Billing).\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "acfchjbfbaediaceegicfddbehhidcaecibifgifafagedjibebfddabdfaedacj": {
+    "cost": 0.005417999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "acfjcadbacegbdehiddcheeacccbedficgebaejaabcjhafdedacahffcadiabcc": {
+    "cost": 0.005402,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "acgbdhcdgefcbccfffjhicbddadeadfdbgdecibeaadefbbdecfegbhicdcghdfe": {
+    "cost": 0.004798,
+    "result": "{\"score\": 0, \"reason\": \"The user asked two things: whether a family discount exists and whether their street is covered for fibre. The reply addresses only the family discount (15 percent off each extra line) and ignores the fibre coverage question entirely.\"}"
+  },
+  "acjdcjfefgfedibdaecafddcggaahfagbbafcaiiaeidfchfjaedbcjcbfgfjecd": {
+    "cost": 0.005462,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "acjhdefcjbjiebeedcgbhcefiedgjeiebhdjcdcfgfbbfdadadaibebbibfjacaa": {
+    "cost": 0.005425999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "adccacaefebihbedcdhghbefdaejgdiebbacacbbedccccifdbghifcbfacciaca": {
+    "cost": 0.0027056,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the family discount part (15% off each extra line) but ignores the second part of the question about which plan gives more data. The ask has two parts and one is entirely unaddressed.\",\"evidence\":\"The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "adceaabcgjcbddfecijfjbbfafbgfbaajjcfbajgcgbghebjabiebbfdbjijefcg": {
+    "cost": 0.005437999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "adfbddhceddaabafjdgaejaefceaafbejfagfgabdhfefefcheddddbbfhffcchh": {
+    "cost": 0.0030938,
+    "result": "{\"outcome\":\"pass\",\"score\":0.85,\"reasoning\":\"The reply addresses both parts: it names a plan with unlimited data (Acme Mobile L) and states a family bundle discount of 15% per extra line. The comparison between plans is implicit, but it still gives an answer to the data question.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "aeaajdbehdaieaicecaddjbjfehdajbagiacfdcfdeaefcddfieifeeahfaechad": {
+    "cost": 0.0028402,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply only restates the user's two questions as something it will look into, and gives neither the technician arrival time nor the fibre coverage answer. It stays on topic but does not supply the answer the question needs.\",\"evidence\":\"let me look into when my technician will arrive and whether my street is covered for fibre for you.\"}"
+  },
+  "aeabeagijdccdddcggagihadbfhffbfaadabafdbadfjdahaffaddeefdeeieabf": {
+    "cost": 0.0023875999999999997,
+    "result": "{\"score\": 0, \"reason\": \"The reply explains how to pay the bill (card or bank transfer in the Acme app under Billing) but never addresses whether the user's street is covered for fibre, so only part of the two-part ask is answered.\"}"
+  },
+  "aecihdhcjeaajgebggafdejfdcaajgaddbcbaideiegbeaaegadajaffaheagajc": {
+    "cost": 0.0065580000000000005,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply addresses both parts: it names the plan with more data (Mobile L, unlimited) and confirms the street is within the fibre rollout area. It lacks an explicit comparison but still answers the ask.\",\"evidence\":\"The Mobile L is our unlimited tier, thirty-five dollars monthly; your street is inside the fibre rollout area.\"}"
+  },
+  "aedbfhddcdjhfeiagccfbbeifihdidgddieebeacfajjcgdhafdddgbaecehfeej": {
+    "cost": 0.004606,
+    "result": "{\"reason\": \"The reply confirms fibre is available on the street, answering the coverage question, but it never addresses how to pay the bill, so the ask is only partly answered.\", \"score\": 0}"
+  },
+  "aedibcebidbaaeccigbejegceccfhbfbbgaegbfcceabadajhjfbfbcdjfcfffcg": {
+    "cost": 0.006272,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply answers the payment question but ignores the callback request, instead adding store hours that don't address whether someone can call back. Half of the ask is ignored.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. Our stores are open from nine to six.\"}"
+  },
+  "aeeedhbbbcefafcfeifchgbdeajbfeehacbegjdfecacccbbcjbhcdcjeaaiieeg": {
+    "cost": 0.0046559999999999995,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into which plan gives more data and whether a callback is possible. It gives no actual answer to either question, so the ask is left unanswered.\"}"
+  },
+  "aegfieiiefhfadcfjdageefdcbbagccjifbehcbahcbdbjjdeibdfcdechiacjci": {
+    "cost": 0.005417999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "aehcecbceibfjbjfaffcgjdbddijdgfddcecbaabagcfhbccedecediahibbidfc": {
+    "cost": 0.004758,
+    "result": "{\"score\": 1, \"reason\": \"The reply gives the technician's arrival window (Thursday between 8 and 12) and confirms that a sales advisor will call the user back, so both parts of the ask are addressed.\"}"
+  },
+  "aejfedecbhbjahjcdfcfchhghecbcehcbdaafcbhfebbbcfdgabifcdhbjabddcb": {
+    "cost": 0.006503999999999999,
+    "result": "{\"outcome\":\"pass\",\"score\":0.85,\"reasoning\":\"The reply addresses both parts: it names the plan with more data (Acme Mobile L, unlimited) and states fibre is live on the user's street. It stays on topic, though it does not compare against other plans.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. Fibre is live on your street from $60 a month.\"}"
+  },
+  "afbcidaideadbedcbecgjfcbdccecfdbfeaeacegidgbejgbiaffdafbebdebbdf": {
+    "cost": 0.00688,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply states that Acme Mobile L gives unlimited data and that a family bundle gives 15% off extra lines, addressing both parts of the ask. The football club mention is extra but does not undermine relevance; the comparison between plans is somewhat thin.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "afcbbfaebdfdiedadgdbfhedagiebgbbabhcaahdfjgceadaiadeaeadgeccdbef": {
+    "cost": 0.006556,
+    "result": "{\"outcome\":\"pass\",\"score\":0.88,\"reasoning\":\"The reply names the plan with more data (Mobile L, unlimited) and confirms an advisor will call back, addressing both parts of the question. It doesn't compare against other plans explicitly, but it answers the ask.\",\"evidence\":\"The Mobile L is our unlimited tier, thirty-five dollars monthly; an advisor will ring you back on that number.\"}"
+  },
+  "afceedebfebgdcbabdfcfebeiheedbcibbeecdbeecdacbddegihabcaeffbabjc": {
+    "cost": 0.006354,
+    "result": "{\"outcome\":\"fail\",\"score\":0.04,\"reasoning\":\"The reply only promises to look into whether a callback is possible and when the technician will arrive, without giving any answer. This matches the FAIL picture of only promising to look into it.\",\"evidence\":\"let me look into whether someone can call me back and when my technician will arrive for you.\"}"
+  },
+  "afcejibdhfebbhjfefcfbadceacefjajgciebbjfbabheifgchjdifecffbebbab": {
+    "cost": 0.005405999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "afeagagffjbcechbffffaaibaebddjbhbccecacfjfbhdfgiegeaabfadhjjifci": {
+    "cost": 0.004974,
+    "result": "{\"score\": 0, \"reason\": \"The user asked which plan gives more data and whether their street has fibre coverage. The reply only mentions Acme Mobile L's unlimited data without comparing plans, never addresses fibre coverage, and adds unrelated bill payment info.\"}"
+  },
+  "afgcahafecddhccejdgdfdfbhgiidiejefcffcffedgcgffabfecafhaabgjcfbi": {
+    "cost": 0.006564,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked which plan gives more data and whether a family discount exists. The reply names one plan with unlimited data but gives no comparison, says nothing on a family discount, and adds an unrelated offer to move service.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. We can move your service to a new address.\"}"
+  },
+  "afidbgcbehbdeigffaaiaaaebdhabjeaabaidfeejaifajbfgcbbhgcbcjcchdhh": {
+    "cost": 0.004762000000000001,
+    "result": "{\"score\": 0, \"reason\": \"The reply explains how to pay (card or bank transfer in the Acme app under Billing) but never addresses the family discount question, and adds an unrelated statement about moving service to a new address.\"}"
+  },
+  "agaeabdfaebaghbabhhjbjddddeebgbdbdiadfgcdfiigcfhbecdcdeghefcbdch": {
+    "cost": 0.0048059999999999995,
+    "result": "{\"score\": 0, \"reason\": \"The user asked two things: technician arrival time and fibre coverage for their street. The reply gives the technician window (Thursday 8-12) but never addresses fibre coverage, so the ask is only partly answered.\"}"
+  },
+  "agbcdchfdchehbdfdefbcehfgefbfjaiaebciccaaijffjddbbhffdaejaeffice": {
+    "cost": 0.005422,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ahaedddaegafedaaefdfdabfgdhdacjdcgaecebdfgcaehcceeifbhcfgfcfbeic": {
+    "cost": 0.006098,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply answers the coverage part (fibre is live on the street) but ignores the second part of the question, which plan gives more data. It only mentions a price, not any plan comparison.\",\"evidence\":\"Fibre is live on your street from $60 a month.\"}"
+  },
+  "ahbbdchafbebacffagaebfeadbcaabfejeadjcdfabdicdfcdahdccgiedccebeg": {
+    "cost": 0.0064080000000000005,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply addresses both parts of the question: how to pay (app Billing page, by card or transfer) and whether a family discount exists (yes, fifteen percent off each line after the first).\",\"evidence\":\"Settle the bill on the app's Billing page, by card or transfer; families get fifteen percent off every line after the first.\"}"
+  },
+  "ahbebdeebdfdefabihhbaffbebibfeibebhfeggfehagdcaacifcjbddhdaaehfe": {
+    "cost": 0.004792,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it gives the technician's arrival window (Thursday morning, between eight and noon) and confirms the user's street is within the fibre rollout area.\", \"score\": 1}"
+  },
+  "ahgghcdfjifejfiajidifidajehdaddccdaiajidbejjaiahfcecebicjeihcbbe": {
+    "cost": 0.0047599999999999995,
+    "result": "{\"reason\": \"The reply confirms an advisor will call back and identifies Mobile L as the unlimited-data plan, addressing both parts of the ask (callback and which plan gives more data).\", \"score\": 1}"
+  },
+  "ajcebjiccddgiahjdfdegbjjefihacejfieeebbacicaaeahjicajbaieaddafdf": {
+    "cost": 0.0029137,
+    "result": "{\"outcome\":\"pass\",\"score\":0.85,\"reasoning\":\"The reply addresses both parts: a sales advisor will call back, and Acme Mobile L gives unlimited data. The plan comparison is thin, but it names the plan with more data.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "ajjcdcbiaegeedgjbeabheccbgigagcfaiicjicefafejdiffdgfcdabiafhfhai": {
+    "cost": 0.005378,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "baahfdjbfdjbeaadfchcfbcefhibfbebebjfddaffabaiidchebeajddfhffebeg": {
+    "cost": 0.0017517,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "baajeaficejhbdddfaaahfbcfifdagdfgdhacfcajeecegcddafgfcafidieicab": {
+    "cost": 0.0024802,
+    "result": "{\"score\": 0, \"reason\": \"The reply confirms fibre is live on the street, but it does not compare plans to say which gives more data. It names only one plan (Acme Mobile L, unlimited data) with no comparison, and it adds an unrelated football club offer.\"}"
+  },
+  "babdfjbghebbjaeaacdhacchbejfeccfdajicgffbhahaaijddecbadadedbfcac": {
+    "cost": 0.0027546000000000003,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: which plan gives more data and when the technician arrives. The reply only partially addresses the first (names one plan without comparison) and ignores the technician arrival question entirely.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "bacijhaababigbecbhfcabcjchfahfagagcgbddfhfbbbhdjdbeccagedgiebcfi": {
+    "cost": 0.004704,
+    "result": "{\"score\": 0, \"reason\": \"The user asked whether someone can call them back and whether a family discount exists. The reply only says it will look into both and gives no actual answer to either, so it does not answer the ask.\"}"
+  },
+  "bafcciddgaecjjdacdbfjfdbacfbjbcaahdcfdhcceeeihghaadicddhefdbahja": {
+    "cost": 0.0062759999999999995,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: how to pay the bill and whether their street has fibre coverage. The reply answers only the payment part and ignores the fibre coverage question.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "baigcbfhgagjfaideejhfaijbghciebfeeffhededajadffdcdifgbgbieadcfjb": {
+    "cost": 0.0062,
+    "result": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"The reply addresses both parts of the question: a callback from an advisor will happen, and the street is within the fibre rollout area. Both asks are answered directly.\",\"evidence\":\"An advisor will ring you back on that number; your street is inside the fibre rollout area.\"}"
+  },
+  "bbafgjaaeehdchffibicafeefjedefbijcdcfgahjchacdjbbbafbbefcceaiaec": {
+    "cost": 0.0017619,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bbcchbagedbaadjihgfjfdhcfcjbididheffcbeacgjcjbabfbeeedicedeifbdc": {
+    "cost": 0.004892,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it gives the technician's arrival window (Thursday between 8 and 12) and explains how to pay the bill (card or bank transfer in the Acme app under Billing).\", \"score\": 1}"
+  },
+  "bbcedgedbdaeaibafcedjcaebacdfcidchdabjghaheejccddgghbcicdcadgcbh": {
+    "cost": 0.005382,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bbcgdbedahbfadedagdfidfcfjfacbceehdjjjeidagdbeefbjfdfadaefbdbidf": {
+    "cost": 0.004642,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it says a sales advisor will call back, and that fibre is available on the street (from $60 a month).\", \"score\": 1}"
+  },
+  "bbdcgbbgfbbdabdcefabhcicgecchbecddbbddabacgedbbfdfihcdfdhhhifaei": {
+    "cost": 0.0027214000000000006,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply only restates the user's two questions and says it will look into them, without giving any answer about which plan has more data or how to pay the bill. It stalls rather than answering the ask.\",\"evidence\":\"let me look into which plan gives more data and how I can pay my bill for you.\"}"
+  },
+  "bbhaafbgbfbhchcdahabiehfbjfbchdjhbehfjcdhfedaifececiaafdejfacabj": {
+    "cost": 0.006276,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply only restates that it will look into the questions and gives no answer about which plan has more data or about a family discount. It stays on topic but does not deliver the answer the question needs.\",\"evidence\":\"Both are good questions, let me look into which plan gives more data and whether there is a family discount for you.\"}"
+  },
+  "bbhdidibheccefjhebjccibcjedjaefabcajjieihacicdfibafcbacecehcgahc": {
+    "cost": 0.0030765999999999996,
+    "result": "{\"outcome\":\"pass\",\"score\":0.88,\"reasoning\":\"The reply addresses both parts: the technician arrival window (Thursday 8-12) and which plan gives more data (Acme Mobile L, unlimited). It stays on topic, though the comparison to other plans is implicit.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "bbheabhihjfceadbjaabjifgcaagffdbibcfihjdjhgaadcbhhbaicjhheeeccjc": {
+    "cost": 0.005425999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bbhiaecajcggdbdiccfhibdcbdgjdfbfdiacjegcbaafbdfjbabhchajiabcjjef": {
+    "cost": 0.0017634,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bcbagbcbgaagecddegbciaicfehbaajejcgfffeccifddbebcbacebjgdfeiadba": {
+    "cost": 0.006332,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the fibre coverage part but never addresses the family discount question, and adds an unrelated offer about moving service. Half of the ask is ignored.\",\"evidence\":\"Fibre is live on your street from $60 a month. We can move your service to a new address.\"}"
+  },
+  "bcbfdiedcbcagjeicbcfjbicdccafafbiifjbjdehghbjdacafjeadhacdbfgfdf": {
+    "cost": 0.0048519999999999995,
+    "result": "{\"score\": 1, \"reason\": \"The reply confirms fibre is live on the user's street and states a family bundle gives 15 percent off extra lines, addressing both parts of the ask. The football club offer is extra but does not detract.\"}"
+  },
+  "bcbgbcebcbccdhaecbcbeecgjdffcccbccaahdfechcefbacfdhgcadbjfecbebj": {
+    "cost": 0.0028544,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts of the question: a callback from a sales advisor, and how to pay the bill (card or bank transfer in the Acme app under Billing).\",\"evidence\":\"A sales advisor will call you back on the number you gave. Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "bccaajdbaaecdahbdcjdagfhidafjfeagfdhhjfacdfihbbchjehbeefajbhbhcc": {
+    "cost": 0.006554,
+    "result": "{\"outcome\":\"pass\",\"score\":0.85,\"reasoning\":\"The reply gives the technician arrival window (Thursday 8-12) and names a plan with unlimited data, addressing both parts. The football club offer is a minor extra but does not derail the answer.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "bccceehifbfhadchejhbbbeiiiebbdhcfabaecaffegehdccfajaeeebedfccaad": {
+    "cost": 0.006324000000000001,
+    "result": "{\"outcome\":\"pass\",\"score\":0.62,\"reasoning\":\"The reply stays on topic, referring to both the callback and the technician arrival time the user asked about. It gives no actual answer, only a promise to look into it, but it does not change the subject or ignore the ask.\",\"evidence\":\"let me look into whether someone can call me back and when my technician will arrive for you.\"}"
+  },
+  "bccigggaijajieggjedcbgcdbhjfgdgfhcbifdadcjgdagcffbddacbechbfifai": {
+    "cost": 0.006488,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked which plan gives more data and whether someone can call back. The reply states one plan's data without comparison (partially relevant) and gives store hours, never addressing the callback question.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. Our stores are open from nine to six.\"}"
+  },
+  "bcegffiffebabgedcifchhgfffajacdcacaeeaifcffifbfcfeejgihcfcdiajhe": {
+    "cost": 0.004674,
+    "result": "{\"score\": 0, \"reason\": \"The reply gives the technician's arrival window (Thursday between 8 and 12) but ignores the second part of the ask about which plan gives more data, so it only partially answers.\"}"
+  },
+  "bcfcajejdeacdebifefcafbefgfehfeaajffeafaedecffhffciaahfaafgcacfd": {
+    "cost": 0.00541,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bcgfbbjeifhaebbacagcgeacbhjgjegcefbdaijgecbgjabedbeaffffgbhcgdej": {
+    "cost": 0.005338,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bcggadfacfeibbcaagadfdigcfbaabecfcefibaheahhcedibdfigbhfbhjdfhdi": {
+    "cost": 0.005378,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bchbgicffifdbgcadfijcfjddfdjejfbeifggdhbcceaiebbhacbdccfbddhhaaf": {
+    "cost": 0.006288,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply answers both parts: an advisor will call back, and the technician visit is Thursday morning between eight and noon.\",\"evidence\":\"An advisor will ring you back on that number; a visit is set for Thursday morning, between eight and noon.\"}"
+  },
+  "bcieededffeahcaacgeebdgiahcdabfdcdeaehfcahfadaaacijhafcaaajajeed": {
+    "cost": 0.006196,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: how to pay the bill and whether their street has fibre coverage. The reply answers only the payment part and ignores the fibre coverage question.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "bdbebaigfcbeedjbafbjfdbgdddjdbfbddbbfbfbgehbcegacadgcdgieeeeecbg": {
+    "cost": 0.005437999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bdccbbejchdffghfbccieafddfhciagagabdfbdaehdbejebcbcaicedfchahadc": {
+    "cost": 0.004906,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it explains how to pay the bill (card or bank transfer in the Acme app under Billing) and gives the technician's arrival window (Thursday between 8 and 12).\"}"
+  },
+  "bdefcbedjagaejbgfdcaafbdacedaacfbdfhjbafejifhgaecdcbdcbfaabfhefh": {
+    "cost": 0.00486,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it names Acme Mobile L as the plan with more (unlimited) data and explains billing payment via card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "bdefegbahfgajfefehahffieddcaffcbfbhabdddibafabjdaaedcecibafcafed": {
+    "cost": 0.00539,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bdidciijfeeecgfbaefejgjcdceijiebaaifahijhfgagceccdhehcbeeecededf": {
+    "cost": 0.006064,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: how to pay the bill and which plan gives more data. The reply answers only the payment question and ignores the plan/data question.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "bdjfeaafcfjcajjihacddahfaaeaegcgedeebhgabffaeaiiebiadibcgidbafed": {
+    "cost": 0.006448000000000001,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply only restates the user's two questions (with pronoun errors, 'my street') and promises to look into them, giving no answer about callback availability or fibre coverage. It stays on topic but does not provide the answer the questions need.\",\"evidence\":\"let me look into whether someone can call me back and whether my street is covered for fibre for you.\"}"
+  },
+  "beaaebjjeefbaiahceieeiicbaciejfcijccdeehdaadcfjbfgebceecffefgbeh": {
+    "cost": 0.005385999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "beabfecbggddiejjbaejddfceaeccdcfdhehfjeeeiccbbdieeejaiigabjbdjgg": {
+    "cost": 0.005345999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bebcfacbjeddiedjfcahiehiieadfbhehhcffehjeifcddhefgdfbhgccgedcbgb": {
+    "cost": 0.002248,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into how to pay the bill and which plan has more data, without giving any payment method or plan comparison, so it does not actually answer the ask.\"}"
+  },
+  "bebfihcjcecdficdfbaaadeaccjbecfgfgiajbddbdaffcbebfefjcifebfadehg": {
+    "cost": 0.006338,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the callback part but never says how to pay the bill, and adds unrelated technician info. The second half of the ask is ignored.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Your technician is booked for Thursday morning.\"}"
+  },
+  "becbgeffagjbhdjcbihecddciihedffhjhegececbggbaeifcebdafefbfbadhaf": {
+    "cost": 0.0025982,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: whether a family discount exists and which plan gives more data. The reply addresses only the discount and ignores the data-plan comparison.\",\"evidence\":\"The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "becebcfbcciacccbfgabdcedgbhfhaefbiicjbdjdbeghbhhfcjdabfjhbaibbba": {
+    "cost": 0.006234,
+    "result": "{\"outcome\":\"fail\",\"score\":0.3,\"reasoning\":\"The reply answers the first part (technician arrival Thursday 8-12) but ignores the callback question, only giving store hours, which doesn't say whether someone can call back.\",\"evidence\":\"Our stores are open from nine to six.\"}"
+  },
+  "befehabbdcfbgbigcccefhfefdejbhgcedhbcebbaeedgjahdiedhfjcgejcfaea": {
+    "cost": 0.0022886,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into which plan gives more data and whether the street has fibre coverage. It gives no plan comparison and no coverage information, so the ask is not answered.\"}"
+  },
+  "begacacfbbjeeidaceabjbfacbfaiabiedgdbdgifdbeaicfdhceficbegjghhfd": {
+    "cost": 0.005353999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "beicdjcadehffhfeefhiabfjfabfbecbdbdeifhafdibhbfagehcaiejdhajaiaa": {
+    "cost": 0.004935999999999999,
+    "result": "{\"reason\": \"The user asked which plan gives more data and whether their street has fibre coverage. The reply only says Acme Mobile L offers unlimited data for $35, with no plan comparison and nothing on fibre coverage, so the ask is only partly addressed.\", \"score\": 0}"
+  },
+  "bfadcdecbadceahhifeafffjbcbefbciaeedbbdbhfgfdbhfcbjcajdcedbfaead": {
+    "cost": 0.002843,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user already gave their email (jo.okafor@example.com), and the agent asks which mailbox to send the invoice to. This asks again for a fact already provided, though it could be read as asking about a different destination mailbox.\",\"evidence\":\"[agent] Which mailbox do you want the invoice sent to?\"}"
+  },
+  "bfbdbgffcbficefabghfhdgdaeaeebfeebfcjbbdcecgecfbbebcbiaigggabaag": {
+    "cost": 0.0025682,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: whether someone can call back and when the technician will arrive. The reply answers only the callback and ignores the technician arrival question.\",\"evidence\":\"A sales advisor will call you back on the number you gave.\"}"
+  },
+  "bfccfaaabbghfhbcjfgffghfjdbcddefcibbbjffhdgfbcgcdgjfjadgiedjfbbf": {
+    "cost": 0.0026,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The user gave the email jo.okafor@example.com and the agent used that exact value without asking again. No contradiction with the ledger.\",\"evidence\":\"Your confirmation will go to jo.okafor@example.com, as you asked.\"}"
+  },
+  "bfchbfjahddhefecbefjabfcdchiceeeiagabfcjjbceaeebagddfghbebfcbigf": {
+    "cost": 0.0063360000000000005,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: which plan gives more data and whether their street has fibre coverage. The reply partially addresses the first (names a plan with unlimited data, no comparison) and ignores the fibre coverage question entirely.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "bfdejjcfcadbahjhhhaecccbdjfbcddecgdidfdjeagdbcbcaicjfjhffeebjfbc": {
+    "cost": 0.002293,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it confirms a sales advisor will call back, and explains bill payment by card or bank transfer in the Acme app under Billing.\", \"score\": 1}"
+  },
+  "bfdjafdebfjdecjadfdeaicebaaccfgcgbbjhgegcgagdeefgcieigbdaadcffgg": {
+    "cost": 0.00465,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it confirms a family discount (fifteen percent off each line after the first) and states an advisor will call the user back.\", \"score\": 1}"
+  },
+  "bffbafjhececbaegehbdjccccabfgbaaabffbcicjjceebadgegccdagifhdadeb": {
+    "cost": 0.0047940000000000005,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it confirms fibre is available on the user's street and explains how to pay the bill (card or bank transfer in the Acme app under Billing).\"}"
+  },
+  "bficdeabfjbgcdedbhafejbgjbfhdcfcdcfabbfjagcgdheegaecdeiibfhficjd": {
+    "cost": 0.00484,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it confirms a family discount (family bundle, 15 percent off each extra line) and gives the technician's arrival window (Thursday between 8 and 12).\", \"score\": 1}"
+  },
+  "bfighdjaaefbajdcgaaebhdeaddeceffefaecaefhbifcfjidffdfcfbefiacfbc": {
+    "cost": 0.0017536000000000001,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bgahicfegedaeiibfijhgaafaffdbaedcbdedjgeifchgcifhecfdechffcjeafi": {
+    "cost": 0.00611,
+    "result": "{\"outcome\":\"fail\",\"score\":0.1,\"reasoning\":\"The user asked two things: whether someone can call back, and which plan gives more data. The reply only answers the callback and ignores the plan question.\",\"evidence\":\"A sales advisor will call you back on the number you gave.\"}"
+  },
+  "bgdhjfdeffjddcfadgaacgcdfbgdbgbdfedbjcediadbgbjfbcadiijjhibedhba": {
+    "cost": 0.004754,
+    "result": "{\"score\": 0, \"reason\": \"The reply confirms fibre is live on the street and gives a price, which addresses coverage, but it never addresses the second part of the ask: whether someone can call the user back. The ask is only partly answered.\"}"
+  },
+  "bgecgijhjjifbacaiiaabacfaaabcgdaaecbfeahjbiecaeiifdicbbafbhdcaag": {
+    "cost": 0.004992,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it names Acme Mobile L as the plan with more data (unlimited) and confirms fibre is available on the user's street from $60 a month. The football offer is extra but doesn't detract.\", \"score\": 1}"
+  },
+  "bggaficdaaacagechjffebadbbigacegcbcbaghahdbchecgcgeaegeefefcgagc": {
+    "cost": 0.0029144,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply answers both parts: the technician arrival window (Thursday 8\u201312) and fibre coverage on the street (live, from $60/month). Extra pricing info is minor and on topic.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. Fibre is live on your street from $60 a month.\"}"
+  },
+  "bhacccbaefcieebadccihdbbdafiedhefichefifagfddcddedffbhaabjijceaa": {
+    "cost": 0.00615,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: whether someone can call back, and when the technician will arrive. The reply answers only the callback and ignores the technician arrival time.\",\"evidence\":\"A sales advisor will call you back on the number you gave.\"}"
+  },
+  "bhajgccfjiffdecfiaebgehffefdffchcbedfaddfcbccaiffbiddfifdbadeedh": {
+    "cost": 0.005402,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "bhbcaiicdeecaeggibbjaagjefbadaafhffdhdceiedffbjbhcbdccfcfbafdbff": {
+    "cost": 0.006516,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers only the technician arrival question and completely ignores the second part about how to pay the bill. The user asked two things, so ignoring one leaves the ask partly unanswered.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. Your technician is booked for Thursday morning.\"}"
+  },
+  "bhhjebfgcejdgfagdhhhccfadjffjaaijbfhjcffeaecgddfceefhdebebheceii": {
+    "cost": 0.002416,
+    "result": "{\"verdict\": \"no\", \"reason\": \"The LLM asks about a preferred time for a technician visit. The Previous Knowledge only contains an email address and says nothing about visit timing, so nothing is contradicted or forgotten.\"}"
+  },
+  "bibjegebdfcgbdjfffifbjgedgcdcbdhiibdfadahfddfbdcaijeehccahbbcjdb": {
+    "cost": 0.00541,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "bicjdhbffcfdcfejeidceddcdcajdechiegihebaiihjfbcabeiddhdbeciehbcf": {
+    "cost": 0.002646,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The agent uses the email the user gave (jo.okafor@example.com) exactly as given and does not ask for it again. No contradiction with the ledger.\",\"evidence\":\"the receipt is already in your inbox at jo.okafor@example.com.\"}"
+  },
+  "bidfiafdhecfegdfdddfebeeaagafacdeagciahdbbhcffeedbicficdfeddfbfi": {
+    "cost": 0.006706,
+    "result": "{\"outcome\":\"pass\",\"score\":0.88,\"reasoning\":\"The reply names the plan with more data (Mobile L, unlimited) and confirms an advisor will call back, addressing both parts of the question. It doesn't compare against other plans explicitly, but it still answers the ask.\",\"evidence\":\"The Mobile L is our unlimited tier, thirty-five dollars monthly; an advisor will ring you back on that number.\"}"
+  },
+  "bigdbgacbcbbdcciafeabifgifeiccebjfdcacgfiffcjaddicfagdiajfiaeccj": {
+    "cost": 0.0049440000000000005,
+    "result": "{\"score\": 0, \"reason\": \"The reply covers how to pay the bill (card or bank transfer in the Acme app under Billing) but never says which plan gives more data, and it adds an irrelevant remark about a store selling phone cases. Only part of the ask is answered.\"}"
+  },
+  "bjfhafbdgbdfggfdddajccgfdgcaebchbeceecfjdiejidcjbeaegeejfejbadbc": {
+    "cost": 0.0023752,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it explains how to pay the bill (card or bank transfer in the Acme app under Billing) and confirms fibre availability on the user's street, with pricing.\", \"score\": 1}"
+  },
+  "caadadeeafgdfddabafabfehfbeegbfgdhfcaabfbigfhdbhbbhcbbajacdhiice": {
+    "cost": 0.0054659999999999995,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "cafbjcfeeeadabcighdgccdehejecjcdcadaeeeeafgdfafaheaedgjaeahgecej": {
+    "cost": 0.0022613,
+    "result": "{\"score\": 0, \"reason\": \"The reply explains how to pay (card or bank transfer in the Acme app under Billing) but never addresses the second part of the ask, whether someone can call the user back.\"}"
+  },
+  "cbabcdfdjdaiafiddcjecdebfhbgaecgaadefeecfdjbfdehfbdaadibdbidaeff": {
+    "cost": 0.0023869,
+    "result": "{\"score\": 1, \"reason\": \"The reply gives the technician's arrival window (Thursday between 8 and 12) and addresses the family discount question (family bundle gives 15 percent off each extra line), covering both parts of the ask.\"}"
+  },
+  "cbaddbdeefgbcbdhcifgfihdgdcjafhcaedacgeebffaehfhigjafedaeahefife": {
+    "cost": 0.0026264,
+    "result": "{\"outcome\":\"fail\",\"score\":0.25,\"reasoning\":\"The reply answers the coverage part (fibre is live on the street) but ignores the second question about a family discount. It only gives a price, which does not address whether a family discount exists.\",\"evidence\":\"Fibre is live on your street from $60 a month.\"}"
+  },
+  "cbbadgdcbefdejcjeddijbjbbecdcbdibfbigfgeaafddfecdjdighdjcijdbceb": {
+    "cost": 0.0025172,
+    "result": "{\"score\": 0, \"reason\": \"The user asked two things: which plan gives more data and when the technician will arrive. The reply only mentions Acme Mobile L's unlimited data and never gives a technician arrival time, nor does it compare plans, so the ask is only partly answered.\"}"
+  },
+  "cbeejjehcadehefjedbdbcaddfhjcgfcbihagebcfiaedgdhfbfdbdcgedahgabd": {
+    "cost": 0.005046,
+    "result": "{\"score\": 1, \"reason\": \"The reply gives the technician arrival window (Thursday between 8 and 12) and names Acme Mobile L with unlimited data as the plan with more data, addressing both parts of the ask. The football club offer is extra but does not detract from the answer.\"}"
+  },
+  "ccaecagbfcaggaaddjeabecfcgcgccffibccfdidbadeiabaajjgcebcgececdji": {
+    "cost": 0.006508,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply addresses both parts of the question: how to pay the bill (card or bank transfer in the Acme app under Billing) and when the technician arrives (Thursday between 8 and 12).\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "ccaidefgdafgbcdgjcdgfbadibcdccbicfecjcccfajfhedbgagfaceedahacjcj": {
+    "cost": 0.0017638,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ccbdiabehcfgddbccbdhbefbfeefbfiagcejgieafedbagcifaacdcheahcfcdji": {
+    "cost": 0.006515999999999999,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply addresses both asks: the family discount (15% off each extra line) and the technician arrival (Thursday 8-12). The extra football club offer is a minor addition that does not displace the answers.\",\"evidence\":\"The family bundle gives 15 percent off each extra line. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "ccbjefefcfedafdfdebfgaibajddiacdfjaiahdcaahddadcfeadebbfdcbeifec": {
+    "cost": 0.0017667999999999998,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "cccbcfagafcabbfbjefdedajgffgjaafaefbehiibfebgbfiiebghcaabcadabfg": {
+    "cost": 0.0047079999999999995,
+    "result": "{\"reason\": \"The reply addresses the family discount (15 percent off each extra line) but never responds to the callback request, and the store hours are unrelated. Only part of the ask is answered.\", \"score\": 0}"
+  },
+  "ccdeaebbejefbcbcgadhdaacacaeicfiagiifjcbgcbbbefaachefbcfcgcbfdeh": {
+    "cost": 0.006462,
+    "result": "{\"outcome\":\"pass\",\"score\":0.88,\"reasoning\":\"The reply answers both parts: a sales advisor will call back, and the technician arrives Thursday between 8 and 12. The football club offer is an extra, but it does not displace the answer.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "ccejjiebaebcaahfeeaehgcfeeaaaffgjajggfaedfbfdddbdahcedbhfafegfcc": {
+    "cost": 0.006166,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The reply only promises to look into which plan gives more data and whether a callback is possible, without giving any answer to either question.\",\"evidence\":\"let me look into which plan gives more data and whether someone can call me back for you.\"}"
+  },
+  "ccfdfddecdbeedbjedbaeiaadecbacaabfaddfeeheghbdaccdcfccieficjebfe": {
+    "cost": 0.004752,
+    "result": "{\"score\": 1, \"reason\": \"The reply names Acme Mobile L as the plan with more data (unlimited, $35/month) and confirms a sales advisor will call back, addressing both parts of the ask.\"}"
+  },
+  "ccgihcbegbbbaddjaejfdibcecddbfeejdbbccffcffaffeajeibdggcjedcbfac": {
+    "cost": 0.0053939999999999995,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ccjdbebdfjjafagfaggccjefgijgcijbeaagbbicacgidaiecgbgiegedcaecdca": {
+    "cost": 0.006214,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The reply only promises to look into how to pay the bill and fibre coverage, without giving any answer to either question.\",\"evidence\":\"let me look into how I can pay my bill and whether my street is covered for fibre for you.\"}"
+  },
+  "cdabdgdaaddaffabecidaehbifeffadbeadbdaebeadbdchfcccdjdbggadaface": {
+    "cost": 0.002593,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The user gave their name and email; the agent did not ask for either again and moved on to asking about visit time, a new fact. Nothing contradicts the given data.\",\"evidence\":\"[agent] What time suits you for the technician visit?\"}"
+  },
+  "cdbeebahdfajgehdcedfcfgabfdfcbgbgefeeggeecjcghjeeafebbeabdhefbcg": {
+    "cost": 0.006236,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts of the question: a callback from an advisor will happen, and the technician visit is Thursday morning between eight and noon.\",\"evidence\":\"An advisor will ring you back on that number; a visit is set for Thursday morning, between eight and noon.\"}"
+  },
+  "cddbdffcebceabgdcccbfcecdcfgbjaeccccbgfadhjfcacabjdecbafbefjdddd": {
+    "cost": 0.006488,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts: a family discount (15% off each extra line via the family bundle) and the technician's arrival (Thursday between 8 and 12).\",\"evidence\":\"The family bundle gives 15 percent off each extra line. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "cdecbfiahbfagdifeidhcgiefaeffefgbagccbejjdchbbeecfidadbabfdeadhh": {
+    "cost": 0.006492,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply answers the billing question (card or bank transfer in the app) but ignores the second question about which plan gives more data, and adds an irrelevant remark about phone cases.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. Our store on the high street sells phone cases.\"}"
+  },
+  "cdeejbegfbbdjjccffcaiaceaeiecgghbhddedjfjebcjcieagfaffdffbdehcah": {
+    "cost": 0.00473,
+    "result": "{\"score\": 0, \"reason\": \"The reply gives the technician's arrival window (Thursday between 8 and 12) but never addresses the second part of the ask, whether someone can call the user back, so the ask is only partly answered.\"}"
+  },
+  "cdfggbcccfabecebgfeieddfefjdhjcbdcbgebgcheagagfihdddajfdfbgadidi": {
+    "cost": 0.006294000000000001,
+    "result": "{\"outcome\":\"fail\",\"score\":0.25,\"reasoning\":\"The reply answers the coverage question (fibre is live) but ignores the callback request, offering only store hours and not addressing whether someone can call back. It also adds unrequested pricing.\",\"evidence\":\"Fibre is live on your street from $60 a month. Our stores are open from nine to six.\"}"
+  },
+  "cdjdbdeddhbefhbjddadbbhaacfadfddajfeigcbahgfdefdfbafbfadebbbcccf": {
+    "cost": 0.002323,
+    "result": "{\"verdict\":\"yes\",\"reason\":\"The LLM states the account is linked to sam.rivera@example.com, but the known email is jo.okafor@example.com. This contradicts the previous knowledge.\"}"
+  },
+  "cdjgjbfbafgciecaededafhcfjgeaedfdbbbhijhchhiebhbdaaccfbichaefded": {
+    "cost": 0.0026334,
+    "result": "{\"outcome\":\"fail\",\"score\":0.04,\"reasoning\":\"The reply only promises to look into the plan data and fibre coverage questions without giving any answer, which the criterion says does not count as answering.\",\"evidence\":\"let me look into which plan gives more data and whether my street is covered for fibre for you.\"}"
+  },
+  "cebgbdgcihfebfajggfeghgfhecbgfbbabefedbdbeaafjjdfcbhgaffehahhbbi": {
+    "cost": 0.002323,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"The LLM says the confirmation will go to sam.rivera@example.com, but the known email is jo.okafor@example.com. This contradicts the known fact.\"}"
+  },
+  "cecidcdafdaiiffcacfedecaedfddaeachdecdfbddjbdheciejffhaebdabhbgj": {
+    "cost": 0.005378,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "cecieebajbigccejbbejaefbfeaeeiaiieeciefjcdedffjbefbecddgbcihdbcj": {
+    "cost": 0.006408,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts of the question: a sales advisor will call back, and the technician is booked for Thursday between 8 and 12.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "cedbafchdadfdgcchdaaejadgfbdeaeabhehafhdgefdhegegcjfedaiaegdbieg": {
+    "cost": 0.004904,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it confirms a family discount (family bundle, 15 percent off each extra line) and explains how to pay the bill (card or bank transfer in the Acme app under Billing).\"}"
+  },
+  "cedgibfgghfgbfcaijabjfdgbbihbfbcabbaaabadfedbecfdcbdbajaeccaddcd": {
+    "cost": 0.005417999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ceehiaceghcefajijggchgccieebdjdcebdabfefbabebeabdbihjedbceddebeg": {
+    "cost": 0.002312,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into the family discount and which plan has more data, without actually stating whether a discount exists or naming a plan with more data. It restates the ask but does not answer it.\"}"
+  },
+  "cefdcdieeciaaagceifjdefhfeiggefhdedjajijgaeeecddbcjjdbcccfbihdif": {
+    "cost": 0.00643,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The user asked about a family discount and how to pay a bill; the reply addresses both: a 15% family bundle discount and paying by card or bank transfer in the app under Billing.\",\"evidence\":\"The family bundle gives 15 percent off each extra line. Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "cfaccjbbfcehhcadjhbdbjibaaabajhdfcjcjgehfbdgdcbabfbddbjgjjjbcaac": {
+    "cost": 0.005474,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "cfadjdeeibhgghfbdidjffdebfeebdebcjfcgfjbgedfefhdeadaafebffeefbfj": {
+    "cost": 0.0027594,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply only restates the user's questions and says it will look into them, without giving any answer about a family discount or which plan has more data. It stays on topic but does not deliver the answer the question needs.\",\"evidence\":\"let me look into whether there is a family discount and which plan gives more data for you.\"}"
+  },
+  "cfbcgjcdejcfejcfcaacfcaefefdcagbbgehcecfaaeddbbaabfjacifcdbidbfj": {
+    "cost": 0.006274,
+    "result": "{\"outcome\":\"fail\",\"score\":0.1,\"reasoning\":\"The user asked two things: whether someone can call back and how to pay the bill. The reply addresses the callback but ignores the payment question and adds unrelated technician info.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Your technician is booked for Thursday morning.\"}"
+  },
+  "cfbdhdecbjegebagcjjbdeaddfggcbdddfbjchbgjhieedbfdcccccjhieebcgbc": {
+    "cost": 0.003942,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"The LLM asks for an address to reach the user for account updates, which most plausibly means an email address. The user's email is already known: jo.okafor@example.com. It should use that address, or ask the user to confirm it, instead of asking for it again.\"}"
+  },
+  "cfciechjibcafegbedffhfafgadaaidefageafeacageiebafeccfcegeeccbdef": {
+    "cost": 0.00489,
+    "result": "{\"score\": 1, \"reason\": \"The reply explains how to pay the bill (card or bank transfer in the Acme app under Billing) and names the plan with more data (Acme Mobile L, unlimited data), addressing both parts of the ask.\"}"
+  },
+  "cfeahcahcfgecbidbbchdefdcdijgceabhbdcadfaihhfaaefjiaccajhcdefgdh": {
+    "cost": 0.0028540000000000006,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: which plan gives more data and when the technician arrives. The reply addresses the plan question only partially (it names one plan with unlimited data, without comparing) and ignores the technician arrival question entirely.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "cfeejbdefbihhcgdfjgaafehcbcdabedbaceegbdddcciifcbghabefjjadchhaa": {
+    "cost": 0.006274,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply only restates that it will look into the two questions and gives no answer on the family discount or the technician's arrival time. It acknowledges the ask but does not answer it.\",\"evidence\":\"Both are good questions, let me look into whether there is a family discount and when my technician will arrive for you.\"}"
+  },
+  "cgddcbjhdhbhbfdebeadhdciciafacfbhddfbeeaaafafdcaffejbfjadabegjad": {
+    "cost": 0.0031239,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: which plan gives more data and when the technician arrives. The reply partially mentions a plan with unlimited data but doesn't compare plans, and ignores the technician arrival question entirely, adding unrelated bundle info.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. Our family bundle gives 15 percent off each extra line.\"}"
+  },
+  "cgeehahdibhcadcadjfdedaghcfhhcbgbjcccjgaheefbhiecficfdifehciegci": {
+    "cost": 0.005397999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "cgfjgjaebjbfbjeeahgihfedjabbhdefdghdgedjcbhfgdfbbbcddaahjbdecche": {
+    "cost": 0.00547,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "cgfjhbcccadghgdifgahijcfejihgeaagdaehdcgabbfgadeadifaefbeecdffdh": {
+    "cost": 0.006208,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two questions: technician arrival time and fibre coverage. The reply answers only the first and ignores the fibre coverage question entirely.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "cghcaeddeeaehbcdcbddiacdiggbajcdjichfddcaiebeacbggaahjcaeeidhjdb": {
+    "cost": 0.002627,
+    "result": "{\"verdict\": \"no\", \"reason\": \"The LLM is asking the user to confirm which inbox the receipt should go to, which is a request for confirmation rather than asking for unknown information. It doesn't contradict the known email (jo.okafor@example.com) or ask for it as if it were unknown.\"}"
+  },
+  "chajjhebgbgfhbhhhcgaffbdgabbdcedifbfcgffacbdabbafccicdadegfdbaeb": {
+    "cost": 0.002613,
+    "result": "{\"outcome\":\"fail\",\"score\":0.05,\"reasoning\":\"The user already gave their email (jo.okafor@example.com) in the first message, and the agent asked for the contact address on the account again, which re-requests a fact already provided.\",\"evidence\":\"[agent] What is the contact address on the account?\"}"
+  },
+  "chbeacijjcbcdafhaiaebjibhhdaajaaicdbebghehahaeecdjdjcegibeccdbjh": {
+    "cost": 0.0017674,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "chdceacjdhfcbebbcbfjhbjjdefbdjfbjhfdaidabcfbfjhbecfdicjacaidicca": {
+    "cost": 0.002242,
+    "result": "{\"verdict\": \"no\", \"reason\": \"The LLM message uses the email jo.okafor@example.com, which matches the known Email fact. No contradiction or forgotten information.\"}"
+  },
+  "chdhbcdfdghaijafjeaehjgigdgfjehechjbgehacccehdecfiabcagiibeibfjf": {
+    "cost": 0.0053939999999999995,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ciabffcceffcdeciahdjhiebbighcejcbbfaccciafbhjfddbhfbechedcjdiiag": {
+    "cost": 0.005103,
+    "result": "{\"outcome\":\"pass\",\"score\":0.68,\"reasoning\":\"The user gave only a name and an email, and the agent's question about the contract address most plausibly asks for a postal address, which was not given. The reply does not re-ask for the email or contradict it, though \\\"address\\\" is slightly ambiguous.\",\"evidence\":\"[agent] What address should I put on the contract for you?\"}"
+  },
+  "cibecaaehfbfhbdfachiadfcdbdfeaiabbgedifeibabeegdfbicebecbbfbccab": {
+    "cost": 0.0053419999999999995,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "cicfdhgfjdaffiebjhddafaeicaeedfdddfahdajcabcicfgffbahbdahfbibaif": {
+    "cost": 0.004768,
+    "result": "{\"reason\": \"The reply addresses the family discount (15 percent off each extra line) but never says which plan gives more data, and adds an irrelevant remark about phone cases. The ask is only partly answered.\", \"score\": 0}"
+  },
+  "cihacfdcgdffegebjbahdebbbccccgdeedebafdgiheffbafdgaiigcajccfighf": {
+    "cost": 0.004868,
+    "result": "{\"score\": 1, \"reason\": \"The reply gives the technician's arrival window (Thursday morning, eight to noon) and names the plan with more data (Mobile L, unlimited, $35/month), addressing both parts of the ask.\"}"
+  },
+  "cjcbchbidfadeddfibgdbebdaaafjjbiaiibdegjfcfddhiejiggjeecddacfeca": {
+    "cost": 0.004816,
+    "result": "{\"score\": 0, \"reason\": \"The reply confirms a sales advisor will call back, which covers the first part, but it never explains how to pay the bill. It adds an unrelated technician appointment instead, so the ask is only partly answered.\"}"
+  },
+  "cjceidecgcedeecebfdffjeibeibeacaadccafifffgdadfbfebifbjhefgijhhd": {
+    "cost": 0.00634,
+    "result": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"The reply addresses both parts: fibre coverage on the user's street and how to pay the bill (card or bank transfer in the Acme app under Billing).\",\"evidence\":\"Fibre is live on your street from $60 a month. Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "cjedegacifeaccjdbfadbdefdedhcjihihfbeegdidadcdchjaiachaggcbbchfi": {
+    "cost": 0.005362,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "cjgbcjbceadaffigbabdciejfcgcfdgefchahaeicdgabhaacefjeagidfcefcjc": {
+    "cost": 0.005812,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The user already gave their email (jo.okafor@example.com) in the first message, and the agent asks again for their inbox where to send the signed form.\",\"evidence\":\"Where can we send the signed form, what is your inbox?\"}"
+  },
+  "dabchcfediebdddfcdgegdeeddfdighaaeechdcdgbggdgbcdjabbfbcbfafjjgc": {
+    "cost": 0.002333,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it explains how to pay the bill (card or bank transfer in the Acme app under Billing) and confirms that an advisor will call the user back.\"}"
+  },
+  "dacdadbfjefhdfiddebdjgddabggcfeadeeieehgebfcajcibdgcddffdjehegja": {
+    "cost": 0.0067339999999999995,
+    "result": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The reply addresses both parts: it names the plan with more data (Mobile L, unlimited) and explains how to pay the bill (app Billing page, card or transfer). Comparison to other plans is implicit but the answer fits the ask.\",\"evidence\":\"The Mobile L is our unlimited tier, thirty-five dollars monthly; settle the bill on the app's Billing page, by card or transfer.\"}"
+  },
+  "dadccjeadbcficahddbdaicbbggbadihjfaffdehebbdagfadifcdciedeihafcj": {
+    "cost": 0.0030405000000000007,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply confirms fibre coverage on the street and names a plan with unlimited data, addressing both parts of the question. The comparison of which plan gives more data is thin (fibre plan data not stated), but it stays on topic.\",\"evidence\":\"Fibre is live on your street from $60 a month. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "dadichfbhbebegfddhfhhdfjcgadbhaccajiecciagedcgabcbejefggejbciaah": {
+    "cost": 0.0049,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it explains how to pay the bill (card or bank transfer in the Acme app under Billing) and confirms a family discount (15 percent off each extra line with the family bundle).\"}"
+  },
+  "dbcabdjbaijdacceeeefhbfjdeecieaeaibedaccaffdeigdjcecdibicgegeacg": {
+    "cost": 0.00496,
+    "result": "{\"score\": 1, \"reason\": \"The reply explains how to pay (card or bank transfer in the Acme app under Billing) and confirms a callback from an advisor. The extra football club offer is irrelevant but does not stop both parts of the ask from being answered.\"}"
+  },
+  "dbfcdidbjacahabecacgheaaccfdiiafhhdccedhfbaheeehfhhdcdcabcegicad": {
+    "cost": 0.006916,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply addresses both parts: it names Mobile L as the unlimited (more data) plan and explains paying via the app's Billing page by card or transfer. It doesn't compare to other plans explicitly, but it gives an answer to which plan has more data.\",\"evidence\":\"The Mobile L is our unlimited tier, thirty-five dollars monthly; settle the bill on the app's Billing page, by card or transfer.\"}"
+  },
+  "dbficgbfbhibbcdihacbdbbefbfccjddaccafejcdjeeffgdjajbffaidfdgdaab": {
+    "cost": 0.0017597,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "dbgcbgfafjhcfdfahgaacccfbahaddhehbeeeahdfdagjbhhecggjeggcicbeace": {
+    "cost": 0.0064800000000000005,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the family discount part (15% off each extra line) but never says which plan gives more data, ignoring half the ask, and adds an irrelevant sentence about a phone case store.\",\"evidence\":\"The family bundle gives 15 percent off each extra line. Our store on the high street sells phone cases.\"}"
+  },
+  "dcadaecbbbbejecaegjeidceafdebgbeecfcccafhdaecfachaadfgfcfacaiefg": {
+    "cost": 0.006184,
+    "result": "{\"verdict\": \"no\", \"reason\": \"The user asked whether someone can call them back and how to pay their bill. The response addresses the callback, but it never explains how to pay the bill. It also adds unrelated information about a technician booked for Thursday morning, which the user did not ask about.\"}"
+  },
+  "dcchcjejjjafahfibdffbcbdihidbfadgcbiddcceicdiahbaagbbeabeddeegaa": {
+    "cost": 0.002186,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into which plan has more data and how to pay the bill. It gives no answer on either question, so the ask is not answered.\"}"
+  },
+  "dcciaabjcbjeeiegjbehcjeiabhjjegddbahdfgbeiccacbjffaehbfcicdcfcdb": {
+    "cost": 0.005425999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "dcdbfaabafebdefabdcbcbdffjgabieajbfhhgbfbbaeeffebcdfgfhjfaedbbjh": {
+    "cost": 0.00471,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into whether someone can call back and when the technician will arrive; it gives no answer on callback availability or arrival time, so the ask is not actually answered.\"}"
+  },
+  "dcdcghfeiacdjfeddchajgfbfecjfbedfihicefahejeffddfhedebdhddfbjdea": {
+    "cost": 0.002612,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: how to pay the bill and which plan gives more data. The reply answers only the payment part and ignores the plan/data question.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "dcddjbaafhacabfadfaibbafbjebabcciddadeafcfbabebibdicgjfbabhajhgc": {
+    "cost": 0.0022188,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it confirms fibre is available on the user's street and states that a family bundle gives a discount on extra lines.\", \"score\": 1}"
+  },
+  "dcdjihaeaicfbaafajacbbacbifidhgcfadfecfjhadgcbgbffjdeffbacfghcci": {
+    "cost": 0.0066300000000000005,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: which plan gives more data and when the technician arrives. The reply partly addresses the plan (Acme Mobile L unlimited) but ignores the technician arrival question and adds an unrelated family bundle remark.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. Our family bundle gives 15 percent off each extra line.\"}"
+  },
+  "dcfadeffbacdgaaaaeefgbjgfhjgibdacachbabcdgjaieedjadfibddfaifdahf": {
+    "cost": 0.006146,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply answers the fibre coverage part but ignores the family discount question entirely, and adds an unrelated offer about moving service to a new address.\",\"evidence\":\"Fibre is live on your street from $60 a month. We can move your service to a new address.\"}"
+  },
+  "dcffdijafcffdidajaaeadeiajciffjgfjbcbfiaifcbbfadefjcejbheffcdafa": {
+    "cost": 0.006508,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply answers both parts of the question: the technician's arrival window (Thursday between 8 and 12) and how to pay the bill (card or bank transfer in the Acme app under Billing).\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "dcfhefjhgdcbdbbeffebjebiccfefdiaeheigfdcaijghiejfchbfahcjadfgbaf": {
+    "cost": 0.006636,
+    "result": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The reply addresses both parts: it names the plan with more data (Acme Mobile L, unlimited) and gives the technician's arrival window (Thursday 8-12). Comparison to another plan is implicit but the ask is answered.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "dcjcjcdbddebahfafdcbcjiigdhjbddijfadefaciebebgeefiabhbdcbhgeeahb": {
+    "cost": 0.004618,
+    "result": "{\"score\": 0, \"reason\": \"The reply addresses only the callback question (a sales advisor will call back) but ignores the second part of the ask about whether the user's street is covered for fibre.\"}"
+  },
+  "dcjicdefbfcjccdfefbbebdcdedecgfedbddbfhjhbhfdccbfbfbghgdbfhcibfc": {
+    "cost": 0.002609,
+    "result": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The user gave name and email; the agent uses the name 'Jo' and does not ask for name or email again. It asks about the phone number, which the user never provided.\",\"evidence\":\"Is the phone number on the account still the right one, Jo?\"}"
+  },
+  "ddbecfbjehbdfiaabfagfdahebbjbcfeejbcjejjdhgcegcgefgdefbadijebaca": {
+    "cost": 0.002319,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it explains how to pay the bill (app's Billing page, by card or transfer) and states that the user's street is within the fibre rollout area.\", \"score\": 1}"
+  },
+  "dddgjciicagedebefhefbbgdgceiaabebfbebafeecebhhcaabcfbccihhfaaegd": {
+    "cost": 0.005425999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ddefjbgbcejjebhejehafhcjiffecejdfcbebdhcehbadaacefhjhcbbffdjdffe": {
+    "cost": 0.00624,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply only restates the user's two questions and says it will look into them, without giving any answer about callbacks or bill payment. It stays on topic but does not supply the answer the questions need.\",\"evidence\":\"let me look into whether someone can call me back and how I can pay my bill for you.\"}"
+  },
+  "ddffacchhfageadihedffbbaccbfhabhfbdhhfcabchfcefjcefaicdaedehbceh": {
+    "cost": 0.005018,
+    "result": "{\"score\": 1, \"reason\": \"The reply explains how to pay the bill (card or bank transfer in the Acme app under Billing) and confirms fibre is live on the user's street, addressing both parts of the ask. The football offer is extra but does not stop the ask being answered.\"}"
+  },
+  "ddfhheijbffdfhiedgbfhgfaeeffdjjbeabfabhacfgfiabdghbafbadcadgffbd": {
+    "cost": 0.0063300000000000006,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The reply only promises to look into fibre coverage and the family discount without giving any answer. It matches the FAIL picture of only promising to look into it.\",\"evidence\":\"let me look into whether my street is covered for fibre and whether there is a family discount for you.\"}"
+  },
+  "ddgcaghghjcfffdaabbbfiidagcjfhcbcchebacghjhcgdhfcdcejbecdjebjfag": {
+    "cost": 0.00543,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ddgecaeaicdchdbabedaccaddhfehebcabdgeecfhdhedbdfggfdceagdbgebabc": {
+    "cost": 0.0026018,
+    "result": "{\"outcome\":\"fail\",\"score\":0.25,\"reasoning\":\"The reply answers the coverage part (fibre is live on the street) but ignores the second question about a family discount; it only gives a price, not whether a discount exists.\",\"evidence\":\"Fibre is live on your street from $60 a month.\"}"
+  },
+  "ddhjdagffcdhcedafcedgcajbiediaadicdccbcdbfdcjcjecbbicabcjegdccce": {
+    "cost": 0.0017628000000000001,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "debjadfebgifhggaedbbcageebcfheefjfbebdbcbejaaabajbaabbcicbbcecfd": {
+    "cost": 0.008568000000000001,
+    "result": "{\"outcome\":\"fail\",\"score\":0.25,\"reasoning\":\"The reply only echoes the question and says it will look into it. It gives no information on whether a family discount exists or whether the street has fibre coverage, so it does not answer the ask.\",\"evidence\":\"let me look into whether there is a family discount and whether my street is covered for fibre for you.\"}"
+  },
+  "decafajadabeceedeifccbibfiefciddfieefdbjfbahjfccccdedbfbjcifahcf": {
+    "cost": 0.0017638,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "deceiddccdfecdeabaaiabfdbbcdaeajbdiacfaabadghgbehcccidegfibdeejb": {
+    "cost": 0.006206000000000001,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply only restates the user's two questions and says it will look into them, without giving any answer about callbacks or which plan has more data. It stays on topic but does not answer the ask.\",\"evidence\":\"let me look into whether someone can call me back and which plan gives more data for you.\"}"
+  },
+  "defehabdbifcdaegbjccdgaeibfbbcabhebeddbbddegfdfaacaebdeebadaecgc": {
+    "cost": 0.004666,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into fibre coverage and a family discount; it gives no actual answer about whether the street is covered or whether a discount exists.\"}"
+  },
+  "defjgcffdaabbciifgfhcjdfghjcfffefffcghdheeficfiefigbdeifbgaadheg": {
+    "cost": 0.006416,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts: a sales advisor will call back, and fibre is live on the user's street. It gives direct answers rather than promising to look into it.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Fibre is live on your street from $60 a month.\"}"
+  },
+  "dejjedehbabiaajfagbhefcafcdbgcjgdibdfeedbhabjjicfcdcbaciebfhbjad": {
+    "cost": 0.0026389,
+    "result": "{\"score\": 0, \"reason\": \"The user asked whether their street has fibre coverage and when a technician will arrive. The reply says fibre is live on the street, which partly answers coverage, but it never gives a technician arrival time and instead adds unrelated pricing and bundle promotion, so the full ask is not answered.\"}"
+  },
+  "dfajaaegdbeggajjfijfbjeajbbjccfdbddcfaghifgbedbheffabdaaefifbcac": {
+    "cost": 0.005434,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "dfajfbeheaagajcbdidefhjcdhgefddachfgcebcecbfaicfccacdadifdaihaae": {
+    "cost": 0.0048319999999999995,
+    "result": "{\"score\": 1, \"reason\": \"The reply identifies Mobile L as the unlimited (more data) plan and explains how to pay the bill via the app's Billing page by card or transfer, addressing both parts of the ask.\"}"
+  },
+  "dfdbgggdbacadjefaagafdceifbadegidhfefeagfeccibgfaibegfacbegfbddh": {
+    "cost": 0.0017636,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "dfehddagfafcefhcebcfdeidcibjiedcbebdafjfcgcgifffaejbdejfbebbhecf": {
+    "cost": 0.006572000000000001,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply answers both parts: a sales advisor will call back, and Acme Mobile L gives unlimited data. The football offer is extra but does not undermine the answer.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "dfgchcdfdfacecdiaaebchghdecajjgajcbbfibjcajbfdbafghcfbiddfhdaiff": {
+    "cost": 0.00628,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: technician arrival time and how to pay the bill. The reply answers only the arrival time (repeated) and ignores the payment question.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. Your technician is booked for Thursday morning.\"}"
+  },
+  "dfiaaeeedadffebfaffaecjcdbdahdedchgcebdaacgjiibcfhjdifbedejejbcb": {
+    "cost": 0.0017599999999999998,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "dfieffbfcfefhbgedfhcjibbfbgegaajefcjcbahaehdddjdaaaaaegcibafgdfb": {
+    "cost": 0.0061920000000000005,
+    "result": "{\"outcome\":\"fail\",\"score\":0.04,\"reasoning\":\"The reply only promises to look into fibre coverage and which plan gives more data, without giving any answer to either question.\",\"evidence\":\"let me look into whether my street is covered for fibre and which plan gives more data for you.\"}"
+  },
+  "dfjfbdecjcabfcjjagbeachdhdgecijafegbhfgedaebbciccfdjgjaicgdaebid": {
+    "cost": 0.0029043999999999997,
+    "result": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The reply names the plan with more data (Acme Mobile L, unlimited) and addresses the family discount (15% off each extra line). Both parts of the question are answered directly.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "dgacbgceidbegfefbgibfecdebdfaafacaaebdejbdeefgdbjfjeefcifcedajgg": {
+    "cost": 0.0028874,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply gives both the technician arrival window (Thursday morning, eight to noon) and the family discount (fifteen percent off every line after the first). It directly answers both parts of the question.\",\"evidence\":\"A visit is set for Thursday morning, between eight and noon; families get fifteen percent off every line after the first.\"}"
+  },
+  "dgbafefebihedheabjaceicighcbdagfggaafhhbdcaiediacgbgcigaeeiabdgh": {
+    "cost": 0.004662,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into the callback option and bill payment, restating the ask without giving any actual information on whether someone can call back or how to pay the bill.\"}"
+  },
+  "dgeegciabbjfaebjeebceafaibeeebafeecebdeeffiabddicceedcfaidabjfhe": {
+    "cost": 0.002467,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The user already gave their full name (Jo Okafor) in the first message, yet the agent asks for the full name again.\",\"evidence\":\"Can I have your full name for the contract, Jo?\"}"
+  },
+  "dgfaiedhahahfdfebecifdgifdbfiadddecbajbahbjedfjcacafbaajecibabfe": {
+    "cost": 0.00615,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: whether there is a family discount and how to pay the bill. The reply answers only the discount and ignores the payment question entirely.\",\"evidence\":\"The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "dghdgbeehfcjeiaehbjcbdaaacebjgfjhhehbhibfcagiffehbcecbjecadihffe": {
+    "cost": 0.002457,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it identifies Acme Mobile L as the plan with more data (unlimited at $35/month) and confirms a family discount (15 percent off each extra line via the family bundle).\"}"
+  },
+  "dhccfddfdaeahdfabacfjjccefacfbhdiafbheejhcfibfiiebjiefebbjcaibbj": {
+    "cost": 0.0053739999999999994,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "dhdhjhafccbbfbgacbebeebefefefdhecgcadeefffaghafjjcieaejfhfadagig": {
+    "cost": 0.0054859999999999996,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "dhejgafddebcbgddchfdhejhedfacbccbcbdbcahchdcaibcbcccdfgbjdfccdef": {
+    "cost": 0.0017639,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "dhggjdbdcbbafaebcajaeeddjbbhabaggecaeifbfeadeghdafdaehcdaiejcjfi": {
+    "cost": 0.004753,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"The LLM asks which mailbox the invoice should go to, but the user's email address is already known: jo.okafor@example.com. It should use that address, or at most ask the user to confirm it, rather than asking for it again.\"}"
+  },
+  "dibdddcjbbdejcchachedhfihjijabdcdabfefgaaddcdecfhabcbahahbiadgdc": {
+    "cost": 0.00649,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"The LLM asks for the user's inbox (email address) even though it is already known: jo.okafor@example.com. It should use the known email or just ask to confirm it.\"}"
+  },
+  "didfafafejjjbbagfhdbeeddhhchiijfbagbifbcdbdcagbjfcedbijbaghdjfeg": {
+    "cost": 0.0022271,
+    "result": "{\"score\": 0, \"reason\": \"The reply gives the technician's arrival window (Thursday between 8 and 12) but never addresses the second part of the ask, whether a family discount is available.\"}"
+  },
+  "diecdhbijdjehccefdechibfdfegedjgcbaebjfdadbgebcabdbbfdgaebeebccj": {
+    "cost": 0.0024447999999999996,
+    "result": "{\"reason\": \"The user asked two things: whether someone can call back and when the technician will arrive. The reply addresses the callback (a sales advisor will call) but gives no information about the technician's arrival time, so it only partly answers the ask.\", \"score\": 0}"
+  },
+  "diejcedighcjafecbahejjdfeeddfbhedcegjjediifdajadjhbdebfcicegcbbf": {
+    "cost": 0.0028220000000000003,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply addresses both parts of the question: the technician arrival window (Thursday morning, eight to noon) and the family discount (fifteen percent off every line after the first).\",\"evidence\":\"A visit is set for Thursday morning, between eight and noon; families get fifteen percent off every line after the first.\"}"
+  },
+  "difaehaaheiahdbacjfdfieadafcaefgbfbgcffbaceehdjbbcjejbaafbcaicab": {
+    "cost": 0.0017595999999999998,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "dijiibebgcbdacbdaffdhcccdjabbahjgcgabdehcgchcjeaebjagefhhgcabaad": {
+    "cost": 0.005385999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "djbbdgchdfafbbdabcaafaffeadebcejdffbccbcfhiddhcjdbhahghhabbeaaid": {
+    "cost": 0.005454,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "djddccbjfbihcafcffcbbhjgcacbdfdaefadcjdfddggehbajiajafeefifidceh": {
+    "cost": 0.006333999999999999,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The user asked two things: whether someone can call back and whether fibre covers their street. The reply addresses both directly (a sales advisor will call back; fibre is live on the street).\",\"evidence\":\"A sales advisor will call you back on the number you gave. Fibre is live on your street from $60 a month.\"}"
+  },
+  "djdfbddadbcbfhcdeigadhgbbbidffighdecfijfbffebebgdfefjfgcjfddaahc": {
+    "cost": 0.00539,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "djehddcfffgcfgafjabijdaiajcdahebedgacecfjijieibbcdficdcejjfcacaa": {
+    "cost": 0.004716,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into fibre coverage and which plan gives more data, without giving any answer on street coverage or the plan comparison; it restates the ask and defers.\"}"
+  },
+  "eaccefeffbfccdahcadfdcfdffeadbdddbgdbabgdajacaefiiidcjiaigfiagah": {
+    "cost": 0.00541,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "eaddjcdcdacihibhaaefhhedfadbeahjeffcjfeifaeddabcdbabebajechefbcc": {
+    "cost": 0.006554,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply answers both parts: fibre coverage on the street is confirmed, and the technician's arrival is given as Thursday between 8 and 12. The added price detail does not change the subject.\",\"evidence\":\"Fibre is live on your street from $60 a month. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "eaebgebibcjbcicebjfbfedaedcecbdfeabjbaajdjdcfjcdddedbbiiicdjfijd": {
+    "cost": 0.0063739999999999995,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply addresses both parts: how to pay (card or bank transfer in the Acme app under Billing) and the family discount (15 percent off each extra line).\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "eafdfbgadcjdcaececcbhfbhffgcajgeebfdffejeecbabbbggfgadfafebachad": {
+    "cost": 0.006424000000000001,
+    "result": "{\"outcome\":\"pass\",\"score\":0.6,\"reasoning\":\"The reply partly answers which plan gives more data (Acme Mobile L, unlimited), though it ignores the family discount question and adds an unrelated address-move remark. The core ask about the plan is addressed, so it is mostly relevant.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "eagafcdebdeghaigbjjbeaeejadeefgafjcacccegfjfdfgdaebbggeabccejeee": {
+    "cost": 0.005014,
+    "result": "{\"score\": 1, \"reason\": \"The reply names Acme Mobile L as the plan with more data (unlimited at $35/month) and confirms a family discount (15 percent off each extra line), addressing both parts of the ask. The football club offer is extra but doesn't detract.\"}"
+  },
+  "ebcajfbigaiidfjbcefeacaheccfgeeadgacfejbbdibbbcfcdehadbibdehcfbb": {
+    "cost": 0.00272,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts of the question: a callback will occur, and a family bundle discount of 15 percent exists for extra lines.\",\"evidence\":\"A sales advisor will call you back on the number you gave. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "ebcdhjgcajicebaegjjifcfjfcdbjeagieahdcdafaeeffabeabfbeacbdafhigd": {
+    "cost": 0.004676,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it says an advisor will call back, and gives the technician's arrival window as Thursday morning between eight and noon.\", \"score\": 1}"
+  },
+  "ebcebfdjhbgbfgifjejaddeabjegebbaghcbhadcaddebaefjhigeabbedddhffc": {
+    "cost": 0.005462,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ebeeaccdbeggjdafffgfaafdddcacfcadedcfjddbcdaihebjcidebbfbddehgei": {
+    "cost": 0.006202,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply answers the discount question but does not address the callback request; it only gives store hours, which doesn't say whether someone can call back. Part of the ask is ignored.\",\"evidence\":\"Our stores are open from nine to six.\"}"
+  },
+  "ebeeagbfcagjjdghabheaebfeefejeifiahcacgfccfajdefbdfhicebejeajhbc": {
+    "cost": 0.002669,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: how to pay the bill and whether their street is covered for fibre. The reply answers only the payment part and ignores the fibre coverage question.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "ebeihegffdfbacgbbbhahfjbddehcgbfhijhaccfgidjiaefjfdahhbjdcbeddjc": {
+    "cost": 0.004938,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: a sales advisor will call back, and the technician is booked for Thursday between 8 and 12. The extra football club offer is irrelevant but does not stop the ask from being answered.\", \"score\": 1}"
+  },
+  "ebfjedcadhcbdggfddeaadffcffbhjdagdjgbgefabijaefecgjgaecibcjabiac": {
+    "cost": 0.00533,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ebfjjbjhedhffdajadbcjfaibehhidibbdfbbifcbghicfbidefdbiccebhfjaag": {
+    "cost": 0.005462,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ecaebeaceafahdfbbcgbadhbiehdbceabebffbaaibcafcdgcbfcafiadbdaedfe": {
+    "cost": 0.0027463,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply answers both parts: the technician arrival window (Thursday 8-12) and the family discount (15 percent off each extra line).\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "ecbcbijfcdfbagfbebeaaagfccieeafcfhcgfjejdeejbiacgdadidhbiacbbccb": {
+    "cost": 0.00541,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "eccfcbcbfaefjbeabbacgahgjidcdgcdhchibhacfdcaficdijbedfecjahgegce": {
+    "cost": 0.004771999999999999,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it identifies Mobile L (unlimited tier) as the plan with more data and states the user's street is within the fibre rollout area.\"}"
+  },
+  "ecddjdfdfacccccdaaaabacdegffcdcafeaiceegebhbbheeaiijcceaeicfbjfc": {
+    "cost": 0.00655,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply answers both parts: a sales advisor will call back, and a family bundle gives 15 percent off each extra line. The football club offer is extra but does not detract from the answers.\",\"evidence\":\"A sales advisor will call you back on the number you gave. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "eceedihfbgjceabejdbfbfhfeifecgadidbhbfcbejdahgfcbbjedcfbffbahfeb": {
+    "cost": 0.0065580000000000005,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply addresses both parts: how to pay the bill (card or bank transfer in the app under Billing) and which plan gives more data (Acme Mobile L, unlimited). It stays on topic.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "ecfaidbgcaeegjbjiccfgbaiffgcbhhcbjbegfeddighedfbjbcaibebcejhcabh": {
+    "cost": 0.002372,
+    "result": "{\"verdict\": \"no\", \"reason\": \"The LLM message uses the email jo.okafor@example.com, which matches the known Email in the Previous Knowledge. It neither contradicts nor forgets any known fact.\"}"
+  },
+  "edbaeeafbdbbabadfabeddbjefghdbdecfehhicaaccffeheceigiccjeeecfdbd": {
+    "cost": 0.006614,
+    "result": "{\"outcome\":\"pass\",\"score\":0.85,\"reasoning\":\"The reply answers both parts: how to pay (card or bank transfer in the Acme app under Billing) and the callback (a sales advisor will call). The football club offer is an irrelevant add-on but does not displace the answers.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. A sales advisor will call you back on the number you gave.\"}"
+  },
+  "edddbjbeaeagicccjbeadfbeajeefjiiehfhefaffffhhefbdfebdadagdddcbie": {
+    "cost": 0.001759,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "eddeccadfaecbighfdhacceihbjhbffeadaccicfcjhiacebeejfefbejbeeabea": {
+    "cost": 0.0054659999999999995,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "edfecbjdicfifdfibidffbiagcacddcefcbfjidbejfgadbbbibaceecbbhgfdhe": {
+    "cost": 0.006546,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply names a plan with more data (Acme Mobile L, unlimited) and confirms fibre is live on the user's street, answering both parts. The football offer is an extra remark but does not displace the answer.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. Fibre is live on your street from $60 a month.\"}"
+  },
+  "ediabdbcgfjfdcbibhjbcadjcbibhjdcjdfcejcabbefgbegdafeebjejaidadhf": {
+    "cost": 0.006488000000000001,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: whether a family discount exists and when the technician will arrive. The reply addresses only the discount (repeated twice) and ignores the technician arrival question, so part of the ask is ignored.\",\"evidence\":\"The family bundle gives 15 percent off each extra line. Our family bundle gives 15 percent off each extra line.\"}"
+  },
+  "edjbbhbcdbegfdfgabdcaaecdcajbfaeebggahifbbjcidcfcgedeigicefehhed": {
+    "cost": 0.006616,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts: a sales advisor will call back, and the bill can be paid by card or bank transfer in the Acme app under Billing. It gives direct answers rather than deferring.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "edjdfefbaeabaacdedabfaadjdhajgbcbgjaefcfjgebjgaiafabjaiccceaceea": {
+    "cost": 0.005469999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "eebcdefjeaagffefeiaedijgafhcehjaefbdajafjgfeaebbebffafbgffbdchbe": {
+    "cost": 0.0026928000000000004,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The reply only promises to look into which plan gives more data and how to pay the bill, without giving any answer. This matches the FAIL picture of only promising to look into it.\",\"evidence\":\"let me look into which plan gives more data and how I can pay my bill for you.\"}"
+  },
+  "eebdfjcdciddbjdghbjebgefgjbefcafihafcjaeebdchifjbbeadbhajcffeigg": {
+    "cost": 0.004908,
+    "result": "{\"score\": 0, \"reason\": \"The user asked which plan gives more data and whether a family discount exists. The reply names one plan with unlimited data but gives no comparison between plans, never addresses a family discount, and adds an unrelated statement about moving service to a new address.\"}"
+  },
+  "eebgbcajgccbebfefichcddfcfdfhaciacaeiafbibfgdiabefddcfbfefajhafj": {
+    "cost": 0.006528000000000001,
+    "result": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The reply answers both parts: how to pay (card or bank transfer in the app under Billing) and fibre coverage (live on the street). The football club offer is an extra aside but does not displace the answers.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. Fibre is live on your street from $60 a month.\"}"
+  },
+  "eecaffdfddidjieaihiadffiedacihcjfejedahibddjbfgdaabeedcegdadecea": {
+    "cost": 0.004554,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it says an advisor will call back and that the street is within the fibre rollout area.\", \"score\": 1}"
+  },
+  "eefijhefdbabcaefcbidddbccfaefbeffeegafegjcddcedcajcdedgccafjdddg": {
+    "cost": 0.004776,
+    "result": "{\"reason\": \"The reply gives the technician's arrival window (Thursday between 8 and 12), but never addresses the second part of the ask about whether someone can call back; the store hours are not a response to that request.\", \"score\": 0}"
+  },
+  "eejedcaeddejfibhijfcefdbeaidbccfeecjeffbabehdjchadbaaeaeccfadfae": {
+    "cost": 0.00545,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "efbbccbbacdcfgdegcgcchebbdahbhchfaacjbbfddaebcdjacccffcdfcbaeihi": {
+    "cost": 0.004694,
+    "result": "{\"reason\":\"The reply states fibre is live on the street, answering the coverage question, but it never addresses the callback request; it only gives store hours, which does not arrange or confirm a call back.\",\"score\":0}"
+  },
+  "efebhddceccgeidadebeddaieajefbbafefdefjbggedfgdefajcgijedbabhcjd": {
+    "cost": 0.001766,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "efeegjjdcfdfbecejafhbcaafhhgcciehjechehffdfaciffbjcdfaaiheccbifa": {
+    "cost": 0.0017634,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "efiacjdegeeecfgeidibdabibgchedjaefaadddiccecdacbhdbdacdabbchacad": {
+    "cost": 0.0064080000000000005,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply confirms fibre is live on the user's street and that a family bundle discount exists (15% off each extra line), answering both parts. The football club offer is extra but does not detract.\",\"evidence\":\"Fibre is live on your street from $60 a month. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "egbgceahfcgggfecgfhbdcagdbfgcagfcaebaiddfadcjibicfbehiaegcaifahe": {
+    "cost": 0.005402,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "egdahecjadjdebjchafcjbidehcchebgcdcbbcachcaefcaebhfebhfeheccecfi": {
+    "cost": 0.00541,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "egefcfdedafaeadjffaicefachgcdaaiafdfffbhadefbjbdhdgigcdaiacbbajc": {
+    "cost": 0.002437,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it gives the technician's arrival window (Thursday between 8 and 12) and confirms fibre is available on the user's street, with extra pricing info that doesn't detract.\", \"score\": 1}"
+  },
+  "egfcfabcbfchcbgdcdcbbfdciddcgaajgjagegdcdaefebccaggcaafhfdfehadd": {
+    "cost": 0.00622,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the billing question but ignores the second part (which plan gives more data) and adds an irrelevant remark about phone cases. It therefore only partly addresses the ask and changes the subject.\",\"evidence\":\"Our store on the high street sells phone cases.\"}"
+  },
+  "egggfcjdgbddfbaafafabjafbdbiecbibeefgdcbjghabahcdaddfdbjijbcdfid": {
+    "cost": 0.006316,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply addresses both parts of the question: the technician arrival window (Thursday morning, eight to noon) and fibre coverage (street is inside the rollout area).\",\"evidence\":\"A visit is set for Thursday morning, between eight and noon; your street is inside the fibre rollout area.\"}"
+  },
+  "ehbddcchfacaicicfbhaahaeeffdgaceaheeffcdfjfhfeabdfeeagffdeiaebaj": {
+    "cost": 0.0025627,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: how to pay and whether someone can call back. The reply answers only the payment part and ignores the callback request.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "ehcbbeieebccafefeehccbdebbaffdbgahaahddbicdfedhfdejdideiabedccdg": {
+    "cost": 0.0029304,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts of the ask: how to pay the bill (card or bank transfer in the Acme app under Billing) and whether someone can call back (a sales advisor will call). It stays on topic.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. A sales advisor will call you back\"}"
+  },
+  "ehfbaigedgbbdbffcfehceebjgbajfhhcciiaabaffdbcfjfbfaecbiheffffefi": {
+    "cost": 0.005454,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ehfibeigefddheafdichabccigefgbcacbcdcjdahfcbhjaacaabgccfgaaecdba": {
+    "cost": 0.0050019999999999995,
+    "result": "{\"score\": 0, \"reason\": \"The user asked both how to pay the bill and when the technician will arrive. The reply covers payment (card or bank transfer in the Acme app under Billing) but never mentions the technician's arrival, and instead adds an unrelated family bundle discount.\"}"
+  },
+  "ehhfcbjedafiffafheeaaehffddebhiedecbfdbfcbecddcfccihegeddfadhaff": {
+    "cost": 0.006566000000000001,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply addresses both parts: which plan gives more data (Acme Mobile L, unlimited) and how to pay the bill (card or bank transfer in the app under Billing). It stays on topic.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "ehidedegdfaegeeciecbcbjaaehcjifhfefhedahhcajddffaabbadfichgdgadb": {
+    "cost": 0.006424000000000001,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the family discount part (15 percent off each extra line) but never says which plan gives more data, ignoring half the ask. It then adds an unrelated sentence about a phone case store, changing the subject.\",\"evidence\":\"The family bundle gives 15 percent off each extra line. Our store on the high street sells phone cases.\"}"
+  },
+  "eiadhjbeaaidbegadhfcfjfdgaaedfgajccecfahhdddgacfdecbadjdifafcafe": {
+    "cost": 0.006156,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The reply only promises to look into whether someone can call back and which plan gives more data, without giving any answer to either question.\",\"evidence\":\"let me look into whether someone can call me back and which plan gives more data for you.\"}"
+  },
+  "ejddaegbddajhedhdhaidbfdfbgbjbbdjijcijcdgafbhebcbaicdedcfibjicff": {
+    "cost": 0.004792,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it confirms a family discount (family bundle, 15 percent off each extra line) and states fibre is available on the user's street, from $60 a month.\", \"score\": 1}"
+  },
+  "ejefidcciccfbfejbehhbdbabdacafgdiccfgccaaghbbhadfdfddigdhfgceeib": {
+    "cost": 0.004922,
+    "result": "{\"score\": 0, \"reason\": \"The reply addresses the callback question (a sales advisor will call back) but never says whether the user's street is covered for fibre, and it adds unrelated information about paying a bill in the Acme app. Half of the ask is unanswered.\"}"
+  },
+  "ejicefacefbaibhaehhjcghdfaegcadjdfaehegdbjaadidddbcdadafdafdcfdf": {
+    "cost": 0.0053939999999999995,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ejieedfdicbghhhceddhdiibiiccbebbccaeacfffabbffgadbbadccgaceacijg": {
+    "cost": 0.0066560000000000005,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply confirms fibre is live on the user's street and names a plan with unlimited data, addressing both parts. The comparison of 'which gives more data' is somewhat implicit, but it still gives an answer.\",\"evidence\":\"Fibre is live on your street from $60 a month. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "ejjeeeijfcjdcefcbgaecddgahhfaebghccagbfcdcgbeejhagfciejhfddfeaai": {
+    "cost": 0.0028377000000000003,
+    "result": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The reply names the plan with more data (Acme Mobile L, unlimited) and confirms a sales advisor will call back, addressing both parts of the question.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. A sales advisor will call you back on the number you gave.\"}"
+  },
+  "faafchcfdgfbjeceejejbfchaaefbbacabcdcggahaaajjegadfbfchdgadedbeh": {
+    "cost": 0.006784,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply gives the technician arrival window (Thursday 8-noon) and names the unlimited Mobile L tier as the plan with more data, addressing both parts of the question. The plan answer is somewhat implicit without a comparison, but it is on topic.\",\"evidence\":\"A visit is set for Thursday morning, between eight and noon; the Mobile L is our unlimited tier, thirty-five dollars monthly.\"}"
+  },
+  "faccbffaibbfcefjbdahfedceegcbiffibjedibccabdhbfgjcdfdbebddebcaja": {
+    "cost": 0.0030563,
+    "result": "{\"outcome\":\"pass\",\"score\":0.85,\"reasoning\":\"The reply addresses both parts: confirms a callback and names a plan with more data (Acme Mobile L, unlimited). The comparison is somewhat thin since only one plan is named, but it stays on topic and answers the ask.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "faebccceigibcfdbjddjbcbdbcdhedfdbgdiadcfcghdgdeahdgafbabaaecddba": {
+    "cost": 0.00541,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "faecdaadcahfhhddgdaffdebjacjdhajbaaahejfeebccdajccbdcaiaefgcfbjg": {
+    "cost": 0.005417999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "faefahafdabegabfegcfjhcbaaaefadfiefcibdfbgedhfffdjgdfcadjhjfifeh": {
+    "cost": 0.005353999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fagbeffcfcedgfdfbbjdbfaejaaaiadddcehbdfacjeeedbchcfdbcedecdbecic": {
+    "cost": 0.0028745999999999997,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts: how to pay the bill (card or bank transfer in the app under Billing) and fibre coverage on the user's street (live, from $60/month).\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. Fibre is live on your street from $60 a month.\"}"
+  },
+  "fagbeidbhiabffeedffibfcchacbidgcdigcdbdiafecegejcfccbfcbdeeacgje": {
+    "cost": 0.0061140000000000005,
+    "result": "{\"outcome\":\"pass\",\"score\":0.6,\"reasoning\":\"The reply addresses both topics the user asked about (callback and family discount), staying on subject, though it only promises to look into them rather than answering.\",\"evidence\":\"let me look into whether someone can call me back and whether there is a family discount for you\"}"
+  },
+  "fagffdgfebiccdbdjcjbcaedjaibbhebgjbeajhecfcaeecdedbhaeagdbcdfgdb": {
+    "cost": 0.0046440000000000006,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into which plan gives more data and whether a family discount exists. It gives no actual information on either question, so it does not answer the ask.\"}"
+  },
+  "fbabeeghafdfbjeeddbcacdejaafgeaibajadahadgicfhecdbdbecgaiccccfcc": {
+    "cost": 0.0017638,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fbajjfacbifaajcfbbfhefieeccbifdaibdchbaejdgfcdfibefihgccceceabjf": {
+    "cost": 0.006132,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The reply only promises to look into which plan gives more data and whether a family discount exists, without giving any answer.\",\"evidence\":\"let me look into which plan gives more data and whether there is a family discount for you.\"}"
+  },
+  "fbdceajgaecfchcbbdhfibcgbgbiefgbfdfceefffaehbeeccddejffhafehhdaf": {
+    "cost": 0.0053739999999999994,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fbdjijgheedbgecedjfeaacbahddgeehcecdaiibagahacbchjbacieeceiejggd": {
+    "cost": 0.006356,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply answers both parts: the technician visit is Thursday morning between eight and noon, and the street is within the fibre rollout area.\",\"evidence\":\"A visit is set for Thursday morning, between eight and noon; your street is inside the fibre rollout area.\"}"
+  },
+  "fbffefaaaiifccaabfabiaaeeaebbehiahbcbaeajfdaffgcdaecgfbefifjcfab": {
+    "cost": 0.002717,
+    "result": "{\"verdict\":\"no\",\"reason\":\"The Previous Knowledge only contains an email address (jo.okafor@example.com). No phone number is known, and the LLM is asking for confirmation of the phone number on the account, which does not contradict or forget any known fact. Addressing the user as 'Jo' is consistent with the email.\"}"
+  },
+  "fbjdfdbcfccjcfgficcehbdjcbhcbgieiaebghiiahabajgeabgfagccagcfaabf": {
+    "cost": 0.006318000000000001,
+    "result": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"The reply addresses both parts of the ask: it confirms fibre is live on the street and says an advisor will call back. The added pricing is extra but does not change the subject.\",\"evidence\":\"Fibre is live on your street from $60 a month. A sales advisor will call you back on the number you gave.\"}"
+  },
+  "fcbbbhefbhibjhebbaedafefbdhgbgfgbdbffgabjjfccecfhbbfeficcbfbeaad": {
+    "cost": 0.006338,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply answers the family discount part (15% off each extra line) but ignores the second part of the question, when the technician will arrive. The ask had two parts and one was left unanswered.\",\"evidence\":\"The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "fcccfjfeegegfbgfebhbehiebfaefifhdfegcdgaifjcaedehaehfgbheedgjeii": {
+    "cost": 0.0017678,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fccgiicbcadcebihcafccjifaejhdfhabgcaeaaacgfjeeibahbfbbfafdgafidf": {
+    "cost": 0.00484,
+    "result": "{\"score\": 0, \"reason\": \"The reply confirms fibre coverage on the street, but it never says whether a family discount exists. It mentions a $60 price and an address move, which the user did not ask about, so the second part of the ask goes unanswered.\"}"
+  },
+  "fcdfbdbhjghhebdedeaddbffiaehcdighiebcjehejdeigdcabidaeadafeaaehc": {
+    "cost": 0.003086,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply gives the technician arrival window (Thursday 8-12) and names a plan with unlimited data, addressing both parts. The plan comparison is thin since only one plan is named, but it does indicate which plan gives more data.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "fcfieedabfefdibahdcjeachbhfcjfbgjfgeaihgfabefegggjfhdhbibedaacga": {
+    "cost": 0.006302,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The reply only promises to look into which plan gives more data and when the technician will arrive, without giving any answer. This is the 'only promises to look into it' fail case.\",\"evidence\":\"let me look into which plan gives more data and when my technician will arrive for you.\"}"
+  },
+  "fchhfhfhbcdeabdfhjcdfcbcecdebfgbfdehcbbdacbcfggbidhhhchbaedefcgb": {
+    "cost": 0.0048660000000000005,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it confirms a sales advisor will call back and states that fibre is live on the user's street. The football club offer is extra, but it doesn't displace the answers.\"}"
+  },
+  "fciiejdfifajfcaaijdbfjffbhfgdgehaggejbbfhccffffeahagfejaefffcgaa": {
+    "cost": 0.006454,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply only echoes the user's questions and promises to look into them, without giving any coverage or plan data answer. It also misstates the ask as checking 'my street' from the agent's side, providing no substantive answer.\",\"evidence\":\"Both are good questions, let me look into whether my street is covered for fibre and which plan gives more data for you.\"}"
+  },
+  "fdaidceieacfjebjgdfbjgcddbgecabjjgjdajfgedacbfaachagfgdedcaabhcf": {
+    "cost": 0.006311,
+    "result": "{\"verdict\":\"yes\",\"reason\":\"The known email is jo.okafor@example.com, but the LLM says the receipt is going to sam.rivera@example.com. It asks for confirmation, but the address it presents contradicts the known fact. The receipt should go to jo.okafor@example.com.\"}"
+  },
+  "fdbbbfbadbbbedfdafddbaefihbffcffebegjfdcadfggdefjeccciigdhiiddid": {
+    "cost": 0.00614,
+    "result": "{\"outcome\":\"fail\",\"score\":0.25,\"reasoning\":\"The reply answers the first part (technician arrival window) but ignores the second part of the ask, whether someone can call the user back. The question has two parts and one is left unaddressed.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "fdcgafiahfffjfdgechddiaaadjeccbcbicedcgbhddfacfbdcbbegfdeaeddbdf": {
+    "cost": 0.0026802,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts of the question: fibre coverage on the street (live) and the family discount (15% off each extra line).\",\"evidence\":\"Fibre is live on your street from $60 a month. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "fddhfceficihfceeihfbadehbihbedaeeajfihidbeceegbadcicjgcbhbdebgcb": {
+    "cost": 0.001769,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fdeaeccdhiafcahbfbgfbafafeaehdfbifbcidhfjccacfdjbchacaeaaifbadhb": {
+    "cost": 0.005457999999999999,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "fdeedgcchehjacdhdefecbfacacfebfechffcgfeffhbfhdhaddagfaijbceajfd": {
+    "cost": 0.0018216,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "fdfbdjiheaaagddecechgacbacbcbedejaadeaegjfcdajieffbfeccbbabadebf": {
+    "cost": 0.0054139999999999995,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fdiachebefeifecjecgbcaidcdhfeacjahhdgdaifacjaieggicfacdcegccbdee": {
+    "cost": 0.006228,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply only restates the user's two questions and says it will look into them, without giving any payment method or fibre coverage information. It does not provide the answer the question needs.\",\"evidence\":\"let me look into how I can pay my bill and whether my street is covered for fibre for you.\"}"
+  },
+  "fdjaagcbgagcgcadbgbcedcbbdcchdaefeigcfhjciibeibafbeeabbajgifcbfj": {
+    "cost": 0.004592000000000001,
+    "result": "{\"reason\": \"The reply confirms fibre coverage on the street and gives a price, but it never says which plan offers more data, so only half of the two-part ask is answered.\", \"score\": 0}"
+  },
+  "febhcaefejieecdciecbbadeaifadbegfcdchjheeebbcihcibdfgjaejifjcdfc": {
+    "cost": 0.006268,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply only restates the user's two questions and promises to look into them, without giving any answer about which plan has more data or when the technician arrives. It stays on topic but does not provide the answer the question needs.\",\"evidence\":\"let me look into which plan gives more data and when my technician will arrive for you.\"}"
+  },
+  "febjbdhcjdhgeajeacibbeffcfddcjccdbabibffcifbdgggfgceefeehfjfceac": {
+    "cost": 0.006214000000000001,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply answers the family discount part (15% off each extra line) but ignores the callback request, only mentioning store hours, which doesn't say whether someone can call back. The ask had two parts and one is ignored.\",\"evidence\":\"Our stores are open from nine to six.\"}"
+  },
+  "fefdccddfdhdgeaehadficcgffceachddgfbadgdihegieeddjadiahagcfhdaea": {
+    "cost": 0.004816,
+    "result": "{\"score\": 0, \"reason\": \"The reply says Acme Mobile L has unlimited data for $35, which only partly addresses the plan question, and it never says whether someone can call the user back. It gives store hours instead, which was not asked.\"}"
+  },
+  "feghdehhdggcaddbdaafdchbcjjfebahddfabfhafccafbaecfahfdfbfbhagjab": {
+    "cost": 0.006342,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: which plan gives more data, and whether someone can call them back. The reply addresses only the data plan (and doesn't compare plans) and ignores the callback question entirely.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "fehdgegjjcfbfheabfbbcddgcfjibbjdaaabbdffabebebfdhdajedebcbcfgeci": {
+    "cost": 0.0028000000000000004,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply only restates the user's questions and says it will look into them, without giving any answer about which plan has more data or fibre coverage. It stays on topic but does not supply the answer the question needs.\",\"evidence\":\"let me look into which plan gives more data and whether my street is covered for fibre for you.\"}"
+  },
+  "ffaidhccjehfbhehbecedddcaaagbgcjedcjbccgedbfcbcahcdedfcdcjfiachf": {
+    "cost": 0.0054139999999999995,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ffajagbdafiabhdifdheicajadbdbigehabdeefggcaiehbaaibhbbfdcjcbjdaf": {
+    "cost": 0.0047940000000000005,
+    "result": "{\"score\": 0, \"reason\": \"The reply explains how to pay the bill (card or bank transfer in the Acme app under Billing) but never addresses the second part of the ask, whether the user's street is covered for fibre.\"}"
+  },
+  "ffbdhjhfafefjcdgcdbcbdedbbaajcdgdcchhgcddfeajagicdabgiacbdbacbec": {
+    "cost": 0.0028296000000000003,
+    "result": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"The reply answers both parts: fibre is live on the user's street, and a family bundle discount exists (15% off each extra line). It directly addresses the ask without deflecting.\",\"evidence\":\"Fibre is live on your street from $60 a month. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "ffcbdgfcjdgfcaafabcbabibhjfdcjaccbjbhbddgfacchbbhddbfeafgffjbbed": {
+    "cost": 0.002297,
+    "result": "{\"verdict\":\"no\",\"reason\":\"The LLM message does not contradict the known email (jo.okafor@example.com), nor does it ask for information already known. It only acknowledges that details are on file.\"}"
+  },
+  "ffcefebebccffbibfjdgaficffcfibfcahefciabecaceegfjfefahabaffcfibf": {
+    "cost": 0.004837999999999999,
+    "result": "{\"reason\": \"The user asked two things: whether someone can call them back, and which plan gives more data. The reply addresses the callback by saying a sales advisor will call, but it says nothing about which plan offers more data, so the ask is only partly answered.\", \"score\": 0}"
+  },
+  "ffedghcgigccjibeaddgdhdgcfhadaedjaccjceabacgeghbejddcfchddcadagc": {
+    "cost": 0.004752,
+    "result": "{\"score\": 0, \"reason\": \"The reply names Acme Mobile L as the plan with unlimited data, which partly addresses the plan question, but it never addresses whether someone can call the user back. Half of the ask is ignored.\"}"
+  },
+  "ffijfdaiddbeiabbdacefjachbceadcgbaifgbdedhgifhajffgdhjfefhafcbca": {
+    "cost": 0.00601,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: technician arrival time and which plan gives more data. The reply answers only the first and ignores the plan/data question.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "ffjaihibdfbeehcgbddjgabfcbdahficfcebbcbaaebcifbigjjfbbedddigjedi": {
+    "cost": 0.005457999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fgdddcabahjhfcdfcdagcdfbcbdibfdbdiddacaaehhdjfbbiadhcadabacadced": {
+    "cost": 0.006334,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The reply only promises to look into the family discount and fibre coverage without giving any answer. This matches the FAIL picture of only promising to look into it.\",\"evidence\":\"let me look into whether there is a family discount and whether my street is covered for fibre for you.\"}"
+  },
+  "fghidgeijeedhfdjecaeifiacfeedhhbeedcafcdaeidicdfdjdahjfbcjecbcec": {
+    "cost": 0.0028989000000000003,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply states fibre is live on the user's street and gives the technician appointment (Thursday 8-12), answering both parts. The football club offer is extra but doesn't negate the answers.\",\"evidence\":\"Fibre is live on your street from $60 a month. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "fhaggfiebbajgbhjcfhhehfhjddebdjbgfibbifgbddafbafadeicdcagfbagcdg": {
+    "cost": 0.002183,
+    "result": "{\"score\": 0, \"reason\": \"The reply confirms fibre coverage on the street and gives a price, but it never addresses the second part of the ask about whether a family discount exists.\"}"
+  },
+  "fhaiddcaaedeifgbffeadeebhbaegeehddbbeigdadfeffbfdfdjbdiaeadhaeba": {
+    "cost": 0.0053939999999999995,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fhcedgbdbcahgfcecdddbicidcffaabeefjadibafdeabdiccaebfihahgebcfac": {
+    "cost": 0.006076,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: whether there is a family discount and whether their street is covered for fibre. The reply answers only the discount and ignores the fibre coverage question.\",\"evidence\":\"The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "fhecegecabeedjcfjcbiaiciibijebhdbaafcbcadjadbbafbcagdghjifcacaci": {
+    "cost": 0.0053739999999999994,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fhffhjajbhijgceddegbcaecgbaebahfidbjihacceheabeggacahfefcbfcdejh": {
+    "cost": 0.002483,
+    "result": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"The user gave name and email; the agent did not ask for them again and did not contradict them, stating it has the details on file.\",\"evidence\":\"Thanks, I have your details on file and we will not need them again.\"}"
+  },
+  "fhhjfafhefbfbhbdcfcbbbgheccdgbbcciacffeecbcbecgbjgafdifjffcdidhf": {
+    "cost": 0.006228,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply names the plan with more data (Acme Mobile L, unlimited) and confirms a callback, addressing both parts of the question.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. A sales advisor will call you back\"}"
+  },
+  "fiaadfeaecijfeejhiibccagaieadbhfahfecccfcfhhchaadffdfahdefeiebea": {
+    "cost": 0.004918,
+    "result": "{\"score\": 0, \"reason\": \"The user asked which plan gives more data and when the technician will arrive. The reply mentions unlimited data for one plan and a family bundle discount, but it never compares plans clearly and ignores the technician arrival question entirely.\"}"
+  },
+  "fifecafbedddeahddgbbeeadcbidjchebbaeeeibgagieachdigdbcccfbfiahhf": {
+    "cost": 0.00543,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fifeiccbdiifadechafhcijjdhaidafgdbeeehbdaaffihfbfcfiacfddcfdcfhd": {
+    "cost": 0.002618,
+    "result": "{\"outcome\":\"fail\",\"score\":0.02,\"reasoning\":\"The user gave jo.okafor@example.com, but the agent used a different email, sam.rivera@example.com, contradicting the given value.\",\"evidence\":\"I have the receipt going to sam.rivera@example.com, is that right?\"}"
+  },
+  "fihfcffdbchededhgdibaaidddjciefaeadaghdfddijefegeaaaiefbiaediaje": {
+    "cost": 0.00463,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into the family discount and technician arrival time, without giving any answer about either. It restates the ask and defers rather than answering it.\"}"
+  },
+  "fjabaacbadfeijcfgadijdgdffjeggicahddihcdafffdbaabcdeedjeffcagcfa": {
+    "cost": 0.005385999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "fjigbeeagdhdjafegeefddgdddedcdfdajeaggceeaaafjehjfcddajfedbjbaee": {
+    "cost": 0.006114,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: fibre coverage and how to pay the bill. The reply answers only coverage and ignores the payment question entirely.\",\"evidence\":\"Fibre is live on your street from $60 a month.\"}"
+  },
+  "fjihibegghgefdaijfiidecheebbdebhacdcabdbaifibjcicbacabehgbeacdaf": {
+    "cost": 0.0017567,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "gaadhibadhfdadcacafaaccbeaccjefabjjeebbehccbfffcdfbgjbbfbcccccae": {
+    "cost": 0.0047420000000000006,
+    "result": "{\"reason\":\"The reply partly addresses which plan has more data (Acme Mobile L with unlimited data), but never explains how to pay the bill, and adds an unrelated technician appointment.\",\"score\":0}"
+  },
+  "gahdfjgafffbaagchghhcfbiiffhbedbahcajadcbcabafjbicifdfigcdjjabbb": {
+    "cost": 0.0028938,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply answers both parts: technician arrival (Thursday 8-12) and fibre coverage on the street (live, from $60/month). It directly addresses the ask without deflecting.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. Fibre is live on your street from $60 a month.\"}"
+  },
+  "gbbbjgafhjacgddfjbfbbgfjajfaadhbfjcegfiebaacbfbchfeebdfbcieajbfi": {
+    "cost": 0.006466,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: how to pay the bill and when the technician arrives. The reply answers the payment part but ignores the technician arrival question and adds an unrelated bundle promotion.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing. Our family bundle gives 15 percent off each extra line.\"}"
+  },
+  "gbcafeiicjhgaieiabbdbcecfhgeccfbchfahjgcchhdgedcjfcefiabchcdgbdg": {
+    "cost": 0.002607,
+    "result": "{\"verdict\": \"no\", \"reason\": \"The Previous Knowledge only contains the email jo.okafor@example.com. The user's full name is not known, so asking for it is not forgetting a known fact. Addressing the user as 'Jo' is consistent with the email and does not contradict anything.\"}"
+  },
+  "gbeiffhgffdcchcebcbfdbfiecfhifgbfbacfcdeadebeffeafhgabfgedgagefd": {
+    "cost": 0.006792,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply answers both parts: a family bundle discount of 15% off each extra line, and the technician arriving Thursday between 8 and 12. The extra mention of a football club offer is a minor tangent that does not stop the ask from being answered.\",\"evidence\":\"The family bundle gives 15 percent off each extra line. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "gbgcadbbhddfbcihgeffedcjgbfgabeijgdcfdjcbgefafjffgehcbadbaabfbdc": {
+    "cost": 0.0029033,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply addresses both parts: how to pay the bill (app Billing page, card or transfer) and which plan gives more data (Mobile L, unlimited). Both answers are on topic.\",\"evidence\":\"Settle the bill on the app's Billing page, by card or transfer; the Mobile L is our unlimited tier\"}"
+  },
+  "gbjebiacjjgdcdgbejbcbgjicaacaceiccbjjgeacgcebchagagbfcchecfhffeh": {
+    "cost": 0.006352,
+    "result": "{\"outcome\":\"fail\",\"score\":0.1,\"reasoning\":\"The reply partly addresses which plan gives more data but never explains how to pay the bill, and it adds an unrelated statement about a technician appointment. It ignores half the ask and changes the subject.\",\"evidence\":\"Your technician is booked for Thursday morning.\"}"
+  },
+  "gbjfhcjdjjcjccefdibdahcejabcgbbbcbafddgbcjcaghabdiicaiceabadjbai": {
+    "cost": 0.006638,
+    "result": "{\"outcome\":\"pass\",\"score\":0.88,\"reasoning\":\"The reply answers both parts: a sales advisor will call back, and the technician arrives Thursday between 8 and 12. The football club offer is an unrelated addition, but the asked questions are answered.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "gcaaaedghajjghccehacegfccdgefhabcfghfbidecfaddgefhbjfbdfbgddbdhd": {
+    "cost": 0.0017657999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "gcajdffcecaaffacbfeecfdbjegafcccdejgfidccjcbccaehcggjieacifafddg": {
+    "cost": 0.006280000000000001,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The reply only promises to look into the family discount and technician arrival time without giving any answer. This matches the FAIL picture of only promising to look into it.\",\"evidence\":\"let me look into whether there is a family discount and when my technician will arrive for you.\"}"
+  },
+  "gcbhcffbdjbieicbibdbeedbdbfddbccjheefhcfeedacjbcehhcacehahcjdgae": {
+    "cost": 0.006464,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply gives the technician arrival window (Thursday 8-12) and addresses the family discount (15% off each extra line), answering both parts of the question.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "gccefebcefaafhcfbffchgchaabbbahdehehcdbgfebcfdaeheaeceachdcbegbf": {
+    "cost": 0.006084000000000001,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: whether a callback is possible and whether their street has fibre coverage. The reply addresses only the callback and ignores the fibre coverage question.\",\"evidence\":\"A sales advisor will call you back on the number you gave.\"}"
+  },
+  "gdadbjdhahbiddcgecbadjcaidefiijgcgcchccjfebfdfacfceeafdeejjgbdcb": {
+    "cost": 0.00541,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "gdcaidbebgfceibebajjhcdjcabbaaebdbdhbadecfbffdfeebdgdeajeeabcbjd": {
+    "cost": 0.005986,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: fibre coverage and how to pay the bill. The reply answers only coverage and ignores the payment question entirely.\",\"evidence\":\"Fibre is live on your street from $60 a month.\"}"
+  },
+  "gdcgbdebccfcjeabecaddaagiedafbecbhgfeihacdebidddbbhgaecdacjfidce": {
+    "cost": 0.006034,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the payment part (card or bank transfer in the app) but ignores the family discount question and adds an unrelated statement about moving service to a new address.\",\"evidence\":\"We can move your service to a new address.\"}"
+  },
+  "gdfcdhbeaadcdcagaidbbfbjffefgagaeggbhbahedegehciecbccfcfibabdcha": {
+    "cost": 0.0029158,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts: how to pay the bill (app Billing page, by card or transfer) and that the street is within the fibre rollout area. It gives answers rather than promising to look into it.\",\"evidence\":\"Settle the bill on the app's Billing page, by card or transfer; your street is inside the fibre rollout area.\"}"
+  },
+  "gehebfdabaedbdcfefcdciejdadjdfccaffdbcgicbbebdfecfjdbceceaebjbig": {
+    "cost": 0.006392,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked which plan gives more data and whether someone can call back. The reply names a plan with unlimited data but doesn't compare plans, and it never addresses the callback, only giving store hours.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. Our stores are open from nine to six.\"}"
+  },
+  "geijachdecafiehadaigccaabecfciegaccbbaeacjgedjajheadbfghdijfbajc": {
+    "cost": 0.006376,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply answers both parts: fibre is live on the street, and a sales advisor will call back. It directly addresses the coverage and callback asks.\",\"evidence\":\"Fibre is live on your street from $60 a month. A sales advisor will call you back on the number you gave.\"}"
+  },
+  "gfaaaicbeejbeabffaegheadjdhdidddcbiedgcdfihejabfcaggcjfdcebfjhic": {
+    "cost": 0.006424,
+    "result": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The reply answers both parts: a sales advisor will call back, and a family bundle gives 15% off each extra line. The extra football club offer is minor and doesn't derail the answer.\",\"evidence\":\"A sales advisor will call you back on the number you gave. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "gfbdbjadddgdcdediefbeeehffehafcbciacbecjghiafbeigjgfcfjceaafbacb": {
+    "cost": 0.0017599999999999998,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "gfcbfgadjjjfdbiefiffahbcbgajjjacbgedbffbadbacbcachaebbadbaagfdjd": {
+    "cost": 0.006596,
+    "result": "{\"outcome\":\"fail\",\"score\":0.12,\"reasoning\":\"The user asked which plan gives more data and whether their street has fibre coverage. The reply partially mentions a plan's data but doesn't compare plans, ignores the fibre coverage question, and adds an unrelated note about paying bills.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. You can pay your bill by card in the Acme app.\"}"
+  },
+  "gfcjcdcafjgfdfhdejjfefibjiiaddjacdcdecgcafggbbhfgdfahicaafeafdde": {
+    "cost": 0.002639,
+    "result": "{\"outcome\":\"fail\",\"score\":0.1,\"reasoning\":\"The user already gave their email (jo.okafor@example.com), yet the agent asks them to confirm the inbox for the receipt, effectively asking for the email again.\",\"evidence\":\"Could you confirm the inbox the receipt should go to?\"}"
+  },
+  "gfdheebcchbdagijgfcegebcbbbcfejhghbfibbcgadacdcgabadafbehgabajaa": {
+    "cost": 0.005004000000000001,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it states a family bundle discount of 15 percent off each extra line, and gives the technician's arrival as Thursday between 8 and 12. The football club offer is extra but does not detract from answering.\", \"score\": 1}"
+  },
+  "gffbeaafaidaagdfdfcdadddabddjcbiffaffdfaeciihdccbaaaedadjeafdbbd": {
+    "cost": 0.0027676000000000003,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply gives the technician arrival window (Thursday 8-12) and confirms a callback will occur, directly answering both parts of the question.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. A sales advisor will call you back on the number you gave.\"}"
+  },
+  "ggagbeabbfejadedafaedgghadjhafdbgjhbbbadaefhghjaecafahajdjagfdce": {
+    "cost": 0.006742,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply says Acme Mobile L gives unlimited data and that the family bundle gives 15% off each extra line, addressing both parts of the ask. The football club offer is an extra aside but doesn't derail the answer, though the comparison between plans is implicit.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "ggahdabffbdgciedheejbdjeafddjajadijiagfbfdacaffdgfffadbajcbehceh": {
+    "cost": 0.002707,
+    "result": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The user already gave their email address (jo.okafor@example.com) in the first message, yet the agent asks again for an address to reach them for account updates. This re-requests a fact already provided.\",\"evidence\":\"[agent] Give me the address to reach you at for account updates.\"}"
+  },
+  "ggcfebdbfcijchedcccgebeffgbcddacicedjeidcaifaiccbdacafbhiafeegjc": {
+    "cost": 0.0027796,
+    "result": "{\"outcome\":\"pass\",\"score\":0.7,\"reasoning\":\"The reply addresses both topics the user asked about (family discount and callback), staying on subject, though it only promises to look into them without giving an answer. It does not change the subject or ignore the ask.\",\"evidence\":\"let me look into whether there is a family discount and whether someone can call me back for you.\"}"
+  },
+  "ghfjcecfchgbfbcbbdiiaacafdbceegeffgjccibcifadaadifecgchciedehhad": {
+    "cost": 0.006006,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The user asked two things: whether there is a family discount and how to pay the bill. The reply addresses only the discount and ignores the payment question.\",\"evidence\":\"The family bundle gives 15 percent off each extra line.\"}"
+  },
+  "ghhciaachidebdichchbcajaehjjcfbacedddijgfhfhbefciddbddcaedbddfji": {
+    "cost": 0.004706,
+    "result": "{\"score\": 0, \"reason\": \"The reply only restates that it will look into the callback and fibre coverage questions; it gives no actual answer about whether someone can call back or whether the street has fibre.\"}"
+  },
+  "gibdeefdeieijeddhhgccccaegfedcbbedchaagcbiabbgfaaeejaigcfdbafafe": {
+    "cost": 0.006212,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts of the question: a family discount exists (15% off each extra line) and fibre is available on the user's street.\",\"evidence\":\"The family bundle gives 15 percent off each extra line. Fibre is live on your street from $60 a month.\"}"
+  },
+  "giciebhcdhegebafddhbbheidfeecffhecaiaabihficcegccahcedafeicfedab": {
+    "cost": 0.0026734000000000003,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply only restates that it will look into the questions and gives no actual answer about paying the bill or which plan has more data. It stalls rather than answering the ask.\",\"evidence\":\"let me look into how I can pay my bill and which plan gives more data for you.\"}"
+  },
+  "giiijdbbaehfccbjjcjcfefibcihiffecdcajdfccaajadjjjibhabfcfdbchfad": {
+    "cost": 0.0061140000000000005,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the coverage question (fibre is live on the street) but ignores the second part, which plan gives more data, and adds an irrelevant remark about phone cases.\",\"evidence\":\"Our store on the high street sells phone cases.\"}"
+  },
+  "gjcafhfebhcggededjbaffjebbaebaeafhbhadeaegebdafabfgjcbdbeecdahhd": {
+    "cost": 0.0062900000000000005,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply only restates the user's two questions and says it will look into them; it gives no answer about which plan has more data or whether a callback is possible. It stays on topic but does not provide the answer the question needs.\",\"evidence\":\"let me look into which plan gives more data and whether someone can call me back for you.\"}"
+  },
+  "haaeggcggaaafaifdceafdaahbbgcidacjdgbfcbagcadceiigjjacbbaccifjjc": {
+    "cost": 0.00545,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "haagghbcjdabbejgdjecajbiahiebaeeheidhggjffedjcdffhabdjebbifiaiah": {
+    "cost": 0.0017678,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "habahgbhcabdbdaibabfadajdegbcghfcdfchbfabdfffafeebfbfbjicgedieid": {
+    "cost": 0.0028564000000000003,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts of the question: how to pay the bill (app Billing page, by card or transfer) and whether the street is covered for fibre (inside the rollout area).\",\"evidence\":\"Settle the bill on the app's Billing page, by card or transfer; your street is inside the fibre rollout area.\"}"
+  },
+  "hafaaejabgbacdbebbiihfchcjfaabefcjfcbfabfhaijafchidiidfbbcefbjdb": {
+    "cost": 0.002609,
+    "result": "{\"outcome\":\"fail\",\"score\":0.02,\"reasoning\":\"The user gave jo.okafor@example.com, but the agent said the account is linked to a different email, sam.rivera@example.com, contradicting the given value.\",\"evidence\":\"Your account is linked to sam.rivera@example.com.\"}"
+  },
+  "hbbdafjfdhcdcbjbbcahdbdbhjfggbbcbchifabgfbecbdgeaaaaeeggfijadedd": {
+    "cost": 0.0022107999999999997,
+    "result": "{\"score\": 0, \"reason\": \"The reply addresses the family discount (15 percent off each extra line) but never says which plan gives more data, so only half of the two-part ask is answered.\"}"
+  },
+  "hbbdjbajejecjebicfhfgbaebibbeebhhgiabbeededccbfhccadbghdhdfidebh": {
+    "cost": 0.0017649,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "hbecifihjageeedbdeiibddbhdcfbbebcfjebicejiedaajccgjdbfhghbhfdaab": {
+    "cost": 0.00467,
+    "result": "{\"score\": 1, \"reason\": \"The reply names the Mobile L unlimited tier as the plan with more data and confirms an advisor will call back, addressing both parts of the ask.\"}"
+  },
+  "hbjfaabfhjahffhefbbdficabbaaadgheacfbcjgffhhhedhdhihabbffdbafbai": {
+    "cost": 0.005417999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "hchdecdicjcbbeibajedeaeffegabaeabidbdcaegacbgijajiejeadaabiiccdb": {
+    "cost": 0.004622,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it confirms fibre is live on the user's street and states that a sales advisor will call them back.\", \"score\": 1}"
+  },
+  "hchebedejgacjefehifabbdbbadbbccabijfdeddhdhcbefefagbigjcbedebebe": {
+    "cost": 0.006254,
+    "result": "{\"outcome\":\"fail\",\"score\":0.1,\"reasoning\":\"The user asked which plan gives more data and how to pay the bill. The reply partly addresses the plan question, ignores the bill payment question entirely, and adds an unrelated statement about a technician appointment.\",\"evidence\":\"Your technician is booked for Thursday morning.\"}"
+  },
+  "hdagidheiebabfcjjhdifggafbdifaidceagabdiibfjacfagjcfjabeecjbfeba": {
+    "cost": 0.004869999999999999,
+    "result": "{\"score\": 0, \"reason\": \"The reply explains how to pay (card or bank transfer in the Acme app under Billing) but never addresses whether someone can call the user back; it only adds unrelated store hours, so the second part of the ask is ignored.\"}"
+  },
+  "hdagifbjbccfiebbbhfbcejgdjibecigdcjebfcaeeefbdcbjdefebeaacaafgdg": {
+    "cost": 0.006346000000000001,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The user asked about fibre coverage on their street and the technician arrival time. The reply answers both: fibre is live and the technician is booked Thursday 8-12.\",\"evidence\":\"Fibre is live on your street from $60 a month. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "hdbefefccdjcfjdccajdeafccjaaabfajajgeiaabdahggaeeadeccaabeaehebb": {
+    "cost": 0.006524,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply answers the coverage question (fibre is live on the street) but never addresses the callback request; it only mentions store hours, which does not say whether someone can call back. The second part of the ask is effectively ignored.\",\"evidence\":\"Fibre is live on your street from $60 a month. Our stores are open from nine to six.\"}"
+  },
+  "hdehbedehddifcfaihhhfhieefdidedihfbfibafgbgehdeebeefedbgdcfajbfa": {
+    "cost": 0.0023646,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it gives the technician's arrival window (Thursday morning, between eight and noon) and states a family discount exists (fifteen percent off each line after the first).\", \"score\": 1}"
+  },
+  "hdjcegddaafideedaaiefaceedhbijibacbdbhfbjigfiaafbegcecbdiieffded": {
+    "cost": 0.0026845000000000003,
+    "result": "{\"outcome\":\"fail\",\"score\":0.25,\"reasoning\":\"The user asked two things: technician arrival time and whether a family discount exists. The reply answers only the arrival time and ignores the discount question, so part of the ask is ignored.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "heehjefdadedbdfbcfddcdggaeifcaagfdfjbjegbdgacefceedihcjeebdbeife": {
+    "cost": 0.005434,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "hfdhdbbihhabdcedjgdejbecaijgaffcdhfebfejedfafhajbdjijdafcfcadfad": {
+    "cost": 0.0062959999999999995,
+    "result": "{\"outcome\":\"fail\",\"score\":0.04,\"reasoning\":\"The agent only promises to look into whether there is a family discount and a callback, without giving any answer. This matches the FAIL picture of only promising to look into it.\",\"evidence\":\"let me look into whether there is a family discount and whether someone can call me back for you.\"}"
+  },
+  "hfgcchafbdhgcfbacdbifdfaageffdaeeeedbdbdbfgfihbgfdefffdcfcdgjcab": {
+    "cost": 0.005494,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "hgagdeeaedjddbdhcjfjjfcfhdffcjfbcgdhcfagfjbbcbigfjfffceeagdfgcaj": {
+    "cost": 0.0048920000000000005,
+    "result": "{\"score\": 0, \"reason\": \"The user asked two things: whether a family discount exists and when the technician will arrive. The reply covers the family bundle (15 percent off each extra line) but never gives a technician arrival time, so only half of the ask is answered.\"}"
+  },
+  "hgbbacdefghbceafcfhacbhdhffhbfhcaebjdhaaaaejbicdgbecccehdgfbabdb": {
+    "cost": 0.004662,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into the family discount and fibre coverage for the street, without giving any answer on either point. It defers rather than answers the ask.\"}"
+  },
+  "hgceefgjjjadaebjffbcedcfcjbcfiadhehgabdigafgajaebeefedffaibbbhfg": {
+    "cost": 0.004888,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it confirms a sales advisor will call back, and states a family bundle gives a discount on extra lines. The extra football club offer is additional but does not detract from answering.\", \"score\": 1}"
+  },
+  "hgdfhjggfjcejafaddcbabiacadddfcfdidgfbdebebjfgffibdfaebcfejfbiad": {
+    "cost": 0.0023028,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into the technician arrival time and fibre coverage for the street, restating the ask without giving any arrival time or coverage information, so it does not answer the question.\"}"
+  },
+  "hgegdcfdhjfecefafffcfehhjafabdhcbiacfadigfjbiaccaafcfabbgfjadbfh": {
+    "cost": 0.0018237000000000001,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "hhaccaaeiajjefbhfaaaiacjbacagfcaahaaddjdbefdbcejccfabjhefeeeagae": {
+    "cost": 0.00499,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it confirms a sales advisor will call the user back, and it names Acme Mobile L with unlimited data as the plan giving more data. The football club offer is extra but does not detract from the answer.\"}"
+  },
+  "hibeafhdajeifddhgcjggdbhajegbcebdjabbgbbdbheebjdeehaeajaeddeaifb": {
+    "cost": 0.004602,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into the callback and data plan questions; it provides no actual answer about whether someone can call back or which plan gives more data.\"}"
+  },
+  "hjcbhbeggdbjeijgaheggeecdbcfadcbbdffbggaibfbdfajfbaabbefdheaabje": {
+    "cost": 0.005405999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "hjjgaadjajfidijjeabffiecgccdafcgbhihidicbjfgdageaeihcfcadgjbchhf": {
+    "cost": 0.0047079999999999995,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into paying the bill and fibre coverage for the street; it gives no payment methods and no coverage information, so the ask is not actually answered.\"}"
+  },
+  "ibdcdfficdiciaahacffegabaafbbadaicfeeddficaegfaabeffdcgiaeadehei": {
+    "cost": 0.004654,
+    "result": "{\"score\": 0, \"reason\": \"The reply explains how to pay the bill (card or bank transfer in the Acme app under Billing) but never addresses the second part of the ask, which plan gives more data.\"}"
+  },
+  "ibfdbaafceaefeddacgbeagdageahijfgbhigabfhiaddigbcifgiifgcbciajib": {
+    "cost": 0.006814000000000001,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply gives the technician arrival window (Thursday morning, 8-noon) and names the Mobile L unlimited tier as the plan with more data, addressing both parts. The comparison is implicit since only one plan is named, but it still answers which gives more data.\",\"evidence\":\"A visit is set for Thursday morning, between eight and noon; the Mobile L is our unlimited tier\"}"
+  },
+  "ibjdfihidbbdbaddebcbigfbdeecffefcfeaidfaadafadieaadbiehiefecigae": {
+    "cost": 0.00378,
+    "result": "{\"verdict\":\"no\",\"reason\":\"The message asks for a 'contact address', which most plausibly means a postal or physical address. The known facts only include an email address, so this is not clearly a request for information already given.\"}"
+  },
+  "iccbechecfcebhbafaadhcchfichchdihbegbejdiabahecffedehcegbbcjcbai": {
+    "cost": 0.0046300000000000004,
+    "result": "{\"reason\": \"The reply addresses the family discount (15 percent off each extra line) but does not say anything about how to pay the bill, so only half of the two-part ask is answered.\", \"score\": 0}"
+  },
+  "iccidgdigfccifbdgfafgfbfieegbicbccbdecbhjghbeefbabadgafaabejdfbd": {
+    "cost": 0.0022386,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it confirms a sales advisor will call back, and it states a family bundle offers 15 percent off each extra line.\"}"
+  },
+  "idcfbafcecaffecefcebcjbeefbfbecifcadedfgbagbcbiabfcdfbjbddbageae": {
+    "cost": 0.0023439,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts: it explains paying the bill via the app's Billing page by card or transfer, and identifies Mobile L, the unlimited tier, as the plan with more data.\"}"
+  },
+  "idfcbaifhebbjjchfgbdadjjeaeebafccddaacfdfjabifeddgdgdacecaiebedh": {
+    "cost": 0.004782000000000001,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it explains how to pay (app's Billing page, by card or transfer) and states a family discount exists (fifteen percent off each line after the first).\", \"score\": 1}"
+  },
+  "idhcdabbidchfbcbdcfbbdijfbhccgbchddhgcfbhiajdfcefagbggbdceeejgcb": {
+    "cost": 0.006198,
+    "result": "{\"outcome\":\"pass\",\"score\":0.97,\"reasoning\":\"The reply gives the technician arrival window (Thursday 8-12) and confirms a callback, addressing both parts of the user's question.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12. A sales advisor will call you back\"}"
+  },
+  "ieccafdeiedaeceicjbbfdfdecfaegjfhdgbadbhegeajcdecaacfbdgchbbjfjb": {
+    "cost": 0.00614,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: which plan gives more data and whether someone can call back. The reply only partly addresses the first (no comparison) and ignores the callback request entirely.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "iecgbjeejcbebejbcgafaddahceecedceaeaceaibjedbafjcehiagcbeejbbccd": {
+    "cost": 0.005434,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "iedbfhfdaaddjjffdbcgbcjdafacdcgfdifagfccffbiddfcacgaehaacbgccdci": {
+    "cost": 0.0026958,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the technician arrival question but ignores the second part (which plan gives more data) and adds an irrelevant remark about phone cases. It partly ignores the ask and changes the subject.\",\"evidence\":\"Our store on the high street sells phone cases.\"}"
+  },
+  "ieeegejdbddfccgdfgeijcccaafdggigaifedcehdedceefefgjfbchcbbfhjaeb": {
+    "cost": 0.0022028,
+    "result": "{\"reason\":\"The reply addresses both parts of the ask: it confirms a sales advisor will call back and states the technician arrives Thursday between 8 and 12.\",\"score\":1}"
+  },
+  "iefaeejifebbbbafaebafafddbhbjabddfjcjbdhchebdbgbaaebgahiefchcabb": {
+    "cost": 0.002254,
+    "result": "{\"verdict\": \"no\", \"reason\": \"The Previous Knowledge only contains an email address, not a physical address. Asking for an address for the contract does not contradict or forget any known fact.\"}"
+  },
+  "iejfghjffbfceddbjfdbdfgbcdjaadfeaagffggdddiifeeffideajdjdahbjccc": {
+    "cost": 0.0027903,
+    "result": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply answers the coverage question (fibre is live on the street) but ignores the technician arrival question and adds unrelated pricing and bundle promotion.\",\"evidence\":\"Fibre is live on your street from $60 a month. Our family bundle gives 15 percent off each extra line.\"}"
+  },
+  "ifbjecjhcbbjcdghibfajefegefcdjebabdaggdeddiabfejcfaegcfddjciidbc": {
+    "cost": 0.0017624,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "iffbeadhafejffccjgbehcfechhdacdhcdfgedejbdfbiacgbedbadcceadcfece": {
+    "cost": 0.0053939999999999995,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "iffjahgjebdffbfefcbcjgdcffegfdabbbifhecfefbbffbjcbbebgbccafbfcie": {
+    "cost": 0.005457999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ifgcbiebcbgjbacbbacdhceedabeejeeajbbjbajjejbdaafbhfjccbehheeebff": {
+    "cost": 0.0023883999999999997,
+    "result": "{\"score\": 0, \"reason\": \"The reply gave the technician arrival window (Thursday 8-12), but never addressed which plan offers more data, and instead added an irrelevant remark about phone cases. Only part of the ask was answered.\"}"
+  },
+  "ifjfcccffeeaheaadcafifafhdcbhjjegfachdeaccbeideehjfjfejffdacaccb": {
+    "cost": 0.006438,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply only restates the user's questions and says it will look into them, without giving any answer about fibre coverage or a family discount. It also garbles the ask ('my street' instead of the user's street), and does not address the ask substantively.\",\"evidence\":\"let me look into whether my street is covered for fibre and whether there is a family discount for you.\"}"
+  },
+  "igedacfgbahfaagbcccjhaceabdcgdfebdajfefdaihadbbcfcbhfbbeiaiagdff": {
+    "cost": 0.005469999999999999,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ihadcejicbeejcgeddfdffdaccbifjeigbdjcjceihccejfbjaahdebhfcaffbbb": {
+    "cost": 0.0053939999999999995,
+    "result": "{\"verdict\": \"yes\", \"reason\": \"\"}"
+  },
+  "ihccedeidfjdbhfccadagbedcefeagfdadcffjbbbfjebbabbebefjebbdjgfefg": {
+    "cost": 0.006071999999999999,
+    "result": "{\"outcome\":\"fail\",\"score\":0.25,\"reasoning\":\"The reply answers the coverage question (fibre is live) but ignores the second part of the ask, whether someone can call back. It also adds pricing that wasn't requested.\",\"evidence\":\"Fibre is live on your street from $60 a month.\"}"
+  },
+  "ihfbfbhdcjbaddffabidecabadhgdccefbfaeacbbcdgcbbbfdfbddfgdaehabad": {
+    "cost": 0.0023492,
+    "result": "{\"score\": 1, \"reason\": \"The reply gives the technician arrival window (Thursday between 8 and 12) and names a plan with more data (Acme Mobile L, unlimited data), addressing both parts of the ask.\"}"
+  },
+  "ihhbfhjcafgdcecbbceafihccedahbagicahdebaifhjgfecfdhdhffhccdidabi": {
+    "cost": 0.0017591999999999998,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "iiedfahfbcjhdafdiaeaidbbcjdjgheiacejdfidcbefceifdiadagdacfgjbbch": {
+    "cost": 0.005338,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "iieebbagfcghgcgejajhfeebecfhiecaecacfidgbefhgidbfhhbghbffjehaaij": {
+    "cost": 0.0053419999999999995,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ijcdcceegcbbdjhdeegcaejcacdbdfbeejiabfdahbhcgbbjadifhjaaecbffdfd": {
+    "cost": 0.00545,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "ijhbbjcjjaibfgicbdeefigcaedcgcacdjdbefbcffgddaideidgaehjaaihejej": {
+    "cost": 0.0025981,
+    "result": "{\"outcome\":\"fail\",\"score\":0.25,\"reasoning\":\"The reply answers how to pay the bill but ignores the second part of the ask, whether someone can call back. Half the question is left unanswered.\",\"evidence\":\"Pay by card or bank transfer in the Acme app under Billing.\"}"
+  },
+  "jagcaficjajdbhahbeigcebfjcfbfceaeabfeacgffacadbeedaeidaeceeddidc": {
+    "cost": 0.00473,
+    "result": "{\"reason\": \"The reply addresses both parts of the ask: it confirms fibre is available on the user's street and gives the technician's arrival window (Thursday, 8 to 12).\", \"score\": 1}"
+  },
+  "jbdjeghgacfchcahbdfebaieijaedddafbdccbacgciiegiigefdicadfjbaeebh": {
+    "cost": 0.006316,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply addresses both parts of the question: the family discount (15% off each extra line) and the technician arrival (Thursday between 8 and 12).\",\"evidence\":\"The family bundle gives 15 percent off each extra line. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "jbffdfabgfeadgbeaafecegidhffjaaffchcgdgddcfacicciibbagiiedjdihba": {
+    "cost": 0.0017588,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "jcbeafhcafaceffbgeeaibdbfebgffcabfjfdjhccdfddgbhhecfeddfeccefbfa": {
+    "cost": 0.00471,
+    "result": "{\"score\": 0, \"reason\": \"The reply gives the technician's arrival (Thursday, 8 to 12) but never addresses how to pay the bill, so only half of the two-part ask is answered.\"}"
+  },
+  "jcdbdbhhaeeagdifaaebhagdcccaeddaaeebfbcjfefdbjcfcdfbcafidgbefhea": {
+    "cost": 0.0029776000000000004,
+    "result": "{\"outcome\":\"pass\",\"score\":0.8,\"reasoning\":\"The reply confirms fibre coverage on the street and names a plan with unlimited data, addressing both parts of the ask. The football offer is a minor extra, and the plan comparison is thin but still relevant.\",\"evidence\":\"Fibre is live on your street from $60 a month. Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "jcgdjhjibdigdggibedbheedegfejfeddciaidgieiicfibffdbfaijddagdbace": {
+    "cost": 0.0068000000000000005,
+    "result": "{\"outcome\":\"pass\",\"score\":0.88,\"reasoning\":\"The reply addresses both parts: it names the plan with more data (Acme Mobile L, unlimited) and gives the technician's arrival window (Thursday 8-12). It does not compare to another plan explicitly, but it answers the ask.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "jcgfdaefjcgiadfeajiejfadgdaiefecihdbfbbdcegbabfhcicacddceaeefeab": {
+    "cost": 0.005422,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "jdbaiebfagbgadeeeeecjfcafdbcdideihbdefffdafcchbddffedfdcjfjbjfca": {
+    "cost": 0.0063679999999999995,
+    "result": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"The reply addresses both parts: a family discount exists (15% off each extra line) and fibre is available on the user's street from $60/month.\",\"evidence\":\"The family bundle gives 15 percent off each extra line. Fibre is live on your street from $60 a month.\"}"
+  },
+  "jdhbbfdfifibcdadfccaafhjfedaaccgcjcehbbbfediabbcadbfihcidaffcddf": {
+    "cost": 0.004798,
+    "result": "{\"score\": 0, \"reason\": \"The reply confirms fibre coverage on the street, which answers the first part, but it never says which plan gives more data and adds an irrelevant remark about phone cases, so the ask is only partly answered.\"}"
+  },
+  "jebafddjahcehgefcfebjcjcafigcedbbfcegdcbijjbaaacbfbdchhfcbjadeje": {
+    "cost": 0.0022822,
+    "result": "{\"score\": 0, \"reason\": \"The reply only says it will look into the family discount and callback request. It gives no information on whether a discount exists and no answer on whether someone can call back, so the ask is not answered.\"}"
+  },
+  "jedaieeaadfhcaffeffjcfcgfjeefifhfbicijiaafeejadeebefgaddffedcbec": {
+    "cost": 0.0028922,
+    "result": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The user asked two things: whether someone can call back, and when the technician arrives. The reply addresses both: a sales advisor will call back, and the technician is booked Thursday 8-12.\",\"evidence\":\"A sales advisor will call you back on the number you gave. Your technician is booked for Thursday between 8 and 12.\"}"
+  },
+  "jedecdejejifebhbggbcfedfaefbdgeecacefddciegbcedafgccbccbaffcaaeg": {
+    "cost": 0.006406,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: which plan gives more data, and whether their street has fibre coverage. The reply mentions only one plan's data, with no comparison, and ignores the fibre coverage question entirely.\",\"evidence\":\"Acme Mobile L gives unlimited data for $35 a month.\"}"
+  },
+  "jefebhijicbefadfgebhefadbihccheccihjbdgbhhfffehhadjfbbbcafgafaja": {
+    "cost": 0.00488,
+    "result": "{\"score\": 1, \"reason\": \"The reply addresses both parts of the ask: it names Acme Mobile L as the plan with more data (unlimited for $35/month) and gives the technician's arrival window (Thursday between 8 and 12).\"}"
+  },
+  "jeffedhjjabccibcjcccdhcbaeacedabchghebjedcffddfhbehhfeaaibfabfgd": {
+    "cost": 0.002694,
+    "result": "{\"outcome\":\"fail\",\"score\":0.02,\"reasoning\":\"The user gave jo.okafor@example.com, but the agent said the confirmation will go to sam.rivera@example.com, a different value than the one given, which contradicts the user.\",\"evidence\":\"Your confirmation will go to sam.rivera@example.com.\"}"
+  },
+  "jfaaeajhhffeijdjedfjebahiifgicedaeiidfdgfabbefbbjacidccdfdceabai": {
+    "cost": 0.00541,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "jfabfaafhacdfjaigadcbhdcbchfbfageigeffeddbeccjccjfaefaddfaecdbca": {
+    "cost": 0.0062120000000000005,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The reply answers the coverage part (fibre is live on the street) but ignores the second question about which plan gives more data. It only mentions a price, not a plan comparison.\",\"evidence\":\"Fibre is live on your street from $60 a month.\"}"
+  },
+  "jfccgcfijeaedaeeibhbdjecbaghbbbacabcaabedfjcefegeeffbcefbehfhbea": {
+    "cost": 0.00541,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "jgiecceeddjgjdidddhfidfbcfgcdichajdafdhfccbjaeiefecfadcjjcggacde": {
+    "cost": 0.0017556,
+    "result": "{\"verdict\": \"yes\"}"
+  },
+  "jhbbbfjfifaafajbegbabadgadcabahibcfeeacafbeebdhjbdjeggfgdabjgaci": {
+    "cost": 0.0047279999999999996,
+    "result": "{\"reason\":\"The reply addresses both parts: it names Acme Mobile L as the plan with more (unlimited) data, and says fibre is live on the user's street from $60 a month.\",\"score\":1}"
+  },
+  "jhchdbcbafdgfdfhbefdebeedcjbaeecgedhfdghcdbfdbfhbdfdddieacbijdif": {
+    "cost": 0.004679999999999999,
+    "result": "{\"score\": 0, \"reason\": \"The reply only restates that it will look into the plan data comparison and technician arrival time, without giving any actual answer about which plan has more data or when the technician will arrive.\"}"
+  },
+  "jhecfcjjcafabebcfbfcdfaaegcbigbhbefgieebhjfcdggajjgfgbhbgafjceeg": {
+    "cost": 0.006052,
+    "result": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The user asked two things: technician arrival and fibre coverage for their street. The reply answers only the first and ignores the fibre coverage question.\",\"evidence\":\"Your technician is booked for Thursday between 8 and 12.\"}"
+  }
+}
