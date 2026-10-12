@@ -15,7 +15,7 @@ export * from './runner';
 export * from './schema/common';
 export * from './schema/run';
 export * from './schema/spec';
-export { globMatches } from './spec/glob';
+export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, contentHash } from './spec/hash';
 export { error, type Issue, type IssueCode, IssueCodes, warning } from './spec/issues';
 export { lintSpec } from './spec/lint';

@@ -228,6 +228,10 @@ separated  sheet_matches_catalog [system1, gating]: pass fixture pass (cascade),
 
 `--json` prints one document with every vote and the round log of each fixture.
 
+## Weighted panel with abstain
+
+`weightedPanel(votes, weights, margin)` in `@driftbench/judges` weights each judge's vote by its weight, such as its kappa from calibration (a judge at or below zero counts for nothing). A verdict needs more than half of the total weight, inconclusive votes included, and a margin of at least `margin` of the total weight between the two sides. The default margin is 0.3. With equal weights and three votes it decides exactly as plain majority does. Anything else is a split, which counts as neither a pass nor a fail. The council keeps its plain majority; this rule is a separate function for a caller that has calibrated weights.
+
 ## Calibration: an assignment is earned
 
 No judge is trusted before it passes its own test.
@@ -408,6 +412,6 @@ A criterion can say how its verdicts across the repeats of one spec become one v
 
 * `mode`: the most common verdict. A tie goes to the verdict seen first.
 * `median`: a pass above one half of the repeats, a fail below it. Exactly one half is undecided.
-* `at_least:<k>`: a pass when at least `k` repeats pass. Undecided when fewer than `k` repeats are scored.
+* `at_least:<k>`: a pass when at least `k` repeats pass. A fail only when the passes plus the inconclusive repeats cannot reach `k`. Undecided otherwise, since an inconclusive repeat could still be the `k`-th pass.
 
 A run folds the criterion's verdicts across its blocks first: any fail makes the run a fail, every block passing makes it a pass, and anything else is undecided. An inconclusive repeat is left out of every reducer. A criterion without `repeat_reducer` gets no reduced verdict.

@@ -23,7 +23,8 @@ export function parseRepeatReducer(spelling: string): RepeatReducer {
  *
  * mode: the most common scored value; a tie goes to the value seen first.
  * median: above one half passes, below it fails, exactly one half is undecided.
- * at_least k: passes when at least k repeats pass; undecided when fewer than k repeats are scored.
+ * at_least k: passes when at least k repeats pass; fails only when the passes plus the unscored repeats cannot reach k;
+ * undecided otherwise, since an unscored repeat could still be the k-th pass.
  */
 export function reduceRepeats(
   values: readonly (number | undefined)[],
@@ -56,6 +57,9 @@ export function reduceRepeats(
     if (median < 0.5) return 0;
     return undefined;
   }
-  if (scored.length < reducer.k) return undefined;
-  return scored.filter((value) => value === 1).length >= reducer.k ? 1 : 0;
+  const passes = scored.filter((value) => value === 1).length;
+  const unscored = values.length - scored.length;
+  if (passes >= reducer.k) return 1;
+  if (passes + unscored < reducer.k) return 0;
+  return undefined;
 }

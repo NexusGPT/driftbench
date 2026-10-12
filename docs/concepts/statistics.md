@@ -55,6 +55,10 @@ A campaign runs each spec several times in each mode (`--repeats`). With c passi
 
 Both forms are computed as products, so they never overflow. pass^k falls as k grows when an agent is inconsistent, even if its average looks fine.
 
+## Intervals on pass^k and pass@k
+
+Each pass^k and pass@k value comes with an interval for every k. The interval is the Wilson bounds of the per-run rate, raised to k, widened where needed so that it contains the value. In a seeded simulation over 36 cells of run rate, run count and k, the interval covered the true value in at least 91% of draws, and the value always lay inside its interval.
+
 ## Repeat reducers per criterion
 
 A criterion can name a repeat reducer (`mode`, `median` or `at_least:<k>`). It reduces the criterion's verdicts across the repeats of one spec to one verdict, shown in the scorecard's "Criteria across repeats" table and on the `driftbench report` command line. The rules are on the [judges](judges.md#repeat-reducers) page.

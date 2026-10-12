@@ -129,9 +129,31 @@ function atK(
   raise: (p: number, k: number) => number,
   exact: (c: number, n: number, k: number) => number,
 ): AtK[] {
+  return atKRows(c, n, interval.lower, interval.upper, raise, exact);
+}
+
+/**
+ * One row per k. The value is the exact estimate; its interval is the per-run rate's Wilson bounds raised to k (or
+ * the pass@k form), widened where needed so that the interval always contains the value. The raised bounds alone do
+ * not contain the exact estimate for every count, since the exact pass^k is below the plug-in rate raised to k.
+ */
+export function atKRows(
+  c: number,
+  n: number,
+  lower: number,
+  upper: number,
+  raise: (p: number, k: number) => number,
+  exact: (c: number, n: number, k: number) => number,
+): AtK[] {
   const out: AtK[] = [];
   for (let k = 1; k <= n; k += 1) {
-    out.push({ k, value: exact(c, n, k), lower: raise(interval.lower, k), upper: raise(interval.upper, k) });
+    const value = exact(c, n, k);
+    out.push({
+      k,
+      value,
+      lower: Math.min(raise(lower, k), value),
+      upper: Math.max(raise(upper, k), value),
+    });
   }
   return out;
 }
