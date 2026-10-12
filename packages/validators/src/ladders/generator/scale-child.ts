@@ -1,8 +1,8 @@
 /**
  * The child process of one scale run: `node --import tsx scale-child.ts <factor> <seed> <budgetMs>`. It
  * generates the scaled hidden specification twice, measures the time, reads the report, runs the rule
- * follower on every complete spec, and prints one JSON line (a ScaleReport). The parent kills it at the
- * budget.
+ * follower on every complete spec, and prints one JSON line (a ScaleReport). The time it reports is the CPU
+ * time of the two generations; the parent kills it only at a wall-clock cap well above the budget.
  */
 import { blockOutcome, runOnce, thenFields } from '@driftbench/generate';
 import { createFollower } from './follower';
@@ -15,9 +15,11 @@ const factor = Number(factorText);
 const seed = Number(seedText);
 const budgetMs = Number(budgetText);
 const spec = scaledSpec(seed, factor);
-const started = Date.now();
+// The time is CPU time (user and system), so a busy machine does not fail a generator that is fast enough.
+const started = process.cpuUsage();
 const generated = await generateFrom(spec, renderMap(spec), seed);
-const ms = Date.now() - started;
+const used = process.cpuUsage(started);
+const ms = Math.round((used.user + used.system) / 1000);
 const report = generated.report;
 const adapter = followerAdapter(createFollower(spec));
 let followerPass = 0;

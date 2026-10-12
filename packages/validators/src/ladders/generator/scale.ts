@@ -4,12 +4,18 @@ import { type HiddenSpec, hiddenSpec } from './hidden';
 
 /**
  * The scale items (docs/validators.md section 12.2, item 4): the hidden specification of a seed with its
- * behaviours multiplied by 10 and by 100, generated under a time and memory budget in a child process that
- * is killed at the budget. Correct and slow is a failing item. The child is `scale-child.ts`.
+ * behaviours multiplied by 10 and by 100, generated under a CPU-time and memory budget in a child process
+ * that is killed at a wall-clock cap. Correct and slow is a failing item. The child is `scale-child.ts`.
  */
 
-/** Wall-clock budget of one scale run, in milliseconds, per factor. The generation itself gets half. */
+/**
+ * CPU-time budget of one scale run, in milliseconds, per factor; the two generations get half. CPU time, not
+ * wall clock, so the verdict does not depend on how busy the machine is.
+ */
 export const SCALE_BUDGET_MS: Record<number, number> = { 10: 60_000, 100: 120_000 };
+
+/** The child is killed at this many times its budget of wall clock: a hang, never a slow but busy machine. */
+export const SCALE_WALL_CAP = 10;
 
 /** The heap the child may use, in megabytes. */
 export const SCALE_HEAP_MB = 2048;
@@ -113,10 +119,10 @@ export function scaleReport(
         failed(
           factor,
           budgetMs,
-          `over the budget of ${budgetMs} ms at ${factor} times the behaviours: killed`,
+          `still running after ${SCALE_WALL_CAP * budgetMs} ms of wall clock at ${factor} times the behaviours: killed`,
         ),
       );
-    }, budgetMs);
+    }, SCALE_WALL_CAP * budgetMs);
     proc.on('close', (code) => {
       clearTimeout(timer);
       const line = out.trim().split('\n').at(-1) ?? '';

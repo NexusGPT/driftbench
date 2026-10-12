@@ -2073,7 +2073,7 @@ function scaleItems(): BankItem[] {
       });
     add('time', factor === 10 ? 4 : 5, C.generate, (r) => [
       r.ms <= r.budgetMs / 2,
-      `two runs took ${r.ms} ms; the budget is ${r.budgetMs / 2} ms`,
+      `two runs took ${r.ms} ms of CPU time; the budget is ${r.budgetMs / 2} ms`,
     ]);
     add('valid', 3, C.assemble, (r) => [
       r.invalid === 0 && r.lint === 0,
