@@ -109,13 +109,34 @@ export function matcherTools(matcher: string | undefined): string[] {
   return tools.length > 0 ? tools : ['Bash'];
 }
 
-/** The material of a rule quote: its backticked spans and quoted phrases, else the quote itself. */
+/** Words and marks that make a clause forbid what it names. */
+const FORBIDS =
+  /\b(never|no|not|don't|do not|must not|mustn't|forbid|forbidden|banned|refuse[sd]?|block(?:s|ed)?|den(?:y|ies|ied)|avoid|stop)\b|✗|\bWRONG\b/i;
+
+/**
+ * The material of a rule quote: the backticked spans and quoted phrases of the clauses that forbid them
+ * ("Never use `sed -i`", "✗ `2>/dev/null`"), never a name or path the rule only mentions. A quote with no
+ * span at all is its own material.
+ */
 export function materialOf(quote: string): string[] {
-  const found = [
-    ...[...quote.matchAll(/`([^`]+)`/g)].map((match) => match[1] ?? ''),
-    ...[...quote.matchAll(/"([^"]{3,})"/g)].map((match) => match[1] ?? ''),
-  ].filter((item) => item.trim() !== '');
-  return found.length > 0 ? [...new Set(found)] : [quote.trim()];
+  const spans: string[] = [];
+  const masked = quote.replace(
+    /`([^`]+)`|"([^"]{3,})"/g,
+    (_, code: string | undefined, phrase: string | undefined) => {
+      spans.push(code ?? phrase ?? '');
+      return `\u0000${spans.length - 1}\u0000`;
+    },
+  );
+  if (spans.length === 0) return [quote.trim()];
+  const found: string[] = [];
+  for (const clause of masked.split(/(?<=[.!?])\s+|\n|;|·|(?=✓)/)) {
+    if (!FORBIDS.test(clause.replace(/\u0000\d+\u0000/g, ' '))) continue;
+    for (const match of clause.matchAll(/\u0000(\d+)\u0000/g)) {
+      const span = spans[Number(match[1])] ?? '';
+      if (span.trim() !== '') found.push(span);
+    }
+  }
+  return [...new Set(found)];
 }
 
 /** The tool input a tool takes, carrying one piece of material. */

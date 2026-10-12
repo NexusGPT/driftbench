@@ -56,6 +56,14 @@ describe('the payloads of a guard unit test', () => {
     expect(materialOf('Read a file before you edit it.')).toEqual(['Read a file before you edit it.']);
   });
 
+  it('takes only the spans a rule forbids, never every name or path it mentions', () => {
+    expect(materialOf('Read `a.md` first. Never use `sed -i` on a drive.')).toEqual(['sed -i']);
+    expect(materialOf('See `nexus-app-builder` and "the build guide" for the build.')).toEqual([]);
+    expect(materialOf('✗ `2>/dev/null` swallows the error; ✓ `2>&1`')).toEqual(['2>/dev/null']);
+    expect(materialOf('No `npx`, no raw `curl`.\nUse `nexus` instead.')).toEqual(['npx', 'curl']);
+    expect(materialOf('Do not say "obviously" in a reply.')).toEqual(['obviously']);
+  });
+
   it('builds each event in the runtime input shape', () => {
     expect(payloadOf('PreToolUse', 'Bash', 'ls')).toEqual({
       tool_name: 'Bash',

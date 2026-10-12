@@ -48,11 +48,15 @@
     "judged": 349
   },
   "unit": {
-    "tests": 26,
+    "tests": 23,
     "guards": 6,
     "scripts": 2,
-    "cases": 66,
-    "skipped": []
+    "cases": 45,
+    "skipped": [
+      "unit.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh enforces no rule whose quote gives material for a payload",
+      "unit.guard_hostile.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh enforces no rule whose quote gives material for a payload",
+      "unit.guard_speed.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh enforces no rule whose quote gives material for a payload"
+    ]
   },
   "sources": {
     "asks": {
