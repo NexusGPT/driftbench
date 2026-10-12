@@ -136,7 +136,8 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
         adapter: 'process',
         target: given.target,
         given,
-        history: [...given.prefix],
+        // A deep copy, as the function and http adapters make: the session never shares a message with the Given.
+        history: structuredClone(given.prefix),
         state,
       };
     },
