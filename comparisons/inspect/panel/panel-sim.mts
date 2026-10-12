@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/style/noNonNullAssertion: research script; each lookup uses a key the same script just built */
 import { type PanelVote, weightedPanel } from '../../../packages/judges/src/weighted-panel';
 import { mulberry32 } from '../../../packages/stats/src/index';
 
