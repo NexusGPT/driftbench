@@ -726,7 +726,10 @@ function agentDiff(
     const root = roots.find((candidate) => path.startsWith(`${candidate}/`));
     named.add(root === undefined ? path : path.slice(root.length + 1));
   }
-  const estate = (path: string) => estateFiles.some((name) => path === name || path.startsWith(`${name}/`));
+  // The estate's folders: the top of every listed path. A runner may list the estate file by file, and a hook
+  // creates new files beside them (seen on the Cue bench: .claude/hooks/watchers/state/sweeper.log).
+  const tops = new Set(estateFiles.map((name) => name.split('/')[0] ?? name));
+  const estate = (path: string) => [...tops].some((name) => path === name || path.startsWith(`${name}/`));
   const runtimeWrites: string[] = [];
   const keep = (paths: string[]) =>
     paths.filter((path) => {
