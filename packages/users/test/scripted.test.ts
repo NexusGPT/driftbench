@@ -44,3 +44,16 @@ describe('the scripted driver', () => {
     expect(driver.id).toBe('scripted');
   });
 });
+
+describe('the scripted driver and an end verdict', () => {
+  it('stops after the last block with the spec verdict, when the spec ends with one', () => {
+    const ended = validateSpec({
+      id: 'ended',
+      blocks: [{ user: 'hi' }],
+      end: { verdict: 'success', reason: 'the customer was served' },
+    });
+    if (!ended.ok) throw new Error('invalid test spec');
+    const step = createScriptedDriver().next({ spec: ended.spec, mode: 'F', blockIndex: 1, history: [] });
+    expect(step).toEqual({ kind: 'stop', reason: 'the customer was served', verdict: 'success' });
+  });
+});

@@ -64,6 +64,7 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Comparison
 
 * [Comparison](comparison.md): driftbench beside seven evaluation tools and six code-agent benchmarks, with a source and a read date for every cell.
+* [Comparison pages](comparison/index.md): one page per evaluation tool, with the result, the basis and a reproduce line for every row.
 
 ## What exists today
 

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { labelRequest, loadLabels } from '../../../packages/judges/src/calibration';
 import { type Cassette, cassettePlayers } from '../../../packages/judges/src/cassette';
 import { majority } from '../../../packages/judges/src/council';
-import { loadCriteria, parseCriterionFile } from '../../../packages/judges/src/criteria';
+import { loadCriteria } from '../../../packages/judges/src/criteria';
 import { type PanelVote, weightedPanel } from '../../../packages/judges/src/weighted-panel';
 
 const CASSETTE =
@@ -65,7 +65,6 @@ for (const id of ids) {
   const pe = n ? (pTrue / n) * (pPred / n) + ((n - pTrue) / n) * ((n - pPred) / n) : 0;
   kappa[id] = pe === 1 ? 0 : Math.max(0, (po - pe) / (1 - pe));
 }
-const equal = Object.fromEntries(ids.map((id) => [id, 1]));
 
 function score(rule: (votes: PanelVote[]) => 'pass' | 'fail' | 'split') {
   let right = 0,

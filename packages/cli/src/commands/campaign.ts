@@ -212,6 +212,7 @@ type PlanCommandOptions = {
 
 type RunCommandOptions = {
   dataset?: string;
+  cacheSuite?: string;
   prompt?: string[];
   target: string[];
   route?: string[];
@@ -238,6 +239,7 @@ type RetryFlags = { retryAttempts?: string; retryBaseMs?: string; retryMaxMs?: s
 type StoredCommandOptions = RetryFlags & {
   store: string;
   cache?: boolean;
+  cacheSuite?: string;
   concurrency?: string;
   budgetUsd?: string;
   processCommand?: string;
@@ -290,6 +292,10 @@ export function registerCampaignCommands(
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
+    .option(
+      '--cache-suite <name>',
+      'the cache suite of this campaign: a new name starts from an empty cache, the old entries stay',
+    )
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', 'a hard stop: no cell starts once the campaign has spent this much')
     .option('--process-command <command>', PROCESS_COMMAND_HELP)
@@ -645,6 +651,7 @@ export async function campaignRunCommand(
       }
       return await executeCampaign(campaign, loaded, adapters, store, deps, io, {
         cache: options.cache,
+        ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
         json: options.json === true,
         kept: options.store !== undefined,
         ...pool,
@@ -776,6 +783,7 @@ export async function campaignResumeCommand(
       pool.budgetUsd ?? (stored.campaign.budgetUsd > 0 ? stored.campaign.budgetUsd : undefined);
     return await executeCampaign(stored.campaign, stored.specs, adapters, store, deps, io, {
       cache: options.cache !== false,
+      ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
       json: options.json === true,
       kept: true,
       concurrency: pool.concurrency,
@@ -832,6 +840,7 @@ async function executeCampaign(
   io: Io,
   flags: {
     cache: boolean;
+    cacheSuite?: string;
     json: boolean;
     kept: boolean;
     concurrency: number;
@@ -861,6 +870,7 @@ async function executeCampaign(
     store,
     // The runner neither replays nor caches a run in a sandbox: a replay has no workspace to read.
     ...(flags.cache ? { cache: store } : {}),
+    ...(flags.cacheSuite === undefined ? {} : { cacheSuite: flags.cacheSuite }),
     now: () => deps.now(),
     concurrency: flags.concurrency,
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),

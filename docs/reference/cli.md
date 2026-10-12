@@ -1189,7 +1189,7 @@ The run reaches level 2, so the command exits 2.
 
 ```
 $ pnpm -s driftbench validate floors
-Floors (validators/floors.json): stats = 1.
+Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 1 (ladder version 1).
 ```
 
 | Exit code | When |
@@ -1463,3 +1463,8 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 | `judge lint` | lint the rubric of every criterion in a folder (see [judges, Planned](../concepts/judges.md#planned)) | no phase assigned |
 | `judge compare` | judge two runs of the same specs side by side, in both orders, and report the winner per criterion and the position bias (see [judges, Planned](../concepts/judges.md#planned)) | no phase assigned |
 | `spec synth` | specs from traffic clusters | no phase assigned |
+
+## `driftbench campaign run --cache-suite`
+
+`--cache-suite <name>` names the cache suite of a campaign. Its block keys include the name, so a campaign under a new name starts from an empty cache, and the entries of the other suites stay in the store. A campaign under the same name replays from its own suite. Without the flag, the keys are the ones earlier caches used.
+
