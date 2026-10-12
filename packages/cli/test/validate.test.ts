@@ -317,7 +317,9 @@ describe('driftbench validate through main', () => {
     const handover = await run(['validate', 'all', '--check-handover']);
     expect(handover.code).toBe(0);
     expect(handover.out).toContain('validators/stats/HANDOVER.md: every section present');
-  });
+    // It runs every ladder to its first failing level, as the CI job does: the system ladder's first level
+    // alone holds a few hundred items, child processes among them.
+  }, 300_000);
 
   it('prints the stats brief from the real executor instruction', async () => {
     const result = await run(['validate', 'stats', '--brief', '--fresh']);
