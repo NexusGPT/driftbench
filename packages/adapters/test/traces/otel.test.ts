@@ -197,3 +197,14 @@ describe('tracesFromOtel observations carry level, usage and cost', () => {
     expect(tool?.level).toBe('default');
   });
 });
+
+describe('tracesFromOtel observations carry their input and output', () => {
+  it('gives a tool observation its arguments and result, and a chat observation its reply text', async () => {
+    const [trace] = tracesFromOtel(parseOtlp(await read('otel-flat.jsonl')).spans).traces;
+    const tool = trace?.observations?.find((entry) => entry.id === 'b200000000000003');
+    expect(tool?.input).toEqual({ number: '+12025550165' });
+    expect(tool?.output).toEqual({ eligible: true });
+    const chat = trace?.observations?.find((entry) => entry.id === 'b200000000000004');
+    expect(chat?.output).toBe('Good news: +1 202 555 0165 can move to Acme. Which plan would you like?');
+  });
+});

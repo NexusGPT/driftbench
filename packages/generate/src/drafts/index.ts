@@ -22,7 +22,7 @@ export type DraftTrace = {
   source: string;
   startedAt?: string;
   model?: string;
-  turns: ReadonlyArray<{ user: string; startedAt?: string; observed: Observed }>;
+  turns: ReadonlyArray<{ user: string; startedAt?: string; observationId?: string; observed: Observed }>;
 };
 
 export type TraceDraft = {
@@ -93,6 +93,7 @@ export function draftSpec(trace: DraftTrace, options: DraftOptions): TraceDraft 
       cost: turn.observed.cost,
       latency_ms: turn.observed.latencyMs,
       ...(turn.startedAt ? { started_at: turn.startedAt } : {}),
+      ...(turn.observationId ? { observation_id: turn.observationId } : {}),
     });
     prefix.push({ role: 'user', content: user });
     const calls = turn.observed.toolCalls.map((call) => ({
