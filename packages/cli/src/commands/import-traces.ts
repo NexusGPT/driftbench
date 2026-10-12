@@ -27,7 +27,6 @@ export type ImportTracesOptions = {
 export type ImportDeps = {
   /** Standard input, for `-`. Tests pass their own. */
   readStdin?: () => Promise<string>;
-  now?: () => Date;
 };
 
 /**
@@ -139,7 +138,6 @@ export async function importTracesCommand(
   }
 
   const out = resolve(io.cwd, options.out);
-  const importedAt = (deps.now ?? (() => new Date()))().toISOString();
   const drafts = [];
   for (const trace of traces) {
     if (!trace.turns.some((turn) => turn.user.trim() !== '')) {
@@ -148,7 +146,8 @@ export async function importTracesCommand(
     }
     drafts.push(
       draftSpec(trace, {
-        importedAt,
+        // Taken from the trace, never the clock: the same traces always draft the same bytes.
+        importedAt: trace.startedAt ?? 'not-given',
         redact: options.redact !== false,
         ...(path === '-' ? {} : { file: path }),
       }),

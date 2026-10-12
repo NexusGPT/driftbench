@@ -189,3 +189,34 @@ describe('driftbench import traces --select and --dataset', () => {
     expect(result.err).toContain('--store');
   });
 });
+
+describe('driftbench import traces is deterministic', () => {
+  it('imports the same traces twice to byte-identical drafts, and the registry keeps one version', async () => {
+    const dir = await scratch();
+    const common = [
+      'import',
+      'traces',
+      TRACES,
+      '--from',
+      'otel',
+      '--select',
+      'conv-acme-0001,sess-port-0042',
+    ];
+    const first = await run(
+      [...common, '--out', 'one', '--dataset', 'prod-sample', '--store', 'store.db'],
+      dir,
+    );
+    expect(first.code).toBe(0);
+    const second = await run(
+      [...common, '--out', 'two', '--dataset', 'prod-sample', '--store', 'store.db'],
+      dir,
+    );
+    expect(second.code).toBe(0);
+    expect(second.out).toContain('Unchanged: dataset prod-sample');
+    for (const name of await readdir(join(dir, 'one'))) {
+      expect(await readFile(join(dir, 'one', name), 'utf8')).toBe(
+        await readFile(join(dir, 'two', name), 'utf8'),
+      );
+    }
+  });
+});
