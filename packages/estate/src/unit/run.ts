@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { constants, existsSync } from 'node:fs';
 import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, extname, join } from 'node:path';
 import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@driftbench/generate';
@@ -565,6 +566,18 @@ export function casesFromSource(source: string): GuardCase[] {
   return cases;
 }
 
+/**
+ * How a TypeScript script runs offline: tsx where driftbench can resolve it, else Node's own type stripping.
+ * Never `npx tsx`, which reaches for the network the sandbox closes and waits out the timeout.
+ */
+function typeScriptRunner(): string[] {
+  try {
+    return [process.execPath, createRequire(import.meta.url).resolve('tsx/cli')];
+  } catch {
+    return [process.execPath, '--experimental-strip-types', '--no-warnings'];
+  }
+}
+
 function interpreterOf(path: string): string[] {
   switch (extname(path)) {
     case '.py':
@@ -574,7 +587,7 @@ function interpreterOf(path: string): string[] {
     case '.cjs':
       return ['node'];
     case '.ts':
-      return ['npx', 'tsx'];
+      return typeScriptRunner();
     case '.rb':
       return ['ruby'];
     default:
@@ -589,6 +602,8 @@ export function sandboxProfile(writable: readonly string[], home: string): strin
     '(version 1)',
     '(allow default)',
     '(deny network*)',
+    // Local sockets inside the run only (a TypeScript runner talks to its child through one); no network.
+    `(allow network* ${writable.map((path) => `(local unix-socket (subpath ${quote(path)})) (remote unix-socket (subpath ${quote(path)}))`).join(' ')})`,
     `(deny file-read* ${CREDENTIAL_FOLDERS.map((name) => `(subpath ${quote(join(home, name))})`).join(' ')})`,
     '(deny file-write*)',
     `(allow file-write* ${writable.map((path) => `(subpath ${quote(path)})`).join(' ')} (literal "/dev/null") (literal "/dev/tty") (regex #"^/dev/fd/"))`,

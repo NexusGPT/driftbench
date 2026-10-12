@@ -319,6 +319,36 @@ describe('a script with declared fixtures', () => {
   });
 });
 
+describe('a TypeScript script', () => {
+  it('runs offline in the sandbox, with no package fetched, in well under its timeout', async () => {
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/skills/sum/scripts/sum.ts':
+        'const total: number = Number(process.argv[2]) + Number(process.argv[3]);\nconsole.log(total);\n',
+      'driftbench.estate.yaml': [
+        'scripts:',
+        '  .claude/skills/sum/scripts/sum.ts:',
+        '    - { args: ["2", "3"], expect: { stdout: "5" } }',
+        '',
+      ].join('\n'),
+    });
+    const test: UnitTest = {
+      id: 'unit.script_fixture.sum-ts',
+      planRow: 'row',
+      testType: 'script_fixture',
+      atom: 'script.sum.sum-ts',
+      title: 'sum',
+      mapHash: 'x',
+      target: { kind: 'script', path: '.claude/skills/sum/scripts/sum.ts' },
+      cases: [],
+    };
+    const started = performance.now();
+    const run = await runUnitTests([test], { root, reader: new ClaudeCodeReader() });
+    expect([run.results[0]?.status, run.results[0]?.detail]).toEqual(['pass', '1 of 1 fixtures as declared']);
+    expect(performance.now() - started).toBeLessThan(20_000);
+  }, 60_000);
+});
+
 describe('the reader-cases script fixtures', () => {
   it('runs the fixtures driftbench.estate.yaml declares for the tracking script, and fails when they change', async () => {
     const cases = fileURLToPath(new URL('../../../../examples/estates/reader-cases/', import.meta.url));
