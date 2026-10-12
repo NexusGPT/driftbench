@@ -72,3 +72,29 @@ describe('model calls on the event stream carry their token counts and latency',
     expect(Date.parse(call.at) - Date.parse(call.startedAt)).toBe(640);
   });
 });
+
+describe('recordEvents keeps the events on the run record', () => {
+  it('a run with recordEvents has its events on the record, in order and ending with run_end', async () => {
+    const run = await runSpec(spec, {
+      adapter: realAcmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      recordEvents: true,
+    });
+    expect(run.events?.[0]?.type).toBe('block_start');
+    expect(run.events?.at(-1)).toMatchObject({ type: 'run_end', status: run.status });
+  });
+
+  it('a run without recordEvents has no events field', async () => {
+    const run = await runSpec(spec, {
+      adapter: realAcmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+    });
+    expect(run.events).toBeUndefined();
+  });
+});

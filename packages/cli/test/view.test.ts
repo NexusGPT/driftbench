@@ -18,7 +18,7 @@ beforeAll(async () => {
   const db = join(dir, 'store.db');
   const store = openStore(db);
   try {
-    await storeAcmeCampaign(store, { campaignId: 'c-acme', modes: ['F'], repeats: 1 });
+    await storeAcmeCampaign(store, { campaignId: 'c-acme', modes: ['F'], repeats: 1, reportsUsage: true });
     await storeAcmeCampaign(store, { campaignId: 'c-x3', modes: ['F'], repeats: 1, fault: 'x3-skips-recap' });
   } finally {
     await store.close();
@@ -89,6 +89,22 @@ describe('driftbench view', () => {
     expect(page.text).toMatch(/<option value="one_question_per_turn"/);
     expect(page.text).toContain('name="note"');
     expect(page.text).toContain('No label in the folder yet.');
+  });
+
+  it('shows the timeline of a run in order, with the start, end, tokens and cost of each model call, and no script', async () => {
+    const page = await get(await firstRun('c-acme', true));
+    expect(page.status).toBe(200);
+    const timeline = page.text.slice(
+      page.text.indexOf('<h3>Timeline</h3>'),
+      page.text.indexOf('<h3>Timeline</h3>') + 4000,
+    );
+    expect(timeline).toContain('<ol class="timeline">');
+    const types = [...timeline.matchAll(/<li class="event (\w+)"/g)].map((m) => m[1]);
+    expect(types[0]).toBe('block_start');
+    expect(types.at(-1)).toBe('run_end');
+    expect(types).toContain('model_call');
+    expect(timeline).toMatch(/\d+ in, \d+ out/);
+    expect(timeline).not.toMatch(/<script/i);
   });
 
   it('saves a label, reads it back on the page, and writes the file judge calibrate reads', async () => {
