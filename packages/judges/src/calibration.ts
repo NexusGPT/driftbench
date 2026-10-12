@@ -249,6 +249,8 @@ export type LabelAgreement = {
   readonly agreement: Interval;
   /** PABAK: 2 * agree / n - 1, the raw agreement rescaled to a chance-free kappa. Undefined with no blocks. */
   readonly pabak?: number;
+  /** Gwet's AC1 for two categories, pass and not pass. Undefined with no blocks, or when chance agreement is 1. */
+  readonly ac1?: number;
   /** Per block: the human label and the judge's answer. */
   readonly blocks: readonly {
     readonly id: string;
@@ -436,6 +438,16 @@ async function answer(
   }
 }
 
+/** Gwet's AC1 for pass against the rest: the observed agreement less the chance agreement of the pass category. */
+function ac1Of(human: readonly string[], judged: readonly string[]): number | undefined {
+  const n = human.length;
+  if (n === 0) return undefined;
+  const po = human.filter((label, i) => judged[i] === label).length / n;
+  const pi = (human.filter((l) => l === 'pass').length + judged.filter((l) => l === 'pass').length) / (2 * n);
+  const pe = 2 * pi * (1 - pi);
+  return pe === 1 ? undefined : (po - pe) / (1 - pe);
+}
+
 export function agreement(
   ids: readonly string[],
   human: readonly ('pass' | 'fail')[],
@@ -454,6 +466,7 @@ export function agreement(
     agree,
     ...(kappa === undefined ? {} : { kappa }),
     ...(n === 0 ? {} : { pabak: (2 * agree) / n - 1 }),
+    ...(ac1Of(human, judged) === undefined ? {} : { ac1: ac1Of(human, judged) }),
     agreement: interval,
     blocks: ids.map((id, i) => {
       const anchor = anchors[i];
