@@ -68,3 +68,7 @@ blocks:
 `judge calibrate` needs at least one pass and one fail label per criterion, or kappa has nothing to measure. The labelling section says when a criterion still lacks one of the two.
 
 From code, `saveLabel(dir, criterion, block, labelledBy)` and `readLabelFile(dir, criterion)` of `@driftbench/judges` write and read the same files.
+
+## Anchors on a label
+
+The label form has an anchor select. Its options are each line of the block's transcript, by index, and each tool call, by name and occurrence. The label file keeps the chosen anchor, and `judge calibrate` reads it. An anchor the block does not have is refused with a 400 response, and no label is written. Choose no anchor to label the whole block.

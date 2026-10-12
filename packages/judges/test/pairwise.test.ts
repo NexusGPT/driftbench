@@ -106,9 +106,20 @@ describe('pairwise against a reference answer', () => {
           : { outcome: 'fail' as const, reasoning: 'B matches the reference' };
       },
     ]);
-    const verdict = await judgePairwise(judge, criterion, transcript, 'Acme Air 5G at 88 Summit Avenue, $35.', 'Fiber is not offered here.', { reference });
+    const verdict = await judgePairwise(
+      judge,
+      criterion,
+      transcript,
+      'Acme Air 5G at 88 Summit Avenue, $35.',
+      'Fiber is not offered here.',
+      { reference },
+    );
     expect(verdict).toMatchObject({ choice: 'first', consistent: true, positionBias: false });
     expect(judge.requests).toHaveLength(2);
-    expect(judge.requests.every((request) => request.transcript.some((entry) => entry.text.startsWith('Reference answer:')))).toBe(true);
+    expect(
+      judge.requests.every((request) =>
+        request.transcript.some((entry) => entry.text.startsWith('Reference answer:')),
+      ),
+    ).toBe(true);
   });
 });

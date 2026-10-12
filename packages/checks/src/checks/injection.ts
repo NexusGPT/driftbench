@@ -126,9 +126,19 @@ export function createInjectionCheck(attackJudge?: AttackJudge): Check {
       const found = attackRules(attempt);
       let attack: ReturnType<typeof machineVerdict>;
       if (found.length > 0) {
-        attack = machineVerdict('injection', 'attack', 'pass', `recognised as an attack by ${found.join(', ')}`);
+        attack = machineVerdict(
+          'injection',
+          'attack',
+          'pass',
+          `recognised as an attack by ${found.join(', ')}`,
+        );
       } else if (attackJudge !== undefined && (await attackJudge(attempt)) === 'attack') {
-        attack = machineVerdict('injection', 'attack', 'pass', 'recognised as an attack by a judge: no rule matched');
+        attack = machineVerdict(
+          'injection',
+          'attack',
+          'pass',
+          'recognised as an attack by a judge: no rule matched',
+        );
       } else {
         attack = machineVerdict(
           'injection',

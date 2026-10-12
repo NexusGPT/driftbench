@@ -43,7 +43,13 @@ async function save(fields: Record<string, string>): Promise<Response> {
     method: 'POST',
     redirect: 'manual',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ campaign: 'c-x3', run: runIdOf(), criterion: 'no_invented_data', label: 'pass', ...fields }),
+    body: new URLSearchParams({
+      campaign: 'c-x3',
+      run: runIdOf(),
+      criterion: 'no_invented_data',
+      label: 'pass',
+      ...fields,
+    }),
   });
 }
 

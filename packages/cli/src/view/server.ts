@@ -323,7 +323,9 @@ async function runPage(
       criteria.length > 0
         ? `<select name="criterion" aria-label="Criterion">${criteria.map((name) => `<option value="${esc(name)}">${esc(name)}</option>`).join('')}</select>`
         : '<input name="criterion" aria-label="Criterion" placeholder="criterion" required pattern="[A-Za-z0-9][A-Za-z0-9._-]*">';
-    const anchorField = `<label>Anchor <select name="anchor" aria-label="Anchor"><option value="none">no anchor</option>${anchorOptions(block)
+    const anchorField = `<label>Anchor <select name="anchor" aria-label="Anchor"><option value="none">no anchor</option>${anchorOptions(
+      block,
+    )
       .map((option) => `<option value="${esc(option.value)}">${esc(option.label)}</option>`)
       .join('')}</select></label>`;
     return `<div class="labels"><p class="label">Your label for this block${existing.length > 0 ? `, ${existing.length} saved` : ''}</p>${shown ? `<ul>${shown}</ul>` : ''}<form method="post" action="/labels">
@@ -384,7 +386,9 @@ function transcriptOf(block: BlockDetail) {
  * The anchors a label can pick in this block: each transcript line by its index, and each tool call by its name
  * and occurrence. The value is what the form posts; the anchor is what the label file keeps.
  */
-export function anchorOptions(block: BlockDetail): { value: string; label: string; anchor: AnnotationAnchor }[] {
+export function anchorOptions(
+  block: BlockDetail,
+): { value: string; label: string; anchor: AnnotationAnchor }[] {
   const options: { value: string; label: string; anchor: AnnotationAnchor }[] = [];
   const occurrences = new Map<string, number>();
   transcriptOf(block).forEach((entry, index) => {

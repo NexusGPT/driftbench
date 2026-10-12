@@ -22,7 +22,9 @@ export function rougeLScore(reply: string, reference: string): number {
   const a = words(reply);
   const b = words(reference);
   if (a.length === 0 || b.length === 0) return 0;
-  const table: number[][] = Array.from({ length: a.length + 1 }, () => new Array<number>(b.length + 1).fill(0));
+  const table: number[][] = Array.from({ length: a.length + 1 }, () =>
+    new Array<number>(b.length + 1).fill(0),
+  );
   for (let i = 1; i <= a.length; i += 1) {
     for (let j = 1; j <= b.length; j += 1) {
       table[i]![j] =
@@ -68,7 +70,12 @@ function grams(tokens: readonly string[], n: number): string[] {
   return out;
 }
 
-function scored(name: 'rouge_l' | 'bleu', label: string, score: number, min: number): ReturnType<typeof machineVerdict> {
+function scored(
+  name: 'rouge_l' | 'bleu',
+  label: string,
+  score: number,
+  min: number,
+): ReturnType<typeof machineVerdict> {
   const shown = score.toFixed(3);
   return score >= min
     ? machineVerdict(name, '0', 'pass', `${label} ${shown} is at least ${min}`)

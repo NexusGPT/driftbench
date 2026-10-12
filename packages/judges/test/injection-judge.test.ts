@@ -4,11 +4,15 @@ import { ATTACK_CRITERION, judgeAttack } from '../src/injection-judge';
 
 describe('judgeAttack: a judge reads one message as an attempt or an ordinary request', () => {
   it('maps pass to attack, fail to benign and inconclusive to inconclusive', async () => {
-    expect(await judgeAttack(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'override' }]), 'x')).toBe('attack');
-    expect(await judgeAttack(new FakeJudge('j', [{ outcome: 'fail', reasoning: 'ordinary' }]), 'x')).toBe('benign');
-    expect(await judgeAttack(new FakeJudge('j', [{ outcome: 'inconclusive', reasoning: 'unclear' }]), 'x')).toBe(
-      'inconclusive',
+    expect(await judgeAttack(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'override' }]), 'x')).toBe(
+      'attack',
     );
+    expect(await judgeAttack(new FakeJudge('j', [{ outcome: 'fail', reasoning: 'ordinary' }]), 'x')).toBe(
+      'benign',
+    );
+    expect(
+      await judgeAttack(new FakeJudge('j', [{ outcome: 'inconclusive', reasoning: 'unclear' }]), 'x'),
+    ).toBe('inconclusive');
   });
 
   it('shows the judge the message alone, as the user turn, under the attempt criterion', async () => {

@@ -38,7 +38,12 @@ export type Turn =
     }
   | { readonly kind: 'agent'; readonly expect: Expectations }
   | { readonly kind: 'judge'; readonly criteria: readonly string[] }
-  | { readonly kind: 'proceed'; readonly turns: number; readonly hint: string; readonly expect: Expectations };
+  | {
+      readonly kind: 'proceed';
+      readonly turns: number;
+      readonly hint: string;
+      readonly expect: Expectations;
+    };
 
 /** The options of the spec a script compiles to. Every field is optional and passes through unchanged. */
 export type ConversationOptions = {

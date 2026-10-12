@@ -126,12 +126,24 @@ describe('driftbench compare --pairwise', () => {
     expect(err).toBe('');
     expect(out).toMatch(/Pairwise: \d+ pairs/);
     expect(judge.requests.length).toBeGreaterThan(0);
-    expect(judge.requests.every((request) => request.transcript.some((entry) => entry.text === 'Reference answer: Acme Air 5G at 88 Summit Avenue, $35 a month.'))).toBe(true);
+    expect(
+      judge.requests.every((request) =>
+        request.transcript.some(
+          (entry) => entry.text === 'Reference answer: Acme Air 5G at 88 Summit Avenue, $35 a month.',
+        ),
+      ),
+    ).toBe(true);
     expect([0, 1]).toContain(code);
   });
 
   it('a missing reference file is bad input: exit 2, the path named', async () => {
-    const { code, err } = await cli([...base, '--pairwise', join(dir, 'helpful.yaml'), '--pairwise-reference', join(dir, 'no-reference.txt')]);
+    const { code, err } = await cli([
+      ...base,
+      '--pairwise',
+      join(dir, 'helpful.yaml'),
+      '--pairwise-reference',
+      join(dir, 'no-reference.txt'),
+    ]);
     expect(code).toBe(2);
     expect(err).toMatch(/no-reference\.txt/);
   });

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { bleu, rougeL, rougeLScore, bleuScore } from '../src/checks/overlap';
-import { context, failing, observed, outcomes, run, verdict } from './support/context';
+import { bleu, bleuScore, rougeL, rougeLScore } from '../src/checks/overlap';
 import { acme } from './support/acme';
+import { context, failing, observed, outcomes, run, verdict } from './support/context';
 
 const spec = acme('acme-new-customer-coverage');
 

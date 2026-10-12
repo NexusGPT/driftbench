@@ -26,7 +26,8 @@ afterAll(async () => {
   await rm(dir, { recursive: true, force: true });
 });
 
-const golden = "SELECT quarter, COUNT(*) AS n FROM chargebacks WHERE merchant = 'ACME Travel' GROUP BY quarter";
+const golden =
+  "SELECT quarter, COUNT(*) AS n FROM chargebacks WHERE merchant = 'ACME Travel' GROUP BY quarter";
 
 function sqlFor(query: string, label = 'run_sql') {
   return observed('Here are the totals.', [{ label, input: { query } }]);
@@ -48,7 +49,7 @@ describe('sql: the query the agent ran returns the same rows as the golden query
   });
 
   it('fails a query that returns other rows, and says how many differ', async () => {
-    const verdicts = await check("SELECT quarter, COUNT(*) AS n FROM chargebacks GROUP BY quarter");
+    const verdicts = await check('SELECT quarter, COUNT(*) AS n FROM chargebacks GROUP BY quarter');
     expect(verdict(verdicts, 'sql.0').outcome).toBe('fail');
     expect(verdict(verdicts, 'sql.0').evidence).toMatch(/rows differ at the same count of 2/);
   });
@@ -79,8 +80,12 @@ describe('sql: the query the agent ran returns the same rows as the golden query
 
   it('compares the order when the golden query orders its rows', async () => {
     const ordered = { golden: 'SELECT id FROM chargebacks ORDER BY id DESC' };
-    expect(verdict(await check('SELECT id FROM chargebacks ORDER BY id ASC', ordered), 'sql.0').outcome).toBe('fail');
-    expect(verdict(await check('SELECT id FROM chargebacks ORDER BY id DESC', ordered), 'sql.0').outcome).toBe('pass');
+    expect(verdict(await check('SELECT id FROM chargebacks ORDER BY id ASC', ordered), 'sql.0').outcome).toBe(
+      'fail',
+    );
+    expect(
+      verdict(await check('SELECT id FROM chargebacks ORDER BY id DESC', ordered), 'sql.0').outcome,
+    ).toBe('pass');
   });
 
   it('applies only to a block that names a golden query', async () => {

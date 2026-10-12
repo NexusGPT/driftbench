@@ -40,6 +40,9 @@ The loader rewrites these forms before it validates a spec.
 * [Count](#count)
 * [Assertion](#assertion)
 * [ToolsOfferedExpect](#toolsofferedexpect)
+* [Expect rouge_l](#expect-rouge_l)
+* [Expect bleu](#expect-bleu)
+* [Expect sql](#expect-sql)
 * [SimilarityExpect](#similarityexpect)
 * [RelevancyExpect](#relevancyexpect)
 * [RetentionExpect](#retentionexpect)
@@ -178,6 +181,7 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 | `fail` | string | no |  | What a failing block looks like. |
 | `gating` | boolean | no |  | True gates every reference to this criterion; a reference can also add @gating. |
 | `scope` | `block` or `conversation` | no |  | block judges one block; conversation judges the whole conversation. |
+| `inputs` | list of strings, each not empty | no |  | Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace. |
 | `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
 | `repeat_reducer` | string matching `^(mode\|median\|at_least:[1-9][0-9]*)$` | no |  | How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>. |
 
@@ -278,6 +282,9 @@ The expected output and state delta of a block. Every field is optional.
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
 | `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
 | `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
+| `rouge_l` | [Expect rouge_l](#expect-rouge_l) | no |  | The reply must overlap a reference text: its word-level ROUGE-L F measure must reach min. |
+| `bleu` | [Expect bleu](#expect-bleu) | no |  | The reply must overlap a reference text: its BLEU score over words must reach min. |
+| `sql` | [Expect sql](#expect-sql) | no |  | The SQL the agent ran must return the same rows as the golden query on the database. |
 | `injection` | boolean | no |  | True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it. |
 | `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. |
 | `similarity` | list of [SimilarityExpect](#similarityexpect) | no |  | Reference texts the reply must be close to, each with its lowest passing score. |
@@ -349,6 +356,34 @@ The tools the runtime offers the agent, read from the runtime trace; calls do no
 |---|---|---|---|---|
 | `include` | list of strings, each not empty | no |  | Tools the runtime must offer. |
 | `exclude` | list of strings, each not empty | no |  | Tools the runtime must not offer, such as a tool a setting denies. |
+
+## Expect rouge_l
+
+The reply must overlap a reference text: its word-level ROUGE-L F measure must reach min.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `reference` | string, not empty | yes |  | The reference text the reply is compared with. |
+| `min` | number, 0 to 1 | yes |  | The lowest ROUGE-L F measure that passes, from 0 to 1. |
+
+## Expect bleu
+
+The reply must overlap a reference text: its BLEU score over words must reach min.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `reference` | string, not empty | yes |  | The reference text the reply is compared with. |
+| `min` | number, 0 to 1 | yes |  | The lowest BLEU score that passes, from 0 to 1. |
+
+## Expect sql
+
+The SQL the agent ran must return the same rows as the golden query on the database.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `tool` | string, not empty | yes |  | The tool whose call input holds the query, in its query field. |
+| `golden` | string, not empty | yes |  | The golden query: one read statement. |
+| `database` | string, not empty | yes |  | The SQLite database both queries run on, read-only. |
 
 ## SimilarityExpect
 

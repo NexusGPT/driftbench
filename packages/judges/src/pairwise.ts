@@ -61,7 +61,9 @@ export function pairwiseRequest(
       ...transcript,
       { role: 'context', text: `Reply A: ${replyA}` },
       { role: 'context', text: `Reply B: ${replyB}` },
-      ...(reference === undefined ? [] : [{ role: 'context' as const, text: `Reference answer: ${reference}` }]),
+      ...(reference === undefined
+        ? []
+        : [{ role: 'context' as const, text: `Reference answer: ${reference}` }]),
     ],
   };
 }
@@ -86,10 +88,10 @@ export async function judgePairwise(
   options: { reference?: string } = {},
 ): Promise<PairwiseVerdict> {
   const { reference } = options;
-  const ordered = (await client.judge(pairwiseRequest(criterion, transcript, first, second, reference))).answer
-    .outcome;
-  const swapped = (await client.judge(pairwiseRequest(criterion, transcript, second, first, reference))).answer
-    .outcome;
+  const ordered = (await client.judge(pairwiseRequest(criterion, transcript, first, second, reference)))
+    .answer.outcome;
+  const swapped = (await client.judge(pairwiseRequest(criterion, transcript, second, first, reference)))
+    .answer.outcome;
   const byOrdered = naming(ordered, true);
   const bySwapped = naming(swapped, false);
   const consistent = byOrdered === bySwapped;

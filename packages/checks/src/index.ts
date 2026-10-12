@@ -29,11 +29,10 @@ export {
   complianceMatches,
   injection,
 } from './checks/injection';
-export { bleu, bleuScore, rougeL, rougeLScore } from './checks/overlap';
-export { sqlEquivalence, singleReadStatement } from './checks/sql';
 export { knowledgeRetention } from './checks/knowledge_retention';
 export { createLangCheck, lang } from './checks/lang';
 export { must, mustNot } from './checks/must';
+export { bleu, bleuScore, rougeL, rougeLScore } from './checks/overlap';
 export { createPiiCheck, ownerKey, type PiiCheckOptions, pii } from './checks/pii';
 export { references } from './checks/references';
 export { relevancy } from './checks/relevancy';
@@ -41,6 +40,7 @@ export { safety } from './checks/safety';
 export { schemaStrict } from './checks/schema_strict';
 export { createSimilarityCheck, similarity } from './checks/similarity';
 export { skills } from './checks/skills';
+export { singleReadStatement, sqlEquivalence } from './checks/sql';
 export { stage } from './checks/stage';
 export { subagents } from './checks/subagents';
 export { tools } from './checks/tools';

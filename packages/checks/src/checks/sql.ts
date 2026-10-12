@@ -1,5 +1,5 @@
-import { type Check, machineVerdict, type Verdict } from '@driftbench/core';
 import { DatabaseSync } from 'node:sqlite';
+import { type Check, machineVerdict, type Verdict } from '@driftbench/core';
 
 /**
  * `expect.sql`: the SQL the agent ran, read from the input of its call to `tool` (the input's `query` field),
@@ -43,10 +43,15 @@ export const sqlEquivalence: Check = {
     if (entry === undefined) return [];
     const call = [...ctx.observed.toolCalls].reverse().find((item) => item.label === entry.tool);
     if (call === undefined) {
-      return [machineVerdict('sql', '0', 'fail', `no call to ${entry.tool} in the block, so no query to compare`)];
+      return [
+        machineVerdict('sql', '0', 'fail', `no call to ${entry.tool} in the block, so no query to compare`),
+      ];
     }
     const input = call.input;
-    const agent = typeof input === 'object' && input !== null && 'query' in input ? (input as { query: unknown }).query : undefined;
+    const agent =
+      typeof input === 'object' && input !== null && 'query' in input
+        ? (input as { query: unknown }).query
+        : undefined;
     if (typeof agent !== 'string') {
       return [machineVerdict('sql', '0', 'fail', `the ${entry.tool} call has no query text in its input`)];
     }
@@ -78,7 +83,9 @@ export const sqlEquivalence: Check = {
         return [machineVerdict('sql', '0', 'fail', `the query fails: ${message(cause)}`)];
       }
       const ordered = /\border\s+by\b/i.test(goldenSql);
-      const same = ordered ? found.length === expected.length && found.every((row, i) => row === expected[i]) : sameMultiset(found, expected);
+      const same = ordered
+        ? found.length === expected.length && found.every((row, i) => row === expected[i])
+        : sameMultiset(found, expected);
       if (same) return [machineVerdict('sql', '0', 'pass', `the rows match: ${found.length} row(s)`)];
       const detail =
         found.length !== expected.length
