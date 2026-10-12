@@ -1273,6 +1273,8 @@ driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|sto
 
 A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
 
+A refused `ci` (exit 2) writes nothing: its input, `--out` included, is checked before the candidate runs, so the store and the summary file stay as they were.
+
 Runs the specs on a candidate target, then compares the new campaign with a baseline campaign by the rule of `compare`, and gates. On one pair of campaigns, `ci` and `compare` give the same verdict and the same exit code. `--baseline` is a store file (its latest campaign) or a campaign id held in `--store`, read before the candidate runs. The summary goes to `--out` (default `driftbench-ci.json`). `--faults` lets the target name a planted fault as `fault:<id>`. `--flag` sets the flag families (default `safety`, `forbidden`, `pii`). The cache is off unless `--cache`. The summary opens with the auto margin and the underpowered criteria, so a lenient gate says why.
 
 | Verdict of `compare` | Verdict of `ci` | Exit | Means |

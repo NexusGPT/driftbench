@@ -55,6 +55,8 @@ import {
 import { createPerturbingDriver, createScriptedDriver, type UserModelPort } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+import { noStoreAt } from '../store-path';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
@@ -389,6 +391,7 @@ export async function campaignExportCommand(
   options: { store: string; out: string },
   io: Io,
 ): Promise<number> {
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   return withBundleStore(options.store, io, async (store) => {
     const folder = await store.exportCampaign(campaignId, resolve(io.cwd, options.out));
     const bundle = await readCampaignBundle(folder);
@@ -406,6 +409,14 @@ export async function campaignImportCommand(
   options: { store: string },
   io: Io,
 ): Promise<number> {
+  // The bundle is read before the store opens, so a bundle that does not read leaves no new store behind.
+  try {
+    await readCampaignBundle(resolve(io.cwd, folder));
+  } catch (cause) {
+    if (!(cause instanceof StoreError)) throw cause;
+    io.err(`${cause.message}\n`);
+    return 2;
+  }
   return withBundleStore(options.store, io, async (store) => {
     const bundle = await store.importCampaign(resolve(io.cwd, folder));
     io.out(
@@ -458,6 +469,7 @@ export async function campaignPlanCommand(
   if (!loaded) return 2;
   const runs = specRuns(loaded, shape.targets, io);
   if (!runs) return 2;
+  if (tooManyCells(runs, shape, io)) return 2;
   if (!options.json) io.out(targetNotes(loaded, shape.targets));
 
   let units: CostUnit[] = [];
@@ -550,6 +562,7 @@ export async function campaignRunCommand(
         : { ...each, targets: each.targets.map(withPrompt), pinned: withPrompt(each.pinned) },
     );
     if (!runs) return 2;
+    if (tooManyCells(runs, shape, io)) return 2;
     const driven = await driverDeps(options, runs, deps, io);
     if (!driven) return 2;
     deps = driven.deps;
@@ -726,6 +739,7 @@ export async function campaignResumeCommand(
   const withCommand = processDeps(deps, options.processCommand, io);
   if (!pool || !withCommand) return 2;
   deps = withCommand;
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   const scope = openScope();
@@ -758,6 +772,7 @@ export async function campaignStatusCommand(
   io: Io,
   deps: CampaignDeps,
 ): Promise<number> {
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   try {
@@ -897,7 +912,7 @@ function parsePool(
   options: { concurrency: string; budgetUsd?: string | undefined } & RetryFlags,
   io: Io,
 ): Pool | undefined {
-  const concurrency = Number(options.concurrency);
+  const concurrency = optionNumber(options.concurrency);
   if (!Number.isInteger(concurrency) || concurrency < 1) {
     io.err(`--concurrency takes a whole number of at least 1, not "${options.concurrency}".\n`);
     return undefined;
@@ -914,7 +929,7 @@ function parsePool(
 function parseRetry(flags: RetryFlags, io: Io): RetryOptions | undefined | null {
   const read = (text: string | undefined, flag: string, min: number): number | undefined | null => {
     if (text === undefined) return undefined;
-    const value = Number(text);
+    const value = optionNumber(text);
     if (Number.isInteger(value) && value >= min) return value;
     io.err(`${flag} takes a whole number of at least ${min}, not "${text}".\n`);
     return null;
@@ -947,7 +962,7 @@ function parseShape(options: { target: string[]; mode: string; repeats: string }
     if (!modes.includes(mode.data)) modes.push(mode.data);
   }
   modes.sort((a, b) => RunMode.options.indexOf(a) - RunMode.options.indexOf(b));
-  const repeats = Number(options.repeats);
+  const repeats = optionNumber(options.repeats);
   if (!Number.isInteger(repeats) || repeats < 1) {
     io.err(`--repeats takes a whole number of at least 1, not "${options.repeats}".\n`);
     return undefined;
@@ -962,6 +977,26 @@ function parseShape(options: { target: string[]; mode: string; repeats: string }
     if (!targets.some((known) => showTarget(known) === showTarget(target.data))) targets.push(target.data);
   }
   return { targets, modes, repeats };
+}
+
+/** The most cells a plan or a run expands: past it, the cell list alone would exhaust memory. */
+export const MAX_CELLS = 1_000_000;
+
+/**
+ * True, after printing why, when specs x targets x modes x repeats (each perturbation of a spec counted as a
+ * cell in mode P) exceeds MAX_CELLS. Counted before any cell is made.
+ */
+function tooManyCells(runs: readonly SpecRun[], shape: Shape, io: Io): boolean {
+  let cells = 0;
+  for (const run of runs) {
+    for (const mode of shape.modes) {
+      const variants = mode === 'P' ? Math.max(1, run.spec.perturbations?.length ?? 0) : 1;
+      cells += run.targets.length * variants * shape.repeats;
+    }
+  }
+  if (cells <= MAX_CELLS) return false;
+  io.err(`--repeats ${shape.repeats} makes ${cells} cells; a campaign holds at most ${MAX_CELLS}.\n`);
+  return true;
 }
 
 /** One line per spec whose own target names another adapter than a `--target`, which overrides it. */
@@ -1493,7 +1528,7 @@ function count(n: number, noun: string): string {
 }
 
 function parseNumber(text: string, flag: string, io: Io): number | null {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value < 0) {
     io.err(`${flag} takes a number of at least 0, not "${text}".\n`);
     return null;
@@ -1502,7 +1537,7 @@ function parseNumber(text: string, flag: string, io: Io): number | null {
 }
 
 function parseRate(text: string, io: Io): number | undefined {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 1) {
     io.err(`--baseline-rate takes a number between 0 and 1, not "${text}".\n`);
     return undefined;

@@ -1,0 +1,31 @@
+# Behaviour inventory of desk-2. Every name in it is fictional.
+channels: [sms, voice, web]
+
+behaviours:
+  - id: B-001
+    title: Send billing questions to the billing desk
+  - id: B-002
+    title: Refuse to share another customer’s details
+  - id: B-003
+    title: Close the conversation with a short summary
+  - id: B-004
+    title: Book a visit only inside the opening hours
+  - id: B-005
+    title: Ask for the reason before cancelling a plan
+    channels: [voice, web]
+
+flows:
+  - id: renewal
+    title: A customer renews a plan for another term
+    behaviours: [B-001, B-003, B-004, B-005]
+  - id: address-change
+    title: A customer moves and changes the service address
+    behaviours: [B-001, B-004, B-005]
+    deviations: [D1_off_topic, D4_loose_confirmation, D8_tool_failure]
+  - id: new-order
+    title: A new customer orders a first plan
+    behaviours: [B-001, B-002, B-004, B-005]
+    deviations: [D3_contradiction]
+  - id: cancellation
+    title: A customer ends a plan
+    behaviours: [B-004, B-005]
