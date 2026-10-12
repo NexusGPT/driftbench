@@ -417,7 +417,7 @@ function classify(path: string, text: string): { kind: FileKind; owner?: string 
       : { kind: 'skill_file', owner };
   }
   if (parts[1] === 'agents' && parts.length === 3 && path.endsWith('.md')) return { kind: 'subagent' };
-  if (/registry/i.test(basename(path)) && /\.(md|json)$/.test(path)) return { kind: 'registry' };
+  if (/registry|catalogu?e?/i.test(basename(path)) && /\.(md|json)$/.test(path)) return { kind: 'registry' };
   if (path.endsWith('.json') && isStepList(text)) return { kind: 'step_list' };
   if (path.endsWith('.json') && catalogueEntries(text) !== undefined) return { kind: 'registry' };
   return { kind: 'other' };
@@ -1034,21 +1034,32 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
     estate.notes.push({ file: file.path, message: `not JSON: ${String(cause)}` });
     return;
   }
-  const rows = Array.isArray(json) ? json : isRecord(json) && Array.isArray(json.checks) ? json.checks : [];
+  // A registry or a catalogue of checks: a bare array, or the entries under checks, hooks or entries.
+  const rows = Array.isArray(json)
+    ? json
+    : isRecord(json)
+      ? (([json.checks, json.hooks, json.entries].find((value) => Array.isArray(value)) as
+          | unknown[]
+          | undefined) ?? [])
+      : [];
   const cursor = { at: 0 };
   for (const row of rows) {
     if (!isRecord(row) || typeof row.id !== 'string') continue;
-    const guard = [row.guard, row.script, row.check].find((value) => typeof value === 'string');
-    if (typeof guard !== 'string') continue;
+    const named = [row.guard, row.script, row.check, row.hook, row.file, row.path].find(
+      (value) => typeof value === 'string',
+    );
+    if (typeof named !== 'string') continue;
+    const guard = basename(named);
     const found = seekPattern(
       file,
       new RegExp(`"id"\\s*:\\s*${escapeRegex(JSON.stringify(row.id))}`),
       cursor,
     );
     if (!found) continue;
-    const enforces = Array.isArray(row.enforces)
-      ? row.enforces.filter((item) => typeof item === 'string')
-      : [];
+    const listed = [row.enforces, row.rules, row.gates].find((value) => Array.isArray(value)) as
+      | unknown[]
+      | undefined;
+    const enforces = (listed ?? []).filter((item): item is string => typeof item === 'string');
     const entry: RegistryRow = {
       id: row.id,
       guard,
