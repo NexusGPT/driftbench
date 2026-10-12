@@ -119,3 +119,21 @@ describe('near-JSON: a comma before a closing brace', () => {
   });
 });
 
+describe('near-JSON: a line that is only a comment', () => {
+  it('drops the // line, reads the object and marks the result repaired', () => {
+    const result = parseAnswerText('{\n  // the verdict follows\n  "outcome": "pass",\n  "reasoning": "ok"\n}');
+    expect(result.answer).toEqual({ outcome: 'pass', reasoning: 'ok' });
+    expect(result.repaired).toBe(true);
+  });
+
+  it('keeps a // inside a string value', () => {
+    const result = parseAnswerText('{\n  "outcome": "pass",\n  "reasoning": "see http://a.b\\n// not a comment"\n}');
+    expect(result.answer.reasoning).toBe('see http://a.b\n// not a comment');
+    expect(result.repaired).toBeUndefined();
+  });
+
+  it('leaves a comment after a value on the same line unparsed', () => {
+    expect(parseAnswerText('{"outcome":"pass", // yes\n"reasoning":"r"}').unparsed).toBe(true);
+  });
+});
+
