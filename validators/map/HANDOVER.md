@@ -30,7 +30,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 0 |
 <!-- level-table:end -->
 
-The bank is ladder version 2 of map: 578 items over 8 levels. After the ten pilot fixes and 15 executor iterations (11 to 25): 257 of 578 pass (score 0.4446), 94 distinct causes among the failing. Level 0 of 8 on every seed.
+The bank is ladder version 2 of map: 578 items over 8 levels. After the ten pilot fixes and 30 executor iterations (11 to 40): 300 of 578 pass (score 0.5190), 51 distinct causes among the failing. Level 0 of 8 on every seed.
 
 ## Floor
 
@@ -38,7 +38,7 @@ None in `validators/floors.json`, so CI reads 0. Under section 12.5 the bank is 
 
 ## Open items
 
-Level 1 (structured files) still fails on every seed. Failing items per family: adversarial 3, hostile-inputs 5, inventory-forms 4, prompt-containers 30, roles 29, scale 36, schema-keywords 40, semantics 55, style-pairs 91, styles 21, tool-formats 1, transforms 6. Level 1 remaining: tool-formats.toml (needs a TOML reader; no TOML library is a dependency of packages/generate, so decide between adding one or a small subset reader), the schema-keywords tiers 3 to 5 (any-of, one-of, all-of, not, if-then-else, contains, prefix-items, dependent*, pattern-properties, discriminator, recursive-ref and the rest, each its own cause `tools:<slug>`), inventory-forms (csv, markdown-tables, long-item, long-flow-title) and adversarial (property-name-with-dot, property-named-ref, very-long-enum).
+Level 1 (structured files) still fails on every seed. Failing items per family: adversarial 1, hostile-inputs 5, prompt-containers 30, roles 29, scale 36, schema-keywords 4, semantics 55, style-pairs 91, styles 21, transforms 6. All level 1 items that a pre-pass fix can pass now pass, except the four below, which are validator contradictions (see the section on iterations 26 to 40). Level 2 is next: prompt-containers (30 failing) then the later levels; run `pnpm driftbench validate map --seed 1 --all-levels` to list them.
 
 How to read a failing item (`driftbench validate map --seed 1`): the message starts with `[family, tier, cause]`, then the capability with its convention (the partition ids, the key or the relation kind the map must hold), then what the run lost and gained as facts, such as `lost value <dimension>/<value>` or `lost polarity rule/R-01 = "must_not"`. The cause names the one change to make: `tools:` is `packages/generate/src/extract/tools.ts`, `inventory:` is `prepass.ts`, `quote:` is `quote.ts` (reading a prompt container), `contract:` is `contract.ts` (a key the answer template must show, then `proposal.ts` and `accept.ts` to store it), `accept:` is `accept.ts`, `extract:` is `extract.ts` (chunked requests and their merge). Items sharing a cause turn green together.
 
@@ -97,4 +97,19 @@ Each fix is one commit in tools.ts with its test in packages/generate/test/extra
 
 Rejected: schema-keywords.closed-object. Reading additionalProperties false makes styles.v1-precision fail on every seed (the v1 fixtures close every input, plant no unknown-key). The two items contradict; the validator lane must plant the value in the v1 truth or quarantine one. Not done by me (validator is out of bounds). closed-object is therefore not counted as fixed.
 
-Handover test (every third iteration) was not run.
+
+
+## Iterations 26 to 40 (executor, branch exec/map-v2)
+
+26 TOML (smol-toml, quotes mapped back to TOML lines); 27 quotes capped at 1000 characters (tools); 28 a dot kept in a property name; 29 inventory title quote capped; 30 markdown-table and CSV inventories (tables.ts); 31 oneOf, anyOf, allOf, discriminator, allOf required; 32 arrays, tuples, nesting to depth 3, recursive $ref once; 33 leaf keywords (object const and enum, contains, minContains, not, propertyNames, contentMediaType, int32, x-nullable); 34 unevaluatedProperties, additionalProperties schema, patternProperties; 35 property dependencies; 36 and 37 readOnly, writeOnly, deprecated; 38 if/then/else; 39 $ref siblings and $anchor; 40 oneOf object children.
+
+Each iteration has a red test first in packages/generate/test/extract (the test fails on the old code, checked by stashing the fix), the journal row, and a commit.
+
+### Items no honest pre-pass fix passes (for the validator owner)
+
+* schema-keywords.closed-object contradicts styles.v1-precision (the v1 fixtures close every input and plant no unknown-key).
+* adversarial.property-named-ref expects the dimension id `<tool>.in.$ref`, but the proposal schema allows only lowercase letters, digits, dots, hyphens and underscores in a dimension id, so the extractor throws. Either the id rule or the item has to change.
+* schema-keywords.unevaluated-items and additional-items expect only the array partitions plus extra-item; schema-keywords.prefix-items and tuple-items-draft-04 expect one dimension per tuple position. The two expectations cannot both hold for a tuple of one boolean.
+* schema-keywords.dependencies fails on seed 12 only: the drawn property name is `reason`, which collides with the item's own second property `reason` (one key overwrites the other).
+
+Handover test at iterations 30 and 40: `driftbench validate map --brief --fresh` prints the live ladder, the items of the first failing level and this file's static instruction; the level (0, 1 structured at 0.9 or more) is reproducible from it without the hypotheses.
