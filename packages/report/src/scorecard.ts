@@ -8,6 +8,7 @@ import {
   type Verdict,
 } from '@driftbench/core';
 import { bootstrapCI } from '@driftbench/stats';
+import { type AggregateCriterion, type AggregateResult, evaluateAggregates } from './aggregate';
 import { type CompareResult, compareCampaigns } from './compare';
 import {
   blocksWithSpec,
@@ -50,6 +51,8 @@ export type ScorecardOptions = {
   spreadMode?: RunMode;
   /** Runs shown in the drilldown, failing runs first. Default 200. */
   maxRuns?: number;
+  /** Campaign-level criteria, each scored over every run together. Absent when not given. */
+  aggregates?: readonly AggregateCriterion[];
 };
 
 export type ToolCall = { label: string; input?: unknown; output?: unknown; error?: string };
@@ -127,6 +130,8 @@ export type Scorecard = {
   spread: Spread;
   compare?: CompareResult;
   pilot?: PilotReport;
+  /** Campaign-level criteria, when the options asked for them. */
+  aggregates?: AggregateResult[];
   drilldown: RunDetail[];
   /** Runs left out of the drilldown by maxRuns. */
   omittedRuns: number;
@@ -193,6 +198,7 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
         }
       : {}),
     ...optional('pilot', options.pilot),
+    ...(options.aggregates ? { aggregates: evaluateAggregates(data, options.aggregates) } : {}),
     drilldown: shown.map((run) => runDetailOf(data, run)),
     omittedRuns: runs.length - shown.length,
   };
