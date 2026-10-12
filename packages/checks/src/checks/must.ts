@@ -1,6 +1,25 @@
 import { type Check, machineVerdict, type Verdict } from '@driftbench/core';
 import { message } from '../support/assert';
-import { around, quote, visibleText } from '../support/text';
+import { around, closestSpan, quote, visibleText } from '../support/text';
+
+/**
+ * For a literal pattern (no regular-expression syntax), the closest span of the reply and what differs from it: the same
+ * text in another case, or the number of characters that differ. Undefined for a pattern with syntax, or a reply too
+ * far from it to name a span.
+ */
+function literalNear(text: string, source: string, strict: boolean): string | undefined {
+  if (/[\\^$.*+?()[\]{}|]/.test(source)) return undefined;
+  const subject = strict ? text : text.toLowerCase();
+  const needle = strict ? source : source.toLowerCase();
+  const span = closestSpan(subject, needle);
+  if (!span) return undefined;
+  const shown = text.slice(span.start, span.end);
+  const differs =
+    span.distance === 0
+      ? 'the same text in another case'
+      : `differs by ${span.distance} character${span.distance === 1 ? '' : 's'}`;
+  return `closest span ${quote(shown)}, ${differs}`;
+}
 
 /**
  * `must` and `must_not`: regular expressions over the customer-visible text of the block, compiled with the
@@ -38,8 +57,11 @@ function patternCheck(name: 'must' | 'must_not'): Check {
           return machineVerdict(name, id, name === 'must' ? 'pass' : 'fail', found);
         }
         const where = text === '' ? 'the block has no visible text' : `visible text ${quote(text)}`;
+        const near = literalNear(text, source, strict);
         const missing =
-          name === 'must' ? `/${source}/ is missing; ${where}` : `/${source}/ does not match; ${where}`;
+          name === 'must'
+            ? `/${source}/ is missing; ${near === undefined ? '' : `${near}; `}${where}`
+            : `/${source}/ does not match; ${where}`;
         return machineVerdict(name, id, name === 'must' ? 'fail' : 'pass', missing);
       });
     },

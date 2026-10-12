@@ -45,25 +45,14 @@ async function ours(run: 'must' | 'regex' | 'exact' | 'markup' | 'starts' | 'bud
   return verdicts.length > 0 && verdicts.every((verdict) => verdict.outcome === 'pass');
 }
 
-const rng = mulberry32(1);
+let rng = mulberry32(1);
 const pick = <T,>(items: readonly T[]): T => items[Math.floor(rng() * items.length)] as T;
 
 // Row 7: markup validity (xml, html, sql). Valid and broken forms built from templates; label = intended validity.
 function markupCases(): Array<{ kind: 'xml' | 'html' | 'sql'; c: Case }> {
+  rng = mulberry32(7);
   const out: Array<{ kind: 'xml' | 'html' | 'sql'; c: Case }> = [];
   const tags = ['plan', 'name', 'price', 'data', 'item'];
-  for (let i = 0; i < 100; i++) {
-    const t = pick(tags);
-    const u = pick(tags);
-    const valid = i % 2 === 0;
-    const text = valid ? `<${t}><${u}>Mobile L</${u}></${t}>` : `<${t}><${u}>Mobile L</${t}>`;
-    out.push({ kind: 'xml', c: { text, truth: valid } });
-  }
-  for (let i = 0; i < 100; i++) {
-    const valid = i % 2 === 0;
-    const text = valid ? `<div><p>Fiber<br>5G</p><img src="x.png"></div>` : `<div><span>Fiber</div>`;
-    out.push({ kind: 'html', c: { text, truth: valid } });
-  }
   const sqlValid = [
     `SELECT name FROM plans WHERE price > 20;`,
     `INSERT INTO orders (plan, status) VALUES ('Mobile L', 'open');`,
@@ -71,9 +60,20 @@ function markupCases(): Array<{ kind: 'xml' | 'html' | 'sql'; c: Case }> {
     `DELETE FROM sessions WHERE expired = 1;`,
   ];
   const sqlInvalid = [`SELCT * FROM plans;`, `SELECT * FROM plans WHERE name = 'Mobile L;`, `INSERT INTO orders VALUES (1;`, `UPDATE plans SET;`];
-  for (let i = 0; i < 100; i++) {
-    const valid = i % 2 === 0;
-    out.push({ kind: 'sql', c: { text: valid ? pick(sqlValid) : pick(sqlInvalid), truth: valid } });
+  for (let i = 0; i < 2000; i++) {
+    const valid = Math.floor(i / 3) % 2 === 0;
+    const kind = (['xml', 'html', 'sql'] as const)[i % 3] as 'xml' | 'html' | 'sql';
+    if (kind === 'xml') {
+      const t = pick(tags);
+      const u = pick(tags);
+      const text = valid ? `<${t}><${u}>Mobile L</${u}></${t}>` : `<${t}><${u}>Mobile L</${t}>`;
+      out.push({ kind, c: { text, truth: valid } });
+    } else if (kind === 'html') {
+      const text = valid ? `<div><p>Fiber<br>5G</p><img src="x.png"></div>` : `<div><span>Fiber</div>`;
+      out.push({ kind, c: { text, truth: valid } });
+    } else {
+      out.push({ kind, c: { text: valid ? pick(sqlValid) : pick(sqlInvalid), truth: valid } });
+    }
   }
   return out;
 }
@@ -83,6 +83,7 @@ const REGEX_PATTERNS = ['fiber \\d+ ?Mbps', 'ORD-\\d{6}', 'Acme\\s+Care', '\\+1 
 const REGEX_PHRASES = ['Fiber 100 Mbps is available', 'fiber 100Mbps', 'Your order is ORD-123456', 'order ord-123456', 'Call Acme Care', 'call ACME CARE', 'Hi there', 'hi there', 'Reach a sales advisor', 'Reach a SALES ADVISOR', 'Call +1 202 555 0100', 'nothing relevant here'];
 
 function regexCases(): Array<{ pattern: string; c: Case }> {
+  rng = mulberry32(8);
   const out: Array<{ pattern: string; c: Case }> = [];
   for (let i = 0; i < 120; i++) {
     const pattern = pick(REGEX_PATTERNS);
@@ -105,6 +106,7 @@ const SENTENCES = [
 ];
 
 function containsCases(insensitive: boolean): Array<{ kind: 'contains' | 'all' | 'any'; words: string[]; c: Case }> {
+  rng = mulberry32(insensitive ? 10 : 9);
   const out: Array<{ kind: 'contains' | 'all' | 'any'; words: string[]; c: Case }> = [];
   const has = (text: string, word: string) => (insensitive ? text.toLowerCase().includes(word.toLowerCase()) : text.includes(word));
   for (let i = 0; i < 120; i++) {
@@ -119,6 +121,7 @@ function containsCases(insensitive: boolean): Array<{ kind: 'contains' | 'all' |
 
 // Row 11: equals against a reference. Strict truth = identical text; loose truth = equal after case, punctuation and spacing are dropped.
 function equalsCases(): Array<{ reference: string; c: Case; loose: boolean }> {
+  rng = mulberry32(11);
   const reference = 'Mobile L, 25 EUR a month.';
   const out: Array<{ reference: string; c: Case; loose: boolean }> = [];
   const loose = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, '').replace(/\s+/g, ' ').trim();
@@ -135,8 +138,9 @@ const PREFIXES = ['Hi', 'Sure', 'Thanks for', 'Yes,'];
 const STARTS = ['Hi, I am Sam.', 'Sure, here is the plan.', ' Thanks for calling.', 'Yes, the order is placed.', 'Well, hi there.', 'sure thing', 'Sure.\nHi, I am Sam.', '  Yes, confirmed.'];
 
 function startsCases(): Array<{ prefix: string; c: Case }> {
+  rng = mulberry32(12);
   const out: Array<{ prefix: string; c: Case }> = [];
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < 2000; i++) {
     const prefix = pick(PREFIXES);
     const text = pick(STARTS);
     out.push({ prefix, c: { text, truth: text.replace(/^\s+/, '').startsWith(prefix) } });
@@ -146,6 +150,7 @@ function startsCases(): Array<{ prefix: string; c: Case }> {
 
 // Row 16: cost and latency bounds. Truth = the observed cost (or latency) is at or under the bound.
 function costCases(): Array<{ kind: 'cost' | 'latency'; bound: number; c: Case }> {
+  rng = mulberry32(16);
   const out: Array<{ kind: 'cost' | 'latency'; bound: number; c: Case }> = [];
   for (let i = 0; i < 120; i++) {
     const kind = i % 2 === 0 ? 'cost' : 'latency';
@@ -194,11 +199,11 @@ for (const insensitive of [false, true]) {
   const rows = [];
   const looseRows = [];
   for (const { reference, c, loose } of equalsCases()) {
-    rows.push({ truth: c.truth, a: await theirs('equals', reference, c), b: await ours('exact', { exact: reference }, c) });
+    rows.push({ truth: c.truth, a: await theirs('equals', reference, c), b: await ours('exact', { exact: reference, exact_strict: true }, c) });
     looseRows.push({ truth: loose, a: await theirs('equals', reference, c), b: await ours('exact', { exact: reference }, c) });
   }
-  results.row11_strict = summarise('11 equals, strict truth (identical text)', rows, ['theirs', 'ours']);
-  results.row11_loose = summarise('11 equals, loose truth (case, punctuation, spacing ignored)', looseRows, ['theirs', 'ours']);
+  results.row11_strict = summarise('11 equals, strict truth (identical text): ours in exact_strict mode', rows, ['theirs', 'ours']);
+  results.row11_loose = summarise('11 equals, loose truth (case, punctuation, spacing ignored): ours in default mode', looseRows, ['theirs', 'ours']);
 }
 {
   const rows = [];

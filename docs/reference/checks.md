@@ -231,6 +231,8 @@ expect:
 ```
 
 * `markup` checks that the reply is well-formed XML or HTML by its tags: each close matches the open element, and HTML void elements need no close. It checks structure only, not a schema or attributes. With `markup: sql` the reply's statements are parsed by SQLite's own parser, split on semicolons outside strings. Only syntax errors fail: a statement that names a table not in any schema is valid here.
+* `exact` ignores case, punctuation and spacing by default. `exact_strict: true` compares the reply byte for byte after trimming its ends, for the case where those differences count.
+* A failing `must` on a literal names the closest span of the reply and how far it differs: the same text in another case, or the number of characters that differ. A failing `cost_usd` or `latency_ms` names how far over the limit it is.
 * `regex` takes a list of regular expressions the visible text must match. Matching is case-sensitive, as a regular expression is by default, and each pattern gets its own verdict. `must` and `must_not` ignore case instead.
 * `starts_with` checks the start of the whole reply, where a `^` pattern checks the start of any line.
 * `finish_reason` reads `observed.runtime.finishReason`, the reason the model stopped. An expected `stop` fails a reply cut at a `length` limit. When the runtime reports no reason, the verdict is inconclusive and does not gate.

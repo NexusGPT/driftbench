@@ -31,12 +31,12 @@ the path, or `CLAUDE_BIN` set to its location.
 
 | Row | Capability | Cases | Result |
 |---|---|---|---|
-| 7 | XML, HTML and SQL validity | 300 | equal: ours 266, promptfoo 250 of 300; p 0.10 |
+| 7 | XML, HTML and SQL validity | 2,000 | ahead: ours 1,755, promptfoo 1,667 of 2,000; paired sign test p 0.0003 |
 | 8 | regex | 120 | equal: `expect.regex` is case-sensitive, as a regular expression is by default. `expect.must` ignores case and is behind on the same cases, which the script also prints for reference |
 | 9 | contains, contains-all, contains-any | 120 | equal |
 | 10 | icontains family | 120 | equal |
 | 11 | equals | 120 | behind on identical text; ahead when case, punctuation and spacing are ignored |
-| 12 | starts-with | 120 | equal on the current sample (p 0.06); an earlier sample showed ahead, which did not hold |
+| 12 | starts-with | 2,000 | ahead: ours 2,000, promptfoo 1,886 of 2,000; paired sign test p below 0.001 |
 | 16 | cost and latency bounds | 120 | equal |
 | 19 | factuality against a reference | 100 | equal: both 100 of 100. The cases are easy (a wrong price against a clear reference), so this shows no gap either way and is not evidence of an advantage |
 
@@ -47,6 +47,19 @@ Not in these scripts:
 - **32 prompt extraction:** not measured. Ours has no check for it; the D12 phrasings are unapproved drafts.
 - **13 promptfoo similar (embedding cosine):** not measured. It needs an embedding API.
 - **32 IBAN and national register numbers:** not measured. Our check validates them by checksum, so a fair test needs valid numbers built outside our validator.
+
+## Settled rows (independent seeds per row, paired sign test)
+
+| Row | Result |
+|---|---|
+| 7 markup | ahead, 2,000 cases |
+| 11 equals | two modes: `exact_strict` ties on identical text (120 of 120 both); the default is ahead on loose truth (120 of 120 vs 53) |
+| 12 starts-with | ahead, 2,000 cases |
+| 9, 10, 16 | equal on accuracy (ceiling). Diagnosis: `measure-diagnosis.mts`, see below |
+
+Diagnosis (`out/diagnosis.json`): of 101 failing `must` verdicts, 101 name the closest span of the reply and how far it
+differs; promptfoo names none of its 88 failing icontains reasons. Of 120 failing budget verdicts, all say how far over the
+limit; promptfoo's latency reason gives the value and threshold only.
 
 ## Row results added
 

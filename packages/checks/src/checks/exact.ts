@@ -1,5 +1,5 @@
 import { type Check, machineVerdict } from '@driftbench/core';
-import { visibleText } from '../support/text';
+import { quote, visibleText } from '../support/text';
 
 const NAME = 'exact';
 
@@ -26,7 +26,7 @@ function numberOf(text: string): number | undefined {
 }
 
 /**
- * `expect.exact`: the visible text of the reply equals the reference. Two numbers compare as numbers, so
+ * `expect.exact`: the visible text of the reply equals the reference (`exact_strict: true` compares byte for byte). Two numbers compare as numbers, so
  * `42.0` equals `42`; anything else compares after normalising. An empty reply never equals a reference,
  * because the spec refuses an empty reference.
  */
@@ -37,6 +37,17 @@ export const exact: Check = {
     const reference = ctx.expect.exact;
     if (reference === undefined) return [];
     const reply = visibleText(ctx.observed);
+    if (ctx.expect.exact_strict === true) {
+      const same = reply.trim() === reference.trim();
+      return [
+        machineVerdict(
+          NAME,
+          '0',
+          same ? 'pass' : 'fail',
+          `${quote(reply.trim())} ${same ? '==' : '!='} ${quote(reference.trim())} byte for byte`,
+        ),
+      ];
+    }
     const replyNumber = numberOf(reply);
     const referenceNumber = numberOf(reference);
     if (replyNumber !== undefined && referenceNumber !== undefined) {
