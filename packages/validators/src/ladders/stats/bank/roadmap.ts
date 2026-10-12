@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { exactCoverage, grid } from './analytic';
 import { attempt, type BankItem, exported, fail, ok, show, type Tier } from './item';
+import { cpuMs } from './scale';
 
 /**
  * Level `roadmap`: methods the research dossiers and the parity notes name that the statistics package does not
@@ -256,9 +257,7 @@ function roadmapScaleItems(all: Method[]): BankItem[] {
             `packages/stats does not export ${m.name} (\`${m.signature}\`, in ${m.file}); once it exists, its first case with every array grown to ${ROADMAP_SCALE_ROWS} values by repetition must finish within ${ROADMAP_SCALE_BUDGET_MS} ms with finite numbers.`,
           );
         }
-        const start = performance.now();
-        const got = attempt(() => (fn as (...a: unknown[]) => unknown)(...args));
-        const ms = performance.now() - start;
+        const { got, ms } = cpuMs(() => (fn as (...a: unknown[]) => unknown)(...args));
         if (got.error)
           return fail(
             `${m.name} on its first case grown to ${ROADMAP_SCALE_ROWS} values threw ${got.error.name}: ${got.error.message}`,
@@ -270,7 +269,7 @@ function roadmapScaleItems(all: Method[]): BankItem[] {
         return ms <= ROADMAP_SCALE_BUDGET_MS
           ? ok()
           : fail(
-              `${m.name} on its first case grown to ${ROADMAP_SCALE_ROWS} values took ${Math.round(ms)} ms, over ${ROADMAP_SCALE_BUDGET_MS} ms: avoid all-pairs loops and per-row copies.`,
+              `${m.name} on its first case grown to ${ROADMAP_SCALE_ROWS} values took ${Math.round(ms)} ms of processor time, over ${ROADMAP_SCALE_BUDGET_MS} ms: avoid all-pairs loops and per-row copies.`,
             );
       },
     });

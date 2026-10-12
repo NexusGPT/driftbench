@@ -22,17 +22,26 @@ const scaleItem = (id: string, component: string, check: BankItem['check']): Ban
   check,
 });
 
-/** Times a call; fails when it throws, takes longer than the budget, or its result fails the check. */
-function timed<T>(call: string, run: () => T, check: (value: T) => string | undefined) {
-  const start = performance.now();
+/**
+ * The processor time of a call in milliseconds (user and system, all threads of this process). Wall time on a
+ * shared machine grows with the load of other processes; processor time does not, so budgets use it.
+ */
+export function cpuMs<T>(run: () => T): { got: { value?: T; error?: Error }; ms: number } {
+  const start = process.cpuUsage();
   const got = attempt(run);
-  const ms = performance.now() - start;
+  const used = process.cpuUsage(start);
+  return { got, ms: (used.user + used.system) / 1000 };
+}
+
+/** Times a call; fails when it throws, takes more processor time than the budget, or its result fails the check. */
+function timed<T>(call: string, run: () => T, check: (value: T) => string | undefined) {
+  const { got, ms } = cpuMs(run);
   if (got.error) return fail(`${call} threw ${got.error.name}: ${got.error.message}`);
   const wrong = check(got.value as T);
   if (wrong) return fail(`${call}: ${wrong}`);
   if (ms > SCALE_BUDGET_MS)
     return fail(
-      `${call} took ${Math.round(ms)} ms, over the ${SCALE_BUDGET_MS} ms budget for one million rows; make it O(n log n) or better without per-row string keys or copies.`,
+      `${call} took ${Math.round(ms)} ms of processor time, over the ${SCALE_BUDGET_MS} ms budget for one million rows; make it O(n log n) or better without per-row string keys or copies.`,
     );
   return ok(`${Math.round(ms)} ms`);
 }
