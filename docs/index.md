@@ -48,6 +48,7 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Example scorecards
 
 * [Example scorecards](scorecards.md): the HTML scorecards `driftbench report` wrote from the Acme campaigns.
+* [Viewer and hand labels](viewer.md): `driftbench view`, a local website over a store, where a person labels blocks for judge calibration.
 
 ## Comparison
 
@@ -60,7 +61,7 @@ Phases 0, 1 and 2 are built, and most of phases 3 and G, with parts of phase 4 a
 * The spec format: zod schemas in `packages/core/src/schema`, with the TypeScript types inferred from them.
 * The loader: YAML and JSON files, authoring shorthand, schema errors with their path, semantic checks, and lint advice.
 * `driftbench spec validate`, `driftbench spec lint`, and `driftbench spec coverage` with the behaviour inventory it reads. See [CLI](reference/cli.md).
-* The runner in modes T, F and P, with the scripted driver and the injecting driver, campaigns, a worker pool, a budget stop, the cache, resume, and the determinism smoke test, from code and from the command line. See [running](running.md) and [run modes](concepts/run-modes.md).
+* The runner in modes T, F and P, with the scripted driver and the perturbing driver, campaigns, a worker pool, a budget stop, the cache, resume, and the determinism smoke test, from code and from the command line. See [running](running.md) and [run modes](concepts/run-modes.md).
 * Drift and recovery: the five drift classes, the ledger check, the stage classifier, the compounding index, and the recovery metrics of every perturbed run. See [drift](concepts/drift.md) and [recovery](concepts/recovery.md).
 * The 23 machine checks, with their verdict ids, the judge check behind a council, and the artifact readers for workbooks, documents, decks, PDFs, CSV, JSON, text and code. See [checks](reference/checks.md).
 * Judges in `@driftbench/judges`: the judge clients, the council and its cascade, cassettes, calibration on fixture pairs and hand labels, and `driftbench judge`. See [judges](concepts/judges.md).
@@ -76,21 +77,23 @@ Phases 0, 1 and 2 are built, and most of phases 3 and G, with parts of phase 4 a
 
 The command line reaches the Acme example agents (`function:acme-sales`, `process:acme-ops`, and the pilot's control agent `function:acme-random`) and recorded sessions; the other adapters are used from code.
 
-Not built yet: the simulated user and the perturbing driver, the live estate runner (`estate run`, `estate mutate`), and the commands `report`, `compare`, `ci`, `monitor`, `select` and `holdout`, which print that they are not built yet. See [CLI](reference/cli.md#not-built-yet).
+Every command `driftbench --help` lists is built. Not built yet: a command that drives the simulated user (it is built as a library), the runtime battery, and the other items the [CLI reference](reference/cli.md#not-built-yet) lists.
 
 ## Roadmap
 
-| Phase | Delivers | Status |
-|---|---|---|
-| 0, foundations | spec format, loader, `spec validate`, `spec lint`, `spec coverage`, leak guard, CI, synthetic example agent, docs | built |
-| 1, runner | runner in free-running mode with a scripted user; machine checks for text, language, personal data, tools, skills, guards, cards, end state, budget, execution, artifacts, workspace and safety; store, cache and resume; cost and latency per segment; sandbox workspace; artifact readers; function, http, nexus and process adapters | built |
-| 2, judges | judge clients, the council and its cascade, calibration on fixture pairs and hand labels, judges for task artifacts | built |
-| 3, perturbation, drift and recovery | simulated user, perturbing driver with the ten deviation classes, stage classifier and ledger check, drift classes, recovery metrics, teacher-forced mode; the same deviations on code-agent tasks | in progress: teacher-forced mode, perturbed runs with the injecting driver, the stage classifier, the ledger check, the five drift classes and the recovery metrics are built; the simulated user and the perturbing driver are planned |
-| 4, statistics and gates | statistics functions with reference fixtures, the parity verdict, scorecard, run diff, JUnit output, CI gate, runtime battery | in progress: the statistics functions and the parity verdict function are built; `report`, `compare` and `ci` are registered and not built |
-| G, the space of situations | the map of situations, its coverage and completeness, the map extractor, generation, the gate, task families, the variance pilot and intake | in progress: `space`, `extract`, `generate`, `gate`, `family`, `pilot` and `intake` are built; `select` and `holdout` are registered and not built |
-| E, estates | estate scan, lint, approval and map; the plan; test generation; replay; maintenance; the live runner and estate mutants | in progress: everything but the live runner and the mutants is built |
-| V, validators | the validator frame and six ladders | in progress: the frame, the judge ladder and the statistics ladder are built |
-| Release | SDK agent adapters, docs site, version 0.1.0 on npm | in progress: the four SDK adapters are built; the docs site and the npm release are planned |
+Each row names a command that shows the phase working on the bundled examples, with no model call. Run it from the repository root.
+
+| Phase | Delivers | Status | Proof |
+|---|---|---|---|
+| 0, foundations | spec format, loader, `spec validate`, `spec lint`, `spec coverage`, leak guard, CI, synthetic example agent, docs | built | `pnpm driftbench spec validate examples/acme/specs` |
+| 1, runner | runner in free-running mode with a scripted user; machine checks for text, language, personal data, tools, skills, guards, cards, end state, budget, execution, artifacts, workspace and safety; store, cache and resume; cost and latency per segment; sandbox workspace; artifact readers; function, http, nexus and process adapters | built | `pnpm driftbench campaign run examples/acme/specs --store <db>` |
+| 2, judges | judge clients, the council and its cascade, calibration on fixture pairs and hand labels, judges for task artifacts | built | `pnpm driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/cassette.json --out <file>` |
+| 3, perturbation, drift and recovery | simulated user, perturbing driver with the ten deviation classes, stage classifier and ledger check, drift classes, recovery metrics, teacher-forced mode; the same deviations on code-agent tasks | built; the simulated user is a library with no command yet | `pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2` |
+| 4, statistics and gates | statistics functions with reference fixtures, the parity verdict, scorecard, run diff, JUnit output, CI gate, drift monitor, viewer, runtime battery | built but the runtime battery, which is not built | `pnpm driftbench ci --specs examples/acme/specs/conversations --target fault:x3-skips-recap --faults examples/acme/faults --baseline <campaign> --store <db> --margin 50` |
+| G, the space of situations | the map of situations, its coverage and completeness, the map extractor, generation, the gate, task families, the variance pilot, intake, selection and the holdout | built | `pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10` |
+| E, estates | estate scan, lint, approval and map; the plan; test generation; replay; maintenance; the live runner and estate mutants | built; the unit runner is not built | `pnpm driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to <dir>` |
+| V, validators | the validator frame and six ladders | in progress: the frame, the judge ladder and the statistics ladder are built | `pnpm driftbench validate stats` |
+| Release | SDK agent adapters, docs site, version 0.1.0 on npm | in progress: the four SDK adapters and a docs-site workflow are built; the npm release is not | `pnpm -s vitest run packages/adapters` |
 
 There is no separate phase for code agents. A task spec runs through each phase with the conversation specs.
 

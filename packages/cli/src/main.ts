@@ -22,6 +22,7 @@ import { registerSmokeCommand } from './commands/smoke';
 import { registerSpaceCommands } from './commands/space';
 import { registerSpecCommands } from './commands/spec';
 import { registerValidateCommand } from './commands/validate';
+import { registerViewCommand } from './commands/view';
 import { type Io, processIo } from './io';
 import { VERSION } from './version';
 
@@ -58,6 +59,7 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerMonitorCommand(program, io, setExit);
   registerSelectCommand(program, io, setExit);
   registerHoldoutCommand(program, io, setExit);
+  registerViewCommand(program, io, setExit);
   registerImportCommand(program, io, setExit);
   registerRegistryCommands(program, io, setExit);
 

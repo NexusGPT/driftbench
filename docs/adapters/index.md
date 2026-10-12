@@ -155,7 +155,7 @@ pnpm vitest run packages/adapters
 | [anthropic](anthropic.md) | an agent on the Anthropic Messages API, through your client; the adapter closes the tool loop | shipped, release phase; contract proven on fakes and on the real SDK with fake transports, not yet run against a live model |
 | [google](google.md) | an agent on the Gemini API, through your client; the adapter closes the tool loop | shipped, release phase; contract proven on fakes and on the real SDK with fake transports, not yet run against a live model |
 | [langgraph](langgraph.md) | a compiled LangGraph graph whose state holds `messages`, with or without a checkpointer | shipped, release phase; contract proven on fakes and on the real SDK with fake transports, not yet run against a live model |
-| [claude-code](claude-code.md) | a recorded Claude Code session (transcript, guard decision log, step feed), replayed with no model call; also the reader of a Claude Code estate | the session reader, the replay adapter and the estate reader are shipped; the live runner is not built yet |
+| [claude-code](claude-code.md) | a recorded Claude Code session (transcript, guard decision log, step feed), replayed with no model call; also the reader of a Claude Code estate | the session reader, the replay adapter, the estate reader and the live runner are shipped |
 
 ## Runtime vocabulary
 

@@ -60,6 +60,37 @@ jobs:
       - run: python -m pytest
         working-directory: python/driftbench
 
+  viewer-journey:
+    name: viewer journey (chromium)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('playwright-core/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Cache Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+      - name: Install Chromium and its system libraries
+        run: pnpm exec playwright-core install --with-deps chromium
+      - name: Drive the viewer at 1280 and 390 px
+        run: pnpm exec tsx tools/browser/viewer-journey.ts --out viewer-journey
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: viewer-journey
+          path: viewer-journey
+          if-no-files-found: ignore
+
   guard:
     name: leak guard
     runs-on: ubuntu-latest
