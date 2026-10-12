@@ -789,3 +789,27 @@ describe('the pairs the relations rule out', () => {
     expect(forbids).toContainEqual({ [deviation]: 'none', [stage]: 'greet' });
   });
 });
+
+describe('a probe the constraints forbid', () => {
+  it('is never said at a stage where the map forbids its class', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases = (draft.phrases ?? []).map((entry) =>
+        entry.value === 'D1_off_topic' ? { ...entry, when: { stage: ['help'] } } : entry,
+      );
+      draft.constraints = [
+        ...draft.constraints,
+        {
+          forbid: { deviation: 'D1_off_topic', stage: 'help' },
+          reason: 'The conversation is over at help',
+          ...by,
+        },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D1_off_topic', stage: 'help' },
+    });
+    expect(built.ok).toBe(false);
+  });
+});

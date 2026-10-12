@@ -182,6 +182,18 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       .filter(({ index }) => index >= 1 || OPENING_CLASSES.has(probe.classId))
       .filter(({ stage }) => (recovery?.at ? recovery.at.includes(stage) : true))
       .filter(({ stage }) => (probe.stage === undefined ? true : stage === probe.stage))
+      // The map's constraints hold for the probe too: a class the map forbids at a stage is never said there.
+      .filter(({ stage }) => {
+        const stageIndex = prepared.stage;
+        const deviationIndex = prepared.deviation;
+        const stagePick = stageIndex === undefined ? undefined : dimensions[stageIndex]?.index.get(stage);
+        const classPick =
+          deviationIndex === undefined ? undefined : dimensions[deviationIndex]?.index.get(probe.classId);
+        const picks: Pick[] = [...cell];
+        if (stageIndex !== undefined && stagePick !== undefined) picks.push([stageIndex, stagePick]);
+        if (deviationIndex !== undefined && classPick !== undefined) picks.push([deviationIndex, classPick]);
+        return prepared.feasibility.allowed(picks);
+      })
       .filter(({ stage }) =>
         choosePhraseExists(prepared, deviationKey, probe.classId, contextOf(stage), slots, request),
       );

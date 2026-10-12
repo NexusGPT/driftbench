@@ -131,10 +131,11 @@ export function derivedConstraints(proposal: Proposal, axes: readonly Axis[]): F
       if (stageAxis && cell[stageAxis.id] !== undefined && cell[stageAxis.id] !== event.stage) return false;
       if (deviationAxis && cell[deviationAxis.id] !== undefined && cell[deviationAxis.id] !== event.deviation)
         return false;
-      const rest: Picks = {};
-      for (const [dimension, value] of Object.entries(cell))
-        if (dimension !== stageAxis?.id && dimension !== deviationAxis?.id) rest[dimension] = value;
-      return fits(event.path, rest, event.need);
+      // The written constraints hold for the event's stage and class too.
+      const picks: Picks = { ...cell };
+      if (stageAxis) picks[stageAxis.id] = event.stage;
+      if (deviationAxis) picks[deviationAxis.id] = event.deviation;
+      return fits(event.path, picks, event.need);
     });
   for (const [a, first] of axes.entries()) {
     for (const second of axes.slice(a + 1)) {
