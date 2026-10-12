@@ -1,3 +1,5 @@
+import { parseRetryAfter, type RetryLayer, retryableStatus, retrying, retryPolicy } from '@driftbench/core';
+
 /** The fetch a client calls. Tests pass their own; the default is the global fetch. */
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
@@ -5,7 +7,13 @@ export type HttpOptions = {
   fetch?: FetchLike;
   /** Abort one attempt after this long. Default 120 seconds. */
   timeoutMs?: number;
-  /** Extra attempts after a 408, 409, 429, a 5xx, a 529, a network failure or a timeout. Default 2. */
+  /**
+   * The retry settings over the shared policy's defaults: four attempts, a 500 ms base doubled up to 30 s,
+   * full jitter, Retry-After honoured. Only a 429, a 5xx (529 included), a network failure or a timeout is
+   * retried. Each retry goes to the current `collectRetries` scope: the council records it in the vote.
+   */
+  retry?: RetryLayer;
+  /** Extra attempts after the first; same as `retry.maxAttempts` minus one. */
   maxRetries?: number;
   /** Waits between attempts. Tests pass one that returns at once. */
   sleep?: (ms: number) => Promise<void>;
@@ -19,21 +27,26 @@ export class JudgeError extends Error {
   readonly status?: number;
   readonly retryable: boolean;
 
-  constructor(code: JudgeErrorCode, message: string, options: { status?: number; retryable?: boolean } = {}) {
+  /** The wait the provider asked for in its Retry-After header. */
+  readonly retryAfterMs?: number;
+
+  constructor(
+    code: JudgeErrorCode,
+    message: string,
+    options: { status?: number; retryable?: boolean; retryAfterMs?: number } = {},
+  ) {
     super(message);
     this.name = 'JudgeError';
     this.code = code;
     if (options.status !== undefined) this.status = options.status;
+    if (options.retryAfterMs !== undefined) this.retryAfterMs = options.retryAfterMs;
     this.retryable = options.retryable ?? false;
   }
 }
 
-const RETRYABLE_STATUS = new Set([408, 409, 429, 500, 502, 503, 504, 529]);
-const MAX_WAIT_MS = 30_000;
-
 /**
- * Posts one JSON body and returns the parsed JSON answer. Retries what may pass later, never a 4xx the
- * request caused. The headers, which carry the key, never reach an error message: errors name the URL
+ * Posts one JSON body and returns the parsed JSON answer. Retries under the shared policy what may pass
+ * later (a 429, a 5xx, a network failure), never another status. The headers, which carry the key, never reach an error message: errors name the URL
  * and the status, and quote at most 200 characters of the provider's error body.
  */
 export async function postJson(
@@ -43,45 +56,77 @@ export async function postJson(
   options: HttpOptions = {},
 ): Promise<unknown> {
   const fetchFn = options.fetch ?? ((input, init) => fetch(input, init));
-  const maxRetries = options.maxRetries ?? 2;
   const timeoutMs = options.timeoutMs ?? 120_000;
-  const sleep = options.sleep ?? ((ms) => new Promise<void>((done) => setTimeout(done, ms)));
+  const policy = retryPolicy(
+    options.maxRetries === undefined ? undefined : { maxAttempts: options.maxRetries + 1 },
+    options.retry,
+  );
   const text = JSON.stringify(body);
+  let last: JudgeError | undefined;
 
-  for (let attempt = 0; ; attempt += 1) {
-    let failure: JudgeError;
+  const attempt = async (): Promise<unknown> => {
+    let response: Response;
+    let raw: string;
     try {
-      const response = await fetchFn(url, {
+      response = await fetchFn(url, {
         method: 'POST',
         headers: { 'content-type': 'application/json', ...headers },
         body: text,
         redirect: 'error',
         signal: AbortSignal.timeout(timeoutMs),
       });
-      const raw = await response.text();
-      const payload = parseJson(raw);
-      if (response.ok) {
-        if (payload === undefined) {
-          throw new JudgeError(
-            'bad_response',
-            `${url} answered ${response.status} with a body that is not JSON`,
-          );
-        }
-        return payload;
-      }
-      const said = clip(scrub(errorText(payload, raw), headers));
-      failure = new JudgeError('http', `${url} answered ${response.status}: ${said}`, {
-        status: response.status,
-        retryable: RETRYABLE_STATUS.has(response.status),
-      });
+      raw = await response.text();
     } catch (cause) {
-      if (cause instanceof JudgeError) throw cause;
       const why = cause instanceof Error ? cause.name : 'error';
-      failure = new JudgeError('network', `${url} could not be reached (${why})`, { retryable: true });
+      last = new JudgeError('network', `${url} could not be reached (${why})`, { retryable: true });
+      throw last;
     }
-    if (!failure.retryable || attempt >= maxRetries) throw failure;
-    await sleep(Math.min(MAX_WAIT_MS, 1000 * 2 ** attempt));
+    const payload = parseJson(raw);
+    if (response.ok) {
+      if (payload === undefined) {
+        throw new JudgeError(
+          'bad_response',
+          `${url} answered ${response.status} with a body that is not JSON`,
+        );
+      }
+      return payload;
+    }
+    const said = clip(scrub(errorText(payload, raw), headers));
+    const retryAfterMs = retryAfterOf(response.headers);
+    last = new JudgeError('http', `${url} answered ${response.status}: ${said}`, {
+      status: response.status,
+      retryable: retryableStatus(response.status),
+      ...(retryAfterMs === undefined ? {} : { retryAfterMs }),
+    });
+    throw last;
+  };
+
+  try {
+    return await retrying(`judge ${url}`, attempt, {
+      policy,
+      ...(options.sleep ? { sleep: options.sleep } : {}),
+      decide: (error) => {
+        const judged = error instanceof JudgeError ? error : undefined;
+        return {
+          retry: judged?.retryable === true,
+          ...(judged?.status === undefined ? {} : { status: judged.status }),
+          ...(judged?.retryAfterMs === undefined ? {} : { retryAfterMs: judged.retryAfterMs }),
+          reason: error instanceof Error ? error.message : String(error),
+        };
+      },
+    });
+  } catch (error) {
+    // The policy ends its retries with its own error around the last failure: the caller gets the failure.
+    if (error instanceof JudgeError) throw error;
+    if (last) throw last;
+    throw error;
   }
+}
+
+function retryAfterOf(headers: Headers): number | undefined {
+  const ms = headers.get('retry-after-ms');
+  if (ms && /^\d+(\.\d+)?$/.test(ms.trim())) return Math.round(Number(ms));
+  return parseRetryAfter(headers.get('retry-after'));
 }
 
 function parseJson(raw: string): unknown {

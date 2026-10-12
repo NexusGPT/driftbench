@@ -10,6 +10,7 @@ import {
   composeBrief,
   type DiffReader,
   EXECUTOR_FILE,
+  executorOf,
   FLOORS_FILE,
   type FloorsFile,
   findRoot,
@@ -29,6 +30,7 @@ import {
   type Ladder,
   type LadderReport,
   ladderVersion,
+  loopFolder,
   measureHardness,
   PROTECTED_PATHS,
   parseSeeds,
@@ -48,6 +50,7 @@ import {
 } from '@driftbench/validators';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 /** The exit code of an input or usage error: kept apart from the level codes 0 to 63. */
 export const USAGE_EXIT = 64;
@@ -270,7 +273,12 @@ function hardnessCommand(component: string, json: boolean, root: string, io: Io)
   }
   let hardness: ReturnType<typeof measureHardness>;
   try {
-    hardness = measureHardness(rows);
+    const auditPath = join(root, `${loopFolder(component)}/audit.md`);
+    const gatePath = join(root, `${loopFolder(component)}/GATE.md`);
+    hardness = measureHardness(rows, {
+      ...(existsSync(auditPath) ? { audit: readFileSync(auditPath, 'utf8') } : {}),
+      ...(existsSync(gatePath) ? { gate: readFileSync(gatePath, 'utf8') } : {}),
+    });
   } catch (cause) {
     io.err(`${journalFile(component)}: ${message(cause)}.\n`);
     return USAGE_EXIT;
@@ -296,6 +304,12 @@ function journalCommand(ladder: Ladder, path: string, floors: FloorsFile, root: 
     for (const reason of result.refused) io.err(`  ${reason}\n`);
     return 1;
   }
+  if (executorOf(result.row) === 'blind') {
+    io.out(
+      `Appended blind iteration ${result.row.iteration} to ${journalFile(component)}; blind row: HANDOVER.md was not touched.\n`,
+    );
+    return 0;
+  }
   const handover =
     readHandover(root, component) ??
     handoverTemplate(component, floorOf(floors, component, ladderVersion(ladder)));
@@ -316,7 +330,7 @@ function handoverCheckCommand(ladders: Ladder[], root: string, io: Io): number {
     const text = readHandover(root, ladder.component);
     const all = [...problems];
     if (text === undefined) all.push(`${handoverFile(ladder.component)} is missing`);
-    else all.push(...checkHandover(text, rows.at(-1)));
+    else all.push(...checkHandover(text, rows.filter((row) => executorOf(row) === 'builder').at(-1)));
     if (all.length === 0) {
       io.out(
         `${handoverFile(ladder.component)}: every section present, the level table matches the journal.\n`,
@@ -398,11 +412,11 @@ function floorsCommand(
     io.err(`The level is a whole number, not "${level}".\n`);
     return USAGE_EXIT;
   }
-  if (!/^\d+$/.test(options.ladderVersion) || Number(options.ladderVersion) < 1) {
+  if (!/^\d+$/.test(options.ladderVersion) || optionNumber(options.ladderVersion) < 1) {
     io.err(`--ladder-version is a whole number of at least 1, not "${options.ladderVersion}".\n`);
     return USAGE_EXIT;
   }
-  const version = Number(options.ladderVersion);
+  const version = optionNumber(options.ladderVersion);
   let evidence: unknown;
   try {
     evidence = JSON.parse(readFileSync(resolve(io.cwd, options.evidence), 'utf8'));

@@ -146,7 +146,8 @@ export function scaleItems(): BankItem[] {
   }
   /** Replays 300 requests from a cassette of `entries` entries; returns the replay time in ms, or a problem. */
   async function replay(api: JudgesApi, r: () => number, entries: number): Promise<number | string> {
-    const key = fn<(q: JudgeRequest) => string>(api, 'requestKey');
+    // The key as the player computes it: the request with the recorded judge (the client is part of the key).
+    const key = fn<(q: JudgeRequest, judge?: Cassette['judges'][number]) => string>(api, 'requestKey');
     const requests = Array.from({ length: 300 }, (_, i) =>
       request([{ role: 'user', text: `q${i} ${filler(r, 2)}` }]),
     );
@@ -159,7 +160,7 @@ export function scaleItems(): BankItem[] {
       const q = requests[i % requests.length] as JudgeRequest;
       cassette.entries.push({
         judge: 'j',
-        key: i < requests.length ? key(q) : `${i.toString(16).padStart(12, '0')}`,
+        key: i < requests.length ? key(q, cassette.judges[0]) : `${i.toString(16).padStart(12, '0')}`,
         answer: { outcome: 'pass', reasoning: 'x' },
       });
     }

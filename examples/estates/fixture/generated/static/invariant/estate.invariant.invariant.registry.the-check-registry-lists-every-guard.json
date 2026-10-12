@@ -1,0 +1,12 @@
+{
+  "id": "estate.invariant.invariant.registry.the-check-registry-lists-every-guard",
+  "planRow": "invariant.invariant.registry.the-check-registry-lists-every-guard",
+  "testType": "invariant",
+  "atom": "invariant.registry.the-check-registry-lists-every-guard",
+  "title": "The check registry lists every guard and only guards that exist",
+  "check": {
+    "kind": "invariant",
+    "check": "registry_complete"
+  },
+  "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10"
+}

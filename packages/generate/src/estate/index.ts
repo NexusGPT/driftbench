@@ -1,11 +1,25 @@
 /** The estate test generator: plan rows to task specs, by code only. Owned by the estate-tests lane. */
 
+export {
+  actOf,
+  askedTo,
+  type CodeAsk,
+  clauseOf,
+  codeAsk,
+  DEVIATION_ASKS,
+  imperative,
+  OUTSIDE_ASK,
+  plain,
+  RESUME_ASK,
+} from './asks';
 export { type ReadYaml, readEstateYaml, type YamlSchema } from './files';
 export {
+  type AskSource,
   checkEstateInputs,
   ESTATE_COMPLETE_DIR,
   ESTATE_DEFAULT_SEED,
   ESTATE_INCOMPLETE_DIR,
+  ESTATE_ORDER_FILE,
   ESTATE_REPORT_FILE,
   ESTATE_SEEDER,
   type EstateGenerateInput,
@@ -16,11 +30,14 @@ export {
   type EstateSpecRecord,
   findSituation,
   generateEstateSuite,
+  mapFiles,
   NEGATIVE_TESTS,
+  PRIORITY_KINDS,
   REPLAY_CUSTOM_CHECKS,
   renderEstateSummary,
   SITUATION_OF,
   specId,
+  WRITING_TOOLS,
 } from './generate';
 export {
   BankPhrase,
@@ -40,6 +57,14 @@ export {
   Touches,
   WorkspaceSeed,
 } from './inputs';
+export { COMPILED_PREDICATES, type Compiled, compilePredicate } from './predicates';
+export {
+  STATIC_DIR,
+  STATIC_TEST_TYPES,
+  StaticCheck,
+  StaticTest,
+  staticCheckOf,
+} from './static';
 export {
   anchorPair,
   type Gap,
@@ -51,3 +76,17 @@ export {
   type ThenParts,
   thenOf,
 } from './then';
+export {
+  GuardCase,
+  hostileForms,
+  matcherTools,
+  materialOf,
+  payloadOf,
+  toolInput,
+  UNIT_DIR,
+  UNIT_TEST_TYPES,
+  UnitDecision,
+  UnitOutcome,
+  UnitTest,
+  unitTestOf,
+} from './unit';

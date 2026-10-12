@@ -79,3 +79,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: edit-under-pressure
     phrase: 0
+    ask: bank
+    outcome: bank

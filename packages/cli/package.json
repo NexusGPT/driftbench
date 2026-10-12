@@ -1,9 +1,31 @@
 {
-  "name": "driftbench",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "name": "@driftbench/cli",
+  "version": "0.1.0",
+  "description": "The driftbench command line: validate and run specs, campaigns in teacher-forced, free-running and perturbed modes, reports, generation and validators.",
+  "keywords": [
+    "driftbench",
+    "ai-agents",
+    "evaluation",
+    "llm",
+    "testing",
+    "cli",
+    "command-line",
+    "continuous-integration"
+  ],
+  "homepage": "https://github.com/achammah/driftbench#readme",
+  "bugs": {
+    "url": "https://github.com/achammah/driftbench/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achammah/driftbench.git",
+    "directory": "packages/cli"
+  },
   "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
   "bin": {
     "driftbench": "./dist/bin.js"
   },
@@ -22,20 +44,25 @@
     "build": "tsup src/index.ts src/bin.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
-    "commander": "^15.0.0",
-    "@driftbench/users": "workspace:*",
-    "@driftbench/store": "workspace:*",
     "@driftbench/adapters": "workspace:*",
-    "@driftbench/checks": "workspace:*",
     "@driftbench/artifacts": "workspace:*",
+    "@driftbench/checks": "workspace:*",
+    "@driftbench/core": "workspace:*",
+    "@driftbench/estate": "workspace:*",
+    "@driftbench/generate": "workspace:*",
+    "@driftbench/judges": "workspace:*",
+    "@driftbench/report": "workspace:*",
     "@driftbench/sandbox": "workspace:*",
     "@driftbench/space": "workspace:*",
-    "@driftbench/generate": "workspace:*",
-    "@driftbench/estate": "workspace:*",
-    "@driftbench/judges": "workspace:*",
     "@driftbench/stats": "workspace:*",
+    "@driftbench/store": "workspace:*",
+    "@driftbench/users": "workspace:*",
     "@driftbench/validators": "workspace:*",
-    "@driftbench/report": "workspace:*"
+    "commander": "^15.0.0",
+    "yaml": "^2.9.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

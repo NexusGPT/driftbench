@@ -15,7 +15,8 @@
  *   several records, each repeating `message.usage` (`input_tokens`, `output_tokens`,
  *   `cache_creation_input_tokens`, `cache_read_input_tokens`), so usage counts once per message id.
  * - `system`: runtime notices. `subtype: compact_boundary` marks a compaction (`compactMetadata.trigger`,
- *   `compactMetadata.preTokens`).
+ *   `compactMetadata.preTokens`). `subtype: init`, written by a headless run's stream, names the tools the
+ *   runtime offered in `tools` (a tool a setting denies is not offered); a saved transcript may hold none.
  * - `summary`: a session title (`summary`, `leafUuid`); it belongs to the session, not to a turn.
  * - anything else (file history snapshots, queue operations, attachments): kept in `raw`.
  * Common fields: `uuid`, `parentUuid`, `sessionId`, `cwd`, `version`, `timestamp` (ISO 8601) and
@@ -56,7 +57,17 @@ export function parseJsonl(text: string): JsonlLine[] {
 }
 
 /** One row of a guard decision log. */
-export type DecisionRow = { at: string; event?: string; check: string; verdict: string; session?: string };
+export type DecisionRow = {
+  at: string;
+  event?: string;
+  check: string;
+  verdict: string;
+  session?: string;
+  stdout?: string;
+  stderr?: string;
+  exitCode?: number;
+  outcome?: string;
+};
 
 /** One row of a step feed. */
 export type StepRow = { at: string; step: string };
@@ -81,12 +92,21 @@ export function decisionRow(value: unknown): DecisionRow | string {
   if (verdict === undefined || verdict === '') return 'the row has no verdict';
   const event = stringField(value, 'event');
   const session = stringField(value, 'session');
+  const stdout = stringField(value, 'stdout');
+  const stderr = stringField(value, 'stderr');
+  const outcome = stringField(value, 'outcome');
   return {
     at,
     check,
     verdict,
     ...(event === undefined ? {} : { event }),
     ...(session === undefined ? {} : { session }),
+    ...(stdout === undefined ? {} : { stdout }),
+    ...(stderr === undefined ? {} : { stderr }),
+    ...(typeof value.exitCode === 'number' && Number.isInteger(value.exitCode)
+      ? { exitCode: value.exitCode }
+      : {}),
+    ...(outcome === undefined ? {} : { outcome }),
   };
 }
 

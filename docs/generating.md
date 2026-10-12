@@ -160,6 +160,18 @@ exit 0
 
 The proposal is the committed `examples/acme/map/proposal.yaml`, byte for byte but for the time in `produced_by.at`. A recording with no answer left for a section fails that section, as a failed model call does. No option saves a real model's answers for a later replay yet. `extract` exits 0 when the proposal is written and complete, 1 when it is written with a failed section or a refused entry, 2 on a usage or input error (nothing written).
 
+### Planned: what extract does not read yet
+
+These are capabilities users need from `extract` that the code lacks today. The map validator holds the items that check each one (`validators/map/NEEDS.md`). They fail until the capability ships.
+
+* **Declared roles.** A prompt may say which dimension makes a different kind of conversation ("Each of these makes a different kind of conversation") and which can show up inside any conversation. That dimension becomes the axis, whatever order the dimensions are read in. Without such a sentence, the first dimension of each kind stays the axis, as above. The purpose: the prompt's author already said which differences make a different conversation, so the space map crosses those and leaves the rest as details, and no person has to flip the roles the prompt already states.
+* **What a rule states.** Each rule records whether the agent must or must not do it, the cell it applies in (`when`), the case it excludes (`unless`), a count limit, a time limit (`within`), and whether it comes first when rules collide.
+* **What a value states.** A persona or data value records the share of users it stands for (`weight`) and whether a test plan must include it (`required`).
+* **More relations.** The order two tools are called in, the route a request takes to a flow, and the exact reply text a rule fixes.
+* **Every prompt style.** Rules are read in lists, numbered rules, prose, tables, nested sections, a second language, negations, conditions, tool references, examples that contradict a rule, deprecated sections, duplicated rules with precedence, rules hidden inside examples, and rules phrased as questions. Any two of these styles can be mixed in one prompt.
+* **Long prompts.** A prompt of 100k characters and more is read in chunks cut at line boundaries, within a time budget. A wrapped sentence, a table with its header, a section with its heading path, a question with its answer and a deprecation marker with the text it covers stay together. Constraints are proposed once the whole map is known, and a replacement in one chunk retires the rule it replaces in another.
+* **A map that depends only on what the prompt says.** The map does not change when sections are reordered, a rule is split into two sentences, a word is replaced by a synonym, or a sentence that specifies nothing is added. Two halves of a prompt give the two halves of the map, and a prompt with one more constraint gives exactly one more constraint. Most of this holds today; reordering sections can still change which dimension is the axis, until declared roles ship.
+
 ## Approve
 
 A dimension has one `approved` flag, which its values inherit; a value may set its own flag to override it. Each constraint, phrase and relation has its own flag. `extract approve` with no option lists the open decisions and the grid the axes give:
@@ -496,6 +508,31 @@ exit 0
 ```
 
 The output folder holds `specs/`, `holdout/` (with `seal.json`), `gate-report.json` (the funnel, the mutation score, and every stage's verdict for every block), `review.yaml` and `label-audit.yaml`. The last two sit beside `specs/` and are not specs: point a campaign at `specs/`. `gate` exits 0 with at least one accepted block, 1 with none, 2 on a usage or input error (nothing written).
+
+## Model proposals: `generate --model`
+
+Code enumerates what the map allows; a model can propose what code does not think of. `driftbench generate --model` asks the model port for more specs from the approved map, and no proposal counts until the [gate](#the-gate) accepts it.
+
+* The model gets a digest of the approved map (the agent, each approved dimension and its approved values, without evidence or anything unapproved), one complete spec the code wrote, as the format, and the number of specs to propose.
+* Each YAML document of the answer is one proposal. One that is not a valid spec is rejected at stage `spec`, with the first schema error. A proposal's `target` is dropped, so the gate runs it on the first `--reference`.
+* The valid proposals go through the nine stages of the gate on `--reference` with the fault set `--faults`. A proposal counts when the gate accepts at least one of its blocks; every other one is reported with the stage and the reason that refused it, and the block.
+* Everything lands under `<out>/proposed/`: the candidates, the gate's output in `gated/`, and `proposals.json` with the model, the count asked and one row per proposal.
+
+```
+driftbench generate --map <file> --out <dir> --model --reference <adapter:agent> --faults <set> [--proposals <n>] [--k <n>]
+```
+
+On the Acme map, with a fake port that answers three proposals written by hand (the tool-failure golden under a new id, a spec whose Then reads only the agent's words, and a spec with no blocks):
+
+```
+Model proposals: 3 written by mistral fake-mistral, each through the gate.
+  model-coverage-down  counted   3 of 3 blocks accepted
+  model-words-only     rejected  0 of 1 blocks accepted  observed: words-only (block 0)
+  model-broken         rejected  not a spec              spec: blocks SCHEMA_INVALID_TYPE Invalid input: expected array, missing
+Counted 1 of 3 proposals. Candidates and the gate's output in _captures/gap-users/demo/generated/proposed.
+```
+
+`--model` is a paid call with a real port (`ANTHROPIC_API_KEY`, or `OPENAI_API_KEY` with `OPENAI_MODEL`); without `--model`, `generate` calls no model. The exit code is the one code generation gives, or 1 when the model call fails.
 
 ## Task families
 

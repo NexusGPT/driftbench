@@ -36,6 +36,8 @@ export type EstateAtom = {
   situation?: string;
   evidence: EstateEvidence[];
   fields?: Record<string, unknown>;
+  /** The passage the atom is read from; the generator reads the paths a hazard passage names from it. */
+  provenance?: { quote: string; file?: string };
 };
 
 export type EstateMapInput = { runtime: string; hash: string; atoms: EstateAtom[] };
@@ -49,6 +51,8 @@ export type EstatePlanRow = {
   status: 'proposed' | 'approved' | 'struck';
   weight?: number;
   note?: string;
+  /** A focus variant of this plan row (generator only): the row it varies. */
+  variantOf?: string;
 };
 
 export type EstatePlanInput = { mapHash: string; rows: EstatePlanRow[] };
@@ -67,9 +71,18 @@ export type BankPhrase = z.infer<typeof BankPhrase>;
 /**
  * What a situation is for. `trigger` sets the atom off; `outside` is a situation just outside its trigger
  * (the act must not happen); `near_miss` reads like a route's asks and is not one; `misroute` names the
- * wrong primitive; `pressure` tempts the agent to skip a gate or a stage; `resume` picks a stopped helper up.
+ * wrong primitive; `pressure` tempts the agent to skip a gate or a stage; `resume` picks a stopped helper up;
+ * `forced` instructs the guarded act itself, so a live guard test never waits for the agent to choose it.
  */
-export const SituationUse = z.enum(['trigger', 'outside', 'near_miss', 'misroute', 'pressure', 'resume']);
+export const SituationUse = z.enum([
+  'trigger',
+  'outside',
+  'near_miss',
+  'misroute',
+  'pressure',
+  'resume',
+  'forced',
+]);
 export type SituationUse = z.infer<typeof SituationUse>;
 
 export const Touches = z
@@ -113,7 +126,12 @@ export const PhraseBank = z.strictObject({
   estate: z.string().min(1),
   mapHash: z.string().min(1).describe('The hash of the approved map the bank was written against'),
   workspaces: z.array(WorkspaceSeed).default([]),
-  situations: z.array(Situation).min(1),
+  situations: z
+    .array(Situation)
+    .default([])
+    .describe(
+      'May be empty: a model-free run still gets the gap report, each row naming the phrase it needs',
+    ),
   deviations: z.array(DeviationPhrases).default([]),
 });
 export type PhraseBank = z.infer<typeof PhraseBank>;

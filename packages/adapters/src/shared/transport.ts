@@ -1,4 +1,4 @@
-import { AdapterTransportError } from '@driftbench/core';
+import { AdapterTransportError, parseRetryAfter } from '@driftbench/core';
 import { describeError } from './observed';
 
 /** The part of `fetch` the adapters use, so a test can hand in its own. */
@@ -10,6 +10,8 @@ export type HttpReply = {
   readonly text: string;
   readonly json: unknown;
   readonly latencyMs: number;
+  /** The wait the server asked for in its `retry-after-ms` or `retry-after` header, when it sent one. */
+  readonly retryAfterMs?: number;
 };
 
 /**
@@ -38,11 +40,13 @@ export async function sendRequest(
   } catch (cause) {
     throw new AdapterTransportError(`${label}: the response broke off: ${describeError(cause)}`, { cause });
   }
+  const retryAfterMs = retryAfterOf(response.headers);
   return {
     status: response.status,
     text,
     json: parseJson(text),
     latencyMs: Math.round(performance.now() - started),
+    ...(retryAfterMs === undefined ? {} : { retryAfterMs }),
   };
 }
 
@@ -63,4 +67,10 @@ function parseJson(text: string): unknown {
 
 function isTimeout(cause: unknown): boolean {
   return cause instanceof Error && (cause.name === 'TimeoutError' || cause.name === 'AbortError');
+}
+
+function retryAfterOf(headers: Headers | undefined): number | undefined {
+  const ms = headers?.get('retry-after-ms');
+  if (ms && /^\d+(\.\d+)?$/.test(ms.trim())) return Math.round(Number(ms));
+  return parseRetryAfter(headers?.get('retry-after'));
 }

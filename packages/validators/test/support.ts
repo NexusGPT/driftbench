@@ -1,4 +1,4 @@
-import { bankMeasure, defineLadder, type Ladder } from '../src/index';
+import { bankMeasure, defineLadder, type JournalRow, type Ladder, measureHardness } from '../src/index';
 
 /** A fixture ladder of three levels. Level 2 fails on the seeds listed in `failOn`; the calls are counted. */
 export function plantedLadder(failOn: readonly number[] = [1, 2, 3], component = 'planted') {
@@ -182,4 +182,20 @@ export function bankLadder(failOn: readonly number[] = [2], options: { hints?: b
     ],
   });
   return { ladder, calls };
+}
+
+/** An audit.md where all four checks pass (section 12.7). */
+export const PASSING_AUDIT = [
+  '| Check | Verdict | Note |',
+  '|---|---|---|',
+  '| blind pilot | pass | |',
+  '| cheater | pass | |',
+  '| cause review | pass | |',
+  '| planted bugs | pass | |',
+  '',
+].join('\n');
+
+/** The hardness of journal rows with a passing audit by default, so a test measures everything else; null: no audit.md. */
+export function hard(rows: readonly JournalRow[], audit: string | null = PASSING_AUDIT) {
+  return measureHardness(rows, audit === null ? {} : { audit });
 }

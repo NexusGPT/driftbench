@@ -1,13 +1,17 @@
 import { randomUUID } from 'node:crypto';
-import type {
-  AdapterCapabilities,
-  AgentAdapter,
-  Message,
-  Observed,
-  ResolvedGiven,
-  Session,
-  Turn,
-  WorldState,
+import {
+  type AdapterCapabilities,
+  type AgentAdapter,
+  decideToolRule,
+  deniesCall,
+  type Message,
+  type Observed,
+  type ResolvedGiven,
+  type Session,
+  type TargetRef,
+  type ToolRule,
+  type Turn,
+  type WorldState,
 } from '@driftbench/core';
 import { asAgentError, parseObserved, readSource, type ToolPayload } from '../shared';
 
@@ -24,15 +28,27 @@ export type { ToolPayload } from '../shared';
 
 export const FUNCTION_ADAPTER_VERSION = '0.1.0';
 
+/** What the agent function is told besides the conversation: its target, and the prompt it runs with. */
+export type AgentContext = {
+  /** Runs a tool the agent calls. A tool the adapter's tool policy denies is refused first: the run function never runs, and the call rejects with the reason. */
+  callTool: <T>(label: string, run: () => T | Promise<T>) => Promise<T>;
+  target: TargetRef;
+  /** `target.prompt.text`: the prompt version `campaign run --prompt` restored from the store. */
+  prompt?: string;
+};
+
 /** The agent. `state` is what `create` built for the session, or undefined without `create`. */
 export type AgentFunction<S = undefined> = (
   messages: Message[],
   world: WorldState,
   vars: Record<string, unknown>,
   state: S,
+  context: AgentContext,
 ) => Promise<Observed> | Observed;
 
 export type FunctionAdapterOptions<S = undefined> = {
+  /** A tool policy that the agent's context.callTool applies before each call. Absent: every call runs. */
+  toolPolicy?: readonly ToolRule[];
   /** The agent, called once per block. `createAcmeAgent().respond` fits as it is. */
   respond: AgentFunction<S>;
   /** Builds per-session state, such as a fresh store, so nothing leaks between conversations. */
@@ -100,6 +116,21 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
           structuredClone(turn.given.world),
           structuredClone(turn.given.vars),
           state.agent,
+          {
+            callTool: async (label, run) => {
+              const rule = options.toolPolicy ? decideToolRule(options.toolPolicy, label) : undefined;
+              if (deniesCall(rule)) {
+                throw new Error(
+                  rule?.action === 'ask'
+                    ? `tool policy rule ${rule.pattern} asks, and no approver answers, so the call is denied`
+                    : `denied by tool policy rule ${rule?.pattern ?? ''}`,
+                );
+              }
+              return run();
+            },
+            target: structuredClone(session.target),
+            ...(session.target.prompt === undefined ? {} : { prompt: session.target.prompt.text }),
+          },
         );
       } catch (cause) {
         throw asAgentError(cause, `the agent failed on block ${turn.index}`);

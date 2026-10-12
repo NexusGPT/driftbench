@@ -596,10 +596,12 @@ function playerClient(cassette: Cassette, judgeId: string): JudgeClient {
   for (const e of cassette.entries)
     if (e.judge === judgeId) index.set(e.key, [...(index.get(e.key) ?? []), e]);
   const used = new Map<string, number>();
+  // The key as the package's own player computes it: the request, the prompt and the recorded client.
+  const judge = cassette.judges.find((candidate) => candidate.id === judgeId);
   return {
     ...base,
     async judge(request) {
-      const key = judges.requestKey(request);
+      const key = requestKey(request, judge);
       const matches = index.get(key);
       if (!matches) throw new judges.JudgeError('cassette_miss', `no recording for ${key}`);
       const i = used.get(key) ?? 0;
@@ -1186,11 +1188,12 @@ function pruneCassette(cassette: Cassette, keys: readonly string[]): Cassette {
 }
 
 /** The request key, with the reference answer hashed too. */
-function requestKey(request: JudgeRequest): string {
+function requestKey(request: JudgeRequest, ...rest: unknown[]): string {
   const reference = (request as JudgeRequest & { reference?: string }).reference;
+  const key = judges.requestKey as (r: JudgeRequest, ...more: unknown[]) => string;
   return reference === undefined
-    ? judges.requestKey(request)
-    : judges.requestKey({ ...request, artifact: `${request.artifact ?? ''}\n[reference] ${reference}` });
+    ? key(request, ...rest)
+    : key({ ...request, artifact: `${request.artifact ?? ''}\n[reference] ${reference}` }, ...rest);
 }
 
 /** postJson with every echoed header value redacted, whatever its length. */

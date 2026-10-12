@@ -9,7 +9,10 @@ import {
   JudgeError,
   type JudgeRequest,
   loadCassette,
+  PROMPT_FINGERPRINT,
+  PROMPT_PARTS,
   playerClient,
+  promptFingerprint,
   recordingClient,
   requestKey,
   saveCassette,
@@ -73,7 +76,9 @@ describe('cassettes', () => {
     const cassette: Cassette = {
       version: 1,
       judges: [{ id: 'jev-a', family: 'jev', cls: 'system1', cost: 1 }],
-      entries: [{ judge: 'jev-a', key: requestKey(REQUEST), answer: { outcome: 'pass' } }],
+      entries: [
+        { judge: 'jev-a', key: requestKey(REQUEST, { cls: 'system1' }), answer: { outcome: 'pass' } },
+      ],
     };
     const result = await playerClient(cassette, 'jev-a').judge(REQUEST);
     expect(result.answer.outcome).toBe('inconclusive');
@@ -81,7 +86,7 @@ describe('cassettes', () => {
   });
 
   it('replay several answers for one key in order, then repeat the last', async () => {
-    const key = requestKey(REQUEST);
+    const key = requestKey(REQUEST, { cls: 'system1' });
     const cassette: Cassette = {
       version: 1,
       judges: [{ id: 'j', family: 'f', cls: 'system1', cost: 1 }],
@@ -112,5 +117,55 @@ describe('cassettes', () => {
     } finally {
       await rm(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe('the request key covers the prompt and the client', () => {
+  it('changes with the prompt fingerprint, the model and the client settings', () => {
+    const base = requestKey(REQUEST, { cls: 'system2', model: 'haiku' });
+    expect(requestKey(REQUEST, { cls: 'system2', model: 'haiku' })).toBe(base);
+    expect(requestKey(REQUEST, { cls: 'system2', model: 'sonnet' })).not.toBe(base);
+    expect(requestKey(REQUEST, { cls: 'system2', model: 'haiku', settings: '--tools ""' })).not.toBe(base);
+    const changed = promptFingerprint({
+      ...PROMPT_PARTS,
+      system: `${PROMPT_PARTS.system}\n- One more rule.`,
+    });
+    expect(changed).not.toBe(PROMPT_FINGERPRINT);
+    expect(requestKey(REQUEST, { cls: 'system2', model: 'haiku' }, changed)).not.toBe(base);
+  });
+
+  it('misses the cache after a prompt change: a recording never replays under another prompt', async () => {
+    const cassette = emptyCassette();
+    const live = new FakeJudge('lab', [{ outcome: 'pass', reasoning: 'plain' }], {
+      family: 'lab',
+      cls: 'system2',
+    });
+    await recordingClient(live, cassette).judge(REQUEST);
+    expect(await playerClient(cassette, 'lab').judge(REQUEST)).toMatchObject({ answer: { outcome: 'pass' } });
+    const changed = promptFingerprint({
+      ...PROMPT_PARTS,
+      system: `${PROMPT_PARTS.system}\n- One more rule.`,
+    });
+    await expect(playerClient(cassette, 'lab', { prompt: changed }).judge(REQUEST)).rejects.toMatchObject({
+      code: 'cassette_miss',
+    });
+  });
+
+  it('keeps the client settings with the judge, and a recording of other settings misses', async () => {
+    const cassette = emptyCassette();
+    const live = Object.assign(
+      new FakeJudge('cli', [{ outcome: 'fail', reasoning: 'x' }], { family: 'lab' }),
+      {
+        settings: 'flags-v1',
+      },
+    );
+    await recordingClient(live, cassette).judge(REQUEST);
+    expect(cassette.judges[0]).toMatchObject({ id: 'cli', settings: 'flags-v1' });
+    expect((await playerClient(cassette, 'cli').judge(REQUEST)).answer.outcome).toBe('fail');
+    const other: Cassette = {
+      ...cassette,
+      judges: [{ ...(cassette.judges[0] as Cassette['judges'][number]), settings: 'flags-v2' }],
+    };
+    await expect(playerClient(other, 'cli').judge(REQUEST)).rejects.toMatchObject({ code: 'cassette_miss' });
   });
 });

@@ -1,0 +1,18 @@
+# The judged side of relevancy: what the key terms of the ask cannot show. Fictional data.
+criterion:
+  name: relevancy
+  rubric: The reply answers what the user asked in this turn, in any words. It does not answer a different question, change the subject, or ignore the ask. A short reply that fits the ask is relevant. A reply that restates the order the customer asked for and asks them to confirm it answers an order request.
+  pass: The reply gives the answer the question needs, even when it does not repeat the question words. Restating the requested order and asking for confirmation is an answer to an order request.
+  fail: The reply answers a different question, changes the subject, or ignores the ask.
+  judge_class: system1
+fixtures:
+  pass:
+    note: The user asks which plan gives more data and its price; the reply names the plans with data and price.
+    transcript:
+      - { role: user, text: "Which plan gives me more data, and what does it cost per month?" }
+      - { role: agent, text: "The Acme Mobile L plan gives unlimited data and costs $35 per month; Acme Mobile M gives 40 GB of data for $25 per month." }
+  fail:
+    note: The same ask, answered with the store hours.
+    transcript:
+      - { role: user, text: "Which plan gives me more data, and what does it cost per month?" }
+      - { role: agent, text: "Our stores are open Monday to Saturday, 9 am to 6 pm, and closed on Sunday." }

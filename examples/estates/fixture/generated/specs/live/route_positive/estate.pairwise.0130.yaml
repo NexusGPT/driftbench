@@ -72,6 +72,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-reconcile-an-invoice
     planRow: pairwise.0130
+    focusVariant: 129
     cell:
       ask_class: build
       ask_shape: multi_part
@@ -89,3 +90,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: invoice-reconcile
     phrase: 2
+    ask: bank
+    outcome: bank

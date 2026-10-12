@@ -4,7 +4,7 @@ The hardness gate of docs/validators.md 12.4 is not met. Owner decision, 2026-10
 
 ## The recorded bar
 
-Measured by `pnpm driftbench validate judges --hardness` from `validators/judges/journal.jsonl`. A run of HEAD on seeds 1 to 20 and the hidden seed gives the same last row: 259 of 494 items, 77 distinct failing causes.
+Measured by `pnpm driftbench validate judges --hardness` from `validators/judges/journal.jsonl`. The last row is the pilot's end: the judges package with its ten pilot fixes, where a run on seeds 1 to 20 and the hidden seed gives 259 of 494 items and 77 distinct failing causes. On main's judges package, which merged its own contract work instead of the pilot's fixes, the same run gives 254 of 494 (0.5142) and 82 causes; the next executor starts from there.
 
 | Measure | Value | Gate of 12.4 | Verdict |
 |---|---|---|---|

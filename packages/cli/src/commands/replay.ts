@@ -1,9 +1,11 @@
+import { readFile } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
 import { orderedCheck, type ReplaySession, readSession, replayAdapter } from '@driftbench/adapters';
 import { defaultReaders } from '@driftbench/artifacts';
-import { CheckRegistry, defaultChecks, defaultRegistry } from '@driftbench/checks';
+import { CheckRegistry, defaultChecks, defaultRegistry, ESTATE_CHECKS } from '@driftbench/checks';
 import {
   type Campaign,
+  type Check,
   type CheckSet,
   contentHash,
   type LoadedSpec,
@@ -12,11 +14,13 @@ import {
   type Store,
   type TargetRef,
 } from '@driftbench/core';
+import { noJudgeCheck } from '@driftbench/judges';
 import { openMemoryStore, openStore } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { loadValidSpecs } from './campaign';
+import { addJudgeOptions, type RunJudgeOptions, runJudgeFrom } from './run-judge';
 
 /**
  * `driftbench replay`: runs a suite of specs over recorded sessions, offline, with no model call.
@@ -53,7 +57,11 @@ export type ReplayOptions = {
   steps: string[];
   store?: string;
   json?: boolean;
-};
+  /** The owner's own values (an email, a phone, an IBAN) the pii check leaves out. */
+  owner?: string[];
+  /** A file of owner values, one per line; blank lines and lines starting with # are skipped. */
+  ownerFile?: string;
+} & RunJudgeOptions;
 
 /** Registers `driftbench replay`. */
 export function registerReplayCommand(
@@ -62,7 +70,7 @@ export function registerReplayCommand(
   setExit: (code: number) => void,
   deps: ReplayDeps = defaultReplayDeps,
 ): void {
-  program
+  const replay = program
     .command('replay')
     .description('Run a spec suite over recorded sessions, offline, with no model call.')
     .argument('<sessions...>', 'session transcripts (JSONL)')
@@ -75,10 +83,17 @@ export function registerReplayCommand(
     )
     .option('--steps <feeds...>', 'step feeds (JSONL), one per session, matched by file name', collectAll, [])
     .option('--store <db>', 'keep the runs in this store; in memory without it')
-    .option('--json', 'print one JSON document')
-    .action(async (sessions: string[], options: ReplayOptions) => {
-      setExit(await replayCommand(sessions, options, io, deps));
-    });
+    .option(
+      '--owner <values...>',
+      "the owner's own email, phone, IBAN or national number: the pii check leaves exactly these out",
+      collectAll,
+      [],
+    )
+    .option('--owner-file <file>', 'owner values, one per line, for the pii check; # starts a comment line')
+    .option('--json', 'print one JSON document');
+  addJudgeOptions(replay).action(async (sessions: string[], options: ReplayOptions) => {
+    setExit(await replayCommand(sessions, options, io, deps));
+  });
 }
 
 type SessionEntry = {
@@ -129,6 +144,10 @@ export async function replayCommand(
     io.err(`Two sessions share the name ${duplicate}; give each transcript its own file name.\n`);
     return 2;
   }
+  const owner = await ownerValues(options, io);
+  const judge = await runJudgeFrom(options, io);
+  if (!judge) return 2;
+  if (!owner) return 2;
   const decisions = assign(options.decisions, names, '--decisions', io);
   const steps = assign(options.steps, names, '--steps', io);
   if (!decisions || !steps) return 2;
@@ -195,11 +214,14 @@ export async function replayCommand(
       modes: ['F'],
       repeats: { T: 0, F: 1, P: 0 },
       budgetUsd: 0,
-      judge: { mode: 'system1', judges: [] },
+      judge: {
+        mode: judge.label === 'none' ? 'system1' : 'llm',
+        judges: judge.label === 'none' ? [] : [judge.label],
+      },
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks();
+    const checks = replayChecks({ piiOwner: owner, judge: judge.check });
     const artifacts = defaultReaders();
     for (const alignment of aligned.alignments) {
       const session = await sessionFor(alignment);
@@ -237,6 +259,8 @@ export async function replayCommand(
           campaignId,
           store: storePath ?? null,
           notes: aligned.notes,
+          judge: judge.label,
+          judgeCostUsd: judge.spend.usd,
           runs: lines,
           passed,
           failed: lines.length - passed,
@@ -256,7 +280,7 @@ export async function replayCommand(
       if (line.failing.length > 0) io.out(`    failing: ${line.failing.join(', ')}\n`);
     }
     io.out(
-      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${lines.length - passed} fail. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
+      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${lines.length - passed} fail. Judge ${judge.label}, ${judge.spend.usd.toFixed(4)} USD. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
     );
   }
   return passed === lines.length ? 0 : 1;
@@ -291,15 +315,37 @@ function referencesOf(spec: LoadedSpec): string[] {
   ];
 }
 
-/** The checks of a replay: every default check, with the ordered-pair check added to the custom registry. */
-export function replayChecks(): CheckSet {
+/**
+ * The custom checks of an estate run: every check of the default registry, the ordered-pair check, and
+ * the estate checks (`some_call`, `hazard_recovery`, `permission`). The estate generator writes only names
+ * this registry holds (`REPLAY_CUSTOM_CHECKS`).
+ */
+export function replayRegistry(): CheckRegistry {
   const registry = new CheckRegistry();
   for (const name of defaultRegistry.names()) {
     const check = defaultRegistry.get(name);
     if (check) registry.register(name, check);
   }
   if (!registry.get('ordered')) registry.register('ordered', orderedCheck);
-  return defaultChecks({ registry });
+  for (const [name, check] of Object.entries(ESTATE_CHECKS)) {
+    if (!registry.get(name)) registry.register(name, check);
+  }
+  return registry;
+}
+
+/**
+ * The checks of a replay: every default check, with the replay registry's custom checks. `piiOwner` lists
+ * the owner's own values the pii check leaves out; empty by default. `judge` judges the criteria blocks
+ * name; without one, each is inconclusive (`noJudgeCheck`), never a pass.
+ */
+export function replayChecks(options: { piiOwner?: readonly string[]; judge?: Check } = {}): CheckSet {
+  const registry = replayRegistry();
+  const judge = options.judge ?? noJudgeCheck();
+  return defaultChecks({
+    registry,
+    judges: { check: () => judge },
+    ...(options.piiOwner?.length ? { piiOwner: options.piiOwner } : {}),
+  });
 }
 
 /** A session's name: its file name without `.jsonl`. */
@@ -489,4 +535,24 @@ function collectAll(value: string, previous: string[]): string[] {
 
 function describe(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
+}
+
+/** The owner values from --owner and --owner-file. Undefined, with the reason printed, when the file cannot be read. */
+async function ownerValues(options: ReplayOptions, io: Io): Promise<string[] | undefined> {
+  const values = [...(options.owner ?? [])];
+  if (options.ownerFile !== undefined) {
+    const path = resolve(io.cwd, options.ownerFile);
+    let text: string;
+    try {
+      text = await readFile(path, 'utf8');
+    } catch (cause) {
+      io.err(`Cannot read the owner file ${path}: ${describe(cause)}\n`);
+      return undefined;
+    }
+    for (const line of text.split(/\r?\n/)) {
+      const value = line.trim();
+      if (value !== '' && !value.startsWith('#')) values.push(value);
+    }
+  }
+  return values.map((value) => value.trim()).filter((value) => value !== '');
 }

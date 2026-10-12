@@ -4,6 +4,7 @@ import {
   AgentFailure,
   contentHash,
   isPlainObject,
+  type RetryPolicy,
   type Segment,
   type Session,
   type Turn,
@@ -11,6 +12,7 @@ import {
 import {
   addUsage,
   answerTool,
+  callModel,
   measureOnce,
   newUsage,
   observedOf,
@@ -18,13 +20,14 @@ import {
   outputText,
   ownState,
   payloadLog,
+  policyOf,
+  type RetryOption,
   readPayloads,
   recordPayloads,
   type SdkState,
   type SdkTool,
   type SdkTools,
   stepCap,
-  vendorError,
   WireNames,
 } from './common';
 import {
@@ -54,11 +57,12 @@ export type {
  * `tool_use` blocks, the adapter answers each call (a forced result or error from the block's
  * `world.tools` first, else the tool's own `run`), sends the `tool_result` blocks back, and asks again, up
  * to a step cap. The block's Observed holds every text block and every tool call with its result, in order.
+ * Each model call runs under the shared retry policy, with the client's own retries off (`maxRetries: 0`).
  */
 
 export const ANTHROPIC_ADAPTER_VERSION = '0.1.0';
 
-export type AnthropicAdapterOptions = {
+export type AnthropicAdapterOptions = RetryOption & {
   /** The client. The adapter calls `client.messages.create(body)` and nothing else. */
   client: AnthropicClientLike;
   /** The model id, such as `claude-sonnet-5-5`. */
@@ -96,13 +100,17 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
     deterministic: options.deterministic ?? false,
   };
 
-  async function create(body: AnthropicCreateParams, block: number): Promise<AnthropicMessage> {
-    let answer: unknown;
-    try {
-      answer = await options.client.messages.create(body);
-    } catch (cause) {
-      throw vendorError(cause, `messages.create (${options.model}) failed on block ${block}`);
-    }
+  async function create(
+    body: AnthropicCreateParams,
+    block: number,
+    policy: RetryPolicy,
+  ): Promise<AnthropicMessage> {
+    const answer: unknown = await callModel(
+      `messages.create (${options.model}) on block ${block}`,
+      () => options.client.messages.create(body, { maxRetries: 0 }),
+      policy,
+      options,
+    );
     if (!isPlainObject(answer) || !Array.isArray(answer.content)) {
       throw new AgentFailure(`messages.create (${options.model}) answered without a content list`);
     }
@@ -131,7 +139,10 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
       const state = ownState<AnthropicState>(session, id, 'anthropic');
       const names = new WireNames(state.tools.keys(), ANTHROPIC_NAME);
       const history = toAnthropicMessages(session.history, names);
-      const system = [options.system ?? '', ...history.system].filter((part) => part !== '').join('\n\n');
+      // A prompt version from the registry replaces the configured system prompt.
+      const system = [session.target.prompt?.text ?? options.system ?? '', ...history.system]
+        .filter((part) => part !== '')
+        .join('\n\n');
       const messages: AnthropicMessageParam[] = history.messages;
       const tools = [...state.tools.values()].map((tool) => ({
         name: names.wire(tool.name),
@@ -139,6 +150,7 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
         input_schema: tool.inputSchema ?? { type: 'object' },
       }));
       const cap = stepCap(maxSteps, turn.budget?.steps);
+      const policy = policyOf(turn, session, options);
       const context = {
         sessionId: session.id,
         blockIndex: turn.index,
@@ -161,6 +173,7 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
             ...(tools.length === 0 ? {} : { tools }),
           },
           turn.index,
+          policy,
         );
         const callMs = Math.round(performance.now() - started);
         latencyMs += callMs;

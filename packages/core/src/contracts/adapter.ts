@@ -1,3 +1,4 @@
+import type { RetryPolicy } from '../retry';
 import type { Message, TargetRef } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Stimulus } from '../schema/spec';
@@ -55,6 +56,12 @@ export type Turn = {
   readonly given: ResolvedGiven;
   /** The block's budget, when the spec sets one; an adapter may stop the agent at the limit. */
   readonly budget?: { steps?: number; costUsd?: number; latencyMs?: number };
+  /**
+   * The retry policy of the block's model calls: the spec target's `retry`, under the run's own settings
+   * (the command line). An adapter that calls a model itself retries each call under it; absent, the
+   * adapter uses `retryPolicy(target.retry)`.
+   */
+  readonly retry?: RetryPolicy;
 };
 
 export interface AgentAdapter {
@@ -81,12 +88,33 @@ export interface AgentAdapter {
   close(session: Session): Promise<void>;
 }
 
+/** What a transport error may carry for the retry policy. */
+export type TransportErrorOptions = {
+  cause?: unknown;
+  /** The HTTP status, when there was one: the retry policy retries 429 and 5xx only. */
+  status?: number;
+  /** The wait the server asked for (Retry-After), in milliseconds. */
+  retryAfterMs?: number;
+  /** True when the call was already retried as the policy allows: the runner does not retry it again. */
+  exhausted?: boolean;
+  /** How many attempts were made, when the call was retried. */
+  attempts?: number;
+};
+
 /** Thrown by an adapter when the transport failed and the runner may retry. */
 export class AdapterTransportError extends Error {
   readonly retryable = true;
-  constructor(message: string, options?: { cause?: unknown }) {
-    super(message, options);
+  readonly status?: number;
+  readonly retryAfterMs?: number;
+  readonly exhausted: boolean;
+  readonly attempts?: number;
+  constructor(message: string, options: TransportErrorOptions = {}) {
+    super(message, options.cause === undefined ? undefined : { cause: options.cause });
     this.name = 'AdapterTransportError';
+    if (options.status !== undefined) this.status = options.status;
+    if (options.retryAfterMs !== undefined) this.retryAfterMs = options.retryAfterMs;
+    this.exhausted = options.exhausted ?? false;
+    if (options.attempts !== undefined) this.attempts = options.attempts;
   }
 }
 

@@ -51,7 +51,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Where is shipment NW-55012? It was promised for 2 October.
+      user: Has NW-55031 arrived yet? The carrier is FRT.
     expect:
       skills:
         - name: shipment-tracker
@@ -65,6 +65,7 @@ metadata:
       - route.standing.an-ask-to-know-where-a
       - skill.shipment-tracker.skill-shipment-tracker
     planRow: route_positive.route.standing.an-ask-to-know-where-a.3
+    focusVariant: 2
     cell:
       atoms.route: route.standing.an-ask-to-know-where-a
     seeder: estate
@@ -75,4 +76,6 @@ metadata:
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: shipment-late
-    phrase: 0
+    phrase: 2
+    ask: bank
+    outcome: bank

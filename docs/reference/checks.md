@@ -2,9 +2,9 @@
 
 A check reads one part of what the agent did and returns verdicts with their evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 20 checks, in the order the runner applies them: `tools`, `forbidden`, `must`, `must_not`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 20 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
+Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 26 checks, in the order the runner applies them: `tools`, `tools_offered`, `forbidden`, `must`, `must_not`, `exact`, `injection`, `similarity`, `relevancy`, `knowledge_retention`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 26 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
 
-The checks read the agent's runtime through four concepts: tools, skills, guards and stages. See [block](../concepts/block.md#tools-skills-guards-and-stages). Two more fields of the runtime trace record what the agent consulted and delegated: the files it read (`references`) and the helpers it dispatched (`subagents`).
+The checks read the agent's runtime through four concepts: tools, skills, guards and stages. The runtime trace may also list the tools the runtime offered the agent (`offered`): `tools_offered` reads it, so a tool a setting denies, or a deny rule removed, shows even when the agent never calls the tool. See [block](../concepts/block.md#tools-skills-guards-and-stages). Two more fields of the runtime trace record what the agent consulted and delegated: the files it read (`references`) and the helpers it dispatched (`subagents`).
 
 Every check belongs to one family, whether it reads a reply or a workbook: one package, one verdict shape, one mutation test per check (break the target, see the check fail, restore). A machine check that fails is final; no judge overturns it. Which check gives which drift class is on the [drift](../concepts/drift.md) page. How the runner applies the checks is on the [running](../running.md) page.
 
@@ -22,16 +22,22 @@ Two kinds of verdict are inconclusive:
 | Inconclusive | Gating | When |
 |---|---|---|
 | the detector or the spec could not decide | no | `lang` when no text segment is long enough, when the detector has no model for the language, or, for `lang.stable`, when no reply so far is clear enough to set the language; `budget.cost_usd` when nothing reports a cost; `schema_strict` for a tool with no schema |
-| the adapter observed nothing | yes | `skills` and `guards` with no runtime trace at all; `execution` with no executions list; `workspace` with no workspace diff. The block cannot pass on that expectation. |
+| the adapter observed nothing | yes | `skills` and `guards` with no runtime trace at all; `tools_offered` with no offered list; `execution` with no executions list; `workspace` with no workspace diff. The block cannot pass on that expectation. |
 
 ## Every check and its verdict ids
 
 | Check | Applies to a block when | Verdict ids |
 |---|---|---|
 | `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.order`, `tools.argument_accuracy` |
+| `tools_offered` | `expect.tools_offered` names a tool to include or exclude | `tools_offered.include.<tool>`, `tools_offered.exclude.<tool>` |
 | `forbidden` | a tool is in `rules.forbidden_tools`, has `rules.max_calls`, or is expected 0 times in the block | `forbidden.<label>`, `forbidden.max_calls.<label>` |
 | `must` | `expect.must` holds a pattern | `must.<index>` |
 | `must_not` | `expect.must_not` holds a pattern | `must_not.<index>` |
+| `exact` | `expect.exact` holds a reference text | `exact.0` |
+| `injection` | `expect.injection` is true: the block is a prompt-injection or jailbreak attempt | `injection.attack`, `injection.resist` |
+| `similarity` | `expect.similarity` holds a reference text | `similarity.<index>`, with the score |
+| `relevancy` | `expect.relevancy` is set | `relevancy.terms`, with the share of key terms found as the score |
+| `knowledge_retention` | `expect.knowledge_retention` names a fact | `knowledge_retention.<fact>.asked`, and `knowledge_retention.<fact>.used` for an entry with `use: true` |
 | `lang` | `expect.lang` is set, or `rules.lang_stable` is true | `lang.expected`, `lang.stable` |
 | `pii` | the block has visible text | `pii.iban`, `pii.national_number`, `pii.phone`, `pii.email` |
 | `cards` | `expect.cards` names a card, or `rules.one_message_per_turn` is true | `cards.<name>`, `cards.one_message_per_turn` |
@@ -87,6 +93,11 @@ Every field is optional and open to both kinds of block.
 | `safety` | at most `max_destructive_ops` destructive operations, and a confirmation before each operation in `confirm_before` | `safety` |
 | `must` | regular expressions the customer-visible text must match | `must` |
 | `must_not` | regular expressions the customer-visible text must not match | `must_not` |
+| `exact` | the customer-visible text equals a reference text, after normalising | `exact` |
+| `injection` | the block is an attempt to override the agent, and the reply must not obey it | `injection` |
+| `similarity` | each reference text the reply must be close to: `reference` and `min`, from 0 to 1 | `similarity` |
+| `relevancy` | the reply addresses the ask of the block: `min`, the share of key terms (default 0.5), and optional `terms` | `relevancy` |
+| `knowledge_retention` | each fact given earlier: `fact`, a ledger key, `use` and an optional `ask` pattern | `knowledge_retention` |
 | `lang` | the language of the reply | `lang` |
 | `cards` | each expected card: `name` and `count` | `cards` |
 | `criteria` | judged criteria by name; `name@gating` gates the block | `judge`, when the check set holds a council; see [judged criteria](#judged-criteria) |
@@ -116,7 +127,7 @@ A tool expectation names the tool by `label`. `count` is an exact number, or `{ 
 
 `tool_order` uses the three match types of the Google ADK trajectory evaluator ([google/adk-python](https://github.com/google/adk-python), read 2026-10-11):
 
-* `exact`: the observed calls split into consecutive runs, one per expected tool in order, each as long as its count allows, with no call left over.
+* `exact`: the observed calls split into consecutive runs, one per expected tool in order, each as long as its count allows, with no call left over. A failing `exact` verdict names the first call where the observed calls leave the expected ones: a call that differs (expected and seen), an extra call, or a missing call, by its position.
 * `in_order`: the expected calls appear in this order; other calls may sit between them.
 * `any_order`: the expected calls appear, in any order.
 
@@ -155,6 +166,17 @@ An adapter that does not report the files read, or the helpers dispatched, leave
 
 ## Rules on tools
 
+A run-wide tool policy is off by default. Each rule is `{ pattern, action }`: `pattern` is a glob over the tool name (`*` matches any run of characters), and `action` is `allow`, `deny` or `ask`. The first rule that matches a call decides, and a call no rule matches is allowed. An `ask` is a denial, since nothing answers it.
+
+The same rules can be given in three places:
+
+* `defaultChecks({ toolPolicy: [...] })` adds the `tool_policy` check. A denied call fails the block with one verdict per tool, `tool_policy.<label>`. The check reads the calls after the agent made them.
+* `runSpec({ toolPolicy: [...] })` marks each denied call in the recorded block, with an error that names the rule, before the checks read it. The cache keeps the calls as the adapter reported them, and each read of a cached block gates them again.
+* An adapter option, where the adapter runs the tool itself, refuses the call before it runs. These are: the vercel-ai adapter (`toolPolicy`, refusing a tool before its `execute`), the function adapter (`toolPolicy`, applied by the agent's `context.callTool`), and the process adapter (a provider wrapped with `withApprovalPolicy`, refusing a command before it runs).
+
+Before-call gating covers the calls the harness runs. A remote runtime, an MCP server, or an SDK loop that owns its tool objects (openai-agents, pydantic-ai, the model adapters whose tools the runtime runs) has already run a call when the adapter reports it. For those adapters the call is gated after the fact, by the runner and the check, and the trace records the denial.
+
+
 * A tool is forbidden in a block when `rules.forbidden_tools` lists it, when `rules.max_calls` caps it at 0, or when the block expects it 0 times. One verdict per tool names every reason.
 * `rules.max_calls` above 0 caps the calls across the run: the blocks before and this one together. A block fails the cap only when its own calls go past it, so one excess is reported once.
 
@@ -177,17 +199,68 @@ Equality is JSON equality: lists compare item by item, in order, and a key that 
 
 ## Text and language
 
+* `injection: true` marks a block whose user message is a prompt-injection or jailbreak attempt. Two verdicts: `injection.attack` passes when a rule recognises the message as an attempt, and is inconclusive, never failed, when none does; `injection.resist` fails when the reply matches a compliance rule, such as an announced developer mode or a disclosed system prompt, and quotes the match. The rules are regular expressions written for this check, in English and French. There is no external service. A judged criterion covers what the rules cannot see.
+* `exact` holds one reference text. The reply passes when both sides, after normalising, are equal. Normalising trims the text, drops every character that is not a letter, a digit or a space, collapses runs of whitespace and lowers the case. Two numbers compare as numbers, so `42.0` equals `42`, and `true` equals `1`. An empty reply never equals a reference. Evidence gives both normalised forms.
 * `must` and `must_not` hold regular expressions over the customer-visible text: the adapter's `observed.text`, or the text segments joined by a line break when it is empty. A pattern may span segments. The same pattern cannot sit in both lists. The evidence gives the matched text and its offset.
 * `lang` is the expected language of the reply, such as `EN`, `FR` or `NL`, or a tag such as `fr-BE`. Every text segment must read as that language.
 * `rules.lang_stable: true` asks every text segment to read as the language the run settled on: the first reply the detector is sure of, in this block or an earlier one. The detector is sure when its top language leads the next by 0.05.
 
 The detector is franc-min. It reads each text segment twice: as written, and without its capitalised words, so names, brands and places do not pull it off course. Links, email addresses and words with digits, underscores or slashes are dropped first. A segment passes when either reading puts the language within 0.05 of the top score. A reading under 30 letters is too short to judge and is skipped. A language franc-min has no model for gives an inconclusive verdict.
 
+## Similarity, relevancy and knowledge retention
+
+Three checks read whether a reply fits the conversation rather than a pattern.
+
+* `similarity` scores the reply against each `reference` text with an embedder, from 0 to 1, and passes at `min` or above. The verdict carries the score and names the embedder that gave it. The default embedder, `char-ngram-tfidf`, is local: character n-grams of 3 to 5, TF-IDF fitted on the two texts, cosine, with no network, so the same two texts always score the same. Any embedding model plugs in through the embedder port of `@driftbench/core`: `denseEmbedder({ id, embed })` takes one call that turns texts into vectors, and `defaultChecks({ embedder })` uses it. An embedder that fails gives an inconclusive verdict that says why.
+* `relevancy` is the machine floor of relevancy: the reply addresses the ask of the block. Its key terms are the entry's `terms`, or the words of the block's stimulus of four letters or more that carry a topic. The stop list and the stemming follow the language of the ask: the language the `lang` detector is sure of, else the block's or spec's `lang`, else English. English, French, Spanish, Dutch, German, Italian and Portuguese each have a stop list and a light stemmer in code, with no network; any other language keeps every word of four letters and stems nothing. Words are compared in lower case with accents removed, so `données` in the ask matches `donnees` or `donnée` in the reply. A term is in the reply when a reply word has the same stem, or a stem one letter longer (Dutch `bieden` and `biedt`), so `forfaits` matches `forfait` and `goedkoopste` matches `goedkoop`. It passes when the share found reaches `min`, default 0.5. Without a judge, a reply that holds no key term fails and gates; a reply that holds some but not enough gives an inconclusive verdict that does not gate, since words cannot show a paraphrase. With the judged criterion `relevancy` on the block (from the shared catalogue in `examples/criteria`), the share is advisory and never gates: the judge reads the reply in other words and decides.
+* `knowledge_retention` reads a fact the user gave in an earlier block, held in the ledger under `fact`. The block must not ask for it again: a question of the reply (a sentence ending with `?`) that matches `ask`, or by default names the words of the key, fails `knowledge_retention.<fact>.asked`, unless the question repeats the given value, which is a confirmation. Without a judge that fail gates; with the judged criterion `knowledge_retention` on the block it is advisory and the judge decides. With `use: true`, the fact's value must appear in the reply or in a tool call input, case and spacing aside, digits alone for a number of six digits or more. `spec validate` refuses a fact that no ledger holds before the block (`RETENTION_FACT_UNKNOWN`). A fact the ledger does not hold at run time gives an inconclusive verdict that does not gate; the judged criterion `knowledge_retention` of the catalogue lets a judge decide.
+
+```yaml
+- user: Which plan gives me more data, and what does it cost per month?
+  given:
+    ledger: { email: sam.rivera@example.com }
+  expect:
+    relevancy: {}
+    similarity:
+      - reference: The Acme Mobile L plan gives unlimited data for $35 a month.
+        min: 0.5
+    knowledge_retention:
+      - { fact: email, use: true }
+```
+
+The shared catalogue holds three criteria, each with a fixture pair, a passing and a failing transcript. The machine floors of `relevancy` and `knowledge_retention` already separate their pairs. The pair of `conversation_completeness` is judge-only: no machine check reads whether every request was answered. Verdicts on the Acme replies, a passing and a failing reply for each check:
+
+```
+similarity.0 pass: char-ngram-tfidf scored 0.79 against the reference, at least 0.50 expected: "Done. Your order is placed: Acme Fiber 1000 at 14 Harbor Roa..."
+similarity.0 fail: char-ngram-tfidf scored 0.08 against the reference, at least 0.50 expected: "Done. Your order is placed: Acme Fiber 1000 at 14 Harbor Roa..."
+relevancy.terms pass: 4 of 4 key terms of the ask are in the reply (plan, data, cost, month), at least 50% expected
+relevancy.terms fail: 0 of 4 key terms of the ask are in the reply; missing: plan, data, cost, month; at least 50% expected
+knowledge_retention.email.asked fail: email is in the ledger ("jo.okafor@example.com"), yet the reply asks for it again: "Before I place it, what is your email address?"
+knowledge_retention.email.used fail: email "jo.okafor@example.com", from the ledger, is not used: neither in the reply nor in a tool input
+```
+
+A failing `similarity` or `relevancy` verdict gives drift class X1; a failing `knowledge_retention` verdict, a known fact asked again or dropped, gives X3. See [drift](../concepts/drift.md).
+
 ## Personal data
 
 The `pii` check is always on in `defaultChecks()` and gates. It reads the visible text and gives one verdict per kind: IBANs with a valid checksum, Belgian national register numbers with a valid check, phone numbers in international form and Belgian mobiles, and email addresses. Fictional data passes, with the same exceptions as the repository's leak guard, such as email addresses at `example.com`, `example.org`, `example.net` and `localhost` or under `.example`, `.test`, `.invalid` and `.localhost`, and phone numbers in the reserved North American range 555-0100 to 555-0199. The evidence masks each value and gives its offset, so a report never repeats the data it flags.
 
-A spec cannot configure the check yet. Checking that the agent does not echo a field it must not repeat is not built.
+A spec cannot configure the check. A caller can give it the owner's own values, so a replay of the owner's own sessions does not flag the address they typed or read:
+
+```ts
+import { createPiiCheck, defaultChecks } from '@driftbench/checks';
+
+const checks = defaultChecks({ piiOwner: ['owner@example.org', '+1 202 555 0123'] });
+const pii = createPiiCheck({ owner: ['owner@example.org'] });
+```
+
+* The list is empty by default, so every finding counts.
+* A finding is left out only when it equals an owner value. An email address is compared with case folded; any other value is compared as its letters and digits, with spaces and punctuation dropped.
+* A domain, a pattern or a part of a value never matches. A third party at the owner's domain is still flagged.
+* Each form of a value is its own entry: a phone number written in national form and in international form needs both.
+* The evidence counts the owner values it left out, as `1 owner email address left out`, and never prints them.
+
+`driftbench replay` takes the list with `--owner` and `--owner-file`; see the [CLI page](cli.md#driftbench-replay). Checking that the agent does not echo a field it must not repeat is not built.
 
 ## Cards
 
@@ -304,6 +377,22 @@ rules:
 
 `registerCheck` adds to the default registry; `defaultChecks({ registry })` takes another `CheckRegistry`. A name takes letters, digits, dots, underscores and hyphens, and is registered once. Every verdict is filed under `custom.<name>`: the check above gives `custom.reply_length.words`. A name nobody registered, a check that throws, or a value that is not a verdict gives a failed verdict that says so.
 
+### The ordered pair
+
+`driftbench replay` registers one more custom check, `ordered`, from the Claude Code adapter. A gate says "before X, do Y"; the pair `{ before: Y, after: X }` holds in a block when every X has a Y before it, in this block or an earlier one of the run. The full rules are on the [Claude Code page](../adapters/claude-code.md#the-ordered-pair-check).
+
+```yaml
+rules:
+  custom:
+    ordered:
+      pairs:
+        - { before: Read, after: Edit, key: file_path, reset: compaction }
+        - { before: [Read, Grep], after: Edit, key: file_path }
+```
+
+* `before` is one name or a list. With a list, any one of its names before the X holds the pair. The verdict id joins the list with `_or_`: the second pair above is `custom.ordered.Read_or_Grep.Edit`.
+* A Write that succeeded counts as a Read of the file it wrote, since the agent then holds its content. So `before: Read` with `key: file_path` holds for an Edit that follows a Write of the same file. A Write that failed counts as nothing.
+
 ## Judged criteria
 
 `criteria` names criteria the spec defines, or criteria from a shared catalogue. `gating: true` on a definition gates every reference to it, and `name@gating` gates that one reference; a fail of a gating criterion fails the block.
@@ -349,6 +438,8 @@ A verdict from the Acme campaign run with a council that replays the campaign ca
 * The latency is `observed.latencyMs`.
 
 ## Rules for the whole spec
+
+The match_case rule sets how must and must_not read the reply. By default (false) a pattern ignores the case of the reply, and a trailing punctuation mark does not count: a pattern ending in Mbps$ matches "fiber at 300 Mbps.". With match_case true both count. Word boundaries work in both modes: a pattern with a word boundary before and after 300 does not match "3000".
 
 | Field | What it checks | Check |
 |---|---|---|

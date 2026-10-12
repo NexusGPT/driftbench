@@ -101,6 +101,16 @@ export const ExecutionRecord = z.strictObject({
   startedAt: z.string().optional(),
   latencyMs: z.number().nonnegative().optional(),
   truncated: z.boolean().optional(),
+  /** The approval policy's decision on this command and its cwd. Absent when no policy is set. */
+  approval: z
+    .strictObject({
+      decision: z.enum(['allow', 'deny']),
+      by: z.enum(['rule', 'default', 'approver', 'no-approver']),
+      match: z.enum(['command', 'path']),
+      subject: z.string(),
+      pattern: z.string().optional(),
+    })
+    .optional(),
 });
 export type ExecutionRecord = z.infer<typeof ExecutionRecord>;
 
@@ -111,17 +121,45 @@ export type ExecutionRecord = z.infer<typeof ExecutionRecord>;
 export const RuntimeTrace = z.strictObject({
   skills: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
   guards: z
-    .array(z.strictObject({ name: z.string(), verdict: z.string(), at: z.string().optional() }))
+    .array(
+      z.strictObject({
+        name: z.string(),
+        verdict: z.string(),
+        at: z.string().optional(),
+        /** What the guard printed and how it ended, when the runtime reports its output. */
+        stdout: z.string().optional(),
+        stderr: z.string().optional(),
+        exitCode: z.number().int().optional(),
+        /** The runtime's own word for how the run ended: success, blocking, cancelled, no_response. */
+        outcome: z.string().optional(),
+      }),
+    )
     .optional(),
   stages: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
   /** Files the agent read during the block, by path. Absent when the runtime does not report them. */
   references: z.array(z.strictObject({ path: z.string(), at: z.string().optional() })).optional(),
+  /** The tools the runtime offered the agent in the block, by name. Absent when the runtime does not report them. */
+  offered: z.array(z.string()).optional(),
   /** Helpers the agent dispatched during the block. Absent when the runtime does not report them. */
   subagents: z
     .array(z.strictObject({ name: z.string(), model: z.string().optional(), at: z.string().optional() }))
     .optional(),
 });
 export type RuntimeTrace = z.infer<typeof RuntimeTrace>;
+
+/** One retry of a model or adapter call: which call, which attempt failed, why, and how long it waited. */
+export const RetryEvent = z.strictObject({
+  call: z.string().min(1),
+  /** The attempt that failed, counted from 1. */
+  attempt: z.number().int().min(1),
+  status: z.number().int().optional(),
+  reason: z.string(),
+  delayMs: z.number().nonnegative(),
+  /** What the server's Retry-After asked, when it sent one. */
+  retryAfterMs: z.number().nonnegative().optional(),
+  at: z.string().optional(),
+});
+export type RetryEvent = z.infer<typeof RetryEvent>;
 
 /** Everything observed in one block. */
 export const Observed = z.strictObject({
@@ -138,6 +176,8 @@ export const Observed = z.strictObject({
     .optional(),
   cost: Cost,
   latencyMs: z.number().nonnegative(),
+  /** Every retry the block's calls took, the adapter's own and the runner's, in order. Absent when none. */
+  retries: z.array(RetryEvent).optional(),
   raw: z.unknown().optional(),
 });
 export type Observed = z.infer<typeof Observed>;
@@ -147,6 +187,8 @@ export const Vote = z.strictObject({
   outcome: Outcome,
   score: z.number().optional(),
   reasoning: z.string().optional(),
+  /** Every retry the judge's call took. Absent when none. */
+  retries: z.array(RetryEvent).optional(),
 });
 
 /** One check's result on one block. Machine verdicts are final; judge verdicts carry their votes. */
@@ -194,6 +236,44 @@ export const Recovery = z.strictObject({
   clarified: z.boolean().optional(),
 });
 
+/**
+ * What the runner reports as a run goes, in order. A model call carries its tokens, cost and latency when the adapter
+ * gives them; its start is the reply time less its latency.
+ */
+export const RunEvent = z.discriminatedUnion('type', [
+  z.strictObject({ type: z.literal('block_start'), index: z.number().int().min(0), at: z.string().min(1) }),
+  z.strictObject({
+    type: z.literal('model_call'),
+    index: z.number().int().min(0),
+    inputTokens: z.number().int().nonnegative().optional(),
+    outputTokens: z.number().int().nonnegative().optional(),
+    usd: z.number().nonnegative().optional(),
+    latencyMs: z.number().nonnegative().optional(),
+    startedAt: z.string().min(1),
+    at: z.string().min(1),
+  }),
+  z.strictObject({
+    type: z.literal('tool_call'),
+    index: z.number().int().min(0),
+    label: z.string().min(1),
+    error: z.string().optional(),
+    at: z.string().min(1),
+  }),
+  z.strictObject({ type: z.literal('retry'), index: z.number().int().min(0), at: z.string().min(1) }),
+  z.strictObject({
+    type: z.literal('block_end'),
+    index: z.number().int().min(0),
+    pass: z.boolean(),
+    at: z.string().min(1),
+  }),
+  z.strictObject({
+    type: z.literal('run_end'),
+    status: z.enum(['completed', 'failed', 'stopped']),
+    at: z.string().min(1),
+  }),
+]);
+export type RunEvent = z.infer<typeof RunEvent>;
+
 export const RunResult = z.strictObject({
   runId: z.string().min(1),
   specId: z.string().min(1),
@@ -218,6 +298,8 @@ export const RunResult = z.strictObject({
   startedAt: z.string().min(1),
   finishedAt: z.string().min(1),
   cacheHit: z.boolean(),
+  /** The events the run reported, in order, when the run recorded them. Absent otherwise. */
+  events: z.array(RunEvent).optional(),
 });
 export type RunResult = z.infer<typeof RunResult>;
 
@@ -226,6 +308,15 @@ export const JudgeConfig = z.strictObject({
   judges: z.array(z.string().min(1)),
   assignment: z.string().optional(),
 });
+
+/** One immutable registry version a campaign ran with: a dataset of specs or a prompt. */
+export const RegistrySource = z.strictObject({
+  kind: z.enum(['dataset', 'prompt']),
+  name: z.string().min(1),
+  version: z.number().int().min(1),
+  hash: z.string().regex(/^[0-9a-f]{64}$/),
+});
+export type RegistrySource = z.infer<typeof RegistrySource>;
 
 /** A campaign pins spec versions, targets, modes and repeats. A re-run is a new campaign. */
 export const Campaign = z.strictObject({
@@ -250,5 +341,7 @@ export const Campaign = z.strictObject({
   budgetUsd: z.number().nonnegative(),
   judge: JudgeConfig,
   createdAt: z.string().min(1),
+  /** The registry versions the campaign ran: the dataset its specs came from, the prompts it pinned. */
+  sources: z.array(RegistrySource).optional(),
 });
 export type Campaign = z.infer<typeof Campaign>;

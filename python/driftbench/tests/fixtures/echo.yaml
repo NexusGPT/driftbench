@@ -1,0 +1,12 @@
+# A fictional spec for the Python SDK tests: two blocks, the second one fails on purpose.
+id: py-echo
+blocks:
+  - id: greet
+    user: hello
+    expect:
+      stage: echoed
+      must: ['echo: hello']
+  - id: wrong
+    user: bye
+    expect:
+      must: ['farewell']
