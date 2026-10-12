@@ -477,3 +477,15 @@ Sources read:
 What others do: Each branch is an object of its own; its properties are cases under the variant.
 
 What to try, and why: the tool pre-pass follows the properties of oneOf object branches
+
+## Iteration 41
+
+Question: packages/generate/src/extract/extract.ts: a request sends a JSON chat file or agent export as the file's text, so a rule with an escaped quote or newline is not visible as written; prompt-containers.json-messages, json-ascii, json-prompt-key and jsonl prove it.
+
+Sources read:
+* https://www.rfc-editor.org/rfc/rfc8259 section 7 (string escapes)
+* https://jsonlines.org/
+
+What others do: A model reads the prompt, not the escapes; a decoded quote is still a passage of the prompt.
+
+What to try, and why: a request shows the prompt decoded from a JSON file

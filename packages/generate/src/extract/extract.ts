@@ -1,5 +1,6 @@
 import { ModelError, type ModelPort } from '../model/port';
 import { acceptAnswer, type Draft, type Refusal } from './accept';
+import { sourceTexts, viewSources } from './containers';
 import { parseAnswer, retryNote, SECTIONS, type Section, type SourceText, sectionRequest } from './contract';
 import { inventoryPrepass } from './prepass';
 import { checkQuotes, PROPOSAL_VERSION, type Proposal, validateProposal } from './proposal';
@@ -108,14 +109,15 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
     relations: draft.relations.length,
   };
 
-  const texts = new Map(input.sources.map((source) => [source.path, source.text]));
+  const texts = sourceTexts(input.sources);
+  const seen = viewSources(input.sources);
   const quotes = new QuoteIndex(texts);
   const sections: SectionRun[] = [];
   const refusals: Refusal[] = [];
   const duplicates: string[] = [];
   if (input.port) {
     for (const section of SECTIONS) {
-      const run = await runSection(section, input.port, input.sources, draft, quotes, input.maxTokens);
+      const run = await runSection(section, input.port, seen, draft, quotes, input.maxTokens);
       sections.push(run.run);
       refusals.push(...run.refusals);
       duplicates.push(...run.duplicates);

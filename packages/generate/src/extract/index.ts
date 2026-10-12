@@ -7,6 +7,7 @@ export {
   type PendingEntry,
   pendingEntries,
 } from './approve';
+export { promptView, sourceTexts, viewSources } from './containers';
 export {
   type Answer,
   type AnswerParse,
