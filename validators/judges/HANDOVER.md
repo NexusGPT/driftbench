@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 7 (check) passes since iteration 38. Level 8, rubric (3 items left); next code: instruction-to-judge. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
+Level 7 (check) passes since iteration 38. Level 8, rubric (2 items left); next code: pictures-swapped. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
 
 ## Hypotheses tried
 
@@ -80,10 +80,11 @@ Iteration 51 (cause: no unbalanced-quotes rule). Test: lint.test.ts (red proved)
 Iteration 52 (cause: no empty-rubric rule). Test: lint.test.ts (red proved). Bank 316 -> 317 (0.4969).
 Iteration 53 (cause: no compound rule). Test: lint.test.ts (red proved). Bank 317 -> 318 (0.4984).
 Iteration 54 (cause: no hedged rule, rubric and PASS picture): two items green (hedged, hedged-picture). Test: lint.test.ts (red proved). Bank 318 -> 320 (0.5016).
+Iteration 55 (cause: no instruction-to-judge rule). Test: lint.test.ts (red proved). Bank 320 -> 321 (0.5031).
 
 ## Next actions
 
-1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"), next: instruction-to-judge. The clean twin of every item must still give no issue.
+1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"), next: pictures-swapped. The clean twin of every item must still give no issue.
 2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`. PR 86 takes every push.
 
