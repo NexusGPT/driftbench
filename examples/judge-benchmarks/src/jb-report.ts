@@ -1,7 +1,7 @@
 /** Rebuild the task report from DEV recordings. Never makes a model call. */
 import { execFileSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
-import { runReferenceCascade } from './cascade-run';
+import { cascadeConfig, runReferenceCascade } from './cascade-run';
 import { contestantById } from './contestants';
 import { type RunReport, runBenchmark } from './run';
 import { type Summary, scorePairs } from './score';
@@ -39,8 +39,9 @@ for (const id of ids) {
         complete: result.missing === 0,
       }),
   } as const;
-  const r: RunReport & Partial<{ escalated: number; escalationShare: number }> = id.endsWith('-cascade')
-    ? await runReferenceCascade({ ...options, escalation: contestantById(id.replace(/-cascade$/, '')) })
+  const cascade = cascadeConfig(id);
+  const r: RunReport & Partial<{ escalated: number; escalationShare: number }> = cascade
+    ? await runReferenceCascade({ ...options, ...cascade })
     : await runBenchmark({ ...options, contestants: [contestantById(id)] });
   if (r.stopped || r.failedCalls || r.contestants[0]?.summary.missing || items.some((i) => !i.complete))
     continue;
@@ -83,6 +84,33 @@ let testAudit:
     }
   | undefined;
 let freeze: { sha: string; stamp: string; ids: string[]; sample: number } | undefined;
+const controlRows: string[] = [];
+for (const id of [
+  'driftbench-reference3-tools',
+  'driftbench-reference3-tools-format',
+  'driftbench-reference3-tools-cascade',
+  'driftbench-reference3-tools-format-cascade',
+]) {
+  try {
+    const r = JSON.parse(await readFile(`${output}/${id}-sample-50.json`, 'utf8')) as RunReport & {
+      escalated?: number;
+    };
+    const decisions = JSON.parse(
+      await readFile(`${output}/${id}-sample-50-decisions.json`, 'utf8'),
+    ) as import('./score').PairResult[];
+    const c = r.contestants[0];
+    if (!c || r.stopped || r.failedCalls || c.summary.missing || decisions.length !== 50) continue;
+    const audited = scorePairs(
+      'judgebench',
+      decisions.filter((x) => !excluded.has(x.item.id)),
+    );
+    controlRows.push(
+      `| ${id} | 50 | ${(100 * c.summary.value.estimate).toFixed(1)} | ${(100 * c.summary.value.lower).toFixed(1)} to ${(100 * c.summary.value.upper).toFixed(1)} | ${(100 * audited.value.estimate).toFixed(1)} (${audited.n} retained) | ${r.escalated ?? 50}/50 | ${((100 * c.costUsd) / 50).toFixed(4)} |`,
+    );
+  } catch {
+    /* No complete stratified control yet. */
+  }
+}
 try {
   heldout = JSON.parse(await readFile(`${output}/final-test.json`, 'utf8'));
 } catch {
@@ -163,7 +191,7 @@ const lines = [
   '|---|---|---|---|---|---|---|',
   ...formatRows,
   '',
-  'The general compiler receives only the question and derives a pure check(response) function from an exact quoted instruction. The harness validates the quote and runs the checker on both proposals. The same judgement prompts and recordings are used with and without the format parser. Direct-ledger variants require both factual checks to be true. The original reference3 variant requires the two extracted final answers to be equivalent. Uncertain or failed format checks abstain. No rule names a dev item, expected letter or hidden label.',
+  'The general compiler receives only the question and derives a pure check(response) function from an exact quoted instruction. The harness validates the quote and runs the checker on both proposals. Whole-string matchers receive a second question-only code review, so final-answer instructions do not accidentally restrict all reasoning. The same judgement prompts and recordings are used with and without the format parser. Direct-ledger variants require both factual checks to be true. The original reference3 variant requires the two extracted final answers to be equivalent. Uncertain or failed format checks abstain. No rule names a dev item, expected letter or hidden label.',
   '',
   '## Cascade against full escalation on dev',
   '',
@@ -176,13 +204,25 @@ const lines = [
         `| ${s.id} | ${(100 * s.official).toFixed(1)} | ${(100 * s.audited).toFixed(1)} | ${s.escalated}/${s.n} | ${(100 * (s.escalationShare ?? 0)).toFixed(1)} | ${s.cost100.toFixed(4)} |`,
     ),
   ...summaries
-    .filter((s) => s.id.startsWith('driftbench-reference3-tools') && !s.id.endsWith('-cascade'))
+    .filter((s) => s.id.startsWith('driftbench-reference3-tools') && !cascadeConfig(s.id))
     .map(
       (s) =>
         `| ${s.id} full escalation | ${(100 * s.official).toFixed(1)} | ${(100 * s.audited).toFixed(1)} | ${s.n}/${s.n} | 100.0 | ${s.cost100.toFixed(4)} |`,
     ),
   '',
-  'The cascade runs unchanged reference3 first. It escalates parsed reference disagreement with both finals, split order-normalized sample categories, recorded verdict confidence at or below 0.75, inconclusive base outcomes or explicit reference uncertainty. Missing answer extraction alone does not trigger escalation. Labels, group, answer length and the preferred letter never enter the gate. Cascade cost includes base plus selected escalation; full escalation cost includes only its standalone evidence and judgements.',
+  'The cascade runs unchanged reference3 reasoning first. It escalates parsed reference disagreement with both finals, split order-normalized sample categories, low recorded verdict confidence, inconclusive base outcomes or explicit reference uncertainty. The default confidence threshold is 0.75; globally chosen dev alternatives show their percentage in the configuration suffix. Missing answer extraction alone does not trigger escalation. Labels, group, answer length and the preferred letter never enter the gate. The format variant applies the same question-only checker to both stages. Cascade cost includes base plus selected escalation; full escalation cost includes only its standalone evidence and judgements.',
+  ...(controlRows.length
+    ? [
+        '',
+        '### Stratified control measured before the complete run',
+        '',
+        'These configurations use the same 50 dev pairs, sampled proportionally by source with seed codex-jb-control-v1. The sample does not select the best full-dev configuration.',
+        '',
+        '| Configuration | Pairs | Official percent | 95 percent interval | Audited percent | Escalated | USD per 100 pairs |',
+        '|---|---|---|---|---|---|---|',
+        ...controlRows,
+      ]
+    : []),
   ...(heldout
     ? [
         '',
@@ -289,7 +329,7 @@ const lines = [
   '',
   'The label audit finds more uncertainty than the original two equal-answer pairs. A strict majority can still be confidently wrong because all solves use the same model. Reference omission reduces false authority; it does not create new domain knowledge.',
   '',
-  'Source entry points and reproduction scripts are under examples/judge-benchmarks. Replay uses --split dev --replay-only --concurrency 1 and the frozen contestant id.',
+  'Source entry points and reproduction scripts are under examples/judge-benchmarks. Individual contestants replay through run.ts with --split dev --replay-only --concurrency 1. Cascades replay through runReferenceCascade or jb-dev-cascade.ts with JB_REPLAY_ONLY=1 and the recorded configuration id. The latter uses the task spend-ledger and starting-key snapshot for bookkeeping.',
   '',
 ];
 await writeFile(reportPath, lines.join('\n'));

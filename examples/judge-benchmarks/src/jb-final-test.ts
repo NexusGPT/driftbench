@@ -1,7 +1,7 @@
 /** One frozen held-out run, authorized by the lead after dev tuning. Never use this output to tune. */
 import { execFileSync } from 'node:child_process';
 import { appendFile, open, readFile, writeFile } from 'node:fs/promises';
-import { runReferenceCascade } from './cascade-run';
+import { cascadeConfig, runReferenceCascade } from './cascade-run';
 import { contestantById } from './contestants';
 import { loadBenchmark, type PairItem, splitOf, stratifiedSample } from './data';
 import { designHashes } from './jb-freeze';
@@ -116,11 +116,13 @@ const stage = async (id: string, remaining: number) => {
       results.push(r);
     },
   };
-  const r = id.endsWith('-cascade')
+  const cascade = cascadeConfig(id);
+  if (cascade && cascade.confidenceThreshold !== freeze.confidenceThreshold)
+    throw new Error('Frozen threshold and configuration id disagree.');
+  const r = cascade
     ? await runReferenceCascade({
         ...options,
-        escalation: contestantById(id.replace(/-cascade$/, '')),
-        confidenceThreshold: freeze.confidenceThreshold,
+        ...cascade,
       })
     : await runBenchmark({ ...options, contestants: [contestantById(id)] });
   decisions[id] = results;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { answerKey, cascadeReasons } from '../src/cascade';
+import { cascadeConfig } from '../src/cascade-run';
 import { contestantById } from '../src/contestants';
 
 const pass = JSON.stringify({ outcome: 'pass', score: 0.9 });
@@ -13,6 +14,12 @@ const confident = {
   ba: [fail, fail, fail],
 };
 describe('label-blind reference3 escalation gate', () => {
+  it('records global threshold variants explicitly and rejects invalid confidence', () => {
+    expect(cascadeConfig('driftbench-reference3-tools-cascade')?.confidenceThreshold).toBe(0.75);
+    expect(cascadeConfig('driftbench-reference3-tools-format-cascade-85')?.confidenceThreshold).toBe(0.85);
+    expect(cascadeConfig('driftbench-reference3')).toBeUndefined();
+    expect(() => cascadeConfig('driftbench-reference3-tools-cascade-101')).toThrow('Invalid');
+  });
   it('retains an aligned, consistent, high-confidence base decision', () => {
     expect(cascadeReasons(confident)).toEqual([]);
   });

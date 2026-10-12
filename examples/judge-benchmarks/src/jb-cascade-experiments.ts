@@ -1,6 +1,7 @@
 /** DEV-only full escalation and a label-blind cascade, using the unchanged reference3 baseline first. */
 import { appendFile, readFile, writeFile } from 'node:fs/promises';
 import { cascadeReasons } from './cascade';
+import { runReferenceCascade } from './cascade-run';
 import { contestantById } from './contestants';
 import { loadBenchmark, type PairItem, splitOf } from './data';
 import { runBenchmark } from './run';
@@ -98,21 +99,6 @@ for (const id of process.argv.slice(2).length
   : ['driftbench-reference3-tools', 'driftbench-reference3-tools-format']) {
   const candidate = contestantById(id),
     cap = 7.8 - (await spent());
-  const formattedBase = new Map<string, PairResult>();
-  const usedBaseline = candidate.answerFormat
-    ? await runBenchmark({
-        bench: 'judgebench',
-        split: 'dev',
-        model: 'haiku',
-        contestants: [contestantById('driftbench-reference3-format')],
-        replayOnly: true,
-        concurrency: 1,
-        onPairResult: (r) => {
-          formattedBase.set(r.item.id, r);
-        },
-      })
-    : baseline;
-  if (usedBaseline.stopped) throw new Error('Complete format baseline must be recorded first.');
   if (cap <= 0.05 || Date.now() >= Date.parse('2026-10-13T04:20:00+02:00')) break;
   const results = new Map<string, PairResult>();
   await appendFile(
@@ -148,25 +134,23 @@ for (const id of process.argv.slice(2).length
     console.log(JSON.stringify(full));
     break;
   }
-  // Price the actual required prompts on the selected cases, replaying exactly the same escalation outputs.
-  const selective = await runBenchmark({
+  // Replay the actual cascade, including cross-stage reuse of identical format checks.
+  const combined: PairResult[] = [];
+  const cascade = await runReferenceCascade({
     bench: 'judgebench',
+    split: 'dev',
     model: 'haiku',
-    items: items.filter((i) => selected.has(i.id)),
-    criterion: b.criterion,
-    contestants: [candidate],
+    escalation: candidate,
     replayOnly: true,
     concurrency: 1,
+    onPairResult: (r) => {
+      combined.push(r);
+    },
   });
-  if (selective.stopped) throw new Error(selective.stopped);
-  const combined = items.map(
-    (item) =>
-      (selected.has(item.id) ? results : candidate.answerFormat ? formattedBase : base).get(
-        item.id,
-      ) as PairResult,
-  );
+  if (cascade.stopped || cascade.contestants[0]?.summary.missing)
+    throw new Error('Complete cascade replay required.');
   const audited = combined.filter((r) => !excluded.has(r.item.id));
-  const cascadeCost = (usedBaseline.contestants[0]?.costUsd ?? 0) + (selective.contestants[0]?.costUsd ?? 0);
+  const cascadeCost = cascade.contestants[0]?.costUsd ?? 0;
   const result = {
     id: `${id}-cascade`,
     base: 'driftbench-reference3',

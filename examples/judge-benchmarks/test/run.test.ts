@@ -155,6 +155,59 @@ describe('the recording key', () => {
 });
 
 describe('samples, routes and references', () => {
+  it('reviews a whole-response matcher against the question without exposing either candidate', async () => {
+    const initial = JSON.stringify({
+      instruction_quote: 'Put the final answer in bold.',
+      python:
+        'import re\ndef check(response):\n    return re.fullmatch(r"\\*\\*\\d+\\*\\*", response) is not None',
+    });
+    const repaired = JSON.stringify({
+      instruction_quote: 'Put the final answer in bold.',
+      python:
+        'import re\ndef check(response):\n    return re.search(r"\\*\\*\\d+\\*\\*", response) is not None',
+    });
+    const cmd = join(dir, 'review-format.mjs');
+    await writeFile(
+      cmd,
+      `#!/usr/bin/env node\nlet input='';process.stdin.on('data',c=>input+=c);process.stdin.on('end',()=>{let result;if(input.startsWith('FORMAT ')) result=${JSON.stringify(initial)};else if(input.startsWith('Audit this pure formatting')){const r=JSON.parse(${JSON.stringify(repaired)});r.saw_candidate=input.includes('CANDIDATE_SENTINEL');result=JSON.stringify(r);}else result='{"a_correct":true,"b_correct":true,"winner":"tie"}';process.stdout.write(JSON.stringify({result,total_cost_usd:0.001,is_error:false}));});`,
+    );
+    await chmod(cmd, 0o755);
+    const c = {
+      id: 'review-format',
+      source: 'test',
+      answerFormat: (q: string) => ({ system: '', user: `FORMAT ${q}` }),
+      pair: ({ a, b }: { a: string; b: string }) => ({ system: '', user: `${a} versus ${b}` }),
+      parsePair: parseFormatLedger,
+    };
+    const recordingsDir = join(dir, 'format-review');
+    const report = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [c],
+      items: [
+        {
+          kind: 'pair',
+          id: 'bold',
+          question: 'Put the final answer in bold.',
+          a: 'CANDIDATE_SENTINEL explanation. **42**',
+          b: '42',
+          label: 'A',
+          group: 'test',
+        },
+      ],
+      command: cmd,
+      recordingsDir,
+      concurrency: 1,
+    });
+    expect(report.newCalls).toBe(4);
+    expect(report.contestants[0]?.summary.value.estimate).toBe(1);
+    const records = (await readFile(join(recordingsDir, 'judgebench', 'fake.jsonl'), 'utf8'))
+      .trim()
+      .split('\n')
+      .map((l) => JSON.parse(l));
+    const review = records.find((r) => r.order === 'answer-format-review');
+    expect(JSON.parse(review.text).saw_candidate).toBe(false);
+  });
   it('compiles question-only format instructions, validates their quote and relabels checks in both orders', async () => {
     const predicate =
       'import json\ndef check(response):\n    try:\n        json.loads(response)\n        return True\n    except ValueError:\n        return False';

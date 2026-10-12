@@ -17,6 +17,7 @@ it('escalates only unsure base items, prices both stages, replays and ignores go
 let input='';process.stdin.on('data',c=>input+=c);process.stdin.on('end',()=>{
 let result;
 if(input.startsWith('ESCALATE ')){result=JSON.stringify({winner:input.startsWith('ESCALATE BBBBB')?'A':'B'});}
+else if(input.startsWith('FORMAT ')){result='{"none":true}';}
 else if(input.includes('Answer the question below yourself')){result='Final answer: '+(input.includes('UNSURE')?'C':'A');}
 else{const a=input.indexOf('Reply A:'),b=input.indexOf('Reply B:'),first=input.indexOf('AAAAA',a);const pass=first>=0&&first<b;const confidence=input.includes('UNSURE')?0.6:0.95;result=JSON.stringify({outcome:pass?'pass':'fail',score:pass?confidence:1-confidence,reasoning:'fixture'});}
 process.stdout.write(JSON.stringify({result,total_cost_usd:0.001,is_error:false}));});`,
@@ -71,6 +72,15 @@ process.stdout.write(JSON.stringify({result,total_cost_usd:0.001,is_error:false}
     expect(results.map((r) => r.games)).toEqual(recordedGames);
     expect(replay.contestants[0]?.summary.value.estimate).toBe(0);
     expect(replay.contestants[0]?.costUsd).toBeCloseTo(0.016, 10);
+    const formatted = await runReferenceCascade({
+      ...options,
+      escalation: { ...escalation, answerFormat: (q) => ({ system: '', user: `FORMAT ${q}` }) },
+    });
+    expect(formatted.newCalls).toBe(2);
+    expect(formatted.replayed).toBe(16);
+    expect(formatted.contestants[0]?.calls).toBe(18);
+    expect(formatted.contestants[0]?.costUsd).toBeCloseTo(0.018, 10);
+    expect(formatted.contestants[0]?.summary.value.estimate).toBe(1);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

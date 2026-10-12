@@ -3,17 +3,32 @@ import { type Contestant, contestantById } from './contestants';
 import { loadBenchmark } from './data';
 import { type RunOptions, type RunReport, runBenchmark } from './run';
 import { type PairResult, scorePairs } from './score';
+/** Decode a configuration id including a globally chosen dev confidence threshold. */
+export function cascadeConfig(
+  id: string,
+): { escalation: Contestant; confidenceThreshold: number } | undefined {
+  const match = id.match(/^(.*)-cascade(?:-(\d+))?$/);
+  if (!match?.[1]) return undefined;
+  const confidenceThreshold = match[2] === undefined ? 0.75 : Number(match[2]) / 100;
+  if (confidenceThreshold < 0 || confidenceThreshold > 1)
+    throw new Error('Invalid cascade confidence threshold.');
+  return { escalation: contestantById(match[1]), confidenceThreshold };
+}
 export async function runReferenceCascade(
   options: Omit<RunOptions, 'contestants'> & { escalation: Contestant; confidenceThreshold?: number },
 ): Promise<RunReport & { escalated: number; escalationShare: number }> {
   const base = new Map<string, PairResult>();
+  const formats = new Map<string, { a: boolean | null; b: boolean | null } | undefined>();
   const signals = new Map<string, { reference?: string; ab: string[]; ba: string[] }>();
+  const baseContestant = contestantById(
+    options.escalation.answerFormat ? 'driftbench-reference3-format' : 'driftbench-reference3',
+  );
   const baseline = await runBenchmark({
     ...options,
     contestants: [
-      contestantById(
-        options.escalation.answerFormat ? 'driftbench-reference3-format' : 'driftbench-reference3',
-      ),
+      options.escalation.answerFormat
+        ? { ...baseContestant, answerFormat: options.escalation.answerFormat }
+        : baseContestant,
     ],
     onPairResult: (r) => {
       base.set(r.item.id, r);
@@ -25,6 +40,14 @@ export async function runReferenceCascade(
       if (s.kind === 'reference') e.reference = d?.text;
       if (s.kind === 'judgements' && d?.order === 'AB') e.ab = d.texts ?? [];
       if (s.kind === 'judgements' && d?.order === 'BA') e.ba = d.texts ?? [];
+      if (s.kind.startsWith('answer-format')) {
+        const checks = (s.details as { checks?: { first?: unknown; second?: unknown } } | undefined)?.checks;
+        const valid = (v: unknown): v is boolean | null => v === true || v === false || v === null;
+        formats.set(
+          s.item,
+          valid(checks?.first) && valid(checks?.second) ? { a: checks.first, b: checks.second } : undefined,
+        );
+      }
       signals.set(s.item, e);
     },
   });
@@ -61,6 +84,7 @@ export async function runReferenceCascade(
     sampleBeforeSplit: undefined,
     criterion,
     contestants: [options.escalation],
+    formatChecks: options.escalation.answerFormat ? formats : undefined,
     capUsd: options.capUsd === undefined ? undefined : Math.max(0, options.capUsd - baseline.newSpendUsd),
     onPairResult: (r) => {
       escalated.set(r.item.id, r);
@@ -78,7 +102,7 @@ export async function runReferenceCascade(
     ...baseline,
     contestants: [
       {
-        contestant: `${options.escalation.id}-cascade`,
+        contestant: `${options.escalation.id}-cascade${options.confidenceThreshold !== undefined && options.confidenceThreshold !== 0.75 ? `-${Math.round(options.confidenceThreshold * 100)}` : ''}`,
         source: 'unchanged reference3, then label-blind uncertainty-gated escalation',
         mode: 'pairwise, both orders',
         summary: scorePairs(options.bench, results),

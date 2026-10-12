@@ -44,6 +44,7 @@ for (const row of records) {
   // Include the step-by-step prelude as well as the structured reasoning field.
   const reasoning = row.text;
   const named = new Set<string>();
+  const preferred = new Set<string>();
   const patterns = [
     /(?:reply|candidate|response)\s+([AB])(?:'s)?\s+(?:final answer\s+|answer\s+)?(?:is|remains|provides|gives|offers)\s+(?:(?:clearly|the|a|much|overall|therefore)\s+)*(?:better|correct|superior|more\s+(?:accurate|complete|correct|reliable))\b/gi,
     /(?:reply|candidate|response)\s+([AB])\s+(?:wins|is preferable|satisfies the criterion better|better fits|better meets)\b/gi,
@@ -56,10 +57,15 @@ for (const row of records) {
       if (/incorrect|not correct|not better|less correct/.test(phrase)) continue;
       const tail = reasoning.slice((m.index ?? 0) + m[0].length);
       if (/^\s+(?:outputs?|on (?:the )?(?:examples|small))/i.test(tail)) continue;
-      if (m[1]) named.add(m[1].toUpperCase());
+      if (m[1]) {
+        named.add(m[1].toUpperCase());
+        if (/better|superior|more|wins|prefer|choose|select|favor|favour/i.test(phrase))
+          preferred.add(m[1].toUpperCase());
+      }
     }
-  if (named.size !== 1) continue;
-  const inferred = [...named][0];
+  const winnerNames = preferred.size ? preferred : named;
+  if (winnerNames.size !== 1) continue;
+  const inferred = [...winnerNames][0];
   const mapped = value.outcome === 'pass' ? 'A' : 'B';
   if (inferred !== mapped) flags.push({ ...row, reasoning, outcome: value.outcome, inferred, mapped });
 }

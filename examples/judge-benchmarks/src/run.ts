@@ -75,6 +75,8 @@ export type RunOptions = {
   /** Items to use instead of loading the benchmark, for tests. */
   readonly items?: readonly (PairItem | PointItem)[];
   readonly criterion?: string;
+  /** Reuse question-derived checks already observed for the same canonical pairs in a prior stage. */
+  readonly formatChecks?: ReadonlyMap<string, { a: boolean | null; b: boolean | null } | undefined>;
   /** Draw the stratified sample from all items, then keep the items of the split (the charts' order). */
   readonly sampleBeforeSplit?: boolean;
   /** Diagnostics only; never passed to contestant prompts. */
@@ -431,10 +433,15 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       item: PairItem,
     ): Promise<{ a: boolean | null; b: boolean | null } | undefined> => {
       if (!contestant.answerFormat) return undefined;
+      if (options.formatChecks?.has(item.id)) {
+        const checks = options.formatChecks.get(item.id);
+        await signal(item.id, 'answer-format-reused', checks ? 'used' : 'abstained', checks);
+        return checks;
+      }
       const prompt = contestant.answerFormat(item.question);
       let generated = await ask(contestant, prompt, item.id, 'answer-format');
       for (let attempt = 0; attempt < 2; attempt++) {
-        const spec = jsonObjects(generated?.text ?? '').at(-1);
+        let spec = jsonObjects(generated?.text ?? '').at(-1);
         if (spec?.none === true) {
           await signal(item.id, 'answer-format', 'none');
           return undefined;
@@ -447,6 +454,36 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
         ) {
           await signal(item.id, 'answer-format', 'invalid-instruction');
           return undefined;
+        }
+        // Whole-string matchers can use the wrong scope. Review that code against the
+        // question alone, never against candidate responses or benchmark labels.
+        if (/\bfullmatch\s*\(/.test(spec.python)) {
+          const review = await ask(
+            contestant,
+            {
+              system: prompt.system,
+              user: `Audit this pure formatting predicate against the original question. A full-string matcher can incorrectly reject reasoning when only the FINAL ANSWER is constrained. Keep a whole-response check only if the question explicitly restricts the whole response. Otherwise inspect the final answer or final required wrapper. Also check exact counts, boundaries and quoted instructions. Never solve the question, choose an option or inspect candidate responses. Return the same JSON schema with the predicate unchanged if sound, or repaired if needed. Preserve an exact instruction quote.\n\n<question>\n${item.question}\n</question>\n\nOriginal predicate:\n${JSON.stringify(spec)}`,
+            },
+            item.id,
+            attempt === 0 ? 'answer-format-review' : 'answer-format-review-repair',
+          );
+          const reviewed = jsonObjects(review?.text ?? '').at(-1);
+          if (
+            typeof reviewed?.instruction_quote !== 'string' ||
+            !reviewed.instruction_quote.trim() ||
+            !item.question.includes(reviewed.instruction_quote) ||
+            typeof reviewed.python !== 'string'
+          ) {
+            await signal(item.id, 'answer-format-review', 'invalid');
+            return undefined;
+          }
+          await signal(
+            item.id,
+            'answer-format-review',
+            reviewed.python === spec.python ? 'confirmed' : 'repaired',
+            { instruction: reviewed.instruction_quote },
+          );
+          spec = reviewed;
         }
         const code = `${spec.python}\nimport json\nprint(json.dumps({"first": check(json.loads(${JSON.stringify(JSON.stringify(item.a))})), "second": check(json.loads(${JSON.stringify(JSON.stringify(item.b))}))}))`;
         const ran = await runProgram(code, true);

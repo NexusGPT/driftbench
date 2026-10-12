@@ -16,6 +16,8 @@ export type Recorded = {
   readonly model: string;
   readonly text: string;
   readonly costUsd: number;
+  /** Observed real-call duration, when recorded by this harness version. */
+  readonly durationMs?: number;
   /** Labels for a reader of the file; the key alone decides the match. */
   readonly bench?: string;
   readonly contestant?: string;
@@ -115,6 +117,7 @@ export function createCaller(
       if (limits.capUsd !== undefined && spent >= limits.capUsd)
         throw new SpendCapReached(`spend cap ${limits.capUsd} USD reached`);
       folder ??= await mkdtemp(join(tmpdir(), 'driftbench-bench-'));
+      const started = Date.now();
       const result = await runClaude(prompt, options, folder);
       spent += result.costUsd;
       calls += 1;
@@ -123,6 +126,7 @@ export function createCaller(
         model: options.model,
         text: result.text,
         costUsd: result.costUsd,
+        durationMs: Date.now() - started,
         ...labels,
       };
       await recordings.add(entry);
