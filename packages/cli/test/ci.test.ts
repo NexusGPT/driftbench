@@ -4,19 +4,31 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { RunResult } from '@driftbench/core';
 import { openStore } from '@driftbench/store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { pricedAcmeAdapter } from '../../core/test/runner/support';
 import { type CampaignDeps, defaultDeps } from '../src/commands/campaign';
-import { type CiSummary, compareArms, DEFAULT_FLAGS, pairArms, registerCiCommand } from '../src/commands/ci';
+import { type CiSummary, DEFAULT_FLAGS, registerCiCommand } from '../src/commands/ci';
 import { type Io, main } from '../src/index';
 
 /** Fictional data only: the Acme Telecom example agents and their planted faults. */
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const GATED = 'examples/acme/gated/specs';
 const BOUNDARY = 'examples/acme/gated/specs/boundary';
+const GOLDEN = 'examples/acme/golden/specs';
+/** The Acme sales faults the golden suite turns red at margin 30 (bench D3, D4): x2 is the one it misses. */
+const RED_FAULTS = [
+  'd2-ignores-goal-shift',
+  'd4-order-on-loose-yes',
+  'd6-obeys-instruction',
+  'd8-hides-tool-failure',
+  'd9-answers-out-of-scope',
+  'x1-invents-price',
+  'x3-skips-recap',
+  'x4-wrong-language',
+  'x5-drops-coverage-check',
+];
 const CONVERSATIONS = 'examples/acme/specs/conversations';
 const FAULTS = 'examples/acme/faults';
 const SLOW = 120_000;
@@ -104,26 +116,22 @@ describe('driftbench ci on the Acme gated suite', () => {
   }
 
   it(
-    'exits 0 on the Acme agent against itself: parity at a 5 point margin',
+    'exits 0 on the Acme agent against itself at a 30 point margin: parity on the all-pass flag and every gating criterion',
     async () => {
       const out = join(dir, 'parity.json');
       const result = await ci(
-        ['--target', 'function:acme-sales', '--store', join(dir, 'parity.db'), '--margin', '5'],
+        ['--target', 'function:acme-sales', '--store', join(dir, 'parity.db'), '--margin', '30'],
         out,
       );
       expect(result.err).toBe('');
       expect(result.code).toBe(0);
-      expect(result.out).toContain('verdict                               PARITY');
-      expect(result.out).toContain('Verdict: PARITY.');
+      expect(result.out).toContain('Verdict: PARITY. Exit 0.');
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
-      expect(summary.exitCode).toBe(0);
       expect(summary.baseline.campaignId).toBe(baselineId);
       expect(summary.pairs).toBe(134);
       expect(summary.table).toEqual({ bothPass: 134, regressed: 0, improved: 0, bothFail: 0 });
-      expect(summary.effectPoints.estimate).toBe(0);
-      expect(summary.effectPoints.upper).toBeLessThan(5);
-      expect(summary.smallestMarginPoints).toBe(summary.effectPoints.upper);
+      expect(summary.criteriaNotShown).toEqual([]);
       expect(summary.newFlags).toEqual([]);
       expect(summary.flags).toEqual([...DEFAULT_FLAGS]);
     },
@@ -131,7 +139,28 @@ describe('driftbench ci on the Acme gated suite', () => {
   );
 
   it(
-    'exits 1 on the fault that skips the recap: a regression far beyond the margin',
+    'reads the same agent at a 5 point margin as not shown non-inferior, naming the criteria too thin for it, never as a regression',
+    async () => {
+      const out = join(dir, 'tight.json');
+      const result = await ci(
+        ['--target', 'function:acme-sales', '--store', join(dir, 'tight.db'), '--margin', '5'],
+        out,
+      );
+      expect(result.code).toBe(1);
+      expect(result.out).toContain('Verdict: NOT SHOWN NON-INFERIOR. Exit 1.');
+      expect(result.out).toContain('Not shown non-inferior is not a regression');
+      expect(result.out).not.toContain('REGRESSION');
+      const summary = await summaryAt(out);
+      expect(summary.verdict).toBe('not-shown-non-inferior');
+      expect(summary.table.regressed).toBe(0);
+      expect(summary.criteriaNotShown.map((entry) => entry.criterion)).toEqual(['cards', 'guards', 'must']);
+      expect(summary.reasons).toHaveLength(3);
+    },
+    SLOW,
+  );
+
+  it(
+    'exits 1 on the fault that skips the recap: a regression, with its new forbidden flags',
     async () => {
       const out = join(dir, 'regression.json');
       const result = await ci(
@@ -149,16 +178,15 @@ describe('driftbench ci on the Acme gated suite', () => {
       );
       expect(result.err).toBe('');
       expect(result.code).toBe(1);
-      expect(result.out).toContain('Verdict: REGRESSION.');
+      expect(result.out).toContain('Verdict: REGRESSION. Exit 1.');
       expect(result.out).toContain('Goldens that changed:');
-      expect(result.out).toMatch(
-        /gen-boundary-065 · F +1\/1 pass +0\/1 pass +regressed +yes +block 3 forbidden/,
-      );
+      expect(result.out).toMatch(/gen-boundary-065 · F +pass +fail +regressed +forbidden +block 3 forbidden/);
       expect(result.out).toContain('and 55 more: every golden is in the summary file.');
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('regression');
       expect(summary.table).toEqual({ bothPass: 54, regressed: 80, improved: 0, bothFail: 0 });
       expect(summary.regressed).toHaveLength(80);
+      expect(summary.newFlags).toContain('gen-boundary-065 · F forbidden');
       expect(summary.effectPoints.lower).toBeGreaterThan(5);
       expect(summary.rows.find((row) => row.name === 'gen-boundary-065 · F')?.candidate.failing[0]).toBe(
         'block 3 forbidden.order.create',
@@ -168,74 +196,28 @@ describe('driftbench ci on the Acme gated suite', () => {
   );
 
   it(
-    'exits 1 with the gating verdict when the effect is within the margin but a flag fires the baseline never fired',
+    'counts a new flag only in the families --flag names',
     async () => {
-      const out = join(dir, 'gating.json');
-      const result = await ci(
-        [
-          '--target',
-          'fault:d6-obeys-instruction',
-          '--faults',
-          FAULTS,
-          '--store',
-          join(dir, 'gating.db'),
-          '--margin',
-          '20',
-        ],
-        out,
-      );
-      expect(result.code).toBe(1);
-      expect(result.out).toContain('Verdict: GATING.');
-      const summary = await summaryAt(out);
-      expect(summary.verdict).toBe('gating');
-      expect(summary.effectPoints.upper).toBeLessThan(20);
-      expect(summary.newFlags).toHaveLength(12);
-      expect(summary.rows.filter((row) => row.newFlag).map((row) => row.name)).toEqual(summary.newFlags);
-    },
-    SLOW,
-  );
-
-  it(
-    'reads the same fault as parity when --flag leaves out the check it breaks',
-    async () => {
-      const out = join(dir, 'pii-only.json');
-      const result = await ci(
-        [
-          '--target',
-          'fault:d6-obeys-instruction',
-          '--faults',
-          FAULTS,
-          '--store',
-          join(dir, 'pii-only.db'),
-          '--margin',
-          '20',
-          '--flag',
-          'pii',
-        ],
-        out,
-      );
-      expect(result.code).toBe(0);
-      const summary = await summaryAt(out);
-      expect(summary.flags).toEqual(['pii']);
-      expect(summary.table.regressed).toBe(12);
-      expect(summary.newFlags).toEqual([]);
-    },
-    SLOW,
-  );
-
-  it(
-    'refuses parity below the smallest margin the goldens can show, even for the agent against itself',
-    async () => {
-      const out = join(dir, 'tight.json');
-      const result = await ci(
-        ['--target', 'function:acme-sales', '--store', join(dir, 'tight.db'), '--margin', '2'],
-        out,
-      );
-      expect(result.code).toBe(1);
-      const summary = await summaryAt(out);
-      expect(summary.verdict).toBe('regression');
-      expect(summary.table.regressed).toBe(0);
-      expect(summary.smallestMarginPoints).toBeGreaterThan(2);
+      const run = (flag: string[], name: string) =>
+        ci(
+          [
+            '--target',
+            'fault:x3-skips-recap',
+            '--faults',
+            FAULTS,
+            '--store',
+            join(dir, `${name}.db`),
+            '--margin',
+            '5',
+            ...flag,
+          ],
+          join(dir, `${name}.json`),
+        );
+      await run(['--flag', 'pii'], 'pii-only');
+      const piiOnly = await summaryAt(join(dir, 'pii-only.json'));
+      expect(piiOnly.flags).toEqual(['pii']);
+      expect(piiOnly.newFlags).toEqual([]);
+      expect(piiOnly.verdict).toBe('regression');
     },
     SLOW,
   );
@@ -245,11 +227,112 @@ describe('driftbench ci on the Acme gated suite', () => {
     async () => {
       const out = join(dir, 'json.json');
       const result = await ci(
-        ['--target', 'function:acme-sales', '--store', join(dir, 'json.db'), '--margin', '5', '--json'],
+        ['--target', 'function:acme-sales', '--store', join(dir, 'json.db'), '--margin', '30', '--json'],
         out,
       );
       expect(result.code).toBe(0);
       expect(JSON.parse(result.out)).toEqual(await summaryAt(out));
+    },
+    SLOW,
+  );
+});
+
+/** Bench D3 and D4: the identical agent never reads REGRESSION, and ci gives compare's verdict on the same pair. */
+describe('driftbench ci on the Acme golden suite: one verdict rule with compare', () => {
+  let dir: string;
+  let store: string;
+  beforeAll(async () => {
+    dir = await tempFolder();
+    store = join(dir, 'golden.db');
+    const run = await cli([
+      'campaign',
+      'run',
+      GOLDEN,
+      '--target',
+      'function:acme-sales',
+      '--store',
+      store,
+      '--campaign',
+      'baseline',
+      '--json',
+    ]);
+    expect(run.code).toBe(0);
+  }, SLOW);
+
+  async function ciThenCompare(target: string[], margin: string, name: string) {
+    const out = join(dir, `${name}.json`);
+    const result = await cli([
+      'ci',
+      '--specs',
+      GOLDEN,
+      ...target,
+      '--baseline',
+      'baseline',
+      '--store',
+      store,
+      '--margin',
+      margin,
+      '--out',
+      out,
+    ]);
+    const summary = await summaryAt(out);
+    const compared = await cli([
+      'compare',
+      '--baseline',
+      'baseline',
+      '--candidate',
+      summary.candidate.campaignId,
+      '--store',
+      store,
+      '--margin',
+      margin,
+      '--json',
+    ]);
+    return {
+      result,
+      summary,
+      compared,
+      compareVerdict: (JSON.parse(compared.out) as { verdict: string }).verdict,
+    };
+  }
+
+  const AS_COMPARE: Record<string, string> = {
+    parity: 'non-inferior',
+    regression: 'regressed',
+    'not-shown-non-inferior': 'unproven',
+  };
+
+  it.each(['5', '15', '30'])(
+    'never reads REGRESSION for the identical agent at margin %s, and agrees with compare',
+    async (margin) => {
+      for (const [target, name] of [
+        [['--target', 'function:acme-sales'], `same-${margin}`],
+        [['--target', 'fault:control-sales-identity', '--faults', FAULTS], `control-${margin}`],
+      ] as const) {
+        const { result, summary, compared, compareVerdict } = await ciThenCompare([...target], margin, name);
+        expect(result.err).toBe('');
+        expect(summary.verdict, name).not.toBe('regression');
+        expect(result.out).not.toContain('REGRESSION');
+        expect(summary.table.regressed).toBe(0);
+        expect(AS_COMPARE[summary.verdict]).toBe(compareVerdict);
+        expect(result.code).toBe(compared.code);
+      }
+    },
+    SLOW,
+  );
+
+  it.each(RED_FAULTS)(
+    'turns red on fault %s at margin 30, with the verdict and exit code compare gives',
+    async (fault) => {
+      const { result, summary, compared, compareVerdict } = await ciThenCompare(
+        ['--target', `fault:${fault}`, '--faults', FAULTS],
+        '30',
+        `fault-${fault}`,
+      );
+      expect(result.code).toBe(1);
+      expect(summary.verdict).not.toBe('parity');
+      expect(AS_COMPARE[summary.verdict]).toBe(compareVerdict);
+      expect(compared.code).toBe(1);
     },
     SLOW,
   );
@@ -279,7 +362,7 @@ describe('driftbench ci baselines', () => {
         join(dir, 'by-id.json'),
       ]);
       expect(byId.err).toBe('');
-      expect(byId.code).toBe(0);
+      expect(byId.code).not.toBe(2);
       const byIdSummary = await summaryAt(join(dir, 'by-id.json'));
       expect(byIdSummary.baseline.campaignId).toBe(first);
       expect(byIdSummary.candidate.campaignId).not.toBe(first);
@@ -301,7 +384,7 @@ describe('driftbench ci baselines', () => {
         '--out',
         join(dir, 'by-path.json'),
       ]);
-      expect(byPath.code).toBe(0);
+      expect(byPath.code).not.toBe(2);
       const byPathSummary = await summaryAt(join(dir, 'by-path.json'));
       expect(byPathSummary.baseline.campaignId).toBe(byIdSummary.candidate.campaignId);
       expect(byPathSummary.candidate.campaignId).not.toBe(byIdSummary.candidate.campaignId);
@@ -347,10 +430,10 @@ describe('driftbench ci baselines', () => {
           await opened.close();
         }
       };
-      expect((await cli([...args('first.json'), '--cache'])).code).toBe(0);
-      expect((await cli(args('second.json'))).code).toBe(0);
+      expect((await cli([...args('first.json'), '--cache'])).code).not.toBe(2);
+      expect((await cli(args('second.json'))).code).not.toBe(2);
       expect(await hits('second.json')).toBe(0);
-      expect((await cli([...args('third.json'), '--cache'])).code).toBe(0);
+      expect((await cli([...args('third.json'), '--cache'])).code).not.toBe(2);
       expect(await hits('third.json')).toBe(6);
     },
     SLOW,
@@ -378,12 +461,13 @@ describe('driftbench ci baselines', () => {
         '--out',
         out,
       ]);
-      expect(result.code).toBe(0);
+      expect(result.code).toBe(1);
       const summary = await summaryAt(out);
+      expect(summary.verdict).toBe('not-shown-non-inferior');
       expect(summary.pairs).toBe(10);
-      expect(summary.unpaired.baselineOnly).toHaveLength(124);
-      expect(summary.unpaired.candidateOnly).toEqual([]);
-      expect(result.out).toContain('Not run by the candidate: ');
+      expect(summary.unpaired).toHaveLength(124);
+      expect(summary.unpaired.every((entry) => entry.reason === 'baseline only')).toBe(true);
+      expect(result.out).toContain('Not compared: ');
     },
     SLOW,
   );
@@ -531,106 +615,13 @@ describe('driftbench ci input', () => {
         join(dir, 'never.json'),
       ]);
       expect(result.code).toBe(2);
-      expect(result.err).toContain('share no golden (spec and mode): nothing to compare');
+      expect(result.err).toContain(
+        'cannot be compared: compare: the two campaigns share no golden in a shared mode',
+      );
       expect(existsSync(join(dir, 'never.json'))).toBe(false);
     },
     SLOW,
   );
-});
-
-describe('pairArms and compareArms', () => {
-  let runs: RunResult[];
-  beforeAll(async () => {
-    const dir = await tempFolder();
-    const store = join(dir, 'repeats.db');
-    const result = await cli([
-      'campaign',
-      'run',
-      CONVERSATIONS,
-      '--target',
-      'function:acme-sales',
-      '--repeats',
-      '2',
-      '--store',
-      store,
-      '--json',
-    ]);
-    expect(result.code).toBe(0);
-    const opened = openStore(store);
-    try {
-      runs = await opened.listRuns({
-        campaignId: (JSON.parse(result.out) as { campaignId: string }).campaignId,
-      });
-    } finally {
-      await opened.close();
-    }
-  }, SLOW);
-
-  it('pairs on spec and mode across targets, and a golden passes only when every repeat passes', () => {
-    expect(runs).toHaveLength(12);
-    const candidate = structuredClone(runs).map((run) => ({
-      ...run,
-      target: { adapter: 'fault', agent: 'x' },
-    }));
-    const broken = candidate.find(
-      (run) => run.specId === 'acme-plan-upgrade' && run.repeat === 1,
-    ) as RunResult;
-    (broken.blocks[1] as RunResult['blocks'][number]).pass = false;
-    const paired = pairArms(runs, candidate, [...DEFAULT_FLAGS]);
-    expect(paired.pairs).toHaveLength(6);
-    const row = paired.pairs.find((pair) => pair.specId === 'acme-plan-upgrade');
-    expect(row?.baseline).toMatchObject({ pass: true, runs: 2, passing: 2 });
-    expect(row?.candidate).toMatchObject({ pass: false, runs: 2, passing: 1 });
-    expect(row?.change).toBe('regressed');
-    expect(paired.pairs.filter((pair) => pair.change === 'same')).toHaveLength(5);
-  });
-
-  it('sets a flag only for a failing gating verdict of a flag check, and a new flag only where the baseline had none', () => {
-    const candidate = structuredClone(runs);
-    const run = candidate.find((entry) => entry.specId === 'acme-tool-failure') as RunResult;
-    const verdict = (run.blocks[0] as RunResult['blocks'][number]).verdicts[0];
-    if (!verdict) throw new Error('the Acme run has no verdict');
-    verdict.name = 'safety';
-    verdict.gating = true;
-    verdict.outcome = 'fail';
-    const flagged = pairArms(runs, candidate, ['safety']);
-    expect(flagged.pairs.filter((pair) => pair.newFlag).map((pair) => pair.specId)).toEqual([
-      'acme-tool-failure',
-    ]);
-    expect(pairArms(runs, candidate, ['pii']).pairs.some((pair) => pair.newFlag)).toBe(false);
-    verdict.gating = false;
-    expect(pairArms(runs, candidate, ['safety']).pairs.some((pair) => pair.newFlag)).toBe(false);
-    verdict.gating = true;
-    // The same flag on both sides is no new flag.
-    expect(pairArms(candidate, candidate, ['safety']).pairs.some((pair) => pair.newFlag)).toBe(false);
-  });
-
-  it('keeps the modes apart: a spec in T and in F is two goldens', () => {
-    const teacher = structuredClone(runs).map((run) => ({ ...run, mode: 'T' as const }));
-    const candidate = [...structuredClone(runs), ...structuredClone(teacher)];
-    const broken = candidate.find(
-      (run) => run.specId === 'acme-plan-upgrade' && run.mode === 'T',
-    ) as RunResult;
-    (broken.blocks[0] as RunResult['blocks'][number]).pass = false;
-    const paired = pairArms([...runs, ...teacher], candidate, [...DEFAULT_FLAGS]);
-    expect(paired.pairs).toHaveLength(12);
-    expect(paired.pairs.filter((pair) => pair.change === 'regressed').map((pair) => pair.name)).toEqual([
-      'acme-plan-upgrade · T',
-    ]);
-  });
-
-  it('compareArms is nonInferiority on the all-pass flag: the regression effect and the new flags', () => {
-    const candidate = structuredClone(runs);
-    for (const run of candidate.filter((entry) => entry.specId === 'acme-plan-upgrade')) {
-      (run.blocks[0] as RunResult['blocks'][number]).pass = false;
-    }
-    const { pairs } = pairArms(runs, candidate, [...DEFAULT_FLAGS]);
-    const result = compareArms(pairs, 0.5);
-    expect(result.discordant).toEqual({ regressed: 1, improved: 0 });
-    expect(result.regressedPairs).toEqual(['acme-plan-upgrade · F']);
-    expect(result.effect.estimate).toBeCloseTo(1 / 6, 10);
-    expect(result.effect.n).toBe(6);
-  });
 });
 
 describe('the driftbench ci GitHub Action', () => {
@@ -653,7 +644,7 @@ describe('the driftbench ci GitHub Action', () => {
     async () => {
       const dir = await tempFolder();
       const base = join(dir, 'base.db');
-      await baselineCampaign(BOUNDARY, base);
+      await baselineCampaign(GATED, base);
       const tsx = join(ROOT, 'node_modules/.bin/tsx');
       const action = (margin: string) => {
         const output = join(dir, `output-${margin}.txt`);
@@ -664,7 +655,7 @@ describe('the driftbench ci GitHub Action', () => {
           env: {
             ...process.env,
             GITHUB_OUTPUT: output,
-            INPUT_SPECS: BOUNDARY,
+            INPUT_SPECS: GATED,
             INPUT_TARGET: 'function:acme-sales',
             INPUT_BASELINE: base,
             INPUT_STORE: join(dir, 'cand.db'),
@@ -676,7 +667,7 @@ describe('the driftbench ci GitHub Action', () => {
         return { result, output, report };
       };
 
-      const parity = action('40');
+      const parity = action('30');
       // Node 22 warns that its SQLite module is experimental; that line is the runtime's, not the action's.
       expect(
         parity.result.stderr

@@ -1,7 +1,7 @@
 name: driftbench ci
 description: >-
   Runs a driftbench spec suite on a candidate target, compares it golden by golden with a baseline campaign
-  and fails the job on a regression beyond the margin or on a new gating flag.
+  and fails the job unless it shows parity, by the rule of driftbench compare.
 
 inputs:
   specs:
@@ -52,7 +52,7 @@ inputs:
 
 outputs:
   verdict:
-    description: parity, regression, gating, incomplete, or input-error when the CLI refused its input.
+    description: parity, regression, not-shown-non-inferior, incomplete, or input-error when the CLI refused its input.
     value: ${{ steps.ci.outputs.verdict }}
   report-path:
     description: The JSON summary the CLI wrote.

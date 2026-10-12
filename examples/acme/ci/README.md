@@ -5,23 +5,25 @@
 ```
 driftbench ci --specs <path> --target <adapter[:agent]> --baseline <store file | campaign id> \
   --store <file> --margin <points> [--mode F] [--repeats n] [--budget-usd usd] [--faults <path>] \
-  [--flag <check>]... [--out driftbench-ci.json] [--cache] [--json]
+  [--flag <family>]... [--out driftbench-ci.json] [--cache] [--json]
 ```
 
 ## What it decides
 
-| Exit | Verdict | When |
-|---|---|---|
-| 0 | `parity` | The upper bound of the 95% interval on the regression effect is below the margin, and no gating flag fires on the candidate where the baseline had none. |
-| 1 | `regression` | The upper bound is not below the margin. |
-| 1 | `gating` | The effect is within the margin, but a flag check fails on a golden where the baseline's did not. |
-| 1 | `incomplete` | A candidate cell did not run (stopped by the budget, or pending). |
-| 2 | none | Bad input: a margin outside (0, 100), an unknown baseline, a fault target without `--faults`, no golden in common. |
+`ci` runs the candidate campaign, then compares it with the baseline by `compareCampaigns` of `@driftbench/report`: the rule `driftbench compare` applies. On the same pair of campaigns, the two commands give the same verdict and the same exit code.
+
+| Exit | Verdict | compare's verdict | When |
+|---|---|---|---|
+| 0 | `parity` | non-inferior | The all-pass flag and every gating criterion have a 95% upper bound below the margin, and no flag family fires on the candidate where it did not on the baseline. |
+| 1 | `regression` | regressed | There is evidence of a drop: a new flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved. |
+| 1 | `not-shown-non-inferior` | unproven | No evidence of a drop, but an interval is wider than the margin. This is too few goldens, never a regression. |
+| 1 | `incomplete` | none | A candidate cell did not run (stopped by the budget, or pending). |
+| 2 | none | none | Bad input: a margin outside (0, 100), an unknown baseline, a fault target without `--faults`, no golden in common. |
 
 - **The unit is the golden**: one spec in one mode (and perturbation), every repeat of it. A golden passes when every repeat passes. Repeats are never counted as independent pairs.
-- **The effect** is the baseline pass rate minus the candidate pass rate, with the paired Newcombe interval of `nonInferiority` in `@driftbench/stats`.
-- **The flag checks** default to `forbidden`, `pii`, `safety` and `guards`: a failure there is an act that must never happen, so it fails the gate whatever the margin. `--flag` replaces the list.
-- **The smallest margin** the table prints is the upper bound when every pair passes on both sides. A margin below it can never show parity with this many goldens: add goldens, not repeats.
+- **Every gating criterion counts**, not only the all-pass flag. A criterion decided on few goldens has a wide interval. The table names each criterion not shown within the margin and the goldens behind it.
+- **The flag families** default to `safety`, `forbidden` and `pii`, as in `compare`. `--flag` replaces the list.
+- **The smallest margin** the table prints is the all-pass upper bound when every pair passes on both sides. A margin below it can never show parity with this many goldens: add goldens, not repeats.
 - **The cache is off** by default, so every cell runs the agent. `--cache` replays cached runs.
 - **The baseline** is read before the candidate runs. A file path is a store, and its latest campaign is the baseline. Anything else is a campaign id in `--store`.
 
@@ -30,12 +32,12 @@ driftbench ci --specs <path> --target <adapter[:agent]> --baseline <store file |
 ```
 pnpm -s driftbench campaign run examples/acme/gated/specs --target function:acme-sales --store .driftbench/baseline.db
 pnpm -s driftbench ci --specs examples/acme/gated/specs --target function:acme-sales \
-  --baseline .driftbench/baseline.db --store .driftbench/ci.db --margin 5
+  --baseline .driftbench/baseline.db --store .driftbench/ci.db --margin 30
 pnpm -s driftbench ci --specs examples/acme/gated/specs --target fault:x3-skips-recap --faults examples/acme/faults \
   --baseline .driftbench/baseline.db --store .driftbench/ci.db --margin 5
 ```
 
-The first `ci` call compares the agent with itself: exit 0. The second runs the fault that skips the recap and sends the order without a confirmation: exit 1.
+The first `ci` call compares the agent with itself over 134 goldens: parity at 30 points, exit 0. At 5 points the same call reads `not-shown-non-inferior`, exit 1, because the `cards`, `guards` and `must` criteria are decided on too few goldens. The second call runs the fault that skips the recap and sends the order without a confirmation: `regression`, exit 1.
 
 ## In GitHub Actions
 
