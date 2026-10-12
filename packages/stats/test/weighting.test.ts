@@ -5,6 +5,7 @@ import {
   iccOneWay,
   kishEffectiveSize,
   oneWayAnova,
+  stratifiedMean,
   weightedMean,
 } from '../src/index';
 
@@ -147,5 +148,33 @@ describe('oneWayAnova', () => {
         [1, 1],
       ]),
     ).toThrow(RangeError);
+  });
+});
+
+describe('stratifiedMean', () => {
+  it('is sum W_h ybar_h with the finite population corrected variance', () => {
+    const a = stratifiedMean({
+      means: [0.8, 0.6, 0.9],
+      sizes: [100, 50, 50],
+      sds: [0.4, 0.49, 0.3],
+      samples: [20, 10, 10],
+    });
+    expect(a.estimate).toBeCloseTo(0.775, 12);
+    expect(a.variance).toBeCloseTo(0.0032505000000000004, 12);
+    const b = stratifiedMean({ means: [10, 20], sizes: [1000, 3000], sds: [2, 5], samples: [50, 100] });
+    expect(b.estimate).toBeCloseTo(17.5, 12);
+    expect(b.variance).toBeCloseTo(0.1406875, 12);
+  });
+  it('has no variance from a stratum sampled completely', () => {
+    expect(stratifiedMean({ means: [1, 2], sizes: [5, 5], sds: [1, 1], samples: [5, 5] }).variance).toBe(0);
+  });
+  it('throws a RangeError on input it cannot answer for', () => {
+    const ok = { means: [1, 2], sizes: [10, 10], sds: [1, 1], samples: [5, 5] };
+    expect(() => stratifiedMean({ means: [], sizes: [], sds: [], samples: [] })).toThrow(RangeError);
+    expect(() => stratifiedMean({ ...ok, sds: [1] })).toThrow(RangeError);
+    expect(() => stratifiedMean({ ...ok, means: [Number.NaN, 2] })).toThrow(RangeError);
+    expect(() => stratifiedMean({ ...ok, sds: [-1, 1] })).toThrow(/sds\[0\]/);
+    expect(() => stratifiedMean({ ...ok, samples: [11, 5] })).toThrow(/samples\[0\]/);
+    expect(() => stratifiedMean({ ...ok, samples: [0, 5] })).toThrow(RangeError);
   });
 });

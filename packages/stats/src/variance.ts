@@ -385,3 +385,60 @@ export function repeatsForFloor(input: RepeatsForFloorInput): RepeatsForFloorRes
   const repeats = Math.max(1, Math.abs(exact - rounded) < 1e-9 ? rounded : Math.ceil(exact));
   return { repeats, floor: z * Math.sqrt((factor * variance) / (repeats * blocks)) };
 }
+
+export interface StratifiedMeanInput {
+  /** The sample mean of each stratum. */
+  readonly means: readonly number[];
+  /** The population size N_h of each stratum. */
+  readonly sizes: readonly number[];
+  /** The sample standard deviation s_h of each stratum. */
+  readonly sds: readonly number[];
+  /** The sample size n_h of each stratum. */
+  readonly samples: readonly number[];
+}
+
+/**
+ * The stratified estimator of a mean (Cochran, Sampling Techniques, 5.4): sum W_h ybar_h with W_h = N_h / N,
+ * and variance sum W_h^2 (1 - n_h / N_h) s_h^2 / n_h, the finite population correction included. Throws a
+ * RangeError on no strata, arrays of different lengths, a mean or sd that is not finite, an sd below zero, a
+ * size below one, or a sample that is not a whole number from 1 to its stratum size.
+ */
+export function stratifiedMean(input: StratifiedMeanInput): { estimate: number; variance: number } {
+  const { means, sizes, sds, samples } = input;
+  const H = means.length;
+  if (H === 0) throw new RangeError('stratifiedMean of no strata');
+  if (sizes.length !== H || sds.length !== H || samples.length !== H) {
+    throw new RangeError(
+      `stratifiedMean: means, sizes, sds and samples must have the same length, got ${H}, ${sizes.length}, ${sds.length} and ${samples.length}`,
+    );
+  }
+  let population = 0;
+  for (let h = 0; h < H; h += 1) {
+    const N = sizes[h] as number;
+    const n = samples[h] as number;
+    if (!Number.isFinite(means[h] as number)) {
+      throw new RangeError(`stratifiedMean: means[${h}] must be finite, got ${means[h]}`);
+    }
+    if (!Number.isFinite(sds[h] as number) || (sds[h] as number) < 0) {
+      throw new RangeError(`stratifiedMean: sds[${h}] must be finite and not negative, got ${sds[h]}`);
+    }
+    if (!Number.isFinite(N) || N < 1) {
+      throw new RangeError(`stratifiedMean: sizes[${h}] must be at least 1, got ${N}`);
+    }
+    if (!Number.isInteger(n) || n < 1 || n > N) {
+      throw new RangeError(
+        `stratifiedMean: samples[${h}] must be a whole number from 1 to sizes[${h}] (${N}), got ${n}`,
+      );
+    }
+    population += N;
+  }
+  let estimate = 0;
+  let variance = 0;
+  for (let h = 0; h < H; h += 1) {
+    const W = (sizes[h] as number) / population;
+    const n = samples[h] as number;
+    estimate += W * (means[h] as number);
+    variance += (W * W * (1 - n / (sizes[h] as number)) * (sds[h] as number) ** 2) / n;
+  }
+  return { estimate, variance };
+}

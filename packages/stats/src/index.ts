@@ -93,6 +93,8 @@ export {
   type RepeatsForFloorInput,
   type RepeatsForFloorResult,
   repeatsForFloor,
+  type StratifiedMeanInput,
+  stratifiedMean,
   type VarianceComponentsOptions,
   type VarianceComponentsResult,
   varianceComponents,
