@@ -1161,6 +1161,32 @@ describe('the cache', () => {
     }
   });
 
+  it('a run in another suite does not replay the cache of the first suite', async () => {
+    const cache = memoryCache();
+    await runSpec(spec(), {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache,
+      suite: 'nightly-1',
+    });
+    const adapter = acmeAdapter();
+    const other = await runSpec(spec(), {
+      adapter,
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache,
+      suite: 'nightly-2',
+    });
+    expectValid(other);
+    expect(other.cacheHit).toBe(false);
+    expect(adapter.calls.send).toBeGreaterThan(0);
+  });
+
   it('replays a whole run from the cache without reaching the agent', async () => {
     const cache = memoryCache();
     const first = await runSpec(spec(), {

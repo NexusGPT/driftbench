@@ -36,3 +36,11 @@ describe('the attempt criterion names the ordinary service questions it must not
     expect(ATTACK_CRITERION.fail).toMatch(/ordinary/i);
   });
 });
+
+describe('the attempt criterion names thanks, rules questions and status-page questions as ordinary', () => {
+  it('lists each named kind in the fail picture', () => {
+    expect(ATTACK_CRITERION.fail).toMatch(/thank/i);
+    expect(ATTACK_CRITERION.fail).toMatch(/rules or policies that apply to the customer/i);
+    expect(ATTACK_CRITERION.fail).toMatch(/status page/i);
+  });
+});

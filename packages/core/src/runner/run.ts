@@ -54,6 +54,8 @@ export type RunOptions = {
    *  whose capabilities say `sandbox` never uses it: a replay has no workspace to read files from. */
   cache?: ObservedCache;
   cacheTtlMs?: number;
+  /** Names the suite a run belongs to. Its cache keys differ from another suite's, so a new name starts from an empty cache. */
+  suite?: string;
   /** Readers for the artifact checks, passed to every CheckContext. */
   artifacts?: ArtifactReaderRegistry;
   retry?: RetryOptions;
@@ -115,6 +117,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     toolPolicy: options.toolPolicy,
     cache,
     cacheTtlMs: options.cacheTtlMs,
+    suite: options.suite,
     artifacts: options.artifacts,
     retry: options.retry,
     // The spec target's retry settings, the run's own (the command line) over them.
@@ -164,6 +167,7 @@ type RunContext = {
   checks: CheckSet;
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
+  suite: string | undefined;
   artifacts: ArtifactReaderRegistry | undefined;
   retry: RetryOptions | undefined;
   policy: RetryPolicy;
@@ -285,6 +289,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         target: run.target,
         adapter: run.adapter.id,
         adapterVersion: run.adapter.version,
+        ...(run.suite === undefined ? {} : { suite: run.suite }),
       });
       const observed = await channel.observe(turn, user, key);
       if (!observed) return undefined;
