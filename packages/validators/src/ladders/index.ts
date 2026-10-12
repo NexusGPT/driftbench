@@ -7,5 +7,11 @@ import { statsLadder } from './stats';
 
 /** Every registered validator, by component. CI runs each of them; the file is protected on executor branches. */
 export function registeredLadders(): Record<string, Ladder> {
-  return { estate: estateLadder(), generator: generatorLadder(), judges: judgesLadderV2(), map: mapLadder(), stats: statsLadder() };
+  return {
+    estate: estateLadder(),
+    generator: generatorLadder(),
+    judges: judgesLadderV2(),
+    map: mapLadder(),
+    stats: statsLadder(),
+  };
 }
