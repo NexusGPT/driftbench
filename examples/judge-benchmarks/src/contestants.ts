@@ -34,6 +34,13 @@ export type Contestant = {
   };
   /** A contestant that writes its own rubric for each item: the prompt that asks for it. */
   readonly rubric?: (question: string) => Prompt;
+  /**
+   * Asks first whether the question has a checkable answer; the reference step runs only when it does.
+   * The answer is read as YES or NO.
+   */
+  readonly route?: (question: string) => Prompt;
+  /** How many independent judgements a prompt gets; the majority decides. Default 1. */
+  readonly samples?: number;
   /** A contestant that first answers the question itself, once per item: the prompt that asks for it. */
   readonly reference?: (question: string) => Prompt;
   readonly pair?: (input: {
@@ -652,8 +659,61 @@ const driftbenchReference: Contestant = {
   }),
 };
 
+const driftbenchReference3: Contestant = {
+  ...driftbenchReference,
+  id: 'driftbench-reference3',
+  source:
+    'driftbench-reference with three independent judgements per prompt, the majority deciding (tuning candidate)',
+  samples: 3,
+};
+
+/** Stricter answer checks: a verified reference, and a final-answer comparison before the verdict. */
+const CHECK_RULES = [
+  'Before the verdict, write the final answer the response gives, then the final answer you verified. Pass only when they agree, allowing equivalent forms (2/4 and 1/2, the same option in other words).',
+  'When your answer and the reference disagree, recheck the step where they part before deciding. A response that reaches the right answer through wrong steps still has the right final answer.',
+]
+  .map((rule) => `- ${rule}`)
+  .join('\n');
+
+const REFERENCE_CHECKED_PROMPT = `${REFERENCE_PROMPT}
+Before the final line, check your answer by a second, independent method (substitute it back, estimate it,
+or test the option against every condition). If the two disagree, find the error first.`;
+
+const driftbenchChecked: Contestant = {
+  ...driftbenchJudge(
+    'driftbench-checked',
+    'driftbench-reference3 with a checked reference and a final-answer comparison (tuning candidate)',
+    `Reasoning rules:\n${STEPWISE_RULES}\n${VERIFY_RULES}\n${CHECK_RULES}`,
+    `Pairwise rules:\n${PAIRWISE_RULES}`,
+  ),
+  reference: (question) => ({
+    system: '',
+    user: `${REFERENCE_CHECKED_PROMPT}\n\n<question>\n${question}\n</question>`,
+  }),
+  samples: 3,
+};
+
+const ROUTE_PROMPT = `Does the question below have one checkable correct answer, such as a number, a choice among options,
+a fact, a proof result or the behaviour of code? Creative writing, advice, opinion, style and open-ended
+requests do not. Answer with one word: YES or NO.`;
+
+/**
+ * The adaptive judge: driftbench-reference3 where the question has a checkable answer, and the same judge
+ * without a reference (three judgements, symmetric pairwise rules) where it does not.
+ */
+const driftbenchAdaptive: Contestant = {
+  ...driftbenchReference3,
+  id: 'driftbench-adaptive',
+  source:
+    'the shipped prompt with reasoning, solve-first and symmetric pairwise rules, three judgements, and a reference answer when the question is checkable (tuned on dev)',
+  route: (question) => ({ system: '', user: `${ROUTE_PROMPT}\n\n<question>\n${question}\n</question>` }),
+};
+
 export const CANDIDATES: readonly Contestant[] = [
+  driftbenchAdaptive,
+  driftbenchChecked,
   driftbenchReference,
+  driftbenchReference3,
   driftbenchStepwise,
   driftbenchSelfRubric,
   driftbenchSymmetric,

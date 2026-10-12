@@ -8,6 +8,7 @@ import {
   contestantById,
   type PairDecision,
   type PointDecision,
+  type Prompt,
 } from './contestants';
 import {
   type BenchmarkId,
@@ -175,10 +176,42 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       return pending;
     };
     // The criterion of an item: its own (such as human rubrics), or one the contestant writes itself.
+    // A contestant with samples above 1 judges each prompt that many times, independently, and the majority
+    // decides; each sample after the first carries its number, so it is its own recorded call.
+    const sampled = async (prompt: Prompt, id: string, order: string): Promise<string[]> => {
+      const k = contestant.samples ?? 1;
+      const asked = await Promise.all(
+        Array.from({ length: k }, (_, i) =>
+          ask(
+            contestant,
+            i === 0
+              ? prompt
+              : { ...prompt, user: `${prompt.user}\n\n(Independent judgement ${i + 1} of ${k}.)` },
+            id,
+            k === 1 ? order : `${order}#${i + 1}`,
+          ),
+        ),
+      );
+      return asked.filter((r): r is NonNullable<typeof r> => r !== undefined).map((r) => r.text);
+    };
+    const routes = new Map<string, Promise<boolean>>();
+    const checkable = (item: Item): Promise<boolean> => {
+      if (!contestant.route) return Promise.resolve(true);
+      let pending = routes.get(item.id);
+      if (!pending) {
+        pending = ask(contestant, contestant.route(item.question), item.id, 'route').then(
+          (r) => r === undefined || /^\s*\**\s*YES/i.test(r.text),
+        );
+        routes.set(item.id, pending);
+      }
+      return pending;
+    };
     const referenceFor = async (item: Item): Promise<string | undefined> =>
-      contestant.reference
-        ? (await ask(contestant, contestant.reference(item.question), item.id, 'reference'))?.text
-        : undefined;
+      !(await checkable(item))
+        ? undefined
+        : contestant.reference
+          ? (await ask(contestant, contestant.reference(item.question), item.id, 'reference'))?.text
+          : undefined;
     const criterionFor = async (item: Item): Promise<string> => {
       if (contestant.rubric) {
         const r = await ask(contestant, contestant.rubric(item.question), item.id, 'rubric');
@@ -203,8 +236,9 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       });
       const id = item.id;
       if (!prompt || !contestant.parsePoint) return { d: {}, missing: 1 };
-      const r = await ask(contestant, prompt, id, order);
-      return r ? { d: contestant.parsePoint(r.text), missing: 0 } : { d: {}, missing: 1 };
+      const parse = contestant.parsePoint;
+      const texts = await sampled(prompt, id, order);
+      return texts.length === 0 ? { d: {}, missing: 1 } : { d: majorityPoint(texts.map(parse)), missing: 0 };
     };
     let summary: Summary;
     let mode: ContestantReport['mode'];
@@ -225,8 +259,9 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
               ...(setup === undefined ? {} : { setup }),
               ...(reference === undefined ? {} : { reference }),
             });
-            const r = prompt ? await ask(contestant, prompt, item.id, order) : undefined;
-            return r ? parse(r.text) : undefined;
+            if (!prompt) return undefined;
+            const texts = await sampled(prompt, item.id, order);
+            return texts.length === 0 ? undefined : majorityPair(texts.map(parse));
           };
           const [ordered, swapped] = await Promise.all([
             one(item.a, item.b, 'AB'),
@@ -331,4 +366,21 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     process.stderr.write(`${cause instanceof Error ? cause.stack : String(cause)}\n`);
     process.exitCode = 2;
   });
+}
+
+/** The majority of several pairwise decisions: the side with more votes, a tie when they are level. */
+export function majorityPair(decisions: readonly PairDecision[]): PairDecision {
+  const a = decisions.filter((d) => d === 'A').length;
+  const b = decisions.filter((d) => d === 'B').length;
+  return a > b ? 'A' : b > a ? 'B' : 'tie';
+}
+
+/** The majority of several pointwise decisions: pass or fail by vote, the score their mean; no verdict votes nothing. */
+export function majorityPoint(decisions: readonly PointDecision[]): PointDecision {
+  const pass = decisions.filter((d) => d.pass === true).length;
+  const fail = decisions.filter((d) => d.pass === false).length;
+  const scores = decisions.map((d) => d.score).filter((x): x is number => x !== undefined);
+  const score = scores.length === 0 ? undefined : scores.reduce((s, x) => s + x, 0) / scores.length;
+  const verdict = pass > fail ? true : fail > pass ? false : undefined;
+  return { ...(verdict === undefined ? {} : { pass: verdict }), ...(score === undefined ? {} : { score }) };
 }

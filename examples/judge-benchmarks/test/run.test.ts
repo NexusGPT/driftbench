@@ -138,3 +138,81 @@ describe('the recording key', () => {
     expect(promptKey('haiku', { system: 's ', user: 'u' })).not.toBe(promptKey('haiku', prompt));
   });
 });
+
+describe('samples, routes and references', () => {
+  it('takes the majority of several judgements', async () => {
+    const { majorityPair, majorityPoint } = await import('../src/run');
+    expect(majorityPair(['A', 'B', 'A'])).toBe('A');
+    expect(majorityPair(['A', 'tie', 'B'])).toBe('tie');
+    const vote = majorityPoint([
+      { pass: false, score: 0.2 },
+      { pass: true, score: 0.8 },
+      { pass: false, score: 0.2 },
+    ]);
+    expect(vote.pass).toBe(false);
+    expect(vote.score).toBeCloseTo(0.4, 10);
+    expect(majorityPoint([{}, {}])).toEqual({});
+  });
+
+  it('asks for a reference only when the route says the question is checkable, and judges each prompt k times', async () => {
+    const seen: string[] = [];
+    const contestant = {
+      id: 'probe',
+      source: 'test',
+      samples: 3,
+      route: (q: string) => ({ system: '', user: `ROUTE ${q}` }),
+      reference: (q: string) => ({ system: '', user: `REFERENCE ${q}` }),
+      point: ({ response, reference }: { response: string; reference?: string }) => ({
+        system: 'strict judge',
+        user: `${response} ${reference ? 'WITHREF' : 'NOREF'}`,
+      }),
+      parsePoint: (text: string) => {
+        seen.push(text);
+        return { pass: text.includes('RIGHT') };
+      },
+    };
+    const route = `#!/usr/bin/env node
+let input = '';
+process.stdin.on('data', (c) => { input += c; });
+process.stdin.on('end', () => {
+  const result = input.startsWith('ROUTE') ? (input.includes('poem') ? 'NO' : 'YES') : input.startsWith('REFERENCE') ? 'Final answer: 42' : JSON.stringify({ outcome: input.includes('RIGHT') ? 'pass' : 'fail', reasoning: input });
+  process.stdout.write(JSON.stringify({ type: 'result', subtype: 'success', is_error: false, result, total_cost_usd: 0.001 }));
+});
+`;
+    const cmd = join(dir, 'route-claude.mjs');
+    await writeFile(cmd, route);
+    await chmod(cmd, 0o755);
+    const points: PointItem[] = [
+      {
+        kind: 'point',
+        id: 'math',
+        question: 'What is 6 times 7?',
+        response: 'RIGHT 42',
+        correct: true,
+        group: 'g',
+      },
+      {
+        kind: 'point',
+        id: 'poem',
+        question: 'Write a poem.',
+        response: 'a poem',
+        correct: false,
+        group: 'g',
+      },
+    ];
+    const report = await runBenchmark({
+      bench: 'longjudge-verify',
+      model: 'fake',
+      contestants: [contestant],
+      items: points,
+      recordingsDir: join(dir, 'rec-route'),
+      command: cmd,
+      concurrency: 1,
+    });
+    // 2 routes + 1 reference (math only) + 2 items x 3 judgements.
+    expect(report.newCalls).toBe(9);
+    expect(seen.filter((t) => t.includes('WITHREF'))).toHaveLength(3);
+    expect(seen.filter((t) => t.includes('NOREF'))).toHaveLength(3);
+    expect(report.contestants[0]?.summary.value.estimate).toBe(1);
+  });
+});
