@@ -47,4 +47,28 @@ describe('similarity, relevancy and knowledge_retention in the spec', () => {
       'RETENTION_FACT_UNKNOWN blocks.0.expect.knowledge_retention.0.fact',
     ]);
   });
+
+  it('does not count the given.ledger of the block a perturbation is inserted before', () => {
+    const loaded = validateSpec({
+      id: 'retention-perturbation',
+      blocks: [
+        { user: 'hi' },
+        { user: 'thanks', given: { ledger: { email: 'jo@example.com' } } },
+      ],
+      perturbations: [
+        {
+          id: 'p1',
+          class: 'D1_off_topic',
+          inject_at: 1,
+          user: 'what was my email',
+          expect: { knowledge_retention: [{ fact: 'email' }] },
+        },
+      ],
+    });
+    expect(loaded.ok).toBe(false);
+    if (loaded.ok) return;
+    expect(loaded.errors.map((issue) => `${issue.code} ${issue.path}`)).toEqual([
+      'RETENTION_FACT_UNKNOWN perturbations.0.expect.knowledge_retention.0.fact',
+    ]);
+  });
 });

@@ -100,7 +100,7 @@ export function checkSemantics(spec: Spec): Issue[] {
       checkRetention(
         perturbation.expect,
         `${path}.expect`,
-        factsBefore(spec, perturbation.inject_at),
+        factsBefore(spec, perturbation.inject_at, false),
         issues,
       );
     }
@@ -238,11 +238,12 @@ export function isZero(count: Count | undefined): boolean {
 
 /**
  * The ledger keys known at block `index`: the seed, every earlier block's ledger_add, and the given.ledger
- * of this block and of the blocks before it.
+ * of the blocks before it, and of this block when `own` (a perturbation inserted before the block runs
+ * before that block's given.ledger is set).
  */
-function factsBefore(spec: Spec, index: number): Set<string> {
+function factsBefore(spec: Spec, index: number, own = true): Set<string> {
   const known = new Set(Object.keys(spec.given?.ledger ?? {}));
-  spec.blocks.slice(0, index + 1).forEach((block, at) => {
+  spec.blocks.slice(0, own ? index + 1 : index).forEach((block, at) => {
     for (const key of Object.keys(block.given?.ledger ?? {})) known.add(key);
     if (at < index) for (const key of Object.keys(block.expect?.ledger_add ?? {})) known.add(key);
   });
