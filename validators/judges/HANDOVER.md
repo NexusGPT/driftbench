@@ -103,6 +103,7 @@ Iteration 74 (cause: no German words): row. Test red proved. Bank 476 -> 478.
 Iteration 75 (cause: no Italian words): row. Test red proved. Bank 478 -> 480.
 Iteration 76 (cause: no Portuguese words): row. Test red proved. Bank 480 -> 481.
 Iteration 77 (cause: no Dutch words): row. Test red proved. Bank 481 -> 483.
+Iteration 78 (cause: no Polish words): row. Test red proved. Bank 483 -> 484 (0.7586). Next languages: tr, ru, zh, ja, ko, ar, hi, sv, id (CJK and Arabic need no word-boundary lookarounds: phrase() uses letter lookarounds that fail between adjacent CJK letters; give those rows a separate matcher).
 
 ## Next actions
 
