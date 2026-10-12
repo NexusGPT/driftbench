@@ -1081,7 +1081,7 @@ A map that does not load reports `MAP_PARSE`, `MAP_NOT_OBJECT`, `MAP_DUPLICATE_A
 ## `driftbench replay`
 
 ```
-driftbench replay <sessions...> --suite <dir> [--decisions <logs...>] [--steps <feeds...>] [--store <db>] [--json]
+driftbench replay <sessions...> --suite <dir> [--decisions <logs...>] [--steps <feeds...>] [--store <db>] [--owner <values...>] [--owner-file <file>] [--json]
 ```
 
 Runs a spec suite over recorded sessions, offline, with no model call. Each spec is aligned with a session by its metadata, or by order; a spec that names a session not given is skipped with a note. The run is the runner's own in mode F, with the scripted driver, the default checks plus the ordered-pair check, and no cache; judged criteria are not run. Every run is stored under one replay campaign. See [estate](../estate.md).
@@ -1093,6 +1093,8 @@ Runs a spec suite over recorded sessions, offline, with no model call. Each spec
 | `--decisions <logs...>` | guard decision logs (JSONL), one per session, matched by file name: `clean-build.decisions.jsonl` belongs to `clean-build.jsonl` |
 | `--steps <feeds...>` | the stage feeds (JSONL), one per session, matched by file name the same way |
 | `--store <db>` | keep the runs in this store; in memory without it |
+| `--owner <values...>` | the owner's own email, phone, IBAN or national number: the `pii` check leaves exactly these values out; see [personal data](checks.md#personal-data) |
+| `--owner-file <file>` | owner values, one per line; blank lines and lines starting with `#` are skipped |
 | `--json` | print one JSON document |
 
 On the recorded sessions of [`examples/estates/sessions`](../../examples/estates/sessions/specs):
@@ -1117,7 +1119,7 @@ $ pnpm -s driftbench replay examples/estates/sessions/clean-build.jsonl examples
 |---|---|
 | 0 | every aligned spec passes |
 | 1 | an aligned spec fails |
-| 2 | bad input: a log passed as a session, two sessions with one name, an unreadable session, an invalid spec, no spec aligned, a store that cannot be opened |
+| 2 | bad input: a log passed as a session, two sessions with one name, an unreadable session or a file that is not a transcript, an unreadable owner file, an invalid spec, no spec aligned, a store that cannot be opened |
 
 ## `driftbench validate`
 
