@@ -92,6 +92,53 @@ export function kishEffectiveSize(weights: readonly number[]): number {
   return (sum * sum) / sumSquares;
 }
 
+/** The two-sided Student t quantile at 1 - alpha / 2 on `df` degrees of freedom. */
+function studentQuantile(alpha: number, df: number): number {
+  // P(|T| > t) = I_x(df / 2, 1 / 2) with x = df / (df + t^2), so t = sqrt(df (1 - x) / x) at x = betaQuantile(alpha).
+  const x = betaQuantile(alpha, df / 2, 0.5);
+  return Math.sqrt((df * (1 - x)) / x);
+}
+
+/**
+ * The interval for the mean of clustered values: mean -/+ t(1 - alpha / 2, G - 1) SE, with the clustered
+ * standard error SE = sqrt(sum over clusters of (sum of (x - mean))^2) / n and G the clusters. Throws a
+ * RangeError on no values, mismatched lengths, a value that is not finite, fewer than two clusters or an alpha
+ * outside (0, 1). The bounds are not clipped to the range of the values.
+ */
+export function clusteredMeanInterval(
+  values: readonly number[],
+  clusters: readonly (string | number)[],
+  alpha = 0.05,
+): Interval {
+  if (values.length === 0) throw new RangeError('clusteredMeanInterval of an empty sample');
+  if (values.length !== clusters.length) {
+    throw new RangeError(
+      `clusteredMeanInterval: values and clusters must have the same length, got ${values.length} and ${clusters.length}`,
+    );
+  }
+  assertProbability('alpha', alpha, true);
+  let total = 0;
+  for (let i = 0; i < values.length; i += 1) {
+    const v = values[i] as number;
+    if (!Number.isFinite(v))
+      throw new RangeError(`clusteredMeanInterval: values[${i}] must be finite, got ${v}`);
+    total += v;
+  }
+  const n = values.length;
+  const estimate = total / n;
+  const sums = new Map<string | number, number>();
+  for (let i = 0; i < n; i += 1) {
+    const key = clusters[i] as string | number;
+    sums.set(key, (sums.get(key) ?? 0) + ((values[i] as number) - estimate));
+  }
+  const g = sums.size;
+  if (g < 2) throw new RangeError(`clusteredMeanInterval needs at least two clusters, got ${g}`);
+  let ss = 0;
+  for (const d of sums.values()) ss += d * d;
+  const half = studentQuantile(alpha, g - 1) * (Math.sqrt(ss) / n);
+  return { estimate, lower: estimate - half, upper: estimate + half };
+}
+
 export interface BootstrapOptions {
   /** Cluster key per value, same length as values. Without it every value is its own cluster. */
   readonly clusters?: readonly (string | number)[];

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { designEffectFromData, iccOneWay, kishEffectiveSize, weightedMean } from '../src/index';
+import {
+  clusteredMeanInterval,
+  designEffectFromData,
+  iccOneWay,
+  kishEffectiveSize,
+  weightedMean,
+} from '../src/index';
 
 describe('weightedMean', () => {
   it('matches numpy.average', () => {
@@ -75,5 +81,24 @@ describe('designEffectFromData', () => {
   it('throws a RangeError on input iccOneWay refuses', () => {
     expect(() => designEffectFromData([], [])).toThrow(RangeError);
     expect(() => designEffectFromData([1, Number.NaN, 2, 3], [1, 1, 2, 2])).toThrow(RangeError);
+  });
+});
+
+describe('clusteredMeanInterval', () => {
+  it('is the mean plus or minus t(G - 1) times the clustered standard error', () => {
+    const a = clusteredMeanInterval([1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1], [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4]);
+    expect(a.estimate).toBeCloseTo(0.6363636363636364, 12);
+    expect(a.lower).toBeCloseTo(0.21719133898111592, 9);
+    expect(a.upper).toBeCloseTo(1.0555359337461567, 9);
+    const b = clusteredMeanInterval([3, 4, 5, 9, 8, 10, 2, 3, 1, 4], [1, 1, 1, 2, 2, 2, 3, 3, 4, 4]);
+    expect(b.lower).toBeCloseTo(0.34721051254551316, 9);
+    expect(b.upper).toBeCloseTo(9.452789487454488, 9);
+  });
+  it('throws a RangeError on input it cannot answer for', () => {
+    expect(() => clusteredMeanInterval([], [])).toThrow(RangeError);
+    expect(() => clusteredMeanInterval([1, 2], [1])).toThrow(RangeError);
+    expect(() => clusteredMeanInterval([Number.NaN, 2, 3, 4], [1, 1, 2, 2])).toThrow(RangeError);
+    expect(() => clusteredMeanInterval([1, 2, 3], [1, 1, 1])).toThrow(/two clusters/);
+    expect(() => clusteredMeanInterval([1, 2, 3, 4], [1, 1, 2, 2], 1.5)).toThrow(/alpha/);
   });
 });

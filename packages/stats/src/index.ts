@@ -38,6 +38,7 @@ export {
   type BootstrapOptions,
   bootstrapCI,
   clopperPearson,
+  clusteredMeanInterval,
   designEffect,
   effectiveSampleSize,
   type Interval,
