@@ -203,7 +203,7 @@ export class ClaudeCodeReader implements EstateReader {
         paths: ignored.paths,
         chosen,
       },
-      aliases: { ...aliasTables(files, notes), ...config.aliases },
+      aliases: { ...inlineAliases(files), ...aliasTables(files, notes), ...config.aliases },
       externals: config.externals ?? [...DEFAULT_EXTERNALS],
     };
     for (const file of files) {
@@ -306,6 +306,25 @@ function cleanFolder(folder: string): string {
  * (`Alias`, `Prefix`) and a folder column (`Path`, `Folder`, `Target`). `REF/a/b.md` then reads as
  * `<folder>/a/b.md`.
  */
+/**
+ * Aliases a markdown file defines in its own prose: `` `REF` = `.claude/skills/x/references` ``. The name is
+ * capitals; the target is a folder (no file extension). A name two files define differently keeps both
+ * folders, tried in order.
+ */
+function inlineAliases(files: readonly EstateFile[]): Record<string, string[]> {
+  const aliases: Record<string, string[]> = {};
+  for (const file of files) {
+    if (!/\.(md|markdown)$/i.test(file.path)) continue;
+    for (const match of file.text.matchAll(/`([A-Z][A-Z0-9_]{1,15})`\s*=\s*`([^`\s]+)`/g)) {
+      const [, name, target] = match;
+      if (!name || !target || /\.[A-Za-z0-9]+$/.test(target) || /[<>*?{}$]/.test(target)) continue;
+      const folder = cleanFolder(target);
+      if (!(aliases[name] ?? []).includes(folder)) aliases[name] = [...(aliases[name] ?? []), folder];
+    }
+  }
+  return aliases;
+}
+
 function aliasTables(files: readonly EstateFile[], notes: ReadNote[]): Record<string, string[]> {
   const aliases: Record<string, string[]> = {};
   for (const file of files) {
