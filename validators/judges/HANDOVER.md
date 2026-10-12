@@ -118,6 +118,7 @@ Iteration 103 (cause: positionBias missing; added to pairwise.ts and exported. T
 Iteration 104 (cause: seeds 2 to 9 showed narration after a pool label CONFIRM flagged (verb list held confirm) and fake-rubric unflagged. Removed confirm; NOTE holds pass picture, fail picture, new criterion. Checked all English attack and narration sentences against every pool entry as prefix: 0 misses, 0 false flags.)
 Iteration 105 (cause: buildPairPrompt wrapped candidates by hand, unescaped. dataTag now takes first_data and second_data (GUARDED_TAGS holds them; DATA_TAGS and the prompt fingerprint unchanged). Test: pair-prompt.test.ts escapes a candidate that closes its own tag (red first).)
 Iteration 106 (cause: no labelConflicts. calibration.ts labelConflicts(blocks) groups ids per slice with both labels; criterion report carries labelConflicts when any. Test: label-conflicts.test.ts. Next: fixtureLeaks, few-labels warning, kappa undefined with one class.)
+Iteration 107 (cause: no fixtureLeaks. calibration.ts fixtureLeaks(criterion, blocks); report carries fixtureLeaks when any. Test: label-conflicts.test.ts fixtureLeaks.)
 
 ## Next actions
 
