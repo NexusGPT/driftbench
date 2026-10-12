@@ -156,3 +156,18 @@ describe('near-JSON: typographic double quotes', () => {
   });
 });
 
+describe('a probability outside 0 to 1', () => {
+  it('is inconclusive, never a verdict', () => {
+    for (const p of [1.01, 7, -0.01, -3, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN]) {
+      expect(outcomeFromProbability(p)).toBe('inconclusive');
+    }
+  });
+
+  it('still maps 0, 1 and the bounds', () => {
+    expect(outcomeFromProbability(1)).toBe('pass');
+    expect(outcomeFromProbability(0)).toBe('fail');
+    expect(outcomeFromProbability(0.6)).toBe('pass');
+    expect(outcomeFromProbability(0.4)).toBe('fail');
+  });
+});
+

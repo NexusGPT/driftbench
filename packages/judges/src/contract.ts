@@ -328,6 +328,7 @@ function extractObject(raw: string): string | undefined {
 /**
  * Maps a system 1 probability that the criterion passes to an outcome. Between the two bounds the answer
  * is inconclusive: a coin toss is never a verdict.
+ * A probability that is not a number from 0 to 1 is inconclusive too.
  */
 export function outcomeFromProbability(
   probability: number,
@@ -335,6 +336,7 @@ export function outcomeFromProbability(
 ): JudgeOutcome {
   const passAt = bounds.passAt ?? 0.6;
   const failAt = bounds.failAt ?? 0.4;
+  if (!(probability >= 0 && probability <= 1)) return 'inconclusive';
   if (probability >= passAt) return 'pass';
   if (probability <= failAt) return 'fail';
   return 'inconclusive';
