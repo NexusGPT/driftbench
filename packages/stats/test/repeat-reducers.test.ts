@@ -47,6 +47,16 @@ describe('reduceRepeats', () => {
     expect(reduceRepeats([1, 0, 0], { kind: 'at_least', k: 2 })).toBe(0);
   });
 
+  it('at_least fails only when the unscored repeats cannot lift the passes to k', () => {
+    expect(reduceRepeats([0, 0, undefined], { kind: 'at_least', k: 2 })).toBe(0);
+    expect(reduceRepeats([0, undefined, undefined], { kind: 'at_least', k: 2 })).toBeUndefined();
+  });
+
+  it('at_least is undecided when an unscored repeat could still make k passes', () => {
+    expect(reduceRepeats([1, undefined, 0], { kind: 'at_least', k: 2 })).toBeUndefined();
+    expect(reduceRepeats([1, undefined, undefined], { kind: 'at_least', k: 2 })).toBeUndefined();
+  });
+
   it('at_least is undecided when fewer than k repeats are scored', () => {
     expect(reduceRepeats([1, undefined, undefined], { kind: 'at_least', k: 2 })).toBeUndefined();
   });

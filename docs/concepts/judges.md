@@ -408,6 +408,6 @@ A criterion can say how its verdicts across the repeats of one spec become one v
 
 * `mode`: the most common verdict. A tie goes to the verdict seen first.
 * `median`: a pass above one half of the repeats, a fail below it. Exactly one half is undecided.
-* `at_least:<k>`: a pass when at least `k` repeats pass. Undecided when fewer than `k` repeats are scored.
+* `at_least:<k>`: a pass when at least `k` repeats pass. A fail only when the passes plus the inconclusive repeats cannot reach `k`. Undecided otherwise, since an inconclusive repeat could still be the `k`-th pass.
 
 A run folds the criterion's verdicts across its blocks first: any fail makes the run a fail, every block passing makes it a pass, and anything else is undecided. An inconclusive repeat is left out of every reducer. A criterion without `repeat_reducer` gets no reduced verdict.
