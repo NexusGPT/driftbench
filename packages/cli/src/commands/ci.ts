@@ -65,6 +65,7 @@ type CiCommandOptions = {
   config?: string;
   specs: string;
   target: string;
+  route?: string[];
   baseline: string;
   store: string;
   margin: string;
@@ -156,6 +157,12 @@ export function registerCiCommand(
     )
     .requiredOption('--specs <path>', 'the spec file or folder the candidate runs')
     .requiredOption('--target <adapter[:agent]>', 'the candidate target, such as function:acme-sales')
+    .option(
+      '--route <tag=target>',
+      'run the specs a tag marks on this target in the candidate too, such as flow:price-sheet=process:acme-ops; repeat for several',
+      collect,
+      [],
+    )
     .requiredOption(
       '--baseline <campaign|store>',
       'the baseline: a store file (its latest campaign), or a campaign id held in --store',
@@ -227,8 +234,12 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   }
 
   const target = parseTarget(options.target);
+  // A fault can be the candidate or the target of a route, such as a code-agent fault on the task specs.
+  const routedFault = (options.route ?? []).some((route) =>
+    route.slice(route.indexOf('=') + 1).startsWith('fault:'),
+  );
   let runDeps = deps;
-  if (target.adapter === 'fault') {
+  if (target.adapter === 'fault' || routedFault) {
     const withFaults = await faultDeps(deps, options.faults, io);
     if (!withFaults) return 2;
     runDeps = withFaults;
@@ -265,6 +276,7 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
     [options.specs],
     {
       target: [options.target],
+      route: options.route ?? [],
       mode: options.mode,
       repeats: options.repeats,
       store: storePath,

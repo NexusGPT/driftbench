@@ -2,7 +2,7 @@
 
 This page extends [generating tests](../README.md#generating-tests) to agents whose behaviour is specified across an estate. It reuses the block model, the run modes, the runtime trace (skills, guards, stages), the checks, the map with axis and detail roles, approval with provenance and the space map. Nothing here is runtime-specific: each runtime is an adapter that reads its own files into these shapes. The Claude Code mapping is on [its adapter page](adapters/claude-code.md).
 
-Status. Built: `driftbench estate scan`, `lint`, `approve`, `map`, `plan` (with `plan approve`), `generate`, `diff`, `impact`, `run` (the live runner), `mutate` (estate mutants), and `driftbench replay`. Not built yet: the unit runner for guards, scripts and helpers, and the estate statistics of section 7. The live runner and the mutants, with a run on the fixture's stand-in command, are in the [CLI reference](reference/cli.md#driftbench-estate-run-and-driftbench-estate-mutate).
+Status. Built: `driftbench estate scan`, `lint`, `approve`, `map`, `plan` (with `plan approve`), `generate`, `diff`, `impact`, `run` (the live runner), `mutate` (estate mutants), and `driftbench replay`. Not built yet: the unit runner for guards, scripts and helpers, and the rest of the estate statistics of section 7 (the session rate is built). The live runner and the mutants, with a run on the fixture's stand-in command, are in the [CLI reference](reference/cli.md#driftbench-estate-run-and-driftbench-estate-mutate).
 
 ## 0. What changes when the agent is an estate
 
@@ -744,11 +744,11 @@ Limits of replay today:
 
 ## 7. Judging, statistics and coverage for estates
 
-What exists: the plan summary reports the unenforced rules, the cells with no approved phrase, the edges with no journey and the mandatory rows per kind; the generate report counts complete and incomplete specs per test type and the gaps behind them; replay reports pass and fail per spec and session.
+What exists: `sessionRate(runs, { rho })` of `@driftbench/estate` takes the session as the unit (one cluster): with m the mean runs per session, the design effect is `1 + (m - 1) rho`, the effective runs are the runs over it, and the 95% interval is Wilson on the rounded effective runs. `rho` lies in [0, 1], the correlation of the variance pilot, and the function throws a `RangeError` outside it. The plan summary reports the unenforced rules, the cells with no approved phrase, the edges with no journey and the mandatory rows per kind; the generate report counts complete and incomplete specs per test type and the gaps behind them; replay reports pass and fail per spec and session.
 
 Not built yet:
 
-* The session as the unit (one cluster), with the design effect from the measured correlation of the variance pilot; sources of variance for an estate are model randomness, phrasing, session state, workspace seed and judge.
+* Sources of variance for an estate are model randomness, phrasing, session state, workspace seed and judge; the pilot that measures them for an estate is not built.
 * Coverage lines per atom kind: atoms with an approved test over atoms; atoms enforced by a guard over atoms; cells covered over cells; graph edges covered over edges; the completeness line over situations seen in the corpus.
 * Reach before compliance: did the rule reach the moment (the skill loaded, the reference read, the guard fired), then was it followed, reported apart.
 * Decay over length: the pass rate per block index in long sessions, before and after a compaction.

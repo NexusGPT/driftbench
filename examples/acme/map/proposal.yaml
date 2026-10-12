@@ -896,6 +896,18 @@ dimensions:
           source: ../src/policy.ts
           quote: s.stage = 'closing';
         produced_by: model
+      - id: build_sheet
+        title: The ops agent builds the price sheet workbook from the catalog
+        evidence:
+          source: ../README.md
+          quote: its stage, `build_sheet` or `add_summary`
+        produced_by: model
+      - id: add_summary
+        title: The ops agent adds the Summary sheet to the workbook
+        evidence:
+          source: ../README.md
+          quote: its stage, `build_sheet` or `add_summary`
+        produced_by: model
   - id: stage_transition
     title: A move from one stage to the next
     kind: behaviour
@@ -1498,6 +1510,370 @@ constraints:
         title: Add a summary sheet to the existing workbook and leave every other file untouched
         kind: task
         channels: [chat]
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-001, flow: new-home }
+    reason: B-001 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-001, flow: porting }
+    reason: B-001 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-001, flow: order }
+    reason: B-001 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-001, flow: price-sheet }
+    reason: B-001 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-002, flow: new-home }
+    reason: B-002 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-002, flow: porting }
+    reason: B-002 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-002, flow: order }
+    reason: B-002 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-002, flow: price-sheet }
+    reason: B-002 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-003, flow: upgrade }
+    reason: B-003 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-003, flow: porting }
+    reason: B-003 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-003, flow: order }
+    reason: B-003 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-003, flow: price-sheet }
+    reason: B-003 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-004, flow: upgrade }
+    reason: B-004 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-004, flow: porting }
+    reason: B-004 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-004, flow: order }
+    reason: B-004 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-004, flow: price-sheet }
+    reason: B-004 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-005, flow: upgrade }
+    reason: B-005 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-005, flow: porting }
+    reason: B-005 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-005, flow: order }
+    reason: B-005 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-005, flow: price-sheet }
+    reason: B-005 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-006, flow: upgrade }
+    reason: B-006 belongs to the porting flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-006, B-007, B-008]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-006, flow: new-home }
+    reason: B-006 belongs to the porting flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-006, B-007, B-008]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-006, flow: order }
+    reason: B-006 belongs to the porting flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-006, B-007, B-008]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-006, flow: price-sheet }
+    reason: B-006 belongs to the porting flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-006, B-007, B-008]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-007, flow: upgrade }
+    reason: B-007 belongs to the porting flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-006, B-007, B-008]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-007, flow: new-home }
+    reason: B-007 belongs to the porting flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-006, B-007, B-008]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-007, flow: order }
+    reason: B-007 belongs to the porting flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-006, B-007, B-008]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-007, flow: price-sheet }
+    reason: B-007 belongs to the porting flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-006, B-007, B-008]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-008, flow: new-home }
+    reason: B-008 belongs to the upgrade and porting and order flows
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-008, flow: price-sheet }
+    reason: B-008 belongs to the upgrade and porting and order flows
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-009, flow: new-home }
+    reason: B-009 belongs to the upgrade and order flows
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-009, flow: porting }
+    reason: B-009 belongs to the upgrade and order flows
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-009, flow: price-sheet }
+    reason: B-009 belongs to the upgrade and order flows
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-010, flow: upgrade }
+    reason: B-010 belongs to the new-home and order flows
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-010, flow: porting }
+    reason: B-010 belongs to the new-home and order flows
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-010, flow: price-sheet }
+    reason: B-010 belongs to the new-home and order flows
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-011, flow: upgrade }
+    reason: B-011 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-011, flow: porting }
+    reason: B-011 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-011, flow: order }
+    reason: B-011 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-011, flow: price-sheet }
+    reason: B-011 belongs to the new-home flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-003, B-004, B-005, B-010, B-011]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-012, flow: new-home }
+    reason: B-012 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-012, flow: porting }
+    reason: B-012 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-012, flow: order }
+    reason: B-012 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-012, flow: price-sheet }
+    reason: B-012 belongs to the upgrade flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-001, B-002, B-008, B-009, B-012]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-013, flow: upgrade }
+    reason: B-013 belongs to the price-sheet flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-013, B-014]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-013, flow: new-home }
+    reason: B-013 belongs to the price-sheet flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-013, B-014]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-013, flow: porting }
+    reason: B-013 belongs to the price-sheet flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-013, B-014]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-013, flow: order }
+    reason: B-013 belongs to the price-sheet flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-013, B-014]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-014, flow: upgrade }
+    reason: B-014 belongs to the price-sheet flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-013, B-014]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-014, flow: new-home }
+    reason: B-014 belongs to the price-sheet flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-013, B-014]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-014, flow: porting }
+    reason: B-014 belongs to the price-sheet flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-013, B-014]"
+    produced_by: code
+    approved: false
+  - forbid: { behaviour: B-014, flow: order }
+    reason: B-014 belongs to the price-sheet flow
+    evidence:
+      source: ../inventory.yaml
+      quote: "behaviours: [B-013, B-014]"
     produced_by: code
     approved: false
   - forbid: { flow: upgrade, stage: details }
@@ -2829,6 +3205,98 @@ relations:
     evidence:
       source: ../src/policy.ts
       quote: ": { type: 'new', plan_id: plan.id, customer };"
+    produced_by: model
+    approved: false
+  - kind: task_family
+    flow: price-sheet
+    family: ../families/price-sheet
+    stages: [ build_sheet, add_summary ]
+    holds:
+      user_type:
+        - sales-operations
+      workspace_start:
+        - catalog-only
+    deviations:
+      - D6_instruction_in_data
+    evidence:
+      source: ../README.md
+      quote: its stage, `build_sheet` or `add_summary`
+    produced_by: model
+    approved: false
+  - kind: states
+    subject: { dimension: flow, value: new-home }
+    stage: address
+    to: offer
+    when: { coverage_result: [ fiber ] }
+    must: [ "Acme Fiber 300, 300 Mbps for \\$40 a month", "Acme Fiber 1000, 1000 Mbps for \\$60 a month", "Acme Air 5G, up to 200 Mbps for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: false
+  - kind: states
+    subject: { dimension: flow, value: new-home }
+    stage: address
+    to: offer
+    when: { coverage_result: [ 5g-only ] }
+    must: [ "Acme Air 5G, up to 200 Mbps for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: false
+  - kind: states
+    subject: { dimension: flow, value: order }
+    stage: address
+    to: offer
+    when: { coverage_result: [ fiber ] }
+    must: [ "Acme Fiber 300, 300 Mbps for \\$40 a month", "Acme Fiber 1000, 1000 Mbps for \\$60 a month", "Acme Air 5G, up to 200 Mbps for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: false
+  - kind: states
+    subject: { dimension: flow, value: order }
+    stage: address
+    to: offer
+    when: { coverage_result: [ 5g-only ] }
+    must: [ "Acme Air 5G, up to 200 Mbps for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: false
+  - kind: states
+    subject: { dimension: flow, value: upgrade }
+    stage: identify
+    to: offer
+    when: { account_lookup: [ found ] }
+    must: [ "Acme Mobile S, 10 GB for \\$15 a month", "Acme Mobile M, 40 GB for \\$25 a month", "Acme Mobile L, unlimited data for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: false
+  - kind: states
+    subject: { dimension: flow, value: upgrade }
+    stage: identify
+    to: offer
+    when: { account_lookup: [ plan-not-in-catalog ] }
+    must: [ "Acme Mobile S, 10 GB for \\$15 a month", "Acme Mobile M, 40 GB for \\$25 a month", "Acme Mobile L, unlimited data for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: false
+  - kind: states
+    subject: { dimension: flow, value: porting }
+    stage: port_number
+    to: offer
+    must: [ "Acme Mobile S, 10 GB for \\$15 a month", "Acme Mobile M, 40 GB for \\$25 a month", "Acme Mobile L, unlimited data for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
     produced_by: model
     approved: false
   - kind: recovery
