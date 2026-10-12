@@ -21,6 +21,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Running](running.md): `runSpec`, campaigns in modes T, F and P (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), the determinism smoke test, the cache, the budget and the run record.
 * [Generating tests](generating.md): the map of situations and its relations, `extract` and its approval, `generate`, the validity gate and its funnel, task families, the variance pilot and intake.
 * [Testing an estate](estate.md): how driftbench tests a code-interpreter agent as a whole estate (instructions, skills, subagents, guards, tools, settings): atoms, the estate graph, the plan, generated tests, replay over recorded sessions, maintenance.
+* [Datasets and prompts](datasets.md): `import` specs from a CSV file or a spreadsheet through a mapping, and the registry of immutable dataset and prompt versions (`dataset`, `prompt`) that a campaign records.
 * [Validators](validators.md): code that proves driftbench works: six ladders (map, generator, judges, system, estate, statistics) and the executor loop that drives each to 100 percent.
 
 ## Reference
@@ -60,7 +61,7 @@ Phases 0, 1 and 2 are built, and most of phases 3 and G, with parts of phase 4 a
 * `driftbench spec validate`, `driftbench spec lint`, and `driftbench spec coverage` with the behaviour inventory it reads. See [CLI](reference/cli.md).
 * The runner in modes T, F and P, with the scripted driver and the injecting driver, campaigns, a worker pool, a budget stop, the cache, resume, and the determinism smoke test, from code and from the command line. See [running](running.md) and [run modes](concepts/run-modes.md).
 * Drift and recovery: the five drift classes, the ledger check, the stage classifier, the compounding index, and the recovery metrics of every perturbed run. See [drift](concepts/drift.md) and [recovery](concepts/recovery.md).
-* The 18 machine checks, with their verdict ids, the judge check behind a council, and the artifact readers for workbooks, documents, decks, PDFs, CSV, JSON, text and code. See [checks](reference/checks.md).
+* The 23 machine checks, with their verdict ids, the judge check behind a council, and the artifact readers for workbooks, documents, decks, PDFs, CSV, JSON, text and code. See [checks](reference/checks.md).
 * Judges in `@driftbench/judges`: the judge clients, the council and its cascade, cassettes, calibration on fixture pairs and hand labels, and `driftbench judge`. See [judges](concepts/judges.md).
 * The function, http, nexus and process adapters, the OpenAI Agents, Anthropic, Google and LangGraph adapters, their contract suite, and the local and docker sandboxes. See [adapters](adapters/index.md).
 * The SQLite store: campaigns, runs, the cache, cost units and a JSON export.

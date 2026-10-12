@@ -2,7 +2,7 @@
  * The version of the store's tables and of the export bundle. Opening a database or reading a bundle
  * written by a newer version fails with a clear error; an older database is upgraded on open.
  */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /**
  * The tables. Each row keeps its record as JSON; the plain columns are copies of record fields, kept
@@ -11,6 +11,9 @@ export const SCHEMA_VERSION = 1;
  *
  * Runs are keyed by campaign and run id: a run id is a cell id, which leaves the campaign out, so the
  * same cell run in two campaigns gives two rows.
+ *
+ * `blobs` and `versions` are the registry of datasets and prompts (schema 2): each file once by its
+ * SHA-256, and one row per immutable version, its record in `json`.
  *
  * `specs.yaml` holds the canonical JSON of the normalised spec, which any YAML 1.2 parser reads; its
  * SHA-256 starts with the spec hash.
@@ -69,6 +72,23 @@ CREATE TABLE IF NOT EXISTS cache (
   observed_json TEXT NOT NULL,
   created_at TEXT NOT NULL,
   expires_at TEXT
+) STRICT;
+
+CREATE TABLE IF NOT EXISTS blobs (
+  sha256 TEXT PRIMARY KEY,
+  size INTEGER NOT NULL,
+  bytes BLOB NOT NULL
+) STRICT;
+
+CREATE TABLE IF NOT EXISTS versions (
+  kind TEXT NOT NULL,
+  name TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  hash TEXT NOT NULL,
+  json TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (kind, name, version),
+  UNIQUE (kind, name, hash)
 ) STRICT;
 
 CREATE TABLE IF NOT EXISTS units (
