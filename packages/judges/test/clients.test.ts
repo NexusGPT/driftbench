@@ -325,3 +325,26 @@ describe('system 1 clients', () => {
     expect(result.answer.outcome).toBe('inconclusive');
   });
 });
+
+describe('chat clients pin temperature 0', () => {
+  const cases = [
+    ['createOpenAiJudge', { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' }, (b: any) => b.temperature],
+    ['createAnthropicJudge', { ANTHROPIC_API_KEY: 'k', ANTHROPIC_JUDGE_MODEL: 'm' }, (b: any) => b.temperature],
+    ['createGoogleJudge', { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' }, (b: any) => b.generationConfig.temperature],
+  ] as const;
+  for (const [name, env, read] of cases) {
+    it(`${name} sends temperature 0`, async () => {
+      const bodies: any[] = [];
+      const client = ({ createOpenAiJudge, createAnthropicJudge, createGoogleJudge } as any)[name]({
+        env,
+        maxRetries: 0,
+        fetch: async (_u: string, init: { body: string }) => {
+          bodies.push(JSON.parse(init.body));
+          return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
+        },
+      });
+      await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+      expect(read(bodies[0])).toBe(0);
+    });
+  }
+});

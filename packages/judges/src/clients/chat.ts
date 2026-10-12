@@ -57,6 +57,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         {
           model,
           max_completion_tokens: budgetOf(request),
+          temperature: 0,
           response_format: { type: 'json_object' },
           messages: [
             { role: 'system', content: prompt.system },
@@ -104,6 +105,7 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         {
           model,
           max_tokens: budgetOf(request),
+          temperature: 0,
           system: prompt.system,
           messages: [{ role: 'user', content: prompt.user }],
         },
@@ -154,7 +156,11 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         {
           systemInstruction: { parts: [{ text: prompt.system }] },
           contents: [{ role: 'user', parts: [{ text: prompt.user }] }],
-          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: budgetOf(request) },
+          generationConfig: {
+            responseMimeType: 'application/json',
+            maxOutputTokens: budgetOf(request),
+            temperature: 0,
+          },
         },
         options,
       );
