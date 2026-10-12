@@ -5,81 +5,35 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 ## Level per seed
 
 <!-- level-table:start -->
-| Seed | Level |
-|---|---|
-| 1 | 0 |
-| 2 | 0 |
-| 3 | 0 |
-| 4 | 0 |
-| 5 | 0 |
-| 6 | 0 |
-| 7 | 0 |
-| 8 | 0 |
-| 9 | 0 |
-| 10 | 0 |
-| 11 | 0 |
-| 12 | 0 |
-| 13 | 0 |
-| 14 | 0 |
-| 15 | 0 |
-| 16 | 0 |
-| 17 | 0 |
-| 18 | 0 |
-| 19 | 0 |
-| 20 | 0 |
-| hidden | 0 |
 <!-- level-table:end -->
 
-The level is 0 on every seed: level 1 (records) still holds failing items. Bank version 3, 1280 items. After pilot iteration 10 (branch exec/system-pilot-v3), 1265 pass on every seed and 15 fail, with 15 distinct causes. On lane/v-system, which does not carry the pilot fixes, 1244 pass (iteration 0).
+Bank version 5 (2383 items) has no journal row yet: its first full measurement is still to run, so the table is empty. The journals of earlier bank versions are kept as journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl.
 
 ## Floor
 
-None yet for system; `pnpm driftbench validate floors` prints the floors. The level is 0 until the records level is clean, so no floor above 0 holds.
+None for system. The validator merges as a regression floor in the plain sense: its failing items name the defects still open, and a fix turns its items green. A numeric floor waits for the first full measurement of bank version 5.
 
 ## Open items
 
-Each failing item prints "asks: <capability>. found: <what came back>" and names its component. Act on that line; the validator code is not needed. One cause per item, one fix per iteration:
+A file-by-file measurement on main e6f93d2d, after PRs 51, 53, 59 and 62, checked again every item that had failed (93 items, seeds 1, 2, 3 and 9999). 43 still fail, on every seed, under 29 distinct causes. Each failing item prints "asks: <capability>. found: <what came back>" and names its component; act on that line, the validator code is not needed. Open causes by package:
 
-1. packages/core/src/spec/semantics.ts: the loader reports COUNT_RANGE_INVALID on a count range under expect.subagents, as it does for the other counts (claim/spec/issue/count-range-subagents).
-2. packages/core/src/spec/semantics.ts: a perturbation inserted before block k runs before block k sets its given.ledger, so its knowledge_retention fact is checked against the ledgers of the blocks before k only; an unknown fact gives RETENTION_FACT_UNKNOWN (claim/spec/issue/retention-perturbation-before-block-given).
-3. packages/core/src/spec/semantics.ts: a world-only perturbation (no user turn) needs a block at inject_at to carry it; inject_at equal to the block count is a load error (claim/concepts/perturbation/world-only-needs-block).
-4. packages/store/src/store.ts: getRun reads the run row and its block rows inside one read transaction, so a reader racing a replace never mixes two versions (claim/adapters/store-torn-read-during-replace).
-5. packages/store/src/store.ts: listRuns filtered by status checks the status of the record it read, so a hand-edited status column never returns a run of another status (claim/adapters/store-hand-edit-status-column).
-6. packages/store/src/registry.ts: a dataset ref name@<hex prefix> resolves when the prefix has only digits (fails on 3 of 21 seeds, the ones whose hash starts with six digits) (claim/cli/dataset/ref-forms).
-7. packages/sandbox/src/run.ts: at the timeout the sandbox also kills a child the agent started in its own process group (claim/adapters/process/timeout-kills-detached-child).
-8. packages/core/src/runner/compounding.ts: the overall compounding index clusters by spec, so a campaign of one spec gets no interval, whatever its targets (claim/report/compounding-one-spec).
-9. packages/report/src/reliability.ts: every pass^k and pass@k interval contains its own point value; today pass^3 of 0 (c 2 of n 3) prints an interval starting at 0.009 (claim/report/line-pass-k-inside).
-10. packages/space/src/load.ts: the space map loader accepts the proposal `extract` writes (its evidence and produced_by keys, its version) as a map, as cli.md says (claim/cli/extract/proposal-is-space-map). If the owner prefers, change the cli.md sentence instead; generating.md routes the space commands through `extract map`.
-11. to 15. The per-block cost grows with the run size (time from ten to a hundred times the size grows more than 25 times):
-    * packages/core/src/spec/load.ts (scale/loader-blocks/growth, 52 times),
-    * packages/core/src/spec/lint.ts (scale/lint-blocks/growth, 61 times),
-    * packages/core/src/runner/run.ts (scale/flow-blocks/growth, 43 times),
-    * packages/core/src/runner/given.ts (scale/flow-blocks-teacher-forced/growth, 47 times),
-    * packages/core/src/runner/cache.ts (scale/flow-blocks-replayed/growth, 39 times).
-    The runner hashes the whole history on every block for the cache key and the Given; the loader and lint walk every earlier block per block. Make each per-block step independent of the run length.
+1. packages/core: 11 (two loader checks on perturbations, the recovery label, nonempty on null mappings, the cache key version label, the one-spec compounding interval, and a per-block cost that grows with the run in the loader, lint and three runner paths).
+2. packages/cli: 9 (estate approve on a folder, estate lint and scan output, estate counts and "not built yet" pages that lag the commands, judge names, the floors line, campaign plan on an unknown adapter).
+3. packages/store: 4 (bundle record hashes, units by date, a torn read during a replace, listRuns trusting hand-edited columns).
+4. packages/adapters: 2 (the final line break of stdout, the session history shared with the Given).
+5. packages/sandbox, packages/checks, packages/space: 1 each (a detached child surviving the agent, the plural "orders" word, the extract proposal as a space map).
+
+Items that had never failed were not run again in this measurement; the first full run (Next actions) covers them.
 
 ## Hypotheses tried
 
-Pilot v3 (journal rows 1 to 10, branch exec/system-pilot-v3), one cause each, every one held:
-
-1. The store keeps a cost unit put later only when it is measured later (store/units-latest).
-2. A campaign bundle records the hash of every record and refuses one edited after the export (store/bundle-tampered).
-3. campaign plan exits 2 on a target with no adapter (cli/plan/unknown-adapter).
-4. The cache key leaves out the spec version label (replay/key/version-label, claim/concepts/modes/cache-version-label).
-5. The recovery label follows docs/concepts/recovery.md: immediate when turnsToRecover is at most within_blocks (11 items).
-6. nonempty treats a mapping whose keys all hold null as empty (claim/checks/assert/nonempty-null-mapping).
-7. The process adapter strips only the final line break of stdout.
-8. The process adapter deep-copies the prefix into the session history.
-9. classifyTool reads "orders", plural, as the order word.
-10. openStore refuses a non-empty file shorter than the 100-byte SQLite header with OPEN_FAILED.
-
-Three items were wrong and were corrected in the bank, each in a commit of its own: the glob `?` item (seed 10 named a two-character file), and two report recovery items that computed the old label rule.
+Ten one-cause fixes were measured against bank version 3 on branch exec/system-pilot-v3 (journal-v3.jsonl rows 1 to 10): units by date, bundle hashes, plan on an unknown adapter, the cache key without the version label, the recovery label per docs/concepts/recovery.md, nonempty on null mappings, the process adapter's final line break and history copy, the plural order word, a store file cut inside its header. Every one held. The fixes live on that branch for their owners.
 
 ## Next actions
 
-1. Fix open item 1 (COUNT_RANGE_INVALID on expect.subagents) in packages/core/src/spec/semantics.ts and measure.
-2. Fix open item 4 (one read transaction in getRun) in packages/store/src/store.ts and measure.
-3. Fix open item 9 (pass^k interval holds its point) in packages/report/src/reliability.ts and measure.
+1. Run the first full measurement of bank version 5 on main: `pnpm driftbench validate system --seeds 1..20 --hidden --items --json > iter0.json`, then build and append its journal row (How to run).
+2. Hand each failing item to the lane owning its component; the item's line is the task.
+3. When the item set changes, regenerate packages/validators/fixtures/system/bank-manifest.json in a commit of its own.
 
 ## Pitfalls
 
