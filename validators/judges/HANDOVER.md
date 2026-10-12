@@ -93,6 +93,7 @@ Iteration 64 (cause: fullwidth letters unread): screenData reads the NFKC form (
 Iteration 65 (cause: invisible characters): reading without zero-width, soft hyphen, word joiner, BOM. Test: screen.test.ts (red proved). Bank 465 -> 466; the layered nl item still needs the Dutch words.
 Iteration 66 (cause: Cyrillic lookalikes): reading with lookalike letters folded to Latin inside mixed-script words. Test: screen.test.ts (red proved). Bank 466 -> 468.
 Iteration 67 (cause: leetspeak): reading with 4 3 1 0 5 7 folded to letters inside letter words. Test: screen.test.ts (red proved). Bank 468 -> 469.
+Iteration 68 (cause: letters spaced one by one): reading with single spaces between letters dropped. Test: screen.test.ts (red proved). Bank 469 -> 470.
 
 ## Next actions
 
