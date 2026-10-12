@@ -11,9 +11,14 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:end -->
 The stats validator is ladder version 2: 651 items in seven levels, each with threshold 1. The bank score is the share of items passing on every seed (seeds 1 to 20 and the hidden seed).
 
-## State (executor exec/stats-v3, PR 107)
+## State (executor exec/stats-v3, PR 107): final report
 
-Seed 1 bank: 648 of 651 items pass after journal iteration 40 (it was 592 at iteration 30). The seven missing methods are built. Fixed in iterations 31 to 40, one cause each: varianceComponents names `observations`; cusum and pageHinkley name the option they refuse; non-finite and out-of-range scalars are named (wilson z, designEffect, effectiveSampleSize, mde, quantile, hillNumber, betaQuantile, repeatsForFloor, neymanAllocation sizes); special functions return the scipy limit at the domain edge; agreement, paired, ksTest, bootstrapCI and quantileSorted refusals name their argument; mean is exact on equal values and overflow safe; varianceComponents centres values before the sums of squares; hillNumber is continuous at q = 1; betaQuantile stops on relative width; neymanAllocation uses a heap. The full sweep (seeds 1 to 20 and hidden) is not yet in `bank-scores.jsonl`.
+* Sweep of seeds 1 to 20 and the hidden seed at commit 34448e76: 647 of 651 items pass on every seed (0.9939). Level 3 on 17 of 21 seeds and level 1 on seeds 11, 14, 17 and 19, all from one item, `degenerate.bootstrapCI.equal`.
+* Iteration 41 (d0c14cbf) fixed that item. Seeds 11 to 19 re-run after it: level 3 on every one, 648 of 651 passing. Seeds 1 to 10, 20 and the hidden seed were not re-run after it; the fix touches only `bootstrapCI` on equal values.
+* The only failing items are the three `analytic.unseen.chao1-near.*` items (defect below). They hold every seed at level 3, because level 4 contains them.
+* Seed 1 went from 592 of 651 (iteration 30) to 648 in iterations 31 to 41. Causes fixed, one per iteration: varianceComponents names `observations`; cusum and pageHinkley name the option they refuse; non-finite and out-of-range scalars are named; special functions return the scipy limit at the domain edge; agreement, paired, ksTest, bootstrapCI and quantileSorted refusals name their argument; mean is exact on equal values and overflow safe; varianceComponents centres values before the sums of squares; hillNumber is continuous at q = 1; betaQuantile stops on relative width; neymanAllocation uses a heap; bootstrapCI is exact on equal values.
+* `bank-scores.jsonl` was not updated with the sweep.
+* PR 107 CI: the node 22 build fails at `pnpm lint` on `comparisons/deepeval/judge/render.mts`, which is on main and outside this lane.
 
 ## Validator item defects (for the maintainer)
 
