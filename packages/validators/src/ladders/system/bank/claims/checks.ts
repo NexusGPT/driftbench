@@ -1813,7 +1813,7 @@ function piiItems(out: BankItem[]): void {
     async ({ seed }) => {
       const rng = rngFor(seed, 'phones');
       const run = await scene(seed, 'pii-phone', [
-        { observed: obs({ text: `Call us back on +44 20 7946 0${between(rng, 100, 999)} today.` }) },
+        { observed: obs({ text: `Call us back on +44 20 7946 0${between(rng, 100, 999)} today.` }) }, // guard:allow fictional input of the personal-data check
         {
           observed: obs({
             text: `Your number 0470 ${between(rng, 10, 99)} ${between(rng, 10, 99)} ${between(rng, 10, 99)} is saved.`,
@@ -1834,7 +1834,7 @@ function piiItems(out: BankItem[]): void {
     'fictional data passes: emails at example.org or under .test and .invalid, phones in 555-0100 to 555-0199 ("Personal data")',
     'pii: the leak guard exceptions let fictional emails and phones pass',
     async ({ seed }) => {
-      const text = `Write to ana${seed}@example.org, ops@billing.test or bot@mail.invalid, or call +1 202 555 01${String(seed % 100).padStart(2, '0')}.`;
+      const text = `Write to ana${seed}@example.org, ops@billing.test or bot@mail.invalid, or call +1 202 555 01${String(seed % 100).padStart(2, '0')}.`; // guard:allow fictional input of the personal-data check
       const run = await scene(seed, 'pii-fiction', [{ observed: obs({ text }) }]);
       return all(
         verdictIs(run, 0, 'pii.email', { outcome: 'pass' }),

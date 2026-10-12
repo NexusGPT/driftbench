@@ -548,7 +548,7 @@ function ledgerItems(out: BankItem[]): void {
     'ledgerVerdicts in ledger.ts compares two phone numbers of 9 digits or more on their digits only.',
     async () => {
       const phone = byId(
-        ledgerVerdicts({ phone: '+32 470 12 34 56' }, call('crm.update', { phone: '32-470-123-456' }), [])
+        ledgerVerdicts({ phone: '+32 470 12 34 56' }, call('crm.update', { phone: '32-470-123-456' }), []) // guard:allow fictional input of the personal-data check
           .verdicts,
       );
       const short = byId(
@@ -557,7 +557,7 @@ function ledgerItems(out: BankItem[]): void {
       return expectAll([
         [
           phone['ledger.phone'] === 'pass',
-          `+32 470 12 34 56 vs 32-470-123-456 should match on digits, got ${show(phone)}`,
+          `+32 470 12 34 56 vs 32-470-123-456 should match on digits, got ${show(phone)}`, // guard:allow fictional input of the personal-data check
         ],
         [
           short['ledger.code'] === 'fail',
