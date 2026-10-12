@@ -351,9 +351,12 @@ function scriptAtoms(
 /** Paths a line names: backticked tokens without spaces and markdown link targets. */
 export function namedPaths(line: string): string[] {
   const found: string[] = [];
-  for (const match of line.matchAll(/`([^`\s]+)`/g)) if (match[1]) found.push(match[1]);
-  for (const match of line.matchAll(/\]\(([^)\s]+)\)/g)) {
-    if (match[1] && !/^[a-z]+:/i.test(match[1])) found.push(match[1]);
+  // A section anchor or a query names the same file; a web address is no path.
+  const bare = (path: string) => path.replace(/[#?].*$/, '');
+  for (const match of line.matchAll(/`([^`\s]+)`/g))
+    if (match[1] && !/^[a-z]+:\/\//i.test(match[1])) found.push(bare(match[1]));
+  for (const match of line.matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
+    if (match[1] && !/^[a-z]+:/i.test(match[1])) found.push(bare(match[1]));
   }
   return found.filter((path) => !/[<>*?{}$]/.test(path) && /\.[A-Za-z0-9]+$/.test(path));
 }
