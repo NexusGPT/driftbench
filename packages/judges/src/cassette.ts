@@ -222,6 +222,8 @@ export async function loadCassette(path: string): Promise<Cassette> {
     if (!seen.has(entry.judge)) throw new JudgeError('config', `${path}: an entry names judge ${entry.judge}, which the cassette does not list`);
     if (entry.error !== undefined && entry.answer !== undefined)
       throw new JudgeError('config', `${path}: an entry holds both an answer and an error`);
+    if (entry.answer === undefined && entry.raw === undefined && entry.error === undefined)
+      throw new JudgeError('config', `${path}: an entry is empty: it has no answer, raw text or error`);
   }
   return parsed.data;
 }

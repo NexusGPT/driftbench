@@ -230,3 +230,19 @@ describe('loading a cassette with an entry holding an answer and an error', () =
     }
   });
 });
+
+describe('loading a cassette with an empty entry', () => {
+  it('refuses an entry with no answer, raw text or error', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'judges-cassette-'));
+    try {
+      const path = join(dir, 'c.json');
+      const cassette = emptyCassette();
+      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(REQUEST);
+      const [entry] = cassette.entries as [Cassette['entries'][number]];
+      await saveCassette(path, { ...cassette, entries: [{ judge: entry.judge, key: entry.key }] });
+      await expect(loadCassette(path)).rejects.toThrow(/empty/);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+});
