@@ -10,6 +10,7 @@ import { storeAcmeCampaign } from '../../report/test/support';
 import { registerReportCommand } from '../src/commands/report';
 import { type Io, main } from '../src/index';
 
+const ROOT_DIR = fileURLToPath(new URL('../../../', import.meta.url));
 const PILOT = fileURLToPath(new URL('../../../examples/acme/pilot/acme-random', import.meta.url));
 
 let dir = '';
@@ -114,6 +115,65 @@ describe('driftbench report', () => {
     expect(bad.err).toContain('unknown aggregate nope');
   });
 
+  it('reports the aggregates of a campaign with no runs as inconclusive and exits 0', async () => {
+    let emptyErr = '';
+    const emptyCode = await main(
+      [
+        'campaign',
+        'run',
+        join(ROOT_DIR, 'examples/acme/specs/conversations/plan-upgrade.yaml'),
+        '--target',
+        'function:acme',
+        '--campaign',
+        'c-no-runs',
+        '--store',
+        'no-runs.db',
+        '--budget-usd',
+        '0',
+      ],
+      {
+        out: () => {},
+        err: (text) => {
+          emptyErr += text;
+        },
+        cwd: dir,
+      },
+    );
+    expect(emptyErr).toBe('');
+    expect(emptyCode).toBe(1);
+    const { code, out, err } = await cli([
+      'report',
+      'c-no-runs',
+      '--store',
+      'no-runs.db',
+      '--out',
+      'out/no-runs.html',
+      '--aggregate',
+      'pass-rate:>=0.9',
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(out).toContain('aggregate pass-rate >= 0.9: no runs (no runs in the campaign: inconclusive');
+  });
+
+  it('scores two --aggregate flags of one name as two criteria', async () => {
+    const { code, out } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/two.html',
+      '--aggregate',
+      'pass-rate:>=0',
+      '--aggregate',
+      'pass-rate:>=0.99',
+    ]);
+    expect(code).toBe(0);
+    expect(out).toContain('aggregate pass-rate >= 0: passes');
+    expect(out).toContain('aggregate pass-rate >= 0.99: fails');
+  });
+
   it('chooses the margin from the baseline by default, as compare and ci do, and prints it', async () => {
     const { code, out } = await cli([
       'report',
@@ -210,6 +270,8 @@ describe('driftbench report', () => {
   });
 
   it('exits 2 on a store that holds no campaign', async () => {
+    // An existing store with no campaign; a missing store is refused before it is opened.
+    await openStore(join(dir, 'empty.db')).close();
     const { code, err } = await cli(['report', '--store', 'empty.db', '--out', 'bad.html']);
     expect(code).toBe(2);
     expect(err).toContain('The store holds no campaign.');

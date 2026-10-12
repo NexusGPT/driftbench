@@ -99,7 +99,7 @@ Both run on the same specs.
 
 | Function | Computes |
 |---|---|
-| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts: exact below 25 discordant pairs by default, else the continuity-corrected chi-square |
+| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts: exact below 25 discordant pairs by default, else the continuity-corrected chi-square. `compare` (and so `ci`) always passes `exact: true`, at any count, and prints "McNemar exact" |
 | `wilcoxonSignedRank(x, y, { method })` | Wilcoxon's signed-rank test on paired values, such as the drift count per spec; `method` is `auto` (the default, which follows scipy's choice), `exact`, `permutation` or `asymptotic` |
 | `pairedRateDifference(table, alpha)` | the baseline pass rate minus the candidate's, with Newcombe's interval for paired data; `table` counts `bothPass`, `regressed`, `improved` and `bothFail` |
 | `benjaminiHochberg(pvalues, q)` | false discovery rate control at `q` (default 0.05): adjusted p-values, the rejected hypotheses and the threshold |

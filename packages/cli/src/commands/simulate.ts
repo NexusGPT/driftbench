@@ -2,6 +2,7 @@ import { type DriverStep, runSpec, type Stimulus, type UserDriver } from '@drift
 import { portFromEnv } from '@driftbench/generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import {
   type CampaignDeps,
   defaultDeps,
@@ -78,11 +79,11 @@ export async function simulateCommand(
 ): Promise<number> {
   let turns: number | undefined;
   if (options.turns !== undefined) {
-    if (!/^\d+$/.test(options.turns) || Number(options.turns) < 1) {
+    if (!/^\d+$/.test(options.turns) || optionNumber(options.turns) < 1) {
       io.err(`--turns takes a whole number from 1, not "${options.turns}".\n`);
       return 2;
     }
-    turns = Number(options.turns);
+    turns = optionNumber(options.turns);
   }
   const source = await userSource(options, () => (deps.modelPort ?? portFromEnv)(), io);
   if (!source) return 2;
