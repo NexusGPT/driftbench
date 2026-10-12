@@ -442,8 +442,13 @@ How a row becomes a spec:
 | `workspace`, `artifact` | `expect.workspace`, `expect.artifacts`; the outcome is the situation's declared paths, every other path untouched |
 | `text` | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
 | `custom` on a register atom | a judged criterion whose rubric is the atom's title, word for word, not gating |
+| `tool_called` with any other input | `rules.custom.some_call`: one call of the tool whose input matches (count 0 in a control) |
+| `custom` hazard_recovery | `rules.custom.hazard_recovery`: after the hazard the agent goes on, rereads the paths its passage names, and does nothing destructive |
+| `custom` permission | `rules.custom.permission`: deny, no call the rule covers; allow or declared, a covered call none refused; ask stays a gap |
+| `custom` with a name the generator compiles | `command_not_run` to some_call; `max_characters`, `max_questions`, `no_secret_in_reply`, `currency_after_amount`, `stopped_and_confirmed` to `must_not` (and `execution.max_commands: 0`); `json_only`, `asks_for`, `route_table` to `must`; `same_language_as_user` to `lang`; `confirmed_before_send`, `asks_again_on_loose_yes` to `safety.confirm_before: [send]` |
 
 * The outcome, when neither the situation nor the atoms name a path, is read from the atoms (`metadata.estate.outcome`): nothing changes (`others_untouched`) for a negative control, a denied tool, a guard that denies or blocks, or a row whose skills and helpers may use no writing tool; otherwise nothing is deleted (`deleted: []`). `--no-fallback` turns this off.
+* Invariant and setting rows are static tests: JSON under `static/<test type>/`, run by `driftbench estate static <suite>/static --estate <root>` on the original or a mutant copy. An invariant passes when it still holds on the files; a setting when the settings still declare its key and value. The replay and live runners register `some_call`, `hazard_recovery` and `permission` next to `ordered`.
 * `--focus <file>` (atom ids, one per line) orders `run-order.txt`, the list of complete specs: rows naming a focus atom first, then rows naming a guard, a gate or an invariant, then the rest. The report counts the complete specs per focus atom and names the gaps of the ones with none.
 
 * Negative controls (`outside_trigger`, `route_near_miss`, `guard_negative`): skills count 0, guard count 0, tool count 0, required words moved to `must_not`.
@@ -457,10 +462,10 @@ How a row becomes a spec:
 | `needs-deviation-phrase` | no approved phrase for the cell's deviation class (with `--no-fallback` only) |
 | `needs-workspace-outcome` | the situation declares no paths its ask may touch (with `--no-fallback` only) |
 | `needs-some-call-check` | a tool call with input assertions: a check that some call matches |
-| `needs-registered-check` | a custom predicate no registered check runs |
+| `needs-registered-check` | a custom predicate no registered check runs and the generator does not compile |
 | `needs-ordered-anchor` | an ordered pair whose ends are not a tool label, a skill or a stage, or are the same label |
 | `needs-stage-reach-check` | a stage reachable at any time, or a step list with no single closing stage |
-| `needs-static-runner` | a static property of the estate files |
+| `needs-static-runner` | a static property of the estate files that names no check the static runner knows |
 | `needs-negation` | in a negative control, a predicate with no inverse |
 | `needs-recorded-session` | a replay row whose situation no recorded session holds |
 | `needs-guard-timing` | the speed of a guard |

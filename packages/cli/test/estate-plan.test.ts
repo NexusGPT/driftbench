@@ -43,7 +43,7 @@ describe('driftbench estate plan', () => {
     expect(result.out).toContain('Covering array: 1012 rows, t = 2, 4842 of 4842 allowed 2-tuples covered');
     expect(result.out).toContain('the full grid of 2142095155200 cells is never enumerated');
     expect(result.out).toContain('Unenforced: 54 approved rules no guard enforces.');
-    expect(result.out).toContain('Cells with no approved phrase: 1240 of 1240.');
+    expect(result.out).toContain('Cells with no approved phrase: 1244 of 1244.');
     expect(result.out).toContain('Edges with no journey: 7.');
     expect(result.out).toContain('The map has no phrase bank yet');
     const summary = JSON.parse(await readFile(join(root, 'plan.summary.json'), 'utf8'));

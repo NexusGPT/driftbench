@@ -961,6 +961,7 @@ driftbench estate plan approve <plan> [--all] [--row <id>]... [--strike]
 driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>]
 driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] [--replay <sessions>] [--suite <dir>] [--store <db>]
 driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--force] [--json]
+driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceiling <characters>] [--json]
 ```
 
 | Command | Does |
@@ -974,6 +975,7 @@ driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [
 | `estate diff` | lists the atoms added, changed (white space or semantic), moved and removed, the edges, and the guards that changed enforcement state, between two maps |
 | `estate impact` | says what a diff does to the tests: regenerate, re-approve, retire, new |
 | `estate generate` | generates task specs from an approved plan, by code: one or more specs per plan row, with `estate-generate-report.json` and `run-order.txt`. With no approved phrase for a row, code writes the ask from the atoms (tag `ask:code`); with no declared outcome, the outcome is read from the atoms (no change, or nothing deleted). `--no-fallback` turns both off. `--focus` lists atom ids whose complete specs come first in the run order, then guards, gates and invariants |
+| `estate static` | runs the static tests `estate generate` writes under `static/` (one per invariant and per setting) against an estate root, read again by code with no run of the agent: an invariant must still hold, a setting must still be declared with its value. Exit 0 all pass, 1 one fails, 2 usage or input error |
 | `estate run` | runs live estate specs through the runtime headless, in a sandbox holding a copy of the estate pinned to its map; see [estate run and estate mutate](#driftbench-estate-run-and-driftbench-estate-mutate) |
 | `estate mutate` | copies the estate and deletes or inverts one atom in the copy, for the adequacy of its tests |
 
