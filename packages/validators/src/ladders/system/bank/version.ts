@@ -1,4 +1,9 @@
-import { canonicalJson, compareTranscripts, type LoadedSpec, type RunResult } from '@agent-nexus/driftbench-core';
+import {
+  canonicalJson,
+  compareTranscripts,
+  type LoadedSpec,
+  type RunResult,
+} from '@agent-nexus/driftbench-core';
 import { type CampaignData, compareCampaigns } from '@agent-nexus/driftbench-report';
 import * as stats from '@agent-nexus/driftbench-stats';
 import { SYSTEM_COMPONENTS } from '../components';

@@ -3,7 +3,13 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { mapSession, orderedCheck, parseJsonl, replayAdapter } from '@agent-nexus/driftbench-adapters';
 import { CheckRegistry, defaultChecks, defaultRegistry, ESTATE_CHECKS } from '@agent-nexus/driftbench-checks';
-import { type CheckSet, type LoadedSpec, parseSpecText, type RunResult, runSpec } from '@agent-nexus/driftbench-core';
+import {
+  type CheckSet,
+  type LoadedSpec,
+  parseSpecText,
+  type RunResult,
+  runSpec,
+} from '@agent-nexus/driftbench-core';
 import {
   type Atom,
   buildPlan,

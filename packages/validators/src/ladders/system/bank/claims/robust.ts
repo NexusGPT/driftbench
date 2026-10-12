@@ -30,7 +30,13 @@ import {
   type TargetRef,
   validateSpec,
 } from '@agent-nexus/driftbench-core';
-import { openStore, readCampaignBundle, restoreFiles, type SqliteStore, StoreError } from '@agent-nexus/driftbench-store';
+import {
+  openStore,
+  readCampaignBundle,
+  restoreFiles,
+  type SqliteStore,
+  StoreError,
+} from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { migrateFloors, raiseFloor, readFloors, writeFloors } from '../../../../floors';
 import { type BankItem, expectAll, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../types';
