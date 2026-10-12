@@ -19,4 +19,12 @@ describe('lintCriterion', () => {
     expect(issues.map((i) => i.code)).toContain('two-questions');
     expect(lintCriterion({ ...clean, rubric: 'Does the reply name Acme Care?' }).issues).toEqual([]);
   });
+
+  it('reports subjective when the rubric asks for a taste word, matched as a whole word without case', () => {
+    for (const word of ['good', 'Appropriate', 'nice', 'reasonable', 'properly', 'adequate', 'helpful', 'polite', 'professional', 'friendly']) {
+      const issues = lintCriterion({ ...clean, rubric: `The reply is ${word} toward the customer.` }).issues;
+      expect(issues.map((i) => i.code)).toContain('subjective');
+    }
+    expect(lintCriterion({ ...clean, rubric: 'The reply names Acme Care and its goodwill credit.' }).issues).toEqual([]);
+  });
 });

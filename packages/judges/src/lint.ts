@@ -12,6 +12,8 @@ type Rule = { readonly code: string; readonly found: (criterion: CriterionText) 
 const RULES: readonly Rule[] = [
   // More than one question mark: a judge cannot answer two questions with one verdict.
   { code: 'two-questions', found: (c) => (c.rubric.match(/\?/g) ?? []).length > 1 },
+  // A taste word: two judges read it two ways.
+  { code: 'subjective', found: (c) => /\b(good|appropriate|nice|reasonable|properly|adequate|helpful|polite|professional|friendly)\b/i.test(c.rubric) },
 ];
 
 /** Lists the defects of a criterion's rubric and pictures. A criterion without defects gives an empty list. */
