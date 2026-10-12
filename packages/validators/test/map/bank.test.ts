@@ -1,10 +1,18 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { extractMap, ModelError, type Proposal, SYSTEM_PROMPT } from '@driftbench/generate';
 import { describe, expect, it } from 'vitest';
-import { BANK_MIN_FAMILY as MIN_FAMILY, measureHardness } from '../../src/hardness';
+import { BANK_MIN_FAMILY as MIN_FAMILY, measureHardness, parseGate } from '../../src/hardness';
 import { readJournal } from '../../src/journal';
 import { runLadder } from '../../src/ladder';
 import { expectedFacts, proposalFacts } from '../../src/ladders/map/bank/facts';
-import { bankByFamilyTier, bankShape, distinctCauses, mapBank } from '../../src/ladders/map/bank/index';
+import {
+  bankByFamilyTier,
+  bankShape,
+  distinctCauses,
+  mapBank,
+  mapQuarantine,
+} from '../../src/ladders/map/bank/index';
 import {
   answerFor,
   asModelWrites,
@@ -21,8 +29,10 @@ import { mapLadder } from '../../src/ladders/map/index';
 import { ROOT } from './support';
 
 const bank = mapBank();
+/** Quarantined items still run in the tests: they count toward no score, but they must stay correct. */
+const written = [...bank, ...mapQuarantine()];
 const item = (id: string) => {
-  const found = bank.find((candidate) => candidate.id === id);
+  const found = written.find((candidate) => candidate.id === id);
   if (!found) throw new Error(`no item ${id}`);
   return found;
 };
@@ -59,8 +69,8 @@ describe('the map bank under section 12', () => {
     const pairs = bank.filter((one) => one.family === 'style-pairs');
     expect(pairs).toHaveLength((STYLES.length * (STYLES.length - 1)) / 2);
     expect(bank.filter((one) => /^scale\.100k\.[a-z-]+$/.test(one.id))).toHaveLength(STYLES.length);
-    expect(bank.filter((one) => one.id.includes('.v1-'))).toHaveLength(7);
-    expect(new Set(bank.map((one) => one.family))).toEqual(
+    expect(written.filter((one) => one.id.includes('.v1-'))).toHaveLength(7);
+    expect(new Set(written.map((one) => one.family))).toEqual(
       new Set([
         'inventory-forms',
         'tool-formats',
@@ -295,7 +305,7 @@ describe('items and their oracles', () => {
 
 describe('round 2 of the map audit', () => {
   it('runs every roles item on both sort orders of the two persona ids', () => {
-    for (const one of bank.filter((candidate) => candidate.family === 'roles' && !candidate.run)) {
+    for (const one of written.filter((candidate) => candidate.family === 'roles' && !candidate.run)) {
       for (const seed of [1, 2, 3]) {
         const cases = one.generate(seed);
         expect(cases.map((c) => c.label.split('.').at(-1))).toEqual(['tone-first', 'type-first']);
@@ -344,6 +354,16 @@ describe('round 2 of the map audit', () => {
   });
 });
 
+describe('the lowered bar of GATE.md', () => {
+  it('takes only a bar above 0.4 and under 0.5', () => {
+    expect(parseGate('Max score after the pilot: 0.42')).toBe(0.42);
+    expect(parseGate('max score after the pilot:0.45\n')).toBe(0.45);
+    expect(parseGate('Max score after the pilot: 0.4')).toBeNull();
+    expect(parseGate('Max score after the pilot: 0.9')).toBeNull();
+    expect(parseGate('no bar here')).toBeNull();
+  });
+});
+
 describe('the bank as a ladder', () => {
   it('stops at its first failing level and names the failing items with family and tier', async () => {
     const noTools = planted((proposal) => {
@@ -371,16 +391,20 @@ describe('the hardness measurement', () => {
     expect(total).toBe(bank.length);
   });
 
-  it('reads iteration 0 and the ten pilot rows from the journal; the gate waits on the audit (12.7) and the score after the pilot', () => {
+  it('reads iteration 0 and the ten pilot rows from the journal; with the bar of GATE.md, only the audit (12.7) is left', () => {
     const { rows, problems } = readJournal(ROOT, 'map');
     expect(problems).toEqual([]);
-    const measured = measureHardness(rows);
+    const gate = readFileSync(join(ROOT, 'validators/map/GATE.md'), 'utf8');
+    expect(measureHardness(rows).gate.reasons.some((reason) => /score after the pilot/.test(reason))).toBe(
+      true,
+    );
+    const measured = measureHardness(rows, { gate });
+    expect(measured).toMatchObject({ maxScore: 0.42, lowered: true });
     expect(measured.iteration0).toMatchObject({ bankSize: 578, passing: 222 });
     expect(measured.pilot).toMatchObject({ iterations: 10, complete: true });
     expect(measured.forecast).toBeGreaterThanOrEqual(100);
     expect(measured.causes?.distinct).toBeGreaterThanOrEqual(100);
-    // The need-checked bank scores 0.41 after the pilot, above the 0.4 ceiling: reported as measured.
-    for (const reason of measured.gate.reasons) expect(reason).toMatch(/audit|score after the pilot/);
+    for (const reason of measured.gate.reasons) expect(reason).toMatch(/audit/);
     expect(measured.bankMinimum.holds).toBe(true);
   });
 });

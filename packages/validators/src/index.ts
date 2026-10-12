@@ -62,6 +62,7 @@ export {
   measureHardness,
   type PilotMeasure,
   parseAudit,
+  parseGate,
 } from './hardness';
 export {
   appendJournal,
