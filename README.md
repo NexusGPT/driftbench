@@ -379,6 +379,131 @@ The aim: about ten goldens that cover every kind of block, instead of two hundre
 
 In the repo: [the Acme map proposal](examples/acme/map/README.md)
 
+## Test generation
+
+You do not write every test by hand. driftbench builds them from a map of the situations an agent can face. A person approves the map. Code then places tests to cover it, and a gate keeps only the tests that can catch a broken agent.
+
+The idea in five lines:
+
+1. A map lists what varies: stages, behaviours, deviations, channels and data.
+2. A person approves the map. Nothing counts before that.
+3. Code places tests so that every allowed pair of values is covered.
+4. A gate runs every test against planted faults and a reference agent.
+5. The tests that pass the gate form the suite. It runs like any other campaign.
+
+### The map
+
+The map lists dimensions, their values, and constraints that rule out impossible combinations. It also lists phrases, the user messages that express each value. A model proposes the entries from the agent's prompt, its behaviour inventory and its tool schemas. Each entry quotes the line that justifies it. Code checks every quote against its source, and a refused entry never enters the map.
+
+A person then approves the proposal, one dimension at a time or all at once. The Acme map has 46 dimensions, 180 values, 457 constraints and 51 approved phrases. This is one approved dimension from [`examples/acme/map/approved.yaml`](examples/acme/map/approved.yaml):
+
+```yaml
+dimensions:
+  - id: channel
+    title: The channels the inventory names
+    kind: channel
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - id: chat
+        title: On chat
+        evidence:
+          source: ../inventory.yaml
+          quote: "channels: [chat, whatsapp]"
+        produced_by: code
+      - id: whatsapp
+        title: On whatsapp
+        evidence:
+          source: ../inventory.yaml
+          quote: "channels: [chat, whatsapp]"
+        produced_by: code
+```
+
+An axis is crossed with the other axes to make the space. A detail varies inside each cell of that space.
+
+Relations link values to stages, tools and end states. They are what lets code derive the expected outcome of a test. Acme has 71 approved relations, among them the paths a conversation takes and the tool calls each stage makes.
+
+### The seeders
+
+Seven seeders write specs from the approved map. The Acme numbers come from [`generate-report.json`](examples/acme/generated/generate-report.json).
+
+- **Graph walk**: one spec per approved path through the stages. 12 specs, 48 blocks, 18 of 23 stage edges covered.
+- **Pairwise covering array**: every allowed pair of values appears in some spec. 132 specs, 675 blocks, 314 of 314 allowed pairs.
+- **Boundary values**: one spec per value of each data detail. 80 specs, 113 blocks.
+- **Deviation probes**: one probe per deviation class. 10 specs, 52 blocks, all 10 classes.
+- **Metamorphic pairs**: specs that differ only in the wording of one value, with the same expected outcome. 40 specs in 20 families.
+- **Task families**: instances of code-agent tasks, each with its own oracle. 34 specs, 47 blocks.
+- **Cover**: one scenario for each allowed pair that no other seeder covers. 13 specs, 71 blocks.
+
+The complete specs cover all 637 allowed pairs of values. 251 of the 321 specs are complete. The other 70 wait in `incomplete/` until the map gives their values an approved phrase.
+
+### What a generated test checks
+
+A generated test reads what the agent did, not only what it said. Code derives each part of the expected outcome from the approved relations. The email in the user's message and the tool input it must produce come from the same binding. This is one block of a generated Acme spec, with its stage, its tool calls and its language:
+
+```yaml
+- id: b2-identify-to-offer
+  when:
+    user: It's sam.rivera@example.com.
+  expect:
+    stage: offer
+    tools:
+      - label: catalog.search
+        count: 1
+        input:
+          category: mobile
+          customer_email: sam.rivera@example.com
+      - label: order.create
+        count: 0
+    lang: EN
+```
+
+A block that the map cannot support for a machine check stays in `incomplete/`, with the reason written beside it. A person can then fix the map and regenerate.
+
+### The gate
+
+Each generated block passes nine stages before it joins the gated suite. A stage rejects the block, or marks it with a reason.
+
+| Stage | What it checks |
+|---|---|
+| Observed | The expected outcome reads observed state, not only the agent's words. |
+| Leakage | No expected value sits in the input the agent reads. |
+| Shortcut | A trivial agent (constant, echo, first tool) must fail the block. |
+| Contrast | Sibling and twin blocks expect what they should. |
+| Red first | The block passes the reference and fails the faults it targets. |
+| Stability | The outcome holds across repeated runs. |
+| Difficulty | A block that every agent passes, or none passes, is marked saturated. |
+| Label audit | A seeded sample goes to a person to read. |
+| Freshness | Each block records its date and map hash. Whole specs can be sealed as a holdout. |
+
+The planted faults are wrong versions of the agent. One answers in another language. One skips the recap. One invents a price. Each block runs on the faults it targets, and it must fail on them.
+
+On Acme, 1,100 of 1,106 blocks pass the gate. The 6 rejected blocks are first-turn probes that the echo agent passes. 13 of 13 scored faults are killed. One fault, which keeps the first email, changes nothing these specs observe, so it is excluded. The holdout seals 58 of the 251 specs, and the label audit samples 21 blocks for a person to read.
+
+The holdout is 20 percent of whole specs by default. The gate checks it like the rest. It is never run as an evaluation.
+
+### Budget mode (in progress)
+
+Budget mode picks N tests from a larger suite. It is being built in parallel, so its options and numbers may change. The rule is: pair coverage first, Latin hypercube balance on ties, and sliced Latin hypercube values for numeric settings. See [generating](docs/generating.md) for the current pipeline.
+
+### Command walkthrough
+
+Run these from the root of a copy of [`examples/acme`](examples/acme), so every quote resolves as it does in the repository:
+
+```bash
+pnpm driftbench extract --prompt src/policy.ts --prompt README.md --prompt src/store.ts --inventory inventory.yaml --tools map/tools.yaml --out map/proposal.yaml
+pnpm driftbench extract approve map/proposal.yaml
+pnpm driftbench extract approve map/proposal.yaml --all --to map/approved.yaml
+pnpm driftbench generate --map map/approved.yaml --out generated --baseline specs --t 2
+pnpm driftbench gate generated/specs --reference function:acme-sales --reference process:acme-ops --route flow:price-sheet=process:acme-ops --faults faults --origin specs --out gated
+pnpm driftbench campaign run gated/specs --target function:acme-sales --route flow:price-sheet=process:acme-ops
+```
+
+Line 2 lists the open decisions. Read them before line 3 approves them all.
+
+In the docs: [Generating tests](docs/generating.md) · [The map](docs/generating.md#extract-propose-the-map) · [Approve](docs/generating.md#approve) · [Generate](docs/generating.md#generate) · [The gate](docs/generating.md#the-gate) · [Task families](docs/generating.md#task-families) · [Variance pilot](docs/generating.md#the-variance-pilot)
+
 ## The anatomy of driftbench
 
 <a href=".github/readme/anatomy-light.webp">
