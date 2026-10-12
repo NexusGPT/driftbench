@@ -26,6 +26,8 @@ export type PairResult = {
   /** The decision with the pair as given (A first), and with the pair swapped, mapped back to A and B. */
   readonly games: readonly PairDecision[];
   readonly missing: number;
+  /** Provider-refused payloads score zero under the lead's unavailable-item protocol. */
+  readonly providerRefused?: boolean;
 };
 
 export type PointResult = {
@@ -118,7 +120,9 @@ export function scorePairs(bench: BenchmarkId, results: readonly PairResult[]): 
   if (bench === 'mmeval') {
     const values = results.map((r) => ({
       group: r.item.group,
-      value: r.games.reduce((s, g) => s + gameScore(g, r.item.label), 0) / r.games.length,
+      value: r.providerRefused
+        ? 0
+        : r.games.reduce((s, g) => s + gameScore(g, r.item.label), 0) / r.games.length,
     }));
     const byGroup = groupMeans(values);
     const groups = Object.values(byGroup);
@@ -149,7 +153,9 @@ export function scorePairs(bench: BenchmarkId, results: readonly PairResult[]): 
   const k = games.reduce((s, v) => s + v.value, 0);
   return {
     metric:
-      bench === 'rubricbench' ? 'accuracy (RubricBench, over games)' : 'accuracy (LongJudgeBench, over games)',
+      bench === 'rubricbench'
+        ? 'accuracy (RubricBench, over games)'
+        : 'accuracy (LongJudgeBench, over games)',
     value: wilsonOf(k, games.length),
     n: results.length,
     byGroup: groupMeans(games),

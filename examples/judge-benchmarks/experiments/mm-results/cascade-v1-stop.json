@@ -1,0 +1,7 @@
+{
+  "recordedCalls": 52,
+  "recordedSpendUsd": 0.06026399,
+  "completedItems": 25,
+  "reason": "restart for concurrency 3 and 06:30 cutoff",
+  "unreportedInterruptedCallMaximumUsd": 0.05
+}

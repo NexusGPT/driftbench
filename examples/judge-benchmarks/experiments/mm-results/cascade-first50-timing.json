@@ -1,0 +1,22 @@
+{
+  "sampleCalls": 50,
+  "elapsedSeconds": 419.8988320827484,
+  "meanCallSeconds": 8.397976641654969,
+  "measurement": "wall time from manifest creation through first 50 successful sequential calls; includes harness startup",
+  "projectedDirectFinishUtc": "2026-10-13T00:19:24Z",
+  "measuredAtUtc": "2026-10-12T22:06:15Z",
+  "populationBySubset": {
+    "reasoning": 549,
+    "chat": 133,
+    "linguistics": 128,
+    "language mixing": 358,
+    "safety": 284
+  },
+  "estimatedEligibleItems": 184.2,
+  "crowdSecondsPerCallObserved": 10.022403914587839,
+  "projectedPipelineFinishUtc": "2026-10-13T02:11:38.700094+00:00",
+  "projectionAssumptions": "three workers; first complete pairs within each subset estimate escalation rates; five-item crowd preflight supplies crowd latency; premise-call latency assumed equal to direct",
+  "firstCount": 1452,
+  "decision": "projected before 05:30 local, retain full DEV first",
+  "newCallCutoffLocal": "2026-10-13T06:30:00+02:00"
+}

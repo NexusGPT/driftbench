@@ -1,0 +1,5 @@
+{"id":"4","group":"reasoning","language":"bn","label":"B","games":["B","B"],"verdict":{"choice":"second","calls":2,"ordered":"fail","swapped":"pass","consistent":true,"positionBias":false},"invalidReadings":0}
+{"id":"3174","group":"chat","language":"ca","label":"B","games":["B","B"],"verdict":{"choice":"second","calls":2,"ordered":"fail","swapped":"pass","consistent":true,"positionBias":false},"invalidReadings":0}
+{"id":"3620","group":"linguistics","language":"ca","label":"B","games":["B","B"],"verdict":{"choice":"second","calls":2,"ordered":"fail","swapped":"pass","consistent":true,"positionBias":false},"invalidReadings":0}
+{"id":"1970","group":"language mixing","language":"bn","label":"B","games":["B","B"],"verdict":{"choice":"second","calls":2,"ordered":"fail","swapped":"pass","consistent":true,"positionBias":false},"invalidReadings":0}
+{"id":"4072","group":"safety","language":"en","label":"B","games":["A","A"],"verdict":{"choice":"first","calls":2,"ordered":"pass","swapped":"fail","consistent":true,"positionBias":false},"invalidReadings":0}

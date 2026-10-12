@@ -11,3 +11,5 @@
 {"time":"2026-10-12T21:33:05.369Z","tag":"common-frozen-payload","phase":"common","contestants":["driftbench","deepeval","promptfoo"],"capUsd":0,"newSpendUsd":0,"newCalls":0}
 {"time": "2026-10-12T21:35:46.360674+00:00", "tag": "interrupted-code-pilot", "newSpendUsd": 0.21071054999999983, "newCalls": 0, "phase": "pilot", "reason": "Stopped obsolete sweep after importing the shared winner contract; successful calls recovered from recordings."}
 {"time":"2026-10-12T21:35:52.493Z","tag":"pilot-code-interrupted","phase":"pilot","contestants":["driftbench-mm-language-code","driftbench-mm-language-safety-code"],"capUsd":0,"newSpendUsd":0,"newCalls":0}
+{"tag":"crowd-preflight","phase":"full","contestants":["driftbench-mm-crowd"],"capUsd":0.3,"newSpendUsd":0.041898310000000015,"newCalls":35,"time":"2026-10-12T21:46:40.169Z"}
+{"tag":"cascade-dev400","phase":"full-cascade","contestants":["driftbench-mm-cascade"],"capUsd":6.8357619299999985,"newSpendUsd":0.06140474999999999,"newCalls":54,"time":"2026-10-12T22:11:00.927Z"}

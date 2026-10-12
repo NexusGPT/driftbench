@@ -12,9 +12,14 @@ const recordings = await new Recordings(join(RECORDINGS, 'mmeval', 'haiku.jsonl'
 const sets = await mmDevSets(recordings);
 const shipped = contestantById('driftbench');
 const rerun = process.argv.includes('--repair-recorded');
-const invalid = rerun
-  ? JSON.parse(await readFile(join(out, 'near-json-repair-evidence.json'), 'utf8')).map(
-      (row: Record<string, unknown>) => {
+type RepairEvidence = {
+  id: string; group: string; label: 'A' | 'B'; order: 'AB' | 'BA'; key: string;
+  original: string; repairedText: string; changed: boolean;
+  repaired: ReturnType<typeof parseAnswerText>; winner: 'A' | 'B' | 'tie'; correct: boolean | null;
+};
+const invalid: RepairEvidence[] = rerun
+  ? (JSON.parse(await readFile(join(out, 'near-json-repair-evidence.json'), 'utf8')) as RepairEvidence[]).map(
+      (row) => {
         const original = String(row.original);
         const repairedText = repairAnswerText(original);
         const repaired = parseAnswerText(repairedText);
@@ -36,7 +41,7 @@ const invalid = rerun
       },
     )
   : sets.common.flatMap((item) =>
-      ['AB', 'BA'].flatMap((order) => {
+      (['AB', 'BA'] as const).flatMap((order) => {
         const a = order === 'AB' ? item.a : item.b;
         const b = order === 'AB' ? item.b : item.a;
         const record = recordings.get(

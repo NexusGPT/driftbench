@@ -3,6 +3,7 @@ import argparse
 import collections
 import datetime
 import json
+import subprocess
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
@@ -40,8 +41,9 @@ for path in sorted(root.glob('*.json')):
         n = report['items']
         scores = [f"{s['byGroup'][g]['value'] * 100:.2f}" if g in s['byGroup'] else 'n/a' for g in groups]
         cost = c['costUsd'] * 100 / n
-        lines.append(f"| {path.stem} | {c['contestant']} | {n} | {s['value']['estimate'] * 100:.2f} | " + ' | '.join(scores) + f" | {cost:.5f} | {c['calls']/n:.3f} | {s['missing']} |")
-        if s['missing'] == 0 and not report.get('stopped'):
+        total = f"{s['value']['estimate'] * 100:.2f}" if all(g in s['byGroup'] for g in groups) else 'n/a'
+        lines.append(f"| {path.stem} | {c['contestant']} | {n} | {total} | " + ' | '.join(scores) + f" | {cost:.5f} | {c['calls']/n:.3f} | {s['missing']} |")
+        if s['missing'] == 0 and not report.get('stopped') and all(g in s['byGroup'] for g in groups):
             complete.append((n, s['value']['estimate'], cost, c['contestant'], path.stem))
 if complete:
     biggest = max(x[0] for x in complete if x[3].startswith('driftbench-mm-')) if any(x[3].startswith('driftbench-mm-') for x in complete) else 0
@@ -83,6 +85,40 @@ for path in sorted(root.glob('crowd*.json')):
     r = json.loads(path.read_text())
     if isinstance(r, dict) and 'completed' in r:
         lines.extend(['', f"Latest {path.stem}: {r['completed']} of {r['requested']} complete; contract {r['contractSha']}; stop: {r.get('stopped', 'in flight or complete')}. "])
+lines.extend(['', '## Selective cascade and explicit premise ablation', '',
+              'The lead authorizes chat-subset routing, order disagreement and parse failures as escalation signals. No label controls routing or a verdict.',
+              'The direct baseline runs in both orders. A separate extraction of exact request premises precedes every safety-item ablation.',
+              'Three blind references and two independent readings feed the shared comparison only on eligible items. All readers receive the premise ledger when present.',
+              'A fixed proportional 400-item DEV subset is evaluated first when timing projects past 05:30. The rest follows without selecting items by their labels.',
+              'Production cost excludes baseline safety calls retained only for the paired ablation. New experimental spend includes those calls.', '',
+              '| Round | Direct complete / requested | Variant | Total % | Reasoning n/% | Chat n/% | Linguistics n/% | Mixing n/% | Safety n/% | Escalated % | Pending | USD / 100 | Calls / item |',
+              '|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|'])
+for path in sorted(root.glob('cascade*-rounds.jsonl')):
+    for i, text in enumerate(path.read_text().splitlines(), 1):
+        r = json.loads(text)
+        if 'summary' not in r:
+            continue
+        for name, key in [('direct', 'directSummary'), ('current cascade', 'summary')]:
+            s = r[key]
+            scores = [f"{s['byGroup'][g]['n']} / {s['byGroup'][g]['value']*100:.2f}" if g in s['byGroup'] else '0 / n/a' for g in groups]
+            cost = r.get('directCostPer100',r['costPer100']) if name == 'direct' else r['costPer100']
+            calls = r.get('phaseCosts',{}).get('direct',{}).get('calls',r['calls']) / max(1,r['directCompleted']) if name == 'direct' else r['callsPerItem']
+            lines.append(f"| {path.stem} {i}: {r['phase']} | {r['directCompleted']} / {r['requested']} | {name} | {s['value']['estimate']*100:.2f} | " + ' | '.join(scores) + f" | {r['escalatedShare']*100:.2f} | {r['pendingEscalations']} | {cost:.5f} | {calls:.3f} |")
+        if 'premiseSafetySummary' in r:
+            s=r['premiseSafetySummary']; g=s['byGroup']['safety']
+            lines.extend(['',f"Premise ablation at {r['phase']}: {g['n']} of {r['requestedSafetyItems']} safety DEV items, {g['value']*100:.2f}%, USD {r.get('premiseSafetyCostPer100',0):.5f} per 100 safety items. Invalid premise ledgers: {r['invalidPremises']}.",''])
+    if path.exists() and path.read_text().strip():
+        r=json.loads(path.read_text().splitlines()[-1])
+        lines.extend(['',f"Latest {path.stem}: {r['directCompleted']}/{r['requested']} direct items, {r['escalated']}/{r['eligible']} escalations, {r['premiseCompleted']}/{r['requestedSafetyItems']} premise safety items. Stop: {r.get('stopped','in flight or complete')}. Contract: {r['contractSha']}."])
+lines.extend(['', 'A current cascade with pending escalation or premise work is a partial pipeline, even when its direct baseline covers every item.',
+              'The five-item crowd preflight proves execution only. Its 80% score and USD 0.83797 per 100 do not establish a gain; universal crowd judging is retired.',
+              'Case 4072 exposes a premise-reading error: the request explicitly says the contact is non-public, while the blind references assume public availability.',
+              'The premise step preserves the negation as a reader requirement. It does not equate a safety-subset label with harm or force a refusal verdict.',
+              'The pending shared whitespace-quote fix is handled through raw winner and raw text retention. Quotes validate declared identity; they never select a winner.'])
+if (root/'cascade-first50-timing.json').exists():
+    timing=json.loads((root/'cascade-first50-timing.json').read_text())
+    lines.extend(['',f"Initial timing: {timing['sampleCalls']} calls, {timing['meanCallSeconds']:.2f} seconds per sequential call. Three-worker direct-only projected finish: {timing['projectedDirectFinishUtc']}. This is a projection, not a completion timestamp."])
+
 rows = [json.loads(s) for s in Path('examples/judge-benchmarks/recordings/mmeval/haiku.jsonl').read_text().splitlines()]
 new = [r for r in rows if str(r.get('contestant', '')).startswith('driftbench-mm-')]
 spent = sum(r['costUsd'] for r in new)
@@ -91,11 +127,11 @@ lines.extend(['', '## Cost and verification', '',
               'Interrupted calls without a recorded reported cost are not silently assigned an invented price.',
               'Spend-ledger accounting reconciles the earlier live-replay overlap against unique successful recorded calls.',
               '', 'franc-all 7.2.0 is MIT licensed, confirmed from package metadata and the [upstream license](https://github.com/wooorm/franc/blob/main/license).',
-              'The lockfile is generated with filtered pnpm add. Its separate commit is a4984b56 and contains only 13 franc-all lines.',
-              'The frozen install passes with pnpm 10.30.2. The initial 5-second test timeout fails under machine load; rerunning with 30 seconds passes all 44 tests.',
+              'The lockfile is generated with filtered pnpm add, committed separately with only franc-all entries. The rebase regenerates it through the same command.',
+              'The frozen install passes with pnpm 10.30.2. The initial 5-second test timeout fails under machine load; rerunning with 30 seconds passes all 47 pre-cascade tests. Cascade tests are verified separately before running.',
               'TypeScript typecheck passes before shared-contract integration. Final post-integration checks are recorded at handover.',
               '', 'Code observations are advisory. A language mismatch does not force a winner. Short text, related languages, names and requested translations can confuse language ID.',
-              'No label, item ID, subset name, benchmark language metadata, length preference, or answer-label skew enters the judge.',
+              'No preference label, item ID, subset name, benchmark language metadata or answer-label skew enters a model prompt. Explicitly authorized chat and safety routing uses subset metadata only in code.',
               'The dossier ceiling is an estimate, not a measured limit. This report does not claim that 95 is impossible.',
               'TEST runs only after a frozen configuration achieves the requested DEV target and within the authorized budget.', ''])
 Path(args.out).write_text('\n'.join(lines))

@@ -85,6 +85,16 @@ export class SpendCapReached extends Error {}
 /** One call that failed after its retries: its item lacks this answer, and the run goes on. */
 export class CallFailed extends Error {}
 
+/** A provider policy refusal is unavailable evaluation evidence, never a candidate verdict. */
+export class ProviderRefused extends CallFailed {
+  constructor(
+    message: string,
+    readonly costUsd: number,
+  ) {
+    super(message);
+  }
+}
+
 export function createCaller(
   recordings: Recordings,
   options: CallOptions,
@@ -113,7 +123,16 @@ export function createCaller(
       if (limits.capUsd !== undefined && spent >= limits.capUsd)
         throw new SpendCapReached(`spend cap ${limits.capUsd} USD reached`);
       folder ??= await mkdtemp(join(tmpdir(), 'driftbench-bench-'));
-      const result = await runClaude(prompt, options, folder);
+      let result: { text: string; costUsd: number };
+      try {
+        result = await runClaude(prompt, options, folder);
+      } catch (cause) {
+        if (cause instanceof ProviderRefused) {
+          spent += cause.costUsd;
+          calls += 1;
+        }
+        throw cause;
+      }
       spent += result.costUsd;
       calls += 1;
       const entry: Recorded = {
@@ -152,6 +171,7 @@ async function runClaude(
     '1',
     ...(options.maxCallUsd === undefined ? [] : ['--max-budget-usd', String(options.maxCallUsd)]),
   ];
+  let failedCostUsd = 0;
   for (let attempt = 1; ; attempt += 1) {
     let ran: { stdout: string; stderr: string };
     try {
@@ -177,9 +197,15 @@ async function runClaude(
     }
     const cost = typeof payload?.total_cost_usd === 'number' ? payload.total_cost_usd : 0;
     if (payload && payload.is_error !== true) {
-      return { text: typeof payload.result === 'string' ? payload.result : '', costUsd: cost };
+      return {
+        text: typeof payload.result === 'string' ? payload.result : '',
+        costUsd: failedCostUsd + cost,
+      };
     }
     const why = payload ? String(payload.result) : (ran.stderr || ran.stdout).slice(0, 300);
+    failedCostUsd += cost;
+    if (/can't help with this|anthropic\.com\/legal\/aup/i.test(why))
+      throw new ProviderRefused(`provider refused evaluation payload: ${why}`, failedCostUsd);
     // A session or rate limit is not retried: the run stops and reports it.
     if (/limit/i.test(why)) throw new Error(`claude stopped: ${why}`);
     if (attempt >= 3) throw new CallFailed(`claude failed ${attempt} times: ${why}`);

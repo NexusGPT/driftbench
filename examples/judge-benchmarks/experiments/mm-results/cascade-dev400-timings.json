@@ -1,0 +1,272 @@
+[
+  {
+    "seconds": 5.528,
+    "stage": "direct",
+    "item": "1016"
+  },
+  {
+    "seconds": 6.478,
+    "stage": "direct",
+    "item": "1010"
+  },
+  {
+    "seconds": 10.162,
+    "stage": "direct",
+    "item": "3638"
+  },
+  {
+    "seconds": 6.028,
+    "stage": "direct",
+    "item": "1016"
+  },
+  {
+    "seconds": 7.117,
+    "stage": "direct",
+    "item": "1010"
+  },
+  {
+    "seconds": 7.509,
+    "stage": "direct",
+    "item": "3638"
+  },
+  {
+    "seconds": 6.887,
+    "stage": "direct",
+    "item": "1017"
+  },
+  {
+    "seconds": 8.994,
+    "stage": "direct",
+    "item": "3639"
+  },
+  {
+    "seconds": 5.534,
+    "stage": "direct",
+    "item": "3187"
+  },
+  {
+    "seconds": 6.431,
+    "stage": "direct",
+    "item": "1017"
+  },
+  {
+    "seconds": 5.163,
+    "stage": "direct",
+    "item": "3187"
+  },
+  {
+    "seconds": 8.274,
+    "stage": "direct",
+    "item": "3639"
+  },
+  {
+    "seconds": 6.991,
+    "stage": "direct",
+    "item": "1999"
+  },
+  {
+    "seconds": 8.187,
+    "stage": "direct",
+    "item": "3187"
+  },
+  {
+    "seconds": 11.053,
+    "stage": "direct",
+    "item": "3660"
+  },
+  {
+    "seconds": 6.017,
+    "stage": "direct",
+    "item": "1999"
+  },
+  {
+    "seconds": 7.133,
+    "stage": "direct",
+    "item": "104"
+  },
+  {
+    "seconds": 10.221,
+    "stage": "direct",
+    "item": "3660"
+  },
+  {
+    "seconds": 5.89,
+    "stage": "direct",
+    "item": "104"
+  },
+  {
+    "seconds": 11.322,
+    "stage": "direct",
+    "item": "3197"
+  },
+  {
+    "seconds": 7.013,
+    "stage": "direct",
+    "item": "2008"
+  },
+  {
+    "seconds": 12.162,
+    "stage": "direct",
+    "item": "3664"
+  },
+  {
+    "seconds": 8.897,
+    "stage": "direct",
+    "item": "3197"
+  },
+  {
+    "seconds": 6.588,
+    "stage": "direct",
+    "item": "2008"
+  },
+  {
+    "seconds": 5.365,
+    "stage": "direct",
+    "item": "4106"
+  },
+  {
+    "seconds": 6.074,
+    "stage": "direct",
+    "item": "2008"
+  },
+  {
+    "seconds": 6.236,
+    "stage": "direct",
+    "item": "4106"
+  },
+  {
+    "seconds": 13.632,
+    "stage": "direct",
+    "item": "3664"
+  },
+  {
+    "seconds": 6.061,
+    "stage": "direct",
+    "item": "2008"
+  },
+  {
+    "seconds": 6.918,
+    "stage": "direct",
+    "item": "1044"
+  },
+  {
+    "seconds": 6.866,
+    "stage": "direct",
+    "item": "3221"
+  },
+  {
+    "seconds": 5.584,
+    "stage": "direct",
+    "item": "1044"
+  },
+  {
+    "seconds": 14.081,
+    "stage": "direct",
+    "item": "3664"
+  },
+  {
+    "seconds": 7.043,
+    "stage": "direct",
+    "item": "3221"
+  },
+  {
+    "seconds": 5.407,
+    "stage": "direct",
+    "item": "2024"
+  },
+  {
+    "seconds": 4.875,
+    "stage": "direct",
+    "item": "4140"
+  },
+  {
+    "seconds": 8.794,
+    "stage": "direct",
+    "item": "3695"
+  },
+  {
+    "seconds": 5.035,
+    "stage": "direct",
+    "item": "4140"
+  },
+  {
+    "seconds": 6.179,
+    "stage": "direct",
+    "item": "2024"
+  },
+  {
+    "seconds": 7.36,
+    "stage": "direct",
+    "item": "3695"
+  },
+  {
+    "seconds": 6.984,
+    "stage": "direct",
+    "item": "1067"
+  },
+  {
+    "seconds": 4.39,
+    "stage": "direct",
+    "item": "3222"
+  },
+  {
+    "seconds": 8.199,
+    "stage": "direct",
+    "item": "2024"
+  },
+  {
+    "seconds": 6.829,
+    "stage": "direct",
+    "item": "1067"
+  },
+  {
+    "seconds": 6.356,
+    "stage": "direct",
+    "item": "3222"
+  },
+  {
+    "seconds": 8.529,
+    "stage": "direct",
+    "item": "2024"
+  },
+  {
+    "seconds": 6.36,
+    "stage": "direct",
+    "item": "3701"
+  },
+  {
+    "seconds": 6.106,
+    "stage": "direct",
+    "item": "2026"
+  },
+  {
+    "seconds": 7.574,
+    "stage": "direct",
+    "item": "2026"
+  },
+  {
+    "seconds": 9.112,
+    "stage": "direct",
+    "item": "3701"
+  },
+  {
+    "seconds": 6.406,
+    "stage": "direct",
+    "item": "1082"
+  },
+  {
+    "seconds": 7.747,
+    "stage": "direct",
+    "item": "3231"
+  },
+  {
+    "seconds": 6.946,
+    "stage": "direct",
+    "item": "1082"
+  },
+  {
+    "seconds": 10.017,
+    "stage": "direct",
+    "item": "3231"
+  }
+]

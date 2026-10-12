@@ -1,0 +1,51 @@
+{
+  "contestant": "driftbench-mm-crowd",
+  "contractSha": "8001abae29ad93331b7670eaea2d3857e52806ce",
+  "requested": 1452,
+  "completed": 5,
+  "missingItems": 1447,
+  "summary": {
+    "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+    "value": {
+      "estimate": 0.8,
+      "lower": 0.8,
+      "upper": 0.8
+    },
+    "n": 5,
+    "byGroup": {
+      "reasoning": {
+        "n": 1,
+        "value": 1
+      },
+      "chat": {
+        "n": 1,
+        "value": 1
+      },
+      "linguistics": {
+        "n": 1,
+        "value": 1
+      },
+      "language mixing": {
+        "n": 1,
+        "value": 1
+      },
+      "safety": {
+        "n": 1,
+        "value": 0
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 1
+  },
+  "costUsd": 0.041898310000000015,
+  "costPer100": 0.8379662000000003,
+  "calls": 35,
+  "callsPerItem": 7,
+  "invalidReadings": 0,
+  "newSpendUsd": 0.041898310000000015,
+  "newCalls": 35,
+  "replayed": 0,
+  "taskRecordedSpend": 0.6850147500000009,
+  "time": "2026-10-12T21:46:40.169Z",
+  "stopped": "preflight sample reached"
+}

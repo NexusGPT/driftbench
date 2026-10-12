@@ -3,8 +3,9 @@
 These experiments preserve the harness's existing DEV split. They never run TEST.
 The competitors keep their original templates. Every new judge sees only the
 criterion, request, candidate replies and its own generated reference or code
-observations. Subset names, language metadata and preference labels stay in the
-scoring code.
+observations. Subset names and language metadata never enter a model prompt. The explicitly
+authorized cascade uses the chat and safety subsets only for routing. Preference
+labels stay in scoring code.
 
 ## Samples and scores
 
@@ -20,7 +21,10 @@ Reports include missing answers; an incomplete run is not a complete DEV score.
 Inference cost includes recorded calls, so replay does not make the method appear
 free. New spend is reported separately and appended to the shared spend ledger.
 
-`mm-sweep.ts` runs one producer at a time. The runner's call semaphore also bounds
+The historical `mm-sweep.ts` runs one producer at a time. It is retired for this
+workstream after the shared winner contract lands. New paid stages use
+`mm-cascade.ts`, importing the contract directly from `@driftbench/judges`.
+The runner's call semaphore also bounds
 pair orders, samples and repairs, which the item concurrency setting alone did
 not do. The sweep reserves budget headroom and stops starting calls at its
 deadline. A model call already in flight can finish after that deadline.
@@ -56,10 +60,38 @@ Use `node --import tsx` for these drivers:
 
 ```sh
 node --import tsx examples/judge-benchmarks/experiments/mm-dev.ts \
-  --phase pilot --tag my-pilot --contestants driftbench-mm-integrity-code \
-  --cap-usd 0.8 --ledger /path/to/spend-ledger.md \
+  --phase pilot --tag my-pilot-replay --contestants driftbench-mm-language-code \
+  --replay-only --cap-usd 0 --ledger /path/to/spend-ledger.md \
   --deadline 2026-10-13T06:55:00+02:00
 ```
+
+The shared architecture requests the full DEV split:
+
+```sh
+node --import tsx examples/judge-benchmarks/experiments/mm-cascade.ts \
+  --tag cascade-full-dev --cap-usd 7.7 --concurrency 3 --first-count 400 \
+  --contract-sha <integrated-commit> --ledger /path/to/spend-ledger.md \
+  --deadline 2026-10-13T06:30:00+02:00
+```
+
+The first stage judges each pair directly in both orders using the shared explicit
+winner API. Safety pairs receive an additional question-only premise extraction,
+followed by both-order comparisons with those exact premises as requirements.
+A paired ablation retains the direct safety score and cost separately.
+Only chat items, order disagreements or parse failures escalate to three blind
+crowd replies, two independent readings and two final shared comparisons.
+Code discards evidence quotes absent from the original source. A quotation checks
+winner identity; it never selects the winner. Raw winner fields remain recorded.
+
+The fixed seed `mm-cascade-proportional-400-v1` selects 400 DEV items proportionally
+across subsets. That complete cascade is reported before the remaining DEV items.
+At most three item workers each issue one model call at a time, including bounded
+shared-contract repairs. No new call begins after the passed deadline.
+Normal production calls are two per direct item, three per premise-aware safety
+item, plus seven per escalation. Production inference cost excludes the extra
+baseline safety comparisons retained solely for the paired ablation. Experimental
+spend includes every paid call. Checkpoints distinguish eligible, escalated and
+pending items, so an unfinished cascade cannot claim full coverage.
 
 Use a new tag for each run. `--replay-only` forbids model calls. `--phase` supports
 pilot, confirm, common, aligned and full. The deadline and ledger path above are
