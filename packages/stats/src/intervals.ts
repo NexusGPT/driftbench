@@ -47,7 +47,7 @@ export function clopperPearson(k: number, n: number, alpha = 0.05): Interval {
 export function zeroFailureBound(p: number, alpha = 0.05): number {
   assertProbability('p', p, true);
   assertProbability('alpha', alpha, true);
-  const exact = Math.log(alpha) / Math.log(1 - p);
+  const exact = Math.log(alpha) / Math.log1p(-p);
   // Guard against floating noise when the ratio is an exact integer.
   const rounded = Math.round(exact);
   return Math.abs(exact - rounded) < 1e-9 ? rounded : Math.ceil(exact);
@@ -57,12 +57,86 @@ export function zeroFailureBound(p: number, alpha = 0.05): number {
 export function designEffect(m: number, rho: number): number {
   if (!(m >= 1)) throw new RangeError(`designEffect: cluster size must be at least 1, got ${m}`);
   if (!(rho >= -1 && rho <= 1)) throw new RangeError(`designEffect: rho must lie in [-1, 1], got ${rho}`);
-  return 1 + (m - 1) * rho;
+  const de = 1 + (m - 1) * rho;
+  if (!(de > 0)) {
+    throw new RangeError(
+      `designEffect: rho must be above -1 / (m - 1) = ${-1 / (m - 1)} for clusters of size ${m}, got ${rho}`,
+    );
+  }
+  return de;
 }
 
 /** The effective number of independent units: n divided by the design effect. */
 export function effectiveSampleSize(n: number, m: number, rho: number): number {
   return n / designEffect(m, rho);
+}
+
+/**
+ * Kish's effective sample size of weighted units, (sum w)^2 / sum w^2 (Owen, Monte Carlo theory, equation
+ * 9.13). Equal weights give n; unequal weights give less. Throws a RangeError on no weights, a weight that is
+ * not finite or is negative, or weights that sum to zero.
+ */
+export function kishEffectiveSize(weights: readonly number[]): number {
+  if (weights.length === 0) throw new RangeError('kishEffectiveSize of no weights');
+  let sum = 0;
+  let sumSquares = 0;
+  for (let i = 0; i < weights.length; i += 1) {
+    const w = weights[i] as number;
+    if (!Number.isFinite(w) || w < 0) {
+      throw new RangeError(`kishEffectiveSize: weights[${i}] must be finite and not negative, got ${w}`);
+    }
+    sum += w;
+    sumSquares += w * w;
+  }
+  if (!(sum > 0)) throw new RangeError('kishEffectiveSize: the weights must not sum to zero');
+  return (sum * sum) / sumSquares;
+}
+
+/** The two-sided Student t quantile at 1 - alpha / 2 on `df` degrees of freedom. */
+function studentQuantile(alpha: number, df: number): number {
+  // P(|T| > t) = I_x(df / 2, 1 / 2) with x = df / (df + t^2), so t = sqrt(df (1 - x) / x) at x = betaQuantile(alpha).
+  const x = betaQuantile(alpha, df / 2, 0.5);
+  return Math.sqrt((df * (1 - x)) / x);
+}
+
+/**
+ * The interval for the mean of clustered values: mean -/+ t(1 - alpha / 2, G - 1) SE, with the clustered
+ * standard error SE = sqrt(sum over clusters of (sum of (x - mean))^2) / n and G the clusters. Throws a
+ * RangeError on no values, mismatched lengths, a value that is not finite, fewer than two clusters or an alpha
+ * outside (0, 1). The bounds are not clipped to the range of the values.
+ */
+export function clusteredMeanInterval(
+  values: readonly number[],
+  clusters: readonly (string | number)[],
+  alpha = 0.05,
+): Interval {
+  if (values.length === 0) throw new RangeError('clusteredMeanInterval of an empty sample');
+  if (values.length !== clusters.length) {
+    throw new RangeError(
+      `clusteredMeanInterval: values and clusters must have the same length, got ${values.length} and ${clusters.length}`,
+    );
+  }
+  assertProbability('alpha', alpha, true);
+  let total = 0;
+  for (let i = 0; i < values.length; i += 1) {
+    const v = values[i] as number;
+    if (!Number.isFinite(v))
+      throw new RangeError(`clusteredMeanInterval: values[${i}] must be finite, got ${v}`);
+    total += v;
+  }
+  const n = values.length;
+  const estimate = total / n;
+  const sums = new Map<string | number, number>();
+  for (let i = 0; i < n; i += 1) {
+    const key = clusters[i] as string | number;
+    sums.set(key, (sums.get(key) ?? 0) + ((values[i] as number) - estimate));
+  }
+  const g = sums.size;
+  if (g < 2) throw new RangeError(`clusteredMeanInterval needs at least two clusters, got ${g}`);
+  let ss = 0;
+  for (const d of sums.values()) ss += d * d;
+  const half = studentQuantile(alpha, g - 1) * (Math.sqrt(ss) / n);
+  return { estimate, lower: estimate - half, upper: estimate + half };
 }
 
 export interface BootstrapOptions {
