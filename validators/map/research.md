@@ -375,3 +375,15 @@ Sources read:
 What others do: Each branch of a oneOf or anyOf is a case; allOf is the conjunction, so its members' partitions all apply.
 
 What to try, and why: the tool pre-pass reads oneOf, anyOf and allOf
+
+## Iteration 32
+
+Question: packages/generate/src/extract/tools.ts: walk follows object properties to depth two and ignores array items, so depth-three, array-of-objects, array-items-enum, prefix-items, tuple-items-draft-04, items-ref and recursive-ref lose their partitions.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-core section 10.3.1 (prefixItems, items)
+* https://json-schema.org/draft/2020-12/json-schema-core section 8.2.3 ($ref and recursion)
+
+What others do: Array items are a schema of their own; tuples give one schema per position; a recursive reference is read once.
+
+What to try, and why: the tool pre-pass follows arrays, tuples and nesting

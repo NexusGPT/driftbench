@@ -557,4 +557,85 @@ type = "boolean"
       },
     );
   });
+
+  it('follows objects three levels down, array items as <array>.item and tuples as <array>.<position>', () => {
+    const deep = {
+      type: 'object',
+      required: ['inner'],
+      properties: {
+        inner: {
+          type: 'object',
+          required: ['core'],
+          properties: {
+            core: {
+              type: 'object',
+              required: ['level'],
+              properties: { level: { type: 'string', enum: ['a', 'b'] } },
+            },
+          },
+        },
+      },
+    };
+    expect(Object.keys(partitions(deep))).toEqual(['t.x.in.p.inner.core.level']);
+    expect(partitions({ type: 'array', items: { type: 'string', enum: ['a', 'b'] } })).toEqual({
+      't.x.in.p': ['empty', 'one-item', 'several-items'],
+      't.x.in.p.item': ['a', 'b'],
+    });
+    expect(
+      partitions({
+        type: 'array',
+        items: { type: 'object', required: ['kind'], properties: { kind: { type: 'string', enum: ['a'] } } },
+      }),
+    ).toEqual({ 't.x.in.p': ['empty', 'one-item', 'several-items'], 't.x.in.p.item.kind': ['a'] });
+    expect(
+      partitions({ type: 'array', prefixItems: [{ type: 'string', enum: ['a', 'b'] }, { type: 'boolean' }] }),
+    ).toEqual({
+      't.x.in.p': ['empty', 'one-item', 'several-items'],
+      't.x.in.p.0': ['a', 'b'],
+      't.x.in.p.1': ['true', 'false'],
+    });
+    expect(
+      partitions({ type: 'array', items: [{ type: 'string', enum: ['a'] }, { type: 'boolean' }] }),
+    ).toEqual({
+      't.x.in.p': ['empty', 'one-item', 'several-items'],
+      't.x.in.p.0': ['a'],
+      't.x.in.p.1': ['true', 'false'],
+    });
+  });
+
+  it('follows an items $ref, and a recursive $ref once', () => {
+    const read = (properties: Record<string, unknown>, defs: Record<string, unknown>) => {
+      const schema = { type: 'object', required: ['p'], properties, $defs: defs };
+      const result = toolsPrepass(
+        stringify({ tools: [{ name: 't.x', input_schema: schema }] }),
+        'tools.yaml',
+      );
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      return Object.fromEntries(
+        result.dimensions.map((d) => [d.id, d.values.map((v) => v.id.slice(d.id.length + 1))]),
+      );
+    };
+    expect(
+      read(
+        { p: { type: 'array', items: { $ref: '#/$defs/Tag' } } },
+        { Tag: { type: 'string', enum: ['a', 'b'] } },
+      ),
+    ).toEqual({
+      't.x.in.p': ['empty', 'one-item', 'several-items'],
+      't.x.in.p.item': ['a', 'b'],
+    });
+    const node = {
+      type: 'object',
+      required: ['label'],
+      properties: {
+        label: { type: 'string', enum: ['a'] },
+        children: { type: 'array', items: { $ref: '#/$defs/Node' } },
+      },
+    };
+    expect(read({ p: { $ref: '#/$defs/Node' } }, { Node: node })).toEqual({
+      't.x.in.p.label': ['a'],
+      't.x.in.p.children': ['empty', 'one-item', 'several-items', 'absent'],
+      't.x.in.p.children.item.label': ['a'],
+    });
+  });
 });

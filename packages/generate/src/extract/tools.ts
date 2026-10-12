@@ -31,7 +31,7 @@ export type ToolsPrepass =
   | { ok: false; errors: ToolsIssue[] };
 
 /** How deep the pre-pass follows nested objects: `customer.email` is depth 1. */
-const MAX_DEPTH = 2;
+const MAX_DEPTH = 3;
 /** A property's whole text is its quote when it is this short; a longer one is quoted by its keyword. */
 const WHOLE_PROPERTY_QUOTE = 300;
 /** The longest quote a proposal may hold. */
@@ -163,6 +163,7 @@ function toolsOf(
         root: schema ?? new YAMLMap(),
         cohere: direction === 'in' && tool.cohere === true,
         requote,
+        stack: [],
       };
       if (direction === 'in' && tool.xml) walkXml(ctx, tool.xml);
       else if (direction === 'in' && tool.query) walkQuery(ctx, tool.query);
@@ -286,6 +287,8 @@ type Walk = {
   root: YAMLMap;
   /** The schema is a Cohere parameter_definitions mapping. */
   cohere: boolean;
+  /** The $refs being read, outermost first: a $ref entered twice is not entered again. */
+  stack: string[];
   /** Rewrites a quote to the text of the file the data was converted from. */
   requote?: Requote;
 };
@@ -358,7 +361,61 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
     const name = keyOf(pair);
     const property = resolveRef(ctx.root, pair.value);
     if (name === undefined || !isMap(property)) continue;
-    field(ctx, name, pair, property, required.has(name), requiredPair, prefix, depth);
+    const via = refOf(pair.value);
+    const items = entry(property, 'items')?.value;
+    // A $ref already entered once is read a second time for its plain properties, never a third time.
+    if (entered(ctx, via) >= 2 || entered(ctx, refOf(items)) >= 2) continue;
+    field(ctx, name, pair, property, required.has(name), requiredPair, prefix, depth, via);
+  }
+}
+
+function refOf(node: unknown): string | undefined {
+  const ref = isMap(node) ? plain(entry(node, '$ref')?.value) : undefined;
+  return typeof ref === 'string' ? ref : undefined;
+}
+
+const entered = (ctx: Walk, ref: string | undefined) =>
+  ref === undefined ? 0 : ctx.stack.filter((seen) => seen === ref).length;
+
+/** Reads a schema reached through a $ref: the ref is on the stack while its properties are read. */
+function walkVia(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number, via: string | undefined): void {
+  if (via) ctx.stack.push(via);
+  walk(ctx, schema, prefix, depth);
+  if (via) ctx.stack.pop();
+}
+
+/** An array's items: `<array>.item` (or `<array>.<position>` for a tuple), and the properties of an object item. */
+function arrayItems(
+  ctx: Walk,
+  name: string,
+  property: YAMLMap,
+  quote: (keyword?: string) => string,
+  path: string[],
+  depth: number,
+): void {
+  const tuple = entry(property, 'prefixItems')?.value ?? entry(property, 'items')?.value;
+  const children: Array<{ at: string; raw: unknown; keyword: string }> = isSeq(tuple)
+    ? tuple.items.map((raw, index) => ({
+        at: String(index),
+        raw,
+        keyword: entry(property, 'prefixItems') ? 'prefixItems' : 'items',
+      }))
+    : tuple
+      ? [{ at: 'item', raw: tuple, keyword: 'items' }]
+      : [];
+  for (const child of children) {
+    const node = resolveRef(ctx.root, child.raw);
+    if (!isMap(node)) continue;
+    const childPath = [...path, child.at];
+    const partitions = partitionsOf(
+      `${name} ${child.at}`,
+      node,
+      () => quote(child.keyword),
+      (n) => resolveRef(ctx.root, n),
+    );
+    if (partitions.length > 0) addDimension(ctx, childPath, partitions);
+    if (typesOf(node).includes('object') && depth + 1 <= MAX_DEPTH)
+      walkVia(ctx, node, childPath, depth + 1, refOf(child.raw));
   }
 }
 
@@ -372,6 +429,7 @@ function field(
   requiredPair: Pair | undefined,
   prefix: string[],
   depth: number,
+  via?: string,
 ): void {
   const path = [...prefix, name];
   const quote = quoter(ctx.text, pair, property);
@@ -393,7 +451,8 @@ function field(
   }
   if (partitions.length > 0) addDimension(ctx, path, partitions);
   else if (!types.includes('object')) ctx.open.push(path.join('.'));
-  if (types.includes('object') && depth + 1 <= MAX_DEPTH) walk(ctx, property, path, depth + 1);
+  if (types.includes('object') && depth + 1 <= MAX_DEPTH) walkVia(ctx, property, path, depth + 1, via);
+  if (types.includes('array')) arrayItems(ctx, name, property, quote, path, depth);
 }
 
 /**
