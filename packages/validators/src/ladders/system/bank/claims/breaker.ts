@@ -2739,7 +2739,7 @@ function campaignItems(): BankItem[] {
       title:
         'running.md "Exit codes" and cli.md: a bad number for an option is bad input, exit 2; --budget-usd takes a number of at least 0',
       cause:
-        'driftbench campaign plan --budget-usd exits 2 for an empty value as it does for text and negative numbers',
+        'packages/cli/src/commands/campaign.ts: parseNumber reads --budget-usd with Number(), which turns an empty string into 0; it must refuse a value that is not a number with exit 2',
       async check(ctx) {
         const dir = work(ctx, 'budget-empty');
         put(dir, 's/a.yaml', spec('a'));
@@ -4887,7 +4887,8 @@ function toolItems(): BankItem[] {
       component: 'driftbench family',
       title:
         'cli.md "driftbench family" exit codes: verify exits 2 on bad input, such as no spec under the folder',
-      cause: 'driftbench family verify exits 2 with a message for a folder that does not exist or is a file',
+      cause:
+        'packages/cli/src/main.ts: main rethrows every error that is not a CommanderError, so a file-system or parse error inside a command escapes as an uncaught throw; main must print the message on stderr and exit 2',
       check: (ctx) =>
         guarded(async () => {
           const dir = work(ctx, 'family-verify');
@@ -4911,7 +4912,7 @@ function toolItems(): BankItem[] {
       title:
         'estate.md "The commands": estate approve exits 2 for a missing file or options that do not fit; a folder given as the map is an input error, not a crash',
       cause:
-        'driftbench estate approve and estate plan approve exit 2 with a message when the path is a folder',
+        'packages/cli/src/main.ts: main rethrows every error that is not a CommanderError, so a file-system or parse error inside a command escapes as an uncaught throw; main must print the message on stderr and exit 2',
       check: (ctx) =>
         guarded(async () => {
           const dir = work(ctx, 'estate-dir');

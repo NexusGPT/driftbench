@@ -4,10 +4,13 @@ import { join } from 'node:path';
 import { type BankEntry, bankMeasure, type Measure } from '../../../ladder';
 import { adaptersItems } from './claims/adapters';
 import { breakerItems } from './claims/breaker';
+import { breaker2Items } from './claims/breaker2';
 import { checksItems } from './claims/checks';
 import { cliItems as cliClaimItems } from './claims/cli';
 import { conceptsItems } from './claims/concepts';
+import { exitItems } from './claims/exits';
 import { reportItems } from './claims/report';
+import { robustItems } from './claims/robust';
 import { specItems } from './claims/spec';
 import { cliItems } from './cli';
 import { comboItems } from './combos';
@@ -44,6 +47,9 @@ export function systemBank(): BankItem[] {
     ...cliClaimItems(),
     ...adaptersItems(),
     ...breakerItems(),
+    ...breaker2Items(),
+    ...robustItems(),
+    ...exitItems(),
     ...replayItems(),
     ...cliItems(),
     ...scaleItems(),

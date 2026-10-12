@@ -11,7 +11,17 @@ import {
   type Spec,
   validateSpec,
 } from '@driftbench/core';
-import { buildScorecard, type CampaignData } from '@driftbench/report';
+import { selectGolden } from '@driftbench/generate';
+import {
+  buildScorecard,
+  type CampaignData,
+  compareCampaigns,
+  reliability,
+  renderHtml,
+  renderJunit,
+  spread,
+  toolAccuracy,
+} from '@driftbench/report';
 import { openMemoryStore } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import { SYSTEM_COMPONENTS } from '../components';
@@ -257,7 +267,8 @@ async function storeRuns(seed: number, size: number): Promise<ItemResult> {
   }
 }
 
-async function scorecardRuns(seed: number, size: number): Promise<ItemResult> {
+/** A campaign of `size` runs of distinct specs, as the report package reads it. */
+async function campaignData(seed: number, size: number, id = 'c-card'): Promise<CampaignData> {
   const runs = await manyRuns(seed, size);
   const specs = new Map(
     runs.map(
@@ -276,7 +287,7 @@ async function scorecardRuns(seed: number, size: number): Promise<ItemResult> {
   );
   const data = {
     campaign: {
-      campaignId: 'c-card',
+      campaignId: id,
       specs: runs.map((run) => ({ id: run.specId, hash: run.specHash })),
       targets: [{ adapter: 'function' }],
       modes: ['F'],
@@ -288,6 +299,11 @@ async function scorecardRuns(seed: number, size: number): Promise<ItemResult> {
     specs,
     runs,
   } as unknown as CampaignData;
+  return data;
+}
+
+async function scorecardRuns(seed: number, size: number): Promise<ItemResult> {
+  const data = await campaignData(seed, size);
   const card = buildScorecard(data);
   return card ? PASS : fail('no scorecard');
 }
@@ -303,6 +319,66 @@ async function compoundingRuns(seed: number, size: number): Promise<ItemResult> 
 async function transcriptRuns(seed: number, size: number): Promise<ItemResult> {
   const runs = await manyRuns(seed, size);
   return compareTranscripts(runs).identical ? PASS : fail('identical runs compare as different');
+}
+
+/** The HTML report of a campaign of `size` runs: one page, every run counted in its header. */
+async function htmlReportRuns(seed: number, size: number): Promise<ItemResult> {
+  const html = renderHtml(buildScorecard(await campaignData(seed, size)));
+  return html.includes('<html') || html.includes('<!doctype') || html.includes('<!DOCTYPE')
+    ? PASS
+    : fail('renderHtml gave no page');
+}
+
+/** JUnit XML: one test per run. */
+async function junitRuns(seed: number, size: number): Promise<ItemResult> {
+  const xml = renderJunit(await campaignData(seed, size));
+  return xml.includes(`tests="${size}"`) ? PASS : fail(`the JUnit XML does not count ${size} tests`);
+}
+
+/** Reliability: one line per spec, here one run each. */
+async function reliabilityRuns(seed: number, size: number): Promise<ItemResult> {
+  const lines = reliability(await campaignData(seed, size));
+  return lines.length === size ? PASS : fail(`${lines.length} reliability lines for ${size} specs`);
+}
+
+/** A comparison of two equal campaigns: every pair is found and none regressed. */
+async function compareRuns(seed: number, size: number): Promise<ItemResult> {
+  const base = await campaignData(seed, size, 'c-base');
+  const cand = await campaignData(seed, size, 'c-cand');
+  const result = compareCampaigns(base, cand, { margin: 0.1 });
+  const regressed = result.pairs.filter((pair) => pair.baseline.allPass && !pair.candidate.allPass).length;
+  return result.pairs.length === size && regressed === 0
+    ? PASS
+    : fail(`${result.pairs.length} pairs of ${size}, ${regressed} regressed between equal campaigns`);
+}
+
+/** The spread view: it reads every run of the mode. */
+async function spreadRuns(seed: number, size: number): Promise<ItemResult> {
+  const view = spread(await campaignData(seed, size), { margin: 0.1 });
+  return view ? PASS : fail('no spread');
+}
+
+/** Tool accuracy over the runs: the planted flow calls its lookup on every block, as expected. */
+async function toolAccuracyRuns(seed: number, size: number): Promise<ItemResult> {
+  const accuracy = toolAccuracy(await campaignData(seed, size));
+  return accuracy ? PASS : fail('no tool accuracy');
+}
+
+/**
+ * The golden selection over `size` specs on a chain of cells: spec i covers cells i and i + 1, so every cell
+ * is coverable and the smallest cover holds ceil((size + 1) / 2) specs. The greedy cover must cover all.
+ */
+async function selectSpecs(_seed: number, size: number): Promise<ItemResult> {
+  const pool = Array.from({ length: size }, (_, i) => `s-${i}`);
+  const cells = Array.from({ length: size + 1 }, (_, c) => ({
+    key: `c-${c}`,
+    label: `cell ${c}`,
+    specs: [c - 1, c].filter((i) => i >= 0 && i < size).map((i) => `s-${i}`),
+  }));
+  const picked = selectGolden({ pool, cells, required: [] });
+  return picked.covered.cells === size + 1 && picked.cover.length <= size
+    ? PASS
+    : fail(`covered ${picked.covered.cells} of ${size + 1} cells with ${picked.cover.length} specs`);
 }
 
 const SUBJECTS: Subject[] = [
@@ -389,6 +465,55 @@ const SUBJECTS: Subject[] = [
     budgetMs: 10_000,
     component: SYSTEM_COMPONENTS.campaign,
     run: manyCells,
+  },
+  {
+    name: 'html-report-runs',
+    base: 10,
+    budgetMs: 10_000,
+    component: 'packages/report/src/html.ts',
+    run: htmlReportRuns,
+  },
+  {
+    name: 'junit-runs',
+    base: 10,
+    budgetMs: 10_000,
+    component: 'packages/report/src/junit.ts',
+    run: junitRuns,
+  },
+  {
+    name: 'reliability-runs',
+    base: 10,
+    budgetMs: 10_000,
+    component: 'packages/report/src/reliability.ts',
+    run: reliabilityRuns,
+  },
+  {
+    name: 'compare-runs',
+    base: 10,
+    budgetMs: 10_000,
+    component: 'packages/report/src/compare.ts',
+    run: compareRuns,
+  },
+  {
+    name: 'spread-runs',
+    base: 10,
+    budgetMs: 10_000,
+    component: 'packages/report/src/spread.ts',
+    run: spreadRuns,
+  },
+  {
+    name: 'tool-accuracy-runs',
+    base: 10,
+    budgetMs: 10_000,
+    component: 'packages/report/src/scorecard.ts',
+    run: toolAccuracyRuns,
+  },
+  {
+    name: 'select-specs',
+    base: 50,
+    budgetMs: 10_000,
+    component: 'packages/generate/src/select/cover.ts',
+    run: selectSpecs,
   },
 ];
 
