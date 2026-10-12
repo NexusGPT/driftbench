@@ -4,11 +4,11 @@ class: D5_language_switch
 title: language switch
 conversation:
   - id: d5-spanish-cheaper
-    approved: false
+    approved: true
     user: ¿Tienen algo más barato?
   - id: d5-french-monthly
-    approved: false
+    approved: true
     user: Est-ce que je peux payer chaque mois ?
   - id: d5-dutch-later
-    approved: false
+    approved: true
     user: Kan ik ook later betalen?

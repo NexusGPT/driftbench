@@ -195,6 +195,26 @@ describe('each evidence predicate as an existing check', () => {
     expect(then.gaps).toEqual([{ marker: MARKERS.static, atom: 'invariant.x', detail: 'no_orphans' }]);
   });
 
+  it('expects a whole tool a setting denies to be absent from the offered tools, a pattern rule not', () => {
+    const then = thenOf(
+      [
+        atom('tool.deny-webfetch', [{ type: 'tool_not_called', label: 'WebFetch' }], {
+          kind: 'tool',
+          fields: { tool: 'WebFetch', effect: 'deny', rule: 'WebFetch' },
+        }),
+        atom('tool.deny-rm', [{ type: 'tool_not_called', label: 'Bash' }], {
+          kind: 'tool',
+          fields: { tool: 'Bash', effect: 'deny', rule: 'Bash(rm -rf:*)' },
+        }),
+        atom('instruction.no-fetch', [{ type: 'tool_not_called', label: 'WebSearch' }]),
+      ],
+      'positive',
+      ctx,
+    );
+    expect(then.offeredExclude).toEqual(['WebFetch']);
+    expect(then.tools.map((tool) => tool.label)).toEqual(['WebFetch', 'Bash', 'WebSearch']);
+  });
+
   it('says code ran for a script atom', () => {
     const script = atom('script.x', [{ type: 'tool_called', label: 'Bash' }], { kind: 'script' });
     expect(thenOf([script], 'positive', ctx).ranCode).toBe(true);

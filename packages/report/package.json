@@ -1,9 +1,31 @@
 {
   "name": "@driftbench/report",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "version": "0.1.0",
+  "description": "Scorecards, run comparisons, spread views, HTML, text and JUnit output from a stored driftbench campaign.",
+  "keywords": [
+    "driftbench",
+    "ai-agents",
+    "evaluation",
+    "llm",
+    "testing",
+    "report",
+    "scorecard",
+    "junit"
+  ],
+  "homepage": "https://github.com/achammah/driftbench#readme",
+  "bugs": {
+    "url": "https://github.com/achammah/driftbench/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achammah/driftbench.git",
+    "directory": "packages/report"
+  },
   "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -23,5 +45,9 @@
     "@driftbench/stats": "workspace:*",
     "@driftbench/store": "workspace:*",
     "zod": "^4.6.5"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

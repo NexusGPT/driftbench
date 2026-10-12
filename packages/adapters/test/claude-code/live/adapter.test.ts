@@ -18,6 +18,7 @@ import {
   FAKE,
   givenOf,
   MAP_HASH,
+  RUNTIME_FLAGS,
   scratch,
   turnOf,
 } from './support';
@@ -47,6 +48,7 @@ async function setup(extra: Partial<ClaudeCodeLiveOptions> = {}) {
     env: { FAKE_CALLS: work.calls },
     retries: { max: 3, backoffMs: 0 },
     pins: [MAP_HASH],
+    config: 'isolated',
     ...extra,
   });
   return { adapter, work };
@@ -81,10 +83,15 @@ describe('claudeCodeLiveAdapter', () => {
     expect(executions.map((record) => record.role)).toEqual(['command', 'agent']);
     expect(executions[0]?.exitCode).toBe(0);
     expect(executions.at(-1)?.exitCode).toBe(0);
-    const raw = observed.raw as { live: { sessionId: string; attempts: unknown[]; pin: string } };
+    const raw = observed.raw as {
+      live: { sessionId: string; attempts: unknown[]; pin: string; tools: string[] };
+    };
     expect(raw.live.sessionId).toMatch(/^[0-9a-f-]{36}$/);
     expect(raw.live.attempts).toEqual([{ exitCode: 0, overloaded: false }]);
     expect(raw.live.pin).toBe(MAP_HASH);
+    // The fixture's settings deny WebFetch whole: the runtime does not offer it.
+    expect(raw.live.tools).toEqual(['Read', 'Edit', 'Write', 'Bash', 'Skill', 'Agent']);
+    expect(observed.runtime?.offered).toEqual(['Read', 'Edit', 'Write', 'Bash', 'Skill', 'Agent']);
     const file = await adapter.readArtifact?.(session, 'reports/2026-W41.md');
     expect(Buffer.from(file ?? new Uint8Array()).toString('utf8')).toContain('2 (NW-55012, NW-55031)');
   });
@@ -94,7 +101,14 @@ describe('claudeCodeLiveAdapter', () => {
     const { session, given } = await openRun(adapter);
     await adapter.send(session, turnOf(0, ASK_INVOICE, given));
     const [call] = await callsOf(work.calls);
-    expect(call?.argv).toEqual(['-p', ASK_INVOICE, '--output-format', 'stream-json', '--verbose']);
+    expect(call?.argv).toEqual([
+      '-p',
+      ASK_INVOICE,
+      '--output-format',
+      'stream-json',
+      '--verbose',
+      ...RUNTIME_FLAGS,
+    ]);
     expect(call?.ask).toBe(ASK_INVOICE);
     expect(call?.estate).toBe(true);
     const sandboxes = join(work.dir, 'sandboxes');
@@ -144,6 +158,7 @@ describe('claudeCodeLiveAdapter', () => {
       '--output-format',
       'stream-json',
       '--verbose',
+      ...RUNTIME_FLAGS,
       '--resume',
       id,
     ]);
@@ -153,6 +168,65 @@ describe('claudeCodeLiveAdapter', () => {
     expect(second.runtime?.guards).toEqual([]);
     expect(second.runtime?.stages).toEqual([]);
     expect(second.workspaceDiff?.changed).toEqual([]);
+  });
+
+  it('uses the host config folder by default, so the login reaches the run, and removes its own project folder at close', async () => {
+    const home = await scratch();
+    const work = await scratch();
+    cleanups.push(home.done, work.done);
+    const calls = work.calls;
+    const host = claudeCodeLiveAdapter({
+      command: FAKE,
+      estateRoot: ESTATE,
+      provider: localProvider({ dir: join(work.dir, 'sandboxes') }),
+      stateDir: join(work.dir, 'state'),
+      env: { FAKE_CALLS: calls, HOME: home.dir },
+      retries: { max: 3, backoffMs: 0 },
+      pins: [MAP_HASH],
+    });
+    const given = givenOf();
+    const session = await host.open(given);
+    const first = await host.send(session, turnOf(0, ASK_INVOICE, given));
+    await host.send(session, turnOf(1, ASK_INVOICE, given));
+    const seen = await callsOf(calls);
+    expect(seen.map((call) => call.configDir)).toEqual([null, null]);
+    expect(seen[1]?.found).toBe(true);
+    const projects = join(home.dir, '.claude', 'projects');
+    const folders = await readdir(projects);
+    expect(folders).toHaveLength(1);
+    const id = (first.raw as { live: { sessionId: string } }).live.sessionId;
+    expect(await readdir(join(projects, folders[0] ?? ''))).toEqual([`${id}.jsonl`]);
+    await host.close(session);
+    expect(await readdir(projects)).toEqual([]);
+  });
+
+  it('reads the guards from the hook events of the stream, named by the estate settings', async () => {
+    const { adapter } = await setup();
+    const { session, given } = await openRun(adapter);
+    const observed = await adapter.send(session, turnOf(0, 'Push the fix branch over the old one.', given));
+    expect(observed.runtime?.guards?.map((guard) => `${guard.name}:${guard.verdict}`)).toEqual([
+      'block-force-push.sh:deny',
+      'permission:WebFetch:deny',
+    ]);
+  });
+
+  it('allows the tools the estate allows, and Skill, when told to trust the estate', async () => {
+    const { adapter, work } = await setup({ trustEstate: true });
+    const { session, given } = await openRun(adapter);
+    await adapter.send(session, turnOf(0, ASK_INVOICE, given));
+    const [call] = await callsOf(work.calls);
+    const argv = call?.argv as string[];
+    const at = argv.indexOf('--allowed-tools');
+    expect(argv.slice(at, at + 7)).toEqual([
+      '--allowed-tools',
+      'Read',
+      'Grep',
+      'Glob',
+      'Bash(git status)',
+      'Bash(python3 *)',
+      'Skill',
+    ]);
+    expect(argv.indexOf('-p')).toBeGreaterThan(at);
   });
 
   it('fails a spec generated from another estate map, and runs an unpinned copy with a note', async () => {

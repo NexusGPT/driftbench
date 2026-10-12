@@ -28,26 +28,18 @@ describe('the Claude Code reader', () => {
       '.claude/agents/route-planner.md': 'subagent',
       '.claude/guards/CHECK-REGISTRY.md': 'registry',
       '.claude/guards/block-force-push.sh': 'guard_script',
-      '.claude/guards/catalogue.json': 'registry',
-      '.claude/guards/claim-window.py': 'guard_script',
       '.claude/guards/ledger-guard.py': 'guard_script',
-      '.claude/guards/lib/dispatch.py': 'other',
       '.claude/guards/read-before-edit.py': 'guard_script',
       '.claude/guards/reply-length.py': 'guard_script',
       '.claude/guards/stop-word.sh': 'guard_script',
       '.claude/memory/MEMORY.md': 'memory',
       '.claude/memory/supplier-languages.md': 'memory',
-      '.claude/processes.json': 'step_list',
       '.claude/settings.json': 'settings',
       '.claude/skills/invoice-reconcile/SKILL.md': 'skill',
       '.claude/skills/invoice-reconcile/references/currency-table.md': 'skill_file',
       '.claude/skills/invoice-reconcile/references/matching-rules.md': 'skill_file',
       '.claude/skills/invoice-reconcile/references/old-tolerances.md': 'skill_file',
       '.claude/skills/invoice-reconcile/scripts/reconcile.py': 'skill_file',
-      '.claude/skills/parcel-claims/SKILL.md': 'skill',
-      '.claude/skills/parcel-claims/references/supplier-languages.md': 'skill_file',
-      '.claude/skills/parcel-claims/scripts/check-carrier.sh': 'skill_file',
-      '.claude/skills/parcel-claims/scripts/track.sh': 'skill_file',
       '.claude/skills/shipment-tracker/SKILL.md': 'skill',
       '.claude/skills/shipment-tracker/scripts/check-carrier.sh': 'guard_script',
       '.claude/skills/shipment-tracker/scripts/track.sh': 'skill_file',
@@ -56,13 +48,7 @@ describe('the Claude Code reader', () => {
       '.claude/skills/weekly-report/templates/report.md': 'skill_file',
       '.claude/steps.json': 'step_list',
     });
-    expect(raw.notes).toEqual([
-      {
-        file: '.claude/skills/parcel-claims/SKILL.md',
-        message:
-          'frontmatter read field by field (the YAML parser said: Nested mappings are not allowed in compact mappings at line 2, column 14:)',
-      },
-    ]);
+    expect(raw.notes).toEqual([]);
   });
 
   it('reads guards from the settings and from a skill frontmatter, with the script and its anchoring', async () => {
@@ -81,7 +67,6 @@ describe('the Claude Code reader', () => {
       ['PostToolUse', 'Bash', '.claude/guards/ledger-guard.py', false, 'estate'],
       ['UserPromptSubmit', '', '.claude/guards/stop-word.sh', true, 'estate'],
       ['Stop', '', '.claude/guards/reply-length.py', true, 'estate'],
-      ['Stop', '', '.claude/guards/claim-window.py', true, 'estate'],
       [
         'PreToolUse',
         'Bash',
@@ -89,9 +74,6 @@ describe('the Claude Code reader', () => {
         true,
         'shipment-tracker',
       ],
-      ['Stop', '', '.claude/guards/claim-window.py', true, 'catalogue'],
-      ['Stop', '', undefined, true, 'catalogue'],
-      ['Stop', '', undefined, true, 'catalogue'],
     ]);
     expect(raw.guards[1]?.timeout).toBe(5);
   });
@@ -124,28 +106,14 @@ describe('the Claude Code reader', () => {
   it('reads the check registry rows by id and by quoted passage, and the step list', async () => {
     const raw = await new ClaudeCodeReader().read(FIXTURE);
     expect(raw.registry.map((row) => [row.id, row.guard, row.verdict, row.enforces])).toEqual([
-      ['C1', 'C1', undefined, [{ quote: 'Never promise the user a refund date' }]],
-      ['C2', 'C2', undefined, [{ id: 'R9' }]],
-      ['C3', 'C3', undefined, []],
       ['G1', 'block-force-push.sh', 'deny', [{ id: 'R6' }]],
       ['G2', 'read-before-edit.py', 'deny', [{ id: 'R3' }, { id: 'R5' }]],
       ['G3', 'ledger-guard.py', 'warn', [{ id: 'R4' }]],
       ['G4', 'stop-word.sh', 'nudge', [{ id: 'R10' }]],
       ['G5', 'check-carrier.sh', 'deny', [{ quote: 'Always pass the carrier code to track.sh' }]],
       ['G6', 'supplier-send-guard.py', 'deny', [{ id: 'R2' }]],
-      ['W1', 'stop-word.sh', undefined, [{ id: 'R10' }]],
-      ['W2', 'ledger-guard.py', undefined, [{ quote: 'move it to `ledger/archive/` instead' }]],
-      ['C2', 'C2', undefined, [{ id: 'R9' }]],
-      ['W3', 'claim-window.py', undefined, [{ quote: 'Never promise the user a refund date' }]],
     ]);
     expect(raw.steps.map((step) => [step.id, step.next, step.anytime])).toEqual([
-      ['claim/scan', ['claim/photos'], false],
-      ['claim/photos', ['claim/file'], false],
-      ['claim/file', [], false],
-      ['month-close/reconcile', ['month-close/audit'], false],
-      ['month-close/audit', ['month-close/report'], false],
-      ['month-close/report', [], false],
-      ['month-close/note', [], true],
       ['plan', ['do'], false],
       ['do', ['verify'], false],
       ['verify', ['report', 'do'], false],
@@ -167,8 +135,6 @@ describe('the Claude Code reader', () => {
       ['.claude/skills/invoice-reconcile/references/currency-table.md', 1],
       ['.claude/skills/invoice-reconcile/references/matching-rules.md', 1],
       ['.claude/skills/invoice-reconcile/references/old-tolerances.md', 1],
-      ['.claude/skills/parcel-claims/SKILL.md', 6],
-      ['.claude/skills/parcel-claims/references/supplier-languages.md', 1],
       ['.claude/skills/shipment-tracker/SKILL.md', 12],
       ['.claude/skills/supplier-email/SKILL.md', 5],
       ['.claude/skills/weekly-report/SKILL.md', 6],
@@ -207,15 +173,15 @@ describe('code atoms', () => {
     const counts: Record<string, number> = {};
     for (const atom of result.map.atoms) counts[atom.kind] = (counts[atom.kind] ?? 0) + 1;
     expect(counts).toEqual({
-      skill: 5,
-      route: 15,
+      skill: 4,
+      route: 13,
       subagent: 3,
-      guard: 10,
+      guard: 6,
       tool: 12,
       setting: 4,
-      stage: 12,
-      script: 4,
-      reference: 11,
+      stage: 5,
+      script: 2,
+      reference: 9,
       gate: 4,
       hazard: 2,
       invariant: 4,
@@ -263,10 +229,8 @@ describe('code atoms', () => {
       ['.claude/steps.json', true],
       ['.claude/memory/MEMORY.md', true],
       ['.claude/memory/supplier-languages.md', true],
-      ['.claude/processes.json', true],
       ['.claude/skills/invoice-reconcile/references/matching-rules.md', true],
       ['.claude/skills/invoice-reconcile/references/currency-table.md', true],
-      ['.claude/skills/parcel-claims/references/supplier-languages.md', true],
       ['.claude/memory/supplier-languages.md', true],
       ['.claude/skills/weekly-report/templates/report.md', true],
       ['.claude/skills/weekly-report/references/kpi-definitions.md', false],
@@ -278,13 +242,6 @@ describe('code atoms', () => {
         '.claude/skills/invoice-reconcile/SKILL.md',
         true,
       ],
-      // Reached through the linked scripts folder; the parcel-claims body names track.sh only.
-      [
-        '.claude/skills/parcel-claims/scripts/check-carrier.sh',
-        '.claude/skills/parcel-claims/scripts/check-carrier.sh',
-        false,
-      ],
-      ['.claude/skills/parcel-claims/scripts/track.sh', '.claude/skills/parcel-claims/SKILL.md', true],
       ['.claude/skills/shipment-tracker/scripts/track.sh', '.claude/skills/shipment-tracker/SKILL.md', true],
     ]);
   });
@@ -299,11 +256,10 @@ describe('code atoms', () => {
       ['weekly-report', { type: 'skill_loaded', name: 'weekly-report' }],
       ['ledger-auditor', { type: 'tool_called', label: 'Agent', input: { subagent_type: 'ledger-auditor' } }],
       ['route-planner', { type: 'tool_called', label: 'Agent', input: { subagent_type: 'route-planner' } }],
-      ['parcel-claims', { type: 'skill_loaded', name: 'parcel-claims' }],
     ]);
     expect(
       map.atoms.filter((atom) => atom.kind === 'route' && atom.fields?.via === 'description'),
-    ).toHaveLength(8);
+    ).toHaveLength(7);
   });
 
   it('gives each atom a stable id usable as a space value, and a quote that is in its file at its span', async () => {

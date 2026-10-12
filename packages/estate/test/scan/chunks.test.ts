@@ -6,18 +6,18 @@ import {
   proseInventory,
   proseInventoryLines,
 } from '../../src/index';
-import { estate, FIXTURE } from '../support';
+import { estate } from '../support';
+import { CASES } from './cases';
 
 describe('skill reference files as prose', () => {
   it('chunks every markdown file beside a skill, like a skill body, and never a script', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+    const raw = await new ClaudeCodeReader().read(CASES);
     const files = raw.prose.filter((chunk) => /\/(references|templates)\//.test(chunk.file));
     expect(files.map((chunk) => [chunk.id, chunk.startLine, chunk.endLine])).toEqual([
-      ['.claude/skills/invoice-reconcile/references/currency-table.md', 1, 9],
-      ['.claude/skills/invoice-reconcile/references/matching-rules.md', 1, 5],
-      ['.claude/skills/invoice-reconcile/references/old-tolerances.md', 1, 5],
+      ['.claude/skills/parcel-claims/references/claim-rules.md', 1, 11],
+      ['.claude/skills/parcel-claims/references/notes.md', 1, 3],
       ['.claude/skills/parcel-claims/references/supplier-languages.md', 1, 11],
-      ['.claude/skills/weekly-report/templates/report.md', 1, 9],
+      ['.claude/skills/shipment-tracker/references/notes.md', 1, 3],
     ]);
     expect(raw.prose.some((chunk) => /\.(sh|py)$/.test(chunk.file))).toBe(false);
     expect(DEFAULT_CHUNK_CHARACTERS).toBe(20_000);
@@ -83,26 +83,26 @@ describe('skill reference files as prose', () => {
   });
 
   it('counts the chunks by source, and lists each unanswered chunk with its size', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+    const raw = await new ClaudeCodeReader().read(CASES);
     const inventory = proseInventory(raw);
     expect(
       Object.fromEntries(Object.entries(inventory.bySource).map(([source, entry]) => [source, entry.chunks])),
-    ).toEqual({ standing: 1, memory: 2, skill: 5, reference: 5, subagent: 3, other: 0 });
+    ).toEqual({ standing: 1, memory: 2, skill: 2, reference: 4, subagent: 0, other: 0 });
     expect(inventory.characters).toBe(raw.prose.reduce((sum, chunk) => sum + chunk.text.length, 0));
     const answered = proseInventoryLines(inventory, true);
     expect(answered).toEqual([
-      `  Prose: 16 chunks, ${inventory.characters} characters (standing 1, memory 2, skill bodies 5, skill files 5, helper bodies 3).`,
+      `  Prose: 9 chunks, ${inventory.characters} characters (standing 1, memory 2, skill bodies 2, skill files 4).`,
     ]);
     const unanswered = proseInventoryLines(inventory, false);
     expect(unanswered[1]).toBe(
-      `  Unanswered prose chunks (no model call): 16, ${inventory.characters} characters.`,
+      `  Unanswered prose chunks (no model call): 9, ${inventory.characters} characters.`,
     );
     expect(unanswered).toContain(
-      `    .claude/skills/invoice-reconcile/references/matching-rules.md  ${
-        raw.prose.find((chunk) => chunk.file.endsWith('matching-rules.md'))?.text.length
+      `    .claude/skills/parcel-claims/references/claim-rules.md  ${
+        raw.prose.find((chunk) => chunk.file.endsWith('claim-rules.md'))?.text.length
       } characters`,
     );
-    expect(unanswered).toHaveLength(18);
+    expect(unanswered).toHaveLength(11);
     expect(proseInventoryLines(proseInventory({ ...raw, prose: [] }), false)).toEqual(['  Prose: none.']);
   });
 });

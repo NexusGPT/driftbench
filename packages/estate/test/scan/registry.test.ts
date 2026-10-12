@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
-import { estate, FIXTURE, NOW } from '../support';
+import { estate, NOW } from '../support';
+import { CASES } from './cases';
 
 const SETTINGS = JSON.stringify({
   hooks: {
@@ -130,23 +131,51 @@ describe('the check registry, any column set', () => {
     });
   });
 
-  it('reads the fixture registry: the first table by its guard column, the second by its ids', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+  it('reads the reader-cases registry: the first table by its guard column, the second by its ids', async () => {
+    const raw = await new ClaudeCodeReader().read(CASES);
     const table = raw.registry.filter((row) => row.origin !== 'catalogue');
     expect(table.map((row) => [row.id, row.guard, row.state ?? ''])).toEqual([
       ['G1', 'block-force-push.sh', ''],
-      ['G2', 'read-before-edit.py', ''],
-      ['G3', 'ledger-guard.py', ''],
-      ['G4', 'stop-word.sh', ''],
-      ['G5', 'check-carrier.sh', ''],
-      ['G6', 'supplier-send-guard.py', ''],
-      ['W1', 'stop-word.sh', 'enforce'],
-      ['W2', 'ledger-guard.py', 'observe'],
+      ['W1', 'block-force-push.sh', 'enforce'],
+      ['W2', 'block-force-push.sh', 'observe'],
       ['C2', 'C2', 'observe'],
       ['W3', 'claim-window.py', 'enforce'],
+      ['W4', 'claim-window.py', 'observe'],
+      ['W5', 'claim-window.py', 'observe'],
+      ['HANDBACK', 'claim-window.py', 'observe'],
+      ['STOP-WAKE', 'claim-window.py', 'observe'],
     ]);
     expect(raw.registry.find((row) => row.id === 'W2')?.enforces).toEqual([
-      { quote: 'move it to `ledger/archive/` instead' },
+      { quote: 'Never run `git push --force` on any branch' },
+    ]);
+  });
+
+  it('splits an id cell that names several checks, and keeps a cell of words as one id', async () => {
+    const root = await estate({
+      'CLAUDE.md': '# Rules\n',
+      '.claude/settings.json': SETTINGS,
+      '.claude/hooks/shell.py': '# Runs K1, G2, G3, G9, HANDBACK and STOP-WAKE.\nimport sys\n',
+      '.claude/hooks/reply.py': 'import sys\n',
+      '.claude/hooks/CHECK-REGISTRY.md': [
+        '| Id | Adapter | Fires when |',
+        '|---|---|---|',
+        '| `G2` `G3` `G9` | shell | R1 |',
+        '| HANDBACK` / `STOP-WAKE | shell | R1 |',
+        '| G2, G3 | shell | R1 |',
+        '| Reply length | `reply.py` | R2 |',
+        '',
+      ].join('\n'),
+    });
+    const raw = await new ClaudeCodeReader().read(root);
+    expect(raw.registry.map((row) => [row.id, row.guard, row.at.startLine])).toEqual([
+      ['G2', 'shell.py', 3],
+      ['G3', 'shell.py', 3],
+      ['G9', 'shell.py', 3],
+      ['HANDBACK', 'shell.py', 4],
+      ['STOP-WAKE', 'shell.py', 4],
+      ['G2', 'shell.py', 5],
+      ['G3', 'shell.py', 5],
+      ['Reply length', 'reply.py', 6],
     ]);
   });
 });

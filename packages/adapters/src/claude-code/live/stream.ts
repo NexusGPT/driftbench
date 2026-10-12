@@ -1,18 +1,25 @@
 import { isRecord, type JsonlLine, parseJsonl, stringField } from '../format';
 
 /**
- * The headless stream, as this runner reads it. Written from public knowledge of the shape and NOT verified
- * against a live run yet: the first billed run checks it.
+ * The headless stream, as this runner reads it, checked against the runtime (2.1.296) in the first real run,
+ * 2026-10-12.
  *
  * `<runtime> -p <prompt> --output-format stream-json --verbose` prints one JSON record per line:
- * - `system` with `subtype: init`: `session_id`, `cwd`, `model`, `tools`. Opens the stream.
- * - `assistant`: `message` as in the session file (text, tool_use and thinking blocks, `id`, `usage`).
- * - `user`: `message.content` with `tool_result` blocks, the results of the calls before it.
- * - `result`: closes the stream. `subtype` (success or an error kind), `is_error`, `result` (the final
- *   text), `num_turns`, `duration_ms`, `total_cost_usd`, `usage`.
+ * - `system` with `subtype: init`: `session_id`, `cwd`, `model`, `tools` (the tools offered; a tool a
+ *   setting denies is absent), `memory_paths`, `skills`. It is not the first line: with
+ *   `--include-hook-events` the UserPromptSubmit hook records come before it.
+ * - `assistant`: `message` as in the session file (text, tool_use and thinking blocks, `id`, `usage`), with
+ *   `timestamp`, `uuid`, `parent_tool_use_id`.
+ * - `user`: `message.content` with `tool_result` blocks, `timestamp`, and the structured result as
+ *   `tool_use_result` (the session file says `toolUseResult`).
+ * - other `system` records: `hook_started`, `hook_response` (`hook_name`, `hook_event`, `exit_code`,
+ *   `outcome`, `stdout`, `stderr`), `permission_denied` (`tool_name`), `thinking_tokens`; none has a
+ *   timestamp. A `rate_limit_event` record carries the provider's rate state.
+ * - `result`: closes the stream. `subtype` (`success`, `error_max_turns`, ...), `is_error`, `result` (the
+ *   final text; absent when the turns ran out), `num_turns`, `duration_ms`, `total_cost_usd`, `usage`,
+ *   `permission_denials`. A run ending on an error exits 1 with its stream intact.
  * Records a helper writes carry `parent_tool_use_id` (the id of the Agent call that started it); they are
- * the helper's acts, not the agent's. Every record may carry `session_id`; this reader also takes a
- * `timestamp` when the stream has one (the real stream may not; then order is the only clock).
+ * the helper's acts, not the agent's.
  *
  * The runner turns one stream into session-file records (see `../format.ts`) so the session adapter maps
  * it into one block: a typed user record with the ask opens the block, the stream's records follow.
@@ -32,6 +39,8 @@ export type ParsedStream = {
   /** The session id the runtime gave the run, from the init record or any record carrying one. */
   sessionId?: string;
   model?: string;
+  /** The tools the runtime offered the agent, from the init record. A tool a setting denies is not offered. */
+  tools?: string[];
   /** The closing result record, when the stream has one. */
   result?: StreamResult;
   /** Records in order, as parsed. */
@@ -58,6 +67,8 @@ export function parseStream(text: string): ParsedStream {
       init = true;
       const model = stringField(record, 'model');
       if (model !== undefined) out.model = model;
+      if (Array.isArray(record.tools))
+        out.tools = record.tools.filter((tool): tool is string => typeof tool === 'string');
     }
     if (type === 'result') out.result = resultOf(record);
   }
@@ -151,6 +162,11 @@ export function normaliseStream(input: NormaliseInput): string[] {
     const type = stringField(record, 'type');
     const base: Record<string, unknown> = { ...common, ...record };
     delete base.session_id;
+    // The stream names the structured tool result `tool_use_result`; the session file `toolUseResult`.
+    if (base.tool_use_result !== undefined && base.toolUseResult === undefined) {
+      base.toolUseResult = base.tool_use_result;
+      delete base.tool_use_result;
+    }
     const helper = typeof record.parent_tool_use_id === 'string' && record.parent_tool_use_id !== '';
     if (helper) base.isSidechain = true;
     if (type === 'system' || type === 'result') {
@@ -176,4 +192,93 @@ function typedText(record: Record<string, unknown>): boolean {
 
 function count(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+/** One guard row, in the shape of a decision-log row. */
+export type HookRow = { at: string; event: string; check: string; verdict: string };
+
+/**
+ * Guard rows from the stream itself, seen in the first real run with `--include-hook-events`:
+ * - a `hook_response` system record (`hook_name` is `<event>:<matcher>` or `<event>`, `exit_code`, `stdout`)
+ *   gives a row; the verdict is the `permissionDecision` or `decision` a JSON stdout names, else deny for
+ *   exit code 2, allow for 0 and error otherwise;
+ * - a `permission_denied` system record gives `permission:<tool>` with verdict deny.
+ * The record names no command, so the row is named by the script of the one hook the estate's settings put
+ * under that event and matcher (`block-force-push.sh`), and by `<event>:<matcher>` when the settings hold
+ * none or several. Hook records carry no time; every row takes the turn's start, so it falls in the turn.
+ */
+export function hookDecisions(parsed: ParsedStream, settings: unknown, at: string): HookRow[] {
+  const rows: HookRow[] = [];
+  for (const entry of parsed.lines) {
+    if (!entry.ok || !isRecord(entry.value)) continue;
+    const record = entry.value;
+    if (stringField(record, 'type') !== 'system') continue;
+    const subtype = stringField(record, 'subtype');
+    if (subtype === 'permission_denied') {
+      const tool = stringField(record, 'tool_name') ?? 'unknown';
+      rows.push({ at, event: 'PermissionRequest', check: `permission:${tool}`, verdict: 'deny' });
+      continue;
+    }
+    if (subtype !== 'hook_response') continue;
+    const name = stringField(record, 'hook_name') ?? stringField(record, 'hook_event') ?? 'hook';
+    const event = stringField(record, 'hook_event') ?? name.split(':')[0] ?? name;
+    const matcher = name.includes(':') ? name.slice(name.indexOf(':') + 1) : undefined;
+    rows.push({ at, event, check: scriptOf(settings, event, matcher) ?? name, verdict: verdictOf(record) });
+  }
+  return rows;
+}
+
+function verdictOf(record: Record<string, unknown>): string {
+  const stdout = stringField(record, 'stdout') ?? '';
+  if (stdout.trim().startsWith('{')) {
+    try {
+      const output: unknown = JSON.parse(stdout);
+      if (isRecord(output)) {
+        const specific = isRecord(output.hookSpecificOutput) ? output.hookSpecificOutput : {};
+        const decision = stringField(specific, 'permissionDecision') ?? stringField(output, 'decision');
+        if (decision !== undefined) return decision === 'block' ? 'deny' : decision;
+      }
+    } catch {
+      // Not JSON after all: the exit code decides.
+    }
+  }
+  const code = record.exit_code;
+  if (code === 2) return 'deny';
+  if (code === 0) return 'allow';
+  return 'error';
+}
+
+/**
+ * Whether a settings matcher covers a hook name's suffix. The runtime names a hook by the tool it ran for
+ * (`PreToolUse:Edit` under the matcher `Edit|Write`, seen live), so the matcher is read as the runtime reads
+ * it, a pattern over the tool name, and the suffix may also be the matcher itself.
+ */
+function matches(own: string | undefined, suffix: string | undefined): boolean {
+  if (own === undefined || suffix === undefined) return own === suffix;
+  if (own === suffix) return true;
+  try {
+    return new RegExp(`^(?:${own})$`).test(suffix);
+  } catch {
+    return false;
+  }
+}
+
+/** The script name of the one command hook the settings put under the event and matcher. */
+function scriptOf(settings: unknown, event: string, matcher: string | undefined): string | undefined {
+  const hooks = isRecord(settings) && isRecord(settings.hooks) ? settings.hooks : undefined;
+  const groups = hooks?.[event];
+  if (!Array.isArray(groups)) return undefined;
+  const commands: string[] = [];
+  for (const group of groups) {
+    if (!isRecord(group)) continue;
+    const own = typeof group.matcher === 'string' && group.matcher !== '' ? group.matcher : undefined;
+    if (!matches(own, matcher)) continue;
+    for (const hook of Array.isArray(group.hooks) ? group.hooks : []) {
+      if (isRecord(hook) && typeof hook.command === 'string') commands.push(hook.command);
+    }
+  }
+  if (commands.length !== 1) return undefined;
+  const words = (commands[0] ?? '').split(/\s+/).map((word) => word.replace(/["']/g, ''));
+  const script = [...words].reverse().find((word) => /\.[A-Za-z0-9]+$/.test(word)) ?? words.at(-1);
+  return script?.split('/').at(-1);
 }

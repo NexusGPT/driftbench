@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate, scriptOf } from '../../src/index';
-import { estate, FIXTURE, NOW } from '../support';
+import { estate, NOW } from '../support';
+import { CASES } from './cases';
 
 const PATHS = new Set([
   '.claude/hooks/lib/run.py',
@@ -85,8 +86,8 @@ describe('guard commands behind a prefix or a dispatcher', () => {
     expect(raw.registry.map((row) => row.guard)).toEqual(['reply.py']);
   });
 
-  it('resolves the fixture guard that runs through the dispatcher', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+  it('resolves the reader-cases guard that runs through the dispatcher', async () => {
+    const raw = await new ClaudeCodeReader().read(CASES);
     const dispatched = raw.guards.filter((guard) => guard.dispatcher);
     expect(dispatched.map((guard) => [guard.event, guard.script, guard.dispatcher, guard.anchored])).toEqual([
       ['Stop', '.claude/guards/claim-window.py', '.claude/guards/lib/dispatch.py', true],
@@ -96,7 +97,7 @@ describe('guard commands behind a prefix or a dispatcher', () => {
   });
 
   it('counts the dispatcher as named and reached, so it is neither an orphan nor unreachable', async () => {
-    const { map, analysis } = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, analysis } = await scanEstate({ root: CASES, reader: new ClaudeCodeReader(), now: NOW });
     const guard = map.atoms.find((atom) => atom.fields?.dispatcher !== undefined);
     expect(guard?.fields).toMatchObject({
       name: 'claim-window.py',

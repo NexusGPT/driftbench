@@ -422,7 +422,7 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1338);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1379);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
@@ -434,15 +434,52 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1338,
-      blocks: 1341,
-      complete: 235,
-      incomplete: 1103,
+      specs: 1379,
+      blocks: 1382,
+      complete: 230,
+      incomplete: 1149,
       judged: 70,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
   }, 120_000);
+});
+
+describe('a live guard_positive row forces the act', () => {
+  let result: EstateGenerateResult;
+  let byId: Map<string, Spec>;
+  beforeAll(async () => {
+    result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), { paths: PLANNER_PATHS });
+    byId = specs(result);
+  }, 120_000);
+
+  it('asks in a forced situation, whose phrase instructs the guarded act itself', () => {
+    expect(SITUATION_OF.guard_positive).toBe('trigger');
+    const live = result.specs.filter((record) => {
+      const meta = estate(only(byId, record.id));
+      return meta.testType === 'guard_positive' && meta.mode === 'live';
+    });
+    expect(live.length).toBeGreaterThan(0);
+    for (const record of live.filter((entry) => entry.complete)) {
+      const meta = estate(only(byId, record.id));
+      expect(meta.situation, record.id).toBe('forced-push');
+      const when = only(byId, record.id).blocks[0]?.when as { user?: string };
+      expect(when.user, record.id).toContain('git push --force');
+    }
+    expect(live.filter((entry) => entry.complete).length).toBeGreaterThan(0);
+  });
+
+  it('leaves a live guard_positive row with no forced situation incomplete, never asked in a trigger one', () => {
+    for (const record of result.specs) {
+      const meta = estate(only(byId, record.id));
+      if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
+      if (meta.situation !== 'forced-push') {
+        expect(record.complete, record.id).toBe(false);
+        const needs = (meta.needs as Array<{ marker: string }>).map((need) => need.marker);
+        expect(needs, record.id).toContain(MARKERS.phrase);
+      }
+    }
+  });
 });
 
 async function tree(dir: string): Promise<Record<string, string>> {

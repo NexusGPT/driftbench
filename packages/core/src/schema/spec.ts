@@ -119,6 +119,85 @@ export const GuardExpect = z
   );
 export type GuardExpect = z.infer<typeof GuardExpect>;
 
+/** Which tools the runtime must offer the agent, and which it must not: a denied tool is not offered. */
+export const ToolsOfferedExpect = z
+  .strictObject({
+    include: z.array(z.string().min(1)).optional().describe('Tools the runtime must offer.'),
+    exclude: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('Tools the runtime must not offer, such as a tool a setting denies.'),
+  })
+  .describe('The tools the runtime offers the agent, read from the runtime trace; calls do not count.');
+export type ToolsOfferedExpect = z.infer<typeof ToolsOfferedExpect>;
+
+/** A file the agent must have read during the block: a skill file, a reference, a source. */
+export const ReferenceExpect = z
+  .strictObject({
+    path: z
+      .string()
+      .min(1)
+      .describe('The path read, or a glob: * matches within a folder, ** across folders, ? one character.'),
+    count: Count.optional().describe('How many reads of a matching file. 0 means it must not be read.'),
+  })
+  .describe('A file the agent must read during the block, by path or glob.');
+export type ReferenceExpect = z.infer<typeof ReferenceExpect>;
+
+/** A helper the agent must dispatch during the block. The adapter maps the runtime's own names. */
+export const SubagentExpect = z
+  .strictObject({
+    name: z.string().min(1).describe('The helper name, as the adapter reports it.'),
+    model: z.string().min(1).optional().describe('The model the helper must run on.'),
+    count: Count.optional().describe('How many dispatches. 0 means the helper must not be dispatched.'),
+  })
+  .describe('A helper the agent must dispatch during the block, with an optional model.');
+export type SubagentExpect = z.infer<typeof SubagentExpect>;
+
+/** A reference text the reply must be close to, scored by the similarity check's embedder. */
+export const SimilarityExpect = z
+  .strictObject({
+    reference: z.string().min(1).describe('The text the reply is compared with.'),
+    min: z
+      .number()
+      .min(0)
+      .max(1)
+      .describe('The lowest similarity that passes, from 0 to 1, as the embedder scores it.'),
+  })
+  .describe('A reference text the reply must be close to, with the lowest score that passes.');
+export type SimilarityExpect = z.infer<typeof SimilarityExpect>;
+
+/** The reply must address the ask of the block: its key terms appear in the reply. */
+export const RelevancyExpect = z
+  .strictObject({
+    min: z
+      .number()
+      .min(0)
+      .max(1)
+      .optional()
+      .describe('The share of the key terms that must appear in the reply, from 0 to 1. Default 0.5.'),
+    terms: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('The key terms of the ask. Without them, the check takes the words of the stimulus.'),
+  })
+  .describe('The reply addresses the ask of the block: a share of its key terms appears in the reply.');
+export type RelevancyExpect = z.infer<typeof RelevancyExpect>;
+
+/** A fact the ledger holds that the reply must not ask for again, and may have to use. */
+export const RetentionExpect = z
+  .strictObject({
+    fact: z.string().min(1).describe('The ledger key of the fact, given in an earlier block.'),
+    use: z
+      .boolean()
+      .optional()
+      .describe('True when the block must use the fact: its value appears in the reply or a tool input.'),
+    ask: Pattern.optional().describe(
+      'A pattern that marks a question asking for the fact again. Default: the words of the key.',
+    ),
+  })
+  .describe('A fact the user gave earlier: the block must not ask for it again, and may have to use it.');
+export type RetentionExpect = z.infer<typeof RetentionExpect>;
+
 export const ExecutionExpect = z
   .strictObject({
     ran_code: z.boolean().optional().describe('True when the block must run code; false when it must not.'),
@@ -188,12 +267,24 @@ export const Expect = z
       .optional()
       .describe('Facts the block establishes. They join the ledger.'),
     tools: z.array(ToolExpect).optional().describe('The tool calls expected in the block.'),
+    tools_offered: ToolsOfferedExpect.optional().describe(
+      'The tools the runtime must offer and must not offer, whether or not the agent calls them.',
+    ),
     tool_order: z
       .enum(['exact', 'in_order', 'any_order'])
       .optional()
       .describe('How the expected tools line up with the observed calls: exact, in_order or any_order.'),
     must: z.array(Pattern).optional().describe('Patterns the visible text must match.'),
     must_not: z.array(Pattern).optional().describe('Patterns the visible text must not match.'),
+    similarity: z
+      .array(SimilarityExpect)
+      .optional()
+      .describe('Reference texts the reply must be close to, each with its lowest passing score.'),
+    relevancy: RelevancyExpect.optional().describe('The reply addresses the ask of the block.'),
+    knowledge_retention: z
+      .array(RetentionExpect)
+      .optional()
+      .describe('Facts given earlier that the block must not ask for again, and may have to use.'),
     lang: Lang.optional().describe('The language of the reply.'),
     cards: z.array(CardExpect).optional().describe('The cards expected in the block.'),
     criteria: z
@@ -205,6 +296,14 @@ export const Expect = z
       .array(GuardExpect)
       .optional()
       .describe('The runtime checks expected in the block, with their verdict and count.'),
+    references: z
+      .array(ReferenceExpect)
+      .optional()
+      .describe('The files the agent must read in the block, by path or glob, with a count.'),
+    subagents: z
+      .array(SubagentExpect)
+      .optional()
+      .describe('The helpers the agent must dispatch in the block, by name and model, with a count.'),
     execution: ExecutionExpect.optional().describe('What the agent runs.'),
     artifacts: z.array(ArtifactExpect).optional().describe('The files the block must produce.'),
     workspace: WorkspaceExpect.optional().describe('The workspace diff expected.'),

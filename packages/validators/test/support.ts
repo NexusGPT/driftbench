@@ -1,4 +1,4 @@
-import { bankMeasure, defineLadder, type Ladder } from '../src/index';
+import { bankMeasure, defineLadder, type JournalRow, type Ladder, measureHardness } from '../src/index';
 
 /** A fixture ladder of three levels. Level 2 fails on the seeds listed in `failOn`; the calls are counted. */
 export function plantedLadder(failOn: readonly number[] = [1, 2, 3], component = 'planted') {
@@ -96,6 +96,7 @@ export function journalOf(
   passing: readonly number[],
   bankSize: number,
   tiers: Record<string, number> = {},
+  causes: (failing: number) => number | undefined = (failing) => failing,
 ): unknown[] {
   return passing.map((value, iteration) =>
     journalRow(iteration, {
@@ -108,6 +109,9 @@ export function journalOf(
       passing: value,
       failingByFamily: { core: bankSize - value },
       bankByFamilyTier: { core: Object.keys(tiers).length > 0 ? tiers : { '1': bankSize } },
+      ...(causes(bankSize - value) !== undefined
+        ? { failingCauses: causes(bankSize - value), failingWithoutCause: 0 }
+        : {}),
       result: iteration === 0 ? 'baseline' : 'unchanged',
     }),
   );
@@ -117,7 +121,8 @@ export function journalOf(
  * A fixture ladder on a bank. Level 1 (core) holds six items in families alpha and beta; the item a3 fails on
  * the seeds in `failOn`. Level 2 (deep) holds four items of family gamma; g4 always fails. Calls are counted.
  */
-export function bankLadder(failOn: readonly number[] = [2]) {
+export function bankLadder(failOn: readonly number[] = [2], options: { hints?: boolean } = {}) {
+  const hint = (text: string) => (options.hints ? ` Fix: ${text}` : '');
   const calls = { core: 0, deep: 0 };
   const ladder: Ladder = defineLadder({
     component: 'banked',
@@ -140,7 +145,8 @@ export function bankLadder(failOn: readonly number[] = [2]) {
                 family: 'alpha',
                 tier: 3,
                 pass: !failOn.includes(seed),
-                detail: `a3 missed on seed ${seed}`,
+                detail: `a3 missed on seed ${seed}.${hint('keep the last field in the parser.')}`,
+                cause: 'the parser drops the last field',
               },
               { id: 'b1', component: 'fixture/b', family: 'beta', tier: 1, pass: true },
               { id: 'b2', component: 'fixture/b', family: 'beta', tier: 4, pass: true },
@@ -167,7 +173,8 @@ export function bankLadder(failOn: readonly number[] = [2]) {
               family: 'gamma',
               tier: 5,
               pass: false,
-              detail: 'g4 is unsolved',
+              detail: `g4 is unsolved.${hint('read the trailing field.')}`,
+              cause: 'the parser drops the last field',
             },
           ]);
         },
@@ -175,4 +182,20 @@ export function bankLadder(failOn: readonly number[] = [2]) {
     ],
   });
   return { ladder, calls };
+}
+
+/** An audit.md where all four checks pass (section 12.7). */
+export const PASSING_AUDIT = [
+  '| Check | Verdict | Note |',
+  '|---|---|---|',
+  '| blind pilot | pass | |',
+  '| cheater | pass | |',
+  '| cause review | pass | |',
+  '| planted bugs | pass | |',
+  '',
+].join('\n');
+
+/** The hardness of journal rows with a passing audit by default, so a test measures everything else; null: no audit.md. */
+export function hard(rows: readonly JournalRow[], audit: string | null = PASSING_AUDIT) {
+  return measureHardness(rows, audit === null ? {} : { audit });
 }

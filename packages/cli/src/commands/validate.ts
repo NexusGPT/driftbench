@@ -1,18 +1,22 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import {
+  allFailingItems,
   appendJournal,
   bankSummary,
+  blindReport,
   checkFloors,
   checkHandover,
   composeBrief,
   type DiffReader,
   EXECUTOR_FILE,
+  executorOf,
   FLOORS_FILE,
   type FloorsFile,
   findRoot,
   floorNote,
   floorOf,
+  formatAllFailing,
   formatHardness,
   formatItems,
   formatLadder,
@@ -26,6 +30,7 @@ import {
   type Ladder,
   type LadderReport,
   ladderVersion,
+  loopFolder,
   measureHardness,
   PROTECTED_PATHS,
   parseSeeds,
@@ -66,6 +71,8 @@ export type ValidateCommandOptions = {
   items?: boolean;
   hardness?: boolean;
   ladderVersion?: string;
+  allLevels?: boolean;
+  blind?: boolean;
 };
 
 /** What the command runs with. Tests pass their own ladders, root and commit reader. */
@@ -112,6 +119,14 @@ export function registerValidateCommand(
     .option(
       '--items',
       'also list the whole bank per family and tier, pass or fail per seed, from the same run',
+    )
+    .option(
+      '--all-levels',
+      'compute every level and list every failing item with its level, family, tier and cause',
+    )
+    .option(
+      '--blind',
+      'the auditor view: strip every cause and trailing "Fix:" hint from items, text and JSON',
     )
     .option(
       '--hardness',
@@ -164,10 +179,12 @@ export async function validateCommand(
     return USAGE_EXIT;
   }
   if (
-    options.items &&
+    (options.items || options.allLevels || options.blind) &&
     (options.brief || options.journal !== undefined || options.checkHandover || options.hardness)
   ) {
-    io.err('--items goes with a run, not with --brief, --journal, --check-handover or --hardness.\n');
+    io.err(
+      '--items, --all-levels and --blind go with a run, not with --brief, --journal, --check-handover or --hardness.\n',
+    );
     return USAGE_EXIT;
   }
   if (options.fresh && !options.brief) {
@@ -192,7 +209,10 @@ export async function validateCommand(
   if (hidden?.note && !options.json) io.out(`Note: ${hidden.note}\n`);
   const reports: LadderReport[] = [];
   for (const ladder of chosen) {
-    reports.push(await runSeeds(ladder, seedSpecs(visible, hidden), root, { full: Boolean(options.items) }));
+    const report = await runSeeds(ladder, seedSpecs(visible, hidden), root, {
+      full: Boolean(options.items || options.allLevels),
+    });
+    reports.push(options.blind ? blindReport(report) : report);
   }
   if (options.brief)
     return briefCommand(reports[0] as LadderReport, hidden, floors, Boolean(options.fresh), deps, root, io);
@@ -252,7 +272,8 @@ function hardnessCommand(component: string, json: boolean, root: string, io: Io)
   }
   let hardness: ReturnType<typeof measureHardness>;
   try {
-    hardness = measureHardness(rows);
+    const auditPath = join(root, `${loopFolder(component)}/audit.md`);
+    hardness = measureHardness(rows, existsSync(auditPath) ? { audit: readFileSync(auditPath, 'utf8') } : {});
   } catch (cause) {
     io.err(`${journalFile(component)}: ${message(cause)}.\n`);
     return USAGE_EXIT;
@@ -278,6 +299,12 @@ function journalCommand(ladder: Ladder, path: string, floors: FloorsFile, root: 
     for (const reason of result.refused) io.err(`  ${reason}\n`);
     return 1;
   }
+  if (executorOf(result.row) === 'blind') {
+    io.out(
+      `Appended blind iteration ${result.row.iteration} to ${journalFile(component)}; blind row: HANDOVER.md was not touched.\n`,
+    );
+    return 0;
+  }
   const handover =
     readHandover(root, component) ??
     handoverTemplate(component, floorOf(floors, component, ladderVersion(ladder)));
@@ -298,7 +325,7 @@ function handoverCheckCommand(ladders: Ladder[], root: string, io: Io): number {
     const text = readHandover(root, ladder.component);
     const all = [...problems];
     if (text === undefined) all.push(`${handoverFile(ladder.component)} is missing`);
-    else all.push(...checkHandover(text, rows.at(-1)));
+    else all.push(...checkHandover(text, rows.filter((row) => executorOf(row) === 'builder').at(-1)));
     if (all.length === 0) {
       io.out(
         `${handoverFile(ladder.component)}: every section present, the level table matches the journal.\n`,
@@ -443,7 +470,8 @@ function print(
     const shown = reports.map((report) => ({
       ...report,
       ...(hidden ? { hiddenSeed: hidden } : {}),
-      ...(options.items ? { bank: bankSummary(report) } : {}),
+      ...(options.items ? { bank: shownBank(report, options) } : {}),
+      ...(options.allLevels ? { failingItems: allFailingItems(report) } : {}),
     }));
     io.out(`${JSON.stringify(all ? { reports: shown } : shown[0], null, 2)}\n`);
     return;
@@ -456,10 +484,24 @@ function print(
           floor: floorOf(floors, report.component, report.ladderVersion),
           ...(note ? { floorNote: note } : {}),
         });
-        return options.items ? `${table}\n${formatItems(bankSummary(report), report.component)}` : table;
+        const items = options.items
+          ? `\n${formatItems(bankSummary(report), report.component, { blind: Boolean(options.blind) })}`
+          : '';
+        const failing = options.allLevels
+          ? `\n${formatAllFailing(allFailingItems(report), report.component)}`
+          : '';
+        return `${table}${items}${failing}`;
       })
       .join('\n'),
   );
+}
+
+/** The bank of a report for JSON; the blind view drops the cause counts, which the auditor must not see. */
+function shownBank(report: LadderReport, options: ValidateCommandOptions) {
+  const bank = bankSummary(report);
+  if (!options.blind) return bank;
+  const { failingCauses: _c, failingWithoutCause: _w, failingCausesByFamily: _f, ...rest } = bank;
+  return { ...rest, rows: rest.rows.map(({ cause: _cause, ...row }) => row) };
 }
 
 function message(cause: unknown): string {

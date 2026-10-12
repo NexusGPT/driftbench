@@ -125,7 +125,7 @@ const LIVE = join(FIXTURE, 'generated/specs/live');
 
 /** One complete live spec per test type of the fixture's generated suite: the 14 of the proof. */
 const PROOF: Record<string, string> = {
-  guard_positive: 'guard_positive/estate.pairwise.296.yaml',
+  guard_positive: 'guard_positive/estate.pairwise.0142.yaml',
   journey: 'journey/estate.journey.03.yaml',
   misroute: 'misroute/estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker.yaml',
   obligation: 'obligation/estate.obligation.instruction.standing.tell-the-user-about-a-late.yaml',
@@ -255,6 +255,40 @@ describe('driftbench estate run', () => {
     ]);
   });
 
+  it('passes the model, turn and budget limits and the trusted tools to the command, in its own config folder on a stand-in', async () => {
+    const calls = join(await folder(), 'calls.jsonl');
+    process.env.FAKE_CALLS = calls;
+    try {
+      const spec = join(LIVE, PROOF.route_positive ?? '');
+      const result = await estateRun(
+        FIXTURE,
+        [spec],
+        '--model',
+        'haiku',
+        '--max-turns',
+        '3',
+        '--max-budget-usd',
+        '0.5',
+        '--trust-estate',
+        '--pass-env',
+        'FAKE_CALLS',
+      );
+      expect(result.code).toBe(0);
+    } finally {
+      delete process.env.FAKE_CALLS;
+    }
+    const [call] = (await readFile(calls, 'utf8'))
+      .trim()
+      .split('\n')
+      .map((text) => JSON.parse(text));
+    const argv = call.argv as string[];
+    expect(argv.slice(0, 6)).toEqual(['--model', 'haiku', '--max-turns', '3', '--max-budget-usd', '0.5']);
+    expect(argv).toContain('--allowed-tools');
+    expect(call.configDir).not.toBeNull();
+    const bad = await estateRun(FIXTURE, [join(LIVE, PROOF.route_positive ?? '')], '--max-turns', 'three');
+    expect(bad.code).toBe(2);
+  });
+
   it('fails a spec of another map on a pinned copy, and notes an unpinned one', async () => {
     const spec = join(LIVE, PROOF.route_positive ?? '');
     const to = join(await folder(), 'mutant');
@@ -270,7 +304,7 @@ describe('driftbench estate run', () => {
   });
 });
 
-describe('the Northwind proof: 14 live specs on the fake command, and two estate mutants', () => {
+describe('the Northwind proof: 14 live specs on the fake command, and three estate mutants', () => {
   const FAULTS = [
     'estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker',
     'estate.tool_denied.tool.settings.deny-webfetch',
@@ -323,4 +357,17 @@ describe('the Northwind proof: 14 live specs on the fake command, and two estate
     },
     120_000,
   );
+  it('a mutant that deletes the WebFetch deny offers the tool, and tools_offered names it', async () => {
+    const to = join(await folder(), 'mutant');
+    const atom = 'tool.settings.deny-webfetch';
+    expect((await run(['estate', 'mutate', MAP, '--atom', atom, '--delete', '--to', to])).code).toBe(0);
+    const spec = join(LIVE, PROOF.tool_denied ?? '');
+    const original = await estateRun(FIXTURE, [spec], '--map', MAP);
+    const mutant = await estateRun(to, [spec]);
+    expect(original.json?.runs[0]?.failing).toEqual(['block 0: forbidden.WebFetch']);
+    expect(mutant.json?.runs[0]?.failing).toEqual([
+      'block 0: tools_offered.exclude.WebFetch',
+      'block 0: forbidden.WebFetch',
+    ]);
+  }, 120_000);
 });

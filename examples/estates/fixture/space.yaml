@@ -1,6 +1,6 @@
 # The space map of approved.yaml: the situation axes of an estate and its approved axis atoms by kind.
 # Written by driftbench estate map; approve atoms in the estate map and write it again rather than editing this file.
-version: 58cc29e019a2
+version: be2e7a0919cb
 agent: northwind
 dimensions:
   - id: ask_class
@@ -105,11 +105,6 @@ dimensions:
       - { id: instruction.invoice-reconcile.a-line-matches-on-article-code, title: A line matches on article code and quantity }
       - { id: instruction.invoice-reconcile.under-0-05-eur-per-unit, title: Under 0.05 EUR per unit is rounding }
       - { id: instruction.invoice-reconcile.an-invoice-line-with-no-order, title: 'An invoice line with no order line is an extra charge, listed apart' }
-      - { id: instruction.parcel-claims.write-the-claim-in-the-supplier, title: Write the claim in the supplier's language }
-      - { id: instruction.parcel-claims.a-claim-lists-the-order-number, title: 'A claim lists the order number, the parcel count and photos' }
-      - { id: instruction.parcel-claims.never-promise-a-refund-date, title: Never promise a refund date }
-      - { id: instruction.parcel-claims.write-to-each-supplier-in-its, title: Write to each supplier in its language }
-      - { id: instruction.parcel-claims.an-unlisted-supplier-gets-english-and, title: An unlisted supplier gets English and a note to the user }
       - { id: instruction.shipment-tracker.ask-for-the-tracking-number-when, title: Ask for the tracking number when none is given }
       - { id: instruction.shipment-tracker.always-pass-the-carrier-code-to, title: Always pass the carrier code to the tracking script }
       - { id: instruction.shipment-tracker.late-means-past-the-promised-date, title: Late means past the promised date with no delivery scan }
@@ -134,14 +129,12 @@ dimensions:
       - { id: gate.standing.read-a-file-before-editing-it, title: Read a file before editing it }
       - { id: gate.standing.write-a-helper-s-brief-before, title: Write a helper's brief before dispatching it }
       - { id: gate.standing.never-report-done-before-verify-passed, title: Never report done before verify passed }
-      - { id: gate.parcel-claims.run-the-tracking-script-before-filing, title: Run the tracking script before filing a claim }
       - { id: gate.supplier-email.show-the-draft-and-get-an, title: Show the draft and get an explicit yes before sending }
   - id: atoms.route
     title: Target route atoms
     kind: behaviour
     values:
       - { id: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile, title: An ask that fits invoice-reconcile loads it }
-      - { id: route.parcel-claims.an-ask-that-fits-parcel-claims, title: An ask that fits parcel-claims loads it }
       - { id: route.shipment-tracker.an-ask-that-fits-shipment-tracker, title: An ask that fits shipment-tracker loads it }
       - { id: route.supplier-email.an-ask-that-fits-supplier-email, title: An ask that fits supplier-email loads it }
       - { id: route.weekly-report.an-ask-that-fits-weekly-report, title: An ask that fits weekly-report loads it }
@@ -154,13 +147,11 @@ dimensions:
       - { id: route.standing.an-ask-to-prepare-the-weekly, title: An ask to prepare the weekly report loads weekly-report }
       - { id: route.standing.an-ask-to-audit-the-ledger, title: An ask to audit the ledger for duplicate payments dispatches ledger-auditor }
       - { id: route.standing.an-ask-to-plan-the-delivery, title: An ask to plan the delivery routes for tomorrow dispatches route-planner }
-      - { id: route.memory-memory.an-ask-to-a-parcel-arrived, title: An ask to A parcel arrived damaged or missing loads parcel-claims }
   - id: atoms.skill
     title: Target skill atoms
     kind: behaviour
     values:
       - { id: skill.invoice-reconcile.skill-invoice-reconcile, title: Skill invoice-reconcile }
-      - { id: skill.parcel-claims.skill-parcel-claims, title: Skill parcel-claims }
       - { id: skill.shipment-tracker.skill-shipment-tracker, title: Skill shipment-tracker }
       - { id: skill.supplier-email.skill-supplier-email, title: Skill supplier-email }
       - { id: skill.weekly-report.skill-weekly-report, title: Skill weekly-report }
@@ -180,22 +171,11 @@ dimensions:
       - { id: guard.settings.posttooluse-bash-guard-ledger-guard-py, title: PostToolUse Bash guard ledger-guard.py }
       - { id: guard.settings.userpromptsubmit-guard-stop-word-sh, title: UserPromptSubmit guard stop-word.sh }
       - { id: guard.settings.stop-guard-reply-length-py, title: Stop guard reply-length.py }
-      - { id: guard.settings.stop-guard-claim-window-py, title: Stop guard claim-window.py }
       - { id: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh, title: PreToolUse Bash guard check-carrier.sh }
-      - { id: guard.registry.stop-guard-c1, title: Stop guard C1 }
-      - { id: guard.registry.stop-guard-c2, title: Stop guard C2 }
-      - { id: guard.registry.stop-guard-c3, title: Stop guard C3 }
   - id: atoms.stage
     title: Target stage atoms
     kind: behaviour
     values:
-      - { id: stage.steps.stage-claim-scan-read-the-delivery, title: 'Stage claim/scan: Read the delivery scan' }
-      - { id: stage.steps.stage-claim-photos-collect-a-photo, title: 'Stage claim/photos: Collect a photo of each damaged parcel' }
-      - { id: stage.steps.stage-claim-file-file-the-claim, title: 'Stage claim/file: File the claim with the carrier' }
-      - { id: stage.steps.stage-month-close-reconcile-reconcile-every, title: 'Stage month-close/reconcile: Reconcile every open invoice' }
-      - { id: stage.steps.stage-month-close-audit-have-the, title: 'Stage month-close/audit: Have the ledger audited' }
-      - { id: stage.steps.stage-month-close-report-report-the, title: 'Stage month-close/report: Report the month to the operations team' }
-      - { id: stage.steps.stage-month-close-note-write-a, title: 'Stage month-close/note: Write a tracker note' }
       - { id: stage.steps.stage-plan-restate-the-ask-and, title: 'Stage plan: Restate the ask and list the files you will touch' }
       - { id: stage.steps.stage-do-make-the-change, title: 'Stage do: Make the change' }
       - { id: stage.steps.stage-verify-run-the-check-that, title: 'Stage verify: Run the check that proves the change' }

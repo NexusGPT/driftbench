@@ -15,7 +15,8 @@
  *   and `{"fake":"edit", path, old, new}` change the workspace.
  * - The init and result records are written by the fake; the result's cost is 0.
  * - `RATE_WAVE_FILE` holding n > 0: the run answers overloaded and counts n down.
- * - `--resume <id>` reads `CLAUDE_CONFIG_DIR/projects/<folder>/<id>.jsonl`; a missing file fails the run as
+ * - `--resume <id>` reads `<config>/projects/<folder>/<id>.jsonl`, where the config folder is
+ *   `CLAUDE_CONFIG_DIR` or `~/.claude` as for the runtime; a missing file fails the run as
  *   the runtime does. Every turn is appended to that file.
  * - `FAKE_CALLS` (tests only): one JSON line per call, with what the fake saw.
  */
@@ -81,8 +82,10 @@ const sessionId = resume ?? randomUUID();
 let sessionPath;
 const previous = [];
 let torn = false;
-if (env.CLAUDE_CONFIG_DIR) {
-  sessionPath = join(env.CLAUDE_CONFIG_DIR, 'projects', projectFolder, `${sessionId}.jsonl`);
+// As the runtime does: the config folder is CLAUDE_CONFIG_DIR, else .claude in the home folder.
+const configDir = env.CLAUDE_CONFIG_DIR ?? (env.HOME ? join(env.HOME, '.claude') : undefined);
+if (configDir) {
+  sessionPath = join(configDir, 'projects', projectFolder, `${sessionId}.jsonl`);
 }
 if (resume !== undefined) {
   const found = findSession(resume);
@@ -118,6 +121,7 @@ for (const rule of entry?.unless ?? []) {
 
 log({
   argv: args,
+  configDir: env.CLAUDE_CONFIG_DIR ?? null,
   ask,
   queued,
   resume: resume ?? null,
@@ -143,7 +147,7 @@ print({
   session_id: sessionId,
   cwd,
   model: 'fake-model',
-  tools: ['Read', 'Edit', 'Write', 'Bash', 'Skill', 'Agent', 'WebFetch'],
+  tools: offeredTools(),
   timestamp: stamp(),
 });
 const written = [
@@ -221,14 +225,27 @@ if (sessionPath !== undefined) {
 }
 
 function findSession(id) {
-  if (!env.CLAUDE_CONFIG_DIR) return undefined;
-  const projects = join(env.CLAUDE_CONFIG_DIR, 'projects');
+  if (!configDir) return undefined;
+  const projects = join(configDir, 'projects');
   if (!existsSync(projects)) return undefined;
   for (const folder of readdirSync(projects)) {
     const path = join(projects, folder, `${id}.jsonl`);
     if (existsSync(path)) return path;
   }
   return undefined;
+}
+
+/** The tools offered, as the runtime does: a tool the copy's settings deny whole is not offered. */
+function offeredTools() {
+  const all = ['Read', 'Edit', 'Write', 'Bash', 'Skill', 'Agent', 'WebFetch'];
+  const text = readText(join(cwd, '.claude', 'settings.json'));
+  let deny = [];
+  try {
+    deny = text === undefined ? [] : (JSON.parse(text).permissions?.deny ?? []);
+  } catch {
+    deny = [];
+  }
+  return all.filter((tool) => !deny.includes(tool));
 }
 
 function readHelpers() {

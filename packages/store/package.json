@@ -1,9 +1,31 @@
 {
   "name": "@driftbench/store",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "version": "0.1.0",
+  "description": "The driftbench result store: specs, campaigns, runs, the response cache and cost units in one SQLite file through node:sqlite.",
+  "keywords": [
+    "driftbench",
+    "ai-agents",
+    "evaluation",
+    "llm",
+    "testing",
+    "sqlite",
+    "store",
+    "cache"
+  ],
+  "homepage": "https://github.com/achammah/driftbench#readme",
+  "bugs": {
+    "url": "https://github.com/achammah/driftbench/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achammah/driftbench.git",
+    "directory": "packages/store"
+  },
   "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -20,5 +42,9 @@
   },
   "dependencies": {
     "@driftbench/core": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

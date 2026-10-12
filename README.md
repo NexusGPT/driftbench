@@ -38,7 +38,7 @@ It targets conversational agents and code interpreter agents, the ones that writ
 
 ## Get started
 
-driftbench is not on npm yet. Run it from source with Node 22 or newer and pnpm.
+driftbench is not on npm yet: version 0.1.0 is prepared as `@driftbench/cli` and its sibling packages (see [CHANGELOG.md](CHANGELOG.md)). Until it is published, run it from source with Node 22 or newer and pnpm.
 
 ```bash
 git clone https://github.com/achammah/driftbench
@@ -108,7 +108,7 @@ It prints a line per cell and a summary. From a run in this repo, the first line
 
 ```
 Note: acme-price-sheet names the process adapter; --target runs it on function:acme.
-Campaign c-36ef44014561: 14 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-36ef44014561: 14 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks
 14 cells: 12 pass, 2 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -151,12 +151,12 @@ Four areas. Each bullet names the phase that delivers it.
 ## Things you can do with driftbench
 
 1. **Write a golden as blocks** and validate it with `driftbench spec validate`. <sub>Phase&nbsp;0&nbsp;·&nbsp;done</sub>
-2. **Run one golden three ways** on the same agent. Teacher forced against free running gives the compounding index. <sub>Phases&nbsp;1&nbsp;and&nbsp;3&nbsp;·&nbsp;free&nbsp;running&nbsp;built,&nbsp;the&nbsp;other&nbsp;two&nbsp;planned</sub>
-3. **Inject a goal shift at block 4**, or a language switch, or an instruction hidden in data, and count the blocks the agent needs to come back. <sub>Phase&nbsp;3&nbsp;·&nbsp;planned</sub>
-4. **Let a cheap judge own a criterion** once it matches your hand labels as well as a chat model does. <sub>Phase&nbsp;2&nbsp;·&nbsp;planned</sub>
-5. **Gate a prompt change in CI**: noninferiority against the baseline, with a margin you set. <sub>Phase&nbsp;4&nbsp;·&nbsp;planned</sub>
-6. **Check a code interpreter agent on what it leaves behind**: the cells of a spreadsheet, the slides of a deck, the files it touched. <sub>Phase&nbsp;1&nbsp;·&nbsp;in&nbsp;progress</sub>
-7. **Let a person approve a map of what varies**, then count how much of it the specs cover. <sub>Phase&nbsp;G&nbsp;·&nbsp;in&nbsp;progress</sub>
+2. **Run one golden three ways** on the same agent. Teacher forced against free running gives the compounding index. <sub>Phases&nbsp;1&nbsp;and&nbsp;3&nbsp;·&nbsp;built</sub>
+3. **Inject a goal shift at block 4**, or a language switch, or an instruction hidden in data, and count the blocks the agent needs to come back. <sub>Phase&nbsp;3&nbsp;·&nbsp;built</sub>
+4. **Let a cheap judge own a criterion** once it matches your hand labels as well as a chat model does. <sub>Phase&nbsp;2&nbsp;·&nbsp;built</sub>
+5. **Gate a prompt change in CI**: noninferiority against the baseline, with a margin you set. <sub>Phase&nbsp;4&nbsp;·&nbsp;built</sub>
+6. **Check a code interpreter agent on what it leaves behind**: the cells of a spreadsheet, the slides of a deck, the files it touched. <sub>Phase&nbsp;1&nbsp;·&nbsp;built</sub>
+7. **Let a person approve a map of what varies**, then count how much of it the specs cover. <sub>Phase&nbsp;G&nbsp;·&nbsp;built</sub>
 
 ---
 
@@ -191,6 +191,73 @@ When the agent writes code, uses a workspace and loads skills, a block is one ta
 - **Execution**: the commands run, their exit codes, bounded output.
 - **Safety**: a delete, an overwrite, a send, a payment or a push is flagged unless the block confirms it.
 - **Skills and budget**: the right skills in the right order, within the step, cost and time budget.
+- **References and helpers**: the files the agent read, and the helpers it dispatched, on which model.
+
+A task step reads the same way as a chat block. This is the whole of [`price-sheet-build.yaml`](examples/estates/sessions/specs/price-sheet-build.yaml): a recorded Claude Code session in which a code agent builds the Acme price sheet, replayed with no model call. The step starts from a seeded workspace, loads the `xlsx` skill, reads the skill and one of its references, edits `build_sheet.py` only after reading it, runs it, and has a reviewer helper check the workbook on a named model:
+
+```yaml
+id: replay-price-sheet-build
+kind: task
+title: Build the Acme price sheet, reviewed by a helper
+target: { adapter: claude-code }
+workspace_seed: examples/estates/sessions/price-sheet-build/before
+stages: [plan, build_sheet, report]
+metadata:
+  replay:
+    session: price-sheet-build
+    before: price-sheet-build/before
+    after: price-sheet-build/after
+rules:
+  forbidden_tools: [WebFetch]
+  custom:
+    ordered:
+      pairs:
+        - { before: Read, after: Edit, key: file_path, reset: compaction }
+blocks:
+  - id: build
+    user: >
+      Build a price sheet from catalog.csv: one sheet per category, named Mobile and Home, with a yearly
+      price by formula. Save it as out/acme-price-sheet.xlsx and have the sheet reviewer check it.
+    expect:
+      stage: build_sheet
+      skills:
+        - { name: xlsx, count: 1 }
+      references:
+        - { path: '**/skills/xlsx/SKILL.md', count: 1 }
+        - { path: '**/skills/xlsx/reference/*.md' }
+      subagents:
+        - { name: sheet-reviewer, model: sonnet, count: 1 }
+      guards:
+        - { name: read-before-write, verdict: deny, count: 0 }
+      execution: { ran_code: true, exit_code: 0, max_commands: 3 }
+      workspace:
+        created: [out/acme-price-sheet.xlsx]
+        changed: [build_sheet.py]
+        deleted: []
+        others_untouched: true
+      artifacts:
+        - path: out/acme-price-sheet.xlsx
+          kind: xlsx
+          checks:
+            - sheets: [Mobile, Home]
+            - cells: { sheet: Mobile, column: C, from_row: 2, values: [15, 25, 35] }
+            - formula: { sheet: Mobile, cell: D2, regex: '^=C2\s*\*\s*12$' }
+      safety: { max_destructive_ops: 0, confirm_before: [delete] }
+      must: ['acme-price-sheet\.xlsx']
+```
+
+`references` and `subagents` check what the agent read and whom it dispatched. `rules.custom.ordered` holds the agent to reading a file before it edits it. The artifact checks open the workbook the session left behind:
+
+```bash
+S=examples/estates/sessions
+pnpm driftbench replay $S/price-sheet-build.jsonl --suite $S/specs/price-sheet-build.yaml \
+  --decisions $S/price-sheet-build.decisions.jsonl --steps $S/price-sheet-build.steps.jsonl
+```
+
+```
+✓ replay-price-sheet-build  session price-sheet-build from block 0 (metadata)
+1 spec replayed: 1 pass, 0 fail. Campaign replay-22ce6bccd45d (in memory).
+```
 
 Agent harnesses add a runtime battery: hook replay with negative controls, skill loading gates, process step order, mutation tests that must fail first, speed budgets and a reply style check.
 
@@ -268,7 +335,7 @@ One run proves nothing. driftbench treats evaluation as a statistics problem.
 - **Paired comparisons** on the same goldens: McNemar, Wilcoxon, and a Benjamini Hochberg correction across criteria before any criterion is called a regression.
 - **Power first.** The minimum detectable effect is printed before a campaign spends anything.
 - **A verdict CI can gate on.** The candidate is noninferior when the upper bound of every gating regression stays under your margin.
-- **Where results vary.** Planned: the spread is split by source (the agent's own run to run randomness, the wording, the persona, the conversation and the judge) with a share for each. The run to run spread sets a noise floor, and a difference between two versions smaller than the floor is read as noise.
+- **Where results vary.** The variance pilot (`driftbench pilot`) splits the spread by source (the agent's own run to run randomness, the wording, the persona, the conversation and the judge) with a share for each. The run to run spread sets a noise floor, and a difference between two versions smaller than the floor is read as noise.
 
 In the docs: [Statistics](docs/concepts/statistics.md)
 
@@ -300,11 +367,11 @@ In the repo: [the Acme map proposal](examples/acme/map/README.md)
 
 ## Integrations
 
-The function, HTTP, Nexus and process adapters and the SQLite store are built; everything else here is planned. Every adapter must pass the same contract suite. The [adapter contract](docs/adapters/index.md) is in the docs.
+Every item below is built except the Markdown summary. The system 1 judge clients (Jev and the OpenAI Decisions API) follow the providers' public descriptions and are not yet confirmed by a live call. Every adapter must pass the same contract suite. The [adapter contract](docs/adapters/index.md) is in the docs.
 
 **Agents:** [function](docs/adapters/function.md) · [HTTP](docs/adapters/http.md) · [Nexus](docs/adapters/nexus.md) · [a command line agent in a sandbox](docs/adapters/process.md) · OpenAI Agents · Anthropic · Google · LangGraph<br/>
 **Judges:** Jev · OpenAI Decisions API · OpenAI · Google · Anthropic · any HTTP endpoint<br/>
-**Reports:** HTML scorecard · run diff · JUnit XML · Markdown summary<br/>
+**Reports:** HTML scorecard · run diff (`driftbench compare`) · JUnit XML · a local viewer with hand labels (`driftbench view`) · Markdown summary<br/>
 **CI:** exit codes on the verdict · GitHub Action<br/>
 **Store:** SQLite · versioned JSON export
 
@@ -327,15 +394,17 @@ The [comparison page](docs/comparison.md) sets driftbench beside seven evaluatio
 
 ## Roadmap
 
+The [docs index](docs/index.md#roadmap) gives a command per phase that shows it working on the bundled examples.
+
 | Phase and status | What it delivers |
 |---|---|
 | **Phase 0** · Foundations<br/>`done` | Monorepo and CI, a leak guard, spec schemas and loader, `spec validate`, the coverage tool, the Acme Telecom example, docs |
-| **Phase 1** · Runner, checks and store<br/>`in progress` | Free running mode, scripted users, the function, HTTP, Nexus and process adapters, the sandbox, machine checks including artifacts, workspace, execution and safety, a SQLite store, cost per segment |
-| **Phase 2** · Judge council<br/>`planned` | Judge clients, majority and cascade, fixture pairs, kappa, earned assignment, task artifacts judged the same way |
-| **Phase 3** · Perturbation, drift and recovery<br/>`planned` | Simulated users, ten deviation classes on conversations and on code tasks, drift classes, recovery metrics, teacher forced mode |
-| **Phase 4** · Statistics, scorecard, CI gate and runtime battery<br/>`in progress` | Intervals and paired tests, the noninferiority verdict, HTML scorecard, JUnit XML, `driftbench ci`, a GitHub Action, the runtime battery |
-| **Phase G** · Test generation<br/>`in progress` | The map of what varies, proposed from the prompt and approved by a person, with coverage and completeness counted on it; then the code that enumerates blocks, the validity gate, and the pilot that measures where results vary |
-| **Release**<br/>`planned` | SDK adapters for OpenAI Agents, Anthropic, Google and LangGraph, the docs site, version 0.1.0 on npm |
+| **Phase 1** · Runner, checks and store<br/>`done` | Free running mode, scripted users, the function, HTTP, Nexus and process adapters, the sandbox, machine checks including artifacts, workspace, execution and safety, a SQLite store, cost per segment |
+| **Phase 2** · Judge council<br/>`done` | Judge clients, majority and cascade, fixture pairs, kappa, earned assignment, task artifacts judged the same way |
+| **Phase 3** · Perturbation, drift and recovery<br/>`done` | Simulated users, ten deviation classes on conversations and on code tasks, drift classes, recovery metrics, teacher forced mode |
+| **Phase 4** · Statistics, scorecard, CI gate and runtime battery<br/>`done but the runtime battery` | Intervals and paired tests, the noninferiority verdict, HTML scorecard, JUnit XML, `driftbench ci`, a GitHub Action, the runtime battery |
+| **Phase G** · Test generation<br/>`done` | The map of what varies, proposed from the prompt and approved by a person, with coverage and completeness counted on it; then the code that enumerates blocks, the validity gate, and the pilot that measures where results vary |
+| **Release**<br/>`in progress` | SDK adapters for OpenAI Agents, Anthropic, Google and LangGraph and a docs-site workflow, built; version 0.1.0 on npm, not yet |
 
 ---
 

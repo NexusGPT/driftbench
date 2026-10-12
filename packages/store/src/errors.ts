@@ -14,6 +14,8 @@ export type StoreErrorCode =
   | 'CAMPAIGN_CONFLICT'
   /** The campaign a call names is not in the store. */
   | 'CAMPAIGN_MISSING'
+  /** A registry version number already holds other content in this store. Versions are immutable. */
+  | 'VERSION_CONFLICT'
   /** A run id is held by more than one campaign and the call did not say which. */
   | 'RUN_AMBIGUOUS'
   /** An exported bundle is incomplete or inconsistent. */

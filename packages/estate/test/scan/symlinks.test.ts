@@ -2,7 +2,8 @@ import { mkdir, symlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader } from '../../src/index';
-import { estate, FIXTURE } from '../support';
+import { estate } from '../support';
+import { CASES } from './cases';
 
 /** A link at `path` (relative to the root) pointing at `target`, as written in the link. */
 async function link(root: string, path: string, target: string): Promise<void> {
@@ -56,13 +57,14 @@ describe('the reader follows symbolic links', () => {
     ]);
   });
 
-  it('reads the fixture skill whose scripts folder and one reference are links', async () => {
-    const raw = await new ClaudeCodeReader().read(FIXTURE);
+  it('reads the reader-cases skill whose scripts folder and one reference are links', async () => {
+    const raw = await new ClaudeCodeReader().read(CASES);
     const linked = raw.files.filter((file) => file.owner === 'parcel-claims').map((file) => file.path);
     expect(linked).toEqual([
       '.claude/skills/parcel-claims/SKILL.md',
+      '.claude/skills/parcel-claims/references/claim-rules.md',
+      '.claude/skills/parcel-claims/references/notes.md',
       '.claude/skills/parcel-claims/references/supplier-languages.md',
-      '.claude/skills/parcel-claims/scripts/check-carrier.sh',
       '.claude/skills/parcel-claims/scripts/track.sh',
     ]);
     expect(raw.notes.filter((note) => note.message.includes('link'))).toEqual([]);

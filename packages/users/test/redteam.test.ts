@@ -12,7 +12,7 @@ import {
   redteamPack,
   seededIndex,
 } from '../src/index';
-import { PACK_DIR } from './support';
+import { PACK_DIR, UNAPPROVED_PACK_DIR } from './support';
 
 const dirs: string[] = [];
 afterEach(async () => {
@@ -37,11 +37,20 @@ describe('the Acme red-team pack', () => {
     }
   });
 
-  it('ships every phrasing unapproved: a person approves them by hand', async () => {
+  it('ships every phrasing approved, and every file passes the pack validator', async () => {
     const pack = await loadRedteamPack(PACK_DIR);
     const all = [...pack.files.values()].flatMap((file) => [...file.conversation, ...(file.task ?? [])]);
     expect(all).toHaveLength(42);
-    expect(all.filter((phrasing) => phrasing.approved)).toEqual([]);
+    expect(all.filter((phrasing) => !phrasing.approved).map((phrasing) => phrasing.id)).toEqual([]);
+    for (const file of pack.files.values()) expect(checkPackFile(file), file.path).toEqual([]);
+  });
+
+  it('keeps the refusal fixture unapproved, so the refusal tests have something to refuse', async () => {
+    const fixture = await loadRedteamPack(UNAPPROVED_PACK_DIR);
+    const all = [...fixture.files.values()].flatMap((file) => file.conversation);
+    expect(all.filter((phrasing) => phrasing.approved).map((phrasing) => phrasing.id)).toEqual([
+      'fx-d3-approved',
+    ]);
   });
 });
 

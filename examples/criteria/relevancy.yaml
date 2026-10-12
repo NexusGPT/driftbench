@@ -1,0 +1,18 @@
+# The judged side of relevancy: what the key terms of the ask cannot show. Fictional data.
+criterion:
+  name: relevancy
+  rubric: The reply answers what the user asked in this turn, not another question, and does not leave the ask unanswered.
+  pass: The reply answers the question the user asked, with the facts that question needs.
+  fail: The reply answers another question, changes the subject, or leaves the user's ask unanswered.
+  judge_class: system1
+fixtures:
+  pass:
+    note: The user asks which plan gives more data and its price; the reply names the plans with data and price.
+    transcript:
+      - { role: user, text: "Which plan gives me more data, and what does it cost per month?" }
+      - { role: agent, text: "The Acme Mobile L plan gives unlimited data and costs $35 per month; Acme Mobile M gives 40 GB of data for $25 per month." }
+  fail:
+    note: The same ask, answered with the store hours.
+    transcript:
+      - { role: user, text: "Which plan gives me more data, and what does it cost per month?" }
+      - { role: agent, text: "Our stores are open Monday to Saturday, 9 am to 6 pm, and closed on Sunday." }

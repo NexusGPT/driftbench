@@ -37,7 +37,10 @@ export function registerSpaceCommands(program: Command, io: Io, setExit: (code: 
     .description('Count the cells of the map the specs cover. Exit 1 when a required cell is empty.')
     .argument('<paths...>', 'spec files or folders')
     .requiredOption('--map <file>', 'the map of situations (YAML or JSON)')
-    .option('--t <n>', 'cells on every subset of n dimensions (2 or 3); default: the full grid')
+    .option(
+      '--t <n>',
+      'cells on every subset of n dimensions, n from 1 to the number of dimensions; default: the full grid',
+    )
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: SpaceOptions) => {
       setExit(await spaceCoverageCommand(paths, options, io));
