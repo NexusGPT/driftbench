@@ -4,6 +4,7 @@ export {
   actOf,
   askedTo,
   type CodeAsk,
+  clauseOf,
   codeAsk,
   DEVIATION_ASKS,
   imperative,
