@@ -167,7 +167,7 @@ claude -p --output-format json --model <model> --system-prompt <the judge system
 ```
 
 * The user prompt, with the rubric and the data inside their data tags, goes on stdin, never on the command line.
-* The process runs in an empty folder of its own, with no tool, no settings file and no MCP server, so no project file, memory or hook of the caller reaches the judge. A probe call read 680 input tokens: the judge system prompt and the question, nothing else.
+* The process runs in an empty folder of its own, with no tool, no settings file and no MCP server, so no project file, memory or setting of the caller reaches the judge. A probe call read 680 input tokens: the judge system prompt and the question, nothing else.
 * The answer is the `result` text of the JSON result, read through the answer contract. Its cost is `total_cost_usd`, returned as `costUsd` on the result; a cassette keeps it as `cost_usd` and gives it back on replay.
 * An error result (`is_error`) gives no answer and may be retried. A run that stops without an answer (`error_max_turns`) is an unparsed answer, never a pass. A call past its timeout (120 seconds by default) is stopped.
 * `maxBudgetUsd` passes `--max-budget-usd` on every call. The command has no token limit flag, so the large budget asks again the same way.
