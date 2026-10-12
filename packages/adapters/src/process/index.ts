@@ -42,6 +42,8 @@ export const processProtocolFiles = {
   history: 'driftbench-history.json',
   /** The adapter writes the stimulus here in file mode. */
   stimulus: 'driftbench-stimulus.txt',
+  /** The adapter writes `target.prompt.text` here before each block, when the target has a prompt. */
+  prompt: 'driftbench-prompt.txt',
 } as const;
 
 const CONTROL_FILES: readonly string[] = Object.values(processProtocolFiles);
@@ -156,6 +158,8 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
         [processProtocolFiles.history]: `${JSON.stringify(session.history, null, 2)}\n`,
       };
       if (mode === 'file') control[processProtocolFiles.stimulus] = text;
+      const prompt = session.target.prompt?.text;
+      if (prompt !== undefined) control[processProtocolFiles.prompt] = prompt;
       await seedOrFail(sandbox, { files: control });
 
       const before = await sandbox.snapshot().catch((error: unknown) => {
@@ -172,7 +176,7 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
       );
       const run = await sandbox
         .exec(`${clear} && exec ${commandLine}`, {
-          env: { ...options.env, ...agentVariables(sandbox.root, turn.index, mode) },
+          env: { ...options.env, ...agentVariables(sandbox.root, turn.index, mode, prompt !== undefined) },
           stdin: mode === 'stdin' ? text : '',
           timeoutMs,
         })
@@ -310,7 +314,12 @@ function argsFor(args: readonly string[], mode: 'stdin' | 'file'): string[] {
 }
 
 /** Paths as the agent sees them, so it never has to hard-code a file name. */
-function agentVariables(root: string, index: number, mode: 'stdin' | 'file'): Record<string, string> {
+function agentVariables(
+  root: string,
+  index: number,
+  mode: 'stdin' | 'file',
+  prompt: boolean,
+): Record<string, string> {
   const variables: Record<string, string> = {
     DRIFTBENCH_WORKSPACE: root,
     DRIFTBENCH_BLOCK: String(index),
@@ -319,6 +328,7 @@ function agentVariables(root: string, index: number, mode: 'stdin' | 'file'): Re
     DRIFTBENCH_RUNTIME_FILE: posix.join(root, processProtocolFiles.runtime),
   };
   if (mode === 'file') variables.DRIFTBENCH_STIMULUS_FILE = posix.join(root, processProtocolFiles.stimulus);
+  if (prompt) variables.DRIFTBENCH_PROMPT_FILE = posix.join(root, processProtocolFiles.prompt);
   return variables;
 }
 

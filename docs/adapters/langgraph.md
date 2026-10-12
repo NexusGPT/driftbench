@@ -71,7 +71,7 @@ In a checkpointed session, the thread, not the runner's history, is what the age
 
 | Error | Becomes |
 |---|---|
-| a 408, 409, 429 or any 5xx status, or a connection, timeout or abort error, in the error or its causes | `AdapterTransportError` |
+| a 429 or any 5xx status, or a network error (refused, reset, timed out, `fetch failed`), in the error or its causes | `AdapterTransportError`: the runner retries the block under the [shared policy](../retries.md) |
 | `GraphRecursionError`, any other error | `AgentFailure` |
 | a state with no `messages` list | `AgentFailure` |
 
@@ -86,3 +86,5 @@ target:
 ```
 
 The adapter reads no field of the target: the graph is the one you pass. Its id is `langgraph`.
+
+With a prompt on the target (`campaign run --prompt`), the messages the graph receives start with a system message of its text; a checkpointed graph receives it once, with the first block. See [datasets](../datasets.md#the-prompt-reaches-the-agent).

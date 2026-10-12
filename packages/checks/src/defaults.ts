@@ -1,4 +1,4 @@
-import type { Check } from '@driftbench/core';
+import type { Check, Embedder } from '@driftbench/core';
 import { artifacts } from './checks/artifacts';
 import { budget } from './checks/budget';
 import { cards } from './checks/cards';
@@ -7,16 +7,20 @@ import { endState } from './checks/end_state';
 import { execution } from './checks/execution';
 import { forbidden } from './checks/forbidden';
 import { guards } from './checks/guards';
+import { knowledgeRetention } from './checks/knowledge_retention';
 import { lang } from './checks/lang';
 import { must, mustNot } from './checks/must';
 import { pii } from './checks/pii';
 import { references } from './checks/references';
+import { relevancy } from './checks/relevancy';
 import { safety } from './checks/safety';
 import { schemaStrict } from './checks/schema_strict';
+import { createSimilarityCheck } from './checks/similarity';
 import { skills } from './checks/skills';
 import { stage } from './checks/stage';
 import { subagents } from './checks/subagents';
 import { tools } from './checks/tools';
+import { toolsOffered } from './checks/tools_offered';
 import { workspace } from './checks/workspace';
 
 /**
@@ -31,6 +35,8 @@ export type DefaultChecksOptions = {
   registry?: CheckRegistry;
   /** The judge council. Its check runs after every machine check. No council: no judge check. */
   judges?: JudgeCheckSource;
+  /** What the similarity check scores with. The local character n-gram embedder when absent. */
+  embedder?: Embedder;
 };
 
 /**
@@ -42,9 +48,13 @@ export type DefaultChecksOptions = {
 export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
   return [
     tools,
+    toolsOffered,
     forbidden,
     must,
     mustNot,
+    createSimilarityCheck(options.embedder),
+    relevancy,
+    knowledgeRetention,
     lang,
     pii,
     cards,

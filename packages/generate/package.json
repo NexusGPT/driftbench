@@ -1,9 +1,31 @@
 {
   "name": "@driftbench/generate",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "version": "0.1.0",
+  "description": "Generate driftbench tests from a map of situations: extraction proposal, the deterministic block generator, the validity gate, reference sets and holdout.",
+  "keywords": [
+    "driftbench",
+    "ai-agents",
+    "evaluation",
+    "llm",
+    "testing",
+    "test-generation",
+    "combinatorial",
+    "coverage"
+  ],
+  "homepage": "https://github.com/achammah/driftbench#readme",
+  "bugs": {
+    "url": "https://github.com/achammah/driftbench/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achammah/driftbench.git",
+    "directory": "packages/generate"
+  },
   "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -30,5 +52,9 @@
     "@driftbench/sandbox": "workspace:*",
     "@driftbench/store": "workspace:*",
     "@driftbench/users": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

@@ -1,0 +1,54 @@
+{
+  "name": "@driftbench/vitest",
+  "version": "0.1.0",
+  "description": "Run a driftbench spec inside a vitest suite: describeSpec(path, target) registers one test per block, with the evidence of each failing verdict.",
+  "keywords": [
+    "driftbench",
+    "ai-agents",
+    "evaluation",
+    "llm",
+    "testing",
+    "vitest",
+    "unit-testing"
+  ],
+  "homepage": "https://github.com/achammah/driftbench#readme",
+  "bugs": {
+    "url": "https://github.com/achammah/driftbench/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achammah/driftbench.git",
+    "directory": "packages/vitest"
+  },
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --target node22 --external vitest"
+  },
+  "dependencies": {
+    "@driftbench/checks": "workspace:*",
+    "@driftbench/core": "workspace:*",
+    "@driftbench/users": "workspace:*"
+  },
+  "peerDependencies": {
+    "vitest": ">=3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

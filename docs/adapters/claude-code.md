@@ -1,6 +1,6 @@
 # Claude Code estates
 
-Status: the estate reader, the session reader, the replay adapter and the ordered-pair check are built, and `driftbench replay` runs a suite over recorded sessions. The live runner, a headless Claude Code run of a sandboxed estate, is not built yet: `driftbench estate run` and `driftbench estate mutate` say so. This page maps a Claude Code estate and its sessions onto the generic estate shapes of [testing an estate](../estate.md).
+Status: the estate reader, the session reader, the replay adapter, the ordered-pair check and the live runner are built; `driftbench replay` runs a suite over recorded sessions and `driftbench estate run` runs one live. This page maps a Claude Code estate and its sessions onto the generic estate shapes of [testing an estate](../estate.md).
 
 ## The estate
 
@@ -147,10 +147,4 @@ It exits 1, since four specs fail. The negative control runs on the faulty gate-
 
 ## The live runner
 
-Not built yet. `driftbench estate run` prints:
-
-```text
-driftbench estate run is not built yet.
-```
-
-and exits 2. `driftbench estate mutate` prints `driftbench estate mutate is not built yet.` and exits 2 too. The adapter exports nothing for a live run today.
+Built. `claudeCodeLiveAdapter` (in `packages/adapters/src/claude-code/live`) runs the runtime's headless command in a sandbox holding a copy of the estate, maps its stream into one observation per turn, and applies the session states and estate deviations of a state library as operations before a turn (`loadStateLibrary`, `opsForTurn`). `driftbench estate run` drives it, and `driftbench estate mutate` writes the estate mutants it runs against. Commands, options and a run on the fixture's stand-in command are in the [CLI reference](../reference/cli.md#driftbench-estate-run-and-driftbench-estate-mutate).

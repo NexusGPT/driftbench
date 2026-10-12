@@ -1,4 +1,10 @@
-import { AdapterTransportError, AgentFailure, type Message, type Session } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  collectRetries,
+  type Message,
+  type Session,
+} from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
 import { WireNames } from '../src/anthropic/common';
 import { GOOGLE_NAME, toGoogleContents } from '../src/google/contents';
@@ -31,7 +37,7 @@ function acme() {
 }
 
 adapterContract('google', acme, {
-  brokenTransport: () => googleAdapter({ client: deadGoogle(), model: MODEL }),
+  brokenTransport: () => googleAdapter({ client: deadGoogle(), model: MODEL, sleep: async () => {} }),
   released: (session: Session) => (session.state as { closed?: boolean }).closed === true,
 });
 
@@ -225,6 +231,7 @@ describe('google adapter', () => {
       googleAdapter({
         client: { models: { generateContent: async () => Promise.reject(error) } },
         model: MODEL,
+        sleep: async () => {},
       });
     const sent = async (error: unknown) => {
       const adapter = failing(error);
@@ -241,6 +248,39 @@ describe('google adapter', () => {
     await expect(sendUser(notObject, await notObject.open(given), 'hi', 0)).rejects.toBeInstanceOf(
       AgentFailure,
     );
+  });
+
+  it('retries a call that fails with a 503 then a refused connection, and records both retries', async () => {
+    let calls = 0;
+    const inner = fakeGoogle();
+    const adapter = googleAdapter({
+      client: {
+        models: {
+          async generateContent(params) {
+            calls += 1;
+            if (calls === 1) throw new FakeGoogleError(503, 'UNAVAILABLE');
+            if (calls === 2) {
+              throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ECONNREFUSED' } });
+            }
+            return inner.models.generateContent(params);
+          },
+        },
+      },
+      model: MODEL,
+      tools: () => acmeTools().tools,
+      sleep: async () => {},
+    });
+    const session = await adapter.open(given);
+    session.history.push({ role: 'user', content: COVERAGE_QUESTION });
+    const { value: observed, retries } = await collectRetries(() =>
+      adapter.send(session, { index: 0, stimulus: { user: COVERAGE_QUESTION }, given }),
+    );
+    expectWholeObserved(observed);
+    expect(observed.toolCalls.map((call) => call.label)).toEqual(['coverage.check', 'catalog.search']);
+    expect(retries.map((event) => [event.attempt, event.status ?? 'network'])).toEqual([
+      [1, 503],
+      [2, 'network'],
+    ]);
   });
 
   it('reads the order payload after the upgrade, and nothing for a tool that received none', async () => {

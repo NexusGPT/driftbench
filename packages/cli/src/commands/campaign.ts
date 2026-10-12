@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { functionAdapter, processAdapter } from '@driftbench/adapters';
 import { defaultReaders } from '@driftbench/artifacts';
@@ -28,21 +28,33 @@ import {
   type PlannedCell,
   type PlanOptions,
   planCampaign,
+  type RegistrySource,
+  type RetryOptions,
   RunMode,
   type RunResult,
   runCampaign,
   runsByCell,
   type Spec,
   type Store,
+  type TargetPrompt,
   TargetRef,
   type UserDriver,
 } from '@driftbench/core';
+import { portFromEnv } from '@driftbench/generate';
 import { localProvider } from '@driftbench/sandbox';
 import { bootstrapCI } from '@driftbench/stats';
-import { openMemoryStore, openStore } from '@driftbench/store';
-import { createPerturbingDriver, createScriptedDriver } from '@driftbench/users';
+import {
+  openMemoryStore,
+  openStore,
+  parseVersionRef,
+  readCampaignBundle,
+  restoreFiles,
+  type SqliteStore,
+} from '@driftbench/store';
+import { createPerturbingDriver, createScriptedDriver, type UserModelPort } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
 export type CampaignScope = {
@@ -68,6 +80,11 @@ export type CampaignDeps = {
   driver(cell?: PlannedCell, spec?: Spec): UserDriver;
   /** Tools whose call is a consequential act, for the recovery metrics of mode P. */
   consequential?: (label: string) => boolean;
+  /**
+   * The model port a simulated user speaks through with --model. Default: the port the environment
+   * configures (portFromEnv of @driftbench/generate). Tests pass a fake one.
+   */
+  modelPort?(): UserModelPort;
   /** The store at a path, or one held in memory without a path. A failure to open is reported, exit 2. */
   openStore(path: string | undefined): Promise<Store>;
   now(): Date;
@@ -78,6 +95,68 @@ const MODE_HELP =
 
 const TARGET_HELP =
   'run every spec on this target; repeat for several. Without it, each spec runs on its own target';
+
+const PROCESS_COMMAND_HELP =
+  'the agent command for a process target other than process:acme-ops: a JSON list such as ["python3","agent.py"], or words split on spaces';
+
+/**
+ * `--process-command`: a JSON list of strings, or a command line split on spaces (no quoting). Undefined
+ * when the text is neither.
+ */
+export function parseProcessCommand(text: string): string[] | undefined {
+  const trimmed = text.trim();
+  if (trimmed.startsWith('[')) {
+    try {
+      const parsed: unknown = JSON.parse(trimmed);
+      if (
+        Array.isArray(parsed) &&
+        parsed.length > 0 &&
+        parsed.every((part) => typeof part === 'string' && part !== '')
+      ) {
+        return parsed as string[];
+      }
+    } catch {
+      return undefined;
+    }
+    return undefined;
+  }
+  const words = trimmed.split(/\s+/).filter((word) => word !== '');
+  return words.length > 0 ? words : undefined;
+}
+
+/**
+ * The deps with every process target other than process:acme-ops reaching `command` through the process
+ * adapter, in a local sandbox. Any agent name works: `process:<name>` names the agent, the command runs it.
+ */
+export function withProcessCommand(deps: CampaignDeps, command: readonly string[]): CampaignDeps {
+  const [binary, ...args] = command;
+  return {
+    ...deps,
+    adapterFor: async (target, scope) => {
+      if (target.adapter !== 'process' || target.agent === 'acme-ops' || binary === undefined) {
+        return deps.adapterFor(target, scope);
+      }
+      return processAdapter({
+        command: binary,
+        args,
+        provider: localProvider(scope === undefined ? {} : { dir: await scope.tempDir() }),
+      });
+    },
+  };
+}
+
+/** Applies `--process-command` to the deps; undefined, with the reason printed, when it is malformed. */
+function processDeps(deps: CampaignDeps, text: string | undefined, io: Io): CampaignDeps | undefined {
+  if (text === undefined) return deps;
+  const command = parseProcessCommand(text);
+  if (command === undefined) {
+    io.err(
+      `--process-command takes a JSON list of strings or a command line, not ${JSON.stringify(text)}.\n`,
+    );
+    return undefined;
+  }
+  return withProcessCommand(deps, command);
+}
 
 /** The targets this build reaches, for the message of a target it does not. */
 const KNOWN_TARGETS =
@@ -124,6 +203,8 @@ type PlanCommandOptions = {
 };
 
 type RunCommandOptions = {
+  dataset?: string;
+  prompt?: string[];
   target: string[];
   mode: string;
   repeats: string;
@@ -132,14 +213,25 @@ type RunCommandOptions = {
   cache: boolean;
   concurrency: string;
   budgetUsd?: string;
+  processCommand?: string;
   json?: boolean;
-};
+  driver?: string;
+  persona?: string[];
+  recording?: string[];
+  model?: boolean;
+  agentFamily?: string;
+  judgeFamily?: string[];
+} & RetryFlags;
 
-type StoredCommandOptions = {
+/** The retry flags of `campaign run` and `campaign resume`: the run's settings over the spec target's. */
+type RetryFlags = { retryAttempts?: string; retryBaseMs?: string; retryMaxMs?: string };
+
+type StoredCommandOptions = RetryFlags & {
   store: string;
   cache?: boolean;
   concurrency?: string;
   budgetUsd?: string;
+  processCommand?: string;
   json?: boolean;
   detail?: boolean;
 };
@@ -172,7 +264,14 @@ export function registerCampaignCommands(
   campaign
     .command('run')
     .description('Run every cell and print pass or fail per cell. Exit 1 on any failed or failing cell.')
-    .argument('<paths...>', 'spec files or folders')
+    .argument('[paths...]', 'spec files or folders; none when --dataset gives the specs')
+    .option('--dataset <name[@version]>', 'run the specs of this dataset version of the store, and record it')
+    .option(
+      '--prompt <name[@version]>',
+      'record this prompt version of the store; repeat for several',
+      collect,
+      [],
+    )
     .option('--target <adapter[:agent]>', TARGET_HELP, collect, [])
     .option('--mode <modes>', MODE_HELP, 'F')
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
@@ -181,6 +280,42 @@ export function registerCampaignCommands(
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', 'a hard stop: no cell starts once the campaign has spent this much')
+    .option('--process-command <command>', PROCESS_COMMAND_HELP)
+    .option(
+      '--driver <driver>',
+      "who writes the user turns: scripted (the spec's own) or simulated (a persona)",
+      'scripted',
+    )
+    .option(
+      '--persona <file>',
+      'with --driver simulated: a persona, which plays the spec its file names; repeat it',
+      collect,
+      [],
+    )
+    .option(
+      '--recording <file>',
+      'with --driver simulated: replay the answers of a recording; repeat it',
+      collect,
+      [],
+    )
+    .option(
+      '--model',
+      'with --driver simulated: speak through the model port the environment configures (paid)',
+    )
+    .option(
+      '--agent-family <family>',
+      'the model family of the agent under test; none for an agent that is not a model',
+    )
+    .option('--judge-family <family>', 'a model family of the judges; repeat it', collect, [])
+    .option(
+      '--retry-attempts <n>',
+      'attempts per model call, the first included; over the spec target retry (default 4)',
+    )
+    .option(
+      '--retry-base-ms <ms>',
+      'the wait before the first retry, doubled for each later one (default 500)',
+    )
+    .option('--retry-max-ms <ms>', 'the longest wait between two attempts (default 30000)')
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: RunCommandOptions) => {
       setExit(await campaignRunCommand(paths, options, io, deps));
@@ -196,6 +331,16 @@ export function registerCampaignCommands(
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', "a hard stop on the campaign's spend; default: the budget it was run with")
+    .option('--process-command <command>', PROCESS_COMMAND_HELP)
+    .option(
+      '--retry-attempts <n>',
+      'attempts per model call, the first included; over the spec target retry (default 4)',
+    )
+    .option(
+      '--retry-base-ms <ms>',
+      'the wait before the first retry, doubled for each later one (default 500)',
+    )
+    .option('--retry-max-ms <ms>', 'the longest wait between two attempts (default 30000)')
     .option('--json', 'print one JSON document')
     .action(async (campaignId: string | undefined, options: StoredCommandOptions) => {
       setExit(await campaignResumeCommand(campaignId, options, io, deps));
@@ -214,6 +359,86 @@ export function registerCampaignCommands(
     .action(async (campaignId: string | undefined, options: StoredCommandOptions) => {
       setExit(await campaignStatusCommand(campaignId, options, io, deps));
     });
+
+  campaign
+    .command('export')
+    .description(
+      'Write a stored campaign as a folder: its runs, the specs it ran and the exact files of its dataset and prompt versions.',
+    )
+    .argument('<campaignId>', 'the campaign id')
+    .requiredOption('--store <file>', 'the store that holds the campaign')
+    .requiredOption('--out <dir>', 'the folder the bundle goes in, as <dir>/<campaignId>')
+    .action(async (campaignId: string, options: { store: string; out: string }) => {
+      setExit(await campaignExportCommand(campaignId, options, io));
+    });
+
+  campaign
+    .command('import')
+    .description('Store a campaign bundle: its runs, specs and registry versions, all or nothing.')
+    .argument('<folder>', 'the bundle folder campaign export wrote')
+    .requiredOption('--store <file>', 'the store to import into; made when missing')
+    .action(async (folder: string, options: { store: string }) => {
+      setExit(await campaignImportCommand(folder, options, io));
+    });
+}
+
+/** `campaign export`: exit 0 written, 2 on an unknown campaign, a store it cannot open or a source it lacks. */
+export async function campaignExportCommand(
+  campaignId: string,
+  options: { store: string; out: string },
+  io: Io,
+): Promise<number> {
+  return withBundleStore(options.store, io, async (store) => {
+    const folder = await store.exportCampaign(campaignId, resolve(io.cwd, options.out));
+    const bundle = await readCampaignBundle(folder);
+    const sources = bundle.sources.map(({ version }) => `${version.kind} ${version.name}@${version.version}`);
+    io.out(
+      `Exported campaign ${campaignId} to ${shown(io, folder)}: ${bundle.runs.length} runs, ${bundle.specs.length} specs, ${sources.length} sources${sources.length === 0 ? '' : ` (${sources.join(', ')})`}.\n`,
+    );
+    return 0;
+  });
+}
+
+/** `campaign import`: exit 0 stored, 2 on a bundle that does not read or a conflict with the store. */
+export async function campaignImportCommand(
+  folder: string,
+  options: { store: string },
+  io: Io,
+): Promise<number> {
+  return withBundleStore(options.store, io, async (store) => {
+    const bundle = await store.importCampaign(resolve(io.cwd, folder));
+    io.out(
+      `Imported campaign ${bundle.campaign.campaignId} into ${options.store}: ${bundle.runs.length} runs, ${bundle.specs.length} specs, ${bundle.sources.length} sources.\n`,
+    );
+    return 0;
+  });
+}
+
+async function withBundleStore(
+  path: string,
+  io: Io,
+  work: (store: SqliteStore) => Promise<number>,
+): Promise<number> {
+  let store: SqliteStore;
+  try {
+    store = openStore(resolve(io.cwd, path));
+  } catch (cause) {
+    io.err(`Cannot open the store at ${path}: ${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return 2;
+  }
+  try {
+    return await work(store);
+  } catch (cause) {
+    io.err(`${(cause instanceof Error ? cause.message : String(cause)).replace(/^store: /, '')}\n`);
+    return 2;
+  } finally {
+    await store.close();
+  }
+}
+
+function shown(io: Io, path: string): string {
+  const rel = relative(io.cwd, path);
+  return rel === '' || rel.startsWith('..') ? path : rel;
 }
 
 /** `campaign plan`: the cells, the projected cost and the minimum detectable effect. Exit 0, or 2 on bad input. */
@@ -304,16 +529,33 @@ export async function campaignRunCommand(
 ): Promise<number> {
   const shape = parseShape(options, io);
   const pool = parsePool(options, io);
-  if (!shape || !pool) return 2;
-  const loaded = await loadValidSpecs(paths, io);
-  if (!loaded) return 2;
-  const runs = specRuns(loaded, shape.targets, io);
-  if (!runs) return 2;
+  const withCommand = processDeps(deps, options.processCommand, io);
+  if (!shape || !pool || !withCommand) return 2;
+  deps = withCommand;
   const scope = openScope();
   try {
+    const registry = await registrySources(options, scope, io);
+    if (!registry) return 2;
+    const read = await loadValidSpecs([...paths, ...registry.folders.map((folder) => folder.path)], io);
+    if (!read) return 2;
+    // A spec restored from a dataset is stored under its dataset reference, never the temporary folder.
+    const loaded = read.map((entry) => ({ ...entry, path: datasetPath(entry.path, registry.folders) }));
+    const withPrompt = (target: TargetRef): TargetRef =>
+      registry.prompt === undefined ? target : { ...target, prompt: registry.prompt };
+    const targets = shape.targets.map(withPrompt);
+    const runs = specRuns(loaded, targets, io)?.map((each) =>
+      each.pinned === undefined
+        ? each
+        : { ...each, targets: each.targets.map(withPrompt), pinned: withPrompt(each.pinned) },
+    );
+    if (!runs) return 2;
+    const driven = await driverDeps(options, runs, deps, io);
+    if (!driven) return 2;
+    deps = driven.deps;
     const adapters = await adaptersFor(runs, deps, scope, io);
     if (!adapters) return 2;
     if (!options.json) io.out(targetNotes(loaded, shape.targets));
+    if (!options.json && driven.note) io.out(driven.note);
 
     const store = await openReported(deps, options.store ? resolve(io.cwd, options.store) : undefined, io);
     if (!store) return 2;
@@ -325,12 +567,13 @@ export async function campaignRunCommand(
         hash,
         ...(pinned === undefined ? {} : { target: pinned }),
       }));
-      const targets = shape.targets.length > 0 ? shape.targets : pinnedTargets(runs);
+      const campaignTargets = targets.length > 0 ? targets : pinnedTargets(runs);
       const repeats = { T: 0, F: 0, P: 0 };
       for (const mode of shape.modes) repeats[mode] = shape.repeats;
       // One mode keeps the key a single-mode campaign always had, so its id is unchanged.
       const mode = shape.modes.length === 1 ? shape.modes[0] : shape.modes;
-      const campaignId = options.campaign ?? `c-${contentHash({ specs, targets, mode, repeats, createdAt })}`;
+      const campaignId =
+        options.campaign ?? `c-${contentHash({ specs, targets: campaignTargets, mode, repeats, createdAt })}`;
       if (await store.getCampaign(campaignId)) {
         io.err(
           `Campaign ${campaignId} already exists. Resume it with: driftbench campaign resume ${campaignId}\n`,
@@ -341,13 +584,14 @@ export async function campaignRunCommand(
       const campaign: Campaign = {
         campaignId,
         specs,
-        targets,
+        targets: campaignTargets,
         modes: shape.modes,
         repeats,
         // 0 when no budget was given: the schema has no field for "no budget".
         budgetUsd: pool.budgetUsd ?? 0,
         judge: { mode: 'system1', judges: [] },
         createdAt,
+        ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
       };
       await store.putCampaign(campaign);
       return await executeCampaign(campaign, loaded, adapters, store, deps, io, {
@@ -364,6 +608,101 @@ export async function campaignRunCommand(
   }
 }
 
+/**
+ * The registry versions `--dataset` and `--prompt` name, read from the store. The dataset's files are
+ * restored, byte for byte, into the campaign's temporary folder, and its specs load from there.
+ */
+async function registrySources(
+  options: RunCommandOptions,
+  scope: CampaignScope,
+  io: Io,
+): Promise<RegistryRead | undefined> {
+  const prompts = options.prompt ?? [];
+  if (options.dataset === undefined && prompts.length === 0) return { folders: [], sources: [] };
+  if (prompts.length > 1) {
+    io.err('--prompt names the one prompt the agent runs with: give it once.\n');
+    return undefined;
+  }
+  if (options.store === undefined) {
+    io.err('--dataset and --prompt read the registry of a store: add --store <file>.\n');
+    return undefined;
+  }
+  let store: SqliteStore;
+  try {
+    store = openStore(resolve(io.cwd, options.store));
+  } catch (cause) {
+    io.err(
+      `Cannot open the store at ${options.store}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+    );
+    return undefined;
+  }
+  try {
+    const read: RegistryRead = { folders: [], sources: [] };
+    const wanted = [
+      ...(options.dataset === undefined ? [] : [{ kind: 'dataset' as const, text: options.dataset }]),
+      ...prompts.map((text) => ({ kind: 'prompt' as const, text })),
+    ];
+    for (const { kind, text } of wanted) {
+      const { name, ref } = parseVersionRef(text);
+      const version = await store.getVersion(kind, name, ref);
+      if (!version) {
+        io.err(
+          `No ${kind} ${text} in ${options.store}. Push it with: driftbench ${kind} push ${name} <path>\n`,
+        );
+        return undefined;
+      }
+      const label = `${version.name}@${version.version}`;
+      read.sources.push({ kind, name: version.name, version: version.version, hash: version.hash });
+      const files = await store.readVersionFiles(version);
+      if (kind === 'dataset') {
+        const folder = join(await scope.tempDir(), `dataset-${version.name}-${version.version}`);
+        await restoreFiles(files, folder, { single: false });
+        read.folders.push({ path: folder, label });
+        continue;
+      }
+      const [only] = files;
+      if (only === undefined || files.length > 1) {
+        io.err(
+          `prompt ${label} holds ${files.length} files; --prompt hands the agent one text, so push a single prompt file.\n`,
+        );
+        return undefined;
+      }
+      let promptText: string;
+      try {
+        promptText = new TextDecoder('utf-8', { fatal: true }).decode(only.bytes);
+      } catch {
+        io.err(`prompt ${label} is not UTF-8 text: --prompt hands the agent a text.\n`);
+        return undefined;
+      }
+      read.prompt = { name: version.name, version: version.version, hash: version.hash, text: promptText };
+    }
+    return read;
+  } catch (cause) {
+    io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return undefined;
+  } finally {
+    await store.close();
+  }
+}
+
+/** What `--dataset` and `--prompt` read: the restored dataset folders, the versions, the prompt. */
+type RegistryRead = {
+  folders: { path: string; label: string }[];
+  sources: RegistrySource[];
+  prompt?: TargetPrompt;
+};
+
+/** A spec file inside a restored dataset as `name@version/<path in the dataset>`; others as they are. */
+function datasetPath(path: string, folders: RegistryRead['folders']): string {
+  for (const folder of folders) {
+    const inside = relative(folder.path, path);
+    if (inside !== '' && !inside.startsWith('..') && !isAbsolute(inside)) {
+      return `${folder.label}/${inside.split(sep).join('/')}`;
+    }
+  }
+  return path;
+}
+
 /** `campaign resume`: runs the cells with no completed run, reuses the others. Exits like `campaign run`. */
 export async function campaignResumeCommand(
   campaignId: string | undefined,
@@ -371,8 +710,10 @@ export async function campaignResumeCommand(
   io: Io,
   deps: CampaignDeps,
 ): Promise<number> {
-  const pool = parsePool({ concurrency: options.concurrency ?? '4', budgetUsd: options.budgetUsd }, io);
-  if (!pool) return 2;
+  const pool = parsePool({ ...options, concurrency: options.concurrency ?? '4' }, io);
+  const withCommand = processDeps(deps, options.processCommand, io);
+  if (!pool || !withCommand) return 2;
+  deps = withCommand;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   const scope = openScope();
@@ -389,6 +730,7 @@ export async function campaignResumeCommand(
       kept: true,
       concurrency: pool.concurrency,
       ...(budgetUsd === undefined ? {} : { budgetUsd }),
+      ...(pool.retry ? { retry: pool.retry } : {}),
     });
   } finally {
     // closeScope never throws, so the store is closed whatever happens to the folder.
@@ -437,7 +779,14 @@ async function executeCampaign(
   store: Store,
   deps: CampaignDeps,
   io: Io,
-  flags: { cache: boolean; json: boolean; kept: boolean; concurrency: number; budgetUsd?: number },
+  flags: {
+    cache: boolean;
+    json: boolean;
+    kept: boolean;
+    concurrency: number;
+    budgetUsd?: number;
+    retry?: RetryOptions;
+  },
 ): Promise<number> {
   const plan = planOf(campaign, loaded);
   const specs = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
@@ -463,6 +812,7 @@ async function executeCampaign(
     now: () => deps.now(),
     concurrency: flags.concurrency,
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
+    ...(flags.retry ? { retry: flags.retry } : {}),
     ...(flags.json ? {} : { onCell: (outcome: CellOutcome) => io.out(cellLine(outcome)) }),
   });
   if (flags.json) {
@@ -528,10 +878,10 @@ async function storedCampaign(
 
 type Shape = { targets: TargetRef[]; modes: RunMode[]; repeats: number };
 
-type Pool = { concurrency: number; budgetUsd?: number };
+type Pool = { concurrency: number; budgetUsd?: number; retry?: RetryOptions };
 
 function parsePool(
-  options: { concurrency: string; budgetUsd?: string | undefined },
+  options: { concurrency: string; budgetUsd?: string | undefined } & RetryFlags,
   io: Io,
 ): Pool | undefined {
   const concurrency = Number(options.concurrency);
@@ -539,9 +889,33 @@ function parsePool(
     io.err(`--concurrency takes a whole number of at least 1, not "${options.concurrency}".\n`);
     return undefined;
   }
-  if (options.budgetUsd === undefined) return { concurrency };
+  const retry = parseRetry(options, io);
+  if (retry === null) return undefined;
+  const pool: Pool = { concurrency, ...(retry ? { retry } : {}) };
+  if (options.budgetUsd === undefined) return pool;
   const budgetUsd = parseNumber(options.budgetUsd, '--budget-usd', io);
-  return budgetUsd === null ? undefined : { concurrency, budgetUsd };
+  return budgetUsd === null ? undefined : { ...pool, budgetUsd };
+}
+
+/** The retry flags as runner settings: undefined when none is given, null (after a message) when one is bad. */
+function parseRetry(flags: RetryFlags, io: Io): RetryOptions | undefined | null {
+  const read = (text: string | undefined, flag: string, min: number): number | undefined | null => {
+    if (text === undefined) return undefined;
+    const value = Number(text);
+    if (Number.isInteger(value) && value >= min) return value;
+    io.err(`${flag} takes a whole number of at least ${min}, not "${text}".\n`);
+    return null;
+  };
+  const maxAttempts = read(flags.retryAttempts, '--retry-attempts', 1);
+  const baseDelayMs = read(flags.retryBaseMs, '--retry-base-ms', 0);
+  const maxDelayMs = read(flags.retryMaxMs, '--retry-max-ms', 0);
+  if (maxAttempts === null || baseDelayMs === null || maxDelayMs === null) return null;
+  const retry: RetryOptions = {
+    ...(maxAttempts === undefined ? {} : { maxAttempts }),
+    ...(baseDelayMs === undefined ? {} : { baseDelayMs }),
+    ...(maxDelayMs === undefined ? {} : { maxDelayMs }),
+  };
+  return Object.keys(retry).length > 0 ? retry : undefined;
 }
 
 /**
@@ -865,6 +1239,20 @@ function report(campaignId: string, outcomes: readonly CellOutcome[], kept: bool
             cacheHit: run.cacheHit,
             cost: run.cost,
             ...(run.error ? { error: run.error } : {}),
+            ...(run.endState ? { endState: run.endState } : {}),
+            blocks: run.blocks.map((block) => ({
+              index: block.index,
+              ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
+              ...(block.injected ? { injected: true } : {}),
+              pass: block.pass,
+              ...(block.stageObserved === undefined ? {} : { stage: block.stageObserved }),
+              verdicts: block.verdicts.map(({ id, outcome, gating, evidence }) => ({
+                id,
+                outcome,
+                gating,
+                evidence,
+              })),
+            })),
           }
         : {}),
     })),
@@ -1186,7 +1574,7 @@ export function acmeOpsAgent(): string | undefined {
 function cliPackageRoot(from: string): string | undefined {
   for (let dir = from; ; dir = dirname(dir)) {
     const manifest = join(dir, 'package.json');
-    if (existsSync(manifest) && packageName(manifest) === 'driftbench') return dir;
+    if (existsSync(manifest) && packageName(manifest) === '@driftbench/cli') return dir;
     if (dirname(dir) === dir) return undefined;
   }
 }
@@ -1198,4 +1586,81 @@ function packageName(manifest: string): unknown {
     // A package.json that does not parse belongs to no package this lookup wants.
     return undefined;
   }
+}
+
+/**
+ * The deps a run uses for `--driver`: unchanged for scripted; for simulated, each spec a persona plays runs
+ * with a fresh simulated user of that persona (under the perturbing driver in mode P). Every spec of the
+ * campaign needs a persona, and every target a family other than the user's. Undefined, printed, on bad input.
+ */
+async function driverDeps(
+  options: RunCommandOptions,
+  runs: readonly SpecRun[],
+  deps: CampaignDeps,
+  io: Io,
+): Promise<{ deps: CampaignDeps; note?: string } | undefined> {
+  const kind = options.driver ?? 'scripted';
+  if (kind !== 'scripted' && kind !== 'simulated') {
+    io.err(`--driver takes scripted or simulated, not "${kind}".\n`);
+    return undefined;
+  }
+  if (kind === 'scripted') {
+    if ((options.persona ?? []).length > 0 || (options.recording ?? []).length > 0 || options.model) {
+      io.err('--persona, --recording and --model go with --driver simulated.\n');
+      return undefined;
+    }
+    return { deps };
+  }
+  if ((options.persona ?? []).length === 0) {
+    io.err('--driver simulated needs a --persona for each spec.\n');
+    return undefined;
+  }
+  const source = await userSource(options, () => (deps.modelPort ?? portFromEnv)(), io);
+  if (!source) return undefined;
+  const personas = await loadPersonas(options.persona ?? [], io);
+  if (!personas) return undefined;
+  const makers = new Map<string, () => UserDriver>();
+  const lines: string[] = [];
+  for (const run of runs) {
+    const played = personas.find((entry) => entry.specId === run.spec.id);
+    if (!played) {
+      io.err(`No persona plays ${run.spec.id}: give a --persona whose spec is that file.\n`);
+      return undefined;
+    }
+    const port = portFor(source, played.persona);
+    if (typeof port === 'string') {
+      io.err(`${port}\n`);
+      return undefined;
+    }
+    for (const target of run.targets) {
+      const family = agentFamilyOf(target, options.agentFamily);
+      if (family === undefined) {
+        io.err(
+          `Name the model family of ${showTarget(target)} with --agent-family (none for an agent that is not a model).\n`,
+        );
+        return undefined;
+      }
+      const make = userFactory(played.persona, port, family, options.judgeFamily ?? []);
+      if (typeof make === 'string') {
+        io.err(`${make}\n`);
+        return undefined;
+      }
+      makers.set(run.spec.id, make);
+    }
+    lines.push(`persona ${played.persona.id} on ${run.spec.id}, ${describeSource(source, played.persona)}`);
+  }
+  return {
+    deps: {
+      ...deps,
+      driver: (cell, spec) => {
+        const make = spec === undefined ? undefined : makers.get(spec.id);
+        if (!make || !spec) return deps.driver(cell, spec);
+        const user = make();
+        return cell?.perturbationId === undefined
+          ? user
+          : createPerturbingDriver({ spec, perturbation: cell.perturbationId, base: user });
+      },
+    },
+    note: `Driver: simulated, ${lines.join('; ')}.\n`,
+  };
 }

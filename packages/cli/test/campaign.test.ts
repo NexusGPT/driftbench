@@ -3,7 +3,7 @@ import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type AgentAdapter, AgentFailure, type Check } from '@driftbench/core';
+import { AdapterTransportError, type AgentAdapter, AgentFailure, type Check } from '@driftbench/core';
 import { openStore } from '@driftbench/store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, describe, expect, it } from 'vitest';
@@ -368,7 +368,7 @@ describe('driftbench campaign run', () => {
     ]);
     expect(code).toBe(0);
     expect(out).toContain(
-      'Campaign c-main: 6 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+      'Campaign c-main: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
     );
     expect(out).toContain('✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks');
     expect(out).toContain('6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.');
@@ -705,7 +705,7 @@ describe('each spec on its own target, without --target', () => {
       ]);
       expect(code, out).toBe(0);
       expect(out).toContain(
-        'Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+        'Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
       );
       expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks');
       expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 1  pass  2 blocks');
@@ -897,5 +897,68 @@ describe('each spec on its own target, without --target', () => {
     expect(code).toBe(2);
     expect(err).toContain('No adapter is set up for http:acme-web, the target of acme-elsewhere.');
     expect(err).toContain('process:acme-ops, the Acme ops agent');
+  });
+});
+
+describe('driftbench campaign retries', () => {
+  /** The Acme agent behind a transport that drops the first two sends of the session. */
+  const flaky = async () => {
+    const adapter = await acmeFunctionAdapter();
+    const send = adapter.send.bind(adapter);
+    let failures = 2;
+    adapter.send = async (session, turn) => {
+      if (failures > 0) {
+        failures -= 1;
+        throw new AdapterTransportError('overloaded', { status: 529 });
+      }
+      return send(session, turn);
+    };
+    return adapter;
+  };
+  const spec = `${SPECS}/plan-upgrade.yaml`;
+
+  it(
+    'retries under the command line settings and records each retry in the stored run',
+    async () => {
+      const store = await storePath();
+      const args = ['campaign', 'run', spec, '--target', 'function:acme', '--store', store];
+      const ran = await cli([...args, '--campaign', 'c-retry', '--retry-base-ms', '0'], {
+        adapterFor: () => flaky(),
+      });
+      expect(ran.code).toBe(0);
+      const opened = await openStore(store);
+      const [run] = await opened.listRuns({ campaignId: 'c-retry' });
+      await opened.close();
+      expect(
+        run?.blocks[0]?.observed.retries?.map((event) => [event.call, event.attempt, event.status]),
+      ).toEqual([
+        ['send on block 0', 1, 529],
+        ['send on block 0', 2, 529],
+      ]);
+
+      const once = await cli([...args, '--campaign', 'c-retry-once', '--no-cache', '--retry-attempts', '1'], {
+        adapterFor: () => flaky(),
+      });
+      expect(once.code).toBe(1);
+      expect(once.out).toMatch(/failed/);
+    },
+    SLOW,
+  );
+
+  it('refuses a retry setting that is not a whole number', async () => {
+    const store = await storePath();
+    const { code, err } = await cli([
+      'campaign',
+      'run',
+      spec,
+      '--target',
+      'function:acme',
+      '--store',
+      store,
+      '--retry-attempts',
+      '0',
+    ]);
+    expect(code).toBe(2);
+    expect(err).toContain('--retry-attempts takes a whole number of at least 1, not "0".');
   });
 });

@@ -19,6 +19,7 @@ import {
   FAKE,
   givenOf,
   MAP_HASH,
+  RUNTIME_FLAGS,
   STATES,
   scratch,
   turnOf,
@@ -58,6 +59,7 @@ async function run(
     retries: { max: 3, backoffMs: 0 },
     pins: [MAP_HASH],
     library,
+    config: 'isolated',
     ...extra,
   });
   const given = givenOf(vars);
@@ -140,6 +142,7 @@ describe('session states on the fake command', () => {
       '--output-format',
       'stream-json',
       '--verbose',
+      ...RUNTIME_FLAGS,
     ]);
     expect(calls[0]?.ask).toBe(ASK_INVOICE);
     expect(calls[0]?.queued).toEqual([queued]);

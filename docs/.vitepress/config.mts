@@ -132,6 +132,7 @@ export default defineConfig({
           { text: 'Running', link: '/running' },
           { text: 'Generating tests', link: '/generating' },
           { text: 'Testing an estate', link: '/estate' },
+          { text: 'Datasets and prompts', link: '/datasets' },
           { text: 'Validators', link: '/validators' },
         ],
       },

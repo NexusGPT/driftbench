@@ -5,9 +5,15 @@ import {
   isPlainObject,
   type Observed,
   type ResolvedGiven,
+  type RetryLayer,
+  type RetryPolicy,
+  retryDecision,
+  retrying,
+  retryPolicy,
   type Segment,
   type Session,
   type ToolCall,
+  type Turn,
   type WorldState,
 } from '@driftbench/core';
 import { describeError, joinText, parseObserved, readSource, type ToolPayload } from '../shared';
@@ -21,49 +27,67 @@ import { describeError, joinText, parseObserved, readSource, type ToolPayload } 
  * import it from here. It holds no vendor type: each adapter mirrors its SDK's call shape locally.
  */
 
-/** Tells a transport failure (retryable) from the agent's own failure, for an error a vendor client threw. */
+/**
+ * Tells a transport failure (retryable) from the agent's own failure, for an error a vendor client threw,
+ * by the shared retry rule: a 429, a 5xx (529 included) or a network error is a transport failure, anything
+ * else (a bad request, a refused key) is the agent's. A transport error passes through as it came.
+ */
 export function vendorError(cause: unknown, context: string): AdapterTransportError | AgentFailure {
-  if (cause instanceof AdapterTransportError || cause instanceof AgentFailure) return cause;
+  // A framework may wrap the error a model call ended with; the contract's own error inside wins.
+  for (
+    let inner: unknown = cause, depth = 0;
+    inner instanceof Error && depth < 5;
+    inner = inner.cause, depth++
+  ) {
+    if (inner instanceof AdapterTransportError || inner instanceof AgentFailure) return inner;
+  }
   const message = `${context}: ${describeError(cause)}`;
-  return isTransient(cause)
-    ? new AdapterTransportError(message, { cause })
-    : new AgentFailure(message, { cause });
+  const decision = retryDecision(cause);
+  if (!decision.retry) return new AgentFailure(message, { cause });
+  return new AdapterTransportError(message, {
+    cause,
+    ...(decision.status === undefined ? {} : { status: decision.status }),
+    ...(decision.retryAfterMs === undefined ? {} : { retryAfterMs: decision.retryAfterMs }),
+  });
 }
 
-/** Statuses a vendor answers when trying again later may work: timeout, conflict, rate limit, overload. */
-const TRANSIENT_STATUS = new Set([408, 409, 429]);
-const TRANSIENT_NAME = /connection|timeout|abort|fetcherror|network|socket/i;
-const TRANSIENT_CODE = new Set([
-  'ECONNREFUSED',
-  'ECONNRESET',
-  'ETIMEDOUT',
-  'ENOTFOUND',
-  'EAI_AGAIN',
-  'EPIPE',
-  'UND_ERR_CONNECT_TIMEOUT',
-  'UND_ERR_SOCKET',
-  'UND_ERR_HEADERS_TIMEOUT',
-]);
+/** True when the shared retry rule retries this vendor error. */
+export function isTransient(cause: unknown): boolean {
+  return retryDecision(cause).retry;
+}
+
+/** What an adapter that calls a model itself takes about retries. */
+export type RetryOption = {
+  /** The adapter's own retry settings, under the spec target's and the run's. */
+  retry?: RetryLayer;
+  /** How a wait between attempts is spent. Tests pass one that returns at once. */
+  sleep?: (ms: number) => Promise<void>;
+};
+
+/** The policy of a block's model calls: the runner's, or else the spec target's over the adapter's own. */
+export function policyOf(turn: Turn, session: Session, own: RetryOption): RetryPolicy {
+  return turn.retry ?? retryPolicy(own.retry, session.target.retry);
+}
 
 /**
- * A vendor error is transient when it carries a transient HTTP status (any 5xx included, such as an
- * overloaded 529), or no status and a connection, timeout or abort name or code, here or in its causes.
- * Any other status (a bad request, a refused key) is the agent's failure: trying again changes nothing.
+ * One model call under the shared retry policy. A transient failure is retried and recorded (the runner
+ * puts the records into the block's Observed); the last one ends as a transport error marked exhausted, so
+ * the runner does not retry the block on top. Any other failure is the agent's.
  */
-export function isTransient(cause: unknown, depth = 0): boolean {
-  if (depth > 4 || !(cause instanceof Error || isPlainObject(cause))) return false;
-  const error = cause as {
-    status?: unknown;
-    name?: unknown;
-    code?: unknown;
-    message?: unknown;
-    cause?: unknown;
-  };
-  if (typeof error.status === 'number') return TRANSIENT_STATUS.has(error.status) || error.status >= 500;
-  if (typeof error.name === 'string' && TRANSIENT_NAME.test(error.name)) return true;
-  if (typeof error.code === 'string' && TRANSIENT_CODE.has(error.code)) return true;
-  if (typeof error.message === 'string' && /^fetch failed$/i.test(error.message)) return true;
-  return isTransient(error.cause, depth + 1);
+export async function callModel<T>(
+  call: string,
+  run: () => PromiseLike<T>,
+  policy: RetryPolicy,
+  own: RetryOption,
+): Promise<T> {
+  try {
+    return await retrying(call, async () => await run(), {
+      policy,
+      ...(own.sleep ? { sleep: own.sleep } : {}),
+    });
+  } catch (cause) {
+    throw vendorError(cause, call);
+  }
 }
 
 /** The part of a session an SDK adapter keeps: whether it closed, and what each block's tools received. */

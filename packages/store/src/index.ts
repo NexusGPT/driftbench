@@ -7,8 +7,27 @@ export const packageName = '@driftbench/store';
 
 /** The cell id is the runner's own, so a resumed campaign finds the runs the store holds under it. */
 export { type CellKey, cellId } from '@driftbench/core';
-export { BUNDLE_FORMAT, type BundleManifest, type CampaignBundle, readCampaignBundle } from './bundle';
+export {
+  BUNDLE_FORMAT,
+  type BundleManifest,
+  type BundleSource,
+  type CampaignBundle,
+  readCampaignBundle,
+} from './bundle';
 export { StoreError, type StoreErrorCode } from './errors';
+export {
+  diffFiles,
+  type FileChange,
+  parseVersionRef,
+  REGISTRY_KINDS,
+  type RegistryEntry,
+  type RegistryFile,
+  type RegistryKind,
+  type RegistryVersion,
+  type RestoreReport,
+  readTree,
+  restoreFiles,
+} from './registry';
 export { SCHEMA_VERSION } from './schema';
 export { assertNodeVersion, MIN_NODE_VERSION } from './sqlite';
 export { openMemoryStore, openStore, type SqliteStore } from './store';
