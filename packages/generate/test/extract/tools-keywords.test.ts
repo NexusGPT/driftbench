@@ -387,4 +387,25 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       ['find_account.out.ok', ['true', 'false']],
     ]);
   });
+
+  it('reads legacy XML tool descriptions: every parameter is optional', () => {
+    const text = `<tools>
+<tool_description>
+  <tool_name>findAccount</tool_name>
+  <parameters>
+    <parameter><name>status</name><type>string</type></parameter>
+    <parameter><name>urgent</name><type>boolean</type></parameter>
+  </parameters>
+</tool_description>
+</tools>
+`;
+    const result = toolsPrepass(text, 'tools.xml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.tools).toEqual(['findAccount']);
+    expect(result.dimensions.map((d) => [d.id, d.values.map((v) => v.id.slice(d.id.length + 1))])).toEqual([
+      ['find_account.in.status', ['present', 'absent']],
+      ['find_account.in.urgent', ['true', 'false', 'absent']],
+    ]);
+    for (const dimension of result.dimensions) for (const value of dimension.values) expect(text).toContain(value.evidence.quote);
+  });
 });

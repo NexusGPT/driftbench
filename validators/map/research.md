@@ -291,3 +291,15 @@ Sources read:
 What others do: A GET operation takes its inputs as query parameters; each parameter is one argument with a schema and a required flag.
 
 What to try, and why: the tool pre-pass reads OpenAPI query parameters
+
+## Iteration 25
+
+Question: packages/generate/src/extract/tools.ts: toolsPrepass reads YAML or JSON only, so an XML file of tool_description blocks fails to parse; tool-formats.xml-descriptions proves it.
+
+Sources read:
+* https://docs.anthropic.com/en/docs/build-with-claude/tool-use (the legacy XML tool_description format with tool_name and parameters)
+* packages/validators/src/ladders/map/bank/families/formats.ts (xml-descriptions)
+
+What others do: The legacy format names each parameter and its type and states no required flag, so each parameter has an absent case.
+
+What to try, and why: the tool pre-pass reads legacy XML tool descriptions

@@ -46,10 +46,16 @@ type Tool = {
   cohere?: boolean;
   /** OpenAPI query parameters: the input is these parameter mappings, each with a schema. */
   query?: YAMLMap[];
+  /** Legacy XML descriptions: parameters with their type and the text they were read from. */
+  xml?: Array<{ name: string; type: string; quote: string }>;
 };
 type Partition = { id: string; title: string; quote: string };
 
 export function toolsPrepass(text: string, source: string): ToolsPrepass {
+  if (text.trimStart().startsWith('<')) {
+    const xml = readXml(text);
+    if (xml) return toolsOf(text, source, xml);
+  }
   // A stream of documents (`---` between them) holds one tool per document: read as a list of tools.
   let docs = parseAllDocuments(text, { uniqueKeys: true, prettyErrors: true });
   if (docs.some((doc) => doc.errors.length > 0)) {
@@ -106,7 +112,7 @@ function toolsOf(
       ['in', tool.input],
       ['out', tool.output],
     ] as const) {
-      if (!schema && !(direction === 'in' && tool.query)) continue;
+      if (!schema && !(direction === 'in' && (tool.query || tool.xml))) continue;
       const open: string[] = [];
       const own = direction === 'in' ? tool.inputText : tool.outputText;
       const ctx: Walk = {
@@ -120,7 +126,8 @@ function toolsOf(
         root: schema ?? new YAMLMap(),
         cohere: direction === 'in' && tool.cohere === true,
       };
-      if (direction === 'in' && tool.query) walkQuery(ctx, tool.query);
+      if (direction === 'in' && tool.xml) walkXml(ctx, tool.xml);
+      else if (direction === 'in' && tool.query) walkQuery(ctx, tool.query);
       else if (schema) walk(ctx, schema, [], 0);
       if (open.length > 0) {
         const side = direction === 'in' ? 'input' : 'output';
@@ -234,6 +241,35 @@ type Walk = {
   /** The schema is a Cohere parameter_definitions mapping. */
   cohere: boolean;
 };
+
+/** Legacy XML descriptions name a parameter and its type only: every parameter is optional. */
+function readXml(text: string): { tools: Tool[] } | { errors: ToolsIssue[] } | undefined {
+  const blocks = [...text.matchAll(/<tool_description>([\s\S]*?)<\/tool_description>/g)];
+  if (blocks.length === 0) return undefined;
+  const tools: Tool[] = [];
+  for (const block of blocks) {
+    const name = /<tool_name>\s*([^<]+?)\s*<\/tool_name>/.exec(block[1] ?? '')?.[1];
+    if (!name) return { errors: [{ code: 'TOOLS_INVALID', path: '', message: 'a tool needs a name' }] };
+    const xml = [...(block[1] ?? '').matchAll(/<parameter>[\s\S]*?<\/parameter>/g)].flatMap((match) => {
+      const parameter = /<name>\s*([^<]+?)\s*<\/name>/.exec(match[0])?.[1];
+      const type = /<type>\s*([^<]+?)\s*<\/type>/.exec(match[0])?.[1] ?? '';
+      return parameter ? [{ name: parameter, type, quote: match[0] }] : [];
+    });
+    tools.push({ name, path: name, xml });
+  }
+  return { tools };
+}
+
+function walkXml(ctx: Walk, parameters: NonNullable<Tool['xml']>): void {
+  for (const { name, type, quote } of parameters) {
+    const property = parseDocument(`type: ${SHORT_TYPES[type] ?? type}`).contents;
+    if (!isMap(property)) continue;
+    const partitions = partitionsOf(name, property, () => quote);
+    if (partitions.length === 0) partitions.push({ id: 'present', title: `${name} is given`, quote });
+    partitions.push({ id: 'absent', title: `${name} is left out (not required)`, quote });
+    addDimension(ctx, [name], partitions);
+  }
+}
 
 /** OpenAPI query parameters: each is a property named by `name`, with its `schema` and `required` flag. */
 function walkQuery(ctx: Walk, parameters: YAMLMap[]): void {
