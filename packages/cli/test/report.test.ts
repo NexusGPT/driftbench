@@ -86,6 +86,40 @@ describe('driftbench report', () => {
     expect(xml).toMatch(/<testsuites name="c-x3" tests="32" failures="[1-9]\d*" errors="0"/);
   });
 
+  it('chooses the margin from the baseline by default, as compare and ci do, and prints it', async () => {
+    const { code, out } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'auto.html',
+      '--baseline',
+      'c-acme',
+    ]);
+    expect(code).toBe(0);
+    expect(out).toMatch(
+      /^Margin auto: \d+\.\d points, the smallest half point at which the baseline compared with itself is non-inferior/m,
+    );
+    const margin = /Margin auto: (\d+\.\d) points/.exec(out)?.[1];
+    expect(out).toContain(`Against baseline c-acme: regressed, margin ${margin} points.`);
+    const strict = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'strict.html',
+      '--baseline',
+      'c-acme',
+      '--strict',
+      '--min-goldens',
+      '2',
+    ]);
+    expect(strict.code).toBe(0);
+    expect(strict.out).toContain('Against baseline c-acme: regressed');
+  });
+
   it('adds the compare diff against a baseline and the pilot report', async () => {
     const { code, out } = await cli([
       'report',
