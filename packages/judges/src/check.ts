@@ -75,9 +75,20 @@ export function judgeCheck(council: Council, options: JudgeCheckOptions = {}): C
               },
         );
       }
-      return verdicts;
+      return uniqueIds(verdicts);
     },
   };
+}
+
+/** Two criterion names can map to one safe id. The later verdict gets a numeric suffix that no earlier id uses. */
+function uniqueIds(verdicts: Verdict[]): Verdict[] {
+  const used = new Set<string>();
+  return verdicts.map((verdict) => {
+    let id = verdict.id;
+    for (let n = 2; used.has(id); n += 1) id = `${verdict.id}-${n}`;
+    used.add(id);
+    return id === verdict.id ? verdict : { ...verdict, id };
+  });
 }
 
 /** The request one criterion sends for one block. */
