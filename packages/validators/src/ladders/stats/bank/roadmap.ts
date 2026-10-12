@@ -67,6 +67,30 @@ function methods(root: string): Method[] {
 
 const argText = (args: unknown[]): string => args.map((a) => show(a)).join(', ');
 
+/**
+ * Whether a method gives the scipy value on at least one of its cases. The degenerate, purity, scale and
+ * coverage items of a method count only when it does: a stub that throws, returns NaN or a canned object must
+ * not pass them (audit finding: stubs for every roadmap name raised the bank score from 0.324 to 0.652).
+ * Remembered per function, so a run checks each method once.
+ */
+const verdicts = new WeakMap<object, boolean>();
+export function correctOnACase(m: Method, fn: (...args: never[]) => unknown): boolean {
+  const known = verdicts.get(fn);
+  if (known !== undefined) return known;
+  const correct = m.cases.some((c) => {
+    const got = attempt(() => (fn as (...args: unknown[]) => unknown)(...structuredClone(c.args)));
+    return !got.error && matches(got.value, c.expect, m.tol) === undefined;
+  });
+  verdicts.set(fn, correct);
+  return correct;
+}
+
+/** The message of a generated item whose method exists but gives no correct value yet. */
+const notCorrect = (m: Method) =>
+  fail(
+    `the method is not correct yet: ${m.name} exists but gives the scipy value on none of its cases (roadmap.${m.name}.*), so its generated items do not count. Make the cases of roadmap.${m.name} pass first. Definition: ${m.definition}.`,
+  );
+
 /** The roadmap items: one per case of each method in the fixtures file, read from the repository root. */
 export function roadmapItems(root: string): BankItem[] {
   const items: BankItem[] = [];
@@ -181,6 +205,7 @@ function roadmapDegenerateItems(all: Method[]): BankItem[] {
               `packages/stats does not export ${m.name} (signature \`${m.signature}\`, in ${m.file}); once it exists, ${call} must throw a RangeError (degenerate-input contract, rule 1: ${kind === 'empty' ? 'no data' : kind === 'nan' ? 'a NaN' : 'an infinite value'}).`,
             );
           }
+          if (!correctOnACase(m, fn)) return notCorrect(m);
           const got = attempt(() => (fn as (...a: unknown[]) => unknown)(...structuredClone(args)));
           if (got.error instanceof RangeError) return ok();
           return fail(
@@ -257,6 +282,7 @@ function roadmapScaleItems(all: Method[]): BankItem[] {
             `packages/stats does not export ${m.name} (\`${m.signature}\`, in ${m.file}); once it exists, its first case with every array grown to ${ROADMAP_SCALE_ROWS} values by repetition must finish within ${ROADMAP_SCALE_BUDGET_MS} ms with finite numbers.`,
           );
         }
+        if (!correctOnACase(m, fn)) return notCorrect(m);
         const { got, ms } = cpuMs(() => (fn as (...a: unknown[]) => unknown)(...args));
         if (got.error)
           return fail(
@@ -303,6 +329,7 @@ function roadmapCoverageItems(all: Method[]): BankItem[] {
             return fail(
               `packages/stats does not export ${name} (\`${m.signature}\`, in ${m.file}); once it exists, its exact coverage at n ${n} averaged over p from 0.01 to 0.99 must reach 0.945. Definition: ${m.definition}.`,
             );
+          if (!correctOnACase(m, fn)) return notCorrect(m);
           const got = attempt(() =>
             Array.from({ length: n + 1 }, (_, k) =>
               (fn as (k: number, n: number) => { lower: number; upper: number })(k, n),
@@ -344,6 +371,7 @@ function roadmapPurityItems(all: Method[]): BankItem[] {
           return fail(
             `packages/stats does not export ${m.name} (\`${m.signature}\`, in ${m.file}); once it exists, it must not change its arguments and must give the same result twice.`,
           );
+        if (!correctOnACase(m, fn)) return notCorrect(m);
         const args = structuredClone(first.args);
         const before = JSON.stringify(args);
         const a = attempt(() => (fn as (...x: unknown[]) => unknown)(...args));

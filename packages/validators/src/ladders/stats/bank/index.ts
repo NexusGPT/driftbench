@@ -116,6 +116,7 @@ export function levelMeasure(items: readonly BankItem[], run: BankRun): Measure 
         component: item.component,
         family: item.family,
         tier: item.tier,
+        ...(item.cause ? { cause: item.cause } : {}),
         pass: outcome.pass,
         ...(outcome.pass
           ? {}
