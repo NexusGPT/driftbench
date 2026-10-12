@@ -60,6 +60,10 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     )
     .option('--disallow <rules...>', 'tools the runtime must refuse, passed as --disallowed-tools')
     .option(
+      '--lock-deny <paths...>',
+      'paths the runtime and its children may neither read nor write (macOS lock; the owner config in ~/.claude is always write-protected)',
+    )
+    .option(
       '--pass-env <names...>',
       "names of the evaluator's variables the runtime receives (its credentials)",
     )
@@ -97,6 +101,7 @@ export type EstateRunOptions = {
   passEnv?: string[];
   setEnv?: string[];
   disallow?: string[];
+  lockDeny?: string[];
   timeout?: string;
   allowBilled?: boolean;
   model?: string;
@@ -311,6 +316,9 @@ export async function estateRunCommand(
         config,
         ...(options.trustEstate ? { trustEstate: true } : {}),
         ...(options.disallow?.length ? { disallowedTools: options.disallow } : {}),
+        ...(options.lockDeny?.length
+          ? { lock: { deny: options.lockDeny.map((path) => resolve(io.cwd, path)) } }
+          : {}),
         ...(timeoutMs === undefined ? {} : { timeoutMs }),
         ...(standIn ? { retries: { backoffMs: 0 } } : {}),
       });

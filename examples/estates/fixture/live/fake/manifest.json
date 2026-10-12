@@ -81,6 +81,10 @@
     {
       "ask": "Add a note to the memory file.",
       "stream": "streams/hook-state.jsonl"
+    },
+    {
+      "ask": "Turn on verbose mode in my user settings.",
+      "stream": "streams/outside-write.jsonl"
     }
   ]
 }

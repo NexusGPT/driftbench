@@ -284,6 +284,24 @@ describe('driftbench estate run', () => {
     expect(bad.err).toContain('--set-env');
   });
 
+  it.runIf(process.platform === 'darwin')(
+    'runs the command under the lock, with the paths --lock-deny names refused',
+    async () => {
+      const spec = join(LIVE, PROOF.route_positive ?? '');
+      const secret = join(await folder(), 'secrets');
+      const result = await estateRun(FIXTURE, [spec], '--lock-deny', secret);
+      expect(result.code).toBe(0);
+      const { openStore } = await import('@driftbench/store');
+      const store = await openStore(result.store);
+      const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
+      await store.close();
+      const agent = stored?.blocks[0]?.observed.executions?.find((record) => record.role === 'agent');
+      expect(agent?.command).toContain('/usr/bin/sandbox-exec -p');
+      expect(agent?.command).toContain('secrets');
+      expect(agent?.command).toContain('.claude/settings.json');
+    },
+  );
+
   it('passes the model, turn and budget limits and the trusted tools to the command, in its own config folder on a stand-in', async () => {
     const calls = join(await folder(), 'calls.jsonl');
     process.env.FAKE_CALLS = calls;
