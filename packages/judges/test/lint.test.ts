@@ -155,4 +155,13 @@ describe('lintCriterion', () => {
     expect(codes('The reply names Acme Care and the answer it gives is pass-through.')).not.toContain('instruction-to-judge');
     expect(codes('The reply marks the order as shipped.')).not.toContain('instruction-to-judge');
   });
+
+  it('reports pictures-swapped when the PASS picture speaks of failing or the FAIL picture of passing', () => {
+    const codes = (c: Partial<CriterionText>) => lintCriterion({ ...clean, ...c }).issues.map((i) => i.code);
+    expect(codes({ pass: 'The reply fails to name Acme Care.', fail: 'The reply passes the check.' })).toContain('pictures-swapped');
+    expect(codes({ pass: 'The reply fails to name Acme Care.' })).toContain('pictures-swapped');
+    expect(codes({ fail: 'The reply passes the check.' })).toContain('pictures-swapped');
+    expect(codes({})).not.toContain('pictures-swapped');
+    expect(codes({ pass: 'The reply names Acme Care and the check passes.' })).not.toContain('pictures-swapped');
+  });
 });

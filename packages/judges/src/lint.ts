@@ -61,6 +61,11 @@ const RULES: readonly Rule[] = [
     code: 'instruction-to-judge',
     found: (c) => /\b(answer|reply with|respond with)\s+(pass|fail)\b|\balways\s+(pass|fail)\b|\bmark\s+(it\s+)?as\s+(pass|passed|fail|failed)\b/i.test(c.rubric),
   },
+  // The pictures sit under the wrong label: PASS describes a failure, or FAIL describes a pass.
+  {
+    code: 'pictures-swapped',
+    found: (c) => /\b(fails?|failed|failing)\b/i.test(c.pass ?? '') && !/\b(not|never)\s+(fails?|failed)\b/i.test(c.pass ?? '') || /\b(passes|passed|passing)\b/i.test(c.fail ?? ''),
+  },
 ];
 
 const countNot = (text: string): number => (text.match(/\bnot\b/gi) ?? []).length;
