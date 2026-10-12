@@ -99,6 +99,7 @@ Iteration 70 (cause: reversed text): reversed reading. Test: screen.test.ts (red
 Iteration 71 (cause: ROT13): rotated reading. Test: screen.test.ts (red proved). Bank 472 -> 473 (0.7414).
 Iteration 72 (cause: no French words): OTHER_LANGUAGES row in screen.ts; each language is one row. Test: screen.test.ts (red proved). Bank 473 -> 474. Ownership: this lane keeps ALL of injection (lead, after the split).
 Iteration 73 (cause: no Spanish words): row. Test red proved. Bank 474 -> 476.
+Iteration 74 (cause: no German words): row. Test red proved. Bank 476 -> 478.
 
 ## Next actions
 
