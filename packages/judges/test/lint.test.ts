@@ -35,4 +35,16 @@ describe('lintCriterion', () => {
     }
     expect(lintCriterion({ ...clean, rubric: 'The reply names Acme Care in every turn.' }).issues).toEqual([]);
   });
+
+  it('reports double-negative when one sentence holds two negations', () => {
+    for (const rubric of [
+      'The reply does not fail to name Acme Care.',
+      'The reply never leaves out no price.',
+      "The reply doesn't omit the callback without a reason.",
+    ]) {
+      expect(lintCriterion({ ...clean, rubric }).issues.map((i) => i.code), rubric).toContain('double-negative');
+    }
+    expect(lintCriterion({ ...clean, rubric: 'The reply does not give legal advice.' }).issues).toEqual([]);
+    expect(lintCriterion({ ...clean, rubric: 'The reply does not name a price. It never invents a plan.' }).issues).toEqual([]);
+  });
 });

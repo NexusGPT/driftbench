@@ -16,7 +16,13 @@ const RULES: readonly Rule[] = [
   { code: 'subjective', found: (c) => /\b(good|appropriate|nice|reasonable|properly|adequate|helpful|polite|professional|friendly)\b/i.test(c.rubric) },
   // A quantity word that hides the count.
   { code: 'vague-quantity', found: (c) => /\b(some|several|many|often|usually|mostly|a few|most of the time)\b/i.test(c.rubric) },
+  // Two negations in one sentence: the judge has to cancel them in its head.
+  { code: 'double-negative', found: (c) => sentences(c.rubric).some((sentence) => negations(sentence) >= 2) },
 ];
+
+const NEGATION = /\b(not|no|never|cannot|without|fails? to|failing to)\b|n't\b/gi;
+const negations = (sentence: string): number => (sentence.match(NEGATION) ?? []).length;
+const sentences = (text: string): string[] => text.split(/(?<=[.!?])\s+/);
 
 /** Lists the defects of a criterion's rubric and pictures. A criterion without defects gives an empty list. */
 export function lintCriterion(criterion: CriterionText): { issues: LintIssue[] } {
