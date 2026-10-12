@@ -111,7 +111,9 @@ function statements(db: DatabaseSync) {
        ON CONFLICT (id, hash) DO UPDATE SET path = excluded.path, yaml = excluded.yaml`,
     ),
     selectSpec: db.prepare('SELECT path, yaml FROM specs WHERE id = ? AND hash = ?'),
-    insertCampaign: db.prepare('INSERT INTO campaigns (id, json, created_at) VALUES (?, ?, ?)'),
+    insertCampaignIfNew: db.prepare(
+      'INSERT INTO campaigns (id, json, created_at) VALUES (?, ?, ?) ON CONFLICT (id) DO NOTHING',
+    ),
     selectCampaign: db.prepare('SELECT id, json FROM campaigns WHERE id = ?'),
     selectCampaigns: db.prepare('SELECT id, json FROM campaigns'),
     deleteBlocks: db.prepare('DELETE FROM blocks WHERE campaign_id = ? AND run_id = ?'),
@@ -208,9 +210,7 @@ export class SqliteStore implements Store {
 
   async putCampaign(campaign: Campaign): Promise<void> {
     this.live();
-    // One write transaction: the check for a held campaign and the insert see the same store, so a campaign
-    // another process commits in between is compared, not hit as a raw constraint error.
-    transaction(this.db, () => this.putCampaignNow(campaign));
+    this.putCampaignNow(campaign);
   }
 
   async getCampaign(campaignId: string): Promise<Campaign | undefined> {
@@ -581,15 +581,20 @@ export class SqliteStore implements Store {
       );
     }
     const { campaignId } = parsed.data;
+    // Insert first, compare after: one statement, so a campaign another process commits between a check and
+    // the write is compared, never hit as a raw constraint error.
+    const inserted = this.sql.insertCampaignIfNew.run(
+      campaignId,
+      toJson(parsed.data, `campaign ${campaignId}`),
+      now(),
+    );
+    if (Number(inserted.changes) > 0) return;
     const row = this.sql.selectCampaign.get(campaignId);
-    if (row !== undefined) {
-      if (canonicalJson(readCampaign(row)) === canonicalJson(parsed.data)) return;
-      throw new StoreError(
-        'CAMPAIGN_CONFLICT',
-        `campaign ${campaignId} is already stored with other content; a campaign is immutable, so a re-run takes a new campaign id`,
-      );
-    }
-    this.sql.insertCampaign.run(campaignId, toJson(parsed.data, `campaign ${campaignId}`), now());
+    if (row !== undefined && canonicalJson(readCampaign(row)) === canonicalJson(parsed.data)) return;
+    throw new StoreError(
+      'CAMPAIGN_CONFLICT',
+      `campaign ${campaignId} is already stored with other content; a campaign is immutable, so a re-run takes a new campaign id`,
+    );
   }
 
   private putRunNow(campaignId: string, run: RunResult): void {
