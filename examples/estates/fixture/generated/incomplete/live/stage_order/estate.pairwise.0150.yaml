@@ -81,6 +81,8 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: open-items
     phrase: 1
+    ask: bank
+    outcome: bank
     needs:
       - marker: needs-stage-reach-check
         atom: stage.steps.stage-note-write-a-tracker-note

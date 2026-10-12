@@ -1,0 +1,12 @@
+{
+  "id": "estate.invariant.invariant.standing.no-file-of-the-estate-is",
+  "planRow": "invariant.invariant.standing.no-file-of-the-estate-is",
+  "testType": "invariant",
+  "atom": "invariant.standing.no-file-of-the-estate-is",
+  "title": "No file of the estate is an orphan",
+  "check": {
+    "kind": "invariant",
+    "check": "no_orphans"
+  },
+  "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10"
+}
