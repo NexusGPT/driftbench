@@ -67,6 +67,10 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Comparison](comparison.md): driftbench beside seven evaluation tools and six code-agent benchmarks, with a source and a read date for every cell.
 * [Comparison pages](comparison/index.md): one page per evaluation tool, with the result, the basis and a reproduce line for every row.
 
+## Research
+
+* [Budget-bounded test generation for AI agent evaluation](research/budget-bounded-tests.md): a research draft describing the budget selector and its evaluation.
+
 ## What exists today
 
 Phases 0, 1 and 2 are built, and most of phases 3 and G, with parts of phase 4 and the release:

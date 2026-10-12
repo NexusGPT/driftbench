@@ -12,9 +12,9 @@ An agent can satisfy an intent for one user type and fail for another, or behave
 
 Consider a fictional assistant that supports novice and experienced users, information and action intents, and ordinary and interrupted conversations. Tool settings can vary independently, subject to compatibility constraints. A test is a feasible assignment of these categories together with a conversation and its observable expectations. Numeric settings introduce a further sampling problem within their permitted ranges. All examples and experimental fixtures in this draft are fictional.
 
-Combinatorial testing provides an established vocabulary for this problem. A strength-two covering array represents every feasible pair of values, but a budget may expire before such coverage is attained. Partial covering arrays provide a related formulation when complete coverage is unnecessary or unaffordable [D3](#d3), [D44](#d44). Coverage is a structural property of selected inputs; it is not itself evidence of fault detection. Equal-budget random selection must therefore remain a substantive control [D52](#d52).
+Combinatorial testing provides an established vocabulary for this problem. A strength-two covering array represents every feasible pair of values, but a budget may expire before such coverage is attained. Partial covering arrays provide a related formulation when complete coverage is unnecessary or unaffordable [D3](#reference-d3), [D44](#reference-d44). Coverage is a structural property of selected inputs; it is not itself evidence of fault detection. Equal-budget random selection must therefore remain a substantive control [D52](#reference-d52).
 
-This paper documents the implemented selection rule and defines an evaluation protocol. Its contribution is a reproducible budget-first application of pair coverage and count balancing to approved agent situation maps. The coverage-plus-frequency ordering has prior art, particularly Choi et al. [D41](#d41). We do not claim to introduce that ordering, to implement Choi's divergence criterion, or to establish superiority from the current preliminary run. The intended numeric extension connects categorical selection with sliced Latin hypercube sampling, but that connection is not operational in the pinned version.
+This paper documents the implemented selection rule and defines an evaluation protocol. Its contribution is a reproducible budget-first application of pair coverage and count balancing to approved agent situation maps. The coverage-plus-frequency ordering has prior art, particularly Choi et al. [D41](#reference-d41). We do not claim to introduce that ordering, to implement Choi's divergence criterion, or to establish superiority from the current preliminary run. The intended numeric extension connects categorical selection with sliced Latin hypercube sampling, but that connection is not operational in the pinned version.
 
 A further distinction is essential: `--budget N` bounds the replacement rows of the conversation seeder. It does not cap all generated specs, conversation turns, model tokens or execution cost. Other seeders and coverage completion still contribute tests. Experiments must isolate the selected rows when comparing fixed budgets, and report whole-suite outcomes separately.
 
@@ -22,35 +22,35 @@ A further distinction is essential: `--budget N` bounds the replacement rows of 
 
 ### Combinatorial testing and covering arrays
 
-Cohen et al.'s AETG system establishes greedy selection based on newly covered interactions [D1](#d1). Nie and Leung survey combinatorial models, construction strategies and their use in testing [D3](#d3). Constrained interaction testing addresses configurations that cannot occur together; Cohen, Dwyer and Shi integrate constraints with test construction [D27](#d27). driftbench follows the same semantic requirement: a pair counts as feasible only if some valid full assignment can contain it. Its implementation uses a depth-first feasibility search rather than the satisfiability-based construction of that prior work.
+Cohen et al.'s AETG system establishes greedy selection based on newly covered interactions [D1](#reference-d1). Nie and Leung survey combinatorial models, construction strategies and their use in testing [D3](#reference-d3). Constrained interaction testing addresses configurations that cannot occur together; Cohen, Dwyer and Shi integrate constraints with test construction [D27](#reference-d27). driftbench follows the same semantic requirement: a pair counts as feasible only if some valid full assignment can contain it. Its implementation uses a depth-first feasibility search rather than the satisfiability-based construction of that prior work.
 
-Partial covering arrays study designs that cover a fraction of interactions [D44](#d44). That literature prevents treating a fixed row count with incomplete coverage as a new combinatorial problem. The present work applies a particular greedy rule to agent conversation maps and reports the coverage remaining at the chosen budget. Coverage measures for arbitrary test sets provide the basis for expressing covered pairs relative to an explicitly defined feasible domain [D46](#d46).
+Partial covering arrays study designs that cover a fraction of interactions [D44](#reference-d44). That literature prevents treating a fixed row count with incomplete coverage as a new combinatorial problem. The present work applies a particular greedy rule to agent conversation maps and reports the coverage remaining at the chosen budget. Coverage measures for arbitrary test sets provide the basis for expressing covered pairs relative to an explicitly defined feasible domain [D46](#reference-d46).
 
 ### Frequency balancing and the closest prior work
 
-Choi, Kitamura, Artho and Oiwa's *Design of prioritized N-wise testing* is the closest ordering precedent [D41](#d41). Their method considers new tuple coverage, tuple weights and a value-frequency criterion based on Kullback-Leibler divergence. The paper stops at complete coverage and explicitly excludes constraints. With uniform weights, the broad ordering of coverage before frequency resembles driftbench's rule. The numerical objectives are different: driftbench sums the negative current counts of the candidate's values, without computing a divergence, target probabilities or tuple weights.
+Choi, Kitamura, Artho and Oiwa's *Design of prioritized N-wise testing* is the closest ordering precedent [D41](#reference-d41). Their method considers new tuple coverage, tuple weights and a value-frequency criterion based on Kullback-Leibler divergence. The paper stops at complete coverage and explicitly excludes constraints. With uniform weights, the broad ordering of coverage before frequency resembles driftbench's rule. The numerical objectives are different: driftbench sums the negative current counts of the candidate's values, without computing a divergence, target probabilities or tuple weights.
 
-Fujimoto, Kojima and Tsuchiya address desired value frequencies by augmenting a pairwise suite [D39](#d39). driftbench instead applies count balancing during selection and keeps a fixed row limit. After every feasible pair is covered, count balancing alone determines subsequent choices, with seeded ordering as the final tie-break. These distinctions describe the pinned implementation; they do not imply that its choices coincide with a weighted or divergence-based algorithm.
+Fujimoto, Kojima and Tsuchiya address desired value frequencies by augmenting a pairwise suite [D39](#reference-d39). driftbench instead applies count balancing during selection and keeps a fixed row limit. After every feasible pair is covered, count balancing alone determines subsequent choices, with seeded ordering as the final tie-break. These distinctions describe the pinned implementation; they do not imply that its choices coincide with a weighted or divergence-based algorithm.
 
 ### Latin hypercube sampling and sliced designs
 
-McKay, Beckman and Conover introduce Latin hypercube sampling (LHS), which stratifies each input's range and samples each stratum [D59](#d59). Qian's sliced Latin hypercube designs maintain Latin hypercube structure both within slices and across their union [D69](#d69). Deng, Hung and Lin study coupled designs for qualitative and quantitative factors [D74](#d74). These works motivate combining categorical coverage with numeric stratification, while targeting experimental design rather than agent fault detection.
+McKay, Beckman and Conover introduce Latin hypercube sampling (LHS), which stratifies each input's range and samples each stratum [D59](#reference-d59). Qian's sliced Latin hypercube designs maintain Latin hypercube structure both within slices and across their union [D69](#reference-d69). Deng, Hung and Lin study coupled designs for qualitative and quantitative factors [D74](#reference-d74). These works motivate combining categorical coverage with numeric stratification, while targeting experimental design rather than agent fault detection.
 
 The implemented categorical rule is LHS-inspired count balancing, not a formal Latin hypercube construction. It can favour underused categories, but constraints and coverage priority can prevent equal counts. Similarly, the helper named `slicedLhs` currently draws a shuffled stratified sample on a single interval. It does not construct jointly Latin slices across category combinations. A claim of Qian-style global and within-slice stratification must await integration and verification.
 
-Li et al.'s ComOpT is a close testing precedent outside language agents: it combines constrained abstract scenario selection with numeric instantiation under a limited testing budget [D92](#d92). Its numeric instantiation differs from the planned sliced-LHS extension. This overlap further narrows our contribution to the concrete selector, its agent-map integration and the proposed evaluation, rather than the general discrete-to-continuous pipeline.
+Li et al.'s ComOpT is a close testing precedent outside language agents: it combines constrained abstract scenario selection with numeric instantiation under a limited testing budget [D92](#reference-d92). Its numeric instantiation differs from the planned sliced-LHS extension. This overlap further narrows our contribution to the concrete selector, its agent-map integration and the proposed evaluation, rather than the general discrete-to-continuous pipeline.
 
 ### Test prioritisation
 
-Bryce and Colbourn prioritise pairwise interactions with seeding and constraints [D33](#d33). A prefix of a prioritised suite is a natural budgeted test set. driftbench constructs its selected categorical rows from the feasible pool; it does not use observed failures to reorder them. Prioritisation and budgeted generation still share the goal of placing useful tests early. Random selection remains necessary because interaction coverage alone need not imply a fault-detection advantage on every subject [D52](#d52).
+Bryce and Colbourn prioritise pairwise interactions with seeding and constraints [D33](#reference-d33). A prefix of a prioritised suite is a natural budgeted test set. driftbench constructs its selected categorical rows from the feasible pool; it does not use observed failures to reorder them. Prioritisation and budgeted generation still share the goal of placing useful tests early. Random selection remains necessary because interaction coverage alone need not imply a fault-detection advantage on every subject [D52](#reference-d52).
 
 ### LLM evaluation and simulation
 
-Garn et al. apply pairwise combinatorial testing to language-model inputs [D119](#d119), so pairwise selection for LLM testing is already established. Levi and Kadar's IntellAgent samples composed policy scenarios and simulates dialogues [D112](#d112). Yao et al.'s tau-bench combines simulated users, tool interfaces and policies [D124](#d124). These approaches concern scenario construction and execution as well as evaluation; our selector concerns which categorical conversation rows receive a limited allocation.
+Garn et al. apply pairwise combinatorial testing to language-model inputs [D119](#reference-d119), so pairwise selection for LLM testing is already established. Levi and Kadar's IntellAgent samples composed policy scenarios and simulates dialogues [D112](#reference-d112). Yao et al.'s tau-bench combines simulated users, tool interfaces and policies [D124](#reference-d124). These approaches concern scenario construction and execution as well as evaluation; our selector concerns which categorical conversation rows receive a limited allocation.
 
-Feng et al.'s Vera composes risk, attack-method and environment taxonomies into executable safety cases [D111](#d111). Its inspected construction considers risk and attack-method pairs, samples environment leaves and filters incompatible combinations. It is not a covering-array method and does not impose the same fixed row-selection budget or count-balancing rule. We make no claim that it guarantees coverage of pairs involving every environment value.
+Feng et al.'s Vera composes risk, attack-method and environment taxonomies into executable safety cases [D111](#reference-d111). Its inspected construction considers risk and attack-method pairs, samples environment leaves and filters incompatible combinations. It is not a covering-array method and does not impose the same fixed row-selection budget or count-balancing rule. We make no claim that it guarantees coverage of pairs involving every environment value.
 
-Budget-efficient benchmark estimation is a different objective. Maia Polo et al.'s tinyBenchmarks selects representative items to estimate full-benchmark performance [D147](#d147). Here the intended outcome is fault discovery under a row budget. A set useful for estimating aggregate accuracy need not expose the same faults as a set chosen for interaction coverage.
+Budget-efficient benchmark estimation is a different objective. Maia Polo et al.'s tinyBenchmarks selects representative items to estimate full-benchmark performance [D147](#reference-d147). Here the intended outcome is fault discovery under a row budget. A set useful for estimating aggregate accuracy need not expose the same faults as a set chosen for interaction coverage.
 
 ## Method
 
@@ -130,7 +130,7 @@ sample = low + (band + rng()) * width
 
 This gives one-dimensional stratification for that call, including a degenerate interval when the endpoints coincide. At the pinned commit, no production caller connects it to budgeted conversation settings. Existing numeric partition rendering still derives concrete values from schema bounds.
 
-The intended extension is to fill numeric settings within chosen category combinations. Such integration must define the slices, coordinate draws across numeric dimensions, preserve admissibility and verify the required within-slice and global properties. Independent calls on category groups do not by themselves establish Qian's sliced-LHS guarantee [D69](#d69). All claims about numeric sliced-LHS effectiveness remain pending.
+The intended extension is to fill numeric settings within chosen category combinations. Such integration must define the slices, coordinate draws across numeric dimensions, preserve admissibility and verify the required within-slice and global properties. Independent calls on category groups do not by themselves establish Qian's sliced-LHS guarantee [D69](#reference-d69). All claims about numeric sliced-LHS effectiveness remain pending.
 
 ## Experimental setup
 
@@ -138,7 +138,7 @@ The intended extension is to fill numeric settings within chosen category combin
 
 The current study uses the repository's fictional example system under `examples/acme`, with its approved situation map and scripted reference and faulty agents. The measurement script runs deterministic function-backed conversations and process-backed tasks with a scripted user driver. It does not call a language model. Consequently, the current study tests selection and observable fault detection in the framework, not stochastic LLM behaviour or simulated-user fidelity.
 
-A fault is counted as caught when a block passes its machine checks on the reference and fails them on the corresponding faulty agent. The script records witness spec and block identifiers. Identity controls and an equivalent fault are excluded from the scored set; the equivalence assumption is checked against projected reference traces during measurement. Mutation-based assessment requires caution about equivalent, duplicate and subsumed faults [D153](#d153).
+A fault is counted as caught when a block passes its machine checks on the reference and fails them on the corresponding faulty agent. The script records witness spec and block identifiers. Identity controls and an equivalent fault are excluded from the scored set; the equivalence assumption is checked against projected reference traces during measurement. Mutation-based assessment requires caution about equivalent, duplicate and subsumed faults [D153](#reference-d153).
 
 Selected conversation rows contain no task-family instances. Some scored faults target tasks and can only be exercised by other suite components. Reporting faults against the common scored set preserves a fixed denominator but does not imply that every fault is reachable by the selected-row method. An eventual analysis should also distinguish target classes and report which faults each method can exercise.
 
@@ -160,11 +160,11 @@ The current CLI comparison also applies `--max N` to other seeders in pairwise m
 
 ### Metrics and analysis plan
 
-Faults caught are distinct scored faults with a reference-pass and faulty-fail witness. Pairs covered are distinct allowed pairs present in selected categorical cells, with the denominator fixed by the common feasible pool [D46](#d46). Full-suite coverage uses the broader map and must name its axis set and denominator separately. Value-count deviation is `max_i,v |c_i(v) - K/a_i|`, including feasible values selected zero times. Cost should report actual executed specs and blocks, elapsed execution time, and any metered model or tool usage separately.
+Faults caught are distinct scored faults with a reference-pass and faulty-fail witness. Pairs covered are distinct allowed pairs present in selected categorical cells, with the denominator fixed by the common feasible pool [D46](#reference-d46). Full-suite coverage uses the broader map and must name its axis set and denominator separately. Value-count deviation is `max_i,v |c_i(v) - K/a_i|`, including feasible values selected zero times. Cost should report actual executed specs and blocks, elapsed execution time, and any metered model or tool usage separately.
 
 Selection coverage and counts can include incomplete rows, while fault scoring executes complete specs only. A final analysis must expose that difference by recording selected, complete and executed counts and reference failures. It must also distinguish abstract selected-cell coverage from coverage actually exercised by runnable conversations.
 
-For hybrid and random budget-20 trials, report the mean, sample standard deviation and range. Both use seeds 1 through 30 for selection and scenario rendering; the selector seed only changes its tie-breaks. Balance, cost, other-budget controls and repeated pure pairwise trials remain pending. Following Arcuri and Briand's guidance for randomised algorithm evaluation [D161](#d161), retain trial records and estimate uncertainty and effect sizes rather than treating a single seed as representative. The budget-20 subsection reports exact paired tests and mean paired differences, conditional on the stated null. No cost saving or general advantage is claimed.
+For hybrid and random budget-20 trials, report the mean, sample standard deviation and range. Both use seeds 1 through 30 for selection and scenario rendering; the selector seed only changes its tie-breaks. Balance, cost, other-budget controls and repeated pure pairwise trials remain pending. Following Arcuri and Briand's guidance for randomised algorithm evaluation [D161](#reference-d161), retain trial records and estimate uncertainty and effect sizes rather than treating a single seed as representative. The budget-20 subsection reports exact paired tests and mean paired differences, conditional on the stated null. No cost saving or general advantage is claimed.
 
 Reproduction must record the feature commit, map hash, selected indices, run seed, method, generated spec paths, reference failures and fault witnesses. The numeric implementation version must be recorded separately once integrated. Appendix A links the scripts and method source; this draft does not replace or modify their measurement output.
 
@@ -218,11 +218,11 @@ The exact two-sided paired test uses the absolute mean of hybrid-minus-random di
 
 **One example system.** The current subject is a single fictional system with a particular approved map and constraint structure. Generalisation to other maps, agent architectures, user populations or production environments is untested. Excluding task axes also limits what the selected conversation rows can exercise.
 
-**Seeded faults.** Detection depends on the chosen fault operators and observable checks. Equivalent, redundant or subsumed faults can distort conclusions [D153](#d153). A generated suite can favour faults anticipated by its map and expectations. Equivalence controls and witness traces help audit the measurement but do not establish representativeness of real agent defects.
+**Seeded faults.** Detection depends on the chosen fault operators and observable checks. Equivalent, redundant or subsumed faults can distort conclusions [D153](#reference-d153). A generated suite can favour faults anticipated by its map and expectations. Equivalence controls and witness traces help audit the measurement but do not establish representativeness of real agent defects.
 
 **Repeated seeds at one budget.** Hybrid and random budget-20 controls use 30 paired seeds. A seeded shuffle resolves hybrid ties, and scenario rendering uses each seed in both methods. Pure pairwise repeated trials and controls at the other budgets remain pending. Consecutive deterministic pseudorandom seeds do not establish independence of real agent failures; the paired tests are conditional on within-seed method-label exchangeability and independent swaps across seed pairs.
 
-**Deterministic execution.** Scripted references, faults and users remove stochastic language-model and user-simulation variation. They support an offline selector check, but not a reliability claim for an LLM-backed agent. Such evaluation must vary execution seeds or repeated runs separately from selection seeds [D124](#d124).
+**Deterministic execution.** Scripted references, faults and users remove stochastic language-model and user-simulation variation. They support an offline selector check, but not a reliability claim for an LLM-backed agent. Such evaluation must vary execution seeds or repeated runs separately from selection seeds [D124](#reference-d124).
 
 **Coverage and execution mismatch.** Abstract pair coverage can include incomplete rows, whereas fault checks run only complete specs. Other seeders and coverage repair can increase whole-suite detection outside the selected-row budget. Whole-suite denominators and cost must therefore remain separate from selector statistics.
 
@@ -240,26 +240,86 @@ The method builds on established combinatorial selection and frequency-prioritis
 
 Citation labels retain the entry IDs of the supplied bibliography dossier. Only dossier entries are cited; page ranges are omitted.
 
-- <a id="d1"></a>**D1.** Cohen D.M., Dalal S.R., Fredman M.L., Patton G.C. (1997). *The AETG system: an approach to testing based on combinatorial design.* IEEE Transactions on Software Engineering 23(7). [DOI](https://doi.org/10.1109/32.605761).
-- <a id="d3"></a>**D3.** Nie C., Leung H. (2011). *A survey of combinatorial testing.* ACM Computing Surveys 43(2). [DOI](https://doi.org/10.1145/1883612.1883618).
-- <a id="d27"></a>**D27.** Cohen M.B., Dwyer M.B., Shi J. (2007). *Interaction testing of highly-configurable systems in the presence of constraints.* ISSTA. [DOI](https://doi.org/10.1145/1273463.1273482).
-- <a id="d33"></a>**D33.** Bryce R.C., Colbourn C.J. (2006). *Prioritized interaction testing for pair-wise coverage with seeding and constraints.* Information and Software Technology 48(10). [DOI](https://doi.org/10.1016/j.infsof.2006.03.004).
-- <a id="d39"></a>**D39.** Fujimoto S., Kojima H., Tsuchiya T. (2013). *A value weighting method for pair-wise testing.* APSEC. [DOI](https://doi.org/10.1109/apsec.2013.24).
-- <a id="d41"></a>**D41.** Choi E.-H., Kitamura T., Artho C., Oiwa Y. (2014). *Design of prioritized N-wise testing.* ICTSS, LNCS. [DOI](https://doi.org/10.1007/978-3-662-44857-1_14).
-- <a id="d44"></a>**D44.** Sarkar K., Colbourn C.J., De Bonis A., Vaccaro U. (2018, online 2017). *Partial covering arrays: algorithms and asymptotics.* Theory of Computing Systems 62. [DOI](https://doi.org/10.1007/s00224-017-9782-9).
-- <a id="d46"></a>**D46.** Kuhn D.R., Kacker R.N., Lei Y. (2016, online 2015). *Measuring and specifying combinatorial coverage of test input configurations.* Innovations in Systems and Software Engineering 12. [DOI](https://doi.org/10.1007/s11334-015-0266-2).
-- <a id="d52"></a>**D52.** Schroeder P.J., Bolaki P., Gopu V. (2004). *Comparing the fault detection effectiveness of n-way and random test suites.* ISESE. [DOI](https://doi.org/10.1109/isese.2004.1334893).
-- <a id="d59"></a>**D59.** McKay M.D., Beckman R.J., Conover W.J. (1979). *A comparison of three methods for selecting values of input variables in the analysis of output from a computer code.* Technometrics 21(2). [DOI](https://doi.org/10.1080/00401706.1979.10489755).
-- <a id="d69"></a>**D69.** Qian P.Z.G. (2012). *Sliced Latin hypercube designs.* Journal of the American Statistical Association 107(497). [DOI](https://doi.org/10.1080/01621459.2011.644132).
-- <a id="d74"></a>**D74.** Deng X., Hung Y., Lin C.D. (2015). *Design for computer experiments with qualitative and quantitative factors.* Statistica Sinica 25. [DOI](https://doi.org/10.5705/ss.2013.388).
-- <a id="d92"></a>**D92.** Li C., Cheng C.-H., Sun T., Chen Y., Yan R. (2022). *ComOpT: combination and optimization for testing autonomous driving systems.* ICRA. [DOI](https://doi.org/10.1109/icra46639.2022.9811794).
-- <a id="d111"></a>**D111.** Feng Y., Lin R., Wen M., He Q., Guo Y., et al. (2026). *Safety testing LLM agents at scale: from risk discovery to evidence-grounded verification.* arXiv 2607.01793. [Preprint](https://arxiv.org/abs/2607.01793).
-- <a id="d112"></a>**D112.** Levi E., Kadar I. (2025). *IntellAgent: a multi-agent framework for evaluating conversational AI systems.* arXiv 2501.11067. [Preprint](https://arxiv.org/abs/2501.11067).
-- <a id="d119"></a>**D119.** Garn B., Kampel L., Leithner M., Celic B., Çulha C., Hiess I., et al. (2023). *Applying pairwise combinatorial testing to large language model testing.* LNCS. [DOI](https://doi.org/10.1007/978-3-031-43240-8_16).
-- <a id="d124"></a>**D124.** Yao S., Shinn N., Razavi P., Narasimhan K. (2024). *tau-bench: a benchmark for tool-agent-user interaction in real-world domains.* arXiv 2406.12045. [Preprint](https://arxiv.org/abs/2406.12045).
-- <a id="d147"></a>**D147.** Maia Polo F., Weber L., Choshen L., Sun Y., Xu G., Yurochkin M. (2024). *tinyBenchmarks: evaluating LLMs with fewer examples.* ICML; arXiv 2402.14992. [Preprint](https://arxiv.org/abs/2402.14992).
-- <a id="d153"></a>**D153.** Papadakis M., Henard C., Harman M., Jia Y., Le Traon Y. (2016). *Threats to the validity of mutation-based test assessment.* ISSTA. [DOI](https://doi.org/10.1145/2931037.2931040).
-- <a id="d161"></a>**D161.** Arcuri A., Briand L. (2011). *A practical guide for using statistical tests to assess randomized algorithms in software engineering.* ICSE. [DOI](https://doi.org/10.1145/1985793.1985795).
+### Reference D1
+
+Cohen D.M., Dalal S.R., Fredman M.L., Patton G.C. (1997). *The AETG system: an approach to testing based on combinatorial design.* IEEE Transactions on Software Engineering 23(7). [DOI](https://doi.org/10.1109/32.605761).
+
+### Reference D3
+
+Nie C., Leung H. (2011). *A survey of combinatorial testing.* ACM Computing Surveys 43(2). [DOI](https://doi.org/10.1145/1883612.1883618).
+
+### Reference D27
+
+Cohen M.B., Dwyer M.B., Shi J. (2007). *Interaction testing of highly-configurable systems in the presence of constraints.* ISSTA. [DOI](https://doi.org/10.1145/1273463.1273482).
+
+### Reference D33
+
+Bryce R.C., Colbourn C.J. (2006). *Prioritized interaction testing for pair-wise coverage with seeding and constraints.* Information and Software Technology 48(10). [DOI](https://doi.org/10.1016/j.infsof.2006.03.004).
+
+### Reference D39
+
+Fujimoto S., Kojima H., Tsuchiya T. (2013). *A value weighting method for pair-wise testing.* APSEC. [DOI](https://doi.org/10.1109/apsec.2013.24).
+
+### Reference D41
+
+Choi E.-H., Kitamura T., Artho C., Oiwa Y. (2014). *Design of prioritized N-wise testing.* ICTSS, LNCS. [DOI](https://doi.org/10.1007/978-3-662-44857-1_14).
+
+### Reference D44
+
+Sarkar K., Colbourn C.J., De Bonis A., Vaccaro U. (2018, online 2017). *Partial covering arrays: algorithms and asymptotics.* Theory of Computing Systems 62. [DOI](https://doi.org/10.1007/s00224-017-9782-9).
+
+### Reference D46
+
+Kuhn D.R., Kacker R.N., Lei Y. (2016, online 2015). *Measuring and specifying combinatorial coverage of test input configurations.* Innovations in Systems and Software Engineering 12. [DOI](https://doi.org/10.1007/s11334-015-0266-2).
+
+### Reference D52
+
+Schroeder P.J., Bolaki P., Gopu V. (2004). *Comparing the fault detection effectiveness of n-way and random test suites.* ISESE. [DOI](https://doi.org/10.1109/isese.2004.1334893).
+
+### Reference D59
+
+McKay M.D., Beckman R.J., Conover W.J. (1979). *A comparison of three methods for selecting values of input variables in the analysis of output from a computer code.* Technometrics 21(2). [DOI](https://doi.org/10.1080/00401706.1979.10489755).
+
+### Reference D69
+
+Qian P.Z.G. (2012). *Sliced Latin hypercube designs.* Journal of the American Statistical Association 107(497). [DOI](https://doi.org/10.1080/01621459.2011.644132).
+
+### Reference D74
+
+Deng X., Hung Y., Lin C.D. (2015). *Design for computer experiments with qualitative and quantitative factors.* Statistica Sinica 25. [DOI](https://doi.org/10.5705/ss.2013.388).
+
+### Reference D92
+
+Li C., Cheng C.-H., Sun T., Chen Y., Yan R. (2022). *ComOpT: combination and optimization for testing autonomous driving systems.* ICRA. [DOI](https://doi.org/10.1109/icra46639.2022.9811794).
+
+### Reference D111
+
+Feng Y., Lin R., Wen M., He Q., Guo Y., et al. (2026). *Safety testing LLM agents at scale: from risk discovery to evidence-grounded verification.* arXiv 2607.01793. [Preprint](https://arxiv.org/abs/2607.01793).
+
+### Reference D112
+
+Levi E., Kadar I. (2025). *IntellAgent: a multi-agent framework for evaluating conversational AI systems.* arXiv 2501.11067. [Preprint](https://arxiv.org/abs/2501.11067).
+
+### Reference D119
+
+Garn B., Kampel L., Leithner M., Celic B., Çulha C., Hiess I., et al. (2023). *Applying pairwise combinatorial testing to large language model testing.* LNCS. [DOI](https://doi.org/10.1007/978-3-031-43240-8_16).
+
+### Reference D124
+
+Yao S., Shinn N., Razavi P., Narasimhan K. (2024). *tau-bench: a benchmark for tool-agent-user interaction in real-world domains.* arXiv 2406.12045. [Preprint](https://arxiv.org/abs/2406.12045).
+
+### Reference D147
+
+Maia Polo F., Weber L., Choshen L., Sun Y., Xu G., Yurochkin M. (2024). *tinyBenchmarks: evaluating LLMs with fewer examples.* ICML; arXiv 2402.14992. [Preprint](https://arxiv.org/abs/2402.14992).
+
+### Reference D153
+
+Papadakis M., Henard C., Harman M., Jia Y., Le Traon Y. (2016). *Threats to the validity of mutation-based test assessment.* ISSTA. [DOI](https://doi.org/10.1145/2931037.2931040).
+
+### Reference D161
+
+Arcuri A., Briand L. (2011). *A practical guide for using statistical tests to assess randomized algorithms in software engineering.* ICSE. [DOI](https://doi.org/10.1145/1985793.1985795).
+
 
 ## Appendix A: implementation traceability
 
