@@ -148,3 +148,9 @@ export function swapConsistent(first: string, swapped: string): boolean {
   const back = swapped === 'a' ? 'b' : swapped === 'b' ? 'a' : swapped;
   return back === first;
 }
+
+/** The share of pairs whose winner changes when the two answers swap places; 0 with no pairs. */
+export function positionBias(pairs: readonly { first: string; swapped: string }[]): number {
+  if (pairs.length === 0) return 0;
+  return pairs.filter((pair) => !swapConsistent(pair.first, pair.swapped)).length / pairs.length;
+}

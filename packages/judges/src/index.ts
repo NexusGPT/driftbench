@@ -142,6 +142,7 @@ export {
   type PairwiseVerdict,
   pairwiseRequest,
   pairwiseTally,
+  positionBias,
   readPairwiseCriterion,
   swapConsistent,
 } from './pairwise';
