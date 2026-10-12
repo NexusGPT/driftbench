@@ -69,6 +69,8 @@ export type JudgeResult = {
   readonly raw: string;
   /** True when the raw answer did not satisfy the contract. The answer is then inconclusive. */
   readonly unparsed?: boolean;
+  /** What the call cost in US dollars, when the provider reports it (the claude command does). */
+  readonly costUsd?: number;
 };
 
 /** An inconclusive answer that names why. */

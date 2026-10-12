@@ -364,3 +364,32 @@ describe('the assignment table and the council', () => {
     }
   });
 });
+
+describe('the recorded haiku calibration (a real judge on the claude command, 2026-10-12)', () => {
+  it('replays to the measured result: 11 of 12 pairs separate 3 of 3, 10 of 12 at the bar, kappa 0.81 over 40 labels, 0.0271 USD', async () => {
+    const { criteria, labels } = await acme();
+    const cassette = await loadCassette(join(CRITERIA, 'calibration/claude-haiku.cassette.json'));
+    expect(cassette.judges.map((j) => j.id)).toEqual(['claude-haiku']);
+    const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels });
+    expect(report.errors).toBe(0);
+    expect(report.spentUsd).toBeCloseTo(0.0271, 4);
+    const rows = Object.fromEntries(report.criteria.map((c) => [c.criterion, c.judges[0]] as const));
+    const separated = Object.entries(rows).filter(([, r]) => r?.separation.separated === 3);
+    expect(separated).toHaveLength(11);
+    expect(rows.sheet_matches_catalog?.separation.separated).toBe(0);
+    expect(rows.sheet_matches_catalog?.separation.pass).toEqual([
+      'inconclusive',
+      'inconclusive',
+      'inconclusive',
+    ]);
+    expect(rows.no_invented_data?.labels.kappa).toBeCloseTo(0.6, 10);
+    const atBar = Object.entries(rows)
+      .filter(([, r]) => r?.meetsBar)
+      .map(([name]) => name);
+    expect(atBar).toHaveLength(10);
+    expect(atBar).not.toContain('sheet_matches_catalog');
+    expect(atBar).not.toContain('no_invented_data');
+    expect(report.pooled[0]).toMatchObject({ judge: 'claude-haiku', n: 40, agree: 36 });
+    expect(report.pooled[0]?.kappa).toBeCloseTo(0.81, 2);
+  });
+});

@@ -39,6 +39,8 @@ export const CassetteEntry = z.strictObject({
   answer: z.unknown().optional(),
   raw: z.string().optional(),
   error: z.string().optional(),
+  /** What the recorded call cost in US dollars, when the client reported it. Replayed with the answer. */
+  cost_usd: z.number().nonnegative().optional(),
 });
 export type CassetteEntry = z.infer<typeof CassetteEntry>;
 
@@ -79,13 +81,15 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
     cost: client.cost,
     async judge(request) {
       const base = { judge: client.id, key: requestKey(request), criterion: request.criterion.name };
+      const cost = (result: JudgeResult) =>
+        result.costUsd === undefined ? {} : { cost_usd: result.costUsd };
       try {
         const result = await client.judge(request);
         // An unparsed answer is kept as raw text only, so its replay is unparsed too and is re-judged.
         cassette.entries.push(
           result.unparsed
-            ? { ...base, raw: result.raw }
-            : { ...base, answer: result.answer, raw: result.raw },
+            ? { ...base, raw: result.raw, ...cost(result) }
+            : { ...base, answer: result.answer, raw: result.raw, ...cost(result) },
         );
         return result;
       } catch (cause) {
@@ -130,8 +134,9 @@ export function cassettePlayers(cassette: Cassette): JudgeClient[] {
 
 function replay(entry: CassetteEntry): JudgeResult {
   if (entry.error !== undefined) throw new JudgeError('http', `recorded failure: ${entry.error}`);
-  if (entry.answer !== undefined) return parseAnswerValue(entry.answer, entry.raw);
-  if (entry.raw !== undefined) return parseAnswerText(entry.raw);
+  const cost = entry.cost_usd === undefined ? {} : { costUsd: entry.cost_usd };
+  if (entry.answer !== undefined) return { ...parseAnswerValue(entry.answer, entry.raw), ...cost };
+  if (entry.raw !== undefined) return { ...parseAnswerText(entry.raw), ...cost };
   throw new JudgeError(
     'bad_response',
     `the recording for key ${entry.key} holds no answer, raw text or error`,
