@@ -131,16 +131,15 @@ function jsonTextViews(text: string): string[] {
   return views;
 }
 
-function suppliedQuote(quote: string, side: 'A' | 'B'): string | undefined {
+export function stripReplyLabel(quote: string, winner: 'A' | 'B'): string | undefined {
   const label = /^\s*Reply\s+([AB])\s*:\s*/i.exec(quote);
-  if (label && label[1]?.toUpperCase() !== side) return undefined;
+  if (label && label[1]?.toUpperCase() !== winner) return undefined;
   return (label ? quote.slice(label[0].length) : quote).replace(/⏎/g, '\n');
 }
 
 /** Winner identity uses reversible JSON/presentation views, then exactly the same substantive match. */
-export function candidateContainsQuote(text: string, quote: string, side: 'A' | 'B'): boolean {
-  const supplied = suppliedQuote(quote, side);
-  if (supplied === undefined) return false;
+export function candidateContainsQuote(text: string, quote: string): boolean {
+  const supplied = quote.replace(/⏎/g, '\n');
   return jsonTextViews(text).some((view) => {
     const source = view.replace(/⏎/g, '\n');
     return quoteMatches(source, supplied) || quoteMatches(source, supplied, true);
@@ -148,10 +147,9 @@ export function candidateContainsQuote(text: string, quote: string, side: 'A' | 
 }
 
 /** A quoted full continuation can repeat the common prefix. Remove that overlap, never source words. */
-export function quoteContinuations(passage: string, quote: string, side: 'A' | 'B'): string[] {
-  const supplied = suppliedQuote(passage, side);
-  const prefix = suppliedQuote(quote, side);
-  if (supplied === undefined || prefix === undefined) return [];
+export function quoteContinuations(passage: string, quote: string): string[] {
+  const supplied = passage.replace(/⏎/g, '\n');
+  const prefix = quote.replace(/⏎/g, '\n');
   return [false, true].flatMap((keepLists) => {
     const whole = fold(supplied, keepLists);
     const opening = fold(prefix, keepLists);

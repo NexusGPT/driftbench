@@ -21,6 +21,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 * `combineVerdicts([], [])` returns `pass: false`; duplicate judged verdict ids are refused. Judge-check ids distinguish criterion names that sanitize to the same string. Workspace-diff paths escape line separators.
 * OpenAI, Anthropic and Google chat judge providers now send temperature zero.
 * HTTP judge error diagnostics redact echoed nonempty authentication header values, including secrets shorter than eight characters.
+* Leading reply labels are validated once against the declared winner; their stripped body is compared with both candidates, including JSON/plain equivalents. Labels cannot make shared content exclusive.
 * Winner identity also accepts strict JSON text-field decoding, rendered separators, preserved or stripped list presentation and a matching leading reply label. A repeated shared opening in supplied following evidence is removed before extension. Paraphrase, contradictory labels and nonexclusive matches still abstain.
 * New quote grounding ignores Markdown presentation syntax on both sides and requires a letter or digit from the quoted source text. Labels, renderer separators and punctuation alone abstain; frozen legacy is unchanged.
 * Calibration adds PABAK, AC1 and agreement intervals. Chat providers use request-specific structured output schemas; OpenAI chat calls use temperature zero. Invalid caller requirement sets report their own diagnostic rather than an invalid-JSON error.

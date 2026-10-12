@@ -9,7 +9,7 @@ import {
   repeatedObjectKey,
 } from './contract';
 import { CriterionLedger, parseCriterionLedger, requirementsFor } from './criterion-ledger';
-import { candidateContainsQuote, quoteContinuations } from './evidence';
+import { candidateContainsQuote, quoteContinuations, stripReplyLabel } from './evidence';
 import { FactLedgerAnswer, parseFactLedger } from './fact-audit';
 import {
   parseAnswerText as parseLegacyAnswerText,
@@ -166,18 +166,22 @@ export function parseJudgeValue(
     if (!parsed.success) return invalid(raw, parsed.error.issues[0]?.message ?? 'invalid winner');
     const { winner, winnerQuote, ...answer } = parsed.data;
     if (winner === 'A' || winner === 'B') {
+      const body = winnerQuote === null ? undefined : stripReplyLabel(winnerQuote, winner);
+      if (body === undefined) return invalid(raw, 'winnerQuote label must agree with the named winner');
       const matching = (quote: string) =>
         (['A', 'B'] as const).filter((side) => {
           const text = request.candidates?.[side];
-          return text !== undefined && candidateContainsQuote(text, quote, side);
+          return text !== undefined && candidateContainsQuote(text, quote);
         });
-      let matches = winnerQuote === null || !request.candidates ? [] : matching(winnerQuote);
-      if (matches.length === 2 && winnerQuote !== null && answer.evidence) {
+      let matches = !request.candidates ? [] : matching(body);
+      if (matches.length === 2 && answer.evidence) {
         // Extend only with text the model actually supplied. Never invent the next words from the
         // candidate selected by its label. The whole continuation must occur after the shared quote.
         for (const following of evidencePassages(answer.evidence, winner)) {
-          for (const continuation of [following, ...quoteContinuations(following, winnerQuote, winner)]) {
-            const extended = matching(`${winnerQuote} ... ${continuation}`);
+          const passage = stripReplyLabel(following, winner);
+          if (passage === undefined) continue;
+          for (const continuation of [passage, ...quoteContinuations(passage, body)]) {
+            const extended = matching(`${body} ... ${continuation}`);
             if (extended.length === 1 && extended[0] === winner) {
               matches = extended;
               break;
