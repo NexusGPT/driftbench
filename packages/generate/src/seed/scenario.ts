@@ -350,10 +350,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       }
       ruled.push(...sourcesOf(entry.must));
     }
-    const carries = unique([
-      [prepared.transition as number, transition],
-      ...ruled,
-    ]);
+    const carries = unique([[prepared.transition as number, transition], ...ruled]);
     blocks.push({
       id: `b${blocks.length + 1}-${transitionId}`,
       stimulus: stimulusOf(phrase, transitionKey, transitionId),

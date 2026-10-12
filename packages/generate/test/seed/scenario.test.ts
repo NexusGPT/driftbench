@@ -951,7 +951,10 @@ describe('iteration 19: a turn that must not move the conversation', () => {
 describe('iteration 20: a block records what its Then reads', () => {
   it('records the stage a move is said at, not the stage it reaches', () => {
     const prepared = prepare();
-    const built = buildScenario(prepared, rngFor(1, 't'), { path: path(prepared, 'balance-found'), fixed: [] });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
     if (!built.ok) throw new Error(built.reason);
     expect(built.blocks.map((block) => block.saidAt)).toEqual(['greet', 'verify']);
     expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'help']);
