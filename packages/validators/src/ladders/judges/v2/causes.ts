@@ -59,6 +59,38 @@ const RULES: readonly (readonly [RegExp, string])[] = [
     'Keep the judge path of ladder version 1 working (cassette replay, the answer contract, the council and its cascade).',
   ],
   [
+    /^render\/as-written-/,
+    `In ${S}/src/prompt.ts escapeData: escape only data-tag lookalikes and keep every other angle bracket, entity and character exactly as written.`,
+  ],
+  [
+    /^contract\/score-contradicts-near-the-middle$/,
+    'In the contract: the contradiction limit is 0.5, a pass under it or a fail over it is refused.',
+  ],
+  [
+    /^clients\/large-budget-sends-more-tokens$/,
+    `In ${S}/src/contract.ts MAX_TOKENS: give the large budget more tokens than the normal one.`,
+  ],
+  [
+    /^council\/unparsed-is-asked-again-at-large-budget$/,
+    'In council castVote: ask an unparsed normal-budget answer again at the large budget.',
+  ],
+  [
+    /^council\/a-throwing-judge-counts-one-error$/,
+    'In council castVote: count each call that throws as one error.',
+  ],
+  [
+    /^council\/score-averages-the-agreeing-votes$/,
+    'In createCouncil: the result score is the mean over the agreeing votes that carry a score.',
+  ],
+  [
+    /^council\/family-of-a-prefixed-model$/,
+    `In ${S}/src/family.ts familyOfModel: read the family from the last path segment of the model name.`,
+  ],
+  [
+    /^criteria\/same-transcript-different-artifacts-is-not-a-twin$/,
+    'In loadCriteria: compare the fixtures with their artifacts, so equal transcripts with different artifacts are not twins.',
+  ],
+  [
     /^contract\/probability-(above-one|below-zero|nan)$/,
     `In ${S}/src/contract.ts outcomeFromProbability: read a probability that is not finite or is outside 0 to 1 as inconclusive.`,
   ],

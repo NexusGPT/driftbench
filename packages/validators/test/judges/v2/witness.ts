@@ -133,8 +133,26 @@ function outcomeFromProbability(p: number, bounds: { passAt?: number; failAt?: n
 const INVISIBLE = /[​-‏⁠-⁤﻿­᠎]/g;
 const BREAKS = /\r\n|[\n\r\u2028\u2029\u0085\v\f]/g;
 
+/**
+ * Escapes data-tag lookalikes only: the text is read as seen (each character folded on its own, invisible ones
+ * dropped) to find a tag, and only that tag's opening bracket is escaped in the text as written.
+ */
 function escapeData(text: string): string {
-  return judges.escapeData(text.replace(INVISIBLE, '').normalize('NFKC'));
+  const chars = [...text];
+  let seen = '';
+  const origin: number[] = [];
+  chars.forEach((ch, i) => {
+    if (/[\u200B-\u200F\u2060-\u2064\uFEFF\u00AD\u180E]/.test(ch)) return;
+    const folded = ch.normalize('NFKC');
+    for (const f of folded.length === 1 ? folded : ch) {
+      seen += f;
+      origin.push(i);
+    }
+  });
+  const hit = new Set<number>();
+  for (const m of seen.matchAll(/<\s*\/?\s*(?:transcript_data|artifact_data|given_data)\b/gi))
+    hit.add(origin[m.index ?? 0] as number);
+  return chars.map((ch, i) => (hit.has(i) ? '&lt;' : ch)).join('');
 }
 
 function renderEntry(entry: TranscriptEntry): string {
@@ -898,7 +916,11 @@ const openaiWitness = chatClient(
       return { answer: judges.inconclusive('cut'), raw: text, unparsed: true };
     return parseAnswerText(text);
   },
-  (request) => ({ temperature: 0, messages: buildPrompt(request) }),
+  (request) => ({
+    temperature: 0,
+    max_tokens: judges.MAX_TOKENS[request.budget ?? 'normal'],
+    messages: buildPrompt(request),
+  }),
 );
 
 const anthropicWitness = chatClient(
@@ -916,7 +938,11 @@ const anthropicWitness = chatClient(
     if (!text && tool) return judges.parseAnswerValue(tool.input);
     return parseAnswerText(text);
   },
-  (request) => ({ temperature: 0, messages: buildPrompt(request) }),
+  (request) => ({
+    temperature: 0,
+    max_tokens: judges.MAX_TOKENS[request.budget ?? 'normal'],
+    messages: buildPrompt(request),
+  }),
 );
 
 const googleWitness = chatClient(
