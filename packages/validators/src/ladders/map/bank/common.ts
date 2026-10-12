@@ -164,14 +164,20 @@ export const MEMBER_POOL = [
 ];
 
 /**
- * The block of a YAML key as written: the first line that starts with `key:` after `after` (when given),
+ * The block of a YAML key as written: the first line that starts with `key:` after the lines holding each
+ * `after` mark in turn (when given),
  * and every following line indented deeper. A quote of that key must hold the whole block.
  */
-export function blockOf(text: string, key: string, after = ''): string {
+export function blockOf(text: string, key: string, ...after: string[]): string {
   const lines = text.split('\n');
-  const from = after ? lines.findIndex((line) => line.includes(after)) : 0;
+  let from = 0;
+  for (const mark of after) {
+    const found = lines.findIndex((line, position) => position >= from && line.includes(mark));
+    if (found < 0) throw new Error(`no line holding ${mark} in the file`);
+    from = found;
+  }
   const index = lines.findIndex(
-    (line, position) => position >= Math.max(0, from) && line.trimStart().startsWith(`${key}:`),
+    (line, position) => position >= from && line.trimStart().startsWith(`${key}:`),
   );
   if (index < 0) throw new Error(`no line ${key}: in the file`);
   const indent = (line: string) => line.length - line.trimStart().length;

@@ -43,10 +43,181 @@ type Form = {
   write?: (inventory: MiniInventory) => string;
   /** The code truth when it differs from `inventoryCode` of the shaped inventory. */
   code?: (inventory: MiniInventory) => CodeEntry[];
+  /** The one change that makes the item pass, when not `inventory:<slug>`. */
+  cause?: string;
 };
 
 const header = '# A behaviour inventory written by the map validator. Every name is fictional.\n';
 const yaml = (value: unknown) => `${header}${stringify(value, { lineWidth: 0 })}`;
+
+const LONG = 'inventory:whole-long-quote';
+const longTitle = (start: string) =>
+  `${start} ${'and keeps every promise made on the way '.repeat(30)}`.trim();
+const manyChannels = Array.from({ length: 80 }, (_, i) => `channel-${String(i + 1).padStart(2, '0')}`);
+const json = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
+/** The quote of an item as JSON writes it: white space folds, so the indentation does not matter. */
+const jsonQuote = (value: unknown) => JSON.stringify(value, null, 2);
+/** The code entries with every value of one dimension quoting the same block. */
+const allQuote = (code: CodeEntry[], dimension: string, quote: string): CodeEntry[] =>
+  code.map((entry) =>
+    entry.type === 'value' && entry.dimension === dimension ? { ...entry, quote } : entry,
+  );
+
+/**
+ * Inventory items, lists and titles over 1000 characters, in YAML and JSON: each value quotes the whole item
+ * or list as written. One change makes them all pass: a quote may be as long as the item it stands for.
+ */
+const LONG_QUOTE_FORMS: readonly Form[] = [
+  {
+    slug: 'long-channel-list',
+    tier: 3,
+    cause: LONG,
+    title: 'a top-level list of 80 channels (over 1000 characters): each channel value quotes the whole list',
+    shape: (inventory) => ({
+      ...inventory,
+      channels: manyChannels,
+      behaviours: inventory.behaviours.map((b, i) =>
+        i === 0 ? { ...b, channels: [manyChannels[0] as string] } : b,
+      ),
+    }),
+    code: (inventory) => allQuote(inventoryCode(inventory), 'channel', blockOf(yaml(inventory), 'channels')),
+  },
+  {
+    slug: 'long-channel-list-json',
+    tier: 3,
+    cause: LONG,
+    path: 'inventory.json',
+    title: 'the list of 80 channels in a JSON inventory: each channel value quotes the whole list',
+    shape: (inventory) => ({
+      ...inventory,
+      channels: manyChannels,
+      behaviours: inventory.behaviours.map((b, i) =>
+        i === 0 ? { ...b, channels: [manyChannels[0] as string] } : b,
+      ),
+    }),
+    write: json,
+    code: (inventory) =>
+      allQuote(inventoryCode(inventory), 'channel', `"channels": ${jsonQuote(inventory.channels)}`),
+  },
+  {
+    slug: 'long-behaviour-channels',
+    tier: 3,
+    cause: LONG,
+    title: 'a behaviour that lists 80 channels: its value quotes the whole item, channel list included',
+    shape: (inventory) => ({
+      ...inventory,
+      channels: manyChannels,
+      behaviours: inventory.behaviours.map((b, i) => (i === 0 ? { ...b, channels: manyChannels } : b)),
+    }),
+    code: (inventory) =>
+      withQuote(
+        inventoryCode(inventory),
+        'behaviour',
+        'B-001',
+        stringify(inventory.behaviours[0], { lineWidth: 0 }),
+      ),
+  },
+  {
+    slug: 'long-flow-behaviours',
+    tier: 3,
+    cause: LONG,
+    title: 'a flow that lists 100 behaviours: its value quotes the whole flow item',
+    shape: (inventory) => {
+      const behaviours = Array.from({ length: 100 }, (_, i) => ({
+        id: `B-${String(i + 1).padStart(3, '0')}`,
+        title: `Handle fictional request number ${i + 1}`,
+      }));
+      return {
+        ...inventory,
+        behaviours,
+        flows: inventory.flows.map((f, i) =>
+          i === 0 ? { ...f, behaviours: behaviours.map((b) => b.id) } : f,
+        ),
+      };
+    },
+    code: (inventory) =>
+      withQuote(inventoryCode(inventory), 'flow', 'service', stringify(inventory.flows[0], { lineWidth: 0 })),
+  },
+  {
+    slug: 'long-behaviour-title-line',
+    tier: 3,
+    cause: LONG,
+    title: 'a behaviour whose title line alone is over 1000 characters: its value quotes the whole item',
+    shape: (inventory) => ({
+      ...inventory,
+      behaviours: inventory.behaviours.map((b, i) => (i === 1 ? { ...b, title: longTitle(b.title) } : b)),
+    }),
+    code: (inventory) =>
+      withQuote(
+        inventoryCode(inventory),
+        'behaviour',
+        'B-002',
+        stringify(inventory.behaviours[1], { lineWidth: 0 }),
+      ),
+  },
+  {
+    slug: 'long-flow-title-line',
+    tier: 3,
+    cause: LONG,
+    title: 'a flow whose title line alone is over 1000 characters: its value quotes the whole flow item',
+    shape: (inventory) => ({
+      ...inventory,
+      flows: inventory.flows.map((f, i) => (i === 0 ? { ...f, title: longTitle(f.title) } : f)),
+    }),
+    code: (inventory) =>
+      withQuote(inventoryCode(inventory), 'flow', 'service', stringify(inventory.flows[0], { lineWidth: 0 })),
+  },
+  {
+    slug: 'two-long-items',
+    tier: 3,
+    cause: LONG,
+    title: 'two behaviour items over 1000 characters: each value quotes its own whole item',
+    shape: (inventory) => ({
+      ...inventory,
+      behaviours: inventory.behaviours.map((b, i) => (i > 0 ? { ...b, title: longTitle(b.title) } : b)),
+    }),
+    code: (inventory) =>
+      withQuote(
+        withQuote(
+          inventoryCode(inventory),
+          'behaviour',
+          'B-002',
+          stringify(inventory.behaviours[1], { lineWidth: 0 }),
+        ),
+        'behaviour',
+        'B-003',
+        stringify(inventory.behaviours[2], { lineWidth: 0 }),
+      ),
+  },
+  {
+    slug: 'long-item-json',
+    tier: 3,
+    cause: LONG,
+    path: 'inventory.json',
+    title: 'a behaviour item over 1000 characters in a JSON inventory: its value quotes the whole object',
+    shape: (inventory) => ({
+      ...inventory,
+      behaviours: inventory.behaviours.map((b, i) => (i === 2 ? { ...b, title: longTitle(b.title) } : b)),
+    }),
+    write: json,
+    code: (inventory) =>
+      withQuote(inventoryCode(inventory), 'behaviour', 'B-003', jsonQuote(inventory.behaviours[2])),
+  },
+  {
+    slug: 'long-flow-json',
+    tier: 3,
+    cause: LONG,
+    path: 'inventory.json',
+    title: 'a flow item over 1000 characters in a JSON inventory: its value quotes the whole object',
+    shape: (inventory) => ({
+      ...inventory,
+      flows: inventory.flows.map((f, i) => (i === 0 ? { ...f, title: longTitle(f.title) } : f)),
+    }),
+    write: json,
+    code: (inventory) =>
+      withQuote(inventoryCode(inventory), 'flow', 'service', jsonQuote(inventory.flows[0])),
+  },
+];
 
 export const FORMS: readonly Form[] = [
   { slug: 'base', tier: 1, title: 'a small inventory in YAML' },
@@ -395,6 +566,7 @@ export const FORMS: readonly Form[] = [
       });
     },
   },
+  ...LONG_QUOTE_FORMS,
 ];
 
 /** The code entries with one value's whole quote required. */
@@ -416,7 +588,7 @@ export function inventoryItems(): BankItem[] {
         level: levelOf('structured'),
         component: BANK_COMPONENTS.inventory,
         title: form.title,
-        cause: `inventory:${form.slug}`,
+        cause: form.cause ?? `inventory:${form.slug}`,
         build: (seed) => {
           const drawn = miniInventory(drawFor(seed, `inventory-forms.${form.slug}`));
           const inventory = form.shape ? form.shape(drawn, seed) : drawn;

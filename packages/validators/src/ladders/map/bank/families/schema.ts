@@ -40,7 +40,7 @@ type Case = {
     extra?: Record<string, unknown>;
     expected: Expected;
     /** Per partition, the YAML key whose whole block (after the property's own line) the quote must be. */
-    quotes?: Record<string, string>;
+    quotes?: Record<string, string | { key: string; after: string }>;
     /** Per partition, text its title must hold. */
     titles?: Record<string, string>;
   };
@@ -1033,7 +1033,177 @@ export const SCHEMA_CASES: readonly Case[] = [
       () => ['high', 'low'],
     ),
   },
+  ...LONG_QUOTE_CASES(),
 ];
+
+/** Enum members whose enum block is over 1000 characters. */
+const longMembers = (draw: Draw, form: 'short' | 'long' | 'integer' | 'spaced'): Array<string | number> => {
+  const base = draw.pick(['plan', 'zone', 'route', 'shelf']);
+  switch (form) {
+    case 'short':
+      return Array.from({ length: 130 }, (_, i) => `${base}-${String(i + 1).padStart(3, '0')}`);
+    case 'long':
+      return Array.from(
+        { length: 12 },
+        (_, i) => `${base}-${i + 1}-${'with-a-long-fictional-label-'.repeat(4)}end`,
+      );
+    case 'integer': {
+      const step = draw.int(1, 3);
+      return Array.from({ length: 260 }, (_, i) => 1000 + i * step);
+    }
+    case 'spaced':
+      return Array.from({ length: 110 }, (_, i) => `${base} ${String(i + 1).padStart(3, '0')}`);
+  }
+};
+const slugOf = (member: string | number) => String(member).replace(/[^A-Za-z0-9_.-]+/g, '-');
+const all = (partitions: readonly string[], key: string, after: string) =>
+  Object.fromEntries(partitions.map((partition) => [partition, { key, after }]));
+
+/**
+ * Whole quotes over 1000 characters in every place a tool schema states an enum, and a long pattern beside
+ * short keywords. A value of a long property quotes its keyword's whole block; a quote cut at any length is
+ * not that block. One change makes them all pass: a quote may be as long as the block it stands for.
+ */
+function LONG_QUOTE_CASES(): Case[] {
+  const cause = 'tools:whole-long-quote';
+  const top = (
+    slug: string,
+    form: Parameters<typeof longMembers>[1],
+    title: string,
+    tier: Tier = 3,
+  ): Case => ({
+    slug,
+    tier,
+    cause,
+    title,
+    make: (draw, name) => {
+      const list = longMembers(draw, form);
+      const partitions = list.map(slugOf);
+      return {
+        properties: { [name]: { type: typeof list[0] === 'number' ? 'integer' : 'string', enum: list } },
+        required: [name],
+        expected: [{ path: [name], partitions }],
+        quotes: all(partitions, 'enum', `${name}:`),
+      };
+    },
+  });
+  return [
+    top(
+      'long-enum-short-members',
+      'short',
+      'an enum of 130 short members (over 1000 characters): each value quotes the whole enum block',
+    ),
+    top(
+      'long-enum-long-members',
+      'long',
+      'an enum of 12 members over 100 characters each: each value quotes the whole enum block',
+    ),
+    top(
+      'long-enum-integers',
+      'integer',
+      'an integer enum of 260 members: each value quotes the whole enum block',
+    ),
+    top(
+      'long-enum-spaced',
+      'spaced',
+      'an enum of 110 members with spaces: values slugged, each quoting the whole enum block',
+    ),
+    {
+      slug: 'long-enum-nested',
+      tier: 3,
+      cause,
+      title: 'an enum over 1000 characters one object down: each value quotes the whole enum block',
+      make: (draw, name) => {
+        const list = longMembers(draw, 'short').map(String);
+        return {
+          properties: {
+            [name]: {
+              type: 'object',
+              required: ['kind'],
+              properties: { kind: { type: 'string', enum: list } },
+            },
+          },
+          required: [name],
+          expected: [{ path: [name, 'kind'], partitions: list }],
+          quotes: all(list, 'enum', 'kind:'),
+        };
+      },
+    },
+    {
+      slug: 'long-enum-described',
+      tier: 3,
+      cause,
+      title:
+        'a long description beside an enum over 1000 characters: each value quotes the enum block, not the description',
+      make: (draw, name) => {
+        const list = longMembers(draw, 'short').map(String);
+        return {
+          properties: {
+            [name]: {
+              type: 'string',
+              description: 'A fictional field the map validator writes. '.repeat(10).trim(),
+              enum: list,
+            },
+          },
+          required: [name],
+          expected: [{ path: [name], partitions: list }],
+          quotes: all(list, 'enum', `${name}:`),
+        };
+      },
+    },
+    {
+      slug: 'long-enum-two-properties',
+      tier: 3,
+      cause,
+      title: 'two properties with enums over 1000 characters: each value quotes its own enum block',
+      make: (draw, name) => {
+        const first = longMembers(draw, 'short').map(String);
+        const second = first.map((member) => `${member}-b`);
+        const other = `${name}_b`;
+        return {
+          properties: { [name]: { type: 'string', enum: first }, [other]: { type: 'string', enum: second } },
+          required: [name, other],
+          expected: [
+            { path: [name], partitions: first },
+            { path: [other], partitions: second },
+          ],
+          quotes: { ...all(first, 'enum', `${name}:`), ...all(second, 'enum', `${other}:`) },
+        };
+      },
+    },
+    {
+      slug: 'long-pattern-with-lengths',
+      tier: 3,
+      cause,
+      title:
+        'a pattern over 1000 characters beside minLength and maxLength: the pattern values quote the whole pattern line, the length values their own lines',
+      make: (draw, name) => {
+        const min = draw.int(2, 4);
+        const max = min + draw.int(5, 9);
+        const lengths = ['below-min-length', 'at-min-length', 'at-max-length', 'above-max-length'];
+        return {
+          properties: {
+            [name]: {
+              type: 'string',
+              minLength: min,
+              maxLength: max,
+              pattern: `^(${Array.from({ length: 170 }, (_, i) => `ref${i}`).join('|')})$`,
+            },
+          },
+          required: [name],
+          expected: [{ path: [name], partitions: [...lengths, 'well-formed', 'malformed'] }],
+          quotes: {
+            ...all(['well-formed', 'malformed'], 'pattern', `${name}:`),
+            'below-min-length': { key: 'minLength', after: `${name}:` },
+            'at-min-length': { key: 'minLength', after: `${name}:` },
+            'at-max-length': { key: 'maxLength', after: `${name}:` },
+            'above-max-length': { key: 'maxLength', after: `${name}:` },
+          },
+        };
+      },
+    },
+  ];
+}
 
 /** A case whose partitions must quote the block of the given key. */
 function quoting(make: Case['make'], quotes: Record<string, string>): Case['make'] {
@@ -1171,7 +1341,14 @@ export function schemaCase(item: Case, seed: number) {
         kind: 'data',
         value: `${id}.${partition}`,
         role: 'detail',
-        ...(key ? { quote: blockOf(text, key, `${name}:`) } : {}),
+        ...(key
+          ? {
+              quote:
+                typeof key === 'string'
+                  ? blockOf(text, key, `${name}:`)
+                  : blockOf(text, key.key, `${name}:`, key.after),
+            }
+          : {}),
         ...(title ? { titleIncludes: title } : {}),
       });
     }
