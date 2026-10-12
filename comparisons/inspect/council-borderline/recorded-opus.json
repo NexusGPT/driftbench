@@ -1,0 +1,147 @@
+{
+  "model": "opus",
+  "calls": 20,
+  "costUsd": 0.23490399999999997,
+  "rows": [
+    {
+      "id": "border.01",
+      "label": "pass",
+      "outcome": "inconclusive",
+      "cost": 0.011492,
+      "text": ""
+    },
+    {
+      "id": "border.02",
+      "label": "fail",
+      "outcome": "inconclusive",
+      "cost": 0.011552,
+      "text": ""
+    },
+    {
+      "id": "border.03",
+      "label": "pass",
+      "outcome": "inconclusive",
+      "cost": 0.01134,
+      "text": ""
+    },
+    {
+      "id": "border.04",
+      "label": "fail",
+      "outcome": "inconclusive",
+      "cost": 0.012496,
+      "text": ""
+    },
+    {
+      "id": "border.05",
+      "label": "fail",
+      "outcome": "inconclusive",
+      "cost": 0.011564000000000001,
+      "text": ""
+    },
+    {
+      "id": "border.06",
+      "label": "pass",
+      "outcome": "inconclusive",
+      "cost": 0.011736,
+      "text": ""
+    },
+    {
+      "id": "border.07",
+      "label": "fail",
+      "outcome": "inconclusive",
+      "cost": 0.011548000000000001,
+      "text": ""
+    },
+    {
+      "id": "border.08",
+      "label": "pass",
+      "outcome": "inconclusive",
+      "cost": 0.011532,
+      "text": ""
+    },
+    {
+      "id": "border.09",
+      "label": "fail",
+      "outcome": "inconclusive",
+      "cost": 0.013996,
+      "text": ""
+    },
+    {
+      "id": "border.10",
+      "label": "pass",
+      "outcome": "inconclusive",
+      "cost": 0.011264,
+      "text": ""
+    },
+    {
+      "id": "border.11",
+      "label": "fail",
+      "outcome": "inconclusive",
+      "cost": 0.011288,
+      "text": ""
+    },
+    {
+      "id": "border.12",
+      "label": "pass",
+      "outcome": "inconclusive",
+      "cost": 0.011148,
+      "text": ""
+    },
+    {
+      "id": "border.13",
+      "label": "fail",
+      "outcome": "inconclusive",
+      "cost": 0.011424,
+      "text": ""
+    },
+    {
+      "id": "border.14",
+      "label": "pass",
+      "outcome": "inconclusive",
+      "cost": 0.011720000000000001,
+      "text": ""
+    },
+    {
+      "id": "border.15",
+      "label": "fail",
+      "outcome": "inconclusive",
+      "cost": 0.011376,
+      "text": ""
+    },
+    {
+      "id": "border.16",
+      "label": "pass",
+      "outcome": "inconclusive",
+      "cost": 0.011744000000000001,
+      "text": ""
+    },
+    {
+      "id": "border.17",
+      "label": "fail",
+      "outcome": "inconclusive",
+      "cost": 0.013756,
+      "text": ""
+    },
+    {
+      "id": "border.18",
+      "label": "pass",
+      "outcome": "inconclusive",
+      "cost": 0.01152,
+      "text": ""
+    },
+    {
+      "id": "border.19",
+      "label": "fail",
+      "outcome": "inconclusive",
+      "cost": 0.011004,
+      "text": ""
+    },
+    {
+      "id": "border.20",
+      "label": "pass",
+      "outcome": "inconclusive",
+      "cost": 0.011404000000000001,
+      "text": ""
+    }
+  ]
+}
