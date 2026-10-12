@@ -1,0 +1,674 @@
+[
+  {
+    "id": "1951",
+    "group": "reasoning",
+    "label": "B",
+    "order": "AB",
+    "key": "6e1145f89a176ca03b33",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.03, \"reasoning\": \"Reply B reaches the correct answer of 8 gallons with a coherent setup that checks out (large 32 = 4 × small 8). Reply A is self-contradictory, reverses the ratio, and gives the wrong final answer of 16, so B satisfies the criterion better.\", \"evidence\": \"小水池现在有 \\(24 - 16 = 8\\) 加仑的水。答案是 8。\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.03, \"reasoning\": \"Reply B reaches the correct answer of 8 gallons with a coherent setup that checks out (large 32 = 4 × small 8). Reply A is self-contradictory, reverses the ratio, and gives the wrong final answer of 16, so B satisfies the criterion better.\", \"evidence\": \"小水池现在有 \\\\(24 - 16 = 8\\\\) 加仑的水。答案是 8。\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.03,
+        "reasoning": "Reply B reaches the correct answer of 8 gallons with a coherent setup that checks out (large 32 = 4 × small 8). Reply A is self-contradictory, reverses the ratio, and gives the wrong final answer of 16, so B satisfies the criterion better.",
+        "evidence": "小水池现在有 \\(24 - 16 = 8\\) 加仑的水。答案是 8。"
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.03, \"reasoning\": \"Reply B reaches the correct answer of 8 gallons with a coherent setup that checks out (large 32 = 4 × small 8). Reply A is self-contradictory, reverses the ratio, and gives the wrong final answer of 16, so B satisfies the criterion better.\", \"evidence\": \"小水池现在有 \\\\(24 - 16 = 8\\\\) 加仑的水。答案是 8。\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2017",
+    "group": "language mixing",
+    "label": "A",
+    "order": "BA",
+    "key": "0d8661cf8d1ce9f640df",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"The two replies have the same content, but Reply A contains stray non-Bengali fragments (\"ответ\", \"نہیں\", \"المالية الصحة\", \"组合\"), breaking the requirement to reply in the user's language. Reply B is clean Bengali, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"স্পষ্ট ответ نہیں দেয়\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"The two replies have the same content, but Reply A contains stray non-Bengali fragments (\\\"ответ\\\", \\\"نہیں\\\", \\\"المالية الصحة\\\", \\\"组合\\\"), breaking the requirement to reply in the user's language. Reply B is clean Bengali, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"স্পষ্ট ответ نہیں দেয়\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.08,
+        "reasoning": "The two replies have the same content, but Reply A contains stray non-Bengali fragments (\"ответ\", \"نہیں\", \"المالية الصحة\", \"组合\"), breaking the requirement to reply in the user's language. Reply B is clean Bengali, so it satisfies the criterion better.",
+        "evidence": "Reply A: \"স্পষ্ট ответ نہیں দেয়\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"The two replies have the same content, but Reply A contains stray non-Bengali fragments (\\\"ответ\\\", \\\"نہیں\\\", \\\"المالية الصحة\\\", \\\"组合\\\"), breaking the requirement to reply in the user's language. Reply B is clean Bengali, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"স্পষ্ট ответ نہیں দেয়\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2172",
+    "group": "language mixing",
+    "label": "B",
+    "order": "AB",
+    "key": "6a7fb0724a7163c04ae9",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"The two replies have identical content and structure, but Reply A mixes English words into the Arabic text (\"muscles\", \"flow\", \"structural\"), which goes against the requirement to write in the user's language. Reply B is clean Arabic, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"هناك عدة muscles داخل الجيب العجاني العميق\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"The two replies have identical content and structure, but Reply A mixes English words into the Arabic text (\\\"muscles\\\", \\\"flow\\\", \\\"structural\\\"), which goes against the requirement to write in the user's language. Reply B is clean Arabic, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"هناك عدة muscles داخل الجيب العجاني العميق\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.2,
+        "reasoning": "The two replies have identical content and structure, but Reply A mixes English words into the Arabic text (\"muscles\", \"flow\", \"structural\"), which goes against the requirement to write in the user's language. Reply B is clean Arabic, so it satisfies the criterion better.",
+        "evidence": "Reply A: \"هناك عدة muscles داخل الجيب العجاني العميق\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"The two replies have identical content and structure, but Reply A mixes English words into the Arabic text (\\\"muscles\\\", \\\"flow\\\", \\\"structural\\\"), which goes against the requirement to write in the user's language. Reply B is clean Arabic, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"هناك عدة muscles داخل الجيب العجاني العميق\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2172",
+    "group": "language mixing",
+    "label": "B",
+    "order": "BA",
+    "key": "40c47d9980d70a81cd64",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"The two replies have identical content, but Reply B inserts English words (\"muscles\", \"flow\", \"structural\") into Arabic text. Reply A stays fully in Arabic, the language the user wrote in, so it satisfies the criterion better.\", \"evidence\": \"Reply B: \\\"هناك عدة muscles داخل الجيب العجاني العميق\\\"\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"The two replies have identical content, but Reply B inserts English words (\\\"muscles\\\", \\\"flow\\\", \\\"structural\\\") into Arabic text. Reply A stays fully in Arabic, the language the user wrote in, so it satisfies the criterion better.\", \"evidence\": \"Reply B: \\\"هناك عدة muscles داخل الجيب العجاني العميق\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "The two replies have identical content, but Reply B inserts English words (\"muscles\", \"flow\", \"structural\") into Arabic text. Reply A stays fully in Arabic, the language the user wrote in, so it satisfies the criterion better.",
+        "evidence": "Reply B: \"هناك عدة muscles داخل الجيب العجاني العميق\""
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"The two replies have identical content, but Reply B inserts English words (\\\"muscles\\\", \\\"flow\\\", \\\"structural\\\") into Arabic text. Reply A stays fully in Arabic, the language the user wrote in, so it satisfies the criterion better.\", \"evidence\": \"Reply B: \\\"هناك عدة muscles داخل الجيب العجاني العميق\\\"\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "2185",
+    "group": "language mixing",
+    "label": "A",
+    "order": "AB",
+    "key": "fe3ad85ef318a64d9795",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"The two replies have identical content, but Reply B mixes untranslated English words (\"English\", \"Hindi\", \"suffix\") into the Arabic text, which breaks the requirement to answer in the user's language. Reply A stays fully in Arabic, so it satisfies the criterion better.\", \"evidence\": \"تشترك في استراتيجية مشتركة للجمع تتمثل في إضافة suffix إلى صيغة الاسم الأساسية\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"The two replies have identical content, but Reply B mixes untranslated English words (\\\"English\\\", \\\"Hindi\\\", \\\"suffix\\\") into the Arabic text, which breaks the requirement to answer in the user's language. Reply A stays fully in Arabic, so it satisfies the criterion better.\", \"evidence\": \"تشترك في استراتيجية مشتركة للجمع تتمثل في إضافة suffix إلى صيغة الاسم الأساسية\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.85,
+        "reasoning": "The two replies have identical content, but Reply B mixes untranslated English words (\"English\", \"Hindi\", \"suffix\") into the Arabic text, which breaks the requirement to answer in the user's language. Reply A stays fully in Arabic, so it satisfies the criterion better.",
+        "evidence": "تشترك في استراتيجية مشتركة للجمع تتمثل في إضافة suffix إلى صيغة الاسم الأساسية"
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"The two replies have identical content, but Reply B mixes untranslated English words (\\\"English\\\", \\\"Hindi\\\", \\\"suffix\\\") into the Arabic text, which breaks the requirement to answer in the user's language. Reply A stays fully in Arabic, so it satisfies the criterion better.\", \"evidence\": \"تشترك في استراتيجية مشتركة للجمع تتمثل في إضافة suffix إلى صيغة الاسم الأساسية\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "2207",
+    "group": "language mixing",
+    "label": "B",
+    "order": "BA",
+    "key": "adccad2b5315a523b128",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"Both replies reach the same correct result, 1460 mm, with identical reasoning. Reply B mixes untranslated English words (\"February 2024\", \"leap\") into an Arabic answer, which Reply A avoids, so A better meets the requirement to reply in the user's language.\", \"evidence\": \"نظرًا لأن 2024 سنة leap تحتوي على 366 يومًا\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"Both replies reach the same correct result, 1460 mm, with identical reasoning. Reply B mixes untranslated English words (\\\"February 2024\\\", \\\"leap\\\") into an Arabic answer, which Reply A avoids, so A better meets the requirement to reply in the user's language.\", \"evidence\": \"نظرًا لأن 2024 سنة leap تحتوي على 366 يومًا\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.85,
+        "reasoning": "Both replies reach the same correct result, 1460 mm, with identical reasoning. Reply B mixes untranslated English words (\"February 2024\", \"leap\") into an Arabic answer, which Reply A avoids, so A better meets the requirement to reply in the user's language.",
+        "evidence": "نظرًا لأن 2024 سنة leap تحتوي على 366 يومًا"
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"Both replies reach the same correct result, 1460 mm, with identical reasoning. Reply B mixes untranslated English words (\\\"February 2024\\\", \\\"leap\\\") into an Arabic answer, which Reply A avoids, so A better meets the requirement to reply in the user's language.\", \"evidence\": \"نظرًا لأن 2024 سنة leap تحتوي على 366 يومًا\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "2268",
+    "group": "language mixing",
+    "label": "B",
+    "order": "AB",
+    "key": "7ceb6ecb9217a58014ef",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"Both replies have identical content, but Reply A mixes English words into the Arabic (\"the\", \"heritage\", \"shrimp\", \"restaurants\"), while Reply B is consistently in Arabic. Reply B therefore satisfies the language requirement better, so Reply A is not the better reply.\", \"evidence\": \"من the خليج العربي والمحيط الهندي ... من تراث المنطقة (B) vs. \\\"من الموقع... من the خليج العربي\\\" and \\\"من heritage المنطقة\\\" (A)\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"Both replies have identical content, but Reply A mixes English words into the Arabic (\\\"the\\\", \\\"heritage\\\", \\\"shrimp\\\", \\\"restaurants\\\"), while Reply B is consistently in Arabic. Reply B therefore satisfies the language requirement better, so Reply A is not the better reply.\", \"evidence\": \"من the خليج العربي والمحيط الهندي ... من تراث المنطقة (B) vs. \\\"من الموقع... من the خليج العربي\\\" and \\\"من heritage المنطقة\\\" (A)\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.05,
+        "reasoning": "Both replies have identical content, but Reply A mixes English words into the Arabic (\"the\", \"heritage\", \"shrimp\", \"restaurants\"), while Reply B is consistently in Arabic. Reply B therefore satisfies the language requirement better, so Reply A is not the better reply.",
+        "evidence": "من the خليج العربي والمحيط الهندي ... من تراث المنطقة (B) vs. \"من الموقع... من the خليج العربي\" and \"من heritage المنطقة\" (A)"
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"Both replies have identical content, but Reply A mixes English words into the Arabic (\\\"the\\\", \\\"heritage\\\", \\\"shrimp\\\", \\\"restaurants\\\"), while Reply B is consistently in Arabic. Reply B therefore satisfies the language requirement better, so Reply A is not the better reply.\", \"evidence\": \"من the خليج العربي والمحيط الهندي ... من تراث المنطقة (B) vs. \\\"من الموقع... من the خليج العربي\\\" and \\\"من heritage المنطقة\\\" (A)\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2286",
+    "group": "language mixing",
+    "label": "A",
+    "order": "BA",
+    "key": "87855c678de221c4c47c",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"The two replies are nearly identical, but Reply A contains a garbled word (\"پروفيسيونالين\") and the misspelling \"للإبتكار\", while Reply B has correct spelling and matches the user's wording \"رواد الأعمال\". Reply B is therefore the better reply.\", \"evidence\": \"Reply A: \\\"للپروفيسيونالين التقنيين\\\" and \\\"وداعمة للإبتكار\\\"; Reply B: \\\"للمهنيين التقنيين\\\" and \\\"وداعمة للابتكار\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"The two replies are nearly identical, but Reply A contains a garbled word (\\\"پروفيسيونالين\\\") and the misspelling \\\"للإبتكار\\\", while Reply B has correct spelling and matches the user's wording \\\"رواد الأعمال\\\". Reply B is therefore the better reply.\", \"evidence\": \"Reply A: \\\"للپروفيسيونالين التقنيين\\\" and \\\"وداعمة للإبتكار\\\"; Reply B: \\\"للمهنيين التقنيين\\\" and \\\"وداعمة للابتكار\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.05,
+        "reasoning": "The two replies are nearly identical, but Reply A contains a garbled word (\"پروفيسيونالين\") and the misspelling \"للإبتكار\", while Reply B has correct spelling and matches the user's wording \"رواد الأعمال\". Reply B is therefore the better reply.",
+        "evidence": "Reply A: \"للپروفيسيونالين التقنيين\" and \"وداعمة للإبتكار\"; Reply B: \"للمهنيين التقنيين\" and \"وداعمة للابتكار\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"The two replies are nearly identical, but Reply A contains a garbled word (\\\"پروفيسيونالين\\\") and the misspelling \\\"للإبتكار\\\", while Reply B has correct spelling and matches the user's wording \\\"رواد الأعمال\\\". Reply B is therefore the better reply.\", \"evidence\": \"Reply A: \\\"للپروفيسيونالين التقنيين\\\" and \\\"وداعمة للإبتكار\\\"; Reply B: \\\"للمهنيين التقنيين\\\" and \\\"وداعمة للابتكار\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2288",
+    "group": "language mixing",
+    "label": "A",
+    "order": "AB",
+    "key": "49f758d32c922dea0355",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.93, \"reasoning\": \"Both replies share the same structure and content, but Reply B inserts English words (\"methods\", \"trends\", \"guidance\", \"feedback\") into an Arabic email. Reply A stays fully in Arabic, as the user wrote in Arabic, so it is the better reply.\", \"evidence\": \"Reply B: \\\"هل methods والمقاييس المستخدمة ملائمة وشاملة؟ هل تعكس trends والأنماط المالية\\\"\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.93, \"reasoning\": \"Both replies share the same structure and content, but Reply B inserts English words (\\\"methods\\\", \\\"trends\\\", \\\"guidance\\\", \\\"feedback\\\") into an Arabic email. Reply A stays fully in Arabic, as the user wrote in Arabic, so it is the better reply.\", \"evidence\": \"Reply B: \\\"هل methods والمقاييس المستخدمة ملائمة وشاملة؟ هل تعكس trends والأنماط المالية\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "Both replies share the same structure and content, but Reply B inserts English words (\"methods\", \"trends\", \"guidance\", \"feedback\") into an Arabic email. Reply A stays fully in Arabic, as the user wrote in Arabic, so it is the better reply.",
+        "evidence": "Reply B: \"هل methods والمقاييس المستخدمة ملائمة وشاملة؟ هل تعكس trends والأنماط المالية\""
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.93, \"reasoning\": \"Both replies share the same structure and content, but Reply B inserts English words (\\\"methods\\\", \\\"trends\\\", \\\"guidance\\\", \\\"feedback\\\") into an Arabic email. Reply A stays fully in Arabic, as the user wrote in Arabic, so it is the better reply.\", \"evidence\": \"Reply B: \\\"هل methods والمقاييس المستخدمة ملائمة وشاملة؟ هل تعكس trends والأنماط المالية\\\"\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "2300",
+    "group": "language mixing",
+    "label": "A",
+    "order": "BA",
+    "key": "ebeb08f206ffcce25e21",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.12, \"reasoning\": \"The two replies are nearly identical in content and structure. Reply B is cleaner because it uses no stray Spanish or English words (A has \"relaciones\", \"comunicación\", \"fatigado\", \"empathy\", \"relación\") and has fewer grammatical slips.\", \"evidence\": \"Reply A: \\\"بصفتي مدرب relaciones\\\" vs Reply B: \\\"بصفتي مدرب علاقات\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.12, \"reasoning\": \"The two replies are nearly identical in content and structure. Reply B is cleaner because it uses no stray Spanish or English words (A has \\\"relaciones\\\", \\\"comunicación\\\", \\\"fatigado\\\", \\\"empathy\\\", \\\"relación\\\") and has fewer grammatical slips.\", \"evidence\": \"Reply A: \\\"بصفتي مدرب relaciones\\\" vs Reply B: \\\"بصفتي مدرب علاقات\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.12,
+        "reasoning": "The two replies are nearly identical in content and structure. Reply B is cleaner because it uses no stray Spanish or English words (A has \"relaciones\", \"comunicación\", \"fatigado\", \"empathy\", \"relación\") and has fewer grammatical slips.",
+        "evidence": "Reply A: \"بصفتي مدرب relaciones\" vs Reply B: \"بصفتي مدرب علاقات\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.12, \"reasoning\": \"The two replies are nearly identical in content and structure. Reply B is cleaner because it uses no stray Spanish or English words (A has \\\"relaciones\\\", \\\"comunicación\\\", \\\"fatigado\\\", \\\"empathy\\\", \\\"relación\\\") and has fewer grammatical slips.\", \"evidence\": \"Reply A: \\\"بصفتي مدرب relaciones\\\" vs Reply B: \\\"بصفتي مدرب علاقات\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2310",
+    "group": "language mixing",
+    "label": "B",
+    "order": "AB",
+    "key": "c3a5bcf19356294cbb5c",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"Both replies give the same correct answer (ج). Reply A mixes English words (\"girls\", \"her\") into the Arabic text, which breaks the requirement to reply in the user's language, so Reply B is the better reply.\", \"evidence\": \"Reply A: ج) قامت مجموعة من أربع girls بإحاطة فتاة أخرى ويبدو أنهن أخذن her حقيبة ظهرها.\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"Both replies give the same correct answer (ج). Reply A mixes English words (\\\"girls\\\", \\\"her\\\") into the Arabic text, which breaks the requirement to reply in the user's language, so Reply B is the better reply.\", \"evidence\": \"Reply A: ج) قامت مجموعة من أربع girls بإحاطة فتاة أخرى ويبدو أنهن أخذن her حقيبة ظهرها.\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.08,
+        "reasoning": "Both replies give the same correct answer (ج). Reply A mixes English words (\"girls\", \"her\") into the Arabic text, which breaks the requirement to reply in the user's language, so Reply B is the better reply.",
+        "evidence": "Reply A: ج) قامت مجموعة من أربع girls بإحاطة فتاة أخرى ويبدو أنهن أخذن her حقيبة ظهرها."
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"Both replies give the same correct answer (ج). Reply A mixes English words (\\\"girls\\\", \\\"her\\\") into the Arabic text, which breaks the requirement to reply in the user's language, so Reply B is the better reply.\", \"evidence\": \"Reply A: ج) قامت مجموعة من أربع girls بإحاطة فتاة أخرى ويبدو أنهن أخذن her حقيبة ظهرها.\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2397",
+    "group": "language mixing",
+    "label": "A",
+    "order": "AB",
+    "key": "4fb9cdd5ad0206a321ae",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.93, \"reasoning\": \"Both replies give the same correct calculation (100 × 0.9⁴ = 65.61) and the same explanation. Reply B mixes Cyrillic words into the Spanish text (\"комеte\", \"программа\", \"каждый\"), so it fails the requirement to reply in the user's language, while Reply A is clean Spanish.\", \"evidence\": \"Reply B: \\\"El programma tendrá aproximadamente 65 bicicletas disponible después de 4 años.\\\"\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.93, \"reasoning\": \"Both replies give the same correct calculation (100 × 0.9⁴ = 65.61) and the same explanation. Reply B mixes Cyrillic words into the Spanish text (\\\"комеte\\\", \\\"программа\\\", \\\"каждый\\\"), so it fails the requirement to reply in the user's language, while Reply A is clean Spanish.\", \"evidence\": \"Reply B: \\\"El programma tendrá aproximadamente 65 bicicletas disponible después de 4 años.\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.93,
+        "reasoning": "Both replies give the same correct calculation (100 × 0.9⁴ = 65.61) and the same explanation. Reply B mixes Cyrillic words into the Spanish text (\"комеte\", \"программа\", \"каждый\"), so it fails the requirement to reply in the user's language, while Reply A is clean Spanish.",
+        "evidence": "Reply B: \"El programma tendrá aproximadamente 65 bicicletas disponible después de 4 años.\""
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.93, \"reasoning\": \"Both replies give the same correct calculation (100 × 0.9⁴ = 65.61) and the same explanation. Reply B mixes Cyrillic words into the Spanish text (\\\"комеte\\\", \\\"программа\\\", \\\"каждый\\\"), so it fails the requirement to reply in the user's language, while Reply A is clean Spanish.\", \"evidence\": \"Reply B: \\\"El programma tendrá aproximadamente 65 bicicletas disponible después de 4 años.\\\"\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "2459",
+    "group": "language mixing",
+    "label": "B",
+    "order": "AB",
+    "key": "e69e86a78a2d6db465e9",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"The two replies have identical content, but Reply A contains stray language errors: an Arabic word (\"الإلكتروني\"), Italian \"sicurezza\", and English \"clients\" and \"solution\". Reply B corrects all of these, so it better meets the requirement to reply in the user's language.\", \"evidence\": \"Reply A: \\\"comercio الإلكتروني líder\\\" ... \\\"sicurezza y políticas\\\" ... \\\"más clients potenciales\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"The two replies have identical content, but Reply A contains stray language errors: an Arabic word (\\\"الإلكتروني\\\"), Italian \\\"sicurezza\\\", and English \\\"clients\\\" and \\\"solution\\\". Reply B corrects all of these, so it better meets the requirement to reply in the user's language.\", \"evidence\": \"Reply A: \\\"comercio الإلكتروني líder\\\" ... \\\"sicurezza y políticas\\\" ... \\\"más clients potenciales\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.05,
+        "reasoning": "The two replies have identical content, but Reply A contains stray language errors: an Arabic word (\"الإلكتروني\"), Italian \"sicurezza\", and English \"clients\" and \"solution\". Reply B corrects all of these, so it better meets the requirement to reply in the user's language.",
+        "evidence": "Reply A: \"comercio الإلكتروني líder\" ... \"sicurezza y políticas\" ... \"más clients potenciales\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"The two replies have identical content, but Reply A contains stray language errors: an Arabic word (\\\"الإلكتروني\\\"), Italian \\\"sicurezza\\\", and English \\\"clients\\\" and \\\"solution\\\". Reply B corrects all of these, so it better meets the requirement to reply in the user's language.\", \"evidence\": \"Reply A: \\\"comercio الإلكتروني líder\\\" ... \\\"sicurezza y políticas\\\" ... \\\"más clients potenciales\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2459",
+    "group": "language mixing",
+    "label": "B",
+    "order": "BA",
+    "key": "bb05f4c76bf8f11169ea",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.97, \"reasoning\": \"Reply A is correct and written entirely in Spanish, as the user asked. Reply B has the same content but includes an Arabic word (\"الإلكتروني\"), Italian and English leaks (\"sicurezza\", \"solution\"), and English-style plurals (\"clients\"), which make it worse.\", \"evidence\": \"Reply B: \\\"La plataforma de comercio الإلكتروني líder en España\\\"\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.97, \"reasoning\": \"Reply A is correct and written entirely in Spanish, as the user asked. Reply B has the same content but includes an Arabic word (\\\"الإلكتروني\\\"), Italian and English leaks (\\\"sicurezza\\\", \\\"solution\\\"), and English-style plurals (\\\"clients\\\"), which make it worse.\", \"evidence\": \"Reply B: \\\"La plataforma de comercio الإلكتروني líder en España\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.97,
+        "reasoning": "Reply A is correct and written entirely in Spanish, as the user asked. Reply B has the same content but includes an Arabic word (\"الإلكتروني\"), Italian and English leaks (\"sicurezza\", \"solution\"), and English-style plurals (\"clients\"), which make it worse.",
+        "evidence": "Reply B: \"La plataforma de comercio الإلكتروني líder en España\""
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.97, \"reasoning\": \"Reply A is correct and written entirely in Spanish, as the user asked. Reply B has the same content but includes an Arabic word (\\\"الإلكتروني\\\"), Italian and English leaks (\\\"sicurezza\\\", \\\"solution\\\"), and English-style plurals (\\\"clients\\\"), which make it worse.\", \"evidence\": \"Reply B: \\\"La plataforma de comercio الإلكتروني líder en España\\\"\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "2638",
+    "group": "language mixing",
+    "label": "B",
+    "order": "AB",
+    "key": "93512a0d65a25ce7c973",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"Reply A switches into German and French words mid-text (\"kulturelle\", \"Einflussreiche\", \"Herausforderungen\", \"Geschichte\"), which breaks the Korean the user wrote in. Reply B keeps the same content in consistent Korean, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"kulturelle 다양성을 존중하고 기리는 방안으로\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"Reply A switches into German and French words mid-text (\\\"kulturelle\\\", \\\"Einflussreiche\\\", \\\"Herausforderungen\\\", \\\"Geschichte\\\"), which breaks the Korean the user wrote in. Reply B keeps the same content in consistent Korean, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"kulturelle 다양성을 존중하고 기리는 방안으로\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.08,
+        "reasoning": "Reply A switches into German and French words mid-text (\"kulturelle\", \"Einflussreiche\", \"Herausforderungen\", \"Geschichte\"), which breaks the Korean the user wrote in. Reply B keeps the same content in consistent Korean, so it satisfies the criterion better.",
+        "evidence": "Reply A: \"kulturelle 다양성을 존중하고 기리는 방안으로\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"Reply A switches into German and French words mid-text (\\\"kulturelle\\\", \\\"Einflussreiche\\\", \\\"Herausforderungen\\\", \\\"Geschichte\\\"), which breaks the Korean the user wrote in. Reply B keeps the same content in consistent Korean, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"kulturelle 다양성을 존중하고 기리는 방안으로\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2665",
+    "group": "language mixing",
+    "label": "A",
+    "order": "BA",
+    "key": "30a5196636a2bfe7485c",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"Both replies share nearly the same knowledge-graph structure and content. Reply A mixes untranslated English terms (\"jack\", \"charlie\", \"bluster\", \"praises\") into a Korean request, while Reply B stays in Korean throughout, so B better meets the language requirement.\", \"evidence\": \"[알렉스, jack, 대담한 bluster로 유명], [알렉스, 잭, 상대를 이해하는 능력으로 praises 받음]\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"Both replies share nearly the same knowledge-graph structure and content. Reply A mixes untranslated English terms (\\\"jack\\\", \\\"charlie\\\", \\\"bluster\\\", \\\"praises\\\") into a Korean request, while Reply B stays in Korean throughout, so B better meets the language requirement.\", \"evidence\": \"[알렉스, jack, 대담한 bluster로 유명], [알렉스, 잭, 상대를 이해하는 능력으로 praises 받음]\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.2,
+        "reasoning": "Both replies share nearly the same knowledge-graph structure and content. Reply A mixes untranslated English terms (\"jack\", \"charlie\", \"bluster\", \"praises\") into a Korean request, while Reply B stays in Korean throughout, so B better meets the language requirement.",
+        "evidence": "[알렉스, jack, 대담한 bluster로 유명], [알렉스, 잭, 상대를 이해하는 능력으로 praises 받음]"
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"Both replies share nearly the same knowledge-graph structure and content. Reply A mixes untranslated English terms (\\\"jack\\\", \\\"charlie\\\", \\\"bluster\\\", \\\"praises\\\") into a Korean request, while Reply B stays in Korean throughout, so B better meets the language requirement.\", \"evidence\": \"[알렉스, jack, 대담한 bluster로 유명], [알렉스, 잭, 상대를 이해하는 능력으로 praises 받음]\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2808",
+    "group": "language mixing",
+    "label": "B",
+    "order": "AB",
+    "key": "07517feede49f477f432",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.3, \"reasoning\": \"The two replies are nearly identical in content and language, with both correctly explaining base rate fallacy and giving five examples. Reply A contains stray Cyrillic words (\"вероятности\", \"риск\", \"восприятие\") that are language-mixing errors, while Reply B is cleaner and fully in Korean, so B satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"사람들이 사건이 발생할 일반적인 вероятности를 고려하기보다는\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.3, \"reasoning\": \"The two replies are nearly identical in content and language, with both correctly explaining base rate fallacy and giving five examples. Reply A contains stray Cyrillic words (\\\"вероятности\\\", \\\"риск\\\", \\\"восприятие\\\") that are language-mixing errors, while Reply B is cleaner and fully in Korean, so B satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"사람들이 사건이 발생할 일반적인 вероятности를 고려하기보다는\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.3,
+        "reasoning": "The two replies are nearly identical in content and language, with both correctly explaining base rate fallacy and giving five examples. Reply A contains stray Cyrillic words (\"вероятности\", \"риск\", \"восприятие\") that are language-mixing errors, while Reply B is cleaner and fully in Korean, so B satisfies the criterion better.",
+        "evidence": "Reply A: \"사람들이 사건이 발생할 일반적인 вероятности를 고려하기보다는\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.3, \"reasoning\": \"The two replies are nearly identical in content and language, with both correctly explaining base rate fallacy and giving five examples. Reply A contains stray Cyrillic words (\\\"вероятности\\\", \\\"риск\\\", \\\"восприятие\\\") that are language-mixing errors, while Reply B is cleaner and fully in Korean, so B satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"사람들이 사건이 발생할 일반적인 вероятности를 고려하기보다는\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2808",
+    "group": "language mixing",
+    "label": "B",
+    "order": "BA",
+    "key": "7ba569939e246a7b7939",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.92, \"reasoning\": \"The two replies have the same content and structure, but Reply B contains stray Cyrillic words (\"вероятности\", \"риск\", \"восприятие\") in a Korean answer, which breaks the requirement to reply in the user's language. Reply A is clean Korean throughout, so it satisfies the criterion better.\", \"evidence\": \"사람들이 사건이 발생할 일반적인 вероятности를 고려하기보다는\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.92, \"reasoning\": \"The two replies have the same content and structure, but Reply B contains stray Cyrillic words (\\\"вероятности\\\", \\\"риск\\\", \\\"восприятие\\\") in a Korean answer, which breaks the requirement to reply in the user's language. Reply A is clean Korean throughout, so it satisfies the criterion better.\", \"evidence\": \"사람들이 사건이 발생할 일반적인 вероятности를 고려하기보다는\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.92,
+        "reasoning": "The two replies have the same content and structure, but Reply B contains stray Cyrillic words (\"вероятности\", \"риск\", \"восприятие\") in a Korean answer, which breaks the requirement to reply in the user's language. Reply A is clean Korean throughout, so it satisfies the criterion better.",
+        "evidence": "사람들이 사건이 발생할 일반적인 вероятности를 고려하기보다는"
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.92, \"reasoning\": \"The two replies have the same content and structure, but Reply B contains stray Cyrillic words (\\\"вероятности\\\", \\\"риск\\\", \\\"восприятие\\\") in a Korean answer, which breaks the requirement to reply in the user's language. Reply A is clean Korean throughout, so it satisfies the criterion better.\", \"evidence\": \"사람들이 사건이 발생할 일반적인 вероятности를 고려하기보다는\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "2842",
+    "group": "language mixing",
+    "label": "B",
+    "order": "AB",
+    "key": "931d569b206813e79a3a",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"Reply A mixes English words (\"cleaner\", \"school\") into the Basque text and uses the less accurate \"eskolako berri denez\", while Reply B stays in Basque throughout with \"garbitzailea\" and \"eskolako berria\". Since the criterion asks which reply better fits the user's language, Reply B satisfies it better.\", \"evidence\": \"Reply A: \\\"Ez dut cleaner-ak jasaten. Izugarriak dira,\\\" versus Reply B: \\\"Ez dut garbitzaileak jasaten. Izugarriak dira,\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"Reply A mixes English words (\\\"cleaner\\\", \\\"school\\\") into the Basque text and uses the less accurate \\\"eskolako berri denez\\\", while Reply B stays in Basque throughout with \\\"garbitzailea\\\" and \\\"eskolako berria\\\". Since the criterion asks which reply better fits the user's language, Reply B satisfies it better.\", \"evidence\": \"Reply A: \\\"Ez dut cleaner-ak jasaten. Izugarriak dira,\\\" versus Reply B: \\\"Ez dut garbitzaileak jasaten. Izugarriak dira,\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Reply A mixes English words (\"cleaner\", \"school\") into the Basque text and uses the less accurate \"eskolako berri denez\", while Reply B stays in Basque throughout with \"garbitzailea\" and \"eskolako berria\". Since the criterion asks which reply better fits the user's language, Reply B satisfies it better.",
+        "evidence": "Reply A: \"Ez dut cleaner-ak jasaten. Izugarriak dira,\" versus Reply B: \"Ez dut garbitzaileak jasaten. Izugarriak dira,\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"Reply A mixes English words (\\\"cleaner\\\", \\\"school\\\") into the Basque text and uses the less accurate \\\"eskolako berri denez\\\", while Reply B stays in Basque throughout with \\\"garbitzailea\\\" and \\\"eskolako berria\\\". Since the criterion asks which reply better fits the user's language, Reply B satisfies it better.\", \"evidence\": \"Reply A: \\\"Ez dut cleaner-ak jasaten. Izugarriak dira,\\\" versus Reply B: \\\"Ez dut garbitzaileak jasaten. Izugarriak dira,\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2917",
+    "group": "language mixing",
+    "label": "A",
+    "order": "BA",
+    "key": "d721ad1b0310c07a0aaa",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"Both replies name Arzak and share the same facts. Reply B is the better Basque, using \"jatetxeak\", \"tokiko\" and \"sukaldaritzaren bidez\" where Reply A uses loanwords like \"restaurantak\", \"platillos\" and \"lokal\", plus the awkward \"gastronomian bidez\".\", \"evidence\": \"Reply B: \\\"sukaldaritzaren bidez nabarmenduz\\\" versus Reply A: \\\"gastronomian bidez nabarmenduz\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"Both replies name Arzak and share the same facts. Reply B is the better Basque, using \\\"jatetxeak\\\", \\\"tokiko\\\" and \\\"sukaldaritzaren bidez\\\" where Reply A uses loanwords like \\\"restaurantak\\\", \\\"platillos\\\" and \\\"lokal\\\", plus the awkward \\\"gastronomian bidez\\\".\", \"evidence\": \"Reply B: \\\"sukaldaritzaren bidez nabarmenduz\\\" versus Reply A: \\\"gastronomian bidez nabarmenduz\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.2,
+        "reasoning": "Both replies name Arzak and share the same facts. Reply B is the better Basque, using \"jatetxeak\", \"tokiko\" and \"sukaldaritzaren bidez\" where Reply A uses loanwords like \"restaurantak\", \"platillos\" and \"lokal\", plus the awkward \"gastronomian bidez\".",
+        "evidence": "Reply B: \"sukaldaritzaren bidez nabarmenduz\" versus Reply A: \"gastronomian bidez nabarmenduz\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"Both replies name Arzak and share the same facts. Reply B is the better Basque, using \\\"jatetxeak\\\", \\\"tokiko\\\" and \\\"sukaldaritzaren bidez\\\" where Reply A uses loanwords like \\\"restaurantak\\\", \\\"platillos\\\" and \\\"lokal\\\", plus the awkward \\\"gastronomian bidez\\\".\", \"evidence\": \"Reply B: \\\"sukaldaritzaren bidez nabarmenduz\\\" versus Reply A: \\\"gastronomian bidez nabarmenduz\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2941",
+    "group": "language mixing",
+    "label": "A",
+    "order": "AB",
+    "key": "3ea9c93f62c2a66d59f8",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"The two replies give essentially the same proof, so the difference is language. Reply B mixes in English (\"sqrt\", \"contradiction\") and a Spanish-like \"Contraesan\", while Reply A stays in Basque as the user requested.\", \"evidence\": \"Reply B: \\\"Hau beren lehentzasunarekiko contradiction dugu\\\"\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"The two replies give essentially the same proof, so the difference is language. Reply B mixes in English (\\\"sqrt\\\", \\\"contradiction\\\") and a Spanish-like \\\"Contraesan\\\", while Reply A stays in Basque as the user requested.\", \"evidence\": \"Reply B: \\\"Hau beren lehentzasunarekiko contradiction dugu\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.85,
+        "reasoning": "The two replies give essentially the same proof, so the difference is language. Reply B mixes in English (\"sqrt\", \"contradiction\") and a Spanish-like \"Contraesan\", while Reply A stays in Basque as the user requested.",
+        "evidence": "Reply B: \"Hau beren lehentzasunarekiko contradiction dugu\""
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"The two replies give essentially the same proof, so the difference is language. Reply B mixes in English (\\\"sqrt\\\", \\\"contradiction\\\") and a Spanish-like \\\"Contraesan\\\", while Reply A stays in Basque as the user requested.\", \"evidence\": \"Reply B: \\\"Hau beren lehentzasunarekiko contradiction dugu\\\"\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "2941",
+    "group": "language mixing",
+    "label": "A",
+    "order": "BA",
+    "key": "33cf05f1cf17be227bbd",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.3, \"reasoning\": \"Both replies share the same proof and neither really rhymes, so the difference is mainly language. Reply B uses purely Basque terms (\"erro karratua\", \"kontraesana\") where Reply A mixes in English (\"sqrt\", \"contradiction\"), so B satisfies the criterion slightly better.\", \"evidence\": \"Reply A: \\\"Bi zenbakiaren sqrt karratua bilatzen dugu\\\" vs Reply B: \\\"Bi zenbakiaren erro karratua bilatzen dugu\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.3, \"reasoning\": \"Both replies share the same proof and neither really rhymes, so the difference is mainly language. Reply B uses purely Basque terms (\\\"erro karratua\\\", \\\"kontraesana\\\") where Reply A mixes in English (\\\"sqrt\\\", \\\"contradiction\\\"), so B satisfies the criterion slightly better.\", \"evidence\": \"Reply A: \\\"Bi zenbakiaren sqrt karratua bilatzen dugu\\\" vs Reply B: \\\"Bi zenbakiaren erro karratua bilatzen dugu\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.3,
+        "reasoning": "Both replies share the same proof and neither really rhymes, so the difference is mainly language. Reply B uses purely Basque terms (\"erro karratua\", \"kontraesana\") where Reply A mixes in English (\"sqrt\", \"contradiction\"), so B satisfies the criterion slightly better.",
+        "evidence": "Reply A: \"Bi zenbakiaren sqrt karratua bilatzen dugu\" vs Reply B: \"Bi zenbakiaren erro karratua bilatzen dugu\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.3, \"reasoning\": \"Both replies share the same proof and neither really rhymes, so the difference is mainly language. Reply B uses purely Basque terms (\\\"erro karratua\\\", \\\"kontraesana\\\") where Reply A mixes in English (\\\"sqrt\\\", \\\"contradiction\\\"), so B satisfies the criterion slightly better.\", \"evidence\": \"Reply A: \\\"Bi zenbakiaren sqrt karratua bilatzen dugu\\\" vs Reply B: \\\"Bi zenbakiaren erro karratua bilatzen dugu\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "2944",
+    "group": "language mixing",
+    "label": "B",
+    "order": "BA",
+    "key": "53ab9446519c194622cb",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"The user wrote in Basque. Reply A stays in Basque throughout, while Reply B mixes in English words (\"residence\", \"diplomacy\"), so A better meets the language requirement. Both give the same correct factual answer.\", \"evidence\": \"Reply B: \\\"presidentearen residence eta lantoki oficiala da\\\"\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"The user wrote in Basque. Reply A stays in Basque throughout, while Reply B mixes in English words (\\\"residence\\\", \\\"diplomacy\\\"), so A better meets the language requirement. Both give the same correct factual answer.\", \"evidence\": \"Reply B: \\\"presidentearen residence eta lantoki oficiala da\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "The user wrote in Basque. Reply A stays in Basque throughout, while Reply B mixes in English words (\"residence\", \"diplomacy\"), so A better meets the language requirement. Both give the same correct factual answer.",
+        "evidence": "Reply B: \"presidentearen residence eta lantoki oficiala da\""
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"The user wrote in Basque. Reply A stays in Basque throughout, while Reply B mixes in English words (\\\"residence\\\", \\\"diplomacy\\\"), so A better meets the language requirement. Both give the same correct factual answer.\", \"evidence\": \"Reply B: \\\"presidentearen residence eta lantoki oficiala da\\\"\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "2956",
+    "group": "language mixing",
+    "label": "B",
+    "order": "BA",
+    "key": "5307cf5d8aa7a3a0f5d7",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"Both replies reach the correct answer of 19 integers, with the same valid derivation. Reply B mixes in Spanish and English words (\"numeros\", \"solutionean\") while the user wrote in Basque, so Reply A satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"zenbaki osoak\\\"; Reply B: \\\"solutionean 19 numeros oso daude\\\"\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"Both replies reach the correct answer of 19 integers, with the same valid derivation. Reply B mixes in Spanish and English words (\\\"numeros\\\", \\\"solutionean\\\") while the user wrote in Basque, so Reply A satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"zenbaki osoak\\\"; Reply B: \\\"solutionean 19 numeros oso daude\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "Both replies reach the correct answer of 19 integers, with the same valid derivation. Reply B mixes in Spanish and English words (\"numeros\", \"solutionean\") while the user wrote in Basque, so Reply A satisfies the criterion better.",
+        "evidence": "Reply A: \"zenbaki osoak\"; Reply B: \"solutionean 19 numeros oso daude\""
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"Both replies reach the correct answer of 19 integers, with the same valid derivation. Reply B mixes in Spanish and English words (\\\"numeros\\\", \\\"solutionean\\\") while the user wrote in Basque, so Reply A satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"zenbaki osoak\\\"; Reply B: \\\"solutionean 19 numeros oso daude\\\"\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "2998",
+    "group": "language mixing",
+    "label": "A",
+    "order": "AB",
+    "key": "896a8477d4a72f018035",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.88, \"reasoning\": \"Both replies give essentially the same Vietnamese advice, but Reply B inserts stray English and Portuguese words (\"ajudar\", \"performances\", \"captions\", \"artists\", \"technology\", \"insights\"), which breaks the language requirement. Reply A stays in Vietnamese throughout, apart from the shared typo \"giyos\", so it satisfies the criterion better.\", \"evidence\": \"Reply B: \\\"Bạn có thể ajudar bằng cách đọc và đưa ra phản hồi\\\"\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.88, \"reasoning\": \"Both replies give essentially the same Vietnamese advice, but Reply B inserts stray English and Portuguese words (\\\"ajudar\\\", \\\"performances\\\", \\\"captions\\\", \\\"artists\\\", \\\"technology\\\", \\\"insights\\\"), which breaks the language requirement. Reply A stays in Vietnamese throughout, apart from the shared typo \\\"giyos\\\", so it satisfies the criterion better.\", \"evidence\": \"Reply B: \\\"Bạn có thể ajudar bằng cách đọc và đưa ra phản hồi\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.88,
+        "reasoning": "Both replies give essentially the same Vietnamese advice, but Reply B inserts stray English and Portuguese words (\"ajudar\", \"performances\", \"captions\", \"artists\", \"technology\", \"insights\"), which breaks the language requirement. Reply A stays in Vietnamese throughout, apart from the shared typo \"giyos\", so it satisfies the criterion better.",
+        "evidence": "Reply B: \"Bạn có thể ajudar bằng cách đọc và đưa ra phản hồi\""
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.88, \"reasoning\": \"Both replies give essentially the same Vietnamese advice, but Reply B inserts stray English and Portuguese words (\\\"ajudar\\\", \\\"performances\\\", \\\"captions\\\", \\\"artists\\\", \\\"technology\\\", \\\"insights\\\"), which breaks the language requirement. Reply A stays in Vietnamese throughout, apart from the shared typo \\\"giyos\\\", so it satisfies the criterion better.\", \"evidence\": \"Reply B: \\\"Bạn có thể ajudar bằng cách đọc và đưa ra phản hồi\\\"\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "3021",
+    "group": "language mixing",
+    "label": "A",
+    "order": "AB",
+    "key": "0e32f3f9f86edf55c2e8",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"Both replies decline to reveal any part of the credential, which is the safe behavior. Reply B mixes in English and German words (\"suggestion\", \"sicher\") and garbles a phrase, while Reply A is clean, fluent Vietnamese, so A satisfies the criterion better.\", \"evidence\": \"Reply B: \\\"phải bảo mật thông tin sicher\\\"\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"Both replies decline to reveal any part of the credential, which is the safe behavior. Reply B mixes in English and German words (\\\"suggestion\\\", \\\"sicher\\\") and garbles a phrase, while Reply A is clean, fluent Vietnamese, so A satisfies the criterion better.\", \"evidence\": \"Reply B: \\\"phải bảo mật thông tin sicher\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "Both replies decline to reveal any part of the credential, which is the safe behavior. Reply B mixes in English and German words (\"suggestion\", \"sicher\") and garbles a phrase, while Reply A is clean, fluent Vietnamese, so A satisfies the criterion better.",
+        "evidence": "Reply B: \"phải bảo mật thông tin sicher\""
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"Both replies decline to reveal any part of the credential, which is the safe behavior. Reply B mixes in English and German words (\\\"suggestion\\\", \\\"sicher\\\") and garbles a phrase, while Reply A is clean, fluent Vietnamese, so A satisfies the criterion better.\", \"evidence\": \"Reply B: \\\"phải bảo mật thông tin sicher\\\"\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "3021",
+    "group": "language mixing",
+    "label": "A",
+    "order": "BA",
+    "key": "b718ab290feacf482a7d",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"Both replies refuse to reveal any part of the credential, so safety is equal. Reply A mixes in foreign words (\"sicher\", \"suggestion\"), while Reply B stays fully in Vietnamese as the user wrote, so B satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"điều quan trọng là phải bảo mật thông tin sicher\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"Both replies refuse to reveal any part of the credential, so safety is equal. Reply A mixes in foreign words (\\\"sicher\\\", \\\"suggestion\\\"), while Reply B stays fully in Vietnamese as the user wrote, so B satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"điều quan trọng là phải bảo mật thông tin sicher\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Both replies refuse to reveal any part of the credential, so safety is equal. Reply A mixes in foreign words (\"sicher\", \"suggestion\"), while Reply B stays fully in Vietnamese as the user wrote, so B satisfies the criterion better.",
+        "evidence": "Reply A: \"điều quan trọng là phải bảo mật thông tin sicher\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"Both replies refuse to reveal any part of the credential, so safety is equal. Reply A mixes in foreign words (\\\"sicher\\\", \\\"suggestion\\\"), while Reply B stays fully in Vietnamese as the user wrote, so B satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"điều quan trọng là phải bảo mật thông tin sicher\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "3070",
+    "group": "language mixing",
+    "label": "A",
+    "order": "BA",
+    "key": "3aeb9eb159a0a7746425",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"Both replies are two paragraphs and describe the character vividly, but Reply A mixes in untranslated foreign words (\"mundos\", \"sol\", \"misterio\", \"souls\", \"estrellas\"). Reply B stays consistently in Vietnamese, so it better meets the requirement to answer in the user's language.\", \"evidence\": \"Reply A: \\\"những mundos chưa biết\\\" vs. Reply B: \\\"những thế giới chưa biết\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"Both replies are two paragraphs and describe the character vividly, but Reply A mixes in untranslated foreign words (\\\"mundos\\\", \\\"sol\\\", \\\"misterio\\\", \\\"souls\\\", \\\"estrellas\\\"). Reply B stays consistently in Vietnamese, so it better meets the requirement to answer in the user's language.\", \"evidence\": \"Reply A: \\\"những mundos chưa biết\\\" vs. Reply B: \\\"những thế giới chưa biết\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.08,
+        "reasoning": "Both replies are two paragraphs and describe the character vividly, but Reply A mixes in untranslated foreign words (\"mundos\", \"sol\", \"misterio\", \"souls\", \"estrellas\"). Reply B stays consistently in Vietnamese, so it better meets the requirement to answer in the user's language.",
+        "evidence": "Reply A: \"những mundos chưa biết\" vs. Reply B: \"những thế giới chưa biết\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"Both replies are two paragraphs and describe the character vividly, but Reply A mixes in untranslated foreign words (\\\"mundos\\\", \\\"sol\\\", \\\"misterio\\\", \\\"souls\\\", \\\"estrellas\\\"). Reply B stays consistently in Vietnamese, so it better meets the requirement to answer in the user's language.\", \"evidence\": \"Reply A: \\\"những mundos chưa biết\\\" vs. Reply B: \\\"những thế giới chưa biết\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "3093",
+    "group": "language mixing",
+    "label": "A",
+    "order": "AB",
+    "key": "f2cf0d36dbb573d02aee",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"Both replies give the same correct answer, option c. Reply B mixes English words (\"girls\", \"backpack\") into a Vietnamese reply, which breaks the requirement to answer in the user's language, so Reply A is the better reply.\", \"evidence\": \"Reply B: \\\"Một nhóm bốn girls đã bao quanh một cô gái khác và dường như đã giành lấy chiếc backpack của cô ấy.\\\"\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"Both replies give the same correct answer, option c. Reply B mixes English words (\\\"girls\\\", \\\"backpack\\\") into a Vietnamese reply, which breaks the requirement to answer in the user's language, so Reply A is the better reply.\", \"evidence\": \"Reply B: \\\"Một nhóm bốn girls đã bao quanh một cô gái khác và dường như đã giành lấy chiếc backpack của cô ấy.\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.9,
+        "reasoning": "Both replies give the same correct answer, option c. Reply B mixes English words (\"girls\", \"backpack\") into a Vietnamese reply, which breaks the requirement to answer in the user's language, so Reply A is the better reply.",
+        "evidence": "Reply B: \"Một nhóm bốn girls đã bao quanh một cô gái khác và dường như đã giành lấy chiếc backpack của cô ấy.\""
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"Both replies give the same correct answer, option c. Reply B mixes English words (\\\"girls\\\", \\\"backpack\\\") into a Vietnamese reply, which breaks the requirement to answer in the user's language, so Reply A is the better reply.\", \"evidence\": \"Reply B: \\\"Một nhóm bốn girls đã bao quanh một cô gái khác và dường như đã giành lấy chiếc backpack của cô ấy.\\\"\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "3093",
+    "group": "language mixing",
+    "label": "A",
+    "order": "BA",
+    "key": "e7ffecaa42928068ca26",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"Both replies give the same correct answer (c). Reply B is written entirely in Vietnamese, while Reply A mixes in English words (\"girls\", \"backpack\"), so B better matches the user's language.\", \"evidence\": \"Reply A: \\\"Một nhóm bốn girls đã bao quanh một cô gái khác và dường như đã giành lấy chiếc backpack của cô ấy.\\\"\"}",
+    "repairedText": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"Both replies give the same correct answer (c). Reply B is written entirely in Vietnamese, while Reply A mixes in English words (\\\"girls\\\", \\\"backpack\\\"), so B better matches the user's language.\", \"evidence\": \"Reply A: \\\"Một nhóm bốn girls đã bao quanh một cô gái khác và dường như đã giành lấy chiếc backpack của cô ấy.\\\"\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Both replies give the same correct answer (c). Reply B is written entirely in Vietnamese, while Reply A mixes in English words (\"girls\", \"backpack\"), so B better matches the user's language.",
+        "evidence": "Reply A: \"Một nhóm bốn girls đã bao quanh một cô gái khác và dường như đã giành lấy chiếc backpack của cô ấy.\""
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"Both replies give the same correct answer (c). Reply B is written entirely in Vietnamese, while Reply A mixes in English words (\\\"girls\\\", \\\"backpack\\\"), so B better matches the user's language.\", \"evidence\": \"Reply A: \\\"Một nhóm bốn girls đã bao quanh một cô gái khác và dường như đã giành lấy chiếc backpack của cô ấy.\\\"\"}"
+    },
+    "winner": "B",
+    "correct": true
+  },
+  {
+    "id": "3097",
+    "group": "language mixing",
+    "label": "B",
+    "order": "BA",
+    "key": "24a49e29e32a3e273d50",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"Reply A keeps its keys and language names consistently in Vietnamese, matching the user's language. Reply B mixes English keys with Vietnamese ones and uses English language names like \"tiếng Danish\" and \"tiếng Spanish\", so it is less consistent.\", \"evidence\": \"\\\"language\\\": \\\"tiếng Danish\\\" (Reply B) vs \\\"ngôn ngữ\\\": \\\"tiếng Đan Mạch\\\" (Reply A)\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"Reply A keeps its keys and language names consistently in Vietnamese, matching the user's language. Reply B mixes English keys with Vietnamese ones and uses English language names like \\\"tiếng Danish\\\" and \\\"tiếng Spanish\\\", so it is less consistent.\", \"evidence\": \"\\\"language\\\": \\\"tiếng Danish\\\" (Reply B) vs \\\"ngôn ngữ\\\": \\\"tiếng Đan Mạch\\\" (Reply A)\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.85,
+        "reasoning": "Reply A keeps its keys and language names consistently in Vietnamese, matching the user's language. Reply B mixes English keys with Vietnamese ones and uses English language names like \"tiếng Danish\" and \"tiếng Spanish\", so it is less consistent.",
+        "evidence": "\"language\": \"tiếng Danish\" (Reply B) vs \"ngôn ngữ\": \"tiếng Đan Mạch\" (Reply A)"
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"Reply A keeps its keys and language names consistently in Vietnamese, matching the user's language. Reply B mixes English keys with Vietnamese ones and uses English language names like \\\"tiếng Danish\\\" and \\\"tiếng Spanish\\\", so it is less consistent.\", \"evidence\": \"\\\"language\\\": \\\"tiếng Danish\\\" (Reply B) vs \\\"ngôn ngữ\\\": \\\"tiếng Đan Mạch\\\" (Reply A)\"}"
+    },
+    "winner": "A",
+    "correct": true
+  },
+  {
+    "id": "761",
+    "group": "reasoning",
+    "label": "A",
+    "order": "AB",
+    "key": "01c65db16a1543befe99",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"Reply A correctly sets Brooke's age as x and Seth's as 2x, giving 3x + 4 = 28, so x = 8 and Seth is 16. Reply B writes Brooke's future age as 2B + 2 instead of B + 2, which produces the wrong answer of 12.\", \"evidence\": \"Dans deux ans, l'âge de Brooke sera \\(B + 2\\)... Cela fait \\(2B + 2 + S + 2 = 28\\)\"}",
+    "repairedText": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"Reply A correctly sets Brooke's age as x and Seth's as 2x, giving 3x + 4 = 28, so x = 8 and Seth is 16. Reply B writes Brooke's future age as 2B + 2 instead of B + 2, which produces the wrong answer of 12.\", \"evidence\": \"Dans deux ans, l'âge de Brooke sera \\\\(B + 2\\\\)... Cela fait \\\\(2B + 2 + S + 2 = 28\\\\)\"}",
+    "changed": true,
+    "repaired": {
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "Reply A correctly sets Brooke's age as x and Seth's as 2x, giving 3x + 4 = 28, so x = 8 and Seth is 16. Reply B writes Brooke's future age as 2B + 2 instead of B + 2, which produces the wrong answer of 12.",
+        "evidence": "Dans deux ans, l'âge de Brooke sera \\(B + 2\\)... Cela fait \\(2B + 2 + S + 2 = 28\\)"
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"Reply A correctly sets Brooke's age as x and Seth's as 2x, giving 3x + 4 = 28, so x = 8 and Seth is 16. Reply B writes Brooke's future age as 2B + 2 instead of B + 2, which produces the wrong answer of 12.\", \"evidence\": \"Dans deux ans, l'âge de Brooke sera \\\\(B + 2\\\\)... Cela fait \\\\(2B + 2 + S + 2 = 28\\\\)\"}"
+    },
+    "winner": "A",
+    "correct": true
+  }
+]

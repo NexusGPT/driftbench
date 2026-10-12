@@ -1,0 +1,37 @@
+{
+  "contractSha": "62a3099f099eb93d568b425a185835bceff3b590",
+  "completedDirect": 400,
+  "providerUnavailable": 1,
+  "groups": {
+    "chat": {
+      "items": 37,
+      "initialOrRepairUnparsed": 1,
+      "finalUnparsed": 0,
+      "ambiguousAttempts": 0
+    },
+    "reasoning": {
+      "items": 151,
+      "initialOrRepairUnparsed": 113,
+      "finalUnparsed": 36,
+      "ambiguousAttempts": 2
+    },
+    "language mixing": {
+      "items": 99,
+      "initialOrRepairUnparsed": 65,
+      "finalUnparsed": 24,
+      "ambiguousAttempts": 14
+    },
+    "safety": {
+      "items": 77,
+      "initialOrRepairUnparsed": 0,
+      "finalUnparsed": 0,
+      "ambiguousAttempts": 0
+    },
+    "linguistics": {
+      "items": 35,
+      "initialOrRepairUnparsed": 88,
+      "finalUnparsed": 34,
+      "ambiguousAttempts": 9
+    }
+  }
+}

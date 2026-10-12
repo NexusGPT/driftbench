@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 async function main() {
   const root = 'examples/judge-benchmarks/experiments/mm-results';
-  const rows = (await readFile(`${root}/cascade-dev400-rounds.jsonl`, 'utf8'))
+  const at = process.argv.indexOf('--dev-tag');
+  const devTag = at >= 0 ? process.argv[at + 1]! : 'cascade-dev400-repaired';
+  const rows = (await readFile(`${root}/${devTag}-rounds.jsonl`, 'utf8'))
     .trim()
     .split('\n')
     .map((s) => JSON.parse(s));
@@ -52,6 +54,7 @@ async function main() {
     'examples/judge-benchmarks/experiments/mm-cascade.ts',
     'examples/judge-benchmarks/experiments/mm-crowd.ts',
     'examples/judge-benchmarks/experiments/mm-test-sample.ts',
+    'examples/judge-benchmarks/experiments/mm-budget.ts',
     'examples/judge-benchmarks/src/mm-language.ts',
     'examples/judge-benchmarks/src/call.ts',
     'packages/judges/src/assessment.ts',
@@ -69,8 +72,10 @@ async function main() {
     cascade: selected.cascade,
     premises: selected.premises,
     contractSha: cascade.contractSha,
-    devTag: 'cascade-dev400',
+    devTag,
     frozenAt: new Date().toISOString(),
+    contractReviewStatus:
+      'The shared winner contract is still under independent re-review at the freeze, per the lead’s latest status.',
     sourceHashes,
   };
   await writeFile(`${root}/frozen-config.json`, JSON.stringify(config, null, 2) + '\n');

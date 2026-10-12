@@ -1,3 +1,4 @@
+import { knownProviderRefusals, priorMMSpend } from './mm-budget';
 import { appendFile, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import {
@@ -155,15 +156,8 @@ async function main() {
   )
     throw new Error('Require tag, ledger, contract-sha, deadline and concurrency 1..3');
   const recordings = await new Recordings(RECORDING).load();
-  const prior = (await readFile(RECORDING, 'utf8'))
-    .trim()
-    .split('\n')
-    .map((s) => JSON.parse(s));
-  const priorSpent = prior
-    .filter((r) => String(r.contestant).startsWith('driftbench-mm-'))
-    .reduce((s, r) => s + r.costUsd, 0);
-  // Three possible call-budget overshoots and interrupted-call uncertainty retain headroom below USD8.
-  const cap = Math.min(Number(arg('cap-usd') ?? 7.6), 7.6 - priorSpent);
+  const priorSpent = (await priorMMSpend(RECORDING, ROOT)).total;
+  const cap = Math.min(Number(arg('cap-usd') ?? 7.4), 7.4 - priorSpent);
   if (!Number.isFinite(cap) || cap <= 0) throw new Error('Invalid cap or exhausted task budget');
   const caller = createCaller(recordings, { model: 'haiku', maxCallUsd: 0.05 }, { capUsd: cap });
   const benchmark = await loadBenchmark('mmeval');
@@ -200,8 +194,10 @@ async function main() {
     premiseResults: PairResult[] = [],
     final: PairResult[] = [];
   const providerRefusedIds = new Set<string>();
+  const knownRefusals = await knownProviderRefusals(ROOT);
   const directDetails = new Map<string, Awaited<ReturnType<typeof directItem>>>();
   const premiseById = new Map<string, string>();
+  const premiseAttemptedIds = new Set<string>();
   const seen = new Set<string>();
   const directItemCosts = new Map<string, { costUsd: number; calls: number }>();
   const phaseCosts = {
@@ -226,6 +222,7 @@ async function main() {
     return async (prompt, stage) => {
       if (stopped) throw new Error(stopped);
       if (Date.now() >= deadline) throw new Error('deadline reached');
+      if (activePhase === 'premise') premiseAttemptedIds.add(item.id);
       const started = Date.now();
       const hit = recordings.get(promptKey('haiku', prompt));
       let record: Recorded;
@@ -270,6 +267,7 @@ async function main() {
       calls = Object.values(phaseCosts).reduce((s, x) => s + x.calls, 0);
     const replaced = premiseResults.reduce(
       (s, r) => {
+        if (!premiseAttemptedIds.has(r.item.id)) return s;
         const c = directItemCosts.get(r.item.id) ?? { costUsd: 0, calls: 0 };
         return { costUsd: s.costUsd + c.costUsd, calls: s.calls + c.calls };
       },
@@ -394,6 +392,21 @@ async function main() {
   for (const [batchIndex, batch] of batches.entries()) {
     activePhase = 'direct';
     await pool(batch, async (item) => {
+      const known = knownRefusals.get(item.id);
+      if (known) {
+        providerRefusedIds.add(item.id);
+        const row: PairResult = { item, games: ['tie', 'tie'], missing: 2, providerRefused: true };
+        direct.push(row);
+        final.push(row);
+        phaseCosts.direct.costUsd += known.reportedCostUsd;
+        phaseCosts.direct.calls++;
+        directItemCosts.set(item.id, { costUsd: known.reportedCostUsd, calls: 1 });
+        await appendFile(
+          `${ROOT}/${tag}-provider-refusals.jsonl`,
+          JSON.stringify({ id: item.id, phase: 'direct', replayed: true, ...known }) + '\n',
+        );
+        return;
+      }
       const result = await directItem(item, askFor(item));
       directDetails.set(item.id, result);
       const row = { item, games: result.games, missing: 0 };

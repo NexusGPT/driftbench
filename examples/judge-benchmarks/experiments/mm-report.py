@@ -16,7 +16,7 @@ lines = [
     '',
     f'Artifact collation: {datetime.datetime.now(datetime.timezone.utc).isoformat()}.',
     '',
-    'All measurements below use Haiku through the harness. No TEST item is judged or used for tuning.',
+    'All measurements below use Haiku through the harness. DEV selects the design. One frozen stratified test sample follows, labelled separately and never used for tuning.',
     'Total is the unweighted mean of the five subset means. Each pair is judged in both orders; a tie scores 0.5.',
     'Inference cost includes cached calls at their recorded price. New spend is separate.',
     '',
@@ -119,11 +119,77 @@ if (root/'cascade-first50-timing.json').exists():
     timing=json.loads((root/'cascade-first50-timing.json').read_text())
     lines.extend(['',f"Initial timing: {timing['sampleCalls']} calls, {timing['meanCallSeconds']:.2f} seconds per sequential call. Three-worker direct-only projected finish: {timing['projectedDirectFinishUtc']}. This is a projection, not a completion timestamp."])
 
+lines.extend(['', '## Provider availability applied across variants', '',
+              '| Run | Variant / view | Items scored | Provider-refused items in cohort | Total % | Reasoning % | Chat % | Linguistics % | Mixing % | Safety % |',
+              '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|'])
+provider_ids=set()
+provider_error_cost=0.0
+seen_errors=set()
+for errorfile in root.glob('*-provider-refusals.jsonl'):
+    for text in errorfile.read_text().splitlines():
+        error=json.loads(text);provider_ids.add(error['id'])
+        if error['error'] not in seen_errors:
+            seen_errors.add(error['error']);provider_error_cost+=error['reportedCostUsd']
+for path in sorted(root.glob('*-decisions.jsonl')):
+    if path.name.startswith(('cascade','crowd','test-sample')):continue
+    rows=[json.loads(s) for s in path.read_text().splitlines()]
+    variants=collections.defaultdict(list)
+    for row in rows:
+        if 'contestant' in row and 'games' in row:variants[row['contestant']].append(row)
+    for variant,items in variants.items():
+        refused=sum(item['id'] in provider_ids for item in items)
+        for view in ['official','excluded']:
+            by=collections.defaultdict(list)
+            scored=[item for item in items if view=='official' or item['id'] not in provider_ids]
+            for item in scored:
+                value=0 if item['id'] in provider_ids else sum(1 if g==item['label'] else .5 if g=='tie' else 0 for g in item['games'])/len(item['games'])
+                by[item['group']].append(value)
+            means={g:sum(xs)/len(xs) for g,xs in by.items()}
+            total=sum(means.values())/len(means) if means else 0
+            scores=[f"{means[g]*100:.2f}" if g in means else 'n/a' for g in groups]
+            lines.append(f"| {path.stem} | {variant}: {view} | {len(scored)} | {refused} | {total*100:.2f} | "+' | '.join(scores)+' |')
+for path in sorted(root.glob('cascade*-rounds.jsonl')):
+    for index,text in enumerate(path.read_text().splitlines(),1):
+        r=json.loads(text)
+        if 'excludedSummary' not in r:continue
+        for variant,key in [('direct excluded','excludedDirectSummary'),('current cascade excluded','excludedSummary')]:
+            summary=r[key];scores=[f"{summary['byGroup'][g]['value']*100:.2f}" if g in summary['byGroup'] else 'n/a' for g in groups]
+            lines.append(f"| {path.stem} {index} | {variant} | {summary['n']} | {r['providerRefusedCount']} | {summary['value']['estimate']*100:.2f} | "+' | '.join(scores)+' |')
+lines.extend(['',f"Provider-refused IDs across this workstream: {', '.join(sorted(provider_ids)) or 'none'}. The historical pilot/common cohorts contain no such item if their row count is zero.",
+              'The first variant table preserves its historical parser-version measurements; the availability table applies the same wrong/excluded rule to the stored decisions of every contestant.',
+              'Costs retain the denominator of requested items in both accuracy views, because refusal calls still consume evaluation resources.'])
+
+lines.extend(['', '## Frozen test sample', '',
+              'Provider-refused items score zero in the official view and are excluded in a second view. The same item set and rule apply to each contestant in the comparison.',
+              'Both orders of a provider-refused pair remain unavailable; code does not invent a winner. Counts and item IDs are retained in the run evidence.',
+              'The 95% interval resamples pairs within each subset and then takes the unweighted mean of subset means. It measures sample uncertainty, not repeated-model variance.', '',
+              '| Run | View | Completed / requested | Total % | 95% interval % | Reasoning % | Chat % | Linguistics % | Mixing % | Safety % | Refused items | USD / 100 | Calls / item |',
+              '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|'])
+for path in sorted(root.glob('test-sample*.json')):
+    r=json.loads(path.read_text())
+    if not isinstance(r,dict) or r.get('label')!='test sample' or 'summary' not in r:continue
+    for view,key,intervalkey in [('official: refused wrong','summary','interval95'),('refused excluded','excludedSummary','excludedInterval95')]:
+        if key not in r:continue
+        s=r[key];ci=r[intervalkey];scores=[f"{s['byGroup'][g]['value']*100:.2f}" if g in s['byGroup'] else 'n/a' for g in groups]
+        lines.append(f"| {path.stem} | {view} | {s['n']} / {r['requested']} | {s['value']['estimate']*100:.2f} | {ci['lower']*100:.2f} to {ci['upper']*100:.2f} | "+' | '.join(scores)+f" | {r['providerRefusedCount']} | {r['costPer100']:.5f} | {r['callsPerItem']:.3f} |")
+    lines.extend(['',f"Frozen commit: {r['frozenCommit']}. Fixed seed: {r['seed']}. Shared contract: {r['config']['contractSha']}.",f"Provider-refused IDs: {', '.join(r['providerRefusedIds']) or 'none'}."])
+if (root/'frozen-config.json').exists():
+    frozen=json.loads((root/'frozen-config.json').read_text())
+    lines.extend(['',f"Frozen design: cascade={frozen['cascade']}, safety premises={frozen['premises']}. {frozen.get('contractReviewStatus','Contract status is recorded at freeze.')}"])
+lines.extend(['', '## Stored raw winner re-score', '',
+              '| Evidence | Shared version | Items | Changed items | Unparsed games | Blank quotes | Ambiguous quotes | Total % |',
+              '|---|---|---:|---:|---:|---:|---:|---:|'])
+for path in sorted(root.glob('*-rescore.json')):
+    r=json.loads(path.read_text());lines.append(f"| {path.stem} | {r['contractSha']} | {r['items']} | {r['changedItems']} | {r['unparsedGames']} | {r['blankQuotes']} | {r['ambiguousQuotes']} | {r['summary']['value']['estimate']*100:.2f} |")
+
+if (root/'dev400-chat-miss-audit.md').exists():
+    lines.extend(['', '## Fixed DEV400 chat audit', '', (root/'dev400-chat-miss-audit.md').read_text()])
+
 rows = [json.loads(s) for s in Path('examples/judge-benchmarks/recordings/mmeval/haiku.jsonl').read_text().splitlines()]
 new = [r for r in rows if str(r.get('contestant', '')).startswith('driftbench-mm-')]
 spent = sum(r['costUsd'] for r in new)
 lines.extend(['', '## Cost and verification', '',
-              f'Successful new MM recordings: {len(new)} calls, USD {spent:.7f}. Whole-task model cap is USD 8.00.',
+              f'Successful new MM recordings: {len(new)} calls, USD {spent:.7f}. Reported provider-error charges: USD {provider_error_cost:.7f}. Whole-task model cap is USD 8.00.',
               'Interrupted calls without a recorded reported cost are not silently assigned an invented price.',
               'Spend-ledger accounting reconciles the earlier live-replay overlap against unique successful recorded calls.',
               '', 'franc-all 7.2.0 is MIT licensed, confirmed from package metadata and the [upstream license](https://github.com/wooorm/franc/blob/main/license).',
@@ -133,6 +199,6 @@ lines.extend(['', '## Cost and verification', '',
               '', 'Code observations are advisory. A language mismatch does not force a winner. Short text, related languages, names and requested translations can confuse language ID.',
               'No preference label, item ID, subset name, benchmark language metadata or answer-label skew enters a model prompt. Explicitly authorized chat and safety routing uses subset metadata only in code.',
               'The dossier ceiling is an estimate, not a measured limit. This report does not claim that 95 is impossible.',
-              'TEST runs only after a frozen configuration achieves the requested DEV target and within the authorized budget.', ''])
+              'The lead authorizes one frozen test sample after fixed DEV400 selection, then remaining DEV only if time remains. The target remains 95; the sample is not the full test split.', ''])
 Path(args.out).write_text('\n'.join(lines))
 print(args.out)

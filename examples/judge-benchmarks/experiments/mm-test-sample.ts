@@ -1,3 +1,4 @@
+import { priorMMSpend } from './mm-budget';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { appendFile, readFile, writeFile } from 'node:fs/promises';
@@ -67,6 +68,9 @@ async function main() {
     ledger = arg('ledger'),
     path = arg('config'),
     frozenCommit = arg('frozen-commit');
+  const split = arg('split') ?? 'test';
+  if (split !== 'test' && split !== 'dev') throw new Error('Split must be test or dev');
+  const runLabel = split === 'test' ? 'test sample' : 'DEV remainder';
   const n = Number(arg('items')),
     deadline = Date.parse(arg('deadline') ?? '');
   if (
@@ -91,46 +95,53 @@ async function main() {
       .digest('hex');
     if (observed !== expected) throw new Error(`Frozen source changed: ${source}`);
   }
-  // One test submission per frozen design. The manifest is written before the first model call.
+  // A resume continues the same predeclared cohort and reuses cached outputs.
+  const resume = process.argv.includes('--resume');
+  let previousManifest: { frozenCommit: string; n: number; seed: string } | undefined;
   try {
-    await readFile(`${ROOT}/${tag}-items.json`);
-    throw new Error('Test sample already started; do not submit twice');
+    previousManifest = JSON.parse(await readFile(`${ROOT}/${tag}-items.json`, 'utf8'));
+    if (!resume) throw new Error('Sample already started; use resume for the same cohort');
+    if (previousManifest!.frozenCommit !== frozenCommit || previousManifest!.n !== n)
+      throw new Error('Resume cannot change the frozen commit or sample size');
   } catch (e) {
     if (!(e && typeof e === 'object' && 'code' in e && e.code === 'ENOENT')) throw e;
+    if (resume) throw new Error('No predeclared cohort exists to resume');
   }
-  const prior = (await readFile(RECORDING, 'utf8'))
-    .trim()
-    .split('\n')
-    .map((s) => JSON.parse(s));
-  const priorSpent = prior
-    .filter((r) => String(r.contestant).startsWith('driftbench-mm-'))
-    .reduce((s, r) => s + r.costUsd, 0);
-  const cap = Math.min(Number(arg('cap-usd') ?? 7.6), 7.6 - priorSpent);
+  const priorSpent = (await priorMMSpend(RECORDING, ROOT)).total;
+  const cap = Math.min(Number(arg('cap-usd') ?? 7.4), 7.4 - priorSpent);
   if (!Number.isFinite(cap) || cap <= 0) throw new Error('Task budget exhausted');
   const recordings = await new Recordings(RECORDING).load();
   const caller = createCaller(recordings, { model: 'haiku', maxCallUsd: 0.05 }, { capUsd: cap });
   const bench = await loadBenchmark('mmeval');
   const population = bench.items.filter(
-    (i): i is PairItem => i.kind === 'pair' && splitOf('mmeval', i.id) === 'test',
+    (i): i is PairItem => i.kind === 'pair' && splitOf('mmeval', i.id) === split,
   );
+  const excludedManifest = arg('exclude-dev-manifest');
+  if (split === 'dev') {
+    if (!excludedManifest) throw new Error('DEV continuation must exclude the fixed DEV selection');
+    const excluded = JSON.parse(await readFile(excludedManifest, 'utf8'));
+    const ids = new Set((excluded.batches[0] as { id: string }[]).map((i) => i.id));
+    population.splice(0, population.length, ...population.filter((i) => !ids.has(i.id)));
+  }
   if (n > population.length) throw new Error('Sample exceeds test population');
-  const seed = 'mm-frozen-test-sample-v1';
+  const seed = split === 'test' ? 'mm-frozen-test-sample-v1' : 'mm-frozen-dev-remainder-v1';
   const items = stratifiedSample(population, n, seed);
-  await writeFile(
-    `${ROOT}/${tag}-items.json`,
-    JSON.stringify(
-      {
-        label: 'test sample',
-        n,
-        seed,
-        frozenCommit,
-        config,
-        items: items.map(({ id, group, language }) => ({ id, group, language })),
-      },
-      null,
-      2,
-    ) + '\n',
-  );
+  if (!resume)
+    await writeFile(
+      `${ROOT}/${tag}-items.json`,
+      JSON.stringify(
+        {
+          label: runLabel,
+          n,
+          seed,
+          frozenCommit,
+          config,
+          items: items.map(({ id, group, language }) => ({ id, group, language })),
+        },
+        null,
+        2,
+      ) + '\n',
+    );
   const results: PairResult[] = [];
   const providerRefusedIds = new Set<string>();
   const seen = new Set<string>();
@@ -140,6 +151,35 @@ async function main() {
     invalidPremises = 0,
     next = 0,
     stopped: string | undefined;
+  if (resume) {
+    const previous = JSON.parse(await readFile(`${ROOT}/${tag}.json`, 'utf8'));
+    calls = previous.calls;
+    costUsd = previous.costUsd;
+    escalated = previous.escalated;
+    invalidPremises = previous.invalidPremises;
+    for (const key of previous.usedKeys ?? []) seen.add(key);
+    const byId = new Map(items.map((i) => [i.id, i]));
+    try {
+      for (const line of (await readFile(`${ROOT}/${tag}-decisions.jsonl`, 'utf8'))
+        .trim()
+        .split('\n')
+        .filter(Boolean)) {
+        const row = JSON.parse(line);
+        const item = byId.get(row.id);
+        if (!item) throw new Error('Stored result outside declared cohort');
+        results.push({ item, games: row.games, missing: 0 });
+      }
+    } catch (e) {
+      if (!(e && typeof e === 'object' && 'code' in e && e.code === 'ENOENT')) throw e;
+    }
+    for (const id of previous.providerRefusedIds ?? []) {
+      const item = byId.get(id);
+      if (!item) throw new Error('Refusal outside declared cohort');
+      providerRefusedIds.add(id);
+      results.push({ item, games: ['tie', 'tie'], missing: 2, providerRefused: true });
+    }
+  }
+  const completedIds = new Set(results.map((r) => r.item.id));
   process.on('SIGTERM', () => {
     stopped = 'controlled stop requested';
   });
@@ -149,7 +189,7 @@ async function main() {
   let checkpointQueue = Promise.resolve();
   const checkpoint = async () => {
     const report = {
-      label: 'test sample',
+      label: runLabel,
       providerRefusedCount: providerRefusedIds.size,
       providerRefusedIds: [...providerRefusedIds],
       ...(results.length > providerRefusedIds.size
@@ -161,7 +201,7 @@ async function main() {
             excludedInterval95: stratifiedInterval(results.filter((r) => !r.providerRefused)),
           }
         : {}),
-      contestant: 'driftbench-mm-frozen',
+      contestant: split === 'test' ? 'driftbench-mm-frozen-test' : 'driftbench-mm-frozen-dev',
       requested: n,
       completed: results.length,
       missingItems: n - results.length,
@@ -178,6 +218,7 @@ async function main() {
       escalated,
       escalatedShare: escalated / Math.max(1, results.length),
       invalidPremises,
+      usedKeys: [...seen],
       newSpendUsd: caller.spent(),
       newCalls: caller.calls(),
       time: new Date().toISOString(),
@@ -196,6 +237,7 @@ async function main() {
     Array.from({ length: 3 }, async () => {
       while (!stopped && next < items.length) {
         const item = items[next++]!;
+        if (completedIds.has(item.id)) continue;
         let ordinal = 0;
         const ask = async (prompt: { system: string; user: string }, stage: string) => {
           if (stopped) throw new Error(stopped);
@@ -204,7 +246,7 @@ async function main() {
           try {
             record = await caller.call(prompt, {
               bench: 'mmeval',
-              contestant: 'driftbench-mm-frozen',
+              contestant: split === 'test' ? 'driftbench-mm-frozen-test' : 'driftbench-mm-frozen-dev',
               item: item.id,
               order: `${stage}#${++ordinal}`,
             });
@@ -272,7 +314,7 @@ async function main() {
   const report = await checkpoint();
   await appendFile(
     ledger,
-    `| ${report.time.slice(11, 16)} UTC | codex-mm ${tag}: frozen test sample ${results.length}/${n} | haiku | ${caller.calls()} | ${cap.toFixed(4)} | ${caller.spent().toFixed(7)} | frozen ${frozenCommit} |\n`,
+    `| ${report.time.slice(11, 16)} UTC | codex-mm ${tag}: frozen ${runLabel} ${results.length}/${n} | haiku | ${caller.calls()} | ${cap.toFixed(4)} | ${caller.spent().toFixed(7)} | frozen ${frozenCommit} |\n`,
   );
   if (stopped) process.exitCode = 1;
 }

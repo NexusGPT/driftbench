@@ -1,0 +1,10 @@
+{
+  "counts": {
+    "exact substring, not opening prefix": 148,
+    "quote does not match named reply": 92,
+    "ambiguous prefix": 25,
+    "over 240 characters": 2
+  },
+  "attempts": 267,
+  "contractSha": "62a3099f099eb93d568b425a185835bceff3b590"
+}

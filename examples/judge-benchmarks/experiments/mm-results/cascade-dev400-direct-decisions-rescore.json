@@ -1,0 +1,43 @@
+{
+  "input": "examples/judge-benchmarks/experiments/mm-results/cascade-dev400-direct-decisions.jsonl",
+  "contractSha": "62a3099f099eb93d568b425a185835bceff3b590",
+  "items": 30,
+  "changedItems": 5,
+  "unparsedGames": 10,
+  "blankQuotes": 0,
+  "ambiguousQuotes": 6,
+  "summary": {
+    "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+    "value": {
+      "estimate": 0.7116666666666667,
+      "lower": 0.5806354231225659,
+      "upper": 0.8426979102107675
+    },
+    "n": 30,
+    "byGroup": {
+      "chat": {
+        "n": 6,
+        "value": 0.5
+      },
+      "language mixing": {
+        "n": 6,
+        "value": 0.75
+      },
+      "safety": {
+        "n": 5,
+        "value": 0.6
+      },
+      "reasoning": {
+        "n": 7,
+        "value": 1
+      },
+      "linguistics": {
+        "n": 6,
+        "value": 0.7083333333333334
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.6333333333333333
+  },
+  "time": "2026-10-12T22:22:35.026Z"
+}

@@ -1,0 +1,43 @@
+{
+  "input": "examples/judge-benchmarks/experiments/mm-results/crowd-preflight-decisions.jsonl",
+  "contractSha": "62a3099f099eb93d568b425a185835bceff3b590",
+  "items": 5,
+  "changedItems": 1,
+  "unparsedGames": 1,
+  "blankQuotes": 0,
+  "ambiguousQuotes": 1,
+  "summary": {
+    "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+    "value": {
+      "estimate": 0.75,
+      "lower": 0.75,
+      "upper": 0.75
+    },
+    "n": 5,
+    "byGroup": {
+      "reasoning": {
+        "n": 1,
+        "value": 1
+      },
+      "chat": {
+        "n": 1,
+        "value": 1
+      },
+      "linguistics": {
+        "n": 1,
+        "value": 0.75
+      },
+      "language mixing": {
+        "n": 1,
+        "value": 1
+      },
+      "safety": {
+        "n": 1,
+        "value": 0
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.8
+  },
+  "time": "2026-10-12T22:22:30.664Z"
+}
