@@ -196,6 +196,15 @@ function calibrateArgs(out: string, cassette = CALIBRATION): string[] {
 }
 
 describe('driftbench judge calibrate', () => {
+  it('prints the judge names and the first assignment block that docs/concepts/judges.md shows', async () => {
+    const out = join(scratch, 'assignments-doc.yaml');
+    const { text } = { text: (await run(calibrateArgs(out, CALIBRATION))).out };
+    const doc = await readFile(join(ROOT, 'docs/concepts/judges.md'), 'utf8');
+    expect(doc).not.toContain('s1p-');
+    const block = text.split('\n').slice(0, 8).join('\n');
+    expect(doc).toContain(block);
+  });
+
   it('runs every judge on the Acme cassette and writes the committed assignment table', async () => {
     const out = join(scratch, 'assignments.yaml');
     const { code, out: text, err } = await run(calibrateArgs(out));
