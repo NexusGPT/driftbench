@@ -388,6 +388,23 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         throw new AgentFailure(`the turn mapped to ${mapped.blocks.length} blocks; one is expected`);
       }
       if (parsed.sessionId !== undefined) state.resumeId = parsed.sessionId;
+      // A compaction the runner planted in the session file before the turn: the runtime does not stream a
+      // boundary it found in the file it resumed (seen on the Cue bench), so the trace marks it at the turn's
+      // start, where a hazard check reads it.
+      const planted = notes.includes('compact: a compaction boundary and its summary were appended')
+        ? ops
+            .filter((op) => op.op === 'compact')
+            .slice(-1)
+            .map((op) => ({
+              kind: 'compaction' as const,
+              line: 0,
+              afterToolCalls: 0,
+              planted: true,
+              at: startedAt,
+              ...(op.op === 'compact' && op.trigger !== undefined ? { trigger: op.trigger } : {}),
+              ...(op.op === 'compact' && op.preTokens !== undefined ? { preTokens: op.preTokens } : {}),
+            }))
+        : [];
       const findings = outsideWrites(block.observed.toolCalls, cwd);
       if (findings.length > 0) {
         const runtime = block.observed.runtime ?? {};
@@ -439,6 +456,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         latencyMs: Math.max(0, Date.now() - Date.parse(startedAt)),
         raw: {
           ...(isRecord(block.observed.raw) ? block.observed.raw : {}),
+          markers: [...planted, ...markersOf(block.observed.raw)],
           live: {
             sessionId: parsed.sessionId ?? null,
             ...(parsed.tools === undefined ? {} : { tools: parsed.tools }),
@@ -833,4 +851,8 @@ function resolvedPath(path: string): string {
       head = parent;
     }
   }
+}
+
+function markersOf(raw: unknown): unknown[] {
+  return isRecord(raw) && Array.isArray(raw.markers) ? raw.markers : [];
 }

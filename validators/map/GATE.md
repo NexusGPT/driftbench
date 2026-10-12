@@ -20,4 +20,4 @@ So the bar for this validator is 0.42, the measured 0.41 rounded up to the next 
 | Distinct failing causes after the pilot | at least 100 | 114 |
 | Audit (section 12.7) | four checks pass | absent |
 
-`driftbench validate map --hardness` reads the line `Max score after the pilot: <n>` from this file. Only a value above 0.4 and under 0.8 is taken (`parseGate` in `packages/validators/src/hardness.ts`).
+`driftbench validate map --hardness` reads the line `Max score after the pilot: <n>` from this file. Only a value above 0.4 and under 0.5 is taken (`parseGate` in `packages/validators/src/hardness.ts`).

@@ -6,9 +6,9 @@ Status, 2026-10-12: the owner closed the validator design ("we've done enough wo
 
 Max score after the pilot: 0.7
 Min forecast: 70
-Min distinct causes: 60
+Min distinct failing causes: 60
 
-The owner's fallback, verbatim: "If you cannot do it, lower the bar per validator". The stats bar is what this honest bank meets: a forecast of at least 70 iterations (measured 73.21), a score after the pilot of at most 0.7 (measured 0.6851) and at least 60 distinct failing causes (measured 62). `driftbench validate stats --hardness` reads the three lines above (`parseGate` and `parseGateFloors` in `packages/validators/src/hardness.ts`). A score ceiling counts only above 0.4 and under 0.8, a forecast floor only from 50 to under 100, a cause floor only from 30 to under 100. The audit (12.7) still applies: the stats-v2 audit judged the old bank, and this bank has no `audit.md` yet.
+The owner's fallback, verbatim: "If you cannot do it, lower the bar per validator". The stats bar is what this honest bank meets: a forecast of at least 70 iterations (measured 73.21), a score after the pilot of at most 0.7 (measured 0.6851) and at least 60 distinct failing causes (measured 62). `driftbench validate stats --hardness` reads the three lines above (`parseGate` in `packages/validators/src/hardness.ts`, which takes a value only when it lowers the section 12.4 term). The audit (12.7) still applies: the stats-v2 audit judged the old bank, and this bank has no `audit.md` yet.
 
 ## The numbers
 

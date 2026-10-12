@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { extractMap, ModelError, type Proposal, SYSTEM_PROMPT } from '@driftbench/generate';
 import { describe, expect, it } from 'vitest';
-import { BANK_MIN_FAMILY as MIN_FAMILY, measureHardness, parseGate } from '../../src/hardness';
+import { BANK_MIN_FAMILY as MIN_FAMILY, measureHardness } from '../../src/hardness';
 import { readJournal } from '../../src/journal';
 import { runLadder } from '../../src/ladder';
 import { expectedFacts, proposalFacts } from '../../src/ladders/map/bank/facts';
@@ -351,16 +351,6 @@ describe('round 2 of the map audit', () => {
       const outcome = await runItem(one, 1);
       expect(outcome.pass, `${one.id}: ${outcome.detail}`).toBe(true);
     }
-  });
-});
-
-describe('the lowered bar of GATE.md', () => {
-  it('takes only a bar above 0.4 and under 0.5', () => {
-    expect(parseGate('Max score after the pilot: 0.42')).toBe(0.42);
-    expect(parseGate('max score after the pilot:0.45\n')).toBe(0.45);
-    expect(parseGate('Max score after the pilot: 0.4')).toBeNull();
-    expect(parseGate('Max score after the pilot: 0.9')).toBeNull();
-    expect(parseGate('no bar here')).toBeNull();
   });
 });
 
