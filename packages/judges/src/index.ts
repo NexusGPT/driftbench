@@ -3,7 +3,10 @@ export const packageName = '@driftbench/judges';
 
 export { summarizeDiff, type TaskArtifactOptions, taskArtifactText } from './artifacts';
 export {
+  AnnotationAnchor,
   AssignmentTable,
+  anchorNote,
+  anchorProblem,
   assignmentTable,
   type CalibrationConfig,
   type CalibrationReport,
@@ -119,6 +122,15 @@ export {
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
 export { labelFilePath, readLabelFile, saveLabel } from './labels';
+export {
+  judgePairwise,
+  type PairwiseChoice,
+  type PairwiseTally,
+  type PairwiseVerdict,
+  pairwiseRequest,
+  pairwiseTally,
+  readPairwiseCriterion,
+} from './pairwise';
 export {
   ANSWER_CONTRACT,
   buildPrompt,

@@ -425,6 +425,17 @@ blocks:
 
 A labels file is refused when its name differs from its criterion, when every block carries the same label (kappa then has nothing to measure), when a block id is used twice, or when a label is other than `pass` or `fail`.
 
+### Anchors
+
+A label can name the element it is about. The optional `anchor` on a block takes one of four kinds:
+
+* `{ kind: message, index: 3 }`: the transcript line at that index, counted from 0.
+* `{ kind: tool_call, tool: coverage.lookup, occurrence: 2 }`: the second call of that tool in the transcript. `occurrence` defaults to 1.
+* `{ kind: field, path: order.total }`: a dot path into the block's `given.ledger`.
+* `{ kind: span, span_id: a1b2c3 }`: a trace span. The transcript cannot show a span, so calibration accepts it and notes that the label stands as written.
+
+`judge calibrate` reads the anchors when it loads the labels. A message, tool or field anchor that names nothing in its block is a labels issue, and calibrate exits 2 until it is fixed. A span anchor is never an issue. With `--json`, each block row of the calibration report carries its anchor, so a reader sees which element a label is about. The text output does not print anchors. The judge still reads the whole block: an anchor records what the human looked at, it does not narrow the request.
+
 ### The assignment table
 
 The table has `version: 1`, the `mode`, the `repeats`, `kappa_min`, and one entry per criterion. An assigned entry names its `owner`, `class`, `judges`, `rejudge`, and the owner's `separation` and `kappa`. An unassigned entry gives its `reason`. Two entries of the committed table:
@@ -508,6 +519,12 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 * For `sheet_matches_catalog`, the judge reads the workbook the ops agent wrote, rendered by the xlsx reader, with the workspace diff.
 
 `driftbench campaign run` cannot load a council yet: it runs `defaultChecks()` and its record stores `judge: { mode: system1, judges: [] }`. A caller that wants judged criteria in a campaign passes `defaultChecks({ judges: council })` as the campaign's checks from code. A command line option to load a cassette and an assignment table is not built yet. See [running](../running.md).
+
+## Pairwise comparison
+
+A pairwise call judges two candidate replies to the same block on one criterion: which reply better meets it. `pairwiseRequest` shows both replies as labelled lines, Reply A and Reply B, under the block's transcript, and asks the judge for one of the two. `judgePairwise` runs the question twice, once with each reply in position A, and reads a choice only when both orders name the same reply. A judge that always answers pass, whatever the reply, is recorded as a position bias and its call is a tie.
+
+`driftbench compare --pairwise` applies it to every block two campaigns both ran. The flags and the printed line are in the [CLI](../reference/cli.md#driftbench-report-and-driftbench-compare) reference.
 
 ## Repeat reducers
 
