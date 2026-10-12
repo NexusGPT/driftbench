@@ -410,7 +410,7 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 
 A criterion can say how its verdicts across the repeats of one spec become one verdict, with `repeat_reducer`:
 
-* `mode`: the most common verdict. A tie goes to the verdict seen first.
+* `mode`: the most common verdict, when more than half of the repeats are scored. A tie goes to the verdict seen first. One scored repeat of three gives no verdict.
 * `median`: a pass above one half of the repeats, a fail below it. Exactly one half is undecided.
 * `at_least:<k>`: a pass when at least `k` repeats pass. A fail only when the passes plus the inconclusive repeats cannot reach `k`. Undecided otherwise, since an inconclusive repeat could still be the `k`-th pass.
 
