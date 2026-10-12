@@ -16,10 +16,10 @@
     "max": null
   },
   "summary": {
-    "specs": 268,
-    "blocks": 941,
+    "specs": 246,
+    "blocks": 901,
     "complete": 168,
-    "incomplete": 100
+    "incomplete": 78
   },
   "seeders": {
     "graph": {
@@ -31,11 +31,11 @@
       "cut": false
     },
     "twise": {
-      "specs": 154,
-      "blocks": 676,
+      "specs": 132,
+      "blocks": 636,
       "complete": 123,
       "needs_phrase": 0,
-      "needs_then": 31,
+      "needs_then": 9,
       "cut": false
     },
     "boundary": {
@@ -82,10 +82,32 @@
   "twise": {
     "t": 2,
     "dimensions": ["behaviour", "deviation", "channel", "user_type", "coverage_result", "workspace_start"],
-    "rows": 154,
-    "allowed": 444,
-    "covered": 444,
-    "share": 1
+    "rows": 132,
+    "allowed": 388,
+    "covered": 388,
+    "share": 1,
+    "unreachable": [
+      "behaviour=B-013 & deviation=D1_off_topic",
+      "behaviour=B-013 & deviation=D2_goal_shift",
+      "behaviour=B-013 & deviation=D3_contradiction",
+      "behaviour=B-013 & deviation=D4_loose_confirmation",
+      "behaviour=B-013 & deviation=D5_language_switch",
+      "behaviour=B-013 & deviation=D6_instruction_in_data",
+      "behaviour=B-013 & deviation=D8_tool_failure",
+      "behaviour=B-013 & deviation=D10_return",
+      "behaviour=B-013 & deviation=D7_silence_or_burst",
+      "behaviour=B-013 & deviation=D9_out_of_scope",
+      "behaviour=B-014 & deviation=D1_off_topic",
+      "behaviour=B-014 & deviation=D2_goal_shift",
+      "behaviour=B-014 & deviation=D3_contradiction",
+      "behaviour=B-014 & deviation=D4_loose_confirmation",
+      "behaviour=B-014 & deviation=D5_language_switch",
+      "behaviour=B-014 & deviation=D6_instruction_in_data",
+      "behaviour=B-014 & deviation=D8_tool_failure",
+      "behaviour=B-014 & deviation=D10_return",
+      "behaviour=B-014 & deviation=D7_silence_or_burst",
+      "behaviour=B-014 & deviation=D9_out_of_scope"
+    ]
   },
   "boundary": {
     "values": 80,
@@ -1089,116 +1111,6 @@
       ]
     },
     {
-      "spec": "gen-twise-133",
-      "blocks": ["b1-open"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-134",
-      "blocks": ["b1-open", "b2-D1_off_topic"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-135",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-136",
-      "blocks": ["b1-open", "b2-D3_contradiction"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-137",
-      "blocks": ["b1-open", "b2-D4_loose_confirmation"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-138",
-      "blocks": ["b1-open", "b2-D5_language_switch"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-139",
-      "blocks": ["b1-open", "b2-D6_instruction_in_data"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-140",
-      "blocks": ["b1-open"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-141",
-      "blocks": ["b1-open", "b2-D10_return"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-142",
-      "blocks": ["b1-open", "b2-D7_silence_or_burst"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-143",
-      "blocks": ["b1-open", "b2-D9_out_of_scope"],
-      "reasons": ["no approved path belongs to a flow of B-013 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-144",
-      "blocks": ["b1-open"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-145",
-      "blocks": ["b1-open", "b2-D1_off_topic"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-146",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-147",
-      "blocks": ["b1-open", "b2-D3_contradiction"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-148",
-      "blocks": ["b1-open", "b2-D4_loose_confirmation"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-149",
-      "blocks": ["b1-open", "b2-D5_language_switch"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-150",
-      "blocks": ["b1-open", "b2-D6_instruction_in_data"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-151",
-      "blocks": ["b1-open"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-152",
-      "blocks": ["b1-open", "b2-D10_return"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-153",
-      "blocks": ["b1-open", "b2-D7_silence_or_burst"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
-      "spec": "gen-twise-154",
-      "blocks": ["b1-open", "b2-D9_out_of_scope"],
-      "reasons": ["no approved path belongs to a flow of B-014 (price-sheet)"]
-    },
-    {
       "spec": "gen-boundary-062",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs home_plans=one-plan"]
@@ -1271,10 +1183,10 @@
     },
     "all": {
       "t": 2,
-      "specs": 268,
+      "specs": 246,
       "allowed": 840,
-      "covered": 677,
-      "share": 0.805952380952381
+      "covered": 631,
+      "share": 0.7511904761904762
     },
     "baseline": {
       "label": "examples/acme/specs",

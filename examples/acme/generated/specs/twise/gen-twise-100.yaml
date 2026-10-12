@@ -4,7 +4,7 @@
 id: gen-twise-100
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 100 of 154: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
+title: "t-wise row 100 of 132: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
 channel: whatsapp
 lang: EN
 tier: generated

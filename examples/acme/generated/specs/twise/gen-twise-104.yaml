@@ -4,7 +4,7 @@
 id: gen-twise-104
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 104 of 154: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D4_loose_confirmation at recap"
+title: "t-wise row 104 of 132: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D4_loose_confirmation at recap"
 channel: whatsapp
 lang: EN
 tier: generated

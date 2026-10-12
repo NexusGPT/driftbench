@@ -98,10 +98,12 @@ describe('generate on the approved Acme map', () => {
     // By hand, the pairs of the 6 axes: behaviour 14 x (11 + 2 + 3 + 4 + 2) = 308, deviation 11 x (2 + 3 +
     // 4 + 2) = 121, channel 2 x (3 + 4 + 2) = 18, user_type 3 x (4 + 2) = 18, coverage_result 4 x 2 = 8:
     // 473, less the 3 behaviours forbidden on whatsapp and the 26 behaviour and user type pairs the map
-    // forbids: 444.
-    expect(twise.allowed).toBe(444);
-    // behaviour (14 values) x deviation (11 values): no pairwise array has fewer rows than 154.
-    expect(twise.rows).toBeGreaterThanOrEqual(154);
+    // forbids: 444. The target leaves out the 56 of them no path of the map can reach (B-013, the price
+    // sheet, has no path, so no cell holds it): 388.
+    expect(twise.allowed).toBe(388);
+    expect(twise.unreachable).toContain('behaviour=B-013 & deviation=D1_off_topic');
+    // behaviour (13 reachable values) x deviation (11 values): no pairwise array has fewer rows than 132.
+    expect(twise.rows).toBeGreaterThanOrEqual(132);
     expect(result.report.constraints.applied).toBe(59);
     const space = compileSpace(prepared.map);
     for (const spec of result.all.filter(
@@ -117,7 +119,7 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 168, incomplete: 100 });
+    expect(result.report.summary).toMatchObject({ complete: 168, incomplete: 78 });
   });
 
   it('probes all 10 deviation classes, each user turn an approved phrase with its slots filled from the map', () => {
@@ -257,8 +259,8 @@ describe('generate on the approved Acme map', () => {
       const phrase = (generated.needs_phrase as unknown[] | undefined) ?? [];
       expect(why.length + phrase.length, spec.id).toBeGreaterThan(0);
     }
-    const reasons = result.report.no_then.flatMap((entry) => entry.reasons);
-    expect(reasons).toContain('no approved path belongs to a flow of B-013 (price-sheet)');
+    // A behaviour no path belongs to is no target: the report names the pairs it leaves out.
+    expect(result.report.twise.unreachable).toContain('behaviour=B-013 & deviation=D1_off_topic');
   });
 
   it('counts coverage on the axis map that extract map writes, as space coverage does', async () => {

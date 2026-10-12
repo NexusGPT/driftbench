@@ -11,8 +11,10 @@ import {
   type SpecDraft,
 } from './assemble';
 import { DETOURS, MAX_CALLS_AFTER_FAILURE, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
+import { Feasibility } from './feasible';
 import { type Edge, type StageGraph, stageGraph, walkGraph } from './graph';
 import { dimensionId, type PreparedMap, partitionOf, phraseKey, valueId } from './map';
+import { impossibleConstraints } from './possible';
 import { pick, type Rng, rngFor, shuffle, streamSeed } from './random';
 import { buildScenario, type ProbeRequest } from './scenario';
 import { coveringArray } from './twise';
@@ -318,6 +320,8 @@ export type TwiseSummary = {
   allowed: number;
   covered: number;
   share: number;
+  /** Pairs of the array's dimensions no path of the map reaches, so the target leaves them out. */
+  unreachable: string[];
 };
 
 /**
@@ -396,6 +400,27 @@ function withDetails(prepared: PreparedMap, cell: readonly Pick[], rng: Rng): Pi
   return [...cell, ...details];
 }
 
+/**
+ * The feasibility the t-wise target is counted with: the written constraints plus the pairs no path of the
+ * map can reach, so the report counts only the tuples a possible cell holds.
+ */
+export function reachableFeasibility(prepared: PreparedMap): Feasibility {
+  const extra = unreachablePairs(prepared);
+  if (extra.length === 0) return prepared.feasibility;
+  return new Feasibility({ ...prepared.space, constraints: [...prepared.space.constraints, ...extra] });
+}
+
+const unreachableMemo = new WeakMap<PreparedMap, ReturnType<typeof impossibleConstraints>>();
+
+function unreachablePairs(prepared: PreparedMap): ReturnType<typeof impossibleConstraints> {
+  let known = unreachableMemo.get(prepared);
+  if (!known) {
+    known = impossibleConstraints(prepared, flowsOfBehaviour);
+    unreachableMemo.set(prepared, known);
+  }
+  return known;
+}
+
 export function twiseSeeder(
   prepared: PreparedMap,
   context: SeedContext,
@@ -404,7 +429,7 @@ export function twiseSeeder(
   const sizes = prepared.space.dimensions.map((dimension) => dimension.values.length);
   const t = Math.min(context.t, dimensions.length);
   const array = coveringArray(
-    prepared.feasibility,
+    reachableFeasibility(prepared),
     sizes,
     dimensions,
     t,
@@ -447,6 +472,16 @@ export function twiseSeeder(
     allowed: array.allowed,
     covered: array.covered,
     share: array.allowed === 0 ? 0 : array.covered / array.allowed,
+    unreachable: unreachablePairs(prepared)
+      .filter((pair) => pair.every(([dimension]) => dimensions.includes(dimension)))
+      .map((pair) =>
+        pair
+          .map(
+            ([dimension, value]) =>
+              `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+          )
+          .join(' & '),
+      ),
   };
   return { drafts, summary };
 }
