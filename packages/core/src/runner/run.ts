@@ -6,7 +6,15 @@ import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
-import { type BlockResult, Observed, type RetryEvent, type RunMode, RunResult, Verdict } from '../schema/run';
+import {
+  type BlockResult,
+  Observed,
+  type RetryEvent,
+  type RunEvent,
+  type RunMode,
+  RunResult,
+  Verdict,
+} from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
@@ -33,27 +41,13 @@ import { succession } from './succession';
  * a block ending with its verdict, and the run ending. An observer writes these as they arrive, so an interrupted run keeps the
  * events up to the interruption.
  */
-export type RunEvent =
-  | { type: 'block_start'; index: number; at: string }
-  | {
-      type: 'model_call';
-      index: number;
-      inputTokens?: number;
-      outputTokens?: number;
-      usd?: number;
-      latencyMs?: number;
-      /** When the call began: the reply time less its latency. */
-      startedAt: string;
-      at: string;
-    }
-  | { type: 'tool_call'; index: number; label: string; error?: string; at: string }
-  | { type: 'retry'; index: number; at: string }
-  | { type: 'block_end'; index: number; pass: boolean; at: string }
-  | { type: 'run_end'; status: RunResult['status']; at: string };
+export type { RunEvent };
 
 export type RunOptions = {
   /** Receives each event as it happens. Absent: no events are reported. */
   onEvent?: (event: RunEvent) => void;
+  /** Keeps the events on the run record (its events field), in order. Off by default: a run record stays as it was. */
+  recordEvents?: boolean;
   adapter: AgentAdapter;
   /** Decides each block's stimulus. The scripted driver of `@driftbench/users` replays the spec's blocks. */
   driver: UserDriver;
@@ -128,6 +122,15 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   // A run in a sandbox is neither replayed nor cached: a replay opens no workspace, so the artifact
   // checks could not read the files its blocks made. It goes live every time.
   const cache = capabilities.sandbox ? undefined : options.cache;
+  // The events go to the observer as they happen, and to the record when asked for.
+  const recorded: RunEvent[] | undefined = options.recordEvents ? [] : undefined;
+  const reportEvent =
+    recorded || options.onEvent
+      ? (event: RunEvent) => {
+          recorded?.push(event);
+          options.onEvent?.(event);
+        }
+      : undefined;
   const run: RunContext = {
     spec,
     specHash,
@@ -140,7 +143,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     driver: options.driver,
     checks: options.checks,
     toolPolicy: options.toolPolicy,
-    onEvent: options.onEvent,
+    onEvent: reportEvent,
     cache,
     cacheTtlMs: options.cacheTtlMs,
     suite: options.suite,
@@ -176,9 +179,11 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     replayed ??
     (await execute(run, cache ? resumeChannel(cache, liveChannel(run), run.toolPolicy) : liveChannel(run)));
   if (!result) throw new Error('runSpec: a live run always gives a result');
-  options.onEvent?.({ type: 'run_end', status: result.status, at: new Date().toISOString() });
+  reportEvent?.({ type: 'run_end', status: result.status, at: new Date().toISOString() });
   // The run as the store keeps it: written as JSON and read back, so what is returned is what is stored.
-  const parsed = RunResult.parse(JSON.parse(JSON.stringify(result)));
+  const parsed = RunResult.parse(
+    JSON.parse(JSON.stringify(recorded ? { ...result, events: recorded } : result)),
+  );
   if (options.store && options.campaignId !== undefined)
     await options.store.putRun(options.campaignId, parsed);
   return parsed;

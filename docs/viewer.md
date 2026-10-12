@@ -30,7 +30,7 @@ The command runs until Ctrl+C. Exit 0 after a stop, 2 when the store is missing,
 |---|---|
 | `/` | every campaign of the store, newest first, with its modes, specs, runs and how many pass |
 | `/campaign/<id>` | the campaign's [scorecard](scorecards.md), spread view included; every run in the drilldown links to its own page |
-| `/campaign/<id>/run/<runId>` | one run, every block in full: what the user sent, the reply, the tool calls with their results, every verdict that did not pass and every judged verdict with its evidence and reasoning; a label form under each block |
+| `/campaign/<id>/run/<runId>` | one run: its timeline first, every event in order (a model call with its start, end, tokens and cost, when the adapter reports them; plain HTML, no script), then every block in full: what the user sent, the reply, the tool calls with their results, every verdict that did not pass and every judged verdict with its evidence and reasoning; a label form under each block |
 | `/compare` | two campaigns picked from the store and a margin; the result is the paired comparison of [`driftbench compare`](concepts/statistics.md#comparing-a-baseline-and-a-candidate) with its verdict |
 
 ## Review queue

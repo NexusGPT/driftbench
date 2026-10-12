@@ -3,6 +3,7 @@ import {
   type Count,
   compoundingIndex,
   type DriftClass,
+  type RunEvent,
   type RunMode,
   type RunResult,
   type Verdict,
@@ -103,6 +104,8 @@ export type RunDetail = {
   succession: RunResult['succession'];
   recovery?: RunResult['recovery'];
   blocks: BlockDetail[];
+  /** The events the run reported, in order, when it recorded them. */
+  events?: RunEvent[];
 };
 
 export type ToolAccuracy = {
@@ -247,6 +250,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     ...optional('endState', run.endState),
     succession: run.succession,
     ...optional('recovery', run.recovery),
+    ...optional('events', run.events),
     blocks: blocksWithSpec(run, spec).map(({ result, specBlock }) => {
       const injectedText =
         specBlock === undefined && perturbation

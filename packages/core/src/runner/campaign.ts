@@ -255,6 +255,8 @@ export type CampaignRunOptions = {
   cache?: ObservedCache;
   /** The cache suite every run of the campaign belongs to. A new name starts from an empty cache. */
   cacheSuite?: string;
+  /** Each run keeps its events on its record, for the viewer's timeline. */
+  recordEvents?: boolean;
   retry?: RetryOptions;
   now?: () => Date;
   /** Cells that run at the same time. Default 4. */
@@ -334,6 +336,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       campaignId: options.campaignId,
       ...(options.cache ? { cache: options.cache } : {}),
       ...(options.cacheSuite === undefined ? {} : { suite: options.cacheSuite }),
+      ...(options.recordEvents ? { recordEvents: true } : {}),
       ...(options.retry ? { retry: options.retry } : {}),
       ...(options.now ? { now: options.now } : {}),
       ...(reference ? { reference } : {}),
