@@ -89,4 +89,27 @@ describe('similarity, relevancy and knowledge_retention in the spec', () => {
     expect(at(1, { world }).ok).toBe(true);
     expect(at(2, { user: 'hey', world }).ok).toBe(true);
   });
+
+  it('checks the retention facts of a long spec in time linear in its blocks', () => {
+    const cpu = (blocks: number) => {
+      const spec = {
+        id: `long-${blocks}`,
+        blocks: Array.from({ length: blocks }, (_, at) => ({
+          user: `turn ${at}`,
+          given: { ledger: { [`fact${at}`]: 'x' } },
+          expect: { knowledge_retention: [{ fact: `fact${at}` }] },
+        })),
+      };
+      const before = process.cpuUsage();
+      const loaded = validateSpec(spec);
+      const used = process.cpuUsage(before);
+      expect(loaded.ok).toBe(true);
+      return (used.user + used.system) / 1000;
+    };
+    cpu(200);
+    const small = Math.max(cpu(500), 1);
+    const large = cpu(5000);
+    // Linear growth is ten times; a pass over the earlier blocks for every block is a hundred.
+    expect(large / small).toBeLessThan(30);
+  });
 });
