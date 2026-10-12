@@ -20,12 +20,12 @@ extract:keep-wrapped-sentences-whole
 extract:merge-replacements-across-chunks
 extract:repeat-table-header
 inventory:csv
+inventory:long-flow-title
 inventory:long-item
 inventory:markdown-tables
 quote:content-parts
 quote:csharp-verbatim
 quote:csv
-quote:decode-json-strings
 quote:decode-single-quoted-code-strings
 quote:decode-yaml-scalars
 quote:docx-runs
@@ -40,6 +40,7 @@ quote:latex
 quote:markdown-escapes
 quote:normalize-nfc
 quote:properties
+quote:read-json-prompt-files
 quote:resolve-interpolated-constants
 quote:restructured-text
 quote:sql-string
@@ -70,6 +71,7 @@ tools:enum-objects
 tools:format-int32
 tools:if-then-else
 tools:items-ref
+tools:long-pattern
 tools:min-contains
 tools:not
 tools:one-of
