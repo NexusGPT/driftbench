@@ -33,6 +33,10 @@ if (!hybrid) throw new Error('No measured hybrid at budget 20');
 const loaded = await loadApprovedMap('examples/acme/map/approved.yaml');
 if (!loaded.ok) throw new Error(loaded.message);
 const prepared = loaded.prepared;
+const hybridReport = JSON.parse(
+  await readFile('_captures/budget/budget-20/generate-report.json', 'utf8'),
+) as { map: { hash: string } };
+if (hybridReport.map.hash !== prepared.hash) throw new Error('Control map differs from the measured hybrid');
 const dimensions = twiseDimensions(prepared);
 const taskNones: Pick[] = [...prepared.axes].flatMap((index): Pick[] => {
   const dimension = prepared.space.dimensions[index];
@@ -82,16 +86,60 @@ for (const seed of range(30).map((i) => i + 1)) {
   const drafts = rowDrafts(prepared, { seed, t: 2, max: Number.POSITIVE_INFINITY }, cells, 'random');
   const killed = new Map<string, string>();
   const incomplete: string[] = [];
+  const incompleteCells: Array<{
+    spec: string;
+    cell: Record<string, string>;
+    noThen: string[];
+    placeholders: unknown[];
+  }> = [];
   const referenceFailures: string[] = [];
-  for (const draft of drafts) {
+  for (const [rowIndex, draft] of drafts.entries()) {
     const rendered = renderDraft(prepared, draft, run);
     const text = specText(rendered, run, prepared.hash);
     const parsed = parseSpecText(text, 'yaml', rendered.id);
     if (!parsed.ok) throw new Error(`Invalid random row ${draft.id}`);
+    const selectedCell = Object.fromEntries(
+      dimensions.map((dimension, column) => [
+        prepared.space.dimensions[dimension]?.id as string,
+        prepared.space.dimensions[dimension]?.values[rows[rowIndex]?.[column] ?? -1]?.id as string,
+      ]),
+    );
     if (rendered.noThen.length > 0 || rendered.placeholders.length > 0) {
       incomplete.push(draft.id);
+      incompleteCells.push({
+        spec: draft.id,
+        cell: selectedCell,
+        noThen: rendered.noThen,
+        placeholders: rendered.placeholders,
+      });
       continue;
     }
+    const { generated } = rendered.spec.metadata as {
+      generated: {
+        cell: Record<string, string>;
+        blocks: Array<{ cell: Record<string, string> }>;
+      };
+    };
+    const deviations = [...new Set(generated.blocks.flatMap((block) => block.cell.deviation ?? []))];
+    const actual: Record<string, string> = { ...generated.cell, deviation: deviations[0] ?? 'none' };
+    if (
+      deviations.length > 1 ||
+      dimensions.some((dimension, column) => {
+        const axis = prepared.space.dimensions[dimension];
+        return actual[axis?.id ?? ''] !== axis?.values[rows[rowIndex]?.[column] ?? -1]?.id;
+      })
+    )
+      throw new Error(
+        `Rendered random row differs from the selected cell at seed ${seed}, row ${rowIndex}: ${JSON.stringify(
+          {
+            actual,
+            expected: selectedCell,
+            deviations,
+            noThen: rendered.noThen,
+            placeholders: rendered.placeholders,
+          },
+        )}`,
+      );
     const spec = parsed.spec;
     const ref = await runOnce(spec, reference, 1, ctx);
     const green = spec.blocks.map((_, index) => blockOutcome(ref, index) === 'pass');
@@ -123,7 +171,9 @@ for (const seed of range(30).map((i) => i + 1)) {
     pairsCovered: pairSet(rows).size,
     faultsCaught: killed.size,
     complete: 20 - incomplete.length,
+    incompleteCount: incomplete.length,
     incomplete,
+    incompleteCells,
     referenceFailures,
     witnesses: Object.fromEntries(killed),
   });

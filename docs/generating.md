@@ -482,7 +482,9 @@ exit 1
 
 Budget mode calls `slicedLhs` for every approved numeric setting. Rows with the same selected categorical combination form one slice. For each setting, its quantiles occupy every equal-width band once across the whole budget and every band once within each slice. Slice sizes can differ. Seeded interval matching assigns each slice band a global band, then draws inside their intersection. This supplies the global and within-slice Latin property described by [Qian's sliced Latin hypercube designs](https://doi.org/10.1080/01621459.2011.644132); it does not optimize distances between different numeric settings.
 
-Continuous ranges scale these quantiles to their bounds. Integer ranges map the quantiles to their inclusive integer levels. The Latin property applies to quantiles; integer values can repeat when there are fewer levels than rows. Constant ranges also repeat their single value. The report retains the quantiles so both global and within-slice balance can be checked.
+Continuous ranges scale these quantiles to their bounds. Integer ranges map the quantiles to their inclusive integer levels. The Latin property applies to quantiles; integer values can repeat, and repeats are unavoidable when there are fewer levels than rows. Constant ranges also repeat their single value. The report retains the quantiles so both global and within-slice balance can be checked.
+
+These strata include every selected row, including incomplete specs. Dropping rows or passing them through the gate can change the balance of the remaining rows.
 
 Without numeric settings, sampling is skipped and the output is unchanged. Golden tests compare every Acme generated file against the pre-numeric code for ordinary pairwise generation and budgets 20, 50, 100 and 200. The boundary seeder continues to choose its own categorical partition values.
 

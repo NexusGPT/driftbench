@@ -153,6 +153,7 @@ for (const budget of [20, 50, 100, 200]) {
         if (isTwise) twiseKilled.add(fault.id);
       }
     }
+    const selectedComplete = (await loadSpecs([`${out}/specs/twise`])).length;
     const result = {
       mode,
       budget,
@@ -162,7 +163,8 @@ for (const budget of [20, 50, 100, 200]) {
       selected: report.twise.rows,
       complete: loaded.length,
       incomplete: report.summary.incomplete,
-      selectedComplete: (await loadSpecs([`${out}/specs/twise`])).length,
+      selectedComplete,
+      selectedIncomplete: twise.length - selectedComplete,
       pairs: { covered: report.twise.covered, allowed: report.twise.allowed },
       wholePairs: { covered: report.coverage.complete.covered, allowed: report.coverage.allowed },
       maxDeviation: Math.max(

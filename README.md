@@ -483,9 +483,24 @@ In the committed [Acme gate report](examples/acme/gated/gate-report.json), 1,100
 
 The holdout targets 20 percent of whole specs by default; keeping groups together can change the final share. The gate checks it like the rest. The walkthrough below evaluates `gated/specs` and leaves the separate holdout out.
 
-### Budget mode (in progress)
+### Budget mode
 
-Budget mode selects allowed conversation rows by pair coverage first, then value balance and a seeded tie-break. Approved `numeric_settings` ranges use Latin quantiles across the budget and within each selected categorical combination, delivered through `given.vars`. Automatic range extraction is pending. See [generating](docs/generating.md) for the schema and sampling rules; the measured comparison is being completed.
+`driftbench generate --budget N` selects allowed conversation rows by new pair coverage, then value balance, then a seeded tie-break. Without numeric settings, it selects up to N distinct cells. With numeric settings, categorical cells can repeat to place N samples. The other seeders still run, so the whole suite can exceed N. Approved `numeric_settings` ranges use sliced Latin quantiles, globally and within each selected categorical combination. Samples are delivered through `given.vars`. Integer ranges can repeat values; their quantiles retain the Latin property. Automatic range extraction is pending.
+
+On Acme, seed 1 gives these results. Each paired entry is **pairwise / budget**. Pairwise uses `--t 2 --max N`; budget uses `--t 2 --budget N`.
+
+| N | Selected pairs, of 314 | Selected faults, of 13 | Whole-suite pairs, of 637 | Whole-suite faults, of 13 | Selected incomplete rows | Maximum value gap |
+|---|---|---|---|---|---|---|
+| 20 | 73 / 154 | 8 / 9 | 379 / 637 | 13 / 13 | 0 / 0 | 16.00 / 2.00 |
+| 50 | 174 / 232 | 9 / 9 | 549 / 637 | 13 / 13 | 0 / 1 | 12.00 / 5.00 |
+| 100 | 264 / 282 | 9 / 9 | 637 / 637 | 13 / 13 | 1 / 1 | 27.00 / 9.00 |
+| 200 | 314 / 314 | 9 / 9 | 637 / 637 | 13 / 13 | 1 / 1 | 31.60 / 17.00 |
+
+At N = 200, pairwise stops at 132 rows; budget selects 200. Four ops faults need task specs outside the selected rows. The budget-20 command exits 1 because it writes 69 incomplete specs, not because of the budget. Every method excludes incomplete rows from fault scoring and counts their selected cells in the pair numbers.
+
+At 20 rows over the same 30 seeds, hybrid catches 9.00 faults (sample SD 0.00, range 9 to 9) and covers 153.60 pairs (sample SD 0.62, range 152 to 154). Random averages 8.37 faults (sample SD 0.76, range 7 to 9) and 119.30 pairs (sample SD 4.78, range 110 to 130). Exact two-sided paired tests give p = 0.0001220703125 for faults and p = 1.862645149e-09 for pairs. See [the full measured comparison](comparisons/budget/README.md) for assumptions, counts, witnesses and whole-suite coverage.
+
+See [budget mode](docs/generating.md#budget-mode) for the report fields, exit codes and numeric sampling.
 
 ### Command walkthrough
 
