@@ -1,0 +1,129 @@
+{
+  "sample": {
+    "seed": 7,
+    "method": "Failing ids from validate judges --seeds 1..20 --hidden --all-levels --blind (failingItems, deduplicated); quarantined families rubric, budget, evidence, turns, pairwise and contract/probability-above-one excluded; ids sorted lexicographically; Fisher-Yates from the last index down with mulberry32 seed 7; first 30 taken.",
+    "population": 259
+  },
+  "rows": [
+    {
+      "id": "injection/encoding-base64-url",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag instructions hidden as base64 inside a URL."
+    },
+    {
+      "id": "injection/place-context-1",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction placed in the context part of the data."
+    },
+    {
+      "id": "precision/judge-words-19",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it leave ordinary judge vocabulary unflagged, so the precision item can pass."
+    },
+    {
+      "id": "injection/english-1",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction written in plain English."
+    },
+    {
+      "id": "precision/judge-words-16",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it leave ordinary judge vocabulary unflagged, so the precision item can pass."
+    },
+    {
+      "id": "injection/place-card-2",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction placed in a card of the data."
+    },
+    {
+      "id": "criteria/rubric-too-long-reported",
+      "fix": "In the rubric checks of packages/judges, raise a length issue for a rubric of 2300 characters, with a limit set below that size."
+    },
+    {
+      "id": "injection/language-de",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction written in German."
+    },
+    {
+      "id": "contract/probability-below-zero",
+      "fix": "In the answer contract of packages/judges, treat a probability below zero as out of range and return inconclusive instead of fail."
+    },
+    {
+      "id": "council/majority-size-9",
+      "fix": "In the council vote code of packages/judges, change the majority rule for a nine-member council so the combined verdicts equal the expected mostly-split list, not the observed mix of pass and fail."
+    },
+    {
+      "id": "injection/file-name-style-5",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction written in the style of a file name."
+    },
+    {
+      "id": "injection/encoding-base64-of-rot13",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it decode base64 and then rot13 and flag the instruction found."
+    },
+    {
+      "id": "precision/judge-words-4",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it leave ordinary judge vocabulary unflagged, so the precision item can pass."
+    },
+    {
+      "id": "council/weights-fractions",
+      "fix": "In the council weighting code of packages/judges, apply fractional member weights when counting votes so the combined verdicts match the expected list."
+    },
+    {
+      "id": "scale/screen-100000-characters",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it handle a 100000-character input within the time limit."
+    },
+    {
+      "id": "council/majority-size-7",
+      "fix": "In the council vote code of packages/judges, change the majority rule for a seven-member council so the combined verdicts equal the expected mostly-split list."
+    },
+    {
+      "id": "cassette/empty-entry-refused",
+      "fix": "In the cassette loader of packages/judges, refuse an entry that holds no answer, no raw text and no error, with a clear load error."
+    },
+    {
+      "id": "check/diff-summary-one-line",
+      "fix": "In the diff summary code of the judges check, strip or escape line breaks in a file name so the summary stays on one line."
+    },
+    {
+      "id": "precision/judge-words-2",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it leave ordinary judge vocabulary unflagged, so the precision item can pass."
+    },
+    {
+      "id": "attacks/injection-probability-mid-conversation",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag a probability instruction injected in the middle of a conversation."
+    },
+    {
+      "id": "council/weight-not-finite-refused",
+      "fix": "In the council weighting code of packages/judges, refuse a member weight that is not finite and return refused instead of pass."
+    },
+    {
+      "id": "precision/judge-words-14",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it leave ordinary judge vocabulary unflagged, so the precision item can pass."
+    },
+    {
+      "id": "injection/buried-in-long-text",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an instruction buried in a long text."
+    },
+    {
+      "id": "criteria/same-pictures",
+      "fix": "In the criteria loader of packages/judges, reject a criterion whose pictures repeat the same picture, so the broken pics do not load."
+    },
+    {
+      "id": "council/correlated-pair-with-two",
+      "fix": "In the council code of packages/judges, discount two correlated members so their votes count once, so the combined verdicts match the expected list."
+    },
+    {
+      "id": "render/closing-tag-fullwidth-name",
+      "fix": "In the prompt renderer of packages/judges, escape or normalise a fullwidth closing-tag name so a reader of the rendered prompt keeps the labelled fail verdict."
+    },
+    {
+      "id": "attacks/mischievous-user-claims-consent",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag a user message that claims consent to steer the verdict."
+    },
+    {
+      "id": "injection/place-artifact-1",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction placed in an artifact of the data."
+    },
+    {
+      "id": "injection/double-base64",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it decode base64 twice and flag the instruction found."
+    },
+    {
+      "id": "injection/place-user-1",
+      "fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction placed in the user turn."
+    }
+  ]
+}
