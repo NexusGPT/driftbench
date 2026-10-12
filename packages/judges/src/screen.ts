@@ -333,17 +333,20 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
   (text) => shift(text, 13),
   // Base64 runs of 16 characters or more, replaced by the text they decode to when it is readable UTF-8.
   (text) => {
-    const decoded = text.replace(/(?<![A-Za-z0-9+/=])[A-Za-z0-9+/]{16,}={0,2}(?![A-Za-z0-9+/=])/g, (run) => {
-      const bytes = Buffer.from(run, 'base64');
-      const plain = new TextDecoder('utf-8', { fatal: true });
-      try {
-        const out = plain.decode(bytes);
-        const printable = [...out].filter((ch) => /[\p{L}\p{N}\p{P}\p{Z}]/u.test(ch)).length;
-        return printable >= 0.9 * [...out].length ? out : run;
-      } catch {
-        return run;
-      }
-    });
+    const decoded = text.replace(
+      /(?<![A-Za-z0-9+/_-])[A-Za-z0-9+/_-]{16,}={0,2}(?![A-Za-z0-9+/=_-])/g,
+      (run) => {
+        const bytes = Buffer.from(run.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+        const plain = new TextDecoder('utf-8', { fatal: true });
+        try {
+          const out = plain.decode(bytes);
+          const printable = [...out].filter((ch) => /[\p{L}\p{N}\p{P}\p{Z}]/u.test(ch)).length;
+          return printable >= 0.9 * [...out].length ? out : run;
+        } catch {
+          return run;
+        }
+      },
+    );
     return decoded === text ? undefined : decoded;
   },
   // File names written as a slug (words joined by - _ / or by capitals), each read as a sentence of its own.
