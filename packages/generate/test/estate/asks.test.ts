@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { actOf, askedTo, codeAsk, imperative, OUTSIDE_ASK, plain } from '../../src/estate/asks';
+import { actOf, askable, askedTo, codeAsk, imperative, OUTSIDE_ASK, plain } from '../../src/estate/asks';
 import type { EstateAtom } from '../../src/estate/inputs';
 
 function atom(id: string, extra: Partial<EstateAtom> = {}): EstateAtom {
@@ -47,14 +47,20 @@ describe('asks written by code from the atoms', () => {
     const guard = atom('guard.settings.block', {
       fields: { enforces: [{ atom: rule.id }], matcher: 'Bash' },
     });
-    expect(codeAsk('trigger', [guard], [], false, (id) => (id === rule.id ? rule : undefined)).text).toBe(
-      'Please force push.',
-    );
+    // "force push" is two words: under the floor, so no ask is written for it.
+    expect(
+      codeAsk('trigger', [guard], [], false, (id) => (id === rule.id ? rule : undefined)).refused,
+    ).toMatch(/no task/);
     const both = atom('guard.settings.both', {
       fields: { enforces: [{ atom: rule.id }], description: 'Use when the user asks to push code.' },
     });
-    expect(codeAsk('forced', [both], [], false, (id) => (id === rule.id ? rule : undefined)).text).toBe(
-      'Please force push.',
+    expect(codeAsk('forced', [both], [], false, (id) => (id === rule.id ? rule : undefined)).refused).toMatch(
+      /no task/,
+    );
+    const pushRule = atom('instruction.x.no-push', { title: 'Never push the fix branch to origin' });
+    const pushGuard = atom('guard.x.push', { fields: { enforces: [{ atom: pushRule.id }] } });
+    expect(codeAsk('forced', [pushGuard], [], false, () => pushRule).text).toBe(
+      'Please push the fix branch to origin.',
     );
     const always = atom('instruction.x.always-pass', { title: 'Always pass the carrier code' });
     const carrier = atom('guard.x.carrier', { fields: { enforces: [{ atom: always.id }] } });
@@ -86,5 +92,26 @@ describe('asks written by code from the atoms', () => {
     expect(actOf([atom('invariant.x', { title: 'No orphan file' })]).act).toBe('do this: no orphan file');
     expect(plain('- **R5.** Before editing: Read `a/b.md`.')).toBe('Before editing: Read a/b.md');
     expect(plain('1. Read references/rules.md first.')).toBe('Read references/rules.md first');
+  });
+});
+
+describe('the quality floor of a code-written ask', () => {
+  it('refuses an act that names no task, as in "Please text in → text out." and "Please 6."', () => {
+    const arrow = atom('route.x.arrow', { situation: 'text in → text out' });
+    const number = atom('route.x.number', { situation: '6' });
+    for (const bad of [arrow, number]) {
+      const ask = codeAsk('trigger', [bad], []);
+      expect(ask.text, bad.id).toBeUndefined();
+      expect(ask.refused, bad.id).toMatch(/no task/);
+    }
+    expect(askable('text in → text out')).toMatch(/symbol/);
+    expect(askable('6')).toMatch(/verb/);
+    expect(askable('do this: 6')).toMatch(/words/);
+  });
+
+  it('keeps an act with a verb, an object and at least four words in the ask', () => {
+    expect(askable('reconcile an invoice against a purchase order')).toBeUndefined();
+    expect(askable('sort the inbox')).toBeUndefined();
+    expect(codeAsk('trigger', [skill], []).text).toBe('Please check, match or reconcile an invoice.');
   });
 });
