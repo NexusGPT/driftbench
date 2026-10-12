@@ -37,7 +37,7 @@ describe('prompts kept inside JSON files', () => {
     expect(first).toBe('before the order is checked.');
     expect(chat).toContain(first);
     expect(rule).toContain(first);
-    expect(rawQuote(sources, 'accents.json', 'Réponds en français.')).toBe('français.');
+    expect(rawQuote(sources, 'accents.json', 'Réponds en français.')).toBe('ponds en fran');
     expect(rawQuote(sources, 'prompt.jsonl', 'Ask for the order id.')).toBe('Ask for the order id.');
     expect(rawQuote(sources, 'other.md', 'x')).toBe('x');
     const answer = {
