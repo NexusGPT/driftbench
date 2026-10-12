@@ -17,7 +17,7 @@ function patternCheck(name: 'must' | 'must_not'): Check {
         const id = String(index);
         let pattern: RegExp;
         try {
-          pattern = new RegExp(source, 'm');
+          pattern = new RegExp(source, ctx.expect.ignore_case ? 'mi' : 'm');
         } catch (cause) {
           return machineVerdict(name, id, 'fail', `/${source}/ does not compile: ${message(cause)}`);
         }

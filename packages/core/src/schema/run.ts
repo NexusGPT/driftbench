@@ -126,6 +126,8 @@ export const RuntimeTrace = z.strictObject({
   stages: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
   /** Files the agent read during the block, by path. Absent when the runtime does not report them. */
   references: z.array(z.strictObject({ path: z.string(), at: z.string().optional() })).optional(),
+  /** Why the model stopped, such as stop or length. Absent when the runtime does not report it. */
+  finishReason: z.string().optional(),
   /** The tools the runtime offered the agent in the block, by name. Absent when the runtime does not report them. */
   offered: z.array(z.string()).optional(),
   /** Helpers the agent dispatched during the block. Absent when the runtime does not report them. */

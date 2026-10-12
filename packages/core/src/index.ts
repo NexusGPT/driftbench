@@ -41,3 +41,4 @@ export {
   normaliseText,
   wordsOf,
 } from './text/grams';
+export * from './text/openai-embedder';

@@ -342,6 +342,18 @@ export const Expect = z
       .enum(['refuses', 'answers'])
       .optional()
       .describe('Whether the reply must be a refusal, read from refusal phrases in seven languages.'),
+    ignore_case: z.boolean().optional().describe('Match must and must_not without regard to case.'),
+    markup: z.enum(['xml', 'html']).optional().describe('The reply is well-formed XML or HTML.'),
+    starts_with: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The reply, without leading space, starts with this text.'),
+    finish_reason: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The reason the model stopped, as the runtime reports it.'),
     length: z
       .strictObject({
         words: LengthBound.optional().describe('Bounds on the words of the visible text.'),
