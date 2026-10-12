@@ -208,3 +208,14 @@ describe('empty files (executor iteration 11)', () => {
     expect(files).not.toContain('.claude/skills/menu-plan/SKILL.md');
   });
 });
+
+describe('byte order mark (executor iteration 12)', () => {
+  it('reads settings that start with a byte order mark', async () => {
+    const root = await estate({
+      '.claude/settings.json': '﻿{\n  "model": "sonnet"\n}\n',
+    });
+    const scan = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const setting = scan.map.atoms.find((atom) => atom.kind === 'setting');
+    expect(setting?.provenance.startLine).toBe(2);
+  });
+});

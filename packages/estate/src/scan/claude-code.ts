@@ -178,7 +178,8 @@ export class ClaudeCodeReader implements EstateReader {
     ];
     const files: EstateFile[] = [];
     for (const path of paths) {
-      const text = await readFile(join(root, path), 'utf8');
+      // A byte order mark is not part of the text any reader quotes.
+      const text = (await readFile(join(root, path), 'utf8')).replace(/^\uFEFF/, '');
       // An empty file holds no line to quote: it is kept as a file, read as no kind, and noted.
       if (text.trim() === '') {
         notes.push({ file: path, message: 'empty file: nothing to read' });
