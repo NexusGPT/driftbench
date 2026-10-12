@@ -45,7 +45,9 @@ describe('budget', () => {
       exitCode: 0,
     }));
     const ok = await run(budget, context(task, 0, observed('Built.', calls, { executions })));
-    expect(verdict(ok, 'budget.steps').evidence).toBe('20 steps (20 tool calls, 20 commands), at most 20');
+    expect(verdict(ok, 'budget.steps').evidence).toMatch(
+      /^20 steps \(20 tool calls, 20 commands\), at most 20; steps in order: 1 /,
+    );
     const over = await run(
       budget,
       context(task, 0, observed('Built.', [...calls, bash('one more')], { executions })),
@@ -64,10 +66,10 @@ describe('budget', () => {
       budget,
       context(task, 0, observed('Built.', [], { executions: [...commands, agent] })),
     );
-    expect(verdict(verdicts, 'budget.steps')).toMatchObject({
-      outcome: 'pass',
-      evidence: '20 steps (0 tool calls, 20 commands), at most 20',
-    });
+    expect(verdict(verdicts, 'budget.steps').outcome).toBe('pass');
+    expect(verdict(verdicts, 'budget.steps').evidence).toMatch(
+      /^20 steps \(0 tool calls, 20 commands\), at most 20; steps in order: 1 /,
+    );
   });
 
   it('sums segment costs when the block reports none, and is inconclusive when nothing reports a cost', async () => {

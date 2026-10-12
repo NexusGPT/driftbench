@@ -73,7 +73,9 @@ function expectedTools(ctx: CheckContext): ToolExpect[] {
 
 function countVerdict(key: string, tool: ToolExpect, own: ToolCall[], calls: ToolCall[]): Verdict {
   const ok = countAllows(tool.count, own.length);
-  const seen = ok ? '' : `; calls in this block: ${listed(calls.map((call) => call.label))}`;
+  const seen = ok
+    ? ''
+    : `; calls in this block: ${listed(calls.map((call) => call.label))}${own.length === 0 ? closestCall(tool.label, calls) : ''}`;
   return machineVerdict(
     NAME,
     `${key}.count`,
@@ -240,4 +242,33 @@ function matchesExactly(expected: ToolExpect[], labels: string[]): boolean {
     return result;
   };
   return from(0, 0);
+}
+
+/**
+ * The observed call most like the expected tool, when one is close: the name, its position in the block, and how close
+ * it is (a Dice score over letter pairs). Names no call when none is at least half alike.
+ */
+function closestCall(expected: string, calls: ToolCall[]): string {
+  let best: { index: number; label: string; score: number } | undefined;
+  calls.forEach((call, index) => {
+    const score = diceScore(expected, call.label);
+    if (score >= 0.5 && (best === undefined || score > best.score))
+      best = { index, label: call.label, score };
+  });
+  return best === undefined ? '' : `; closest call: ${best.label} (call ${best.index + 1})`;
+}
+
+function diceScore(a: string, b: string): number {
+  const pairs = (text: string) => {
+    const out = new Map<string, number>();
+    for (let i = 0; i < text.length - 1; i++)
+      out.set(text.slice(i, i + 2), (out.get(text.slice(i, i + 2)) ?? 0) + 1);
+    return out;
+  };
+  const x = pairs(a);
+  const y = pairs(b);
+  let shared = 0;
+  for (const [pair, count] of x) shared += Math.min(count, y.get(pair) ?? 0);
+  const total = Math.max(1, a.length - 1 + (b.length - 1));
+  return (2 * shared) / total;
 }

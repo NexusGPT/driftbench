@@ -31,7 +31,7 @@ export const budget: Check = {
           NAME,
           'steps',
           steps <= limits.steps ? 'pass' : 'fail',
-          `${steps} steps (${calls} tool calls, ${commands} commands), at most ${limits.steps}`,
+          `${steps} steps (${calls} tool calls, ${commands} commands), at most ${limits.steps}; steps in order: ${stepList(observed, calls, commands)}`,
         ),
       );
     }
@@ -72,4 +72,13 @@ function costOf(observed: Observed): number | undefined {
     segment.cost?.usd === undefined ? [] : [segment.cost.usd],
   );
   return parts.length === 0 ? undefined : parts.reduce((sum, part) => sum + part, 0);
+}
+
+/** The steps in the order they ran, numbered: the tool calls, or the commands when they are more. */
+function stepList(observed: Observed, calls: number, commands: number): string {
+  const labels =
+    calls >= commands
+      ? observed.toolCalls.map((call) => call.label)
+      : commandsOf(observed.executions ?? []).map((record) => record.command);
+  return labels.length === 0 ? 'none' : labels.map((label, index) => `${index + 1} ${label}`).join(', ');
 }
