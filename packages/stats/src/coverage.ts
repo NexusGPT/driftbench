@@ -76,6 +76,7 @@ export function chaoCoverage(counts: readonly number[]): ChaoResult {
 /** The Hill number of order q (the effective number of classes), plug-in from the abundances. */
 export function hillNumber(counts: readonly number[], q: number): number {
   const f = frequencies('hillNumber', counts);
+  if (!Number.isFinite(q)) throw new RangeError(`hillNumber: q must be finite, got ${q}`);
   const ps = counts.filter((c) => c > 0).map((c) => c / f.n);
   if (q === 0) return ps.length;
   if (q === 1) return Math.exp(-ps.reduce((s, p) => s + p * Math.log(p), 0));

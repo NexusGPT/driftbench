@@ -35,7 +35,7 @@ export function quantileSorted(sorted: readonly number[], p: number): number {
 /** Quantile of an unsorted sample, type 7. */
 export function quantile(values: readonly number[], p: number): number {
   if (values.length === 0) throw new RangeError('quantile: values must not be empty');
-  if (p < 0 || p > 1) throw new RangeError(`quantile: p must lie in [0, 1], got ${p}`);
+  if (!(p >= 0 && p <= 1)) throw new RangeError(`quantile: p must lie in [0, 1], got ${p}`);
   assertFiniteValues('quantile', 'values', values);
   return quantileSorted(
     [...values].sort((x, y) => x - y),
@@ -104,6 +104,11 @@ export function sampleVariance(values: readonly number[]): number {
 }
 
 /** Rule 1: the message begins `<function>: <argument>`, so the caller sees which argument to fix. */
+/** Rule 1 for a scalar: the message begins `<function>: <argument>` when the number is NaN or infinite. */
+export function assertFinite(fn: string, name: string, value: number): void {
+  if (!Number.isFinite(value)) throw new RangeError(`${fn}: ${name} must be finite, got ${value}`);
+}
+
 export function assertCount(fn: string, name: string, value: number): void {
   if (!Number.isInteger(value) || value < 0) {
     throw new RangeError(`${fn}: ${name} must be a non-negative integer, got ${value}`);

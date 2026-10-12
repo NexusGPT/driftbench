@@ -1,6 +1,6 @@
 /** Planning: the minimum detectable effect of a campaign. */
 
-import { assertProbability } from './basics';
+import { assertFinite, assertProbability } from './basics';
 import { designEffect } from './intervals';
 import { normalQuantile } from './special';
 
@@ -44,6 +44,9 @@ export function mde(input: MdeInput): MdeResult {
   const alpha = input.alpha ?? 0.05;
   const rho = input.rho ?? 0;
   const p1 = input.baselineRate;
+  assertFinite('mde', 'n', input.n);
+  assertFinite('mde', 'repeats', repeats);
+  if (!(rho >= -1 && rho <= 1)) throw new RangeError(`mde: rho must lie in [-1, 1], got ${rho}`);
   if (!(input.n >= 1)) throw new RangeError(`mde: n must be at least 1, got ${input.n}`);
   if (!(repeats >= 1)) throw new RangeError(`mde: repeats must be at least 1, got ${repeats}`);
   assertProbability('mde', 'baselineRate', p1);

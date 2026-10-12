@@ -3,7 +3,7 @@
  * Neyman allocation of a fixed pool across strata, and the repeats per block for a noise floor.
  */
 
-import { assertProbability } from './basics';
+import { assertFinite, assertProbability } from './basics';
 import { Z95 } from './intervals';
 
 export interface Observation {
@@ -321,6 +321,7 @@ export function neymanAllocation(input: NeymanInput): NeymanResult {
   if (!Number.isInteger(total) || total < 0)
     throw new RangeError(`neymanAllocation: total must be a non-negative integer, got ${total}`);
   sizes.forEach((v, i) => {
+    if (!Number.isFinite(v)) throw new RangeError(`neymanAllocation: sizes[${i}] must be finite, got ${v}`);
     if (!(v >= 0)) throw new RangeError(`neymanAllocation: sizes[${i}] must be non-negative`);
   });
   sds.forEach((v, i) => {
@@ -395,6 +396,8 @@ export function repeatsForFloor(input: RepeatsForFloorInput): RepeatsForFloorRes
     assertProbability('repeatsForFloor', 'flipRate', input.flipRate);
     variance = input.flipRate * (1 - input.flipRate);
   } else throw new RangeError('repeatsForFloor: give variance or flipRate');
+  assertFinite('repeatsForFloor', 'variance', variance);
+  assertFinite('repeatsForFloor', 'blocks', blocks);
   if (!(variance >= 0)) throw new RangeError('repeatsForFloor: variance must be non-negative');
   if (!(input.floor > 0)) throw new RangeError('repeatsForFloor: floor must be positive');
   if (!(blocks >= 1)) throw new RangeError('repeatsForFloor: blocks must be at least 1');

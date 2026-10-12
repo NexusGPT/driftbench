@@ -19,6 +19,11 @@ import {
   quantileSorted,
   sampleVariance,
   unreliability,
+  betaQuantile,
+  effectiveSampleSize,
+  mde,
+  neymanAllocation,
+  repeatsForFloor,
   varianceComponents,
   wilcoxonSignedRank,
   wilson,
@@ -212,5 +217,35 @@ describe('cusum and pageHinkley name the option they refuse', () => {
   it('pageHinkley refuses a bad delta or threshold by name', () => {
     expect(() => pageHinkley(s, { delta: Number.NaN })).toThrow(/^pageHinkley: delta/);
     expect(() => pageHinkley(s, { threshold: -1 })).toThrow(/^pageHinkley: threshold/);
+  });
+});
+
+describe('scalar arguments that are not finite or out of range are named', () => {
+  const N = Number.NaN;
+  const I = Number.POSITIVE_INFINITY;
+  it('wilson names z', () => {
+    expect(() => wilson(3, 10, N)).toThrow(/^wilson: z/);
+    expect(() => wilson(2, 10, -1.96)).toThrow(/^wilson: z/);
+  });
+  it('designEffect and effectiveSampleSize name m and n', () => {
+    expect(() => designEffect(I, 0.1)).toThrow(/^designEffect: m/);
+    expect(() => effectiveSampleSize(N, 4, 0.1)).toThrow(/^effectiveSampleSize: n/);
+    expect(() => effectiveSampleSize(I, 4, 0.1)).toThrow(/^effectiveSampleSize: n/);
+  });
+  it('mde names n, repeats and rho', () => {
+    expect(() => mde({ n: I, baselineRate: 0.8 })).toThrow(/^mde: n/);
+    expect(() => mde({ n: 50, repeats: I, baselineRate: 0.8 })).toThrow(/^mde: repeats/);
+    expect(() => mde({ n: 50, baselineRate: 0.8, rho: N })).toThrow(/^mde: rho/);
+    expect(() => mde({ n: 50, baselineRate: 0.8, rho: 2 })).toThrow(/^mde: rho/);
+  });
+  it('quantile, hillNumber and betaQuantile name p and q', () => {
+    expect(() => quantile([1, 2, 3], N)).toThrow(/^quantile: p/);
+    expect(() => hillNumber([3, 2, 1], N)).toThrow(/^hillNumber: q/);
+    expect(() => betaQuantile(N, 2, 3)).toThrow(/^betaQuantile: p/);
+  });
+  it('repeatsForFloor and neymanAllocation name variance, blocks and sizes', () => {
+    expect(() => repeatsForFloor({ variance: I, floor: 0.05 })).toThrow(/^repeatsForFloor: variance/);
+    expect(() => repeatsForFloor({ variance: 0.2, floor: 0.05, blocks: I })).toThrow(/^repeatsForFloor: blocks/);
+    expect(() => neymanAllocation({ sizes: [10, I], sds: [1, 1], total: 10 })).toThrow(/^neymanAllocation: sizes/);
   });
 });

@@ -1,6 +1,6 @@
 /** Intervals on rates: Wilson, Clopper-Pearson, the zero-failure count, the design effect and the clustered bootstrap. */
 
-import { assertCount, assertFiniteValues, assertProbability, mulberry32, quantileSorted } from './basics';
+import { assertCount, assertFinite, assertFiniteValues, assertProbability, mulberry32, quantileSorted } from './basics';
 import { betaQuantile, normalQuantile } from './special';
 
 /** z for a two-sided 95 percent interval. */
@@ -18,6 +18,8 @@ export function wilson(k: number, n: number, z: number = Z95): Interval {
   assertCount('wilson', 'k', k);
   assertCount('wilson', 'n', n);
   if (n === 0) throw new RangeError('wilson: n must be at least 1');
+  assertFinite('wilson', 'z', z);
+  if (!(z > 0)) throw new RangeError(`wilson: z must be above 0, got ${z}`);
   if (k > n) throw new RangeError(`wilson: k (${k}) exceeds n (${n})`);
   const p = k / n;
   const z2 = z * z;
@@ -55,6 +57,7 @@ export function zeroFailureBound(p: number, alpha = 0.05): number {
 
 /** The design effect 1 + (m - 1) rho for clusters of size m with intraclass correlation rho. */
 export function designEffect(m: number, rho: number): number {
+  assertFinite('designEffect', 'm', m);
   if (!(m >= 1)) throw new RangeError(`designEffect: m must be at least 1, got ${m}`);
   if (!(rho >= -1 && rho <= 1)) throw new RangeError(`designEffect: rho must lie in [-1, 1], got ${rho}`);
   const de = 1 + (m - 1) * rho;
@@ -68,6 +71,7 @@ export function designEffect(m: number, rho: number): number {
 
 /** The effective number of independent units: n divided by the design effect. */
 export function effectiveSampleSize(n: number, m: number, rho: number): number {
+  assertFinite('effectiveSampleSize', 'n', n);
   return n / designEffect(m, rho);
 }
 

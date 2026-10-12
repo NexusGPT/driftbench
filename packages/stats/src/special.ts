@@ -74,6 +74,7 @@ export function incompleteBeta(x: number, a: number, b: number): number {
 
 /** Quantile of the Beta(a, b) distribution, by bisection on the regularized incomplete beta. */
 export function betaQuantile(p: number, a: number, b: number): number {
+  if (Number.isNaN(p)) throw new RangeError('betaQuantile: p must not be NaN');
   if (p <= 0) return 0;
   if (p >= 1) return 1;
   let lo = 0;
