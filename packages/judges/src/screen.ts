@@ -214,7 +214,6 @@ const IMPERATIVE_VERBS: readonly string[] = [
   'apply',
   'skip',
   'stop',
-  'confirm',
   'certify',
   'record',
   'label',
@@ -233,7 +232,7 @@ const IMPERATIVE_CAPITALISED = new RegExp(
   'u',
 );
 const NOTE =
-  /(?<!\p{L})(?:instructions?|(?:judges?|graders?|evaluators?|reviewers?) notes?|notes? (?:to|for)|important (?:to|for)|messages? (?:to|for)|system prompt|(?:this|the) (?:reply|response|transcript|conversation|log))(?!\p{L})/iu;
+  /(?<!\p{L})(?:instructions?|(?:judges?|graders?|evaluators?|reviewers?) notes?|notes? (?:to|for)|important (?:to|for)|messages? (?:to|for)|system prompt|(?:pass|fail) pictures?|new (?:criterion|criteria|rubric)|(?:this|the) (?:reply|response|transcript|conversation|log))(?!\p{L})/iu;
 const FIELD =
   /(?<!\p{L})(?:verdict|outcome|score|result)\W{0,3}[=:]\W{0,3}(?:pass|passed|success|1\.0|0\.99)/iu;
 const instructive = (sentence: string): boolean => {
