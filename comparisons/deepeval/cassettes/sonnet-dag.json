@@ -1,0 +1,306 @@
+{
+"aajcfaeeeccagbcaeeciccddebcddaadbcegceeafedcggighgecddcfhgabebbi": {
+"cost": 0.004472,
+"result": "{\"reason\": \"The user asked whether their street is covered for fibre. The reply only states a mobile plan (Acme Mobile M, 40 GB for $25 a month), which is unrelated to fibre coverage and does not address the ask.\", \"verdict\": false}"
+},
+"abidebgchiajbabbdaibfgdaiehfcdfbfdabbaceacechdfbaddfejcbdgccedaj": {
+"cost": 0.00441,
+"result": "{\"reason\": \"The user asked how to pay their bill, but the reply talks about switching plans on the Plans page and says it applies on the next bill. That addresses a different question (changing plans) and gives no information on paying a bill.\", \"verdict\": false}"
+},
+"adeaajfdfgfbbjijabficciecdcccacafhiijeffggbeigbfbdcbeafgdfjecbdi": {
+"cost": 0.004308,
+"result": "{\"reason\": \"The user asked whether their street is covered for fibre internet. The reply recommends a pasta recipe, which is unrelated to the question, changes the subject, and ignores the ask.\", \"verdict\": false}"
+},
+"aeddiebifbdbcdbejebagdaagfjgafhfacbfadjeibjicdegejhcfcfecjhhaida": {
+"cost": 0.0045,
+"result": "{\"reason\": \"The user asked how to pay their bill. The reply instead promotes fibre internet availability and pricing ('Fibre is live on your street, from $60 a month'), which does not address bill payment at all. It changes the subject and ignores the ask.\", \"verdict\": false}"
+},
+"afajeceadjhcfddgiaheeeefbebfaegcajcahcajaaeiiecdhagcgebgjjbabeee": {
+"cost": 0.002499,
+"result": "{\"reason\": \"The user asked which plan gives more data and its monthly cost. The reply names a plan (Acme Mobile M), states its data (40 GB) and its price ($25/month), so it directly addresses both parts of the ask without changing the subject.\", \"verdict\": true}"
+},
+"afbjjdicjdibdjiceaddhdgafagfadeeaedhdeefebjhdacahaafbhgihbfibdca": {
+"cost": 0.004382,
+"result": "{\"reason\": \"The user asked whether they can change their data plan. The reply directly answers: yes, they can change it at any time, and the new plan takes effect on the next bill. It addresses the question without changing the subject.\", \"verdict\": true}"
+},
+"afdabcejejhgaaffdfdaifdfjadbebeadegcbefacbcbdbibfeiabacfjahdjede": {
+"cost": 0.004258,
+"result": "{\"reason\": \"The user asked what the store hours are. The reply talks about transferring service and asks for a move date and new postcode, which addresses a different topic and gives no store hours information.\", \"verdict\": false}"
+},
+"afgacdbfaedfcdgddhbcjgcdefjejcfajdhcffeaffgccajcgafgbhcafebgebdf": {
+"cost": 0.004244,
+"result": "{\"reason\": \"The user asked for the store hours, and the reply gives them directly: open 10 to 8, Monday to Saturday. It addresses the question without changing the subject.\", \"verdict\": true}"
+},
+"agbfgjhjbghbedeaidcjfbcbfehfcdbjjdcfhfahjcbibcfgaeiigcfcjdeacaec": {
+"cost": 0.004484,
+"result": "{\"reason\": \"The user asked how to reset their router password, but the reply talks about paying by card on the Billing page of the Acme app or by bank transfer. That is about payment, not router passwords, so it answers a different question and ignores the ask.\", \"verdict\": false}"
+},
+"ahabajceadcbeccebfjcbcheaadgdahcaefijaedcdcgeadjbhdjfacdfdffifcj": {
+"cost": 0.004546,
+"result": "{\"reason\": \"The user asked which plan gives more data and what it costs per month. The reply is about transferring service to a new address and asks for a move date and postcode. It does not compare plans, mention data allowances, or give a monthly price, so it answers a different question.\", \"verdict\": false}"
+},
+"ahcahijaadfgcgdaajicadfdbfaabijdibecgjchggajdbebdeahbfccfhcchjhc": {
+"cost": 0.004604,
+"result": "{\"reason\": \"The user asked to cancel line 0412 345 678. The reply directly addresses this by stating the line is cancelled effective today and giving a reference number. Whether the cancellation actually happened is a separate matter; the reply is on-topic and responds to the ask.\", \"verdict\": true}"
+},
+"badacefchcdddbfdjcehcefafdafafiiiaadbfccccdcifefjchadicdagedbcaf": {
+"cost": 0.004266,
+"result": "{\"reason\": \"The user asked for help resetting their router password, but the reply is about a football club winning a match last night. It is unrelated to the request, changes the subject, and does not address the ask at all.\", \"verdict\": false}"
+},
+"bcfedjjdaeiaaeheafdebebjccffdffadefefjbdhaaafehiaibgajabcdfcbdfc": {
+"cost": 0.00447,
+"result": "{\"reason\": \"The user asked which plan gives more data and its monthly cost. The reply only says fibre is live on the street from $60 a month. It does not compare plans or say which has more data, so it changes the subject and does not answer the ask.\", \"verdict\": false}"
+},
+"bdcebfciffaabgjefdidffchcbajccdcbejddbbfiggaafjaaaahhebdbbeabdje": {
+"cost": 0.004484,
+"result": "{\"reason\": \"The user asked why they were charged twice this month, which is a billing question. The reply only says a technician is booked for Tuesday between 8 and 12, which is about appointment scheduling. It does not address the double charge and changes the subject.\", \"verdict\": false}"
+},
+"bdehfdhaibdfgcdfceiehcjdfdadfaaaeaiafccfecebaecjicbfbaefdfegbfig": {
+"cost": 0.004574,
+"result": "{\"reason\": \"The user asked which plan gives more data and what it costs per month. The reply only says the family bundle gives 20 percent off each extra line. It names no plan with more data and gives no monthly cost, so it addresses a different topic and ignores the ask.\", \"verdict\": false}"
+},
+"beaegdiabccafahbaihedidcfaafcbabfhgfabiididabcedgheccgagccaffeej": {
+"cost": 0.00434,
+"result": "{\"reason\": \"The user asked about store hours, but the reply says the user's line is cancelled with a reference number. It doesn't mention store hours and addresses a different topic, so it does not answer the ask.\", \"verdict\": false}"
+},
+"behegeeedhhiejhdabacbcabbgjgajfjejcdadacaggejddbcdfdfdedbcdcaefc": {
+"cost": 0.002358,
+"result": "{\"reason\": \"The user asked whether they can change their data plan. The reply directly answers 'Yes' and adds how to do it (Plans page) and when it takes effect (next bill), so it addresses the ask.\", \"verdict\": true}"
+},
+"bfadifcfcfacahcbccebidfdeifcehfcdbcebbefddfgcbgaffcabdcbhjbeieej": {
+"cost": 0.002492,
+"result": "{\"reason\": \"The user asked when their technician will arrive. The reply only says fibre is not on their street yet and 5G home internet is available. It gives no arrival time or appointment information and does not say whether a technician is scheduled, so it does not address the question.\", \"verdict\": false}"
+},
+"bgcdaacdcdfadgdeccebdbbehidfddchifidbeifcdeeddfadfdbbjefcfhcedca": {
+"cost": 0.00412,
+"result": "{\"reason\": \"The user asked about store hours, but the reply talks about a football club winning a match last night. It changes the subject and does not address the question in any way.\", \"verdict\": false}"
+},
+"bgjeiaaedefficdhfbieibdfeffcjchcadbgciagdbcjbibfedhbbaeacihejcha": {
+"cost": 0.004914,
+"result": "{\"reason\": \"The user asked which plan gives more data and its monthly cost. The reply names a plan (Acme Mobile S), states its data (10 GB) and its price ($15/month). It directly addresses both parts of the ask and stays on topic, without changing the subject. Whether the plan choice is correct is not the question here, only whether the reply addresses the ask.\", \"verdict\": true}"
+},
+"bgjfdahcffbecaebdceadhhfgfjchbegafahgbddjcfgeedibahfgcccajabbadg": {
+"cost": 0.004558,
+"result": "{\"reason\": \"The user asked why they were charged twice this month. The reply addresses this directly by identifying a duplicate charge from the 27th as the cause and noting it has been flagged for a refund. It stays on topic and responds to the ask, even if briefly.\", \"verdict\": true}"
+},
+"cbdajecfdafehagacfdibccbffdbhfhaghejhacbhbdejadaeibdaaghjeajeidf": {
+"cost": 0.002432,
+"result": "{\"reason\": \"The user asked how to move house and keep their service. The reply directly addresses this by saying the service can be transferred and telling the user what to send (move date and new postcode). It is brief but on topic and gives an actionable answer.\", \"verdict\": true}"
+},
+"ccahbfdfcibiacagffbddcbfbebcdbjfhbagaaeicjgifchdfccbeccfbfhaabca": {
+"cost": 0.002338,
+"result": "{\"reason\": \"The user asked whether a family plan with a discount exists. The reply directly answers: yes, the family bundle gives 20 percent off each extra line. It addresses the question and stays on topic.\", \"verdict\": true}"
+},
+"cccbbeebhgebdhcefefjdfifcbicgdcidcbdcibfdebcijeadfaidceaggbffbfj": {
+"cost": 0.00439,
+"result": "{\"reason\": \"The user asked when their technician will arrive. The reply instead talks about a duplicate charge from the 14th and a refund flag, which is a different topic and gives no information about the technician's arrival time.\", \"verdict\": false}"
+},
+"cdcbaedhacfffjeahffefdcficeahccciccgifhffeefccbfiegcebcdhejbcedf": {
+"cost": 0.00463,
+"result": "{\"reason\": \"The user asked whether they can change their data plan. The reply only states details of a specific plan (Acme Mobile M, 40 GB for $25/month) and never says whether a change is possible or how to do it. It is related to the topic but does not answer the yes/no question about changing plans.\", \"verdict\": false}"
+},
+"ceeebgeedehdecfhdeadbebehfffdbfaafbhcaadhhehedfgebbfidddeibjfecf": {
+"cost": 0.00438,
+"result": "{\"reason\": \"The user asked to cancel their line 0412 345 678. The reply talks about a duplicate charge and a refund flag, which is a different topic. It does not address the cancellation request at all.\", \"verdict\": false}"
+},
+"cfcaeehcjcbfebieecfbggcdejegddiahaahbchfcdfcecgafffecghefcccibib": {
+"cost": 0.004502,
+"result": "{\"reason\": \"The user asked why they were charged twice this month. The reply addresses that directly by identifying a duplicate charge from the 28th as the cause and noting it has been flagged for a refund. It stays on topic and responds to the ask.\", \"verdict\": true}"
+},
+"cgjdfhcbcageedfgbfbbfcbdcehaddfehjfbdffdjicjcfbaafeceefifcjdbghj": {
+"cost": 0.004536,
+"result": "{\"reason\": \"The user asked to cancel line 0412 345 678. The reply directly addresses this by stating the line is cancelled effective today and giving a reference number. It stays on topic and responds to the request, regardless of whether the action was actually performed.\", \"verdict\": true}"
+},
+"ciaaabacebdidchidcifdcfbdefcabhedadbcfdgcbcdahhbfhjigcbbdidihgbc": {
+"cost": 0.004442,
+"result": "{\"reason\": \"The user asked whether a family plan with a discount is available. The reply talks about a duplicate charge from the 19th being flagged for a refund, which is a different topic and does not address the family plan or discount question at all.\", \"verdict\": false}"
+},
+"cjaabegjbefbbhidhcjdcdcejhhcbaddhibidicdfgafdedgfdhgaeafdddaffcf": {
+"cost": 0.004372,
+"result": "{\"reason\": \"The user asked whether a family plan with a discount exists. The reply directly answers: yes, the family bundle gives 15 percent off each extra line. It addresses the ask and stays on topic.\", \"verdict\": true}"
+},
+"dbjfbebchddjaeahbfbdagdhacdffaajbdfjhjfabdgcadadigcbbbeagbddccfe": {
+"cost": 0.004384,
+"result": "{\"reason\": \"The user asked why they were charged twice this month, which is a billing question. The reply gives instructions for resetting a device with the reset button and a default password. That is a different topic and does not address the double charge.\", \"verdict\": false}"
+},
+"dcafdbbdadeaehdeeaghcedidaheaacfdjchibaheabgfbieebbehjgfcaaeadbg": {
+"cost": 0.00446,
+"result": "{\"reason\": \"The user asked whether they can change their data plan. The reply only says fibre is live on their street from $60 a month. It never says whether a plan change is possible, so it reads as a promotional statement that changes the subject rather than answering the question.\", \"verdict\": false}"
+},
+"dcahdehacjfcbgcdccacebdgdefdjdegfcaeacbicfaecehdfffhhibfcafbciag": {
+"cost": 0.004424,
+"result": "{\"reason\": \"The user asked whether a family plan with a discount is available. The reply directly addresses this by confirming yes and describing the family bundle with 10 percent off each extra line. It stays on topic and answers the question.\", \"verdict\": true}"
+},
+"dcehebhfgeehbabbcdcfgfgdfiiejaebeahddjfcbcgcbbbdjdbfacdiaddeaafe": {
+"cost": 0.004522,
+"result": "{\"reason\": \"The user asked why they were charged twice this month. The reply only states the price and features of an Acme Mobile L plan (unlimited data for $35 a month). It does not explain or address the double charge, so it changes the subject and ignores the ask.\", \"verdict\": false}"
+},
+"dciebbacghijdciecbdjebfbcibedfadfjjiecchcggeeceiecaadhbijadabaag": {
+"cost": 0.004504,
+"result": "{\"reason\":\"The user asked for a callback about home internet. The reply directly addresses this by confirming a callback is booked for Monday morning with a reference number. It stays on topic and responds to the request, regardless of whether the booking is actually accurate.\",\"verdict\":true}"
+},
+"defdcchhcbhbcdceeeffjecbfgbffgdcecfgebafffhdfjbddcdafabciehahada": {
+"cost": 0.004294,
+"result": "{\"reason\": \"The user asked why they were charged twice this month, which is a billing question. The reply recommends a pasta recipe, which is unrelated and changes the subject without addressing the ask.\", \"verdict\": false}"
+},
+"dfacbcaefebddfcajcaebhfajcdecajdabchebagadagebajicagbejifefhhgfd": {
+"cost": 0.004332,
+"result": "{\"reason\": \"The user asked for a callback about home internet. The reply only states a mobile plan price (10 GB for $15 a month), which does not address the callback request or home internet and changes the subject.\", \"verdict\": false}"
+},
+"dfjgdijeiacjeffcbaebaaciebccagfajddecdbbcjdgfgabffecjadiagefccad": {
+"cost": 0.004724,
+"result": "{\"reason\": \"The user asked whether their street is covered for fibre. The reply says 'Yes' but then pivots to switching plans on the Plans page and a next-bill effect, which doesn't address coverage and reads as a response to a different question. It does not check an address or give coverage information, so it largely changes the subject.\", \"verdict\": false}"
+},
+"dgcahibbciffebadabidhfdaadfejcabjagggfceijdjcgbbiagddibdagaehdgi": {
+"cost": 0.004322,
+"result": "{\"reason\": \"The user asked for a callback about home internet. The reply says a callback is booked for Tuesday with a reference number, which directly addresses and fulfills the request without changing the subject.\", \"verdict\": true}"
+},
+"difabddjbdhbeafhcjajhidbgeiagabbbabedaaicaccahaddffbcjfeajeeecfe": {
+"cost": 0.002317,
+"result": "{\"reason\": \"The user asked about the store hours, and the reply directly states them: open 9 to 5, Monday to Saturday. It addresses the question without changing the subject or ignoring the ask.\", \"verdict\": true}"
+},
+"djcfddcdeebibebjdgajffadfhbheagefhedbigjacfdddejafeagabddbfbfece": {
+"cost": 0.004384,
+"result": "{\"reason\": \"The user asked whether their street is covered for fibre. The reply instead talks about a duplicate charge from the 7th and a refund, which is a different topic and does not address fibre coverage at all.\", \"verdict\": false}"
+},
+"ebfdcdffegjafccbchfafhhbhdaejebcdejdeafdicecjeegccejidcddgebbcfh": {
+"cost": 0.002391,
+"result": "{\"reason\": \"The user asked whether their street is covered for fibre. The reply directly addresses this by stating fibre is live on their street (plus pricing). It answers the question asked, regardless of whether the claim is verified.\", \"verdict\": true}"
+},
+"ebhcbihhbcieiecajciiiaiiccfbfcagaiddihahdcaeddbaeaebfgddedeaaefd": {
+"cost": 0.00436,
+"result": "{\"reason\": \"The user asked whether they can change their data plan. The reply, 'Our football club won the match last night,' is about an unrelated topic and does not address the question about changing a data plan. It changes the subject entirely.\", \"verdict\": false}"
+},
+"ecifghdjdiadjfcbbcageagccgbfddbfahjcedfbebghaecdaaffcdbgffiejdbe": {
+"cost": 0.00455,
+"result": "{\"reason\": \"The user asked to cancel their line 0412 345 678. The reply instead offers to transfer the service and asks for a move date and new postcode, which addresses a different request (relocation) and neither cancels the line nor engages with the cancellation ask.\", \"verdict\": false}"
+},
+"eecgefdgiejabaebadfecafeafbfidcbbdjdaaffcebdhebcdjcfecdeaacbaafb": {
+"cost": 0.004554,
+"result": "{\"reason\": \"The user asked whether a family plan with a discount is available. The reply only states the price and data allowance of a single plan (Acme Mobile S, 10 GB for $15/month) and never mentions family plans or discounts, so it does not answer the question.\", \"verdict\": false}"
+},
+"egaaacdhciadaafjiddhcdcgfbjeidjejfeigjcjebjihfbacahccjbgdadcfdfa": {
+"cost": 0.004584,
+"result": "{\"reason\": \"The user asked whether they can change their data plan. The reply only states details of a specific plan (Acme Mobile S, 10 GB for $15 a month) and never says whether a plan change is possible or how to do it. It does not address the ask and reads as a different topic.\", \"verdict\": false}"
+},
+"egebeeedhahigjichaadegdccddgaebcheacaffdfffiidbaabhibiddgaajgfde": {
+"cost": 0.002382,
+"result": "{\"reason\": \"The user asked how to pay their bill, and the reply directly addresses this by stating they can pay by card on the Billing page of the Acme app or by bank transfer. It stays on topic and answers the question.\", \"verdict\": true}"
+},
+"fbeaahbjdjadjgdijfjgaiieeeffhafaeadafadfadafgcfdhhfjdehaafaafifa": {
+"cost": 0.004534,
+"result": "{\"reason\":\"The user asked to cancel line 0412 345 678. The reply addresses this directly by stating the line is cancelled effective today and giving a reference number. It is on topic and responds to the ask, whether or not the cancellation actually happened.\",\"verdict\":true}"
+},
+"fccebididjcbhbcgdiffjbgbbieggdiedhhcfdhdjhjheaacaaefgfgecjicabbf": {
+"cost": 0.00429,
+"result": "{\"reason\": \"The user asked for their router password to be reset. The reply talks about fibre availability on the street and 5G home internet, which is a different topic and does not address the password reset request at all.\", \"verdict\": false}"
+},
+"fgajcjhdbbcbabhdbdiaefhbhgcaeaeebebaafgefjaaceiaidebdadiidcficcc": {
+"cost": 0.004526,
+"result": "{\"reason\": \"The user asked how to move house and keep their service. The reply only says fibre is live on the street from $60 a month, which is a promotional statement. It gives no steps or information about transferring service to a new address, so it changes the subject and does not answer the ask.\", \"verdict\": false}"
+},
+"fhadgdbigjibcceacafcjehfgjfadbjahbefibeeaffigfcaiccghdiiedacadid": {
+"cost": 0.004304,
+"result": "{\"reason\": \"The user asked whether they can get a callback about home internet. The reply talks about switching plans on the Plans page and billing, which does not address the callback request and changes the subject.\", \"verdict\": false}"
+},
+"gacbcgaicgddaichfbfgdcjacebdjcdhdabececedbhdhbbicabecjdgdccffeeb": {
+"cost": 0.004246,
+"result": "{\"reason\": \"The user asked how to pay their bill, but the reply only says the weather in Acmeville is sunny today. It changes the subject and does not address bill payment in any way.\", \"verdict\": false}"
+},
+"gbacagebbibfefeacbdbacddafcdgaadieccegcceabhaejiehjdahgfaddbbhae": {
+"cost": 0.004764,
+"result": "{\"reason\": \"The user asked which plan gives more data and its monthly cost. The reply names a plan (Acme Mobile L), states it gives unlimited data, and gives the price ($35 per month). It addresses both parts of the question directly and stays on topic. Whether the details are factually correct is not what is being judged here.\", \"verdict\": true}"
+},
+"gbcadjdieigfffbdfbbbddabhhdfdcebaafchicbdcibabjffcgfaadddafdbfeg": {
+"cost": 0.004862,
+"result": "{\"reason\": \"The user asked how to move house and keep their service. The reply only states that fibre is not on the street yet and 5G home internet is available. It gives no steps for transferring or keeping the service, and it assumes details about the new address that the user never gave. It does touch on service availability, but it does not address the actual question about how to move and keep service, so it changes the subject.\", \"verdict\": false}"
+},
+"gbhichfgdfachjgfacchebebdhefjhjeiaefhchgjfdgcahaafcaafaegacddaeg": {
+"cost": 0.004506,
+"result": "{\"reason\": \"The user asked to cancel their line 0412 345 678. The reply directly addresses this by confirming the line is cancelled effective today and giving a reference number. It responds to the ask rather than changing the subject or answering a different question.\", \"verdict\": true}"
+},
+"gieegceficbeecabaabccecddedcdieefeidjbfjeibbfhagdbdbjbjjcjefbfci": {
+"cost": 0.004166,
+"result": "{\"reason\": \"The user asked for a callback about home internet, but the reply recommends a pasta recipe. It changes the subject and does not address the request.\", \"verdict\": false}"
+},
+"gjbcbchedchdefdagdfdcdefhabbcaheadacbfdebheicfcaihdfjbfdebcbfjdg": {
+"cost": 0.004238,
+"result": "{\"reason\": \"The user asked about store hours, but the reply gives instructions for resetting a device and logging in with a default password. It does not address store hours and answers a different question.\", \"verdict\": false}"
+},
+"hbiaefehiebeahbcjieehbbabfeecdeeddagggadfgdfadddifacfjdigeeegbch": {
+"cost": 0.004498,
+"result": "{\"reason\": \"The user asked why they were charged twice this month. The reply addresses this directly by identifying a duplicate charge from the 8th as the cause and noting it has been flagged for a refund. It stays on topic and responds to the ask.\", \"verdict\": true}"
+},
+"hdhdjfddiibfgaeajcbcfjcdaafafdhgiacfcbfcieafiejefdeeghicfefdaefc": {
+"cost": 0.004264,
+"result": "{\"reason\": \"The user asked how to move house and keep their service. The reply talks about the weather in Acmeville, which is a different topic and does not address the ask about transferring service when moving.\", \"verdict\": false}"
+},
+"hgjacefdjehgjbdcabadecdebbbbicijhjdijihbbebhccegeibgjihdecagahfb": {
+"cost": 0.002376,
+"result": "{\"reason\": \"The user asked how to pay their bill, and the reply directly addresses this by stating that payment can be made by bank transfer or card in the Acme app under Billing. It stays on topic and answers the question.\", \"verdict\": true}"
+},
+"hheaghejgddddiibdfcjfeiacechdcdehdcfdeidbbebddbhjeafahhchcfbaadh": {
+"cost": 0.004344,
+"result": "{\"reason\": \"The user asked for a callback about home internet. The reply talks about a duplicate charge from the 17th and a refund flag, which is a different topic. It does not address the callback request at all.\", \"verdict\": false}"
+},
+"hhiddeefcgefcgfdffegebaafjchgcffdbggaifcbedeaacddbecbbajbhebecdc": {
+"cost": 0.00437,
+"result": "{\"reason\": \"The user asked when their technician will arrive, and the reply directly addresses this by giving a specific arrival window (Monday morning between 8 and 12). It stays on topic and answers the question asked.\", \"verdict\": true}"
+},
+"hjefihegdccbfcdjbabdabacgjcgchacjaheaagfgachcffchfcdjchbcaadadhd": {
+"cost": 0.004376,
+"result": "{\"reason\": \"The user asked whether they can change their data plan. The reply talks about transferring service for a move and asks for a move date and new postcode, which is a different topic (relocation) and does not address changing a data plan.\", \"verdict\": false}"
+},
+"ibbbdafadcdeggjfeeafgaadicffegcdibdgfegecfcbhdbhccacebedfacdcahc": {
+"cost": 0.00443,
+"result": "{\"reason\":\"The user asked whether a family plan with a discount is available. The reply says a line is cancelled effective today with a reference number, which has nothing to do with family plans or discounts. It changes the subject and does not address the question.\",\"verdict\":false}"
+},
+"ibdeddeaceajcbbfccaigbfccgbbehjcbdbabbjhhcgaaaicbbcfjdgdeddfbibi": {
+"cost": 0.002362,
+"result": "{\"reason\": \"The user asked how to reset their router password, and the reply directly addresses that by giving steps: hold the reset button for ten seconds and log in with the default password. It stays on topic and answers the ask.\", \"verdict\": true}"
+},
+"ifdgeagffdfdbahecadfjafffbbgcebdhfbcahfgfgiffehcdjfdeaadafdbdaff": {
+"cost": 0.004286,
+"result": "{\"reason\": \"The user asked to reset their router password. The reply talks about transferring service to a new address and asks for a move date and postcode, which is a different topic and does not address the password reset request.\", \"verdict\": false}"
+},
+"igdacicjiefaahdfejiegjaafcbbibbecfadcjhbafffjaiciabfaidfdgcfiahb": {
+"cost": 0.004384,
+"result": "{\"reason\": \"The user asked whether a family plan with a discount is available. The reply gives instructions for resetting a device with the reset button and a default password, which does not address plans or discounts at all and changes the subject.\", \"verdict\": false}"
+},
+"iihbccigcdjeadecbibcjecacdcdfeeccgafbcfgdcccfiecebfchfaejhjjciji": {
+"cost": 0.004364,
+"result": "{\"reason\": \"The user asked whether their street is covered for fibre. The reply only gives store opening hours (9 to 6, Monday to Saturday), which does not address fibre coverage and changes the subject.\", \"verdict\": false}"
+},
+"jbdgcecfbiibbjebfaiciecbiejgdbaddcabbdgaiajdeaccbbfiihejcfbdfeie": {
+"cost": 0.004352,
+"result": "{\"reason\": \"The user asked whether they can get a callback about home internet. The reply directly addresses this by confirming a callback is booked for Monday morning and providing a reference number, so it answers the ask.\", \"verdict\": true}"
+},
+"jbebdefaahjcfffbehfehdhfebhabfgfbfedjahfdfjcgdieiddijadafbaefcje": {
+"cost": 0.004412,
+"result": "{\"reason\": \"The user asked to cancel their phone line 0412 345 678. The reply recommends a pasta recipe, which is unrelated to the request. It changes the subject and does not address the cancellation ask at all.\", \"verdict\": false}"
+},
+"jcgadgceaaieajdecabcdfjcddbibfceiaifadbbgiccabdheacfgffdeafbdjba": {
+"cost": 0.004498,
+"result": "{\"reason\": \"The user asked why they were charged twice this month. The reply addresses this directly by identifying a duplicate charge from the 13th as the cause and stating it has been flagged for a refund. It stays on topic and responds to the ask.\", \"verdict\": true}"
+},
+"jdaieebccdbgedbffaeaebbgebgaebgcddaidcaihdfcccdbeehebebbibdhjjba": {
+"cost": 0.00449,
+"result": "{\"reason\": \"The user asked which plan offers more data and its monthly cost. The reply only states that the weather in Acmeville is sunny today, which is unrelated to plans, data, or pricing. It changes the subject and does not address the ask.\", \"verdict\": false}"
+},
+"jdbchgcfjechifgabbddcggahaebgccigaicjdafhiaeiiafaafacafafefefgif": {
+"cost": 0.004498,
+"result": "{\"reason\":\"The user asked to cancel the line 0412 345 678. The reply talks about a family bundle discount of 15 percent off each extra line, which does not address or acknowledge the cancellation request. It changes the subject to a different topic.\",\"verdict\":false}"
+},
+"jfaffbfibahaccchbihefgdeabaiceiadihdfaaibedifghefcaehjdbaffdjeij": {
+"cost": 0.004436,
+"result": "{\"reason\": \"The user asked how to move house while keeping their service. The reply instead states the line is cancelled with a reference number, which gives no guidance on transferring service and does not address the ask. It is a different, unrelated statement.\", \"verdict\": false}"
+},
+"jffaieadddbcdebbdeachhciggbbfdfebeachfbcgaeceabbegcfafhajjdaeace": {
+"cost": 0.002561,
+"result": "{\"reason\": \"The user asked when their technician will arrive, and the reply directly answers with a specific time window (Tuesday between 8 and 12). It addresses the question without changing the subject. Whether the information is accurate is not what is being judged, only whether the ask is answered.\", \"verdict\": true}"
+},
+"jjdfbaibdhffjjeebcfiahbedaebfebajbfeecidbcaifbbdiebcbfcbagjdadhg": {
+"cost": 0.004348,
+"result": "{\"reason\": \"The user asked whether they can get a callback about home internet. The reply directly addresses this by confirming a callback is booked for Monday morning with a reference number, so it answers the ask.\", \"verdict\": true}"
+}
+}
