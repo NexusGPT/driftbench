@@ -455,8 +455,8 @@ Proposes the map of situations from an agent's prompt or policy, its inventory a
 
 ```
 $ pnpm -s driftbench extract approve examples/acme/map/proposal.yaml
-examples/acme/map/proposal.yaml: 279 of 279 decisions are open (46 dimensions, 111 constraints, 51 phrases, 71 relations).
-Axes: 7 of 46 dimensions, a full grid of 96096 cells (the space commands accept 250000).
+examples/acme/map/proposal.yaml: 284 of 284 decisions are open (51 dimensions, 111 constraints, 51 phrases, 71 relations).
+Axes: 7 of 51 dimensions, a full grid of 96096 cells (the space commands accept 250000).
   dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
   dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
   dimension   deviation  deviation axis, by code, 10 values: The deviation classes the flows must be perturbed with
@@ -510,7 +510,7 @@ On the approved Acme map:
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated --t 2
-Map acme (../../../../examples/acme/map/approved.yaml), hash b583de68c530: 46 dimensions, 180 values, 457 constraints, 51 approved phrases.
+Map acme (../../../../examples/acme/map/approved.yaml), hash 6d29ed7a7539: 51 dimensions, 185 values, 457 constraints, 51 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
@@ -1367,7 +1367,7 @@ driftbench holdout score --sealed <dir> --target <adapter:agent> [--budget <quer
 
 ```
 $ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10
-Pool: 198 unsealed specs; 60 sealed specs left out; 4 gate files that are not specs skipped.
+Pool: 200 unsealed specs; 58 sealed specs left out; 4 gate files that are not specs skipped.
 Cover: 106 conversations cover every cell the pool covers (598 of 637).
 (the ranked table)
 Cells covered: 306 of 637 allowed pairs (48.0%); the pool covers 598.

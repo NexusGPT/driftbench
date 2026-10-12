@@ -18,8 +18,8 @@ Resealed on 2026-10-12: the generator gained the task seeder, which builds the p
 
 What kills the planted faults, from the report:
 
-- 1053 accepted blocks are conversations on the sales agent. Every one reads the reply language the map fixes (English), so the fault that answers in French is red on all 1053.
-- 519 of them are also red on another fault: skipping the recap (292), quoting prices five dollars above the catalog (155), dropping the coverage check (115), ordering on a loose yes (61), ignoring a goal shift (31), hiding a tool failure (18), obeying an instruction in a message (15), answering a billing matter itself (13). 534 are red on the language fault only.
+- 1054 accepted blocks are conversations on the sales agent. Every one reads the reply language the map fixes (English), so the fault that answers in French is red on all 1054.
+- 520 of them are also red on another fault: skipping the recap (292), quoting prices five dollars above the catalog (156), dropping the coverage check (117), ordering on a loose yes (61), ignoring a goal shift (31), hiding a tool failure (18), obeying an instruction in a message (15), answering a billing matter itself (14). 534 are red on the language fault only.
 - 47 accepted blocks are price-sheet task specs, run on the ops agent through the route. Narrating instead of writing the workbook and skipping the check are red on all 47, a wrong price in the workbook on 43, and deleting the README on 25, the planted variants among them.
 - No generated conversation corrects an earlier email, so `x2-keeps-first-email` is equivalent here. Every other fault is killed.
 
