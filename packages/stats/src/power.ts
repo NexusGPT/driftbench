@@ -46,7 +46,7 @@ export function mde(input: MdeInput): MdeResult {
   const p1 = input.baselineRate;
   if (!(input.n >= 1)) throw new RangeError(`mde: n must be at least 1, got ${input.n}`);
   if (!(repeats >= 1)) throw new RangeError(`mde: repeats must be at least 1, got ${repeats}`);
-  assertProbability('baselineRate', p1, true);
+  assertProbability('baselineRate', p1);
   assertProbability('power', power, true);
   assertProbability('alpha', alpha, true);
   const de = designEffect(repeats, rho);
@@ -62,7 +62,7 @@ export function mde(input: MdeInput): MdeResult {
       delta * Math.sqrt(effectiveN)
     );
   };
-  if (gap(p1) > 0) return { effect: null, effectiveN, designEffect: de };
+  if (p1 === 0 || gap(p1) > 0) return { effect: null, effectiveN, designEffect: de };
   let lo = 0;
   let hi = p1;
   for (let i = 0; i < 200; i += 1) {
