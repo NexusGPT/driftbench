@@ -90,8 +90,16 @@ function instructsJudge(sentence: string): boolean {
   return instructs(sentence, words);
 }
 
+/** A run of base64 characters, long enough to hide a sentence. */
+const BASE64_RUN = /[A-Za-z0-9+/]{16,}={0,2}/g;
+
+/** The text of every base64 run in the text, decoded: an instruction may be hidden as base64 in the data. */
+function decodedRuns(text: string): string {
+  return (text.match(BASE64_RUN) ?? []).map((run) => Buffer.from(run, 'base64').toString('utf8')).join('\n');
+}
+
 function screenText(text: string): boolean {
-  return sentences(text).some(instructsJudge);
+  return [text, decodedRuns(text)].some((part) => sentences(part).some(instructsJudge));
 }
 
 /** The strings of a JSON-like value, keys included, each on its own line, so a sentence keeps its words. */
