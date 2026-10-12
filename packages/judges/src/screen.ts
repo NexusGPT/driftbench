@@ -180,9 +180,29 @@ function unescaped(text: string): string {
     });
 }
 
+/** Shifts of the Latin alphabet, read back as the text a shift would have been: ROT13 and every Caesar shift. */
+function shifted(text: string): string[] {
+  return Array.from({ length: 25 }, (_, n) =>
+    text.replace(/[a-z]/gi, (c) => {
+      const base = c <= 'Z' ? 65 : 97;
+      return String.fromCharCode(((c.charCodeAt(0) - base + n + 1) % 26) + base);
+    }),
+  );
+}
+
+/** Longer texts are not shifted: a sentence of an attack is short, and the screen must stay linear. */
+const SHIFT_LIMIT = 400;
+
+/** Each reading of a text: the text itself, its reverse, and (for a short text) every shift of it. */
+function readings(text: string): string[] {
+  const reversed = [...text].reverse().join('');
+  if (text.length > SHIFT_LIMIT) return [text, reversed];
+  return [text, reversed, ...shifted(text)];
+}
+
 function screenText(text: string): boolean {
   return [text, decodedRuns(text), unfolded(text), unescaped(text)].some((part) =>
-    sentences(part).some(instructsJudge),
+    readings(part).some((reading) => sentences(reading).some(instructsJudge)),
   );
 }
 
