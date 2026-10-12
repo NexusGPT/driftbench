@@ -705,3 +705,35 @@ export async function loadAssignmentTable(path: string): Promise<AssignmentTable
   }
   return parsed.data;
 }
+
+/** The probability that a binomial(n, p) count is at most k. */
+function binomialAtMost(k: number, n: number, p: number): number {
+  let total = 0;
+  let logTerm = n * Math.log(1 - p);
+  for (let i = 0; i <= k; i += 1) {
+    if (i > 0) logTerm += Math.log(n - i + 1) - Math.log(i) + Math.log(p) - Math.log(1 - p);
+    total += Math.exp(logTerm);
+  }
+  return total;
+}
+
+/**
+ * An exact 95% interval on the share of blocks judges agree on, from k agreeing blocks of n (Clopper-Pearson).
+ * Exact, so its coverage never falls below 95% near agreement 1 at small n, where Wilson's falls short.
+ */
+export function agreementInterval(agree: number, n: number): { lower: number; upper: number } {
+  const alpha = 0.025;
+  const solve = (target: (p: number) => number) => {
+    let lo = 0;
+    let hi = 1;
+    for (let step = 0; step < 100; step += 1) {
+      const mid = (lo + hi) / 2;
+      if (target(mid) > 0) lo = mid;
+      else hi = mid;
+    }
+    return (lo + hi) / 2;
+  };
+  const lower = agree === 0 ? 0 : solve((p) => alpha - (1 - binomialAtMost(agree - 1, n, p)));
+  const upper = agree === n ? 1 : solve((p) => binomialAtMost(agree, n, p) - alpha);
+  return { lower, upper };
+}

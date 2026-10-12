@@ -6,6 +6,7 @@ export { fitPrompt } from './budget';
 export {
   AnnotationAnchor,
   AssignmentTable,
+  agreementInterval,
   anchorNote,
   anchorProblem,
   assignmentTable,
