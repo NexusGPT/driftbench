@@ -9,13 +9,12 @@ import {
   repeatedObjectKey,
 } from './contract';
 import { CriterionLedger, parseCriterionLedger, requirementsFor } from './criterion-ledger';
-import { textContainsQuote } from './evidence';
+import { candidateContainsQuote, quoteContinuations } from './evidence';
 import { FactLedgerAnswer, parseFactLedger } from './fact-audit';
 import {
   parseAnswerText as parseLegacyAnswerText,
   parseAnswerValue as parseLegacyAnswerValue,
 } from './legacy-contract';
-import { renderEntryText } from './transcript';
 
 /** A caller-supplied rubric item. Weights belong to the caller, never to the model. */
 export type RubricItem = {
@@ -170,21 +169,21 @@ export function parseJudgeValue(
       const matching = (quote: string) =>
         (['A', 'B'] as const).filter((side) => {
           const text = request.candidates?.[side];
-          return (
-            text !== undefined &&
-            (textContainsQuote(text, quote) || textContainsQuote(renderEntryText(text), quote))
-          );
+          return text !== undefined && candidateContainsQuote(text, quote, side);
         });
       let matches = winnerQuote === null || !request.candidates ? [] : matching(winnerQuote);
       if (matches.length === 2 && winnerQuote !== null && answer.evidence) {
         // Extend only with text the model actually supplied. Never invent the next words from the
         // candidate selected by its label. The whole continuation must occur after the shared quote.
         for (const following of evidencePassages(answer.evidence, winner)) {
-          const extended = matching(`${winnerQuote} ... ${following}`);
-          if (extended.length === 1 && extended[0] === winner) {
-            matches = extended;
-            break;
+          for (const continuation of [following, ...quoteContinuations(following, winnerQuote, winner)]) {
+            const extended = matching(`${winnerQuote} ... ${continuation}`);
+            if (extended.length === 1 && extended[0] === winner) {
+              matches = extended;
+              break;
+            }
           }
+          if (matches.length === 1) break;
         }
       }
       if (matches.length === 2) return invalid(raw, 'your quote matches both replies');
