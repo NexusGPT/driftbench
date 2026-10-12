@@ -204,6 +204,58 @@ export function varianceComponents(
   return { method: 'anova', balanced, n: N, mean: (sums[0]?.get('') as number) / N, components, total };
 }
 
+/**
+ * ICC(1) from the one-way ANOVA of values grouped by cluster, unbalanced: (MSB - MSW) / (MSB + (n0 - 1) MSW)
+ * with n0 = (N - sum n_g^2 / N) / (k - 1) (Shrout and Fleiss 1979; Donner 1986). It is not truncated at zero:
+ * a negative value says the clusters differ less than chance. Throws a RangeError on no values, mismatched
+ * lengths, a value that is not finite, fewer than two clusters, or no cluster with two values.
+ */
+export function iccOneWay(values: readonly number[], clusters: readonly (string | number)[]): number {
+  if (values.length === 0) throw new RangeError('iccOneWay of an empty sample');
+  if (values.length !== clusters.length) {
+    throw new RangeError(
+      `iccOneWay: values and clusters must have the same length, got ${values.length} and ${clusters.length}`,
+    );
+  }
+  const groups = new Map<string | number, { n: number; sum: number }>();
+  let total = 0;
+  for (let i = 0; i < values.length; i += 1) {
+    const v = values[i] as number;
+    if (!Number.isFinite(v)) throw new RangeError(`iccOneWay: values[${i}] must be finite, got ${v}`);
+    const key = clusters[i] as string | number;
+    const g = groups.get(key) ?? { n: 0, sum: 0 };
+    g.n += 1;
+    g.sum += v;
+    groups.set(key, g);
+    total += v;
+  }
+  const k = groups.size;
+  const N = values.length;
+  if (k < 2) throw new RangeError(`iccOneWay needs at least two clusters, got ${k}`);
+  if (N === k) throw new RangeError('iccOneWay needs at least one cluster with two values');
+  const grand = total / N;
+  let ssb = 0;
+  let sumSquaredSizes = 0;
+  for (const g of groups.values()) {
+    ssb += g.n * (g.sum / g.n - grand) ** 2;
+    sumSquaredSizes += g.n * g.n;
+  }
+  let ssw = 0;
+  for (let i = 0; i < N; i += 1) {
+    const g = groups.get(clusters[i] as string | number) as { n: number; sum: number };
+    ssw += ((values[i] as number) - g.sum / g.n) ** 2;
+  }
+  const msb = ssb / (k - 1);
+  const msw = ssw / (N - k);
+  const n0 = (N - sumSquaredSizes / N) / (k - 1);
+  const denominator = msb + (n0 - 1) * msw;
+  if (!(denominator > 0))
+    throw new RangeError(
+      'iccOneWay: the clusters and the values are all equal, so the correlation is undefined',
+    );
+  return (msb - msw) / denominator;
+}
+
 export interface LevelCorrelation {
   readonly level: string;
   /**

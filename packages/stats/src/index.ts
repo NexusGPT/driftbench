@@ -80,6 +80,7 @@ export {
 export {
   type Component,
   icc,
+  iccOneWay,
   type LevelCorrelation,
   type NeymanInput,
   type NeymanResult,
