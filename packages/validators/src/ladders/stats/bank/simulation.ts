@@ -43,7 +43,7 @@ const item = (
   tier: 3 | 4,
   component: string,
   check: BankItem['check'],
-  budgetMs = 60_000,
+  budgetMs = 300_000,
 ): BankItem => ({
   id,
   family: 'coverage-simulation',

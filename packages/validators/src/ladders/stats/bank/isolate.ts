@@ -3,8 +3,12 @@ import { availableParallelism } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import type { BankItem, ItemOutcome } from './item';
 
-/** The time an item may take before the validator stops it, unless the item sets its own budget. */
-export const DEFAULT_ITEM_BUDGET_MS = 20_000;
+/**
+ * The wall time an item may take before the validator stops it, unless the item sets its own budget. Wall time
+ * grows with the load of other processes on the machine, so it is generous: it is there to stop an endless
+ * loop, not to judge speed (the scale items judge speed by processor time).
+ */
+export const DEFAULT_ITEM_BUDGET_MS = 120_000;
 
 const CHILD = fileURLToPath(new URL('./child.ts', import.meta.url));
 

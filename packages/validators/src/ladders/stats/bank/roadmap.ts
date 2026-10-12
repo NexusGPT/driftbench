@@ -249,7 +249,7 @@ function roadmapScaleItems(all: Method[]): BankItem[] {
       tier: 4,
       level: 'roadmap',
       component: m.file,
-      budgetMs: 60_000,
+      budgetMs: 300_000,
       check: ({ s }) => {
         const fn = exported(s, m.name);
         if (!fn) {

@@ -24,6 +24,8 @@ export type BankScore = {
   byFamily: Record<string, { items: number; passing: number }>;
   byTier: Record<string, { items: number; passing: number }>;
   byLevel: Record<string, { items: number; passing: number }>;
+  /** For each failing item outside the roadmap level, the seeds it failed on and its first message. */
+  failingDetails?: Record<string, { seeds: string[]; detail: string }>;
   /** The ladder level per seed: the levels passed in order before the first one with a failing item. */
   levelPerSeed: Record<string, number>;
   note: string;
@@ -38,10 +40,20 @@ export async function scoreBank(
   const bank = statsBank(root);
   const failing = new Set<string>();
   const levelPerSeed: Record<string, number> = {};
+  const failingDetails: Record<string, { seeds: string[]; detail: string }> = {};
   for (const { seed, label } of seeds) {
     const run = await runIsolated(bank, seed, root);
     const failedHere = new Set(bank.filter((item) => !run.get(item.id)?.pass).map((item) => item.id));
     for (const id of failedHere) failing.add(id);
+    for (const item of bank) {
+      if (item.level === 'roadmap' || !failedHere.has(item.id)) continue;
+      const entry = failingDetails[item.id] ?? {
+        seeds: [],
+        detail: (run.get(item.id)?.detail ?? '').slice(0, 300),
+      };
+      entry.seeds.push(label);
+      failingDetails[item.id] = entry;
+    }
     let level = 0;
     for (const name of BANK_LEVELS) {
       if (bank.some((item) => item.level === name && failedHere.has(item.id))) break;
@@ -70,6 +82,7 @@ export async function scoreBank(
     byFamily: split((item) => item.family),
     byTier: split((item) => String(item.tier)),
     byLevel: split((item) => item.level),
+    failingDetails,
     levelPerSeed,
     note,
   };

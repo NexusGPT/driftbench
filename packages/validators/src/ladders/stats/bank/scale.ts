@@ -18,7 +18,7 @@ const scaleItem = (id: string, component: string, check: BankItem['check']): Ban
   tier: 4,
   level: 'scale',
   component,
-  budgetMs: 60_000,
+  budgetMs: 300_000,
   check,
 });
 
