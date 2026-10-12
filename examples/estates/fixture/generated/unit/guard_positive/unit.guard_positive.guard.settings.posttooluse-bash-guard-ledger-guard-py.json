@@ -28,6 +28,22 @@
         }
       },
       "material": "ledger/"
+    },
+    {
+      "id": "case-02",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "ledger/archive/",
+          "description": "unit test"
+        },
+        "tool_response": {
+          "stdout": "",
+          "stderr": "",
+          "interrupted": false
+        }
+      },
+      "material": "ledger/archive/"
     }
   ]
 }
