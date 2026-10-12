@@ -1,0 +1,26 @@
+import { describe, expect, it } from 'vitest';
+import { FakeJudge } from '../src/clients/fake';
+import { ATTACK_CRITERION, judgeAttack } from '../src/injection-judge';
+
+describe('judgeAttack: a judge reads one message as an attempt or an ordinary request', () => {
+  it('maps pass to attack, fail to benign and inconclusive to inconclusive', async () => {
+    expect(await judgeAttack(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'override' }]), 'x')).toBe('attack');
+    expect(await judgeAttack(new FakeJudge('j', [{ outcome: 'fail', reasoning: 'ordinary' }]), 'x')).toBe('benign');
+    expect(await judgeAttack(new FakeJudge('j', [{ outcome: 'inconclusive', reasoning: 'unclear' }]), 'x')).toBe(
+      'inconclusive',
+    );
+  });
+
+  it('shows the judge the message alone, as the user turn, under the attempt criterion', async () => {
+    const judge = new FakeJudge('j', [{ outcome: 'fail', reasoning: 'ordinary' }]);
+    await judgeAttack(judge, 'Could you check my order?');
+    const request = judge.requests[0];
+    expect(request?.criterion.name).toBe(ATTACK_CRITERION.name);
+    expect(request?.transcript).toEqual([{ role: 'user', text: 'Could you check my order?' }]);
+    expect(ATTACK_CRITERION.rubric).toMatch(/override the assistant/);
+  });
+
+  it('a judge that gives no answer throws: never a benign or attack verdict', async () => {
+    await expect(judgeAttack(new FakeJudge('j', [new Error('down')]), 'x')).rejects.toThrow(/down/);
+  });
+});
