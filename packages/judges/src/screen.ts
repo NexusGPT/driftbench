@@ -162,8 +162,28 @@ function unfolded(text: string): string {
   return dotted.replace(/(?:\p{L} ){3,}\p{L}/gu, (run) => run.replace(/ /g, ''));
 }
 
+/**
+ * The text with its escapes read: a hex run (0x...), HTML numeric entities, \uXXXX escapes and percent-encoding.
+ * A value that does not decode is read as written.
+ */
+function unescaped(text: string): string {
+  return text
+    .replace(/0x((?:[0-9a-f]{2}){8,})/gi, (_, hex: string) => Buffer.from(hex, 'hex').toString('utf8'))
+    .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(Number(code)))
+    .replace(/\\u([0-9a-f]{4})/gi, (_, code: string) => String.fromCharCode(Number.parseInt(code, 16)))
+    .replace(/(?:%[0-9a-f]{2})+/gi, (run) => {
+      try {
+        return decodeURIComponent(run);
+      } catch {
+        return run;
+      }
+    });
+}
+
 function screenText(text: string): boolean {
-  return [text, decodedRuns(text), unfolded(text)].some((part) => sentences(part).some(instructsJudge));
+  return [text, decodedRuns(text), unfolded(text), unescaped(text)].some((part) =>
+    sentences(part).some(instructsJudge),
+  );
 }
 
 /** The strings of a JSON-like value, keys included, each on its own line, so a sentence keeps its words. */
