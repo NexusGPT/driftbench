@@ -121,8 +121,11 @@ describe('the adaptive attacker', { timeout: 60_000 }, () => {
     expect([broken?.injectAt, broken?.recovery?.label, broken?.finding]).toEqual([
       3,
       'never',
-      'not back in time',
+      'injected block failed',
     ]);
+    expect(broken?.detail).toBe(
+      'the injected block violated; the agent did not recover by the end of the run',
+    );
   });
 
   it('fails the tool the cueing block called when the spec declares no D8 there', async () => {
