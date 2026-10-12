@@ -159,6 +159,8 @@ export type LevelRow = {
   itemCount: number | null;
   bank?: BankEntry[];
   beyond?: boolean;
+  /** The items the level named, kept on every computed row of a full run (`--all-levels`). */
+  items?: Item[];
 };
 
 /** The run of one ladder on one seed. `level` is the highest level passed, 0 when level 1 fails. */
@@ -251,6 +253,7 @@ export async function runLadder(ladder: Ladder, options: RunOptions): Promise<Se
       itemCount: measure.items.length,
       ...(measure.bank ? { bank: measure.bank } : {}),
       ...(failing ? { beyond: true } : {}),
+      ...(options.full ? { items: measure.items } : {}),
     });
     if (failing) continue;
     if (pass) {
