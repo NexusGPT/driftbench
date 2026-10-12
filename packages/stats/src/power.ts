@@ -44,8 +44,12 @@ export function mde(input: MdeInput): MdeResult {
   const alpha = input.alpha ?? 0.05;
   const rho = input.rho ?? 0;
   const p1 = input.baselineRate;
-  if (!(input.n >= 1)) throw new RangeError(`mde: n must be at least 1, got ${input.n}`);
-  if (!(repeats >= 1)) throw new RangeError(`mde: repeats must be at least 1, got ${repeats}`);
+  if (!(input.n >= 1) || !Number.isFinite(input.n)) {
+    throw new RangeError(`mde: n must be finite and at least 1, got ${input.n}`);
+  }
+  if (!(repeats >= 1) || !Number.isFinite(repeats)) {
+    throw new RangeError(`mde: repeats must be finite and at least 1, got ${repeats}`);
+  }
   assertProbability('baselineRate', p1, true);
   assertProbability('power', power, true);
   assertProbability('alpha', alpha, true);

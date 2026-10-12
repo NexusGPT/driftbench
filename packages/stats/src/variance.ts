@@ -253,10 +253,10 @@ export function neymanAllocation(input: NeymanInput): NeymanResult {
   if (!Number.isInteger(total) || total < 0)
     throw new RangeError(`neymanAllocation: total must be a non-negative integer, got ${total}`);
   sizes.forEach((v, i) => {
-    if (!(v >= 0)) throw new RangeError(`neymanAllocation: sizes[${i}] must be non-negative`);
+    if (!(v >= 0) || !Number.isFinite(v)) throw new RangeError(`neymanAllocation: sizes[${i}] must be finite and non-negative`);
   });
   sds.forEach((v, i) => {
-    if (!(v >= 0)) throw new RangeError(`neymanAllocation: sds[${i}] must be non-negative`);
+    if (!(v >= 0) || !Number.isFinite(v)) throw new RangeError(`neymanAllocation: sds[${i}] must be finite and non-negative`);
   });
   let weights = sizes.map((nh, i) => nh * (sds[i] as number));
   if (weights.every((w) => w === 0)) weights = [...sizes];
@@ -312,9 +312,15 @@ export function repeatsForFloor(input: RepeatsForFloorInput): RepeatsForFloorRes
     assertProbability('flipRate', input.flipRate);
     variance = input.flipRate * (1 - input.flipRate);
   } else throw new RangeError('repeatsForFloor: give variance or flipRate');
-  if (!(variance >= 0)) throw new RangeError('repeatsForFloor: variance must be non-negative');
-  if (!(input.floor > 0)) throw new RangeError('repeatsForFloor: floor must be positive');
-  if (!(blocks >= 1)) throw new RangeError('repeatsForFloor: blocks must be at least 1');
+  if (!(variance >= 0) || !Number.isFinite(variance)) {
+    throw new RangeError('repeatsForFloor: variance must be finite and non-negative');
+  }
+  if (!(input.floor > 0) || !Number.isFinite(input.floor)) {
+    throw new RangeError('repeatsForFloor: floor must be finite and positive');
+  }
+  if (!(blocks >= 1) || !Number.isFinite(blocks)) {
+    throw new RangeError('repeatsForFloor: blocks must be finite and at least 1');
+  }
   const exact = (factor * z * z * variance) / (blocks * input.floor * input.floor);
   const rounded = Math.round(exact);
   const repeats = Math.max(1, Math.abs(exact - rounded) < 1e-9 ? rounded : Math.ceil(exact));
