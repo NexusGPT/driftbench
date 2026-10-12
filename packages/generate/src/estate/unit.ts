@@ -124,14 +124,14 @@ export function materialOf(quote: string): string[] {
     /`([^`]+)`|"([^"]{3,})"/g,
     (_, code: string | undefined, phrase: string | undefined) => {
       spans.push(code ?? phrase ?? '');
-      return `\u0000${spans.length - 1}\u0000`;
+      return `\uE000${spans.length - 1}\uE000`;
     },
   );
   if (spans.length === 0) return [quote.trim()];
   const found: string[] = [];
   for (const clause of masked.split(/(?<=[.!?])\s+|\n|;|·|(?=✓)/)) {
-    if (!FORBIDS.test(clause.replace(/\u0000\d+\u0000/g, ' '))) continue;
-    for (const match of clause.matchAll(/\u0000(\d+)\u0000/g)) {
+    if (!FORBIDS.test(clause.replace(/\uE000\d+\uE000/g, ' '))) continue;
+    for (const match of clause.matchAll(/\uE000(\d+)\uE000/g)) {
       const span = spans[Number(match[1])] ?? '';
       if (span.trim() !== '') found.push(span);
     }
