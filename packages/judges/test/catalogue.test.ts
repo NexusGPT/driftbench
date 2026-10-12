@@ -44,6 +44,7 @@ describe('the shared criteria catalogue: relevancy and knowledge_retention', () 
       'conversation_completeness',
       'knowledge_retention',
       'relevancy',
+      'role',
     ]);
   });
 
@@ -82,5 +83,17 @@ describe('the shared criteria catalogue: conversation_completeness', () => {
     expect(completeness.fixtures?.pass?.transcript.length).toBeGreaterThan(0);
     expect(completeness.fixtures?.fail?.transcript.length).toBeGreaterThan(0);
     expect(completeness.def.fail).toContain('no answer or result');
+  });
+});
+
+describe('the shared criteria catalogue: role', () => {
+  it('keeps a plain factual statement in role, and fails a promise outside it', async () => {
+    const { criteria } = await loadCriteria(DIR);
+    const role = criteria.find((criterion) => criterion.def.name === 'role');
+    if (!role) throw new Error('the role criterion is missing');
+    expect(role.def.rubric).toContain('even when it asks no question');
+    expect(role.def.fail).toContain('promises something outside the role');
+    expect(role.fixtures?.pass?.transcript.length).toBeGreaterThan(0);
+    expect(role.fixtures?.fail?.transcript.length).toBeGreaterThan(0);
   });
 });
