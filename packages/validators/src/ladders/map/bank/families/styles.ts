@@ -387,7 +387,9 @@ export function roleItems(): BankItem[] {
     for (const roles of ['tone-axis', 'type-axis'] as const) {
       const id = `roles.${style}.${roles}`;
       const build = (seed: number) =>
-        ORDERS.map((order) => styledCase(`${id}.${order}`, { styles: [style], seed, salt: id, extras: { roles, order } }));
+        ORDERS.map((order) =>
+          styledCase(`${id}.${order}`, { styles: [style], seed, salt: id, extras: { roles, order } }),
+        );
       out.push({
         id,
         family: 'roles',
@@ -499,7 +501,10 @@ export function transformItems(): BankItem[] {
                   dimension: (dimension) => PERSONA_IDS.has(dimension),
                 });
                 if (!declared.pass) {
-                  return { pass: false, detail: `${order} ids, the base map's roles are not the declared ones: ${declared.detail}` };
+                  return {
+                    pass: false,
+                    detail: `${order} ids, the base map's roles are not the declared ones: ${declared.detail}`,
+                  };
                 }
               }
               const parts: Parts = { ...MAP, roles: true };
@@ -524,7 +529,12 @@ export function transformItems(): BankItem[] {
 const TRANSFORM_ORDERS = ['tone-first', 'type-first'] as const;
 
 /** The base prompt of a transforms item and its transformed variant, for one order of the persona ids. */
-function transformPair(id: string, seed: number, order: (typeof TRANSFORM_ORDERS)[number], render: RenderStyled) {
+function transformPair(
+  id: string,
+  seed: number,
+  order: (typeof TRANSFORM_ORDERS)[number],
+  render: RenderStyled,
+) {
   const spec = styledSpec({
     styles: [structureOf(id), 'conditional'],
     seed,

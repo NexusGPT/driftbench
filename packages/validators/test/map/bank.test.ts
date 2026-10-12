@@ -293,6 +293,57 @@ describe('items and their oracles', () => {
   });
 });
 
+describe('round 2 of the map audit', () => {
+  it('runs every roles item on both sort orders of the two persona ids', () => {
+    for (const one of bank.filter((candidate) => candidate.family === 'roles' && !candidate.run)) {
+      for (const seed of [1, 2, 3]) {
+        const cases = one.generate(seed);
+        expect(cases.map((c) => c.label.split('.').at(-1))).toEqual(['tone-first', 'type-first']);
+        const orders = cases.map((c) => {
+          const ids = [
+            ...new Set(
+              c.planted.flatMap((p) =>
+                p.type === 'value' && p.dimension.kind === 'persona' ? [p.dimension] : [],
+              ),
+            ),
+          ];
+          const tone = ids.find((dimension) => /writes/.test(dimension.title))?.id ?? '';
+          const type = ids.find((dimension) => /kind of customer/.test(dimension.title))?.id ?? '';
+          return tone < type ? 'tone-first' : 'type-first';
+        });
+        expect(orders, `${one.id} seed ${seed}`).toEqual(['tone-first', 'type-first']);
+      }
+    }
+  });
+
+  it('fails roles and permute items when roles follow the sorted ids, whichever end is the axis', async () => {
+    for (const first of [true, false]) {
+      const sorted = planted((proposal) => {
+        const personas = proposal.dimensions
+          .filter((dimension) => dimension.kind === 'persona')
+          .sort((a, b) => (a.id < b.id ? -1 : 1));
+        personas.forEach((dimension, index) => {
+          dimension.role = index === (first ? 0 : personas.length - 1) ? 'axis' : 'detail';
+        });
+      });
+      for (const id of [
+        'roles.markdown.tone-axis',
+        'roles.markdown.type-axis',
+        'transforms.permute.markdown',
+      ]) {
+        expect((await runItem(item(id), 1, sorted)).pass, `${id}, axis first ${first}`).toBe(false);
+      }
+    }
+  });
+
+  it('holds the code around the proposal and the space package to its references', async () => {
+    for (const one of bank.filter((candidate) => candidate.id.startsWith('constraints.plumbing-'))) {
+      const outcome = await runItem(one, 1);
+      expect(outcome.pass, `${one.id}: ${outcome.detail}`).toBe(true);
+    }
+  });
+});
+
 describe('the bank as a ladder', () => {
   it('stops at its first failing level and names the failing items with family and tier', async () => {
     const noTools = planted((proposal) => {

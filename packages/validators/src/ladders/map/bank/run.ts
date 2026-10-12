@@ -1,5 +1,6 @@
 import { performance } from 'node:perf_hooks';
 import { checkQuotes, type ExtractResult, extractMap, validateProposal } from '@driftbench/generate';
+import { fold } from '../truth';
 import {
   type CodeEntry,
   compareFacts,
@@ -9,7 +10,6 @@ import {
   proposalFacts,
   quotesOffAnchor,
 } from './facts';
-import { fold } from '../truth';
 import { perfectPort } from './perfect';
 import type { BankDeps, BankItem, Case, CaseRun, Outcome, Tier } from './types';
 
@@ -108,11 +108,18 @@ function codeQuoteProblems(run: CaseRun, code: readonly CodeEntry[]): string[] {
       continue;
     }
     const quote = value.evidence.quote;
-    if (entry.quote !== undefined && (entry.exact ? quote !== entry.quote : fold(quote) !== fold(entry.quote))) {
-      out.push(`${entry.dimension}/${entry.value} quotes ${JSON.stringify(quote.slice(0, 60))}${quote.length > 60 ? '...' : ''} (${quote.length} characters), not the ${entry.quote.length} the item holds`);
+    if (
+      entry.quote !== undefined &&
+      (entry.exact ? quote !== entry.quote : fold(quote) !== fold(entry.quote))
+    ) {
+      out.push(
+        `${entry.dimension}/${entry.value} quotes ${JSON.stringify(quote.slice(0, 60))}${quote.length > 60 ? '...' : ''} (${quote.length} characters), not the ${entry.quote.length} the item holds`,
+      );
     }
     if (entry.titleIncludes !== undefined && !value.title.includes(entry.titleIncludes)) {
-      out.push(`${entry.dimension}/${entry.value} is titled "${value.title}", which lacks "${entry.titleIncludes}"`);
+      out.push(
+        `${entry.dimension}/${entry.value} is titled "${value.title}", which lacks "${entry.titleIncludes}"`,
+      );
     }
   }
   return out;

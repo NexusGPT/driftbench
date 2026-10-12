@@ -284,8 +284,11 @@ export function styledSpec(options: StyledOptions): StyledSpec {
   let typeDimension = 'customer_type';
   let toneDimension = 'tone';
   if (extras.roles) {
-    const pairs = TYPE_IDS.flatMap((type) => TONE_IDS.map((tone) => ({ type, tone }))).filter(({ type, tone }) =>
-      (extras.order ?? (draw.chance(0.5) ? 'tone-first' : 'type-first')) === 'tone-first' ? tone < type : type < tone,
+    const pairs = TYPE_IDS.flatMap((type) => TONE_IDS.map((tone) => ({ type, tone }))).filter(
+      ({ type, tone }) =>
+        (extras.order ?? (draw.chance(0.5) ? 'tone-first' : 'type-first')) === 'tone-first'
+          ? tone < type
+          : type < tone,
     );
     const pair = draw.pick(pairs);
     typeDimension = pair.type;
@@ -820,7 +823,9 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
     ...(rule.when
       ? {
           when: {
-            [rule.when.dimension === 'customer_type' ? spec.typeDimension : rule.when.dimension]: [rule.when.value],
+            [rule.when.dimension === 'customer_type' ? spec.typeDimension : rule.when.dimension]: [
+              rule.when.value,
+            ],
           },
         }
       : {}),

@@ -2,6 +2,7 @@ import { stringify } from 'yaml';
 import type { Draw } from '../../spec';
 import {
   BANK_COMPONENTS,
+  blockOf,
   drawFor,
   inventoryCode,
   inventorySource,
@@ -9,7 +10,6 @@ import {
   type MiniInventory,
   miniInventory,
   TOOL_POOL,
-  blockOf,
 } from '../common';
 import type { CodeEntry } from '../facts';
 import type { PlantedValue } from '../perfect';
@@ -56,7 +56,11 @@ function inputOf(draw: Draw, name: string, schema: Schema, partitions: string[],
   const tool = draw.pick(TOOL_POOL);
   return {
     tools: [{ name: tool, input_schema: object({ [name]: schema }, optional ? [] : [name]) }] as ToolEntry[],
-    expected: [{ dimension: `${tool}.in.${name}`, partitions }] as Array<{ dimension: string; partitions: string[]; quoteKey?: string }>,
+    expected: [{ dimension: `${tool}.in.${name}`, partitions }] as Array<{
+      dimension: string;
+      partitions: string[];
+      quoteKey?: string;
+    }>,
   };
 }
 
@@ -346,7 +350,8 @@ function toolBuild(item: ToolCase, seed: number) {
   for (const dimension of made.expected as Array<{ dimension: string; quoteKey?: string }>) {
     if (!dimension.quoteKey) continue;
     const quote = blockOf(text, dimension.quoteKey);
-    for (const entry of code) if (entry.type === 'value' && entry.dimension === dimension.dimension) entry.quote = quote;
+    for (const entry of code)
+      if (entry.type === 'value' && entry.dimension === dimension.dimension) entry.quote = quote;
   }
   return {
     case: {

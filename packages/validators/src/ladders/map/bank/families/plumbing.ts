@@ -6,7 +6,13 @@ import {
   renderProposal,
   toSpaceMap,
 } from '@driftbench/generate';
-import { chaoCoverage, completeness, fromInventory, type SpaceMap, validateSpaceMap } from '@driftbench/space';
+import {
+  chaoCoverage,
+  completeness,
+  fromInventory,
+  type SpaceMap,
+  validateSpaceMap,
+} from '@driftbench/space';
 import { stringify } from 'yaml';
 import type { Draw } from '../../spec';
 import { drawFor, inventoryYaml, miniInventory, TOOL_POOL } from '../common';
@@ -45,7 +51,10 @@ type PlumbingCase = {
 const same = (label: string, actual: unknown, expected: unknown): Outcome =>
   JSON.stringify(actual) === JSON.stringify(expected)
     ? { pass: true, detail: `${label}: as expected` }
-    : { pass: false, detail: `${label}: got ${JSON.stringify(actual)}, expected ${JSON.stringify(expected)}` };
+    : {
+        pass: false,
+        detail: `${label}: got ${JSON.stringify(actual)}, expected ${JSON.stringify(expected)}`,
+      };
 
 const first = (outcomes: Outcome[]): Outcome =>
   outcomes.find((outcome) => !outcome.pass) ?? { pass: true, detail: 'as expected' };
@@ -80,7 +89,10 @@ async function proposalOf(draw: Draw): Promise<{ proposal: Proposal; inventoryPa
     planted: [],
   });
   if (!run.result.ok) {
-    return { pass: false, detail: `the extractor gave no proposal: ${run.result.errors[0]?.message ?? run.error}` };
+    return {
+      pass: false,
+      detail: `the extractor gave no proposal: ${run.result.errors[0]?.message ?? run.error}`,
+    };
   }
   return { proposal: run.result.proposal, inventoryPath };
 }
@@ -130,8 +142,16 @@ export const PLUMBING_CASES: readonly PlumbingCase[] = [
       const text = `${words.join('\n   ')}\n`;
       const index = new QuoteIndex(new Map([['source.md', text]]));
       return first([
-        same('a quote the source holds, across lines', index.contains('source.md', `${words[0]} ${words[1]}`), true),
-        same('a quote the source does not hold', index.contains('source.md', `${words[1]} ${words[0]}`), false),
+        same(
+          'a quote the source holds, across lines',
+          index.contains('source.md', `${words[0]} ${words[1]}`),
+          true,
+        ),
+        same(
+          'a quote the source does not hold',
+          index.contains('source.md', `${words[1]} ${words[0]}`),
+          false,
+        ),
         same('a blank quote', index.contains('source.md', draw.pick(['', ' ', '\n\t '])), false),
         same('an unknown source', index.contains('other.md', words[0] as string), false),
       ]);
@@ -142,7 +162,7 @@ export const PLUMBING_CASES: readonly PlumbingCase[] = [
     tier: 2,
     title:
       'the space map of a proposal (tools listed first) keeps its axis dimensions, puts none first among the deviation values, and names the inventory file as its inventory',
-    cause: 'space-map:from-proposal',
+    cause: 'spacemap:from-proposal',
     component: GENERATE,
     run: async (draw) => {
       const got = await proposalOf(draw);
@@ -166,14 +186,20 @@ export const PLUMBING_CASES: readonly PlumbingCase[] = [
       const got = await proposalOf(draw);
       if (isOutcome(got)) return got;
       const ids = got.proposal.dimensions.filter((dimension) => dimension.approved !== true).map((d) => d.id);
-      if (ids.length < 2) return { pass: false, detail: 'the proposal has fewer than two unapproved dimensions' };
+      if (ids.length < 2)
+        return { pass: false, detail: 'the proposal has fewer than two unapproved dimensions' };
       const [a, b] = draw.subset(ids, 2) as [string, string];
       const once = approveDimensions(renderProposal(got.proposal), [a]);
       if (!once.ok) return { pass: false, detail: `the first approval failed: ${once.errors[0]?.message}` };
       const twice = approveDimensions(once.text, [a, b]);
-      if (!twice.ok) return { pass: false, detail: `the second approval failed: ${twice.errors[0]?.message}` };
+      if (!twice.ok)
+        return { pass: false, detail: `the second approval failed: ${twice.errors[0]?.message}` };
       return first([
-        same(`first approval of ${a}`, { approved: once.approved, already: once.already }, { approved: [a], already: [] }),
+        same(
+          `first approval of ${a}`,
+          { approved: once.approved, already: once.already },
+          { approved: [a], already: [] },
+        ),
         same(
           `second approval of ${a} and ${b}`,
           { approved: twice.approved, already: twice.already },
@@ -185,8 +211,7 @@ export const PLUMBING_CASES: readonly PlumbingCase[] = [
   {
     slug: 'space-chao-coverage',
     tier: 2,
-    title:
-      'chaoCoverage equals 1 - (f1/n)((n-1)f1/((n-1)f1+2f2)) on drawn counts, and 1 when f1 is 0',
+    title: 'chaoCoverage equals 1 - (f1/n)((n-1)f1/((n-1)f1+2f2)) on drawn counts, and 1 when f1 is 0',
     cause: 'space:chao-coverage',
     component: SPACE,
     run: (draw) => {
@@ -197,7 +222,11 @@ export const PLUMBING_CASES: readonly PlumbingCase[] = [
         const f2 = draw.int(0, Math.floor((n - f1) / 2));
         const want = f1 === 0 ? 1 : 1 - (f1 / n) * (((n - 1) * f1) / ((n - 1) * f1 + 2 * f2));
         outcomes.push(
-          same(`chaoCoverage(${f1}, ${f2}, ${n})`, Math.round(chaoCoverage(f1, f2, n) * 1e9), Math.round(want * 1e9)),
+          same(
+            `chaoCoverage(${f1}, ${f2}, ${n})`,
+            Math.round(chaoCoverage(f1, f2, n) * 1e9),
+            Math.round(want * 1e9),
+          ),
         );
       }
       return first(outcomes);
@@ -206,8 +235,7 @@ export const PLUMBING_CASES: readonly PlumbingCase[] = [
   {
     slug: 'space-printable-at-cells',
     tier: 2,
-    title:
-      'completeness is printable with as many conversations as cells, and not with one fewer',
+    title: 'completeness is printable with as many conversations as cells, and not with one fewer',
     cause: 'space:printable',
     component: SPACE,
     run: (draw) => {
@@ -221,13 +249,18 @@ export const PLUMBING_CASES: readonly PlumbingCase[] = [
         constraints: [],
         prior: { kind: 'declared' },
       });
-      if (!loaded.ok) return { pass: false, detail: `the item built an invalid map: ${loaded.errors[0]?.message}` };
+      if (!loaded.ok)
+        return { pass: false, detail: `the item built an invalid map: ${loaded.errors[0]?.message}` };
       const map: SpaceMap = loaded.map;
       const specs = stages.map((stage, index) => stageSpec(stage, index));
       const full = completeness(map, specs, { iterations: 20 });
       const short = completeness(map, specs.slice(1), { iterations: 20 });
       return first([
-        same(`${specs.length} conversations for ${stages.length} cells`, [full.cells, full.conversations, full.printable], [stages.length, stages.length, true]),
+        same(
+          `${specs.length} conversations for ${stages.length} cells`,
+          [full.cells, full.conversations, full.printable],
+          [stages.length, stages.length, true],
+        ),
         same(`${specs.length - 1} conversations for ${stages.length} cells`, short.printable, false),
       ]);
     },
@@ -280,7 +313,11 @@ export const PLUMBING_CASES: readonly PlumbingCase[] = [
               id: 'stage',
               title: 'Stage',
               kind: 'stage',
-              values: ids.map((id, i) => ({ id, title: id, ...(weights[i] === undefined ? {} : { weight: weights[i] }) })),
+              values: ids.map((id, i) => ({
+                id,
+                title: id,
+                ...(weights[i] === undefined ? {} : { weight: weights[i] }),
+              })),
             },
           ],
           constraints: [],

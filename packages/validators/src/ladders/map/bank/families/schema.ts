@@ -2,10 +2,10 @@ import { stringify } from 'yaml';
 import type { Draw } from '../../spec';
 import {
   BANK_COMPONENTS,
+  blockOf,
   drawFor,
   inventoryCode,
   inventorySource,
-  blockOf,
   MEMBER_POOL,
   miniInventory,
   TOOL_POOL,
@@ -984,7 +984,8 @@ export const SCHEMA_CASES: readonly Case[] = [
       one(
         (d) => ({
           type: 'integer',
-          description: `${'A fictional amount the map validator writes, long enough that its whole property is not one quote. '.repeat(4)}`.trim(),
+          description:
+            `${'A fictional amount the map validator writes, long enough that its whole property is not one quote. '.repeat(4)}`.trim(),
           minimum: range(d),
           maximum: range(d) + 20,
         }),
@@ -996,12 +997,15 @@ export const SCHEMA_CASES: readonly Case[] = [
   {
     slug: 'min-items-title',
     tier: 2,
-    title: 'the empty value of an array with a minItems of N and a different maxItems says "below its minItems N" in its title',
+    title:
+      'the empty value of an array with a minItems of N and a different maxItems says "below its minItems N" in its title',
     parts: { values: false, produced: false, constraints: false, relations: false },
     make: (draw, name) => {
       const minItems = range(draw) + 1;
       return {
-        properties: { [name]: { type: 'array', items: { type: 'string' }, minItems, maxItems: minItems + 5 } },
+        properties: {
+          [name]: { type: 'array', items: { type: 'string' }, minItems, maxItems: minItems + 5 },
+        },
         required: [name],
         expected: [{ path: [name], partitions: ['empty'] }],
         titles: { empty: `below its minItems ${minItems}` },
@@ -1011,7 +1015,8 @@ export const SCHEMA_CASES: readonly Case[] = [
   {
     slug: 'camel-digit-tool',
     tier: 2,
-    title: 'a tool named checkV2Slot gives dimension ids under check_v2_slot: a digit before a capital splits too',
+    title:
+      'a tool named checkV2Slot gives dimension ids under check_v2_slot: a digit before a capital splits too',
     tool: { name: 'checkV2Slot', slug: 'check_v2_slot' },
     make: one(
       (d) => ({ type: 'string', enum: members(d) }),
@@ -1021,7 +1026,8 @@ export const SCHEMA_CASES: readonly Case[] = [
   {
     slug: 'punctuated-members',
     tier: 2,
-    title: 'enum members ending in punctuation (high!, low?) give the value ids high and low, with no trailing dash',
+    title:
+      'enum members ending in punctuation (high!, low?) give the value ids high and low, with no trailing dash',
     make: one(
       () => ({ type: 'string', enum: ['high!', 'low?'] }),
       () => ['high', 'low'],

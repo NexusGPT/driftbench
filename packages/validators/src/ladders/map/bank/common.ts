@@ -170,7 +170,9 @@ export const MEMBER_POOL = [
 export function blockOf(text: string, key: string, after = ''): string {
   const lines = text.split('\n');
   const from = after ? lines.findIndex((line) => line.includes(after)) : 0;
-  const index = lines.findIndex((line, position) => position >= Math.max(0, from) && line.trimStart().startsWith(`${key}:`));
+  const index = lines.findIndex(
+    (line, position) => position >= Math.max(0, from) && line.trimStart().startsWith(`${key}:`),
+  );
   if (index < 0) throw new Error(`no line ${key}: in the file`);
   const indent = (line: string) => line.length - line.trimStart().length;
   const head = lines[index] as string;
