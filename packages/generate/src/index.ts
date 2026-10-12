@@ -14,4 +14,5 @@ export * from './intake';
 export * from './model';
 export * from './pilot';
 export * from './propose';
+export { buildTaskInputs, type TaskInput, type TaskVariant, taskSpecs } from './seed/tasks';
 export * from './select';

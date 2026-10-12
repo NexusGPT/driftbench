@@ -1,0 +1,678 @@
+{
+  "note": "Expected values of the documented statistics on edge inputs, from scipy, exact rationals and 60-digit decimals; written by make_edges.py.",
+  "cases": [
+    {
+      "id": "wilson.n1-fail",
+      "fn": "wilson",
+      "edge": "n = 1, all fail",
+      "args": [0, 1],
+      "want": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.7934506856227626
+      },
+      "tol": 1e-12,
+      "rel": true,
+      "need": "docs/concepts/statistics.md \"reports every rate with an interval\"; driftbench report prints a Wilson interval on every rate"
+    },
+    {
+      "id": "wilson.n1-pass",
+      "fn": "wilson",
+      "edge": "n = 1, all pass",
+      "args": [1, 1],
+      "want": {
+        "estimate": 1.0,
+        "lower": 0.20654931437723742,
+        "upper": 1.0
+      },
+      "tol": 1e-12,
+      "rel": true,
+      "need": "docs/concepts/statistics.md \"reports every rate with an interval\"; driftbench report prints a Wilson interval on every rate"
+    },
+    {
+      "id": "wilson.all-fail-1e6",
+      "fn": "wilson",
+      "edge": "all fail, huge n",
+      "args": [0, 1000000],
+      "want": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 3.841444063944941e-6
+      },
+      "tol": 1e-12,
+      "rel": true,
+      "need": "docs/concepts/statistics.md \"reports every rate with an interval\"; driftbench report prints a Wilson interval on every rate"
+    },
+    {
+      "id": "wilson.all-pass-1e9",
+      "fn": "wilson",
+      "edge": "all pass, huge n",
+      "args": [1000000000, 1000000000],
+      "want": {
+        "estimate": 1.0,
+        "lower": 0.9999999961585412,
+        "upper": 1.0
+      },
+      "tol": 1e-12,
+      "rel": true,
+      "need": "docs/concepts/statistics.md \"reports every rate with an interval\"; driftbench report prints a Wilson interval on every rate"
+    },
+    {
+      "id": "wilson.one-in-1e9",
+      "fn": "wilson",
+      "edge": "one pass in a huge n",
+      "args": [1, 1000000000],
+      "want": {
+        "estimate": 1e-9,
+        "lower": 1.7652455495696316e-10,
+        "upper": 5.6649342432974385e-9
+      },
+      "tol": 1e-12,
+      "rel": true,
+      "need": "docs/concepts/statistics.md \"reports every rate with an interval\"; driftbench report prints a Wilson interval on every rate"
+    },
+    {
+      "id": "clopperPearson.n1-fail",
+      "fn": "clopperPearson",
+      "edge": "n = 1, all fail",
+      "args": [0, 1, 0.05],
+      "want": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.975
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md \"reports every rate with an interval\"; driftbench report prints a Wilson interval on every rate"
+    },
+    {
+      "id": "clopperPearson.n1-pass",
+      "fn": "clopperPearson",
+      "edge": "n = 1, all pass",
+      "args": [1, 1, 0.05],
+      "want": {
+        "estimate": 1.0,
+        "lower": 0.025,
+        "upper": 1.0
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md \"reports every rate with an interval\"; driftbench report prints a Wilson interval on every rate"
+    },
+    {
+      "id": "clopperPearson.one-in-1e6",
+      "fn": "clopperPearson",
+      "edge": "one pass in a huge n",
+      "args": [1, 1000000, 0.05],
+      "want": {
+        "estimate": 1e-6,
+        "lower": 2.5317807663794178e-8,
+        "upper": 5.571630655166939e-6
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md \"reports every rate with an interval\"; driftbench report prints a Wilson interval on every rate"
+    },
+    {
+      "id": "clopperPearson.all-pass-1e5",
+      "fn": "clopperPearson",
+      "edge": "all pass, huge n",
+      "args": [100000, 100000, 0.05],
+      "want": {
+        "estimate": 1.0,
+        "lower": 0.9999631118858421,
+        "upper": 1.0
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md \"reports every rate with an interval\"; driftbench report prints a Wilson interval on every rate"
+    },
+    {
+      "id": "clopperPearson.alpha-0.001",
+      "fn": "clopperPearson",
+      "edge": "a far tail level",
+      "args": [3, 7, 0.001],
+      "want": {
+        "estimate": 0.42857142857142855,
+        "lower": 0.024880192845115456,
+        "upper": 0.9360575784029422
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md \"reports every rate with an interval\"; driftbench report prints a Wilson interval on every rate"
+    },
+    {
+      "id": "zeroFailureBound.p1e-06",
+      "fn": "zeroFailureBound",
+      "edge": "a tiny failure rate",
+      "args": [1e-6, 0.05],
+      "want": 2995731,
+      "tol": 0,
+      "rel": false,
+      "need": "docs/concepts/statistics.md zeroFailureBound: \"59 for 5 percent at 95 percent\"; the runs to claim a failure rate below p"
+    },
+    {
+      "id": "zeroFailureBound.p1e-09",
+      "fn": "zeroFailureBound",
+      "edge": "a tiny failure rate",
+      "args": [1e-9, 0.05],
+      "want": 2995732273,
+      "tol": 0,
+      "rel": false,
+      "need": "docs/concepts/statistics.md zeroFailureBound: \"59 for 5 percent at 95 percent\"; the runs to claim a failure rate below p"
+    },
+    {
+      "id": "passK.huge-n",
+      "fn": "passK",
+      "edge": "huge n",
+      "args": [99000, 100000, 50],
+      "want": 0.6049311850717303,
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md pass^k and pass@k; driftbench report prints them per spec line"
+    },
+    {
+      "id": "passK.huge-k",
+      "fn": "passK",
+      "edge": "huge n and k",
+      "args": [9000, 10000, 100],
+      "want": 2.5130213022564813e-5,
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md pass^k and pass@k; driftbench report prints them per spec line"
+    },
+    {
+      "id": "passK.all-pass",
+      "fn": "passK",
+      "edge": "all pass, k = n",
+      "args": [40, 40, 40],
+      "want": 1.0,
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md pass^k and pass@k; driftbench report prints them per spec line"
+    },
+    {
+      "id": "passK.one-pass-k2",
+      "fn": "passK",
+      "edge": "fewer passes than k",
+      "args": [1, 100000, 2],
+      "want": 0.0,
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md pass^k and pass@k; driftbench report prints them per spec line"
+    },
+    {
+      "id": "passAtK.huge-n",
+      "fn": "passAtK",
+      "edge": "huge n, rare passes",
+      "args": [10, 100000, 50],
+      "want": 0.004988988990570856,
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md pass^k and pass@k; driftbench report prints them per spec line"
+    },
+    {
+      "id": "passAtK.all-fail",
+      "fn": "passAtK",
+      "edge": "all fail",
+      "args": [0, 30, 5],
+      "want": 0.0,
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md pass^k and pass@k; driftbench report prints them per spec line"
+    },
+    {
+      "id": "passAtK.one-pass",
+      "fn": "passAtK",
+      "edge": "one pass in a huge n",
+      "args": [1, 100000, 1000],
+      "want": 0.01,
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md pass^k and pass@k; driftbench report prints them per spec line"
+    },
+    {
+      "id": "mcnemar.no-discordant",
+      "fn": "mcnemar",
+      "edge": "no discordant pair",
+      "args": [0, 0],
+      "want": {
+        "pValue": 1.0
+      },
+      "tol": 0,
+      "rel": false,
+      "need": "docs/concepts/statistics.md mcnemar and wilcoxonSignedRank; driftbench compare prints their p-values"
+    },
+    {
+      "id": "mcnemar.huge",
+      "fn": "mcnemar",
+      "edge": "huge n",
+      "args": [1000000, 1003000],
+      "want": {
+        "statistic": 4.490265102346481,
+        "pValue": 0.03408839108245684
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mcnemar and wilcoxonSignedRank; driftbench compare prints their p-values"
+    },
+    {
+      "id": "mcnemar.exact-one-sided",
+      "fn": "mcnemar",
+      "edge": "all discordant one way",
+      "args": [0, 12],
+      "want": {
+        "pValue": 0.00048828125
+      },
+      "tol": 1e-12,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mcnemar and wilcoxonSignedRank; driftbench compare prints their p-values"
+    },
+    {
+      "id": "wilcoxonSignedRank.ties-zeros",
+      "fn": "wilcoxonSignedRank",
+      "edge": "ties and zero differences",
+      "args": [[1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 2, 2, 4, 6, 6, 6]],
+      "want": {
+        "statistic": 0.0,
+        "pValue": 0.03125
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mcnemar and wilcoxonSignedRank; driftbench compare prints their p-values"
+    },
+    {
+      "id": "wilcoxonSignedRank.n1",
+      "fn": "wilcoxonSignedRank",
+      "edge": "n = 1",
+      "args": [[3], [1]],
+      "want": {
+        "statistic": 0.0,
+        "pValue": 1.0
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mcnemar and wilcoxonSignedRank; driftbench compare prints their p-values"
+    },
+    {
+      "id": "wilcoxonSignedRank.equal-magnitudes",
+      "fn": "wilcoxonSignedRank",
+      "edge": "every difference ties in size",
+      "args": [[2, 0, 2, 0, 2, 0, 2, 0, 2, 0], [0, 2, 0, 2, 0, 2, 0, 2, 0, 0]],
+      "want": {
+        "statistic": 20.0,
+        "pValue": 1.0
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mcnemar and wilcoxonSignedRank; driftbench compare prints their p-values"
+    },
+    {
+      "id": "wilcoxonSignedRank.n60-ties",
+      "fn": "wilcoxonSignedRank",
+      "edge": "n above 50 with ties and zeros",
+      "args": [
+        [
+          0, 7, 1, 8, 2, 9, 3, 10, 4, 11, 5, 12, 6, 0, 7, 1, 8, 2, 9, 3, 10, 4, 11, 5, 12, 6, 0, 7, 1, 8, 2,
+          9, 3, 10, 4, 11, 5, 12, 6, 0, 7, 1, 8, 2, 9, 3, 10, 4, 11, 5, 12, 6, 0, 7, 1, 8, 2, 9, 3, 10
+        ],
+        [
+          0, 5, 10, 4, 9, 3, 8, 2, 7, 1, 6, 0, 5, 10, 4, 9, 3, 8, 2, 7, 1, 6, 0, 5, 10, 4, 9, 3, 8, 2, 7, 1,
+          6, 0, 5, 10, 4, 9, 3, 8, 2, 7, 1, 6, 0, 5, 10, 4, 9, 3, 8, 2, 7, 1, 6, 0, 5, 10, 4, 9
+        ]
+      ],
+      "want": {
+        "statistic": 668.5,
+        "pValue": 0.2902011629446568
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mcnemar and wilcoxonSignedRank; driftbench compare prints their p-values"
+    },
+    {
+      "id": "ksTest.ties",
+      "fn": "ksTest",
+      "edge": "ties across the samples",
+      "args": [[1, 2, 2, 3, 3, 3], [2, 3, 3, 4, 4, 5]],
+      "want": {
+        "statistic": 0.5,
+        "pValue": 0.474025974025974
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md ksTest; driftbench monitor alarms on it (docs/traces.md)"
+    },
+    {
+      "id": "ksTest.unequal",
+      "fn": "ksTest",
+      "edge": "unequal sizes",
+      "args": [[0.1, 0.4, 0.5], [0.2, 0.3, 0.6, 0.7, 0.8, 0.9, 1.0]],
+      "want": {
+        "statistic": 0.7142857142857143,
+        "pValue": 0.16666666666666666
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md ksTest; driftbench monitor alarms on it (docs/traces.md)"
+    },
+    {
+      "id": "ksTest.one-each",
+      "fn": "ksTest",
+      "edge": "one value per sample",
+      "args": [[0.3], [0.7]],
+      "want": {
+        "statistic": 1.0,
+        "pValue": 1.0
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md ksTest; driftbench monitor alarms on it (docs/traces.md)"
+    },
+    {
+      "id": "ksTest.one-vs-many",
+      "fn": "ksTest",
+      "edge": "one value against many",
+      "args": [[5.0], [1.0, 2.0, 3.0, 4.0, 6.0, 7.0, 8.0, 9.0]],
+      "want": {
+        "statistic": 0.5,
+        "pValue": 1.0
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md ksTest; driftbench monitor alarms on it (docs/traces.md)"
+    },
+    {
+      "id": "benjaminiHochberg.ties",
+      "fn": "benjaminiHochberg",
+      "edge": "tied p-values",
+      "args": [[0.01, 0.01, 0.01, 0.5], 0.05],
+      "want": {
+        "adjusted": [0.013333333333333334, 0.013333333333333334, 0.013333333333333334, 0.5],
+        "rejected": [true, true, true, false]
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md benjaminiHochberg; driftbench compare and the pilot wording test adjust with it"
+    },
+    {
+      "id": "benjaminiHochberg.zero-and-one",
+      "fn": "benjaminiHochberg",
+      "edge": "p-values of 0 and 1",
+      "args": [[0.0, 1.0, 0.03, 0.04], 0.05],
+      "want": {
+        "adjusted": [0.0, 1.0, 0.05333333333333334, 0.05333333333333334],
+        "rejected": [true, false, false, false]
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md benjaminiHochberg; driftbench compare and the pilot wording test adjust with it"
+    },
+    {
+      "id": "benjaminiHochberg.single",
+      "fn": "benjaminiHochberg",
+      "edge": "one hypothesis",
+      "args": [[0.04], 0.05],
+      "want": {
+        "adjusted": [0.04],
+        "rejected": [true]
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md benjaminiHochberg; driftbench compare and the pilot wording test adjust with it"
+    },
+    {
+      "id": "benjaminiHochberg.none-rejected",
+      "fn": "benjaminiHochberg",
+      "edge": "nothing rejected",
+      "args": [[0.2, 0.3, 0.9], 0.05],
+      "want": {
+        "adjusted": [0.44999999999999996, 0.44999999999999996, 0.9],
+        "rejected": [false, false, false]
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md benjaminiHochberg; driftbench compare and the pilot wording test adjust with it"
+    },
+    {
+      "id": "cohenKappa.linear-unused-category",
+      "fn": "cohenKappa",
+      "edge": "an ordered category no rater used",
+      "args": [
+        ["low", "mid", "high", "mid", "low", "high", "mid", "mid"],
+        ["low", "high", "high", "mid", "mid", "high", "low", "mid"],
+        {
+          "weights": "linear",
+          "categories": ["low", "mid", "high", "top"]
+        }
+      ],
+      "want": {
+        "kappa": 0.5384615384615384
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md cohenKappa and krippendorffAlpha; driftbench judges calibrate prints kappa (docs/concepts/judges.md)"
+    },
+    {
+      "id": "cohenKappa.quadratic-unused-category",
+      "fn": "cohenKappa",
+      "edge": "an ordered category no rater used",
+      "args": [
+        ["low", "mid", "high", "mid", "low", "high", "mid", "mid"],
+        ["low", "high", "high", "mid", "mid", "high", "low", "mid"],
+        {
+          "weights": "quadratic",
+          "categories": ["low", "mid", "high", "top"]
+        }
+      ],
+      "want": {
+        "kappa": 0.6666666666666667
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md cohenKappa and krippendorffAlpha; driftbench judges calibrate prints kappa (docs/concepts/judges.md)"
+    },
+    {
+      "id": "cohenKappa.all-disagree",
+      "fn": "cohenKappa",
+      "edge": "raters never agree",
+      "args": [["a", "b", "a", "b"], ["b", "a", "b", "a"]],
+      "want": {
+        "kappa": -1.0
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md cohenKappa and krippendorffAlpha; driftbench judges calibrate prints kappa (docs/concepts/judges.md)"
+    },
+    {
+      "id": "krippendorffAlpha.missing-nominal",
+      "fn": "krippendorffAlpha",
+      "edge": "missing ratings, units with one rating",
+      "args": [
+        [[1, 2, 3, null, 2, null, 4], [1, 2, null, 3, 2, 4, null], [null, 2, 3, 3, 1, 4, 4]],
+        {
+          "level": "nominal"
+        }
+      ],
+      "want": {
+        "alpha": 0.8421052631578947
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md cohenKappa and krippendorffAlpha; driftbench judges calibrate prints kappa (docs/concepts/judges.md)"
+    },
+    {
+      "id": "krippendorffAlpha.missing-ordinal",
+      "fn": "krippendorffAlpha",
+      "edge": "missing ratings, units with one rating",
+      "args": [
+        [[1, 2, 3, null, 2, null, 4], [1, 2, null, 3, 2, 4, null], [null, 2, 3, 3, 1, 4, 4]],
+        {
+          "level": "ordinal"
+        }
+      ],
+      "want": {
+        "alpha": 0.9528301886792453
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md cohenKappa and krippendorffAlpha; driftbench judges calibrate prints kappa (docs/concepts/judges.md)"
+    },
+    {
+      "id": "krippendorffAlpha.missing-interval",
+      "fn": "krippendorffAlpha",
+      "edge": "missing ratings, units with one rating",
+      "args": [
+        [[1, 2, 3, null, 2, null, 4], [1, 2, null, 3, 2, 4, null], [null, 2, 3, 3, 1, 4, 4]],
+        {
+          "level": "interval"
+        }
+      ],
+      "want": {
+        "alpha": 0.9477351916376306
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md cohenKappa and krippendorffAlpha; driftbench judges calibrate prints kappa (docs/concepts/judges.md)"
+    },
+    {
+      "id": "krippendorffAlpha.missing-ratio",
+      "fn": "krippendorffAlpha",
+      "edge": "missing ratings, units with one rating",
+      "args": [
+        [[1, 2, 3, null, 2, null, 4], [1, 2, null, 3, 2, 4, null], [null, 2, 3, 3, 1, 4, 4]],
+        {
+          "level": "ratio"
+        }
+      ],
+      "want": {
+        "alpha": 0.8648877189370432
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md cohenKappa and krippendorffAlpha; driftbench judges calibrate prints kappa (docs/concepts/judges.md)"
+    },
+    {
+      "id": "krippendorffAlpha.ratio-zeros",
+      "fn": "krippendorffAlpha",
+      "edge": "ratio level with zero values",
+      "args": [
+        [[0, 0, 1, 2, 0, 3], [0, 1, 1, 2, 0, 3]],
+        {
+          "level": "ratio"
+        }
+      ],
+      "want": {
+        "alpha": 0.7053045186640472
+      },
+      "tol": 1e-12,
+      "rel": false,
+      "need": "docs/concepts/statistics.md cohenKappa and krippendorffAlpha; driftbench judges calibrate prints kappa (docs/concepts/judges.md)"
+    },
+    {
+      "id": "mde.n1",
+      "fn": "mde",
+      "edge": "n = 1",
+      "args": [
+        {
+          "n": 1,
+          "baselineRate": 0.5
+        }
+      ],
+      "want": {
+        "effect": null
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mde; campaign plan prints the minimum detectable effect"
+    },
+    {
+      "id": "mde.baseline-all-pass",
+      "fn": "mde",
+      "edge": "a baseline where every run passes",
+      "args": [
+        {
+          "n": 50,
+          "baselineRate": 1.0
+        }
+      ],
+      "want": {
+        "effect": 0.14239668879962775
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mde; campaign plan prints the minimum detectable effect"
+    },
+    {
+      "id": "mde.baseline-all-fail",
+      "fn": "mde",
+      "edge": "a baseline where every run fails",
+      "args": [
+        {
+          "n": 50,
+          "baselineRate": 0.0
+        }
+      ],
+      "want": {
+        "effect": null
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mde; campaign plan prints the minimum detectable effect"
+    },
+    {
+      "id": "mde.baseline-near-zero",
+      "fn": "mde",
+      "edge": "a baseline that almost never passes, huge n",
+      "args": [
+        {
+          "n": 200000,
+          "baselineRate": 0.001
+        }
+      ],
+      "want": {
+        "effect": 0.00026111628069419053
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mde; campaign plan prints the minimum detectable effect"
+    },
+    {
+      "id": "mde.rho-1",
+      "fn": "mde",
+      "edge": "repeats that always agree",
+      "args": [
+        {
+          "n": 40,
+          "repeats": 6,
+          "baselineRate": 0.85,
+          "rho": 1.0
+        }
+      ],
+      "want": {
+        "effect": 0.2801072883021328
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mde; campaign plan prints the minimum detectable effect"
+    },
+    {
+      "id": "mde.huge-n",
+      "fn": "mde",
+      "edge": "huge n",
+      "args": [
+        {
+          "n": 10000000,
+          "repeats": 3,
+          "baselineRate": 0.9,
+          "rho": 0.2
+        }
+      ],
+      "want": {
+        "effect": 0.0002569160501683552
+      },
+      "tol": 1e-9,
+      "rel": true,
+      "need": "docs/concepts/statistics.md mde; campaign plan prints the minimum detectable effect"
+    }
+  ]
+}
