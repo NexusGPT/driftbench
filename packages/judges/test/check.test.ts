@@ -195,3 +195,13 @@ describe('a block with no verdict at all', () => {
     expect(combineVerdicts([], []).pass).toBe(false);
   });
 });
+
+describe('two judge verdicts with one id', () => {
+  const judge = (id: string) =>
+    ({ id, kind: 'judge', outcome: 'pass', gating: true, evidence: '', detail: '' }) as never;
+
+  it('are refused, as a judge verdict reusing a machine id is', () => {
+    expect(() => combineVerdicts([], [judge('judge.a'), judge('judge.a')])).toThrow(/judge\.a/);
+    expect(combineVerdicts([], [judge('judge.a'), judge('judge.b')]).pass).toBe(true);
+  });
+});

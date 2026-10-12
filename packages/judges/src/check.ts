@@ -140,6 +140,7 @@ export function combineVerdicts(
   judged: readonly Verdict[],
 ): { verdicts: Verdict[]; pass: boolean } {
   const ids = new Set(machine.map((verdict) => verdict.id));
+  const judgeIds = new Set<string>();
   for (const verdict of judged) {
     if (verdict.kind !== 'judge') {
       throw new Error(`verdict ${verdict.id} is not a judge verdict: a judge cannot write a machine verdict`);
@@ -147,6 +148,8 @@ export function combineVerdicts(
     if (ids.has(verdict.id)) {
       throw new Error(`judge verdict ${verdict.id} reuses a machine verdict id: a judge cannot override it`);
     }
+    if (judgeIds.has(verdict.id)) throw new Error(`judge verdict ${verdict.id} appears twice: ids must be unique`);
+    judgeIds.add(verdict.id);
   }
   const verdicts = [...machine, ...judged];
   const machineFail = machine.some((verdict) => verdict.gating && verdict.outcome === 'fail');
