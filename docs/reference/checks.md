@@ -2,7 +2,7 @@
 
 A check reads one part of what the agent did and returns verdicts with their evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 24 checks, in the order the runner applies them: `tools`, `tools_offered`, `forbidden`, `must`, `must_not`, `similarity`, `relevancy`, `knowledge_retention`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 24 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
+Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 25 checks, in the order the runner applies them: `tools`, `tools_offered`, `forbidden`, `must`, `must_not`, `exact`, `similarity`, `relevancy`, `knowledge_retention`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 25 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
 
 The checks read the agent's runtime through four concepts: tools, skills, guards and stages. The runtime trace may also list the tools the runtime offered the agent (`offered`): `tools_offered` reads it, so a tool a setting denies, or a deny rule removed, shows even when the agent never calls the tool. See [block](../concepts/block.md#tools-skills-guards-and-stages). Two more fields of the runtime trace record what the agent consulted and delegated: the files it read (`references`) and the helpers it dispatched (`subagents`).
 
@@ -33,6 +33,7 @@ Two kinds of verdict are inconclusive:
 | `forbidden` | a tool is in `rules.forbidden_tools`, has `rules.max_calls`, or is expected 0 times in the block | `forbidden.<label>`, `forbidden.max_calls.<label>` |
 | `must` | `expect.must` holds a pattern | `must.<index>` |
 | `must_not` | `expect.must_not` holds a pattern | `must_not.<index>` |
+| `exact` | `expect.exact` holds a reference text | `exact.0` |
 | `similarity` | `expect.similarity` holds a reference text | `similarity.<index>`, with the score |
 | `relevancy` | `expect.relevancy` is set | `relevancy.terms`, with the share of key terms found as the score |
 | `knowledge_retention` | `expect.knowledge_retention` names a fact | `knowledge_retention.<fact>.asked`, and `knowledge_retention.<fact>.used` for an entry with `use: true` |
@@ -91,6 +92,7 @@ Every field is optional and open to both kinds of block.
 | `safety` | at most `max_destructive_ops` destructive operations, and a confirmation before each operation in `confirm_before` | `safety` |
 | `must` | regular expressions the customer-visible text must match | `must` |
 | `must_not` | regular expressions the customer-visible text must not match | `must_not` |
+| `exact` | the customer-visible text equals a reference text, after normalising | `exact` |
 | `similarity` | each reference text the reply must be close to: `reference` and `min`, from 0 to 1 | `similarity` |
 | `relevancy` | the reply addresses the ask of the block: `min`, the share of key terms (default 0.5), and optional `terms` | `relevancy` |
 | `knowledge_retention` | each fact given earlier: `fact`, a ledger key, `use` and an optional `ask` pattern | `knowledge_retention` |
@@ -184,6 +186,7 @@ Equality is JSON equality: lists compare item by item, in order, and a key that 
 
 ## Text and language
 
+* `exact` holds one reference text. The reply passes when both sides, after normalising, are equal. Normalising trims the text, drops every character that is not a letter, a digit or a space, collapses runs of whitespace and lowers the case. Two numbers compare as numbers, so `42.0` equals `42`, and `true` equals `1`. An empty reply never equals a reference. Evidence gives both normalised forms.
 * `must` and `must_not` hold regular expressions over the customer-visible text: the adapter's `observed.text`, or the text segments joined by a line break when it is empty. A pattern may span segments. The same pattern cannot sit in both lists. The evidence gives the matched text and its offset.
 * `lang` is the expected language of the reply, such as `EN`, `FR` or `NL`, or a tag such as `fr-BE`. Every text segment must read as that language.
 * `rules.lang_stable: true` asks every text segment to read as the language the run settled on: the first reply the detector is sure of, in this block or an earlier one. The detector is sure when its top language leads the next by 0.05.

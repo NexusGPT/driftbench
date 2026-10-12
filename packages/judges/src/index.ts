@@ -104,6 +104,7 @@ export { labelFilePath, readLabelFile, saveLabel } from './labels';
 export {
   ANSWER_CONTRACT,
   buildPrompt,
+  CRITERION_RULES,
   DATA_RULE,
   DATA_TAGS,
   type DataTag,
