@@ -341,7 +341,7 @@ In the docs: [Judges](docs/concepts/judges.md)
 
 One run proves nothing. driftbench treats evaluation as a statistics problem.
 
-- **Intervals on every rate.** Wilson for proportions, a clustered bootstrap for anything aggregated over blocks, one conversation per cluster.
+- **Intervals on every rate.** Wilson for proportions, Wilson on the effective number of runs for a pass rate over specs or conversations, a clustered bootstrap for anything else aggregated over blocks, one conversation per cluster.
 - **Repeats.** `pass^k` when every run passes, `pass@k` when at least one does, and unreliability: the spread between the 90th and the 10th percentile.
 - **Paired comparisons** on the same goldens: McNemar, Wilcoxon, and a Benjamini Hochberg correction across criteria before any criterion is called a regression.
 - **Power first.** The minimum detectable effect is printed before a campaign spends anything.
