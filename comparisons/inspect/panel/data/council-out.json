@@ -1,0 +1,42 @@
+{
+  "criteria": 12,
+  "train": 6,
+  "items": 40,
+  "kappa": {
+    "claude-haiku": 0.8979591836734693,
+    "claude-sonnet": 1,
+    "claude-opus": 1
+  },
+  "plainMajority": {
+    "items": 20,
+    "right": 20,
+    "wrong": 0,
+    "split": 0
+  },
+  "weightedAbstain": {
+    "items": 20,
+    "right": 20,
+    "wrong": 0,
+    "split": 0
+  },
+  "singleJudge": {
+    "claude-haiku": {
+      "items": 20,
+      "right": 19,
+      "wrong": 0,
+      "split": 1
+    },
+    "claude-sonnet": {
+      "items": 20,
+      "right": 20,
+      "wrong": 0,
+      "split": 0
+    },
+    "claude-opus": {
+      "items": 20,
+      "right": 18,
+      "wrong": 0,
+      "split": 2
+    }
+  }
+}

@@ -15,6 +15,7 @@ import {
 import { loadSpaceMap, type SpaceMap } from '@driftbench/space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { mapCacheOptions } from './map-cache';
 
 export type EstatePlanOptions = { out?: string; t?: string; space?: string; k?: string; force?: boolean };
@@ -217,7 +218,7 @@ export async function estatePlanApproveCommand(
 }
 
 function wholeNumber(value: string, flag: string, io: Io): number | undefined {
-  const n = Number(value);
+  const n = optionNumber(value);
   if (!Number.isInteger(n) || n < 1) {
     io.err(`error: ${flag} takes a whole number of at least 1, not "${value}"\n`);
     return undefined;

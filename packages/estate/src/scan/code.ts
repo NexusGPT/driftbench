@@ -575,9 +575,17 @@ function gateAtoms(
       const trigger = (match[act] ?? '').replace(/`/g, '').trim();
       if (first === '' || trigger === '') continue;
       const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
-      const path = isFile
-        ? resolveNamed(first, chunk.file, files, raw.bases, new Set(raw.ignored?.paths ?? []))
+      // The file to read first is found as a reference's is: its place, an alias, then its ending.
+      const located = isFile
+        ? locateNamed(first, chunk.file, files, {
+            bases: raw.bases ?? [],
+            skipped: new Set(raw.ignored?.paths ?? []),
+            aliases: raw.aliases ?? {},
+            byName: names(raw, files),
+            externals: raw.externals ?? [],
+          })
         : undefined;
+      const path = located?.path;
       const before = isFile ? raw.labels.read : raw.labels.shell;
       const after = actLabel(trigger, raw);
       const evidence: EvidencePredicate[] = [
@@ -592,7 +600,15 @@ function gateAtoms(
         at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.text },
         evidence,
         situation: trigger,
-        fields: { form, first, trigger, ...(path ? { path } : {}) },
+        fields: {
+          form,
+          first,
+          trigger,
+          ...(path ? { path } : {}),
+          ...(located?.via === 'alias' || located?.via === 'suffix' ? { resolvedBy: located.via } : {}),
+          ...(located?.candidates ? { candidates: located.candidates } : {}),
+          ...(located?.via === 'external' ? { external: true } : {}),
+        },
       });
       break;
     }

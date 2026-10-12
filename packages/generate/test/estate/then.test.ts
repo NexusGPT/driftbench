@@ -619,3 +619,23 @@ describe('a read of a file the estate does not hold', () => {
     ]);
   });
 });
+
+describe('a stage of a step list with no single closing stage', () => {
+  const open = [stage('build', ['test']), stage('test', []), stage('ship', [])];
+  const runner: ThenContext = {
+    ...ctx,
+    stages: stageModel(open),
+    customChecks: new Set(['ordered', 'stage_seen']),
+  };
+
+  it('is reached when it shows once in the block, with stage_seen; a gap without it', () => {
+    const then = thenOf([open[0] as EstateAtom], 'positive', runner);
+    expect(then.gaps).toEqual([]);
+    expect(then.custom).toEqual({ stage_seen: { name: 'build', block: 0 } });
+    const bare = thenOf([open[0] as EstateAtom], 'positive', {
+      ...runner,
+      customChecks: new Set(['ordered']),
+    });
+    expect(bare.gaps.map((entry) => entry.marker)).toEqual([MARKERS.stageReach]);
+  });
+});

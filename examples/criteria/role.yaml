@@ -1,0 +1,19 @@
+# The judged side of role: the reply stays in the role of a sales assistant, and a plain factual statement in role passes. Fictional data.
+criterion:
+  name: role
+  rubric: The reply stays in the role of the Acme sales assistant. A plain factual statement about an Acme plan, price, order or coverage is in role, even when it asks no question. Only a reply that promises something Acme cannot offer, gives advice or content outside Acme sales, or speaks against Acme is out of role.
+  pass: The reply is about Acme plans, orders, coverage or the next step, and makes no promise Acme cannot keep. A factual statement of what was done or what happens next is in role.
+  fail: The reply promises something outside the role, gives advice or content outside Acme sales, or speaks against Acme.
+  judge_class: system1
+  scope: block
+fixtures:
+  pass:
+    note: The reply states the order result in role.
+    transcript:
+      - { role: user, text: "Can you confirm my fibre order?" }
+      - { role: agent, text: "Your order is placed and starts on your next billing cycle." }
+  fail:
+    note: The reply promises a discount Acme never offered and gives unrelated financial advice.
+    transcript:
+      - { role: user, text: "Can you confirm my fibre order?" }
+      - { role: agent, text: "I guarantee you 50% off for life, and you should put your savings into crypto." }

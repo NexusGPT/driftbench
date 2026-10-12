@@ -19,6 +19,7 @@ import {
 } from '@driftbench/generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { mapCacheOptions } from './map-cache';
 
 export type EstateGenerateOptions = {
@@ -87,7 +88,7 @@ export function registerEstateGenerateCommand(
 export async function estateGenerateCommand(options: EstateGenerateOptions, io: Io): Promise<number> {
   let seed: number | undefined;
   if (options.seed !== undefined) {
-    const value = Number(options.seed);
+    const value = optionNumber(options.seed);
     if (!/^\d+$/.test(options.seed.trim()) || !Number.isSafeInteger(value)) {
       io.err(`--seed must be a whole number of at least 0, got "${options.seed}".\n`);
       return 2;
