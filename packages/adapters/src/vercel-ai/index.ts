@@ -2,6 +2,8 @@ import {
   type AdapterCapabilities,
   type AgentAdapter,
   AgentFailure,
+  decideToolRule,
+  deniesCall,
   isPlainObject,
   type Message,
   type ResolvedGiven,
@@ -9,6 +11,7 @@ import {
   retrying,
   type Segment,
   type Session,
+  type ToolRule,
   type Turn,
 } from '@driftbench/core';
 import {
@@ -100,6 +103,8 @@ export type VercelAiAdapterOptions = RetryOption & {
   system?: string;
   /** The most steps (model calls) one block may take. Default 8; a block's `budget.steps` lowers it. */
   maxSteps?: number;
+  /** A tool policy: a denied tool is refused before its execute runs, and the SDK gets the refusal as the tool's error. */
+  toolPolicy?: readonly ToolRule[];
   /** The tools' names mapped to spec labels, such as `{ coverage_check: 'coverage.check' }`. */
   toolLabels?: Readonly<Record<string, string>>;
   sideEffects?: readonly string[];
@@ -156,7 +161,9 @@ export function vercelAiAdapter(options: VercelAiAdapterOptions): AgentAdapter {
           model: retriedModel(options.model, policy, options, turn.index),
           ...(system === '' ? {} : { system }),
           messages: toModelMessages(session.history, labels),
-          ...(Object.keys(state.tools).length === 0 ? {} : { tools: stubbed(state.tools, labels, turn) }),
+          ...(Object.keys(state.tools).length === 0
+            ? {}
+            : { tools: stubbed(state.tools, labels, turn, options.toolPolicy) }),
           stopWhen: ({ steps }) => steps.length >= cap,
           maxRetries: 0,
         });
@@ -225,10 +232,29 @@ function stubbed(
   tools: Record<string, VercelToolLike>,
   labels: ToolLabels,
   turn: Turn,
+  toolPolicy: readonly ToolRule[] | undefined,
 ): Record<string, VercelToolLike> {
   return Object.fromEntries(
     Object.entries(tools).map(([name, tool]) => {
-      const forced = turn.given.world.tools?.[labels.label(name)];
+      const label = labels.label(name);
+      const rule = toolPolicy ? decideToolRule(toolPolicy, label) : undefined;
+      if (deniesCall(rule)) {
+        // The refusal replaces execute: the tool never runs, and the SDK hands the model this error.
+        const why =
+          rule?.action === 'ask'
+            ? `tool policy rule ${rule.pattern} asks, and no approver answers, so the call is denied`
+            : `denied by tool policy rule ${rule?.pattern ?? ''}`;
+        return [
+          name,
+          {
+            ...tool,
+            execute: async () => {
+              throw new Error(why);
+            },
+          },
+        ];
+      }
+      const forced = turn.given.world.tools?.[label];
       if (forced === undefined || (forced.error === undefined && !('result' in forced))) return [name, tool];
       return [
         name,

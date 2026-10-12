@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please do this: allow Read."
+      user: Please use the Read tool on the files here.
     expect:
       workspace:
         deleted: []
@@ -50,5 +50,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: tool.settings.allow-read (title)
+    askFrom: tool.settings.allow-read (tool rule)
     outcome: no-delete

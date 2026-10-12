@@ -50,5 +50,25 @@ fi
   echo "report-path=$report"
 } >> "$GITHUB_OUTPUT"
 
+if [ "$code" -ne 2 ] && [ -f "$report" ]; then
+  node -e '
+    const fs = require("node:fs");
+    const s = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+    const margin = s.marginAuto ? `auto, limited by ${s.marginAuto.limitedBy}` : "given";
+    const lines = [`Margin ${s.marginPoints} points (${margin}).`];
+    for (const u of s.underpowered ?? []) {
+      lines.push(`Underpowered: ${u.criterion} is decided on ${u.goldens} goldens and is left out of the parity test.`);
+    }
+    for (const a of s.aggregates ?? []) {
+      const state = a.passed === undefined ? "no runs" : a.passed ? "passes" : "fails";
+      const planned = a.decided === false && a.runsNeeded !== undefined ? `, undecided: ${a.runsNeeded} runs at this rate would decide it` : "";
+      lines.push(`Aggregate ${a.name} ${state}${planned}.`);
+    }
+    console.log(lines.join("\n"));
+    if (process.env.GITHUB_STEP_SUMMARY) {
+      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.map((line) => `- ${line}`).join("\n") + "\n");
+    }
+  ' "$report" || true
+fi
 echo "driftbench ci: verdict $verdict, exit $code, summary $report"
 exit "$code"

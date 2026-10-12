@@ -25,7 +25,6 @@ export {
   type ApprovalRequest,
   type ApprovalRule,
   decide,
-  globToRegExp,
   type PolicedSandbox,
   SandboxApprovalError,
   withApprovalPolicy,

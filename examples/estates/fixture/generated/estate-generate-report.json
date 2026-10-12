@@ -15,9 +15,9 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 21,
-    "phrases": 40,
-    "workspaces": 1
+    "situations": 26,
+    "phrases": 50,
+    "workspaces": 5
   },
   "sessions": {
     "path": "../sessions/index.yaml",
@@ -27,12 +27,15 @@
     "seed": 1,
     "checks": [
       "grounded_values",
+      "guard_finished",
+      "guard_message",
       "hazard_recovery",
       "max_words",
       "no_delete_under",
       "ordered",
       "permission",
-      "some_call"
+      "some_call",
+      "stage_seen"
     ],
     "fallback": true,
     "judge": true
@@ -40,59 +43,66 @@
   "summary": {
     "specs": 1383,
     "blocks": 1378,
-    "complete": 1309,
-    "incomplete": 74,
-    "judged": 382
+    "complete": 1300,
+    "incomplete": 83,
+    "judged": 349
+  },
+  "unit": {
+    "tests": 26,
+    "guards": 6,
+    "scripts": 2,
+    "cases": 62,
+    "skipped": []
   },
   "sources": {
     "asks": {
-      "bank": 367,
-      "code": 934,
+      "bank": 431,
+      "code": 861,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 723,
+      "bank": 858,
       "no-change:denied": 2,
       "no-change:guard": 23,
-      "no-change:negative": 41,
-      "no-change:read-only": 38,
-      "no-delete": 474,
+      "no-change:negative": 58,
+      "no-change:read-only": 18,
+      "no-delete": 333,
       "static": 8
     },
-    "judged": 238
+    "judged": 216
   },
   "focus": null,
   "perTestType": {
     "obligation": {
       "rows": 516,
       "specs": 516,
-      "complete": 516,
-      "incomplete": 0
+      "complete": 469,
+      "incomplete": 47
     },
     "outside_trigger": {
-      "rows": 43,
-      "specs": 43,
-      "complete": 26,
-      "incomplete": 17
-    },
-    "twin": {
       "rows": 43,
       "specs": 43,
       "complete": 43,
       "incomplete": 0
     },
+    "twin": {
+      "rows": 43,
+      "specs": 43,
+      "complete": 40,
+      "incomplete": 3
+    },
     "ordered_pair": {
       "rows": 96,
       "specs": 96,
-      "complete": 72,
-      "incomplete": 24
+      "complete": 84,
+      "incomplete": 12
     },
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 6,
-      "incomplete": 2
+      "complete": 7,
+      "incomplete": 1
     },
     "route_positive": {
       "rows": 226,
@@ -115,8 +125,8 @@
     "read_when": {
       "rows": 9,
       "specs": 9,
-      "complete": 9,
-      "incomplete": 0
+      "complete": 8,
+      "incomplete": 1
     },
     "script_fixture": {
       "rows": 2,
@@ -163,14 +173,14 @@
     "guard_speed": {
       "rows": 6,
       "specs": 6,
-      "complete": 0,
-      "incomplete": 6
+      "complete": 6,
+      "incomplete": 0
     },
     "guard_register": {
       "rows": 6,
       "specs": 6,
-      "complete": 0,
-      "incomplete": 6
+      "complete": 6,
+      "incomplete": 0
     },
     "tool_boundary": {
       "rows": 9,
@@ -187,8 +197,8 @@
     "stage_order": {
       "rows": 59,
       "specs": 59,
-      "complete": 48,
-      "incomplete": 11
+      "complete": 59,
+      "incomplete": 0
     },
     "stage_skip": {
       "rows": 4,
@@ -199,14 +209,14 @@
     "stage_anytime": {
       "rows": 1,
       "specs": 1,
-      "complete": 0,
-      "incomplete": 1
+      "complete": 1,
+      "incomplete": 0
     },
     "register_sample": {
       "rows": 180,
       "specs": 180,
-      "complete": 180,
-      "incomplete": 0
+      "complete": 169,
+      "incomplete": 11
     },
     "hazard_recovery": {
       "rows": 2,
@@ -229,8 +239,8 @@
     "journey": {
       "rows": 10,
       "specs": 10,
-      "complete": 10,
-      "incomplete": 0
+      "complete": 9,
+      "incomplete": 1
     }
   },
   "perMode": {
@@ -243,91 +253,46 @@
     "unit": {
       "rows": 37,
       "specs": 37,
-      "complete": 25,
-      "incomplete": 12
+      "complete": 37,
+      "incomplete": 0
     },
     "live": {
       "rows": 1340,
       "specs": 1340,
-      "complete": 1284,
-      "incomplete": 56
+      "complete": 1263,
+      "incomplete": 77
     }
   },
   "gaps": [
     {
-      "marker": "needs-guard-message-check",
-      "specs": 6,
+      "marker": "needs-askable-act",
+      "specs": 61,
       "atoms": [
-        "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-        "guard.settings.pretooluse-bash-guard-block-force-push",
-        "guard.settings.pretooluse-edit-write-guard-read-before",
-        "guard.settings.stop-guard-reply-length-py",
-        "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh"
-      ],
-      "details": ["the trace records no guard message text"]
-    },
-    {
-      "marker": "needs-guard-timing",
-      "specs": 6,
-      "atoms": [
-        "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-        "guard.settings.pretooluse-bash-guard-block-force-push",
-        "guard.settings.pretooluse-edit-write-guard-read-before",
-        "guard.settings.stop-guard-reply-length-py",
-        "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh"
-      ],
-      "details": ["the trace records no time per guard run"]
-    },
-    {
-      "marker": "needs-negation",
-      "specs": 17,
-      "atoms": [
-        "instruction.ledger-auditor.the-auditor-never-edits-a-file",
-        "instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and",
-        "instruction.shipment-tracker.ask-for-the-tracking-number-when",
-        "instruction.shipment-tracker.never-guess-a-shipment-status",
-        "instruction.standing.keep-an-unconfirmed-draft-unsent",
-        "instruction.standing.never-delete-a-ledger-file-archive",
-        "instruction.standing.never-force-push",
-        "instruction.standing.never-invent-order-numbers-prices-or",
-        "instruction.standing.never-paste-a-credential-into-a",
-        "instruction.standing.never-send-a-supplier-email-without",
-        "instruction.standing.on-stop-stop-all-work-and",
-        "instruction.standing.report-only-numbers-read-during-the",
-        "instruction.supplier-email.a-draft-stays-under-120-words",
-        "instruction.supplier-email.a-loose-yes-is-not-a",
+        "instruction.invoice-reconcile.a-line-matches-on-article-code",
+        "instruction.invoice-reconcile.an-invoice-line-with-no-order",
+        "instruction.memory-memory.no-delivery-on-a-public-holiday",
         "instruction.supplier-email.no-price-or-date-in-a",
-        "instruction.weekly-report.count-only-the-last-seven-days",
-        "instruction.weekly-report.save-the-report-by-week-and"
+        "register.route-planner.the-plan-is-a-table-of"
       ],
       "details": [
-        "a text predicate with no required words",
-        "asks_again_on_loose_yes has no negative control",
-        "asks_for has no negative control",
-        "command_not_run has no negative control",
-        "confirmed_before_send has no negative control",
-        "grounded_values has no negative control",
-        "max_words has no negative control",
-        "no_delete_under has no negative control",
-        "no_secret_in_reply has no negative control",
-        "stopped_and_confirmed has no negative control",
-        "tool_not_called has no negative control",
-        "workspace has no negative control"
+        "no task in the atom's words (instruction.invoice-reconcile.a-line-matches-on-article-code (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.memory-memory.no-delivery-on-a-public-holiday (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.supplier-email.no-price-or-date-in-a (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (register.route-planner.the-plan-is-a-table-of (title)): the act does not start with a verb: \"\""
       ]
+    },
+    {
+      "marker": "needs-existing-file",
+      "specs": 2,
+      "atoms": ["reference.weekly-report.read-references-kpi-definitions-md"],
+      "details": [".claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate"]
     },
     {
       "marker": "needs-ordered-anchor",
-      "specs": 26,
-      "atoms": [
-        "gate.invoice-reconcile.read-references-matching-rules-md-before",
-        "gate.standing.read-git-status-before-commit-to"
-      ],
-      "details": [
-        "Bash before Bash: both ends are Bash, so the pair cannot tell the two acts apart",
-        "Read before matching any line: \"matching any line\" is no tool label, skill or stage"
-      ]
+      "specs": 13,
+      "atoms": ["gate.invoice-reconcile.read-references-matching-rules-md-before"],
+      "details": ["Read before matching any line: \"matching any line\" is no tool label, skill or stage"]
     },
     {
       "marker": "needs-recorded-session",
@@ -352,12 +317,6 @@
       "specs": 1,
       "atoms": ["tool.settings.ask-bash-git-commit"],
       "details": ["permission ask: the trace does not show the prompt"]
-    },
-    {
-      "marker": "needs-stage-reach-check",
-      "specs": 12,
-      "atoms": ["stage.steps.stage-note-write-a-tracker-note"],
-      "details": ["note may come at any step, so no order shows it was reached"]
     }
   ],
   "replay": [],

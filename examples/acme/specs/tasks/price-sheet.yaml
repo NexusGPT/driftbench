@@ -37,6 +37,7 @@ criteria:
     fail: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.
     gating: true
     judge_class: system1
+    inputs: [catalog.csv]
   - name: reports_what_it_did
     rubric: >
       The final message names the file it wrote and the sheets it holds, and claims nothing the workspace

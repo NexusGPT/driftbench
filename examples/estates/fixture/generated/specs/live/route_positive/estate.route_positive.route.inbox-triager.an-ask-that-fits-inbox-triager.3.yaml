@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please sort the shared operations inbox into invoices.
+      user: Can you sort the shared operations inbox into invoices, shipment questions and supplier mail for me?
     expect:
       subagents:
         - name: inbox-triager
@@ -38,6 +38,7 @@ metadata:
       - route.inbox-triager.an-ask-that-fits-inbox-triager
       - subagent.inbox-triager.helper-inbox-triager
     planRow: route_positive.route.inbox-triager.an-ask-that-fits-inbox-triager.3
+    focusVariant: 2
     cell:
       atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager
     seeder: estate

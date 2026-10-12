@@ -4,9 +4,11 @@ import { budget } from './checks/budget';
 import { cards } from './checks/cards';
 import { type CheckRegistry, createCustomCheck, defaultRegistry } from './checks/custom';
 import { endState } from './checks/end_state';
+import { exact } from './checks/exact';
 import { execution } from './checks/execution';
 import { forbidden } from './checks/forbidden';
 import { guards } from './checks/guards';
+import { injection } from './checks/injection';
 import { knowledgeRetention } from './checks/knowledge_retention';
 import { lang } from './checks/lang';
 import { must, mustNot } from './checks/must';
@@ -19,6 +21,7 @@ import { createSimilarityCheck } from './checks/similarity';
 import { skills } from './checks/skills';
 import { stage } from './checks/stage';
 import { subagents } from './checks/subagents';
+import { createToolPolicyCheck, type ToolRule } from './checks/tool-policy';
 import { tools } from './checks/tools';
 import { toolsOffered } from './checks/tools_offered';
 import { workspace } from './checks/workspace';
@@ -39,6 +42,8 @@ export type DefaultChecksOptions = {
   embedder?: Embedder;
   /** The owner's own values the pii check leaves out (see `createPiiCheck`). Empty when absent. */
   piiOwner?: readonly string[];
+  /** A run-wide tool policy over the recorded calls of every block. Off when absent. */
+  toolPolicy?: readonly ToolRule[];
 };
 
 /**
@@ -54,12 +59,15 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     forbidden,
     must,
     mustNot,
+    exact,
+    injection,
     createSimilarityCheck(options.embedder),
     relevancy,
     knowledgeRetention,
     lang,
     options.piiOwner?.length ? createPiiCheck({ owner: options.piiOwner }) : pii,
     cards,
+    ...(options.toolPolicy?.length ? [createToolPolicyCheck(options.toolPolicy)] : []),
     stage,
     skills,
     guards,

@@ -30,7 +30,7 @@ The command runs until Ctrl+C. Exit 0 after a stop, 2 when the store is missing,
 |---|---|
 | `/` | every campaign of the store, newest first, with its modes, specs, runs and how many pass |
 | `/campaign/<id>` | the campaign's [scorecard](scorecards.md), spread view included; every run in the drilldown links to its own page |
-| `/campaign/<id>/run/<runId>` | one run, every block in full: what the user sent, the reply, the tool calls with their results, every verdict that did not pass and every judged verdict with its evidence and reasoning; a label form under each block |
+| `/campaign/<id>/run/<runId>` | one run: its timeline first, every event in order (a model call with its start, end, tokens and cost, when the adapter reports them; plain HTML, no script), then every block in full: what the user sent, the reply, the tool calls with their results, every verdict that did not pass and every judged verdict with its evidence and reasoning; a label form under each block |
 | `/compare` | two campaigns picked from the store and a margin; the result is the paired comparison of [`driftbench compare`](concepts/statistics.md#comparing-a-baseline-and-a-candidate) with its verdict |
 
 ## Review queue
@@ -44,6 +44,8 @@ driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> --
 ```
 
 `queue create` queues each block of the campaign once per criterion of its spec, skipping blocks already labelled. The viewer's `/queue` page lists the items. "Take" assigns an item to the viewer's reviewer, "Label it" opens its block, and saving the label there marks the item done. Another reviewer cannot take or label an item held by someone else. A label written from the queue is the same label file `judge calibrate` reads.
+
+A second reviewer records a view of a block with `driftbench queue vote`, which does not write the labels file. `driftbench queue agreement` then prints, over the items with two votes, how many agree and Cohen's kappa between the first two reviewers. The queue page shows that agreement line too. On the queue page only, `j` and `k` move focus between the items, and Enter opens or takes the focused one. That one script is allowed by the hash of its exact text in the page's Content-Security-Policy, and nothing else on the viewer runs script. The label form on a block page has the same kind of keys, also by script hash: 1 checks pass, 2 checks fail (not while typing in the note), Cmd or Ctrl+Enter saves. ArrowDown and ArrowUp move between blocks on a block page. Every page links to `/keys`, a plain cheatsheet with no script; `?` opens it too. Every action works without script: each one is a link or a form that posts to the viewer, and the browser journey checks a label saved with script off. The exported HTML scorecard stays script-free.
 
 ## Labelling a block
 

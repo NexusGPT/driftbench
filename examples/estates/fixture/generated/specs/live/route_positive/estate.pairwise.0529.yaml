@@ -72,6 +72,7 @@ metadata:
     atoms:
       - route.ledger-auditor.an-ask-that-fits-ledger-auditor
     planRow: pairwise.0529
+    focusVariant: 528
     cell:
       ask_class: change_estate
       ask_shape: concrete

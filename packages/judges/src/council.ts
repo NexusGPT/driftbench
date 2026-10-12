@@ -239,8 +239,10 @@ function validateRow(row: AssignmentRow, mode: CouncilMode, byId: Map<string, Ju
     throw new CouncilConfigError(`${where}: class ${row.cls} is not used in mode ${mode}`);
   }
   const check = (ids: readonly string[], cls: JudgeClass, what: string) => {
-    if (ids.length !== COUNCIL_SIZE || new Set(ids).size !== COUNCIL_SIZE) {
-      throw new CouncilConfigError(`${where}: ${what} needs ${COUNCIL_SIZE} different judges`);
+    if (!(ids.length === COUNCIL_SIZE || (solo && ids.length === 1)) || new Set(ids).size !== ids.length) {
+      throw new CouncilConfigError(
+        `${where}: ${what} needs ${what === 'the assigned class' ? `1 or ${COUNCIL_SIZE}` : COUNCIL_SIZE} different judges`,
+      );
     }
     for (const id of ids) {
       const judge = byId.get(id);
@@ -249,8 +251,11 @@ function validateRow(row: AssignmentRow, mode: CouncilMode, byId: Map<string, Ju
         throw new CouncilConfigError(`${where}: ${id} is a ${judge.cls} judge, not ${cls}`);
     }
   };
+  // A row of one judge (the cheapest-judge rule) is allowed; it has no re-judge to call on a split.
+  const solo = row.judges.length === 1;
   check(row.judges, row.cls, 'the assigned class');
-  if (mode === 'hybrid') check(row.rejudge, otherClass(row.cls), 'the re-judge');
+  if (mode === 'hybrid' && !(solo && row.rejudge.length === 0))
+    check(row.rejudge, otherClass(row.cls), 'the re-judge');
   else if (row.rejudge.length > 0) {
     throw new CouncilConfigError(`${where}: mode ${mode} has no other class to re-judge a split`);
   }
@@ -315,15 +320,18 @@ async function runRound(
   } else {
     votes.push(...(await Promise.all(ordered.map((judge) => castVote(request, judge, budget, counter)))));
   }
-  const outcome: RoundOutcome = cascaded ? 'pass' : majority(votes);
+  const outcome: RoundOutcome = cascaded ? 'pass' : majority(votes, judges.length);
   return { cls, budget, votes, outcome, cascaded };
 }
 
-/** The outcome two of three votes agree on; an inconclusive vote never counts. */
-export function majority(votes: readonly Vote[]): RoundOutcome {
+/**
+ * The outcome a majority of the seated judges agree on: two of three, or the one vote of a row of one. An
+ * inconclusive vote never counts.
+ */
+export function majority(votes: readonly Vote[], seated: number = COUNCIL_SIZE): RoundOutcome {
   const pass = votes.filter((vote) => vote.outcome === 'pass').length;
   const fail = votes.filter((vote) => vote.outcome === 'fail').length;
-  const needed = Math.floor(COUNCIL_SIZE / 2) + 1;
+  const needed = Math.floor(seated / 2) + 1;
   if (pass >= needed && pass > fail) return 'pass';
   if (fail >= needed && fail > pass) return 'fail';
   return 'split';
@@ -347,6 +355,7 @@ async function castVote(
       result = await ask('large');
       note = 'unparsed at the normal budget, asked again with the large budget; ';
     }
+    if (result.repaired) note += 'answer repaired (unescaped quotes escaped); ';
     const { answer } = result;
     return {
       judge: name,

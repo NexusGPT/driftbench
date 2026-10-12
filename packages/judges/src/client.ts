@@ -17,6 +17,11 @@ export interface JudgeClient {
   readonly model?: string;
   /** Relative cost of one call. The cascade runs the cheapest first. */
   readonly cost: number;
+  /**
+   * The client's own settings that shape an answer beyond the model, such as command flags, as one string.
+   * Part of the cassette key: a recording made with other settings never replays.
+   */
+  readonly settings?: string;
   judge(request: JudgeRequest): Promise<JudgeResult>;
 }
 

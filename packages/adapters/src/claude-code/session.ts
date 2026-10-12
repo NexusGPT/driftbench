@@ -641,7 +641,15 @@ function placeRows(input: SessionInput, meta: SessionMeta, builders: BlockBuilde
     meta.issues.push(`${otherSession} decision-log rows belong to another session and were left out`);
   }
   for (const { row, block } of sortByAt(guards)) {
-    block.guards.push({ name: row.check, verdict: row.verdict, at: row.at });
+    block.guards.push({
+      name: row.check,
+      verdict: row.verdict,
+      at: row.at,
+      ...(row.stdout === undefined ? {} : { stdout: row.stdout }),
+      ...(row.stderr === undefined ? {} : { stderr: row.stderr }),
+      ...(row.exitCode === undefined ? {} : { exitCode: row.exitCode }),
+      ...(row.outcome === undefined ? {} : { outcome: row.outcome }),
+    });
   }
   const stages: Array<{ row: StepRow; block: BlockBuilder }> = [];
   for (const entry of input.steps ?? []) {
