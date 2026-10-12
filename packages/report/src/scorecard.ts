@@ -52,6 +52,8 @@ export type ScorecardOptions = {
   spreadMode?: RunMode;
   /** Runs shown in the drilldown, failing runs first. Default 200. */
   maxRuns?: number;
+  /** Lines with incomplete runs: an interval covering both outcomes (default), or no value (withhold). */
+  incompletePolicy?: 'interval' | 'withhold';
   /** Campaign-level criteria, each scored over every run together. Absent when not given. */
   aggregates?: readonly AggregateCriterion[];
 };
@@ -67,6 +69,10 @@ export type BlockDetail = {
   expectedStage?: string;
   observedStage?: string;
   pass: boolean;
+  /** The block's own latency, its cost in USD when the adapter reports one, and the retries it took. */
+  latencyMs: number;
+  costUsd?: number;
+  retries: number;
   drift: DriftClass[];
   text: string;
   toolCalls: ToolCall[];
@@ -85,6 +91,12 @@ export type RunDetail = {
   status: RunResult['status'];
   error?: string;
   pass: boolean;
+  /** When the run started and finished, its total latency and cost, and whether the run replayed the cache. */
+  startedAt: string;
+  finishedAt: string;
+  latencyMs: number;
+  cost: number;
+  cacheHit: boolean;
   endState?: RunResult['endState'];
   succession: RunResult['succession'];
   recovery?: RunResult['recovery'];
@@ -143,7 +155,7 @@ export type Scorecard = {
 /** P4.4: everything the scorecard shows, computed from the stored campaign. Deterministic: bootstraps are seeded. */
 export function buildScorecard(data: CampaignData, options: ScorecardOptions = {}): Scorecard {
   const margin = options.margin ?? 0.02;
-  const lines = reliability(data);
+  const lines = reliability(data, options.incompletePolicy ?? 'interval');
   const runs = data.runs;
   const compared = runs.filter((run) => run.endState !== undefined);
   const endState = rate(compared.filter((run) => run.endState?.match).length, compared.length);
@@ -225,6 +237,11 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     status: run.status,
     ...optional('error', run.error),
     pass: runPassed(run),
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
+    latencyMs: run.latencyMs,
+    cost: run.cost,
+    cacheHit: run.cacheHit,
     ...optional('endState', run.endState),
     succession: run.succession,
     ...optional('recovery', run.recovery),
@@ -244,6 +261,9 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         ...optional('expectedStage', expectedStage),
         ...optional('observedStage', result.stageObserved),
         pass: result.pass,
+        latencyMs: result.observed.latencyMs,
+        ...optional('costUsd', result.observed.cost.usd),
+        retries: result.observed.retries?.length ?? 0,
         drift: [...result.drift],
         text: result.observed.text,
         toolCalls: result.observed.toolCalls.map((call) => ({
