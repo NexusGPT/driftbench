@@ -1,6 +1,9 @@
 import { defaultChecks } from '@driftbench/checks';
 import {
   type Campaign,
+  compareTranscripts,
+  compoundingIndex,
+  lintSpec,
   type Observed,
   planCampaign,
   type RunResult,
@@ -8,6 +11,7 @@ import {
   type Spec,
   validateSpec,
 } from '@driftbench/core';
+import { buildScorecard, type CampaignData } from '@driftbench/report';
 import { openMemoryStore } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import { SYSTEM_COMPONENTS } from '../components';
@@ -27,6 +31,7 @@ import {
   behavioursFor,
   FAST_RETRY,
   type Faults,
+  loadRaw,
   memoryCache,
   plantedFlow,
   runScenario,
@@ -186,7 +191,163 @@ async function manyCells(seed: number, size: number): Promise<ItemResult> {
   }
 }
 
+/** One real run of a planted flow, cloned under new ids: the input of the subjects that read many runs. */
+async function manyRuns(
+  seed: number,
+  size: number,
+  modes: readonly ('F' | 'T')[] = ['F'],
+): Promise<RunResult[]> {
+  const planted = plantedFlow(seed, 'scale-many-runs', 4);
+  const base: Record<string, RunResult> = {};
+  for (const mode of modes)
+    base[mode] = await runScenario(planted.spec, behavioursFor(planted, new Map([[2, ['X1_local']]])), {
+      mode,
+    });
+  const out: RunResult[] = [];
+  for (let index = 0; index < size; index += 1) {
+    const mode = modes[index % modes.length] as 'F' | 'T';
+    const run = base[mode] as RunResult;
+    out.push({
+      ...run,
+      runId: `${run.runId.slice(0, 8)}${String(index).padStart(8, '0')}`,
+      specId: `scale-spec-${Math.floor(index / modes.length)}`,
+      repeat: 0,
+    });
+  }
+  return out;
+}
+
+/** A spec of `size` blocks through the loader: it loads, and the same text hashes the same twice. */
+async function loaderBlocks(seed: number, size: number): Promise<ItemResult> {
+  const planted = plantedFlow(seed, `scale-loader-${size}`, size);
+  const first = validateSpec(planted.spec, 'bank');
+  const second = validateSpec(structuredClone(planted.spec), 'bank');
+  return first.ok && second.ok && first.hash === second.hash && first.spec.blocks.length === size
+    ? PASS
+    : fail(`the loader refused or rehashed a spec of ${size} blocks`);
+}
+
+async function lintBlocks(seed: number, size: number): Promise<ItemResult> {
+  const planted = plantedFlow(seed, `scale-lint-${size}`, size);
+  const loaded = validateSpec(planted.spec, 'bank');
+  if (!loaded.ok) return fail('the spec does not load');
+  const issues = lintSpec(loaded.spec);
+  return Array.isArray(issues) ? PASS : fail('lintSpec gave no list');
+}
+
+async function storeRuns(seed: number, size: number): Promise<ItemResult> {
+  const runs = await manyRuns(seed, size);
+  const store = openMemoryStore();
+  try {
+    await store.putCampaign({
+      campaignId: 'c-many',
+      specs: [{ id: runs[0]?.specId ?? 's', hash: runs[0]?.specHash ?? 'h' }],
+      targets: [{ adapter: 'function' }],
+      modes: ['F'],
+      repeats: { T: 0, F: 1, P: 0 },
+      budgetUsd: 0,
+      judge: { mode: 'system1', judges: [] },
+      createdAt: '2026-10-11T00:00:00.000Z',
+    });
+    for (const run of runs) await store.putRun('c-many', run);
+    const listed = await store.listRuns({ campaignId: 'c-many' });
+    return listed.length === size ? PASS : fail(`${listed.length} runs listed of ${size}`);
+  } finally {
+    await store.close();
+  }
+}
+
+async function scorecardRuns(seed: number, size: number): Promise<ItemResult> {
+  const runs = await manyRuns(seed, size);
+  const specs = new Map(
+    runs.map(
+      (run) =>
+        [
+          `${run.specId}@${run.specHash}`,
+          {
+            ok: true,
+            path: 'bank',
+            spec: loadRaw(plantedFlow(seed, 'scale-many-runs', 4).spec),
+            hash: run.specHash,
+            warnings: [],
+          },
+        ] as const,
+    ),
+  );
+  const data = {
+    campaign: {
+      campaignId: 'c-card',
+      specs: runs.map((run) => ({ id: run.specId, hash: run.specHash })),
+      targets: [{ adapter: 'function' }],
+      modes: ['F'],
+      repeats: { T: 0, F: 1, P: 0 },
+      budgetUsd: 0,
+      judge: { mode: 'system1', judges: [] },
+      createdAt: '2026-10-11T00:00:00.000Z',
+    },
+    specs,
+    runs,
+  } as unknown as CampaignData;
+  const card = buildScorecard(data);
+  return card ? PASS : fail('no scorecard');
+}
+
+async function compoundingRuns(seed: number, size: number): Promise<ItemResult> {
+  const runs = await manyRuns(seed, size, ['F', 'T']);
+  const index = compoundingIndex(runs);
+  return index.specs.length === Math.ceil(size / 2)
+    ? PASS
+    : fail(`${index.specs.length} compounding lines, ${Math.ceil(size / 2)} specs`);
+}
+
+async function transcriptRuns(seed: number, size: number): Promise<ItemResult> {
+  const runs = await manyRuns(seed, size);
+  return compareTranscripts(runs).identical ? PASS : fail('identical runs compare as different');
+}
+
 const SUBJECTS: Subject[] = [
+  {
+    name: 'loader-blocks',
+    base: 60,
+    budgetMs: 5_000,
+    component: 'packages/core/src/spec/load.ts',
+    run: loaderBlocks,
+  },
+  {
+    name: 'lint-blocks',
+    base: 60,
+    budgetMs: 5_000,
+    component: 'packages/core/src/spec/lint.ts',
+    run: lintBlocks,
+  },
+  {
+    name: 'store-runs',
+    base: 10,
+    budgetMs: 10_000,
+    component: 'packages/store/src/store.ts',
+    run: storeRuns,
+  },
+  {
+    name: 'scorecard-runs',
+    base: 10,
+    budgetMs: 10_000,
+    component: 'packages/report/src/scorecard.ts',
+    run: scorecardRuns,
+  },
+  {
+    name: 'compounding-runs',
+    base: 10,
+    budgetMs: 5_000,
+    component: 'packages/core/src/runner/compounding.ts',
+    run: compoundingRuns,
+  },
+  {
+    name: 'transcript-runs',
+    base: 10,
+    budgetMs: 5_000,
+    component: 'packages/core/src/runner/transcript.ts',
+    run: transcriptRuns,
+  },
   {
     name: 'flow-blocks',
     base: 4,

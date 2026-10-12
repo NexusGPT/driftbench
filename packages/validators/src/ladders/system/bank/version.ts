@@ -3,7 +3,7 @@ import { type CampaignData, compareCampaigns } from '@driftbench/report';
 import * as stats from '@driftbench/stats';
 import { SYSTEM_COMPONENTS } from '../components';
 import { between, rngFor } from '../random';
-import { type BankItem, type Draft, expectAll, fail, type Tier, withCauses } from './types';
+import { type BankItem, type Draft, expectAll, type Tier, withCauses } from './types';
 import { behavioursFor, type Faults, plantedFlow, runScenario } from './world';
 
 /**

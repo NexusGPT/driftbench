@@ -11162,6 +11162,222 @@
       "cause": "compare --baseline --candidate --store --json prints the parity verdict of two stored campaigns"
     },
     {
+      "id": "scale/loader-blocks/x1",
+      "family": "scale",
+      "tier": 2,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/spec/load.ts",
+      "cause": "loader-blocks: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/loader-blocks/x10",
+      "family": "scale",
+      "tier": 3,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/spec/load.ts",
+      "cause": "loader-blocks: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/loader-blocks/x100",
+      "family": "scale",
+      "tier": 4,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/spec/load.ts",
+      "cause": "loader-blocks: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/loader-blocks/growth",
+      "family": "scale",
+      "tier": 5,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/spec/load.ts",
+      "cause": "loader-blocks: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/lint-blocks/x1",
+      "family": "scale",
+      "tier": 2,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/spec/lint.ts",
+      "cause": "lint-blocks: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/lint-blocks/x10",
+      "family": "scale",
+      "tier": 3,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/spec/lint.ts",
+      "cause": "lint-blocks: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/lint-blocks/x100",
+      "family": "scale",
+      "tier": 4,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/spec/lint.ts",
+      "cause": "lint-blocks: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/lint-blocks/growth",
+      "family": "scale",
+      "tier": 5,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/spec/lint.ts",
+      "cause": "lint-blocks: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/store-runs/x1",
+      "family": "scale",
+      "tier": 2,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/store/src/store.ts",
+      "cause": "store-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/store-runs/x10",
+      "family": "scale",
+      "tier": 3,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/store/src/store.ts",
+      "cause": "store-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/store-runs/x100",
+      "family": "scale",
+      "tier": 4,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/store/src/store.ts",
+      "cause": "store-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/store-runs/growth",
+      "family": "scale",
+      "tier": 5,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/store/src/store.ts",
+      "cause": "store-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/scorecard-runs/x1",
+      "family": "scale",
+      "tier": 2,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/report/src/scorecard.ts",
+      "cause": "scorecard-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/scorecard-runs/x10",
+      "family": "scale",
+      "tier": 3,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/report/src/scorecard.ts",
+      "cause": "scorecard-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/scorecard-runs/x100",
+      "family": "scale",
+      "tier": 4,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/report/src/scorecard.ts",
+      "cause": "scorecard-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/scorecard-runs/growth",
+      "family": "scale",
+      "tier": 5,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/report/src/scorecard.ts",
+      "cause": "scorecard-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/compounding-runs/x1",
+      "family": "scale",
+      "tier": 2,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/runner/compounding.ts",
+      "cause": "compounding-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/compounding-runs/x10",
+      "family": "scale",
+      "tier": 3,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/runner/compounding.ts",
+      "cause": "compounding-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/compounding-runs/x100",
+      "family": "scale",
+      "tier": 4,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/runner/compounding.ts",
+      "cause": "compounding-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/compounding-runs/growth",
+      "family": "scale",
+      "tier": 5,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/runner/compounding.ts",
+      "cause": "compounding-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/transcript-runs/x1",
+      "family": "scale",
+      "tier": 2,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/runner/transcript.ts",
+      "cause": "transcript-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/transcript-runs/x10",
+      "family": "scale",
+      "tier": 3,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/runner/transcript.ts",
+      "cause": "transcript-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/transcript-runs/x100",
+      "family": "scale",
+      "tier": 4,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/runner/transcript.ts",
+      "cause": "transcript-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "scale/transcript-runs/growth",
+      "family": "scale",
+      "tier": 5,
+      "level": 11,
+      "source": "scale",
+      "component": "packages/core/src/runner/transcript.ts",
+      "cause": "transcript-runs: the per-block cost does not grow with the size of the run"
+    },
+    {
       "id": "scale/flow-blocks/x1",
       "family": "scale",
       "tier": 2,

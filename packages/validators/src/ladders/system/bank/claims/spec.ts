@@ -1932,7 +1932,7 @@ function hashRules(out: BankItem[]): void {
       const raw = base(seed, { tags: ['flow:plan', `t${seed}`] });
       const yaml = [
         `id: claim-spec-${seed}`,
-        'tags: [ "flow:plan", "t' + seed + '" ]',
+        `tags: [ "flow:plan", "t${seed}" ]`,
         'blocks:',
         '  - id: b0',
         `    user: "Hello, I am customer${seed}@example.org."`,

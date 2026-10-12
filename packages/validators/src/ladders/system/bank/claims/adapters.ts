@@ -895,7 +895,7 @@ function httpItems(): BankItem[] {
         const want = [
           'user',
           'assistant(tool_calls)',
-          'tool call-1 {"code":"' + code(seed) + '"}',
+          `tool call-1 {"code":"${code(seed)}"}`,
           'tool call-2 {"error":"denied"}',
           `assistant Your code is ${code(seed)}.`,
           'user Thanks',
