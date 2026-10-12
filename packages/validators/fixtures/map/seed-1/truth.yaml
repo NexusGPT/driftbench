@@ -1,0 +1,757 @@
+# The truth of the map validator, seed 1. Written by code from the hidden specification; every name is fictional.
+structural:
+  - dimension: behaviour
+    kind: behaviour
+    value: B-001
+    from: inventory
+  - dimension: behaviour
+    kind: behaviour
+    value: B-002
+    from: inventory
+  - dimension: behaviour
+    kind: behaviour
+    value: B-003
+    from: inventory
+  - dimension: behaviour
+    kind: behaviour
+    value: B-004
+    from: inventory
+  - dimension: behaviour
+    kind: behaviour
+    value: B-005
+    from: inventory
+  - dimension: flow
+    kind: behaviour
+    value: refund
+    from: inventory
+  - dimension: flow
+    kind: behaviour
+    value: new-order
+    from: inventory
+  - dimension: flow
+    kind: behaviour
+    value: cancellation
+    from: inventory
+  - dimension: deviation
+    kind: deviation
+    value: D1_off_topic
+    from: inventory
+  - dimension: deviation
+    kind: deviation
+    value: D3_contradiction
+    from: inventory
+  - dimension: deviation
+    kind: deviation
+    value: D5_language_switch
+    from: inventory
+  - dimension: deviation
+    kind: deviation
+    value: D6_instruction_in_data
+    from: inventory
+  - dimension: deviation
+    kind: deviation
+    value: D10_return
+    from: inventory
+  - dimension: channel
+    kind: channel
+    value: email
+    from: inventory
+  - dimension: channel
+    kind: channel
+    value: web
+    from: inventory
+  - dimension: account.find.in.attempts
+    kind: data
+    value: account.find.in.attempts.below-minimum
+    from: tools
+  - dimension: account.find.in.attempts
+    kind: data
+    value: account.find.in.attempts.at-minimum
+    from: tools
+  - dimension: account.find.in.attempts
+    kind: data
+    value: account.find.in.attempts.above-minimum
+    from: tools
+  - dimension: account.find.in.attempts
+    kind: data
+    value: account.find.in.attempts.below-maximum
+    from: tools
+  - dimension: account.find.in.attempts
+    kind: data
+    value: account.find.in.attempts.at-maximum
+    from: tools
+  - dimension: account.find.in.attempts
+    kind: data
+    value: account.find.in.attempts.above-maximum
+    from: tools
+  - dimension: account.find.out.owner
+    kind: data
+    value: account.find.out.owner.present
+    from: tools
+  - dimension: account.find.out.owner
+    kind: data
+    value: account.find.out.owner.null
+    from: tools
+  - dimension: account.find.out.owner.lines
+    kind: data
+    value: account.find.out.owner.lines.empty
+    from: tools
+  - dimension: account.find.out.owner.lines
+    kind: data
+    value: account.find.out.owner.lines.one-item
+    from: tools
+  - dimension: account.find.out.owner.lines
+    kind: data
+    value: account.find.out.owner.lines.several-items
+    from: tools
+  - dimension: account.find.out.owner.lines
+    kind: data
+    value: account.find.out.owner.lines.at-max-items
+    from: tools
+  - dimension: account.find.out.owner.lines
+    kind: data
+    value: account.find.out.owner.lines.above-max-items
+    from: tools
+  - dimension: account.find.out.owner.lines
+    kind: data
+    value: account.find.out.owner.lines.absent
+    from: tools
+  - dimension: account.find.out.eligible
+    kind: data
+    value: account.find.out.eligible.true
+    from: tools
+  - dimension: account.find.out.eligible
+    kind: data
+    value: account.find.out.eligible.false
+    from: tools
+  - dimension: account.find.out.eligible
+    kind: data
+    value: account.find.out.eligible.absent
+    from: tools
+  - dimension: order.place.in.contact_email
+    kind: data
+    value: order.place.in.contact_email.well-formed
+    from: tools
+  - dimension: order.place.in.contact_email
+    kind: data
+    value: order.place.in.contact_email.malformed
+    from: tools
+  - dimension: order.place.in.queued
+    kind: data
+    value: order.place.in.queued.true
+    from: tools
+  - dimension: order.place.in.queued
+    kind: data
+    value: order.place.in.queued.false
+    from: tools
+  - dimension: order.place.in.owner
+    kind: data
+    value: order.place.in.owner.present
+    from: tools
+  - dimension: order.place.in.owner
+    kind: data
+    value: order.place.in.owner.absent
+    from: tools
+  - dimension: order.place.in.owner.amount
+    kind: data
+    value: order.place.in.owner.amount.below-minimum
+    from: tools
+  - dimension: order.place.in.owner.amount
+    kind: data
+    value: order.place.in.owner.amount.at-minimum
+    from: tools
+  - dimension: order.place.in.owner.amount
+    kind: data
+    value: order.place.in.owner.amount.above-minimum
+    from: tools
+  - dimension: order.place.in.slot.comment
+    kind: data
+    value: order.place.in.slot.comment.present
+    from: tools
+  - dimension: order.place.in.slot.comment
+    kind: data
+    value: order.place.in.slot.comment.absent
+    from: tools
+  - dimension: order.place.out.term_months
+    kind: data
+    value: order.place.out.term_months.below-maximum
+    from: tools
+  - dimension: order.place.out.term_months
+    kind: data
+    value: order.place.out.term_months.at-maximum
+    from: tools
+  - dimension: order.place.out.term_months
+    kind: data
+    value: order.place.out.term_months.above-maximum
+    from: tools
+  - dimension: order.place.out.contact_email
+    kind: data
+    value: order.place.out.contact_email.well-formed
+    from: tools
+  - dimension: order.place.out.contact_email
+    kind: data
+    value: order.place.out.contact_email.malformed
+    from: tools
+  - dimension: order.place.out.contact_email
+    kind: data
+    value: order.place.out.contact_email.absent
+    from: tools
+  - dimension: order.place.out.slot.postcode
+    kind: data
+    value: order.place.out.slot.postcode.at-max-length
+    from: tools
+  - dimension: order.place.out.slot.postcode
+    kind: data
+    value: order.place.out.slot.postcode.above-max-length
+    from: tools
+  - dimension: order.place.out.slot.postcode
+    kind: data
+    value: order.place.out.slot.postcode.absent
+    from: tools
+  - dimension: order.place.out.slot.contact_email
+    kind: data
+    value: order.place.out.slot.contact_email.well-formed
+    from: tools
+  - dimension: order.place.out.slot.contact_email
+    kind: data
+    value: order.place.out.slot.contact_email.malformed
+    from: tools
+  - dimension: refund.request.in.priority
+    kind: data
+    value: refund.request.in.priority.basic
+    from: tools
+  - dimension: refund.request.in.priority
+    kind: data
+    value: refund.request.in.priority.plus
+    from: tools
+  - dimension: refund.request.in.priority
+    kind: data
+    value: refund.request.in.priority.max
+    from: tools
+  - dimension: refund.request.in.urgent
+    kind: data
+    value: refund.request.in.urgent.true
+    from: tools
+  - dimension: refund.request.in.urgent
+    kind: data
+    value: refund.request.in.urgent.false
+    from: tools
+  - dimension: refund.request.in.urgent
+    kind: data
+    value: refund.request.in.urgent.absent
+    from: tools
+  - dimension: refund.request.in.note
+    kind: data
+    value: refund.request.in.note.at-max-length
+    from: tools
+  - dimension: refund.request.in.note
+    kind: data
+    value: refund.request.in.note.above-max-length
+    from: tools
+  - dimension: refund.request.out.label
+    kind: data
+    value: refund.request.out.label.present
+    from: tools
+  - dimension: refund.request.out.label
+    kind: data
+    value: refund.request.out.label.absent
+    from: tools
+  - dimension: ticket.open.in.count
+    kind: data
+    value: ticket.open.in.count.below-minimum
+    from: tools
+  - dimension: ticket.open.in.count
+    kind: data
+    value: ticket.open.in.count.at-minimum
+    from: tools
+  - dimension: ticket.open.in.count
+    kind: data
+    value: ticket.open.in.count.above-minimum
+    from: tools
+  - dimension: ticket.open.in.customer
+    kind: data
+    value: ticket.open.in.customer.present
+    from: tools
+  - dimension: ticket.open.in.customer
+    kind: data
+    value: ticket.open.in.customer.null
+    from: tools
+  - dimension: ticket.open.in.customer.amount
+    kind: data
+    value: ticket.open.in.customer.amount.below-minimum
+    from: tools
+  - dimension: ticket.open.in.customer.amount
+    kind: data
+    value: ticket.open.in.customer.amount.at-minimum
+    from: tools
+  - dimension: ticket.open.in.customer.amount
+    kind: data
+    value: ticket.open.in.customer.amount.above-minimum
+    from: tools
+  - dimension: ticket.open.in.customer.amount
+    kind: data
+    value: ticket.open.in.customer.amount.below-maximum
+    from: tools
+  - dimension: ticket.open.in.customer.amount
+    kind: data
+    value: ticket.open.in.customer.amount.at-maximum
+    from: tools
+  - dimension: ticket.open.in.customer.amount
+    kind: data
+    value: ticket.open.in.customer.amount.above-maximum
+    from: tools
+  - dimension: ticket.open.in.reference
+    kind: data
+    value: ticket.open.in.reference.below-min-length
+    from: tools
+  - dimension: ticket.open.in.reference
+    kind: data
+    value: ticket.open.in.reference.at-min-length
+    from: tools
+  - dimension: ticket.open.in.reason_code
+    kind: data
+    value: ticket.open.in.reason_code.basic
+    from: tools
+  - dimension: ticket.open.in.reason_code
+    kind: data
+    value: ticket.open.in.reason_code.plus
+    from: tools
+  - dimension: ticket.open.in.reason_code
+    kind: data
+    value: ticket.open.in.reason_code.max
+    from: tools
+  - dimension: ticket.open.out.priority
+    kind: data
+    value: ticket.open.out.priority.moved
+    from: tools
+  - dimension: ticket.open.out.priority
+    kind: data
+    value: ticket.open.out.priority.unhappy
+    from: tools
+  - dimension: ticket.open.out.priority
+    kind: data
+    value: ticket.open.out.priority.duplicate
+    from: tools
+  - dimension: ticket.open.out.priority
+    kind: data
+    value: ticket.open.out.priority.other
+    from: tools
+  - dimension: ticket.open.out.note
+    kind: data
+    value: ticket.open.out.note.below-min-length
+    from: tools
+  - dimension: ticket.open.out.note
+    kind: data
+    value: ticket.open.out.note.at-min-length
+    from: tools
+  - dimension: ticket.open.out.note
+    kind: data
+    value: ticket.open.out.note.at-max-length
+    from: tools
+  - dimension: ticket.open.out.note
+    kind: data
+    value: ticket.open.out.note.above-max-length
+    from: tools
+  - dimension: ticket.open.out.postcode
+    kind: data
+    value: ticket.open.out.postcode.below-min-length
+    from: tools
+  - dimension: ticket.open.out.postcode
+    kind: data
+    value: ticket.open.out.postcode.at-min-length
+    from: tools
+  - dimension: ticket.open.out.postcode
+    kind: data
+    value: ticket.open.out.postcode.absent
+    from: tools
+prose:
+  - id: stage/greet
+    section: stages
+    type: value
+    dimension: stage
+    kind: stage
+    value: greet
+  - id: stage/recap
+    section: stages
+    type: value
+    dimension: stage
+    kind: stage
+    value: recap
+  - id: stage/confirm
+    section: stages
+    type: value
+    dimension: stage
+    kind: stage
+    value: confirm
+  - id: stage/close
+    section: stages
+    type: value
+    dimension: stage
+    kind: stage
+    value: close
+  - id: rule/R-01
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-01
+  - id: rule/R-02
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-02
+  - id: rule/R-03
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-03
+  - id: rule/R-04
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-04
+  - id: rule/R-05
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-05
+  - id: rule/R-06
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-06
+  - id: deviation/D8_tool_failure
+    section: rules
+    type: value
+    dimension: deviation
+    kind: deviation
+    value: D8_tool_failure
+  - id: customer_type/member
+    section: personas
+    type: value
+    dimension: customer_type
+    kind: persona
+    value: member
+  - id: customer_type/guest
+    section: personas
+    type: value
+    dimension: customer_type
+    kind: persona
+    value: guest
+  - id: customer_type/former
+    section: personas
+    type: value
+    dimension: customer_type
+    kind: persona
+    value: former
+  - id: language/en
+    section: personas
+    type: value
+    dimension: language
+    kind: persona
+    value: en
+  - id: language/fr
+    section: personas
+    type: value
+    dimension: language
+    kind: persona
+    value: fr
+  - id: language/de
+    section: personas
+    type: value
+    dimension: language
+    kind: persona
+    value: de
+  - id: slot_result/slot-free
+    section: data
+    type: value
+    dimension: slot_result
+    kind: data
+    value: slot-free
+  - id: slot_result/slot-none
+    section: data
+    type: value
+    dimension: slot_result
+    kind: data
+    value: slot-none
+  - id: slot_result/slot-error
+    section: data
+    type: value
+    dimension: slot_result
+    kind: data
+    value: slot-error
+  - id: phrase/flow/refund/en
+    section: phrases
+    type: phrase
+    dimension: flow
+    kind: behaviour
+    value: refund
+    lang: en
+    text: I was charged twice this month and would like the extra charge back.
+  - id: phrase/flow/cancellation/en
+    section: phrases
+    type: phrase
+    dimension: flow
+    kind: behaviour
+    value: cancellation
+    lang: en
+    text: Please end my plan at the end of this month.
+  - id: phrase/language/fr/fr
+    section: phrases
+    type: phrase
+    dimension: language
+    kind: persona
+    value: fr
+    lang: fr
+    text: Bonjour, je voudrais changer mon forfait.
+  - id: phrase/language/de/de
+    section: phrases
+    type: phrase
+    dimension: language
+    kind: persona
+    value: de
+    lang: de
+    text: Hallo, ich möchte meinen Tarif ändern.
+constraints:
+  - id: behaviour=B-002,flow=refund
+    forbid:
+      behaviour: B-002
+      flow: refund
+    from: inventory
+  - id: behaviour=B-002,flow=new-order
+    forbid:
+      behaviour: B-002
+      flow: new-order
+    from: inventory
+  - id: behaviour=B-003,flow=new-order
+    forbid:
+      behaviour: B-003
+      flow: new-order
+    from: inventory
+  - id: behaviour=B-003,flow=cancellation
+    forbid:
+      behaviour: B-003
+      flow: cancellation
+    from: inventory
+  - id: stage=recap,channel=web
+    forbid:
+      stage: recap
+      channel: web
+    from: prose
+    section: stages
+  - id: customer_type=member,channel=web
+    forbid:
+      customer_type: member
+      channel: web
+    from: prose
+    section: personas
+  - id: customer_type=guest,channel=email
+    forbid:
+      customer_type: guest
+      channel: email
+    from: prose
+    section: personas
+roles:
+  - dimension: behaviour
+    role: axis
+  - dimension: flow
+    role: detail
+  - dimension: deviation
+    role: axis
+  - dimension: channel
+    role: axis
+  - dimension: account.find.in.attempts
+    role: detail
+  - dimension: account.find.out.owner
+    role: detail
+  - dimension: account.find.out.owner.lines
+    role: detail
+  - dimension: account.find.out.eligible
+    role: detail
+  - dimension: order.place.in.contact_email
+    role: detail
+  - dimension: order.place.in.queued
+    role: detail
+  - dimension: order.place.in.owner
+    role: detail
+  - dimension: order.place.in.owner.amount
+    role: detail
+  - dimension: order.place.in.slot.comment
+    role: detail
+  - dimension: order.place.out.term_months
+    role: detail
+  - dimension: order.place.out.contact_email
+    role: detail
+  - dimension: order.place.out.slot.postcode
+    role: detail
+  - dimension: order.place.out.slot.contact_email
+    role: detail
+  - dimension: refund.request.in.priority
+    role: detail
+  - dimension: refund.request.in.urgent
+    role: detail
+  - dimension: refund.request.in.note
+    role: detail
+  - dimension: refund.request.out.label
+    role: detail
+  - dimension: ticket.open.in.count
+    role: detail
+  - dimension: ticket.open.in.customer
+    role: detail
+  - dimension: ticket.open.in.customer.amount
+    role: detail
+  - dimension: ticket.open.in.reference
+    role: detail
+  - dimension: ticket.open.in.reason_code
+    role: detail
+  - dimension: ticket.open.out.priority
+    role: detail
+  - dimension: ticket.open.out.note
+    role: detail
+  - dimension: ticket.open.out.postcode
+    role: detail
+  - dimension: stage
+    role: axis
+  - dimension: rule
+    role: detail
+  - dimension: customer_type
+    role: detail
+  - dimension: language
+    role: axis
+  - dimension: slot_result
+    role: axis
+spans:
+  customer_type/member:
+    start: 100
+    end: 139
+    text: "member: a customer with an active plan."
+  customer_type/guest:
+    start: 142
+    end: 179
+    text: "guest: a visitor with no account yet."
+  customer_type/former:
+    start: 182
+    end: 222
+    text: "former: a customer whose plan has ended."
+  constraint/customer_type=member,channel=web:
+    start: 275
+    end: 315
+    text: On web there is never a member customer.
+  constraint/customer_type=guest,channel=email:
+    start: 317
+    end: 358
+    text: On email there is never a guest customer.
+  stage/greet:
+    start: 528
+    end: 593
+    text: "greet: the assistant greets the customer and asks what they need."
+  stage/recap:
+    start: 597
+    end: 651
+    text: "recap: the assistant repeats the request back in full."
+  stage/confirm:
+    start: 655
+    end: 704
+    text: "confirm: the assistant waits for an explicit yes."
+  stage/close:
+    start: 708
+    end: 768
+    text: "close: the assistant says goodbye and ends the conversation."
+  constraint/stage=recap,channel=web:
+    start: 770
+    end: 808
+    text: The recap stage happens only on email.
+  language/en:
+    start: 895
+    end: 932
+    text: "en: a customer who writes in English."
+  language/fr:
+    start: 935
+    end: 971
+    text: "fr: a customer who writes in French."
+  language/de:
+    start: 974
+    end: 1010
+    text: "de: a customer who writes in German."
+  phrase/flow/refund/en:
+    start: 1135
+    end: 1203
+    text: I was charged twice this month and would like the extra charge back.
+  phrase/flow/cancellation/en:
+    start: 1255
+    end: 1299
+    text: Please end my plan at the end of this month.
+  phrase/language/fr/fr:
+    start: 1344
+    end: 1385
+    text: Bonjour, je voudrais changer mon forfait.
+  phrase/language/de/de:
+    start: 1430
+    end: 1468
+    text: Hallo, ich möchte meinen Tarif ändern.
+  rule/R-01:
+    start: 1526
+    end: 1590
+    text: Always greet the customer by name when the account gives a name.
+  rule/R-02:
+    start: 1593
+    end: 1661
+    text: Read the refund policy page first before you promise any money back.
+  rule/R-03:
+    start: 1664
+    end: 1729
+    text: Use the plan comparison skill when the customer weighs two plans.
+  rule/R-04:
+    start: 1732
+    end: 1801
+    text: When the customer wants a visit, ask the scheduling helper for slots.
+  rule/R-05:
+    start: 1804
+    end: 1868
+    text: Until the account reference is checked, never change an account.
+  rule/R-06:
+    start: 1871
+    end: 1921
+    text: Write in short plain sentences whatever the topic.
+  deviation/D8_tool_failure:
+    start: 1923
+    end: 1968
+    text: If a tool fails, say so and offer a callback.
+  slot_result/slot-free:
+    start: 2111
+    end: 2162
+    text: "slot-free: a free slot exists; offer the first two."
+  slot_result/slot-none:
+    start: 2165
+    end: 2227
+    text: "slot-none: no slot is free this month; offer the waiting list."
+  slot_result/slot-error:
+    start: 2230
+    end: 2288
+    text: "slot-error: the search fails; say so and offer a callback."
+decoys:
+  - id: decoy-7
+    span:
+      start: 384
+      end: 430
+  - id: decoy-6
+    span:
+      start: 1471
+      end: 1512
+  - id: decoy-3
+    span:
+      start: 1970
+      end: 2021
+order:
+  - persona:customer_type
+  - about
+  - stages
+  - persona:language
+  - examples
+  - rules
+  - data:slot_result

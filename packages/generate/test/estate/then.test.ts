@@ -639,3 +639,54 @@ describe('a stage of a step list with no single closing stage', () => {
     expect(bare.gaps.map((entry) => entry.marker)).toEqual([MARKERS.stageReach]);
   });
 });
+
+describe('guards a live trace cannot name, and files the runtime loads itself', () => {
+  const check = atom('guard.registry.vanlock', [{ type: 'guard', name: 'VANLOCK', verdict: 'deny' }], {
+    kind: 'guard',
+    fields: { name: 'VANLOCK', check: 'VANLOCK', event: 'PreToolUse' },
+  });
+  const script = atom('guard.settings.block-force-push', [{ type: 'guard', name: 'block-force-push.sh' }], {
+    kind: 'guard',
+    fields: {
+      name: 'block-force-push.sh',
+      script: '.claude/guards/block-force-push.sh',
+      event: 'PreToolUse',
+    },
+  });
+
+  it("a check that runs inside another guard's script is a gap in a live run, and expected in a replayed one", () => {
+    const live = thenOf([check], 'positive', { ...ctx, live: true });
+    expect(live.guards).toEqual([]);
+    expect(live.gaps.map((gap) => gap.marker)).toEqual([MARKERS.guardTrace]);
+    expect(thenOf([check], 'negative', { ...ctx, live: true }).gaps.map((gap) => gap.marker)).toEqual([
+      MARKERS.guardTrace,
+    ]);
+    expect(thenOf([check], 'positive', ctx).guards.map((guard) => guard.name)).toEqual(['VANLOCK']);
+    expect(thenOf([script], 'positive', { ...ctx, live: true }).guards.map((guard) => guard.name)).toEqual([
+      'block-force-push.sh',
+    ]);
+  });
+
+  it('expects no Read of a file the runtime loads by itself, and keeps the rest of the Then', () => {
+    const loaded = (path: string) => /(^|\/)CLAUDE\.md$/.test(path);
+    const files = new Set(['CLAUDE.md', '.claude/skills/x/references/rules.md']);
+    const reads = atom('journey.x', [
+      { type: 'tool_called', label: 'Read', input: { file_path: { contains: 'CLAUDE.md' } } },
+      {
+        type: 'tool_called',
+        label: 'Read',
+        input: { file_path: { contains: '.claude/skills/x/references/rules.md' } },
+      },
+    ]);
+    const then = thenOf([reads], 'positive', {
+      ...ctx,
+      files,
+      loaded,
+      customChecks: new Set(['ordered', 'some_call']),
+    });
+    expect(then.references.map((reference) => reference.path)).toEqual([
+      '**/.claude/skills/x/references/rules.md',
+    ]);
+    expect(then.gaps).toEqual([]);
+  });
+});
