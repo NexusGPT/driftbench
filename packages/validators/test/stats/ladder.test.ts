@@ -2,7 +2,7 @@ import * as stats from '@driftbench/stats';
 import { describe, expect, it } from 'vitest';
 import { runLadder } from '../../src/ladder';
 import { registeredLadders } from '../../src/ladders/index';
-import { BANK_LEVELS, statsBank } from '../../src/ladders/stats/bank/index';
+import { BANK_LEVELS, runInProcess, statsBank } from '../../src/ladders/stats/bank/index';
 import { runIsolated } from '../../src/ladders/stats/bank/isolate';
 import { STATS_LADDER_VERSION, statsLadder } from '../../src/ladders/stats/index';
 import { ROOT, SLOW } from './support';
@@ -30,6 +30,20 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
       bank.filter((item) => item.id.split('.')[1] === 'jeffreys').map((item) => item.cause),
     );
     expect([...jeffreys]).toEqual(['add jeffreys']);
+  });
+
+  it('gives a stub method nothing: its generated items wait for one correct case', async () => {
+    const items = bank.filter((item) => item.id.split('.')[1] === 'jeffreys');
+    const bad = (k: number, n: number) => {
+      if (!Number.isInteger(k) || !Number.isInteger(n) || !(n > 0)) throw new RangeError('bad input');
+      return { estimate: 0.5, lower: 0, upper: 1 };
+    };
+    for (const stub of [() => Number.NaN, bad]) {
+      const run = await runInProcess(items, 1, ROOT, { ...stats, jeffreys: stub } as unknown as typeof stats);
+      expect(items.filter((item) => run.get(item.id)?.pass)).toEqual([]);
+      const purity = run.get('roadmap-purity.jeffreys');
+      expect(purity?.detail).toMatch(/^the method is not correct yet: jeffreys exists/);
+    }
   });
 
   it('keeps version 1 as its first items: the reference groups and the simulated designs', () => {
