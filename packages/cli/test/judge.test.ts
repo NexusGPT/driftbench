@@ -551,6 +551,64 @@ process.stdin.on('end', () => {
     expect(out).toContain('109 judge call(s) gave no answer.');
   });
 
+  it('runs a cascade: the recorded haiku answers everything, the live judges only its unsure items', async () => {
+    const command = await fakeClaude();
+    const out = join(scratch, 'cascade.json');
+    const {
+      code,
+      out: text,
+      err,
+    } = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      'examples/acme/criteria/calibration/claude-haiku.cassette.json',
+      '--claude',
+      'sonnet',
+      '--claude',
+      'opus',
+      '--claude-command',
+      command,
+      '--cascade',
+      '--only',
+      'explicit_confirmation',
+      '--out',
+      out,
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(text).toContain('Cascade: claude-haiku answers everything; claude-sonnet and claude-opus answer');
+    expect(text).toMatch(
+      /explicit_confirmation: separation 3\/3, kappa .*escalated: explicit_confirmation\.3 \(unsure\)/,
+    );
+    const report = JSON.parse(await readFile(out, 'utf8'));
+    expect(report.criteria).toHaveLength(1);
+    expect(report.criteria[0].escalated).toEqual([{ item: 'explicit_confirmation.3', why: 'unsure' }]);
+  }, 60_000);
+
+  it('refuses --only with a name that is not a criterion', async () => {
+    const { code, err } = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      'examples/acme/criteria/calibration/claude-haiku.cassette.json',
+      '--only',
+      'nobody',
+      '--out',
+      join(scratch, 'n.yaml'),
+    ]);
+    expect(code).toBe(2);
+    expect(err).toContain('--only names no criterion nobody');
+  });
+
   it('exits 2 without a cassette or a live judge, and on a bad cap', async () => {
     const base = [
       'judge',

@@ -406,7 +406,7 @@ async function answer(
   }
 }
 
-function agreement(
+export function agreement(
   ids: readonly string[],
   human: readonly ('pass' | 'fail')[],
   judged: readonly JudgeOutcome[],
