@@ -5,6 +5,7 @@ import {
   BUILT_IN_AGGREGATES,
   evaluateAggregates,
 } from '../src/aggregate';
+import { rate } from '../src/estimate';
 import { buildScorecard } from '../src/scorecard';
 import { dataOf, run } from './support';
 
@@ -69,5 +70,34 @@ describe('aggregate flag syntax', () => {
     expect(() => aggregateFromFlag('nope:>=0.5')).toThrow(/unknown aggregate/);
     expect(() => aggregateFromFlag('pass-rate0.5')).toThrow(/name:op threshold/);
     expect(() => aggregateFromFlag('pass-rate:>=lots')).toThrow(/threshold/);
+  });
+});
+
+describe('aggregate intervals and planning numbers', () => {
+  it('reports the Wilson interval of the rate, the same interval the report uses', () => {
+    const data = dataOf([passing(), passing(), passing(), failing()]);
+    const [result] = evaluateAggregates(data, [BUILT_IN_AGGREGATES.passRate()]);
+    expect(result?.interval).toEqual({ lower: rate(3, 4)?.lower, upper: rate(3, 4)?.upper, n: 4 });
+  });
+
+  it('says a criterion is decided when its interval clears the threshold, with no runs needed', () => {
+    const runs = [
+      ...Array.from({ length: 90 }, () => passing()),
+      ...Array.from({ length: 10 }, () => failing()),
+    ];
+    const [result] = evaluateAggregates(dataOf(runs), [BUILT_IN_AGGREGATES.passRate(0.8)]);
+    expect(result).toMatchObject({ passed: true, decided: true });
+    expect(result?.runsNeeded).toBeUndefined();
+  });
+
+  it('says how many runs at the same rate would decide an undecided criterion', () => {
+    const [result] = evaluateAggregates(dataOf([passing(), passing(), passing(), failing()]), [
+      BUILT_IN_AGGREGATES.passRate(0.7),
+    ]);
+    expect(result).toMatchObject({ passed: true, decided: false });
+    const needed = result?.runsNeeded ?? 0;
+    expect(needed).toBeGreaterThan(4);
+    const k = Math.round(0.75 * needed);
+    expect((rate(k, needed)?.lower ?? 0) >= 0.7).toBe(true);
   });
 });

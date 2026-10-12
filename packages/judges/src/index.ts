@@ -145,6 +145,9 @@ export {
   SYSTEM1_QUESTION,
 } from './prompt';
 export {
+  type Agreement,
+  addVote,
+  agreementOf,
   assign,
   completeItem,
   emptyQueue,

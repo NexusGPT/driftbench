@@ -1,9 +1,11 @@
+import { createHash } from 'node:crypto';
 import { readdir } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { basename, extname } from 'node:path';
 import type { Campaign, RunResult, Spec, Store } from '@driftbench/core';
 import {
   type AnnotationAnchor,
+  agreementOf,
   assign,
   completeItem,
   type LabelledBlock,
@@ -106,7 +108,12 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
     if (parts.length === 0) return send(response, await indexPage(store));
     if (parts[0] === 'compare' && parts.length === 1) return send(response, await comparePage(store, url));
     if (parts[0] === 'queue' && parts.length === 1)
-      return send(response, await queuePage(options.labels, labelledBy));
+      return send(
+        response,
+        await queuePage(options.labels, labelledBy),
+        200,
+        scriptHashOf(QUEUE_KEYS_SCRIPT),
+      );
     if (parts[0] === 'campaign' && parts.length === 2) {
       const data = await campaignData(store, parts[1] as string);
       const key = data.campaign.campaignId;
@@ -162,12 +169,34 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
   };
 }
 
-function send(response: ServerResponse, html: string, status = 200): void {
+/** The one script a viewer page may run: the queue's keyboard moves, allowed by the hash of its exact text. */
+export const QUEUE_KEYS_SCRIPT = `(function () {
+  var items = function () {
+    return Array.prototype.slice.call(document.querySelectorAll('#queue tbody a, #queue tbody button'));
+  };
+  document.addEventListener('keydown', function (event) {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key !== 'j' && event.key !== 'k') return;
+    var list = items();
+    if (list.length === 0) return;
+    var at = list.indexOf(document.activeElement);
+    var next = event.key === 'j' ? Math.min(list.length - 1, at + 1) : Math.max(0, at - 1);
+    list[next].focus();
+    event.preventDefault();
+  });
+})();`;
+
+function send(response: ServerResponse, html: string, status = 200, scriptHash?: string): void {
   response.writeHead(status, {
     'content-type': 'text/html; charset=utf-8',
-    // Nothing loads from anywhere: no script, no external style, image or font. Forms post to this server.
-    'content-security-policy':
-      "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'",
+    // Nothing loads from anywhere: no external script, style, image or font. Forms post to this server.
+    'content-security-policy': [
+      "default-src 'none'",
+      "style-src 'unsafe-inline'",
+      ...(scriptHash === undefined ? [] : [`script-src 'sha256-${scriptHash}'`]),
+      "form-action 'self'",
+      "base-uri 'none'",
+    ].join('; '),
     'x-content-type-options': 'nosniff',
     'cache-control': 'no-store',
   });
@@ -226,8 +255,17 @@ async function campaignData(store: Store, campaignId: string): Promise<CampaignD
 }
 
 /** The review queue: each item with its state, who holds it, and the action the viewer reviewer can take. */
+function scriptHashOf(text: string): string {
+  return createHash('sha256').update(text).digest('base64');
+}
+
 async function queuePage(labelsDir: string, reviewer: string): Promise<string> {
   const queue = await readQueue(labelsDir);
+  const agreement = agreementOf(queue);
+  const agreementLine =
+    agreement.items === 0 || agreement.percent === undefined
+      ? 'No item has two votes yet: no agreement to show.'
+      : `Agreement over ${agreement.items} item${agreement.items === 1 ? '' : 's'} with two votes: ${agreement.agreed} agree (${Math.round(agreement.percent * 100)}%), kappa ${agreement.kappa === undefined ? 'n/a' : agreement.kappa.toFixed(2)}.`;
   const rows = queue.entries.map((entry) => {
     const block = `${runPath(entry.campaign, entry.runId)}#block-${entry.index}`;
     const action =
@@ -246,7 +284,7 @@ async function queuePage(labelsDir: string, reviewer: string): Promise<string> {
       : `<div class="table-wrap"><table><caption>${queue.entries.length} items</caption><thead><tr><th scope="col">state</th><th scope="col">criterion</th><th scope="col">block</th><th scope="col">held by</th><th scope="col"></th></tr></thead><tbody>${rows.join('\n')}</tbody></table></div>`;
   return renderPage('driftbench view: queue', [
     nav(),
-    `<section id="queue"><h2>Review queue</h2><p>Take an item, open its block, label it. Saving the label marks the item done.</p>${body}</section>`,
+    `<section id="queue"><h2>Review queue</h2><p>Take an item, open its block, label it. Saving the label marks the item done. Keys: j and k move between items; Enter opens or takes the focused one.</p>${body}<p class="muted">${esc(agreementLine)}</p></section><script>${QUEUE_KEYS_SCRIPT}</script>`,
   ]);
 }
 

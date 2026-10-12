@@ -2,25 +2,20 @@ import { existsSync } from 'node:fs';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { anyGlobMatches } from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
-import {
-  globToRegExp,
-  localProvider,
-  type PolicedSandbox,
-  SandboxApprovalError,
-  withApprovalPolicy,
-} from '../src/index';
+import { localProvider, type PolicedSandbox, SandboxApprovalError, withApprovalPolicy } from '../src/index';
 
 async function scratch(): Promise<string> {
   return mkdtemp(join(tmpdir(), 'driftbench-policy-test-'));
 }
 
-describe('globToRegExp', () => {
+describe('anyGlobMatches', () => {
   it('matches a star across any characters, anchored at both ends', () => {
-    expect(globToRegExp('touch *').test('touch made.txt')).toBe(true);
-    expect(globToRegExp('touch *').test('echo touch made.txt')).toBe(false);
-    expect(globToRegExp('rm -rf *').test('rm -rf /a/b')).toBe(true);
-    expect(globToRegExp('secret.txt').test('secret.txt.bak')).toBe(false);
+    expect(anyGlobMatches('touch *', 'touch made.txt')).toBe(true);
+    expect(anyGlobMatches('touch *', 'echo touch made.txt')).toBe(false);
+    expect(anyGlobMatches('rm -rf *', 'rm -rf /a/b')).toBe(true);
+    expect(anyGlobMatches('secret.txt', 'secret.txt.bak')).toBe(false);
   });
 });
 

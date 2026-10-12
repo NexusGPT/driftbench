@@ -93,3 +93,28 @@ describe('the label form picks an anchor: a message or a tool call of the block'
     expect(row?.anchor).toBeUndefined();
   });
 });
+
+describe('the anchor form on the review queue: a queued block, labelled with an anchor, completes its item', () => {
+  it('takes the item, saves the anchored label on its block, and reads the item as done', async () => {
+    const { emptyQueue, enqueue, readQueue, writeQueue } = await import('@driftbench/judges');
+    const runId = runIdOf();
+    const queue = enqueue(emptyQueue(), [
+      { id: `${runId}.b1`, criterion: 'no_invented_data', campaign: 'c-x3', runId, index: 1 },
+    ]);
+    await writeQueue(labels, queue);
+    const taken = await fetch(`${viewer.url}/queue/assign`, {
+      method: 'POST',
+      redirect: 'manual',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ criterion: 'no_invented_data', id: `${runId}.b1` }),
+    });
+    expect(taken.status).toBe(303);
+    const saved = await save({ block: '1', anchor: 'message:1' });
+    expect(saved.status).toBe(303);
+    const after = await readQueue(labels);
+    expect(after.entries.find((entry) => entry.id === `${runId}.b1`)?.state).toBe('done');
+    const loaded = await loadLabels(labels);
+    const row = (loaded.labels.get('no_invented_data') ?? []).find((entry) => entry.id === `${runId}.b1`);
+    expect(row?.anchor).toEqual({ kind: 'message', index: 1 });
+  });
+});

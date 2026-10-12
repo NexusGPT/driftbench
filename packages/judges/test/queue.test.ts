@@ -4,7 +4,16 @@ import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import { loadLabels } from '../src/calibration';
 import { readLabelFile } from '../src/labels';
-import { assign, completeItem, emptyQueue, enqueue, readQueue, writeQueue } from '../src/queue';
+import {
+  addVote,
+  agreementOf,
+  assign,
+  completeItem,
+  emptyQueue,
+  enqueue,
+  readQueue,
+  writeQueue,
+} from '../src/queue';
 
 const made: string[] = [];
 afterAll(async () => {
@@ -89,5 +98,52 @@ describe('review queue', () => {
     const queue = assign(enqueue(emptyQueue(), [item(0), item(1)]), 'tone', 'run-1.b1', 'Ana');
     await writeQueue(dir, queue);
     expect(await readQueue(dir)).toEqual(queue);
+  });
+});
+
+describe('review queue agreement between reviewers', () => {
+  it('records each reviewer vote on an item, and a second reviewer adds a vote without touching the label file', async () => {
+    const dir = await folder();
+    const first = assign(enqueue(emptyQueue(), [item(0)]), 'tone', 'run-1.b0', 'Ana');
+    const done = await completeItem(dir, first, 'tone', 'run-1.b0', 'Ana', {
+      id: 'run-1.b0',
+      label: 'pass',
+      transcript,
+    });
+    const voted = addVote(done, 'tone', 'run-1.b0', 'Ben', 'fail');
+    expect(voted.entries[0]?.votes).toEqual([
+      { reviewer: 'Ana', label: 'pass' },
+      { reviewer: 'Ben', label: 'fail' },
+    ]);
+    expect(() => addVote(voted, 'tone', 'run-1.b0', 'Ben', 'pass')).toThrow(/already voted/);
+  });
+
+  it('measures agreement over items with two votes: percent agreement and Cohen kappa', () => {
+    const votes: Array<[string, 'pass' | 'fail', 'pass' | 'fail']> = [
+      ['run-1.b0', 'pass', 'pass'],
+      ['run-1.b1', 'fail', 'fail'],
+      ['run-1.b2', 'pass', 'fail'],
+    ];
+    let queue = enqueue(
+      emptyQueue(),
+      votes.map((_vote, index) => item(index)),
+    );
+    for (const [id, ana, ben] of votes) {
+      queue = addVote(addVote(queue, 'tone', id, 'Ana', ana), 'tone', id, 'Ben', ben);
+    }
+    const report = agreementOf(queue);
+    expect(report.items).toBe(3);
+    expect(report.agreed).toBe(2);
+    expect(report.percent).toBeCloseTo(2 / 3, 12);
+    expect(report.kappa).toBeCloseTo(0.4, 12);
+  });
+
+  it('reports no agreement figure when no item has two votes', () => {
+    expect(agreementOf(enqueue(emptyQueue(), [item(0)]))).toEqual({
+      items: 0,
+      agreed: 0,
+      percent: undefined,
+      kappa: undefined,
+    });
   });
 });
