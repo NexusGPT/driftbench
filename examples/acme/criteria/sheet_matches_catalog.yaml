@@ -7,6 +7,7 @@ criterion:
   fail: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.
   gating: true
   judge_class: system1
+  inputs: [catalog.csv]
 # The fixture pair is a real workbook: examples/acme/ops/agent.mjs built it from the task spec's catalog in a
 # temporary workspace, and the fail copy has one cell changed (Mobile C3, 25 to 29). The artifact text is
 # what the xlsx reader renders for the build block, workspace diff included. The agent's reply is the same
@@ -20,6 +21,15 @@ fixtures:
         text: "Build a price sheet from catalog.csv. Make one sheet per category, named Mobile and Home, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), and keep the rows in catalog order. The yearly price must be a formula. Save it as out/acme-price-sheet.xlsx."
       - role: agent
         text: "I built out/acme-price-sheet.xlsx from catalog.csv. It has the sheets Mobile and Home, one row per plan in catalog order, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD). The yearly price is a formula on every row, =C2*12 on the first one. I read it back to check it: Mobile 3 rows, Home 3 rows, no error cell."
+    inputs:
+      catalog.csv: |
+        plan_id,name,category,allowance,monthly_usd
+        mobile-s,Acme Mobile S,mobile,10 GB,15
+        mobile-m,Acme Mobile M,mobile,40 GB,25
+        mobile-l,Acme Mobile L,mobile,unlimited,35
+        fiber-300,Acme Fiber 300,home,300 Mbps,40
+        fiber-1000,Acme Fiber 1000,home,1000 Mbps,60
+        air-5g,Acme Air 5G,home,200 Mbps,35
     artifact: |-
       File out/acme-price-sheet.xlsx (xlsx)
       Sheet 1 of 2: Mobile
@@ -44,6 +54,15 @@ fixtures:
         text: "Build a price sheet from catalog.csv. Make one sheet per category, named Mobile and Home, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), and keep the rows in catalog order. The yearly price must be a formula. Save it as out/acme-price-sheet.xlsx."
       - role: agent
         text: "I built out/acme-price-sheet.xlsx from catalog.csv. It has the sheets Mobile and Home, one row per plan in catalog order, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD). The yearly price is a formula on every row, =C2*12 on the first one. I read it back to check it: Mobile 3 rows, Home 3 rows, no error cell."
+    inputs:
+      catalog.csv: |
+        plan_id,name,category,allowance,monthly_usd
+        mobile-s,Acme Mobile S,mobile,10 GB,15
+        mobile-m,Acme Mobile M,mobile,40 GB,25
+        mobile-l,Acme Mobile L,mobile,unlimited,35
+        fiber-300,Acme Fiber 300,home,300 Mbps,40
+        fiber-1000,Acme Fiber 1000,home,1000 Mbps,60
+        air-5g,Acme Air 5G,home,200 Mbps,35
     artifact: |-
       File out/acme-price-sheet.xlsx (xlsx)
       Sheet 1 of 2: Mobile

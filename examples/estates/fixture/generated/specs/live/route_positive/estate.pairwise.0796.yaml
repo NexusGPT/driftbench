@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.shipment-tracker.an-ask-that-fits-shipment-tracker
     planRow: pairwise.0796
+    focusVariant: 795
     cell:
       ask_class: operate
       ask_shape: correction

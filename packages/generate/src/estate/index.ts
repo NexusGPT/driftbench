@@ -4,6 +4,7 @@ export {
   actOf,
   askedTo,
   type CodeAsk,
+  clauseOf,
   codeAsk,
   DEVIATION_ASKS,
   imperative,
@@ -29,6 +30,7 @@ export {
   type EstateSpecRecord,
   findSituation,
   generateEstateSuite,
+  mapFiles,
   NEGATIVE_TESTS,
   PRIORITY_KINDS,
   REPLAY_CUSTOM_CHECKS,
@@ -74,3 +76,17 @@ export {
   type ThenParts,
   thenOf,
 } from './then';
+export {
+  GuardCase,
+  hostileForms,
+  matcherTools,
+  materialOf,
+  payloadOf,
+  toolInput,
+  UNIT_DIR,
+  UNIT_TEST_TYPES,
+  UnitDecision,
+  UnitOutcome,
+  UnitTest,
+  unitTestOf,
+} from './unit';

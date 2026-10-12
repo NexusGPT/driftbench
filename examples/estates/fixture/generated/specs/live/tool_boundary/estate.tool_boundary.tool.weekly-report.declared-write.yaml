@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please do this: declared Write."
+      user: Please use the Write tool on the files here.
     expect:
       workspace:
         deleted: []
@@ -50,5 +50,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: tool.weekly-report.declared-write (title)
+    askFrom: tool.weekly-report.declared-write (tool rule)
     outcome: no-delete

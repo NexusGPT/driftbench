@@ -1,25 +1,48 @@
 import { resolve } from 'node:path';
-import type { RunMode, Store } from '@driftbench/core';
+import type { RunMode, RunResult, Stimulus, Store } from '@driftbench/core';
+import {
+  createAnthropicJudge,
+  createGoogleJudge,
+  createOpenAiJudge,
+  type JudgeClient,
+  judgePairwise,
+  readPairwiseCriterion,
+} from '@driftbench/judges';
 import {
   autoMargin,
   type CampaignData,
   compareCampaigns,
+  comparePairwise,
   compareText,
   loadCampaign,
   MIN_GOLDENS,
   ReportInputError,
+  replyPairs,
 } from '@driftbench/report';
 import { openStore } from '@driftbench/store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+import { noStoreAt } from '../store-path';
 
 /** What compare and report open stores with. Tests pass their own. */
 export type ReportDeps = {
   openStore(path: string): Promise<Store>;
+  /** The judge a pairwise call uses, by name: openai, anthropic or google. Tests pass a fake. */
+  pairwiseClient?(kind: string): JudgeClient;
 };
+
+/** The provider judges a `--pairwise-judge` name stands for. Keys are read from the environment. */
+export function defaultPairwiseClient(kind: string): JudgeClient {
+  if (kind === 'openai') return createOpenAiJudge({ id: 'pairwise-openai' });
+  if (kind === 'anthropic') return createAnthropicJudge({ id: 'pairwise-anthropic' });
+  if (kind === 'google') return createGoogleJudge({ id: 'pairwise-google' });
+  throw new Error(`unknown pairwise judge ${kind}: use openai, anthropic or google`);
+}
 
 export const defaultReportDeps: ReportDeps = {
   openStore: async (path) => openStore(path),
+  pairwiseClient: defaultPairwiseClient,
 };
 
 type CompareCommandOptions = {
@@ -32,6 +55,8 @@ type CompareCommandOptions = {
   minGoldens: string;
   strict?: boolean;
   json?: boolean;
+  pairwise?: string;
+  pairwiseJudge?: string;
 };
 
 /** Registers `driftbench compare`. */
@@ -63,6 +88,15 @@ export function registerCompareCommand(
     .option('--mode <modes>', 'compare only these modes, such as F or T,F; default every mode both ran')
     .option('--q <rate>', 'false discovery rate of Benjamini-Hochberg across criteria', '0.05')
     .option('--json', 'print one JSON document')
+    .option(
+      '--pairwise <criterion.yaml>',
+      'also judge, reply by reply, which of the two campaigns better meets this criterion, in both orders; the blocks both ran',
+    )
+    .option(
+      '--pairwise-judge <kind>',
+      'the judge of the pairwise calls: openai, anthropic or google',
+      'openai',
+    )
     .action(async (options: CompareCommandOptions) => {
       setExit(await compareCommand(options, io, deps));
     });
@@ -78,6 +112,7 @@ export async function compareCommand(
   const q = parseRate(options.q, '--q', io);
   const modes = options.mode === undefined ? undefined : parseModes(options.mode, io);
   if (gate === undefined || q === undefined || modes === null) return 2;
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   try {
@@ -98,11 +133,76 @@ export async function compareCommand(
       io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
       return 2;
     }
-    if (options.json) io.out(`${JSON.stringify(compareJson(result), null, 2)}\n`);
-    else io.out(compareText(result));
+    let pairwise: PairwiseLine | undefined;
+    if (options.pairwise !== undefined) {
+      pairwise = await runPairwise(options, baseline, candidate, deps, io);
+      if (pairwise === undefined) return 2;
+    }
+    if (options.json) {
+      const body =
+        pairwise === undefined ? compareJson(result) : { ...compareJson(result), pairwise: pairwise.json };
+      io.out(`${JSON.stringify(body, null, 2)}\n`);
+    } else {
+      io.out(compareText(result));
+      if (pairwise !== undefined) io.out(`${pairwise.line}\n`);
+    }
     return result.verdict === 'non-inferior' ? 0 : 1;
   } finally {
     await store.close();
+  }
+}
+
+type PairwiseLine = { line: string; json: Record<string, number> };
+
+/** The stimulus a block sent, as the text the pairwise judge reads it against. Empty when it has none. */
+function stimulusText(when: Stimulus | undefined): string {
+  if (when === undefined) return '';
+  if ('user' in when) return when.user;
+  if ('burst' in when) return when.burst.join(' / ');
+  return when.injection.user;
+}
+
+/**
+ * Judges each reply pair of the two campaigns with the criterion, in both orders. A judge that gives no answer
+ * fails the command with its reason; it is never counted as a tie.
+ */
+async function runPairwise(
+  options: CompareCommandOptions,
+  baseline: CampaignData,
+  candidate: CampaignData,
+  deps: ReportDeps,
+  io: Io,
+): Promise<PairwiseLine | undefined> {
+  let criterion: Awaited<ReturnType<typeof readPairwiseCriterion>>;
+  let judge: JudgeClient;
+  try {
+    criterion = await readPairwiseCriterion(resolve(io.cwd, options.pairwise ?? ''));
+    judge = (deps.pairwiseClient ?? defaultPairwiseClient)(options.pairwiseJudge ?? 'openai');
+  } catch (cause) {
+    io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return undefined;
+  }
+  const stimulusOf = (run: RunResult, index: number): string => {
+    const loaded = baseline.specs.get(`${run.specId}@${run.specHash}`);
+    return stimulusText(loaded?.ok ? loaded.spec.blocks[index]?.when : undefined);
+  };
+  const pairs = replyPairs(baseline.runs, candidate.runs, stimulusOf);
+  try {
+    const report = await comparePairwise(pairs, (pair) =>
+      judgePairwise(
+        judge,
+        criterion,
+        pair.stimulus === '' ? [] : [{ role: 'user', text: pair.stimulus }],
+        pair.first,
+        pair.second,
+      ),
+    );
+    const { tally } = report;
+    const line = `Pairwise: ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}.`;
+    return { line, json: { ...tally, pairs: pairs.length } };
+  } catch (cause) {
+    io.err(`pairwise judge gave no answer: ${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return undefined;
   }
 }
 
@@ -155,7 +255,7 @@ export function parseGate(
   options: { margin: string; minGoldens: string; strict?: boolean },
   io: Io,
 ): Gate | undefined {
-  const minGoldens = Number(options.minGoldens);
+  const minGoldens = optionNumber(options.minGoldens);
   if (!Number.isInteger(minGoldens) || minGoldens < 1) {
     io.err(`--min-goldens takes a whole number of at least 1, not "${options.minGoldens}".\n`);
     return undefined;
@@ -176,6 +276,11 @@ export function resolveMargin(
   io?: Io,
 ): number {
   if (gate.margin !== 'auto') return gate.margin;
+  if (baseline.runs.length === 0) {
+    // Nothing to measure the margin on: a campaign with no runs keeps the 2 point default and says so.
+    io?.out('Margin auto: the campaign has no runs to measure it on; 2.0 points.\n');
+    return 0.02;
+  }
   const auto = autoMargin(baseline, options);
   io?.out(
     `Margin auto: ${(auto.margin * 100).toFixed(1)} points, the smallest half point at which the baseline compared with itself is non-inferior (set by ${auto.limitedBy}, ${(auto.needed * 100).toFixed(1)} points).\n`,
@@ -186,7 +291,7 @@ export function resolveMargin(
 
 /** A margin in points, such as 2, as a proportion; undefined after printing why it is not one. */
 export function parseMargin(text: string, io: Io): number | undefined {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 100) {
     io.err(`--margin takes a number of points above 0 and below 100, such as 2, not "${text}".\n`);
     return undefined;
@@ -195,7 +300,7 @@ export function parseMargin(text: string, io: Io): number | undefined {
 }
 
 function parseRate(text: string, flag: string, io: Io): number | undefined {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 1) {
     io.err(`${flag} takes a number between 0 and 1, not "${text}".\n`);
     return undefined;

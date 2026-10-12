@@ -49,11 +49,17 @@ A campaign runs each spec several times in each mode (`--repeats`). With c passi
 
 | Function | Computes |
 |---|---|
-| `passK(c, n, k)` | pass^k, the probability that k runs drawn from the n all pass: `C(c, k) / C(n, k)`, the estimator of [arXiv 2406.12045](https://arxiv.org/pdf/2406.12045), as the `pass_k` reducer of inspect_ai uses it |
+| `passK(c, n, k)` | pass^k, the probability that k runs drawn from the n all pass: `C(c, k) / C(n, k)`, the estimator of [arXiv 2406.12045](https://arxiv.org/pdf/2406.12045) |
 | `passAtK(c, n, k)` | pass@k, the probability that at least one of k runs passes: `1 - C(n - c, k) / C(n, k)`, the estimator of [arXiv 2107.03374](https://arxiv.org/pdf/2107.03374) |
 | `unreliability(samples)` | the 90th percentile minus the 10th of the scores across repeats |
 
 Both forms are computed as products, so they never overflow. pass^k falls as k grows when an agent is inconsistent, even if its average looks fine.
+
+## Intervals on pass^k and pass@k
+
+Runs that did not complete count as failing in the value. Their outcome is unknown, so the interval also covers both ends: all of them failing and all of them passing. A line with incomplete runs is flagged "incomplete" in the scorecard. `--withhold-incomplete` on `driftbench report` drops the value for such a line and keeps only its count, so the scorecard reports nothing it cannot support.
+
+Each pass^k and pass@k value comes with an interval for every k. The interval is the Wilson bounds of the per-run rate, raised to k, widened where needed so that it contains the value. In a seeded simulation over 36 cells of run rate, run count and k, the interval covered the true value in at least 91% of draws, and the value always lay inside its interval.
 
 ## Repeat reducers per criterion
 
@@ -93,7 +99,7 @@ Both run on the same specs.
 
 | Function | Computes |
 |---|---|
-| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts: exact below 25 discordant pairs by default, else the continuity-corrected chi-square |
+| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts: exact below 25 discordant pairs by default, else the continuity-corrected chi-square. `compare` (and so `ci`) always passes `exact: true`, at any count, and prints "McNemar exact" |
 | `wilcoxonSignedRank(x, y, { method })` | Wilcoxon's signed-rank test on paired values, such as the drift count per spec; `method` is `auto` (the default, which follows scipy's choice), `exact`, `permutation` or `asymptotic` |
 | `pairedRateDifference(table, alpha)` | the baseline pass rate minus the candidate's, with Newcombe's interval for paired data; `table` counts `bothPass`, `regressed`, `improved` and `bothFail` |
 | `benjaminiHochberg(pvalues, q)` | false discovery rate control at `q` (default 0.05): adjusted p-values, the rejected hypotheses and the threshold |

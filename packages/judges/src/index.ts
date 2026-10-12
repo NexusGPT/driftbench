@@ -3,7 +3,10 @@ export const packageName = '@driftbench/judges';
 
 export { summarizeDiff, type TaskArtifactOptions, taskArtifactText } from './artifacts';
 export {
+  AnnotationAnchor,
   AssignmentTable,
+  anchorNote,
+  anchorProblem,
   assignmentTable,
   type CalibrationConfig,
   type CalibrationReport,
@@ -28,11 +31,20 @@ export {
   writeAssignmentTable,
 } from './calibration';
 export {
+  type CascadeConfig,
+  type CascadeCriterion,
+  type CascadeReport,
+  type CascadeVariant,
+  calibrateCascade,
+} from './cascade';
+export {
   Cassette,
   CassetteEntry,
   CassetteJudge,
   cassettePlayers,
+  dataKey,
   emptyCassette,
+  type KeyClient,
   loadCassette,
   playerClient,
   recordingClient,
@@ -44,11 +56,19 @@ export {
   JUDGE_CHECK,
   type JudgeCheckOptions,
   judgeCheck,
+  readInputs,
   requestFor,
+  safeId,
   verdictOf,
 } from './check';
 export type { ClientOptions, JudgeClient } from './client';
 export { createAnthropicJudge, createGoogleJudge, createOpenAiJudge } from './clients/chat';
+export {
+  CLAUDE_SETTINGS,
+  type ClaudeCliOptions,
+  claudeCost,
+  createClaudeCliJudge,
+} from './clients/claude-cli';
 export { type FakeAnswer, FakeJudge } from './clients/fake';
 export { createHttpJudge, type HttpJudgeOptions } from './clients/http-json';
 export {
@@ -71,6 +91,7 @@ export {
   outcomeFromProbability,
   parseAnswerText,
   parseAnswerValue,
+  repairAnswerText,
   TranscriptEntry,
 } from './contract';
 export {
@@ -93,6 +114,7 @@ export {
   type CriteriaLoad,
   CriterionFile,
   CriterionFixture,
+  fixtureInputs,
   fixtureRequest,
   type LoadedCriterion,
   loadCriteria,
@@ -102,6 +124,15 @@ export { familyOfModel, normalizeFamily, sameFamily } from './family';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
 export { labelFilePath, readLabelFile, saveLabel } from './labels';
 export {
+  judgePairwise,
+  type PairwiseChoice,
+  type PairwiseTally,
+  type PairwiseVerdict,
+  pairwiseRequest,
+  pairwiseTally,
+  readPairwiseCriterion,
+} from './pairwise';
+export {
   ANSWER_CONTRACT,
   buildPrompt,
   DATA_RULE,
@@ -109,14 +140,21 @@ export {
   type DataTag,
   dataTag,
   escapeData,
+  PROMPT_FINGERPRINT,
+  PROMPT_PARTS,
+  promptFingerprint,
   RUBRIC_TEMPLATE,
   renderEntry,
   renderRubric,
   renderTranscript,
   renderUser,
   SYSTEM_PROMPT,
+  SYSTEM1_QUESTION,
 } from './prompt';
 export {
+  type Agreement,
+  addVote,
+  agreementOf,
   assign,
   completeItem,
   emptyQueue,
@@ -128,3 +166,4 @@ export {
   readQueue,
   writeQueue,
 } from './queue';
+export { noJudgeCheck, type SingleJudgeOptions, singleJudgeCheck } from './single';

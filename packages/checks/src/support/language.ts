@@ -29,7 +29,25 @@ export type Detection = {
   letters: number;
 };
 
+/**
+ * Detections already made, by text and letter floor: the detector is pure, and a run reads the same replies
+ * again (every block of the keep mode looks back at the earlier ones; repeats and wordings say the same
+ * thing). Bounded; the oldest entry goes first. A cached detection is shared, so callers only read it.
+ */
+const CACHE_LIMIT = 4096;
+const cache = new Map<string, Detection>();
+
 export function detect(text: string, options: DetectOptions = DETECT_DEFAULTS): Detection {
+  const key = `${options.minLetters}\u0000${text}`;
+  const held = cache.get(key);
+  if (held !== undefined) return held;
+  const detection = detectUncached(text, options);
+  if (cache.size >= CACHE_LIMIT) cache.delete(cache.keys().next().value as string);
+  cache.set(key, detection);
+  return detection;
+}
+
+function detectUncached(text: string, options: DetectOptions): Detection {
   const plain = stripNoise(text);
   const readings: Reading[] = [];
   let letters = 0;

@@ -14,6 +14,8 @@ export type TraceTurn = {
   user: string;
   /** When the turn started, ISO 8601, when the source says. */
   startedAt?: string;
+  /** The source's id of the observation the turn starts from: the first chat span, or the transcript line. */
+  observationId?: string;
   observed: Observed;
 };
 
@@ -32,7 +34,11 @@ export type Trace = {
   issues: string[];
 };
 
-/** One span of a traced conversation, with the span it is nested in. Times are ISO 8601. */
+/**
+ * One span or transcript line of a traced conversation, with the one it is nested in. Times are ISO 8601.
+ * `usage` and `usd` are set on chat observations whose source gives tokens (and a price or a cost).
+ * `subagent` marks a line a subagent wrote, nested under the line that started it.
+ */
 export type TraceObservation = {
   id: string;
   parentId?: string;
@@ -40,6 +46,14 @@ export type TraceObservation = {
   name: string;
   start: string;
   end: string;
+  level: 'default' | 'error';
+  subagent?: boolean;
+  usage?: { inputTokens?: number; outputTokens?: number };
+  usd?: number;
+  /** A tool observation's arguments, or a chat observation's messages as the source wrote them. */
+  input?: unknown;
+  /** A tool observation's result, or a chat observation's reply text. */
+  output?: unknown;
 };
 
 /** Prices per million tokens, by model, for sources that report tokens but no cost. */

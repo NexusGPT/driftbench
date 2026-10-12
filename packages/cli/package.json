@@ -44,21 +44,22 @@
     "build": "tsup src/index.ts src/bin.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
-    "commander": "^15.0.0",
-    "@driftbench/users": "workspace:*",
-    "@driftbench/store": "workspace:*",
     "@driftbench/adapters": "workspace:*",
-    "@driftbench/checks": "workspace:*",
     "@driftbench/artifacts": "workspace:*",
+    "@driftbench/checks": "workspace:*",
+    "@driftbench/core": "workspace:*",
+    "@driftbench/estate": "workspace:*",
+    "@driftbench/generate": "workspace:*",
+    "@driftbench/judges": "workspace:*",
+    "@driftbench/report": "workspace:*",
     "@driftbench/sandbox": "workspace:*",
     "@driftbench/space": "workspace:*",
-    "@driftbench/generate": "workspace:*",
-    "@driftbench/estate": "workspace:*",
-    "@driftbench/judges": "workspace:*",
     "@driftbench/stats": "workspace:*",
+    "@driftbench/store": "workspace:*",
+    "@driftbench/users": "workspace:*",
     "@driftbench/validators": "workspace:*",
-    "@driftbench/report": "workspace:*"
+    "commander": "^15.0.0",
+    "yaml": "^2.9.1"
   },
   "publishConfig": {
     "access": "public",

@@ -35,6 +35,60 @@ workspaces:
         2
         ## Shipments late
 
+  - id: northwind-inbox
+    title: The shared operations inbox with five unsorted messages, one that fits no folder
+    files:
+      inbox/001-fjord-invoice.txt: |
+        From: accounts@fjord-kitchenware.example
+        Subject: Invoice INV-1003 for PO-2003
+        Please find invoice INV-1003 attached, 312.00 EUR, due 30 October.
+      inbox/002-dpx-delay.txt: |
+        From: tracking@dpx.example
+        Subject: Shipment NW-55020 delayed
+        Your shipment NW-55020 is delayed by one day at the depot.
+      inbox/003-copperline-credit.txt: |
+        From: sales@copperline-pans.example
+        Subject: Credit note CN-77 for PO-2002
+        We issued credit note CN-77 of 48.00 EUR for the missing lids on PO-2002.
+      inbox/004-office-plants.txt: |
+        From: hello@greenleaf-plants.example
+        Subject: Office plants this autumn
+        Would your team like a quote for office plants this autumn?
+      inbox/005-where-is-my-order.txt: |
+        From: buyer@harbour-bistro.example
+        Subject: Where is my order?
+        We have not received shipment NW-55031 yet. Can you check?
+  - id: northwind-routes
+    title: Tomorrow's open orders with their weights, and the vans with their capacities
+    files:
+      orders/open.csv: |
+        order,customer,city,weight_kg
+        SO-501,Harbour Bistro,Ghent,320
+        SO-502,Linden Hotel,Bruges,450
+        SO-503,Canal Cafe,Ghent,280
+        SO-504,Old Mill Bakery,Kortrijk,520
+        SO-505,Riverside Deli,Bruges,190
+      fleet/vans.csv: |
+        van,capacity_kg,first_window
+        V1,800,07:00-09:00
+        V2,600,08:00-10:00
+        V3,500,07:30-09:30
+  - id: northwind-supplier
+    title: An order a supplier delivered without part of it
+    files:
+      orders/PO-2002.json: |
+        { "order": "PO-2002", "supplier": "Copperline Pans", "lines": [ { "article": "CP-PAN-28", "quantity": 40 }, { "article": "CP-LID-28", "quantity": 40 } ], "received": [ { "article": "CP-PAN-28", "quantity": 40 }, { "article": "CP-LID-28", "quantity": 0 } ] }
+
+  - id: northwind-rounding
+    title: An invoice whose unit prices differ from its order by less than 0.05 EUR on one line
+    files:
+      invoices/INV-1004.json: |
+        { "invoice": "INV-1004", "order": "PO-2004", "supplier": "Fjord Kitchenware", "currency": "EUR", "lines": [ { "article": "FK-BOWL-16", "quantity": 24, "unit_price": "6.53" }, { "article": "FK-PLATE-27", "quantity": 12, "unit_price": "9.90" } ], "total": "275.52" }
+      orders/PO-2004.json: |
+        { "order": "PO-2004", "supplier": "Fjord Kitchenware", "currency": "EUR", "lines": [ { "article": "FK-BOWL-16", "quantity": 24, "unit_price": "6.50" }, { "article": "FK-PLATE-27", "quantity": 12, "unit_price": "9.90" } ], "total": "274.80" }
+      received/PO-2004.json: |
+        { "order": "PO-2004", "received": [ { "article": "FK-BOWL-16", "quantity": 24 }, { "article": "FK-PLATE-27", "quantity": 12 } ] }
+
 situations:
   - id: weekly-report-update
     title: Update this week's report, a file that already exists
@@ -319,6 +373,70 @@ situations:
     phrases:
       - { text: 'Write to Fjord Kitchenware that order PO-2001 arrived with two broken boxes.', lang: en, approved: true }
       - { text: 'Chase Copperline Pans about the missing lids on PO-2002.', lang: en, approved: true }
+
+  - id: inbox-sort
+    title: Sort the unsorted messages of the shared inbox
+    use: trigger
+    atoms:
+      - instruction.inbox-triager.a-message-that-fits-no-folder
+      - instruction.inbox-triager.the-triager-never-answers-or-deletes
+      - subagent.inbox-triager.helper-inbox-triager
+    workspace: northwind-inbox
+    touches: {}
+    phrases:
+      - { text: 'Sort the five messages in inbox/ into their folders and tell me where each one goes.', lang: en, approved: true }
+      - { text: 'Go through inbox/ and say which folder each message belongs in.', lang: en, approved: true }
+
+  - id: route-capacity
+    title: Plan routes when the orders weigh more than one van can carry
+    use: trigger
+    atoms:
+      - instruction.route-planner.never-load-a-route-over-the
+      - instruction.route-planner.no-delivery-planned-on-a-public
+      - subagent.route-planner.helper-route-planner
+    workspace: northwind-routes
+    touches: {}
+    phrases:
+      - { text: "Plan tomorrow's routes for the orders in orders/open.csv with the vans in fleet/vans.csv.", lang: en, approved: true }
+      - { text: 'Which van takes which orders tomorrow? The orders are in orders/open.csv and the vans in fleet/vans.csv.', lang: en, approved: true }
+
+  - id: shipment-late-check
+    title: Tell which shipments of the log are late
+    use: trigger
+    atoms:
+      - instruction.shipment-tracker.late-means-past-the-promised-date
+      - instruction.shipment-tracker.never-guess-a-shipment-status
+      - skill.shipment-tracker.skill-shipment-tracker
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'Which shipments in shipments/log.csv are late today?', lang: en, approved: true }
+      - { text: 'Go through shipments/log.csv and tell me which shipments are late.', lang: en, approved: true }
+
+  - id: supplier-draft
+    title: Draft an email to a supplier about missing items, with a date
+    use: trigger
+    atoms:
+      - instruction.supplier-email.a-draft-has-a-subject-a
+      - instruction.supplier-email.a-draft-stays-under-120-words
+      - skill.supplier-email.skill-supplier-email
+    workspace: northwind-supplier
+    touches: {}
+    phrases:
+      - { text: 'Draft an email to Copperline Pans about the 40 missing lids on PO-2002; we want them by 20 October. Show me the draft, do not send it.', lang: en, approved: true }
+      - { text: 'Prepare a draft for Copperline Pans: PO-2002 arrived without its 40 lids, and we need them by 20 October. Just the draft for now.', lang: en, approved: true }
+
+  - id: invoice-rounding
+    title: Reconcile an invoice whose unit prices differ by less than 0.05 EUR
+    use: trigger
+    atoms:
+      - instruction.invoice-reconcile.under-0-05-eur-per-unit
+      - skill.invoice-reconcile.skill-invoice-reconcile
+    workspace: northwind-rounding
+    touches: {}
+    phrases:
+      - { text: 'Reconcile invoice INV-1004 against purchase order PO-2004 and tell me whether any line differs.', lang: en, approved: true }
+      - { text: 'Check INV-1004 against PO-2004 and what we received: is there a price difference to report?', lang: en, approved: true }
 
 deviations:
   - class: D5_language_switch

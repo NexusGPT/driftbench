@@ -1,0 +1,28 @@
+# Behaviour inventory of desk-1. Every name in it is fictional.
+channels: [email, web]
+
+behaviours:
+  - id: B-001
+    title: Greet the customer by the name on the account
+  - id: B-002
+    title: Check the delivery address before booking a visit
+  - id: B-003
+    title: Treat a vague answer as no answer and ask again
+  - id: B-004
+    title: Close the conversation with a short summary
+  - id: B-005
+    title: Book a visit only inside the opening hours
+
+flows:
+  - id: refund
+    title: A customer asks for money back on a charge
+    behaviours: [B-001, B-003, B-005]
+    deviations: [D3_contradiction, D6_instruction_in_data, D10_return]
+  - id: new-order
+    title: A new customer orders a first plan
+    behaviours: [B-001, B-005]
+    deviations: [D10_return]
+  - id: cancellation
+    title: A customer ends a plan
+    behaviours: [B-001, B-002, B-005]
+    deviations: [D1_off_topic, D5_language_switch, D6_instruction_in_data]

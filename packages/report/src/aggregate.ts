@@ -1,10 +1,14 @@
-import type { CampaignData } from './data';
-import { runPassed } from './data';
+import { type CampaignData, runPassed } from './data';
+import { rate } from './estimate';
 
 /**
  * A criterion scored over a whole campaign: one number from every run together, compared with a
  * threshold. It is not a block check and not a per-run verdict. A campaign with no runs is
  * inconclusive (value and passed are undefined), never a failure.
+ *
+ * A criterion that counts successes gives a Wilson interval of its rate. The interval says whether the
+ * threshold is decided. When it is not, `runsNeeded` is the number of runs at the same rate whose interval
+ * would decide it.
  */
 export type AggregateCriterion = {
   name: string;
@@ -12,6 +16,8 @@ export type AggregateCriterion = {
   direction: 'at-least' | 'at-most';
   threshold: number;
   measure: (data: CampaignData) => number | undefined;
+  /** The successes and the total, when the criterion is a rate. Gives the interval and the planning number. */
+  counts?: (data: CampaignData) => { k: number; n: number };
 };
 
 export type AggregateResult = {
@@ -21,7 +27,40 @@ export type AggregateResult = {
   value: number | undefined;
   passed: boolean | undefined;
   reason: string;
+  /** The Wilson interval of the rate and the runs it stands on. Absent for a criterion with no counts. */
+  interval?: { lower: number; upper: number; n: number };
+  /** True when the interval is entirely on one side of the threshold. */
+  decided?: boolean;
+  /** When undecided: the runs at the same rate that would decide it. */
+  runsNeeded?: number;
 };
+
+const MAX_PLANNED_RUNS = 100_000;
+
+function decides(
+  direction: 'at-least' | 'at-most',
+  lower: number,
+  upper: number,
+  threshold: number,
+): boolean {
+  return direction === 'at-least'
+    ? lower >= threshold || upper < threshold
+    : upper <= threshold || lower > threshold;
+}
+
+/** The smallest run count at the same rate whose Wilson interval decides the threshold. */
+function runsNeededAt(
+  direction: 'at-least' | 'at-most',
+  value: number,
+  n: number,
+  threshold: number,
+): number | undefined {
+  for (let candidate = n + 1; candidate <= MAX_PLANNED_RUNS; candidate += 1) {
+    const interval = rate(Math.round(value * candidate), candidate);
+    if (interval && decides(direction, interval.lower, interval.upper, threshold)) return candidate;
+  }
+  return undefined;
+}
 
 /** Scores each criterion over the campaign. Returns one result per criterion, in the order given. */
 export function evaluateAggregates(
@@ -42,7 +81,7 @@ export function evaluateAggregates(
     }
     const passed =
       criterion.direction === 'at-least' ? value >= criterion.threshold : value <= criterion.threshold;
-    return {
+    const base = {
       name: criterion.name,
       direction: criterion.direction,
       threshold: criterion.threshold,
@@ -50,29 +89,49 @@ export function evaluateAggregates(
       passed,
       reason: `${value} ${criterion.direction === 'at-least' ? '>=' : '<='} ${criterion.threshold}`,
     };
+    if (!criterion.counts) return base;
+    const { k, n } = criterion.counts(data);
+    const interval = rate(k, n);
+    if (!interval) return base;
+    const decided = decides(criterion.direction, interval.lower, interval.upper, criterion.threshold);
+    const runsNeeded = decided ? undefined : runsNeededAt(criterion.direction, value, n, criterion.threshold);
+    return {
+      ...base,
+      interval: { lower: interval.lower, upper: interval.upper, n },
+      decided,
+      ...(runsNeeded === undefined ? {} : { runsNeeded }),
+    };
   });
+}
+
+/** The counts of the built-in criteria: successes and total runs. */
+const COUNTS: Record<string, (data: CampaignData) => { k: number; n: number }> = {
+  'pass-rate': (data) => ({ k: data.runs.filter((run) => runPassed(run)).length, n: data.runs.length }),
+  'broken-share': (data) => ({
+    k: data.runs.filter((run) => run.status !== 'completed').length,
+    n: data.runs.length,
+  }),
+};
+
+function criterionOf(name: string, direction: 'at-least' | 'at-most', threshold: number): AggregateCriterion {
+  const counts = COUNTS[name] as (data: CampaignData) => { k: number; n: number };
+  return {
+    name,
+    direction,
+    threshold,
+    measure: (data) => {
+      const { k, n } = counts(data);
+      return n === 0 ? undefined : k / n;
+    },
+    counts,
+  };
 }
 
 export const BUILT_IN_AGGREGATES = {
   /** Share of all runs that pass (completed, every block passing, end state matched). Default threshold 0.5. */
-  passRate: (threshold = 0.5): AggregateCriterion => ({
-    name: 'pass-rate',
-    direction: 'at-least',
-    threshold,
-    measure: (data) => data.runs.filter((run) => runPassed(run)).length / data.runs.length,
-  }),
+  passRate: (threshold = 0.5): AggregateCriterion => criterionOf('pass-rate', 'at-least', threshold),
   /** Share of runs that did not complete (failed or stopped). Passes at or below the threshold. */
-  brokenShare: (threshold: number): AggregateCriterion => ({
-    name: 'broken-share',
-    direction: 'at-most',
-    threshold,
-    measure: (data) => data.runs.filter((run) => run.status !== 'completed').length / data.runs.length,
-  }),
-};
-
-const MEASURES: Record<string, (data: CampaignData) => number | undefined> = {
-  'pass-rate': (data) => data.runs.filter((run) => runPassed(run)).length / data.runs.length,
-  'broken-share': (data) => data.runs.filter((run) => run.status !== 'completed').length / data.runs.length,
+  brokenShare: (threshold: number): AggregateCriterion => criterionOf('broken-share', 'at-most', threshold),
 };
 
 /**
@@ -83,18 +142,12 @@ export function aggregateFromFlag(text: string): AggregateCriterion {
   const match = /^([a-z-]+):(>=|<=)(.+)$/.exec(text);
   if (!match) throw new Error(`--aggregate takes name:op threshold, e.g. pass-rate:>=0.8, not "${text}"`);
   const [, name = '', op = '', raw = ''] = match;
-  const measure = MEASURES[name];
-  if (!measure) {
-    throw new Error(`unknown aggregate ${name}: use ${Object.keys(MEASURES).join(' or ')}`);
+  if (!(name in COUNTS)) {
+    throw new Error(`unknown aggregate ${name}: use ${Object.keys(COUNTS).join(' or ')}`);
   }
   const threshold = Number(raw);
   if (raw.trim() === '' || !Number.isFinite(threshold)) {
     throw new Error(`the threshold of ${name} must be a number, not "${raw}"`);
   }
-  return {
-    name,
-    direction: op === '>=' ? 'at-least' : 'at-most',
-    threshold,
-    measure,
-  };
+  return criterionOf(name, op === '>=' ? 'at-least' : 'at-most', threshold);
 }

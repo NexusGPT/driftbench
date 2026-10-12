@@ -209,16 +209,13 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     expect(markers.p08).toEqual([]);
     // The script's command, the compiled confirmation, the hazard and the permission now have checks.
     for (const row of ['p12', 'p15', 'p25', 'p26', 'p31']) expect(markers[row], row).toEqual([]);
-    expect(markers.p22).toEqual([MARKERS.guardTiming]);
-    expect(markers.p23).toEqual([MARKERS.guardMessage]);
-    expect(markers.p28).toEqual([MARKERS.stageReach]);
+    // The guard's time and message are read from the hook output the runtime reports.
+    expect(markers.p22).toEqual([]);
+    expect(markers.p23).toEqual([]);
+    expect(markers.p28).toEqual([]);
     expect(markers.p32).toEqual([]);
     expect(result.specs.find((spec) => spec.row === 'p32')?.path).toBe('static/invariant/estate.p32.json');
-    expect(result.report.gaps.map((entry) => entry.marker)).toEqual([
-      MARKERS.guardMessage,
-      MARKERS.guardTiming,
-      MARKERS.stageReach,
-    ]);
+    expect(result.report.gaps.map((entry) => entry.marker)).toEqual([]);
   });
 
   it('plans each replay spec to fail exactly when its session breaks one of the row atoms', () => {
@@ -486,9 +483,9 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1383,
       blocks: 1378,
-      complete: 1309,
-      incomplete: 74,
-      judged: 382,
+      complete: 1300,
+      incomplete: 83,
+      judged: 349,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
@@ -597,3 +594,45 @@ async function tree(dir: string): Promise<Record<string, string>> {
   await walk(dir);
   return out;
 }
+
+describe('focus atoms get at least five complete specs, each with its own ask or situation', () => {
+  const FOCUS = [
+    'reference.invoice-reconcile.read-references-matching-rules-md',
+    'script.invoice-reconcile.script-scripts-reconcile-py',
+    'route.standing.an-ask-to-reconcile-an-invoice',
+    'hazard.standing.recover-from-a-compaction-of-the',
+    'tool.settings.allow-read',
+    'gate.standing.read-a-file-before-editing-it',
+    'subagent.route-planner.helper-route-planner',
+    'guard.settings.posttooluse-bash-guard-ledger-guard-py',
+  ];
+
+  it('adds variants of the focus atoms rows until five complete specs name each', async () => {
+    const result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), {
+      paths: PLANNER_PATHS,
+      focus: FOCUS,
+    });
+    const all = specs(result);
+    for (const atom of FOCUS) {
+      const done = specRecords(result).filter((record) => record.complete && record.atoms.includes(atom));
+      expect(done.length, atom).toBeGreaterThanOrEqual(5);
+      const variants = done.map((record) => {
+        const spec = only(all, record.id);
+        return JSON.stringify([spec.blocks[0]?.when, estate(spec).cell]);
+      });
+      // At least five complete specs whose ask and situation differ (journeys may share an ask: their paths differ).
+      expect(new Set(variants).size, atom).toBeGreaterThanOrEqual(5);
+    }
+    const variant = specRecords(result).find((record) => /\.v\d+$/.test(record.id));
+    const meta = estate(only(all, variant?.id ?? ''));
+    expect(meta.focusVariant).toBeGreaterThan(0);
+    expect(meta.planRow).toBe(variant?.row);
+    expect(result.report.invalid).toEqual([]);
+    expect(result.report.lint).toEqual([]);
+  }, 120_000);
+
+  it('writes no variant without a focus list', async () => {
+    const result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), { paths: PLANNER_PATHS });
+    expect(result.specs.some((record) => /\.v\d+$/.test(record.id))).toBe(false);
+  }, 120_000);
+});

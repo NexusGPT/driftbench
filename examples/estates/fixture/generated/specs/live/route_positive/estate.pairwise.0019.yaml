@@ -65,6 +65,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-reconcile-an-invoice
     planRow: pairwise.0019
+    focusVariant: 18
     cell:
       ask_class: research
       ask_shape: concrete

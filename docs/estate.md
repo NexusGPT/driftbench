@@ -424,7 +424,7 @@ Approved 1337 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already a
 
 `estate generate` turns each approved plan row into one or more task specs, by code only, with no model call. Proposed rows wait (listed, exit 1); struck rows are skipped. Inputs that do not fit together (a plan of another map, an unknown or unapproved atom, an unknown test type, a bank naming an unknown atom or another map hash, a session ask that is no approved phrase) exit 2 and write nothing.
 
-Two inputs sit beside the map. The phrase bank (`phrases.yaml`) holds situations: the atoms a situation sets off, what it is for (trigger, outside, near miss, misroute, pressure, resume), the workspace it starts from, the paths its ask may touch, and its phrases, each approved or not. The session index (`sessions/index.yaml`) names recorded sessions, their situation and ask, and the atoms each session breaks. The Northwind bank is written by hand as a stand-in for the real flow (a model proposes phrases, a person approves them): 20 situations, 38 approved phrases, one workspace seed.
+Two inputs sit beside the map. The phrase bank (`phrases.yaml`) holds situations: the atoms a situation sets off, what it is for (trigger, outside, near miss, misroute, pressure, resume), the workspace it starts from, the paths its ask may touch, and its phrases, each approved or not. The session index (`sessions/index.yaml`) names recorded sessions, their situation and ask, and the atoms each session breaks. The Northwind bank is written by hand as a stand-in for the real flow (a model proposes phrases, a person approves them): 26 situations, 50 approved phrases, five workspace seeds: the operations folder, an inbox, open orders with the vans, a supplier order, and an invoice that differs from its order by less than 0.05 EUR per unit. A judged rule needs its own data in the workspace before an ask can set it off: the inbox, routes, shipment log and supplier situations exist for that.
 
 How a row becomes a spec:
 
@@ -448,6 +448,9 @@ How a row becomes a spec:
 | `tool_called` with any other input | `rules.custom.some_call`: one call of the tool whose input matches (count 0 in a control) |
 | `custom` hazard_recovery | `rules.custom.hazard_recovery`: after the hazard the agent goes on, rereads the paths its passage names, and does nothing destructive |
 | `custom` grounded_values | `rules.custom.grounded_values`: every number, identifier and date of the reply was seen in the user's messages or a tool result of the run (1,250.00 and 1250 are one value, 5 October 2026 and 2026-10-05 one date); a value only the agent wrote fails; whole numbers up to 10 are left alone |
+| `ordered` between two calls of one tool | ends anchored on what each call holds, `Bash~git status` before `Bash~commit`: the gate's first act and the verb of its trigger |
+| `stage_reached` on a step allowed at any point | `rules.custom.stage_seen`: the stage shows once in the block, wherever; inconclusive when the runtime reports no stages |
+| a control whose predicate has no machine inverse | with a judge, the judged control (the rule does not act outside its situation); without one, `needs-negation` |
 | `custom` max_words | `rules.custom.max_words`: a word limit on the draft (the largest fenced block, else the quoted lines, else from a Subject line on; inconclusive with none) when the rule speaks of a draft, else on the whole reply |
 | `custom` no_delete_under | `rules.custom.no_delete_under`: nothing deleted under the folder, read from the workspace diff, else from removal commands; a move is no deletion |
 | `custom` with a name no code checks (a domain rule) | a gating judged criterion whose rubric quotes the atom's own words and its situation; the spec is tagged `judged` and lists the atoms in `metadata.estate.judged`. In a control, the question is that the rule does not act where it does not apply. `--no-judge` leaves it `needs-registered-check` |
@@ -455,7 +458,7 @@ How a row becomes a spec:
 | `custom` with a name the generator compiles | `command_not_run` to some_call; `max_characters`, `max_questions`, `no_secret_in_reply`, `currency_after_amount`, `stopped_and_confirmed` to `must_not` (and `execution.max_commands: 0`); `json_only`, `asks_for`, `route_table` to `must`; `same_language_as_user` to `lang`; `confirmed_before_send`, `asks_again_on_loose_yes` to `safety.confirm_before: [send]` |
 
 * The outcome, when neither the situation nor the atoms name a path, is read from the atoms (`metadata.estate.outcome`): nothing changes (`others_untouched`) for a negative control, a denied tool, a guard that denies or blocks, or a row whose skills and helpers may use no writing tool; otherwise nothing is deleted (`deleted: []`). `--no-fallback` turns this off.
-* Invariant and setting rows are static tests: JSON under `static/<test type>/`, run by `driftbench estate static <suite>/static --estate <root>` on the original or a mutant copy. An invariant passes when it still holds on the files; a setting when the settings still declare its key and value. The replay and live runners register `some_call`, `hazard_recovery`, `permission`, `grounded_values`, `max_words` and `no_delete_under` next to `ordered`.
+* Invariant and setting rows are static tests: JSON under `static/<test type>/`, run by `driftbench estate static <suite>/static --estate <root>` on the original or a mutant copy. An invariant passes when it still holds on the files; a setting when the settings still declare its key and value. The replay and live runners register `some_call`, `hazard_recovery`, `permission`, `grounded_values`, `max_words`, `no_delete_under` and `stage_seen` next to `ordered`.
 * `--focus <file>` (atom ids, one per line) orders `run-order.txt`, the list of complete specs: rows naming a focus atom first, then rows naming a guard, a gate or an invariant, then the rest. The report counts the complete specs per focus atom and names the gaps of the ones with none.
 
 * Negative controls (`outside_trigger`, `route_near_miss`, `guard_negative`): skills count 0, guard count 0, tool count 0, required words moved to `must_not`.
@@ -487,7 +490,7 @@ The suite of the Northwind plan. The plan must be approved first; the committed 
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
 Map ../../../examples/estates/fixture/approved.yaml (claude-code), hash be2e7a0919cb: 125 atoms.
 Plan ../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1379 rows, 1379 approved, 0 waiting, 0 struck.
-Phrases ../../../examples/estates/fixture/phrases.yaml: 21 situations, 40 approved phrases.
+Phrases ../../../examples/estates/fixture/phrases.yaml: 26 situations, 50 approved phrases.
 Sessions ../../../examples/estates/fixture/sessions/index.yaml: 3.
 Seed 1; custom checks the runner registers: ordered.
 
@@ -638,7 +641,7 @@ Each spec inlines the workspace seed's files, since `world.workspace.from` resol
 * Alignment. A spec with `metadata.replay: { session, from_block }` reads that session from that block. Otherwise the k-th spec without the key, in file order, reads the k-th session given, from block 0. A spec that names a session not given is skipped with a note.
 * A decision log or step feed belongs to the session whose file name starts its own file name (`clean-build.decisions.jsonl` for `clean-build.jsonl`); with one session, any log belongs to it.
 * The run is the runner's own: mode F, the scripted driver, the default checks plus the ordered-pair check under `rules.custom.ordered`, no cache. Runs are stored under one replay campaign, in the store given with `--store`, in memory without it.
-* Judged criteria are not run, and a note says so.
+* Judged criteria are judged with `--judge claude:<model>`: one judge on the local claude command, one call per criterion and block, its verdict marked as a single judge's, its cost added to the spec's cost and listed apart (`judgeCostUsd`). A judge command that is not a stand-in is billed and needs `--judge-budget <usd>`; once spent, later criteria are inconclusive. With no judge every judged criterion is inconclusive and gates as the criterion does, so the spec cannot pass, and a note says so. `replay` takes the same flags.
 
 The ordered-pair check holds `{ before, after }` in a block when every `after` of the block has a `before` earlier in the block or in an earlier block. A name matches a tool label (`Read`), a skill load (`skill:<name>`) or a stage (`stage:<name>`). With `key`, both carry the same value in that input field (the same file was read, then edited). With `reset: compaction`, a `before` that precedes the last compaction before the `after` does not count. It ships with the Claude Code adapter today.
 

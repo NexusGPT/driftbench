@@ -352,3 +352,49 @@ describe('driftbench replay: bench defects', () => {
     expect(missing.err).toContain('Cannot read the owner file');
   });
 });
+
+describe('driftbench replay: judged criteria', () => {
+  const JUDGED = [
+    'id: judged-positional',
+    'kind: task',
+    'criteria:',
+    '  - { name: keeps-scope, rubric: "Does the reply stay on the shop build?", gating: true, scope: block }',
+    'blocks:',
+    '  - user: anything',
+    '    expect:',
+    '      criteria: [keeps-scope]',
+    '',
+  ].join('\n');
+  const JUDGE = join(ROOT, 'examples/estates/fixture/live/fake/judge.cjs');
+
+  it('judges a criterion with --judge, adding the cost, and leaves it inconclusive without one', async () => {
+    const dir = await tempDir();
+    await writeFile(join(dir, 'judged.yaml'), JUDGED);
+    const session = `${DIR}/skill-skipped.jsonl`;
+    const judged = await replayJson([
+      'replay',
+      session,
+      '--suite',
+      dir,
+      '--judge',
+      'claude:haiku',
+      '--judge-command',
+      JUDGE,
+    ]);
+    expect(judged.err).toBe('');
+    expect(judged.code).toBe(0);
+    const doc = judged.json as unknown as {
+      judge: string;
+      judgeCostUsd: number;
+      runs: Array<{ pass: boolean }>;
+    };
+    expect(doc.judge).toBe('claude:haiku');
+    expect(doc.judgeCostUsd).toBeCloseTo(0.0015);
+    expect(doc.runs[0]?.pass).toBe(true);
+
+    const bare = await replayJson(['replay', session, '--suite', dir]);
+    expect(bare.code).toBe(1);
+    const failing = (bare.json as unknown as { runs: Array<{ failing: string[] }> }).runs[0]?.failing ?? [];
+    expect(failing).toEqual(['block 0: judge.keeps-scope (inconclusive)']);
+  }, 60_000);
+});

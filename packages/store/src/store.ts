@@ -17,6 +17,7 @@ import { describeCause, describeIssues, StoreError } from './errors';
 import {
   checkName,
   entriesOf,
+  isVersionPath,
   isVersionRecord,
   REGISTRY_KINDS,
   type RegistryFile,
@@ -110,7 +111,9 @@ function statements(db: DatabaseSync) {
        ON CONFLICT (id, hash) DO UPDATE SET path = excluded.path, yaml = excluded.yaml`,
     ),
     selectSpec: db.prepare('SELECT path, yaml FROM specs WHERE id = ? AND hash = ?'),
-    insertCampaign: db.prepare('INSERT INTO campaigns (id, json, created_at) VALUES (?, ?, ?)'),
+    insertCampaignIfNew: db.prepare(
+      'INSERT INTO campaigns (id, json, created_at) VALUES (?, ?, ?) ON CONFLICT (id) DO NOTHING',
+    ),
     selectCampaign: db.prepare('SELECT id, json FROM campaigns WHERE id = ?'),
     selectCampaigns: db.prepare('SELECT id, json FROM campaigns'),
     deleteBlocks: db.prepare('DELETE FROM blocks WHERE campaign_id = ? AND run_id = ?'),
@@ -139,7 +142,8 @@ function statements(db: DatabaseSync) {
          expires_at = excluded.expires_at`,
     ),
     selectCache: db.prepare('SELECT observed_json, expires_at FROM cache WHERE key = ?'),
-    deleteCache: db.prepare('DELETE FROM cache WHERE key = ?'),
+    /** Deletes the entry only while it still holds the expiry that was read: a fresher put stays. */
+    deleteExpiredCache: db.prepare('DELETE FROM cache WHERE key = ? AND expires_at = ?'),
     upsertUnit: db.prepare(
       `INSERT INTO units (adapter, metric, usd, samples, measured_at) VALUES (?, ?, ?, ?, ?)
        ON CONFLICT (adapter, metric) DO UPDATE SET usd = excluded.usd, samples = excluded.samples,
@@ -285,7 +289,7 @@ export class SqliteStore implements Store {
       const expiresAt = Date.parse(text(row, 'expires_at', where));
       if (Number.isNaN(expiresAt)) throw corrupt(`${where} holds an expiry that is not a date`);
       if (Date.now() >= expiresAt) {
-        this.sql.deleteCache.run(key);
+        this.sql.deleteExpiredCache.run(key, text(row, 'expires_at', where));
         return undefined;
       }
     }
@@ -427,6 +431,14 @@ export class SqliteStore implements Store {
       .get(kind, name, hash);
     if (held !== undefined) return { version: readVersion(held, `${kind} ${name}`), created: false };
     return transaction(this.db, () => {
+      // Checked again under the write lock: the same content pushed by another process in between is
+      // given back, not inserted twice.
+      const committed = this.db
+        .prepare('SELECT json FROM versions WHERE kind = ? AND name = ? AND hash = ?')
+        .get(kind, name, hash);
+      if (committed !== undefined) {
+        return { version: readVersion(committed, `${kind} ${name}`), created: false };
+      }
       const insertBlob = this.db.prepare(
         'INSERT OR IGNORE INTO blobs (sha256, size, bytes) VALUES (?, ?, ?)',
       );
@@ -517,6 +529,15 @@ export class SqliteStore implements Store {
     checkKind(version.kind);
     checkName(version.name);
     const label = `${version.kind} ${version.name}@${version.version}`;
+    const escaping = [...version.files.map((entry) => entry.path), ...files.map((file) => file.path)].find(
+      (path) => !isVersionPath(path),
+    );
+    if (escaping !== undefined) {
+      throw new StoreError(
+        'BUNDLE_INVALID',
+        `${label} names the file path "${escaping}", which leaves the version`,
+      );
+    }
     const held = this.db
       .prepare('SELECT hash FROM versions WHERE kind = ? AND name = ? AND (hash = ? OR version = ?)')
       .all(version.kind, version.name, version.hash, version.version);
@@ -560,15 +581,20 @@ export class SqliteStore implements Store {
       );
     }
     const { campaignId } = parsed.data;
+    // Insert first, compare after: one statement, so a campaign another process commits between a check and
+    // the write is compared, never hit as a raw constraint error.
+    const inserted = this.sql.insertCampaignIfNew.run(
+      campaignId,
+      toJson(parsed.data, `campaign ${campaignId}`),
+      now(),
+    );
+    if (Number(inserted.changes) > 0) return;
     const row = this.sql.selectCampaign.get(campaignId);
-    if (row !== undefined) {
-      if (canonicalJson(readCampaign(row)) === canonicalJson(parsed.data)) return;
-      throw new StoreError(
-        'CAMPAIGN_CONFLICT',
-        `campaign ${campaignId} is already stored with other content; a campaign is immutable, so a re-run takes a new campaign id`,
-      );
-    }
-    this.sql.insertCampaign.run(campaignId, toJson(parsed.data, `campaign ${campaignId}`), now());
+    if (row !== undefined && canonicalJson(readCampaign(row)) === canonicalJson(parsed.data)) return;
+    throw new StoreError(
+      'CAMPAIGN_CONFLICT',
+      `campaign ${campaignId} is already stored with other content; a campaign is immutable, so a re-run takes a new campaign id`,
+    );
   }
 
   private putRunNow(campaignId: string, run: RunResult): void {

@@ -1,9 +1,9 @@
 # The judged side of relevancy: what the key terms of the ask cannot show. Fictional data.
 criterion:
   name: relevancy
-  rubric: The reply answers what the user asked in this turn, not another question, and does not leave the ask unanswered.
-  pass: The reply answers the question the user asked, with the facts that question needs.
-  fail: The reply answers another question, changes the subject, or leaves the user's ask unanswered.
+  rubric: The reply answers what the user asked in this turn, in any words. It does not answer a different question, change the subject, or ignore the ask. A short reply that fits the ask is relevant. A reply that restates the order the customer asked for and asks them to confirm it answers an order request.
+  pass: The reply gives the answer the question needs, even when it does not repeat the question words. Restating the requested order and asking for confirmation is an answer to an order request.
+  fail: The reply answers a different question, changes the subject, or ignores the ask.
   judge_class: system1
 fixtures:
   pass:

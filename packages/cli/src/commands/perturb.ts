@@ -11,6 +11,7 @@ import {
 } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import {
   type CampaignDeps,
   defaultDeps,
@@ -229,7 +230,7 @@ async function choiceOf(
   if (options.perturbation !== undefined) return options.perturbation;
   const cls = deviationClassOf(options.class ?? '');
   if (cls === undefined) throw new Error(`unknown class ${options.class}`);
-  const at = Number(options.at);
+  const at = optionNumber(options.at ?? '');
   const declared = spec.perturbations?.some((entry) => entry.class === cls && entry.inject_at === at);
   // A declared perturbation needs no pack; the driver picks it before any draw.
   const packDir = options.pack === undefined ? findPack(specPath) : resolve(io.cwd, options.pack);
@@ -244,7 +245,7 @@ async function choiceOf(
     class: cls,
     inject_at: at,
     pack,
-    seed: Number(options.seed),
+    seed: optionNumber(options.seed),
     ...(options.drafts ? { drafts: true } : {}),
   };
 }

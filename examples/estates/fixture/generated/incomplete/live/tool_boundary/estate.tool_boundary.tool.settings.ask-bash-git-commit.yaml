@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please do this: ask Bash(git commit:)."
+      user: Please run git commit in the shell here.
     expect:
       workspace:
         deleted: []
@@ -46,7 +46,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: tool.settings.ask-bash-git-commit (title)
+    askFrom: tool.settings.ask-bash-git-commit (tool rule)
     outcome: no-delete
     needs:
       - marker: needs-registered-check
