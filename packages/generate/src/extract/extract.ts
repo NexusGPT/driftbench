@@ -4,6 +4,7 @@ import { parseAnswer, retryNote, SECTIONS, type Section, type SourceText, sectio
 import { inventoryPrepass } from './prepass';
 import { checkQuotes, PROPOSAL_VERSION, type Proposal, validateProposal } from './proposal';
 import { QuoteIndex, shortQuote } from './quote';
+import { requoted, tableInventory } from './tables';
 import { toolsPrepass } from './tools';
 
 export type ExtractInput = {
@@ -67,8 +68,17 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
   const paths = new Set(input.sources.map((source) => source.path));
   if (paths.size !== input.sources.length) return inputError('', 'EXTRACT_INPUT', 'a source is given twice');
 
-  const format = inventory.path.toLowerCase().endsWith('.json') ? 'json' : 'yaml';
-  const fromInventory = inventoryPrepass(inventory.text, inventory.path, format);
+  const lower = inventory.path.toLowerCase();
+  const format = lower.endsWith('.json') ? 'json' : 'yaml';
+  // An inventory kept as markdown tables or CSV is read into the mapping an inventory holds.
+  const table = lower.endsWith('.csv')
+    ? tableInventory(inventory.text, 'csv')
+    : lower.endsWith('.md') || lower.endsWith('.markdown')
+      ? tableInventory(inventory.text, 'markdown')
+      : undefined;
+  const fromInventory = table
+    ? requoted(inventoryPrepass(table.yaml, inventory.path, 'yaml'), table.requote)
+    : inventoryPrepass(inventory.text, inventory.path, format);
   if (!fromInventory.ok) {
     return {
       ok: false,

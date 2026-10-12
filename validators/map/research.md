@@ -351,3 +351,15 @@ Sources read:
 What others do: A prefix of a long line is still a passage of the file.
 
 What to try, and why: a title line over 1000 characters is quoted by its first passage
+
+## Iteration 30
+
+Question: packages/generate/src/extract/extract.ts: the inventory is parsed as YAML or JSON only, so a markdown-table or CSV inventory gives INVENTORY_PARSE; inventory-forms.markdown-tables and csv prove it.
+
+Sources read:
+* https://spec.commonmark.org/ and https://github.github.com/gfm/#tables-extension- (pipe tables)
+* https://www.rfc-editor.org/rfc/rfc4180 (CSV)
+
+What others do: Tables are read into the same mapping an inventory holds, and each quote is the row of the table it came from.
+
+What to try, and why: an inventory kept as markdown tables or CSV is read
