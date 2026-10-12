@@ -436,7 +436,7 @@ Seven seeders write specs from the approved map. The Acme numbers come from [`ge
 - **Task families**: instances of code-agent tasks, each with its own oracle. 34 specs, 47 blocks.
 - **Cover**: adds scenarios for gaps left by the other seeders, subject to limits and map support. One scenario can cover several pairs. 13 specs, 71 blocks.
 
-The complete specs cover all 637 allowed pairs of values. 251 of the 321 specs are complete. The other 70 wait in `incomplete/` until the map gives their values an approved phrase.
+The complete specs cover all 637 allowed pairs of values. 251 of the 321 specs are complete. The other 70 wait in `incomplete/` until the map supplies the missing approved phrases or expected outcomes.
 
 ### What a generated test checks
 
