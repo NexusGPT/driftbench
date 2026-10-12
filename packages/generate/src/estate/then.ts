@@ -29,7 +29,7 @@ export { literal };
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
  * | text | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
  * | tool_called with any other input, when `some_call` is registered | `rules.custom.some_call` |
- * | custom hazard_recovery, permission (allow, declared, deny) | the registered check of that name |
+ * | custom grounded_values, hazard_recovery, permission (allow, declared, deny) | the registered check |
  * | custom with a name `predicates.ts` compiles | must, must_not, lang, safety, execution |
  * | custom on a register atom | a judged criterion whose rubric is the atom's title, not gating |
  *
@@ -259,6 +259,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         };
         return;
       }
+      if (evidence.name === 'grounded_values' && ctx.customChecks.has('grounded_values')) {
+        then.custom.grounded_values = { ...(evidence.options ?? {}), block: 0 };
+        return;
+      }
       if (evidence.name === 'permission' && ctx.customChecks.has('permission')) {
         const effect = evidence.options?.effect;
         const rule = evidence.options?.rule;
@@ -332,6 +336,7 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       if (
         compilePredicate(evidence.name, evidence.options) !== undefined ||
         evidence.name === 'hazard_recovery' ||
+        evidence.name === 'grounded_values' ||
         evidence.name === 'permission'
       ) {
         gap(then, MARKERS.negation, atom, `${evidence.name} has no negative control`);

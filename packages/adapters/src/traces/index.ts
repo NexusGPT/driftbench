@@ -13,6 +13,7 @@ export {
   priced,
   TRACE_SOURCES,
   type Trace,
+  type TraceObservation,
   type TraceSource,
   type TraceTurn,
 } from './types';

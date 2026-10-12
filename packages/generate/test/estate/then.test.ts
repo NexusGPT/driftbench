@@ -279,7 +279,7 @@ describe('the negative control', () => {
           { type: 'tool_called', label: 'Agent', input: { subagent_type: 'route-planner' } },
           { type: 'tool_called', label: 'Bash', input: { command: { contains: 'track.sh' } } },
           { type: 'ordered', before: 'Read', after: 'Edit' },
-          { type: 'custom', name: 'grounded_values' },
+          { type: 'custom', name: 'line_match' },
         ]),
       ],
       'negative',
@@ -306,7 +306,7 @@ describe('text as literal patterns', () => {
 describe('the estate checks the runner registers, and custom predicates compiled into existing checks', () => {
   const full: ThenContext = {
     ...ctx,
-    customChecks: new Set(['hazard_recovery', 'ordered', 'permission', 'some_call']),
+    customChecks: new Set(['grounded_values', 'hazard_recovery', 'ordered', 'permission', 'some_call']),
   };
   const custom = (name: string, options?: Record<string, unknown>) =>
     atom(`instruction.x.${name}`, [{ type: 'custom', name, ...(options ? { options } : {}) }]);
@@ -416,9 +416,21 @@ describe('the estate checks the runner registers, and custom predicates compiled
     expect(currency.test('Total 1,250.00 EUR')).toBe(false);
   });
 
-  it('leaves a predicate it cannot compile a gap, and a compiled one in a control a needs-negation gap', () => {
-    expect(thenOf([custom('grounded_values')], 'positive', full).gaps).toEqual([
+  it('runs grounded_values on the first block when the runner registers it, and leaves it a gap otherwise', () => {
+    const then = thenOf([custom('grounded_values')], 'positive', full);
+    expect(then.gaps).toEqual([]);
+    expect(then.custom).toEqual({ grounded_values: { block: 0 } });
+    expect(thenOf([custom('grounded_values')], 'positive', ctx).gaps).toEqual([
       { marker: MARKERS.registered, atom: 'instruction.x.grounded_values', detail: 'grounded_values' },
+    ]);
+    expect(thenOf([custom('grounded_values')], 'negative', full).gaps.map((g) => g.marker)).toEqual([
+      MARKERS.negation,
+    ]);
+  });
+
+  it('leaves a predicate it cannot compile a gap, and a compiled one in a control a needs-negation gap', () => {
+    expect(thenOf([custom('line_match')], 'positive', full).gaps).toEqual([
+      { marker: MARKERS.registered, atom: 'instruction.x.line_match', detail: 'line_match' },
     ]);
     expect(
       thenOf([custom('max_characters', { max: 10 })], 'negative', full).gaps.map((g) => g.marker),
