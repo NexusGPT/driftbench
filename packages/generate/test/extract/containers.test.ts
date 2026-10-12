@@ -46,3 +46,25 @@ describe('prompts kept inside JSON files', () => {
     expect(rawizeAnswer(answer, sources).dimensions[0]?.values[0]?.evidence.quote).toBe('Never say');
   });
 });
+
+describe('prompts kept in quoted YAML scalars', () => {
+  const double = `system: ${JSON.stringify('Never say "refund" early.\nAsk for the id.')}\n`;
+  const single = "system: 'Don''t promise a date. Offer a call back.'\n";
+  it('decodes double-quoted escapes and single-quoted apostrophes', () => {
+    expect(promptView('prompt.yaml', double)?.text).toContain('Never say "refund" early.\nAsk for the id.');
+    expect(promptView('prompt.yaml', single)?.text).toContain("Don't promise a date.");
+    expect(promptView('prompt.yaml', 'system: plain text\n')).toBeUndefined();
+  });
+  it('keeps of a decoded quote a passage the file writes as it is', () => {
+    const sources = [
+      { kind: 'prompt' as const, path: 'a.yaml', text: double },
+      { kind: 'prompt' as const, path: 'b.yaml', text: single },
+    ];
+    const a = rawQuote(sources, 'a.yaml', 'Never say "refund" early.');
+    expect(double).toContain(a);
+    expect('Never say "refund" early.').toContain(a);
+    const b = rawQuote(sources, 'b.yaml', "Don't promise a date.");
+    expect(single).toContain(b);
+    expect(b).toBe('t promise a date.');
+  });
+});

@@ -1,3 +1,5 @@
+import { isScalar, parseDocument, visit } from 'yaml';
+
 /**
  * A prompt kept inside another file: a JSON chat file, an agent export, JSON lines, a YAML scalar, a string in
  * code. The model reads the prompt itself, so a request shows the text the container holds, decoded, instead
@@ -128,9 +130,99 @@ function jsonLinesView(raw: string): View | undefined {
   return builder.build();
 }
 
+/** A token of the file and the characters it stands for, each with the span of the token it comes from. */
+type Token = { start: number; end: number; chars: Array<[string, number, number]> };
+
+/** The file with each token replaced by what it stands for; text outside the tokens is kept as it is. */
+function inPlace(raw: string, tokens: Token[]): View {
+  const builder = new ViewBuilder();
+  let at = 0;
+  for (const token of [...tokens].sort((a, b) => a.start - b.start)) {
+    if (token.start < at) continue;
+    for (let i = at; i < token.start; i++) builder.char(raw[i] as string, i, i + 1);
+    for (const [value, start, end] of token.chars) builder.char(value, start, end);
+    at = token.end;
+  }
+  for (let i = at; i < raw.length; i++) builder.char(raw[i] as string, i, i + 1);
+  return builder.build();
+}
+
+const YAML_ESCAPES: Record<string, string> = {
+  ...SIMPLE_ESCAPES,
+  '0': '\0',
+  a: '\x07',
+  e: '\x1b',
+  v: '\v',
+  N: '\u0085',
+  _: '\u00a0',
+  ' ': ' ',
+};
+
+/** The content of a YAML double-quoted scalar from `from` to `to` (the quotes excluded), escapes decoded. */
+function yamlDouble(raw: string, from: number, to: number): Array<[string, number, number]> | undefined {
+  const out: Array<[string, number, number]> = [];
+  let i = from;
+  while (i < to) {
+    const c = raw[i] as string;
+    if (c !== '\\') {
+      out.push([c, i, i + 1]);
+      i++;
+      continue;
+    }
+    const e = raw[i + 1] ?? '';
+    const hex = e === 'x' ? 2 : e === 'u' ? 4 : e === 'U' ? 8 : 0;
+    if (hex > 0) {
+      const code = Number.parseInt(raw.slice(i + 2, i + 2 + hex), 16);
+      if (Number.isNaN(code)) return undefined;
+      for (const unit of String.fromCodePoint(code)) out.push([unit, i, i + 2 + hex]);
+      i += 2 + hex;
+    } else if (e in SIMPLE_ESCAPES) {
+      out.push([SIMPLE_ESCAPES[e] as string, i, i + 2]);
+      i += 2;
+    } else if (e in YAML_ESCAPES) {
+      out.push([JSON.parse(`"${YAML_ESCAPES[e]}"`) as string, i, i + 2]);
+      i += 2;
+    } else return undefined;
+  }
+  return out;
+}
+
+/** Quoted scalars of a YAML file, decoded: `\n`, `\"`, `\uXXXX` in double quotes, '' in single quotes. */
+function yamlView(raw: string): View | undefined {
+  const doc = parseDocument(raw);
+  if (doc.errors.length > 0) return undefined;
+  const tokens: Token[] = [];
+  visit(doc, {
+    Scalar(_key, node) {
+      if ((node.type !== 'QUOTE_DOUBLE' && node.type !== 'QUOTE_SINGLE') || !node.range) return;
+      const [start, , end] = node.range;
+      const open = raw[start];
+      if (open !== '"' && open !== "'") return;
+      let close = end;
+      while (close > start + 1 && raw[close - 1] !== open) close--;
+      if (close <= start + 1 && raw[start + 1] !== open) return;
+      const inner = [start + 1, close - 1] as const;
+      let chars: Array<[string, number, number]> | undefined;
+      if (open === '"') chars = yamlDouble(raw, inner[0], inner[1]);
+      else {
+        chars = [];
+        for (let i = inner[0]; i < inner[1]; i++) {
+          if (raw[i] === "'" && raw[i + 1] === "'") {
+            chars.push(["'", i, i + 2]);
+            i++;
+          } else chars.push([raw[i] as string, i, i + 1]);
+        }
+      }
+      if (chars) tokens.push({ start, end: close, chars });
+    },
+  });
+  return tokens.length === 0 ? undefined : inPlace(raw, tokens);
+}
+
 const VIEWS: Array<[RegExp, (raw: string) => View | undefined]> = [
   [/\.jsonl$/i, jsonLinesView],
   [/\.json$/i, jsonView],
+  [/\.ya?ml$/i, yamlView],
 ];
 
 /** The text a container file holds, decoded; undefined when the file is no container or is unreadable as one. */

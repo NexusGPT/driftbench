@@ -513,3 +513,14 @@ Sources read:
 What others do: A quote must be a passage of the file and of the prompt; the passage without escapes is both.
 
 What to try, and why: a decoded quote keeps the longest passage the file writes as it is
+
+## Iteration 44
+
+Question: packages/generate/src/extract/containers.ts: a YAML double-quoted scalar with escapes or a single-quoted one with doubled apostrophes is sent as written; prompt-containers.yaml-double and yaml-single prove it.
+
+Sources read:
+* https://yaml.org/spec/1.2.2/ sections 7.3.1 (double-quoted) and 7.3.2 (single-quoted)
+
+What others do: The scalar's value is the prompt; the file's escapes are not.
+
+What to try, and why: quoted YAML scalars are decoded
