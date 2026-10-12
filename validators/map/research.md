@@ -630,3 +630,15 @@ Sources read:
 What others do: The interpolated constant has its value in the string the program builds.
 
 What to try, and why: Swift multi-line strings with an interpolated constant are decoded
+
+## Iteration 54
+
+Question: packages/generate/src/extract/containers.ts: a chat message whose content is a list of text parts is sent with a break between the parts and with its role and part type as text; a rule cut across two parts is not one passage; prompt-containers.content-parts proves it.
+
+Sources read:
+* https://platform.openai.com/docs/api-reference/chat/create (content parts of type text)
+* https://docs.anthropic.com/en/api/messages (content blocks)
+
+What others do: A message's parts are one text; labels such as role and type are not prompt text.
+
+What to try, and why: the parts of a JSON message run on as one text

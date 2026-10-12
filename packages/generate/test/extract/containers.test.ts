@@ -200,3 +200,32 @@ describe('a Swift multi-line string with a constant', () => {
     expect(promptView('Prompt.swift', swift)?.text).toContain('Never offer more than 3 visit slots at once.');
   });
 });
+
+describe('a message whose content is a list of text parts', () => {
+  const text = 'Keep answers short. Never promise a delivery date. Ask for the id.';
+  const at = text.indexOf('promise');
+  const file = JSON.stringify(
+    {
+      messages: [
+        {
+          role: 'system',
+          content: [
+            { type: 'text', text: text.slice(0, at) },
+            { type: 'text', text: text.slice(at) },
+          ],
+        },
+      ],
+    },
+    null,
+    2,
+  );
+  it('reads the parts as one text', () => {
+    expect(promptView('prompt.json', file)?.text).toContain(text);
+  });
+  it('keeps of a quote cut across parts the longer passage of one part', () => {
+    const sources = [{ kind: 'prompt' as const, path: 'prompt.json', text: file }];
+    const quote = rawQuote(sources, 'prompt.json', 'Never promise a delivery date.');
+    expect(file).toContain(quote);
+    expect(quote).toBe('promise a delivery date.');
+  });
+});

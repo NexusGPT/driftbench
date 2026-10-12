@@ -61,6 +61,7 @@ function jsonStrings(raw: string, separator: string, into = new ViewBuilder()): 
       continue;
     }
     const from = into.text.length;
+    const open = i;
     i++;
     let closed = false;
     const pending: Array<[string, number, number]> = [];
@@ -91,8 +92,15 @@ function jsonStrings(raw: string, separator: string, into = new ViewBuilder()): 
     let next = i;
     while (raw[next] === ' ' || raw[next] === '\n' || raw[next] === '\r' || raw[next] === '\t') next++;
     if (raw[next] === ':') continue; // a key
+    // Strings that label a message (its role, its part type) are not prompt text.
+    const label = /"(type|role|name|model|id|object|lang|language)"\s*:\s*$/.exec(
+      raw.slice(Math.max(0, open - 24), open),
+    );
+    if (label) continue;
     for (const [value, start, end] of pending) into.char(value, start, end);
-    if (into.text.length > from) into.gap(separator);
+    // The parts of a message (`{ "type": "text", "text": "..." }`) run on without a break between them.
+    const key = /"text"\s*:\s*$/.test(raw.slice(Math.max(0, open - 20), open));
+    if (into.text.length > from && !key) into.gap(separator);
   }
   return into;
 }
