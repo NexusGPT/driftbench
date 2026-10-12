@@ -122,9 +122,10 @@ export function hardness(families: readonly Family[], file: HardnessFile): Hardn
     remaining,
     forecast,
     gate: {
-      forecast: forecast >= FORECAST_GATE,
+      // A pilot that fixed nothing gives no forecast, and the gate cannot hold on it (section 12.4 point 6).
+      forecast: Number.isFinite(forecast) && forecast >= FORECAST_GATE,
       score: lastScore <= SCORE_GATE,
-      holds: forecast >= FORECAST_GATE && lastScore <= SCORE_GATE,
+      holds: Number.isFinite(forecast) && forecast >= FORECAST_GATE && lastScore <= SCORE_GATE,
     },
   };
 }

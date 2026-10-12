@@ -304,6 +304,7 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^maintain\.impact\.spacing-touches-nothing$/, 'compare rules without their spacing'],
   [/^maintain\.impact\.rename-/, 'follow a renamed skill folder by its name'],
   // Scale.
+  [/^scale\.(scan|lint)-/, 'read every atom of a large estate: the files the scan skips by size'],
   [/^scale\.generate-/, 'generate in time linear in the atoms'],
   [/^scale\.plan-/, 'plan in time linear in the atoms'],
 ];
