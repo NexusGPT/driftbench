@@ -108,6 +108,35 @@ describe('a store on disk', () => {
   });
 });
 
+describe('a run and its blocks are read in one transaction', () => {
+  it('holds a writer off between the summary read and the blocks read, so a read is one whole version', async () => {
+    const stored = await seed();
+    const writer = new DatabaseSync(path);
+    writer.exec('PRAGMA busy_timeout = 0');
+    const sql = (store as unknown as { sql: { selectBlocks: { all: (...args: unknown[]) => unknown } } }).sql;
+    const original = sql.selectBlocks.all.bind(sql.selectBlocks);
+    let writerRefused = false;
+    sql.selectBlocks.all = (...args: unknown[]) => {
+      try {
+        writer.prepare('UPDATE runs SET cost = cost + 1 WHERE run_id = ?').run(stored.runId);
+      } catch (error) {
+        writerRefused = true;
+      }
+      return original(...args);
+    };
+    try {
+      await store.getRun(stored.runId, ID);
+      expect(writerRefused).toBe(true);
+      writerRefused = false;
+      await store.listRuns();
+      expect(writerRefused).toBe(true);
+    } finally {
+      sql.selectBlocks.all = original;
+      writer.close();
+    }
+  });
+});
+
 describe('a corrupt row raises a clear error', () => {
   it('for a run whose JSON does not parse', async () => {
     const stored = await seed();

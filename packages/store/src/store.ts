@@ -104,6 +104,20 @@ function transaction<T>(db: DatabaseSync, work: () => T): T {
   }
 }
 
+/** Runs reads in one transaction, so they all see one version of the file. A writer waits until it ends. */
+function readTransaction<T>(db: DatabaseSync, work: () => T): T {
+  db.exec('BEGIN');
+  try {
+    return work();
+  } finally {
+    try {
+      db.exec('COMMIT');
+    } catch {
+      // SQLite already ended it; the error worth reporting is the one the work raised.
+    }
+  }
+}
+
 function statements(db: DatabaseSync) {
   return {
     upsertSpec: db.prepare(
@@ -246,9 +260,15 @@ export class SqliteStore implements Store {
   async getRun(runId: string, campaignId?: string): Promise<RunResult | undefined> {
     this.live();
     if (campaignId !== undefined) {
-      const row = this.sql.selectRun.get(campaignId, runId);
-      return row === undefined ? undefined : this.readRun(row);
+      return readTransaction(this.db, () => {
+        const row = this.sql.selectRun.get(campaignId, runId);
+        return row === undefined ? undefined : this.readRun(row);
+      });
     }
+    return readTransaction(this.db, () => this.getRunById(runId));
+  }
+
+  private getRunById(runId: string): RunResult | undefined {
     const rows = this.sql.selectRunsById.all(runId);
     const [row] = rows;
     if (row === undefined) return undefined;
@@ -278,12 +298,14 @@ export class SqliteStore implements Store {
       params.push(value);
     }
     const where = clauses.length === 0 ? '' : ` WHERE ${clauses.join(' AND ')}`;
-    const rows = this.db
-      .prepare(
-        `SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs${where} ORDER BY started_at, campaign_id, run_id`,
-      )
-      .all(...params);
-    return rows.map((row) => this.readRun(row));
+    return readTransaction(this.db, () => {
+      const rows = this.db
+        .prepare(
+          `SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs${where} ORDER BY started_at, campaign_id, run_id`,
+        )
+        .all(...params);
+      return rows.map((row) => this.readRun(row));
+    });
   }
 
   async cacheGet(key: string): Promise<Observed | undefined> {
