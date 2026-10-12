@@ -234,8 +234,10 @@ export function replayItems(): BankItem[] {
     },
   });
   return withCauses(out, (item) =>
-    item.id.startsWith('replay/key/')
-      ? undefined
-      : `replay from the cache in mode ${item.id.split('/')[2]} through ${item.id.split('/')[3]} gives the live verdicts`,
+    item.id === 'replay/key/version-label'
+      ? 'runSpec in run.ts hashes the spec without its version label for the cache key.'
+      : item.id.startsWith('replay/key/')
+        ? undefined
+        : `replay from the cache in mode ${item.id.split('/')[2]} through ${item.id.split('/')[3]} gives the live verdicts`,
   );
 }

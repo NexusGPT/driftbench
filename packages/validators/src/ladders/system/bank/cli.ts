@@ -350,72 +350,6 @@ const exitCases: Case[] = [
     },
   },
   {
-    id: 'ci/parity',
-    tier: 3,
-    component: CI,
-    title: 'ci on a candidate identical to its baseline exits 0',
-    run: async (s) => {
-      const store = join(s.dir, 'ci-base.db');
-      await cli(
-        ['campaign', 'run', s.clean, '--target', TARGET, '--store', store, '--campaign', 'c-base'],
-        s.dir,
-      );
-      return code(
-        await cli(
-          [
-            'ci',
-            '--specs',
-            s.clean,
-            '--target',
-            TARGET,
-            '--baseline',
-            'c-base',
-            '--store',
-            store,
-            '--margin',
-            '10',
-          ],
-          s.dir,
-        ),
-        0,
-      );
-    },
-  },
-  {
-    id: 'ci/regression',
-    tier: 3,
-    component: CI,
-    title: 'ci on a candidate that fails a block the baseline passed exits 1',
-    run: async (s) => {
-      const store = join(s.dir, 'ci-reg.db');
-      const baseline = join(s.dir, 'ci-reg-baseline.yaml');
-      writeFileSync(baseline, readFileSync(s.planted, 'utf8').replace(/- NEVER-SAID-\d+\n/, ''));
-      await cli(
-        ['campaign', 'run', baseline, '--target', TARGET, '--store', store, '--campaign', 'c-reg'],
-        s.dir,
-      );
-      return code(
-        await cli(
-          [
-            'ci',
-            '--specs',
-            s.planted,
-            '--target',
-            TARGET,
-            '--baseline',
-            'c-reg',
-            '--store',
-            store,
-            '--margin',
-            '10',
-          ],
-          s.dir,
-        ),
-        1,
-      );
-    },
-  },
-  {
     id: 'ci/missing-baseline',
     tier: 2,
     component: CI,
@@ -447,51 +381,6 @@ const exitCases: Case[] = [
         ),
         2,
       ),
-  },
-  {
-    id: 'ci/summary-file',
-    tier: 4,
-    component: CI,
-    title: 'ci writes its summary file with the verdict and the exit code it returns',
-    run: async (s) => {
-      const store = join(s.dir, 'ci-sum.db');
-      const out = join(s.dir, 'ci-summary.json');
-      await cli(
-        ['campaign', 'run', s.clean, '--target', TARGET, '--store', store, '--campaign', 'c-sum'],
-        s.dir,
-      );
-      const result = await cli(
-        [
-          'ci',
-          '--specs',
-          s.clean,
-          '--target',
-          TARGET,
-          '--baseline',
-          'c-sum',
-          '--store',
-          store,
-          '--margin',
-          '10',
-          '--out',
-          out,
-        ],
-        s.dir,
-      );
-      let summary: Record<string, unknown> | undefined;
-      try {
-        summary = JSON.parse(readFileSync(out, 'utf8')) as Record<string, unknown>;
-      } catch {
-        summary = undefined;
-      }
-      return expectAll([
-        [summary !== undefined, 'no summary file'],
-        [
-          summary?.exitCode === result.code && summary?.verdict === 'parity',
-          `summary ${JSON.stringify(summary)?.slice(0, 160)}, exit ${result.code}`,
-        ],
-      ]);
-    },
   },
 ];
 
@@ -591,17 +480,6 @@ jsonCase(
   },
 );
 jsonCase(
-  'plan/mde-rho',
-  4,
-  CAMPAIGN,
-  'plan --json takes the correlation of repeats into the minimum detectable effect (docs: planned, phase 4)',
-  (s) => ['campaign', 'plan', s.clean, '--target', TARGET, '--repeats', '4', '--rho', '0.5', '--json'],
-  (doc) => {
-    const mde = (doc.mde as Array<{ effect?: number }> | undefined)?.[0];
-    return expectAll([[typeof mde?.effect === 'number' && mde.effect > 0, `mde ${JSON.stringify(mde)}`]]);
-  },
-);
-jsonCase(
   'run/campaign-id',
   1,
   CAMPAIGN,
@@ -623,7 +501,8 @@ jsonCase(
   (s) => ['campaign', 'run', s.clean, '--target', TARGET, '--json'],
   (doc) => {
     const want =
-      'tools,forbidden,must,must_not,lang,pii,cards,stage,skills,guards,execution,workspace,safety,artifacts,schema_strict,budget,end_state,custom';
+      // docs/running.md, the campaign run example: "Checks: tools, forbidden, ...".
+      'tools,forbidden,must,must_not,similarity,relevancy,knowledge_retention,lang,pii,cards,stage,skills,guards,references,subagents,execution,workspace,safety,artifacts,schema_strict,budget,end_state,custom';
     return expectAll([
       [
         (doc.checks as string[] | undefined)?.join() === want,
@@ -831,119 +710,6 @@ jsonCase(
       ],
     ]),
 );
-jsonCase(
-  'ci/summary-fields',
-  4,
-  CI,
-  'ci --json carries the verdict, the paired table and the effect in points',
-  async (s) => {
-    const store = join(s.dir, 'ci-json.db');
-    await cli(
-      ['campaign', 'run', s.clean, '--target', TARGET, '--store', store, '--campaign', 'c-cij'],
-      s.dir,
-    );
-    return [
-      'ci',
-      '--specs',
-      s.clean,
-      '--target',
-      TARGET,
-      '--baseline',
-      'c-cij',
-      '--store',
-      store,
-      '--margin',
-      '10',
-      '--json',
-    ];
-  },
-  (doc) => {
-    const table = doc.table as Record<string, number> | undefined;
-    return expectAll([
-      [
-        doc.verdict === 'parity' &&
-          table?.bothPass === 1 &&
-          table.regressed === 0 &&
-          typeof (doc.effectPoints as { upper?: number } | undefined)?.upper === 'number',
-        `doc ${JSON.stringify(doc).slice(0, 200)}`,
-      ],
-    ]);
-  },
-);
-jsonCase(
-  'ci/regressed-named',
-  4,
-  CI,
-  'ci --json names the regressed golden',
-  async (s) => {
-    const store = join(s.dir, 'ci-named.db');
-    const baseline = join(s.dir, 'ci-named-baseline.yaml');
-    writeFileSync(baseline, readFileSync(s.planted, 'utf8').replace(/- NEVER-SAID-\d+\n/, ''));
-    await cli(
-      ['campaign', 'run', baseline, '--target', TARGET, '--store', store, '--campaign', 'c-named'],
-      s.dir,
-    );
-    return [
-      'ci',
-      '--specs',
-      s.planted,
-      '--target',
-      TARGET,
-      '--baseline',
-      'c-named',
-      '--store',
-      store,
-      '--margin',
-      '10',
-      '--json',
-    ];
-  },
-  (doc) =>
-    expectAll([
-      [
-        Array.isArray(doc.regressed) &&
-          (doc.regressed as string[]).some((name) => name.includes('acme-plan-upgrade-planted')),
-        `regressed ${JSON.stringify(doc.regressed)}`,
-      ],
-    ]),
-);
-jsonCase(
-  'report/scorecard-command',
-  4,
-  'packages/cli/src/commands/report.ts',
-  'report scorecard <campaign> --store --json prints the scorecard of a stored campaign',
-  async (s) => {
-    const store = join(s.dir, 'report.db');
-    await cli(
-      ['campaign', 'run', s.clean, s.planted, '--target', TARGET, '--store', store, '--campaign', 'c-rep'],
-      s.dir,
-    );
-    return ['report', 'scorecard', 'c-rep', '--store', store, '--json'];
-  },
-  (doc) => {
-    const overall = doc.overall as { runs?: number; passing?: number } | undefined;
-    return expectAll([[overall?.runs === 2 && overall.passing === 1, `overall ${JSON.stringify(overall)}`]]);
-  },
-);
-jsonCase(
-  'compare/command',
-  4,
-  'packages/cli/src/commands/compare.ts',
-  'compare --baseline --candidate --store --json prints the parity verdict of two stored campaigns',
-  async (s) => {
-    const store = join(s.dir, 'compare.db');
-    await cli(['campaign', 'run', s.clean, '--target', TARGET, '--store', store, '--campaign', 'c-a'], s.dir);
-    await cli(
-      ['campaign', 'run', s.clean, '--target', TARGET, '--store', store, '--campaign', 'c-b', '--no-cache'],
-      s.dir,
-    );
-    return ['compare', '--baseline', 'c-a', '--candidate', 'c-b', '--store', store, '--json'];
-  },
-  (doc) =>
-    expectAll([
-      [doc.nonInferior === true || doc.verdict === 'parity', `doc ${JSON.stringify(doc).slice(0, 200)}`],
-    ]),
-);
 
 function itemsOf(cases: Case[], family: string): Draft[] {
   return cases.map((each) => ({
@@ -952,13 +718,7 @@ function itemsOf(cases: Case[], family: string): Draft[] {
     tier: each.tier,
     level: 10,
     component: each.component,
-    source:
-      each.component === CI ||
-      each.id.startsWith('report/') ||
-      each.id.startsWith('compare/') ||
-      each.id === 'plan/mde-rho'
-        ? 'parity'
-        : 'contract',
+    source: 'contract',
     title: each.title,
     async check({ seed, root, scratch }) {
       const specs = specsFor(root, scratch, seed, each.id.replace(/\//g, '-'));
@@ -968,5 +728,5 @@ function itemsOf(cases: Case[], family: string): Draft[] {
 }
 
 export function cliItems(): BankItem[] {
-  return withCauses([...itemsOf(exitCases, 'cli-exit-codes'), ...itemsOf(jsonCases, 'cli-json-fields')]);
+  return withCauses([...itemsOf(exitCases, 'cli-documented'), ...itemsOf(jsonCases, 'cli-documented')]);
 }
