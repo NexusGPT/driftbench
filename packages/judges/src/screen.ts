@@ -141,8 +141,29 @@ function decodedRuns(text: string): string {
   return (text.match(BASE64_RUN) ?? []).map((run) => Buffer.from(run, 'base64').toString('utf8')).join('\n');
 }
 
+/** Lookalike letters read as the Latin letter they imitate. */
+const LOOKALIKES: Readonly<Record<string, string>> = { а: 'a', е: 'e', о: 'o', р: 'p', с: 'c', і: 'i' };
+/** Digits and symbols used in place of letters. */
+const LEET: Readonly<Record<string, string>> = { '4': 'a', '3': 'e', '1': 'i', '0': 'o', '5': 's', '7': 't' };
+
+/**
+ * The text as a reader sees it once the disguises are undone: compatibility forms, invisible characters,
+ * lookalike letters, leetspeak digits, and letters set apart by dots or spaces. Only a copy is folded, so a
+ * number such as 1.0 still reads as a number in the raw text.
+ */
+function unfolded(text: string): string {
+  const letters = text
+    .normalize('NFKC')
+    .replace(/[\u200b-\u200d\u2060\ufeff]/g, '')
+    .toLowerCase()
+    .replace(/[аеорсі]/g, (c) => LOOKALIKES[c] ?? c);
+  const leeted = letters.replace(/[43105 7]/g, (c) => LEET[c] ?? c);
+  const dotted = leeted.replace(/(?:\p{L}\.){2,}\p{L}/gu, (run) => run.replace(/\./g, ''));
+  return dotted.replace(/(?:\p{L} ){3,}\p{L}/gu, (run) => run.replace(/ /g, ''));
+}
+
 function screenText(text: string): boolean {
-  return [text, decodedRuns(text)].some((part) => sentences(part).some(instructsJudge));
+  return [text, decodedRuns(text), unfolded(text)].some((part) => sentences(part).some(instructsJudge));
 }
 
 /** The strings of a JSON-like value, keys included, each on its own line, so a sentence keeps its words. */
