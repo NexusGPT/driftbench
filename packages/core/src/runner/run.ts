@@ -337,6 +337,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       // the call began latencyMs earlier.
       for (const segment of observed.segments) {
         if (segment.cost === undefined && segment.latencyMs === undefined) continue;
+        // One clock reading gives both times, so the end minus the start is exactly the latency.
+        const reportedAt = Date.now();
         run.onEvent?.({
           type: 'model_call',
           index: position,
@@ -344,8 +346,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           ...(segment.cost?.outputTokens === undefined ? {} : { outputTokens: segment.cost.outputTokens }),
           ...(segment.cost?.usd === undefined ? {} : { usd: segment.cost.usd }),
           ...(segment.latencyMs === undefined ? {} : { latencyMs: segment.latencyMs }),
-          startedAt: new Date(Date.now() - (segment.latencyMs ?? 0)).toISOString(),
-          at: new Date().toISOString(),
+          startedAt: new Date(reportedAt - (segment.latencyMs ?? 0)).toISOString(),
+          at: new Date(reportedAt).toISOString(),
         });
       }
       for (const call of observed.toolCalls) {
