@@ -86,7 +86,7 @@ export const BANK_LEVELS = [
  * Families no product page needs (validators/estate/NEEDS.md): kept as code, left out of the bank until a
  * docs page, design section or command needs them.
  */
-export const QUARANTINED: readonly string[] = ['gen.task'];
+export const QUARANTINED: readonly string[] = [];
 
 /** Every family of the bank, level by level, without the quarantined ones. */
 export function estateBank(): Family[] {

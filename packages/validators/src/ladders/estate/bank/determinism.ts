@@ -16,7 +16,23 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
 type Env = Record<string, string>;
 
-function run(args: string[], env: Env = {}): { code: number; out: string } {
+/** The other Node the package supports (docs/estate.md section 5: Node 22 and later), when installed here. */
+const OTHER_NODE = process.env.DRIFTBENCH_OTHER_NODE ?? '/usr/local/bin/node';
+
+function run(args: string[], env: Env = {}, node?: string): { code: number; out: string } {
+  if (node) {
+    const result = spawnSync(
+      node,
+      [join(REPO, 'node_modules/tsx/dist/cli.mjs'), 'packages/cli/src/bin.ts', ...args],
+      {
+        cwd: REPO,
+        encoding: 'utf8',
+        timeout: 300_000,
+        env: { ...process.env, ...env },
+      },
+    );
+    return { code: result.status ?? -1, out: `${result.stdout ?? ''}${result.stderr ?? ''}` };
+  }
   const result = spawnSync('pnpm', ['-s', 'driftbench', ...args], {
     cwd: REPO,
     encoding: 'utf8',
@@ -81,7 +97,7 @@ const fresh = async (ctx: Ctx, name: string) => {
 /** Scans a copy of the fixture into a map file and returns its text. */
 async function scanned(
   ctx: Ctx,
-  options: { reverse?: boolean; env?: Env; noModel?: boolean } = {},
+  options: { reverse?: boolean; env?: Env; noModel?: boolean; node?: string } = {},
 ): Promise<{ text: string; root: string; map: string }> {
   const root = await fresh(ctx, 'estate');
   await copyEstate(root, options.reverse);
@@ -97,6 +113,7 @@ async function scanned(
       '--force',
     ],
     options.env,
+    options.node,
   );
   // The map records when it was read and the root folder's name, by design (provenance): those are left out.
   const value = (await text(map))
@@ -115,7 +132,7 @@ const compareText = (a: string, b: string, what: string): ItemResult =>
     ? { pass: false, detail: `the first run wrote no ${what}` }
     : verdict(a === b ? undefined : `the ${what} differs between the two runs`, what);
 
-async function generated(ctx: Ctx, seed: number, env: Env = {}): Promise<Map<string, string>> {
+async function generated(ctx: Ctx, seed: number, env: Env = {}, node?: string): Promise<Map<string, string>> {
   // The same file names in a fresh folder each time, so only the folder differs, and it is taken out.
   const folder = await fresh(ctx, 'generate');
   const plan = join(folder, 'plan.yaml');
@@ -128,15 +145,16 @@ async function generated(ctx: Ctx, seed: number, env: Env = {}): Promise<Map<str
   run(
     ['estate', 'generate', '--map', map, '--plan', plan, '--out', out, '--seed', String(seed), '--force'],
     env,
+    node,
   );
   const files = await snapshot(out);
   for (const [name, value] of files) files.set(name, value.split(folder).join('<folder>'));
   return files;
 }
 
-async function planned(ctx: Ctx, env: Env = {}): Promise<string> {
+async function planned(ctx: Ctx, env: Env = {}, node?: string): Promise<string> {
   const out = join(await fresh(ctx, 'plan'), 'plan.yaml');
-  run(['estate', 'plan', join(FIXTURE, 'approved.yaml'), '--out', out, '--force'], env);
+  run(['estate', 'plan', join(FIXTURE, 'approved.yaml'), '--out', out, '--force'], env, node);
   return text(out);
 }
 
@@ -227,7 +245,7 @@ const CASES: Case[] = [
     title: 'two lints of one map print the same findings',
     cause: 'make estate lint deterministic',
     component: 'packages/estate/src/lint/lint.ts',
-    async judge(ctx) {
+    async judge() {
       const map = join(FIXTURE, 'approved.yaml');
       return compareText(run(['estate', 'lint', map]).out, run(['estate', 'lint', map]).out, 'lint output');
     },
@@ -430,6 +448,65 @@ const CASES: Case[] = [
           .join('<root>')
           .replace(/stdout-\d+\.yaml/g, 'map.yaml');
       return compareText(once(), once(), 'summary');
+    },
+  },
+  {
+    key: 'node22-scan',
+    tier: 3,
+    title: 'a scan on Node 22 writes the map a scan on the current Node writes',
+    cause: 'keep every output the same on every supported Node version',
+    component: SCAN,
+    async judge(ctx) {
+      return compareText((await scanned(ctx)).text, (await scanned(ctx, { node: OTHER_NODE })).text, 'map');
+    },
+  },
+  {
+    key: 'node22-scan-no-model',
+    tier: 3,
+    title: 'a structure-only scan on Node 22 writes the same map',
+    cause: 'keep every output the same on every supported Node version',
+    component: SCAN,
+    async judge(ctx) {
+      return compareText(
+        (await scanned(ctx, { noModel: true })).text,
+        (await scanned(ctx, { noModel: true, node: OTHER_NODE })).text,
+        'map',
+      );
+    },
+  },
+  {
+    key: 'node22-plan',
+    tier: 3,
+    title: 'a plan on Node 22 is the plan of the current Node',
+    cause: 'keep every output the same on every supported Node version',
+    component: PLAN,
+    async judge(ctx) {
+      return compareText(await planned(ctx), await planned(ctx, {}, OTHER_NODE), 'plan');
+    },
+  },
+  {
+    key: 'node22-generate',
+    tier: 3,
+    title: 'a generation on Node 22 writes the specs of the current Node',
+    cause: 'keep every output the same on every supported Node version',
+    component: GENERATE,
+    async judge(ctx) {
+      return verdict(sameFiles(await generated(ctx, 1), await generated(ctx, 1, {}, OTHER_NODE)), 'specs');
+    },
+  },
+  {
+    key: 'node22-lint',
+    tier: 3,
+    title: 'a lint on Node 22 prints the findings of the current Node',
+    cause: 'keep every output the same on every supported Node version',
+    component: 'packages/estate/src/lint/lint.ts',
+    async judge() {
+      const map = join(FIXTURE, 'approved.yaml');
+      return compareText(
+        run(['estate', 'lint', map]).out,
+        run(['estate', 'lint', map], {}, OTHER_NODE).out,
+        'lint output',
+      );
     },
   },
 ];

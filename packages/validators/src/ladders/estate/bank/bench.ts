@@ -9,9 +9,10 @@ import { stringify } from 'yaml';
 import { findRoot } from '../../../root';
 import { ROOT, RUNTIME, SETTINGS, STANDING, skillFile } from '../layout';
 import { writeEstate } from '../pipeline';
-import { namesFor, rule, writeSettings } from './common';
+import { namesFor, plantSkill, rule, writeSettings } from './common';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 import { type Case, judgeCase, standardSkill } from './hostile';
+import { BASE } from './planted';
 
 /**
  * bench.defects: the defects a model-free bench run found on a real estate, turned into items on fictional
@@ -97,6 +98,125 @@ function ignoredCases(): Case[] {
       },
     };
   });
+}
+
+// Names that fit several files (docs/estate.md section 1, "Names that fit several files") ---------------------
+
+const AMBIGUOUS_CAUSE =
+  'resolve a bare name from its own folder, then below it, then from the root; else list the candidates';
+
+/** A skill whose line 10 names `name`; files planted at the given paths, owned by the item. */
+function ambiguousCase(
+  key: string,
+  tier: Tier,
+  title: string,
+  name: string,
+  files: (own: string, other: (index: number) => string) => string[],
+  expected: ((own: string, other: (index: number) => string) => string) | 'ambiguous',
+): Case {
+  return {
+    key: `name-${key}`,
+    tier,
+    title: `${title} (names that fit several files)`,
+    component: CODE,
+    cause: AMBIGUOUS_CAUSE,
+    plant: (e, s, o) => {
+      const names = namesFor(s, o);
+      const own = (path: string) => skillFile(names.skill, path);
+      const other = (index: number) => `${namesFor(s, `${o}:${index}`).skill}`;
+      for (const path of files(own(''), other)) e.raw(path, '# Guide\n', o);
+      if (expected === 'ambiguous') {
+        // The naming line is the base's: its reference has no single key; the checks judge it.
+        plantSkill(
+          e,
+          BASE,
+          names.skill,
+          'Checks things.',
+          [{ text: 'Always name the record first.' }, { text: `When unsure, open \`${name}\`.` }],
+          { id: o },
+        );
+        e.check(o, (scan) => {
+          const atom = scan.map.atoms.find(
+            (candidate) => candidate.kind === 'reference' && candidate.provenance.file === own('SKILL.md'),
+          );
+          const want = files(own(''), other)
+            .filter((path) => !path.startsWith(own('')))
+            .sort();
+          const got = (atom?.fields?.candidates as string[] | undefined) ?? [];
+          const problems: string[] = [];
+          if (JSON.stringify([...got].sort()) !== JSON.stringify(want))
+            problems.push(`candidates ${JSON.stringify(got)}, expected ${JSON.stringify(want)}`);
+          if (!scan.lint.findings.some((finding) => finding.code === 'AMBIGUOUS_REFERENCE'))
+            problems.push('the lint gave no AMBIGUOUS_REFERENCE');
+          return problems.length > 0 ? problems.join('; ') : undefined;
+        });
+        return;
+      }
+      standardSkill(e, s, o, [`When unsure, open \`${name}\`.`]);
+      e.expect(o, {
+        hid: `${o}:ref`,
+        kind: 'reference',
+        file: own('SKILL.md'),
+        line: 10,
+        key: expected(own(''), other),
+      });
+      e.check(o, (scan) =>
+        scan.lint.findings.some((finding) => finding.code === 'AMBIGUOUS_REFERENCE')
+          ? 'the lint gave AMBIGUOUS_REFERENCE on a name that resolves'
+          : undefined,
+      );
+    },
+  };
+}
+
+function ambiguousCases(): Case[] {
+  const skillOf = (name: string, path: string) => skillFile(name, path);
+  return [
+    ambiguousCase(
+      'own-folder',
+      2,
+      'a bare name its own skill holds resolves there, whatever other skills hold',
+      'guide.md',
+      (own, other) => [`${own}references/guide.md`, skillOf(other(1), 'references/guide.md')],
+      (own) => `${own}references/guide.md`,
+    ),
+    ambiguousCase(
+      'below-folder',
+      3,
+      'a bare name found below the naming folder resolves there',
+      'guide.md',
+      (own, other) => [`${own}references/deep/guide.md`, skillOf(other(1), 'references/guide.md')],
+      (own) => `${own}references/deep/guide.md`,
+    ),
+    ambiguousCase(
+      'root-file',
+      3,
+      'a bare name the estate root holds resolves there before another skill',
+      'guide.md',
+      (_own, other) => ['guide.md', skillOf(other(1), 'references/guide.md')],
+      () => 'guide.md',
+    ),
+    ambiguousCase(
+      'with-folder',
+      2,
+      'a name with a folder resolves from the naming folder, never ambiguous',
+      'references/guide.md',
+      (own, other) => [
+        `${own}references/guide.md`,
+        skillOf(other(1), 'references/guide.md'),
+        skillOf(other(2), 'references/guide.md'),
+      ],
+      (own) => `${own}references/guide.md`,
+    ),
+    ambiguousCase(
+      'two-elsewhere',
+      4,
+      'a bare name two other skills hold lists both candidates and is linted',
+      'guide.md',
+      (_own, other) => [skillOf(other(1), 'references/guide.md'), skillOf(other(2), 'references/guide.md')],
+      'ambiguous',
+    ),
+  ];
 }
 
 // D9 ----------------------------------------------------------------------------------------------------------
@@ -530,6 +650,7 @@ export function benchFamily(): Family {
   const family = 'bench.defects';
   const cases: Case[] = [
     ...ignoredCases(),
+    ...ambiguousCases(),
     ...registryCases(),
     longTable('long-routing-table', 3, 400, false),
     longTable('long-routing-table-lint', 3, 400, true),

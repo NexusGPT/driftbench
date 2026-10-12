@@ -43,6 +43,9 @@ const CAUSES: Record<Line, string> = {
   enforced: 'report per atom kind the atoms enforced by a guard over the atoms',
 };
 
+/** The guards the fixture's decision logs hold (docs/estate.md section 7, drift). */
+const DRIFT_GUARDS = ['block-force-push.sh', 'read-before-edit.py', 'reply-length.py', 'stop-word.sh'];
+
 type Seen = {
   skills: Set<string>;
   guards: Set<string>;
@@ -178,19 +181,46 @@ export function statsFamily(): Family {
       let reported: Reported | undefined;
       let reach: Array<{ atom: string; reached?: number }> | undefined;
       let decay: Array<{ block: number; runs?: number }> | undefined;
+      let drift: Array<{ guard: string; decisions?: number; denies?: number }> | undefined;
       try {
         const json = JSON.parse(text.slice(text.indexOf('{'))) as {
           coverage?: { kinds?: Reported };
           reach?: Array<{ atom: string; reached?: number }>;
           decay?: Array<{ block: number; runs?: number }>;
+          drift?: { guards?: Array<{ guard: string; decisions?: number; denies?: number }> };
         };
         reported = json.coverage?.kinds;
         reach = json.reach;
         decay = json.decay;
+        drift = json.drift?.guards;
       } catch {
         reported = undefined;
       }
       const seen = sessionsSeen(join(FIXTURE, 'sessions'));
+      const logs = readdirSync(join(FIXTURE, 'sessions'))
+        .filter((name) => name.endsWith('.decisions.jsonl'))
+        .flatMap((name) => readFileSync(join(FIXTURE, 'sessions', name), 'utf8').split('\n'))
+        .filter((line) => line.trim() !== '')
+        .map((line) => JSON.parse(line) as { check?: string; verdict?: string });
+      for (const guard of DRIFT_GUARDS) {
+        const mine = logs.filter((entry) => entry.check === guard);
+        const want = {
+          decisions: mine.length,
+          denies: mine.filter((entry) => entry.verdict === 'deny' || entry.verdict === 'block').length,
+        };
+        const got = drift?.find((entry) => entry.guard === guard);
+        out.set(
+          `${family}.drift-${guard}`,
+          !drift
+            ? { pass: false, detail: `estate stats printed no drift (exit ${result.status})` }
+            : got?.decisions === want.decisions && got?.denies === want.denies
+              ? { pass: true, detail: 'holds' }
+              : {
+                  pass: false,
+                  detail: `reported ${got?.denies} denies of ${got?.decisions}, expected ${want.denies} of ${want.decisions}`,
+                },
+        );
+      }
       for (const [kind, , reached] of REACH) {
         const id = `${family}.reach-${kind}`;
         if (!reach) {

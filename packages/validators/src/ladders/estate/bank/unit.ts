@@ -61,7 +61,9 @@ type Variant =
   | 'script-green'
   | 'script-broken'
   | 'helper-green'
-  | 'helper-broken';
+  | 'helper-broken'
+  | 'report-message'
+  | 'report-time';
 type Cell = { key: string; tier: Tier; title: string; cause: string; target: string; variant: Variant };
 
 const base = (path: string) => path.split('/').pop() as string;
@@ -115,6 +117,26 @@ const CELLS: Cell[] = [
       variant: 'timeout',
     }),
   ),
+  ...GUARDS.filter((guard) => guard.message).map(
+    (guard): Cell => ({
+      key: `report-message-${base(guard.script)}`,
+      tier: 3,
+      title: `estate unit reports the message ${base(guard.script)} gives when it blocks`,
+      cause: 'report the message of every guard run',
+      target: guard.script,
+      variant: 'report-message',
+    }),
+  ),
+  ...GUARDS.map(
+    (guard): Cell => ({
+      key: `report-time-${base(guard.script)}`,
+      tier: 3,
+      title: `estate unit reports the running time of every run of ${base(guard.script)}${guard.timeout ? ', under its timeout' : ''}`,
+      cause: 'report the running time of every guard run against its timeout',
+      target: guard.script,
+      variant: 'report-time',
+    }),
+  ),
   ...HELPERS.flatMap((helper): Cell[] => [
     {
       key: `helper-green-${helper}`,
@@ -153,22 +175,32 @@ const CELLS: Cell[] = [
   ]),
 ];
 
+/** One guard run as `estate unit` reports it (docs/estate.md section 6). */
+type Reported = { guard?: string; event?: string; decision?: string; message?: string; ms?: number };
+
 function unitRun(
   estate: string,
   specs: readonly SuiteSpec[],
-): { verdicts: Map<string, boolean>; error?: string } {
+): { verdicts: Map<string, boolean>; guards: Reported[]; error?: string } {
   const result = cli(['estate', 'unit', ...specs.map((spec) => spec.path), '--estate', estate, '--json']);
   const at = result.out.indexOf('{');
   if (at < 0)
     return {
       verdicts: new Map(),
+      guards: [],
       error: `estate unit printed no JSON (exit ${result.code}): ${result.out.trim().slice(0, 120)}`,
     };
   try {
-    const json = JSON.parse(result.out.slice(at)) as { runs?: Array<{ spec: string; pass: boolean }> };
-    return { verdicts: new Map((json.runs ?? []).map((run) => [run.spec, run.pass === true])) };
+    const json = JSON.parse(result.out.slice(at)) as {
+      runs?: Array<{ spec: string; pass: boolean }>;
+      guards?: Reported[];
+    };
+    return {
+      verdicts: new Map((json.runs ?? []).map((run) => [run.spec, run.pass === true])),
+      guards: json.guards ?? [],
+    };
   } catch {
-    return { verdicts: new Map(), error: `estate unit printed no JSON (exit ${result.code})` };
+    return { verdicts: new Map(), guards: [], error: `estate unit printed no JSON (exit ${result.code})` };
   }
 }
 
@@ -239,9 +271,28 @@ export function unitFamily(): Family {
             continue;
           }
           const root = await variantOf(work, cell, guard);
-          const { verdicts, error } = unitRun(root, specs);
+          const { verdicts, guards, error } = unitRun(root, specs);
           if (error) {
             out.set(`${family}.${cell.key}`, { pass: false, detail: error });
+            continue;
+          }
+          if (cell.variant === 'report-message' || cell.variant === 'report-time') {
+            const runs = guards.filter((entry) => entry.guard === base(cell.target));
+            const limit = (guard?.timeout ?? Number.POSITIVE_INFINITY) * 1000;
+            const problem =
+              runs.length === 0
+                ? `no guard run of ${base(cell.target)} is reported`
+                : cell.variant === 'report-message'
+                  ? runs.some((entry) => String(entry.message ?? '').includes(guard?.message ?? '\u0000'))
+                    ? undefined
+                    : `no run of ${base(cell.target)} reports the message "${guard?.message}"`
+                  : runs.every((entry) => typeof entry.ms === 'number' && entry.ms >= 0 && entry.ms <= limit)
+                    ? undefined
+                    : `a run of ${base(cell.target)} reports no time or a time over its timeout`;
+            out.set(
+              `${family}.${cell.key}`,
+              problem ? { pass: false, detail: problem } : { pass: true, detail: 'holds' },
+            );
             continue;
           }
           const green = specs.every((spec) => verdicts.get(spec.id) === true);
