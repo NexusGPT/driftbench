@@ -56,13 +56,21 @@ describe('processes a run leaves behind', () => {
     await writeFile(join(box.root, 'daemon.py'), DAEMON);
     // One names the folder in its command line; the other only runs inside it.
     const started = await box.exec(
-      `python3 "$PWD/daemon.py" ${byPath}; mkdir -p sub && cd sub && python3 -c "exec(open('../daemon.py').read())" ${byPlace}`,
+      `set -e; python3 "$PWD/daemon.py" ${byPath}; mkdir -p sub; cd sub; python3 -c "exec(open('../daemon.py').read())" ${byPlace}`,
       { timeoutMs: 10_000 },
     );
-    expect(started.exitCode).toBe(0);
+    // What a failure needs to be read: the command's output and every python process the system lists.
+    const context = () =>
+      `exit ${started.exitCode}; stdout ${started.stdout}; stderr ${started.stderr}; python: ${(
+        spawnSync('ps', ['-A', '-ww', '-o', 'pid=,ppid=,command='], { encoding: 'utf8' }).stdout ?? ''
+      )
+        .split('\n')
+        .filter((line) => line.includes('python'))
+        .join(' | ')}`;
+    expect(started.exitCode, context()).toBe(0);
     await until(() => alive(byPath).length > 0 && alive(byPlace).length > 0);
-    expect(alive(byPath)).toHaveLength(1);
-    expect(alive(byPlace)).toHaveLength(1);
+    expect(alive(byPath), context()).toHaveLength(1);
+    expect(alive(byPlace), context()).toHaveLength(1);
     await reapFolder([box.root]);
     await box.destroy();
     await until(() => alive(byPath).length === 0 && alive(byPlace).length === 0);
