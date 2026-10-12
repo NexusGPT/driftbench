@@ -375,7 +375,7 @@ describe('the hardness measurement', () => {
     const { rows, problems } = readJournal(ROOT, 'map');
     expect(problems).toEqual([]);
     const measured = measureHardness(rows);
-    expect(measured.iteration0).toMatchObject({ bankSize: 565, passing: 209 });
+    expect(measured.iteration0).toMatchObject({ bankSize: 595, passing: 222 });
     expect(measured.pilot).toMatchObject({ iterations: 10, complete: true });
     expect(measured.forecast).toBeGreaterThanOrEqual(100);
     expect(measured.causes?.distinct).toBeGreaterThanOrEqual(100);
