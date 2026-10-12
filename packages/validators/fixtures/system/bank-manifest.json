@@ -12716,7 +12716,7 @@
    "level": 10,
    "source": "contract",
    "component": "packages/store/src/registry.ts",
-   "cause": "the registry resolves name@latest, a bare name and a hash prefix of six or more hex characters."
+   "cause": "the registry, or datasets.md, settles a ref of six or more digits: a hash prefix as the page lists it, or a version number"
   },
   {
    "id": "claim/cli/dataset/push-skips-dot-and-node-modules",
@@ -12995,7 +12995,7 @@
    "level": 10,
    "source": "contract",
    "component": "driftbench dataset",
-   "cause": "driftbench dataset restore resolves name@<hash prefix of six or more hex characters> to the version whose hash starts with it"
+   "cause": "the registry, or datasets.md, settles a ref of six or more digits: a hash prefix as the page lists it, or a version number"
   },
   {
    "id": "breaker/datasets/ref-short-hash-refused",

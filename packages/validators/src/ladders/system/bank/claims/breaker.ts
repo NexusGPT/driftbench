@@ -458,7 +458,7 @@ function datasetItems(): BankItem[] {
       title:
         'datasets.md "The registry": a ref name@<six or more hex characters of the hash> names the version with that hash',
       cause:
-        'driftbench dataset restore resolves name@<hash prefix of six or more hex characters> to the version whose hash starts with it',
+        'the registry, or datasets.md, settles a ref of six or more digits: a hash prefix as the page lists it, or a version number',
       async check(ctx) {
         const dir = work(ctx, 'ref-hash');
         const store = join(dir, 's.db');
@@ -3787,7 +3787,8 @@ const created = (path: string): Tool => ({
 
 /** An IBAN-shaped value whose check digits are right (valid) or off by one (invalid). */
 function iban(seed: number, valid: boolean): string {
-  const bban = `5390 0754 ${String(7000 + seed).padStart(4, '0')}`.replace(/\s/g, '');
+  // Folded seeds reach 9999: keep the account block at four digits so the BBAN stays Belgian (12 digits).
+  const bban = `5390 0754 ${String(7000 + (seed % 1000)).padStart(4, '0')}`.replace(/\s/g, '');
   const rearranged = `${bban}111400`;
   let rem = 0;
   for (const ch of rearranged) rem = (rem * 10 + Number(ch)) % 97;
@@ -4261,7 +4262,7 @@ function checkItems(): BankItem[] {
           'pii-fine',
           [
             one([
-              `Mail jo${ctx.seed}@example.org or ann@acme.test or call +1 202 555 01${String(10 + ctx.seed)} now`, // guard:allow fictional input of the personal-data check
+              `Mail jo${ctx.seed}@example.org or ann@acme.test or call +1 202 555 01${String(10 + (ctx.seed % 90))} now`, // guard:allow fictional input of the personal-data check
             ]),
           ],
           spc('{ must: [Mail] }'),

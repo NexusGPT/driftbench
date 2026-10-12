@@ -1975,7 +1975,8 @@ add({
   component: REGISTRY,
   title:
     'a ref may be name@version, name@latest, name@<six or more hex of the hash> or a bare name for the latest: all resolve, and equal versions diff to exit 0 (datasets.md)',
-  cause: 'the registry resolves name@latest, a bare name and a hash prefix of six or more hex characters.',
+  cause:
+    'the registry, or datasets.md, settles a ref of six or more digits: a hash prefix as the page lists it, or a version number',
   async run(ctx) {
     put(ctx.dir, 'specs/a.yaml', mini(`ref-${ctx.seed}`));
     const store = join(ctx.dir, 'r.db');
