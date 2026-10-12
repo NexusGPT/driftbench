@@ -794,19 +794,19 @@ Pilot plan: 13 cells by behaviour; per cell up to 10 conversations x 3 approved 
   behaviour=-      10             23        115   425     $0.00
   behaviour=B-001  10             27        135   695     $0.00
   behaviour=B-002  10             25        125   580     $0.00
-  behaviour=B-003  9              23        115   605     $0.00
-  behaviour=B-004  10             24        120   575     $0.00
-  behaviour=B-005  9              19        95    410     $0.00
-  behaviour=B-006  10             30        150   975     $0.00
-  behaviour=B-007  10             28        140   940     $0.00
+  behaviour=B-003  10             23        115   520     $0.00
+  behaviour=B-004  10             24        120   600     $0.00
+  behaviour=B-005  10             22        110   520     $0.00
+  behaviour=B-006  10             28        140   895     $0.00
+  behaviour=B-007  10             30        150   1005    $0.00
   behaviour=B-008  10             29        145   845     $0.00
-  behaviour=B-009  10             26        130   665     $0.00
-  behaviour=B-010  9              24        120   685     $0.00
-  behaviour=B-011  10             23        115   550     $0.00
-  behaviour=B-012  10             23        115   460     $0.00
-  total            127            324       1620  8410    $0.00
+  behaviour=B-009  10             29        145   905     $0.00
+  behaviour=B-010  10             26        130   685     $0.00
+  behaviour=B-011  10             24        120   590     $0.00
+  behaviour=B-012  10             26        130   635     $0.00
+  total            130            336       1680  8900    $0.00
 Cost: the agent runs in process: no model call, nothing billed.
-Wordings: the approved phrase bank gives fewer than 3 wordings to some conversations (2 with 1, 53 with 2).
+Wordings: the approved phrase bank gives fewer than 3 wordings to some conversations (2 with 1, 50 with 2).
 ```
 
 | Exit code | `plan` | `run` | `analyse` |
