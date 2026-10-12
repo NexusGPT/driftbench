@@ -99,8 +99,12 @@ export function atomKey(atom: Atom): string {
       return field('rule');
     case 'setting':
       return field('key');
-    case 'stage':
-      return field('id');
+    case 'stage': {
+      // A step of a named process may be qualified by its process (`<process>/<id>`): the step id is the key.
+      const id = field('id');
+      const process = field('process');
+      return process !== '' && id.startsWith(`${process}/`) ? id.slice(process.length + 1) : id;
+    }
     case 'hazard':
       return field('hazard');
     case 'invariant':
