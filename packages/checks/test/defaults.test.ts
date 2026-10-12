@@ -13,6 +13,7 @@ const NAMES = [
   'must',
   'must_not',
   'exact',
+  'injection',
   'similarity',
   'relevancy',
   'knowledge_retention',

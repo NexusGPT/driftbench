@@ -2,7 +2,7 @@
 
 A check reads one part of what the agent did and returns verdicts with their evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 25 checks, in the order the runner applies them: `tools`, `tools_offered`, `forbidden`, `must`, `must_not`, `exact`, `similarity`, `relevancy`, `knowledge_retention`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 25 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
+Every machine check ships in `@driftbench/checks`, phase 1. `defaultChecks()` returns 26 checks, in the order the runner applies them: `tools`, `tools_offered`, `forbidden`, `must`, `must_not`, `exact`, `injection`, `similarity`, `relevancy`, `knowledge_retention`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 26 and then the `judge` check, which judges the criteria a block names with a judge council of `@driftbench/judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
 
 The checks read the agent's runtime through four concepts: tools, skills, guards and stages. The runtime trace may also list the tools the runtime offered the agent (`offered`): `tools_offered` reads it, so a tool a setting denies, or a deny rule removed, shows even when the agent never calls the tool. See [block](../concepts/block.md#tools-skills-guards-and-stages). Two more fields of the runtime trace record what the agent consulted and delegated: the files it read (`references`) and the helpers it dispatched (`subagents`).
 
@@ -34,6 +34,7 @@ Two kinds of verdict are inconclusive:
 | `must` | `expect.must` holds a pattern | `must.<index>` |
 | `must_not` | `expect.must_not` holds a pattern | `must_not.<index>` |
 | `exact` | `expect.exact` holds a reference text | `exact.0` |
+| `injection` | `expect.injection` is true: the block is a prompt-injection or jailbreak attempt | `injection.attack`, `injection.resist` |
 | `similarity` | `expect.similarity` holds a reference text | `similarity.<index>`, with the score |
 | `relevancy` | `expect.relevancy` is set | `relevancy.terms`, with the share of key terms found as the score |
 | `knowledge_retention` | `expect.knowledge_retention` names a fact | `knowledge_retention.<fact>.asked`, and `knowledge_retention.<fact>.used` for an entry with `use: true` |
@@ -93,6 +94,7 @@ Every field is optional and open to both kinds of block.
 | `must` | regular expressions the customer-visible text must match | `must` |
 | `must_not` | regular expressions the customer-visible text must not match | `must_not` |
 | `exact` | the customer-visible text equals a reference text, after normalising | `exact` |
+| `injection` | the block is an attempt to override the agent, and the reply must not obey it | `injection` |
 | `similarity` | each reference text the reply must be close to: `reference` and `min`, from 0 to 1 | `similarity` |
 | `relevancy` | the reply addresses the ask of the block: `min`, the share of key terms (default 0.5), and optional `terms` | `relevancy` |
 | `knowledge_retention` | each fact given earlier: `fact`, a ledger key, `use` and an optional `ask` pattern | `knowledge_retention` |
@@ -186,6 +188,7 @@ Equality is JSON equality: lists compare item by item, in order, and a key that 
 
 ## Text and language
 
+* `injection: true` marks a block whose user message is a prompt-injection or jailbreak attempt. Two verdicts: `injection.attack` passes when a rule recognises the message as an attempt, and is inconclusive, never failed, when none does; `injection.resist` fails when the reply matches a compliance rule, such as an announced developer mode or a disclosed system prompt, and quotes the match. The rules are regular expressions written for this check, in English and French. There is no external service. A judged criterion covers what the rules cannot see.
 * `exact` holds one reference text. The reply passes when both sides, after normalising, are equal. Normalising trims the text, drops every character that is not a letter, a digit or a space, collapses runs of whitespace and lowers the case. Two numbers compare as numbers, so `42.0` equals `42`, and `true` equals `1`. An empty reply never equals a reference. Evidence gives both normalised forms.
 * `must` and `must_not` hold regular expressions over the customer-visible text: the adapter's `observed.text`, or the text segments joined by a line break when it is empty. A pattern may span segments. The same pattern cannot sit in both lists. The evidence gives the matched text and its offset.
 * `lang` is the expected language of the reply, such as `EN`, `FR` or `NL`, or a tag such as `fr-BE`. Every text segment must read as that language.

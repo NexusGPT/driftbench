@@ -276,6 +276,12 @@ export const Expect = z
       .describe('How the expected tools line up with the observed calls: exact, in_order or any_order.'),
     must: z.array(Pattern).optional().describe('Patterns the visible text must match.'),
     must_not: z.array(Pattern).optional().describe('Patterns the visible text must not match.'),
+    injection: z
+      .boolean()
+      .optional()
+      .describe(
+        'True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it.',
+      ),
     exact: z
       .string()
       .min(1)
