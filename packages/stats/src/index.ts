@@ -79,6 +79,7 @@ export {
 } from './special';
 export {
   type Component,
+  designEffectFromData,
   icc,
   iccOneWay,
   type LevelCorrelation,

@@ -256,6 +256,19 @@ export function iccOneWay(values: readonly number[], clusters: readonly (string 
   return (msb - msw) / denominator;
 }
 
+/**
+ * The design effect measured from the data: 1 + (mbar - 1) ICC(1), mbar the mean cluster size and ICC(1) as
+ * `iccOneWay` (Kish 1965). Throws what `iccOneWay` throws.
+ */
+export function designEffectFromData(
+  values: readonly number[],
+  clusters: readonly (string | number)[],
+): number {
+  const rho = iccOneWay(values, clusters);
+  const mbar = values.length / new Set(clusters).size;
+  return 1 + (mbar - 1) * rho;
+}
+
 export interface LevelCorrelation {
   readonly level: string;
   /**

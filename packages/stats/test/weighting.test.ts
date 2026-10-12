@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { iccOneWay, kishEffectiveSize, weightedMean } from '../src/index';
+import { designEffectFromData, iccOneWay, kishEffectiveSize, weightedMean } from '../src/index';
 
 describe('weightedMean', () => {
   it('matches numpy.average', () => {
@@ -59,5 +59,21 @@ describe('iccOneWay', () => {
     expect(() => iccOneWay([Number.NaN, 2, 3, 4], [1, 1, 2, 2])).toThrow(RangeError);
     expect(() => iccOneWay([1, 2, 3], [1, 1, 1])).toThrow(/two clusters/);
     expect(() => iccOneWay([1, 2, 3], [1, 2, 3])).toThrow(RangeError);
+  });
+});
+
+describe('designEffectFromData', () => {
+  it('is 1 + (mean cluster size - 1) ICC(1)', () => {
+    expect(
+      designEffectFromData([1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1], [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4]),
+    ).toBeCloseTo(0.9377615062761506, 12);
+    expect(designEffectFromData([3, 4, 5, 9, 8, 10, 2, 3, 1, 4], [1, 1, 1, 2, 2, 2, 3, 3, 4, 4])).toBeCloseTo(
+      2.2981818181818183,
+      12,
+    );
+  });
+  it('throws a RangeError on input iccOneWay refuses', () => {
+    expect(() => designEffectFromData([], [])).toThrow(RangeError);
+    expect(() => designEffectFromData([1, Number.NaN, 2, 3], [1, 1, 2, 2])).toThrow(RangeError);
   });
 });
