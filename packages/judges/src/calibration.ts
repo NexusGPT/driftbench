@@ -247,6 +247,10 @@ export type LabelAgreement = {
   readonly kappa?: number;
   /** The Wilson 95% interval on agree / n. */
   readonly agreement: Interval;
+  /** PABAK: 2 * agree / n - 1, the raw agreement rescaled to a chance-free kappa. Undefined with no blocks. */
+  readonly pabak?: number;
+  /** Gwet's AC1 for two categories, pass and not pass. Undefined with no blocks, or when chance agreement is 1. */
+  readonly ac1?: number;
   /** Per block: the human label and the judge's answer. */
   readonly blocks: readonly {
     readonly id: string;
@@ -434,6 +438,16 @@ async function answer(
   }
 }
 
+/** Gwet's AC1 for pass against the rest: the observed agreement less the chance agreement of the pass category. */
+function ac1Of(human: readonly string[], judged: readonly string[]): number | undefined {
+  const n = human.length;
+  if (n === 0) return undefined;
+  const po = human.filter((label, i) => judged[i] === label).length / n;
+  const pi = (human.filter((l) => l === 'pass').length + judged.filter((l) => l === 'pass').length) / (2 * n);
+  const pe = 2 * pi * (1 - pi);
+  return pe === 1 ? undefined : (po - pe) / (1 - pe);
+}
+
 export function agreement(
   ids: readonly string[],
   human: readonly ('pass' | 'fail')[],
@@ -451,6 +465,8 @@ export function agreement(
     n,
     agree,
     ...(kappa === undefined ? {} : { kappa }),
+    ...(n === 0 ? {} : { pabak: (2 * agree) / n - 1 }),
+    ...(ac1Of(human, judged) === undefined ? {} : { ac1: ac1Of(human, judged) }),
     agreement: interval,
     blocks: ids.map((id, i) => {
       const anchor = anchors[i];
@@ -704,4 +720,36 @@ export async function loadAssignmentTable(path: string): Promise<AssignmentTable
     throw new Error(`${path}: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim());
   }
   return parsed.data;
+}
+
+/** The probability that a binomial(n, p) count is at most k. */
+function binomialAtMost(k: number, n: number, p: number): number {
+  let total = 0;
+  let logTerm = n * Math.log(1 - p);
+  for (let i = 0; i <= k; i += 1) {
+    if (i > 0) logTerm += Math.log(n - i + 1) - Math.log(i) + Math.log(p) - Math.log(1 - p);
+    total += Math.exp(logTerm);
+  }
+  return total;
+}
+
+/**
+ * An exact 95% interval on the share of blocks judges agree on, from k agreeing blocks of n (Clopper-Pearson).
+ * Exact, so its coverage never falls below 95% near agreement 1 at small n, where Wilson's falls short.
+ */
+export function agreementInterval(agree: number, n: number): { lower: number; upper: number } {
+  const alpha = 0.025;
+  const solve = (target: (p: number) => number) => {
+    let lo = 0;
+    let hi = 1;
+    for (let step = 0; step < 100; step += 1) {
+      const mid = (lo + hi) / 2;
+      if (target(mid) > 0) lo = mid;
+      else hi = mid;
+    }
+    return (lo + hi) / 2;
+  };
+  const lower = agree === 0 ? 0 : solve((p) => alpha - (1 - binomialAtMost(agree - 1, n, p)));
+  const upper = agree === n ? 1 : solve((p) => binomialAtMost(agree, n, p) - alpha);
+  return { lower, upper };
 }
