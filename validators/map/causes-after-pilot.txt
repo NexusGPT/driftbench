@@ -23,6 +23,7 @@ inventory:csv
 inventory:long-flow-title
 inventory:long-item
 inventory:markdown-tables
+inventory:whole-long-quote
 quote:content-parts
 quote:csharp-verbatim
 quote:csv
@@ -110,5 +111,6 @@ tools:tuple-items-draft-04
 tools:unevaluated-items
 tools:unevaluated-properties
 tools:very-long-enum
+tools:whole-long-quote
 tools:write-only-output
 tools:x-nullable
