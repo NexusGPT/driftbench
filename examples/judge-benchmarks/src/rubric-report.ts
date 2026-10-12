@@ -37,6 +37,19 @@ async function main(): Promise<void> {
   const best = ours[0];
   if (!best) throw new Error('No completed driftbench dev configuration');
   const bestCost = ((best.uniqueCostUsd ?? best.costUsd) / 357) * 100;
+  const domainRows = rows.flatMap((r) =>
+    Object.entries(r.summary.byGroup).map(([domain, group]) => [
+      r.contestant,
+      domain,
+      group.n / 2,
+      group.value * 100,
+      ((r.uniqueCostUsd ?? r.costUsd) / 357) * 100,
+    ]),
+  );
+  await writeFile(
+    join(directory, 'domain-scores.csv'),
+    `variant,domain,items,accuracy_percent,whole_judge_usd_per_100\n${domainRows.map((r) => r.map((v) => (typeof v === 'string' ? JSON.stringify(v) : String(v))).join(',')).join('\n')}\n`,
+  );
   const config = contestantById(best.contestant);
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
   const recording = await readFile(join(RECORDINGS, 'rubricbench', 'haiku.jsonl'), 'utf8');
@@ -50,7 +63,8 @@ async function main(): Promise<void> {
     contestant: best.contestant,
     model: 'haiku',
     split: 'dev',
-    samples: config.samples ?? 1,
+    samples: config.rubricEngine?.samples ?? config.samples ?? 1,
+    rubricEngine: config.rubricEngine ?? null,
     canonicalOrder: config.canonicalOrder ?? false,
     source: config.source,
     devScore: best.summary.value.estimate,
@@ -78,6 +92,8 @@ async function main(): Promise<void> {
     '',
     '## Best config by domain',
     '',
+    'All completed variants and every dataset domain are in domain-scores.csv beside the result JSON files. Domain labels remain exactly as the source dataset supplies them.',
+    '',
     '| Dataset domain | Items | Dev accuracy |',
     '|---|---:|---:|',
     ...Object.entries(best.summary.byGroup).map(
@@ -91,10 +107,13 @@ async function main(): Promise<void> {
     '- Literal grading restricts evaluation to the rubric. Contrast grading compares degree of fulfillment within each rubric. The contract variant also checks explicit user constraints omitted by the rubric.',
     '- Canonical presentation sorts responses by their content hashes, with no label, item id or domain input. Both caller orders map back to the original replies and share their recorded judgment.',
     '- Independent repeats and the prompt ensemble test whether additional judgments resolve remaining errors. Competitor templates stay unchanged.',
+    '- The pointwise engine classifies hard and soft items before seeing replies, validates exact positive quotes, permutes rubric order by sample, and enforces hard satisfaction before weighted soft counts.',
+    '- Five-vote execution stops early only when every rubric has a mathematical majority that the remaining unseen votes cannot change. It never stops on confidence alone.',
+    '- Code and MBPP snippets run in worktree scratch folders. Python uses supplied examples, JavaScript runs in a VM, C/C++ run when an entry point exists, and SQL uses a scratch SQLite database. Missing Java runtime, unsupported languages and absent context remain visible unknowns.',
     '',
-    `The selected configuration uses ${config.samples ?? 1} judgment(s) per prompt and ${config.canonicalOrder ? 'canonical presentation' : 'the original presentation rules'}. Its measured score and domain rows above are the evidence for choosing it.`,
+    `The selected configuration uses ${config.rubricEngine?.samples ?? config.samples ?? 1} judgment(s) per prompt and ${config.canonicalOrder ? 'canonical presentation' : 'the original presentation rules'}. Its measured score and domain rows above are the evidence for choosing it.`,
     '',
-    'Canonical position consistency is guaranteed by preprocessing. It is not evidence that the underlying model is immune to ordering. The two reported games reuse one judgment and are not independent observations.',
+    'Canonical mapping gives the same choice in both input orders. The reported consistency metric still counts ties as inconsistent. Mapping is not evidence that the underlying model is immune to ordering. The two reported games reuse one judgment and are not independent observations.',
     'Cost counts unique recorded prompt keys within a contestant. The legacy costUsd field counts both game requests, including cache hits, and can therefore double-count canonical judgments. uniqueCostUsd is the reproduction cost used here.',
     '',
     '## Reproduce',

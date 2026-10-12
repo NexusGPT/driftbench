@@ -3,6 +3,7 @@ import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Caller, CallFailed, createCaller, promptKey, Recordings, SpendCapReached } from './call';
+import { codeEvidence } from './code-evidence';
 import {
   CONTESTANTS,
   type Contestant,
@@ -21,6 +22,16 @@ import {
   stratifiedSample,
 } from './data';
 import { extractPython, majoritySolve, pythonOutput } from './extras';
+import {
+  engineTie,
+  fixedMajority,
+  hardDecision,
+  parseEngineTie,
+  parseRubricPlan,
+  parseRubricReply,
+  rubricPlan,
+  rubricReply,
+} from './rubric-engine';
 import {
   type PairResult,
   type PointResult,
@@ -331,6 +342,68 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
     if (pairwiseBench) {
       const pairs = items as PairItem[];
       const tasks = pairs.map((item) => async (): Promise<PairResult> => {
+        if (contestant.rubricEngine) {
+          const engine = contestant.rubricEngine;
+          const criterion = await criterionFor(item);
+          const rubrics = criterion
+            .split('\n')
+            .slice(1)
+            .map((r) => r.trim())
+            .filter(Boolean);
+          const planned = await ask(contestant, rubricPlan(item.question, rubrics), item.id, 'hardsoft-plan');
+          const rules = planned ? parseRubricPlan(planned.text, rubrics.length) : undefined;
+          if (!rules) return { item, games: ['tie', 'tie'], missing: 2 };
+          const grade = async (reply: string, side: string): Promise<boolean[] | undefined> => {
+            const evidence = engine.execution
+              ? await codeEvidence({ question: item.question, a: reply, b: '' })
+              : undefined;
+            const samples: boolean[][] = [];
+            for (let sample = 0; sample < engine.samples; sample += 1) {
+              const r = await ask(
+                contestant,
+                rubricReply({
+                  question: item.question,
+                  reply,
+                  rubrics,
+                  rules,
+                  sample,
+                  ...(evidence === undefined ? {} : { evidence }),
+                }),
+                item.id,
+                `pointwise-${side}#${sample + 1}`,
+              );
+              const checks = r ? parseRubricReply(r.text, rubrics.length, reply, evidence) : undefined;
+              if (checks) samples.push(checks);
+              const fixed = fixedMajority(samples, rubrics.length, engine.samples);
+              if (fixed) return fixed;
+            }
+            return undefined;
+          };
+          // Calls stay pointwise: no prompt exposes the competing response. Serialization is also
+          // enforced by ask when concurrency is one.
+          const a = await grade(item.a, 'A');
+          const b = await grade(item.b, 'B');
+          if (!a || !b) return { item, games: ['tie', 'tie'], missing: Number(!a) + Number(!b) };
+          let decision = hardDecision(a, b, rules);
+          if (decision === 'tie') {
+            const hash = (reply: string) => createHash('sha256').update(reply).digest('hex');
+            const reversed = hash(item.a) > hash(item.b);
+            const r = await ask(
+              contestant,
+              engineTie({
+                question: item.question,
+                criterion,
+                a: reversed ? item.b : item.a,
+                b: reversed ? item.a : item.b,
+              }),
+              item.id,
+              'direct-tiebreak',
+            );
+            if (!r) return { item, games: ['tie', 'tie'], missing: 1 };
+            decision = reversed ? flipPair(parseEngineTie(r.text)) : parseEngineTie(r.text);
+          }
+          return { item, games: [decision, decision], missing: 0 };
+        }
         if (contestant.checklist) {
           // Each reply is checked against every rubric alone; the reply with more satisfied rubrics wins.
           const checklist = contestant.checklist;
@@ -369,13 +442,22 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
             // go through this path and map the shared recorded judgement back to their own positions.
             const hash = (reply: string) => createHash('sha256').update(reply).digest('hex');
             const reversed = contestant.canonicalOrder === true && hash(a) > hash(b);
+            const presentedA = reversed ? b : a;
+            const presentedB = reversed ? a : b;
+            const executionEvidence = await contestant.pairEvidence?.({
+              question: item.question,
+              a: presentedA,
+              b: presentedB,
+            });
             const input = {
               question: item.question,
-              a: reversed ? b : a,
-              b: reversed ? a : b,
+              a: presentedA,
+              b: presentedB,
               criterion,
               ...(setup === undefined ? {} : { setup }),
-              ...(reference === undefined ? {} : { reference }),
+              ...((executionEvidence ?? reference) === undefined
+                ? {}
+                : { reference: executionEvidence ?? reference }),
             };
             const prompt = contestant.pair?.(input);
             if (!prompt) return undefined;

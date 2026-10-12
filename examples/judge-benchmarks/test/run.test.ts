@@ -56,6 +56,46 @@ const pairs: PairItem[] = [1, 2, 3, 4].map((i) => ({
 }));
 
 describe('runBenchmark', () => {
+  it('runs pointwise hard gates and stops a five-sample vote once every rubric majority is fixed', async () => {
+    const cmd = join(dir, 'engine-claude.mjs');
+    await writeFile(
+      cmd,
+      `#!/usr/bin/env node
+let input=''; process.stdin.on('data',c=>input+=c);
+process.stdin.on('end',()=>{
+  const data=JSON.parse(input);
+  const result=data.response===undefined
+    ? {rules:data.requirements.map(r=>({id:r.id,hard:true,weight:3}))}
+    : {checks:data.requirements.map(r=>({id:r.id,yes:data.response.startsWith('RIGHT'),quote:data.response,reason:'literal check'}))};
+  process.stdout.write(JSON.stringify({result:JSON.stringify(result),total_cost_usd:0.001}));
+});
+`,
+    );
+    await chmod(cmd, 0o755);
+    const report = await runBenchmark({
+      bench: 'rubricbench',
+      model: 'fake',
+      command: cmd,
+      concurrency: 1,
+      items: pairs
+        .slice(0, 2)
+        .map((item) => ({ ...item, criterion: 'Rubrics:\nDoes the reply start with RIGHT?' })),
+      recordingsDir: join(dir, 'rec-engine'),
+      contestants: [
+        {
+          id: 'engine-test',
+          source: 'test',
+          rubricEngine: { samples: 5, execution: false },
+          pair: () => ({ system: '', user: '' }),
+        },
+      ],
+    });
+    expect(report.contestants[0]?.summary.value.estimate).toBe(1);
+    expect(report.contestants[0]?.summary.missing).toBe(0);
+    // One shared plan plus two responses per item, three fixed-majority samples each.
+    expect(report.newCalls).toBe(13);
+    expect(report.replayed).toBe(1);
+  });
   it('starts no model calls after the explicit deadline', async () => {
     const report = await runBenchmark({
       bench: 'rubricbench',

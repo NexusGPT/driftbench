@@ -1,3 +1,4 @@
+import { codeEvidence } from './code-evidence';
 import type { Contestant, PairDecision, Prompt } from './contestants';
 import { jsonObjects } from './json';
 
@@ -13,13 +14,20 @@ Use a shared importance weight per requirement: 3 for the central requested deli
 After all checks, select the response with greater rubric satisfaction. If scores tie, compare the material differences under the rubric only. If there is truly no rubric-based difference, report tie.
 Return one JSON object with "checks" (one entry for every requirement, in order, each with integer "id", integer "weight" from 1 to 3, integer "a" and "b" from 0 to 2, and a short "evidence" contrasting the responses) and "winner" ("A", "B" or "tie").`;
 
-export function atomicPrompt(input: { question: string; a: string; b: string; criterion: string }): Prompt {
+export function atomicPrompt(input: {
+  question: string;
+  a: string;
+  b: string;
+  criterion: string;
+  reference?: string;
+}): Prompt {
   return {
     system: ATOMIC_SYSTEM,
     user: JSON.stringify({
       question: input.question,
       rubric: input.criterion,
       responses: { A: input.a, B: input.b },
+      ...(input.reference === undefined ? {} : { execution_evidence: input.reference }),
     }),
   };
 }
@@ -156,4 +164,12 @@ export const CONTRACT_CONTESTANT: Contestant = {
   canonicalOrder: true,
   pair: (input) => ({ ...atomicPrompt(input), system: CONTRACT_SYSTEM }),
   parsePair: (text) => atomicDecision(text, 'holistic'),
+};
+
+export const EXECUTED_CONTESTANT: Contestant = {
+  ...CONTRACT_CONTESTANT,
+  id: 'driftbench-rb-executed',
+  source:
+    'Direct winner with atomic rubric evidence, user constraints and candidate-code execution (dev experiment)',
+  pairEvidence: codeEvidence,
 };

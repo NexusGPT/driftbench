@@ -43,10 +43,16 @@ async function main(): Promise<void> {
       await wait(5000);
     }
   }
-  if (!initial || won(initial)) return;
+  if (!initial) return;
+  let targetReached = won(initial);
+  let executedMeasured = false;
   const stages: { name: string; contestants: Contestant[] }[] = [
+    { name: 'hardpoint-dev', contestants: [contestantById('driftbench-rb-hardpoint')] },
+    { name: 'hardpoint5-dev', contestants: [contestantById('driftbench-rb-hardpoint5')] },
+    { name: 'hardpoint5-executed-dev', contestants: [contestantById('driftbench-rb-hardpoint5-executed')] },
     { name: 'checklist-dev', contestants: [contestantById('driftbench-checklist')] },
     { name: 'contract-dev', contestants: [contestantById('driftbench-rb-contract')] },
+    { name: 'executed-dev', contestants: [contestantById('driftbench-rb-executed')] },
     { name: 'literal-dev', contestants: [contestantById('driftbench-rb-literal')] },
     {
       name: 'contrast-dev',
@@ -127,7 +133,14 @@ async function main(): Promise<void> {
           stopped: report.stopped,
         }),
       );
-      if (won(report)) {
+      targetReached ||= won(report);
+      if (
+        (stage.name === 'executed-dev' || stage.name === 'hardpoint5-executed-dev') &&
+        !report.stopped &&
+        report.contestants.every((r) => r.summary.missing === 0)
+      )
+        executedMeasured = true;
+      if (targetReached && executedMeasured) {
         await writeFile(
           join(DIRECTORY, 'campaign-stop.json'),
           JSON.stringify({ reason: 'full-dev target reached', stage: stage.name }),

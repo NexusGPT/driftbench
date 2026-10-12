@@ -3,10 +3,12 @@ import { jsonObjects } from './json';
 import {
   CONTRACT_CONTESTANT,
   CONTRAST_CONTESTANTS,
+  EXECUTED_CONTESTANT,
   LITERAL_CONTESTANT,
   RUBRIC_ATOMIC,
   RUBRIC_ENSEMBLE,
 } from './rubric-atomic';
+import { ENGINE_CONTESTANTS, type RubricEngine } from './rubric-engine';
 
 export { jsonObjects } from './json';
 
@@ -76,6 +78,9 @@ export type Contestant = {
     criterion: string;
     reference?: string;
   }) => readonly Prompt[];
+  /** Deterministic execution evidence for exact candidate code, without a model call. */
+  readonly pairEvidence?: (input: { question: string; a: string; b: string }) => Promise<string | undefined>;
+  readonly rubricEngine?: RubricEngine;
   readonly parsePair?: (text: string) => PairDecision;
   readonly point?: (input: {
     question: string;
@@ -803,11 +808,13 @@ const driftbenchChecklist: Contestant = {
 };
 
 export const CANDIDATES: readonly Contestant[] = [
+  ...ENGINE_CONTESTANTS,
   ...RUBRIC_ATOMIC,
   LITERAL_CONTESTANT,
   ...CONTRAST_CONTESTANTS,
   RUBRIC_ENSEMBLE,
   CONTRACT_CONTESTANT,
+  EXECUTED_CONTESTANT,
   driftbenchAdaptive,
   driftbenchChecked,
   driftbenchChecklist,
