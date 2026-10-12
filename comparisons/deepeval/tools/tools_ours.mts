@@ -2,7 +2,7 @@
 // Usage, from the repository root: npx tsx comparisons/deepeval/tools/tools_ours.mts
 // Writes comparisons/deepeval/results/tools-ours.json.
 import { readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { forbidden } from '../../../packages/checks/src/checks/forbidden.ts';
 import { tools } from '../../../packages/checks/src/checks/tools.ts';

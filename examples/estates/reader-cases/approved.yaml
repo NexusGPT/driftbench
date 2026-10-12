@@ -934,6 +934,8 @@ atoms:
     enforcement: [ guard.settings.pretooluse-bash-guard-block-force-push ]
     fields:
       polarity: prohibition
+      spans:
+        - git push --force
   - id: register.standing.at-most-one-question-per-reply
     kind: register
     title: At most one question per reply
@@ -1033,6 +1035,9 @@ atoms:
     evidence:
       - { type: tool_called, label: Bash, input: { command: { contains: track.sh } } }
     enforcement: []
+    fields:
+      spans:
+        - ./scripts/track.sh <carrier> <number>
   - id: instruction.parcel-claims.write-the-claim-in-the-supplier
     kind: instruction
     title: Write the claim in the supplier's language
@@ -1050,6 +1055,8 @@ atoms:
     enforcement: []
     fields:
       polarity: obligation
+      spans:
+        - references/supplier-languages.md
   - id: instruction.parcel-claims.never-promise-a-refund-date
     kind: instruction
     title: Never promise a refund date
@@ -1186,6 +1193,8 @@ atoms:
     enforcement: []
     fields:
       polarity: obligation
+      spans:
+        - ./scripts/track.sh NWX 123
   - id: instruction.shipment-tracker.never-guess-a-shipment-status
     kind: instruction
     title: Never guess a shipment status

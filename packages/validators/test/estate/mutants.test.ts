@@ -12,9 +12,10 @@ import {
   matchAtoms,
   renderEstate,
 } from '../../src/ladders/estate/index';
+import { estateMeta } from '../../src/ladders/estate/levels';
 
 describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
-  it('kills every skill and the deleted WebFetch prohibition, and keeps the mutants no complete test can see', async () => {
+  it('kills skills, scripts and the deleted WebFetch prohibition, and keeps the mutants no complete test can see', async () => {
     const run = await estateRun(1);
     const mutants = await agentMutants(run);
     const of = (kind: string) => mutants.filter((mutant) => mutant.kind === kind);
@@ -34,11 +35,8 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
     expect(gate?.reason).toMatch(
       /complete tests ran on the follower with the atom deleted and all passed; the evidence ordered did not fire/,
     );
-    const script = of('script')[0];
-    expect(script?.killed).toBe(false);
-    expect(script?.reason).toMatch(
-      /^no complete test passes on the rule follower to run it on; its \d+ tests? wait for a fix of their expectation/,
-    );
+    expect(of('script').length).toBeGreaterThan(0);
+    expect(of('script').every((mutant) => mutant.killed && mutant.tests.length > 0)).toBe(true);
   });
 
   it('scores each kind and names the living mutants of a kind below the bar', async () => {
@@ -48,8 +46,27 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
     const alive = measure.items.map((item) => item.id);
     expect(alive).toContain('mutant-alive:gate.standing.read-a-file-before-you-edit');
     expect(alive.some((id) => id.startsWith('mutant-alive:skill.'))).toBe(false);
+    expect(alive.some((id) => id.startsWith('mutant-alive:script.'))).toBe(false);
+  });
+
+  it('names the generator when script specs are deliberately made incomplete', async () => {
+    const run = await estateRun(1);
+    const scripts = new Set(
+      run.scanned.map.atoms.filter((atom) => atom.kind === 'script').map((atom) => atom.id),
+    );
+    expect(scripts.size).toBeGreaterThan(0);
+    const wrong: EstateRun = {
+      ...run,
+      specs: run.specs.map((spec) =>
+        estateMeta(spec).atoms?.some((id) => scripts.has(id))
+          ? { ...spec, record: { ...spec.record, complete: false } }
+          : spec,
+      ),
+    };
+    const measure = await agentMutantLevel(wrong);
     const script = measure.items.find((item) => item.id.startsWith('mutant-alive:script.'));
     expect(script?.component).toBe('packages/generate/src/estate/generate.ts');
+    expect(script?.detail).toContain('no complete test passes on the rule follower');
   });
 
   it('kills nothing when no test is complete', async () => {
