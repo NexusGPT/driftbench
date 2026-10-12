@@ -2,7 +2,7 @@ import { chmod, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { contestantById } from '../src/contestants';
+import { contestantById, parseFormatLedger } from '../src/contestants';
 import type { PairItem, PointItem } from '../src/data';
 import { renderReport, runBenchmark } from '../src/run';
 
@@ -56,6 +56,21 @@ const pairs: PairItem[] = [1, 2, 3, 4].map((i) => ({
 }));
 
 describe('runBenchmark', () => {
+  it('does not launch a real model call past the specified deadline', async () => {
+    const report = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [contestantById('driftbench')],
+      items: pairs.slice(0, 1),
+      recordingsDir: join(dir, 'deadline'),
+      command,
+      concurrency: 1,
+      deadlineMs: Date.now() - 1,
+    });
+    expect(report.newCalls).toBe(0);
+    expect(report.stopped).toContain('deadline reached');
+    expect(report.contestants[0]?.summary.missing).toBe(2);
+  });
   it('scores pairwise contestants in both orders and a pointwise one by single game, and records every answer', async () => {
     const recordingsDir = join(dir, 'rec1');
     const options = {
@@ -140,6 +155,222 @@ describe('the recording key', () => {
 });
 
 describe('samples, routes and references', () => {
+  it('compiles question-only format instructions, validates their quote and relabels checks in both orders', async () => {
+    const predicate =
+      'import json\ndef check(response):\n    try:\n        json.loads(response)\n        return True\n    except ValueError:\n        return False';
+    const spec = JSON.stringify({ instruction_quote: 'Return JSON only.', python: predicate });
+    const fake = `#!/usr/bin/env node\nlet input='';process.stdin.on('data',c=>input+=c);process.stdin.on('end',()=>{const result=input.startsWith('FORMAT ') ? ${JSON.stringify(spec)} : '{"a_correct":true,"b_correct":true,"winner":"tie"}';process.stdout.write(JSON.stringify({result,total_cost_usd:0.001,is_error:false}));});`;
+    const cmd = join(dir, 'format-compiler.mjs');
+    await writeFile(cmd, fake);
+    await chmod(cmd, 0o755);
+    const inputs: string[] = [];
+    const c = {
+      id: 'format',
+      source: 'test',
+      answerFormat: (q: string) => {
+        inputs.push(q);
+        return { system: '', user: `FORMAT ${q}` };
+      },
+      pair: ({ a, b }: { a: string; b: string }) => ({ system: '', user: `${a} ${b}` }),
+      parsePair: parseFormatLedger,
+    };
+    const item: PairItem = {
+      kind: 'pair',
+      id: 'json-format',
+      question: 'Return JSON only.',
+      a: '{"text":"apostrophe, newline\\n and unicode é"}',
+      b: 'not JSON',
+      label: 'A',
+      group: 'test',
+    };
+    const r = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [c],
+      items: [item],
+      command: cmd,
+      recordingsDir: join(dir, 'format-valid'),
+      concurrency: 1,
+    });
+    expect(inputs).toEqual([item.question]);
+    expect(r.newCalls).toBe(3);
+    expect(r.contestants[0]?.summary.value.estimate).toBe(1);
+    const invalid = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [c],
+      items: [{ ...item, question: 'Answer freely.' }],
+      command: cmd,
+      recordingsDir: join(dir, 'format-invalid'),
+      concurrency: 1,
+    });
+    expect(invalid.contestants[0]?.summary.value.estimate).toBe(0);
+  }, 20000);
+  it('repairs a failed pure program once using the real diagnostic, and retains execution evidence', async () => {
+    const fake = `#!/usr/bin/env node
+let input=''; process.stdin.on('data',c=>input+=c);
+process.stdin.on('end',()=>{
+ const result=input.includes('WRITE_PROGRAM') ? (input.includes('ZeroDivisionError') ? '\`\`\`python\\nprint(42)\\n\`\`\`' : '\`\`\`python\\nprint(1/0)\\n\`\`\`') : '{"winner":"A"}';
+ process.stdout.write(JSON.stringify({result,total_cost_usd:0.001,is_error:false}));
+});`;
+    const cmd = join(dir, 'repair-program.mjs');
+    await writeFile(cmd, fake);
+    await chmod(cmd, 0o755);
+    const references: (string | undefined)[] = [];
+    const signals: { status: string; details?: unknown }[] = [];
+    const c = {
+      id: 'repair-program',
+      source: 'test',
+      repairPrograms: true,
+      codeCheck: { pure: true, write: () => ({ system: '', user: 'WRITE_PROGRAM' }) },
+      pair: ({ a, b, reference }: { a: string; b: string; reference?: string }) => {
+        references.push(reference);
+        return { system: '', user: `PAIR ${a} ${b}` };
+      },
+      parsePair: () => 'A' as const,
+    };
+    const report = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [c],
+      items: pairs.slice(0, 1),
+      command: cmd,
+      recordingsDir: join(dir, 'rec-repair-program'),
+      concurrency: 1,
+      onEvidence: (s) => {
+        signals.push(s);
+      },
+    });
+    expect(report.newCalls).toBe(4);
+    expect(signals.map((s) => s.status)).toEqual(['failed', 'executed']);
+    expect(JSON.stringify(signals[0]?.details)).toContain('ZeroDivisionError');
+    expect(references.every((r) => r?.includes('42'))).toBe(true);
+  });
+
+  it('relabels executed first/second program evidence for each displayed pair order', async () => {
+    const fake = `#!/usr/bin/env node
+let input=''; process.stdin.on('data',c=>input+=c);
+process.stdin.on('end',()=>{
+ const result=input==='WRITE_PAIR' ? '\`\`\`python\\nprint(\\'{"reference_answer":42,"first":{"correct":true},"second":{"correct":false}}\\')\\n\`\`\`' : '{"winner":"A"}';
+ process.stdout.write(JSON.stringify({result,total_cost_usd:0.001,is_error:false}));
+});`;
+    const cmd = join(dir, 'pair-program.mjs');
+    await writeFile(cmd, fake);
+    await chmod(cmd, 0o755);
+    const notes: Record<string, { correct: boolean }>[] = [];
+    const c = {
+      id: 'pair-program',
+      source: 'test',
+      pairCodeCheck: () => ({ system: '', user: 'WRITE_PAIR' }),
+      pair: ({ a, b, reference }: { a: string; b: string; reference?: string }) => {
+        const at = reference?.indexOf('{') ?? -1;
+        if (at >= 0 && reference) notes.push(JSON.parse(reference.slice(at)));
+        return { system: '', user: `PAIR ${a} ${b}` };
+      },
+      parsePair: () => 'A' as const,
+    };
+    const report = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [c],
+      items: pairs.slice(0, 1),
+      command: cmd,
+      recordingsDir: join(dir, 'rec-pair-program'),
+      concurrency: 1,
+    });
+    expect(report.newCalls).toBe(3);
+    expect(notes[0]?.checks_for_reply_A?.correct).toBe(true);
+    expect(notes[1]?.checks_for_reply_A?.correct).toBe(false);
+    expect(notes[1]?.checks_for_reply_B?.correct).toBe(true);
+  });
+
+  it('checks each candidate alone and gives the same content-linked notes to both orders', async () => {
+    const reviewed: string[] = [];
+    const references: (string | undefined)[] = [];
+    const contestant = {
+      id: 'candidate-check',
+      source: 'test',
+      candidateReview: (_question: string, response: string) => {
+        reviewed.push(response);
+        return { system: '', user: `Review ${response}` };
+      },
+      pair: ({ a, b, reference }: { a: string; b: string; reference?: string }) => {
+        references.push(reference);
+        return { system: 'strict judge', user: `Reply A: ${a}\nReply B: ${b}\n${reference}` };
+      },
+      parsePair: (text: string) => (JSON.parse(text).outcome === 'pass' ? ('A' as const) : ('B' as const)),
+    };
+    const report = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [contestant],
+      items: pairs.slice(0, 1),
+      command,
+      recordingsDir: join(dir, 'rec-candidate'),
+      concurrency: 1,
+    });
+    expect(reviewed).toEqual([pairs[0]?.a, pairs[0]?.b]);
+    expect(references).toHaveLength(2);
+    expect(references[0]).toBe(references[1]);
+    expect(references[0]).toContain('response ending');
+    expect(report.newCalls).toBe(4);
+  });
+
+  it('serializes nested samples and both orders at concurrency one, including spend checks', async () => {
+    const serial = `#!/usr/bin/env node
+const started = Date.now();
+process.stdin.resume();
+process.stdin.on('end', () => setTimeout(() => {
+  process.stdout.write(JSON.stringify({is_error: false, total_cost_usd: 0.001,
+    result: JSON.stringify({started, ended: Date.now(), winner: 'A'})}));
+}, 80));
+`;
+    const cmd = join(dir, 'serial-claude.mjs');
+    await writeFile(cmd, serial);
+    await chmod(cmd, 0o755);
+    const spans: { started: number; ended: number }[] = [];
+    const contestant = {
+      id: 'serial',
+      source: 'test',
+      samples: 3,
+      pair: ({ a, b }: { a: string; b: string }) => ({ system: '', user: `${a} / ${b}` }),
+      parsePair: (text: string) => {
+        spans.push(JSON.parse(text));
+        return 'A' as const;
+      },
+    };
+    const report = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [contestant],
+      items: pairs.slice(0, 1),
+      command: cmd,
+      recordingsDir: join(dir, 'rec-serial'),
+      concurrency: 1,
+    });
+    expect(report.newCalls).toBe(6);
+    spans.sort((a, b) => a.started - b.started);
+    for (let i = 1; i < spans.length; i++) {
+      const previous = spans[i - 1];
+      const current = spans[i];
+      if (!previous || !current) throw new Error('missing measured call span');
+      expect(current.started).toBeGreaterThanOrEqual(previous.ended);
+    }
+    const capped = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [contestant],
+      items: pairs.slice(0, 1),
+      command: cmd,
+      recordingsDir: join(dir, 'rec-serial-cap'),
+      concurrency: 1,
+      capUsd: 0.0015,
+    });
+    expect(capped.newCalls).toBe(2);
+    expect(capped.newSpendUsd).toBeCloseTo(0.002);
+    expect(capped.stopped).toMatch(/spend cap/);
+  });
+
   it('takes the majority of several judgements', async () => {
     const { majorityPair, majorityPoint } = await import('../src/run');
     expect(majorityPair(['A', 'B', 'A'])).toBe('A');
@@ -242,7 +473,15 @@ process.stdin.on('end', () => {
       }),
       parsePair: (text: string) => (text.trim() === 'A' ? ('A' as const) : ('B' as const)),
     });
-    const item: PairItem = { kind: 'pair', id: 'x', question: 'q', a: 'RIGHT one', b: 'wrong one', label: 'A', group: 'g' };
+    const item: PairItem = {
+      kind: 'pair',
+      id: 'x',
+      question: 'q',
+      a: 'RIGHT one',
+      b: 'wrong one',
+      label: 'A',
+      group: 'g',
+    };
     const report = await runBenchmark({
       bench: 'longjudge-wp',
       model: 'fake',

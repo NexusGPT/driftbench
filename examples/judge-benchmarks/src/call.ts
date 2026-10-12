@@ -70,6 +70,8 @@ export type CallOptions = {
   readonly timeoutMs?: number;
   /** Passed as --max-budget-usd on every call. */
   readonly maxCallUsd?: number;
+  /** Stop launching or retrying real calls at this epoch, and bound an in-flight call to it. */
+  readonly deadlineMs?: number;
 };
 
 export type Caller = {
@@ -153,6 +155,8 @@ async function runClaude(
     ...(options.maxCallUsd === undefined ? [] : ['--max-budget-usd', String(options.maxCallUsd)]),
   ];
   for (let attempt = 1; ; attempt += 1) {
+    const remaining = options.deadlineMs === undefined ? undefined : options.deadlineMs - Date.now();
+    if (remaining !== undefined && remaining <= 0) throw new Error('model-call deadline reached');
     let ran: { stdout: string; stderr: string };
     try {
       ran = await spawnOnce(
@@ -160,7 +164,7 @@ async function runClaude(
         args,
         prompt.user,
         cwd,
-        options.timeoutMs ?? 300_000,
+        Math.min(options.timeoutMs ?? 300_000, remaining ?? Number.POSITIVE_INFINITY),
       );
     } catch (cause) {
       // A call past its timeout is tried once more, then its answer is missing and the run goes on.
