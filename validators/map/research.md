@@ -524,3 +524,16 @@ Sources read:
 What others do: The scalar's value is the prompt; the file's escapes are not.
 
 What to try, and why: quoted YAML scalars are decoded
+
+## Iteration 45
+
+Question: packages/generate/src/extract/containers.ts: a prompt in a single-quoted TypeScript, PHP or JSON5 string or a Go interpreted string is sent with its backslash escapes; prompt-containers.ts-single, php-single, json5 and go-interpreted prove it.
+
+Sources read:
+* https://262.ecma-international.org/ section 12.9.4 (string literals)
+* https://www.php.net/manual/en/language.types.string.php (single quoted)
+* https://go.dev/ref/spec#String_literals
+
+What others do: The string's value is the prompt; the language's escapes are not.
+
+What to try, and why: string literals in code are decoded

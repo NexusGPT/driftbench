@@ -68,3 +68,23 @@ describe('prompts kept in quoted YAML scalars', () => {
     expect(b).toBe('t promise a date.');
   });
 });
+
+describe('prompts kept in string literals of code', () => {
+  const prompt = "Don't promise a date.\nAsk for the id.";
+  const ts = `// the agent's prompt\nexport const PROMPT = '${prompt.replace(/'/g, "\\'").replace(/\n/g, '\\n')}';\n`;
+  const php = `<?php\n$prompt = '${prompt.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}';\n`;
+  const go = `package agent\n\nconst Prompt = ${JSON.stringify(prompt)}\n`;
+  it('decodes single and double quoted literals and skips comments', () => {
+    expect(promptView('prompt.ts', ts)?.text).toContain("Don't promise a date.\nAsk for the id.");
+    expect(promptView('prompt.ts', ts)?.text).toContain("// the agent's prompt");
+    expect(promptView('prompt.php', php)?.text).toContain("Don't promise a date.");
+    expect(promptView('prompt.go', go)?.text).toContain('Ask for the id.');
+    expect(promptView('prompt.ts', 'const a = `raw ${x}`;\n')).toBeUndefined();
+  });
+  it('keeps of a quote a passage the file writes as it is', () => {
+    const sources = [{ kind: 'prompt' as const, path: 'prompt.ts', text: ts }];
+    const quote = rawQuote(sources, 'prompt.ts', "Don't promise a date.");
+    expect(ts).toContain(quote);
+    expect(quote).toBe('t promise a date.');
+  });
+});

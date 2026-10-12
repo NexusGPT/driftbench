@@ -219,11 +219,130 @@ function yamlView(raw: string): View | undefined {
   return tokens.length === 0 ? undefined : inPlace(raw, tokens);
 }
 
+type Language = { line: string[]; block: boolean; phpSingle?: boolean };
+const LANGUAGES: Array<[RegExp, Language]> = [
+  [/\.(ts|tsx|js|jsx|mjs|cjs|json5|go|java|cs|kt|swift|rs)$/i, { line: ['//'], block: true }],
+  [/\.php$/i, { line: ['//', '#'], block: true, phpSingle: true }],
+];
+
+const CODE_ESCAPES: Record<string, string> = {
+  n: '\n',
+  t: '\t',
+  r: '\r',
+  b: '\b',
+  f: '\f',
+  v: '\v',
+  '0': '\0',
+  '\\': '\\',
+  "'": "'",
+  '"': '"',
+  '`': '`',
+  '/': '/',
+};
+
+/** A string literal in code, `'...'` or `"..."`, with backslash escapes decoded; comments and raw strings are skipped. */
+function codeView(raw: string, language: Language): View | undefined {
+  const tokens: Token[] = [];
+  let i = 0;
+  while (i < raw.length) {
+    const c = raw[i] as string;
+    const two = raw.slice(i, i + 2);
+    const lineComment = language.line.find((marker) => raw.startsWith(marker, i));
+    if (lineComment) {
+      const end = raw.indexOf('\n', i);
+      i = end < 0 ? raw.length : end;
+      continue;
+    }
+    if (language.block && two === '/*') {
+      const end = raw.indexOf('*/', i + 2);
+      i = end < 0 ? raw.length : end + 2;
+      continue;
+    }
+    if (c === '`') {
+      let j = i + 1;
+      while (j < raw.length && raw[j] !== '`') j += raw[j] === '\\' ? 2 : 1;
+      i = j + 1;
+      continue;
+    }
+    if ((c === '"' || c === "'") && raw.startsWith(c.repeat(3), i)) {
+      const end = raw.indexOf(c.repeat(3), i + 3);
+      i = end < 0 ? raw.length : end + 3;
+      continue;
+    }
+    if (c === 'r' && /^r#*"/.test(raw.slice(i, i + 8)) && !/\w/.test(raw[i - 1] ?? ' ')) {
+      const hashes = /^r(#*)"/.exec(raw.slice(i, i + 8))?.[1] ?? '';
+      const end = raw.indexOf(`"${hashes}`, i + 2 + hashes.length);
+      i = end < 0 ? raw.length : end + 1 + hashes.length;
+      continue;
+    }
+    if (c === '@' && raw[i + 1] === '"') {
+      let j = i + 2;
+      while (j < raw.length && !(raw[j] === '"' && raw[j + 1] !== '"')) j += raw[j] === '"' ? 2 : 1;
+      i = j + 1;
+      continue;
+    }
+    if (c !== '"' && c !== "'") {
+      i++;
+      continue;
+    }
+    const chars: Array<[string, number, number]> = [];
+    let j = i + 1;
+    let closed = false;
+    while (j < raw.length && (raw[j] !== '\n' || language.phpSingle)) {
+      const d = raw[j] as string;
+      if (d === c) {
+        closed = true;
+        break;
+      }
+      if (d !== '\\') {
+        chars.push([d, j, j + 1]);
+        j++;
+        continue;
+      }
+      const e = raw[j + 1] ?? '';
+      if (language.phpSingle && c === "'") {
+        if (e === '\\' || e === "'") chars.push([e, j, j + 2]);
+        else chars.push(['\\', j, j + 1], [e, j + 1, j + 2]);
+        j += 2;
+      } else if (e === 'x' || e === 'u') {
+        const braced = e === 'u' && raw[j + 2] === '{' ? raw.indexOf('}', j) : -1;
+        const digits = braced > 0 ? raw.slice(j + 3, braced) : raw.slice(j + 2, j + 2 + (e === 'x' ? 2 : 4));
+        const end = braced > 0 ? braced + 1 : j + 2 + digits.length;
+        const code = Number.parseInt(digits, 16);
+        if (Number.isNaN(code)) break;
+        for (const unit of String.fromCodePoint(code)) chars.push([unit, j, end]);
+        j = end;
+      } else if (e in CODE_ESCAPES) {
+        chars.push([CODE_ESCAPES[e] as string, j, j + 2]);
+        j += 2;
+      } else {
+        chars.push([e, j, j + 2]);
+        j += 2;
+      }
+    }
+    if (closed) {
+      tokens.push({
+        start: i,
+        end: j + 1,
+        chars: [[c, i, i + 1], ...chars, [c, j, j + 1]].slice(1, -1) as Array<[string, number, number]>,
+      });
+      i = j + 1;
+    } else i++;
+  }
+  return tokens.some((token) =>
+    token.chars.some(([value, start, end]) => end - start !== 1 || raw[start] !== value),
+  )
+    ? inPlace(raw, tokens)
+    : undefined;
+}
+
 const VIEWS: Array<[RegExp, (raw: string) => View | undefined]> = [
   [/\.jsonl$/i, jsonLinesView],
   [/\.json$/i, jsonView],
   [/\.ya?ml$/i, yamlView],
 ];
+
+for (const [pattern, language] of LANGUAGES) VIEWS.push([pattern, (raw) => codeView(raw, language)]);
 
 /** The text a container file holds, decoded; undefined when the file is no container or is unreadable as one. */
 export function promptView(path: string, raw: string): View | undefined {
@@ -284,6 +403,8 @@ export function rawQuote(sources: readonly Source[], source: string, quote: stri
   for (let i = at; i < at + length; i++) {
     const start = view.starts[i] ?? -1;
     const plain = start >= 0 && (view.ends[i] ?? -1) - start === 1 && file.text[start] === view.text[i];
+    // The run must also be one passage of the file: each character follows the one before.
+    if (plain && run !== '' && start !== (view.ends[i - 1] ?? -2)) flush();
     if (plain) run += view.text[i];
     else flush();
   }
