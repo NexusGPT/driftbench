@@ -101,6 +101,16 @@ export const ExecutionRecord = z.strictObject({
   startedAt: z.string().optional(),
   latencyMs: z.number().nonnegative().optional(),
   truncated: z.boolean().optional(),
+  /** The approval policy's decision on this command and its cwd. Absent when no policy is set. */
+  approval: z
+    .strictObject({
+      decision: z.enum(['allow', 'deny']),
+      by: z.enum(['rule', 'default', 'approver', 'no-approver']),
+      match: z.enum(['command', 'path']),
+      subject: z.string(),
+      pattern: z.string().optional(),
+    })
+    .optional(),
 });
 export type ExecutionRecord = z.infer<typeof ExecutionRecord>;
 
@@ -111,7 +121,19 @@ export type ExecutionRecord = z.infer<typeof ExecutionRecord>;
 export const RuntimeTrace = z.strictObject({
   skills: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
   guards: z
-    .array(z.strictObject({ name: z.string(), verdict: z.string(), at: z.string().optional() }))
+    .array(
+      z.strictObject({
+        name: z.string(),
+        verdict: z.string(),
+        at: z.string().optional(),
+        /** What the guard printed and how it ended, when the runtime reports its output. */
+        stdout: z.string().optional(),
+        stderr: z.string().optional(),
+        exitCode: z.number().int().optional(),
+        /** The runtime's own word for how the run ended: success, blocking, cancelled, no_response. */
+        outcome: z.string().optional(),
+      }),
+    )
     .optional(),
   stages: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
   /** Files the agent read during the block, by path. Absent when the runtime does not report them. */

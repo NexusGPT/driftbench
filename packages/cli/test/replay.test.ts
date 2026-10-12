@@ -284,3 +284,117 @@ describe('driftbench replay: alignment', () => {
     expect(wrong.err).toContain('is a log, not a session');
   });
 });
+
+describe('driftbench replay: bench defects', () => {
+  const OWNER = ['lee.morgan', 'mailhost.dev'].join('@');
+  const OTHER = ['sam.rivera', 'mailhost.dev'].join('@');
+  const transcript = (reply: string) =>
+    [
+      {
+        type: 'user',
+        timestamp: '2026-01-01T09:00:00.000Z',
+        message: { role: 'user', content: 'Who wrote the brief?' },
+      },
+      {
+        type: 'assistant',
+        timestamp: '2026-01-01T09:00:02.000Z',
+        message: { id: 'm1', role: 'assistant', content: [{ type: 'text', text: reply }] },
+      },
+    ]
+      .map((record) => JSON.stringify(record))
+      .join('\n');
+  const spec =
+    'id: owner-mail\nkind: task\nmetadata:\n  replay: { session: mail }\nblocks:\n  - user: Who wrote the brief?\n';
+
+  it('D8: refuses a JSONL that is not a transcript, by name, exit 2', async () => {
+    const dir = await tempDir();
+    await writeFile(
+      join(dir, 'conv.jsonl'),
+      `${JSON.stringify({ id: 'c1', turns: [{ role: 'user', text: 'hi' }] })}\n`,
+    );
+    await writeFile(join(dir, 'spec.yaml'), spec.replace('session: mail', 'session: conv'));
+    const { code, err, out } = await cli([
+      'replay',
+      join(dir, 'conv.jsonl'),
+      '--suite',
+      join(dir, 'spec.yaml'),
+    ]);
+    expect(code).toBe(2);
+    expect(out).toBe('');
+    expect(err).toContain(
+      'is not a Claude Code transcript: no record has type user or assistant (line 1 has the keys id, turns)',
+    );
+  });
+
+  it('D13: the owner values leave the pii check, a third party in the same session still fails', async () => {
+    const dir = await tempDir();
+    await writeFile(join(dir, 'spec.yaml'), spec);
+    await writeFile(join(dir, 'mail.jsonl'), transcript(`You did, from ${OWNER}.`));
+    const session = join(dir, 'mail.jsonl');
+    const suite = ['--suite', join(dir, 'spec.yaml')];
+
+    const plain = await replayJson(['replay', session, ...suite]);
+    expect(plain.json?.runs[0]?.failing).toEqual(['block 0: pii.email']);
+
+    const owned = await replayJson(['replay', session, ...suite, '--owner', OWNER.toUpperCase()]);
+    expect(owned.code).toBe(0);
+    expect(owned.json?.runs[0]?.failing).toEqual([]);
+    expect(owned.out).not.toContain(OWNER);
+
+    await writeFile(join(dir, 'owner.txt'), `# my addresses\n\n${OWNER}\n`);
+    await writeFile(join(dir, 'mail.jsonl'), transcript(`You did, from ${OWNER}, copying ${OTHER}.`));
+    const third = await replayJson(['replay', session, ...suite, '--owner-file', join(dir, 'owner.txt')]);
+    expect(third.code).toBe(1);
+    expect(third.json?.runs[0]?.failing).toEqual(['block 0: pii.email']);
+
+    const missing = await cli(['replay', session, ...suite, '--owner-file', join(dir, 'absent.txt')]);
+    expect(missing.code).toBe(2);
+    expect(missing.err).toContain('Cannot read the owner file');
+  });
+});
+
+describe('driftbench replay: judged criteria', () => {
+  const JUDGED = [
+    'id: judged-positional',
+    'kind: task',
+    'criteria:',
+    '  - { name: keeps-scope, rubric: "Does the reply stay on the shop build?", gating: true, scope: block }',
+    'blocks:',
+    '  - user: anything',
+    '    expect:',
+    '      criteria: [keeps-scope]',
+    '',
+  ].join('\n');
+  const JUDGE = join(ROOT, 'examples/estates/fixture/live/fake/judge.cjs');
+
+  it('judges a criterion with --judge, adding the cost, and leaves it inconclusive without one', async () => {
+    const dir = await tempDir();
+    await writeFile(join(dir, 'judged.yaml'), JUDGED);
+    const session = `${DIR}/skill-skipped.jsonl`;
+    const judged = await replayJson([
+      'replay',
+      session,
+      '--suite',
+      dir,
+      '--judge',
+      'claude:haiku',
+      '--judge-command',
+      JUDGE,
+    ]);
+    expect(judged.err).toBe('');
+    expect(judged.code).toBe(0);
+    const doc = judged.json as unknown as {
+      judge: string;
+      judgeCostUsd: number;
+      runs: Array<{ pass: boolean }>;
+    };
+    expect(doc.judge).toBe('claude:haiku');
+    expect(doc.judgeCostUsd).toBeCloseTo(0.0015);
+    expect(doc.runs[0]?.pass).toBe(true);
+
+    const bare = await replayJson(['replay', session, '--suite', dir]);
+    expect(bare.code).toBe(1);
+    const failing = (bare.json as unknown as { runs: Array<{ failing: string[] }> }).runs[0]?.failing ?? [];
+    expect(failing).toEqual(['block 0: judge.keeps-scope (inconclusive)']);
+  }, 60_000);
+});

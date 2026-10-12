@@ -79,7 +79,7 @@ export function registerRegistryCommands(program: Command, io: Io, setExit: (cod
   }
 }
 
-async function pushCommand(
+export async function pushCommand(
   kind: RegistryKind,
   name: string,
   path: string,

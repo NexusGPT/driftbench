@@ -1,3 +1,4 @@
+import { contentHash } from '@driftbench/core';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 
 /**
@@ -9,7 +10,7 @@ import type { JudgeRequest, TranscriptEntry } from './contract';
  */
 
 /** The data tags. Text inside them is data. */
-export const DATA_TAGS = ['transcript_data', 'artifact_data', 'given_data'] as const;
+export const DATA_TAGS = ['transcript_data', 'artifact_data', 'given_data', 'input_data'] as const;
 export type DataTag = (typeof DATA_TAGS)[number];
 
 /** The answer contract, as the judge is told to return it. */
@@ -56,6 +57,26 @@ export const RUBRIC_TEMPLATE = [
 const NO_FAIL = 'any data where the answer to the QUESTION is no';
 const NO_PASS = 'data where the answer to the QUESTION is yes, with nothing that matches the FAIL picture';
 
+/** The closing instruction of a system 1 question, after the rubric. */
+export const SYSTEM1_QUESTION = 'Answer yes when the data passes the criterion, no when it fails.';
+
+/** Every fixed text a judge prompt is built from. A change to any of them changes the fingerprint. */
+export const PROMPT_PARTS = {
+  system: SYSTEM_PROMPT,
+  rubric: RUBRIC_TEMPLATE,
+  defaults: [NO_FAIL, NO_PASS],
+  system1: SYSTEM1_QUESTION,
+  tags: [...DATA_TAGS],
+} as const;
+
+/** A hash of the prompt texts: part of every cassette key, so a recording never replays under another prompt. */
+export function promptFingerprint(parts: { readonly [key: string]: unknown } = PROMPT_PARTS): string {
+  return contentHash(parts);
+}
+
+/** The fingerprint of the prompt this build sends. */
+export const PROMPT_FINGERPRINT = promptFingerprint();
+
 /** The rubric block of a request: the question with its FAIL and PASS pictures. */
 export function renderRubric(criterion: JudgeRequest['criterion']): string {
   const scope =
@@ -101,6 +122,9 @@ export function renderUser(request: JudgeRequest): string {
   const parts = [renderRubric(request.criterion), ''];
   const given = renderGiven(request.given);
   if (given) parts.push(dataTag('given_data', given), '');
+  for (const input of request.inputs ?? []) {
+    parts.push(dataTag('input_data', `File ${input.path}\n${input.text}`), '');
+  }
   parts.push(dataTag('transcript_data', renderTranscript(request.transcript)), '');
   if (request.artifact !== undefined) parts.push(dataTag('artifact_data', request.artifact), '');
   parts.push('Answer the QUESTION for the data above, as the JSON object.');

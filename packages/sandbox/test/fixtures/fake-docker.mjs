@@ -58,7 +58,15 @@ function parse(args, valued) {
 if (verb === 'version') {
   process.stdout.write('27.0.0-fake\n');
 } else if (verb === 'run') {
-  const { flags, rest: tail } = parse(rest, ['--name', '-v', '-w', '-e', '--user', '--entrypoint']);
+  const { flags, rest: tail } = parse(rest, [
+    '--name',
+    '-v',
+    '-w',
+    '-e',
+    '--user',
+    '--network',
+    '--entrypoint',
+  ]);
   const get = (flag) => flags.find(([name]) => name === flag)?.[1];
   const volume = String(get('-v'));
   const split = volume.lastIndexOf(':');

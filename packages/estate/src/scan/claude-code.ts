@@ -70,6 +70,12 @@ export const DEFAULT_IGNORE = [
   'hooks/**/test',
   '.trash',
   'skills/synced',
+  // Files an operating system or an editor leaves beside the estate's own.
+  '.DS_Store',
+  'Thumbs.db',
+  '*.swp',
+  '*~',
+  '.idea',
 ] as const;
 
 /** The estate's own configuration file, at its root: `ignore:` lists more globs to skip. */
@@ -127,9 +133,27 @@ export class ClaudeCodeReader implements EstateReader {
     this.ignore = options.ignore ?? [];
   }
 
-  async read(root: string): Promise<RawEstate> {
-    const budget = this.budget;
+  /**
+   * The files of the estate the runtime may load, relative to the root: the standing files, `.mcp.json`,
+   * and everything under `.claude` the ignore list keeps (links followed, files over 1 MB included). A copy
+   * of the estate needs these and nothing else.
+   */
+  async listFiles(root: string): Promise<string[]> {
     const notes: ReadNote[] = [];
+    const { ignored } = await this.ignoreOf(root, notes);
+    const large: string[] = [];
+    const walked = await walk(root, '.claude', notes, ignored, new Set(), undefined, large);
+    return [
+      ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md', '.mcp.json'])),
+      ...walked,
+      ...large,
+    ].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  }
+
+  private async ignoreOf(
+    root: string,
+    notes: ReadNote[],
+  ): Promise<{ config: EstateConfig; chosen: string[]; ignored: Ignored }> {
     const config = await readConfig(root, notes);
     const chosen = [...new Set([...config.ignore, ...this.ignore])].filter(
       (pattern) => !(DEFAULT_IGNORE as readonly string[]).includes(pattern),
@@ -140,6 +164,13 @@ export class ClaudeCodeReader implements EstateReader {
       counts: new Map(),
       paths: [],
     };
+    return { config, chosen, ignored };
+  }
+
+  async read(root: string): Promise<RawEstate> {
+    const budget = this.budget;
+    const notes: ReadNote[] = [];
+    const { config, chosen, ignored } = await this.ignoreOf(root, notes);
     const paths = [
       ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md'])),
       ...(await walk(root, '.claude', notes, ignored)),
@@ -312,6 +343,7 @@ async function walk(
   ignored: Ignored,
   ancestors: ReadonlySet<string> = new Set(),
   ignoredBy?: string,
+  large?: string[],
 ): Promise<string[]> {
   const real = await realpath(join(root, folder)).catch(() => undefined);
   if (real === undefined) return [];
@@ -339,14 +371,16 @@ async function walk(
       fileEntry = target.isFile();
     }
     if (folderEntry) {
-      found.push(...(await walk(root, path, notes, ignored, inside, by)));
+      found.push(...(await walk(root, path, notes, ignored, inside, by, large)));
     } else if (fileEntry && by !== undefined) {
       ignored.counts.set(by, (ignored.counts.get(by) ?? 0) + 1);
       ignored.paths.push(path);
     } else if (fileEntry) {
       const info = await stat(join(root, path));
-      if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
-      else found.push(path);
+      if (info.size > MAX_FILE_BYTES) {
+        notes.push({ file: path, message: 'skipped: larger than 1 MB' });
+        large?.push(path);
+      } else found.push(path);
     }
   }
   return found;
@@ -743,7 +777,9 @@ function readRegistry(file: EstateFile, estate: RawEstate): void {
       const rowIds = ids.length > 0 ? ids : [cell(guard)].filter((value) => value !== '');
       // The rule columns name rules, not guards: a guard is looked for in the other cells only.
       const others = row.cells.filter((_, index) => ![id, guard, enforces, watches].includes(index));
-      const named = guardNamedIn(guard >= 0 ? [row.cells[guard] ?? '', ...others] : others, known);
+      const named =
+        guardNamedIn(guard >= 0 ? [row.cells[guard] ?? '', ...others] : others, known) ??
+        (guard >= 0 ? guardOfAdapter(row.cells[guard] ?? '', known) : undefined);
       for (const rowId of rowIds) {
         const links = [
           ...(enforces >= 0 ? parseEnforces(row.cells[enforces] ?? '') : []),
@@ -786,7 +822,12 @@ function idsOf(raw: string): string[] {
   const several =
     parts.length > 1 &&
     parts.every((part) => ID_TOKEN.test(part) && (/\d/.test(part) || part === part.toUpperCase()));
-  return several ? [...new Set(parts)] : [whole];
+  if (several) return [...new Set(parts)];
+  // Backticks mark ids in a cell that also holds words: `` `HANDBACK` / `STOP-WAKE` hold `` holds two.
+  const marked = [...raw.matchAll(/`([^`\s]+)`/g)]
+    .map((match) => match[1] ?? '')
+    .filter((id) => ID_TOKEN.test(id));
+  return marked.length > 1 ? [...new Set(marked)] : [whole];
 }
 
 /** The names the estate's guards go by: a script's file name, a check id. */
@@ -806,6 +847,21 @@ function guardNamedIn(cells: readonly string[], known: ReadonlySet<string>): str
     }
   }
   return undefined;
+}
+
+/**
+ * The guard an adapter column names by its short name: `fs-firewall` for `nexus-fs-firewall.py`,
+ * `claim-window` for `claim-window.py`. The cell, as a whole, must equal a guard's file name without its
+ * extension, or be the end of it after a `-` or `_`; it names a guard only when exactly one guard fits.
+ */
+function guardOfAdapter(cell: string, known: ReadonlySet<string>): string | undefined {
+  const name = strip(cell).toLowerCase();
+  if (!/^[a-z0-9][\w.-]*$/.test(name)) return undefined;
+  const fits = [...known].filter((guard) => {
+    const stem = guard.replace(/\.[A-Za-z0-9]+$/, '').toLowerCase();
+    return stem === name || stem.endsWith(`-${name}`) || stem.endsWith(`_${name}`);
+  });
+  return fits.length === 1 ? fits[0] : undefined;
 }
 
 /** The catalogue check of the same id, when the estate has one. */

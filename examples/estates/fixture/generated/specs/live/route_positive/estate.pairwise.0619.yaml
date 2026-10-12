@@ -72,6 +72,7 @@ metadata:
     atoms:
       - skill.invoice-reconcile.skill-invoice-reconcile
     planRow: pairwise.0619
+    focusVariant: 618
     cell:
       ask_class: chat
       ask_shape: problem
@@ -89,3 +90,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: invoice-reconcile
     phrase: 2
+    ask: bank
+    outcome: bank

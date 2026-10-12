@@ -67,6 +67,7 @@ metadata:
       - route.standing.an-ask-to-prepare-the-weekly
       - skill.weekly-report.skill-weekly-report
     planRow: route_positive.route.standing.an-ask-to-prepare-the-weekly.3
+    focusVariant: 2
     cell:
       atoms.route: route.standing.an-ask-to-prepare-the-weekly
     seeder: estate
@@ -78,3 +79,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: weekly-report-new
     phrase: 1
+    ask: bank
+    outcome: bank

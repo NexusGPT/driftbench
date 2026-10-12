@@ -814,7 +814,7 @@ Judges criteria with the council, on recorded answers. The council, its modes an
 
 ```
 driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--json]
-driftbench judge calibrate --criteria <dir> --labels <dir> --cassette <file> --out <file> [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
+driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--cascade] [--only <criterion>...] [--assign council|cheapest] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
 driftbench judge check <criteria> [--json]
 ```
 
@@ -828,7 +828,14 @@ driftbench judge check <criteria> [--json]
 |---|---|
 | `--criteria <dir>` | the criteria folder: one YAML file per criterion with its fixture pair; required by `run` and `calibrate` |
 | `--labels <dir>` | `calibrate`: the labels folder, one YAML file of hand-labelled blocks per criterion; required |
-| `--cassette <file>` | the recorded answers of every judge, as a cassette JSON file; required by `run` and `calibrate` |
+| `--cassette <file>` | the recorded answers of every judge, as a cassette JSON file; required by `run`; `calibrate` needs it or `--claude` |
+| `--claude <model>` | `calibrate`: add a live judge on the local `claude` command with this model, such as `haiku`; repeat for several. Paid calls, see [the claude command judge](../concepts/judges.md#the-claude-command-judge) |
+| `--claude-command <path>` | `calibrate`: the claude command to run; default `claude` |
+| `--record <file>` | `calibrate`: save every live answer, with its cost, as a cassette to replay later |
+| `--spend-cap-usd <usd>` | `calibrate`: stop calling live judges once their calls have cost this much; later calls give no answer |
+| `--cascade` | `calibrate`: the first judge answers everything, the others only where it is unsure or disagrees with the label; writes the cascade report as JSON to `--out`. See [a cascade](../concepts/judges.md#a-cascade-the-costly-judges-only-where-the-cheap-one-is-unsure) |
+| `--only <criterion>` | `calibrate`: only this criterion; repeat for several |
+| `--assign <rule>` | `calibrate`: `council` (default), three judges at the bar in one class; `cheapest`, the one cheapest judge at the bar, judging alone, with its cost per call in the table. See [the cheapest judge](../concepts/judges.md#the-cheapest-judge-at-the-bar-alone) |
 | `--out <file>` | `calibrate`: where to write the assignment table, in YAML; required |
 | `--repeats <n>` | `calibrate`: how many times each judge answers each fixture; default 3 |
 | `--mode <mode>` | the council mode, `system1`, `hybrid` or `llm`; default `hybrid` |
@@ -957,10 +964,11 @@ driftbench estate lint <map> [--ceiling <characters>]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
-driftbench estate plan approve <plan> [--all] [--row <id>]... [--strike]
+driftbench estate plan approve <plan> [--all] [--row <id>]... [--strike] [--out <file>]
 driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>]
 driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] [--replay <sessions>] [--suite <dir>] [--store <db>]
-driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--force] [--json]
+driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--no-judge] [--force] [--json]
+driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceiling <characters>] [--json]
 ```
 
 | Command | Does |
@@ -973,7 +981,8 @@ driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [
 | `estate plan approve` | lists the plan rows by status, or approves them all, approves a row, or strikes a row |
 | `estate diff` | lists the atoms added, changed (white space or semantic), moved and removed, the edges, and the guards that changed enforcement state, between two maps |
 | `estate impact` | says what a diff does to the tests: regenerate, re-approve, retire, new |
-| `estate generate` | generates task specs from an approved plan, by code: one or more specs per plan row, with `estate-generate-report.json` |
+| `estate generate` | generates task specs from an approved plan, by code: one or more specs per plan row, with `estate-generate-report.json` and `run-order.txt`. With no approved phrase for a row, code writes the ask from the atoms (tag `ask:code`); with no declared outcome, the outcome is read from the atoms (no change, or nothing deleted). `--no-fallback` turns both off. `--focus` lists atom ids whose complete specs come first in the run order, then guards, gates and invariants |
+| `estate static` | runs the static tests `estate generate` writes under `static/` (one per invariant and per setting) against an estate root, read again by code with no run of the agent: an invariant must still hold, a setting must still be declared with its value. Exit 0 all pass, 1 one fails, 2 usage or input error |
 | `estate run` | runs live estate specs through the runtime headless, in a sandbox holding a copy of the estate pinned to its map; see [estate run and estate mutate](#driftbench-estate-run-and-driftbench-estate-mutate) |
 | `estate mutate` | copies the estate and deletes or inverts one atom in the copy, for the adequacy of its tests |
 
@@ -1081,10 +1090,10 @@ A map that does not load reports `MAP_PARSE`, `MAP_NOT_OBJECT`, `MAP_DUPLICATE_A
 ## `driftbench replay`
 
 ```
-driftbench replay <sessions...> --suite <dir> [--decisions <logs...>] [--steps <feeds...>] [--store <db>] [--json]
+driftbench replay <sessions...> --suite <dir> [--decisions <logs...>] [--steps <feeds...>] [--store <db>] [--owner <values...>] [--owner-file <file>] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
 ```
 
-Runs a spec suite over recorded sessions, offline, with no model call. Each spec is aligned with a session by its metadata, or by order; a spec that names a session not given is skipped with a note. The run is the runner's own in mode F, with the scripted driver, the default checks plus the ordered-pair check, and no cache; judged criteria are not run. Every run is stored under one replay campaign. See [estate](../estate.md).
+Runs a spec suite over recorded sessions, offline, with no model call. Each spec is aligned with a session by its metadata, or by order; a spec that names a session not given is skipped with a note. The run is the runner's own in mode F, with the scripted driver, the default checks plus the ordered-pair check and the estate checks, and no cache. Judged criteria are judged by `--judge claude:<model>` (one call of the local claude command per criterion and block, its cost added to the run); with no judge each is inconclusive and gates as the criterion does, never a pass. A judge command that is not a stand-in is billed and needs `--judge-budget <usd>`. Every run is stored under one replay campaign. See [estate](../estate.md).
 
 | Option | Effect |
 |---|---|
@@ -1093,6 +1102,8 @@ Runs a spec suite over recorded sessions, offline, with no model call. Each spec
 | `--decisions <logs...>` | guard decision logs (JSONL), one per session, matched by file name: `clean-build.decisions.jsonl` belongs to `clean-build.jsonl` |
 | `--steps <feeds...>` | the stage feeds (JSONL), one per session, matched by file name the same way |
 | `--store <db>` | keep the runs in this store; in memory without it |
+| `--owner <values...>` | the owner's own email, phone, IBAN or national number: the `pii` check leaves exactly these values out; see [personal data](checks.md#personal-data) |
+| `--owner-file <file>` | owner values, one per line; blank lines and lines starting with `#` are skipped |
 | `--json` | print one JSON document |
 
 On the recorded sessions of [`examples/estates/sessions`](../../examples/estates/sessions/specs):
@@ -1117,7 +1128,7 @@ $ pnpm -s driftbench replay examples/estates/sessions/clean-build.jsonl examples
 |---|---|
 | 0 | every aligned spec passes |
 | 1 | an aligned spec fails |
-| 2 | bad input: a log passed as a session, two sessions with one name, an unreadable session, an invalid spec, no spec aligned, a store that cannot be opened |
+| 2 | bad input: a log passed as a session, two sessions with one name, an unreadable session or a file that is not a transcript, an unreadable owner file, an invalid spec, no spec aligned, a store that cannot be opened |
 
 ## `driftbench validate`
 
@@ -1181,7 +1192,7 @@ An option error the argument parser reports (an unknown option, a missing compon
 ## `driftbench estate run` and `driftbench estate mutate`
 
 ```
-driftbench estate run <specs...> --estate <root> --runtime claude-code [--command <bin>] --store <db> [--map <file>] [--states <file>] [--pass-env <names...>] [--timeout <ms>] [--allow-billed] [--json]
+driftbench estate run <specs...> --estate <root> --runtime claude-code [--command <bin>] --store <db> [--map <file>] [--states <file>] [--pass-env <names...>] [--timeout <ms>] [--allow-billed] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
 driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--force] [--json]
 ```
 
@@ -1234,29 +1245,54 @@ Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate"
 ## `driftbench report` and `driftbench compare`
 
 ```
-driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points>] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--json]
-driftbench compare --baseline <campaign> --candidate <campaign> --store <db> --margin <points> [--mode <modes>] [--q <rate>] [--json]
+driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points|auto>] [--min-goldens <n>] [--strict] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--aggregate <name:op threshold>]... [--json]
+driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json] [--pairwise <criterion.yaml>] [--pairwise-judge <openai|anthropic|google>]
 ```
 
-`report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
+`report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
 
-`compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. See [statistics](../concepts/statistics.md#comparing-a-baseline-and-a-candidate). The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
+`compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Per criterion and for the all-pass flag it also prints three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page. The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
+
+`compare`, `ci` and `report` share one rule and these options:
+
+| Option | Effect |
+|---|---|
+| `--margin <points\|auto>` | the largest drop in pass rate tolerated, in percentage points. Default `auto`: the smallest half point at which the baseline compared with itself is non-inferior (`report` without `--baseline`: the campaign compared with itself), printed with what sets it, with a warning above 15 points that names the goldens a 15 point margin needs |
+| `--min-goldens <n>` | a gating criterion decided on fewer goldens is underpowered: reported, and left out of the parity test. Default 30 |
+| `--strict` | underpowered criteria gate too, as before the minimum existed |
+
+New flags always gate, and so does an underpowered criterion whose regression Benjamini-Hochberg keeps.
+
+`compare --pairwise <criterion.yaml>` also judges, for every block both campaigns ran, which of the two replies better meets one criterion. The criterion file holds a `name` and a `rubric`, and optionally `pass` and `fail`. `--pairwise-judge` picks the provider judge, `openai` by default; its key is read from the environment. Each pair is judged twice, in both orders, so a judge that favours a position is caught: the printed line counts the baseline and candidate wins, the ties, the calls whose two orders disagreed, and the calls where the judge chose a position. A judge that gives no answer fails the command with its reason. The pairwise line never changes the exit code.
 
 ## `driftbench ci`
 
 ```
-driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> --margin <points> [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--flag <check>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
 ```
 
-Runs the specs on a candidate target, compares the new campaign with a baseline campaign, and gates. The summary goes to `--out` (default `driftbench-ci.json`). `--faults` lets the target name a planted fault as `fault:<id>`. Exit 0 on parity, 1 on a regression, a new gating flag or an incomplete run, 2 on bad input.
+A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
+
+Runs the specs on a candidate target, then compares the new campaign with a baseline campaign by the rule of `compare`, and gates. On one pair of campaigns, `ci` and `compare` give the same verdict and the same exit code. `--baseline` is a store file (its latest campaign) or a campaign id held in `--store`, read before the candidate runs. The summary goes to `--out` (default `driftbench-ci.json`). `--faults` lets the target name a planted fault as `fault:<id>`. `--flag` sets the flag families (default `safety`, `forbidden`, `pii`). The cache is off unless `--cache`. The summary opens with the auto margin and the underpowered criteria, so a lenient gate says why.
+
+| Verdict of `compare` | Verdict of `ci` | Exit | Means |
+|---|---|---|---|
+| `non-inferior` | `parity` | 0 | the all-pass flag and every gating criterion that is not underpowered have an upper bound below the margin, and no flag family is new on the candidate |
+| `regressed` | `regression` | 1 | evidence of a drop: a new flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved |
+| `unproven` | `not-shown-non-inferior` | 1 | no evidence of a drop, but an interval is wider than the margin; this means too few goldens, never a regression |
+| none | `incomplete` | 1 | a candidate cell did not run (stopped by the budget, or pending) |
+
+Measured 2026-10-12 on the Acme golden suite (10 goldens) with the defaults:
 
 ```
-$ pnpm driftbench ci --specs examples/acme/specs/conversations --target function:acme-sales --baseline c-base --store <db> --margin 50 --repeats 2
-Verdict: PARITY. The upper bound 39.03 points of the regression effect is below the margin 50 points, and no new gating flag fires. Exit 0.
-(exit 0)
-$ pnpm driftbench ci --specs examples/acme/specs/conversations --target fault:x3-skips-recap --faults examples/acme/faults --baseline c-base --store <db> --margin 50 --repeats 2
-Verdict: REGRESSION. The upper bound 81.24 points of the regression effect is not below the margin 50 points. Exit 1.
-(exit 1)
+$ pnpm driftbench ci --specs examples/acme/golden/specs --target fault:control-sales-identity --faults examples/acme/faults --baseline baseline --store <db>
+Margin auto: 28 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 27.75 points).
+Warning: this suite cannot show parity under 15 points (the all-pass flag needs 27.8 points); about 22 goldens would.
+Underpowered, under 30 goldens, left out of the parity test: budget (1 golden), cards (1 golden), end_state (9 goldens), forbidden (10 goldens), guards (3 goldens), lang (8 goldens), ledger (3 goldens), must (8 goldens), must_not (3 goldens), pii (10 goldens), stage (10 goldens), tools (10 goldens).
+(the verdict table)
+Verdict: PARITY. Exit 0.
+$ pnpm driftbench ci --specs examples/acme/golden/specs --target fault:x3-skips-recap --faults examples/acme/faults --baseline baseline --store <db>
+Verdict: REGRESSION. Exit 1.
 ```
 
 ## `driftbench monitor`
@@ -1327,6 +1363,18 @@ $ pnpm driftbench holdout score --sealed <dir> --target function:acme-sales --bu
 Budget: 1 of 3 queries used, 2 left. Which conversation passed is not shown: the holdout stays sealed.
 (exit 0)
 ```
+
+## `driftbench queue`
+
+```
+driftbench queue create --store <db> --campaign <id> [--labels <dir>]
+driftbench queue list [--labels <dir>]
+driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> [--labels <dir>]
+driftbench queue vote <runId>.b<index> --criterion <name> --reviewer <name> --label <pass|fail> [--labels <dir>]
+driftbench queue agreement [--labels <dir>]
+```
+
+The review queue of blocks to label, kept beside the labels as `queue.json`. `create` queues each block of a campaign once per criterion of its spec, skipping blocks already labelled. `list` prints each item with its state and holder. `assign` takes an item for a reviewer; a second reviewer is refused with exit 2. `vote` records a second reviewer's label without writing the labels file, and `agreement` prints the agreement between the first two reviewers of each item with two votes. Saving a label on the viewer's queue page marks its item done. See [viewer](../viewer.md#review-queue).
 
 ## `driftbench view`
 

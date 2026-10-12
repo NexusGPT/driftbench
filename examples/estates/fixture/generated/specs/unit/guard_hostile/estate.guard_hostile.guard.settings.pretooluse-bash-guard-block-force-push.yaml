@@ -74,3 +74,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: force-push
     phrase: 0
+    ask: bank
+    outcome: bank

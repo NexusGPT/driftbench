@@ -1,7 +1,7 @@
 name: driftbench ci
 description: >-
   Runs a driftbench spec suite on a candidate target, compares it golden by golden with a baseline campaign
-  and fails the job on a regression beyond the margin or on a new gating flag.
+  and fails the job unless it shows parity, by the rule of driftbench compare.
 
 inputs:
   specs:
@@ -18,9 +18,17 @@ inputs:
     required: false
     default: .driftbench/ci.db
   margin:
-    description: The largest drop in pass rate tolerated, in percentage points.
+    description: The largest drop in pass rate tolerated, in percentage points, or auto (the smallest margin the suite can show for the baseline compared with itself).
     required: false
-    default: '2'
+    default: auto
+  min-goldens:
+    description: A gating criterion decided on fewer goldens is underpowered and left out of the parity test.
+    required: false
+    default: '30'
+  strict:
+    description: Set to true to make underpowered criteria gate too.
+    required: false
+    default: 'false'
   repeats:
     description: Runs per spec and mode.
     required: false
@@ -35,6 +43,10 @@ inputs:
     default: ''
   faults:
     description: A fault set whose faults the target can name as fault:<id>. Empty means none.
+    required: false
+    default: ''
+  aggregate:
+    description: Campaign-level criteria, one name:op threshold per line, such as pass-rate:>=0.8. A failing one fails the job with verdict aggregate-failed. Empty means none.
     required: false
     default: ''
   report-path:
@@ -52,7 +64,7 @@ inputs:
 
 outputs:
   verdict:
-    description: parity, regression, gating, incomplete, or input-error when the CLI refused its input.
+    description: parity, regression, not-shown-non-inferior, incomplete, aggregate-failed, or input-error when the CLI refused its input.
     value: ${{ steps.ci.outputs.verdict }}
   report-path:
     description: The JSON summary the CLI wrote.
@@ -70,10 +82,13 @@ runs:
         INPUT_BASELINE: ${{ inputs.baseline }}
         INPUT_STORE: ${{ inputs.store }}
         INPUT_MARGIN: ${{ inputs.margin }}
+        INPUT_MIN_GOLDENS: ${{ inputs.min-goldens }}
+        INPUT_STRICT: ${{ inputs.strict }}
         INPUT_REPEATS: ${{ inputs.repeats }}
         INPUT_MODE: ${{ inputs.mode }}
         INPUT_BUDGET_USD: ${{ inputs.budget-usd }}
         INPUT_FAULTS: ${{ inputs.faults }}
+        INPUT_AGGREGATE: ${{ inputs.aggregate }}
         INPUT_REPORT_PATH: ${{ inputs.report-path }}
         INPUT_DRIFTBENCH: ${{ inputs.driftbench }}
       run: bash "$GITHUB_ACTION_PATH/run.sh"

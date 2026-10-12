@@ -178,7 +178,9 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 | `fail` | string | no |  | What a failing block looks like. |
 | `gating` | boolean | no |  | True gates every reference to this criterion; a reference can also add @gating. |
 | `scope` | `block` or `conversation` | no |  | block judges one block; conversation judges the whole conversation. |
+| `inputs` | list of strings, each not empty | no |  | Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace. |
 | `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
+| `repeat_reducer` | string matching `^(mode\|median\|at_least:[1-9][0-9]*)$` | no |  | How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>. |
 
 ## Block
 
@@ -277,6 +279,8 @@ The expected output and state delta of a block. Every field is optional.
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
 | `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
 | `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
+| `injection` | boolean | no |  | True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it. |
+| `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. |
 | `similarity` | list of [SimilarityExpect](#similarityexpect) | no |  | Reference texts the reply must be close to, each with its lowest passing score. |
 | `relevancy` | [RelevancyExpect](#relevancyexpect) | no |  | The reply addresses the ask of the block. |
 | `knowledge_retention` | list of [RetentionExpect](#retentionexpect) | no |  | Facts given earlier that the block must not ask for again, and may have to use. |
@@ -482,6 +486,7 @@ Rules that hold for the whole conversation.
 | `forbidden_tools` | list of strings, each not empty | no |  | Tools that must never be called. |
 | `lang_stable` | boolean | no |  | True when the reply language must stay the same across blocks. |
 | `one_message_per_turn` | boolean | no |  | True when each block may send one message only. |
+| `match_case` | boolean | no |  | True makes must and must_not patterns case-sensitive and the trailing punctuation count. Default false: a pattern ignores the case of the reply and a trailing punctuation mark. |
 | `custom` | map of string to any value | no |  | Maps a registered custom check name to its options; the checks package runs it. |
 
 ## EndState

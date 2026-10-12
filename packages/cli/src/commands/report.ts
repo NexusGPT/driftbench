@@ -4,6 +4,8 @@ import type { RunMode } from '@driftbench/core';
 import {
   buildScorecard,
   type CampaignData,
+  criterionRepeatsText,
+  MIN_GOLDENS,
   type PilotReport,
   ReportInputError,
   readPilotReport,
@@ -11,15 +13,17 @@ import {
   renderJunit,
 } from '@driftbench/report';
 import type { Command } from 'commander';
+import { criteriaFromConfig } from '../aggregate-config';
 import type { Io } from '../io';
 import {
   compareJson,
   defaultReportDeps,
   loadReported,
   openReported,
-  parseMargin,
+  parseGate,
   parseModes,
   type ReportDeps,
+  resolveMargin,
 } from './compare';
 
 type ReportCommandOptions = {
@@ -28,11 +32,16 @@ type ReportCommandOptions = {
   junit?: string;
   baseline?: string;
   margin: string;
+  minGoldens: string;
+  strict?: boolean;
   pilot?: string;
   by?: string;
   spreadMode?: string;
   maxRuns: string;
+  withholdIncomplete?: boolean;
   json?: boolean;
+  aggregate?: string[];
+  config?: string;
 };
 
 /** Registers `driftbench report`. */
@@ -52,12 +61,36 @@ export function registerReportCommand(
     .requiredOption('--out <file.html>', 'where to write the scorecard')
     .option('--junit <file.xml>', 'also write JUnit XML: one test suite per golden, one test case per run')
     .option('--baseline <campaign>', 'a baseline campaign in the same store: adds the compare diff')
-    .option('--margin <points>', 'the non-inferiority margin in percentage points', '2')
+    .option(
+      '--margin <points|auto>',
+      'the non-inferiority margin in percentage points; auto: the smallest margin at which the baseline (or, without one, the campaign) compared with itself is non-inferior',
+      'auto',
+    )
+    .option(
+      '--min-goldens <n>',
+      'a gating criterion decided on fewer goldens is underpowered and left out of the parity test',
+      String(MIN_GOLDENS),
+    )
+    .option('--strict', 'underpowered criteria gate too')
     .option('--pilot <path>', 'a pilot report, pilot-report.json or its folder, rendered in the spread view')
     .option('--by <dimensions>', 'the generated-cell dimensions that name a spread cell, separated by commas')
     .option('--spread-mode <mode>', 'the mode the spread view reads; default F when the campaign ran it')
     .option('--max-runs <n>', 'runs in the drilldown, failing runs first', '200')
+    .option(
+      '--withhold-incomplete',
+      'withhold the pass^k and pass@k value of a line with incomplete runs, instead of reporting it with the range of its missing outcomes',
+    )
     .option('--json', 'also print the scorecard as one JSON document')
+    .option(
+      '--config <file>',
+      'the project config, with an aggregates list; default driftbench.yaml in the working folder',
+    )
+    .option(
+      '--aggregate <spec>',
+      'a campaign-level criterion, name:op threshold, e.g. pass-rate:>=0.8; repeatable; its result is printed',
+      (value: string, previous: string[]) => [...previous, value],
+      [] as string[],
+    )
     .action(async (campaignId: string | undefined, options: ReportCommandOptions) => {
       setExit(await reportCommand(campaignId, options, io, deps));
     });
@@ -70,12 +103,18 @@ export async function reportCommand(
   io: Io,
   deps: ReportDeps,
 ): Promise<number> {
-  const margin = parseMargin(options.margin, io);
+  const gate = parseGate(options, io);
   const maxRuns = Number(options.maxRuns);
   if (!Number.isInteger(maxRuns) || maxRuns < 0) {
     io.err(`--max-runs takes a whole number of 0 or more, not "${options.maxRuns}".\n`);
     return 2;
   }
+  const loadedCriteria = await criteriaFromConfig(options, io.cwd);
+  if (!loadedCriteria.ok) {
+    io.err(`${loadedCriteria.message}\n`);
+    return 2;
+  }
+  const criteria = loadedCriteria.criteria;
   let spreadMode: RunMode | undefined;
   if (options.spreadMode !== undefined) {
     const modes = parseModes(options.spreadMode, io);
@@ -86,7 +125,7 @@ export async function reportCommand(
     }
     spreadMode = modes[0];
   }
-  if (margin === undefined) return 2;
+  if (gate === undefined) return 2;
   let pilot: PilotReport | undefined;
   if (options.pilot !== undefined) {
     try {
@@ -117,11 +156,21 @@ export async function reportCommand(
     await store.close();
   }
 
+  const margin = resolveMargin(
+    gate,
+    baseline ?? data,
+    { minGoldens: gate.minGoldens, strict: gate.strict },
+    options.json ? undefined : io,
+  );
   let card: ReturnType<typeof buildScorecard>;
   try {
     card = buildScorecard(data, {
       margin,
+      minGoldens: gate.minGoldens,
+      strict: gate.strict,
       maxRuns,
+      incompletePolicy: options.withholdIncomplete ? 'withhold' : 'interval',
+      ...(criteria.length > 0 ? { aggregates: criteria } : {}),
       ...(baseline ? { baseline } : {}),
       ...(pilot ? { pilot } : {}),
       ...(by && by.length > 0 ? { by } : {}),
@@ -151,10 +200,19 @@ export async function reportCommand(
     io.out(
       `Campaign ${c.campaignId}: ${c.runs} runs, ${c.passing} pass, ${c.failing} fail, ${c.broken} did not complete.\n`,
     );
+    for (const line of criterionRepeatsText(card.criterionRepeats)) io.out(`${line}\n`);
     if (card.compare) {
       io.out(
         `Against baseline ${card.compare.baseline.campaignId}: ${card.compare.verdict}, margin ${(margin * 100).toFixed(1)} points.\n`,
       );
+    }
+    for (const entry of card.aggregates ?? []) {
+      const op = entry.direction === 'at-least' ? '>=' : '<=';
+      const verdict = entry.passed === undefined ? 'no runs' : entry.passed ? 'passes' : 'fails';
+      const interval = entry.interval
+        ? `, Wilson 95% interval ${entry.interval.lower.toFixed(3)} to ${entry.interval.upper.toFixed(3)} over ${entry.interval.n} runs, ${entry.decided ? 'decided' : `undecided: ${entry.runsNeeded ?? 'more'} runs at this rate would decide it`}`
+        : '';
+      io.out(`aggregate ${entry.name} ${op} ${entry.threshold}: ${verdict} (${entry.reason}${interval})\n`);
     }
     io.out(`Wrote ${written.join(' and ')}.\n`);
   }

@@ -72,7 +72,7 @@ export {
   retryLayer,
   withRetry,
 } from './retry';
-export { type RunOptions, runSpec } from './run';
+export { type RunEvent, type RunOptions, runSpec } from './run';
 export {
   canonicalPreviousStage,
   classifyStage,

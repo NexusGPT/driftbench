@@ -57,6 +57,8 @@ blocks:
     when:
       user: Give me a short status of invoices, shipments and supplier emails.
     expect:
+      must_not:
+        - \b(?:EUR|USD|GBP|CHF|JPY|SEK|NOK|DKK|PLN|CZK|CAD|AUD)\s?\d
       workspace:
         others_untouched: true
       criteria:
@@ -78,3 +80,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: open-items
     phrase: 1
+    ask: bank
+    outcome: bank

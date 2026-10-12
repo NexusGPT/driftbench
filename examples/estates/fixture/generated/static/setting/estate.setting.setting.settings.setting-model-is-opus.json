@@ -1,0 +1,13 @@
+{
+  "id": "estate.setting.setting.settings.setting-model-is-opus",
+  "planRow": "setting.setting.settings.setting-model-is-opus",
+  "testType": "setting",
+  "atom": "setting.settings.setting-model-is-opus",
+  "title": "Setting model is opus",
+  "check": {
+    "kind": "setting",
+    "key": "model",
+    "value": "opus"
+  },
+  "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10"
+}

@@ -67,6 +67,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-prepare-the-weekly
     planRow: pairwise.0049
+    focusVariant: 48
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -84,3 +85,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: weekly-report-new
     phrase: 1
+    ask: bank
+    outcome: bank

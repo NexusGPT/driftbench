@@ -71,6 +71,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-write-to-or
     planRow: pairwise.0215
+    focusVariant: 214
     cell:
       ask_class: operate
       ask_shape: correction
@@ -88,3 +89,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: supplier-email
     phrase: 1
+    ask: bank
+    outcome: bank

@@ -76,3 +76,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: invoice-file-edit
     phrase: 0
+    ask: bank
+    outcome: bank
