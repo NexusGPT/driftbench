@@ -31,6 +31,8 @@ export function chunkText(text: string, max = CHUNK_CHARS, threshold = CHUNK_THR
         seen += (current[i] as string).length + 1;
         if (current[i]?.trim() === '' && seen >= size / 2) cut = i + 1;
       }
+      // A question stays with the line that answers it: the cut moves before it.
+      while (cut > 1 && /\?\s*$/.test(current[cut - 1] as string)) cut--;
       flush(cut);
     }
     current.push(line);

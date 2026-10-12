@@ -899,3 +899,14 @@ Sources read:
 What others do: The replacement is read once, in its own chunk; others carry only the retiring clause.
 
 What to try, and why: a chunk carries only the clause of an update that retires a rule
+
+## Iteration 78
+
+Question: packages/generate/src/extract/chunks.ts: a cut can fall between a question and the line that answers it; scale.chunk.question-answer proves it.
+
+Sources read:
+* docs/generating.md section Planned: long prompts (a question with its answer)
+
+What others do: A cut that would end a chunk on a question moves before it.
+
+What to try, and why: a chunk never ends on a question

@@ -130,4 +130,22 @@ describe('extractMap on a long prompt', () => {
       expect(texts.at(-1)).toContain(update);
     });
   });
+
+  describe('a question and its answer', () => {
+    it('are never cut apart', () => {
+      const lines = Array.from(
+        { length: 40 },
+        (_, i) => `Q${i}: may the agent refund early?\nA${i}: no, never.`,
+      );
+      const text = lines.join('\n');
+      for (const max of [60, 71, 80, 100]) {
+        const chunks = chunkText(text, max, 0);
+        for (const chunk of chunks) {
+          const ls = chunk.split('\n');
+          expect(ls[ls.length - 1]).not.toMatch(/\?$/);
+        }
+        expect(chunks.join('\n')).toBe(text);
+      }
+    });
+  });
 });
