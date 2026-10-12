@@ -32,6 +32,7 @@ import {
   type Turn,
   type WorldState,
 } from '@driftbench/core';
+import { reapFolder } from '@driftbench/sandbox';
 import { shellLine, shellQuote } from '../../process/shell';
 import { isRecord, parseJsonl } from '../format';
 import { mapSession } from '../session';
@@ -505,6 +506,9 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         }
       }
       const project = join(state.configDir, 'projects', projectFolderName(state.sandbox.root));
+      // A daemon an estate guard starts can leave the run's process group and keep running from the copy
+      // or with the run's home: what still names or stands in either folder ends now, kept or not.
+      await reapFolder([state.stateFolder]);
       await state.sandbox.destroy();
       if (options.keep) return;
       await rm(state.stateFolder, { recursive: true, force: true });

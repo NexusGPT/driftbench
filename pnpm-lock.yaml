@@ -44,6 +44,9 @@ importers:
       '@driftbench/core':
         specifier: workspace:*
         version: link:../core
+      '@driftbench/sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
       '@google/genai':
         specifier: '>=2.28.0'
         version: 2.28.0
@@ -157,6 +160,9 @@ importers:
       '@driftbench/generate':
         specifier: workspace:*
         version: link:../generate
+      '@driftbench/sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
       '@driftbench/space':
         specifier: workspace:*
         version: link:../space

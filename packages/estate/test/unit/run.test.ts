@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { chmod, cp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
@@ -97,6 +98,67 @@ async function record(root: string, tests: UnitTest[]): Promise<UnitTest[]> {
 }
 
 const status = (results: readonly UnitResult[]) => results.map((result) => [result.testType, result.status]);
+
+/** The ids of running processes whose command line holds the marker. */
+function running(marker: string): number[] {
+  const ps = spawnSync('ps', ['-axww', '-o', 'pid=,command='], { encoding: 'utf8' });
+  if (ps.status !== 0) throw new Error(`ps failed: ${ps.stderr}`);
+  return ps.stdout
+    .split('\n')
+    .filter((line) => line.includes(marker) && !line.includes('-o pid=,command='))
+    .map((line) => Number.parseInt(line.trim(), 10));
+}
+
+describe('the estate unit runner leaves no process behind', () => {
+  it('ends a background child and a daemon that left its process group, when the run ends', async () => {
+    const marker = `unit-daemon-${Date.now()}`;
+    // A guard that starts a helper in the background and a daemon in its own session, from its own folder,
+    // as an estate's session daemon does, then answers at once.
+    const LEAKY = `#!/bin/sh
+here=$(dirname "$0")
+sleep 600 ${marker}-group-placeholder >/dev/null 2>&1 &
+python3 "$here/daemon.py" ${marker} </dev/null >/dev/null 2>&1
+input=$(cat)
+case "$input" in
+  *"git push --force"*) echo "Force pushes are not allowed." >&2; exit 2 ;;
+esac
+exit 0
+`.replace(`sleep 600 ${marker}-group-placeholder`, `sh -c 'sleep 600; : ${marker}-group'`);
+    const DAEMON = `import os, sys, time
+if os.fork() > 0:
+    sys.exit(0)
+os.setsid()
+if os.fork() > 0:
+    sys.exit(0)
+null = os.open(os.devnull, os.O_RDWR)
+for fd in (0, 1, 2):
+    os.dup2(null, fd)
+time.sleep(600)
+`;
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/settings.json': SETTINGS({
+        PreToolUse: [
+          {
+            matcher: 'Bash',
+            hooks: [{ type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.claude/hooks/leaky.sh' }],
+          },
+        ],
+      }),
+      '.claude/hooks/leaky.sh': LEAKY,
+      '.claude/hooks/daemon.py': DAEMON,
+    });
+    const tests = await unitTests(root, ['guard_positive']);
+    expect(tests).toHaveLength(1);
+    try {
+      const run = await runUnitTests(tests, { root, reader: new ClaudeCodeReader(), record: true });
+      expect(run.results.map((result) => result.cases.length)).toEqual([1]);
+      expect(running(marker)).toEqual([]);
+    } finally {
+      for (const pid of running(marker)) process.kill(pid, 'SIGKILL');
+    }
+  }, 60_000);
+});
 
 describe('the estate unit runner on a guard', () => {
   it('records the guard on the original, passes on it again, and fails on a copy that dropped the guard', async () => {
