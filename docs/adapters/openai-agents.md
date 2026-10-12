@@ -96,3 +96,5 @@ target:
 ```
 
 The adapter reads no field of the target: the agent is the one you pass. Its id is `openai-agents`.
+
+With a prompt on the target (`campaign run --prompt`), the input starts with a system message of its text; the agent's own instructions stay. See [datasets](../datasets.md#the-prompt-reaches-the-agent).

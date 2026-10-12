@@ -130,7 +130,10 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
       const state = ownState<GoogleState>(session, id, 'google');
       const names = new WireNames(state.tools.keys(), GOOGLE_NAME, 128);
       const history = toGoogleContents(session.history, names);
-      const system = [options.system ?? '', ...history.system].filter((part) => part !== '').join('\n\n');
+      // A prompt version from the registry replaces the configured system prompt.
+      const system = [session.target.prompt?.text ?? options.system ?? '', ...history.system]
+        .filter((part) => part !== '')
+        .join('\n\n');
       const contents: GoogleContent[] = history.contents;
       const declarations = [...state.tools.values()].map((tool) => ({
         name: names.wire(tool.name),

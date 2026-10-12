@@ -261,9 +261,11 @@ These commands run specs on a target. Each has its options, its output and its e
 
 ```
 driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>]... [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
+driftbench campaign export <campaignId> --store <file> --out <dir>
+driftbench campaign import <folder> --store <file>
 driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 ```
 
@@ -273,6 +275,8 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | [`campaign run`](../running.md#driftbench-campaign-run) | runs every cell and prints pass or fail per cell |
 | [`campaign status`](../running.md#driftbench-campaign-status) | prints the state of every cell of a stored campaign; with `--detail`, also the compounding index (T minus F), the succession of every run and the recovery of every perturbed run |
 | [`campaign resume`](../running.md#driftbench-campaign-resume) | runs the cells of a stored campaign that have no completed run, and reuses the others; each cell runs on the target the campaign pinned for it |
+| [`campaign export`](../datasets.md#run-a-campaign-again-elsewhere) | writes a stored campaign as a folder: its runs, the specs it ran, and the exact files of the dataset and prompt versions it records |
+| [`campaign import`](../datasets.md#run-a-campaign-again-elsewhere) | stores such a folder in another store, all or nothing, so the campaign can be read and run again there |
 | [`smoke`](../running.md#driftbench-smoke) | runs one spec several times with the cache off and reports whether the transcripts differ |
 
 | Option | Effect |
@@ -284,7 +288,7 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | `--baseline-rate <rate>` | the pass rate the minimum detectable effect assumes; default 0.5 |
 | `--campaign <id>` | the campaign id; without it, one is made from the content and the clock |
 | `--dataset <ref>` | `run` only: run the specs of this dataset version of the store and record it in the campaign; needs `--store`. See [datasets](../datasets.md) |
-| `--prompt <ref>` | `run` only: record this prompt version of the store in the campaign; repeat for several; needs `--store` |
+| `--prompt <ref>` | `run` only: the agent runs with this prompt version of the store, a single text file: every target carries it in `target.prompt`, and the campaign records it; give it once; needs `--store`. Each adapter page says how the text reaches the agent |
 | `--store <file>` | `plan`: read the measured unit costs from this store. The others: the store that keeps the campaign, its runs and the cache; required by `resume` and `status` |
 | `--no-cache` | neither replay runs from the cache nor write to it |
 | `--concurrency <n>` | cells run at the same time; default 4 |

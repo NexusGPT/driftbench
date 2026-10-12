@@ -21,6 +21,7 @@ The loader rewrites these forms before it validates a spec.
 
 * [Spec](#spec)
 * [TargetRef](#targetref)
+* [TargetPrompt](#targetprompt)
 * [GivenDefaults](#givendefaults)
 * [WorldState](#worldstate)
 * [ToolOverride](#tooloverride)
@@ -97,6 +98,18 @@ Which agent a spec runs against. The adapter decides what the other fields mean.
 | `variant` | string, not empty | no |  | A variant of the agent, such as a prompt version. |
 | `deployment` | string, not empty | no |  | A deployment of the agent, as the adapter names it. |
 | `options` | map of string to any value | no |  | Adapter settings. Each adapter defines their names. |
+| `prompt` | [TargetPrompt](#targetprompt) | no |  | The prompt the agent runs with, from the registry. campaign run --prompt sets it; each adapter page says how it reaches the agent. |
+
+## TargetPrompt
+
+A prompt version from the registry, handed to the agent as its system prompt. campaign run --prompt sets it.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | string, not empty | yes |  | The prompt name in the registry. |
+| `version` | integer, at least 1 | yes |  | The version number. |
+| `hash` | string matching `^[0-9a-f]{64}$` | yes |  | The version hash: the SHA-256 of its file list. |
+| `text` | string | yes |  | The prompt text, restored byte for byte from the store. |
 
 ## GivenDefaults
 
