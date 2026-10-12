@@ -20,7 +20,11 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
     const of = (kind: string) => mutants.filter((mutant) => mutant.kind === kind);
     expect(of('skill').length).toBeGreaterThan(0);
     expect(of('skill').every((mutant) => mutant.killed)).toBe(true);
-    expect(mutants.find((mutant) => mutant.atom === 'tool.settings.deny-webfetch')?.killed).toBe(true);
+    // The deny rule's test expects WebFetch not offered; a replayed session reports no offered tools, so the
+    // test waits for its expectation and the mutant lives (an item of the bank: mutant.agent.tool-deny-bare).
+    const deny = mutants.find((mutant) => mutant.atom === 'tool.settings.deny-webfetch');
+    expect(deny?.killed).toBe(false);
+    expect(deny?.reason).toMatch(/wait for a fix of their expectation/);
     expect(mutants.find((mutant) => mutant.atom === 'instruction.standing.never-call-webfetch')?.killed).toBe(
       true,
     );

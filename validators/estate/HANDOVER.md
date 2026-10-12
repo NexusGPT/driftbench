@@ -65,6 +65,7 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Pitfalls
 
+* The journal rows were measured at lane commit 37c0b78. Merging 56 later main commits (generate, checks, adapters) makes 5 more items fail on every row: the four gen.complete.guard_positive items (pairwise guard rows need an approved phrase and a workspace outcome) and mutant.agent.tool-deny-bare (the deny rule's test now expects WebFetch not offered, and a replayed session reports no offered tools). After the pilot that is 242 failing items, 96 distinct causes, forecast 29.2. The gate still fails.
 * A measurement of every item except scale on seeds 1 to 20 and the hidden seed takes under a minute with six seed groups in parallel (`SKIP=scale` in `_captures/v-estate/measure-par.mts`). The scale family alone takes about 70 minutes and depends on machine load: measure it alone, on a quiet machine. Every journal row holds the scale results of the one run at iteration 0, so no load difference counts as a fix.
 * The pilot fixed the hidden seed at 523931547 for every row, so rows compare item by item.
 * An item that turned out wrong is fixed by the bank's author in a commit of its own (section 12.3): a step of a named process may be qualified `<process>/<id>`, and the oracle compared it with the bare id (commit c14526b).

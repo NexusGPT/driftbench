@@ -270,6 +270,11 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
     /^gen\.complete\.guard_negative-/,
     'expect no fire on an every-turn event only from a guard with a registry verdict',
   ],
+  [
+    /^gen\.complete\.guard_positive-/,
+    'write an approved phrase and a workspace outcome for a pairwise guard row',
+  ],
+  [/^mutant\.agent\.tool-deny-bare$/, 'report the tools the runtime offers in a replayed session'],
   [/^gen\.complete\.guard_register-/, 'write a guard message check'],
   [/^gen\.complete\.guard_speed-/, 'write a guard timing check'],
   [/^gen\.complete\.invariant-/, 'run invariant specs on a static runner'],
