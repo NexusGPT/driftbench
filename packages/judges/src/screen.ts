@@ -42,6 +42,11 @@ const instructs = (sentence: string): boolean => JUDGE.test(sentence) && (VERDIC
  * reading is a whole text that is split into sentences like the original.
  */
 const READINGS: readonly ((text: string) => string | undefined)[] = [
+  // Characters that print nothing, dropped: zero-width marks, the soft hyphen, the word joiner, the byte order mark.
+  (text) => {
+    const bare = text.replace(/[\u200b-\u200f\u00ad\u2060-\u2064\ufeff\u180e]/g, '');
+    return bare === text ? undefined : bare;
+  },
   // Compatibility forms: fullwidth letters and the like read as plain letters.
   (text) => {
     const folded = text.normalize('NFKC');
