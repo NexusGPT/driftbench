@@ -1,0 +1,144 @@
+{
+  "split": "dev",
+  "items": 10,
+  "criterion": {
+    "accuracy": 0.3,
+    "perOrder": [
+      0.3,
+      0.3
+    ],
+    "costPer100": 0.9084872000000003
+  },
+  "holistic": {
+    "correct": 9,
+    "games": 20,
+    "accuracy": 0.45,
+    "perOrder": [
+      0.4,
+      0.5
+    ],
+    "costPer100": 0.7059170000000001
+  },
+  "rows": [
+    {
+      "rowKey": "9a0ec0ed193fdbcb1b8d",
+      "label": "A",
+      "criterion": [
+        "B",
+        "B"
+      ],
+      "holistic": [
+        "A",
+        "A"
+      ]
+    },
+    {
+      "rowKey": "940ecafd5cfce547c277",
+      "label": "A",
+      "criterion": [
+        "B",
+        "B"
+      ],
+      "holistic": [
+        "B",
+        "B"
+      ]
+    },
+    {
+      "rowKey": "efbf2721b2f6e93d8878",
+      "label": "A",
+      "criterion": [
+        "A",
+        "A"
+      ],
+      "holistic": [
+        "A",
+        "A"
+      ]
+    },
+    {
+      "rowKey": "e91c4dd43e2a660fefa8",
+      "label": "A",
+      "criterion": [
+        "A",
+        "A"
+      ],
+      "holistic": [
+        "B",
+        "A"
+      ]
+    },
+    {
+      "rowKey": "dc663e330e63205d306e",
+      "label": "A",
+      "criterion": [
+        "B",
+        "B"
+      ],
+      "holistic": [
+        "A",
+        "A"
+      ]
+    },
+    {
+      "rowKey": "1abaaf3a63d3b080562e",
+      "label": "A",
+      "criterion": [
+        "A",
+        "A"
+      ],
+      "holistic": [
+        "A",
+        "A"
+      ]
+    },
+    {
+      "rowKey": "5f9d82cdc611fbcd3cfb",
+      "label": "A",
+      "criterion": [
+        "B",
+        "B"
+      ],
+      "holistic": [
+        "B",
+        "B"
+      ]
+    },
+    {
+      "rowKey": "8a1bfb7ff0c8c44bbc8d",
+      "label": "A",
+      "criterion": [
+        "B",
+        "B"
+      ],
+      "holistic": [
+        "B",
+        "B"
+      ]
+    },
+    {
+      "rowKey": "a223f611a92a6605ee86",
+      "label": "A",
+      "criterion": [
+        "B",
+        "B"
+      ],
+      "holistic": [
+        "B",
+        "B"
+      ]
+    },
+    {
+      "rowKey": "ebf7409185f6d88ff350",
+      "label": "A",
+      "criterion": [
+        "tie",
+        "tie"
+      ],
+      "holistic": [
+        "B",
+        "B"
+      ]
+    }
+  ]
+}

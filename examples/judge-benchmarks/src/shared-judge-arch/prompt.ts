@@ -1,6 +1,7 @@
 import { contentHash } from '@driftbench/core';
 import { validateAssessment } from './assessment';
 import type { JudgeRequest, TranscriptEntry } from './contract';
+import { requirementsFor } from './criterion-ledger';
 import { auditData, FACT_LEDGER_SYSTEM } from './fact-audit';
 import { buildPrompt as buildLegacyPrompt, LEGACY_COMPARE_SYSTEM_PROMPT } from './legacy-prompt';
 
@@ -22,8 +23,8 @@ export type DataTag = (typeof DATA_TAGS)[number];
 /** The answer contract, as the judge is told to return it. */
 export const ANSWER_CONTRACT = [
   'Answer with one JSON object and nothing else, with exactly this structure:',
-  '{"checks":[{"requirement":"one atomic positive requirement from the criterion","reasoning":"what the supplied data shows","evidence":"a short exact quote from the data, or null when absent","met":true or false or null}]}',
-  'List every requirement in the criterion exactly once. Put reasoning and evidence before met. No overall verdict, outcome, score or other key is allowed.',
+  '{"checks":[{"id":"exact requested requirement id","reasoning":"what the supplied data shows","evidence":"a short exact quote from the data, or null when absent","met":true or false or null}]}',
+  'Check every requested id exactly once. Do not invent or omit ids. A requirement covers its entire supplied definition. Put reasoning and evidence before met. No overall verdict, outcome, score or other key is allowed.',
 ].join('\n');
 
 /** The data rule: the guard against an instruction carried inside the observed text. */
@@ -154,13 +155,19 @@ export function renderTranscript(entries: readonly TranscriptEntry[]): string {
 
 /** The user prompt: the rubric, then every data section, then the closing instruction. */
 export function renderUser(request: JudgeRequest): string {
-  if (request.factAudit) return auditData(request);
+  if (request.factAudit && request.assessment?.kind !== 'rubric') return auditData(request);
   const parts = [
     request.assessment
       ? `CRITERION: ${request.criterion.name}\nQUESTION: ${oneLine(request.criterion.rubric)}`
       : renderRubric(request.criterion),
     '',
   ];
+  if (!request.assessment)
+    parts.push(
+      'Requested requirements (these ids and definitions are authoritative):',
+      ...requirementsFor(request).map((r) => JSON.stringify(r)),
+      '',
+    );
   if (request.assessment?.kind === 'rubric') {
     parts.push(
       'Score every requirement below separately, retaining its exact name:',
@@ -177,7 +184,8 @@ export function renderUser(request: JudgeRequest): string {
   }
   parts.push(dataTag('transcript_data', renderTranscript(request.transcript)), '');
   if (request.artifact !== undefined) parts.push(dataTag('artifact_data', request.artifact), '');
-  if (request.reference !== undefined) parts.push(dataTag('reference_data', request.reference), '');
+  const reference = request.reference ?? request.factAudit?.reference;
+  if (reference !== undefined) parts.push(dataTag('reference_data', reference), '');
   parts.push(
     request.assessment
       ? 'Return only the requested assessment JSON object.'

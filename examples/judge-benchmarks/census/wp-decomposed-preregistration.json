@@ -1,7 +1,11 @@
 {
   "version": "request-blind-atomic-v1",
   "frozenBeforeFirstCall": true,
-  "weights": {"requirements": 0.45, "development": 0.35, "craft": 0.20},
+  "weights": {
+    "requirements": 0.45,
+    "development": 0.35,
+    "craft": 0.2
+  },
   "requirementWeight": "0.45 divided equally among all request-derived explicit requirements",
   "batchSize": 4,
   "scores": "Each criterion has separate integer A and B scores from 0 through 4",
@@ -11,6 +15,41 @@
   "selectionInputs": "DEV request shapes and the owner's decomposition instruction; no fit to suspect labels",
   "setupInputs": "Only the writing request",
   "scoringInputs": "Request, its blind-derived criteria, complete candidate texts",
-  "excludedInputs": ["gold labels", "audit verdicts", "source model names", "item IDs", "reply-size features", "TEST items"],
-  "newContractPending": true
+  "excludedInputs": [
+    "gold labels",
+    "audit verdicts",
+    "source model names",
+    "item IDs",
+    "reply-size features",
+    "TEST items"
+  ],
+  "newContractPending": false,
+  "scoringModes": [
+    "paired: separately scored criteria with both candidates present",
+    "independent: each reply alone; criteria and candidate processing orders both reversed"
+  ],
+  "modeWeightsUnchanged": true,
+  "v2": {
+    "version": "request-blind-single-reply-v2",
+    "authority": "Owner: extract criteria once per prompt, score all criteria for one reply in one call, reasoning before numbers; target under $1.50/100; measure 10 DEV cases first.",
+    "weightsUnchanged": true,
+    "batchSize": "all",
+    "orderPolicy": "Independent scorecards reused for code comparisons in both orders; no extra judge confidence is inferred from reuse.",
+    "costAccounting": "Unique exact-prompt recipe costs, including setup once per writing request; record new spend separately.",
+    "qualityFix": "Retain exact names and threat modality in blind extraction; final reasoning precedes score fields."
+  },
+  "authorizedNewCommit": "1270e1cb1eb324b2f3efbca816aa43fbcb092ae6",
+  "newContractReviewStatus": "Independent re-review running; owner authorizes full run and freeze.",
+  "v3": {
+    "version": "request-blind-single-reply-v3",
+    "diagnosis": "wp-criterion-diagnosis-pilot.json",
+    "weightsUnchanged": true,
+    "changes": [
+      "mandatory flag excludes optional requirements from arithmetic",
+      "source phrases retained in scoring",
+      "no invented title delimiters, platform markers, citations or viewpoints",
+      "quality distinguishes assertion from realized experience and responsible unknowns"
+    ],
+    "pilotGate": "strictly greater than 45% on the same ten pairs before full DEV; freeze holistic if no fix ready by 03:45 Brussels"
+  }
 }

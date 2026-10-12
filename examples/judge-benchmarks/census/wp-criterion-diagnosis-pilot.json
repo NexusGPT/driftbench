@@ -1,0 +1,91 @@
+{
+  "createdAt": "2026-10-12T22:32:47.879044+00:00",
+  "split": "dev",
+  "pilotPairs": 10,
+  "misses": 7,
+  "matchedHolisticAccuracy": 0.45,
+  "criterionAccuracy": 0.3,
+  "orderConclusion": "Independent scorecards are reused. Order cannot explain differences in this recipe; AB and BA source-mapped predictions agree.",
+  "weightConclusion": "No demonstrated numeric weight bug; no grid search or fit to suspect labels. Keep 0.45/0.35/0.20.",
+  "changes": "v3 fixes only named extraction and scoring causes, retains raw replies and strict shared numeric parsing.",
+  "fullRunGate": "Same ten stratified pairs must beat 45% before the 90-pair run. If no fix is ready by 03:45 Brussels, freeze holistic.",
+  "items": [
+    {
+      "rowKey": "9a0ec0ed193fdbcb1b8d",
+      "category": "scoring",
+      "cause": "Named factual concerns outweigh better topic execution. The critique has concrete alleged errors, so removing the penalty to match the label is not licensed. Distinguish unsupported certainty from demonstrably false claims equally in both replies.",
+      "scorecardQuote": "The named patients (Peter, Maria), their outcomes and their quotes are invented and presented as real.",
+      "fix": "No item-specific correction. Equal evidential standards only; retain demonstrable factual penalties.",
+      "labelAssessment": "not independently resolved",
+      "sourceReading": "Complete source texts and both original scorecards read; five sources also match hashes of the prior full-source label audit.",
+      "orderCause": false,
+      "weightsChanged": false
+    },
+    {
+      "rowKey": "940ecafd5cfce547c277",
+      "category": "scoring",
+      "cause": "The plan receives full novel-deliverable credit and summarized emotional events receive a higher development score than enacted events. However, devise can permit a plan, and A has real late-story inconsistencies.",
+      "scorecardQuote": "The request to devise a Xuanhuan novel is fully met as a planning document.",
+      "fix": "Score planned vs enacted experience under the actual artifact commission; do not force every devise request to require prose. Permit earned emotional evolution.",
+      "labelAssessment": "defensible preference, not a proved reversal",
+      "sourceReading": "Complete source texts and both original scorecards read; five sources also match hashes of the prior full-source label audit.",
+      "orderCause": false,
+      "weightsChanged": false
+    },
+    {
+      "rowKey": "dc663e330e63205d306e",
+      "category": "criteria extraction",
+      "cause": "Optional child perspectives are weighted as mandatory. Title enclosing marks and platform-specific engagement furniture become extra constraints. Craft and development import those demands.",
+      "scorecardQuote": "This item is optional. The reply offers only minimal child-side material",
+      "fix": "Add mandatory flags and zero requirement weight for options; retain source phrases; exclude invented title and platform constraints.",
+      "labelAssessment": "defensible",
+      "sourceReading": "Complete source texts and both original scorecards read; five sources also match hashes of the prior full-source label audit.",
+      "orderCause": false,
+      "weightsChanged": false
+    },
+    {
+      "rowKey": "5f9d82cdc611fbcd3cfb",
+      "category": "scoring",
+      "cause": "Unknown template specifications reduce many scores, while invented specifications and service commitments receive full detail credit. The same failure is diluted across a fixed coverage group.",
+      "scorecardQuote": "The warranty period and the service hotline are left as placeholders.",
+      "fix": "Judge usable detail with responsible assumptions; unknown brand or product data can remain open. Keep real contradictions penalized. No weight fitting.",
+      "labelAssessment": "defensible",
+      "sourceReading": "Complete source texts and both original scorecards read; five sources also match hashes of the prior full-source label audit.",
+      "orderCause": false,
+      "weightsChanged": false
+    },
+    {
+      "rowKey": "8a1bfb7ff0c8c44bbc8d",
+      "category": "scoring",
+      "cause": "Scores mix successful requested development with unsourced historical assertions. Some criticisms are concrete; the shared generic quality rubric overextends a request for objective history into a citation apparatus.",
+      "scorecardQuote": "The leadership discussion is not grounded in documented evidence.",
+      "fix": "Separate unsupported certainty from established error, without requiring unrequested bibliography; retain factual penalties with an identified basis.",
+      "labelAssessment": "defensible preference, factual uncertainty retained",
+      "sourceReading": "Complete source texts and both original scorecards read; five sources also match hashes of the prior full-source label audit.",
+      "orderCause": false,
+      "weightsChanged": false
+    },
+    {
+      "rowKey": "a223f611a92a6605ee86",
+      "category": "scoring",
+      "cause": "A has a demonstrated nuclear-delivery error. B receives full historical dates and return credit despite a demonstrated arrival/departure confusion in the prior label audit. The label remains ambiguous.",
+      "scorecardQuote": "Section V (return on 17 September 1955, appointment to the Fifth Academy)",
+      "fix": "Use equal factual skepticism. Do not target this ambiguous label or delete A's real factual penalty.",
+      "labelAssessment": "ambiguous in prior full-source audit",
+      "sourceReading": "Complete source texts and both original scorecards read; five sources also match hashes of the prior full-source label audit.",
+      "orderCause": false,
+      "weightsChanged": false
+    },
+    {
+      "rowKey": "ebf7409185f6d88ff350",
+      "category": "criteria extraction",
+      "cause": "The blind craft criterion invents viewpoint switches; A loses craft credit precisely for obeying the commoner perspective. Broad 3/4 quality scoring also leaves an exact aggregate tie.",
+      "scorecardQuote": "Because the story is single-POV, the requested 'transitions between the two sects' viewpoints' largely do not occur.",
+      "fix": "Prohibit invented viewpoints, keep commoner perspective authoritative, anchor quality levels to the actual requested experience. Honest numeric ties remain ties.",
+      "labelAssessment": "defensible",
+      "sourceReading": "Complete source texts and both original scorecards read; five sources also match hashes of the prior full-source label audit.",
+      "orderCause": false,
+      "weightsChanged": false
+    }
+  ]
+}
