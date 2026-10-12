@@ -2,6 +2,10 @@
 
 All notable changes to driftbench are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the versions follow [Semantic Versioning](https://semver.org/). Every package under `packages/` and the Python package `python/driftbench` carry the same version; `node tools/release/check.mjs` verifies it.
 
+## [Unreleased]
+
+408 Request Timeout is retried like 429 and 5xx in every adapter.
+
 ## [0.1.0] - 2026-10-12
 
 The first public release. driftbench evaluates AI agents block by block: a block is one exchange with a conversational agent, or one step of a task done by a code-interpreter agent, with a Given, a When and a Then.

@@ -74,6 +74,16 @@ describe('mutateEstate', () => {
     await consistent(root, result.map);
   });
 
+  it('refuses to delete a skill name line that equals the folder name: an equivalent mutant, nothing written', async () => {
+    const root = await copy();
+    const skill = '.claude/skills/invoice-reconcile/SKILL.md';
+    const before = await readFile(join(root, skill), 'utf8');
+    await expect(
+      mutateEstate({ root, map }, { delete: 'skill.invoice-reconcile.skill-invoice-reconcile' }),
+    ).rejects.toThrow(/equivalent mutant.*folder/);
+    expect(await readFile(join(root, skill), 'utf8')).toBe(before);
+  });
+
   it('inverts an obligation by the table of forms, in place, the line count kept', async () => {
     const root = await copy();
     const original = await readFile(join(FIXTURE, 'CLAUDE.md'), 'utf8');

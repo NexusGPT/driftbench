@@ -88,7 +88,7 @@ Each call of a `sideEffects` tool that did not fail is a payload, recorded by bl
 
 | Error | Becomes |
 |---|---|
-| a 429 or any 5xx status (529 overloaded included), or a network error (refused, reset, timed out, `fetch failed`) in the error or its causes, after the [shared retry policy](../retries.md)'s attempts where the adapter retries the model call itself | `AdapterTransportError`, marked exhausted: the runner does not retry the block on top |
+| a 408, 429 or any 5xx status (529 overloaded included), or a network error (refused, reset, timed out, `fetch failed`) in the error or its causes, after the [shared retry policy](../retries.md)'s attempts where the adapter retries the model call itself | `AdapterTransportError`, marked exhausted: the runner does not retry the block on top |
 | any other status or error | `AgentFailure` |
 | an answer with no content list | `AgentFailure` |
 | tool calls still asked at the step cap | `AgentFailure` |
