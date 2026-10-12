@@ -414,3 +414,21 @@ describe('a Google answer whose prompt was blocked', () => {
     expect(result.unparsed).toBeUndefined();
   });
 });
+
+describe('a Google answer stopped for recitation', () => {
+  it('is a decline: inconclusive, not unparsed', async () => {
+    const client = createGoogleJudge({
+      env: { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' },
+      maxRetries: 0,
+      fetch: async () =>
+        new Response(JSON.stringify({ candidates: [{ content: { parts: [] }, finishReason: 'RECITATION' }] }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    });
+    const result = await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    expect(result.answer.outcome).toBe('inconclusive');
+    expect(result.answer.reasoning).toMatch(/declined/);
+    expect(result.unparsed).toBeUndefined();
+  });
+});

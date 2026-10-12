@@ -183,7 +183,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         .map((part) => (isRecord(part) && typeof part.text === 'string' ? part.text : ''))
         .join('');
       if (candidate.finishReason === 'MAX_TOKENS') return truncated(text, model);
-      if (candidate.finishReason === 'SAFETY')
+      if (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'RECITATION')
         return { answer: inconclusive(`${model} declined the request`), raw };
       return parseAnswerText(text);
     },
