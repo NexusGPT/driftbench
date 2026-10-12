@@ -4,7 +4,6 @@ tools:
     description: Places an order for a plan.
     input_schema:
       type: object
-      additionalProperties: false
       required: [reference, quantity]
       properties:
         reference: { type: string, maxLength: 154 }
@@ -26,7 +25,6 @@ tools:
     description: Checks that an address is served.
     input_schema:
       type: object
-      additionalProperties: false
       required: [contact_email, reason_code]
       properties:
         contact_email: { type: string, format: email }
@@ -48,7 +46,6 @@ tools:
     description: Books a technician visit.
     input_schema:
       type: object
-      additionalProperties: false
       required: [verified, urgent, slot, start_date]
       properties:
         verified: { type: boolean }
@@ -68,7 +65,6 @@ tools:
     description: Hands a case to a person.
     input_schema:
       type: object
-      additionalProperties: false
       required: [items, tier, term_months]
       properties:
         items: { type: array, items: { type: string } }

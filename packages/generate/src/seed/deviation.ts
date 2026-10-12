@@ -34,6 +34,18 @@ export const DETOURS: ReadonlySet<string> = new Set([
   'D10_return',
 ]);
 
+/**
+ * Classes a first message can carry: they need no earlier turn. A goal shift needs a goal, a contradiction
+ * a stated fact, a loose confirmation a question, a silence or a burst an earlier reply, a return a break;
+ * none of those exists before the agent has spoken once.
+ */
+export const OPENING_CLASSES: ReadonlySet<string> = new Set([
+  'D1_off_topic',
+  'D5_language_switch',
+  'D6_instruction_in_data',
+  'D9_out_of_scope',
+]);
+
 /** The class a perturbation carries with a world change instead of a user message: a tool fails. */
 export const TOOL_FAILURE = 'D8_tool_failure';
 
