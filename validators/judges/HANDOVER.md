@@ -112,6 +112,7 @@ Iteration 97 (cause: no hex reading. DECODERS row for 0x runs of 8 bytes or more
 Iteration 98 (cause: no entity reading. DECODERS row for &#NNN; and &#xHH;. Test: screen.test.ts reads HTML numeric entities.)
 Iteration 99 (cause: no per judge labels.metrics. agreement() counts tp fp tn fn (fail positive, inconclusive wrong) and derives sensitivity, specificity, balancedAccuracy, falsePositiveRate, falseNegativeRate. Test: metrics-confusion.test.ts.)
 Iteration 100 (cause: majority had no families option. Votes of one family collapse into one family vote (its majority, inconclusive on a split), each weighing 1. Test: council.test.ts majority by family. Next: pass the council config weights into majority (weights-in-the-council).)
+Iteration 101 (cause: CouncilConfig had no weights. weights pass into majority in every round. Test: council.test.ts council weights. Next: cascade never stops early on a flagged request (screenData), positionBias, swapConsistent, pair prompt tags, label checks, player index.)
 
 ## Next actions
 
