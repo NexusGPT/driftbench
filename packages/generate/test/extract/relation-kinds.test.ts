@@ -64,4 +64,23 @@ describe('relation kinds a rule can state', () => {
     expect(result.refusals).toEqual([]);
     expect(t.relations).toHaveLength(1);
   });
+
+  it('lists reply_text and keeps the relation', () => {
+    expect(sectionRequest('relations', [], { dimensions: [], constraints: [] }).user).toContain(
+      '- "reply_text"',
+    );
+    const t = target();
+    const result = acceptAnswer(
+      'relations',
+      answer({
+        kind: 'reply_text',
+        subject: { dimension: 'rule', value: 'R-01' },
+        text: 'Your order is in.',
+      }) as never,
+      t as never,
+      quotes,
+    );
+    expect(result.refusals).toEqual([]);
+    expect(t.relations).toHaveLength(1);
+  });
 });

@@ -820,3 +820,14 @@ Sources read:
 What others do: A relation kind not in the proposal schema is refused.
 
 What to try, and why: the relation kind route
+
+## Iteration 71
+
+Question: packages/generate/src/extract/proposal.ts: no relation kind fixes the exact words of a reply, so such a rule is lost; contract:relation-reply-text (semantics.reply-text) proves it.
+
+Sources read:
+* docs/generating.md section Planned: more relations (the exact reply text a rule fixes)
+
+What others do: A relation kind not in the proposal schema is refused.
+
+What to try, and why: the relation kind reply_text

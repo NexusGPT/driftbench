@@ -391,6 +391,16 @@ export const RouteRelation = z
   .describe('A rule that sends a topic to a team.');
 export type RouteRelation = z.infer<typeof RouteRelation>;
 
+export const ReplyTextRelation = z
+  .strictObject({
+    kind: z.literal('reply_text'),
+    subject: ValueRef.describe('The rule value that fixes the exact words of a reply.'),
+    text: z.string().min(1).describe('The exact words of the reply.'),
+    ...relationCommon,
+  })
+  .describe('A rule that fixes the exact words of a reply.');
+export type ReplyTextRelation = z.infer<typeof ReplyTextRelation>;
+
 export const ProposalRelation = z
   .discriminatedUnion('kind', [
     PathRelation,
@@ -611,6 +621,8 @@ export function relationLabel(relation: ProposalRelation): string {
       return `${relation.subject.dimension}=${relation.subject.value} sets the reply language ${relation.lang}`;
     case 'tool_order':
       return `${relation.before} is called before ${relation.after}`;
+    case 'reply_text':
+      return `${relation.subject.dimension}=${relation.subject.value} fixes the reply text`;
     case 'route':
       return `${relation.subject.dimension}=${relation.subject.value} routes to ${relation.to}`;
   }
@@ -847,6 +859,9 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
         reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
         break;
       case 'tool_order':
+        break;
+      case 'reply_text':
+        reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
         break;
       case 'route':
         reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);

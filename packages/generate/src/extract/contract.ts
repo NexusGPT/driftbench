@@ -11,6 +11,7 @@ import {
   type ProposalDimension,
   RecoveryRelation,
   ReplyLanguageRelation,
+  ReplyTextRelation,
   Role,
   RouteRelation,
   Slots,
@@ -97,6 +98,7 @@ Dimensions of kind "data" for data cases and of kind "task" for task settings. T
 - "recovery": "class" (a deviation class), "flows", optional "at" (the stages it is probed at), optional "tool" (the tool that fails, for D8_tool_failure), optional "stage_after" (a stage, or "pending" for the stage the conversation had reached), optional "must", "must_not" (patterns on the reply), "guards" ([{"name", "verdict"}]), "tools" ([{"tool", "count", "input"}]).
 - "reply_language": "subject" (the rule value), "lang" (the language tag every reply is in).
 - "tool_order": "before" (a tool name), "after" (a tool name): the sources say the first is called before the second.
+- "reply_text": "subject" (the rule value), "text" (the exact words of the reply, as the source gives them).
 - "route": "subject" (the rule value), "to" (the team, as the source names it): the rule sends a topic to that team.
 An assertion is a value, or one of {"regex"}, {"contains"}, {"one_of"}, {"subset"}, {"absent": true}, {"nonempty": true}. A string may hold {slot} for a value the cell binds.`,
 };
