@@ -350,6 +350,19 @@ describe('the compounding index', () => {
     expect(overall.interval.upper).toBeGreaterThanOrEqual(overall.index);
   });
 
+  it('gives one spec no overall interval, whatever its targets: one spec is one cluster', async () => {
+    const all = await runs(driftsAfterBlock2);
+    const one = all.filter((run) => run.specId === all[0]?.specId);
+    const twoTargets = [
+      ...one,
+      ...one.map((run) => ({ ...run, target: { ...run.target, label: 'second-target' } })),
+    ];
+    const index = compoundingIndex(twoTargets, { interval });
+    expect(index.specs).toHaveLength(2);
+    expect(index.overall).toBeDefined();
+    expect(index.overall?.interval).toBeUndefined();
+  });
+
   it('pairs blocks by their index in the spec, ignores P runs and needs both modes', async () => {
     const spec = acmeSpec(loaded, 'acme-plan-upgrade');
     const t = await runSpec(spec, { adapter: acmeAdapter(), driver, checks: [], mode: 'T', repeat: 0 });

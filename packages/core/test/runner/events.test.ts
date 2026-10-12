@@ -1,5 +1,5 @@
 import { createScriptedDriver } from '@driftbench/users';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { type RunEvent, runSpec } from '../../src/runner';
 import { acmeSpec, loadAcmeConversations, minimalChecks, realAcmeAdapter } from './support';
 
@@ -49,14 +49,21 @@ describe('model calls on the event stream carry their token counts and latency',
         };
       },
     } as typeof inner;
-    await runSpec(spec, {
-      adapter,
-      driver,
-      checks: minimalChecks,
-      mode: 'F',
-      repeat: 0,
-      onEvent: (event) => events.push(event),
-    });
+    // A clock that moves a millisecond on every reading: a start and an end taken from two readings differ.
+    let tick = 1_700_000_000_000;
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => tick++);
+    try {
+      await runSpec(spec, {
+        adapter,
+        driver,
+        checks: minimalChecks,
+        mode: 'F',
+        repeat: 0,
+        onEvent: (event) => events.push(event),
+      });
+    } finally {
+      clock.mockRestore();
+    }
     const calls = events.filter((event) => event.type === 'model_call');
     expect(calls.length).toBeGreaterThan(0);
     expect(calls[0]).toMatchObject({

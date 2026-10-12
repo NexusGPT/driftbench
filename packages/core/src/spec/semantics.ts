@@ -51,6 +51,7 @@ export function checkSemantics(spec: Spec): Issue[] {
   }
   const ctx: Context = { stages: spec.stages ? new Set(spec.stages) : undefined, defined, forbidden };
 
+  const facts = factsOf(spec);
   const blockIds = new Set<string>();
   spec.blocks.forEach((block, index) => {
     if (block.id !== undefined) {
@@ -63,7 +64,12 @@ export function checkSemantics(spec: Spec): Issue[] {
     }
     if (block.expect) checkExpect(block.expect, `blocks.${index}.expect`, ctx, issues);
     if (block.expect)
-      checkRetention(block.expect, `blocks.${index}.expect`, factsBefore(spec, index), issues);
+      checkRetention(
+        block.expect,
+        `blocks.${index}.expect`,
+        (fact) => (facts.block.get(fact) ?? Infinity) <= index,
+        issues,
+      );
   });
 
   const perturbationIds = new Set<string>();
@@ -89,6 +95,20 @@ export function checkSemantics(spec: Spec): Issue[] {
       );
     }
     if (
+      perturbation.world !== undefined &&
+      perturbation.user === undefined &&
+      perturbation.burst === undefined &&
+      perturbation.inject_at === spec.blocks.length
+    ) {
+      issues.push(
+        error(
+          'PERTURBATION_OUT_OF_RANGE',
+          `${path}.inject_at`,
+          `a perturbation with a world alone runs under block inject_at, and inject_at ${perturbation.inject_at} has no block (${spec.blocks.length} blocks, counting from 0)`,
+        ),
+      );
+    }
+    if (
       perturbation.user === undefined &&
       perturbation.burst === undefined &&
       perturbation.world === undefined
@@ -100,7 +120,7 @@ export function checkSemantics(spec: Spec): Issue[] {
       checkRetention(
         perturbation.expect,
         `${path}.expect`,
-        factsBefore(spec, perturbation.inject_at),
+        (fact) => (facts.perturbation.get(fact) ?? Infinity) <= perturbation.inject_at,
         issues,
       );
     }
@@ -237,23 +257,46 @@ export function isZero(count: Count | undefined): boolean {
 }
 
 /**
- * The ledger keys known at block `index`: the seed, every earlier block's ledger_add, and the given.ledger
- * of this block and of the blocks before it.
+ * Where each ledger key becomes known, read once for the whole spec: the seed from the start, a block's
+ * given.ledger from that block (a perturbation inserted before it runs before that given is set), and a
+ * block's ledger_add from the block after it.
  */
-function factsBefore(spec: Spec, index: number): Set<string> {
-  const known = new Set(Object.keys(spec.given?.ledger ?? {}));
-  spec.blocks.slice(0, index + 1).forEach((block, at) => {
-    for (const key of Object.keys(block.given?.ledger ?? {})) known.add(key);
-    if (at < index) for (const key of Object.keys(block.expect?.ledger_add ?? {})) known.add(key);
+type Facts = { block: Map<string, number>; perturbation: Map<string, number> };
+
+function factsOf(spec: Spec): Facts {
+  const block = new Map<string, number>();
+  const perturbation = new Map<string, number>();
+  const note = (map: Map<string, number>, key: string, at: number) => {
+    const known = map.get(key);
+    if (known === undefined || at < known) map.set(key, at);
+  };
+  for (const key of Object.keys(spec.given?.ledger ?? {})) {
+    block.set(key, 0);
+    perturbation.set(key, 0);
+  }
+  spec.blocks.forEach((entry, at) => {
+    for (const key of Object.keys(entry.given?.ledger ?? {})) {
+      note(block, key, at);
+      note(perturbation, key, at + 1);
+    }
+    for (const key of Object.keys(entry.expect?.ledger_add ?? {})) {
+      note(block, key, at + 1);
+      note(perturbation, key, at + 1);
+    }
   });
-  return known;
+  return { block, perturbation };
 }
 
 /** A retention fact must be in the ledger before the block, and its ask pattern must compile. */
-function checkRetention(expect: Expect, path: string, known: Set<string>, issues: Issue[]): void {
+function checkRetention(
+  expect: Expect,
+  path: string,
+  known: (fact: string) => boolean,
+  issues: Issue[],
+): void {
   expect.knowledge_retention?.forEach((entry, index) => {
     const at = `${path}.knowledge_retention.${index}`;
-    if (!known.has(entry.fact)) {
+    if (!known(entry.fact)) {
       issues.push(
         error(
           'RETENTION_FACT_UNKNOWN',

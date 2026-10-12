@@ -74,7 +74,7 @@ export function compoundingIndex(
   const specs: CompoundingLine[] = [];
   const allValues: number[] = [];
   const allClusters: string[] = [];
-  for (const [key, group] of groups) {
+  for (const group of groups.values()) {
     if (group.t.length === 0 || group.f.length === 0) continue;
     const rateT = blockRates(group.t);
     const rateF = blockRates(group.f);
@@ -107,7 +107,7 @@ export function compoundingIndex(
     }
     specs.push(line);
     allValues.push(...diffs);
-    allClusters.push(...diffs.map(() => key));
+    allClusters.push(...diffs.map(() => `${group.specId}\u0000${group.specHash}`));
   }
 
   if (allValues.length === 0) return { specs };
@@ -121,8 +121,11 @@ export function compoundingIndex(
       passT,
       passF,
       index: passT - passF,
-      // One spec is one cluster: resampling it always draws the same blocks, so no interval is given.
-      ...(options.interval && specs.length > 1 ? { interval: options.interval(allValues, allClusters) } : {}),
+      // One spec is one cluster, whatever its targets: resampling one cluster always draws the same blocks,
+      // so no interval is given.
+      ...(options.interval && new Set(allClusters).size > 1
+        ? { interval: options.interval(allValues, allClusters) }
+        : {}),
     },
   };
 }

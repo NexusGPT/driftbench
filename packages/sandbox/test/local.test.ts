@@ -328,6 +328,19 @@ describe('exec', () => {
     expect(existsSync(join(box.root, 'late.txt'))).toBe(false);
   });
 
+  it('kills a child that left the process group of the command, at the exit and at the timeout', async () => {
+    const box = await sandbox();
+    const leave = (file: string) =>
+      `"${process.execPath}" -e "require('node:child_process').spawn('/bin/sh', ['-c', 'sleep 0.5; echo late > ${file}'], { stdio: 'ignore', detached: true }).unref()"`;
+    const exited = await box.exec(leave('exit.txt'));
+    expect(exited.exitCode).toBe(0);
+    const slow = await box.exec(`${leave('timeout.txt')}; sleep 30`, { timeoutMs: 300 });
+    expect(slow.exitCode).toBe(TIMEOUT_EXIT_CODE);
+    await pause(1500);
+    expect(existsSync(join(box.root, 'exit.txt'))).toBe(false);
+    expect(existsSync(join(box.root, 'timeout.txt'))).toBe(false);
+  });
+
   it('reports a command killed by a signal as 128 plus the signal number', async () => {
     const box = await sandbox();
     expect((await box.exec('kill -TERM $$')).exitCode).toBe(143);
