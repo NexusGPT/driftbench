@@ -103,6 +103,11 @@ type SessionEntry = {
   decisions?: string;
   steps?: string;
 };
+
+// Estate statistics use the same session alignment and reference/tree reads as replay.
+export type { SessionEntry };
+export { align as alignReplaySpecs, sessionFor as replaySessionFor };
+
 /** The before and after trees of a spec's session: the seed folder, and the folder the session left. */
 type Trees = { before: string; after: string };
 type Alignment = {

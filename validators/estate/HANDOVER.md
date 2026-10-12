@@ -10,7 +10,15 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 0 |
 <!-- level-table:end -->
 
-### Current executor measurement, iteration 13
+### Current executor measurement, iteration 14
+
+Seed 1 passes 902 of 1170 items (0.770940170940171), level 0. The stats command changes all 37 estate.stats items from fail to pass. The timing-only scan.hostile.wide-folder item changes from pass to fail: its structure holds, but its scan takes 12377 ms against 5000 ms. A separate unchanged-reader probe then passes twice and fails once at 5110 ms; this is a variable timing result, not a claimed fix or a discarded failure. The measured score keeps that failure.
+
+The initial command tests were red. The final stats and replay tests pass all 18 assertions; typecheck and lint pass. The final dedicated stats family passes 37 of 37 after the lead's reach clarification. Reach is reported only for skills, references, guards and subagents. Every other approved atom is counted in reachNotObservable as not observable; no exposure is inferred. Compliance and decay use the production offline replay checks, with no paid model call.
+
+Captures: .cache/estate-executor/iteration-14.json, iteration-14-final-family.json and iteration-14-final-tests.log. The full seed 1 capture precedes only the final reach-population clarification; the complete stats family and command tests verify that final version. The frozen pre-fix all-seed sweep still runs into baseline-full.json (session 14550). No current all-seed result is claimed. The bank maintainer's stale-test commit was dropped locally at the lead's request; do not cherry-pick or push it. Wait for the lead's main-merge notice, then merge origin/main and check CI.
+
+### Previous executor measurement, iteration 13
 
 Seed 1 on c27c96dd plus the hazard-context fix: 866 of 1170 items pass (0.7401709401709402), level 0. The comparable pre-fix baseline is 862 of 1170 (0.7367521367521368). Exactly four hazard decoys change from fail to pass; no component regression is measured. This table is seed 1 only. Seeds 2 to 20 and the hidden seed are not claimed for the current code; the user requests a full sweep every five iterations.
 
@@ -33,7 +41,7 @@ Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none
 
 ## The estate stats contract (in docs/estate.md section 7 and docs/reference/cli.md, frozen)
 
-`driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json` prints `coverage.kinds: { <kind>: { atoms, tested, enforced } }`, `coverage.cells` and `coverage.edges` as `{ covered, total }`, `reach: [{ atom, reached, followed }]` and `decay: [{ block, runs, passRate }]`; exit 0, or 2 on bad input. The estate.stats items read `coverage.kinds`.
+`driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json` prints `coverage.kinds: { <kind>: { atoms, tested, enforced } }`, `coverage.cells` and `coverage.edges` as `{ covered, total }`, `reach: [{ atom, reached, followed }]` and `decay: [{ block, runs, passRate }]`; exit 0, or 2 on bad input. The estate.stats items read `coverage.kinds`. The implemented reach covers skills, references, guards and subagents only; reachNotObservable counts every other approved atom with status not observable.
 
 ## The unit runner contract (in docs/estate.md section 6 and docs/reference/cli.md, frozen)
 
@@ -61,8 +69,8 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Next actions
 
-1. Implement the missing estate stats command against the full frozen contract in docs/estate.md section 7. Its absence causes all 37 estate.stats items to fail. Add a failing test first. Keep all fields accurate; do not emit placeholder metrics.
-2. After that iteration is measured and pushed, take the largest remaining component cause. Treat the documented item defects separately; never change protected validator files.
+1. Fix bare-name search order in the first failing reader level: exact local folder, local subtree, root, then global candidates. The prepared local-names.test.ts is red on four of five cases. Load only named root references and include them in copied estates.
+2. Measure that one cause on seed 1, journal, check typecheck and lint, then push. Keep protected bank defects separate; never count the eight registration-only diagnostic gains as component progress.
 3. After five new iterations, run seeds 1 to 20 and the hidden seed in the background, update this handover, and inspect PR CI. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
 
 ### Historical next actions before takeover
@@ -109,6 +117,17 @@ The ladder must be registered in packages/validators/src/ladders/index.ts (`esta
 * `plan.relevance.helpers-running` conflicts with the documented covering-array contract. Section 4 of docs/estate.md requires every allowed target/situation tuple under the constraint list. The committed fixture's `pairwise.0003` targets `instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50` with `session_state: helpers_running`. None of the three constraints returned by `toEstateSpaceMap` forbids this cell. The item rejects it because its target kind is instruction, even though the instruction itself dispatches a helper. Proof: `.cache/estate-executor/relevance-defect.json`, observed on c27c96dd with the hazard fix only. Do not introduce an undocumented kind mask to make this item pass. The other policy items in the family require the same contract review; they are not all declared defective by this one example.
 * The closed-list conflicts already recorded in NEEDS.md remain: code gates beyond the four documented forms, routing outside tables, and standing files beyond the documented sources. Keep these separate from component defects. No validator item or protected source is changed by this executor.
 
+* The bank replay helper in packages/validators/src/ladders/estate/pipeline.ts registers only ordered and the empty default registry. The production replay command registers ESTATE_CHECKS. A fresh process that registers the existing production checks before genCompleteFamily.evaluate(1) makes eight previously failing gen.complete items pass: two guard_speed items, grounded-values obligation and twin, script obligation and twin, outside_trigger script and script_fixture script. This is a diagnostic probe only, not a bank measurement. Capture: .cache/estate-executor/replay-registry-defect.json. Do not populate the global default registry to hide the harness defect.
+* The gen.task task-verb whitelist rejects approved fictional asks such as "Fill in the shipments late section of the week 41 report" and "Go through inbox/ and say which folder each message belongs in". The docs require a task verb and object; these asks meet it. Some other failures in that family are actual generic asks or missing complete specs and remain component work. Capture: .cache/estate-executor/task-cause.json. Do not rewrite approved user phrases to fit a private whitelist.
+
 ## Takeover test environment
 
 Temporary estates and captures are kept inside the worktree's ignored `.cache` folder. With this long absolute TMPDIR, the existing TypeScript unit-script test fails on both the pre-fix c27c96dd snapshot and the hazard-fix code. The test passes in the takeover's original estate run with the default temporary directory. The unit runner launches the tsx CLI with its own temporary directory; its Unix socket path is the next suspect. This is a pre-existing environment-sensitive failure, not evidence that the hazard fix changed unit execution. Preserve the test.
+
+## CI at the first executor push
+
+PR 110 on 17dee300 fails the Node 22 and Node 24 build jobs only because packages/validators/test/estate/bank.test.ts:241 expects scan.dispatcher.dispatcher to fail and :257 expects scan.hostile.empty-definition to fail. Both component capabilities now pass. Node 22 reports 3886 passing tests and these two failures; the empty-file component fix predates this takeover. The protected validator tests are left untouched and the lead is informed for the bank maintainer. Capture: .cache/estate-executor/pr-ci-failures.log.
+
+### Unit-family input mismatch
+
+The current estate unit command accepts native JSON UnitTest records. The bank's fixtureSuite gathers YAML core specs under specs/ and incomplete/, plus static JSON, but omits the generated native unit/ JSON. unitFamily then passes the gathered YAML mode-unit specs to the JSON-only command, producing exit 2 before a guard or script runs. This is an instrument mismatch, not proof that the native unit runner is absent. The frozen CLI flags and output shape are already implemented in packages/cli/src/commands/estate-unit.ts. The native guard tests also require outcomes recorded on an original, which this bank path does not perform. Keep this distinct from missing headless helper support and from the pre-existing long-TMPDIR TypeScript failure. Sources: bank/fixture-suite.ts, bank/unit.ts, commands/estate-unit.ts and estate/src/unit/run.ts. No protected code or oracle is changed.
