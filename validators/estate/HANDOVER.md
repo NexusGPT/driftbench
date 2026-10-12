@@ -8,27 +8,18 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | Seed | Level |
 |---|---|
 | 1 | 0 |
-| 2 | 0 |
-| 3 | 0 |
-| 4 | 0 |
-| 5 | 0 |
-| 6 | 0 |
-| 7 | 0 |
-| 8 | 0 |
-| 9 | 0 |
-| 10 | 0 |
-| 11 | 0 |
-| 12 | 0 |
-| 13 | 0 |
-| 14 | 0 |
-| 15 | 0 |
-| 16 | 0 |
-| 17 | 0 |
-| 18 | 0 |
-| 19 | 0 |
-| 20 | 0 |
-| hidden | 0 |
 <!-- level-table:end -->
+
+### Current executor measurement, iteration 13
+
+Seed 1 on c27c96dd plus the hazard-context fix: 866 of 1170 items pass (0.7401709401709402), level 0. The comparable pre-fix baseline is 862 of 1170 (0.7367521367521368). Exactly four hazard decoys change from fail to pass; no component regression is measured. This table is seed 1 only. Seeds 2 to 20 and the hidden seed are not claimed for the current code; the user requests a full sweep every five iterations.
+
+The previous builder committed the BOM fix as c926508e but left no iteration 12 journal row. Row 12 recertifies the merged pre-fix seed 1 baseline; it claims no new fix and no BOM-only gain. The baseline snapshot originally lost its Git root, causing maintain.fixture.git-versions to fail on a pathspec error. That item was rerun on the unchanged snapshot with the original Git directory and the snapshot as GIT_WORK_TREE; the corrected result replaces only that invalid baseline item. Captures: .cache/estate-executor/baseline-original.json, baseline-maintenance.json, baseline.json and iteration-13.json.
+
+The hazard-context test was red before the fix and green afterwards. Targeted scan and fixture tests: 16 pass. Typecheck and lint pass. The full estate test run under the worktree-only TMPDIR has one pre-existing TypeScript script failure; the test-environment section below records the same failure on the pre-fix snapshot.
+
+### Historical pilot measurements
+
 
 The ladder is a bank (docs/validators.md section 12): seven levels, each a sub-bank of items with threshold 1.0. Level 0 of 7 on seeds 1 to 20 and the hidden seed: the first level (reader and graph) has failing items on every seed. `pnpm driftbench validate estate --hardness` prints the bank score from the journal. Measured on origin/main 459beea merged into the lane (lane commit f1e6ec9).
 
@@ -70,6 +61,12 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Next actions
 
+1. Implement the missing estate stats command against the full frozen contract in docs/estate.md section 7. Its absence causes all 37 estate.stats items to fail. Add a failing test first. Keep all fields accurate; do not emit placeholder metrics.
+2. After that iteration is measured and pushed, take the largest remaining component cause. Treat the documented item defects separately; never change protected validator files.
+3. After five new iterations, run seeds 1 to 20 and the hidden seed in the background, update this handover, and inspect PR CI. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
+
+### Historical next actions before takeover
+
 Iteration 11 (exec/estate-v2): an empty file is noted and gives no atom (claude-code.ts read). Bank 840 of 1170, level 0 on every seed, 145 causes. Load on the dev machine made one sweep take over an hour; run sweeps one at a time.
 
 1. scan.hostile settings-bom: settings starting with a byte order mark are not read (claude-code.ts readSettings).
@@ -106,3 +103,12 @@ The ladder must be registered in packages/validators/src/ladders/index.ts (`esta
 
 * `packages/validators/fixtures/estate/seed-1.yaml` and `holdout-1.yaml`: the generated estates of seed 1 (files, truth, recorded answers, rule follower sessions).
 * Every other input is built by the item's own seeded generator into a temporary folder: planted estates (bank/planted.ts) for the reader and lint families, the generated estates (pipeline.ts) for plan, generation, mutants and maintenance, scale estates (bank/scale-estate.ts).
+
+## Validator item defects found during the Codex takeover
+
+* `plan.relevance.helpers-running` conflicts with the documented covering-array contract. Section 4 of docs/estate.md requires every allowed target/situation tuple under the constraint list. The committed fixture's `pairwise.0003` targets `instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50` with `session_state: helpers_running`. None of the three constraints returned by `toEstateSpaceMap` forbids this cell. The item rejects it because its target kind is instruction, even though the instruction itself dispatches a helper. Proof: `.cache/estate-executor/relevance-defect.json`, observed on c27c96dd with the hazard fix only. Do not introduce an undocumented kind mask to make this item pass. The other policy items in the family require the same contract review; they are not all declared defective by this one example.
+* The closed-list conflicts already recorded in NEEDS.md remain: code gates beyond the four documented forms, routing outside tables, and standing files beyond the documented sources. Keep these separate from component defects. No validator item or protected source is changed by this executor.
+
+## Takeover test environment
+
+Temporary estates and captures are kept inside the worktree's ignored `.cache` folder. With this long absolute TMPDIR, the existing TypeScript unit-script test fails on both the pre-fix c27c96dd snapshot and the hazard-fix code. The test passes in the takeover's original estate run with the default temporary directory. The unit runner launches the tsx CLI with its own temporary directory; its Unix socket path is the next suspect. This is a pre-existing environment-sensitive failure, not evidence that the hazard fix changed unit execution. Preserve the test.

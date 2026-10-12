@@ -692,7 +692,7 @@ function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, 
   if (!files.has(chunk.file)) return;
   for (const line of chunkLines(chunk)) {
     for (const hazard of HAZARDS) {
-      if (!hazard.pattern.test(line.text)) continue;
+      if (!hazard.pattern.test(line.text) || !runtimeHazard(hazard.id, line.text)) continue;
       builder.add({
         kind: 'hazard',
         title: `Recover from ${hazard.title.toLowerCase()}`,
@@ -702,6 +702,36 @@ function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, 
         fields: { hazard: hazard.id },
       });
     }
+  }
+}
+
+/**
+ * An event with no owner is about the runtime in an instruction estate. Explicit owners still matter:
+ * equipment restarts, commercial rate limits, customer messages and course sessions are domain work,
+ * not events that interrupt the assistant. Keep incoming notifications from helpers as runtime events.
+ */
+function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolean {
+  const line = text.replace(/[`*]/g, '').replace(/[‘’]/g, "'");
+  switch (id) {
+    case 'restart':
+      return !/\b(?:restart\s+button|(?:printer|device|equipment|appliance)(?:'s)?\s+restarts?)\b/i.test(
+        line,
+      );
+    case 'rate_wave':
+      return !/\b(?:supplier|customer|client)(?:'s)?\s+rate[- ]limits?\b|\brate[- ]limits?\s+for\s+(?:orders|purchases|deliveries)\b/i.test(
+        line,
+      );
+    case 'notification':
+      return (
+        !/\b(?:send|deliver|post|email)\b[^.;!?]*\bnotifications?\b/i.test(line) ||
+        /\b(?:helper|subagent|worker|guard|hook)\b/i.test(line)
+      );
+    case 'session_boundary':
+      return !/\bsession\s+(?:of|for|in)\s+(?:the\s+|a\s+)?(?:training|course|class|workshop|lesson)\b/i.test(
+        line,
+      );
+    default:
+      return true;
   }
 }
 
