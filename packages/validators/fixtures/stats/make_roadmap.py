@@ -1755,6 +1755,477 @@ method('roadmap-sequential', 'msprtPValue', 'packages/stats/src/drift.ts',
        'The always-valid p-value of the normal mixture SPRT: Lambda = sqrt(V / (V + n tau^2)) exp(n^2 tau^2 (xbar - theta0)^2 / (2 V (V + n tau^2))), p = min(1, 1 / Lambda) (the running minimum is the caller\'s)',
        'Johari, Pekelis and Walsh, Always valid inference (dossier S6)', [dict(args=[dict(mean=a, n=b, variance=c, mixingVariance=d)], expect=msprt(a, b, c, d)) for a, b, c, d in [(0.1, 100, 1.0, 0.01), (0.02, 500, 0.25, 0.001), (0.5, 20, 2.0, 0.1)]], tol=1e-12, tier=5)
 
+
+# --- batch 4 (2026-10-12): small-n intervals, sequential stopping, tests, variance components, effect sizes -----
+def midp_iv(k, n, a=0.05):
+    f = lambda p: stats.binom.cdf(k, n, p) - 0.5 * stats.binom.pmf(k, n, p)
+    g = lambda p: stats.binom.sf(k, n, p) + 0.5 * stats.binom.pmf(k, n, p)
+    lo = 0.0 if k == 0 else optimize.brentq(lambda p: g(p) - a / 2, 1e-12, 1 - 1e-12, xtol=1e-14)
+    hi = 1.0 if k == n else optimize.brentq(lambda p: f(p) - a / 2, 1e-12, 1 - 1e-12, xtol=1e-14)
+    return dict(estimate=k / n, lower=float(lo), upper=float(hi))
+
+
+KN4 = [(0, 10), (3, 20), (17, 40), (9, 9)]
+method('roadmap-small-n', 'midPInterval', 'packages/stats/src/intervals.ts',
+       'midPInterval(k: number, n: number, alpha = 0.05): Interval',
+       'The mid-p exact interval: lower solves P(X > k) + P(X = k)/2 = alpha/2, upper solves P(X < k) + P(X = k)/2 = alpha/2 for X ~ Binomial(n, p); lower 0 when k = 0, upper 1 when k = n',
+       'Lancaster 1961; Berry and Armitage 1995', [dict(args=[k, n], expect=midp_iv(k, n)) for k, n in KN4], tol=1e-8, tier=4)
+
+
+def logit_iv(k, n):
+    p = k / n
+    l = math.log(p / (1 - p))
+    h = Z / math.sqrt(n * p * (1 - p))
+    f = lambda x: 1 / (1 + math.exp(-x))
+    return dict(estimate=p, lower=f(l - h), upper=f(l + h))
+
+
+method('roadmap-small-n', 'logitInterval', 'packages/stats/src/intervals.ts',
+       'logitInterval(k: number, n: number, z = Z95): Interval',
+       'The logit (Wald on the log odds) interval: expit(logit(p) -/+ z / sqrt(n p (1 - p))); cases have 0 < k < n',
+       'Brown, Cai and DasGupta 2001 (dossier S8)', [dict(args=[k, n], expect=logit_iv(k, n)) for k, n in [(3, 20), (17, 40), (1, 9)]], tol=1e-12, tier=3)
+
+
+def lr_iv(k, n, a=0.05):
+    p = k / n
+    c = stats.chi2.ppf(1 - a, 1)
+    def ll(q):
+        return (k * math.log(q) if k else 0) + ((n - k) * math.log(1 - q) if n - k else 0)
+    top = ll(p) if 0 < k < n else 0.0
+    g = lambda q: 2 * (top - ll(q)) - c
+    lo = 0.0 if k == 0 else optimize.brentq(g, 1e-12, p, xtol=1e-14)
+    hi = 1.0 if k == n else optimize.brentq(g, p, 1 - 1e-12, xtol=1e-14)
+    return dict(estimate=p, lower=float(lo), upper=float(hi))
+
+
+method('roadmap-small-n', 'likelihoodRatioInterval', 'packages/stats/src/intervals.ts',
+       'likelihoodRatioInterval(k: number, n: number, alpha = 0.05): Interval',
+       'The likelihood-ratio interval for a rate: the p with 2 (l(phat) - l(p)) <= chi2(1 - alpha, 1), l the binomial log likelihood; lower 0 when k = 0, upper 1 when k = n',
+       'Brown, Cai and DasGupta 2001', [dict(args=[k, n], expect=lr_iv(k, n)) for k, n in KN4], tol=1e-8, tier=4)
+
+
+def agresti_caffo(k1, n1, k2, n2):
+    p1, p2 = (k1 + 1) / (n1 + 2), (k2 + 1) / (n2 + 2)
+    se = math.sqrt(p1 * (1 - p1) / (n1 + 2) + p2 * (1 - p2) / (n2 + 2))
+    return dict(estimate=k1 / n1 - k2 / n2, lower=p1 - p2 - Z * se, upper=p1 - p2 + Z * se)
+
+
+D4 = [(56, 70, 48, 80), (9, 10, 3, 10), (0, 20, 2, 25)]
+method('roadmap-small-n', 'agrestiCaffoDifference', 'packages/stats/src/intervals.ts',
+       'agrestiCaffoDifference(k1: number, n1: number, k2: number, n2: number): Interval',
+       'Agresti-Caffo interval for p1 - p2: add one success and one failure to each group, then Wald: (p1~ - p2~) -/+ z sqrt(p1~ q1~ / (n1 + 2) + p2~ q2~ / (n2 + 2)); estimate the raw difference k1/n1 - k2/n2',
+       'Agresti and Caffo 2000', [dict(args=list(a), expect=agresti_caffo(*a)) for a in D4], tol=1e-12, tier=3)
+
+
+def wald_diff(k1, n1, k2, n2):
+    p1, p2 = k1 / n1, k2 / n2
+    se = math.sqrt(p1 * (1 - p1) / n1 + p2 * (1 - p2) / n2)
+    return dict(estimate=p1 - p2, lower=p1 - p2 - Z * se, upper=p1 - p2 + Z * se)
+
+
+method('roadmap-small-n', 'waldDifference', 'packages/stats/src/intervals.ts',
+       'waldDifference(k1: number, n1: number, k2: number, n2: number): Interval',
+       'The Wald interval for p1 - p2: d -/+ z sqrt(p1 q1 / n1 + p2 q2 / n2), not clipped (the one that undercovers at small n)',
+       'Newcombe 1998', [dict(args=list(a), expect=wald_diff(*a)) for a in D4], tol=1e-12, tier=2)
+
+
+def exh_boot(v, a=0.1):
+    import itertools
+    n = len(v)
+    means = sorted(float(np.mean(c)) for c in itertools.product(v, repeat=n))
+    return dict(estimate=float(np.mean(v)), lower=float(np.quantile(means, a / 2)), upper=float(np.quantile(means, 1 - a / 2)))
+
+
+EB = [[2.1, 3.4, 1.9, 5.6], [0.0, 1.0, 1.0, 0.0, 1.0], [10, 12, 9, 30, 11, 10]]
+method('roadmap-small-n', 'exhaustiveBootstrapInterval', 'packages/stats/src/intervals.ts',
+       'exhaustiveBootstrapInterval(values: readonly number[], alpha = 0.1): Interval',
+       'The exact bootstrap percentile interval of the mean for n <= 7: every one of the n^n ordered resamples, equally weighted, the type 7 quantiles of their means at alpha/2 and 1 - alpha/2 (no Monte Carlo error)',
+       'Efron and Tibshirani 1993, the ideal bootstrap', [dict(args=[v], expect=exh_boot(v)) for v in EB], tol=1e-12, tier=4)
+
+
+def jack_var(v):
+    v = np.array(v, float)
+    n = len(v)
+    reps = [np.var(np.delete(v, i), ddof=1) for i in range(n)]
+    return float((n - 1) / n * sum((r - np.mean(reps)) ** 2 for r in reps))
+
+
+method('roadmap-small-n', 'jackknifeVarianceOfVariance', 'packages/stats/src/intervals.ts',
+       'jackknifeVarianceOfVariance(values: readonly number[]): number',
+       'The jackknife estimate of the variance of the sample variance: ((n - 1) / n) sum (s2_(-i) - mean s2_(-.))^2, s2_(-i) the n - 1 sample variance without value i',
+       'Efron and Stein 1981', [dict(args=[v], expect=jack_var(v)) for v in T_SAMPLES], tol=1e-12, tier=3)
+
+
+def q_iv(v, q, a=0.05):
+    x = sorted(v)
+    n = len(x)
+    lo_i = max(k for k in range(0, n + 1) if stats.binom.cdf(k - 1, n, q) <= a / 2) if any(stats.binom.cdf(k - 1, n, q) <= a / 2 for k in range(0, n + 1)) else 0
+    hi_i = min(k for k in range(1, n + 1) if stats.binom.cdf(k - 1, n, q) >= 1 - a / 2)
+    return dict(estimate=float(np.quantile(x, q)), lower=float(x[max(lo_i, 1) - 1]), upper=float(x[hi_i - 1]))
+
+
+QV = [(list(range(1, 41)), 0.9), ([3.1, 2.2, 5.5, 4.4, 1.9, 2.8, 3.7, 4.9, 6.1, 2.5, 3.3, 4.0, 5.2, 2.9, 3.6, 4.7, 5.8, 1.5, 2.1, 3.9], 0.25), (list(range(100, 150)), 0.5)]
+method('roadmap-small-n', 'quantileInterval', 'packages/stats/src/intervals.ts',
+       'quantileInterval(values: readonly number[], q: number, alpha = 0.05): Interval',
+       'Distribution-free interval for the q quantile from order statistics: with B ~ Binomial(n, q), lower x_(l), l the largest index (at least 1) with P(B <= l - 1) <= alpha/2; upper x_(u), u the smallest index with P(B <= u - 1) >= 1 - alpha/2; estimate the type 7 quantile',
+       'Hahn and Meeker 1991, Statistical Intervals', [dict(args=[v, q], expect=q_iv(v, q)) for v, q in QV], tol=1e-12, tier=4)
+
+
+def welch_iv(x, y, a=0.05):
+    w = welch(x, y)
+    d = float(np.mean(x) - np.mean(y))
+    se = math.sqrt(np.var(x, ddof=1) / len(x) + np.var(y, ddof=1) / len(y))
+    t = stats.t.ppf(1 - a / 2, w['df'])
+    return dict(estimate=d, lower=d - t * se, upper=d + t * se)
+
+
+method('roadmap-small-n', 'welchDifferenceInterval', 'packages/stats/src/intervals.ts',
+       'welchDifferenceInterval(x: readonly number[], y: readonly number[], alpha = 0.05): Interval',
+       'Interval for mean(x) - mean(y) with unequal variances: d -/+ t(1 - alpha/2, Welch-Satterthwaite df) sqrt(sx^2/nx + sy^2/ny)',
+       'Welch 1947', [dict(args=[x, y], expect=welch_iv(x, y)) for x, y in WX], tol=1e-8, tier=3)
+
+
+def pooled_iv(x, y, a=0.05):
+    nx, ny = len(x), len(y)
+    sp = ((nx - 1) * np.var(x, ddof=1) + (ny - 1) * np.var(y, ddof=1)) / (nx + ny - 2)
+    se = math.sqrt(sp * (1 / nx + 1 / ny))
+    d = float(np.mean(x) - np.mean(y))
+    t = stats.t.ppf(1 - a / 2, nx + ny - 2)
+    return dict(estimate=d, lower=d - t * se, upper=d + t * se)
+
+
+method('roadmap-small-n', 'pooledDifferenceInterval', 'packages/stats/src/intervals.ts',
+       'pooledDifferenceInterval(x: readonly number[], y: readonly number[], alpha = 0.05): Interval',
+       "Student's equal-variance interval for mean(x) - mean(y): d -/+ t(1 - alpha/2, nx + ny - 2) sqrt(sp^2 (1/nx + 1/ny))",
+       'Student 1908', [dict(args=[x, y], expect=pooled_iv(x, y)) for x, y in WX], tol=1e-8, tier=3)
+
+
+def var_iv(v, a=0.05):
+    n = len(v)
+    s2 = float(np.var(v, ddof=1))
+    return dict(estimate=s2, lower=(n - 1) * s2 / stats.chi2.ppf(1 - a / 2, n - 1), upper=(n - 1) * s2 / stats.chi2.ppf(a / 2, n - 1))
+
+
+method('roadmap-small-n', 'varianceInterval', 'packages/stats/src/intervals.ts',
+       'varianceInterval(values: readonly number[], alpha = 0.05): Interval',
+       'The chi-square interval for a normal variance: ((n - 1) s^2 / chi2(1 - alpha/2, n - 1), (n - 1) s^2 / chi2(alpha/2, n - 1))',
+       'scipy.stats.chi2', [dict(args=[v], expect=var_iv(v)) for v in T_SAMPLES], tol=1e-8, tier=3)
+
+
+def vr_iv(x, y, a=0.05):
+    r = float(np.var(x, ddof=1) / np.var(y, ddof=1))
+    d1, d2 = len(x) - 1, len(y) - 1
+    return dict(estimate=r, lower=r / stats.f.ppf(1 - a / 2, d1, d2), upper=r / stats.f.ppf(a / 2, d1, d2))
+
+
+method('roadmap-small-n', 'varianceRatioInterval', 'packages/stats/src/intervals.ts',
+       'varianceRatioInterval(x: readonly number[], y: readonly number[], alpha = 0.05): Interval',
+       'The F interval for the ratio of two normal variances: (r / F(1 - alpha/2, nx - 1, ny - 1), r / F(alpha/2, nx - 1, ny - 1)), r = sx^2 / sy^2',
+       'scipy.stats.f', [dict(args=[x, y], expect=vr_iv(x, y)) for x, y in WX], tol=1e-8, tier=3)
+
+# sequential stopping
+def oc(p0, p1, a, b, p):
+    A, B = math.log((1 - b) / a), math.log(b / (1 - a))
+    f = lambda h: p * (p1 / p0) ** h + (1 - p) * ((1 - p1) / (1 - p0)) ** h - 1
+    h = optimize.brentq(f, 1e-6, 50) if f(1e-6) * f(50) < 0 else optimize.brentq(f, -50, -1e-6)
+    return float((math.exp(A * h) - 1) / (math.exp(A * h) - math.exp(B * h)))
+
+
+OCC = [(0.05, 0.2, 0.05, 0.1, 0.1), (0.1, 0.3, 0.05, 0.2, 0.2), (0.5, 0.7, 0.01, 0.01, 0.6)]
+method('roadmap-sequential', 'sprtOperatingCharacteristic', 'packages/stats/src/drift.ts',
+       'sprtOperatingCharacteristic(input: { p0: number; p1: number; alpha: number; beta: number; p: number }): number',
+       "Wald's operating characteristic of the Bernoulli SPRT, the probability of accepting H0 when the true rate is p: (e^(hA) - 1) / (e^(hA) - e^(hB)), A = ln((1 - beta)/alpha), B = ln(beta/(1 - alpha)), h != 0 solving p (p1/p0)^h + (1 - p)((1 - p1)/(1 - p0))^h = 1 (cases avoid p where h = 0)",
+       'Wald 1947 (dossier S19)', [dict(args=[dict(p0=a, p1=b, alpha=c, beta=d, p=e)], expect=oc(a, b, c, d, e)) for a, b, c, d, e in OCC], tol=1e-8, tier=5)
+
+
+def bayes_stop(margin, conf, a0=1, b0=1):
+    n = 0
+    while stats.beta.cdf(margin, a0, b0 + n) < conf:
+        n += 1
+    return n
+
+
+method('roadmap-sequential', 'zeroFailureBayesN', 'packages/stats/src/power.ts',
+       'zeroFailureBayesN(input: { margin: number; confidence: number; priorA?: number; priorB?: number }): number',
+       'The fewest failure-free units for which the Beta(priorA, priorB + n) posterior puts at least the confidence below the margin (Bayesian stopping with zero failures; prior Beta(1, 1))',
+       'dossier section 3.1 (S27, S17)', [dict(args=[dict(margin=m, confidence=c)], expect=bayes_stop(m, c)) for m, c in [(0.05, 0.95), (0.01, 0.95), (0.1, 0.99)]], tol=0, tier=3)
+
+
+def hoeff_cs(k, n, a=0.05):
+    h = math.sqrt(math.log(2 * n * (n + 1) / a) / (2 * n))
+    return dict(estimate=k / n, lower=max(0.0, k / n - h), upper=min(1.0, k / n + h))
+
+
+method('roadmap-sequential', 'hoeffdingConfidenceSequence', 'packages/stats/src/intervals.ts',
+       'hoeffdingConfidenceSequence(k: number, n: number, alpha = 0.05): Interval',
+       'A time-uniform interval by a union bound over n (alpha_n = alpha / (n (n + 1))): k/n -/+ sqrt(ln(2 n (n + 1) / alpha) / (2n)), clipped to [0, 1]',
+       'Hoeffding 1963 with a union bound over time (dossier S7, S35)', [dict(args=[k, n], expect=hoeff_cs(k, n)) for k, n in [(3, 20), (17, 40), (80, 100)]], tol=1e-12, tier=3)
+
+
+def cond_power(z, t, a=0.05):
+    za = stats.norm.ppf(1 - a / 2)
+    theta = z / math.sqrt(t)
+    return float(1 - stats.norm.cdf((za - z * math.sqrt(t) - theta * (1 - t)) / math.sqrt(1 - t)))
+
+
+method('roadmap-sequential', 'conditionalPower', 'packages/stats/src/power.ts',
+       'conditionalPower(input: { z: number; informationFraction: number; alpha?: number }): number',
+       'Conditional power under the current trend (B-value form): theta = z / sqrt(t), CP = 1 - Phi((z(1 - alpha/2) - z sqrt(t) - theta (1 - t)) / sqrt(1 - t)), z the interim statistic at information fraction t',
+       'Lan and Wittes 1988', [dict(args=[dict(z=z, informationFraction=t)], expect=cond_power(z, t)) for z, t in [(1.2, 0.5), (2.0, 0.3), (0.5, 0.8)]], tol=1e-9, tier=4)
+
+# tests
+AN = [([2.9, 3.0, 2.5, 2.6, 3.2], [3.8, 2.7, 4.0, 2.4], [2.8, 3.4, 3.7, 2.2, 2.0]), ([1.0, 2.0, 3.0, 4.5], [3.0, 4.0, 5.5, 6.0], [5.0, 6.5, 7.0, 8.0]), ([10.0, 20.0, 15.0], [15.0, 25.0, 35.0, 30.0], [5.0, 8.0, 12.0, 30.0, 9.0])]
+method('roadmap-tests', 'oneWayAnova', 'packages/stats/src/paired.ts',
+       'oneWayAnova(groups: readonly (readonly number[])[]): { statistic: number; df1: number; df2: number; pValue: number }',
+       'One-way ANOVA F test of equal means: F = MSB / MSW with k - 1 and N - k df',
+       'scipy.stats.f_oneway', [dict(args=[list(map(list, g))], expect=dict(statistic=float(stats.f_oneway(*g).statistic), df1=len(g) - 1, df2=sum(map(len, g)) - len(g), pValue=float(stats.f_oneway(*g).pvalue))) for g in AN], tol=1e-9, tier=3)
+
+
+def welch_anova(*g):
+    k = len(g)
+    n = np.array([len(x) for x in g], float)
+    m = np.array([np.mean(x) for x in g])
+    v = np.array([np.var(x, ddof=1) for x in g])
+    w = n / v
+    mw = (w * m).sum() / w.sum()
+    a = (w * (m - mw) ** 2).sum() / (k - 1)
+    tmp = ((1 - w / w.sum()) ** 2 / (n - 1)).sum()
+    b = 1 + 2 * (k - 2) / (k * k - 1) * tmp
+    F = a / b
+    df2 = (k * k - 1) / (3 * tmp)
+    return dict(statistic=float(F), df1=k - 1, df2=float(df2), pValue=float(stats.f.sf(F, k - 1, df2)))
+
+
+method('roadmap-tests', 'welchAnova', 'packages/stats/src/paired.ts',
+       'welchAnova(groups: readonly (readonly number[])[]): { statistic: number; df1: number; df2: number; pValue: number }',
+       "Welch's one-way ANOVA for unequal variances: weights n/s^2, F = (sum w (m - mw)^2 / (k - 1)) / (1 + 2(k - 2)/(k^2 - 1) T), T = sum (1 - w/W)^2 / (n - 1), df2 = (k^2 - 1) / (3T)",
+       'Welch 1951', [dict(args=[list(map(list, g))], expect=welch_anova(*g)) for g in AN], tol=1e-9, tier=4)
+method('roadmap-tests', 'bartlettTest', 'packages/stats/src/paired.ts',
+       'bartlettTest(groups: readonly (readonly number[])[]): { statistic: number; pValue: number }',
+       "Bartlett's test of equal variances, chi-square with k - 1 df",
+       'scipy.stats.bartlett', [dict(args=[list(map(list, g))], expect=dict(statistic=float(stats.bartlett(*g).statistic), pValue=float(stats.bartlett(*g).pvalue))) for g in AN], tol=1e-9, tier=3)
+
+
+def mood(*g):
+    r = stats.median_test(*g, ties='below', correction=True)
+    return dict(statistic=float(r.statistic), pValue=float(r.pvalue))
+
+
+method('roadmap-tests', 'moodMedianTest', 'packages/stats/src/paired.ts',
+       "moodMedianTest(groups: readonly (readonly number[])[]): { statistic: number; pValue: number }",
+       "Mood's median test: the 2 x k table of counts above and at-or-below the grand median, Pearson chi-square with Yates' correction when it is 2 x 2",
+       "scipy.stats.median_test(ties='below', correction=True)", [dict(args=[list(map(list, g))], expect=mood(*g)) for g in AN], tol=1e-9, tier=4)
+method('roadmap-tests', 'brunnerMunzel', 'packages/stats/src/paired.ts',
+       'brunnerMunzel(x: readonly number[], y: readonly number[]): { statistic: number; pValue: number }',
+       'The Brunner-Munzel test of stochastic equality (two-sided, t distribution with the Satterthwaite df)',
+       'scipy.stats.brunnermunzel', [dict(args=[x, y], expect=dict(statistic=float(stats.brunnermunzel(x, y).statistic), pValue=float(stats.brunnermunzel(x, y).pvalue))) for x, y in MW], tol=1e-9, tier=4)
+
+
+def bowker(t):
+    t = np.array(t, float)
+    k = t.shape[0]
+    stat = 0.0
+    df = 0
+    for i in range(k):
+        for j in range(i + 1, k):
+            if t[i, j] + t[j, i] > 0:
+                stat += (t[i, j] - t[j, i]) ** 2 / (t[i, j] + t[j, i])
+                df += 1
+    return dict(statistic=float(stat), df=df, pValue=float(stats.chi2.sf(stat, df)))
+
+
+BW = [[[20, 5, 3], [10, 30, 4], [2, 8, 25]], [[15, 2], [8, 20]], [[10, 3, 1, 0], [2, 12, 4, 1], [3, 1, 9, 2], [0, 2, 5, 11]]]
+method('roadmap-tests', 'bowkerSymmetry', 'packages/stats/src/paired.ts',
+       'bowkerSymmetry(table: readonly (readonly number[])[]): { statistic: number; df: number; pValue: number }',
+       "Bowker's test of symmetry of a k x k paired table (the multi-category McNemar): sum over i < j with n_ij + n_ji > 0 of (n_ij - n_ji)^2 / (n_ij + n_ji), chi-square with that many df",
+       'Bowker 1948', [dict(args=[t], expect=bowker(t)) for t in BW], tol=1e-9, tier=3)
+
+# variance components
+def reml_oneway(v, cl):
+    groups = {}
+    for x, c in zip(v, cl):
+        groups.setdefault(c, []).append(x)
+    g = [np.array(x, float) for x in groups.values()]
+    N = sum(len(x) for x in g)
+
+    def nll(theta):
+        sb, se = math.exp(theta[0]), math.exp(theta[1])
+        # Restricted likelihood of y = mu + a_g + e, by the per-group covariance and the GLS mean.
+        Vi = [np.linalg.inv(sb * np.ones((len(x), len(x))) + se * np.eye(len(x))) for x in g]
+        xtvx = sum(V.sum() for V in Vi)
+        mu = sum((V @ x).sum() for V, x in zip(Vi, g)) / xtvx
+        ll = 0.0
+        for V, x in zip(Vi, g):
+            r = x - mu
+            ll += -0.5 * (-np.linalg.slogdet(V)[1]) - 0.5 * r @ V @ r
+        ll += -0.5 * math.log(xtvx)
+        return -ll
+    best = optimize.minimize(nll, [0.0, 0.0], method='Nelder-Mead', options=dict(xatol=1e-12, fatol=1e-14, maxiter=20000))
+    return dict(between=float(math.exp(best.x[0])), within=float(math.exp(best.x[1])))
+
+
+RV = [([3, 4, 5, 9, 8, 10, 2, 3, 1, 4, 6, 7], [1, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5]), ([0.2, 0.4, 0.3, 0.9, 0.8, 0.85, 0.1, 0.5, 0.45, 0.6], ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'd', 'd']), ([10, 12, 11, 15, 14, 9, 8, 13, 16, 12, 11], [1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4])]
+method('roadmap-shrinkage-clustering', 'remlOneWay', 'packages/stats/src/variance.ts',
+       'remlOneWay(values: readonly number[], groups: readonly (string | number)[]): { between: number; within: number }',
+       'REML estimates of the between-group and within-group variances of the one-way random model y = mu + a_g + e, unbalanced groups; cases have a positive between variance (relative tolerance 1e-5)',
+       'Patterson and Thompson 1971; scipy.optimize on the restricted likelihood', [dict(args=[v, c], expect=reml_oneway(v, c)) for v, c in RV], tol=1e-5, tier=5)
+
+
+def icc_ci(rows, a=0.05):
+    x = np.array(rows, float)
+    n, k = x.shape
+    gm = x.mean()
+    msb = k * ((x.mean(1) - gm) ** 2).sum() / (n - 1)
+    msw = ((x - x.mean(1, keepdims=True)) ** 2).sum() / (n * (k - 1))
+    F = msb / msw
+    fl = F / stats.f.ppf(1 - a / 2, n - 1, n * (k - 1))
+    fu = F * stats.f.ppf(1 - a / 2, n * (k - 1), n - 1)
+    return dict(estimate=float((msb - msw) / (msb + (k - 1) * msw)), lower=float((fl - 1) / (fl + k - 1)), upper=float((fu - 1) / (fu + k - 1)))
+
+
+method('roadmap-shrinkage-clustering', 'iccInterval', 'packages/stats/src/variance.ts',
+       'iccInterval(scores: readonly (readonly number[])[], alpha = 0.05): Interval',
+       'ICC(1) of a balanced table (rows targets, columns repeats) with its F interval: F = MSB / MSW, FL = F / F(1 - alpha/2, n - 1, n(k - 1)), FU = F F(1 - alpha/2, n(k - 1), n - 1), bounds (FL - 1)/(FL + k - 1) and (FU - 1)/(FU + k - 1)',
+       'Shrout and Fleiss 1979', [dict(args=[r], expect=icc_ci(r)) for r in NUM], tol=1e-9, tier=4)
+
+# effect sizes and association
+STRATA = [[[10, 5], [6, 12]], [[8, 7], [4, 11]], [[15, 3], [9, 9]]]
+
+
+def mh_or(st):
+    num = sum(t[0][0] * t[1][1] / (sum(map(sum, t))) for t in st)
+    den = sum(t[0][1] * t[1][0] / (sum(map(sum, t))) for t in st)
+    return num / den
+
+
+def cmh(st):
+    a = sum(t[0][0] for t in st)
+    ea = sum((t[0][0] + t[0][1]) * (t[0][0] + t[1][0]) / sum(map(sum, t)) for t in st)
+    var = sum((t[0][0] + t[0][1]) * (t[1][0] + t[1][1]) * (t[0][0] + t[1][0]) * (t[0][1] + t[1][1]) / (sum(map(sum, t)) ** 2 * (sum(map(sum, t)) - 1)) for t in st)
+    stat = (abs(a - ea) - 0.5) ** 2 / var
+    return dict(statistic=float(stat), pValue=float(stats.chi2.sf(stat, 1)))
+
+
+SETS = [STRATA, STRATA[:2], [STRATA[2], [[20, 10], [10, 20]]]]
+method('roadmap-association', 'mantelHaenszelOddsRatio', 'packages/stats/src/agreement.ts',
+       'mantelHaenszelOddsRatio(strata: readonly (readonly (readonly number[])[])[]): number',
+       'The Mantel-Haenszel pooled odds ratio over 2x2 strata [[a, b], [c, d]]: sum (a d / n) / sum (b c / n)',
+       'Mantel and Haenszel 1959', [dict(args=[st], expect=mh_or(st)) for st in SETS], tol=1e-12, tier=3)
+method('roadmap-association', 'cochranMantelHaenszel', 'packages/stats/src/agreement.ts',
+       'cochranMantelHaenszel(strata: readonly (readonly (readonly number[])[])[]): { statistic: number; pValue: number }',
+       'The Cochran-Mantel-Haenszel test of conditional independence with the continuity correction: (|sum a - sum E[a]| - 1/2)^2 / sum Var(a), chi-square with 1 df',
+       'Cochran 1954; Mantel and Haenszel 1959', [dict(args=[st], expect=cmh(st)) for st in SETS], tol=1e-9, tier=4)
+method('roadmap-association', 'glassDelta', 'packages/stats/src/paired.ts',
+       'glassDelta(treatment: readonly number[], control: readonly number[]): number',
+       "Glass's delta: (mean treatment - mean control) / sd control (n - 1 standard deviation)",
+       'Glass 1976', [dict(args=[x, y], expect=float((np.mean(x) - np.mean(y)) / np.std(y, ddof=1))) for x, y in XY], tol=1e-12, tier=2)
+method('roadmap-association', 'cohenH', 'packages/stats/src/paired.ts',
+       'cohenH(p1: number, p2: number): number',
+       "Cohen's h, the arcsine difference of two rates: 2 asin(sqrt(p1)) - 2 asin(sqrt(p2))",
+       'Cohen 1988', [dict(args=[a, b], expect=2 * math.asin(math.sqrt(a)) - 2 * math.asin(math.sqrt(b))) for a, b in [(0.8, 0.7), (0.5, 0.3), (0.95, 0.99)]], tol=1e-12, tier=2)
+
+
+def cramers_v(t):
+    t = np.array(t, float)
+    chi = stats.chi2_contingency(t, correction=False)[0]
+    return float(math.sqrt(chi / (t.sum() * (min(t.shape) - 1))))
+
+
+method('roadmap-association', 'cramersV', 'packages/stats/src/agreement.ts',
+       "cramersV(table: readonly (readonly number[])[]): number",
+       "Cramer's V: sqrt(chi2 / (n (min(r, c) - 1))), chi2 Pearson's without correction",
+       'Cramer 1946', [dict(args=[t], expect=cramers_v(t)) for t in CT], tol=1e-12, tier=3)
+
+
+def phi(a, b, c, d):
+    return (a * d - b * c) / math.sqrt((a + b) * (c + d) * (a + c) * (b + d))
+
+
+method('roadmap-association', 'phiCoefficient', 'packages/stats/src/agreement.ts',
+       'phiCoefficient(a: number, b: number, c: number, d: number): number',
+       'The phi coefficient of a 2x2 table: (ad - bc) / sqrt((a + b)(c + d)(a + c)(b + d))',
+       'Yule 1912', [dict(args=list(t), expect=phi(*t)) for t in TB], tol=1e-12, tier=2)
+
+
+def gk_gamma(x, y):
+    c = d = 0
+    for i in range(len(x)):
+        for j in range(i + 1, len(x)):
+            s_ = (x[i] - x[j]) * (y[i] - y[j])
+            if s_ > 0: c += 1
+            elif s_ < 0: d += 1
+    return (c - d) / (c + d)
+
+
+method('roadmap-association', 'goodmanKruskalGamma', 'packages/stats/src/agreement.ts',
+       'goodmanKruskalGamma(x: readonly number[], y: readonly number[]): number',
+       'Goodman and Kruskal gamma over all pairs: (concordant - discordant) / (concordant + discordant), tied pairs left out',
+       'Goodman and Kruskal 1954', [dict(args=[x, y], expect=gk_gamma(x, y)) for x, y in XY], tol=1e-12, tier=3)
+
+
+def kendall_w(m):
+    x = np.array(m, float)  # rows raters, columns items
+    r = np.array([stats.rankdata(row) for row in x])
+    m_, n = r.shape
+    R = r.sum(0)
+    S = ((R - R.mean()) ** 2).sum()
+    T = sum(sum(t ** 3 - t for t in np.unique(row, return_counts=True)[1]) for row in x)
+    return float(12 * S / (m_ * m_ * (n ** 3 - n) - m_ * T))
+
+
+KW3 = [[[1, 2, 3, 4, 5], [2, 1, 3, 5, 4], [1, 3, 2, 4, 5]], [[3, 1, 2, 4], [3, 2, 1, 4]], [[7, 5, 9, 2, 6, 6], [8, 4, 9, 1, 5, 7], [6, 5, 8, 3, 7, 6], [7, 6, 9, 2, 5, 8]]]
+method('roadmap-association', 'kendallW', 'packages/stats/src/agreement.ts',
+       "kendallW(scores: readonly (readonly number[])[]): number",
+       "Kendall's W, the coefficient of concordance of m raters (rows) over n items (columns), average ranks within each rater, tie-corrected: 12 S / (m^2 (n^3 - n) - m T), T = sum over tie groups (t^3 - t)",
+       'Kendall and Babington Smith 1939', [dict(args=[m], expect=kendall_w(m)) for m in KW3], tol=1e-12, tier=4)
+
+
+def mcc(t, p):
+    labels = sorted(set(t) | set(p))
+    C = np.array([[sum(1 for a, b in zip(t, p) if a == i and b == j) for j in labels] for i in labels], float)
+    tk, pk = C.sum(1), C.sum(0)
+    c, s_ = np.trace(C), C.sum()
+    return float((c * s_ - (tk * pk).sum()) / math.sqrt((s_ ** 2 - (pk ** 2).sum()) * (s_ ** 2 - (tk ** 2).sum())))
+
+
+method('roadmap-association', 'matthewsCorrelation', 'packages/stats/src/agreement.ts',
+       'matthewsCorrelation(truth: readonly string[], predicted: readonly string[]): number',
+       'The Matthews correlation coefficient, multiclass (Gorodkin): (c s - sum t_k p_k) / sqrt((s^2 - sum p_k^2)(s^2 - sum t_k^2)), c the correct count, s the total, t_k and p_k the true and predicted counts per class',
+       'sklearn.metrics.matthews_corrcoef', [dict(args=[t, p], expect=mcc(t, p)) for t, p in CLS[:3]], tol=1e-12, tier=3)
+
+
+def huber(v, k=1.345):
+    x = np.array(v, float)
+    med = np.median(x)
+    sc = np.median(np.abs(x - med)) / 0.6744897501960817
+    mu = med
+    for _ in range(1000):
+        r = (x - mu) / sc
+        w = np.where(np.abs(r) <= k, 1.0, k / np.abs(r))
+        new = (w * x).sum() / w.sum()
+        if abs(new - mu) < 1e-14:
+            break
+        mu = new
+    return float(mu)
+
+
+method('roadmap-robust', 'huberLocation', 'packages/stats/src/basics.ts',
+       'huberLocation(values: readonly number[], k = 1.345): number',
+       "Huber's M-estimate of location with the scale fixed at MAD / 0.6744897501960817: iterate mu <- sum w x / sum w, w = 1 for |x - mu| / scale <= k else k / |(x - mu) / scale|, from the median, to 1e-14",
+       'Huber 1964', [dict(args=[v], expect=huber(v)) for v in RB], tol=1e-9, tier=4)
+
+
+def geo_iv(v, a=0.05):
+    lv = np.log(v)
+    t = tint(list(lv), a)
+    return dict(estimate=math.exp(t['estimate']), lower=math.exp(t['lower']), upper=math.exp(t['upper']))
+
+
+method('roadmap-robust', 'geometricMeanInterval', 'packages/stats/src/basics.ts',
+       'geometricMeanInterval(values: readonly number[], alpha = 0.05): Interval',
+       "The geometric mean with the t interval on the log scale, back-transformed: exp(mean ln x -/+ t(1 - alpha/2, n - 1) s_ln / sqrt(n)); values must be positive",
+       'lognormal mean of logs', [dict(args=[v], expect=geo_iv(v)) for v in T_SAMPLES], tol=1e-9, tier=3)
+
 Path(__file__).with_name('roadmap.json').write_text(json.dumps(dict(
     generatedBy='packages/validators/fixtures/stats/make_roadmap.py',
     scipy=__import__('scipy').__version__, numpy=np.__version__, methods=methods), indent=1) + '\n')

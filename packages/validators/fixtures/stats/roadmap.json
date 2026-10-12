@@ -4550,6 +4550,1236 @@
           "expect": 0.756973971626753
         }
       ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "midPInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "midPInterval(k: number, n: number, alpha = 0.05): Interval",
+      "definition": "The mid-p exact interval: lower solves P(X > k) + P(X = k)/2 = alpha/2, upper solves P(X < k) + P(X = k)/2 = alpha/2 for X ~ Binomial(n, p); lower 0 when k = 0, upper 1 when k = n",
+      "source": "Lancaster 1961; Berry and Armitage 1995",
+      "tol": 1e-8,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [0, 10],
+          "expect": {
+            "estimate": 0.0,
+            "lower": 0.0,
+            "upper": 0.2588655508930523
+          }
+        },
+        {
+          "args": [3, 20],
+          "expect": {
+            "estimate": 0.15,
+            "lower": 0.039619784329152086,
+            "upper": 0.3561073603136115
+          }
+        },
+        {
+          "args": [17, 40],
+          "expect": {
+            "estimate": 0.425,
+            "lower": 0.2796862954963384,
+            "upper": 0.5808273319722251
+          }
+        },
+        {
+          "args": [9, 9],
+          "expect": {
+            "estimate": 1.0,
+            "lower": 0.7168711644368861,
+            "upper": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "logitInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "logitInterval(k: number, n: number, z = Z95): Interval",
+      "definition": "The logit (Wald on the log odds) interval: expit(logit(p) -/+ z / sqrt(n p (1 - p))); cases have 0 < k < n",
+      "source": "Brown, Cai and DasGupta 2001 (dossier S8)",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [3, 20],
+          "expect": {
+            "estimate": 0.15,
+            "lower": 0.04917343611801944,
+            "upper": 0.375844510182519
+          }
+        },
+        {
+          "args": [17, 40],
+          "expect": {
+            "estimate": 0.425,
+            "lower": 0.2830934356284107,
+            "upper": 0.5804465450250559
+          }
+        },
+        {
+          "args": [1, 9],
+          "expect": {
+            "estimate": 0.1111111111111111,
+            "lower": 0.015393491639140274,
+            "upper": 0.4998535487153583
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "likelihoodRatioInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "likelihoodRatioInterval(k: number, n: number, alpha = 0.05): Interval",
+      "definition": "The likelihood-ratio interval for a rate: the p with 2 (l(phat) - l(p)) <= chi2(1 - alpha, 1), l the binomial log likelihood; lower 0 when k = 0, upper 1 when k = n",
+      "source": "Brown, Cai and DasGupta 2001",
+      "tol": 1e-8,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [0, 10],
+          "expect": {
+            "estimate": 0.0,
+            "lower": 0.0,
+            "upper": 0.174753328049829
+          }
+        },
+        {
+          "args": [3, 20],
+          "expect": {
+            "estimate": 0.15,
+            "lower": 0.0395786381863512,
+            "upper": 0.3443756837074255
+          }
+        },
+        {
+          "args": [17, 40],
+          "expect": {
+            "estimate": 0.425,
+            "lower": 0.2800381114122549,
+            "upper": 0.5792925175472582
+          }
+        },
+        {
+          "args": [9, 9],
+          "expect": {
+            "estimate": 1.0,
+            "lower": 0.8078213237177542,
+            "upper": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "agrestiCaffoDifference",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "agrestiCaffoDifference(k1: number, n1: number, k2: number, n2: number): Interval",
+      "definition": "Agresti-Caffo interval for p1 - p2: add one success and one failure to each group, then Wald: (p1~ - p2~) -/+ z sqrt(p1~ q1~ / (n1 + 2) + p2~ q2~ / (n2 + 2)); estimate the raw difference k1/n1 - k2/n2",
+      "source": "Agresti and Caffo 2000",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [56, 70, 48, 80],
+          "expect": {
+            "estimate": 0.20000000000000007,
+            "lower": 0.052452926638053704,
+            "upper": 0.33575845547576744
+          }
+        },
+        {
+          "args": [9, 10, 3, 10],
+          "expect": {
+            "estimate": 0.6000000000000001,
+            "lower": 0.16000080110040038,
+            "upper": 0.8399991988995996
+          }
+        },
+        {
+          "args": [0, 20, 2, 25],
+          "expect": {
+            "estimate": -0.08,
+            "lower": -0.21272153717756825,
+            "upper": 0.08140840586443697
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "waldDifference",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "waldDifference(k1: number, n1: number, k2: number, n2: number): Interval",
+      "definition": "The Wald interval for p1 - p2: d -/+ z sqrt(p1 q1 / n1 + p2 q2 / n2), not clipped (the one that undercovers at small n)",
+      "source": "Newcombe 1998",
+      "tol": 1e-12,
+      "tier": 2,
+      "cases": [
+        {
+          "args": [56, 70, 48, 80],
+          "expect": {
+            "estimate": 0.20000000000000007,
+            "lower": 0.05750489914903714,
+            "upper": 0.342495100850963
+          }
+        },
+        {
+          "args": [9, 10, 3, 10],
+          "expect": {
+            "estimate": 0.6000000000000001,
+            "lower": 0.26052427977714865,
+            "upper": 0.9394757202228515
+          }
+        },
+        {
+          "args": [0, 20, 2, 25],
+          "expect": {
+            "estimate": -0.08,
+            "lower": -0.18634497998553343,
+            "upper": 0.026344979985533423
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "exhaustiveBootstrapInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "exhaustiveBootstrapInterval(values: readonly number[], alpha = 0.1): Interval",
+      "definition": "The exact bootstrap percentile interval of the mean for n <= 7: every one of the n^n ordered resamples, equally weighted, the type 7 quantiles of their means at alpha/2 and 1 - alpha/2 (no Monte Carlo error)",
+      "source": "Efron and Tibshirani 1993, the ideal bootstrap",
+      "tol": 1e-12,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[2.1, 3.4, 1.9, 5.6]],
+          "expect": {
+            "estimate": 3.25,
+            "lower": 2.05,
+            "upper": 4.543749999999999
+          }
+        },
+        {
+          "args": [[0.0, 1.0, 1.0, 0.0, 1.0]],
+          "expect": {
+            "estimate": 0.6,
+            "lower": 0.2,
+            "upper": 1.0
+          }
+        },
+        {
+          "args": [[10, 12, 9, 30, 11, 10]],
+          "expect": {
+            "estimate": 13.666666666666666,
+            "lower": 10.0,
+            "upper": 20.0
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "jackknifeVarianceOfVariance",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "jackknifeVarianceOfVariance(values: readonly number[]): number",
+      "definition": "The jackknife estimate of the variance of the sample variance: ((n - 1) / n) sum (s2_(-i) - mean s2_(-.))^2, s2_(-i) the n - 1 sample variance without value i",
+      "source": "Efron and Stein 1981",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[2.1, 3.4, 1.9, 5.6, 4.2]],
+          "expect": 1.8379117777777774
+        },
+        {
+          "args": [[0.5, 0.7, 0.2, 0.9, 0.4, 0.8, 0.1, 0.6]],
+          "expect": 0.0010154761904761906
+        },
+        {
+          "args": [[10, 12, 9, 11, 13, 10, 12, 30]],
+          "expect": 2019.6465773809525
+        },
+        {
+          "args": [[1.0, 1.0, 1.1, 0.9]],
+          "expect": 3.333333333333336e-5
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "quantileInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "quantileInterval(values: readonly number[], q: number, alpha = 0.05): Interval",
+      "definition": "Distribution-free interval for the q quantile from order statistics: with B ~ Binomial(n, q), lower x_(l), l the largest index (at least 1) with P(B <= l - 1) <= alpha/2; upper x_(u), u the smallest index with P(B <= u - 1) >= 1 - alpha/2; estimate the type 7 quantile",
+      "source": "Hahn and Meeker 1991, Statistical Intervals",
+      "tol": 1e-12,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [
+            [
+              1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+              27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
+            ],
+            0.9
+          ],
+          "expect": {
+            "estimate": 36.1,
+            "lower": 32.0,
+            "upper": 40.0
+          }
+        },
+        {
+          "args": [
+            [
+              3.1, 2.2, 5.5, 4.4, 1.9, 2.8, 3.7, 4.9, 6.1, 2.5, 3.3, 4.0, 5.2, 2.9, 3.6, 4.7, 5.8, 1.5, 2.1,
+              3.9
+            ],
+            0.25
+          ],
+          "expect": {
+            "estimate": 2.7249999999999996,
+            "lower": 1.9,
+            "upper": 3.6
+          }
+        },
+        {
+          "args": [
+            [
+              100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118,
+              119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137,
+              138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149
+            ],
+            0.5
+          ],
+          "expect": {
+            "estimate": 124.5,
+            "lower": 117.0,
+            "upper": 132.0
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "welchDifferenceInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "welchDifferenceInterval(x: readonly number[], y: readonly number[], alpha = 0.05): Interval",
+      "definition": "Interval for mean(x) - mean(y) with unequal variances: d -/+ t(1 - alpha/2, Welch-Satterthwaite df) sqrt(sx^2/nx + sy^2/ny)",
+      "source": "Welch 1947",
+      "tol": 1e-8,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[5.1, 4.9, 6.2, 5.8, 6.0, 5.5], [4.1, 4.5, 3.9, 5.0, 4.4]],
+          "expect": {
+            "estimate": 1.2033333333333331,
+            "lower": 0.5674604256563057,
+            "upper": 1.8392062410103605
+          }
+        },
+        {
+          "args": [[1, 2, 3, 4, 5, 6, 7, 8], [2, 3, 2.5, 4, 3.5]],
+          "expect": {
+            "estimate": 1.5,
+            "lower": -0.6130018608452699,
+            "upper": 3.61300186084527
+          }
+        },
+        {
+          "args": [[0.1, 0.4, 0.3], [0.9, 1.2, 0.8, 1.1, 1.0, 0.95]],
+          "expect": {
+            "estimate": -0.7250000000000001,
+            "lower": -1.0234994248129272,
+            "upper": -0.4265005751870729
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "pooledDifferenceInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "pooledDifferenceInterval(x: readonly number[], y: readonly number[], alpha = 0.05): Interval",
+      "definition": "Student's equal-variance interval for mean(x) - mean(y): d -/+ t(1 - alpha/2, nx + ny - 2) sqrt(sp^2 (1/nx + 1/ny))",
+      "source": "Student 1908",
+      "tol": 1e-8,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[5.1, 4.9, 6.2, 5.8, 6.0, 5.5], [4.1, 4.5, 3.9, 5.0, 4.4]],
+          "expect": {
+            "estimate": 1.2033333333333331,
+            "lower": 0.5549700699207069,
+            "upper": 1.8516965967459593
+          }
+        },
+        {
+          "args": [[1, 2, 3, 4, 5, 6, 7, 8], [2, 3, 2.5, 4, 3.5]],
+          "expect": {
+            "estimate": 1.5,
+            "lower": -1.0237274867089328,
+            "upper": 4.023727486708933
+          }
+        },
+        {
+          "args": [[0.1, 0.4, 0.3], [0.9, 1.2, 0.8, 1.1, 1.0, 0.95]],
+          "expect": {
+            "estimate": -0.7250000000000001,
+            "lower": -0.968739888855354,
+            "upper": -0.4812601111446462
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "varianceInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "varianceInterval(values: readonly number[], alpha = 0.05): Interval",
+      "definition": "The chi-square interval for a normal variance: ((n - 1) s^2 / chi2(1 - alpha/2, n - 1), (n - 1) s^2 / chi2(alpha/2, n - 1))",
+      "source": "scipy.stats.chi2",
+      "tol": 1e-8,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[2.1, 3.4, 1.9, 5.6, 4.2]],
+          "expect": {
+            "estimate": 2.3529999999999998,
+            "lower": 0.8446340998157411,
+            "upper": 19.429478623981712
+          }
+        },
+        {
+          "args": [[0.5, 0.7, 0.2, 0.9, 0.4, 0.8, 0.1, 0.6]],
+          "expect": {
+            "estimate": 0.07928571428571429,
+            "lower": 0.0346598495101401,
+            "upper": 0.3284277897639022
+          }
+        },
+        {
+          "args": [[10, 12, 9, 11, 13, 10, 12, 30]],
+          "expect": {
+            "estimate": 46.839285714285715,
+            "lower": 20.475852537184117,
+            "upper": 194.02389471862958
+          }
+        },
+        {
+          "args": [[1.0, 1.0, 1.1, 0.9]],
+          "expect": {
+            "estimate": 0.0066666666666666706,
+            "lower": 0.0021394027093974578,
+            "upper": 0.09268043192054996
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-small-n",
+      "name": "varianceRatioInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "varianceRatioInterval(x: readonly number[], y: readonly number[], alpha = 0.05): Interval",
+      "definition": "The F interval for the ratio of two normal variances: (r / F(1 - alpha/2, nx - 1, ny - 1), r / F(alpha/2, nx - 1, ny - 1)), r = sx^2 / sy^2",
+      "source": "scipy.stats.f",
+      "tol": 1e-8,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[5.1, 4.9, 6.2, 5.8, 6.0, 5.5], [4.1, 4.5, 3.9, 5.0, 4.4]],
+          "expect": {
+            "estimate": 1.4783427495291896,
+            "lower": 0.1578671959801059,
+            "upper": 10.921827334736696
+          }
+        },
+        {
+          "args": [[1, 2, 3, 4, 5, 6, 7, 8], [2, 3, 2.5, 4, 3.5]],
+          "expect": {
+            "estimate": 9.6,
+            "lower": 1.0579513747299616,
+            "upper": 53.0169057149621
+          }
+        },
+        {
+          "args": [[0.1, 0.4, 0.3], [0.9, 1.2, 0.8, 1.1, 1.0, 0.95]],
+          "expect": {
+            "estimate": 1.142857142857143,
+            "lower": 0.13551203903603667,
+            "upper": 44.91226031474665
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-sequential",
+      "name": "sprtOperatingCharacteristic",
+      "file": "packages/stats/src/drift.ts",
+      "signature": "sprtOperatingCharacteristic(input: { p0: number; p1: number; alpha: number; beta: number; p: number }): number",
+      "definition": "Wald's operating characteristic of the Bernoulli SPRT, the probability of accepting H0 when the true rate is p: (e^(hA) - 1) / (e^(hA) - e^(hB)), A = ln((1 - beta)/alpha), B = ln(beta/(1 - alpha)), h != 0 solving p (p1/p0)^h + (1 - p)((1 - p1)/(1 - p0))^h = 1 (cases avoid p where h = 0)",
+      "source": "Wald 1947 (dossier S19)",
+      "tol": 1e-8,
+      "tier": 5,
+      "cases": [
+        {
+          "args": [
+            {
+              "p0": 0.05,
+              "p1": 0.2,
+              "alpha": 0.05,
+              "beta": 0.1,
+              "p": 0.1
+            }
+          ],
+          "expect": 0.647646169286346
+        },
+        {
+          "args": [
+            {
+              "p0": 0.1,
+              "p1": 0.3,
+              "alpha": 0.05,
+              "beta": 0.2,
+              "p": 0.2
+            }
+          ],
+          "expect": 0.5726215521323934
+        },
+        {
+          "args": [
+            {
+              "p0": 0.5,
+              "p1": 0.7,
+              "alpha": 0.01,
+              "beta": 0.01,
+              "p": 0.6
+            }
+          ],
+          "expect": 0.5326355369493387
+        }
+      ]
+    },
+    {
+      "family": "roadmap-sequential",
+      "name": "zeroFailureBayesN",
+      "file": "packages/stats/src/power.ts",
+      "signature": "zeroFailureBayesN(input: { margin: number; confidence: number; priorA?: number; priorB?: number }): number",
+      "definition": "The fewest failure-free units for which the Beta(priorA, priorB + n) posterior puts at least the confidence below the margin (Bayesian stopping with zero failures; prior Beta(1, 1))",
+      "source": "dossier section 3.1 (S27, S17)",
+      "tol": 0,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [
+            {
+              "margin": 0.05,
+              "confidence": 0.95
+            }
+          ],
+          "expect": 58
+        },
+        {
+          "args": [
+            {
+              "margin": 0.01,
+              "confidence": 0.95
+            }
+          ],
+          "expect": 298
+        },
+        {
+          "args": [
+            {
+              "margin": 0.1,
+              "confidence": 0.99
+            }
+          ],
+          "expect": 43
+        }
+      ]
+    },
+    {
+      "family": "roadmap-sequential",
+      "name": "hoeffdingConfidenceSequence",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "hoeffdingConfidenceSequence(k: number, n: number, alpha = 0.05): Interval",
+      "definition": "A time-uniform interval by a union bound over n (alpha_n = alpha / (n (n + 1))): k/n -/+ sqrt(ln(2 n (n + 1) / alpha) / (2n)), clipped to [0, 1]",
+      "source": "Hoeffding 1963 with a union bound over time (dossier S7, S35)",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [3, 20],
+          "expect": {
+            "estimate": 0.15,
+            "lower": 0.0,
+            "upper": 0.643181867199904
+          }
+        },
+        {
+          "args": [17, 40],
+          "expect": {
+            "estimate": 0.425,
+            "lower": 0.05265387448416725,
+            "upper": 0.7973461255158327
+          }
+        },
+        {
+          "args": [80, 100],
+          "expect": {
+            "estimate": 0.8,
+            "lower": 0.5459412454082395,
+            "upper": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-sequential",
+      "name": "conditionalPower",
+      "file": "packages/stats/src/power.ts",
+      "signature": "conditionalPower(input: { z: number; informationFraction: number; alpha?: number }): number",
+      "definition": "Conditional power under the current trend (B-value form): theta = z / sqrt(t), CP = 1 - Phi((z(1 - alpha/2) - z sqrt(t) - theta (1 - t)) / sqrt(1 - t)), z the interim statistic at information fraction t",
+      "source": "Lan and Wittes 1988",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [
+            {
+              "z": 1.2,
+              "informationFraction": 0.5
+            }
+          ],
+          "expect": 0.3550180342381739
+        },
+        {
+          "args": [
+            {
+              "z": 2.0,
+              "informationFraction": 0.3
+            }
+          ],
+          "expect": 0.9783990507368305
+        },
+        {
+          "args": [
+            {
+              "z": 0.5,
+              "informationFraction": 0.8
+            }
+          ],
+          "expect": 0.000866289478953508
+        }
+      ]
+    },
+    {
+      "family": "roadmap-tests",
+      "name": "oneWayAnova",
+      "file": "packages/stats/src/paired.ts",
+      "signature": "oneWayAnova(groups: readonly (readonly number[])[]): { statistic: number; df1: number; df2: number; pValue: number }",
+      "definition": "One-way ANOVA F test of equal means: F = MSB / MSW with k - 1 and N - k df",
+      "source": "scipy.stats.f_oneway",
+      "tol": 1e-9,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[[2.9, 3.0, 2.5, 2.6, 3.2], [3.8, 2.7, 4.0, 2.4], [2.8, 3.4, 3.7, 2.2, 2.0]]],
+          "expect": {
+            "statistic": 0.56007326007326,
+            "df1": 2,
+            "df2": 11,
+            "pValue": 0.5866329910417377
+          }
+        },
+        {
+          "args": [[[1.0, 2.0, 3.0, 4.5], [3.0, 4.0, 5.5, 6.0], [5.0, 6.5, 7.0, 8.0]]],
+          "expect": {
+            "statistic": 8.43956043956044,
+            "df1": 2,
+            "df2": 9,
+            "pValue": 0.00862617881079356
+          }
+        },
+        {
+          "args": [[[10.0, 20.0, 15.0], [15.0, 25.0, 35.0, 30.0], [5.0, 8.0, 12.0, 30.0, 9.0]]],
+          "expect": {
+            "statistic": 2.9440509381357853,
+            "df1": 2,
+            "df2": 9,
+            "pValue": 0.10382795466822958
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-tests",
+      "name": "welchAnova",
+      "file": "packages/stats/src/paired.ts",
+      "signature": "welchAnova(groups: readonly (readonly number[])[]): { statistic: number; df1: number; df2: number; pValue: number }",
+      "definition": "Welch's one-way ANOVA for unequal variances: weights n/s^2, F = (sum w (m - mw)^2 / (k - 1)) / (1 + 2(k - 2)/(k^2 - 1) T), T = sum (1 - w/W)^2 / (n - 1), df2 = (k^2 - 1) / (3T)",
+      "source": "Welch 1951",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[[2.9, 3.0, 2.5, 2.6, 3.2], [3.8, 2.7, 4.0, 2.4], [2.8, 3.4, 3.7, 2.2, 2.0]]],
+          "expect": {
+            "statistic": 0.39190547838578615,
+            "df1": 2,
+            "df2": 5.518701575163452,
+            "pValue": 0.6931854768373511
+          }
+        },
+        {
+          "args": [[[1.0, 2.0, 3.0, 4.5], [3.0, 4.0, 5.5, 6.0], [5.0, 6.5, 7.0, 8.0]]],
+          "expect": {
+            "statistic": 7.670613395971965,
+            "df1": 2,
+            "df2": 5.968282083816443,
+            "pValue": 0.022417817573098672
+          }
+        },
+        {
+          "args": [[[10.0, 20.0, 15.0], [15.0, 25.0, 35.0, 30.0], [5.0, 8.0, 12.0, 30.0, 9.0]]],
+          "expect": {
+            "statistic": 2.7205406657761215,
+            "df1": 2,
+            "df2": 5.9174315752087185,
+            "pValue": 0.1452534678760573
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-tests",
+      "name": "bartlettTest",
+      "file": "packages/stats/src/paired.ts",
+      "signature": "bartlettTest(groups: readonly (readonly number[])[]): { statistic: number; pValue: number }",
+      "definition": "Bartlett's test of equal variances, chi-square with k - 1 df",
+      "source": "scipy.stats.bartlett",
+      "tol": 1e-9,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[[2.9, 3.0, 2.5, 2.6, 3.2], [3.8, 2.7, 4.0, 2.4], [2.8, 3.4, 3.7, 2.2, 2.0]]],
+          "expect": {
+            "statistic": 3.2794144046012064,
+            "pValue": 0.1940368475168175
+          }
+        },
+        {
+          "args": [[[1.0, 2.0, 3.0, 4.5], [3.0, 4.0, 5.5, 6.0], [5.0, 6.5, 7.0, 8.0]]],
+          "expect": {
+            "statistic": 0.0820505570281983,
+            "pValue": 0.9598048672002691
+          }
+        },
+        {
+          "args": [[[10.0, 20.0, 15.0], [15.0, 25.0, 35.0, 30.0], [5.0, 8.0, 12.0, 30.0, 9.0]]],
+          "expect": {
+            "statistic": 0.8858353958709109,
+            "pValue": 0.6421600560113554
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-tests",
+      "name": "moodMedianTest",
+      "file": "packages/stats/src/paired.ts",
+      "signature": "moodMedianTest(groups: readonly (readonly number[])[]): { statistic: number; pValue: number }",
+      "definition": "Mood's median test: the 2 x k table of counts above and at-or-below the grand median, Pearson chi-square with Yates' correction when it is 2 x 2",
+      "source": "scipy.stats.median_test(ties='below', correction=True)",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[[2.9, 3.0, 2.5, 2.6, 3.2], [3.8, 2.7, 4.0, 2.4], [2.8, 3.4, 3.7, 2.2, 2.0]]],
+          "expect": {
+            "statistic": 0.4,
+            "pValue": 0.8187307530779818
+          }
+        },
+        {
+          "args": [[[1.0, 2.0, 3.0, 4.5], [3.0, 4.0, 5.5, 6.0], [5.0, 6.5, 7.0, 8.0]]],
+          "expect": {
+            "statistic": 8.0,
+            "pValue": 0.018315638888734182
+          }
+        },
+        {
+          "args": [[[10.0, 20.0, 15.0], [15.0, 25.0, 35.0, 30.0], [5.0, 8.0, 12.0, 30.0, 9.0]]],
+          "expect": {
+            "statistic": 2.880000000000001,
+            "pValue": 0.23692775868212165
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-tests",
+      "name": "brunnerMunzel",
+      "file": "packages/stats/src/paired.ts",
+      "signature": "brunnerMunzel(x: readonly number[], y: readonly number[]): { statistic: number; pValue: number }",
+      "definition": "The Brunner-Munzel test of stochastic equality (two-sided, t distribution with the Satterthwaite df)",
+      "source": "scipy.stats.brunnermunzel",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[1.1, 2.3, 3.0, 4.8, 5.2, 2.2], [3.3, 4.1, 6.0, 5.9, 7.2, 6.6, 4.4]],
+          "expect": {
+            "statistic": 3.1693284552319367,
+            "pValue": 0.010475750985072124
+          }
+        },
+        {
+          "args": [[1, 2, 2, 3, 3, 3], [2, 3, 4, 4, 5]],
+          "expect": {
+            "statistic": 2.245417431423561,
+            "pValue": 0.07093494774018597
+          }
+        },
+        {
+          "args": [[10, 20, 30], [15, 25, 35, 45]],
+          "expect": {
+            "statistic": 1.161895003862225,
+            "pValue": 0.2982354483095789
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-tests",
+      "name": "bowkerSymmetry",
+      "file": "packages/stats/src/paired.ts",
+      "signature": "bowkerSymmetry(table: readonly (readonly number[])[]): { statistic: number; df: number; pValue: number }",
+      "definition": "Bowker's test of symmetry of a k x k paired table (the multi-category McNemar): sum over i < j with n_ij + n_ji > 0 of (n_ij - n_ji)^2 / (n_ij + n_ji), chi-square with that many df",
+      "source": "Bowker 1948",
+      "tol": 1e-9,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[[20, 5, 3], [10, 30, 4], [2, 8, 25]]],
+          "expect": {
+            "statistic": 3.2,
+            "df": 3,
+            "pValue": 0.36180502749753235
+          }
+        },
+        {
+          "args": [[[15, 2], [8, 20]]],
+          "expect": {
+            "statistic": 3.6,
+            "df": 1,
+            "pValue": 0.05777957112359719
+          }
+        },
+        {
+          "args": [[[10, 3, 1, 0], [2, 12, 4, 1], [3, 1, 9, 2], [0, 2, 5, 11]]],
+          "expect": {
+            "statistic": 4.6190476190476195,
+            "df": 5,
+            "pValue": 0.46411496157269194
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "remlOneWay",
+      "file": "packages/stats/src/variance.ts",
+      "signature": "remlOneWay(values: readonly number[], groups: readonly (string | number)[]): { between: number; within: number }",
+      "definition": "REML estimates of the between-group and within-group variances of the one-way random model y = mu + a_g + e, unbalanced groups; cases have a positive between variance (relative tolerance 1e-5)",
+      "source": "Patterson and Thompson 1971; scipy.optimize on the restricted likelihood",
+      "tol": 1e-5,
+      "tier": 5,
+      "cases": [
+        {
+          "args": [[3, 4, 5, 9, 8, 10, 2, 3, 1, 4, 6, 7], [1, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5]],
+          "expect": {
+            "between": 7.41091101994034,
+            "within": 1.353629051751237
+          }
+        },
+        {
+          "args": [
+            [0.2, 0.4, 0.3, 0.9, 0.8, 0.85, 0.1, 0.5, 0.45, 0.6],
+            ["a", "a", "a", "b", "b", "b", "c", "c", "d", "d"]
+          ],
+          "expect": {
+            "between": 0.06164426469571522,
+            "within": 0.01923618651606282
+          }
+        },
+        {
+          "args": [[10, 12, 11, 15, 14, 9, 8, 13, 16, 12, 11], [1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]],
+          "expect": {
+            "between": 0.8178506021430855,
+            "within": 5.4098220786399756
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "iccInterval",
+      "file": "packages/stats/src/variance.ts",
+      "signature": "iccInterval(scores: readonly (readonly number[])[], alpha = 0.05): Interval",
+      "definition": "ICC(1) of a balanced table (rows targets, columns repeats) with its F interval: F = MSB / MSW, FL = F / F(1 - alpha/2, n - 1, n(k - 1)), FU = F F(1 - alpha/2, n(k - 1), n - 1), bounds (FL - 1)/(FL + k - 1) and (FU - 1)/(FU + k - 1)",
+      "source": "Shrout and Fleiss 1979",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[[0, 0, 0], [1, 1, 0], [1, 1, 1], [2, 2, 2], [0, 1, 0], [2, 1, 2], [1, 1, 1], [0, 0, 1]]],
+          "expect": {
+            "estimate": 0.7152542372881356,
+            "lower": 0.35502057887575766,
+            "upper": 0.9264276611324092
+          }
+        },
+        {
+          "args": [[[1, 1], [0, 0], [1, 0], [1, 1], [0, 0], [0, 1], [1, 1]]],
+          "expect": {
+            "estimate": 0.47826086956521735,
+            "lower": -0.287384734946531,
+            "upper": 0.8832945914117418
+          }
+        },
+        {
+          "args": [[[3, 3, 2], [1, 1, 1], [2, 3, 2], [3, 3, 3], [1, 2, 1], [2, 2, 2]]],
+          "expect": {
+            "estimate": 0.7643979057591623,
+            "lower": 0.36953698262902585,
+            "upper": 0.9583507806613619
+          }
+        },
+        {
+          "args": [[[9, 8, 9], [6, 6, 7], [8, 8, 8], [7, 6, 6], [10, 9, 9], [5, 6, 5]]],
+          "expect": {
+            "estimate": 0.8943661971830986,
+            "lower": 0.6584953974717991,
+            "upper": 0.9827831694529511
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-association",
+      "name": "mantelHaenszelOddsRatio",
+      "file": "packages/stats/src/agreement.ts",
+      "signature": "mantelHaenszelOddsRatio(strata: readonly (readonly (readonly number[])[])[]): number",
+      "definition": "The Mantel-Haenszel pooled odds ratio over 2x2 strata [[a, b], [c, d]]: sum (a d / n) / sum (b c / n)",
+      "source": "Mantel and Haenszel 1959",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[[[10, 5], [6, 12]], [[8, 7], [4, 11]], [[15, 3], [9, 9]]]],
+          "expect": 3.980713033313852
+        },
+        {
+          "args": [[[[10, 5], [6, 12]], [[8, 7], [4, 11]]]],
+          "expect": 3.5657894736842106
+        },
+        {
+          "args": [[[[15, 3], [9, 9]], [[20, 10], [10, 20]]]],
+          "expect": 4.310344827586207
+        }
+      ]
+    },
+    {
+      "family": "roadmap-association",
+      "name": "cochranMantelHaenszel",
+      "file": "packages/stats/src/agreement.ts",
+      "signature": "cochranMantelHaenszel(strata: readonly (readonly (readonly number[])[])[]): { statistic: number; pValue: number }",
+      "definition": "The Cochran-Mantel-Haenszel test of conditional independence with the continuity correction: (|sum a - sum E[a]| - 1/2)^2 / sum Var(a), chi-square with 1 df",
+      "source": "Cochran 1954; Mantel and Haenszel 1959",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[[[10, 5], [6, 12]], [[8, 7], [4, 11]], [[15, 3], [9, 9]]]],
+          "expect": {
+            "statistic": 8.667082453459575,
+            "pValue": 0.0032400952018963166
+          }
+        },
+        {
+          "args": [[[[10, 5], [6, 12]], [[8, 7], [4, 11]]]],
+          "expect": {
+            "statistic": 4.501776868404048,
+            "pValue": 0.033859652060824724
+          }
+        },
+        {
+          "args": [[[[15, 3], [9, 9]], [[20, 10], [10, 20]]]],
+          "expect": {
+            "statistic": 9.581477357089831,
+            "pValue": 0.0019655018488924144
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-association",
+      "name": "glassDelta",
+      "file": "packages/stats/src/paired.ts",
+      "signature": "glassDelta(treatment: readonly number[], control: readonly number[]): number",
+      "definition": "Glass's delta: (mean treatment - mean control) / sd control (n - 1 standard deviation)",
+      "source": "Glass 1976",
+      "tol": 1e-12,
+      "tier": 2,
+      "cases": [
+        {
+          "args": [[1, 2, 3, 4, 5, 6, 7, 8], [2.1, 3.9, 6.2, 7.8, 9.9, 12.2, 13.8, 16.1]],
+          "expect": -0.9202033435868329
+        },
+        {
+          "args": [[3.2, 1.5, 4.8, 2.2, 5.1, 3.3, 0.9], [2.0, 1.1, 3.9, 2.5, 3.0, 2.8, 1.5]],
+          "expect": 0.6301260378126041
+        },
+        {
+          "args": [[1, 2, 2, 3, 4, 4, 5, 6], [3, 1, 2, 2, 5, 4, 6, 5]],
+          "expect": -0.07050950935222078
+        },
+        {
+          "args": [[10, 9, 8, 7, 6, 5], [1, 3, 2, 5, 4, 6]],
+          "expect": 2.138089935299395
+        }
+      ]
+    },
+    {
+      "family": "roadmap-association",
+      "name": "cohenH",
+      "file": "packages/stats/src/paired.ts",
+      "signature": "cohenH(p1: number, p2: number): number",
+      "definition": "Cohen's h, the arcsine difference of two rates: 2 asin(sqrt(p1)) - 2 asin(sqrt(p2))",
+      "source": "Cohen 1988",
+      "tol": 1e-12,
+      "tier": 2,
+      "cases": [
+        {
+          "args": [0.8, 0.7],
+          "expect": 0.2319842627257962
+        },
+        {
+          "args": [0.5, 0.3],
+          "expect": 0.4115168460674883
+        },
+        {
+          "args": [0.95, 0.99],
+          "expect": -0.2506919694731433
+        }
+      ]
+    },
+    {
+      "family": "roadmap-association",
+      "name": "cramersV",
+      "file": "packages/stats/src/agreement.ts",
+      "signature": "cramersV(table: readonly (readonly number[])[]): number",
+      "definition": "Cramer's V: sqrt(chi2 / (n (min(r, c) - 1))), chi2 Pearson's without correction",
+      "source": "Cramer 1946",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[[10, 20, 30], [20, 20, 10]]],
+          "expect": 0.3374742788552765
+        },
+        {
+          "args": [[[5, 5], [10, 2]]],
+          "expect": 0.35634832254989923
+        },
+        {
+          "args": [[[12, 7, 3], [8, 9, 4], [2, 6, 11]]],
+          "expect": 0.33701884886575023
+        }
+      ]
+    },
+    {
+      "family": "roadmap-association",
+      "name": "phiCoefficient",
+      "file": "packages/stats/src/agreement.ts",
+      "signature": "phiCoefficient(a: number, b: number, c: number, d: number): number",
+      "definition": "The phi coefficient of a 2x2 table: (ad - bc) / sqrt((a + b)(c + d)(a + c)(b + d))",
+      "source": "Yule 1912",
+      "tol": 1e-12,
+      "tier": 2,
+      "cases": [
+        {
+          "args": [20, 10, 15, 25],
+          "expect": 0.28867513459481287
+        },
+        {
+          "args": [5, 45, 2, 48],
+          "expect": 0.11757927025044308
+        },
+        {
+          "args": [30, 20, 30, 20],
+          "expect": 0.0
+        },
+        {
+          "args": [12, 8, 4, 16],
+          "expect": 0.408248290463863
+        }
+      ]
+    },
+    {
+      "family": "roadmap-association",
+      "name": "goodmanKruskalGamma",
+      "file": "packages/stats/src/agreement.ts",
+      "signature": "goodmanKruskalGamma(x: readonly number[], y: readonly number[]): number",
+      "definition": "Goodman and Kruskal gamma over all pairs: (concordant - discordant) / (concordant + discordant), tied pairs left out",
+      "source": "Goodman and Kruskal 1954",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[1, 2, 3, 4, 5, 6, 7, 8], [2.1, 3.9, 6.2, 7.8, 9.9, 12.2, 13.8, 16.1]],
+          "expect": 1.0
+        },
+        {
+          "args": [[3.2, 1.5, 4.8, 2.2, 5.1, 3.3, 0.9], [2.0, 1.1, 3.9, 2.5, 3.0, 2.8, 1.5]],
+          "expect": 0.7142857142857143
+        },
+        {
+          "args": [[1, 2, 2, 3, 4, 4, 5, 6], [3, 1, 2, 2, 5, 4, 6, 5]],
+          "expect": 0.6666666666666666
+        },
+        {
+          "args": [[10, 9, 8, 7, 6, 5], [1, 3, 2, 5, 4, 6]],
+          "expect": -0.7333333333333333
+        }
+      ]
+    },
+    {
+      "family": "roadmap-association",
+      "name": "kendallW",
+      "file": "packages/stats/src/agreement.ts",
+      "signature": "kendallW(scores: readonly (readonly number[])[]): number",
+      "definition": "Kendall's W, the coefficient of concordance of m raters (rows) over n items (columns), average ranks within each rater, tie-corrected: 12 S / (m^2 (n^3 - n) - m T), T = sum over tie groups (t^3 - t)",
+      "source": "Kendall and Babington Smith 1939",
+      "tol": 1e-12,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[[1, 2, 3, 4, 5], [2, 1, 3, 5, 4], [1, 3, 2, 4, 5]]],
+          "expect": 0.8444444444444444
+        },
+        {
+          "args": [[[3, 1, 2, 4], [3, 2, 1, 4]]],
+          "expect": 0.9
+        },
+        {
+          "args": [[[7, 5, 9, 2, 6, 6], [8, 4, 9, 1, 5, 7], [6, 5, 8, 3, 7, 6], [7, 6, 9, 2, 5, 8]]],
+          "expect": 0.875
+        }
+      ]
+    },
+    {
+      "family": "roadmap-association",
+      "name": "matthewsCorrelation",
+      "file": "packages/stats/src/agreement.ts",
+      "signature": "matthewsCorrelation(truth: readonly string[], predicted: readonly string[]): number",
+      "definition": "The Matthews correlation coefficient, multiclass (Gorodkin): (c s - sum t_k p_k) / sqrt((s^2 - sum p_k^2)(s^2 - sum t_k^2)), c the correct count, s the total, t_k and p_k the true and predicted counts per class",
+      "source": "sklearn.metrics.matthews_corrcoef",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [["a", "b", "a", "c", "b", "a", "c", "c"], ["a", "b", "b", "c", "b", "a", "a", "c"]],
+          "expect": 0.6428571428571429
+        },
+        {
+          "args": [["x", "x", "y", "y", "y", "x"], ["x", "y", "y", "y", "x", "x"]],
+          "expect": 0.3333333333333333
+        },
+        {
+          "args": [
+            ["p", "p", "p", "n", "n", "n", "n", "p", "n", "p"],
+            ["p", "n", "p", "n", "n", "p", "n", "p", "n", "n"]
+          ],
+          "expect": 0.408248290463863
+        }
+      ]
+    },
+    {
+      "family": "roadmap-robust",
+      "name": "huberLocation",
+      "file": "packages/stats/src/basics.ts",
+      "signature": "huberLocation(values: readonly number[], k = 1.345): number",
+      "definition": "Huber's M-estimate of location with the scale fixed at MAD / 0.6744897501960817: iterate mu <- sum w x / sum w, w = 1 for |x - mu| / scale <= k else k / |(x - mu) / scale|, from the median, to 1e-14",
+      "source": "Huber 1964",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[2.1, 3.4, 1.9, 5.6, 4.2, 30.0, 2.8, 3.3, 4.1, 2.6]],
+          "expect": 3.4488199967780044
+        },
+        {
+          "args": [[10, 12, 9, 11, 13, 10, 12, 30, -5, 11, 10]],
+          "expect": 10.87426249798626
+        },
+        {
+          "args": [[0.5, 0.7, 0.2, 0.9, 0.4, 0.8, 0.1, 0.6]],
+          "expect": 0.5287400004602866
+        }
+      ]
+    },
+    {
+      "family": "roadmap-robust",
+      "name": "geometricMeanInterval",
+      "file": "packages/stats/src/basics.ts",
+      "signature": "geometricMeanInterval(values: readonly number[], alpha = 0.05): Interval",
+      "definition": "The geometric mean with the t interval on the log scale, back-transformed: exp(mean ln x -/+ t(1 - alpha/2, n - 1) s_ln / sqrt(n)); values must be positive",
+      "source": "lognormal mean of logs",
+      "tol": 1e-9,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[2.1, 3.4, 1.9, 5.6, 4.2]],
+          "expect": {
+            "estimate": 3.167946407900015,
+            "lower": 1.793672787258135,
+            "upper": 5.595159002589194
+          }
+        },
+        {
+          "args": [[0.5, 0.7, 0.2, 0.9, 0.4, 0.8, 0.1, 0.6]],
+          "expect": {
+            "estimate": 0.43184731355089534,
+            "lower": 0.22916982465319397,
+            "upper": 0.8137725047499013
+          }
+        },
+        {
+          "args": [[10, 12, 9, 11, 13, 10, 12, 30]],
+          "expect": {
+            "estimate": 12.391754098543956,
+            "lower": 9.042237708352427,
+            "upper": 16.98203194735079
+          }
+        },
+        {
+          "args": [[1.0, 1.0, 1.1, 0.9]],
+          "expect": {
+            "estimate": 0.9974905699336811,
+            "lower": 0.8755063930441558,
+            "upper": 1.1364707842361104
+          }
+        }
+      ]
     }
   ]
 }
