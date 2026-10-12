@@ -319,7 +319,8 @@ describe('driftbench validate through main', () => {
     expect(handover.out).toContain('validators/stats/HANDOVER.md: every section present');
     expect(handover.out).toContain('validators/estate/HANDOVER.md: every section present');
     // The judges ladder version 2 runs its whole bank, each item in a child process; the estate ladder runs
-    // its reader level on a bank of planted estates.
+    // its reader level on a bank of planted estates; the generator ladder
+    // generates and runs a suite.
   }, 600_000);
 
   it('prints the stats brief from the real executor instruction', async () => {

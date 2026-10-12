@@ -97,7 +97,10 @@ const MODE_HELP =
   'the run mode: T teacher-forced, F free-running, P perturbed; several separated by commas, such as T,F';
 
 const TARGET_HELP =
-  'run every spec on this target; repeat for several. Without it, each spec runs on its own target';
+  'run every spec on this target (but the specs a --route marks); repeat for several. Without it, each spec runs on its own target';
+
+const ROUTE_HELP =
+  'with --target: run the specs a tag marks on this target instead, such as flow:price-sheet=process:acme-ops; repeat for several';
 
 const PROCESS_COMMAND_HELP =
   'the agent command for a process target other than process:acme-ops: a JSON list such as ["python3","agent.py"], or words split on spaces';
@@ -197,6 +200,7 @@ export const defaultDeps: CampaignDeps = {
 
 type PlanCommandOptions = {
   target: string[];
+  route?: string[];
   mode: string;
   repeats: string;
   budgetUsd?: string;
@@ -210,6 +214,7 @@ type RunCommandOptions = {
   dataset?: string;
   prompt?: string[];
   target: string[];
+  route?: string[];
   mode: string;
   repeats: string;
   campaign?: string;
@@ -255,6 +260,7 @@ export function registerCampaignCommands(
     .description('Expand the cells, project their cost and print the minimum detectable effect.')
     .argument('<paths...>', 'spec files or folders')
     .option('--target <adapter[:agent]>', TARGET_HELP, collect, [])
+    .option('--route <tag=target>', ROUTE_HELP, collect, [])
     .option('--mode <modes>', MODE_HELP, 'F')
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option('--budget-usd <usd>', 'compare the projected cost with this budget')
@@ -278,6 +284,7 @@ export function registerCampaignCommands(
       [],
     )
     .option('--target <adapter[:agent]>', TARGET_HELP, collect, [])
+    .option('--route <tag=target>', ROUTE_HELP, collect, [])
     .option('--mode <modes>', MODE_HELP, 'F')
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
@@ -470,10 +477,10 @@ export async function campaignPlanCommand(
   if (!shape || budget === null || baselineRate === undefined || rho === undefined) return 2;
   const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
-  const runs = specRuns(loaded, shape.targets, io);
+  const runs = specRuns(loaded, shape.targets, io, shape.routes);
   if (!runs) return 2;
   if (tooManyCells(runs, shape, io)) return 2;
-  if (!options.json) io.out(targetNotes(loaded, shape.targets));
+  if (!options.json) io.out(targetNotes(loaded, shape.targets, shape.routes));
 
   let units: CostUnit[] = [];
   if (options.store) {
@@ -565,7 +572,7 @@ export async function campaignRunCommand(
     const withPrompt = (target: TargetRef): TargetRef =>
       registry.prompt === undefined ? target : { ...target, prompt: registry.prompt };
     const targets = shape.targets.map(withPrompt);
-    const runs = specRuns(loaded, targets, io)?.map((each) =>
+    const runs = specRuns(loaded, targets, io, shape.routes)?.map((each) =>
       each.pinned === undefined
         ? each
         : { ...each, targets: each.targets.map(withPrompt), pinned: withPrompt(each.pinned) },
@@ -577,7 +584,7 @@ export async function campaignRunCommand(
     deps = driven.deps;
     const adapters = await adaptersFor(runs, deps, scope, io);
     if (!adapters) return 2;
-    if (!options.json) io.out(targetNotes(loaded, shape.targets));
+    if (!options.json) io.out(targetNotes(loaded, shape.targets, shape.routes));
     if (!options.json && driven.note) io.out(driven.note);
 
     const store = await openReported(deps, options.store ? resolve(io.cwd, options.store) : undefined, io);
@@ -913,7 +920,10 @@ async function storedCampaign(
   return { campaign, specs };
 }
 
-type Shape = { targets: TargetRef[]; modes: RunMode[]; repeats: number };
+/** A tag and the target the specs it marks run on, whatever --target says. */
+export type Route = { tag: string; target: TargetRef };
+
+type Shape = { targets: TargetRef[]; routes: Route[]; modes: RunMode[]; repeats: number };
 
 type Pool = { concurrency: number; budgetUsd?: number; retry?: RetryOptions };
 
@@ -959,7 +969,10 @@ function parseRetry(flags: RetryFlags, io: Io): RetryOptions | undefined | null 
  * Modes, repeats and the `--target` list, which is empty when each spec runs on its own target. `--mode`
  * takes one mode or several separated by commas, such as `T,F,P`; the cells come in the order T, F, P.
  */
-function parseShape(options: { target: string[]; mode: string; repeats: string }, io: Io): Shape | undefined {
+function parseShape(
+  options: { target: string[]; route?: string[]; mode: string; repeats: string },
+  io: Io,
+): Shape | undefined {
   const named = options.mode.split(',').map((part) => part.trim());
   const modes: RunMode[] = [];
   for (const text of named) {
@@ -985,7 +998,21 @@ function parseShape(options: { target: string[]; mode: string; repeats: string }
     }
     if (!targets.some((known) => showTarget(known) === showTarget(target.data))) targets.push(target.data);
   }
-  return { targets, modes, repeats };
+  const routes: Route[] = [];
+  for (const text of options.route ?? []) {
+    const at = text.indexOf('=');
+    const target = at > 0 ? TargetRef.safeParse(parseTarget(text.slice(at + 1))) : undefined;
+    if (!target?.success) {
+      io.err(`--route takes tag=target, such as flow:price-sheet=process:acme-ops, not "${text}".\n`);
+      return undefined;
+    }
+    routes.push({ tag: text.slice(0, at), target: target.data });
+  }
+  if (routes.length > 0 && targets.length === 0) {
+    io.err('--route goes with --target: without it each spec already runs on its own target.\n');
+    return undefined;
+  }
+  return { targets, routes, modes, repeats };
 }
 
 /** The most cells a plan or a run expands: past it, the cell list alone would exhaust memory. */
@@ -1009,9 +1036,14 @@ function tooManyCells(runs: readonly SpecRun[], shape: Shape, io: Io): boolean {
 }
 
 /** One line per spec whose own target names another adapter than a `--target`, which overrides it. */
-function targetNotes(loaded: readonly LoadedSpec[], targets: readonly TargetRef[]): string {
+function targetNotes(
+  loaded: readonly LoadedSpec[],
+  targets: readonly TargetRef[],
+  routes: readonly Route[] = [],
+): string {
   const notes: string[] = [];
   for (const { spec } of loaded) {
+    if (routeOf(spec, routes)) continue;
     const own = spec.target?.adapter;
     for (const target of targets) {
       if (own !== undefined && own !== target.adapter) {
@@ -1063,6 +1095,11 @@ export function noAdapter(target: TargetRef, specIds: readonly string[] = []): s
   return `No adapter is set up for ${showTarget(target)}${whose}. ${KNOWN_TARGETS}`;
 }
 
+/** The target of the first route whose tag the spec carries, if any. */
+function routeOf(spec: Spec, routes: readonly Route[]): TargetRef | undefined {
+  return routes.find((route) => (spec.tags ?? []).includes(route.tag))?.target;
+}
+
 /** One spec and the targets it runs on. `pinned` is set when the spec runs on its own target alone. */
 export type SpecRun = { spec: Spec; hash: string; targets: readonly TargetRef[]; pinned?: TargetRef };
 
@@ -1074,8 +1111,13 @@ export function specRuns(
   loaded: readonly LoadedSpec[],
   targets: readonly TargetRef[],
   io: Io,
+  routes: readonly Route[] = [],
 ): SpecRun[] | undefined {
-  if (targets.length > 0) return loaded.map(({ spec, hash }) => ({ spec, hash, targets }));
+  if (targets.length > 0)
+    return loaded.map(({ spec, hash }) => {
+      const route = routeOf(spec, routes);
+      return route ? { spec, hash, targets: [route], pinned: route } : { spec, hash, targets };
+    });
   const runs: SpecRun[] = [];
   const missing: string[] = [];
   for (const { spec, hash } of loaded) {

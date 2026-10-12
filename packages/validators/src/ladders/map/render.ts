@@ -341,7 +341,7 @@ export function renderTools(spec: HiddenSpec): string {
   const lines = [`# The tools of ${spec.agent} as JSON Schema. Every name in it is fictional.`, 'tools:'];
   for (const tool of spec.tools) {
     lines.push(`  - name: ${tool.name}`, `    description: ${scalar(tool.description)}`);
-    lines.push('    input_schema:', ...objectSchema(tool.input, 6, true));
+    lines.push('    input_schema:', ...objectSchema(tool.input, 6, false));
     lines.push('    output_schema:', ...objectSchema(tool.output, 6, false));
   }
   return `${lines.join('\n')}\n`;
