@@ -14,6 +14,8 @@ export type QueueState = 'open' | 'assigned' | 'done';
 export type QueueEntry = {
   id: string;
   criterion: string;
+  /** The campaign the block's run belongs to, so a viewer can open it. */
+  campaign: string;
   runId: string;
   index: number;
   state: QueueState;
@@ -33,7 +35,7 @@ const keyOf = (criterion: string, id: string) => `${criterion}\u0000${id}`;
 /** Adds the items not already in the queue, in the order given. An item already queued keeps its state. */
 export function enqueue(
   queue: ReviewQueue,
-  items: ReadonlyArray<{ id: string; criterion: string; runId: string; index: number }>,
+  items: ReadonlyArray<{ id: string; criterion: string; campaign: string; runId: string; index: number }>,
 ): ReviewQueue {
   const seen = new Set(queue.entries.map((entry) => keyOf(entry.criterion, entry.id)));
   const entries = [...queue.entries];

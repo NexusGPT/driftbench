@@ -2,7 +2,16 @@ import { readdir } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { basename, extname } from 'node:path';
 import type { Campaign, RunResult, Spec, Store } from '@driftbench/core';
-import { labelFilePath, readLabelFile, saveLabel } from '@driftbench/judges';
+import {
+  assign,
+  completeItem,
+  type LabelledBlock,
+  labelFilePath,
+  readLabelFile,
+  readQueue,
+  saveLabel,
+  writeQueue,
+} from '@driftbench/judges';
 import {
   type BlockDetail,
   buildScorecard,
@@ -78,9 +87,25 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
       response.end();
       return;
     }
-    if (request.method !== 'GET') throw new HttpError(405, 'Only GET, and POST to /labels.');
+    if (request.method === 'POST' && url.pathname === '/queue/assign') {
+      const fields = new URLSearchParams(await readBody(request));
+      const criterion = fields.get('criterion') ?? '';
+      const id = fields.get('id') ?? '';
+      try {
+        await writeQueue(options.labels, assign(await readQueue(options.labels), criterion, id, labelledBy));
+      } catch (cause) {
+        throw new HttpError(400, cause instanceof Error ? cause.message : String(cause));
+      }
+      response.writeHead(303, { location: '/queue' });
+      response.end();
+      return;
+    }
+    if (request.method !== 'GET')
+      throw new HttpError(405, 'Only GET, and POST to /labels and /queue/assign.');
     if (parts.length === 0) return send(response, await indexPage(store));
     if (parts[0] === 'compare' && parts.length === 1) return send(response, await comparePage(store, url));
+    if (parts[0] === 'queue' && parts.length === 1)
+      return send(response, await queuePage(options.labels, labelledBy));
     if (parts[0] === 'campaign' && parts.length === 2) {
       const data = await campaignData(store, parts[1] as string);
       const key = data.campaign.campaignId;
@@ -180,7 +205,7 @@ function runPath(campaignId: string, runId: string): string {
 }
 
 function nav(extra = ''): string {
-  return `<nav class="top"><strong>driftbench view</strong><a href="/">Campaigns</a><a href="/compare">Compare</a>${extra}</nav>`;
+  return `<nav class="top"><strong>driftbench view</strong><a href="/">Campaigns</a><a href="/compare">Compare</a><a href="/queue">Queue</a>${extra}</nav>`;
 }
 
 function errorPage(status: number, message: string): string {
@@ -197,6 +222,31 @@ async function campaignData(store: Store, campaignId: string): Promise<CampaignD
     if (cause instanceof ReportInputError) throw new HttpError(404, cause.message);
     throw cause;
   }
+}
+
+/** The review queue: each item with its state, who holds it, and the action the viewer reviewer can take. */
+async function queuePage(labelsDir: string, reviewer: string): Promise<string> {
+  const queue = await readQueue(labelsDir);
+  const rows = queue.entries.map((entry) => {
+    const block = `${runPath(entry.campaign, entry.runId)}#block-${entry.index}`;
+    const action =
+      entry.state === 'open'
+        ? `<form method="post" action="/queue/assign"><input type="hidden" name="criterion" value="${esc(entry.criterion)}"><input type="hidden" name="id" value="${esc(entry.id)}"><button type="submit">Take</button></form>`
+        : entry.state === 'assigned' && entry.assignee === reviewer
+          ? `<a href="${esc(block)}">Label it</a>`
+          : entry.state === 'done'
+            ? 'done'
+            : '';
+    return `<tr><td>${esc(entry.state)}</td><td class="mono">${esc(entry.criterion)}</td><td class="mono"><a href="${esc(block)}">${esc(entry.id)}</a></td><td>${esc(entry.assignee ?? '-')}</td><td>${action}</td></tr>`;
+  });
+  const body =
+    rows.length === 0
+      ? '<p class="muted">The queue is empty. Queue a campaign with driftbench queue create.</p>'
+      : `<div class="table-wrap"><table><caption>${queue.entries.length} items</caption><thead><tr><th scope="col">state</th><th scope="col">criterion</th><th scope="col">block</th><th scope="col">held by</th><th scope="col"></th></tr></thead><tbody>${rows.join('\n')}</tbody></table></div>`;
+  return renderPage('driftbench view: queue', [
+    nav(),
+    `<section id="queue"><h2>Review queue</h2><p>Take an item, open its block, label it. Saving the label marks the item done.</p>${body}</section>`,
+  ]);
 }
 
 async function indexPage(store: Store): Promise<string> {
@@ -403,16 +453,21 @@ async function saveFromForm(
     ]),
     { role: 'agent' as const, text: block.text },
   ];
-  await saveLabel(
-    labelsDir,
-    criterion,
-    {
-      id: blockId(run.runId, index),
-      label,
-      ...(note === '' ? {} : { note }),
-      transcript,
-    },
-    labelledBy,
-  );
+  const labelled: LabelledBlock = {
+    id: blockId(run.runId, index),
+    label,
+    ...(note === '' ? {} : { note }),
+    transcript,
+  };
+  const queue = await readQueue(labelsDir);
+  const entry = queue.entries.find((item) => item.criterion === criterion && item.id === labelled.id);
+  if (entry && entry.state === 'assigned' && entry.assignee === labelledBy) {
+    await writeQueue(
+      labelsDir,
+      await completeItem(labelsDir, queue, criterion, entry.id, labelledBy, labelled),
+    );
+  } else {
+    await saveLabel(labelsDir, criterion, labelled, labelledBy);
+  }
   return `${runPath(campaignId, run.runId)}?saved=${encodeURIComponent(criterion)}#block-${index}`;
 }

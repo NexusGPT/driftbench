@@ -17,7 +17,13 @@ async function folder(): Promise<string> {
   return dir;
 }
 
-const item = (index: number) => ({ id: `run-1.b${index}`, criterion: 'tone', runId: 'run-1', index });
+const item = (index: number) => ({
+  id: `run-1.b${index}`,
+  criterion: 'tone',
+  campaign: 'c-1',
+  runId: 'run-1',
+  index,
+});
 
 const transcript = [
   { role: 'user' as const, text: 'Is fiber available at 12 Main St?' },

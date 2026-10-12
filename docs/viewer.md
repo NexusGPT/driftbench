@@ -35,9 +35,15 @@ The command runs until Ctrl+C. Exit 0 after a stop, 2 when the store is missing,
 
 ## Review queue
 
-A review queue is the list of blocks a reviewer still has to label, kept as `<labels>/queue.json` beside the labels. Each entry is one block and criterion, in one of three states: open, assigned to a reviewer, or done. A reviewer takes an item with `assign`, and an assigned item can be completed only by its reviewer. `completeItem` writes the label through the same path the form uses, so `judge calibrate` reads it unchanged. A done item cannot be completed again.
+A review queue is the list of blocks a reviewer still has to label, kept as `<labels>/queue.json` beside the labels. Each item is one block and one criterion, open, assigned to a reviewer, or done.
 
-The queue is a library API (`enqueue`, `assign`, `completeItem`, `readQueue`, `writeQueue`). The viewer does not show a queue page yet, so reviewers still reach blocks from the run pages. Calibration needs at least one pass and one fail label per criterion, and it reports a file without both.
+```text
+driftbench queue create --store driftbench.db --campaign c-acme-x3 --labels labels
+driftbench queue list --labels labels
+driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> --labels labels
+```
+
+`queue create` queues each block of the campaign once per criterion of its spec, skipping blocks already labelled. The viewer's `/queue` page lists the items. "Take" assigns an item to the viewer's reviewer, "Label it" opens its block, and saving the label there marks the item done. Another reviewer cannot take or label an item held by someone else. A label written from the queue is the same label file `judge calibrate` reads.
 
 ## Labelling a block
 
