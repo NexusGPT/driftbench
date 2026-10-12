@@ -44,16 +44,17 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 Executor exec/judges-v2 (from lane/v-judges2). Finding at start: the handover described the pilot's package (260 of 638), but this branch carries main's judges package, so the baseline was 258 of 638 (0.4044), 153 causes, level 1; iteration 11 is the first fix here.
 
-Level 2, contract (11 items): near-JSON the page asks to repair and mark repaired: single quotes, trailing comma, line comment, typographic quotes (each with its `repaired-marked-*` twin), then `contract/probability-above-one`, `-below-zero`, `-crossed-bounds`, then `contract/unescaped-quotes` if still red. Then level 3, consistency (`judgeRepeated`, chat client temperature). `pnpm driftbench validate judges --seeds 1..20 --hidden --items` lists everything.
+Level 2, contract (9 items): near-JSON the page asks to repair and mark repaired: trailing comma, line comment, typographic quotes (each with its `repaired-marked-*` twin), then `contract/probability-above-one`, `-below-zero`, `-crossed-bounds`, then `contract/unescaped-quotes` if still red. Then level 3, consistency (`judgeRepeated`, chat client temperature). `pnpm driftbench validate judges --seeds 1..20 --hidden --items` lists everything.
 
 ## Hypotheses tried
 
 Iteration 11 (cause: outcome with capitals): `recaseOutcome` in packages/judges/src/contract.ts reads "Pass", "FAIL", " Inconclusive " after the strict parse fails, and sets `repaired: true`. Test: packages/judges/test/contract.test.ts "near-JSON: the outcome written with capitals". Bank 258 -> 260, causes 153 -> 152. Nothing rejected.
 Iteration 12 (cause: score in quotes): `recaseOutcome` (now also coercing a quoted finite number). Test: "near-JSON: the score written as a number in quotes". Bank 260 -> 262.
+Iteration 13 (cause: single quotes): `singleToDoubleQuotes` in the repair loop of `parseAnswerText`, and `extractObject` tracks the opening quote. Test: "near-JSON: an object written with single quotes". Bank 262 -> 264. The level stayed 1 for three iterations because level 2 needs all 48 contract items; the bank score rose each time, so the executor kept going (stop rule read as no progress).
 
 ## Next actions
 
-1. Near-JSON repair, one kind per iteration, same place (`parseAnswerText`): single quotes; trailing comma; `//` comment line; typographic quotes. Each marks `repaired: true`.
+1. Near-JSON repair, one kind per iteration, same place (`parseAnswerText` repair loop): trailing comma; `//` comment line; typographic quotes. Each marks `repaired: true`.
 2. `outcomeFromProbability`: inconclusive outside 0 to 1 or not finite; RangeError when failAt is not under passAt.
 3. `judgeRepeated(client, request, k)` and temperature 0 in the three chat clients.
 4. Every fix: one cause, its test in packages/judges/test, then `measure.ts --iteration N` (run from the repo root with `pnpm exec tsx`) and `validate judges --journal row.json`.
