@@ -40,7 +40,11 @@ describe('the shared criteria catalogue: relevancy and knowledge_retention', () 
   it('loads both criteria with no issue', async () => {
     const { criteria, issues } = await loadCriteria(DIR);
     expect(issues).toEqual([]);
-    expect(criteria.map((criterion) => criterion.def.name)).toEqual(['knowledge_retention', 'relevancy']);
+    expect(criteria.map((criterion) => criterion.def.name)).toEqual([
+      'conversation_completeness',
+      'knowledge_retention',
+      'relevancy',
+    ]);
   });
 
   it('has fixture pairs that the machine floor of each check already separates', async () => {
@@ -65,5 +69,17 @@ describe('the relevancy criterion judges a reply in other words', () => {
     expect(relevant.def.rubric).toContain('in any words');
     expect(relevant.def.pass).toContain('even when it does not repeat the question words');
     expect(relevant.def.fail).toContain('answers a different question');
+  });
+});
+
+describe('the shared criteria catalogue: conversation_completeness', () => {
+  it('has a passing and a failing transcript, and the failing one leaves a question unanswered', async () => {
+    const { criteria } = await loadCriteria(DIR);
+    const completeness = criteria.find((criterion) => criterion.def.name === 'conversation_completeness');
+    if (!completeness) throw new Error('the conversation_completeness criterion is missing');
+    expect(completeness.def.scope).toBe('conversation');
+    expect(completeness.fixtures?.pass?.transcript.length).toBeGreaterThan(0);
+    expect(completeness.fixtures?.fail?.transcript.length).toBeGreaterThan(0);
+    expect(completeness.def.fail).toContain('no answer or result');
   });
 });

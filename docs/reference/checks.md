@@ -228,7 +228,7 @@ Three checks read whether a reply fits the conversation rather than a pattern.
       - { fact: email, use: true }
 ```
 
-The two catalogue criteria each hold a fixture pair, a passing and a failing transcript, and the machine floor of each check already separates the pair. Verdicts on the Acme replies, a passing and a failing reply for each check:
+The shared catalogue holds three criteria, each with a fixture pair, a passing and a failing transcript. The machine floors of `relevancy` and `knowledge_retention` already separate their pairs. The pair of `conversation_completeness` is judge-only: no machine check reads whether every request was answered. Verdicts on the Acme replies, a passing and a failing reply for each check:
 
 ```
 similarity.0 pass: char-ngram-tfidf scored 0.79 against the reference, at least 0.50 expected: "Done. Your order is placed: Acme Fiber 1000 at 14 Harbor Roa..."
