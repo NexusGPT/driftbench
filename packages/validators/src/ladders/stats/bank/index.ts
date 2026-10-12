@@ -3,7 +3,10 @@ import { bankMeasure, type Item, type Measure } from '../../../ladder';
 import type { StatsImpl } from '../reference';
 import { analyticItems } from './analytic';
 import { degenerateItems } from './degenerate';
+import { designBoundItems, edgeItems } from './edges';
 import { attempt, BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, itemRng } from './item';
+import { productItems } from './product';
+import { rateItems } from './rates';
 import { referenceItems } from './reference';
 import { reproducibilityItems } from './reproducibility';
 import { roadmapItems } from './roadmap';
@@ -54,7 +57,11 @@ export function statsBank(root: string): BankItem[] {
     ...degenerateItems(),
     ...reproducibilityItems(),
     ...analyticItems(),
+    ...edgeItems(root),
+    ...designBoundItems(),
+    ...productItems(),
     ...simulationItems(),
+    ...rateItems(),
     ...scaleItems(),
     ...stabilityItems(),
     ...roadmapItems(root),
@@ -63,11 +70,11 @@ export function statsBank(root: string): BankItem[] {
   return (
     items
       // After the need check (validators/stats/NEEDS.md) a handful of roadmap methods remain: their cases and
-      // generated items form one family, so no family falls under the minimum of 20.
+      // generated items form one family. The planned capabilities share the level and keep their own family.
       .map((item) => ({
         ...item,
         cause: causeOf(item),
-        ...(item.level === 'roadmap' ? { family: 'roadmap' } : {}),
+        ...(item.level === 'roadmap' && item.id.startsWith('roadmap') ? { family: 'roadmap' } : {}),
       }))
       .sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number))
   );

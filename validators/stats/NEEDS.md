@@ -176,11 +176,64 @@ Result: 7 of 162 methods kept, 155 quarantined.
 | `winsorizedMean` | 1 and 2 | roadmap-robust | no docs page, design section or command names it or would call it; quarantined until one does |
 | `zeroFailureBayesN` | 3 and 4 | roadmap-sequential | zeroFailureBound (documented) answers the zero-failure question; no page asks for a Bayesian version |
 
+## Built back on needs: batch 5
+
+Rule (the lead, 2026-10-12): build the bank back on real needs only. Batch 5 adds 80 items, each naming the docs page or command it serves. No item tests a method no page needs, and no item tests a printout that only passes a library value through (the CI gate's `compareArms`, the McNemar and Benjamini-Hochberg columns of `driftbench compare`, the kappa of `driftbench judges calibrate`): the library items already cover those.
+
+### Planned capabilities (family `product`, level `roadmap`, tier 5)
+
+| Items | Need | Contract the items state | At iteration 0 |
+|---|---|---|---|
+| `planned.plan-mde.*` (4), `planned.plan-cli.mde` | docs/concepts/statistics.md, "Before a campaign": "`campaign plan` uses the runner's own formula today, with runs counted as independent; using `mde` with a measured `rho` there is planned, phase 4" | the plan's effect is `mde({ n: specs, repeats, baselineRate })` of @driftbench/stats, null when no drop is detectable; the CLI prints it | fail: 21.7 points printed for the 6 Acme specs with 5 repeats, where `mde` gives 30.9; one spec prints 198.1 points, where `mde` gives null |
+| `planned.plan-rho.*` (3), `planned.plan-cli.rho` | the same line | `PlanOptions.rho` and `campaign plan --rho`, passed to `mde`; each line carries rho and the design effect; a rho outside [0, 1] throws | fail: no such option |
+| `planned.estate-session.*` (4) | docs/estate.md, section 7, "Not built yet": "The session as the unit (one cluster), with the design effect from the measured correlation of the variance pilot" | `sessionRate(runs, { rho })` of @driftbench/estate: design effect `1 + (m - 1) rho` with m the mean runs per session, Wilson on the effective runs as the pilot prints its pass rate (docs/generating.md) | fail: not exported |
+| `planned.early-stop.stops`, `planned.early-stop.keeps` | docs/concepts/run-modes.md, "Around the modes": "Stopping a spec early when its first two free-running repeats both fail a gating machine check is planned" | `CampaignRunOptions.earlyStop`: after F repeats 0 and 1 both fail a gating machine check, the later repeats are `stopped` with an `earlyStop` marker and never run; a spec passing either repeat runs them all | `stops` fails; `keeps` passes (it guards against stopping too much) |
+
+### Depth on the documented methods
+
+Family `edge-accuracy` (level `analytic`, tier 4): 48 cases of `packages/validators/fixtures/stats/edges.json`, written by `make_edges.py` from scipy, exact rationals or 60-digit decimals, never from the package. NaN and infinite inputs stay in the degenerate level (72 items).
+
+| Function | Edge cases | Need | At iteration 0 |
+|---|---|---|---|
+| `wilson` | n 1 all fail, n 1 all pass, all fail at 1e6, all pass at 1e9, one pass in 1e9 | every rate of `driftbench report` carries a Wilson interval | pass |
+| `clopperPearson` | n 1 both ways, one pass in 1e6, all pass at 1e5, alpha 0.001 | the exact interval of docs/concepts/statistics.md | pass |
+| `zeroFailureBound` | p 1e-6 and 1e-9 | the runs needed to claim a failure rate below p | p 1e-9 fails: 2995732357 for 2995732273 (`log(1 - p)` loses digits; `log1p` keeps them) |
+| `passK`, `passAtK` | n 1e5 with k 50 and 1000, all pass with k = n, fewer passes than k, all fail | pass^k and pass@k per spec line of the report | pass |
+| `mcnemar` | no discordant pair, 2 million discordant pairs, all discordant one way | the p-values of `driftbench compare` | pass |
+| `wilcoxonSignedRank` | ties with zero differences, n 1, every difference the same size, n 60 with ties | the drift-count test of `driftbench compare` | pass |
+| `ksTest` | ties across samples, unequal sizes, one value each, one against eight | the KS detector of `driftbench monitor` (docs/traces.md) | pass |
+| `benjaminiHochberg` | tied p-values, p 0 and 1, one hypothesis, none rejected | `driftbench compare` and the pilot's wording test | pass |
+| `cohenKappa` | linear and quadratic weights with an unused ordered category, raters who never agree | `driftbench judges calibrate` (docs/concepts/judges.md) | pass |
+| `krippendorffAlpha` | missing ratings at the four levels, ratio level with zeros | judge agreement (docs/concepts/judges.md) | pass |
+| `mde` | n 1, a baseline of 1 and of 0, rho 1, n 1e7 | the minimum detectable effect `campaign plan` prints | the baselines of 0 and 1 fail: `mde` throws, where the documented equation gives an effect at 1 and null at 0; a pilot where every run passes has a baseline of 1 |
+
+Items `edge.rho-bound.*` (3, the same family): `designEffect`, `effectiveSampleSize` and `mde` with rho below `-1 / (m - 1)` must throw a RangeError. Need: docs/concepts/statistics.md, the design effect `1 + (m - 1) rho`; docs/generating.md, the pilot's design effect. At iteration 0 all 3 fail: `designEffect(10, -0.5)` returns -3.5, `effectiveSampleSize(100, 10, -0.2)` returns -125, and `mde` returns an effect near 0 on a negative effective sample.
+
+### Error rates at the documented level
+
+Bars are the documented level with three Monte Carlo standard errors of slack, never a measured value.
+
+| Items | Family, tier | Truth planted | Need | At iteration 0 |
+|---|---|---|---|---|
+| `simulation.newcombe.n30`, `.n100` | coverage-simulation, 4 | paired pass flags with a known baseline minus candidate rate, 2000 draws | `driftbench ci` and `compare` print Newcombe's interval | pass |
+| `simulation.non-inferiority.size-n100` | coverage-simulation, 4 | a true regression equal to the margin; at most 2.5 percent declared non-inferior | the parity verdict (docs/concepts/statistics.md) | pass |
+| `simulation.mcnemar.size-chi-square`, `simulation.wilcoxon.size-*` (2), `simulation.ks.size-*` (2) | coverage-simulation, 4 | true nulls, with ties where the product meets them (drift counts, rounded latencies) | `driftbench compare` and `driftbench monitor` | pass |
+| `simulation.benjamini-hochberg.fdr` | coverage-simulation, 4 | 20 independent tests, 12 true nulls, q 0.1 | `driftbench compare`; the pilot's wording test at a false discovery rate | pass |
+| `simulation.report-run-pass.s6x5`, `.s20x3` | product, 5 | 6 specs of 5 repeats and 20 of 3, rho 0.3 within a spec, the population pass rate known | docs/concepts/statistics.md, "reports every rate with an interval", one conversation or task being one cluster; the run pass rate of each mode in `driftbench report` | fail: about 0.82 and 0.92 of the 95 percent intervals hold the rate (bars 0.929 and 0.940); the percentile bootstrap over 6 or 20 specs is too narrow |
+
+### Printouts the report computes beside the library (family `product`, level `analytic`, tier 4)
+
+| Item | Need | At iteration 0 |
+|---|---|---|
+| `agree.report.pass-k-bounds` | pass^k and pass@k per line of `driftbench report`, the Wilson bounds raised the same way | pass |
+| `agree.report.all-pass-clusters` | a mode whose runs all pass prints the Wilson interval over its specs, each counted once | pass |
+| `agree.report.noise-floor` | the spread view's noise floor and repeats for 5 points (docs/generating.md) agree with `repeatsForFloor` | pass |
+
 ## What leaves the audited bank
 
 The stats-v2 audit judges the bank of 1326 items (before batches 3 and 4). Of it, 793 items of 98 methods leave: every roadmap method of batches 1 and 2 except `kishEffectiveSize`, `weightedMean` and `stratifiedMean`. 533 items remain, and the four kept methods of batches 3 and 4 add 31: the bank is 564 items.
 
-## Effect on the hardness measurement
+## Effect on the hardness measurement, after the quarantine
 
 The rows of `bank-scores.jsonl` and the journal drop the quarantined items; every remaining item keeps its recorded verdict. `driftbench validate stats --hardness`:
 
@@ -198,3 +251,19 @@ Audit: validators/stats/audit.md is absent.
 ```
 
 Without the unneeded roadmap, the stats bank does not meet the hardness contract. The gate fails on the forecast (20.67, under 100), the score after the pilot (0.8351, above 0.4), the distinct causes (28, under 100) and the bank minimum (no tier 5 item). Meeting it honestly needs items on capabilities the product documents, written as items before they are fixed: for example, the planned uses that `docs/concepts/statistics.md` and `docs/estate.md` list as not built (mde with a measured rho in `campaign plan`, the session as the unit in the estate plan), and the planned early stop of `docs/concepts/run-modes.md`.
+
+## Effect of batch 5
+
+The 80 items ran in isolated children on seeds 1 to 20 and the hidden seed: 22 fail on every seed and 58 pass on every seed. The verdicts are the same at every recorded row: the ten pilot commits change only the input validation of `packages/stats` (non-finite values, bad options), and no batch 5 item passes such an input. The rows of `bank-scores.jsonl` and the journal carry them. `driftbench validate stats --hardness`:
+
+```
+Score at iteration 0: 0.7516 (484 of 644).
+Score after the pilot: 0.8214 (529 of 644, iteration 10; 10 of 10 pilot iterations).
+Items fixed per iteration: 4.5 (mean over the pilot).
+Forecast: 25.56 iterations to 100 percent (115 failing / 4.5).
+Distinct failing causes after the pilot: 37 (0 failing items name no cause and count as their own).
+Gate: NOT MET: the forecast 25.56 is under 100; the score after the pilot 0.8214 is above 0.4; 37 distinct failing causes after the pilot, under 100; audit.md is absent.
+Bank minimum at merge (12.1): holds.
+```
+
+Batch 5 adds 9 distinct failing causes, each a real gap: the plan's own MDE formula, the missing measured rho in the plan and its CLI flag, the estate session as the unit, the early stop, the report's run pass interval at few specs, `designEffect` below its bound, `mde` at a baseline of 0 or 1, and `zeroFailureBound` at a tiny p. The bank minimum now holds: 644 items, no family under 20, tiers 1 to 5. The hardness gate does not: on needs alone the product has about 37 causes of failure, not 100.

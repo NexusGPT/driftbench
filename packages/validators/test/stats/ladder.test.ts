@@ -18,9 +18,9 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
     for (const item of bank) families.set(item.family, (families.get(item.family) ?? 0) + 1);
     const small = [...families].filter(([, count]) => count < 20);
     expect(small).toEqual([]);
-    // After the need check (validators/stats/NEEDS.md) the tier 5 items were all roadmap methods without a
-    // product need: the bank minimum of section 12.1 is not met until tier 5 items with a need are written.
-    expect(new Set(bank.map((item) => item.tier))).toEqual(new Set([1, 2, 3, 4]));
+    // Tier 5 holds the planned capabilities the docs name and the report's intervals at the campaign's cluster
+    // count (validators/stats/NEEDS.md).
+    expect(new Set(bank.map((item) => item.tier))).toEqual(new Set([1, 2, 3, 4, 5]));
     expect(new Set(bank.map((item) => item.level))).toEqual(new Set(BANK_LEVELS));
     for (const item of bank) expect(item.component).toMatch(/^packages\/[a-z]+\/src/);
   });
