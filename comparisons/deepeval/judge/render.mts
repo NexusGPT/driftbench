@@ -8,11 +8,13 @@ import { buildPrompt } from '../../../packages/judges/src/prompt.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '../../..');
-const yaml = createRequire(join(root, 'packages/core/package.json'))('yaml') as { parse: (s: string) => any };
+const yaml = createRequire(join(root, 'packages/core/package.json'))('yaml') as {
+  parse: (s: string) => { criterion: unknown };
+};
 const DS = join(here, '..', 'datasets');
 const crit = (f: string, dir = 'examples/criteria') =>
   yaml.parse(readFileSync(join(root, dir, f), 'utf8')).criterion;
-const ds = (n: string) => JSON.parse(readFileSync(join(DS, n + '.json'), 'utf8'));
+const ds = (n: string) => JSON.parse(readFileSync(join(DS, `${n}.json`), 'utf8'));
 const ASK = 'Hello, what can you help me with?';
 const CONTEXTS = [
   'Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, at $60 a month.',
@@ -22,7 +24,13 @@ const CONTEXTS = [
   'The lead reference is LEAD-10C86C.',
 ];
 const out: { id: string; set: string; system: string; user: string }[] = [];
-const push = (set: string, id: string, criterion: any, transcript: any[], extra: any = {}) => {
+const push = (
+  set: string,
+  id: string,
+  criterion: unknown,
+  transcript: unknown[],
+  extra: Record<string, unknown> = {},
+) => {
   const p = buildPrompt({ criterion, transcript, ...extra } as never);
   out.push({ id, set, system: p.system, user: p.user });
 };
@@ -39,12 +47,12 @@ for (const r of ds('relevancy-hard'))
   ]);
 const cV = crit('relevancy-vague.yaml', 'comparisons/deepeval/criteria');
 for (const r of ds('relevancy-hard2'))
-  push('relevancy-hard2', 'p2-' + r.id, cR, [
+  push('relevancy-hard2', `p2-${r.id}`, cR, [
     { role: 'user', text: r.ask },
     { role: 'agent', text: r.reply },
   ]);
 for (const r of ds('relevancy-hard2'))
-  push('relevancy-hard2-vague', 'vague-' + r.id, cV, [
+  push('relevancy-hard2-vague', `vague-${r.id}`, cV, [
     { role: 'user', text: r.ask },
     { role: 'agent', text: r.reply },
   ]);
@@ -60,7 +68,7 @@ for (const r of ds('completeness'))
     'completeness',
     r.id,
     cC,
-    r.turns.flatMap((x: any) => [
+    r.turns.flatMap((x: { ask: string; reply: string }) => [
       { role: 'user', text: x.ask },
       { role: 'agent', text: x.reply },
     ]),
@@ -71,7 +79,7 @@ for (const r of ds('task'))
     'task',
     r.id,
     cD,
-    r.turns.flatMap((x: any) => [
+    r.turns.flatMap((x: { ask: string; reply: string }) => [
       { role: 'user', text: x.ask },
       { role: 'agent', text: x.reply },
     ]),
