@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { mkdtemp, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -22,6 +23,15 @@ if os.fork() > 0:
 null = os.open(os.devnull, os.O_RDWR)
 for fd in (0, 1, 2):
     os.dup2(null, fd)
+# A trace beside the script: that it started, and which signal ended it, for a failure to read.
+trace = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0] if sys.argv[0] != '-c' else '.')), 'trace.log')
+def note(text):
+    with open(trace, 'a') as out:
+        out.write(text + '\\n')
+import signal
+for number in (signal.SIGHUP, signal.SIGTERM, signal.SIGINT):
+    signal.signal(number, lambda got, frame: (note('signal %d' % got), os._exit(0)))
+note('started %d in %s' % (os.getpid(), os.getcwd()))
 time.sleep(600)
 `;
 
@@ -66,6 +76,14 @@ describe('processes a run leaves behind', () => {
       )
         .split('\n')
         .filter((line) => line.includes('python'))
+        .join(' | ')}; traces: ${['trace.log', 'sub/trace.log']
+        .map((name) => {
+          try {
+            return readFileSync(join(box.root, name), 'utf8').trim();
+          } catch {
+            return `${name} missing`;
+          }
+        })
         .join(' | ')}`;
     expect(started.exitCode, context()).toBe(0);
     await until(() => alive(byPath).length > 0 && alive(byPlace).length > 0);
