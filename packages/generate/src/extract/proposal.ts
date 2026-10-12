@@ -412,6 +412,7 @@ export const ProposalRelation = z
     ReplyLanguageRelation,
     ToolOrderRelation,
     RouteRelation,
+    ReplyTextRelation,
   ])
   .describe(
     'A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language.',
@@ -427,6 +428,7 @@ export const RELATION_KINDS = [
   'reply_language',
   'tool_order',
   'route',
+  'reply_text',
 ] as const;
 export type RelationKind = (typeof RELATION_KINDS)[number];
 

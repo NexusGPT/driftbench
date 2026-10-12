@@ -71,7 +71,7 @@ Rules:
     {"dimension": "<dimension id>", "value": "<value id>", "text": "<one user message>", "lang": "<language tag such as en>", "when": {"<dimension id>": ["<value id>"]}, "binds": {"<slot>": "<value the text states>"}, "source": "<path, only when the text is copied from a source>", "quote": "<the copied text, only with source>"}
   ],
   "relations": [
-    {"kind": "<path, uses_tool, states, task_family, binds, recovery, reply_language, tool_order or route>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
+    {"kind": "<path, uses_tool, states, task_family, binds, recovery, reply_language, tool_order, route or reply_text>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
   ]
 }
 On a rule, "polarity" says whether the agent must do it or must not do it; leave it out on every other value. On a persona or data value, "required" is true when the source says every test plan must include it; leave it out otherwise. On a kind of customer or other persona value, "weight" is the share of users it stands for, between 0 and 1; leave it out otherwise. On a rule, "priority" is "first" when the source says the rule comes before every other rule; leave it out otherwise. On a rule, "within" gives the minutes within which the action happens; leave it out otherwise. On a rule, "limit" is the most times the action may happen in one conversation; leave it out otherwise. On a rule, "unless" lists the cell values the rule does not hold in ("except on sms"); leave it out otherwise. On a rule, "when" lists the cell values the rule applies in, when the source limits it (a channel, a kind of customer, a stage); leave it out for a rule that holds everywhere. Give a dimension "role" only when a source declares it: "axis" when it says the values make a different kind of conversation, "detail" when it says they can show up inside any conversation; otherwise leave it out. A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen. A phrase may hold {slot} where a value the cell binds goes, such as "It's {email}"; "when" and "binds" are optional. Relations come from the relations section only.`;
@@ -267,6 +267,7 @@ export const AnswerRelation = z.discriminatedUnion('kind', [
   ReplyLanguageRelation.omit(strip).extend(answerEvidence),
   ToolOrderRelation.omit(strip).extend(answerEvidence),
   RouteRelation.omit(strip).extend(answerEvidence),
+  ReplyTextRelation.omit(strip).extend(answerEvidence),
 ]);
 export type AnswerRelation = z.infer<typeof AnswerRelation>;
 

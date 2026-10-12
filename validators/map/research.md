@@ -831,3 +831,14 @@ Sources read:
 What others do: A relation kind not in the proposal schema is refused.
 
 What to try, and why: the relation kind reply_text
+
+## Iteration 72
+
+Question: packages/generate/src/extract/proposal.ts: the reply_text relation was defined but not added to the relation union, so it was still refused; contract:relation-reply-text (semantics.reply-text) proves it. Red proof: the reply_text test failed on the committed iteration 71.
+
+Sources read:
+* docs/generating.md section Planned: more relations (the exact reply text a rule fixes)
+
+What others do: A relation kind outside the union is refused.
+
+What to try, and why: the relation kind reply_text, completed (iteration 71 left it out of the union)
