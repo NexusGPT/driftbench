@@ -75,9 +75,46 @@ function instructs(sentence: string, words: readonly string[]): boolean {
   const has = (phrase: string) => spoken.includes(` ${phrase} `);
   return (
     COMMANDS.some((command) => command.test(sentence)) ||
+    LANGUAGE_WORDS.some((l) => l.command.some((p) => occurs(sentence.toLowerCase(), p))) ||
     OBLIGATIONS.some(has) ||
     ADDRESSED.test(sentence.trim())
   );
+}
+
+/**
+ * The same three kinds of word in other languages: a judge word, a verdict word and a command. A phrase of
+ * plain letters must match a whole word; a phrase written in another script matches as a part of a word, since
+ * such text has no spaces to split on.
+ */
+const LANGUAGE_WORDS: readonly {
+  judge: readonly string[];
+  verdict: readonly string[];
+  command: readonly string[];
+}[] = [
+  { judge: ['bewertungskriterien', 'bewertung'], verdict: ['bestanden'], command: ['ignoriere', 'antworte'] },
+  { judge: ['rúbrica', 'evaluación'], verdict: ['aprobado'], command: ['ignora', 'responde'] },
+  { judge: ['évaluation', 'grille'], verdict: [], command: ['réponds'] },
+  { judge: ['griglia', 'valutazione'], verdict: ['superato'], command: ['ignora', 'rispondi'] },
+  { judge: ['rubrica', 'avaliação'], verdict: ['aprovado'], command: ['responda'] },
+  { judge: ['beoordelingscriteria', 'beoordeling'], verdict: ['geslaagd'], command: ['negeer', 'antwoord'] },
+  { judge: ['kryteria', 'oceny'], verdict: ['zaliczone'], command: ['zignoruj', 'odpowiedz'] },
+  { judge: ['ölçüt', 'değerlendirme'], verdict: ['geçti'], command: ['yok say', 'yanıtını ver'] },
+  { judge: ['критери', 'оценки'], verdict: ['пройдено'], command: ['игнорируй', 'ответь'] },
+  { judge: ['评分标准', '评分'], verdict: ['通过'], command: ['忽略', '直接回答'] },
+  { judge: ['評価基準', '評価'], verdict: ['合格'], command: ['無視', '答えて'] },
+  { judge: ['평가 기준', '평가'], verdict: ['통과'], command: ['무시', '답하세요'] },
+  { judge: ['معايير', 'التقييم'], verdict: ['ناجح'], command: ['تجاهل', 'أجب'] },
+  { judge: ['मानदंड', 'मूल्यांकन'], verdict: ['पास'], command: ['अनदेखा', 'उत्तर'] },
+  { judge: ['bedömningskriterierna', 'bedömning'], verdict: ['godkänt'], command: ['ignorera', 'svara'] },
+  { judge: ['rubrik', 'penilaian'], verdict: ['lulus'], command: ['abaikan', 'jawab'] },
+];
+
+/** True when a phrase occurs in the lowered text: on word boundaries for plain letters, as a part of a word otherwise. */
+function occurs(lower: string, phrase: string): boolean {
+  if (/^[\x00-\x7F]+$/.test(phrase)) {
+    return new RegExp(`(?<!\\p{L}|\\p{M})${phrase}(?!\\p{L}|\\p{M})`, 'iu').test(lower);
+  }
+  return lower.includes(phrase);
 }
 
 /** True when the sentence holds a judge word and a verdict word, each as a whole word or phrase, and instructs. */
@@ -85,8 +122,14 @@ function instructsJudge(sentence: string): boolean {
   const words = sentence.toLowerCase().match(/\p{L}+/gu) ?? [];
   const spoken = ` ${words.join(' ')} `;
   const has = (phrase: string) => spoken.includes(` ${phrase} `);
-  if (!JUDGE_WORDS.some(has)) return false;
-  if (!(VERDICT_WORDS.some(has) || VERDICT_NUMBERS.test(sentence))) return false;
+  const lower = sentence.toLowerCase();
+  const judge = JUDGE_WORDS.some(has) || LANGUAGE_WORDS.some((l) => l.judge.some((p) => occurs(lower, p)));
+  if (!judge) return false;
+  const verdict =
+    VERDICT_WORDS.some(has) ||
+    VERDICT_NUMBERS.test(sentence) ||
+    LANGUAGE_WORDS.some((l) => l.verdict.some((p) => occurs(lower, p)));
+  if (!verdict) return false;
   return instructs(sentence, words);
 }
 
