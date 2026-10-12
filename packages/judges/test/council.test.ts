@@ -451,3 +451,21 @@ describe('configuration is refused before any call', () => {
     refused({ ...base, assignment: [row, row] }, /two assignment rows/);
   });
 });
+
+describe('majority by family', () => {
+  const v = (judge: string, outcome: 'pass' | 'fail' | 'inconclusive') => ({ judge, outcome });
+  it('collapses the votes of one family into one vote', () => {
+    const families = { j1: 'a', j2: 'a', j3: 'b' };
+    expect(majority([v('j1', 'fail'), v('j2', 'fail'), v('j3', 'pass')], { families })).toBe('split');
+    expect(majority([v('j1', 'fail'), v('j2', 'fail'), v('j3', 'fail')], { families })).toBe('fail');
+  });
+  it('turns a split inside a family into an inconclusive family vote', () => {
+    const families = { j1: 'a', j2: 'a', j3: 'b', j4: 'c' };
+    expect(majority([v('j1', 'pass'), v('j2', 'fail'), v('j3', 'pass'), v('j4', 'fail')], { families })).toBe(
+      'split',
+    );
+    expect(majority([v('j1', 'pass'), v('j2', 'fail'), v('j3', 'pass'), v('j4', 'pass')], { families })).toBe(
+      'pass',
+    );
+  });
+});

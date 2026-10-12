@@ -358,8 +358,22 @@ async function runRound(
  */
 export function majority(
   votes: readonly Vote[],
-  options: { weights?: Record<string, number> } = {},
+  options: { weights?: Record<string, number>; families?: Record<string, string> } = {},
 ): RoundOutcome {
+  const { families } = options;
+  if (families !== undefined) {
+    // Votes of one family collapse into one family vote (its own majority, inconclusive on a split), each weighing 1.
+    const groups = new Map<string, Vote[]>();
+    for (const vote of votes) {
+      const key = families[vote.judge] ?? vote.judge;
+      groups.set(key, [...(groups.get(key) ?? []), vote]);
+    }
+    const collapsed = [...groups].map(([judge, own]): Vote => {
+      const outcome = majority(own);
+      return { judge, outcome: outcome === 'split' ? 'inconclusive' : outcome };
+    });
+    return majority(collapsed);
+  }
   for (const weight of Object.values(options.weights ?? {})) {
     if (!Number.isFinite(weight) || weight < 0)
       throw new RangeError(`a weight must be a finite number, at least 0`);
