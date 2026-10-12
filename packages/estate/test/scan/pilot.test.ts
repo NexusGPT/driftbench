@@ -107,3 +107,21 @@ describe('code fences (executor pilot)', () => {
     expect(atoms.filter((atom) => ['gate', 'reference', 'hazard'].includes(atom.kind))).toEqual([]);
   });
 });
+
+describe('registry columns (executor pilot)', () => {
+  it('reads the rules of a guard from a Gates, Covers, Enforced rules or Rule ids column, and from bold headers', async () => {
+    for (const header of ['Gates', 'Covers', 'Enforced rules', 'Rule ids', '**Enforces**']) {
+      const root = await estate({
+        'CLAUDE.md': RULES,
+        '.claude/settings.json': SETTINGS,
+        '.claude/hooks/shell.py': 'import sys\nsys.exit(0)\n',
+        '.claude/hooks/CHECK-REGISTRY.md': `| **Guard** | ${header} |\n|---|---|\n| shell.py | R1 |\n`,
+      });
+      const raw = await new ClaudeCodeReader().read(root);
+      expect(
+        raw.registry.map((row) => [row.guard, row.enforces]),
+        header,
+      ).toEqual([['shell.py', [{ id: 'R1' }]]]);
+    }
+  });
+});
