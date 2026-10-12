@@ -137,3 +137,22 @@ describe('near-JSON: a line that is only a comment', () => {
   });
 });
 
+describe('near-JSON: typographic double quotes', () => {
+  it('reads curly quotes around keys and strings and marks the result repaired', () => {
+    const result = parseAnswerText('{“outcome”:“pass”,“score”:0.76,“reasoning”:“ok”}');
+    expect(result.answer).toEqual({ outcome: 'pass', score: 0.76, reasoning: 'ok' });
+    expect(result.repaired).toBe(true);
+  });
+
+  it('keeps a straight-quoted string with curly quotes inside it as it is', () => {
+    const result = parseAnswerText('{"outcome":"pass","reasoning":"the reply said “yes”"}');
+    expect(result.answer.reasoning).toBe('the reply said “yes”');
+    expect(result.repaired).toBeUndefined();
+  });
+
+  it('escapes a straight quote inside a curly-quoted string', () => {
+    const result = parseAnswerText('{“outcome”:“pass”,“reasoning”:“a "b" c”}');
+    expect(result.answer.reasoning).toBe('a "b" c');
+  });
+});
+

@@ -97,7 +97,7 @@ export function parseAnswerText(raw: string): JudgeResult {
   } catch (cause) {
     // One strict repair: escape the double quotes inside string values, then read it again. A repaired
     // answer still meets the whole contract or stays unparsed.
-    for (const repair of [repairAnswerText, singleToDoubleQuotes, dropTrailingComma, dropCommentLines]) {
+    for (const repair of [repairAnswerText, singleToDoubleQuotes, dropTrailingComma, dropCommentLines, straightenCurlyQuotes]) {
       try {
         const repaired = parseAnswerValue(JSON.parse(repair(candidate)), raw);
         if (!repaired.unparsed) return { ...repaired, repaired: true };
@@ -209,6 +209,38 @@ export function singleToDoubleQuotes(text: string): string {
       quote = undefined;
       out += '"';
     } else out += quote === "'" && ch === '"' ? '\\"' : ch;
+  }
+  return out;
+}
+
+/**
+ * Near-JSON written with typographic double quotes: a string opened by a curly quote ends at the next curly quote, and
+ * both become straight quotes. A straight quote inside it is escaped. Strings opened with a straight quote are copied
+ * as they are, curly quotes inside them included.
+ */
+export function straightenCurlyQuotes(text: string): string {
+  const curly = (ch: string) => ch === '\u201c' || ch === '\u201d';
+  let out = '';
+  let mode: 'straight' | 'curly' | undefined;
+  let escaped = false;
+  for (const ch of text) {
+    if (mode === undefined) {
+      if (ch === '"') mode = 'straight';
+      else if (curly(ch)) mode = 'curly';
+      out += ch === '"' || curly(ch) ? '"' : ch;
+      continue;
+    }
+    if (mode === 'straight') {
+      if (escaped) escaped = false;
+      else if (ch === '\\') escaped = true;
+      else if (ch === '"') mode = undefined;
+      out += ch;
+      continue;
+    }
+    if (curly(ch)) {
+      mode = undefined;
+      out += '"';
+    } else out += ch === '"' ? '\\"' : ch;
   }
   return out;
 }
