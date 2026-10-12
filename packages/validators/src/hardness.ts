@@ -67,6 +67,10 @@ export type Hardness = {
   gate: { holds: boolean; reasons: string[] };
   /** The score ceiling after the pilot: HARDNESS_MAX_SCORE, or the lowered bar of validators/<component>/GATE.md. */
   maxScore: number;
+  /** The forecast floor: HARDNESS_MIN_FORECAST, or the lowered one of GATE.md. */
+  minForecast: number;
+  /** The distinct-cause floor: HARDNESS_MIN_CAUSES, or the lowered one of GATE.md. */
+  minCauses: number;
   /** True when GATE.md lowered the bar for this validator. */
   lowered: boolean;
   bankMinimum: { holds: boolean; problems: string[] };
@@ -118,12 +122,35 @@ function measurePilot(
  */
 /**
  * The lowered bar of a validator, from its GATE.md: the line `Max score after the pilot: <n>`. Only a value above
- * HARDNESS_MAX_SCORE and under 0.5 is a lowered bar; anything else is ignored.
+ * HARDNESS_MAX_SCORE and under GATE_SCORE_LIMIT is a lowered bar; anything else is ignored.
  */
 export function parseGate(text: string): number | null {
   const match = /max score after the pilot:\s*([0-9.]+)/i.exec(text);
   const value = match ? Number(match[1]) : Number.NaN;
-  return value > HARDNESS_MAX_SCORE && value < 0.5 ? value : null;
+  return value > HARDNESS_MAX_SCORE && value < GATE_SCORE_LIMIT ? value : null;
+}
+
+/** The highest score after the pilot a GATE.md may set, exclusive: a bar a validator meets by being easy is no bar. */
+export const GATE_SCORE_LIMIT = 0.8;
+/** The lowest forecast and distinct-cause count a GATE.md may set, inclusive. */
+export const GATE_MIN_FORECAST_LIMIT = 50;
+export const GATE_MIN_CAUSES_LIMIT = 30;
+
+/**
+ * The lowered floors of a validator, from its GATE.md: the lines `Min forecast: <n>` and `Min distinct causes: <n>`.
+ * A value is taken only below the section 12.4 floor and at or above its limit (GATE_MIN_FORECAST_LIMIT,
+ * GATE_MIN_CAUSES_LIMIT); anything else is ignored and the 12.4 floor holds.
+ */
+export function parseGateFloors(text: string): { minForecast: number | null; minCauses: number | null } {
+  const read = (pattern: RegExp, floor: number, limit: number) => {
+    const match = pattern.exec(text);
+    const value = match ? Number(match[1]) : Number.NaN;
+    return value >= limit && value < floor ? value : null;
+  };
+  return {
+    minForecast: read(/min forecast:\s*([0-9.]+)/i, HARDNESS_MIN_FORECAST, GATE_MIN_FORECAST_LIMIT),
+    minCauses: read(/min distinct causes:\s*([0-9]+)/i, HARDNESS_MIN_CAUSES, GATE_MIN_CAUSES_LIMIT),
+  };
 }
 
 export function measureHardness(
@@ -150,8 +177,14 @@ export function measureHardness(
   if (fixedPerIteration !== null && fixedPerIteration <= 0) {
     reasons.push(`${label} fixed nothing: the items are miswritten or the component lacks a foundation`);
   }
-  if (forecast !== null && forecast < HARDNESS_MIN_FORECAST) {
-    reasons.push(`the forecast ${round(forecast)} is under ${HARDNESS_MIN_FORECAST}: extend the bank (12.2)`);
+  const floors =
+    options.gate === undefined ? { minForecast: null, minCauses: null } : parseGateFloors(options.gate);
+  const minForecast = floors.minForecast ?? HARDNESS_MIN_FORECAST;
+  const minCauses = floors.minCauses ?? HARDNESS_MIN_CAUSES;
+  if (forecast !== null && forecast < minForecast) {
+    reasons.push(
+      `the forecast ${round(forecast)} is under ${minForecast}${floors.minForecast === null ? ': extend the bank (12.2)' : ' (the bar GATE.md lowers)'}`,
+    );
   }
   const lowered = options.gate === undefined ? null : parseGate(options.gate);
   const maxScore = lowered ?? HARDNESS_MAX_SCORE;
@@ -165,9 +198,9 @@ export function measureHardness(
       ? { distinct: endRow.failingCauses, withoutCause: endRow.failingWithoutCause ?? null }
       : null;
   if (endRow && !causes) reasons.push(`the last row of ${label} records no failingCauses`);
-  if (causes && causes.distinct < HARDNESS_MIN_CAUSES) {
+  if (causes && causes.distinct < minCauses) {
     reasons.push(
-      `${causes.distinct} distinct failing causes after ${label}, under ${HARDNESS_MIN_CAUSES}: extend the bank (12.2)`,
+      `${causes.distinct} distinct failing causes after ${label}, under ${minCauses}${floors.minCauses === null ? ': extend the bank (12.2)' : ' (the bar GATE.md lowers)'}`,
     );
   }
   if (!end) reasons.push('no pilot row yet');
@@ -205,7 +238,9 @@ export function measureHardness(
     flags,
     gate: { holds: reasons.length === 0, reasons },
     maxScore,
-    lowered: lowered !== null,
+    minForecast,
+    minCauses,
+    lowered: lowered !== null || floors.minForecast !== null || floors.minCauses !== null,
     bankMinimum: bankMinimum(latest),
     audit,
   };
@@ -330,7 +365,7 @@ export function formatHardness(component: string, h: Hardness): string {
           : ` (${h.causes.withoutCause} failing items name no cause and count as their own)`
       }.\n`;
   text += h.gate.holds
-    ? `Gate: HOLDS (forecast at least ${HARDNESS_MIN_FORECAST}, score after the pilot at most ${h.maxScore}${h.lowered ? ', lowered in GATE.md' : ''}, at least ${HARDNESS_MIN_CAUSES} distinct failing causes, all four audit checks pass).\n`
+    ? `Gate: HOLDS (forecast at least ${h.minForecast}, score after the pilot at most ${h.maxScore}, at least ${h.minCauses} distinct failing causes${h.lowered ? ', a bar lowered in GATE.md' : ''}, all four audit checks pass).\n`
     : `Gate: NOT MET: ${h.gate.reasons.join('; ')}.\n`;
   text += h.bankMinimum.holds
     ? 'Bank minimum at merge (12.1): holds.\n'
