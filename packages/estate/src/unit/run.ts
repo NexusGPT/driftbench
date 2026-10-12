@@ -41,6 +41,8 @@ export type UnitCaseResult = {
   outcome: UnitOutcome;
   expected?: UnitOutcome;
   inert?: boolean;
+  /** The outcome varied across the record runs: the case is reported, never compared. */
+  flaky?: boolean;
   pass: boolean;
   ms: number;
   detail: string;
@@ -165,7 +167,7 @@ async function runGuardTest(
     };
   }
   const timeoutMs = Math.round((guard.timeout ?? target.timeout ?? 60) * 1000);
-  const repeats = test.testType === 'guard_speed' ? 3 : record ? 2 : 1;
+  const repeats = test.testType === 'guard_speed' || record ? RECORD_RUNS : 1;
   const cases: UnitCaseResult[] = [];
   const recordedCases: GuardCase[] = [];
   for (const unitCase of test.cases) {
@@ -186,13 +188,18 @@ async function runGuardTest(
           ? { output: first.output }
           : {}),
       };
+      const flaky = varies(outcomes);
       const noEffect =
         stable.decision === 'allow' && stable.message === undefined && stable.output === undefined;
       const inert =
         (test.testType === 'guard_positive' || test.testType === 'guard_speed') && noEffect
           ? true
           : test.testType === 'guard_hostile' && stable.decision === 'allow';
-      recordedCases.push({ ...unitCase, expected: stable, ...(inert ? { inert: true } : {}) });
+      recordedCases.push({
+        ...unitCase,
+        expected: stable,
+        ...(flaky ? { flaky: true } : inert ? { inert: true } : {}),
+      });
       cases.push({
         case: unitCase.id,
         material: unitCase.material,
@@ -209,6 +216,18 @@ async function runGuardTest(
       continue;
     }
     const expected = unitCase.expected;
+    if (unitCase.flaky) {
+      cases.push({
+        case: unitCase.id,
+        material: unitCase.material,
+        outcome: first,
+        flaky: true,
+        pass: true,
+        ms,
+        detail: 'flaky on the original: not compared',
+      });
+      continue;
+    }
     if (unitCase.inert || expected === undefined) {
       cases.push({
         case: unitCase.id,
@@ -249,7 +268,7 @@ async function runGuardTest(
       recorded: { ...test, cases: recordedCases, recordedOn: test.mapHash },
     };
   }
-  const active = cases.filter((entry) => !entry.inert);
+  const active = cases.filter((entry) => !entry.inert && !entry.flaky);
   if (active.length === 0)
     return { ...base, status: 'inert', detail: 'no recorded case shows the guard at work', cases };
   const failed = active.filter((entry) => !entry.pass);
@@ -262,6 +281,15 @@ async function runGuardTest(
         : `${failed.length} of ${active.length} cases changed: ${failed.map((entry) => `${entry.case} ${entry.detail}`).join(' | ')}`,
     cases,
   };
+}
+
+/** Record runs per case: an outcome that varies across them marks the case flaky. */
+export const RECORD_RUNS = 3;
+
+/** True when the decision or the exit code differs between runs of one case. */
+function varies(outcomes: readonly UnitOutcome[]): boolean {
+  const first = outcomes[0];
+  return outcomes.some((other) => other.decision !== first?.decision || other.exitCode !== first?.exitCode);
 }
 
 /** How a recorded outcome and a new one differ, in words; empty when they agree. */
@@ -459,7 +487,8 @@ async function runRecordedScript(
   const recorded: GuardCase[] = [];
   for (const fixture of fixtures) {
     const runs: Exec[] = [];
-    for (let index = 0; index < (record ? 2 : 1); index++) runs.push(await runScript(path, fixture, runner));
+    for (let index = 0; index < (record ? RECORD_RUNS : 1); index++)
+      runs.push(await runScript(path, fixture, runner));
     const outcomes = runs.map(scriptOutcome);
     const first = outcomes[0] as UnitOutcome;
     const ms = Math.max(...runs.map((run) => run.ms));
@@ -474,7 +503,8 @@ async function runRecordedScript(
           ? { output: first.output }
           : {}),
       };
-      recorded.push({ ...fixture, expected: stable });
+      const flaky = varies(outcomes);
+      recorded.push({ ...fixture, expected: stable, ...(flaky ? { flaky: true } : {}) });
       cases.push({
         case: fixture.id,
         material: fixture.material,
@@ -486,6 +516,18 @@ async function runRecordedScript(
       continue;
     }
     const expected = fixture.expected;
+    if (fixture.flaky) {
+      cases.push({
+        case: fixture.id,
+        material: fixture.material,
+        outcome: first,
+        flaky: true,
+        pass: true,
+        ms,
+        detail: 'flaky on the original: not compared',
+      });
+      continue;
+    }
     if (expected === undefined) {
       cases.push({
         case: fixture.id,
@@ -518,13 +560,16 @@ async function runRecordedScript(
       recorded: { ...test, cases: recorded, recordedOn: test.mapHash },
     };
   }
-  const failed = cases.filter((entry) => !entry.pass);
+  const compared = cases.filter((entry) => !entry.flaky);
+  if (compared.length === 0)
+    return { ...base, status: 'inert', detail: 'every fixture is flaky on the original', cases };
+  const failed = compared.filter((entry) => !entry.pass);
   return {
     ...base,
     status: failed.length === 0 ? 'pass' : 'fail',
     detail:
       failed.length === 0
-        ? `${cases.length} of ${cases.length} fixtures as recorded`
+        ? `${compared.length} of ${compared.length} fixtures as recorded`
         : failed.map((entry) => `${entry.case}: ${entry.detail}`).join(' | '),
     cases,
   };

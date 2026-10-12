@@ -284,6 +284,78 @@ describe('a catalogue check tested through its host hook', () => {
   });
 });
 
+describe('a case whose outcome varies on the original', () => {
+  it('runs each case three times at record, marks a varying one flaky, and never fails it later', async () => {
+    // The guard and the script alternate their exit code through a counter in the run's own folder.
+    const flip = (code: string) =>
+      [
+        '#!/bin/sh',
+        'cat > /dev/null',
+        'n=0',
+        '[ -f "$TMPDIR/n" ] && n=$(cat "$TMPDIR/n")',
+        'n=$((n + 1))',
+        'echo "$n" > "$TMPDIR/n"',
+        code,
+        '',
+      ].join('\n');
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/settings.json': SETTINGS({
+        PreToolUse: [
+          {
+            matcher: 'Bash',
+            hooks: [{ type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.claude/hooks/flip.sh' }],
+          },
+        ],
+      }),
+      '.claude/hooks/flip.sh': flip('[ $((n % 2)) -eq 0 ] && { echo "blocked" >&2; exit 2; }; exit 0'),
+      '.claude/scripts/flip.sh': flip('exit $((n % 2))'),
+    });
+    const guardTest: UnitTest = {
+      id: 'unit.guard_negative.flip',
+      planRow: 'row',
+      testType: 'guard_negative',
+      atom: 'guard.settings.flip',
+      title: 'flip',
+      mapHash: 'x',
+      target: {
+        kind: 'guard',
+        name: 'flip.sh',
+        event: 'PreToolUse',
+        matcher: 'Bash',
+        command: '"$CLAUDE_PROJECT_DIR"/.claude/hooks/flip.sh',
+      },
+      cases: [
+        { id: 'case-01', material: 'ls', payload: { tool_name: 'Bash', tool_input: { command: 'ls' } } },
+      ],
+    };
+    const scriptTest: UnitTest = {
+      id: 'unit.script_fixture.flip',
+      planRow: 'row',
+      testType: 'script_fixture',
+      atom: 'script.flip',
+      title: 'flip',
+      mapHash: 'x',
+      target: { kind: 'script', path: '.claude/scripts/flip.sh' },
+      cases: [{ id: 'case-01', material: 'no argument', payload: { args: [] } }],
+    };
+    const recorded = await runUnitTests([guardTest, scriptTest], {
+      root,
+      reader: new ClaudeCodeReader(),
+      record: true,
+    });
+    const tests = recorded.results.map((result) => result.recorded as UnitTest);
+    expect(tests.map((test) => test.cases.map((entry) => entry.flaky ?? false))).toEqual([[true], [true]]);
+    const again = await runUnitTests(tests, { root, reader: new ClaudeCodeReader() });
+    expect(
+      again.results.map((result) => [result.status, result.cases[0]?.flaky, result.cases[0]?.pass]),
+    ).toEqual([
+      ['inert', true, true],
+      ['inert', true, true],
+    ]);
+  });
+});
+
 describe('the outcome the runtime reads from a guard', () => {
   it('reads exit 2, a JSON permission decision, a block decision, continue false, and other exits', () => {
     const run = (exitCode: number, stdout = '', stderr = '') =>

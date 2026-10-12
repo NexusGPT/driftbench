@@ -56,6 +56,8 @@ export const GuardCase = z.strictObject({
   expected: UnitOutcome.optional(),
   /** Set by --record: the case cannot show the guard at work (positive) or slips past it (hostile). */
   inert: z.boolean().optional(),
+  /** Recorded with an outcome that varied across the record runs: reported, never compared. */
+  flaky: z.boolean().optional(),
 });
 export type GuardCase = z.infer<typeof GuardCase>;
 

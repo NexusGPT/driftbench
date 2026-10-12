@@ -199,6 +199,12 @@ function report(
   const mark = { pass: '✓', fail: '✗', inert: '·', unrecorded: '?' } as const;
   const lines = results.map((result) => `${mark[result.status]} ${result.id}  ${result.detail}`);
   for (const note of notes) lines.push(`note: ${note}`);
+  const flaky = results.flatMap((result) => result.cases.filter((entry) => entry.flaky).map(() => result.id));
+  if (flaky.length > 0) {
+    lines.push(
+      `Flaky: ${flaky.length} cases in ${new Set(flaky).size} tests vary on the original; they are reported, never compared.`,
+    );
+  }
   const checks = results.filter((result) => result.exercised !== undefined);
   if (checks.length > 0) {
     const exercised = checks.filter((result) => result.exercised).length;
