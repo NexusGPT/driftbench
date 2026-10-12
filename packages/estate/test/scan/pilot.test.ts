@@ -170,3 +170,23 @@ describe('command wrappers (executor pilot)', () => {
     }
   });
 });
+
+describe('gate events (executor pilot)', () => {
+  it('reads a gate only before an act of the agent, not before a meal, a time, a feeling or a past event', async () => {
+    const atoms = await skillAtoms(
+      [
+        'Before editing a ticket: read `references/rules.md`.',
+        'Before every ticket edit, read `references/rules.md` again.',
+        'Before lunch: read nothing heavy, then rest.',
+        'Read `references/rules.md` before 9 in the morning if you can.',
+        'Do not panic until you have read the summary twice.',
+        'We read `references/rules.md` before the audit last year, and it was fine.',
+      ],
+      { '.claude/skills/tally/references/rules.md': '# Rules\n' },
+    );
+    expect(atoms.filter((atom) => atom.kind === 'gate').map((atom) => atom.fields?.trigger)).toEqual([
+      'editing a ticket',
+      'every ticket edit',
+    ]);
+  });
+});
