@@ -35,3 +35,25 @@ Sources: docs/validators.md section 12; docs/concepts/*.md, docs/reference/*.md,
 Finding: no. Iteration 0 passed 1244 of 1280 (0.9719) with 25 distinct failing causes. After ten one-cause fixes, 1265 (0.9883) with 15 causes; 2.1 items fixed per iteration (2.0 without the glob item correction; the two report corrections only undid what the label fix broke), forecast 7.1. Of 717 docs-claim items, 14 failed at iteration 0: the chain mostly does what its pages say. The failures are real defects: three loader checks, a torn store read, a status filter, digit-only hash prefixes, a detached child surviving the timeout, a compounding interval, a pass^k interval, a quadratic per-block cost in five places.
 
 What to try: the forecast is bounded by the number of real defects, not by the bank size. More causes need a breaker lane that has not read the runner (section 12.2, item 5), and the hidden seed rotation, which found the header-cut defect on its own.
+
+## 2026-10-12: unchanged level, remaining growing-history work
+
+Question: why does teacher-forced growth pass after avoiding eager prefix copies, while free-running and replay growth can still exceed the bound of 25?
+
+Sources: packages/core/src/spec/hash.ts (`sha256WithList`, `sha256OfJsonWithList`); packages/core/src/runner/cache.ts (`blockCacheKey`); packages/core/test/hash-list.test.ts (exact canonical digest parity); docs/adapters/index.md (history ownership and mutable callback compatibility).
+
+What was measured: the targeted seed-1 run passes teacher-forced growth, but free-running growth is 29.4 times and replay growth 31.2 times. A CPU profile of free-running work attributes 421 milliseconds of sampled wall time to native hash update calls and 162 to the lazy history copy. These are profile samples, not the bank's CPU measurements. The deterministic red-first hash test observes 802 native updates for an 800-message prefix, while confirming the digest matches the plain canonical JSON.
+
+What the existing implementation does: it retains a digest state only for an identical head. A block key changes its head with the Given hash and position, so the old messages each go through another native update. The canonical text cache already permits reading the immutable bodies once.
+
+What to try: for a new head, feed the cached canonical list text into the hash in bulk; retain the incremental update for a head that can extend its previous prefix. This is a different mechanism from lazy message copies. The existing exact-digest tests remain mandatory, so cache keys and replay semantics stay unchanged.
+
+## 2026-10-13: PR 74 Node 24 selection growth
+
+Question: why can the unchanged 500-to-5000 sparse-pool check exceed its CPU growth limit of 40?
+
+Sources: packages/generate/src/select/cover.ts; packages/generate/test/select/cover-scale.test.ts; docs/reference/cli.md (select required-cell and sealed-spec semantics); PR 74 Node 24 CI failure, ratio 53.454619124797404.
+
+Finding: the no-evidence path creates an empty fault Set for every spec, membership creates a separate deduplication Set for every cell, and gain recomputation and heap swaps create temporary arrays and callbacks. A local CPU profile includes 574 milliseconds of garbage-collection samples across 100 large selections; that profile is corroboration, not the bank's CPU timing. Deterministic red-first tests observe empty Set allocations growing from 30 to 210 on 20 and 200 specs, and populated Set allocations growing from 22 to 202.
+
+Fix: omit absent evidence, deduplicate memberships by the last index already held, visit coverage without flattened temporary arrays, reuse gain vectors, and swap heap entries directly. The greedy heap, ranked tiers and pool-order tie break stay the same. All 36 selection tests pass, including the unchanged growth limit and exact full-scan reference comparisons with duplicate and out-of-pool inputs. Ten Node 24 CPU probes in one fresh process of the same 500-to-5000 shape measure a maximum ratio of 27.94. CI remains the acceptance check for PR 74.

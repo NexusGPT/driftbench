@@ -32,7 +32,7 @@ Profiling the remaining free-running growth identifies repeated native hash upda
 
 ## Next actions
 
-1. Finish the pending staged sweep of seeds 1 through 5 on the prefix-copy implementation, journal its measured result, then commit that cause alone.
+1. Check CI for the selection-allocation fix in PR 118, prioritized by the owner because the Node 24 failure blocks PR 74. Its allocation regression is red before and green after; all 36 selection tests pass and ten Node 24 probes have maximum growth 27.94 against 40. Finish the pending five-seed prefix-copy sweep and journal that separate cause. That sweep loaded selection code before this fix.
 2. Fix the native hash-update growth with the existing red-first test; preserve exact canonical cache keys. Measure seed 1 and journal it separately.
 3. Correct the current estate doc/output mismatches and pilot totals with red-first tests. Change only the approved.yaml approval-output line in docs/estate.md to 125; leave historical scan examples alone. Coordinate stale items with the maintainer.
 
@@ -43,6 +43,7 @@ Profiling the remaining free-running growth identifies repeated native hash upda
 * The owner stages sweeps: seed 1 plus four more first; report completed seeds as N of 21. Run remaining seeds only while time remains before 06:00 local. The work ends at 07:00 local or 100 percent.
 * Nested stats measurements are cached by stats revision and seed only within one sweep. Dirty stats/bank code measures fresh. Disclose cache use and verify fresh/cached report equality.
 * The scale bank times CPU and keeps the minimum of repeated timings. One green micro-run is insufficient when another run fails the bound.
+* The owner skips the local estate-floor rerun: 616 seconds against 600 seconds at host load 150 is judged by CI. Do not raise the timeout.
 * PR 74 remains red on the Node 24 golden-cover growth test. PR 118 is this executor's draft into lane/v-system. PR 114 is the separate estate-item maintainer PR, with all checks green at the last check.
 
 ## How to run
