@@ -1,0 +1,12 @@
+{
+  "id": "estate.invariant.invariant.standing.the-standing-instructions-stay-under-40000",
+  "planRow": "invariant.invariant.standing.the-standing-instructions-stay-under-40000",
+  "testType": "invariant",
+  "atom": "invariant.standing.the-standing-instructions-stay-under-40000",
+  "title": "The standing instructions stay under 40000 characters",
+  "check": {
+    "kind": "invariant",
+    "check": "standing_size"
+  },
+  "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10"
+}

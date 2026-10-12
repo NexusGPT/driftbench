@@ -101,6 +101,16 @@ export const ExecutionRecord = z.strictObject({
   startedAt: z.string().optional(),
   latencyMs: z.number().nonnegative().optional(),
   truncated: z.boolean().optional(),
+  /** The approval policy's decision on this command and its cwd. Absent when no policy is set. */
+  approval: z
+    .strictObject({
+      decision: z.enum(['allow', 'deny']),
+      by: z.enum(['rule', 'default', 'approver', 'no-approver']),
+      match: z.enum(['command', 'path']),
+      subject: z.string(),
+      pattern: z.string().optional(),
+    })
+    .optional(),
 });
 export type ExecutionRecord = z.infer<typeof ExecutionRecord>;
 

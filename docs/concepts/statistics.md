@@ -55,6 +55,10 @@ A campaign runs each spec several times in each mode (`--repeats`). With c passi
 
 Both forms are computed as products, so they never overflow. pass^k falls as k grows when an agent is inconsistent, even if its average looks fine.
 
+## Repeat reducers per criterion
+
+A criterion can name a repeat reducer (`mode`, `median` or `at_least:<k>`). It reduces the criterion's verdicts across the repeats of one spec to one verdict, shown in the scorecard's "Criteria across repeats" table and on the `driftbench report` command line. The rules are on the [judges](judges.md#repeat-reducers) page.
+
 ## Intervals
 
 | Function | Computes |
@@ -100,7 +104,36 @@ Many criteria are compared at once, so a report applies Benjamini-Hochberg acros
 
 `nonInferiority({ baseline, candidate, margin, pairs, alpha, gatingFlags })` judges one gating criterion. `baseline` and `candidate` hold the all-pass flag of each spec, in the same order. The candidate is non-inferior when the upper bound of the interval on the regression effect, at level `1 - alpha` (default 0.05), is below the `margin` set before the campaign, and no gating flag fires for the candidate where the baseline had none (`gatingFlags`, one flag per spec for each version). `pairs` names the specs, so the result lists the regressed ones and the new flags, with the discordant counts and the reason. Zero regressed pairs in one run is not parity: it is one draw.
 
-The function judges one criterion. `driftbench compare` combines the criteria of a campaign into one verdict: non-inferior when the all-pass flag and every gating criterion are within the margin and no gating flag is new, regressed when a drop is shown, else not shown non-inferior.
+The function judges one criterion. `compareCampaigns` in `@driftbench/report` combines the criteria of a campaign into one verdict, below.
+
+## The campaign verdict
+
+`driftbench compare` and `driftbench ci` apply one rule, `compareCampaigns(baseline, candidate, { margin, minGoldens, strict, flagFamilies })`. The unit is one golden in one mode (one perturbation in P), and a golden passes when every repeat passes.
+
+- **Non-inferior** (`ci`: `parity`, exit 0): the all-pass flag has an upper bound below the margin, every gating criterion that is not underpowered does too, and no flag family (`safety`, `forbidden`, `pii` by default) fires for the candidate where it did not for the baseline.
+- **Regressed** (`ci`: `regression`, exit 1): there is evidence of a drop. A new flag, a criterion whose regression Benjamini-Hochberg keeps, or the all-pass McNemar test below `alpha` with more goldens regressed than improved.
+- **Unproven** (`ci`: `not-shown-non-inferior`, exit 1): no evidence of a drop, but an interval is wider than the margin. This means too few goldens. It is never a regression.
+
+**Underpowered criteria.** A gating criterion decided on fewer than `minGoldens` goldens (default 30) is underpowered. It is reported, and left out of the non-inferiority conjunction, because its interval cannot be narrow: on 3 goldens the upper bound is 56.1 points even when nothing changed. `strict` puts it back. New flags always gate, and so does an underpowered criterion whose regression the false discovery rate control keeps. 30 is close to the goldens one criterion needs to show non-inferiority at a 10 point margin: `goldensNeeded(0.1, 0)` is 35.
+
+**Planning numbers.** For each criterion and for the all-pass flag the comparison reports three numbers.
+
+| Number | Function | Meaning |
+|---|---|---|
+| floor | `marginFloor(n)` | the smallest margin `n` goldens can show when nothing changed: the paired upper bound at zero discordance. 27.75 points for 10 goldens, 2.79 for 134 |
+| drop seen | `mde({ n, baselineRate, power: 0.8 })` | the smallest true drop from the baseline rate the goldens detect at 80% power |
+| for 10 | `goldensNeeded(0.1, discordance)` | the goldens a 10 point margin needs at 80% power: the larger of the first `n` whose floor is below 10 points and the paired sample size `(z(1 - alpha / 2) + z(0.8))^2 discordance / margin^2` (Nam 1997), with the discordance seen |
+
+**The automatic margin.** `--margin auto`, the default of `compare` and `ci`, is the smallest half point at which the baseline compared with itself is non-inferior (`autoMargin(baseline)`): the largest upper bound of the all-pass flag and of the gating criteria that are not underpowered, rounded up. It prints what sets it. Above 15 points it warns that the suite is too small for a tight gate, with the goldens a 15 point margin needs.
+
+Measured on the Acme example (2026-10-12):
+
+| Suite | Auto margin | Set by | Identity control | The nine faults |
+|---|---|---|---|---|
+| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning | the all-pass flag (27.75) | parity | red: 3 regressed, 6 not shown non-inferior |
+| `examples/acme/gated/specs`, 134 goldens | 6.5 points | `must` (6.02, 60 goldens); `cards` (11) and `guards` (26) underpowered | parity | 8 red as regressions; `x1-invents-price` reads parity, because no gated golden catches a price raised by 5 dollars |
+
+With `--strict` at 30 points the identity control on the 10-golden suite is not shown non-inferior, as before the minimum existed.
 
 ## Before a campaign
 
@@ -121,6 +154,8 @@ To watch a live agent, on its pass rate, cost or latency:
 | `ksTest(a, b, { method })` | the two-sample Kolmogorov-Smirnov test of a shift between two distributions: exact up to 10000 values per sample, the Kolmogorov limit above |
 
 Each detector returns its statistics after every point and the alarms, with their position and direction.
+
+`driftbench monitor` runs the three over the campaigns of a store and exits 1 when two of the three alarm. See [CLI](../reference/cli.md#driftbench-monitor).
 
 ## Judges
 

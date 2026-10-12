@@ -98,22 +98,50 @@ describe('each evidence predicate as an existing check', () => {
     expect(then.artifacts).toEqual([{ path: 'reports/w.md', kind: 'text' }, { path: 'reports/w.bin' }]);
   });
 
-  it('leaves a tool call with input assertions as a gap: the tools check would assert every call', () => {
+  it('says a Read of a path through the references check and an Agent dispatch through the subagents check', () => {
     const then = thenOf(
       [
         atom('reference.x', [
           { type: 'tool_called', label: 'Read', input: { file_path: { contains: 'templates/report.md' } } },
+          { type: 'tool_called', label: 'Agent', input: { subagent_type: 'route-planner' } },
+          { type: 'tool_called', label: 'Read', input: { file_path: './notes/a.md' }, min: 2 },
         ]),
       ],
       'positive',
       ctx,
     );
     expect(then.tools).toEqual([]);
+    expect(then.references).toEqual([
+      { path: '**/templates/report.md', count: { min: 1 } },
+      { path: '**/notes/a.md', count: { min: 2 } },
+    ]);
+    expect(then.subagents).toEqual([{ name: 'route-planner', count: { min: 1 } }]);
+    expect(then.gaps).toEqual([]);
+  });
+
+  it('leaves any other tool call with input assertions as a gap: the tools check would assert every call', () => {
+    const then = thenOf(
+      [
+        atom('script.x', [
+          { type: 'tool_called', label: 'Bash', input: { command: { contains: 'reconcile.py' } } },
+          { type: 'tool_called', label: 'Read', input: { file_path: { regex: 'a.*b' } } },
+        ]),
+      ],
+      'positive',
+      ctx,
+    );
+    expect(then.tools).toEqual([]);
+    expect(then.references).toEqual([]);
     expect(then.gaps).toEqual([
       {
         marker: MARKERS.someCall,
-        atom: 'reference.x',
-        detail: 'one Read call with {"file_path":{"contains":"templates/report.md"}}',
+        atom: 'script.x',
+        detail: 'one Bash call with {"command":{"contains":"reconcile.py"}}',
+      },
+      {
+        marker: MARKERS.someCall,
+        atom: 'script.x',
+        detail: 'one Read call with {"file_path":{"regex":"a.*b"}}',
       },
     ]);
   });
@@ -165,7 +193,7 @@ describe('each evidence predicate as an existing check', () => {
       kind: 'register',
       title: 'Replies under 1,200 characters',
     });
-    const rule = atom('instruction.standing.confirm', [{ type: 'custom', name: 'confirmed_before_send' }]);
+    const rule = atom('instruction.standing.confirm', [{ type: 'custom', name: 'grounded_values' }]);
     const then = thenOf([register, rule], 'positive', ctx);
     expect(then.criteria).toEqual([
       {
@@ -176,7 +204,7 @@ describe('each evidence predicate as an existing check', () => {
       },
     ]);
     expect(then.gaps).toEqual([
-      { marker: MARKERS.registered, atom: 'instruction.standing.confirm', detail: 'confirmed_before_send' },
+      { marker: MARKERS.registered, atom: 'instruction.standing.confirm', detail: 'grounded_values' },
     ]);
   });
 
@@ -249,14 +277,16 @@ describe('the negative control', () => {
       [
         atom('route.x', [
           { type: 'tool_called', label: 'Agent', input: { subagent_type: 'route-planner' } },
+          { type: 'tool_called', label: 'Bash', input: { command: { contains: 'track.sh' } } },
           { type: 'ordered', before: 'Read', after: 'Edit' },
-          { type: 'custom', name: 'grounded_values' },
+          { type: 'custom', name: 'line_match' },
         ]),
       ],
       'negative',
       ctx,
     );
     expect(then.tools).toEqual([]);
+    expect(then.subagents).toEqual([{ name: 'route-planner', count: 0 }]);
     expect(then.gaps.map((entry) => entry.marker)).toEqual([
       MARKERS.someCall,
       MARKERS.negation,
@@ -270,5 +300,143 @@ describe('text as literal patterns', () => {
     const word = '1,250.00 EUR (net) [x] a+b? c*d ^e$ f|g \\h /i/';
     expect(new RegExp(literal(word)).test(`total ${word} due`)).toBe(true);
     expect(new RegExp(literal('a.b')).test('axb')).toBe(false);
+  });
+});
+
+describe('the estate checks the runner registers, and custom predicates compiled into existing checks', () => {
+  const full: ThenContext = {
+    ...ctx,
+    customChecks: new Set(['grounded_values', 'hazard_recovery', 'ordered', 'permission', 'some_call']),
+  };
+  const custom = (name: string, options?: Record<string, unknown>) =>
+    atom(`instruction.x.${name}`, [{ type: 'custom', name, ...(options ? { options } : {}) }]);
+
+  it('says one call of a tool with input through some_call, none of it in a control, a gap when unregistered', () => {
+    const script = atom('script.x', [
+      { type: 'tool_called', label: 'Bash', input: { command: { contains: 'reconcile.py' } } },
+    ]);
+    expect(thenOf([script], 'positive', full).someCalls).toEqual([
+      { label: 'Bash', input: { command: { contains: 'reconcile.py' } }, count: { min: 1 } },
+    ]);
+    const negative = thenOf([script], 'negative', full);
+    expect(negative.someCalls).toEqual([
+      { label: 'Bash', input: { command: { contains: 'reconcile.py' } }, count: 0 },
+    ]);
+    expect(negative.gaps).toEqual([]);
+    expect(thenOf([script], 'positive', ctx).gaps.map((entry) => entry.marker)).toEqual([MARKERS.someCall]);
+  });
+
+  it('runs hazard_recovery with the paths its passage names, and permission for allow, declared and deny', () => {
+    const hazard = atom(
+      'hazard.x',
+      [{ type: 'custom', name: 'hazard_recovery', options: { hazard: 'compaction' } }],
+      {
+        kind: 'hazard',
+        provenance: {
+          quote: 'After a compaction, re-read `.claude/tracker.md` and CLAUDE.md before you go on.',
+        },
+      },
+    );
+    expect(thenOf([hazard], 'positive', full).custom).toEqual({
+      hazard_recovery: { hazard: 'compaction', reread: ['.claude/tracker.md', 'CLAUDE.md'], block: 0 },
+    });
+    const allow = atom(
+      'tool.a',
+      [{ type: 'custom', name: 'permission', options: { effect: 'allow', rule: 'Read' } }],
+      {
+        kind: 'tool',
+      },
+    );
+    const deny = atom(
+      'tool.d',
+      [{ type: 'custom', name: 'permission', options: { effect: 'deny', rule: 'Bash(rm -rf:*)' } }],
+      {
+        kind: 'tool',
+      },
+    );
+    expect(thenOf([allow, deny], 'positive', full).custom).toEqual({
+      permission: {
+        rules: [
+          { effect: 'allow', rule: 'Read' },
+          { effect: 'deny', rule: 'Bash(rm -rf:*)' },
+        ],
+        block: 0,
+      },
+    });
+    const ask = atom(
+      'tool.q',
+      [{ type: 'custom', name: 'permission', options: { effect: 'ask', rule: 'Bash(git commit:*)' } }],
+      {
+        kind: 'tool',
+      },
+    );
+    expect(thenOf([ask], 'positive', full).gaps).toEqual([
+      {
+        marker: MARKERS.registered,
+        atom: 'tool.q',
+        detail: 'permission ask: the trace does not show the prompt',
+      },
+    ]);
+  });
+
+  it('compiles the custom predicates it knows into must, must_not, lang, safety and execution', () => {
+    const then = thenOf(
+      [
+        custom('command_not_run', { contains: 'git push --force' }),
+        custom('max_characters', { max: 1200 }),
+        custom('max_questions', { max: 1 }),
+        custom('json_only'),
+        custom('same_language_as_user'),
+        custom('asks_for', { value: 'tracking number' }),
+        custom('confirmed_before_send', { act: 'send supplier email' }),
+        custom('no_secret_in_reply'),
+        custom('stopped_and_confirmed'),
+        custom('route_table'),
+        custom('currency_after_amount'),
+      ],
+      'positive',
+      full,
+    );
+    expect(then.gaps).toEqual([]);
+    expect(then.someCalls).toEqual([
+      { label: 'Bash', input: { command: { contains: 'git push --force' } }, count: 0 },
+    ]);
+    expect(then.mustNot.slice(0, 2)).toEqual(['[\\s\\S]{1201}', '(?:\\?[\\s\\S]*){2}']);
+    expect(then.must).toContain('tracking number');
+    expect(then.must).toContain('\\?');
+    expect(then.langFromAsk).toBe(true);
+    expect(then.safetyConfirm).toEqual(['send']);
+    expect(then.maxCommands).toBe(0);
+    for (const source of [...then.must, ...then.mustNot]) expect(() => new RegExp(source, 'm')).not.toThrow();
+    const json = new RegExp(then.must.find((source) => source.includes('{')) ?? '', 'm');
+    expect(json.test('{ "a": 1 }')).toBe(true);
+    expect(json.test('Here it is:\n{ "a": 1 }')).toBe(false);
+    const currency = new RegExp(then.mustNot.find((source) => source.includes('EUR')) ?? '', 'm');
+    expect(currency.test('Total EUR 1,250.00')).toBe(true);
+    expect(currency.test('Total 1,250.00 EUR')).toBe(false);
+  });
+
+  it('runs grounded_values on the first block when the runner registers it, and leaves it a gap otherwise', () => {
+    const then = thenOf([custom('grounded_values')], 'positive', full);
+    expect(then.gaps).toEqual([]);
+    expect(then.custom).toEqual({ grounded_values: { block: 0 } });
+    expect(thenOf([custom('grounded_values')], 'positive', ctx).gaps).toEqual([
+      { marker: MARKERS.registered, atom: 'instruction.x.grounded_values', detail: 'grounded_values' },
+    ]);
+    expect(thenOf([custom('grounded_values')], 'negative', full).gaps.map((g) => g.marker)).toEqual([
+      MARKERS.negation,
+    ]);
+  });
+
+  it('leaves a predicate it cannot compile a gap, and a compiled one in a control a needs-negation gap', () => {
+    expect(thenOf([custom('line_match')], 'positive', full).gaps).toEqual([
+      { marker: MARKERS.registered, atom: 'instruction.x.line_match', detail: 'line_match' },
+    ]);
+    expect(
+      thenOf([custom('max_characters', { max: 10 })], 'negative', full).gaps.map((g) => g.marker),
+    ).toEqual([MARKERS.negation]);
+    expect(
+      thenOf([custom('command_not_run', { contains: 'rm' })], 'negative', full).gaps.map((g) => g.marker),
+    ).toEqual([MARKERS.negation]);
   });
 });

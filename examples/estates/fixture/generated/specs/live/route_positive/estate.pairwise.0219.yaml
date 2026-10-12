@@ -81,3 +81,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: supplier-email
     phrase: 1
+    ask: bank
+    outcome: bank

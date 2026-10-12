@@ -1,5 +1,6 @@
-import type { CompareResult } from './compare';
+import { type CompareResult, PLANNING_MARGIN, PLANNING_POWER } from './compare';
 import { count, fixed, interval, pct, points, pValue } from './format';
+import type { CriterionRepeat } from './repeats';
 
 /** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
 export function textTable(rows: readonly string[][]): string[] {
@@ -47,9 +48,10 @@ export function compareText(result: CompareResult): string {
     ]),
     `  Both pass ${t.bothPass}, regressed ${t.regressed}, improved ${t.improved}, both fail ${t.bothFail}. McNemar exact p = ${pValue(all.mcnemar.pValue)}.`,
     `  Effect, baseline minus candidate: ${points(all.effect.estimate)} points, interval ${interval(all.effect, points)} (Newcombe, paired).`,
+    `  Planning: ${count(result.pairs.length, 'golden')} can show a margin of ${fixed(all.floor * 100, 1)} points at best; they detect a drop of ${detectable(all.detectable)} at ${fixed(PLANNING_POWER * 100, 0)}% power; a ${fixed(PLANNING_MARGIN * 100, 0)} point margin needs ${count(all.goldensFor10, 'golden')}.`,
     `Drift count per golden (mean over repeats): baseline ${fixed(result.drift.baselineMean, 2)}, candidate ${fixed(result.drift.candidateMean, 2)}; Wilcoxon signed-rank p = ${pValue(result.drift.wilcoxon.pValue)} (${result.drift.wilcoxon.method}, ${count(result.drift.wilcoxon.n, 'golden')} differ).`,
     '',
-    `Criteria: McNemar exact per criterion, Benjamini-Hochberg across ${count(result.criteria.length, 'criterion', 'criteria')} at q ${fixed(result.q, 2)}. Effect in points, baseline minus candidate.`,
+    `Criteria: McNemar exact per criterion, Benjamini-Hochberg across ${count(result.criteria.length, 'criterion', 'criteria')} at q ${fixed(result.q, 2)}. Effect in points, baseline minus candidate. A gating criterion on fewer than ${result.minGoldens} goldens is underpowered${result.strict ? ', and gates anyway (--strict)' : ' and left out of the parity test'}. Floor: the smallest margin its goldens can show; drop seen: the smallest drop they detect at ${fixed(PLANNING_POWER * 100, 0)}% power; for ${fixed(PLANNING_MARGIN * 100, 0)}: the goldens a ${fixed(PLANNING_MARGIN * 100, 0)} point margin needs.`,
     ...textTable([
       [
         'criterion',
@@ -62,6 +64,9 @@ export function compareText(result: CompareResult): string {
         'effect',
         'interval',
         'margin',
+        'floor',
+        'drop seen',
+        `for ${fixed(PLANNING_MARGIN * 100, 0)}`,
         'verdict',
       ],
       ...result.criteria.map((row) => [
@@ -74,7 +79,10 @@ export function compareText(result: CompareResult): string {
         pValue(row.adjusted),
         points(row.effect.estimate),
         interval(row.effect, points),
-        row.gating ? (row.nonInferior ? 'within' : 'not within') : '',
+        row.gating ? (row.nonInferior ? 'within' : row.underpowered ? 'underpowered' : 'not within') : '',
+        fixed(row.floor * 100, 1),
+        detectable(row.detectable),
+        String(row.goldensFor10),
         row.significantRegression ? 'regressed' : '',
       ]),
     ]),
@@ -92,4 +100,19 @@ export function compareText(result: CompareResult): string {
   lines.push('', `Verdict: ${VERDICT[result.verdict]}.`);
   for (const reason of result.reasons) lines.push(`  ${reason}`);
   return `${lines.join('\n')}\n`;
+}
+
+function detectable(value: number | null): string {
+  return value === null ? 'none' : `${fixed(value * 100, 1)} points`;
+}
+
+/** One line per reduced criterion, for the command line: the criterion, its line and the reduced verdict. */
+export function criterionRepeatsText(lines: readonly CriterionRepeat[]): string[] {
+  return lines.map((line) => {
+    const outcomes = line.outcomes
+      .map((outcome) => (outcome === 1 ? 'P' : outcome === 0 ? 'F' : '-'))
+      .join(' ');
+    const verdict = line.verdict === 1 ? 'pass' : line.verdict === 0 ? 'fail' : 'undecided';
+    return `Criterion ${line.criterion} (${line.specId}, mode ${line.mode}): ${line.reducer} over ${line.outcomes.length} repeats, ${verdict} (${outcomes}).`;
+  });
 }

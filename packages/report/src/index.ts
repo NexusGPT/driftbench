@@ -2,6 +2,9 @@
 export const packageName = '@driftbench/report';
 
 export {
+  AUTO_MARGIN_WARN,
+  type AutoMargin,
+  autoMargin,
   type CompareOptions,
   type CompareResult,
   type CompareVerdict,
@@ -9,6 +12,11 @@ export {
   compareCampaigns,
   criterionOf,
   DEFAULT_FLAG_FAMILIES,
+  goldensNeeded,
+  MIN_GOLDENS,
+  marginFloor,
+  PLANNING_MARGIN,
+  PLANNING_POWER,
   type UnitPair,
   type UnitSide,
   unitsOf,
@@ -36,6 +44,7 @@ export {
   type SuccessionSummary,
   successionOf,
 } from './reliability';
+export { type CriterionRepeat, criterionRepeats, runOutcome } from './repeats';
 export {
   type BlockDetail,
   buildScorecard,
@@ -56,4 +65,4 @@ export {
   type SpreadOptions,
   spread,
 } from './spread';
-export { compareText, textTable } from './text';
+export { compareText, criterionRepeatsText, textTable } from './text';

@@ -1,5 +1,17 @@
-import type { ArtifactExpect, CriterionDef, GuardExpect, SkillExpect, ToolExpect } from '@driftbench/core';
+import type {
+  ArtifactExpect,
+  CriterionDef,
+  GuardExpect,
+  ReferenceExpect,
+  SkillExpect,
+  SubagentExpect,
+  ToolExpect,
+} from '@driftbench/core';
 import type { EstateAtom, EstateEvidence } from './inputs';
+import { literal } from './literal';
+import { compilePredicate } from './predicates';
+
+export { literal };
 
 /**
  * The Then of a plan row, by code: each evidence predicate of the row's atoms becomes an existing check.
@@ -10,16 +22,21 @@ import type { EstateAtom, EstateEvidence } from './inputs';
  * | guard | `expect.guards` (name, verdict, count) |
  * | tool_called without input, tool_not_called | `expect.tools` with a count (0 forbids the tool) |
  * | tool_not_called on a setting that denies the whole tool | also `expect.tools_offered.exclude` |
+ * | tool_called Read with a path (equal or contained) | `expect.references`, a glob ending in the path |
+ * | tool_called Agent with a helper name | `expect.subagents` with a count |
  * | ordered | the ordered-pair custom check, `rules.custom.ordered` |
  * | stage_reached | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last |
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
  * | text | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
+ * | tool_called with any other input, when `some_call` is registered | `rules.custom.some_call` |
+ * | custom grounded_values, hazard_recovery, permission (allow, declared, deny) | the registered check |
+ * | custom with a name `predicates.ts` compiles | must, must_not, lang, safety, execution |
  * | custom on a register atom | a judged criterion whose rubric is the atom's title, not gating |
  *
  * What no existing check can say without changing its meaning is a gap, named by a marker, and the spec
  * that holds it is incomplete:
- * - a tool call with input assertions: the tools check asserts the input on every call of the tool, the
- *   atom asks for one call that matches (`needs-some-call-check`);
+ * - a tool call with other input assertions: the tools check asserts the input on every call of the tool,
+ *   the atom asks for one call that matches (`needs-some-call-check`);
  * - a custom predicate no registered check runs (`needs-registered-check`);
  * - an ordered pair whose ends are not a tool label, a skill or a stage, or are the same label
  *   (`needs-ordered-anchor`);
@@ -52,11 +69,15 @@ export type Gap = { marker: Marker; atom: string; detail: string };
 
 export type OrderedPair = { before: string; after: string };
 
+export type SomeCall = { label: string; input: Record<string, unknown>; count: 0 | { min: number } };
+
 export type WorkspaceParts = {
   created: string[];
   changed: string[];
   deleted: string[];
   othersUntouched: boolean;
+  /** True when nothing may be deleted: `deleted: []`, the change no task of the row asks for. */
+  noDeletes?: boolean;
 };
 
 export type ThenParts = {
@@ -69,6 +90,18 @@ export type ThenParts = {
   mustNot: string[];
   lang?: string;
   artifacts: ArtifactExpect[];
+  references: ReferenceExpect[];
+  subagents: SubagentExpect[];
+  /** Calls `rules.custom.some_call` asks for: one call of a tool whose input matches, or none. */
+  someCalls: SomeCall[];
+  /** Options of the registered custom checks other than ordered and some_call, by name. */
+  custom: Record<string, Record<string, unknown>>;
+  /** Operation classes `expect.safety.confirm_before` names. */
+  safetyConfirm: string[];
+  /** `expect.execution.max_commands`. */
+  maxCommands?: number;
+  /** True when the reply must be in the language of the ask (`expect.lang`, set from the phrase). */
+  langFromAsk?: boolean;
   workspace?: WorkspaceParts;
   stage?: string;
   ranCode: boolean;
@@ -110,6 +143,11 @@ export function emptyThen(): ThenParts {
     must: [],
     mustNot: [],
     artifacts: [],
+    references: [],
+    subagents: [],
+    someCalls: [],
+    custom: {},
+    safetyConfirm: [],
     ranCode: false,
     ordered: [],
     criteria: [],
@@ -123,7 +161,7 @@ export function thenOf(atoms: readonly EstateAtom[], polarity: Polarity, ctx: Th
   for (const atom of atoms) {
     for (const evidence of atom.evidence) {
       if (polarity === 'positive') positive(then, atom, evidence, ctx);
-      else negative(then, atom, evidence);
+      else negative(then, atom, evidence, ctx);
     }
     if (polarity === 'positive' && atom.kind === 'script') then.ranCode = true;
   }
@@ -147,6 +185,15 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
+        if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
+        if (ctx.customChecks.has('some_call')) {
+          addSomeCall(then, {
+            label: evidence.label,
+            input: evidence.input,
+            count: { min: evidence.min ?? 1 },
+          });
+          return;
+        }
         gap(then, MARKERS.someCall, atom, `one ${evidence.label} call with ${show(evidence.input)}`);
         return;
       }
@@ -204,10 +251,49 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
           return;
         }
       }
-      if (atom.kind === 'register') {
-        if (!then.criteria.some((criterion) => criterion.name === atom.id)) {
-          then.criteria.push({ name: atom.id, rubric: atom.title, gating: false, scope: 'block' });
+      if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
+        then.custom.hazard_recovery = {
+          ...(evidence.options ?? {}),
+          ...(pathsOf(atom).length > 0 ? { reread: pathsOf(atom) } : {}),
+          block: 0,
+        };
+        return;
+      }
+      if (evidence.name === 'grounded_values' && ctx.customChecks.has('grounded_values')) {
+        then.custom.grounded_values = { ...(evidence.options ?? {}), block: 0 };
+        return;
+      }
+      if (evidence.name === 'permission' && ctx.customChecks.has('permission')) {
+        const effect = evidence.options?.effect;
+        const rule = evidence.options?.rule;
+        if (typeof rule === 'string' && (effect === 'allow' || effect === 'declared' || effect === 'deny')) {
+          const known = (then.custom.permission?.rules ?? []) as unknown[];
+          then.custom.permission = { rules: [...known, { effect, rule }], block: 0 };
+          return;
         }
+        gap(
+          then,
+          MARKERS.registered,
+          atom,
+          `permission ${String(effect)}: the trace does not show the prompt`,
+        );
+        return;
+      }
+      {
+        const compiled = compilePredicate(evidence.name, evidence.options);
+        if (compiled && (!compiled.someCalls || ctx.customChecks.has('some_call'))) {
+          for (const pattern of compiled.must ?? []) addUnique(then.must, pattern);
+          for (const pattern of compiled.mustNot ?? []) addUnique(then.mustNot, pattern);
+          for (const call of compiled.someCalls ?? []) addSomeCall(then, call);
+          for (const kind of compiled.safetyConfirm ?? []) addUnique(then.safetyConfirm, kind);
+          if (compiled.maxCommands !== undefined) then.maxCommands = compiled.maxCommands;
+          if (compiled.langFromAsk) then.langFromAsk = true;
+          if (atom.kind === 'register') addCriterion(then, atom);
+          return;
+        }
+      }
+      if (atom.kind === 'register') {
+        addCriterion(then, atom);
         return;
       }
       gap(then, MARKERS.registered, atom, evidence.name);
@@ -215,7 +301,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
   }
 }
 
-function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence): void {
+function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, ctx: ThenContext): void {
   switch (evidence.type) {
     case 'skill_loaded':
       addSkill(then, { name: evidence.name, count: 0 });
@@ -229,6 +315,11 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence): 
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
+        if (someCall(then, evidence.label, evidence.input, 0)) return;
+        if (ctx.customChecks.has('some_call')) {
+          addSomeCall(then, { label: evidence.label, input: evidence.input, count: 0 });
+          return;
+        }
         gap(then, MARKERS.someCall, atom, `no ${evidence.label} call with ${show(evidence.input)}`);
         return;
       }
@@ -242,6 +333,15 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence): 
       for (const word of evidence.must ?? []) addUnique(then.mustNot, literal(word));
       return;
     case 'custom':
+      if (
+        compilePredicate(evidence.name, evidence.options) !== undefined ||
+        evidence.name === 'hazard_recovery' ||
+        evidence.name === 'grounded_values' ||
+        evidence.name === 'permission'
+      ) {
+        gap(then, MARKERS.negation, atom, `${evidence.name} has no negative control`);
+        return;
+      }
       gap(then, MARKERS.registered, atom, evidence.name);
       return;
     case 'static':
@@ -363,6 +463,30 @@ function dominates(by: string, target: string, start: string, next: ReadonlyMap<
   return true;
 }
 
+function addCriterion(then: ThenParts, atom: EstateAtom): void {
+  if (!then.criteria.some((criterion) => criterion.name === atom.id)) {
+    then.criteria.push({ name: atom.id, rubric: atom.title, gating: false, scope: 'block' });
+  }
+}
+
+function addSomeCall(then: ThenParts, call: SomeCall): void {
+  if (!then.someCalls.some((known) => same(known, call))) then.someCalls.push(call);
+}
+
+/** Paths an atom's passage names: in backticks, or a word with a slash or a file extension. */
+export function pathsOf(atom: EstateAtom): string[] {
+  const quote = atom.provenance?.quote ?? '';
+  const found: string[] = [];
+  for (const match of quote.matchAll(
+    /`([^`\s]+)`|(?:^|\s)((?:[\w.-]+\/)*[\w-]+\.(?:md|json|ya?ml|txt|csv))\b/g,
+  )) {
+    const path = (match[1] ?? match[2] ?? '').replace(/[.,;:]+$/, '');
+    if (path !== '' && (path.includes('/') || /\.[a-z]{2,4}$/i.test(path)) && !found.includes(path))
+      found.push(path);
+  }
+  return found;
+}
+
 export function addPair(then: ThenParts, pair: OrderedPair): void {
   if (!then.ordered.some((known) => known.before === pair.before && known.after === pair.after)) {
     then.ordered.push(pair);
@@ -375,6 +499,7 @@ export function addWorkspace(then: ThenParts, parts: WorkspaceParts): void {
   for (const path of parts.changed) addUnique(into.changed, path);
   for (const path of parts.deleted) addUnique(into.deleted, path);
   into.othersUntouched = into.othersUntouched || parts.othersUntouched;
+  if (parts.noDeletes === true) into.noDeletes = true;
   then.workspace = into;
 }
 
@@ -412,6 +537,44 @@ function addUnique(list: string[], item: string): void {
   if (!list.includes(item)) list.push(item);
 }
 
+/**
+ * A tool call with input that an existing check can say for one matching call: a Read of a path (the
+ * references check counts reads of a file matching a glob) or an Agent dispatch of a named helper (the
+ * subagents check counts dispatches by name). False when the input is anything else.
+ */
+function someCall(then: ThenParts, label: string, input: Record<string, unknown>, min: number): boolean {
+  const keys = Object.keys(input);
+  if (keys.length !== 1) return false;
+  const key = keys[0] as string;
+  const value = textOf(input[key]);
+  if (value === undefined || value.trim() === '') return false;
+  const count = min === 0 ? 0 : { min };
+  if (label === 'Read' && (key === 'file_path' || key === 'path' || key === 'notebook_path')) {
+    const path = `**/${value.replace(/^\.?\/+/, '')}`;
+    if (!then.references.some((known) => known.path === path && same(known.count, count))) {
+      then.references.push({ path, count });
+    }
+    return true;
+  }
+  if (label === 'Agent' && (key === 'subagent_type' || key === 'name')) {
+    if (!then.subagents.some((known) => known.name === value && same(known.count, count))) {
+      then.subagents.push({ name: value, count });
+    }
+    return true;
+  }
+  return false;
+}
+
+/** The text an input assertion pins: a plain string, `{ equals }` or `{ contains }`. */
+function textOf(assertion: unknown): string | undefined {
+  if (typeof assertion === 'string') return assertion;
+  if (typeof assertion !== 'object' || assertion === null) return undefined;
+  const entries = Object.entries(assertion as Record<string, unknown>);
+  if (entries.length !== 1) return undefined;
+  const [kind, value] = entries[0] as [string, unknown];
+  return (kind === 'equals' || kind === 'contains') && typeof value === 'string' ? value : undefined;
+}
+
 function hasInput(input: Record<string, unknown> | undefined): input is Record<string, unknown> {
   return input !== undefined && Object.keys(input).length > 0;
 }
@@ -425,11 +588,6 @@ function pairsOf(options: Record<string, unknown> | undefined): Array<{ before: 
       typeof (entry as Record<string, unknown>).before === 'string' &&
       typeof (entry as Record<string, unknown>).after === 'string',
   );
-}
-
-/** A word as a pattern that matches it literally. */
-export function literal(word: string): string {
-  return word.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 }
 
 function same(a: unknown, b: unknown): boolean {

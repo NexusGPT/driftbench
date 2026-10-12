@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-11T21:56:49.807Z
+readAt: 2026-10-12T04:24:56.539Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -99,10 +99,10 @@ atoms:
     title: PreToolUse Bash guard block-force-push.sh
     provenance:
       file: .claude/settings.json
-      startLine: 11
-      endLine: 11
+      startLine: 14
+      endLine: 14
       quote: '"\"$CLAUDE_PROJECT_DIR\"/.claude/guards/block-force-push.sh"'
-      hash: a441c1f3d5925eaa685a54e8c17a3530b9a413013b6ea4f05e6976749eb960b8
+      hash: 0bf7ff13813865c8fb3978edef622359b791535a5b942a73d7cbc2b6b55792f3
     producedBy: code
     role: axis
     approved: true
@@ -123,6 +123,7 @@ atoms:
         - G1
         - W1
         - W2
+        - W7
       state: enforce
       enforces:
         - atom: instruction.standing.never-force-push
@@ -132,10 +133,10 @@ atoms:
     title: Stop guard claim-window.py
     provenance:
       file: .claude/settings.json
-      startLine: 20
-      endLine: 20
+      startLine: 23
+      endLine: 23
       quote: '"[ \"$NORTHWIND_QUIET\" = 1 ] || NORTHWIND_GUARD=claims python3 \"$CLAUDE_PROJECT_DIR\"/.claude/guards/lib/dispatch.py claim-window.py"'
-      hash: 157af864a0438d5253390f27021e9766933404fd04bfd96de63a873c02976ffb
+      hash: 98500a0ed2e3a445671de63de2656187afd4836f775c54d2b95f0755e6d2d47a
     producedBy: code
     role: axis
     approved: true
@@ -158,6 +159,9 @@ atoms:
         - W5
         - HANDBACK
         - STOP-WAKE
+        - W6
+        - W8
+        - W9
       state: enforce
       enforces:
         - atom: instruction.parcel-claims.never-promise-a-refund-date
@@ -329,6 +333,23 @@ atoms:
     fields:
       key: model
       value: opus
+  - id: setting.settings.setting-env-northwind-region
+    kind: setting
+    title: Setting env.NORTHWIND_REGION
+    provenance:
+      file: .claude/settings.json
+      startLine: 7
+      endLine: 7
+      quote: '"NORTHWIND_REGION"'
+      hash: a2a972f29013f3e9f7a958bf184fc6cb5aedfc018629cc58f34e79fef6659de8
+    producedBy: code
+    role: detail
+    approved: true
+    evidence:
+      - { type: custom, name: run_config, options: { key: env.NORTHWIND_REGION } }
+    enforcement: []
+    fields:
+      key: env.NORTHWIND_REGION
   - id: stage.steps.stage-claim-scan-read-the-delivery
     kind: stage
     title: "Stage claim/scan: Read the delivery scan"
@@ -1226,10 +1247,10 @@ atoms:
     title: Every guard finds its script from an anchor
     provenance:
       file: .claude/settings.json
-      startLine: 11
-      endLine: 11
+      startLine: 14
+      endLine: 14
       quote: '"\"$CLAUDE_PROJECT_DIR\"/.claude/guards/block-force-push.sh"'
-      hash: a441c1f3d5925eaa685a54e8c17a3530b9a413013b6ea4f05e6976749eb960b8
+      hash: 0bf7ff13813865c8fb3978edef622359b791535a5b942a73d7cbc2b6b55792f3
     producedBy: code
     role: detail
     approved: true
@@ -1295,5 +1316,5 @@ ignore:
 producedBy:
   family: lane
   model: claude-opus-5-5 as the reader lane, by hand
-  at: 2026-10-11T21:56:49.807Z
-hash: 15b204d41636a5a45f0a6763d5de4778f802c7871b7adfa5e860222692234524
+  at: 2026-10-12T04:24:56.539Z
+hash: b6d05156e9a077659318ddd3d5b31b461f924e5bb332f6077b1bef059c271dc5
