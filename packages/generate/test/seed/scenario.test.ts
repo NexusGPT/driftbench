@@ -947,3 +947,31 @@ describe('iteration 19: a turn that must not move the conversation', () => {
     expect(built.endState).toBeUndefined();
   });
 });
+
+describe('iteration 20: a block records what its Then reads', () => {
+  it('records the stage a move is said at, not the stage it reaches', () => {
+    const prepared = prepare();
+    const built = buildScenario(prepared, rngFor(1, 't'), { path: path(prepared, 'balance-found'), fixed: [] });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.map((block) => block.saidAt)).toEqual(['greet', 'verify']);
+    expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'help']);
+  });
+
+  it('does not carry the data value a phrase only states when no Then reads it', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases.push(phrase('stage_transition', 'greet-to-verify', 'Hello, my account is {account}.'));
+    });
+    const forced = prepared.phrases.find((entry) => entry.text === 'Hello, my account is {account}.');
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      ...(forced ? { force: forced } : {}),
+    });
+    if (!built.ok) throw new Error(built.reason);
+    const account = prepared.space.dimensions.findIndex((dimension) => dimension.id === 'account_state');
+    expect(texts(built.blocks)[0]).toBe('Hello, my account is 4.');
+    expect(built.blocks[0]?.carries.some(([dimension]) => dimension === account)).toBe(false);
+    // The lookup at verify reads the value: the block that calls it carries it.
+    expect(built.blocks[1]?.carries.some(([dimension]) => dimension === account)).toBe(true);
+  });
+});

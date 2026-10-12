@@ -352,13 +352,13 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     }
     const carries = unique([
       [prepared.transition as number, transition],
-      ...sourcesOf(phrase?.text ?? ''),
       ...ruled,
     ]);
     blocks.push({
       id: `b${blocks.length + 1}-${transitionId}`,
       stimulus: stimulusOf(phrase, transitionKey, transitionId),
       stage: to,
+      saidAt: from,
       carries,
       ...(tools.length > 0 ? { tools } : {}),
       ...(stated.length > 0 ? { must: stated } : {}),

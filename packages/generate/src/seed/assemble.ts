@@ -47,6 +47,8 @@ export type BlockDraft = {
   injection?: string;
   /** The stage the block must reach. */
   stage?: string;
+  /** The stage the block is said at, when the cell records that instead of the stage it reaches. */
+  saidAt?: string;
   /** Values the block itself carries (the stimulus value, an injected class), as picks. */
   carries: Pick[];
   given?: { world?: WorldState };
@@ -293,7 +295,7 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
       cell[dimensionId(prepared, dimension)] = valueId(prepared, dimension, value);
     }
     if (block.stage !== undefined && prepared.stage !== undefined) {
-      cell[dimensionId(prepared, prepared.stage)] = block.stage;
+      cell[dimensionId(prepared, prepared.stage)] = block.saidAt ?? block.stage;
     }
     return {
       block: block.id,
