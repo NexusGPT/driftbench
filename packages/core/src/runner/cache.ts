@@ -3,7 +3,7 @@ import type { Store } from '../contracts/store';
 import type { TargetRef } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Stimulus } from '../schema/spec';
-import { canonicalJson, canonicalJsonWithList } from '../spec/hash';
+import { canonicalJson, sha256OfJsonWithList } from '../spec/hash';
 import { isPlainObject } from '../spec/normalize';
 
 /** Where the runner keeps observed blocks. A Store is one; tests pass a map. */
@@ -28,16 +28,10 @@ export type BlockKeyParts = {
  * stimulus, the target and the adapter version, hashed whole (SHA-256 of the canonical JSON).
  */
 export function blockCacheKey(parts: BlockKeyParts): string {
-  // The text is the one `canonicalJson(parts)` gives; the Given, the one part that grows with the run, is
-  // written by `canonicalJsonWithList`, which reads each message of its prefix once.
-  const marked = canonicalJson({ ...parts, given: GIVEN_MARK });
-  const text = marked.replace(JSON.stringify(GIVEN_MARK), () =>
-    canonicalJsonWithList({ ...parts.given }, 'prefix'),
-  );
-  return `block:${sha256(text)}`;
+  // The digest of the canonical JSON of `parts`, with the Given's prefix, the one part that grows with
+  // the run, hashed incrementally: each message of the history is read once.
+  return `block:${sha256OfJsonWithList((mark) => ({ ...parts, given: { ...parts.given, prefix: mark } }), parts.given.prefix)}`;
 }
-
-const GIVEN_MARK = '\u0000given\u0000';
 
 /** The cache key of one end-state read, taken after the block whose key is given. */
 export function endStateCacheKey(blockKey: string, source: string): string {

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { parseSpecText } from '@driftbench/core';
+import { parseSpecText, type RunFilter } from '@driftbench/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   assertNodeVersion,
@@ -150,7 +150,7 @@ describe('a corrupt row raises a clear error', () => {
     expect((await storeError(() => store.listRuns())).code).toBe('CORRUPT_ROW');
   });
 
-  it.each([
+  it.each<[string, string, RunFilter]>([
     ['status', 'failed', { status: 'failed' }],
     ['spec_id', 's-other', { specId: 's-other' }],
     ['mode', 'T', { mode: 'T' }],

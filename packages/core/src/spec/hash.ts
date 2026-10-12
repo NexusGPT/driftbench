@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, type Hash } from 'node:crypto';
 
 /** JSON with object keys sorted at every depth, so equal content gives equal text. */
 export function canonicalJson(value: unknown): string {
@@ -87,7 +87,77 @@ export function canonicalJsonWithList(value: Record<string, unknown>, listKey: s
   return `{${fields.join(',')}}`;
 }
 
+type Running = { head: string; items: readonly unknown[]; state: Hash };
+const running: Running[] = [];
+const RUNNING_KEPT = 8;
+
+function itemText(item: unknown): string {
+  if (item === null || typeof item !== 'object') return canonicalJson(item === undefined ? null : item);
+  let text = canonicalOfItem.get(item);
+  if (text === undefined) {
+    text = canonicalJson(item);
+    canonicalOfItem.set(item, text);
+  }
+  return text;
+}
+
+/**
+ * The SHA-256 (hex) of `head + [items] + tail`, where the items are written as `canonicalList` writes them.
+ * The digest state after a list is kept, so the next call with the same head and the same items plus more
+ * hashes only the new ones: a history that grows by a message per block costs one message per block.
+ */
+export function sha256WithList(head: string, items: readonly unknown[], tail: string): string {
+  let from: Running | undefined;
+  for (const entry of running) {
+    if (entry.head !== head || entry.items.length > items.length) continue;
+    let same = true;
+    for (let index = 0; index < entry.items.length; index += 1) {
+      if (entry.items[index] !== items[index]) {
+        same = false;
+        break;
+      }
+    }
+    if (same && (from === undefined || entry.items.length > from.items.length)) from = entry;
+  }
+  let state: Hash;
+  let start: number;
+  if (from) {
+    state = from.state.copy();
+    start = from.items.length;
+  } else {
+    state = createHash('sha256');
+    state.update(`${head}[`);
+    start = 0;
+  }
+  for (let index = start; index < items.length; index += 1) {
+    state.update(index === 0 ? itemText(items[index]) : `,${itemText(items[index])}`);
+  }
+  const entry: Running = { head, items: [...items], state };
+  running.unshift(entry);
+  if (running.length > RUNNING_KEPT) running.length = RUNNING_KEPT;
+  return state.copy().update(`]${tail}`).digest('hex');
+}
+
+const LIST_MARK = '\u0000list\u0000';
+
+/**
+ * `sha256(canonicalJson(value))` where `value` holds, at `path`, a list that grows from one call to the next.
+ * `place` returns the value with the list replaced by a mark; the text is split at the mark.
+ */
+export function sha256OfJsonWithList(place: (mark: string) => unknown, items: readonly unknown[]): string {
+  const [head, tail] = canonicalJson(place(LIST_MARK)).split(JSON.stringify(LIST_MARK));
+  // A list that was never in the value would not split: fall back to the plain digest.
+  if (head === undefined || tail === undefined) {
+    return createHash('sha256')
+      .update(canonicalJson(place(items as unknown as string)))
+      .digest('hex');
+  }
+  return sha256WithList(head, items, tail);
+}
+
 /** `contentHash` of an object whose `listKey` field is a list, without re-reading the items of the list. */
 export function contentHashWithList(value: Record<string, unknown>, listKey: string): string {
-  return createHash('sha256').update(canonicalJsonWithList(value, listKey)).digest('hex').slice(0, 12);
+  const list = value[listKey];
+  if (!Array.isArray(list)) return contentHash(value);
+  return sha256OfJsonWithList((mark) => ({ ...value, [listKey]: mark }), list).slice(0, 12);
 }
