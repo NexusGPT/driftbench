@@ -43,3 +43,13 @@ describe('named paths (executor pilot)', () => {
     expect(namedPaths('The guide is at `https://example.com/guide.md`.')).toEqual([]);
   });
 });
+
+describe('hazard words (executor pilot)', () => {
+  it('reads compaction from the noun and the participle, not from the adjective compact', async () => {
+    const { HAZARDS } = await import('../../src/scan/code');
+    const compaction = HAZARDS.find((hazard) => hazard.id === 'compaction');
+    expect(compaction?.pattern.test('Recover after a compaction of the context.')).toBe(true);
+    expect(compaction?.pattern.test('Once the context is compacted, re-read the notes.')).toBe(true);
+    expect(compaction?.pattern.test('Keep the report in a compact table.')).toBe(false);
+  });
+});

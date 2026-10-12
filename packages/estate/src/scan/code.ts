@@ -30,7 +30,12 @@ export const DEFAULT_ROLE: Record<AtomKind, 'axis' | 'detail'> = {
 
 /** Hazards of a long-running agent, found in prose by the words that name them. */
 export const HAZARDS = [
-  { id: 'compaction', title: 'A compaction of the context', pattern: /\bcompact(ion|ed|s)?\b/i },
+  // The noun and the participle; "compact" alone is an adjective (a compact table) far more often.
+  {
+    id: 'compaction',
+    title: 'A compaction of the context',
+    pattern: /\b(compaction|compacted|auto-?compact)\b/i,
+  },
   { id: 'restart', title: 'A process restart', pattern: /\brestart(s|ed)?\b/i },
   { id: 'rate_wave', title: 'A wave of rate limits', pattern: /\brate[- ]limit/i },
   {
