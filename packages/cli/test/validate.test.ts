@@ -317,7 +317,8 @@ describe('driftbench validate through main', () => {
     const handover = await run(['validate', 'all', '--check-handover']);
     expect(handover.code).toBe(0);
     expect(handover.out).toContain('validators/stats/HANDOVER.md: every section present');
-  });
+    // Every registered ladder runs; the generator ladder generates and runs a suite (seconds of CPU).
+  }, 180_000);
 
   it('prints the stats brief from the real executor instruction', async () => {
     const result = await run(['validate', 'stats', '--brief', '--fresh']);
