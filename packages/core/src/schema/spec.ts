@@ -279,6 +279,12 @@ export const Expect = z
     rouge_l: z
       .strictObject({
         reference: z.string().min(1).describe('The reference text the reply is compared with.'),
+        profile: z
+          .enum(['driftbench', 'ragas'])
+          .optional()
+          .describe(
+            'The overlap profile: driftbench (default) or ragas, the reference implementation of this score.',
+          ),
         min: z.number().min(0).max(1).describe('The lowest ROUGE-L F measure that passes, from 0 to 1.'),
       })
       .optional()
@@ -286,6 +292,12 @@ export const Expect = z
     bleu: z
       .strictObject({
         reference: z.string().min(1).describe('The reference text the reply is compared with.'),
+        profile: z
+          .enum(['driftbench', 'ragas'])
+          .optional()
+          .describe(
+            'The overlap profile: driftbench (default) or ragas, the reference implementation of this score.',
+          ),
         min: z.number().min(0).max(1).describe('The lowest BLEU score that passes, from 0 to 1.'),
       })
       .optional()

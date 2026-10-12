@@ -364,6 +364,7 @@ The reply must overlap a reference text: its word-level ROUGE-L F measure must r
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `reference` | string, not empty | yes |  | The reference text the reply is compared with. |
+| `profile` | `driftbench` or `ragas` | no |  | The overlap profile: driftbench (default) or ragas, the reference implementation of this score. |
 | `min` | number, 0 to 1 | yes |  | The lowest ROUGE-L F measure that passes, from 0 to 1. |
 
 ## Expect bleu
@@ -373,6 +374,7 @@ The reply must overlap a reference text: its BLEU score over words must reach mi
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `reference` | string, not empty | yes |  | The reference text the reply is compared with. |
+| `profile` | `driftbench` or `ragas` | no |  | The overlap profile: driftbench (default) or ragas, the reference implementation of this score. |
 | `min` | number, 0 to 1 | yes |  | The lowest BLEU score that passes, from 0 to 1. |
 
 ## Expect sql

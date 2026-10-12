@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { bleu, bleuScore, rougeL, rougeLScore } from '../src/checks/overlap';
 import { acme } from './support/acme';
@@ -75,5 +77,26 @@ describe('rouge_l and bleu checks', () => {
     const ctx = context(spec, 1, observed('hi'));
     expect(outcomes(await run(rougeL, ctx))).toEqual({});
     expect(outcomes(await run(bleu, ctx))).toEqual({});
+  });
+});
+
+describe('the ragas profile reproduces the reference implementation on fixed pairs', () => {
+  const reference = JSON.parse(
+    readFileSync(join(__dirname, 'fixtures', 'ragas-overlap-reference.json'), 'utf8'),
+  ) as {
+    pairs: Array<{ reply: string; reference: string; rougeL_stem: number; bleu_13a_exp: number }>;
+  };
+  for (const pair of reference.pairs) {
+    it(`ROUGE-L matches on: ${pair.reply.slice(0, 40)}`, () => {
+      expect(rougeLScore(pair.reply, pair.reference, 'ragas')).toBeCloseTo(pair.rougeL_stem, 9);
+    });
+    it(`BLEU matches on: ${pair.reply.slice(0, 40)}`, () => {
+      expect(bleuScore(pair.reply, pair.reference, 'ragas')).toBeCloseTo(pair.bleu_13a_exp, 9);
+    });
+  }
+  it('keeps the driftbench profile as the default', () => {
+    expect(rougeLScore('Fibre is available', 'fibre is available')).toBe(
+      rougeLScore('Fibre is available', 'fibre is available', 'driftbench'),
+    );
   });
 });

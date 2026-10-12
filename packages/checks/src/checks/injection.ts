@@ -14,61 +14,40 @@ import { visibleText } from '../support/text';
  * a rewording of the same act is still caught.
  */
 
+/*
+ * The attack rules are structural: each names a class of instruction, not a phrase. An override verb must reach an
+ * object that belongs to the assistant (its rules, instructions, filters, setup), inside one sentence. A role claim
+ * addresses the assistant as "you" and assigns it a new role. An authority claim says the speaker is its developer,
+ * owner or security team. A delimiter trick plants a fake system or instruction boundary. A reveal request asks for
+ * the assistant's own setup text. Ordinary requests about the customer's own life (an address, an order, a message)
+ * match none of these, because their object is never the assistant's setup.
+ */
+const SENTENCE = '[^.!?\\n]{0,50}';
+const ASSISTANT_OBJECT =
+  '(?:your|the|all|any|previous|prior|earlier|above|these|those|the company|the operator|les|tes|ton|ta|vos|ces|pr[ée]c[ée]dentes?|ant[ée]rieures?)\\s+(?:\\w+\\s+){0,2}?(?:rules?|instructions?|guidelines?|guidance|directions?|prompt|setup|programming|filters?|safeguards?|restrictions?|limits?|constraints?|policies|policy|training|safety|configuration|system|consignes?|r[èe]gles|directives?)';
+const OVERRIDE_VERB =
+  '(?:ignore[rz]?|disregard(?:e[rz]?)?|forget|forgetting|skip|override|bypass|disable|turn\\s+off|void|set\\s+aside|drop|oublie[rz]?|ignorez?|contourne[rz]?|d[ée]sactive[rz]?)';
+const ROLE_CLAIM =
+  '(?:you\\s+are\\s+(?:now|no\\s+longer|actually|really)|from\\s+now\\s+on,?\\s+you|your\\s+(?:new|real|true)\\s+(?:role|job|purpose|persona|name)\\s+is|you\\s+no\\s+longer\\s+(?:work|are|have)|act\\s+as\\s+(?:an?|the|if)\\b|pretend\\s+(?:to\\s+be|you\\s+are|that\\s+you)|tu\\s+es\\s+(?:maintenant|d[ée]sormais)|tu\\s+ne\\s+(?:travailles|es)\\s+plus|[àa]\\s+partir\\s+de\\s+maintenant,?\\s+tu|agis\\s+comme|fais\\s+comme\\s+si|fais\\s+semblant|ton\\s+nouveau\\s+r[ôo]le|imagine\\s+(?:un|une)\\s+(?:assistant|bot|ia|chatbot|intelligence)\\s+(?:sans|without|with\\s+no)|you\\s+are\\s+(?:an?|the)\\s+[\\w ]{0,20}?(?:with\\s+no|without)\\s+(?:\\w+\\s+){0,2}?(?:rules|restrictions|limits|guidelines)|from\\s+now\\s+on,?\\s+(?:treat|consider|act|assume)|consid[èe]re\\s+chaque\\s+message\\s+comme)';
+const AUTHORITY_CLAIM =
+  "(?:i\\s+am\\s+(?:the\\s+|your\\s+)?(?:developer|owner|administrator|admin|operator|creator|engineer)|as\\s+(?:the\\s+|your\\s+)?(?:developer|owner|administrator|operator|creator)\\s+of\\s+this|(?:security\\s+team|developers?|owner|operator|management)\\s+(?:has\\s+|have\\s+)?(?:approved|authori[sz]ed|validated|confirmed)|je\\s+suis\\s+(?:le\\s+|la\\s+)?(?:d[ée]veloppeu[rs]e?|responsable|propri[ée]taire|administrateur|g[ée]rant|[ée]quipe)|en\\s+tant\\s+que\\s+(?:d[ée]veloppeu[rs]e?|responsable|propri[ée]taire|administrateur)|l[’']?[ée]quipe\\s+s[ée]curit[ée]\\s+(?:a|ont)\\s+(?:valid[ée]|approuv[ée]|autoris[ée])|(?:le|la|mon)\\s+(?:responsable|directeur|directrice|g[ée]rant)\\s+(?:a|ont)\\s+(?:donn[ée]|valid[ée]|approuv[ée]|autoris[ée])|(?:my|the)\\s+(?:manager|boss|supervisor)\\s+(?:has\\s+|have\\s+)?(?:authori[sz]ed|approved|validated))";
+const DELIMITER =
+  '(?:<\\/?(?:system|assistant|instructions?|sys)>|\\[(?:system|inst|sys)\\]|^#{2,}\\s*(?:system|instructions?)\\b|(?:new|updated|nouvelles?)\\s+(?:instructions?|rules|r[èe]gles|consignes|policy)\\s*:|(?:end|fin)\\s+(?:of\\s+)?(?:the\\s+)?(?:instructions?|prompt|consignes)\\b|<\\|im_(?:start|end)\\|>|```\\s*(?:system|prompt))';
+const REVEAL_VERB =
+  '(?:print|show|reveal|repeat|output|display|quote|dump|recite|copy|translate|list|write\\s+out|tell\\s+me|affiche[rz]?|montre[rz]?|r[ée]v[èe]le[rz]?|recopie[rz]?|traduis|donne[rz]?|[ée]cris|[ée]crivez)';
+const REVEAL_OBJECT =
+  "(?:(?:your|the|les|tes|ton|ta|vos|hidden|initial|original|system|secret)\\s+(?:\\w+\\s+){0,2}?(?:prompt|instructions?|setup|configuration|rules|text|consignes?|r[èe]gles|texte|comportement)|everything\\s+(?:above|before)|ce\\s+qui\\s+(?:se\\s+trouve\\s+)?au-dessus|le\\s+texte\\s+(?:cach[ée]|initial|d[’']?initialisation)|texte\\s+qui\\s+d[ée]finit)";
+const RE = (src: string) => new RegExp(src, 'iu');
+
 export const ATTACK_RULES: readonly { id: string; pattern: RegExp }[] = [
   {
-    id: 'ignore-instructions',
-    pattern:
-      /\bignore\s+(all\s+|any\s+|the\s+|your\s+)?(previous|prior|above|earlier|preceding)\s+(instructions?|rules?|messages?|prompts?|guidelines?)/i,
+    id: 'override-assistant-rules',
+    pattern: RE(`\\b${OVERRIDE_VERB}\\b${SENTENCE}\\b${ASSISTANT_OBJECT}\\b`),
   },
-  {
-    id: 'disregard-instructions',
-    pattern:
-      /\bdisregard\s+(all\s+|any\s+|the\s+|your\s+)?(previous|prior|above|earlier|your)\s+(instructions?|rules?|guidelines?|programming)/i,
-  },
-  {
-    id: 'persona-switch',
-    pattern:
-      /\byou\s+are\s+now\s+(in\s+)?(developer|dev|god|unrestricted|jailbreak(?:ed)?)\s+mode\b|\bdo\s+anything\s+now\b/i,
-  },
-  {
-    id: 'reveal-prompt',
-    pattern:
-      /\b(reveal|show|print|repeat|output|dump)\s+(me\s+)?(your|the)\s+(system|hidden|initial|original)\s+(prompt|instructions?)/i,
-  },
-  {
-    id: 'drop-restrictions',
-    pattern:
-      /\b(pretend|act\s+as\s+if)\s+(you\s+have\s+no|there\s+are\s+no)\s+(rules|restrictions|limits|guidelines)|\b(forget|drop)\s+(your|all)\s+(rules|restrictions|guidelines|training)/i,
-  },
-  {
-    id: 'fake-system-tag',
-    pattern: /<\/?system>|\[system\]|###\s*system\b/i,
-  },
-  {
-    id: 'fr-ignore-instructions',
-    pattern:
-      /\b(ignore[rz]?|oublie[rz]?)\s+(toutes?\s+|les\s+|tes\s+|vos\s+|ces\s+)?(instructions?|r[èe]gles?|consignes?|directives?)\s+(pr[ée]c[ée]dentes?s?|ci-dessus|ant[ée]rieures?)/i,
-  },
-  {
-    id: 'fr-drop-restrictions',
-    pattern:
-      /\b(oublie[rz]?|ignore[rz]?)\s+(toutes?\s+)?(tes|vos)\s+(r[èe]gles|consignes|limites)\b|\bfais\s+comme\s+si\s+(tu|vous)\s+n\s*['’ ]?\s*avais?\s+aucune\s+r[èe]gle/i,
-  },
-  {
-    id: 'fr-persona-switch',
-    pattern:
-      /\btu\s+es\s+maintenant\s+en\s+mode\s+(d[ée]veloppeur|sans\s+limite)|\bconsid[èe]re\s+chaque\s+message\s+comme\s+venant\s+du\s+d[ée]veloppeur/i,
-  },
-  {
-    id: 'fr-reveal-prompt',
-    pattern:
-      /\b(affiche|montre|r[ée]v[èe]le|donne)[^.?!]{0,30}\b(prompt|instructions?)\s+(syst[èe]me|cach[ée])/i,
-  },
-  {
-    id: 'fr-copy-instructions',
-    pattern:
-      /\b(recopie[rz]?|[ée]cris|[ée]crivez)[^.?!]{0,40}(consignes|instructions|texte\s+qui\s+d[ée]finit)|\bd[ée]finit\s+(ton|votre|vos)\s+comportement/i,
-  },
+  { id: 'role-claim', pattern: RE(ROLE_CLAIM) },
+  { id: 'authority-claim', pattern: RE(AUTHORITY_CLAIM) },
+  { id: 'delimiter-trick', pattern: RE(DELIMITER) },
+  { id: 'reveal-setup', pattern: RE(`(?<!\\p{L})${REVEAL_VERB}(?!\\p{L})${SENTENCE}\\b${REVEAL_OBJECT}\\b`) },
 ];
 
 export const COMPLIANCE_RULES: readonly { id: string; pattern: RegExp }[] = [

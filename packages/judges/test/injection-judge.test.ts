@@ -21,7 +21,7 @@ describe('judgeAttack: a judge reads one message as an attempt or an ordinary re
     const request = judge.requests[0];
     expect(request?.criterion.name).toBe(ATTACK_CRITERION.name);
     expect(request?.transcript).toEqual([{ role: 'user', text: 'Could you check my order?' }]);
-    expect(ATTACK_CRITERION.rubric).toMatch(/override the assistant/);
+    expect(ATTACK_CRITERION.rubric).toMatch(/aimed at the assistant/);
   });
 
   it('a judge that gives no answer throws: never a benign or attack verdict', async () => {
