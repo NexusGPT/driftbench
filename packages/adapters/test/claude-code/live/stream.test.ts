@@ -301,6 +301,24 @@ describe('the real stream shapes', () => {
     expect(rows.every((row) => row.at === '2026-10-12T10:00:00.000Z')).toBe(true);
   });
 
+  it('names a hook whose name carries the tool, not the matcher, by the matcher that matches the tool', () => {
+    // Seen in the live sweep: a hook under the matcher Edit|Write reports itself as PreToolUse:Edit.
+    const edit = line({
+      type: 'system',
+      subtype: 'hook_response',
+      hook_id: 'h9',
+      hook_name: 'PreToolUse:Edit',
+      hook_event: 'PreToolUse',
+      stdout: '',
+      stderr: '',
+      exit_code: 0,
+      outcome: 'success',
+      session_id: sid,
+    });
+    const rows = hookDecisions(parseStream(edit), settings, '2026-10-12T10:00:00.000Z');
+    expect(rows.map((row) => `${row.check}:${row.verdict}`)).toEqual(['read-before-edit.py:allow']);
+  });
+
   it('names a hook by its event and matcher when the settings hold none or several commands for it', () => {
     const rows = hookDecisions(stream(), undefined, '2026-10-12T10:00:00.000Z');
     expect(rows.map((row) => row.check)).toEqual([

@@ -2,6 +2,7 @@
 export {
   copyEstate,
   ESTATE_COPY_FILES,
+  insideCopy,
   invertText,
   MutantError,
   type MutantResult,

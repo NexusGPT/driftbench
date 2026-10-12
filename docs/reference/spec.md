@@ -37,6 +37,7 @@ The loader rewrites these forms before it validates a spec.
 * [ToolExpect](#toolexpect)
 * [Count](#count)
 * [Assertion](#assertion)
+* [ToolsOfferedExpect](#toolsofferedexpect)
 * [SimilarityExpect](#similarityexpect)
 * [RelevancyExpect](#relevancyexpect)
 * [RetentionExpect](#retentionexpect)
@@ -245,6 +246,7 @@ The expected output and state delta of a block. Every field is optional.
 | `stage` | string, not empty | no |  | The stage the agent must reach after the block, one of the spec stages. |
 | `ledger_add` | map of string to any value | no |  | Facts the block establishes. They join the ledger. |
 | `tools` | list of [ToolExpect](#toolexpect) | no |  | The tool calls expected in the block. |
+| `tools_offered` | [ToolsOfferedExpect](#toolsofferedexpect) | no |  | The tools the runtime must offer and must not offer, whether or not the agent calls them. |
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
 | `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
 | `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
@@ -308,6 +310,15 @@ Write one of these forms.
 | `nonempty` | `true` | Present and not empty. |
 | `absent` | `true` | Absent. |
 | `subset` | map of string to JSON value | Holds at least these keys with these values. |
+
+## ToolsOfferedExpect
+
+The tools the runtime offers the agent, read from the runtime trace; calls do not count.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `include` | list of strings, each not empty | no |  | Tools the runtime must offer. |
+| `exclude` | list of strings, each not empty | no |  | Tools the runtime must not offer, such as a tool a setting denies. |
 
 ## SimilarityExpect
 

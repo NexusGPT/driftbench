@@ -15,8 +15,8 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 20,
-    "phrases": 38,
+    "situations": 21,
+    "phrases": 40,
     "workspaces": 1
   },
   "sessions": {
@@ -30,8 +30,8 @@
   "summary": {
     "specs": 1379,
     "blocks": 1382,
-    "complete": 234,
-    "incomplete": 1145,
+    "complete": 230,
+    "incomplete": 1149,
     "judged": 70
   },
   "perTestType": {
@@ -116,8 +116,8 @@
     "guard_positive": {
       "rows": 72,
       "specs": 72,
-      "complete": 8,
-      "incomplete": 64
+      "complete": 4,
+      "incomplete": 68
     },
     "guard_negative": {
       "rows": 6,
@@ -214,14 +214,14 @@
     "live": {
       "rows": 1340,
       "specs": 1340,
-      "complete": 228,
-      "incomplete": 1112
+      "complete": 224,
+      "incomplete": 1116
     }
   },
   "gaps": [
     {
       "marker": "needs-approved-phrase",
-      "specs": 607,
+      "specs": 620,
       "atoms": [
         "gate.invoice-reconcile.read-references-matching-rules-md-before",
         "gate.standing.never-report-done-before-verify-passed",
@@ -317,6 +317,11 @@
         "tool.weekly-report.declared-write"
       ],
       "details": [
+        "a forced situation for guard.settings.posttooluse-bash-guard-ledger-guard-py",
+        "a forced situation for guard.settings.pretooluse-edit-write-guard-read-before",
+        "a forced situation for guard.settings.stop-guard-reply-length-py",
+        "a forced situation for guard.settings.userpromptsubmit-guard-stop-word-sh",
+        "a forced situation for guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
         "a misroute situation for route.inbox-triager.an-ask-that-fits-inbox-triager",
         "a misroute situation for route.invoice-reconcile.an-ask-that-fits-invoice-reconcile",
         "a misroute situation for route.ledger-auditor.an-ask-that-fits-ledger-auditor",
@@ -401,7 +406,6 @@
         "a trigger situation for gate.standing.read-git-status-before-commit-to",
         "a trigger situation for guard.settings.posttooluse-bash-guard-ledger-guard-py",
         "a trigger situation for guard.settings.stop-guard-reply-length-py",
-        "a trigger situation for guard.settings.userpromptsubmit-guard-stop-word-sh",
         "a trigger situation for guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
         "a trigger situation for hazard.standing.recover-from-a-compaction-of-the",
         "a trigger situation for hazard.standing.recover-from-a-new-session",
@@ -811,7 +815,7 @@
     },
     {
       "marker": "needs-workspace-outcome",
-      "specs": 606,
+      "specs": 619,
       "atoms": [
         "gate.invoice-reconcile.read-references-matching-rules-md-before",
         "gate.standing.never-report-done-before-verify-passed",

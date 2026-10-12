@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "[no approved phrase: trigger situation for guard.settings.stop-guard-reply-length-py]"
+      user: "[no approved phrase: forced situation for guard.settings.stop-guard-reply-length-py]"
     expect:
       guards:
         - name: reply-length.py
@@ -65,7 +65,7 @@ metadata:
     needs:
       - marker: needs-approved-phrase
         atom: guard.settings.stop-guard-reply-length-py
-        detail: a trigger situation for guard.settings.stop-guard-reply-length-py
+        detail: a forced situation for guard.settings.stop-guard-reply-length-py
       - marker: needs-workspace-outcome
         atom: guard.settings.stop-guard-reply-length-py
         detail: no situation of the bank declares the paths the ask may touch

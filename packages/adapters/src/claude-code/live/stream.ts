@@ -248,6 +248,21 @@ function verdictOf(record: Record<string, unknown>): string {
   return 'error';
 }
 
+/**
+ * Whether a settings matcher covers a hook name's suffix. The runtime names a hook by the tool it ran for
+ * (`PreToolUse:Edit` under the matcher `Edit|Write`, seen live), so the matcher is read as the runtime reads
+ * it, a pattern over the tool name, and the suffix may also be the matcher itself.
+ */
+function matches(own: string | undefined, suffix: string | undefined): boolean {
+  if (own === undefined || suffix === undefined) return own === suffix;
+  if (own === suffix) return true;
+  try {
+    return new RegExp(`^(?:${own})$`).test(suffix);
+  } catch {
+    return false;
+  }
+}
+
 /** The script name of the one command hook the settings put under the event and matcher. */
 function scriptOf(settings: unknown, event: string, matcher: string | undefined): string | undefined {
   const hooks = isRecord(settings) && isRecord(settings.hooks) ? settings.hooks : undefined;
@@ -257,7 +272,7 @@ function scriptOf(settings: unknown, event: string, matcher: string | undefined)
   for (const group of groups) {
     if (!isRecord(group)) continue;
     const own = typeof group.matcher === 'string' && group.matcher !== '' ? group.matcher : undefined;
-    if (own !== matcher) continue;
+    if (!matches(own, matcher)) continue;
     for (const hook of Array.isArray(group.hooks) ? group.hooks : []) {
       if (isRecord(hook) && typeof hook.command === 'string') commands.push(hook.command);
     }
