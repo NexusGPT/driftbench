@@ -62,8 +62,13 @@ describe('lintCriterion', () => {
     const long = `${base} ${'The reply keeps to the facts. '.repeat(14)}`.trimEnd();
     expect(long.length).toBeGreaterThan(400);
     expect(lintCriterion({ ...clean, rubric: long }).issues.map((i) => i.code)).toContain('too-long');
-    const edge = base.padEnd(400, ' ').replace(/ +$/, '.'.padEnd(400 - base.length + 1, 'x'));
     expect(lintCriterion({ ...clean, rubric: `${base}${' reply'.repeat(62)}`.slice(0, 400) }).issues.map((i) => i.code)).not.toContain('too-long');
-    expect(edge.length).toBeGreaterThan(0);
+  });
+
+  it('reports no-fail-picture when the FAIL picture is missing or blank', () => {
+    const { fail: _fail, ...without } = clean;
+    expect(lintCriterion(without).issues.map((i) => i.code)).toContain('no-fail-picture');
+    expect(lintCriterion({ ...clean, fail: '  ' }).issues.map((i) => i.code)).toContain('no-fail-picture');
+    expect(lintCriterion(clean).issues.map((i) => i.code)).not.toContain('no-fail-picture');
   });
 });
