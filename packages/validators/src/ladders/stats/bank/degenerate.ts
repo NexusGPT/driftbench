@@ -480,14 +480,14 @@ function cases(): Case[] {
     ],
     [
       'krippendorffAlpha',
-      "krippendorffAlpha([[1, 2], [1, 2]], { level: 'ratio' as never })",
+      "krippendorffAlpha([[1, 2], [1, 2]], { level: 'cubic' as never })",
       (s) =>
         s.krippendorffAlpha(
           [
             [1, 2],
             [1, 2],
           ],
-          { level: 'ratio' as never },
+          { level: 'cubic' as never },
         ),
     ],
     [
