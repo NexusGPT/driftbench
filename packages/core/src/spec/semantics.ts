@@ -288,7 +288,12 @@ function factsOf(spec: Spec): Facts {
 }
 
 /** A retention fact must be in the ledger before the block, and its ask pattern must compile. */
-function checkRetention(expect: Expect, path: string, known: (fact: string) => boolean, issues: Issue[]): void {
+function checkRetention(
+  expect: Expect,
+  path: string,
+  known: (fact: string) => boolean,
+  issues: Issue[],
+): void {
   expect.knowledge_retention?.forEach((entry, index) => {
     const at = `${path}.knowledge_retention.${index}`;
     if (!known(entry.fact)) {

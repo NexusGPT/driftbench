@@ -123,7 +123,9 @@ export function compoundingIndex(
       index: passT - passF,
       // One spec is one cluster, whatever its targets: resampling one cluster always draws the same blocks,
       // so no interval is given.
-      ...(options.interval && new Set(allClusters).size > 1 ? { interval: options.interval(allValues, allClusters) } : {}),
+      ...(options.interval && new Set(allClusters).size > 1
+        ? { interval: options.interval(allValues, allClusters) }
+        : {}),
     },
   };
 }

@@ -69,8 +69,7 @@ export function recoveryOf(
   // docs/concepts/recovery.md "The label rule" is the contract: immediate when the run recovered within
   // recovery.within_blocks blocks of the injection, late when it recovered after them, never otherwise.
   const within = perturbation.recovery.within_blocks;
-  const label =
-    turnsToRecover === undefined ? 'never' : turnsToRecover <= within ? 'immediate' : 'late';
+  const label = turnsToRecover === undefined ? 'never' : turnsToRecover <= within ? 'immediate' : 'late';
 
   let collateral = 0;
   if (options.reference) {

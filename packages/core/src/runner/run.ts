@@ -16,7 +16,7 @@ import {
   Verdict,
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
-import { contentHash } from '../spec/hash';
+import { cloneJson, contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
 import { cellId } from './cell';
@@ -360,7 +360,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       for (let r = 0; r < (observed.retries?.length ?? 0); r += 1) {
         run.onEvent?.({ type: 'retry', index: position, at: new Date().toISOString() });
       }
-      history = [...history, ...user, assistantMessage(observed)];
+      history = [...history, ...cloneJson(user), cloneJson(assistantMessage(observed))];
       lastKey = key;
 
       const facts = addFacts(state.ledger, planned.expect.ledger_add);

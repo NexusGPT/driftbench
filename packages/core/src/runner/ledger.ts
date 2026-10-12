@@ -58,12 +58,11 @@ export function ledgerContradictions(
     }
   }
 
-  const said = userMessages.map((message) => message.content).join('\n');
   for (const { fact, value } of facts.values()) {
     if (typeof value !== 'string') continue;
     const kind = kindOf(value);
     if (!kind) continue;
-    const others = valuesOf(kind, said).filter((other) => !sameValue(other, value));
+    const others = saidValues(kind, userMessages).filter((other) => !sameValue(other, value));
     if (others.length === 0) continue;
     const stated = valuesOf(kind, observed.text);
     if (stated.length === 0) continue;
@@ -141,6 +140,30 @@ function kindOf(value: string): 'email' | 'phone' | undefined {
   if (new RegExp(`^${PHONE.source}$`).test(value.trim()) && digits(value).length >= PHONE_DIGITS)
     return 'phone';
   return undefined;
+}
+
+const saidOf = new WeakMap<Message, { email?: string[]; phone?: string[] }>();
+
+/**
+ * The values of a kind the user messages name, in order. A message is read once for the life of the message
+ * (a newline ends a value, so reading the messages one by one finds what reading them joined finds), so the
+ * cost of a block does not grow with the conversation before it.
+ */
+function saidValues(kind: 'email' | 'phone', messages: readonly Message[]): string[] {
+  const out: string[] = [];
+  for (const message of messages) {
+    let read = saidOf.get(message);
+    if (!read) {
+      read = {};
+      saidOf.set(message, read);
+    }
+    read[kind] ??= valuesOf(
+      kind,
+      typeof message.content === 'string' ? message.content : String(message.content ?? ''),
+    );
+    out.push(...read[kind]);
+  }
+  return out;
 }
 
 function valuesOf(kind: 'email' | 'phone', text: string): string[] {

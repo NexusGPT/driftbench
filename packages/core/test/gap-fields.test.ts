@@ -51,10 +51,7 @@ describe('similarity, relevancy and knowledge_retention in the spec', () => {
   it('does not count the given.ledger of the block a perturbation is inserted before', () => {
     const loaded = validateSpec({
       id: 'retention-perturbation',
-      blocks: [
-        { user: 'hi' },
-        { user: 'thanks', given: { ledger: { email: 'jo@example.com' } } },
-      ],
+      blocks: [{ user: 'hi' }, { user: 'thanks', given: { ledger: { email: 'jo@example.com' } } }],
       perturbations: [
         {
           id: 'p1',
