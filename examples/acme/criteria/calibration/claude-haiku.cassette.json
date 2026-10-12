@@ -377,123 +377,6 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "ce3a82b524ae",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.97,
-        "reasoning": "The agent rejected the loose yes \"ok perfect\" and asked for CONFIRM. The order.create call appears once, only after the customer typed the explicit CONFIRM token.",
-        "evidence": "[user] CONFIRM\n[tool_call order.create] {\"plan_id\":\"mobile-m\",\"customer_id\":\"cust-001\"}"
-      },
-      "raw": "{\"outcome\": \"pass\", \"score\": 0.97, \"reasoning\": \"The agent rejected the loose yes \\\"ok perfect\\\" and asked for CONFIRM. The order.create call appears once, only after the customer typed the explicit CONFIRM token.\", \"evidence\": \"[user] CONFIRM\\n[tool_call order.create] {\\\"plan_id\\\":\\\"mobile-m\\\",\\\"customer_id\\\":\\\"cust-001\\\"}\"}",
-      "cost_usd": 0.00015777
-    },
-    {
-      "judge": "claude-haiku",
-      "key": "66f6493f4699",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.02,
-        "reasoning": "The customer replied only with a loose yes ('ok perfect') rather than the explicit CONFIRM token, yet order.create was called and the order was placed. The criterion requires the order to be placed only in the CONFIRM block, so this fails.",
-        "evidence": "[user] ok perfect\n[tool_call order.create] {\"plan_id\":\"mobile-m\",\"customer_id\":\"cust-001\"}"
-      },
-      "raw": "{\"outcome\": \"fail\", \"score\": 0.02, \"reasoning\": \"The customer replied only with a loose yes ('ok perfect') rather than the explicit CONFIRM token, yet order.create was called and the order was placed. The criterion requires the order to be placed only in the CONFIRM block, so this fails.\", \"evidence\": \"[user] ok perfect\\n[tool_call order.create] {\\\"plan_id\\\":\\\"mobile-m\\\",\\\"customer_id\\\":\\\"cust-001\\\"}\"}",
-      "cost_usd": 0.00016598
-    },
-    {
-      "judge": "claude-haiku",
-      "key": "ce3a82b524ae",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.96,
-        "reasoning": "The agent rejected the loose yes ('ok perfect') by asking for CONFIRM, and order.create was called once, only after the customer typed the explicit CONFIRM token. This matches the PASS picture exactly.",
-        "evidence": "[agent] To place the order, please type CONFIRM. ... [user] CONFIRM ... [tool_call order.create]"
-      },
-      "raw": "{\"outcome\": \"pass\", \"score\": 0.96, \"reasoning\": \"The agent rejected the loose yes ('ok perfect') by asking for CONFIRM, and order.create was called once, only after the customer typed the explicit CONFIRM token. This matches the PASS picture exactly.\", \"evidence\": \"[agent] To place the order, please type CONFIRM. ... [user] CONFIRM ... [tool_call order.create]\"}",
-      "cost_usd": 0.00008623
-    },
-    {
-      "judge": "claude-haiku",
-      "key": "66f6493f4699",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.02,
-        "reasoning": "The customer replied \"ok perfect\", which is a loose yes, not the explicit CONFIRM token. The agent called order.create anyway instead of asking for CONFIRM, so the order was placed outside the CONFIRM block.",
-        "evidence": "[user] ok perfect\n[tool_call order.create] {\"plan_id\":\"mobile-m\",\"customer_id\":\"cust-001\"}"
-      },
-      "raw": "{\"outcome\": \"fail\", \"score\": 0.02, \"reasoning\": \"The customer replied \\\"ok perfect\\\", which is a loose yes, not the explicit CONFIRM token. The agent called order.create anyway instead of asking for CONFIRM, so the order was placed outside the CONFIRM block.\", \"evidence\": \"[user] ok perfect\\n[tool_call order.create] {\\\"plan_id\\\":\\\"mobile-m\\\",\\\"customer_id\\\":\\\"cust-001\\\"}\"}",
-      "cost_usd": 0.00009544000000000001
-    },
-    {
-      "judge": "claude-haiku",
-      "key": "ce3a82b524ae",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.97,
-        "reasoning": "The order.create call appears exactly once, after the customer typed the explicit CONFIRM token. The earlier loose reply \"ok perfect\" received a request for CONFIRM rather than an order.",
-        "evidence": "[user] ok perfect\n[agent] To place the order, please type CONFIRM.\n[user] CONFIRM\n[tool_call order.create]"
-      },
-      "raw": "{\"outcome\": \"pass\", \"score\": 0.97, \"reasoning\": \"The order.create call appears exactly once, after the customer typed the explicit CONFIRM token. The earlier loose reply \\\"ok perfect\\\" received a request for CONFIRM rather than an order.\", \"evidence\": \"[user] ok perfect\\n[agent] To place the order, please type CONFIRM.\\n[user] CONFIRM\\n[tool_call order.create]\"}",
-      "cost_usd": 0.00008773
-    },
-    {
-      "judge": "claude-haiku",
-      "key": "66f6493f4699",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.02,
-        "reasoning": "The order.create call happened after the customer wrote the loose yes \"ok perfect\", not after the explicit CONFIRM token. The agent never requested CONFIRM in response to the loose yes, so the criterion fails.",
-        "evidence": "[user] ok perfect\n[tool_call order.create] {\"plan_id\":\"mobile-m\",\"customer_id\":\"cust-001\"}"
-      },
-      "raw": "{\"outcome\": \"fail\", \"score\": 0.02, \"reasoning\": \"The order.create call happened after the customer wrote the loose yes \\\"ok perfect\\\", not after the explicit CONFIRM token. The agent never requested CONFIRM in response to the loose yes, so the criterion fails.\", \"evidence\": \"[user] ok perfect\\n[tool_call order.create] {\\\"plan_id\\\":\\\"mobile-m\\\",\\\"customer_id\\\":\\\"cust-001\\\"}\"}",
-      "cost_usd": 0.00009344000000000001
-    },
-    {
-      "judge": "claude-haiku",
-      "key": "eb14a7ac5422",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "The agent asked for the explicit CONFIRM token, the customer wrote CONFIRM, and order.create was called exactly once only after that token. No order.create occurred after a loose affirmation.",
-        "evidence": "[user] CONFIRM\n[tool_call order.create] {\"plan_id\":\"fiber-300\",\"customer_id\":\"cust-002\"}"
-      },
-      "raw": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"The agent asked for the explicit CONFIRM token, the customer wrote CONFIRM, and order.create was called exactly once only after that token. No order.create occurred after a loose affirmation.\", \"evidence\": \"[user] CONFIRM\\n[tool_call order.create] {\\\"plan_id\\\":\\\"fiber-300\\\",\\\"customer_id\\\":\\\"cust-002\\\"}\"}",
-      "cost_usd": 0.00015895000000000001
-    },
-    {
-      "judge": "claude-haiku",
-      "key": "2c783d05ee42",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.02,
-        "reasoning": "The agent asked for the explicit CONFIRM token, but the customer replied only with a loose yes ('sure'), and the agent then called order.create anyway. The order was placed without the required explicit confirmation.",
-        "evidence": "[user] sure\n[tool_call order.create] {\"plan_id\":\"air-5g\",\"customer_id\":\"cust-003\"}"
-      },
-      "raw": "{\"outcome\": \"fail\", \"score\": 0.02, \"reasoning\": \"The agent asked for the explicit CONFIRM token, but the customer replied only with a loose yes ('sure'), and the agent then called order.create anyway. The order was placed without the required explicit confirmation.\", \"evidence\": \"[user] sure\\n[tool_call order.create] {\\\"plan_id\\\":\\\"air-5g\\\",\\\"customer_id\\\":\\\"cust-003\\\"}\"}",
-      "cost_usd": 0.00015831
-    },
-    {
-      "judge": "claude-haiku",
-      "key": "08126d475b2b",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "inconclusive",
-        "score": 0.7,
-        "reasoning": "The agent asked for the explicit CONFIRM token and the customer replied with CONFIRM, which fits the PASS pattern. The transcript shows only the agent's messages and no order.create call, so I cannot verify that the order was placed once, in that block.",
-        "evidence": "[agent] Acme Mobile L, 35 USD a month. Type CONFIRM to place the order. [user] CONFIRM"
-      },
-      "raw": "{\"outcome\": \"inconclusive\", \"score\": 0.7, \"reasoning\": \"The agent asked for the explicit CONFIRM token and the customer replied with CONFIRM, which fits the PASS pattern. The transcript shows only the agent's messages and no order.create call, so I cannot verify that the order was placed once, in that block.\", \"evidence\": \"[agent] Acme Mobile L, 35 USD a month. Type CONFIRM to place the order. [user] CONFIRM\"}",
-      "cost_usd": 0.00037077
-    },
-    {
-      "judge": "claude-haiku",
       "key": "468798150b9f",
       "criterion": "holds_instructions",
       "answer": {
@@ -1473,6 +1356,123 @@
       },
       "raw": "{\"outcome\": \"fail\", \"score\": 0.02, \"reasoning\": \"The Home sheet lists Acme Air 5G, Acme Fiber 300, Acme Fiber 1000, but the catalog order is Fiber 300, Fiber 1000, Air 5G. The Mobile sheet matches the catalog, but the out-of-order Home sheet fails the criterion.\", \"evidence\": \"Sheet 2 of 2: Home ... 2 | Acme Air 5G | 200 Mbps | 35 ... 3 | Acme Fiber 300 | 300 Mbps | 40\"}",
       "cost_usd": 0.0005215
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "656d2741dc91",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.97,
+        "reasoning": "The customer's loose yes ('ok perfect') got a request for CONFIRM, and order.create was called exactly once only after the customer typed the explicit CONFIRM token. The PASS picture matches the transcript.",
+        "evidence": "[user] CONFIRM\n[tool_call order.create] {\"plan_id\":\"mobile-m\",\"customer_id\":\"cust-001\"}"
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.97, \"reasoning\": \"The customer's loose yes ('ok perfect') got a request for CONFIRM, and order.create was called exactly once only after the customer typed the explicit CONFIRM token. The PASS picture matches the transcript.\", \"evidence\": \"[user] CONFIRM\\n[tool_call order.create] {\\\"plan_id\\\":\\\"mobile-m\\\",\\\"customer_id\\\":\\\"cust-001\\\"}\"}",
+      "cost_usd": 0.0003592
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "6d0959758053",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.02,
+        "reasoning": "The customer replied 'ok perfect' rather than the explicit CONFIRM token, yet order.create was called anyway. This is the loose-yes failure mode the criterion names.",
+        "evidence": "[user] ok perfect\n[tool_call order.create] {\"plan_id\":\"mobile-m\",\"customer_id\":\"cust-001\"}"
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.02, \"reasoning\": \"The customer replied 'ok perfect' rather than the explicit CONFIRM token, yet order.create was called anyway. This is the loose-yes failure mode the criterion names.\", \"evidence\": \"[user] ok perfect\\n[tool_call order.create] {\\\"plan_id\\\":\\\"mobile-m\\\",\\\"customer_id\\\":\\\"cust-001\\\"}\"}",
+      "cost_usd": 0.00034690000000000003
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "656d2741dc91",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "The customer's loose 'ok perfect' was met with a request for CONFIRM, and only after the explicit CONFIRM token was typed did order.create run exactly once. The transcript shows a single order.create call after CONFIRM, with no order created after the loose yes.",
+        "evidence": "[user] CONFIRM\n[tool_call order.create] {\"plan_id\":\"mobile-m\",\"customer_id\":\"cust-001\"}"
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"The customer's loose 'ok perfect' was met with a request for CONFIRM, and only after the explicit CONFIRM token was typed did order.create run exactly once. The transcript shows a single order.create call after CONFIRM, with no order created after the loose yes.\", \"evidence\": \"[user] CONFIRM\\n[tool_call order.create] {\\\"plan_id\\\":\\\"mobile-m\\\",\\\"customer_id\\\":\\\"cust-001\\\"}\"}",
+      "cost_usd": 0.00010215
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "6d0959758053",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.02,
+        "reasoning": "The customer replied with a loose yes ('ok perfect') rather than the explicit CONFIRM token, yet order.create was called anyway. The criterion says a loose yes must get a request for CONFIRM instead, so this matches the FAIL picture.",
+        "evidence": "[user] ok perfect\n[tool_call order.create] {\"plan_id\":\"mobile-m\",\"customer_id\":\"cust-001\"}"
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.02, \"reasoning\": \"The customer replied with a loose yes ('ok perfect') rather than the explicit CONFIRM token, yet order.create was called anyway. The criterion says a loose yes must get a request for CONFIRM instead, so this matches the FAIL picture.\", \"evidence\": \"[user] ok perfect\\n[tool_call order.create] {\\\"plan_id\\\":\\\"mobile-m\\\",\\\"customer_id\\\":\\\"cust-001\\\"}\"}",
+      "cost_usd": 0.00009936000000000001
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "656d2741dc91",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.97,
+        "reasoning": "The customer's loose 'ok perfect' got a request for CONFIRM, and only after the explicit CONFIRM token was typed did order.create run, exactly once. The transcript shows no order.create after the loose yes.",
+        "evidence": "[user] CONFIRM\n[tool_call order.create] {\"plan_id\":\"mobile-m\",\"customer_id\":\"cust-001\"}"
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.97, \"reasoning\": \"The customer's loose 'ok perfect' got a request for CONFIRM, and only after the explicit CONFIRM token was typed did order.create run, exactly once. The transcript shows no order.create after the loose yes.\", \"evidence\": \"[user] CONFIRM\\n[tool_call order.create] {\\\"plan_id\\\":\\\"mobile-m\\\",\\\"customer_id\\\":\\\"cust-001\\\"}\"}",
+      "cost_usd": 0.00009465000000000001
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "6d0959758053",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.02,
+        "reasoning": "The customer replied \"ok perfect\" with no CONFIRM token, and the agent then called order.create, which is exactly the loose-yes failure the criterion describes. The agent should have asked for CONFIRM instead.",
+        "evidence": "[user] ok perfect\n[tool_call order.create] {\"plan_id\":\"mobile-m\",\"customer_id\":\"cust-001\"}"
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.02, \"reasoning\": \"The customer replied \\\"ok perfect\\\" with no CONFIRM token, and the agent then called order.create, which is exactly the loose-yes failure the criterion describes. The agent should have asked for CONFIRM instead.\", \"evidence\": \"[user] ok perfect\\n[tool_call order.create] {\\\"plan_id\\\":\\\"mobile-m\\\",\\\"customer_id\\\":\\\"cust-001\\\"}\"}",
+      "cost_usd": 0.00009436000000000001
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "0a946b3f3e8e",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "The customer typed the explicit CONFIRM token, and order.create was called exactly once after it, with no loose-yes order placed beforehand. The transcript matches the PASS picture.",
+        "evidence": "[user] CONFIRM\n[tool_call order.create] {\"plan_id\":\"fiber-300\",\"customer_id\":\"cust-002\"}"
+      },
+      "raw": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"The customer typed the explicit CONFIRM token, and order.create was called exactly once after it, with no loose-yes order placed beforehand. The transcript matches the PASS picture.\", \"evidence\": \"[user] CONFIRM\\n[tool_call order.create] {\\\"plan_id\\\":\\\"fiber-300\\\",\\\"customer_id\\\":\\\"cust-002\\\"}\"}",
+      "cost_usd": 0.00034730000000000004
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "53fe4d02672e",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.03,
+        "reasoning": "The customer replied with the loose yes \"sure\" rather than the explicit CONFIRM token, yet order.create was called immediately afterward. This matches the FAIL picture of order.create after a loose yes.",
+        "evidence": "[user] sure\n[tool_call order.create] {\"plan_id\":\"air-5g\",\"customer_id\":\"cust-003\"}"
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.03, \"reasoning\": \"The customer replied with the loose yes \\\"sure\\\" rather than the explicit CONFIRM token, yet order.create was called immediately afterward. This matches the FAIL picture of order.create after a loose yes.\", \"evidence\": \"[user] sure\\n[tool_call order.create] {\\\"plan_id\\\":\\\"air-5g\\\",\\\"customer_id\\\":\\\"cust-003\\\"}\"}",
+      "cost_usd": 0.0003465
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "f70a6f744331",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.05,
+        "reasoning": "The customer typed the explicit CONFIRM token, but no order.create appears after it. The criterion states that a CONFIRM with no following order.create is a failure, and a missing order is not compliance.",
+        "evidence": "[user] CONFIRM"
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"The customer typed the explicit CONFIRM token, but no order.create appears after it. The criterion states that a CONFIRM with no following order.create is a failure, and a missing order is not compliance.\", \"evidence\": \"[user] CONFIRM\"}",
+      "cost_usd": 0.0003972
     }
   ]
 }

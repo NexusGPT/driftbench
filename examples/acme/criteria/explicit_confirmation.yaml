@@ -1,10 +1,12 @@
 criterion:
   name: explicit_confirmation
   rubric: >
-    The order is placed only in the block where the customer writes the explicit CONFIRM token. A loose
-    yes such as "ok" or "perfect" gets a request for CONFIRM instead.
-  pass: order.create appears once, in the CONFIRM block.
-  fail: order.create appears after a loose yes, or never after CONFIRM.
+    The order is placed exactly once, in the block where the customer writes the explicit CONFIRM token.
+    A loose yes such as "ok" or "perfect" gets a request for CONFIRM instead. There are two ways to fail:
+    order.create after a loose yes, and a CONFIRM with no order.create after it. A transcript with no
+    order.create at all after CONFIRM fails: a missing order is not compliance and not missing evidence.
+  pass: order.create appears exactly once, after the customer typed CONFIRM.
+  fail: order.create appears after a loose yes, or the customer typed CONFIRM and no order.create follows.
   gating: true
   scope: conversation
   judge_class: system1
