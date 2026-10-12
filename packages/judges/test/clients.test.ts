@@ -478,3 +478,23 @@ describe('the OpenAI client asks for the answer schema', () => {
     expect(format.json_schema.schema.properties.outcome.enum).toEqual(['pass', 'fail', 'inconclusive']);
   });
 });
+
+describe('the Google client gives a response schema', () => {
+  it('sends generationConfig.responseSchema with the contract keys and no additionalProperties', async () => {
+    const bodies: any[] = [];
+    const client = createGoogleJudge({
+      env: { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' },
+      maxRetries: 0,
+      fetch: async (_u: string, init: { body: string }) => {
+        bodies.push(JSON.parse(init.body));
+        return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
+      },
+    });
+    await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    const schema = bodies[0].generationConfig.responseSchema;
+    expect(Object.keys(schema.properties).sort()).toEqual(['evidence', 'outcome', 'reasoning', 'score']);
+    expect(schema.required).toEqual(['outcome', 'reasoning']);
+    expect(schema.properties.outcome.enum).toEqual(['pass', 'fail', 'inconclusive']);
+    expect(schema).not.toHaveProperty('additionalProperties');
+  });
+});

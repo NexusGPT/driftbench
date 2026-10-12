@@ -38,6 +38,9 @@ const ANSWER_SCHEMA = {
   additionalProperties: false,
 } as const;
 
+/** The same schema in the subset Gemini takes: no additionalProperties. */
+const { additionalProperties: _open, ...GOOGLE_ANSWER_SCHEMA } = ANSWER_SCHEMA;
+
 /** A truncated answer: unparsed, so the council re-judges it once with the large budget. */
 function truncated(raw: string, model: string): JudgeResult {
   return {
@@ -177,6 +180,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
           contents: [{ role: 'user', parts: [{ text: prompt.user }] }],
           generationConfig: {
             responseMimeType: 'application/json',
+            responseSchema: GOOGLE_ANSWER_SCHEMA,
             maxOutputTokens: budgetOf(request),
             temperature: 0,
           },
