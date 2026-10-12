@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -6,7 +7,7 @@ import { openStore } from '@driftbench/store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
 import { type Io, main } from '../src/index';
-import { startViewer, type Viewer } from '../src/view/server';
+import { QUEUE_KEYS_SCRIPT, startViewer, type Viewer } from '../src/view/server';
 
 const made: string[] = [];
 let dir = '';
@@ -69,4 +70,17 @@ describe('the viewer review queue', () => {
     expect(saved.status).toBe(303);
     expect((await readQueue(labels)).entries[0]).toMatchObject({ state: 'done', assignee: 'Ana' });
   }, 120_000);
+});
+
+describe('the viewer queue page: keyboard script under a hash, agreement shown', () => {
+  it('allows only the queue page script, by the hash of its exact text, and nothing else', async () => {
+    const page = await fetch(`${viewer.url}/queue`);
+    const hash = createHash('sha256').update(QUEUE_KEYS_SCRIPT).digest('base64');
+    expect(page.headers.get('content-security-policy')).toContain(`script-src 'sha256-${hash}'`);
+    const html = await page.text();
+    expect(html).toContain(`<script>${QUEUE_KEYS_SCRIPT}</script>`);
+    expect(html).toMatch(/agreement/i);
+    const campaign = await fetch(`${viewer.url}/`);
+    expect(campaign.headers.get('content-security-policy')).not.toContain('script-src');
+  });
 });

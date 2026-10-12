@@ -796,6 +796,7 @@ describe('the driftbench ci GitHub Action', () => {
           .filter((l) => l !== '' && !/ExperimentalWarning|--trace-warnings/.test(l)),
       ).toEqual([]);
       expect(parity.result.status).toBe(0);
+      expect(parity.result.stdout).toMatch(/Margin [0-9.]+ points \((auto|given)/);
       expect(await readFile(parity.output, 'utf8')).toBe(`verdict=parity\nreport-path=${parity.report}\n`);
       expect((await summaryAt(parity.report)).verdict).toBe('parity');
 

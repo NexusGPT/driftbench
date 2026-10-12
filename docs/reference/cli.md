@@ -1361,9 +1361,11 @@ Budget: 1 of 3 queries used, 2 left. Which conversation passed is not shown: the
 driftbench queue create --store <db> --campaign <id> [--labels <dir>]
 driftbench queue list [--labels <dir>]
 driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> [--labels <dir>]
+driftbench queue vote <runId>.b<index> --criterion <name> --reviewer <name> --label <pass|fail> [--labels <dir>]
+driftbench queue agreement [--labels <dir>]
 ```
 
-The review queue of blocks to label, kept beside the labels as `queue.json`. `create` queues each block of a campaign once per criterion of its spec, skipping blocks already labelled. `list` prints each item with its state and holder. `assign` takes an item for a reviewer; a second reviewer is refused with exit 2. Saving a label on the viewer's queue page marks its item done. See [viewer](../viewer.md#review-queue).
+The review queue of blocks to label, kept beside the labels as `queue.json`. `create` queues each block of a campaign once per criterion of its spec, skipping blocks already labelled. `list` prints each item with its state and holder. `assign` takes an item for a reviewer; a second reviewer is refused with exit 2. `vote` records a second reviewer's label without writing the labels file, and `agreement` prints the agreement between the first two reviewers of each item with two votes. Saving a label on the viewer's queue page marks its item done. See [viewer](../viewer.md#review-queue).
 
 ## `driftbench view`
 

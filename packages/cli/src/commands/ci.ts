@@ -11,9 +11,7 @@ import {
 } from '@driftbench/core';
 import { faultAdapter, importFaultSet } from '@driftbench/generate';
 import {
-  type AggregateCriterion,
   type AggregateResult,
-  aggregateFromFlag,
   autoMargin,
   type CampaignData,
   type CompareResult,
@@ -27,6 +25,7 @@ import {
 import { localProvider } from '@driftbench/sandbox';
 import { pairedRateDifference } from '@driftbench/stats';
 import type { Command } from 'commander';
+import { criteriaFromConfig } from '../aggregate-config';
 import type { Io } from '../io';
 import { type CampaignDeps, campaignRunCommand, defaultDeps, parseTarget } from './campaign';
 import { parseGate } from './compare';
@@ -63,6 +62,7 @@ const VERDICT_TEXT: Record<CiVerdict, string> = {
 
 type CiCommandOptions = {
   aggregate?: string[];
+  config?: string;
   specs: string;
   target: string;
   baseline: string;
@@ -193,6 +193,10 @@ export function registerCiCommand(
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--json', 'print the JSON summary instead of the table')
     .option(
+      '--config <file>',
+      'the project config, with an aggregates list; default driftbench.yaml in the working folder',
+    )
+    .option(
       '--aggregate <spec>',
       'a campaign-level criterion, name:op threshold, e.g. pass-rate:>=0.8; repeatable; a failing one fails the gate',
       collect,
@@ -205,13 +209,12 @@ export function registerCiCommand(
 
 /** `driftbench ci`. Returns the exit code. */
 export async function ciCommand(options: CiCommandOptions, io: Io, deps: CampaignDeps): Promise<number> {
-  let criteria: AggregateCriterion[];
-  try {
-    criteria = (options.aggregate ?? []).map((text) => aggregateFromFlag(text));
-  } catch (cause) {
-    io.err(`${message(cause)}\n`);
+  const loadedCriteria = await criteriaFromConfig(options, io.cwd);
+  if (!loadedCriteria.ok) {
+    io.err(`${loadedCriteria.message}\n`);
     return 2;
   }
+  const criteria = loadedCriteria.criteria;
   const gate = parseGate(options, io);
   if (!gate) return 2;
   const flags = options.flag.length > 0 ? options.flag : [...DEFAULT_FLAGS];

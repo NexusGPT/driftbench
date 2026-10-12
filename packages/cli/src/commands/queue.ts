@@ -1,6 +1,15 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { assign, enqueue, type ReviewQueue, readLabelFile, readQueue, writeQueue } from '@driftbench/judges';
+import {
+  addVote,
+  agreementOf,
+  assign,
+  enqueue,
+  type ReviewQueue,
+  readLabelFile,
+  readQueue,
+  writeQueue,
+} from '@driftbench/judges';
 import { type CampaignData, loadCampaign } from '@driftbench/report';
 import { openStore } from '@driftbench/store';
 import type { Command } from 'commander';
@@ -29,6 +38,31 @@ export function registerQueueCommand(program: Command, io: Io, setExit: (code: n
     .option('--labels <dir>', 'the labels folder the queue sits in', 'labels')
     .action(async (options: { labels: string }) => {
       setExit(await listCommand(options, io));
+    });
+  queue
+    .command('vote')
+    .description(
+      'Record a reviewer label on an item, as a second view of the same block. Does not write the labels file.',
+    )
+    .argument('<block>', 'the block id, <runId>.b<index>')
+    .requiredOption('--criterion <name>', 'the criterion of the item')
+    .requiredOption('--reviewer <name>', 'who votes')
+    .requiredOption('--label <pass|fail>', 'the label')
+    .option('--labels <dir>', 'the labels folder the queue sits in', 'labels')
+    .action(
+      async (
+        block: string,
+        options: { criterion: string; reviewer: string; label: string; labels: string },
+      ) => {
+        setExit(await voteCommand(block, options, io));
+      },
+    );
+  queue
+    .command('agreement')
+    .description('Print the agreement between the first two reviewers of each item that has two votes.')
+    .option('--labels <dir>', 'the labels folder the queue sits in', 'labels')
+    .action(async (options: { labels: string }) => {
+      setExit(await agreementCommand(options, io));
     });
   queue
     .command('assign')
@@ -127,4 +161,40 @@ async function assignCommand(
     io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
     return 2;
   }
+}
+
+async function voteCommand(
+  block: string,
+  options: { criterion: string; reviewer: string; label: string; labels: string },
+  io: Io,
+): Promise<number> {
+  if (options.label !== 'pass' && options.label !== 'fail') {
+    io.err(`--label takes pass or fail, not "${options.label}".\n`);
+    return 2;
+  }
+  const labels = resolve(io.cwd, options.labels);
+  try {
+    const next = addVote(await readQueue(labels), options.criterion, block, options.reviewer, options.label);
+    await writeQueue(labels, next);
+    io.out(`${options.reviewer} voted ${options.label} on ${block} (${options.criterion}).\n`);
+    return 0;
+  } catch (cause) {
+    io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return 2;
+  }
+}
+
+async function agreementCommand(options: { labels: string }, io: Io): Promise<number> {
+  const agreement = agreementOf(await readQueue(resolve(io.cwd, options.labels)));
+  if (agreement.items === 0 || agreement.percent === undefined) {
+    io.out('No item has two votes yet: no agreement to report.\n');
+    return 0;
+  }
+  const items = `${agreement.items} item${agreement.items === 1 ? '' : 's'}`;
+  const percent = Math.round(agreement.percent * 100);
+  const kappa = agreement.kappa === undefined ? 'n/a' : agreement.kappa.toFixed(2);
+  io.out(
+    `Agreement over ${items} with two votes: ${agreement.agreed} agree (${percent}%), kappa ${kappa}.\n`,
+  );
+  return 0;
 }

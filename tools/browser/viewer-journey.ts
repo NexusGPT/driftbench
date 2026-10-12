@@ -119,6 +119,13 @@ try {
 
     await page.goto(`${viewer.url}/queue`);
     await check('queue');
+    await page.locator('#queue tbody a, #queue tbody button').first().waitFor();
+    await page.keyboard.press('j');
+    const focusedInQueue = await page.evaluate(
+      "!!document.activeElement && !!document.activeElement.closest('#queue')",
+    );
+    record.push({ width, keyboardFocusInQueue: focusedInQueue });
+    expect(focusedInQueue === true, `${width} px: the j key does not move focus into the queue`);
     const takeRow = page.locator('#queue tbody tr', { has: page.locator('button') }).first();
     const queuedCriterion = (await takeRow.locator('td').nth(1).innerText()).trim();
     await takeRow.locator('button').click();
