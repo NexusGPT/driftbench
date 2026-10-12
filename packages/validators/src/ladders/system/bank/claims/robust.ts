@@ -1784,6 +1784,7 @@ type Pause =
   | { kind: 'block'; spec: string; block: number; occurrence?: number }
   | { kind: 'cell'; after: number }
   /** The nth COMMIT of the store: the first sets up the new file, each later one files a run. */
+  /** Killed at the COMMIT of the nth run record. */
   | { kind: 'commit'; n: number }
   | { kind: 'report' };
 
@@ -1816,17 +1817,29 @@ const runnerScript = (
 ) => `import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { planCampaign, runCampaign, validateSpec } from ${JSON.stringify(src(ctx, 'core'))};
-import { openStore } from ${JSON.stringify(src(ctx, 'store'))};
+import { openMemoryStore, openStore } from ${JSON.stringify(src(ctx, 'store'))};
 import { functionAdapter } from ${JSON.stringify(src(ctx, 'adapters'))};
 import { createScriptedDriver } from ${JSON.stringify(src(ctx, 'users'))};
 const cfg = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const pause = cfg.pause ?? {};
 const hang = () => { writeFileSync(cfg.marker, String(process.pid)); Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0); };
 if (pause.kind === 'commit') {
-  let n = 0;
+  // Killed at the COMMIT of the nth run record, whatever else the store commits before it (specs, campaign,
+  // cache): the record is written inside putRun's one transaction.
+  let records = 0;
+  let inRecord = false;
+  const probe = openMemoryStore();
+  const proto = Object.getPrototypeOf(probe);
+  await probe.close();
+  const putRun = proto.putRun;
+  proto.putRun = async function (...args) {
+    records += 1;
+    inRecord = records === pause.n;
+    try { return await putRun.apply(this, args); } finally { inRecord = false; }
+  };
   const exec = DatabaseSync.prototype.exec;
   DatabaseSync.prototype.exec = function (sql) {
-    if (sql === 'COMMIT' && ++n === pause.n) { writeFileSync(cfg.marker, 'commit'); process.kill(process.pid, 'SIGKILL'); }
+    if (sql === 'COMMIT' && inRecord) { writeFileSync(cfg.marker, 'commit'); process.kill(process.pid, 'SIGKILL'); }
     return exec.call(this, sql);
   };
 }
@@ -2162,7 +2175,7 @@ function resumeItems(): BankItem[] {
     cause: 'putRun writes a run record in one transaction that a kill rolls back whole',
     async check(ctx) {
       const dir = folderFor(ctx, 'kill-write');
-      const cfg = runnerConfig(dir, 'write', ctx, { pause: { kind: 'commit', n: 3 } });
+      const cfg = runnerConfig(dir, 'write', ctx, { pause: { kind: 'commit', n: 2 } });
       const killed = await killedCampaign(ctx, dir, cfg);
       const between = await storedRuns(cfg);
       const resumed = await resumeHere(cfg);
@@ -2171,7 +2184,7 @@ function resumeItems(): BankItem[] {
       return expectAll([
         [
           killed.marked && killed.ended.signal === 'SIGKILL',
-          `expected the writer killed at its second commit, it ended ${killed.ended.code} ${killed.ended.signal}: ${killed.ended.err.slice(0, 200)}`,
+          `expected the writer killed at the commit of its second run record, it ended ${killed.ended.code} ${killed.ended.signal}: ${killed.ended.err.slice(0, 200)}`,
         ],
         [
           same(blocksBetween, ['rb-write-0:3']),
@@ -2313,13 +2326,14 @@ function resumeItems(): BankItem[] {
   });
 
   r({
-    slug: 'cache-partial-run-goes-live',
+    slug: 'cache-partial-run-resumes-at-first-miss',
     tier: 3,
     component: 'packages/core/src/runner/run.ts',
     source: 'contract',
     title:
-      'docs/running.md "The cache and replay": a cell killed mid run left some blocks in the cache; any block the cache misses sends the whole run to the adapter, so the resumed run is live, not a replay',
-    cause: 'runSpec sends the whole run live when the cache misses a block of a killed run',
+      'docs/running.md "The cache and replay": a run resumes from its first unfinished block; the blocks the cache holds are read back, and from the first block it does not hold the adapter answers every later block live',
+    cause:
+      'runSpec reads back the cached blocks of a killed run and sends the run live from its first uncached block',
     async check(ctx) {
       const dir = folderFor(ctx, 'cache-partial');
       const pb = pauseBlock(ctx.seed);
@@ -2332,19 +2346,25 @@ function resumeItems(): BankItem[] {
       const resumed = await resumeHere(cfg);
       const added = delta(before, logCounts(cfg.log));
       const run = resumed.outcomes[1]?.run;
+      const again = [...added.entries()].filter(([key]) => key.startsWith('rb-cpart-1 '));
+      const early = again.filter(([key]) => Number(key.split(' ')[1]) < pb);
+      const late = again.filter(([key]) => Number(key.split(' ')[1]) >= pb);
       return expectAll([
         [
           killed.marked && killed.killed,
           `expected the run killed at block ${pb}, it ended ${killed.ended.code} ${killed.ended.signal}`,
         ],
         [resumed.error === undefined, `expected the recovery to finish, got ${kindOf(resumed.error)}`],
+        [run?.status === 'completed', `expected the killed cell's run completed, got ${run?.status}`],
         [
-          run?.cacheHit === false && run.status === 'completed',
-          `expected the killed cell's new run live and completed, got cacheHit ${run?.cacheHit} ${run?.status}`,
+          early.length === 0,
+          `expected the blocks before ${pb} read back from the cache, the adapter answered ${countsText(new Map(early))}`,
         ],
         [
-          added.get('rb-cpart-1 0') === 1,
-          `expected block 0 of the killed cell answered again live, got ${countsText(added)}`,
+          late.length > 0 &&
+            late.every(([, n]) => n === 1) &&
+            late.some(([key]) => key === `rb-cpart-1 ${pb}`),
+          `expected every block from ${pb} on answered live once, got ${countsText(new Map(late))}`,
         ],
       ]);
     },
@@ -2360,7 +2380,7 @@ function resumeItems(): BankItem[] {
     cause: 'runSpec replays a run whose every block the cache holds',
     async check(ctx) {
       const dir = folderFor(ctx, 'cache-written');
-      const cfg = runnerConfig(dir, 'cwrite', ctx, { cache: true, pause: { kind: 'commit', n: 3 } });
+      const cfg = runnerConfig(dir, 'cwrite', ctx, { cache: true, pause: { kind: 'commit', n: 2 } });
       const killed = await killedCampaign(ctx, dir, cfg);
       const before = logCounts(cfg.log);
       const resumed = await resumeHere(cfg);
@@ -2369,7 +2389,7 @@ function resumeItems(): BankItem[] {
       return expectAll([
         [
           killed.marked && killed.ended.signal === 'SIGKILL',
-          `expected the writer killed at its second commit, it ended ${killed.ended.code} ${killed.ended.signal}`,
+          `expected the writer killed at the commit of its second run record, it ended ${killed.ended.code} ${killed.ended.signal}`,
         ],
         [resumed.error === undefined, `expected the recovery to finish, got ${kindOf(resumed.error)}`],
         [
@@ -2394,7 +2414,7 @@ function resumeItems(): BankItem[] {
     cause: 'campaign status reads a cell whose record write was killed as pending',
     async check(ctx) {
       const dir = folderFor(ctx, 'status-write');
-      const cfg = runnerConfig(dir, 'swrite', ctx, { pause: { kind: 'commit', n: 3 } });
+      const cfg = runnerConfig(dir, 'swrite', ctx, { pause: { kind: 'commit', n: 2 } });
       const killed = await killedCampaign(ctx, dir, cfg);
       const res = await cli(['campaign', 'status', cfg.campaignId, '--store', cfg.path, '--json'], dir);
       let cells: Array<{ state?: string; runId?: string }> = [];
@@ -2406,7 +2426,7 @@ function resumeItems(): BankItem[] {
       return expectAll([
         [
           killed.marked && killed.ended.signal === 'SIGKILL',
-          `expected the writer killed at its second commit, it ended ${killed.ended.code} ${killed.ended.signal}`,
+          `expected the writer killed at the commit of its second run record, it ended ${killed.ended.code} ${killed.ended.signal}`,
         ],
         [
           res.code === 1,

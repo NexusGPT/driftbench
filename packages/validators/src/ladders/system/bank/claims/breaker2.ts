@@ -2154,25 +2154,32 @@ add(
   10,
   'contract',
   'driftbench report',
-  `${QAGG} ("the share of all runs that pass")`,
-  'pass-rate prints passing runs over all runs and passes when the threshold is met',
+  `${QAGG} and "Interval and planning" ("the share of all runs that pass"; the Wilson interval decides the threshold when it lies entirely on one side of it)`,
+  'pass-rate prints passing runs over all runs, passes a threshold its Wilson interval lies above and fails one it lies below',
   async (ctx) => {
     const p = await smallPair(ctx);
     const cells = await runCells(p, 'cand');
-    const v = cells.filter((c) => c.state === 'pass').length / cells.length;
-    const lo = (Math.floor(v * 100) / 100).toFixed(2);
-    const hi = (Math.floor(v * 100) / 100 + 0.02).toFixed(2);
-    const a = await reportOf(p, 'cand', 'ag1', [
-      '--aggregate',
-      `pass-rate:>=${lo}`,
-      '--aggregate',
-      `pass-rate:>=${hi}`,
-    ]);
-    const lines = a.r.out.split('\n').filter((l) => l.startsWith('aggregate '));
+    const k = cells.filter((c) => c.state === 'pass').length;
+    const v = k / cells.length;
+    const [low, high] = wilson(k, cells.length);
+    // Thresholds two points outside the interval, so the interval lies entirely on one side of each.
+    const below = Math.floor((low - 0.02) * 100) / 100;
+    const above = Math.ceil((high + 0.02) * 100) / 100;
+    if (below <= 0 || above >= 1)
+      return fail(`the fixture rate ${v} leaves no room outside its interval [${low}, ${high}]`);
+    // One threshold per report: docs/aggregates.md does not say what two flags of one name do.
+    const lines: string[] = [];
+    for (const [tag, spec] of [
+      ['ag1a', `pass-rate:>=${below}`],
+      ['ag1b', `pass-rate:>=${above}`],
+    ] as const) {
+      const one = await reportOf(p, 'cand', tag, ['--aggregate', spec]);
+      lines.push(...one.r.out.split('\n').filter((l) => l.startsWith('aggregate ')));
+    }
     return expectAll([
       [
         lines.length === 2 && /passes/.test(lines[0] as string) && /fails/.test(lines[1] as string),
-        `expected a pass then a fail for value ${v}, got ${lines.join(' | ')}`,
+        `expected >= ${below} to pass and >= ${above} to fail for value ${v} (interval ${low} to ${high}), got ${lines.join(' | ')}`,
       ],
       [
         lines.every((l) => l.includes(`(${v} `)),
@@ -2213,28 +2220,36 @@ add(
   10,
   'contract',
   'driftbench report',
-  `${QAGG} (>= is at-least, <= is at-most)`,
-  '<= fails above the threshold and passes at it, >= the reverse',
+  `${QAGG} and "Interval and planning" (>= is at-least, <= is at-most; the interval decides when it lies entirely on one side of the threshold)`,
+  '<= passes a threshold the interval lies below and fails one it lies above, >= the reverse',
   async (ctx) => {
     const p = await smallPair(ctx);
     const cells = await runCells(p, 'cand');
-    const v = cells.filter((c) => c.state === 'pass').length / cells.length;
-    const a = await reportOf(p, 'cand', 'ag3', [
-      '--aggregate',
-      `pass-rate:<=${v}`,
-      '--aggregate',
-      `pass-rate:>=${v}`,
-      '--aggregate',
-      `pass-rate:<=${Math.max(0, v - 0.05)}`,
-    ]);
-    const lines = a.r.out.split('\n').filter((l) => l.startsWith('aggregate '));
+    const k = cells.filter((c) => c.state === 'pass').length;
+    const v = k / cells.length;
+    const [low, high] = wilson(k, cells.length);
+    const below = Math.floor((low - 0.02) * 100) / 100;
+    const above = Math.ceil((high + 0.02) * 100) / 100;
+    if (below <= 0 || above >= 1)
+      return fail(`the fixture rate ${v} leaves no room outside its interval [${low}, ${high}]`);
+    const lines: string[] = [];
+    const specs = [
+      `pass-rate:<=${above}`,
+      `pass-rate:<=${below}`,
+      `pass-rate:>=${below}`,
+      `pass-rate:>=${above}`,
+    ];
+    for (const [index, spec] of specs.entries()) {
+      const one = await reportOf(p, 'cand', `ag3-${index}`, ['--aggregate', spec]);
+      lines.push(...one.r.out.split('\n').filter((l) => l.startsWith('aggregate ')));
+    }
+    const word = (l: string | undefined) =>
+      /passes/.test(l ?? '') ? 'passes' : /fails/.test(l ?? '') ? 'fails' : '?';
+    const got = lines.map(word).join(', ');
     return expectAll([
       [
-        lines.length === 3 &&
-          /passes/.test(lines[0] as string) &&
-          /passes/.test(lines[1] as string) &&
-          /fails/.test(lines[2] as string),
-        `expected passes, passes, fails for v=${v}, got ${lines.join(' | ')}`,
+        lines.length === 4 && got === 'passes, fails, passes, fails',
+        `expected passes, fails, passes, fails (value ${v}, interval ${low} to ${high}), got ${lines.join(' | ')}`,
       ],
     ]);
   },

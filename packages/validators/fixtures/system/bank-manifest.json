@@ -3980,13 +3980,13 @@
       "cause": "runCampaign reruns a failed cell and the store replaces its run"
     },
     {
-      "id": "robust/resume/cache-partial-run-goes-live",
+      "id": "robust/resume/cache-partial-run-resumes-at-first-miss",
       "family": "robust-resume",
       "tier": 3,
       "level": 1,
       "source": "contract",
       "component": "packages/core/src/runner/run.ts",
-      "cause": "runSpec sends the whole run live when the cache misses a block of a killed run"
+      "cause": "runSpec reads back the cached blocks of a killed run and sends the run live from its first uncached block"
     },
     {
       "id": "robust/resume/cache-written-run-replays",
@@ -15812,7 +15812,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench report",
-      "cause": "driftbench report: pass-rate prints passing runs over all runs and passes when the threshold is met"
+      "cause": "driftbench report: pass-rate prints passing runs over all runs, passes a threshold its Wilson interval lies above and fails one it lies below"
     },
     {
       "id": "breaker2/report/aggregate-broken-share",
@@ -15830,7 +15830,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench report",
-      "cause": "driftbench report: <= fails above the threshold and passes at it, >= the reverse"
+      "cause": "driftbench report: <= passes a threshold the interval lies below and fails one it lies above, >= the reverse"
     },
     {
       "id": "breaker2/report/aggregate-unreadable-first",
