@@ -234,4 +234,23 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     expect(result.tools).toEqual(['findAccount', 'placeOrder']);
     expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag', 'place_order.in.flag']);
   });
+
+  it('reads JSON with comments and keeps quotes from the original text', () => {
+    const text = `// Tool schemas.
+{
+  "tools": [ // one tool
+    {
+      "name": "findAccount", /* block */
+      "input_schema": { "type": "object", "required": ["flag"], "properties": { "flag": { "type": "boolean" } } }
+    }
+  ]
+}
+`;
+    const result = toolsPrepass(text, 'tools.jsonc');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
+    expect(text).toContain(result.dimensions[0]?.values[0]?.evidence.quote ?? '#');
+    const url = toolsPrepass('{"tools":[{"name":"a","input_schema":{"type":"object","properties":{"u":{"type":"string","pattern":"^http://x"}}}}]}', 'tools.json');
+    expect(url.ok).toBe(true);
+  });
 });

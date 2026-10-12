@@ -47,7 +47,18 @@ type Partition = { id: string; title: string; quote: string };
 
 export function toolsPrepass(text: string, source: string): ToolsPrepass {
   // A stream of documents (`---` between them) holds one tool per document: read as a list of tools.
-  const docs = parseAllDocuments(text, { uniqueKeys: true, prettyErrors: true });
+  let docs = parseAllDocuments(text, { uniqueKeys: true, prettyErrors: true });
+  if (docs.some((doc) => doc.errors.length > 0)) {
+    // JSON with comments: blank the comments (same length, so every position stays) and read again.
+    const blanked = blankComments(text);
+    if (blanked !== text) {
+      const again = parseAllDocuments(blanked, { uniqueKeys: true, prettyErrors: true });
+      if (again.every((doc) => doc.errors.length === 0)) {
+        docs = again;
+        text = blanked;
+      }
+    }
+  }
   const first = docs.flatMap((doc) => doc.errors)[0];
   if (first)
     return fail('TOOLS_PARSE', '', first.message.split('\n')[0] ?? 'the file is not valid YAML or JSON');
@@ -84,6 +95,36 @@ export function toolsPrepass(text: string, source: string): ToolsPrepass {
     }
   }
   return { ok: true, tools: read.tools.map((tool) => tool.name), dimensions, notes };
+}
+
+/** `//` and `/* *​/` comments outside strings, replaced by spaces of the same length. */
+function blankComments(text: string): string {
+  let out = '';
+  let i = 0;
+  while (i < text.length) {
+    const c = text[i] as string;
+    const n = text[i + 1];
+    if (c === '"') {
+      let j = i + 1;
+      while (j < text.length && text[j] !== '"') j += text[j] === '\\' ? 2 : 1;
+      out += text.slice(i, j + 1);
+      i = j + 1;
+    } else if (c === '/' && n === '/') {
+      const end = text.indexOf('\n', i);
+      const stop = end === -1 ? text.length : end;
+      out += ' '.repeat(stop - i);
+      i = stop;
+    } else if (c === '/' && n === '*') {
+      const end = text.indexOf('*/', i + 2);
+      const stop = end === -1 ? text.length : end + 2;
+      out += text.slice(i, stop).replace(/[^\n]/g, ' ');
+      i = stop;
+    } else {
+      out += c;
+      i++;
+    }
+  }
+  return out;
 }
 
 type Walk = {

@@ -207,3 +207,15 @@ Sources read:
 What others do: A YAML stream is read document by document; one mapping per document is one tool, as in a list.
 
 What to try, and why: the tool pre-pass reads a YAML stream with one tool per document
+
+## Iteration 18
+
+Question: packages/generate/src/extract/tools.ts: toolsPrepass fails to parse a file with // or block comments before or inside the JSON; tool-formats.jsonc proves it.
+
+Sources read:
+* https://code.visualstudio.com/docs/languages/json#_json-with-comments (JSONC allows // and block comments)
+* packages/validators/src/ladders/map/bank/families/formats.ts (jsonc)
+
+What others do: JSONC readers drop comments outside strings and parse the rest; blanking them keeps every position.
+
+What to try, and why: the tool pre-pass reads JSON with comments
