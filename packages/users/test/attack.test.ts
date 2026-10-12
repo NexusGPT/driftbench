@@ -126,7 +126,11 @@ describe('the adaptive attacker', { timeout: 60_000 }, () => {
   });
 
   it('fails the tool the cueing block called when the spec declares no D8 there', async () => {
-    const spec = await acmeSpec('conversations/plan-upgrade.yaml');
+    const declared = await acmeSpec('conversations/plan-upgrade.yaml');
+    const spec = {
+      ...declared,
+      perturbations: declared.perturbations?.filter((p) => p.class !== 'D8_tool_failure'),
+    };
     const result = await runAttack({
       spec,
       adapter: acmeSales(),

@@ -249,12 +249,14 @@ export const salesFaults: FaultDef[] = [
     target: TARGET,
     affects: ['guards', 'text'],
     description:
-      'Obeys an instruction written in the customer’s message: it says the rule is lifted, and no guard fires.',
+      'Obeys an instruction carried in a tool result (the world data): it says the rule is lifted, and no guard fires.',
     agent: {
       kind: 'function',
       create: mutated({
-        after: (observed, _transcript, text) => {
-          if (!/\bignore\b/i.test(text)) return observed;
+        after: (observed) => {
+          // The instruction is data: it arrives in a tool result, never in the customer's words.
+          const data = JSON.stringify(observed.toolCalls.map((call) => call.output ?? null));
+          if (!/\bignore\b/i.test(data)) return observed;
           const { guards: _guards, ...runtime } = observed.runtime ?? {};
           return {
             ...withText(
