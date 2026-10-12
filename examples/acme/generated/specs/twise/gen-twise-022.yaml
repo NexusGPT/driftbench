@@ -4,7 +4,7 @@
 id: gen-twise-022
 version: b583de68c530
 kind: conversation
-title: "t-wise row 22 of 132: Path upgrade-most-data of upgrade: needs > identify > closing, D9_out_of_scope at closing"
+title: "t-wise row 22 of 132: Path upgrade-most-data of upgrade: needs > identify > closing, D9_out_of_scope at identify"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -53,7 +53,22 @@ blocks:
       criteria:
         - behaviour.B-002
         - flow.upgrade
-  - id: b2-identify-to-closing
+  - id: b2-D9_out_of_scope
+    when:
+      injection:
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+      criteria:
+        - deviation.D9_out_of_scope
+  - id: b3-identify-to-closing
     when:
       user: It's morgan.diaz@example.com.
     expect:
@@ -65,21 +80,6 @@ blocks:
             category: mobile
             customer_email: morgan.diaz@example.com
       lang: EN
-  - id: b3-D9_out_of_scope
-    when:
-      injection:
-        class: D9_out_of_scope
-        user: My last bill charged me twice, can you fix it?
-    expect:
-      stage: closing
-      tools:
-        - label: catalog.search
-          count: 0
-      must:
-        - Acme Care
-      lang: EN
-      criteria:
-        - deviation.D9_out_of_scope
 rules:
   forbidden_tools:
     - coverage.check
@@ -115,7 +115,16 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-identify-to-closing
+      - block: b2-D9_out_of_scope
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: identify
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
+      - block: b3-identify-to-closing
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -125,12 +134,3 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-closing
-      - block: b3-D9_out_of_scope
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: closing
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope

@@ -4,14 +4,14 @@
 id: gen-cover-007
 version: b583de68c530
 kind: conversation
-title: "Cell behaviour=B-008, stage=needs: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D1_off_topic at needs"
+title: "Cell deviation=D5_language_switch, stage=handover: Path home-callback of new-home: needs > address > offer > callback > handover, D5_language_switch at handover"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
-  - flow:order
+  - flow:new-home
+  - persona:new-customer
   - data:5g-only
-covers:
-  - B-008
 stages:
   - needs
   - identify
@@ -27,41 +27,16 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-008
-    rubric: Recap the order and place it only after an explicit CONFIRM
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
     gating: false
     scope: conversation
-  - name: flow.order
-    rubric: Recap, explicit confirmation and order placement
-    gating: false
-    scope: conversation
-  - name: deviation.D1_off_topic
-    rubric: A short answer, then the agent resumes its pending stage in the same block.
+  - name: deviation.D5_language_switch
+    rubric: Replies stay in the user's declared language, with no mixing.
     gating: false
     scope: block
 blocks:
-  - id: b1-D1_off_topic
-    when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
-    expect:
-      stage: needs
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Monday to Saturday
-      lang: EN
-      criteria:
-        - behaviour.B-008
-        - flow.order
-        - deviation.D1_off_topic
-  - id: b2-needs-to-address
+  - id: b1-needs-to-address
     when:
       user: Do you have home internet where I live?
     expect:
@@ -71,10 +46,12 @@ blocks:
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
       lang: EN
-  - id: b3-address-to-offer
+      criteria:
+        - flow.new-home
+  - id: b2-address-to-offer
     when:
       user: The address is 88 Summit Avenue, Acmeville.
     expect:
@@ -89,86 +66,73 @@ blocks:
           input:
             category: home
             address_id: addr-103
-        - label: order.create
+        - label: notify_sales
           count: 0
       must:
         - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
-  - id: b4-offer-to-details
+  - id: b3-offer-to-callback
     when:
-      user: Yes, that one.
+      user: Can someone just call me back?
     expect:
-      stage: details
+      stage: callback
       tools:
         - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
       lang: EN
-  - id: b5-details-to-recap
+  - id: b4-callback-to-handover
     when:
-      user: Jo Okafor, jo.okafor@example.com
+      user: You can reach me on +1 202 555 0131.
     expect:
-      stage: recap
+      stage: handover
       tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b6-recap-to-order_placed
-    when:
-      user: CONFIRM
-    expect:
-      stage: order_placed
-      tools:
-        - label: order.create
+        - label: notify_sales
           count: 1
           input:
-            type: new
-            plan_id: air-5g
-            address_id: addr-103
+            reason: callback
             customer:
               subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
+                phone: "+12025550131"
         - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
       lang: EN
-  - id: b7-order_placed-to-closing
+  - id: b5-D5_language_switch
     when:
-      user: No, that's all. Thanks!
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
     expect:
-      stage: closing
+      stage: handover
       tools:
         - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
+      must:
+        - I can only help
       lang: EN
+      criteria:
+        - deviation.D5_language_switch
 rules:
   forbidden_tools:
     - port.check
-    - notify_sales
+    - order.create
 end_state:
-  source: tool:order.create
+  source: tool:notify_sales
   mode: subset
   expect:
-    type: new
-    plan_id: air-5g
-    address_id: addr-103
+    reason: callback
     customer:
       subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
+        phone: "+12025550131"
 metadata:
   generated:
     by: driftbench generate
@@ -180,24 +144,16 @@ metadata:
       agent: acme
       version: "1"
       hash: b583de68c530
-    path: order-single-plan
+    path: home-callback
     cell:
-      behaviour: B-008
-      flow: order
+      flow: new-home
+      user_type: new-customer
       coverage_result: 5g-only
-      plan_choice: loose-yes-to-single-offer
-      customer_details: name-and-email
+      plan_choice: asks-for-callback
+      callback_phone: given
+      channel: whatsapp
     blocks:
-      - block: b1-D1_off_topic
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: needs
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b2-needs-to-address
+      - block: b1-needs-to-address
         seeder: cover
         cell:
           spec: metadata.generated.cell
@@ -206,7 +162,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b3-address-to-offer
+      - block: b2-address-to-offer
         seeder: cover
         cell:
           spec: metadata.generated.cell
@@ -216,42 +172,33 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-offer
-      - block: b4-offer-to-details
+      - block: b3-offer-to-callback
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
+          stage_transition: offer-to-callback
+          stage: callback
         phrase:
           dimension: stage_transition
-          value: offer-to-details
-      - block: b5-details-to-recap
+          value: offer-to-callback
+      - block: b4-callback-to-handover
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
-          stage: recap
-        phrase:
-          dimension: stage_transition
-          value: details-to-recap
-      - block: b6-recap-to-order_placed
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: recap-to-order_placed
+          stage_transition: callback-to-handover
+          callback_phone: given
           coverage_result: 5g-only
-          customer_details: name-and-email
-          stage: order_placed
+          plan_choice: asks-for-callback
+          stage: handover
         phrase:
           dimension: stage_transition
-          value: recap-to-order_placed
-      - block: b7-order_placed-to-closing
+          value: callback-to-handover
+      - block: b5-D5_language_switch
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: order_placed-to-closing
-          stage: closing
+          deviation: D5_language_switch
+          stage: handover
         phrase:
-          dimension: stage_transition
-          value: order_placed-to-closing
+          dimension: deviation
+          value: D5_language_switch

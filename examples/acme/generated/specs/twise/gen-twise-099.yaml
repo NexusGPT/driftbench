@@ -4,7 +4,7 @@
 id: gen-twise-099
 version: b583de68c530
 kind: conversation
-title: "t-wise row 99 of 132: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D9_out_of_scope at address"
+title: "t-wise row 99 of 132: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D9_out_of_scope at needs"
 channel: chat
 lang: EN
 tier: generated
@@ -42,7 +42,28 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-address
+  - id: b1-D9_out_of_scope
+    when:
+      injection:
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: needs
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+      criteria:
+        - behaviour.B-009
+        - flow.order
+        - deviation.D9_out_of_scope
+  - id: b2-needs-to-address
     when:
       user: Do you have home internet where I live?
     expect:
@@ -55,28 +76,6 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-      criteria:
-        - behaviour.B-009
-        - flow.order
-  - id: b2-D9_out_of_scope
-    when:
-      injection:
-        class: D9_out_of_scope
-        user: My last bill charged me twice, can you fix it?
-    expect:
-      stage: address
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Acme Care
-      lang: EN
-      criteria:
-        - deviation.D9_out_of_scope
   - id: b3-address-to-offer
     when:
       user: The address is 88 Summit Avenue, Acmeville.
@@ -193,7 +192,16 @@ metadata:
       plan_choice: loose-yes-to-single-offer
       customer_details: name-and-email
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-D9_out_of_scope
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: needs
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
+      - block: b2-needs-to-address
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -202,15 +210,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D9_out_of_scope
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: address
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope
       - block: b3-address-to-offer
         seeder: twise
         cell:

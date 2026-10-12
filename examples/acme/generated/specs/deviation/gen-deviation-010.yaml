@@ -4,14 +4,13 @@
 id: gen-deviation-010
 version: b583de68c530
 kind: conversation
-title: "Deviation probe D8_tool_failure: Path home-callback of new-home: needs > address > offer > callback > handover, D8_tool_failure of catalog.search at address"
+title: "Deviation probe D9_out_of_scope: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer, D9_out_of_scope at identify"
 channel: chat
 lang: EN
 tier: generated
 tags:
-  - flow:new-home
-  - persona:new-customer
-  - data:fiber
+  - flow:upgrade
+  - persona:existing-customer
 stages:
   - needs
   - identify
@@ -27,55 +26,60 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: flow.new-home
-    rubric: A new customer asks for home internet at an address
+  - name: flow.upgrade
+    rubric: An existing customer moves to a plan with more data
     gating: false
     scope: conversation
-  - name: deviation.D8_tool_failure
-    rubric: An honest fallback and one retry; never a success that did not happen.
+  - name: deviation.D9_out_of_scope
+    rubric: The agent routes it to the place that handles it and keeps it out of the current flow.
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-address
+  - id: b1-needs-to-identify
     when:
-      user: Hello, I'm looking for home internet.
+      user: Hi, I already have an Acme plan and I need more data.
     expect:
-      stage: address
+      stage: identify
       tools:
-        - label: coverage.check
-          count: 0
         - label: catalog.search
           count: 0
       lang: EN
       criteria:
-        - flow.new-home
-  - id: b2-D8_tool_failure
+        - flow.upgrade
+  - id: b2-D9_out_of_scope
     when:
       injection:
-        class: D8_tool_failure
-        user: The address is 14 Harbor Road, Acmeville.
-    given:
-      world:
-        tools:
-          catalog.search:
-            error: service unavailable (generated tool failure)
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
     expect:
-      stage: callback
+      stage: identify
       tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 14 Harbor Road, Acmeville
         - label: catalog.search
-          count: 2
-          input:
-            category: home
-            address_id: addr-101
+          count: 0
+      must:
+        - Acme Care
       lang: EN
       criteria:
-        - deviation.D8_tool_failure
+        - deviation.D9_out_of_scope
+  - id: b3-identify-to-offer
+    when:
+      user: It's lee.jensen@example.com.
+    expect:
+      stage: offer
+      tools:
+        - label: catalog.search
+          count: 1
+          input:
+            category: mobile
+            customer_email: lee.jensen@example.com
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
+      lang: EN
 rules:
   forbidden_tools:
+    - coverage.check
     - port.check
     - order.create
     - notify_sales
@@ -90,33 +94,39 @@ metadata:
       agent: acme
       version: "1"
       hash: b583de68c530
-    path: home-callback
+    path: upgrade-plan-not-in-catalog
     cell:
-      flow: new-home
-      user_type: new-customer
-      coverage_result: fiber
-      plan_choice: asks-for-callback
-      callback_phone: given
-      failing_tool: catalog.search
+      flow: upgrade
+      user_type: existing-customer
+      account_lookup: plan-not-in-catalog
       channel: chat
+      coverage_result: none
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-needs-to-identify
         seeder: deviation
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-address
-          stage: address
+          stage_transition: needs-to-identify
+          stage: identify
         phrase:
           dimension: stage_transition
-          value: needs-to-address
-      - block: b2-D8_tool_failure
+          value: needs-to-identify
+      - block: b2-D9_out_of_scope
         seeder: deviation
         cell:
           spec: metadata.generated.cell
-          deviation: D8_tool_failure
-          stage_transition: address-to-offer
-          coverage_result: fiber
-          stage: callback
+          deviation: D9_out_of_scope
+          stage: identify
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
+      - block: b3-identify-to-offer
+        seeder: deviation
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: identify-to-offer
+          account_lookup: plan-not-in-catalog
+          stage: offer
         phrase:
           dimension: stage_transition
-          value: address-to-offer
+          value: identify-to-offer

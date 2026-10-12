@@ -4,14 +4,14 @@
 id: gen-deviation-007
 version: b583de68c530
 kind: conversation
-title: "Deviation probe D5_language_switch at closing: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D5_language_switch at closing"
-channel: chat
+title: "Deviation probe D8_tool_failure: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D8_tool_failure of order.create at recap"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - flow:new-home
   - persona:new-customer
-  - data:no-service
+  - data:fiber
 stages:
   - needs
   - identify
@@ -31,8 +31,8 @@ criteria:
     rubric: A new customer asks for home internet at an address
     gating: false
     scope: conversation
-  - name: deviation.D5_language_switch
-    rubric: Replies stay in the user's declared language, with no mixing.
+  - name: deviation.D8_tool_failure
+    rubric: An honest fallback and one retry; never a success that did not happen.
     gating: false
     scope: block
 blocks:
@@ -44,81 +44,106 @@ blocks:
       tools:
         - label: coverage.check
           count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
         - label: notify_sales
           count: 0
       lang: EN
       criteria:
         - flow.new-home
-  - id: b2-address-to-callback
+  - id: b2-address-to-offer
     when:
-      user: The address is 7 Quarry Lane, Acmeville.
+      user: The address is 14 Harbor Road, Acmeville.
     expect:
-      stage: callback
+      stage: offer
       tools:
         - label: coverage.check
           count: 1
           input:
-            address: 7 Quarry Lane, Acmeville
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b3-callback-to-handover
-    when:
-      user: You can reach me on +1 202 555 0131.
-    expect:
-      stage: handover
-      tools:
-        - label: notify_sales
+            address: 14 Harbor Road, Acmeville
+        - label: catalog.search
           count: 1
           input:
-            reason: no_coverage
-            customer:
-              subset:
-                phone: "+12025550131"
-        - label: coverage.check
-          count: 0
-      lang: EN
-  - id: b4-handover-to-closing
-    when:
-      user: Great, thank you. Bye!
-    expect:
-      stage: closing
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b5-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: closing
-      tools:
-        - label: coverage.check
+            category: home
+            address_id: addr-101
+        - label: order.create
           count: 0
         - label: notify_sales
           count: 0
       must:
-        - I can only help
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-offer-to-details
+    when:
+      user: I'll take Acme Fiber 1000.
+    expect:
+      stage: details
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+  - id: b4-details-to-recap
+    when:
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+    expect:
+      stage: recap
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+  - id: b5-D8_tool_failure
+    when:
+      injection:
+        class: D8_tool_failure
+        user: CONFIRM
+    given:
+      world:
+        tools:
+          order.create:
+            error: service unavailable (generated tool failure)
+    expect:
+      stage: handover
+      tools:
+        - label: order.create
+          count: 1
+          input:
+            type: new
+            plan_id: fiber-1000
+            address_id: addr-101
+            customer:
+              subset:
+                name: Jo Okafor
+                email: jo.okafor@example.com
+        - label: notify_sales
+          count: 1
+          input:
+            reason: order_failed
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
       lang: EN
       criteria:
-        - deviation.D5_language_switch
+        - deviation.D8_tool_failure
 rules:
   forbidden_tools:
-    - catalog.search
     - port.check
-    - order.create
-end_state:
-  source: tool:notify_sales
-  mode: subset
-  expect:
-    reason: no_coverage
-    customer:
-      subset:
-        phone: "+12025550131"
 metadata:
   generated:
     by: driftbench generate
@@ -130,13 +155,15 @@ metadata:
       agent: acme
       version: "1"
       hash: b583de68c530
-    path: home-no-coverage
+    path: home-order
     cell:
       flow: new-home
       user_type: new-customer
-      coverage_result: no-service
-      callback_phone: given
-      channel: chat
+      coverage_result: fiber
+      plan_choice: names-one
+      customer_details: name-and-email
+      failing_tool: order.create
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -147,42 +174,44 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-callback
+      - block: b2-address-to-offer
         seeder: deviation
         cell:
           spec: metadata.generated.cell
-          stage_transition: address-to-callback
-          coverage_result: no-service
-          stage: callback
+          stage_transition: address-to-offer
+          coverage_result: fiber
+          stage: offer
         phrase:
           dimension: stage_transition
-          value: address-to-callback
-      - block: b3-callback-to-handover
+          value: address-to-offer
+      - block: b3-offer-to-details
         seeder: deviation
         cell:
           spec: metadata.generated.cell
-          stage_transition: callback-to-handover
-          callback_phone: given
-          coverage_result: no-service
+          stage_transition: offer-to-details
+          stage: details
+        phrase:
+          dimension: stage_transition
+          value: offer-to-details
+      - block: b4-details-to-recap
+        seeder: deviation
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: details-to-recap
+          customer_details: name-and-email
+          stage: recap
+        phrase:
+          dimension: stage_transition
+          value: details-to-recap
+      - block: b5-D8_tool_failure
+        seeder: deviation
+        cell:
+          spec: metadata.generated.cell
+          deviation: D8_tool_failure
+          stage_transition: recap-to-order_placed
+          coverage_result: fiber
+          customer_details: name-and-email
           stage: handover
         phrase:
           dimension: stage_transition
-          value: callback-to-handover
-      - block: b4-handover-to-closing
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: handover-to-closing
-          stage: closing
-        phrase:
-          dimension: stage_transition
-          value: handover-to-closing
-      - block: b5-D5_language_switch
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: closing
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
+          value: recap-to-order_placed

@@ -2,7 +2,6 @@
 # Code wrote it from the approved map: the user turns are approved phrases, the Then comes from the map.
 # Do not edit it by hand: change the map and generate again. Fictional data only.
 # Not runnable yet: 1 block(s) wait for an approved phrase (see metadata.generated.needs_phrase).
-# Why: order.create.in.address_id.absent: the block only forbids tool calls, which a reply that does nothing passes.
 id: gen-boundary-040
 version: b583de68c530
 kind: conversation
@@ -58,5 +57,3 @@ metadata:
     needs_phrase:
       - dimension: order.create.in.address_id
         value: order.create.in.address_id.absent
-    needs_then_why:
-      - "order.create.in.address_id.absent: the block only forbids tool calls, which a reply that does nothing passes"

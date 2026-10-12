@@ -4,7 +4,7 @@
 id: gen-twise-077
 version: b583de68c530
 kind: conversation
-title: "t-wise row 77 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D9_out_of_scope at port_number"
+title: "t-wise row 77 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D9_out_of_scope at needs"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -41,7 +41,28 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-port_number
+  - id: b1-D9_out_of_scope
+    when:
+      injection:
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: needs
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+      criteria:
+        - behaviour.B-007
+        - flow.porting
+        - deviation.D9_out_of_scope
+  - id: b2-needs-to-port_number
     when:
       user: I'd like to move to Acme and keep my phone number.
     expect:
@@ -54,28 +75,6 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-      criteria:
-        - behaviour.B-007
-        - flow.porting
-  - id: b2-D9_out_of_scope
-    when:
-      injection:
-        class: D9_out_of_scope
-        user: My last bill charged me twice, can you fix it?
-    expect:
-      stage: port_number
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Acme Care
-      lang: EN
-      criteria:
-        - deviation.D9_out_of_scope
   - id: b3-port_number-to-offer
     when:
       user: My number is +1 202 555 0160.
@@ -196,7 +195,16 @@ metadata:
       plan_choice: names-one
       customer_details: name-and-email
     blocks:
-      - block: b1-needs-to-port_number
+      - block: b1-D9_out_of_scope
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: needs
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
+      - block: b2-needs-to-port_number
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -205,15 +213,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
-      - block: b2-D9_out_of_scope
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: port_number
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope
       - block: b3-port_number-to-offer
         seeder: twise
         cell:

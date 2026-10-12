@@ -4,13 +4,14 @@
 id: gen-cover-013
 version: b583de68c530
 kind: conversation
-title: "Cell deviation=D1_off_topic, stage=port_number: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D1_off_topic at port_number"
-channel: chat
+title: "Cell deviation=D9_out_of_scope, stage=recap: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D9_out_of_scope at recap"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
-  - flow:porting
+  - flow:new-home
   - persona:new-customer
+  - data:fiber
 stages:
   - needs
   - identify
@@ -26,22 +27,22 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: flow.porting
-    rubric: A new customer switches to Acme and keeps their number
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
     gating: false
     scope: conversation
-  - name: deviation.D1_off_topic
-    rubric: A short answer, then the agent resumes its pending stage in the same block.
+  - name: deviation.D9_out_of_scope
+    rubric: The agent routes it to the place that handles it and keeps it out of the current flow.
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-port_number
+  - id: b1-needs-to-address
     when:
-      user: I'd like to move to Acme and keep my phone number.
+      user: Do you have home internet where I live?
     expect:
-      stage: port_number
+      stage: address
       tools:
-        - label: port.check
+        - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
@@ -49,73 +50,74 @@ blocks:
           count: 0
       lang: EN
       criteria:
-        - flow.porting
-  - id: b2-D1_off_topic
+        - flow.new-home
+  - id: b2-address-to-offer
     when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
-    expect:
-      stage: port_number
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Monday to Saturday
-      lang: EN
-      criteria:
-        - deviation.D1_off_topic
-  - id: b3-port_number-to-offer
-    when:
-      user: My number is +1 202 555 0160.
+      user: The address is 14 Harbor Road, Acmeville.
     expect:
       stage: offer
       tools:
-        - label: port.check
+        - label: coverage.check
           count: 1
           input:
-            number: "+12025550160"
+            address: 14 Harbor Road, Acmeville
         - label: catalog.search
           count: 1
           input:
-            category: mobile
+            category: home
+            address_id: addr-101
         - label: order.create
           count: 0
       must:
-        - Acme Mobile S, 10 GB for \$15 a month
-        - Acme Mobile M, 40 GB for \$25 a month
-        - Acme Mobile L, unlimited data for \$35 a month
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
-  - id: b4-offer-to-details
+  - id: b3-offer-to-details
     when:
-      user: Acme Mobile M, please.
+      user: I'll take Acme Fiber 1000.
     expect:
       stage: details
       tools:
-        - label: port.check
+        - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-details-to-recap
+  - id: b4-details-to-recap
     when:
       user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
       stage: recap
       tools:
-        - label: port.check
+        - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
         - label: order.create
           count: 0
       lang: EN
+  - id: b5-D9_out_of_scope
+    when:
+      injection:
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: recap
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+      criteria:
+        - deviation.D9_out_of_scope
   - id: b6-recap-to-order_placed
     when:
       user: CONFIRM
@@ -126,43 +128,28 @@ blocks:
           count: 1
           input:
             type: new
-            plan_id: mobile-m
-            port_number:
-              absent: true
+            plan_id: fiber-1000
+            address_id: addr-101
             customer:
               subset:
                 name: Jo Okafor
                 email: jo.okafor@example.com
-        - label: port.check
+        - label: coverage.check
           count: 0
         - label: catalog.search
-          count: 0
-      lang: EN
-  - id: b7-order_placed-to-closing
-    when:
-      user: No, that's all. Thanks!
-    expect:
-      stage: closing
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
           count: 0
       lang: EN
 rules:
   forbidden_tools:
-    - coverage.check
+    - port.check
     - notify_sales
 end_state:
   source: tool:order.create
   mode: subset
   expect:
     type: new
-    plan_id: mobile-m
-    port_number:
-      absent: true
+    plan_id: fiber-1000
+    address_id: addr-101
     customer:
       subset:
         name: Jo Okafor
@@ -178,45 +165,35 @@ metadata:
       agent: acme
       version: "1"
       hash: b583de68c530
-    path: porting-locked-number
+    path: home-order
     cell:
-      flow: porting
+      flow: new-home
       user_type: new-customer
-      port_result: locked
+      coverage_result: fiber
       plan_choice: names-one
       customer_details: name-and-email
-      channel: chat
-      coverage_result: none
+      channel: whatsapp
     blocks:
-      - block: b1-needs-to-port_number
+      - block: b1-needs-to-address
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-port_number
-          stage: port_number
+          stage_transition: needs-to-address
+          stage: address
         phrase:
           dimension: stage_transition
-          value: needs-to-port_number
-      - block: b2-D1_off_topic
+          value: needs-to-address
+      - block: b2-address-to-offer
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: port_number
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b3-port_number-to-offer
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: port_number-to-offer
-          port_result: locked
+          stage_transition: address-to-offer
+          coverage_result: fiber
           stage: offer
         phrase:
           dimension: stage_transition
-          value: port_number-to-offer
-      - block: b4-offer-to-details
+          value: address-to-offer
+      - block: b3-offer-to-details
         seeder: cover
         cell:
           spec: metadata.generated.cell
@@ -225,7 +202,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b5-details-to-recap
+      - block: b4-details-to-recap
         seeder: cover
         cell:
           spec: metadata.generated.cell
@@ -235,23 +212,23 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
+      - block: b5-D9_out_of_scope
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: recap
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
       - block: b6-recap-to-order_placed
         seeder: cover
         cell:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
-          port_result: locked
+          coverage_result: fiber
           customer_details: name-and-email
           stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
-      - block: b7-order_placed-to-closing
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: order_placed-to-closing
-          stage: closing
-        phrase:
-          dimension: stage_transition
-          value: order_placed-to-closing

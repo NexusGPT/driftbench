@@ -4,7 +4,7 @@
 id: gen-twise-057
 version: b583de68c530
 kind: conversation
-title: "t-wise row 57 of 132: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D1_off_topic at details"
+title: "t-wise row 57 of 132: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D1_off_topic at offer"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -78,26 +78,13 @@ blocks:
         - Acme Mobile M, 40 GB for \$25 a month
         - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
-  - id: b3-offer-to-details
-    when:
-      user: Acme Mobile M, please.
-    expect:
-      stage: details
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b4-D1_off_topic
+  - id: b3-D1_off_topic
     when:
       injection:
         class: D1_off_topic
         user: Are your stores open on Saturday?
     expect:
-      stage: details
+      stage: offer
       tools:
         - label: port.check
           count: 0
@@ -110,6 +97,19 @@ blocks:
       lang: EN
       criteria:
         - deviation.D1_off_topic
+  - id: b4-offer-to-details
+    when:
+      user: Acme Mobile M, please.
+    expect:
+      stage: details
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
   - id: b5-details-to-recap
     when:
       user: I'm Jo Okafor and my email is jo.okafor@example.com.
@@ -200,7 +200,16 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
-      - block: b3-offer-to-details
+      - block: b3-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: offer
+        phrase:
+          dimension: deviation
+          value: D1_off_topic
+      - block: b4-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -209,15 +218,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b4-D1_off_topic
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: details
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
       - block: b5-details-to-recap
         seeder: twise
         cell:

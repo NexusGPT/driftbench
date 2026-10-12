@@ -4,7 +4,7 @@
 id: gen-twise-039
 version: b583de68c530
 kind: conversation
-title: "t-wise row 39 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D5_language_switch at callback"
+title: "t-wise row 39 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D5_language_switch at address"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -56,7 +56,24 @@ blocks:
       criteria:
         - behaviour.B-004
         - flow.new-home
-  - id: b2-address-to-callback
+  - id: b2-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - deviation.D5_language_switch
+  - id: b3-address-to-callback
     when:
       user: The address is 7 Quarry Lane, Acmeville.
     expect:
@@ -69,23 +86,6 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
-  - id: b3-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: callback
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: notify_sales
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-      criteria:
-        - deviation.D5_language_switch
   - id: b4-callback-to-handover
     when:
       user: You can reach me on +1 202 555 0131.
@@ -155,7 +155,16 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-callback
+      - block: b2-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: address
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
+      - block: b3-address-to-callback
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -165,15 +174,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-callback
-      - block: b3-D5_language_switch
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: callback
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
       - block: b4-callback-to-handover
         seeder: twise
         cell:

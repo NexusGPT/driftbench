@@ -2,7 +2,6 @@
 # Code wrote it from the approved map: the user turns are approved phrases, the Then comes from the map.
 # Do not edit it by hand: change the map and generate again. Fictional data only.
 # Not runnable yet: 1 block(s) wait for an approved phrase (see metadata.generated.needs_phrase).
-# Why: notify_sales.in.customer.email.present: the block only forbids tool calls, which a reply that does nothing passes.
 id: gen-boundary-050
 version: b583de68c530
 kind: conversation
@@ -58,5 +57,3 @@ metadata:
     needs_phrase:
       - dimension: notify_sales.in.customer.email
         value: notify_sales.in.customer.email.present
-    needs_then_why:
-      - "notify_sales.in.customer.email.present: the block only forbids tool calls, which a reply that does nothing passes"

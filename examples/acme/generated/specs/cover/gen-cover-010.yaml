@@ -4,14 +4,13 @@
 id: gen-cover-010
 version: b583de68c530
 kind: conversation
-title: "Cell behaviour=B-010, stage=needs: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D1_off_topic at needs"
+title: "Cell deviation=D7_silence_or_burst, stage=identify: Path upgrade-most-data of upgrade: needs > identify > closing, D7_silence_or_burst at identify"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
-  - flow:order
-  - data:fiber
-covers:
-  - B-010
+  - flow:upgrade
+  - persona:existing-customer
 stages:
   - needs
   - identify
@@ -27,137 +26,60 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-010
-    rubric: Report a failed tool honestly, invent none of its answer, and offer a fallback
+  - name: flow.upgrade
+    rubric: An existing customer moves to a plan with more data
     gating: false
     scope: conversation
-  - name: flow.order
-    rubric: Recap, explicit confirmation and order placement
-    gating: false
-    scope: conversation
-  - name: deviation.D1_off_topic
-    rubric: A short answer, then the agent resumes its pending stage in the same block.
+  - name: deviation.D7_silence_or_burst
+    rubric: One reply, no double send.
     gating: false
     scope: block
 blocks:
-  - id: b1-D1_off_topic
+  - id: b1-needs-to-identify
     when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
+      user: I keep running out of data, can I get a bigger plan?
     expect:
-      stage: needs
+      stage: identify
       tools:
-        - label: coverage.check
-          count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Monday to Saturday
       lang: EN
       criteria:
-        - behaviour.B-010
-        - flow.order
-        - deviation.D1_off_topic
-  - id: b2-needs-to-address
+        - flow.upgrade
+  - id: b2-D7_silence_or_burst
     when:
-      user: Do you have home internet where I live?
+      injection:
+        class: D7_silence_or_burst
+        user: hello?
     expect:
-      stage: address
+      stage: identify
       tools:
-        - label: coverage.check
-          count: 0
         - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b3-address-to-offer
-    when:
-      user: The address is 14 Harbor Road, Acmeville.
-    expect:
-      stage: offer
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 14 Harbor Road, Acmeville
-        - label: catalog.search
-          count: 1
-          input:
-            category: home
-            address_id: addr-101
-        - label: order.create
           count: 0
       must:
-        - Acme Fiber 300, 300 Mbps for \$40 a month
-        - Acme Fiber 1000, 1000 Mbps for \$60 a month
-        - Acme Air 5G, up to 200 Mbps for \$35 a month
+        - I'm here
       lang: EN
-  - id: b4-offer-to-details
+      criteria:
+        - deviation.D7_silence_or_burst
+  - id: b3-identify-to-closing
     when:
-      user: I'll take Acme Fiber 1000.
+      user: It's morgan.diaz@example.com.
     expect:
-      stage: details
+      stage: closing
       tools:
-        - label: coverage.check
-          count: 0
         - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b5-details-to-recap
-    when:
-      user: Jo Okafor, jo.okafor@example.com
-    expect:
-      stage: recap
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b6-recap-to-order_placed
-    when:
-      user: Confirm
-    expect:
-      stage: order_placed
-      tools:
-        - label: order.create
           count: 1
           input:
-            type: new
-            plan_id: fiber-1000
-            address_id: addr-101
-            customer:
-              subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
+            category: mobile
+            customer_email: morgan.diaz@example.com
       lang: EN
 rules:
   forbidden_tools:
+    - coverage.check
     - port.check
+    - order.create
     - notify_sales
-end_state:
-  source: tool:order.create
-  mode: subset
-  expect:
-    type: new
-    plan_id: fiber-1000
-    address_id: addr-101
-    customer:
-      subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
+  one_message_per_turn: true
 metadata:
   generated:
     by: driftbench generate
@@ -169,69 +91,39 @@ metadata:
       agent: acme
       version: "1"
       hash: b583de68c530
-    path: order-named-plan
+    path: upgrade-most-data
     cell:
-      behaviour: B-010
-      flow: order
-      coverage_result: fiber
-      plan_choice: names-one
-      customer_details: name-and-email
+      flow: upgrade
+      user_type: existing-customer
+      account_lookup: most-data
+      channel: whatsapp
+      coverage_result: none
     blocks:
-      - block: b1-D1_off_topic
+      - block: b1-needs-to-identify
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: needs
+          stage_transition: needs-to-identify
+          stage: identify
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-D7_silence_or_burst
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: identify
         phrase:
           dimension: deviation
-          value: D1_off_topic
-      - block: b2-needs-to-address
+          value: D7_silence_or_burst
+      - block: b3-identify-to-closing
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-address
-          stage: address
+          stage_transition: identify-to-closing
+          account_lookup: most-data
+          stage: closing
         phrase:
           dimension: stage_transition
-          value: needs-to-address
-      - block: b3-address-to-offer
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: address-to-offer
-          coverage_result: fiber
-          stage: offer
-        phrase:
-          dimension: stage_transition
-          value: address-to-offer
-      - block: b4-offer-to-details
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
-        phrase:
-          dimension: stage_transition
-          value: offer-to-details
-      - block: b5-details-to-recap
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
-          stage: recap
-        phrase:
-          dimension: stage_transition
-          value: details-to-recap
-      - block: b6-recap-to-order_placed
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: recap-to-order_placed
-          coverage_result: fiber
-          customer_details: name-and-email
-          stage: order_placed
-        phrase:
-          dimension: stage_transition
-          value: recap-to-order_placed
+          value: identify-to-closing

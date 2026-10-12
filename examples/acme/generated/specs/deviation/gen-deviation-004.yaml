@@ -4,7 +4,7 @@
 id: gen-deviation-004
 version: b583de68c530
 kind: conversation
-title: "Deviation probe D3_contradiction: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D3_contradiction at offer"
+title: "Deviation probe D4_loose_confirmation: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D4_loose_confirmation at recap"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -31,8 +31,8 @@ criteria:
     rubric: Recap, explicit confirmation and order placement
     gating: false
     scope: conversation
-  - name: deviation.D3_contradiction
-    rubric: The agent notices and asks which one holds; it never takes the last one silently.
+  - name: deviation.D4_loose_confirmation
+    rubric: No submission or other irreversible action without the explicit confirmation.
     gating: false
     scope: block
 blocks:
@@ -73,26 +73,7 @@ blocks:
         - Acme Fiber 1000, 1000 Mbps for \$60 a month
         - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
-  - id: b3-D3_contradiction
-    when:
-      injection:
-        class: D3_contradiction
-        user: "Acme Fiber 300. No, wait: Acme Fiber 1000."
-    expect:
-      stage: offer
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Which one
-      lang: EN
-      criteria:
-        - deviation.D3_contradiction
-  - id: b4-offer-to-details
+  - id: b3-offer-to-details
     when:
       user: I'll take Acme Fiber 1000.
     expect:
@@ -105,9 +86,9 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-details-to-recap
+  - id: b4-details-to-recap
     when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: Jo Okafor, jo.okafor@example.com
     expect:
       stage: recap
       tools:
@@ -118,6 +99,26 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b5-D4_loose_confirmation
+    when:
+      injection:
+        class: D4_loose_confirmation
+        user: ok perfect
+    expect:
+      stage: recap
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      guards:
+        - name: explicit_confirmation
+          verdict: block
+      lang: EN
+      criteria:
+        - deviation.D4_loose_confirmation
   - id: b6-recap-to-order_placed
     when:
       user: Confirm
@@ -193,16 +194,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-offer
-      - block: b3-D3_contradiction
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          deviation: D3_contradiction
-          stage: offer
-        phrase:
-          dimension: deviation
-          value: D3_contradiction
-      - block: b4-offer-to-details
+      - block: b3-offer-to-details
         seeder: deviation
         cell:
           spec: metadata.generated.cell
@@ -211,7 +203,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b5-details-to-recap
+      - block: b4-details-to-recap
         seeder: deviation
         cell:
           spec: metadata.generated.cell
@@ -221,6 +213,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
+      - block: b5-D4_loose_confirmation
+        seeder: deviation
+        cell:
+          spec: metadata.generated.cell
+          deviation: D4_loose_confirmation
+          stage: recap
+        phrase:
+          dimension: deviation
+          value: D4_loose_confirmation
       - block: b6-recap-to-order_placed
         seeder: deviation
         cell:

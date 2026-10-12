@@ -2,7 +2,6 @@
 # Code wrote it from the approved map: the user turns are approved phrases, the Then comes from the map.
 # Do not edit it by hand: change the map and generate again. Fictional data only.
 # Not runnable yet: 1 block(s) wait for an approved phrase (see metadata.generated.needs_phrase).
-# Why: catalog.search.in.customer_email.below-min-length: the block only forbids tool calls, which a reply that does nothing passes.
 id: gen-boundary-003
 version: b583de68c530
 kind: conversation
@@ -59,5 +58,3 @@ metadata:
     needs_phrase:
       - dimension: catalog.search.in.customer_email
         value: catalog.search.in.customer_email.below-min-length
-    needs_then_why:
-      - "catalog.search.in.customer_email.below-min-length: the block only forbids tool calls, which a reply that does nothing passes"

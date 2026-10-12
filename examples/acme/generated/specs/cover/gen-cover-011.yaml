@@ -4,15 +4,13 @@
 id: gen-cover-011
 version: b583de68c530
 kind: conversation
-title: "Cell behaviour=B-011, stage=needs: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D1_off_topic at needs"
+title: "Cell deviation=D7_silence_or_burst, stage=port_number: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D7_silence_or_burst at port_number"
+channel: chat
 lang: EN
 tier: generated
 tags:
-  - flow:new-home
+  - flow:porting
   - persona:new-customer
-  - data:fiber
-covers:
-  - B-011
 stages:
   - needs
   - identify
@@ -28,82 +26,77 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-011
-    rubric: Answer an off-topic question in one line and resume the pending step
+  - name: flow.porting
+    rubric: A new customer switches to Acme and keeps their number
     gating: false
     scope: conversation
-  - name: flow.new-home
-    rubric: A new customer asks for home internet at an address
-    gating: false
-    scope: conversation
-  - name: deviation.D1_off_topic
-    rubric: A short answer, then the agent resumes its pending stage in the same block.
+  - name: deviation.D7_silence_or_burst
+    rubric: One reply, no double send.
     gating: false
     scope: block
 blocks:
-  - id: b1-D1_off_topic
+  - id: b1-needs-to-port_number
+    when:
+      user: I'd like to move to Acme and keep my phone number.
+    expect:
+      stage: port_number
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+      criteria:
+        - flow.porting
+  - id: b2-D7_silence_or_burst
     when:
       injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
+        class: D7_silence_or_burst
+        user: hello?
     expect:
-      stage: needs
+      stage: port_number
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
         - label: order.create
           count: 0
       must:
-        - Monday to Saturday
+        - I'm here
       lang: EN
       criteria:
-        - behaviour.B-011
-        - flow.new-home
-        - deviation.D1_off_topic
-  - id: b2-needs-to-address
+        - deviation.D7_silence_or_burst
+  - id: b3-port_number-to-offer
     when:
-      user: Do you have home internet where I live?
-    expect:
-      stage: address
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b3-address-to-offer
-    when:
-      user: The address is 14 Harbor Road, Acmeville.
+      user: My number is +1 202 555 0165.
     expect:
       stage: offer
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 1
           input:
-            address: 14 Harbor Road, Acmeville
+            number: "+12025550165"
         - label: catalog.search
           count: 1
           input:
-            category: home
-            address_id: addr-101
+            category: mobile
         - label: order.create
           count: 0
       must:
-        - Acme Fiber 300, 300 Mbps for \$40 a month
-        - Acme Fiber 1000, 1000 Mbps for \$60 a month
-        - Acme Air 5G, up to 200 Mbps for \$35 a month
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
   - id: b4-offer-to-details
     when:
-      user: I'll take Acme Fiber 1000.
+      user: Acme Mobile M, please.
     expect:
       stage: details
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
@@ -112,11 +105,11 @@ blocks:
       lang: EN
   - id: b5-details-to-recap
     when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: Jo Okafor, jo.okafor@example.com
     expect:
       stage: recap
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
@@ -125,7 +118,7 @@ blocks:
       lang: EN
   - id: b6-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
@@ -133,28 +126,29 @@ blocks:
           count: 1
           input:
             type: new
-            plan_id: fiber-1000
-            address_id: addr-101
+            plan_id: mobile-m
+            port_number: "+12025550165"
             customer:
               subset:
                 name: Jo Okafor
                 email: jo.okafor@example.com
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
       lang: EN
 rules:
   forbidden_tools:
-    - port.check
+    - coverage.check
     - notify_sales
+  one_message_per_turn: true
 end_state:
   source: tool:order.create
   mode: subset
   expect:
     type: new
-    plan_id: fiber-1000
-    address_id: addr-101
+    plan_id: mobile-m
+    port_number: "+12025550165"
     customer:
       subset:
         name: Jo Okafor
@@ -170,43 +164,44 @@ metadata:
       agent: acme
       version: "1"
       hash: b583de68c530
-    path: home-order
+    path: porting-keep-number
     cell:
-      behaviour: B-011
-      flow: new-home
+      flow: porting
       user_type: new-customer
-      coverage_result: fiber
+      port_result: can-move
       plan_choice: names-one
       customer_details: name-and-email
+      channel: chat
+      coverage_result: none
     blocks:
-      - block: b1-D1_off_topic
+      - block: b1-needs-to-port_number
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: needs
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b2-needs-to-address
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: needs-to-address
-          stage: address
+          stage_transition: needs-to-port_number
+          stage: port_number
         phrase:
           dimension: stage_transition
-          value: needs-to-address
-      - block: b3-address-to-offer
+          value: needs-to-port_number
+      - block: b2-D7_silence_or_burst
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: address-to-offer
-          coverage_result: fiber
+          deviation: D7_silence_or_burst
+          stage: port_number
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
+      - block: b3-port_number-to-offer
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: port_number-to-offer
+          port_result: can-move
           stage: offer
         phrase:
           dimension: stage_transition
-          value: address-to-offer
+          value: port_number-to-offer
       - block: b4-offer-to-details
         seeder: cover
         cell:
@@ -231,7 +226,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
-          coverage_result: fiber
+          port_result: can-move
           customer_details: name-and-email
           stage: order_placed
         phrase:

@@ -4,7 +4,7 @@
 id: gen-twise-112
 version: b583de68c530
 kind: conversation
-title: "t-wise row 112 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D1_off_topic at handover"
+title: "t-wise row 112 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D1_off_topic at callback"
 channel: chat
 lang: EN
 tier: generated
@@ -69,7 +69,24 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
-  - id: b3-callback-to-handover
+  - id: b3-D1_off_topic
+    when:
+      injection:
+        class: D1_off_topic
+        user: Are your stores open on Saturday?
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+      criteria:
+        - deviation.D1_off_topic
+  - id: b4-callback-to-handover
     when:
       user: You can reach me on +1 202 555 0131.
     expect:
@@ -85,23 +102,6 @@ blocks:
         - label: coverage.check
           count: 0
       lang: EN
-  - id: b4-D1_off_topic
-    when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
-    expect:
-      stage: handover
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: notify_sales
-          count: 0
-      must:
-        - Monday to Saturday
-      lang: EN
-      criteria:
-        - deviation.D1_off_topic
   - id: b5-handover-to-closing
     when:
       user: Great, thank you. Bye!
@@ -165,7 +165,16 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-callback
-      - block: b3-callback-to-handover
+      - block: b3-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: callback
+        phrase:
+          dimension: deviation
+          value: D1_off_topic
+      - block: b4-callback-to-handover
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -176,15 +185,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: callback-to-handover
-      - block: b4-D1_off_topic
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: handover
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
       - block: b5-handover-to-closing
         seeder: twise
         cell:
