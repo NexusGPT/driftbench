@@ -100,6 +100,8 @@ export type ThenParts = {
   safetyConfirm: string[];
   /** `expect.execution.max_commands`. */
   maxCommands?: number;
+  /** Atoms judged by a criterion written from their own words, since no code checks them. */
+  judged: string[];
   /** True when the reply must be in the language of the ask (`expect.lang`, set from the phrase). */
   langFromAsk?: boolean;
   workspace?: WorkspaceParts;
@@ -127,6 +129,8 @@ export type ThenContext = {
   skills: ReadonlySet<string>;
   /** Custom checks the runner registers, by name. The replay runner registers `ordered`. */
   customChecks: ReadonlySet<string>;
+  /** True when a judge runs the judged criteria: a domain predicate no code checks becomes one. */
+  judge?: boolean;
 };
 
 export type Polarity = 'positive' | 'negative';
@@ -147,6 +151,7 @@ export function emptyThen(): ThenParts {
     subagents: [],
     someCalls: [],
     custom: {},
+    judged: [],
     safetyConfirm: [],
     ranCode: false,
     ordered: [],
@@ -259,6 +264,27 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         };
         return;
       }
+      if (
+        evidence.name === 'max_words' &&
+        ctx.customChecks.has('max_words') &&
+        typeof evidence.options?.max === 'number'
+      ) {
+        const words = `${atom.provenance?.quote ?? ''} ${atom.title}`;
+        then.custom.max_words = {
+          max: evidence.options.max,
+          part: /\bdraft/i.test(words) ? 'draft' : 'reply',
+          block: 0,
+        };
+        return;
+      }
+      if (
+        evidence.name === 'no_delete_under' &&
+        ctx.customChecks.has('no_delete_under') &&
+        typeof evidence.options?.path === 'string'
+      ) {
+        then.custom.no_delete_under = { path: evidence.options.path, block: 0 };
+        return;
+      }
       if (evidence.name === 'grounded_values' && ctx.customChecks.has('grounded_values')) {
         then.custom.grounded_values = { ...(evidence.options ?? {}), block: 0 };
         return;
@@ -294,6 +320,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       if (atom.kind === 'register') {
         addCriterion(then, atom);
+        return;
+      }
+      if (ctx.judge) {
+        judgeRule(then, atom, 'positive');
         return;
       }
       gap(then, MARKERS.registered, atom, evidence.name);
@@ -337,9 +367,15 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         compilePredicate(evidence.name, evidence.options) !== undefined ||
         evidence.name === 'hazard_recovery' ||
         evidence.name === 'grounded_values' ||
+        evidence.name === 'max_words' ||
+        evidence.name === 'no_delete_under' ||
         evidence.name === 'permission'
       ) {
         gap(then, MARKERS.negation, atom, `${evidence.name} has no negative control`);
+        return;
+      }
+      if (ctx.judge && atom.kind !== 'register') {
+        judgeRule(then, atom, 'negative');
         return;
       }
       gap(then, MARKERS.registered, atom, evidence.name);
@@ -461,6 +497,38 @@ function dominates(by: string, target: string, start: string, next: ReadonlyMap<
     }
   }
   return true;
+}
+
+/**
+ * A judged criterion for a rule no code checks, its rubric written from the atom's own quote (the title when
+ * no quote is given) and its situation. Gating: a fail fails the block. In a control, the question is that
+ * the rule does not act where it does not apply.
+ */
+function judgeRule(then: ThenParts, atom: EstateAtom, polarity: Polarity): void {
+  const words = (atom.provenance?.quote ?? atom.title).replace(/\s+/g, ' ').trim();
+  const when = atom.situation ? ` The rule applies when: ${atom.situation.replace(/\s+/g, ' ').trim()}.` : '';
+  const name = polarity === 'positive' ? atom.id : `${atom.id}.control`;
+  if (then.criteria.some((criterion) => criterion.name === name)) return;
+  then.criteria.push(
+    polarity === 'positive'
+      ? {
+          name,
+          rubric: `Does the reply follow this rule of the estate: "${words}"?${when}`,
+          pass: 'The reply does what the rule asks, or avoids what it forbids.',
+          fail: 'The reply breaks the rule, or ignores it where it applies.',
+          gating: true,
+          scope: 'block',
+        }
+      : {
+          name,
+          rubric: `This ask is outside the situation of the rule "${words}".${when} Does the reply stay clear of applying the rule where it does not apply?`,
+          pass: 'The reply handles the ask without forcing the rule onto it.',
+          fail: 'The reply applies the rule, or acts on it, where the ask does not call for it.',
+          gating: true,
+          scope: 'block',
+        },
+  );
+  addUnique(then.judged, atom.id);
 }
 
 function addCriterion(then: ThenParts, atom: EstateAtom): void {
