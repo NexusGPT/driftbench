@@ -6,9 +6,12 @@ import {
   BILLED_APPROVAL,
   bankShape,
   billedMode,
+  isQuarantined,
   judgesBank,
   judgesLadderV2,
   LEVELS,
+  QUARANTINED_FAMILIES,
+  QUARANTINED_ITEMS,
   runBank,
   runItem,
   shapeProblems,
@@ -36,7 +39,19 @@ describe('the judges bank, ladder version 2', () => {
       expect(levels.has(entry.level), entry.id).toBe(true);
       expect(entry.cause?.length ?? 0, entry.id).toBeGreaterThan(20);
     }
-    expect(new Set(judgesBank().map((entry) => entry.cause)).size).toBeGreaterThanOrEqual(150);
+    expect(new Set(judgesBank().map((entry) => entry.cause)).size).toBeGreaterThanOrEqual(100);
+  });
+
+  it('leaves the quarantined items of validators/judges/NEEDS.md out of the bank and keeps their code', () => {
+    const all = judgesBank({ quarantined: true });
+    const ids = new Set(all.map((entry) => entry.id));
+    expect(QUARANTINED_ITEMS.filter((id) => !ids.has(id))).toEqual([]);
+    for (const family of QUARANTINED_FAMILIES)
+      expect(all.some((entry) => entry.family === family)).toBe(true);
+    const kept = judgesBank();
+    expect(kept.some(isQuarantined)).toBe(false);
+    expect(kept.length + all.filter(isQuarantined).length).toBe(all.length);
+    expect(judgesLadderV2({ api: witnessApi() }).levels.map((level) => level.id)).not.toContain('rubric');
   });
 
   it('keeps the witness and the bank where an executor branch cannot change them', () => {
@@ -84,24 +99,36 @@ describe('the judges bank, ladder version 2', () => {
     // Scale items run under a time budget; under a loaded test runner only a time overrun may excuse one.
     const wrong = failing.filter((r) => !(r.family === 'scale' && /took \d+ ms/.test(r.detail)));
     expect(wrong.map((r) => `${r.id}: ${r.detail}`)).toEqual([]);
-    expect(run.levels.every((level) => level >= LEVELS.length - 2)).toBe(true);
+    const deterministic = LEVELS.filter((level) =>
+      judgesBank().some((entry) => entry.level === level.id && !entry.live),
+    ).length;
+    expect(run.levels.every((level) => level >= deterministic - 1)).toBe(true);
   }, 240_000);
 
   it('fails exactly the items of a missing capability, naming the export', async () => {
-    const run = await runBank([{ seed: 3, hidden: false }], ROOT, { api: without('groundEvidence') });
+    // evidence is quarantined; its items still run when the caller passes them.
+    const run = await runBank([{ seed: 3, hidden: false }], ROOT, {
+      api: without('groundEvidence'),
+      bank: judgesBank({ quarantined: true }),
+    });
     const failing = run.results.filter(
       (r) => !r.passes[0] && !(r.family === 'scale' && /took/.test(r.detail)),
     );
     expect(failing.map((r) => r.family)).toEqual(new Array(failing.length).fill('evidence'));
     // The evidence items of families/more.ts ask for other exports (quoteSpan, levenshtein, ...).
     expect(failing.length).toBe(
-      judgesBank().filter((entry) => entry.family === 'evidence' && !(entry.id in MORE_CAUSES)).length,
+      judgesBank({ quarantined: true }).filter(
+        (entry) => entry.family === 'evidence' && !(entry.id in MORE_CAUSES),
+      ).length,
     );
     expect(failing[0]?.detail).toMatch(/packages\/judges exports no function groundEvidence/);
   }, 240_000);
 
   it('stops at the first failing level and prints its items', async () => {
-    const run = await runLadder(judgesLadderV2({ api: without('lintCriterion') }), { seed: 1, root: ROOT });
+    const run = await runLadder(
+      judgesLadderV2({ api: without('lintCriterion'), bank: judgesBank({ quarantined: true }) }),
+      { seed: 1, root: ROOT },
+    );
     const at = LEVELS.findIndex((level) => level.id === 'rubric');
     expect(run.level).toBe(at);
     expect(run.failing?.id).toBe('rubric');
@@ -110,7 +137,9 @@ describe('the judges bank, ladder version 2', () => {
     expect(run.rows.every((row) => row.threshold === 1)).toBe(true);
     expect(judgesLadderV2({ api: witnessApi() }).version).toBe(2);
     const banked = run.rows[at]?.bank ?? [];
-    expect(banked.length).toBe(judgesBank().filter((entry) => entry.level === 'rubric').length);
+    expect(banked.length).toBe(
+      judgesBank({ quarantined: true }).filter((entry) => entry.level === 'rubric').length,
+    );
     expect(banked.every((entry) => entry.family === 'rubric' && entry.tier !== undefined)).toBe(true);
   }, 120_000);
 });

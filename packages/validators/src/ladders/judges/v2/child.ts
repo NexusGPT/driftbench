@@ -15,7 +15,7 @@ async function main(): Promise<void> {
   const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
   const ids = JSON.parse(Buffer.concat(chunks).toString('utf8')) as string[];
-  const byId = new Map(judgesBank().map((entry) => [entry.id, entry]));
+  const byId = new Map(judgesBank({ quarantined: true }).map((entry) => [entry.id, entry]));
   for (let index = start; index < ids.length; index += 1) {
     const entry = byId.get(ids[index] as string);
     if (!entry) throw new Error(`no bank item ${ids[index]}`);

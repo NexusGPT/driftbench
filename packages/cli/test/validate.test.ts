@@ -311,7 +311,8 @@ describe('driftbench validate through main', () => {
     const handover = await run(['validate', 'all', '--check-handover']);
     expect(handover.code).toBe(0);
     expect(handover.out).toContain('validators/stats/HANDOVER.md: every section present');
-  });
+    // The judges ladder version 2 runs its whole bank, each item in a child process.
+  }, 600_000);
 
   it('prints the stats brief from the real executor instruction', async () => {
     const result = await run(['validate', 'stats', '--brief', '--fresh']);
@@ -450,5 +451,54 @@ describe('driftbench validate --hardness and distinct causes', () => {
     const json = capture(root);
     await validateCommand('banked', { hardness: true, json: true }, json.io, d);
     expect(JSON.parse(json.output.out).causes).toEqual({ distinct: 40, withoutCause: 0 });
+  });
+});
+
+describe('driftbench validate for auditors', () => {
+  async function banked() {
+    const root = await temp();
+    const { ladder } = bankLadder([2], { hints: true });
+    return { root, d: { ladders: () => ({ banked: ladder }), root } as ValidateDeps };
+  }
+
+  it('--all-levels lists every failing item of every level, in text and JSON', async () => {
+    const { root, d } = await banked();
+    const text = capture(root);
+    expect(await validateCommand('banked', { seeds: '1..2', allLevels: true }, text.io, d)).toBe(0);
+    expect(text.output.out).toContain('All failing items of banked, every level: 2 items.');
+    expect(text.output.out).toContain('Level 2 deep: 1 item');
+    const json = capture(root);
+    await validateCommand('banked', { seeds: '1..2', allLevels: true, json: true }, json.io, d);
+    const report = JSON.parse(json.output.out);
+    expect(report.failingItems.map((item: { id: string; level: number }) => [item.id, item.level])).toEqual([
+      ['a3', 1],
+      ['g4', 2],
+    ]);
+    expect(report.failingItems[1]).toMatchObject({
+      family: 'gamma',
+      tier: 5,
+      cause: 'the parser drops the last field',
+    });
+    // g4 fails on seed 2 above that seed's first failing level: only a full run sees it there.
+    expect(report.failingItems[1].seeds).toEqual(['1', '2']);
+  });
+
+  it('--blind strips causes and Fix: hints from text and JSON', async () => {
+    const { root, d } = await banked();
+    for (const json of [false, true]) {
+      const run = capture(root);
+      await validateCommand(
+        'banked',
+        { seeds: '1..2', allLevels: true, items: true, blind: true, json },
+        run.io,
+        d,
+      );
+      expect(run.output.out).not.toMatch(/cause/i);
+      expect(run.output.out).not.toContain('Fix:');
+      expect(run.output.out).toContain('a3 missed on seed 2.');
+    }
+    const open = capture(root);
+    await validateCommand('banked', { seeds: '1..2', allLevels: true }, open.io, d);
+    expect(open.output.out).toContain('Fix: keep the last field in the parser.');
   });
 });

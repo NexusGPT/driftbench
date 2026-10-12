@@ -22,10 +22,12 @@ import { scaleItems } from './families/scale';
 import { budgetItems, turnItems } from './families/turns';
 import { v1Items } from './families/v1';
 import { ITEM_TIME_LIMIT_MS, runIsolated } from './isolate';
+import { isQuarantined } from './needs';
 
 export * from './bank';
 export { causeOf } from './causes';
 export { BILLED_APPROVAL, billedMode } from './families/live';
+export { isQuarantined, QUARANTINED_FAMILIES, QUARANTINED_ITEMS } from './needs';
 export { parseRendered, ruleVerdict } from './rules';
 
 /**
@@ -62,8 +64,11 @@ export const LEVELS: readonly { id: string; name: string }[] = [
   { id: 'live', name: 'real judge clients, billed mode only' },
 ];
 
-/** Every item of the bank, deterministic and live. */
-export function judgesBank(): BankItem[] {
+/**
+ * Every item of the bank, deterministic and live, without the quarantined ones (validators/judges/NEEDS.md).
+ * `quarantined: true` adds them back: they stay as code and still run when a caller passes them.
+ */
+export function judgesBank(options: { quarantined?: boolean } = {}): BankItem[] {
   const all: BankItem[] = [
     ...v1Items(),
     ...contractItems(),
@@ -91,7 +96,9 @@ export function judgesBank(): BankItem[] {
     ...moreItems(),
     ...liveItems(),
   ];
-  return all.map((entry) => ({ ...entry, cause: causeOf(entry.id) }));
+  return all
+    .filter((entry) => options.quarantined || !isQuarantined(entry))
+    .map((entry) => ({ ...entry, cause: causeOf(entry.id) }));
 }
 
 export type JudgesV2Options = {

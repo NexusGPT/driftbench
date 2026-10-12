@@ -51,7 +51,7 @@ describe('items with a family and a tier', () => {
     const { ladder } = bankLadder([1]);
     const text = formatLadder(await runSeeds(ladder, seedSpecs([1])));
     expect(text).toContain('Validator banked (ladder version 2)');
-    expect(text).toContain('    family alpha (1):\n      a3  [tier 3]  [fixture/a]  a3 missed on seed 1\n');
+    expect(text).toContain('    family alpha (1):\n      a3  [tier 3]  [fixture/a]  a3 missed on seed 1.\n');
     expect(
       itemLines([
         { id: 'p', component: 'c', detail: 'd', family: 'beta' },

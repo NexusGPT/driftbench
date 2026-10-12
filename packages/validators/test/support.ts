@@ -121,7 +121,8 @@ export function journalOf(
  * A fixture ladder on a bank. Level 1 (core) holds six items in families alpha and beta; the item a3 fails on
  * the seeds in `failOn`. Level 2 (deep) holds four items of family gamma; g4 always fails. Calls are counted.
  */
-export function bankLadder(failOn: readonly number[] = [2]) {
+export function bankLadder(failOn: readonly number[] = [2], options: { hints?: boolean } = {}) {
+  const hint = (text: string) => (options.hints ? ` Fix: ${text}` : '');
   const calls = { core: 0, deep: 0 };
   const ladder: Ladder = defineLadder({
     component: 'banked',
@@ -144,7 +145,7 @@ export function bankLadder(failOn: readonly number[] = [2]) {
                 family: 'alpha',
                 tier: 3,
                 pass: !failOn.includes(seed),
-                detail: `a3 missed on seed ${seed}`,
+                detail: `a3 missed on seed ${seed}.${hint('keep the last field in the parser.')}`,
                 cause: 'the parser drops the last field',
               },
               { id: 'b1', component: 'fixture/b', family: 'beta', tier: 1, pass: true },
@@ -172,7 +173,7 @@ export function bankLadder(failOn: readonly number[] = [2]) {
               family: 'gamma',
               tier: 5,
               pass: false,
-              detail: 'g4 is unsolved',
+              detail: `g4 is unsolved.${hint('read the trailing field.')}`,
               cause: 'the parser drops the last field',
             },
           ]);

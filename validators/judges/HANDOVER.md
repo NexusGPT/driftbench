@@ -30,9 +30,11 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 1 |
 <!-- level-table:end -->
 
-This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, 656 deterministic items in 20 levels, each level's threshold 1. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails on 3 items. Bank score after the ten-iteration pilot: 258 of 656 items pass on every seed (0.3933); iteration 0 was 243 (0.3704). Hardness: 1.5 items fixed per iteration, 398 remaining, forecast 265 iterations, 171 distinct failing causes. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10, each with the bank summary; `pnpm driftbench validate judges --hardness` prints the measurement and its gate (holds).
+This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 756 items; 218 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 518 deterministic items in 15 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails on 3 items. Bank score after the ten-iteration pilot: 258 of 518 items pass on every seed (0.4981); iteration 0 was 243 (0.4691). Hardness: 1.5 items fixed per iteration, 260 remaining, forecast 173.3 iterations, 98 distinct failing causes. The gate is not met: the score after the pilot is above 0.4 and the causes are under 100. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
 
-Every item carries a cause, the one change in packages/judges that makes it pass (`packages/validators/src/ladders/judges/v2/causes.ts`). After the pilot the 398 failing items hold 171 distinct causes. Screen items that the base screen alone turns green carry the base screen's cause (38 items; `BASE_SCREEN_ITEMS` in causes.ts). A screen behaviour item whose `screenData` does not exist yet says in its Fix line to add the base screen first. A failing item's detail ends with `Fix: <the change>`, so you can act on it without reading the validator's code: make that change in packages/judges, add its test, measure.
+The journal rows were measured on the 736-item bank (the pilot replayed with families/more.ts) and the quarantined items were then dropped from each recorded row, from the per-item captures `_captures/v-judges2/bank-iteration-<n>.txt`; nothing was re-run. Every quarantined item fails in every row, so the passing counts are those of the recorded rows. Row 2's capture holds 47 failures that rows 1 and 3 to 10 do not record, none of them a contract item, the family its change touched (22 scale items, which run under time budgets, 9 render, 5 council, 3 each of calibration, check and criteria, 1 cascade, 1 clients); row 2 is the failures of row 1 that the row 2 capture also records, which gives 249 passing, as the earlier 656-item row 2 recorded.
+
+Every item carries a cause, the one change in packages/judges that makes it pass (`packages/validators/src/ladders/judges/v2/causes.ts` and `causes-more.ts`). Screen items that the base screen alone turns green carry the base screen's cause (`BASE_SCREEN_ITEMS` in causes.ts). A screen behaviour item whose `screenData` does not exist yet says in its Fix line to add the base screen first. A failing item's detail ends with `Fix: <the change>`, so you can act on it without reading the validator's code: make that change in packages/judges, add its test, measure. `--blind` drops every cause and every `Fix:` hint from the output, for an auditor; `--all-levels` lists every failing item of every level.
 
 ## Floor
 
@@ -41,6 +43,8 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 ## Open items
 
 Level 2, contract: `contract/probability-above-one`, `contract/probability-below-zero` (outcomeFromProbability reads a probability outside 0 to 1 as a verdict), `contract/probability-crossed-bounds` (bounds with failAt over passAt are accepted). Then level 3, consistency: `judgeRepeated` does not exist (6 items) and chat clients send no temperature (3 items). `pnpm driftbench validate judges --seeds 1..20 --hidden --items` lists the whole bank with a verdict per seed.
+
+The maintainer's queue (NEEDS.md, "Items beyond the pages"): items that ask for more than a page states, or for another behaviour (lenient JSON against "strict JSON", an exact interval against "a Wilson 95% interval"). The bank stays below the gate until the bank grows on needs (section 12.2) or the pages state more needs.
 
 ## Hypotheses tried
 
@@ -66,6 +70,7 @@ Iterations 1 to 10 each fixed one cause in `packages/judges/src/contract.ts`, ea
 ```
 pnpm driftbench validate judges --seeds 1..3 --hidden            # stops at the first failing level
 pnpm driftbench validate judges --seeds 1..20 --hidden --items   # the whole bank, pass or fail per seed
+pnpm driftbench validate judges --seeds 1..20 --hidden --all-levels --blind --json   # every failing item, no cause
 pnpm exec tsx packages/validators/test/judges/v2/measure.ts --iteration N --hypothesis "..." \
   --files a,b --commit <sha> --tests "test name" --out row.json
 pnpm driftbench validate judges --journal row.json
@@ -75,5 +80,6 @@ pnpm driftbench validate judges --hardness
 ## Fixtures
 
 * The items: `packages/validators/src/ladders/judges/v2/families/*.ts`, one file per family, each with its spec in the head comment.
+* The quarantine: `packages/validators/src/ladders/judges/v2/needs.ts` and `validators/judges/NEEDS.md`. `judgesBank({ quarantined: true })` returns the quarantined items too.
 * The labelled slices and transforms reused from version 1: `packages/validators/src/ladders/judges/pool.ts`, `transforms.ts`, `packages/validators/fixtures/judges/`.
 * Live items (20) run only with `DRIFTBENCH_BILLED_APPROVAL` set to the id of an owner-approved sized card.
