@@ -36,6 +36,11 @@ export type Family = {
   items: readonly BankItem[];
   /** Builds the family's input for the seed and judges every item; an item missing from the map failed. */
   evaluate(seed: number): Promise<Map<string, ItemResult>>;
+  /**
+   * The family's input does not depend on the seed (a committed fictional fixture): it is judged once per
+   * process and that result holds for every seed.
+   */
+  seedFree?: boolean;
 };
 
 export type ItemSpec = {
@@ -75,7 +80,7 @@ const cache = new Map<string, Promise<Map<string, ItemResult>>>();
 
 /** A family's results on a seed, computed once per process. A family that throws fails every item. */
 export function familyResults(family: Family, seed: number): Promise<Map<string, ItemResult>> {
-  const key = `${family.id}:${seed}`;
+  const key = family.seedFree ? `${family.id}:*` : `${family.id}:${seed}`;
   let known = cache.get(key);
   if (!known) {
     known = family.evaluate(seed).catch(

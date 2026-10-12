@@ -2,9 +2,12 @@ import { benchFamily } from './bench';
 import { blindFamilies } from './blind/index';
 import { comboFamily, generatedFamily } from './combo';
 import type { Family } from './frame';
+import { coverageFamily, readsFamily, taskFamily } from './genquality';
 import { decoysFamily, hostileFamily } from './hostile';
+import { killFamily } from './kill';
 import { lintCleanFamily, lintDefectFamily } from './lint';
 import { genAsksFamily, genCompleteFamily, impactFamily, mutantFamily } from './loop';
+import { maintainFixtureFamily } from './maintain-fixture';
 import { planContractFamily, planPairsFamily, planRelevanceFamily } from './plan';
 import { scaleFamily } from './scale';
 import { gatesFamily, hazardsFamily, pathsFamily } from './scan-code';
@@ -15,10 +18,15 @@ import { referenceProseFamily } from './scan-refs';
 import { registryFamily } from './scan-registry';
 import { standingFamily } from './scan-standing';
 import { stepsFamily } from './scan-steps';
+import { unitFamily } from './unit';
 
 export { benchFamily } from './bench';
 export { blindFamilies } from './blind/index';
 export * from './frame';
+export { coverageFamily, holdsTask, readsFamily, taskFamily } from './genquality';
+export { killFamily } from './kill';
+export { maintainFixtureFamily } from './maintain-fixture';
+export { unitFamily } from './unit';
 
 /** The levels of the estate bank, in order of the cost of diagnosis, each with its families. */
 export const BANK_LEVELS = [
@@ -51,9 +59,20 @@ export const BANK_LEVELS = [
     name: 'plan',
     families: () => [planContractFamily(), planPairsFamily(), planRelevanceFamily()],
   },
-  { id: 'generation', name: 'generation', families: () => [genCompleteFamily(), genAsksFamily()] },
-  { id: 'agent-mutants', name: 'agent mutants', families: () => [mutantFamily()] },
-  { id: 'maintenance', name: 'maintenance', families: () => [impactFamily()] },
+  {
+    id: 'generation',
+    name: 'generation',
+    families: () => [
+      genCompleteFamily(),
+      genAsksFamily(),
+      taskFamily(),
+      readsFamily(),
+      coverageFamily(),
+      unitFamily(),
+    ],
+  },
+  { id: 'agent-mutants', name: 'agent mutants', families: () => [mutantFamily(), killFamily()] },
+  { id: 'maintenance', name: 'maintenance', families: () => [impactFamily(), maintainFixtureFamily()] },
   { id: 'scale', name: 'scale', families: () => [scaleFamily()] },
 ] as const satisfies ReadonlyArray<{ id: string; name: string; families: () => Family[] }>;
 

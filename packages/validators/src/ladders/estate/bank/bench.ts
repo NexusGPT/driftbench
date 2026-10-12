@@ -32,7 +32,7 @@ const MUTATE = 'packages/estate/src/mutants/mutate.ts';
 const LIVE = 'packages/cli/src/commands/estate-live.ts';
 const BANK_SCHEMA = 'packages/generate/src/estate/inputs.ts';
 
-const REPO = findRoot(fileURLToPath(new URL('.', import.meta.url)));
+export const REPO = findRoot(fileURLToPath(new URL('.', import.meta.url)));
 
 type Run = {
   key: string;
@@ -393,7 +393,8 @@ function mutateCases(): Run[] {
 
 // D6 and D7: commands run through the CLI ----------------------------------------------------------------------
 
-function cli(args: string[], cwd = REPO): { code: number; out: string } {
+/** Runs the CLI as a child process from the repository root (the component as checked out). */
+export function cli(args: string[], cwd = REPO): { code: number; out: string } {
   const result = spawnSync('pnpm', ['-s', 'driftbench', ...args], {
     cwd,
     encoding: 'utf8',
