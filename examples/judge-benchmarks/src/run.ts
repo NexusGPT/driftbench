@@ -1,12 +1,12 @@
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type Caller, CallFailed, createCaller, Recordings, SpendCapReached } from './call';
-import { extractPython, majoritySolve, pythonOutput } from './extras';
+import { type Caller, CallFailed, createCaller, promptKey, Recordings, SpendCapReached } from './call';
 import {
   CONTESTANTS,
   type Contestant,
   contestantById,
+  jsonObjects,
   type PairDecision,
   type PointDecision,
   type Prompt,
@@ -20,6 +20,7 @@ import {
   splitOf,
   stratifiedSample,
 } from './data';
+import { extractPython, finalLine, majoritySolve, normalizeFinal, pythonOutput } from './extras';
 import {
   type PairResult,
   type PointResult,
@@ -53,6 +54,8 @@ export type RunOptions = {
   /** dev, test or all (default all). Our judge is tuned on dev; charts show test. */
   readonly split?: 'dev' | 'test' | 'all';
   readonly capUsd?: number;
+  /** Absolute time after which no new model calls start. */
+  readonly deadlineAt?: number;
   readonly concurrency?: number;
   /** Never call the model: true stops at a missing recording; lenient counts its answer as missing. */
   readonly replayOnly?: boolean | 'lenient';
@@ -63,6 +66,8 @@ export type RunOptions = {
   readonly criterion?: string;
   /** Draw the stratified sample from all items, then keep the items of the split (the charts' order). */
   readonly sampleBeforeSplit?: boolean;
+  /** Optional diagnostics, with no benchmark text copied into the report. */
+  readonly includeDecisions?: boolean;
 };
 
 export type ContestantReport = {
@@ -73,6 +78,13 @@ export type ContestantReport = {
   /** What the calls cost as the command reported it, recorded or new. */
   readonly costUsd: number;
   readonly calls: number;
+  readonly decisions?: readonly {
+    id: string;
+    pass?: boolean;
+    correct: boolean;
+    responseChars: number;
+    missing: number;
+  }[];
 };
 
 export type RunReport = {
@@ -121,7 +133,9 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
     ? { id: options.bench, criterion: options.criterion ?? 'The response is correct.', items: options.items }
     : await loadBenchmark(options.bench);
   const inSplit = (xs: readonly Item[]) =>
-    xs.filter((item) => (options.split ?? 'all') === 'all' || splitOf(options.bench, item.id) === options.split);
+    xs.filter(
+      (item) => (options.split ?? 'all') === 'all' || splitOf(options.bench, item.id) === options.split,
+    );
   const items =
     options.sample && options.sampleBeforeSplit
       ? inSplit(stratifiedSample(bench.items, options.sample, options.seed))
@@ -131,38 +145,54 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
   const recordings = await new Recordings(
     join(options.recordingsDir ?? RECORDINGS, options.bench, `${options.model}.jsonl`),
   ).load();
+  const programOutputs = await new Recordings(
+    join(options.recordingsDir ?? RECORDINGS, options.bench, 'program-outputs.jsonl'),
+  ).load();
   const caller = createCaller(
     recordings,
     { model: options.model, ...(options.command ? { command: options.command } : {}) },
     {
       ...(options.capUsd === undefined ? {} : { capUsd: options.capUsd }),
+      ...(options.deadlineAt === undefined ? {} : { deadlineAt: options.deadlineAt }),
       ...(options.replayOnly ? { replayOnly: options.replayOnly } : {}),
     },
   );
   let stopped: string | undefined;
   let failedCalls = 0;
   const costs = new Map<string, { usd: number; calls: number }>();
+  // Limit actual calls, including nested votes, chunks and both pair orders.
+  const waiting: (() => void)[] = [];
+  let active = 0;
+  const limit = Math.max(1, Math.floor(options.concurrency ?? 4));
   const ask: Ask = async (contestant, prompt, item, order) => {
-    if (stopped) return undefined;
+    if (active >= limit) await new Promise<void>((resolve) => waiting.push(resolve));
+    else active += 1;
     try {
-      const r = await caller.call(prompt, { bench: options.bench, contestant: contestant.id, item, order });
-      const c = costs.get(contestant.id) ?? { usd: 0, calls: 0 };
-      c.usd += r.costUsd;
-      c.calls += 1;
-      costs.set(contestant.id, c);
-      return r;
-    } catch (cause) {
-      if (cause instanceof CallFailed) {
-        failedCalls += 1;
+      if (stopped) return undefined;
+      try {
+        const r = await caller.call(prompt, { bench: options.bench, contestant: contestant.id, item, order });
+        const c = costs.get(contestant.id) ?? { usd: 0, calls: 0 };
+        c.usd += r.costUsd;
+        c.calls += 1;
+        costs.set(contestant.id, c);
+        return r;
+      } catch (cause) {
+        if (cause instanceof CallFailed) {
+          failedCalls += 1;
+          return undefined;
+        }
+        stopped =
+          cause instanceof SpendCapReached
+            ? cause.message
+            : cause instanceof Error
+              ? cause.message
+              : String(cause);
         return undefined;
       }
-      stopped =
-        cause instanceof SpendCapReached
-          ? cause.message
-          : cause instanceof Error
-            ? cause.message
-            : String(cause);
-      return undefined;
+    } finally {
+      const next = waiting.shift();
+      if (next) next();
+      else active -= 1;
     }
   };
 
@@ -213,8 +243,62 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       }
       return pending;
     };
+    const executeProgram = async (
+      text: string,
+      item: Item,
+      restricted = true,
+    ): Promise<string | undefined> => {
+      const code = extractPython(text);
+      if (code === undefined) return undefined;
+      const model = restricted ? 'python3-macos-restricted-v1' : 'python3-isolated-v1';
+      const key = promptKey(model, { system: 'five seconds, standard library', user: code });
+      const hit = programOutputs.get(key);
+      if (!hit && options.replayOnly) return undefined;
+      const out = hit ? hit.text || undefined : await pythonOutput(code, 'python3', restricted);
+      if (!hit)
+        await programOutputs.add({
+          key,
+          model,
+          text: out ?? '',
+          costUsd: 0,
+          bench: options.bench,
+          contestant: contestant.id,
+          item: item.id,
+          order: 'program-output',
+        });
+      return out;
+    };
     // The solve of the item: one solve, or the majority of several. Unchanged for one solve, so its recording holds.
     const solveFor = async (item: Item): Promise<string | undefined> => {
+      if (contestant.referencePaths) {
+        const texts: string[] = [];
+        for (const path of contestant.referencePaths) {
+          const r = await ask(contestant, path.prompt(item.question), item.id, `blind-${path.name}`);
+          if (!r) continue;
+          if (!path.program) {
+            texts.push(r.text);
+            continue;
+          }
+          const out = await executeProgram(r.text, item);
+          if (!out || out === 'UNSUPPORTED') continue;
+          const answer = jsonObjects(out)
+            .filter((o) => typeof o.final_answer === 'string')
+            .at(-1)?.final_answer;
+          texts.push(
+            typeof answer === 'string' ? `Independent program output:\n${out}\nFinal answer: ${answer}` : out,
+          );
+        }
+        const winner = majoritySolve(texts);
+        const key = normalizeFinal(finalLine(winner));
+        const count =
+          key === undefined ? 0 : texts.filter((text) => normalizeFinal(finalLine(text)) === key).length;
+        const total = contestant.referencePaths.length;
+        const agreement = count / total;
+        const threshold = contestant.referenceAgreementThreshold;
+        if (threshold !== undefined && agreement < threshold)
+          return `Blind-solve agreement is ${count}/${total}, below the preregistered confidence threshold ${threshold}. No majority answer is supplied as a trusted reference. Re-derive the result from the question and external checks.`;
+        return `Blind-solve agreement: ${count}/${total}. Independent work is fallible; agreement does not prove correctness.\n\n${texts.map((text, i) => `Solve path ${i + 1}:\n${text}`).join('\n\n')}`;
+      }
       if (!contestant.reference) return undefined;
       const k = contestant.referenceSamples ?? 1;
       const prompt = contestant.reference(item.question);
@@ -225,6 +309,10 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
         const r = await ask(contestant, p, item.id, k === 1 ? 'reference' : `reference#${i + 1}`);
         if (r) texts.push(r.text);
       }
+      if (contestant.referenceAggregation === 'all')
+        return texts.length
+          ? texts.map((text, i) => `Independent derivation ${i + 1}:\n${text}`).join('\n\n')
+          : undefined;
       return k === 1 ? texts[0] : majoritySolve(texts);
     };
     // The readings of a long reply, one call per part, as notes for the judge.
@@ -233,7 +321,8 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       if (!chunked || response.length <= chunked.threshold) return undefined;
       const criterion = item.criterion ?? bench.criterion;
       const parts: string[] = [];
-      for (let at = 0; at < response.length; at += chunked.size) parts.push(response.slice(at, at + chunked.size));
+      for (let at = 0; at < response.length; at += chunked.size)
+        parts.push(response.slice(at, at + chunked.size));
       const notes = await Promise.all(
         parts.map((part, i) =>
           ask(
@@ -244,7 +333,9 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
           ),
         ),
       );
-      const lines = notes.map((r, i) => (r ? `Part ${i + 1} of ${parts.length}: ${r.text.trim()}` : undefined));
+      const lines = notes.map((r, i) =>
+        r ? `Part ${i + 1} of ${parts.length}: ${r.text.trim()}` : undefined,
+      );
       return lines.some((l) => l !== undefined)
         ? `Notes from reading the reply in ${parts.length} parts, each part alone (they may be wrong):\n${lines
             .filter((l) => l !== undefined)
@@ -252,20 +343,52 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
         : undefined;
     };
     // The program's printed output for the question, when the contestant asks for one.
-    const programFor = async (item: Item): Promise<string | undefined> => {
+    const programFor = async (item: Item, response?: string): Promise<string | undefined> => {
       if (!contestant.codeCheck) return undefined;
-      const r = await ask(contestant, contestant.codeCheck.write(item.question), item.id, 'program');
-      const code = r ? extractPython(r.text) : undefined;
-      const out = code === undefined ? undefined : await pythonOutput(code);
-      return out === undefined ? undefined : `Output of a program that works the question out (it may be wrong): ${out}`;
+      const r = await ask(
+        contestant,
+        contestant.codeCheck.write(item.question, contestant.codeCheck.targeted ? response : undefined),
+        item.id,
+        'program',
+      );
+      const out = r
+        ? await executeProgram(r.text, item, contestant.codeCheck.restricted ?? false)
+        : undefined;
+      return out === undefined
+        ? undefined
+        : `Output of a program that works the question out (it may be wrong): ${out}`;
     };
     // Everything the judge is given as reference for an item. With no extra step, exactly the solve, as before.
-    const referenceFor = async (item: Item, response?: string): Promise<string | undefined> => {
+    const referenceFor = async (
+      item: Item,
+      response?: string,
+      originalResponse?: string,
+    ): Promise<string | undefined> => {
       const isChecked = await checkable(item);
       const solved = isChecked ? await solveFor(item) : undefined;
       const extras: (string | undefined)[] = [];
+      if (contestant.toolEvidence) extras.push(await contestant.toolEvidence(item.question));
+      if (
+        contestant.finalStepCheck &&
+        originalResponse &&
+        response &&
+        originalResponse.length > contestant.finalStepCheck.threshold
+      ) {
+        const checked = await ask(
+          contestant,
+          contestant.finalStepCheck.read(
+            item.question,
+            originalResponse.slice(-contestant.finalStepCheck.size),
+            response,
+          ),
+          item.id,
+          'final-step',
+        );
+        if (checked)
+          extras.push(`Independent re-derivation of the final step (may itself be wrong):\n${checked.text}`);
+      }
       if (response !== undefined) extras.push(await readingsFor(item, response));
-      if (isChecked && contestant.codeCheck) extras.push(await programFor(item));
+      if (isChecked && contestant.codeCheck) extras.push(await programFor(item, response));
       const parts = [solved, ...extras].filter((p): p is string => p !== undefined);
       return parts.length === 0 ? undefined : parts.join('\n\n');
     };
@@ -281,9 +404,36 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       response: string,
       order: string,
     ): Promise<{ d: PointDecision; missing: number }> => {
+      const originalResponse = response;
+      if (contestant.responseExtractor) {
+        const extractor = contestant.responseExtractor;
+        let answer = extractor.local(item.question, response);
+        if (answer === undefined) {
+          const r = await ask(
+            contestant,
+            extractor.prompt(item.question, response),
+            item.id,
+            'quoted-extract',
+          );
+          answer = r ? extractor.parse(r.text, response) : undefined;
+        }
+        if (answer === undefined || !answer.trim()) {
+          if (!extractor.fallback) return { d: {}, missing: 1 };
+          response = extractor.fallback(item.question, originalResponse);
+        } else response = answer;
+      } else if (contestant.extractResponse) {
+        const extracted = await ask(
+          contestant,
+          contestant.extractResponse(item.question, response),
+          item.id,
+          'extract',
+        );
+        if (!extracted?.text.trim()) return { d: {}, missing: 1 };
+        response = extracted.text;
+      }
       const criterion = await criterionFor(item);
       const setup = await setupFor(criterion);
-      const reference = await referenceFor(item, response);
+      const reference = await referenceFor(item, response, originalResponse);
       const prompt = contestant.point?.({
         question: item.question,
         response,
@@ -299,22 +449,37 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
     };
     let summary: Summary;
     let mode: ContestantReport['mode'];
+    let decisions: ContestantReport['decisions'];
     if (pairwiseBench) {
       const pairs = items as PairItem[];
       const tasks = pairs.map((item) => async (): Promise<PairResult> => {
         if (contestant.checklist) {
           // Each reply is checked against every rubric alone; the reply with more satisfied rubrics wins.
           const checklist = contestant.checklist;
-          const rubrics = (await criterionFor(item)).split('\n').slice(1).map((r) => r.trim()).filter(Boolean);
+          const rubrics = (await criterionFor(item))
+            .split('\n')
+            .slice(1)
+            .map((r) => r.trim())
+            .filter(Boolean);
           const count = async (reply: string): Promise<number | undefined> => {
-            const r = await ask(contestant, checklist.reply({ question: item.question, reply, rubrics }), item.id, 'checklist');
+            const r = await ask(
+              contestant,
+              checklist.reply({ question: item.question, reply, rubrics }),
+              item.id,
+              'checklist',
+            );
             const checks = r ? checklist.parse(r.text, rubrics.length) : undefined;
             return checks === undefined ? undefined : checks.filter(Boolean).length;
           };
           const [a, b] = await Promise.all([count(item.a), count(item.b)]);
-          const decision: PairDecision = a === undefined || b === undefined || a === b ? 'tie' : a > b ? 'A' : 'B';
+          const decision: PairDecision =
+            a === undefined || b === undefined || a === b ? 'tie' : a > b ? 'A' : 'B';
           // One decision for both games: no reply is seen in a position, so the two games cannot disagree.
-          return { item, games: [decision, decision], missing: (a === undefined ? 1 : 0) + (b === undefined ? 1 : 0) };
+          return {
+            item,
+            games: [decision, decision],
+            missing: (a === undefined ? 1 : 0) + (b === undefined ? 1 : 0),
+          };
         }
         if (usePair && contestant.pair && contestant.parsePair) {
           const parse = contestant.parsePair;
@@ -359,7 +524,16 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
         const r = await point(item, item.response, 'single');
         return { item, decision: r.d, missing: r.missing };
       });
-      summary = scorePoints(await pool(tasks, options.concurrency ?? 4));
+      const results = await pool(tasks, options.concurrency ?? 4);
+      summary = scorePoints(results);
+      if (options.includeDecisions)
+        decisions = results.map(({ item, decision, missing }) => ({
+          id: item.id,
+          ...decision,
+          correct: item.correct,
+          responseChars: item.response.length,
+          missing,
+        }));
       mode = 'pointwise';
     }
     const c = costs.get(contestant.id) ?? { usd: 0, calls: 0 };
@@ -370,6 +544,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       summary,
       costUsd: c.usd,
       calls: c.calls,
+      ...(decisions === undefined ? {} : { decisions }),
     });
   }
   return {
@@ -431,6 +606,7 @@ async function main(): Promise<void> {
     ...(cap ? { capUsd: Number(cap) } : {}),
     concurrency: Number(arg('concurrency') ?? 4),
     replayOnly: process.argv.includes('--replay-only'),
+    includeDecisions: process.argv.includes('--include-decisions'),
   });
   process.stdout.write(`${renderReport(report)}\n`);
   const out = arg('out');

@@ -1,4 +1,5 @@
 import { buildPrompt, type JudgeRequest, pairwiseRequest, parseAnswerText } from '@driftbench/judges';
+import { verifyContestants } from './verify';
 
 /**
  * The contestants: one judge prompt each, run on the same model. driftbench's prompt comes from
@@ -48,6 +49,25 @@ export type Contestant = {
   readonly pooled?: boolean;
   /** A contestant that first answers the question itself, once per item: the prompt that asks for it. */
   readonly reference?: (question: string) => Prompt;
+  /** Method-diverse blind solves, optionally executed as restricted Python programs. */
+  readonly referencePaths?: readonly {
+    readonly name: string;
+    readonly prompt: (question: string) => Prompt;
+    readonly program?: boolean;
+  }[];
+  /** With method-diverse solves, only use a final answer supported by this fraction of all paths. */
+  readonly referenceAgreementThreshold?: number;
+  /** A deterministic, label-blind local solver. No model call or submission is supplied. */
+  readonly toolEvidence?: (question: string) => Promise<string | undefined>;
+  /** Extract the submitted answers before judging. This step must not solve or correct them. */
+  readonly extractResponse?: (question: string, response: string) => Prompt;
+  readonly responseExtractor?: {
+    readonly local: (question: string, response: string) => string | undefined;
+    readonly prompt: (question: string, response: string) => Prompt;
+    readonly parse: (text: string, originalResponse: string) => string | undefined;
+    /** Optional recovery when a literal final answer cannot be quoted. */
+    readonly fallback?: (question: string, response: string) => string;
+  };
   readonly pair?: (input: {
     question: string;
     a: string;
@@ -67,6 +87,8 @@ export type Contestant = {
   readonly parsePoint?: (text: string) => PointDecision;
   /** Independent solves per item; the reference is the solve whose final answer is the majority. Default 1. */
   readonly referenceSamples?: number;
+  /** Retain all independent derivations instead of choosing their most common final string. */
+  readonly referenceAggregation?: 'majority' | 'all';
   /**
    * Long pointwise replies only: each part is read on its own, and the readings are given to the judge as
    * reference notes. A reply longer than `threshold` characters is cut into parts of `size` characters.
@@ -74,10 +96,28 @@ export type Contestant = {
   readonly chunkedReading?: {
     readonly threshold: number;
     readonly size: number;
-    readonly read: (input: { question: string; part: string; criterion: string; index: number; total: number }) => Prompt;
+    readonly read: (input: {
+      question: string;
+      part: string;
+      criterion: string;
+      index: number;
+      total: number;
+    }) => Prompt;
+  };
+  /** Re-derive the final transition of a long response, with the original question and extracted answer. */
+  readonly finalStepCheck?: {
+    readonly threshold: number;
+    readonly size: number;
+    readonly read: (question: string, tail: string, answer: string) => Prompt;
   };
   /** A Python program the model writes for the question; its printed output is given to the judge as a reference. */
-  readonly codeCheck?: { readonly write: (question: string) => Prompt };
+  readonly codeCheck?: {
+    readonly write: (question: string, response?: string) => Prompt;
+    /** The program checks the extracted submission as well as the problem. */
+    readonly targeted?: boolean;
+    /** Require the macOS no-write, no-network, no-child-process sandbox. */
+    readonly restricted?: boolean;
+  };
   /**
    * Pairwise rubric benchmarks: each reply gets one call that answers every rubric yes or no, and the reply with
    * more satisfied rubrics wins. Neither reply is judged against the other, so no order is involved.
@@ -672,6 +712,11 @@ const REFERENCE_PROMPT = `Answer the question below yourself, as an expert would
 one line that starts with "Final answer:". If the question asks for writing or advice rather than a
 checkable answer, list in a few lines what a correct and complete answer must contain instead.`;
 
+const referencePrompt = (question: string): Prompt => ({
+  system: '',
+  user: `${REFERENCE_PROMPT}\n\n<question>\n${question}\n</question>`,
+});
+
 const driftbenchReference: Contestant = {
   ...driftbenchJudge(
     'driftbench-reference',
@@ -679,10 +724,7 @@ const driftbenchReference: Contestant = {
     `Reasoning rules:\n${STEPWISE_RULES}\n${VERIFY_RULES}\n- When a reference answer is given, check it before relying on it; where it agrees with your own check, prefer the reply that matches it.`,
     `Pairwise rules:\n${PAIRWISE_RULES}`,
   ),
-  reference: (question) => ({
-    system: '',
-    user: `${REFERENCE_PROMPT}\n\n<question>\n${question}\n</question>`,
-  }),
+  reference: referencePrompt,
 };
 
 const driftbenchReference3: Contestant = {
@@ -748,7 +790,8 @@ const driftbenchPooled: Contestant = {
 const driftbenchMajRef: Contestant = {
   ...driftbenchAdaptive,
   id: 'driftbench-majref',
-  source: 'driftbench-adaptive with the reference taken from the majority of five independent solves (tuning candidate)',
+  source:
+    'driftbench-adaptive with the reference taken from the majority of five independent solves (tuning candidate)',
   referenceSamples: 5,
 };
 
@@ -756,7 +799,8 @@ const driftbenchMajRef: Contestant = {
 const driftbenchChunked: Contestant = {
   ...driftbenchAdaptive,
   id: 'driftbench-chunked',
-  source: 'driftbench-adaptive with long replies read in parts, and the readings given as reference notes (tuning candidate)',
+  source:
+    'driftbench-adaptive with long replies read in parts, and the readings given as reference notes (tuning candidate)',
   chunkedReading: {
     threshold: 10000,
     size: 4000,
@@ -771,7 +815,8 @@ const driftbenchChunked: Contestant = {
 const driftbenchCodeCheck: Contestant = {
   ...driftbenchAdaptive,
   id: 'driftbench-codecheck',
-  source: 'driftbench-adaptive with the printed output of a program the model writes as a reference (tuning candidate)',
+  source:
+    'driftbench-adaptive with the printed output of a program the model writes as a reference (tuning candidate)',
   codeCheck: {
     write: (question) => ({
       system: '',
@@ -784,14 +829,18 @@ const driftbenchCodeCheck: Contestant = {
 const driftbenchChecklist: Contestant = {
   ...driftbench,
   id: 'driftbench-checklist',
-  source: 'the rubrics answered one by one for each reply, the reply with more satisfied rubrics wins (tuning candidate)',
+  source:
+    'the rubrics answered one by one for each reply, the reply with more satisfied rubrics wins (tuning candidate)',
   checklist: {
     reply: ({ question, reply, rubrics }) => ({
-      system: 'You check a reply against a list of requirements, one at a time. Judge only what the reply itself says.',
+      system:
+        'You check a reply against a list of requirements, one at a time. Judge only what the reply itself says.',
       user: `Question:\n${question}\n\nReply:\n${reply}\n\nRequirements:\n${rubrics.map((r, i) => `${i + 1}. ${r}`).join('\n')}\n\nFor each requirement, decide whether the reply satisfies it. Answer with one JSON object and nothing else: {"checks": [true or false for each requirement, in order]}`,
     }),
     parse: (text, count) => {
-      const checks = jsonObjects(text).filter((o) => Array.isArray(o.checks)).at(-1)?.checks as unknown[] | undefined;
+      const checks = jsonObjects(text)
+        .filter((o) => Array.isArray(o.checks))
+        .at(-1)?.checks as unknown[] | undefined;
       if (!checks || checks.length !== count) return undefined;
       const out: boolean[] = [];
       for (const c of checks) {
@@ -805,6 +854,7 @@ const driftbenchChecklist: Contestant = {
 };
 
 export const CANDIDATES: readonly Contestant[] = [
+  ...verifyContestants(referencePrompt, jsonObjects),
   driftbenchAdaptive,
   driftbenchChecked,
   driftbenchChecklist,

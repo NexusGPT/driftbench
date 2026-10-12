@@ -7,10 +7,9 @@ import { join } from 'node:path';
  * Helpers for the judge candidates that add a reference to the judge: the final answer a solve states, the
  * majority of several solves, a Python program's output, and the code block a model writes.
  *
- * The program runner is a limited sandbox, not a security boundary: each program runs alone in a new temporary
- * folder, under `python3 -I` (no user site, no environment variables), with a 5 second limit and capped output.
- * It does not block the network or the rest of the filesystem. It runs only programs the model wrote for a
- * benchmark item, on the machine that runs the benchmark.
+ * Each program runs alone in a temporary folder under `python3 -I -B`, with a time limit and capped output.
+ * On macOS, sandbox-exec denies writes, network access and child processes. Restricted candidates require
+ * this OS sandbox and fail closed on other hosts. The legacy candidates retain their original execution mode.
  */
 
 /** The text after the last "Final answer:" of a solve, or undefined when the solve states none. */
@@ -20,10 +19,13 @@ export function finalLine(text: string | undefined): string | undefined {
   return m ? m[1]!.trim().slice(0, 200) : undefined;
 }
 
-/** A final answer compared without its symbols, spaces or case: "$\boxed{264.5}$" and "264.5" match. */
+/** Remove presentation only. Decimal points, signs and mathematical grouping remain significant. */
 export function normalizeFinal(answer: string | undefined): string | undefined {
   if (answer === undefined) return undefined;
-  const bare = answer.replace(/\\boxed\{|\\text\{|\\\(|\\\)|\\\[|\\\]/g, '').replace(/[\s$*_{}()\\.]/g, '');
+  let bare = answer.replace(/\\\(|\\\)|\\\[|\\\]/g, '').replace(/\*\*|[\s$]/g, '');
+  while (/\\(?:boxed|text)\{([^{}]*)\}/.test(bare)) {
+    bare = bare.replace(/\\(?:boxed|text)\{([^{}]*)\}/g, '$1');
+  }
   return bare === '' ? undefined : bare.toLowerCase();
 }
 
@@ -61,13 +63,29 @@ const OUTPUT_LIMIT = 2000;
 const TIME_LIMIT_MS = 5000;
 
 /** Runs a Python program in its own folder and returns what it printed, or undefined when it fails or prints nothing. */
-export async function pythonOutput(code: string, python = 'python3'): Promise<string | undefined> {
+export async function pythonOutput(
+  code: string,
+  python = 'python3',
+  restricted = false,
+): Promise<string | undefined> {
+  if (restricted && process.platform !== 'darwin') return undefined;
   const folder = await mkdtemp(join(tmpdir(), 'driftbench-program-'));
   const file = join(folder, 'program.py');
   try {
     await writeFile(file, code, 'utf8');
     const stdout = await new Promise<string | undefined>((resolve) => {
-      const child = spawn(python, ['-I', file], {
+      const command = restricted ? '/usr/bin/sandbox-exec' : python;
+      const args = restricted
+        ? [
+            '-p',
+            '(version 1)(allow default)(deny file-write*)(deny network*)(deny process-fork)',
+            python,
+            '-I',
+            '-B',
+            file,
+          ]
+        : ['-I', '-B', file];
+      const child = spawn(command, args, {
         cwd: folder,
         env: { PATH: process.env.PATH ?? '/usr/bin:/bin' },
         stdio: ['ignore', 'pipe', 'ignore'],

@@ -88,7 +88,7 @@ export class CallFailed extends Error {}
 export function createCaller(
   recordings: Recordings,
   options: CallOptions,
-  limits: { capUsd?: number; replayOnly?: boolean | 'lenient' } = {},
+  limits: { capUsd?: number; replayOnly?: boolean | 'lenient'; deadlineAt?: number } = {},
 ): Caller {
   let spent = 0;
   let calls = 0;
@@ -112,8 +112,18 @@ export function createCaller(
       }
       if (limits.capUsd !== undefined && spent >= limits.capUsd)
         throw new SpendCapReached(`spend cap ${limits.capUsd} USD reached`);
+      if (limits.deadlineAt !== undefined && Date.now() >= limits.deadlineAt)
+        throw new SpendCapReached('run deadline reached');
       folder ??= await mkdtemp(join(tmpdir(), 'driftbench-bench-'));
-      const result = await runClaude(prompt, options, folder);
+      const remaining = limits.capUsd === undefined ? undefined : limits.capUsd - spent;
+      const callOptions =
+        remaining === undefined
+          ? options
+          : {
+              ...options,
+              maxCallUsd: Math.min(options.maxCallUsd ?? remaining, remaining),
+            };
+      const result = await runClaude(prompt, callOptions, folder, limits.deadlineAt);
       spent += result.costUsd;
       calls += 1;
       const entry: Recorded = {
@@ -133,6 +143,7 @@ async function runClaude(
   prompt: Prompt,
   options: CallOptions,
   cwd: string,
+  deadlineAt?: number,
 ): Promise<{ text: string; costUsd: number }> {
   const args = [
     '-p',
@@ -153,6 +164,8 @@ async function runClaude(
     ...(options.maxCallUsd === undefined ? [] : ['--max-budget-usd', String(options.maxCallUsd)]),
   ];
   for (let attempt = 1; ; attempt += 1) {
+    if (deadlineAt !== undefined && Date.now() >= deadlineAt)
+      throw new SpendCapReached('run deadline reached');
     let ran: { stdout: string; stderr: string };
     try {
       ran = await spawnOnce(
@@ -160,9 +173,14 @@ async function runClaude(
         args,
         prompt.user,
         cwd,
-        options.timeoutMs ?? 300_000,
+        Math.min(
+          options.timeoutMs ?? 300_000,
+          deadlineAt === undefined ? Infinity : Math.max(1, deadlineAt - Date.now()),
+        ),
       );
     } catch (cause) {
+      if (deadlineAt !== undefined && Date.now() >= deadlineAt)
+        throw new SpendCapReached('run deadline reached during a call');
       // A call past its timeout is tried once more, then its answer is missing and the run goes on.
       if (attempt >= 2) throw new CallFailed(cause instanceof Error ? cause.message : String(cause));
       continue;
