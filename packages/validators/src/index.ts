@@ -62,6 +62,7 @@ export {
   BANK_MIN_SIZE,
   BLIND_SLOWDOWN,
   formatHardness,
+  type GateBar,
   HARDNESS_MAX_SCORE,
   HARDNESS_MIN_CAUSES,
   HARDNESS_MIN_FORECAST,
