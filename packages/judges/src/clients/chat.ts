@@ -75,7 +75,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
       if (typeof message.refusal === 'string' && message.refusal !== '') {
         return { answer: inconclusive(`${model} declined: ${message.refusal}`), raw };
       }
-      const content = typeof message.content === 'string' ? message.content : '';
+      const content = contentText(message.content);
       if (choice.finish_reason === 'length') return truncated(content, model);
       return parseAnswerText(content);
     },
@@ -181,4 +181,13 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
       return parseAnswerText(text);
     },
   };
+}
+
+/** The text of an OpenAI message content: a string, or the text parts of a list joined in order. */
+function contentText(content: unknown): string {
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+  return content
+    .map((part) => (isRecord(part) && part.type === 'text' && typeof part.text === 'string' ? part.text : ''))
+    .join('');
 }

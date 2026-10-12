@@ -348,3 +348,33 @@ describe('chat clients pin temperature 0', () => {
     });
   }
 });
+
+describe('an OpenAI answer whose content is a list of parts', () => {
+  const ask = async (content: unknown) => {
+    const client = createOpenAiJudge({
+      env: { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' },
+      maxRetries: 0,
+      fetch: async () =>
+        new Response(JSON.stringify({ choices: [{ message: { content }, finish_reason: 'stop' }] }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    });
+    return client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+  };
+  const text = '{"outcome":"pass","reasoning":"ok"}';
+
+  it('reads the text parts as the answer', async () => {
+    expect((await ask([{ type: 'text', text }])).answer.outcome).toBe('pass');
+    const split = await ask([
+      { type: 'text', text: '{"outcome":"pass",' },
+      { type: 'text', text: '"reasoning":"ok"}' },
+    ]);
+    expect(split.answer.outcome).toBe('pass');
+  });
+
+  it('leaves a list with no text part unparsed', async () => {
+    const result = await ask([{ type: 'image_url', image_url: { url: 'x' } }]);
+    expect(result.unparsed).toBe(true);
+  });
+});
