@@ -157,3 +157,16 @@ describe('YAML data files (executor pilot)', () => {
     ]);
   });
 });
+
+describe('command wrappers (executor pilot)', () => {
+  it('finds the script behind exec, timeout with its limit and uv run', async () => {
+    const { scriptOf } = await import('../../src/scan/claude-code');
+    for (const command of [
+      'exec python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/shell.py',
+      'timeout 5 python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/shell.py',
+      'uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/shell.py',
+    ]) {
+      expect(scriptOf(command), command).toEqual({ script: '.claude/hooks/shell.py', anchored: true });
+    }
+  });
+});

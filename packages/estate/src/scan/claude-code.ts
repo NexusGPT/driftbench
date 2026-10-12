@@ -649,6 +649,21 @@ function runPath(segment: readonly string[]): string | undefined {
     index++;
     skip((word) => ENV_ASSIGNMENT.test(word) || word.startsWith('-'));
   }
+  // Wrappers that run the next command: exec, nice, nohup, time, timeout with its limit, uv run.
+  for (;;) {
+    const word = words[index] ?? '';
+    if (['exec', 'nice', 'nohup', 'time'].includes(word)) {
+      index++;
+      skip((next) => next.startsWith('-'));
+    } else if (word === 'timeout') {
+      index++;
+      skip((next) => next.startsWith('-'));
+      if (/^\d+(\.\d+)?[smhd]?$/.test(words[index] ?? '')) index++;
+    } else if (word === 'uv' && words[index + 1] === 'run') {
+      index += 2;
+      skip((next) => next.startsWith('-'));
+    } else break;
+  }
   const head = words[index] ?? '';
   if (INTERPRETERS.has(basename(head))) {
     index++;
