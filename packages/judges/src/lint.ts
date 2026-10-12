@@ -43,6 +43,13 @@ const RULES: readonly Rule[] = [
   { code: 'scope-mismatch', found: (c) => c.scope === 'conversation' && /\b(the last|this|that) reply\b/i.test(c.rubric) },
   // A slot nobody filled: {plan}, {{price}} or <customer name>.
   { code: 'placeholder', found: (c) => /\{[^{}\n]+\}|<[^<>\n]+>/.test(c.rubric) },
+  // A quote opened and not closed: where the quoted text ends is a guess.
+  {
+    code: 'unbalanced-quotes',
+    found: (c) =>
+      (c.rubric.match(/"/g) ?? []).length % 2 === 1 ||
+      (c.rubric.match(/\u201c/g) ?? []).length !== (c.rubric.match(/\u201d/g) ?? []).length,
+  },
 ];
 
 const countNot = (text: string): number => (text.match(/\bnot\b/gi) ?? []).length;

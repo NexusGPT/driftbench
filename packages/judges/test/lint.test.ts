@@ -113,4 +113,12 @@ describe('lintCriterion', () => {
     expect(lintCriterion({ ...clean, rubric: 'The reply says the price is under 5 and over 3 dollars.' }).issues).toEqual([]);
     expect(lintCriterion({ ...clean, rubric: 'The reply calls order.create when a < b holds.' }).issues).toEqual([]);
   });
+
+  it('reports unbalanced-quotes when a double quote is opened and never closed', () => {
+    const codes = (rubric: string) => lintCriterion({ ...clean, rubric }).issues.map((i) => i.code);
+    expect(codes('The reply names Acme Care and says "Acme Care.')).toContain('unbalanced-quotes');
+    expect(codes('The reply says \u201cAcme Care.')).toContain('unbalanced-quotes');
+    expect(codes('The reply says "Acme Care" and "billing".')).not.toContain('unbalanced-quotes');
+    expect(codes('The reply says \u201cAcme Care\u201d.')).not.toContain('unbalanced-quotes');
+  });
 });
