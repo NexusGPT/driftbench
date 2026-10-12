@@ -771,27 +771,61 @@ type ImpactContext = {
   testsOf(hid: string): string[];
 };
 
+/** docs/estate.md section 8: the complete metadata atom set decides retirement. */
+function deletionTests(c: ImpactContext) {
+  const live = c.tests.filter((test) => test.retired === undefined);
+  const retire = live.filter(
+    (test) => test.atoms.length > 0 && test.atoms.every((atom) => c.removed.has(atom)),
+  );
+  const regenerate = live.filter(
+    (test) =>
+      test.atoms.some((atom) => c.removed.has(atom)) && test.atoms.some((atom) => !c.removed.has(atom)),
+  );
+  return { retire, regenerate };
+}
+
+/** An already-written retirement of a non-live spec is not a new retirement. */
+function liveRetirements(c: ImpactContext) {
+  return c.impact.retire.filter(
+    (entry) =>
+      !(
+        entry.state === 'already' &&
+        c.tests.some((test) => test.id === entry.test && test.retired !== undefined)
+      ),
+  );
+}
+
 function retiresExactly(c: ImpactContext): string | undefined {
-  const retired = new Set(c.impact.retire.map((entry) => entry.test));
-  const should = c.tests
-    .filter((t) => !t.id.startsWith('estate.journey.') && c.removed.has(t.atoms[0] ?? ''))
-    .map((t) => t.id);
-  const missed = should.filter((id) => !retired.has(id));
-  return missed.length === 0
-    ? undefined
-    : `${missed.length} of ${should.length} tests of the atoms that left are not retired, such as ${missed[0]}`;
+  const expected = deletionTests(c);
+  const reported = liveRetirements(c);
+  const retired = new Set(reported.map((entry) => entry.test));
+  const missed = expected.retire.filter((test) => !retired.has(test.id));
+  if (missed.length > 0)
+    return `${missed.length} all-removed tests are not retired, such as ${missed[0]?.id}`;
+  const extra = retiresNothingElse(c);
+  if (extra) return extra;
+  if (reported.length !== retired.size) return 'a test is retired more than once';
+  const both = expected.retire.filter((test) => c.impact.regenerate.some((entry) => entry.test === test.id));
+  if (both.length > 0) return `all-removed test also regenerated: ${both[0]?.id}`;
+  for (const test of expected.regenerate) {
+    const entry = c.impact.regenerate.find((candidate) => candidate.test === test.id);
+    if (!entry) return `test with remaining atoms not regenerated: ${test.id}`;
+    const gone = test.atoms.filter((atom) => c.removed.has(atom));
+    const missing = gone.filter(
+      (atom) => !entry.atoms.some((reason) => reason.atom === atom && reason.why === 'removed'),
+    );
+    if (missing.length > 0)
+      return `removed-atom regeneration reason missing for ${test.id}: ${missing.join(', ')}`;
+  }
+  return undefined;
 }
 
 function retiresNothingElse(c: ImpactContext): string | undefined {
-  const should = new Set(
-    c.tests
-      .filter((t) => !t.id.startsWith('estate.journey.') && c.removed.has(t.atoms[0] ?? ''))
-      .map((t) => t.id),
-  );
-  const wrong = c.impact.retire.filter((entry) => !should.has(entry.test));
+  const should = new Set(deletionTests(c).retire.map((test) => test.id));
+  const wrong = liveRetirements(c).filter((entry) => !should.has(entry.test));
   return wrong.length === 0
     ? undefined
-    : `${wrong.length} tests retired whose atom under test stayed, such as ${wrong[0]?.test}`;
+    : `${wrong.length} tests retired before all their atoms left, or unrelated tests retired, such as ${wrong[0]?.test}`;
 }
 
 const DELETION_KINDS = [
@@ -812,7 +846,7 @@ const IMPACT_ITEMS: ImpactItem[] = [
     {
       key: `${kind}-retires-its-tests`,
       tier: kind === 'subagent' || kind === 'guard' ? 4 : 3,
-      title: `a deleted ${kind} retires the tests of the atoms that left`,
+      title: `a deleted ${kind} retires all-removed tests and regenerates tests with remaining atoms`,
       kind,
       judge: retiresExactly,
     },
@@ -992,12 +1026,16 @@ export function impactFamily(): Family {
     items,
     async evaluate(seed) {
       const run = await estateRun(seed);
-      const tests: EstateTest[] = run.specs.map((spec) => ({
-        id: spec.record.id,
-        path: spec.record.path,
-        file: spec.record.path,
-        atoms: estateMeta(spec).atoms ?? [],
-      }));
+      const tests: EstateTest[] = run.specs.map((spec) => {
+        const retired = spec.loaded?.spec.metadata?.retired;
+        return {
+          id: spec.record.id,
+          path: spec.record.path,
+          file: spec.record.path,
+          atoms: estateMeta(spec).atoms ?? [],
+          ...(typeof retired === 'string' ? { retired } : {}),
+        };
+      });
       const before = new Set(run.rendered.atoms.map((atom) => atom.hid));
       const out = new Map<string, ItemResult>();
       const mutants = estateMutants(run.estate);
