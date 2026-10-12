@@ -347,18 +347,33 @@ export function neymanAllocation(input: NeymanInput): NeymanResult {
   let left = total - Math.min(total, positive.length);
   // The objective is separable and convex in n_h, so adding one at a time where it removes the most
   // variance, w^2 / (n (n + 1)), reaches the integer optimum. Ties go to the lower index.
-  while (left > 0) {
-    let best = -1;
-    let bestGain = -1;
-    for (const [w, i] of positive) {
-      const n = allocated[i] as number;
-      const gain = (w * w) / (n * (n + 1));
-      if (gain > bestGain || (gain === bestGain && i < best)) {
-        best = i;
-        bestGain = gain;
-      }
+  // A binary heap keeps the largest gain on top (ties to the lower index), so each unit costs O(log strata).
+  const gainOf = (i: number, w: number): number => {
+    const n = allocated[i] as number;
+    return (w * w) / (n * (n + 1));
+  };
+  const heap = positive.map(([w, i]) => ({ i, gain: gainOf(i, w), w }));
+  const before = (x: (typeof heap)[number], y: (typeof heap)[number]): boolean =>
+    x.gain > y.gain || (x.gain === y.gain && x.i < y.i);
+  const siftDown = (start: number): void => {
+    let k = start;
+    for (;;) {
+      const l = 2 * k + 1;
+      const r = l + 1;
+      let top = k;
+      if (l < heap.length && before(heap[l] as (typeof heap)[number], heap[top] as (typeof heap)[number])) top = l;
+      if (r < heap.length && before(heap[r] as (typeof heap)[number], heap[top] as (typeof heap)[number])) top = r;
+      if (top === k) return;
+      [heap[k], heap[top]] = [heap[top] as (typeof heap)[number], heap[k] as (typeof heap)[number]];
+      k = top;
     }
-    allocated[best] = (allocated[best] as number) + 1;
+  };
+  for (let k = Math.floor(heap.length / 2) - 1; k >= 0; k -= 1) siftDown(k);
+  while (left > 0 && heap.length > 0) {
+    const top = heap[0] as (typeof heap)[number];
+    allocated[top.i] = (allocated[top.i] as number) + 1;
+    top.gain = gainOf(top.i, top.w);
+    siftDown(0);
     left -= 1;
   }
   return { exact, allocated };

@@ -186,3 +186,14 @@ describe('betaQuantile in the lower tail of a U-shaped beta', () => {
     expect(Math.abs(got - 2.46740110027031e-12) / 2.46740110027031e-12).toBeLessThan(1e-6);
   });
 });
+
+describe('neymanAllocation at scale', () => {
+  it('allocates 1e6 units over 1e5 strata in under five seconds and sums to the total', () => {
+    const sizes = Array.from({ length: 100_000 }, (_, i) => 1 + (i % 100));
+    const sds = sizes.map((_, i) => ((i * 7919) % 1000) / 1000 + 0.001);
+    const t0 = Date.now();
+    const r = neymanAllocation({ sizes, sds, total: 1_000_000 });
+    expect(Date.now() - t0).toBeLessThan(5000);
+    expect(r.allocated.reduce((a, b) => a + b, 0)).toBe(1_000_000);
+  });
+});
