@@ -241,3 +241,20 @@ describe('the XML of a Word document', () => {
     expect(docx).toContain(rawQuote(sources, 'document.xml', 'Keep answers short & clear.'));
   });
 });
+
+describe('a prompt in reStructuredText or LaTeX', () => {
+  const rst = 'Assistant guide\n===============\n\n- Never use a \\* in a reply.\n';
+  const tex = '\\section*{Assistant guide}\n- Keep \\textbf{answers} short.\n';
+  it('drops the backslash of an escaped character', () => {
+    expect(promptView('prompt.rst', rst)?.text).toContain('- Never use a * in a reply.');
+  });
+  it('reads a command with a braced argument as its argument', () => {
+    const text = promptView('prompt.tex', tex)?.text ?? '';
+    expect(text).toContain('- Keep answers short.');
+    expect(text).toContain('Assistant guide');
+  });
+  it('quotes a passage of the file', () => {
+    const sources = [{ kind: 'prompt' as const, path: 'prompt.tex', text: tex }];
+    expect(tex).toContain(rawQuote(sources, 'prompt.tex', '- Keep answers short.'));
+  });
+});

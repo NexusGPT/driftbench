@@ -561,6 +561,33 @@ function csvView(raw: string): View | undefined {
     : undefined;
 }
 
+/** reStructuredText: a backslash before a character stands for that character (`\\*` is `*`). */
+function rstView(raw: string): View | undefined {
+  const tokens: Token[] = [];
+  for (const match of raw.matchAll(/\\([^\s])/g)) {
+    const start = match.index as number;
+    tokens.push({ start, end: start + 2, chars: [[match[1] as string, start, start + 2]] });
+  }
+  return tokens.length === 0 ? undefined : inPlace(raw, tokens);
+}
+
+/** LaTeX: a command with one braced argument (`\\textbf{word}`) reads as its argument. */
+function latexView(raw: string): View | undefined {
+  const tokens: Token[] = [];
+  for (const match of raw.matchAll(/\\[A-Za-z]+\*?\{([^{}]*)\}/g)) {
+    const start = match.index as number;
+    const end = start + match[0].length;
+    const inner = match[1] as string;
+    const innerStart = start + match[0].indexOf('{') + 1;
+    tokens.push({
+      start,
+      end,
+      chars: [...inner].map((c, i) => [c, innerStart + i, innerStart + i + 1] as [string, number, number]),
+    });
+  }
+  return tokens.length === 0 ? undefined : inPlace(raw, tokens);
+}
+
 const VIEWS: Array<[RegExp, (raw: string) => View | undefined]> = [
   [/\.jsonl$/i, jsonLinesView],
   [/\.json$/i, jsonView],
@@ -570,6 +597,8 @@ const VIEWS: Array<[RegExp, (raw: string) => View | undefined]> = [
 VIEWS.push(
   [/\.properties$/i, propertiesView],
   [/\.csv$/i, csvView],
+  [/\.rst$/i, rstView],
+  [/\.tex$/i, latexView],
   [/\.html?$/i, (raw) => markupView(raw, true)],
   [/\.(xml|svg)$/i, (raw) => markupView(raw, /<w:(document|body|p|t)\b/.test(raw))],
 );

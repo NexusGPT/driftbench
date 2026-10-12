@@ -653,3 +653,15 @@ Sources read:
 What others do: A paragraph's text is its runs joined; the tags between them are not text.
 
 What to try, and why: the runs of a Word document read as one paragraph
+
+## Iteration 56
+
+Question: packages/generate/src/extract/containers.ts: a .rst file is sent with backslash escapes and a .tex file with its \textbf{} wrappers as written; prompt-containers.restructured-text and latex prove it.
+
+Sources read:
+* https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#escaping-mechanism
+* https://www.latex-project.org/help/documentation/usrguide.pdf (commands with arguments)
+
+What others do: In reST a backslash escapes the next character; in LaTeX a command with one braced argument displays the argument.
+
+What to try, and why: reStructuredText escapes and LaTeX commands are decoded (level 1 is blocked on validator defects, so the level stays 0)
