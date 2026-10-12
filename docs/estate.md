@@ -430,7 +430,7 @@ How a row becomes a spec:
 
 * Given: `vars.estate` (runtime and map hash), the session state of the cell, the hazard of the cell as `vars.event`, and the workspace seed of the situation, inlined as `world.workspace.files`.
 * When: the situation the test type needs, found by the row's first atom (the situation holding most of the row's atoms wins; pinned cell values must agree); its approved phrases shuffled by the seed; the twin takes the second phrase. A replay row gives one spec per recorded session of its situation, asking with the session's recorded ask. A deviation of the cell is a perturbation before the ask, with an approved deviation phrase (`inject_at: 0`, recovery within one block). `stop_resume` adds a resume block.
-* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), the name of another skill (misroute), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off. A code-written ask names a task: a verb of acting and its object, as a user would ask for work (planned). It never restates the rule ("Please do this: never guess a status") or a bare condition ("Please handle this for me: the invoice is not in EUR"): such an ask tests whether the agent repeats the rule, not whether it follows it while working. The rule's situation becomes the task ("Where is shipment NW-55012?"). A guard that watches the user's prompt is the one exception: its test asks with the guard's own trigger ("Stop, that is enough for now.").
+* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), the name of another skill (misroute), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off. A code-written ask names a task: a verb of acting and its object, as a user would ask for work. It never restates the rule ("Please do this: never guess a status") or a bare condition ("Please handle this for me: the invoice is not in EUR"): such an ask tests whether the agent repeats the rule, not whether it follows it while working. The rule's situation becomes the task ("Where is shipment NW-55012?"). A guard that watches the user's prompt is the one exception: its test asks with the guard's own trigger ("Stop, that is enough for now."). The floor refuses, with the reason, an act that does not start with a verb (a unit's own description: "Read-only audit lane for ledger checks"), a guard's title (its event and name), a phrase cut mid-sentence, an act or situation that names a file of the estate (the ask would say which file to read) or holds code; the row gets `needs-askable-act` and waits for an approved phrase.
 * Then, from the evidence predicates of the row's atoms:
 
 | Predicate | Check |
@@ -478,9 +478,12 @@ How a row becomes a spec:
 | `needs-static-runner` | a static property of the estate files that names no check the static runner knows |
 | `needs-negation` | in a negative control, a predicate with no inverse |
 | `needs-recorded-session` | a replay row whose situation no recorded session holds |
+| `needs-guard-trace` | in a live row, a check that runs inside another guard's script (a registry code with no script of its own): the runtime's trace names that script, never the check, so the unit runner tests it |
 | `needs-guard-timing` | the speed of a guard |
 | `needs-guard-message-check` | the message a guard gives |
 | `needs-derivable-then` | a row with no Then code can derive |
+| `needs-askable-act` | no approved phrase, and the atoms' words give no task the floor accepts |
+| `needs-existing-file` | a Read of a file the estate copy does not hold |
 
 Layout: `<specs|incomplete>/<mode>/<test type>/<id>.yaml`, so `driftbench replay --suite <out>/specs/replay` takes the replay specs alone.
 
@@ -723,6 +726,8 @@ p01 is a `route_positive` row (the weekly-report skill loads), p02 an `ordered_p
 
 Limits of replay today:
 
+* A spec that only inconclusive checks keep from passing (no stage feed, no judge) is undecided: it still counts as not passed, the JSON marks it `undecided: true` and counts these apart (`undecided`), and the summary line says how many. A spec with a failed check is never undecided.
+* A file the runtime loads by itself (for Claude Code, every `CLAUDE.md` and `CLAUDE.local.md`) is never an expected Read: no call ever shows it.
 * Without a decision log, no guard is seen: a `count: 0` guard expectation passes and a positive one fails, rather than being inconclusive. The command prints a note when a spec expects guards and no log was given, and the same for stages without a step feed.
 * A write to a path the session never saw counts as created. Only the runtime's own result type, or a tree before and after, is certain.
 * A tree diff (which also sees deletions) goes on the last block only; a tree per block needs a snapshot per turn. The adapter reads a before and after tree; the command has no option for them yet.

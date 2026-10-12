@@ -54,10 +54,6 @@ blocks:
     when:
       user: Carry on with the week 42 report where we were.
     expect:
-      references:
-        - path: "**/CLAUDE.md"
-          count:
-            min: 1
       workspace:
         created:
           - reports/2026-W42.md
