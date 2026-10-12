@@ -225,7 +225,7 @@ Minimum bank at merge: 300 items per validator, no family under 20 items, every 
 
 ### 12.2 Where items come from, so none is padding
 
-1. Parity. The six parity dossiers (promptfoo, langwatch, deepeval, inspect, observability tools, code-agent harnesses) list what each competitor can do. Every capability in the component's area is one item with a code oracle. A capability driftbench lacks is a failing item, which is the point: the bank is the roadmap.
+1. Parity. The six parity dossiers on other evaluation frameworks list what each competitor can do. Every capability in the component's area is one item with a code oracle. A capability driftbench lacks is a failing item, which is the point: the bank is the roadmap.
 2. Research. The research dossiers (benchmarks, robustness, simulation, synthetic data, frameworks, lists) name published methods. Each method with a computable answer is an item: for statistics, every estimator and test against an analytic truth on a constructed distribution; for judges, every documented attack and transform; for generation, every coverage and diversity measure.
 3. Combination. Pairwise and three-way interactions of fault classes, transforms, channels, languages, modes and adapters are generated, never hand-listed. Truth stays by construction because the generators compose. This is where the bank grows past what a person would write, and where shortcuts die.
 4. Scale. Selected items run again at 10 times and 100 times their input size under a time and memory budget. Correct and slow is a failing item.

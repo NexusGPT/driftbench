@@ -49,11 +49,19 @@ A campaign runs each spec several times in each mode (`--repeats`). With c passi
 
 | Function | Computes |
 |---|---|
-| `passK(c, n, k)` | pass^k, the probability that k runs drawn from the n all pass: `C(c, k) / C(n, k)`, the estimator of [arXiv 2406.12045](https://arxiv.org/pdf/2406.12045), as the `pass_k` reducer of inspect_ai uses it |
+| `passK(c, n, k)` | pass^k, the probability that k runs drawn from the n all pass: `C(c, k) / C(n, k)`, the estimator of [arXiv 2406.12045](https://arxiv.org/pdf/2406.12045) |
 | `passAtK(c, n, k)` | pass@k, the probability that at least one of k runs passes: `1 - C(n - c, k) / C(n, k)`, the estimator of [arXiv 2107.03374](https://arxiv.org/pdf/2107.03374) |
 | `unreliability(samples)` | the 90th percentile minus the 10th of the scores across repeats |
 
 Both forms are computed as products, so they never overflow. pass^k falls as k grows when an agent is inconsistent, even if its average looks fine.
+
+## Intervals on pass^k and pass@k
+
+Each pass^k and pass@k value comes with an interval for every k. The interval is the Wilson bounds of the per-run rate, raised to k, widened where needed so that it contains the value. In a seeded simulation over 36 cells of run rate, run count and k, the interval covered the true value in at least 91% of draws, and the value always lay inside its interval.
+
+## Repeat reducers per criterion
+
+A criterion can name a repeat reducer (`mode`, `median` or `at_least:<k>`). It reduces the criterion's verdicts across the repeats of one spec to one verdict, shown in the scorecard's "Criteria across repeats" table and on the `driftbench report` command line. The rules are on the [judges](judges.md#repeat-reducers) page.
 
 ## Intervals
 

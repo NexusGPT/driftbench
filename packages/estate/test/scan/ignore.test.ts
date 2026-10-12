@@ -39,6 +39,11 @@ describe('the ignore list', () => {
       'hooks/**/test',
       '.trash',
       'skills/synced',
+      '.DS_Store',
+      'Thumbs.db',
+      '*.swp',
+      '*~',
+      '.idea',
     ]);
   });
 
@@ -187,5 +192,36 @@ describe('reference bases', () => {
       ignored: true,
     });
     expect(lintEstate(map, raw).counts.MISSING_REFERENCE).toBe(0);
+  });
+});
+
+describe('files an operating system or an editor leaves', () => {
+  it('skips .DS_Store, Thumbs.db, swap files, backup files and .idea folders, at any depth', async () => {
+    const root = await estate({
+      'CLAUDE.md': '# Rules\n',
+      '.claude/.DS_Store': 'x',
+      '.claude/hooks/.DS_Store': 'x',
+      '.claude/skills/a/Thumbs.db': 'x',
+      '.claude/skills/a/SKILL.md': '---\nname: a\n---\n\nDo a.\n',
+      '.claude/skills/a/.SKILL.md.swp': 'x',
+      '.claude/skills/a/SKILL.md~': 'x',
+      '.claude/.idea/workspace.xml': '<project/>\n',
+      '.claude/notes~draft.md': '# Kept: the tilde is not at the end\n',
+    });
+    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    expect(raw.files.map((file) => file.path)).toEqual([
+      'CLAUDE.md',
+      '.claude/notes~draft.md',
+      '.claude/skills/a/SKILL.md',
+    ]);
+    expect(raw.ignored?.patterns.filter((entry) => entry.files > 0)).toEqual([
+      { pattern: '.DS_Store', files: 2 },
+      { pattern: 'Thumbs.db', files: 1 },
+      { pattern: '*.swp', files: 1 },
+      { pattern: '*~', files: 1 },
+      { pattern: '.idea', files: 1 },
+    ]);
+    const invariant = map.atoms.find((atom) => atom.fields?.check === 'no_orphans');
+    expect(invariant?.fields?.orphans).toEqual(['.claude/notes~draft.md']);
   });
 });

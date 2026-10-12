@@ -1,0 +1,15 @@
+# The leak guard's secret scan (gitleaks 8.24, default rules) with one narrow exception.
+#
+# A judge cassette keys each recorded answer by a 12-character hex content hash, in a field named "key".
+# The generic-api-key rule reads some of those hashes as secrets. The exception allows only a line that
+# holds that field and such a hash and nothing else. A longer value, another field, or a token of any
+# known format on the same line is still reported (checked with gitleaks 8.24.3 on 2026-10-12).
+title = "driftbench gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "judge cassette request keys are 12-character content hashes"
+regexTarget = "line"
+regexes = ['''^[+\s]*"key": "[0-9a-f]{12}",?\s*$''']

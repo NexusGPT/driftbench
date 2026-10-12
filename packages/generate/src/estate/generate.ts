@@ -81,7 +81,10 @@ export const ESTATE_SEEDER = 'estate';
 export const ESTATE_DEFAULT_SEED = 1;
 /** The custom checks the replay runner registers. */
 export const REPLAY_CUSTOM_CHECKS: readonly string[] = [
+  'grounded_values',
   'hazard_recovery',
+  'max_words',
+  'no_delete_under',
   'ordered',
   'permission',
   'some_call',
@@ -154,6 +157,11 @@ export type EstateGenerateOptions = {
   fallback?: boolean;
   /** Atom ids whose complete specs come first in the run order. */
   focus?: readonly string[];
+  /**
+   * A judge runs the judged criteria: a model-named predicate no code checks becomes a gating criterion
+   * written from the atom's own words, the spec tagged `judged`. Default true; false leaves it a gap.
+   */
+  judge?: boolean;
 };
 
 export type Totals = { rows: number; specs: number; complete: number; incomplete: number };
@@ -164,12 +172,14 @@ export type EstateReport = {
   plan: { path: string; rows: number; approved: number; proposed: number; struck: number };
   phrases: { path: string; situations: number; phrases: number; workspaces: number };
   sessions: { path: string; sessions: number } | null;
-  options: { seed: number; checks: string[]; fallback: boolean };
+  options: { seed: number; checks: string[]; fallback: boolean; judge: boolean };
   summary: { specs: number; blocks: number; complete: number; incomplete: number; judged: number };
   /** Where the asks and outcomes of the complete specs come from. */
   sources: {
     asks: { bank: number; code: number; session: number; none: number };
     outcomes: Record<string, number>;
+    /** Complete specs whose Then holds a criterion judged from a domain predicate's own words. */
+    judged: number;
   };
   /** The focus atoms: how many complete specs name each; those with none are listed apart. */
   focus: {
@@ -198,6 +208,7 @@ export type EstateSpecRecord = {
   atoms: string[];
   ask: AskSource;
   outcome: string;
+  judged: string[];
   session?: string;
   expect?: 'pass' | 'fail';
 };
@@ -231,6 +242,8 @@ type Built = {
   judged: number;
   ask: AskSource;
   outcome: string;
+  /** Atoms of the spec judged by a criterion written from their words, since no code checks them. */
+  judgedAtoms: string[];
   session?: SessionEntry;
   expect?: 'pass' | 'fail';
 };
@@ -292,6 +305,7 @@ export function generateEstateSuite(
     seed,
     paths: options.paths,
     fallback: options.fallback ?? true,
+    judge: options.judge ?? true,
     units: [
       ...new Set(
         input.map.atoms
@@ -364,6 +378,7 @@ export function generateEstateSuite(
         atoms: row.atomIds,
         ask: 'none',
         outcome: 'static',
+        judged: [],
       });
       for (const totals of [totalsType, totalsMode]) {
         totals.specs += 1;
@@ -397,6 +412,7 @@ export function generateEstateSuite(
         atoms: row.atomIds,
         ask: built.ask,
         outcome: built.outcome,
+        judged: built.judgedAtoms,
         ...(built.session ? { session: built.session.name } : {}),
         ...(built.expect ? { expect: built.expect } : {}),
       });
@@ -459,9 +475,13 @@ export function generateEstateSuite(
       input.sessions && options.paths.sessions
         ? { path: options.paths.sessions, sessions: input.sessions.sessions.length }
         : null,
-    options: { seed, checks, fallback: ctx.fallback },
+    options: { seed, checks, fallback: ctx.fallback, judge: ctx.judge === true },
     summary: { specs: records.length, blocks, complete, incomplete: records.length - complete, judged },
-    sources: { asks, outcomes: sortedKeys(outcomes) },
+    sources: {
+      asks,
+      outcomes: sortedKeys(outcomes),
+      judged: done.filter((record) => record.judged.length > 0).length,
+    },
     focus: focus
       ? {
           atoms: focus.length,
@@ -729,6 +749,7 @@ function build(
       `mode:${row.mode}`,
       ...kinds,
       ...(ask === 'code' ? ['ask:code'] : []),
+      ...(then.judged.length > 0 ? ['judged'] : []),
     ],
     target: { adapter: ctx.map.runtime },
     given: { vars, ...(seed ? { world: { workspace: { files: seed.files } } } : {}) },
@@ -754,6 +775,7 @@ function build(
         ask,
         ...(askFrom ? { askFrom } : {}),
         outcome,
+        ...(then.judged.length > 0 ? { judged: then.judged } : {}),
         ...(session ? { session: session.name, expect: expectRun } : {}),
         ...(complete
           ? {}
@@ -776,6 +798,7 @@ function build(
     judged: complete ? then.criteria.length : 0,
     ask,
     outcome,
+    judgedAtoms: [...then.judged],
     ...(session ? { session } : {}),
     ...(expectRun ? { expect: expectRun } : {}),
   };
@@ -999,9 +1022,10 @@ export function renderEstateSummary(report: EstateReport): string {
     `${'total'.padEnd(18)}${''.padStart(6)}${String(report.summary.specs).padStart(7)}${String(report.summary.complete).padStart(10)}${String(report.summary.incomplete).padStart(12)}`,
     '',
   );
-  const { asks, outcomes } = report.sources;
+  const { asks, outcomes, judged: judgedSpecs } = report.sources;
   lines.push(
     `Asks of the complete specs: ${asks.bank} approved phrases, ${asks.code} written by code, ${asks.session} recorded sessions, ${asks.none} with no ask.`,
+    `Judged by a criterion from the rule's own words (no code checks it): ${judgedSpecs} complete specs.`,
     `Outcomes of the complete specs: ${
       Object.entries(outcomes)
         .map(([source, count]) => `${count} ${source}`)

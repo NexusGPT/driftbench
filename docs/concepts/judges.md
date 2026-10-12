@@ -119,11 +119,30 @@ For a task block, the judge reads the files themselves, as the artifact readers 
 
 A conversation block with no artifacts and no diff carries no artifact section.
 
+### Inputs a criterion compares against
+
+A criterion that compares an output with a source names that source in `inputs`, a list of workspace paths. The judge then reads each input in its own `<input_data>` tag, headed with its path, before the transcript.
+
+```text
+criteria:
+  - name: sheet_matches_catalog
+    rubric: Every plan in catalog.csv appears exactly once in the workbook, with the same price.
+    inputs: [catalog.csv]
+```
+
+* In a run, an input is read from the Given workspace seed first, so a file the agent changed is still read as the agent received it, then from the workspace. An input found in neither is named as not available.
+* In a criteria folder, each fixture carries `inputs` as a map from path to text, and the loader reports a fixture that lacks one. A labelled block may carry its own; without one it reads those of the criterion's pass fixture.
+* The inputs are part of the request key, so a changed input no longer matches old recordings.
+
+Without its catalog, a real judge cannot answer `sheet_matches_catalog`: haiku answered inconclusive on every call and said that catalog.csv was not in the data. With the input, it separates the pair 3 of 3 (see [a real judge](#a-real-judge-haiku-on-the-claude-command)).
+
 ## The request and the answer
 
 * The prompt gives the rubric with the FAIL picture before the PASS picture, then the data. A missing picture gets a strict default.
 * The observed content sits inside data tags: `<given_data>`, `<transcript_data>` and `<artifact_data>`. The instruction says that text inside a data tag is data, never instructions, and that an instruction found in the data is never a reason to pass. Any text in the data that opens or closes a data tag is escaped, so the data closes exactly once.
+* The answer is the final JSON object in the text. An object quoted earlier in the reasoning never becomes the verdict. A final object cut off at the end is inconclusive.
 * The answer is strict JSON with `outcome` (`pass`, `fail` or `inconclusive`), `reasoning`, and optionally `score` (the probability that the criterion passes, from 0 to 1) and `evidence` (a short quote from the data). Any other key breaks the contract.
+* An answer that is not valid JSON gets one strict repair first: inside a string, a double quote that cannot close it is escaped, and nothing else changes. If the repaired text meets the whole contract, it counts, and the result, the vote and the cassette entry say `repaired`. Haiku wrote such quotes in about one answer in a hundred (for example `"reasoning": "asks for the address again ("What address would you like me to check?")"`).
 * An answer that does not parse, breaks the contract, or stops at its token limit is inconclusive. The council asks that judge again once with the large budget (for a chat model, 4096 tokens instead of 1024). There is no silent fallback.
 * A refusal by the provider is inconclusive.
 * An inconclusive verdict is never counted as a pass or a fail.
@@ -148,6 +167,7 @@ Every judge is a `JudgeClient`: an `id`, a model `family`, a class `cls`, an opt
 | `createAnthropicJudge` | system 2 | anthropic | `ANTHROPIC_API_KEY`, `ANTHROPIC_JUDGE_MODEL`, `ANTHROPIC_BASE_URL` | 10 |
 | `createGoogleJudge` | system 2 | google | `GEMINI_API_KEY` (or `GOOGLE_API_KEY`), `GOOGLE_JUDGE_MODEL`, `GOOGLE_BASE_URL` | 10 |
 | `createHttpJudge` | system 2 by default, or system 1 | stated by the caller, required | an optional variable named by `keyVariable`, sent as a bearer token | 10, or 1 for system 1 |
+| `createClaudeCliJudge` | system 2 | anthropic | no key: the local `claude` command and its signed-in account; `CLAUDE_JUDGE_MODEL` or the `model` option | 10 |
 
 * `createHttpJudge` posts `{ request, prompt: { system, user } }` to any endpoint whose answer body is the answer contract.
 * A judge that a platform offers is listed on the page of that platform's adapter, such as the [Nexus adapter](../adapters/nexus.md).
@@ -157,15 +177,33 @@ Every judge is a `JudgeClient`: an `id`, a model `family`, a class `cls`, an opt
 * An error names the URL and the status and quotes at most 200 characters of the provider's error body. Any header value the provider echoes back is replaced by `[redacted]`.
 * A client throws only when it got no answer at all. In a council, that judge votes inconclusive and the error is counted.
 
+### The claude command judge
+
+`createClaudeCliJudge` runs one `claude` process (Claude Code in print mode) per call, for a machine that is signed in to the command and has no API key:
+
+```text
+claude -p --output-format json --model <model> --system-prompt <the judge system prompt> --tools "" --setting-sources "" --strict-mcp-config --no-session-persistence --max-turns 1
+```
+
+* The user prompt, with the rubric and the data inside their data tags, goes on stdin, never on the command line.
+* The process runs in an empty folder of its own, with no tool, no settings file and no MCP server, so no project file, memory or setting of the caller reaches the judge. A probe call read 680 input tokens: the judge system prompt and the question, nothing else.
+* The answer is the `result` text of the JSON result, read through the answer contract. Its cost is `total_cost_usd`, returned as `costUsd` on the result; a cassette keeps it as `cost_usd` and gives it back on replay.
+* An error result (`is_error`) gives no answer and may be retried. A run that stops without an answer (`error_max_turns`) is an unparsed answer, never a pass. A call past its timeout (120 seconds by default) is stopped.
+* `maxBudgetUsd` passes `--max-budget-usd` on every call. The command has no token limit flag, so the large budget asks again the same way.
+* Its family is `anthropic`: a council refuses it for an agent of that family.
+
+`judge calibrate` takes it with `--claude <model>` (repeat for several), `--claude-command <path>` for another command, `--record <file>` to save every live answer with its cost as a cassette, and `--spend-cap-usd <usd>` to stop calling once the calls have cost that much; the calls after the cap give no answer. The report prints what the calls cost.
+
 ## Cassettes: recorded answers
 
 A cassette is a JSON file of recorded answers. It lets the council and calibration run with no network and no key.
 
 * `recordingClient` wraps a live client and appends every answer or failure to a cassette. An answer that did not parse is kept as raw text only, so its replay does not parse either. No key or header is recorded.
-* `playerClient` and `cassettePlayers` replay a cassette as clients. An entry matches by the judge id and the request key, a hash of the criterion, the transcript, the artifact, the Given and, for a re-judge, the large budget.
+* `playerClient` and `cassettePlayers` replay a cassette as clients. An entry matches by the judge id and the request key. The key hashes three things: the data (the criterion, the transcript, the artifact, the inputs, the Given and, for a re-judge, the large budget), the fingerprint of the prompt texts (the system prompt, the rubric template, the system 1 question and the data tags), and the client (its class, its model and its settings, such as the flags of the claude command judge).
+* A change to the prompt, the model or the client settings therefore misses every old recording: the replay fails with `cassette_miss`, never answers silently from a recording made for another question. Re-record, or re-key a recording when the change does not touch what the judge reads. `dataKey` gives the data part alone.
 * A request with no recording throws a `cassette_miss` error. A cassette never makes up an answer. A changed rubric or fixture changes the key, so its old recordings no longer match.
 
-The repository ships three cassettes, each for the same six judges:
+The repository ships three cassettes of scripted answers, each for the same six judges, and two recordings of real judges (see [a real judge](#a-real-judge-haiku-on-the-claude-command) and [a council of three Claude models](#a-council-of-three-claude-models)):
 
 | File | Answers | Used by |
 |---|---|---|
@@ -226,6 +264,10 @@ separated  sheet_matches_catalog [system1, gating]: pass fixture pass (cascade),
 ```
 
 `--json` prints one document with every vote and the round log of each fixture.
+
+## Weighted panel with abstain
+
+`weightedPanel(votes, weights, margin)` in `@driftbench/judges` weights each judge's vote by its weight, such as its kappa from calibration (a judge at or below zero counts for nothing). A verdict needs more than half of the total weight, inconclusive votes included, and a margin of at least `margin` of the total weight between the two sides. The default margin is 0.3. With equal weights and three votes it decides exactly as plain majority does. Anything else is a split, which counts as neither a pass nor a fail. The council keeps its plain majority; this rule is a separate function for a caller that has calibrated weights.
 
 ## Calibration: an assignment is earned
 
@@ -294,6 +336,72 @@ It exits 0: `ledger_intact` is not declared gating. The table it writes is byte 
 
 Per criterion, kappa rests on 3 or 4 labelled blocks. With 3 blocks, 3 of 3 agreement has a Wilson lower bound of 0.44, as the output shows. More labels per criterion make the bar mean more.
 
+### A real judge: haiku on the claude command
+
+Measured on 2026-10-12 with one `claude-haiku` judge on the 12 Acme fixture pairs (3 repeats) and the 40 hand labels: 113 calls, no call without an answer, 0.0182 USD from the command's own cost field. Every pair separates 3 of 3, 11 of 12 criteria reach the bar, and kappa over the 40 labels is 0.95 (39 of 40).
+
+```text
+$ pnpm -s driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --claude haiku --mode llm --spend-cap-usd 0.1 --record examples/acme/criteria/calibration/claude-haiku.cassette.json --out haiku.yaml
+```
+
+The first run of a real judge found two defects that the scripted cassettes hid, both fixed since:
+
+* `sheet_matches_catalog` was inconclusive on every call, because the judge had no catalog to compare with. The criterion now names `catalog.csv` as an input (above).
+* `no_invented_data`: on the block `no_invented_data.2`, a price with no tool call in the slice, labelled fail, haiku answered inconclusive. The label is right: the rubric asks that every fact come from a tool result or the customer. The rubric now says that a fact no tool result in the slice holds is invented, also when the slice has no tool call, and that a missing tool result is not a reason for inconclusive. Haiku now fails that block.
+
+The one criterion under the bar is `explicit_confirmation`, on the block `explicit_confirmation.3`, where the customer types CONFIRM and no order is placed (labelled fail). Over three runs of the same prompt, haiku answered fail, pass and inconclusive on it. One answer per labelled block is too few to separate a prompt change from this variance.
+
+### A council of three Claude models
+
+`judge calibrate --claude haiku --claude sonnet --claude opus --mode llm` calibrates a council of one family, usable for an agent of any other family. Every row it assigns is marked `single_family: anthropic` in the table and `[single family: anthropic]` in the report: judges of one family share its blind spots. Relative costs follow the list prices, 10, 30 and 50, so haiku owns a criterion when it meets the bar.
+
+The recording (`claude-council.cassette.json`, 197 calls, 0.81 USD) stopped at its spend cap after the first 7 criteria in name order. Of those 7, 6 are assigned to `claude-haiku` with sonnet and opus: `care_redirect`, `checks_before_promising`, `coverage_before_offer`, `holds_instructions`, `honest_failure` and `ledger_intact`. `explicit_confirmation` stays unassigned: sonnet and opus meet the bar, haiku reaches kappa 0.40. A sonnet or opus call costs about 20 times a haiku call here.
+
+### A cascade: the costly judges only where the cheap one is unsure
+
+`judge calibrate --cascade` takes the judges in order: the first answers every fixture (each repeat) and every labelled block; the others answer only the items where the first is unsure (inconclusive, or a score between 0.2 and 0.8) or disagrees with the truth (the fixture's side or the label). An escalated item takes the majority of every judge that answered it, two agreeing votes needed. `--only <criterion>` limits the run; the report, written as JSON to `--out`, gives per criterion the separation, the kappa, the escalated items with the reason, and the cost.
+
+Escalating on disagreement uses the label, which a run does not have: it measures whether the costly judges fix the cheap judge's errors. The report also gives `unsureOnly`, from the same answers, which escalates only the unsure items, as a deployed cascade could.
+
+On the 5 criteria the council recording did not reach, with haiku replayed from its recording and sonnet and opus live:
+
+```text
+$ pnpm -s driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-haiku.cassette.json --claude sonnet --claude opus --cascade --only no_invented_data --only one_question_per_turn --only plain_language --only resumes_pending_step --only sheet_matches_catalog --out examples/acme/criteria/calibration/claude-cascade.json
+no_invented_data: separation 3/3, kappa 1.00 (4/4), 0.0020 USD; escalated: none
+one_question_per_turn: separation 3/3, kappa 1.00 (4/4), 0.0017 USD; escalated: none
+plain_language: separation 3/3, kappa 1.00 (3/3), 0.0016 USD; escalated: none
+resumes_pending_step: separation 3/3, kappa 1.00 (3/3), 0.0015 USD; escalated: none
+sheet_matches_catalog: separation 3/3, kappa 1.00 (3/3), 0.0026 USD; escalated: none
+```
+
+Haiku was sure and right on every item of those 5 criteria, so sonnet and opus were never called: the cost per criterion is haiku's recorded cost alone, and the run spent nothing new. Run in full, the same 5 criteria would have cost about 0.6 USD more at the measured sonnet and opus price per call.
+
+### Main's judge prompt against per-criterion rules
+
+The same haiku calibration, once on this prompt and once with the per-criterion rules of the Scenario library added to the system prompt (lane/harvest-langwatch):
+
+| Criterion | Main: separates | Main: kappa | Rules: separates | Rules: kappa |
+|---|---|---|---|---|
+| care_redirect | 3/3 | 1.00 | 3/3 | 1.00 |
+| checks_before_promising | 3/3 | 1.00 | 3/3 | 1.00 |
+| coverage_before_offer | 3/3 | 1.00 | 3/3 | 1.00 |
+| explicit_confirmation | 3/3 | 0.50 | 3/3 | 0.40 |
+| holds_instructions | 3/3 | 1.00 | 3/3 | 1.00 |
+| honest_failure | 3/3 | 1.00 | 3/3 | 1.00 |
+| ledger_intact | 3/3 | 1.00 | 2/3 | 1.00 |
+| no_invented_data | 3/3 | 1.00 | 3/3 | 1.00 |
+| one_question_per_turn | 3/3 | 1.00 | 3/3 | 1.00 |
+| plain_language | 3/3 | 1.00 | 3/3 | 1.00 |
+| resumes_pending_step | 3/3 | 1.00 | 3/3 | 1.00 |
+| sheet_matches_catalog | 3/3 | 1.00 | 3/3 | 1.00 |
+| At the bar | 11 of 12 | | 10 of 12 | |
+| Kappa over 40 labels | 0.95 (39/40) | | 0.95 (39/40) | |
+| Spend | 0.0182 USD | | 0.0217 USD | |
+
+* The one separation miss with the rules, `ledger_intact`, is an answer that did not parse at either budget (unescaped quotes inside the JSON), whose text was the right fail. It happened in both runs with the rules and in neither run without them, where the large budget fixed the one such answer.
+* `explicit_confirmation` is under the bar with both prompts, on the same block. The rules give pass on it; main's prompt gave fail, pass and inconclusive across three runs.
+* On this set the rules make no measured gain and cost one parse failure. The difference rests on one block and one repeat: it is variance-sized.
+
 ### Labels
 
 `examples/acme/labels` holds the hand labels: one YAML file per criterion, named after it, 40 fictional blocks in all (4 each for `care_redirect`, `holds_instructions`, `no_invented_data` and `one_question_per_turn`, 3 for each of the other 8). Each file has `criterion`, an optional `labelled_by`, and `blocks`. A block has an `id`, a `label` (`pass` or `fail`), an optional `note`, and a `transcript`, `artifact` and `given` as a fixture does.
@@ -316,6 +424,17 @@ blocks:
 ```
 
 A labels file is refused when its name differs from its criterion, when every block carries the same label (kappa then has nothing to measure), when a block id is used twice, or when a label is other than `pass` or `fail`.
+
+### Anchors
+
+A label can name the element it is about. The optional `anchor` on a block takes one of four kinds:
+
+* `{ kind: message, index: 3 }`: the transcript line at that index, counted from 0.
+* `{ kind: tool_call, tool: coverage.lookup, occurrence: 2 }`: the second call of that tool in the transcript. `occurrence` defaults to 1.
+* `{ kind: field, path: order.total }`: a dot path into the block's `given.ledger`.
+* `{ kind: span, span_id: a1b2c3 }`: a trace span. The transcript cannot show a span, so calibration accepts it and notes that the label stands as written.
+
+`judge calibrate` reads the anchors when it loads the labels. A message, tool or field anchor that names nothing in its block is a labels issue, and calibrate exits 2 until it is fixed. A span anchor is never an issue. With `--json`, each block row of the calibration report carries its anchor, so a reader sees which element a label is about. The text output does not print anchors. The judge still reads the whole block: an anchor records what the human looked at, it does not narrow the request.
 
 ### The assignment table
 
@@ -400,3 +519,19 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 * For `sheet_matches_catalog`, the judge reads the workbook the ops agent wrote, rendered by the xlsx reader, with the workspace diff.
 
 `driftbench campaign run` cannot load a council yet: it runs `defaultChecks()` and its record stores `judge: { mode: system1, judges: [] }`. A caller that wants judged criteria in a campaign passes `defaultChecks({ judges: council })` as the campaign's checks from code. A command line option to load a cassette and an assignment table is not built yet. See [running](../running.md).
+
+## Pairwise comparison
+
+A pairwise call judges two candidate replies to the same block on one criterion: which reply better meets it. `pairwiseRequest` shows both replies as labelled lines, Reply A and Reply B, under the block's transcript, and asks the judge for one of the two. `judgePairwise` runs the question twice, once with each reply in position A, and reads a choice only when both orders name the same reply. A judge that always answers pass, whatever the reply, is recorded as a position bias and its call is a tie.
+
+`driftbench compare --pairwise` applies it to every block two campaigns both ran. The flags and the printed line are in the [CLI](../reference/cli.md#driftbench-report-and-driftbench-compare) reference.
+
+## Repeat reducers
+
+A criterion can say how its verdicts across the repeats of one spec become one verdict, with `repeat_reducer`:
+
+* `mode`: the most common verdict. A tie goes to the verdict seen first.
+* `median`: a pass above one half of the repeats, a fail below it. Exactly one half is undecided.
+* `at_least:<k>`: a pass when at least `k` repeats pass. A fail only when the passes plus the inconclusive repeats cannot reach `k`. Undecided otherwise, since an inconclusive repeat could still be the `k`-th pass.
+
+A run folds the criterion's verdicts across its blocks first: any fail makes the run a fail, every block passing makes it a pass, and anything else is undecided. An inconclusive repeat is left out of every reducer. A criterion without `repeat_reducer` gets no reduced verdict.

@@ -104,6 +104,7 @@ export async function storeAcmeCampaign(store: Store, options: StoredCampaignOpt
 // Synthetic runs, for the formulas.
 
 export type BlockShape = {
+  text?: string;
   pass?: boolean;
   drift?: DriftClass[];
   verdicts?: Array<Partial<Verdict> & { id: string }>;
@@ -132,7 +133,7 @@ export type RunShape = {
 export function observed(shape: BlockShape = {}): Observed {
   return {
     segments: [],
-    text: 'ok',
+    text: shape.text ?? 'ok',
     toolCalls: (shape.toolCalls ?? []).map((label) => ({ label, input: {} })),
     cost: shape.usd === undefined ? {} : { usd: shape.usd },
     latencyMs: shape.latencyMs ?? 0,

@@ -17,10 +17,27 @@ export {
   registerCheck,
 } from './checks/custom';
 export { endState } from './checks/end_state';
-export { ESTATE_CHECKS, hazardRecovery, permission, someCall } from './checks/estate';
+export {
+  draftOf,
+  ESTATE_CHECKS,
+  groundedValues,
+  hazardRecovery,
+  maxWords,
+  noDeleteUnder,
+  permission,
+  someCall,
+} from './checks/estate';
+export { exact, normaliseExact } from './checks/exact';
 export { execution } from './checks/execution';
 export { forbidden } from './checks/forbidden';
 export { guards } from './checks/guards';
+export {
+  ATTACK_RULES,
+  attackRules,
+  COMPLIANCE_RULES,
+  complianceMatches,
+  injection,
+} from './checks/injection';
 export { knowledgeRetention } from './checks/knowledge_retention';
 export { createLangCheck, lang } from './checks/lang';
 export { must, mustNot } from './checks/must';

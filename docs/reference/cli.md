@@ -814,7 +814,7 @@ Judges criteria with the council, on recorded answers. The council, its modes an
 
 ```
 driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--json]
-driftbench judge calibrate --criteria <dir> --labels <dir> --cassette <file> --out <file> [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
+driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--cascade] [--only <criterion>...] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
 driftbench judge check <criteria> [--json]
 ```
 
@@ -828,7 +828,13 @@ driftbench judge check <criteria> [--json]
 |---|---|
 | `--criteria <dir>` | the criteria folder: one YAML file per criterion with its fixture pair; required by `run` and `calibrate` |
 | `--labels <dir>` | `calibrate`: the labels folder, one YAML file of hand-labelled blocks per criterion; required |
-| `--cassette <file>` | the recorded answers of every judge, as a cassette JSON file; required by `run` and `calibrate` |
+| `--cassette <file>` | the recorded answers of every judge, as a cassette JSON file; required by `run`; `calibrate` needs it or `--claude` |
+| `--claude <model>` | `calibrate`: add a live judge on the local `claude` command with this model, such as `haiku`; repeat for several. Paid calls, see [the claude command judge](../concepts/judges.md#the-claude-command-judge) |
+| `--claude-command <path>` | `calibrate`: the claude command to run; default `claude` |
+| `--record <file>` | `calibrate`: save every live answer, with its cost, as a cassette to replay later |
+| `--spend-cap-usd <usd>` | `calibrate`: stop calling live judges once their calls have cost this much; later calls give no answer |
+| `--cascade` | `calibrate`: the first judge answers everything, the others only where it is unsure or disagrees with the label; writes the cascade report as JSON to `--out`. See [a cascade](../concepts/judges.md#a-cascade-the-costly-judges-only-where-the-cheap-one-is-unsure) |
+| `--only <criterion>` | `calibrate`: only this criterion; repeat for several |
 | `--out <file>` | `calibrate`: where to write the assignment table, in YAML; required |
 | `--repeats <n>` | `calibrate`: how many times each judge answers each fixture; default 3 |
 | `--mode <mode>` | the council mode, `system1`, `hybrid` or `llm`; default `hybrid` |
@@ -957,10 +963,10 @@ driftbench estate lint <map> [--ceiling <characters>]
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
-driftbench estate plan approve <plan> [--all] [--row <id>]... [--strike]
+driftbench estate plan approve <plan> [--all] [--row <id>]... [--strike] [--out <file>]
 driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>]
 driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] [--replay <sessions>] [--suite <dir>] [--store <db>]
-driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--force] [--json]
+driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--no-judge] [--force] [--json]
 driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceiling <characters>] [--json]
 ```
 
@@ -1238,11 +1244,11 @@ Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate"
 ## `driftbench report` and `driftbench compare`
 
 ```
-driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points|auto>] [--min-goldens <n>] [--strict] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--json]
-driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json]
+driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points|auto>] [--min-goldens <n>] [--strict] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--aggregate <name:op threshold>]... [--json]
+driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json] [--pairwise <criterion.yaml>] [--pairwise-judge <openai|anthropic|google>]
 ```
 
-`report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
+`report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
 
 `compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Per criterion and for the all-pass flag it also prints three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page. The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
 
@@ -1256,11 +1262,15 @@ driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--
 
 New flags always gate, and so does an underpowered criterion whose regression Benjamini-Hochberg keeps.
 
+`compare --pairwise <criterion.yaml>` also judges, for every block both campaigns ran, which of the two replies better meets one criterion. The criterion file holds a `name` and a `rubric`, and optionally `pass` and `fail`. `--pairwise-judge` picks the provider judge, `openai` by default; its key is read from the environment. Each pair is judged twice, in both orders, so a judge that favours a position is caught: the printed line counts the baseline and candidate wins, the ties, the calls whose two orders disagreed, and the calls where the judge chose a position. A judge that gives no answer fails the command with its reason. The pairwise line never changes the exit code.
+
 ## `driftbench ci`
 
 ```
-driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--flag <family>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
 ```
+
+A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
 
 Runs the specs on a candidate target, then compares the new campaign with a baseline campaign by the rule of `compare`, and gates. On one pair of campaigns, `ci` and `compare` give the same verdict and the same exit code. `--baseline` is a store file (its latest campaign) or a campaign id held in `--store`, read before the candidate runs. The summary goes to `--out` (default `driftbench-ci.json`). `--faults` lets the target name a planted fault as `fault:<id>`. `--flag` sets the flag families (default `safety`, `forbidden`, `pii`). The cache is off unless `--cache`. The summary opens with the auto margin and the underpowered criteria, so a lenient gate says why.
 
@@ -1352,6 +1362,18 @@ $ pnpm driftbench holdout score --sealed <dir> --target function:acme-sales --bu
 Budget: 1 of 3 queries used, 2 left. Which conversation passed is not shown: the holdout stays sealed.
 (exit 0)
 ```
+
+## `driftbench queue`
+
+```
+driftbench queue create --store <db> --campaign <id> [--labels <dir>]
+driftbench queue list [--labels <dir>]
+driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> [--labels <dir>]
+driftbench queue vote <runId>.b<index> --criterion <name> --reviewer <name> --label <pass|fail> [--labels <dir>]
+driftbench queue agreement [--labels <dir>]
+```
+
+The review queue of blocks to label, kept beside the labels as `queue.json`. `create` queues each block of a campaign once per criterion of its spec, skipping blocks already labelled. `list` prints each item with its state and holder. `assign` takes an item for a reviewer; a second reviewer is refused with exit 2. `vote` records a second reviewer's label without writing the labels file, and `agreement` prints the agreement between the first two reviewers of each item with two votes. Saving a label on the viewer's queue page marks its item done. See [viewer](../viewer.md#review-queue).
 
 ## `driftbench view`
 
