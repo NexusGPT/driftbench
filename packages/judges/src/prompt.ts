@@ -93,13 +93,39 @@ export function renderRubric(criterion: JudgeRequest['criterion']): string {
   return RUBRIC_TEMPLATE.replace(/\{(\w+)\}/g, (_, key: string) => values[key] ?? '');
 }
 
+/** Characters that print nothing: zero-width and joiner marks, the soft hyphen, the word joiner, the byte order mark. */
+const INVISIBLE = /[\u200b-\u200f\u00ad\u2060-\u2064\ufeff\u180e]/;
+
 /**
  * The guard. Any text that opens or closes a data tag is escaped (its `<` becomes `&lt;`), so data can
  * never end its own section and be read as instructions.
  */
 export function escapeData(text: string): string {
-  const tags = DATA_TAGS.join('|');
-  return text.replace(new RegExp(`<(\\s*/?\\s*(?:${tags})\\b)`, 'gi'), '&lt;$1');
+  // Read the text the way a reader would: compatibility forms folded (fullwidth and small-form brackets and letters),
+  // characters that print nothing dropped. Each folded character remembers where it came from.
+  let folded = '';
+  const origin: number[] = [];
+  let index = 0;
+  for (const ch of text) {
+    if (!INVISIBLE.test(ch)) {
+      for (const piece of ch.normalize('NFKC')) {
+        folded += piece;
+        origin.push(index);
+      }
+    }
+    index += ch.length;
+  }
+  const pattern = new RegExp(`<(\\s*/?\\s*(?:${DATA_TAGS.join('|')})\\b)`, 'gi');
+  const open = new Set<number>();
+  for (const match of folded.matchAll(pattern)) open.add(origin[match.index] as number);
+  if (open.size === 0) return text;
+  let out = '';
+  index = 0;
+  for (const ch of text) {
+    out += open.has(index) ? `&lt;` : ch;
+    index += ch.length;
+  }
+  return out;
 }
 
 /** Wraps data in its tag, after the guard. */
