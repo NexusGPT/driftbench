@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Levels 1 to 8 pass since iteration 57 (rubric lint complete). Level 9, render (19 items at start): `render/closing-tag-*` first (fullwidth brackets, small-form brackets, fullwidth name, zero-width and soft-hyphen inside), then the rest of the family. Then budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test last run after iteration 49.
+Levels 1 to 8 pass since iteration 57 (rubric lint complete). Level 9, render (9 items left after 58): `render/closing-tag-*` (6 items) first (fullwidth brackets, small-form brackets, fullwidth name, zero-width and soft-hyphen inside), then the rest of the family. Then budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test last run after iteration 49.
 
 ## Hypotheses tried
 
@@ -83,6 +83,7 @@ Iteration 54 (cause: no hedged rule, rubric and PASS picture): two items green (
 Iteration 55 (cause: no instruction-to-judge rule). Test: lint.test.ts (red proved). Bank 320 -> 321 (0.5031).
 Iteration 56 (cause: no pictures-swapped rule). Test: lint.test.ts (red proved). Bank 321 -> 322 (0.5047).
 Iteration 57 (cause: no block-side scope-mismatch rule): extended the scope-mismatch row. Test: lint.test.ts (red proved). Bank 322 -> 323 (0.5063). Level 7 -> 8.
+Iteration 58 (cause: line breaks forged transcript entries): `renderEntry` shows break characters as a visible marker. Test: prompt.test.ts (red proved). Bank 323 -> 333 (0.5219): ten forged-entry items from one change.
 
 ## Next actions
 
