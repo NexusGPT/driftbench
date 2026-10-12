@@ -48,11 +48,11 @@ clean
 
 1. `verify`: install, lint, typecheck, test, build, the release check with `--expect` set to the tag, and the Python tests when `python/driftbench` exists.
 2. `npm`: builds, copies `LICENSE` into each package, and runs `pnpm -r publish`, which writes the release version in place of `workspace:*`. It uses the `NPM_TOKEN` secret, with provenance (`id-token: write`), in the `npm` environment.
-3. `pypi`: builds the sdist and the wheel of `python/driftbench` and publishes them through PyPI trusted publishing, in the `pypi` environment. It runs only when the Python package exists.
+3. `pypi`: builds the sdist and the wheel of `python/driftbench` and publishes them through PyPI trusted publishing, in the `pypi` environment. It runs only when the Python package exists and the repository variable `PUBLISH_PYPI` is `true`. With that variable unset, PyPI publishing is skipped. npm publishing does not depend on the PyPI job.
 
 ## Cutting a release
 
 1. Set the same version in every `packages/*/package.json`, in `packages/cli/src/version.ts` and in `python/driftbench/pyproject.toml`.
 2. Add its section to `CHANGELOG.md` and replace `Unreleased` with the date.
 3. Run `pnpm build` and `node tools/release/check.mjs --expect v<version>`.
-4. Once the `NPM_TOKEN` secret and the PyPI trusted publisher are configured, push the tag `v<version>`.
+4. Once the `NPM_TOKEN` secret is configured, push the tag `v<version>`. To publish to PyPI too, configure its trusted publisher and set the repository variable `PUBLISH_PYPI` to `true` first.
