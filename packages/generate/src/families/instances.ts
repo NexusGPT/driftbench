@@ -113,6 +113,9 @@ async function buildVariant(
   }
 
   const blocks = activeBlocks(family, knobs);
+  // A block may hold only in some instances; each instance still holds at least one.
+  if (blocks.length === 0)
+    throw new FamilyError(`the knobs of ${context.name} leave it no block: every block's condition fails`);
   const ids = blocks.map((block) => block.id);
   let raw: unknown;
   try {

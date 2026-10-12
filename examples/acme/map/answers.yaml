@@ -1133,14 +1133,25 @@ answers:
         quote: ": { type: 'new', plan_id: plan.id, customer };"
 
       # The price-sheet flow is a code-agent task: a task family writes its specs, with an oracle in code.
+      # Its start knob splits it in two branches: the price sheet built from the catalog, and the summary
+      # added to a workbook the workspace already holds.
       - kind: task_family
         flow: price-sheet
         family: ../families/price-sheet
         stages: [build_sheet, add_summary]
         holds: { user_type: [sales-operations], workspace_start: [catalog-only] }
+        instances: { start: catalog-only }
         deviations: [D6_instruction_in_data]
         source: ../README.md
         quote: "its stage, `build_sheet` or `add_summary`"
+      - kind: task_family
+        flow: price-sheet
+        family: ../families/price-sheet
+        stages: [add_summary]
+        holds: { user_type: [sales-operations], workspace_start: [existing-workbook] }
+        instances: { start: existing-workbook }
+        source: ../inventory.yaml
+        quote: "title: Add a summary sheet to the existing workbook and leave every other file untouched"
 
       # What the reply that enters the offer states: each plan with its monthly price, as catalog.search returns it.
       - kind: states

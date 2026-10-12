@@ -16,4 +16,4 @@ export { codeReader, textReader } from './plain';
 export { type PptxData, pptxReader } from './pptx';
 export { createRegistry, defaultReaders, kindForPath, READERS } from './registry';
 export { readTables } from './tables';
-export { type Workbook, xlsxReader } from './xlsx';
+export { readWorkbook, type Sheet, type Workbook, xlsxReader } from './xlsx';
