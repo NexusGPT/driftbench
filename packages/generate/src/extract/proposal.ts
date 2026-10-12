@@ -381,6 +381,16 @@ export const ToolOrderRelation = z
   .describe('Two tools called in a stated order.');
 export type ToolOrderRelation = z.infer<typeof ToolOrderRelation>;
 
+export const RouteRelation = z
+  .strictObject({
+    kind: z.literal('route'),
+    subject: ValueRef.describe('The rule value that sends a topic to a team.'),
+    to: z.string().min(1).describe('The team the topic goes to.'),
+    ...relationCommon,
+  })
+  .describe('A rule that sends a topic to a team.');
+export type RouteRelation = z.infer<typeof RouteRelation>;
+
 export const ProposalRelation = z
   .discriminatedUnion('kind', [
     PathRelation,
@@ -391,6 +401,7 @@ export const ProposalRelation = z
     RecoveryRelation,
     ReplyLanguageRelation,
     ToolOrderRelation,
+    RouteRelation,
   ])
   .describe(
     'A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language.',
@@ -405,6 +416,7 @@ export const RELATION_KINDS = [
   'recovery',
   'reply_language',
   'tool_order',
+  'route',
 ] as const;
 export type RelationKind = (typeof RELATION_KINDS)[number];
 
@@ -599,6 +611,8 @@ export function relationLabel(relation: ProposalRelation): string {
       return `${relation.subject.dimension}=${relation.subject.value} sets the reply language ${relation.lang}`;
     case 'tool_order':
       return `${relation.before} is called before ${relation.after}`;
+    case 'route':
+      return `${relation.subject.dimension}=${relation.subject.value} routes to ${relation.to}`;
   }
 }
 
@@ -833,6 +847,9 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
         reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
         break;
       case 'tool_order':
+        break;
+      case 'route':
+        reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
         break;
       case 'recovery':
         if (!deviations.has(relation.class)) {

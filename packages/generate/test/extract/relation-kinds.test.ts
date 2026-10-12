@@ -51,4 +51,17 @@ describe('relation kinds a rule can state', () => {
     expect(result.refusals).toEqual([]);
     expect(t.relations).toHaveLength(1);
   });
+
+  it('lists route and keeps the relation', () => {
+    expect(sectionRequest('relations', [], { dimensions: [], constraints: [] }).user).toContain('- "route"');
+    const t = target();
+    const result = acceptAnswer(
+      'relations',
+      answer({ kind: 'route', subject: { dimension: 'rule', value: 'R-01' }, to: 'billing-desk' }) as never,
+      t as never,
+      quotes,
+    );
+    expect(result.refusals).toEqual([]);
+    expect(t.relations).toHaveLength(1);
+  });
 });

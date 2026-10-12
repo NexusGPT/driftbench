@@ -348,6 +348,7 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
       );
     case 'binds':
     case 'reply_language':
+    case 'route':
       return value(relation.subject.dimension, relation.subject.value);
     case 'tool_order':
       return undefined;

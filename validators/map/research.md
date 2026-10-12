@@ -809,3 +809,14 @@ Sources read:
 What others do: A relation kind not in the proposal schema is refused.
 
 What to try, and why: the relation kind tool_order
+
+## Iteration 70
+
+Question: packages/generate/src/extract/proposal.ts: no relation kind sends a topic to a team, so a routing rule is lost; contract:relation-route (semantics.route) proves it.
+
+Sources read:
+* docs/generating.md section Planned: more relations (the route a request takes)
+
+What others do: A relation kind not in the proposal schema is refused.
+
+What to try, and why: the relation kind route
