@@ -14,6 +14,8 @@ export type TraceTurn = {
   user: string;
   /** When the turn started, ISO 8601, when the source says. */
   startedAt?: string;
+  /** The source's id of the observation the turn starts from: the first chat span, or the transcript line. */
+  observationId?: string;
   observed: Observed;
 };
 
@@ -48,6 +50,10 @@ export type TraceObservation = {
   subagent?: boolean;
   usage?: { inputTokens?: number; outputTokens?: number };
   usd?: number;
+  /** A tool observation's arguments, or a chat observation's messages as the source wrote them. */
+  input?: unknown;
+  /** A tool observation's result, or a chat observation's reply text. */
+  output?: unknown;
 };
 
 /** Prices per million tokens, by model, for sources that report tokens but no cost. */

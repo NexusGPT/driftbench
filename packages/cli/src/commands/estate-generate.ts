@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { loadEstateMap, Plan } from '@driftbench/estate';
+import { loadEstateMap, Plan, readerFor } from '@driftbench/estate';
 import {
   ESTATE_COMPLETE_DIR,
   ESTATE_INCOMPLETE_DIR,
@@ -159,6 +159,19 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
     sessionsPath === undefined ? undefined : await readYaml(sessionsPath, SessionIndex, 'session index', io);
   if (!plan || !bank || (sessionsPath !== undefined && !sessions)) return 2;
 
+  // The files of the estate as a run copies them: a read is expected only of one of them. Without the
+  // estate folder (the map moved), the files the map knows.
+  let files: string[] | undefined;
+  const root = resolve(dirname(mapPath), loaded.map.root);
+  const lister = readerFor(loaded.map.runtime, { ignore: loaded.map.ignore ?? [] });
+  if (lister?.listFiles && (await stat(root).catch(() => undefined))?.isDirectory()) {
+    files = await lister.listFiles(root);
+  } else if (!options.json) {
+    io.out(
+      `The estate folder ${display(root, io)} cannot be listed: reads are checked against the files the map knows.\n`,
+    );
+  }
+
   const reportPath = join(outPath, ESTATE_REPORT_FILE);
   let result: EstateGenerateResult;
   try {
@@ -168,6 +181,7 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
         ...(seed === undefined ? {} : { seed }),
         ...(options.fallback === false ? { fallback: false } : {}),
         ...(options.judge === false ? { judge: false } : {}),
+        ...(files ? { files } : {}),
         ...(focus ? { focus } : {}),
         paths: {
           map: portable(relative(outPath, mapPath)),

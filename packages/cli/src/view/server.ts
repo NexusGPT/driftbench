@@ -131,7 +131,12 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
       const data = await campaignData(store, parts[1] as string);
       const run = data.runs.find((entry) => entry.runId === parts[3]);
       if (!run) throw new HttpError(404, `No run ${parts[3]} in campaign ${parts[1]}.`);
-      return send(response, await runPage(data, run, options.labels, url.searchParams.get('saved')));
+      return send(
+        response,
+        await runPage(data, run, options.labels, url.searchParams.get('saved')),
+        200,
+        scriptHashOf(LABEL_KEYS_SCRIPT),
+      );
     }
     throw new HttpError(404, `Nothing at ${url.pathname}.`);
   };
@@ -254,6 +259,31 @@ async function campaignData(store: Store, campaignId: string): Promise<CampaignD
 }
 
 /** The review queue: each item with its state, who holds it, and the action the viewer reviewer can take. */
+/**
+ * The label form's keys, progressive enhancement only: 1 checks pass, 2 checks fail (not while typing in the
+ * note), Cmd or Ctrl+Enter submits the form. Every control works without it.
+ */
+export const LABEL_KEYS_SCRIPT = `(function () {
+  document.addEventListener('keydown', function (event) {
+    var target = event.target;
+    var form = target && target.closest ? target.closest('div.labels form') : null;
+    if (!form) return;
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+      event.preventDefault();
+      if (form.requestSubmit) form.requestSubmit(); else form.submit();
+      return;
+    }
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key !== '1' && event.key !== '2') return;
+    if (target.tagName === 'TEXTAREA' || (target.tagName === 'INPUT' && target.type !== 'radio')) return;
+    var radio = form.querySelector('input[name=label][value=' + (event.key === '1' ? 'pass' : 'fail') + ']');
+    if (!radio) return;
+    radio.checked = true;
+    radio.focus();
+    event.preventDefault();
+  });
+})();`;
+
 function scriptHashOf(text: string): string {
   return createHash('sha256').update(text).digest('base64');
 }
@@ -415,6 +445,7 @@ async function runPage(
 <input type="hidden" name="campaign" value="${esc(campaignId)}"><input type="hidden" name="run" value="${esc(run.runId)}"><input type="hidden" name="block" value="${block.index}">
 ${criterionField}
 <label><input type="radio" name="label" value="pass" required> pass</label><label><input type="radio" name="label" value="fail"> fail</label>
+<p class="muted">With script on: 1 marks pass, 2 marks fail, Cmd or Ctrl+Enter saves. Without it the buttons work the same.</p>
 <input name="note" aria-label="Note" placeholder="note: why">
 <button type="submit">Save label</button></form></div>`;
   };
@@ -440,6 +471,7 @@ ${criterionField}
     nav(`<a href="/campaign/${encodeURIComponent(campaignId)}">${esc(campaignId)}</a>`),
     `<section id="labelling"><h2>Labelling</h2>${banner}<p>Mark each block pass or fail on a criterion, with a note. Labels go to <span class="mono">${esc(labelsDir)}</span>, one file per criterion, the folder <span class="mono">driftbench judge calibrate --labels</span> reads. Labelling a block again on the same criterion replaces its label.</p>${summary}</section>`,
     renderRun(detail, form),
+    `<script>${LABEL_KEYS_SCRIPT}</script>`,
   ]);
 }
 

@@ -72,6 +72,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-know-where-a
     planRow: pairwise.0214
+    focusVariant: 213
     cell:
       ask_class: operate
       ask_shape: correction
