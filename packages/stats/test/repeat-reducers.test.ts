@@ -21,13 +21,25 @@ describe('reduceRepeats', () => {
     expect(reduceRepeats([0, 0, 1], { kind: 'mode' })).toBe(0);
   });
 
+  it('mode needs more than half of the repeats scored: one scored repeat of three is undecided', () => {
+    expect(reduceRepeats([1, undefined, undefined], { kind: 'mode' })).toBeUndefined();
+    expect(reduceRepeats([0, undefined, undefined], { kind: 'mode' })).toBeUndefined();
+    expect(reduceRepeats([1, undefined], { kind: 'mode' })).toBeUndefined();
+  });
+
+  it('mode decides when more than half are scored, and a tie among them goes to the value seen first', () => {
+    expect(reduceRepeats([1, undefined, 0], { kind: 'mode' })).toBe(1);
+    expect(reduceRepeats([0, 1, undefined], { kind: 'mode' })).toBe(0);
+  });
+
   it('mode breaks a tie by the value seen first', () => {
     expect(reduceRepeats([0, 1], { kind: 'mode' })).toBe(0);
     expect(reduceRepeats([1, 0], { kind: 'mode' })).toBe(1);
   });
 
   it('skips inconclusive repeats (undefined) and is undecided when none scored', () => {
-    expect(reduceRepeats([undefined, 1, undefined], { kind: 'mode' })).toBe(1);
+    expect(reduceRepeats([undefined, 1, 1], { kind: 'mode' })).toBe(1);
+    expect(reduceRepeats([undefined, undefined, 1], { kind: 'mode' })).toBeUndefined();
     expect(reduceRepeats([undefined, undefined], { kind: 'mode' })).toBeUndefined();
   });
 
