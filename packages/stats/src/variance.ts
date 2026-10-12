@@ -374,7 +374,7 @@ export function repeatsForFloor(input: RepeatsForFloorInput): RepeatsForFloorRes
   let variance: number;
   if (input.variance !== undefined) variance = input.variance;
   else if (input.flipRate !== undefined) {
-    assertProbability('flipRate', input.flipRate);
+    assertProbability('repeatsForFloor', 'flipRate', input.flipRate);
     variance = input.flipRate * (1 - input.flipRate);
   } else throw new RangeError('repeatsForFloor: give variance or flipRate');
   if (!(variance >= 0)) throw new RangeError('repeatsForFloor: variance must be non-negative');

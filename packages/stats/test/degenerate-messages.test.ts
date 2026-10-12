@@ -3,18 +3,26 @@ import {
   benjaminiHochberg,
   bootstrapCI,
   chaoCoverage,
+  clopperPearson,
   cusum,
+  designEffect,
   goodTuring,
   hillNumber,
   hillNumbers,
   ksTest,
+  mcnemar,
   mean,
   pageHinkley,
+  passAtK,
+  passK,
   quantile,
   quantileSorted,
   sampleVariance,
   unreliability,
   wilcoxonSignedRank,
+  wilson,
+  zeroFailureBound,
+  zFor,
 } from '../src/index';
 
 /**
@@ -131,5 +139,41 @@ describe('RangeError names the function and the argument', () => {
 
   it('hillNumbers of no observations names counts', () => {
     expect(() => hillNumbers([])).toThrow(/^hillNumbers: counts/);
+  });
+
+  it('wilson of a non-integer count names k', () => {
+    expect(() => wilson(1.5, 3)).toThrow(/^wilson: k/);
+  });
+
+  it('wilson of an infinite n names n', () => {
+    expect(() => wilson(3, Number.POSITIVE_INFINITY)).toThrow(/^wilson: n/);
+  });
+
+  it('clopperPearson of alpha 0 names alpha', () => {
+    expect(() => clopperPearson(2, 10, 0)).toThrow(/^clopperPearson: alpha/);
+  });
+
+  it('zeroFailureBound of p 1 names p', () => {
+    expect(() => zeroFailureBound(1)).toThrow(/^zeroFailureBound: p/);
+  });
+
+  it('zFor of alpha 1 names alpha', () => {
+    expect(() => zFor(1)).toThrow(/^zFor: alpha/);
+  });
+
+  it('designEffect of a cluster size below 1 names m', () => {
+    expect(() => designEffect(0.5, 0.1)).toThrow(/^designEffect: m/);
+  });
+
+  it('mcnemar of a negative count names b', () => {
+    expect(() => mcnemar(-1, 3)).toThrow(/^mcnemar: b/);
+  });
+
+  it('passK with c above n names passK and c', () => {
+    expect(() => passK(5, 3, 1)).toThrow(/^passK: c/);
+  });
+
+  it('passAtK with k out of range names passAtK and k', () => {
+    expect(() => passAtK(3, 5, 9)).toThrow(/^passAtK: k/);
   });
 });

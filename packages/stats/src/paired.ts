@@ -27,8 +27,8 @@ export interface McNemarOptions {
  * freedom otherwise.
  */
 export function mcnemar(b: number, c: number, options: McNemarOptions = {}): McNemarResult {
-  assertCount('b', b);
-  assertCount('c', c);
+  assertCount('mcnemar', 'b', b);
+  assertCount('mcnemar', 'c', c);
   const n = b + c;
   const exact = options.exact ?? n < 25;
   if (n === 0) return { statistic: 0, pValue: 1, method: exact ? 'exact' : 'chi-square', b, c };
@@ -213,11 +213,11 @@ export interface PairedDifference {
  */
 export function pairedRateDifference(table: PairedTable, alpha = 0.05): PairedDifference {
   const { bothPass: a, regressed: b, improved: c, bothFail: d } = table;
-  assertCount('bothPass', a);
-  assertCount('regressed', b);
-  assertCount('improved', c);
-  assertCount('bothFail', d);
-  assertProbability('alpha', alpha, true);
+  assertCount('pairedRateDifference', 'bothPass', a);
+  assertCount('pairedRateDifference', 'regressed', b);
+  assertCount('pairedRateDifference', 'improved', c);
+  assertCount('pairedRateDifference', 'bothFail', d);
+  assertProbability('pairedRateDifference', 'alpha', alpha, true);
   const n = a + b + c + d;
   if (n === 0) throw new RangeError('pairedRateDifference: no pairs');
   const z = normalQuantile(1 - alpha / 2);

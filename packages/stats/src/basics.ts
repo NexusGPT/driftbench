@@ -103,16 +103,17 @@ export function sampleVariance(values: readonly number[]): number {
   return ss / (n - 1);
 }
 
-export function assertCount(name: string, value: number): void {
+/** Rule 1: the message begins `<function>: <argument>`, so the caller sees which argument to fix. */
+export function assertCount(fn: string, name: string, value: number): void {
   if (!Number.isInteger(value) || value < 0) {
-    throw new RangeError(`${name} must be a non-negative integer, got ${value}`);
+    throw new RangeError(`${fn}: ${name} must be a non-negative integer, got ${value}`);
   }
 }
 
-export function assertProbability(name: string, value: number, open = false): void {
+export function assertProbability(fn: string, name: string, value: number, open = false): void {
   const ok = open ? value > 0 && value < 1 : value >= 0 && value <= 1;
   if (!ok || Number.isNaN(value)) {
-    throw new RangeError(`${name} must lie in ${open ? '(0, 1)' : '[0, 1]'}, got ${value}`);
+    throw new RangeError(`${fn}: ${name} must lie in ${open ? '(0, 1)' : '[0, 1]'}, got ${value}`);
   }
 }
 

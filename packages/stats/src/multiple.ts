@@ -18,7 +18,7 @@ export interface BenjaminiHochbergResult {
  * p(j) m / j, capped at 1, as scipy.stats.false_discovery_control computes it.
  */
 export function benjaminiHochberg(pvalues: readonly number[], q = 0.05): BenjaminiHochbergResult {
-  assertProbability('q', q, true);
+  assertProbability('benjaminiHochberg', 'q', q, true);
   pvalues.forEach((p, i) => {
     if (!(p >= 0 && p <= 1))
       throw new RangeError(`benjaminiHochberg: pvalues[${i}] must lie in [0, 1], got ${p}`);

@@ -46,9 +46,9 @@ export function mde(input: MdeInput): MdeResult {
   const p1 = input.baselineRate;
   if (!(input.n >= 1)) throw new RangeError(`mde: n must be at least 1, got ${input.n}`);
   if (!(repeats >= 1)) throw new RangeError(`mde: repeats must be at least 1, got ${repeats}`);
-  assertProbability('baselineRate', p1);
-  assertProbability('power', power, true);
-  assertProbability('alpha', alpha, true);
+  assertProbability('mde', 'baselineRate', p1);
+  assertProbability('mde', 'power', power, true);
+  assertProbability('mde', 'alpha', alpha, true);
   const de = designEffect(repeats, rho);
   const effectiveN = (input.n * repeats) / de;
   const za = normalQuantile(1 - alpha / 2);

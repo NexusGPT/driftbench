@@ -15,8 +15,8 @@ export interface Interval {
 
 /** The Wilson score interval for k successes in n trials. */
 export function wilson(k: number, n: number, z: number = Z95): Interval {
-  assertCount('k', k);
-  assertCount('n', n);
+  assertCount('wilson', 'k', k);
+  assertCount('wilson', 'n', n);
   if (n === 0) throw new RangeError('wilson: n must be at least 1');
   if (k > n) throw new RangeError(`wilson: k (${k}) exceeds n (${n})`);
   const p = k / n;
@@ -29,9 +29,9 @@ export function wilson(k: number, n: number, z: number = Z95): Interval {
 
 /** The exact (Clopper-Pearson) interval for k successes in n trials at level 1 - alpha. */
 export function clopperPearson(k: number, n: number, alpha = 0.05): Interval {
-  assertCount('k', k);
-  assertCount('n', n);
-  assertProbability('alpha', alpha, true);
+  assertCount('clopperPearson', 'k', k);
+  assertCount('clopperPearson', 'n', n);
+  assertProbability('clopperPearson', 'alpha', alpha, true);
   if (n === 0) throw new RangeError('clopperPearson: n must be at least 1');
   if (k > n) throw new RangeError(`clopperPearson: k (${k}) exceeds n (${n})`);
   const lower = k === 0 ? 0 : betaQuantile(alpha / 2, k, n - k + 1);
@@ -45,8 +45,8 @@ export function clopperPearson(k: number, n: number, alpha = 0.05): Interval {
  * 59 for p = 0.05 at 95 percent.
  */
 export function zeroFailureBound(p: number, alpha = 0.05): number {
-  assertProbability('p', p, true);
-  assertProbability('alpha', alpha, true);
+  assertProbability('zeroFailureBound', 'p', p, true);
+  assertProbability('zeroFailureBound', 'alpha', alpha, true);
   const exact = Math.log(alpha) / Math.log1p(-p);
   // Guard against floating noise when the ratio is an exact integer.
   const rounded = Math.round(exact);
@@ -55,7 +55,7 @@ export function zeroFailureBound(p: number, alpha = 0.05): number {
 
 /** The design effect 1 + (m - 1) rho for clusters of size m with intraclass correlation rho. */
 export function designEffect(m: number, rho: number): number {
-  if (!(m >= 1)) throw new RangeError(`designEffect: cluster size must be at least 1, got ${m}`);
+  if (!(m >= 1)) throw new RangeError(`designEffect: m must be at least 1, got ${m}`);
   if (!(rho >= -1 && rho <= 1)) throw new RangeError(`designEffect: rho must lie in [-1, 1], got ${rho}`);
   const de = 1 + (m - 1) * rho;
   if (!(de > 0)) {
@@ -116,7 +116,7 @@ export function clusteredMeanInterval(
       `clusteredMeanInterval: values and clusters must have the same length, got ${values.length} and ${clusters.length}`,
     );
   }
-  assertProbability('alpha', alpha, true);
+  assertProbability('clusteredMeanInterval', 'alpha', alpha, true);
   let total = 0;
   for (let i = 0; i < values.length; i += 1) {
     const v = values[i] as number;
@@ -178,7 +178,7 @@ export function bootstrapCI(values: readonly number[], options: BootstrapOptions
   if (!Number.isInteger(iterations) || iterations < 1) {
     throw new RangeError(`bootstrapCI: iterations must be a positive integer, got ${iterations}`);
   }
-  assertProbability('alpha', alpha, true);
+  assertProbability('bootstrapCI', 'alpha', alpha, true);
   const keys = options.clusters;
   if (keys && keys.length !== values.length) {
     throw new RangeError(`bootstrapCI: ${keys.length} cluster keys for ${values.length} values`);
@@ -240,6 +240,6 @@ export function bootstrapCI(values: readonly number[], options: BootstrapOptions
 
 /** z for a two-sided interval at level 1 - alpha. */
 export function zFor(alpha: number): number {
-  assertProbability('alpha', alpha, true);
+  assertProbability('zFor', 'alpha', alpha, true);
   return normalQuantile(1 - alpha / 2);
 }
