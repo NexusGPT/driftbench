@@ -320,6 +320,35 @@ const fixed = new Map(FIXED);
 export function causeOf(id: string, title: string): string {
   const known = fixed.get(id);
   if (known) return known;
-  for (const [pattern, cause] of RULES) if (pattern.test(id)) return cause;
+  for (const [pattern, cause] of RULES) {
+    if (!pattern.test(id)) continue;
+    return cause === REGISTERED ? registeredCause(id) : cause;
+  }
   return `${id}: ${title}`;
+}
+
+const REGISTERED = 'write a registered custom check for the rule';
+
+/**
+ * A spec is incomplete for want of a registered check of its custom predicate (generate's
+ * `needs-registered-check`): each predicate is its own check, so its own fix. The predicate is the one the
+ * estate plants for the role of the atom under test.
+ */
+const PREDICATES: ReadonlyArray<readonly [RegExp, string]> = [
+  [/instruction-after-compaction$/, 'reread_after_compaction'],
+  [/instruction-after-restart$/, 'helper_state_after_restart'],
+  [/instruction-brief$/, 'brief_fields'],
+  [/instruction-cites$/, 'holds_under_pressure'],
+  [/instruction-grounded-values$/, 'grounded_values'],
+  [/instruction-no-force-push$/, 'command_absent'],
+  [/instruction-prohibition$/, 'no_value_change'],
+  [/instruction-readonly$/, 'helper_read_only'],
+  [/instruction-stop-word$/, 'stops_on_word'],
+  [/hazard-after-(compaction|restart)$/, 'hazard_recovery'],
+  [/tool-(allow|ask|declared|deny)$/, 'permission'],
+];
+
+function registeredCause(id: string): string {
+  const found = PREDICATES.find(([pattern]) => pattern.test(id));
+  return found ? `register a check for the custom predicate ${found[1]}` : REGISTERED;
 }

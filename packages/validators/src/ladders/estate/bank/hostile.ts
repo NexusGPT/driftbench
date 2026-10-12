@@ -28,6 +28,8 @@ export type Case = {
   tier: Tier;
   title: string;
   component?: string;
+  /** The one change that would make the item pass, when the cause table does not name it. */
+  cause?: string;
   plant(estate: PlantedEstate, seed: number, owner: string): void;
 };
 
@@ -672,11 +674,12 @@ export function caseFamily(family: string, component: string, cases: readonly Ca
     family,
     1,
     component,
-    cases.map(({ key, tier, title, component: own }) => ({
+    cases.map(({ key, tier, title, component: own, cause }) => ({
       key,
       tier,
       title: `${verb} ${title}`,
       ...(own ? { component: own } : {}),
+      ...(cause ? { cause } : {}),
     })),
   );
   return {

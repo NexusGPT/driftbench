@@ -38,7 +38,14 @@ export type Family = {
   evaluate(seed: number): Promise<Map<string, ItemResult>>;
 };
 
-export type ItemSpec = { key: string; tier: Tier; title: string; component?: string };
+export type ItemSpec = {
+  key: string;
+  tier: Tier;
+  title: string;
+  component?: string;
+  /** The one change that would make the item pass; else the cause table of bank/causes.ts names it. */
+  cause?: string;
+};
 
 /** The items of a family from short specs: id `<family>.<key>`. */
 export function itemsOf(
@@ -59,7 +66,7 @@ export function itemsOf(
       level,
       component: spec.component ?? component,
       title: spec.title,
-      cause: causeOf(id, spec.title),
+      cause: spec.cause ?? causeOf(id, spec.title),
     };
   });
 }
