@@ -205,8 +205,8 @@ function readings(text: string): string[] {
 }
 
 function screenText(text: string): boolean {
-  return [text, decodedRuns(text), unfolded(text), unescaped(text)].some((part) =>
-    readings(part).some((reading) => sentences(reading).some(instructsJudge)),
+  return [text, decodedRuns(text), decodedRuns(decodedRuns(text)), unfolded(text), unescaped(text)].some(
+    (part) => readings(part).some((reading) => sentences(reading).some(instructsJudge)),
   );
 }
 
