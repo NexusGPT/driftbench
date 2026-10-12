@@ -910,3 +910,14 @@ Sources read:
 What others do: A cut that would end a chunk on a question moves before it.
 
 What to try, and why: a chunk never ends on a question
+
+## Iteration 79
+
+Question: packages/generate/src/extract/contract.ts: the already-proposed list names every value, so a 1M character prompt with 9000 rules gives a request over the context window and later sections fail; scale.1m.markdown and table+negation prove it.
+
+Sources read:
+* packages/validators/src/ladders/map/bank/perfect.ts (context 200000 tokens)
+
+What others do: A repeated value is ignored by the draft, so the list need not name every value.
+
+What to try, and why: a request lists a long dimension in part

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chunkSources, chunkText, extractMap } from '../../src/extract';
+import { chunkSources, chunkText, extractMap, LISTED_VALUES, sectionRequest } from '../../src/extract';
 import type { ModelPort } from '../../src/model/port';
 
 describe('chunkText', () => {
@@ -146,6 +146,32 @@ describe('extractMap on a long prompt', () => {
         }
         expect(chunks.join('\n')).toBe(text);
       }
+    });
+  });
+
+  describe('the list of what is already proposed', () => {
+    it('shows a long dimension in part, so a request stays within the context', () => {
+      const values = Array.from({ length: 5000 }, (_, i) => ({
+        id: `R-${i}`,
+        title: `Rule ${i}`,
+        evidence: { source: 'p.md', quote: 'q' },
+        produced_by: 'model' as const,
+      }));
+      const dimensions = [
+        {
+          id: 'rule',
+          title: 'Rules',
+          kind: 'behaviour' as const,
+          role: 'axis' as const,
+          produced_by: 'model' as const,
+          approved: false,
+          values,
+        },
+      ];
+      const { user } = sectionRequest('rules', [], { dimensions, constraints: [] });
+      expect(user).toContain(`... and ${5000 - LISTED_VALUES} more values`);
+      expect(user).not.toContain('R-4999');
+      expect(user.length).toBeLessThan(10_000);
     });
   });
 });

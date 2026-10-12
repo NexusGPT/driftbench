@@ -12,6 +12,7 @@ export { promptView, rawizeAnswer, rawQuote, viewSources } from './containers';
 export {
   type Answer,
   type AnswerParse,
+  LISTED_VALUES,
   MAX_MODEL_QUOTE,
   MIN_MODEL_QUOTE,
   type ProposalSoFar,

@@ -115,6 +115,9 @@ export type ProposalSoFar = {
  * The request for one section. The first line of the user message names the section, so a recorded answer
  * can be matched to it; the sources follow in full, between markers, without line numbers to copy.
  */
+/** The values of one dimension a request lists: a dimension of thousands of values would outgrow the context. */
+export const LISTED_VALUES = 40;
+
 export function sectionRequest(
   section: Section,
   sources: readonly SourceText[],
@@ -127,7 +130,12 @@ export function sectionRequest(
       ? ['(none yet)']
       : soFar.dimensions.flatMap((dimension) => [
           `- ${dimension.id} (${dimension.kind}): ${dimension.title}`,
-          ...dimension.values.map((value) => `    ${value.id}: ${value.title}`),
+          ...dimension.values.slice(0, LISTED_VALUES).map((value) => `    ${value.id}: ${value.title}`),
+          ...(dimension.values.length > LISTED_VALUES
+            ? [
+                `    ... and ${dimension.values.length - LISTED_VALUES} more values (ids are kept; a repeated value is ignored)`,
+              ]
+            : []),
         ]);
   const user = [
     `SECTION: ${section}`,
