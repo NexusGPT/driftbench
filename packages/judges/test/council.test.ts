@@ -469,3 +469,19 @@ describe('majority by family', () => {
     );
   });
 });
+
+describe('council weights', () => {
+  it('weighs each judge vote by its weight in the verdict', async () => {
+    const council = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      weights: { a: 3 },
+      judges: [s1('a', [PASS()]), s1('b', [FAIL]), s1('c', [FAIL])],
+    });
+    const result = await council.judge({
+      criterion: { name: 'c', rubric: 'r' },
+      transcript: [{ role: 'agent', text: 'hi' }],
+    });
+    expect(result.outcome).toBe('pass');
+  });
+});

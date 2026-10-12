@@ -51,6 +51,8 @@ export type CouncilConfig = {
   readonly judges: readonly JudgeClient[];
   /** The model family of the agent under test. `none` for an agent that is not a model. */
   readonly agentFamily: string;
+  /** The weight of each judge's vote by id; default 1. An outcome wins with more than half of the total weight. */
+  readonly weights?: Readonly<Record<string, number>>;
   /** Rows that override the default assignment, such as the output of calibration. */
   readonly assignment?: readonly AssignmentRow[];
   /** Criteria calibration left unassigned: their verdicts never gate. */
@@ -178,17 +180,44 @@ export function createCouncil(config: CouncilConfig): Council {
       const counter = { errors: 0, cost: 0 };
 
       const own = typeof config.cascade === 'object' ? (config.cascade.thresholds ?? {}) : {};
-      const first = await runRound(request, row.cls, pick(row.judges), 'normal', threshold, counter, own);
+      const first = await runRound(
+        request,
+        row.cls,
+        pick(row.judges),
+        'normal',
+        threshold,
+        counter,
+        own,
+        config.weights,
+      );
       rounds.push(first);
       let decided: CouncilRound | undefined = first.outcome === 'split' ? undefined : first;
       if (!decided && row.rejudge.length > 0) {
         const other = otherClass(row.cls);
-        const second = await runRound(request, other, pick(row.rejudge), 'normal', undefined, counter);
+        const second = await runRound(
+          request,
+          other,
+          pick(row.rejudge),
+          'normal',
+          undefined,
+          counter,
+          {},
+          config.weights,
+        );
         rounds.push(second);
         if (second.outcome !== 'split') decided = second;
       }
       if (!decided) {
-        const last = await runRound(request, row.cls, pick(row.judges), 'large', undefined, counter);
+        const last = await runRound(
+          request,
+          row.cls,
+          pick(row.judges),
+          'large',
+          undefined,
+          counter,
+          {},
+          config.weights,
+        );
         rounds.push(last);
         if (last.outcome !== 'split') decided = last;
       }
@@ -331,6 +360,7 @@ async function runRound(
   threshold: number | undefined,
   counter: { errors: number; cost: number },
   own: Readonly<Record<string, number>> = {},
+  weights?: Readonly<Record<string, number>>,
 ): Promise<CouncilRound> {
   const ordered = [...judges].sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id));
   const votes: Vote[] = [];
@@ -348,7 +378,9 @@ async function runRound(
   } else {
     votes.push(...(await Promise.all(ordered.map((judge) => castVote(request, judge, budget, counter)))));
   }
-  const outcome: RoundOutcome = cascaded ? 'pass' : majority(votes);
+  const outcome: RoundOutcome = cascaded
+    ? 'pass'
+    : majority(votes, weights === undefined ? {} : { weights: { ...weights } });
   return { cls, budget, votes, outcome, cascaded };
 }
 
