@@ -329,10 +329,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       }
 
       const after = await sandbox.snapshot();
-      const workspaceDiff = sandbox.diff(before, after);
-      const artifacts: ArtifactRef[] = [...workspaceDiff.created, ...workspaceDiff.changed]
-        .sort()
-        .map((path) => ({ path, ...after.files[path] }) as ArtifactRef);
+      const fullDiff = sandbox.diff(before, after);
 
       const logged = await linesAfter(state.decisions, decisionsBefore);
       const hooked = hookDecisions(parsed, state.settings, startedAt).map((row) => JSON.stringify(row));
@@ -349,6 +346,16 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       });
       const block = mapped.blocks[0];
       if (!block) throw new AgentFailure('the turn mapped to no block');
+      const { diff: workspaceDiff, runtimeWrites } = agentDiff(
+        fullDiff,
+        block.observed.toolCalls,
+        cwd,
+        options.estateFiles ?? DEFAULT_ESTATE_FILES,
+      );
+      const artifacts: ArtifactRef[] = [...workspaceDiff.created, ...workspaceDiff.changed]
+        .sort()
+        .map((path) => ({ path, ...after.files[path] }) as ArtifactRef);
+
       if (mapped.blocks.length > 1) {
         throw new AgentFailure(`the turn mapped to ${mapped.blocks.length} blocks; one is expected`);
       }
@@ -399,6 +406,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
             queued,
             ...(result === undefined ? {} : { result }),
             issues: [...parsed.issues, ...mapped.meta.issues],
+            runtimeWrites,
             decisions: decisions !== undefined,
             steps: steps !== undefined,
           },
@@ -666,4 +674,40 @@ function allowedTools(settings: unknown): string[] {
     ? permissions.allow.filter((entry): entry is string => typeof entry === 'string')
     : [];
   return allow.includes('Skill') ? allow : [...allow, 'Skill'];
+}
+
+const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
+
+/**
+ * The diff the agent made. An estate's hooks write their own state into the estate folder (caches, logs,
+ * locks; seen on a real estate): a path inside the estate's own files that no write tool of the block
+ * targeted is the runtime's, left out of the diff and kept in `runtimeWrites`. A path outside the estate
+ * files, or one the agent's Write or Edit named, stays. A change the agent makes there through a shell
+ * command is therefore not counted; the trace keeps it in `runtimeWrites`.
+ */
+function agentDiff(
+  diff: { created: string[]; changed: string[]; deleted: string[] },
+  calls: readonly { label: string; input: unknown }[],
+  cwd: string,
+  estateFiles: readonly string[],
+): { diff: { created: string[]; changed: string[]; deleted: string[] }; runtimeWrites: string[] } {
+  const roots = [cwd, cwd.startsWith('/private/') ? cwd.slice('/private'.length) : `/private${cwd}`];
+  const named = new Set<string>();
+  for (const call of calls) {
+    if (!WRITE_TOOLS.has(call.label) || !isRecord(call.input)) continue;
+    const path = call.input.file_path ?? call.input.notebook_path;
+    if (typeof path !== 'string') continue;
+    const root = roots.find((candidate) => path.startsWith(`${candidate}/`));
+    named.add(root === undefined ? path : path.slice(root.length + 1));
+  }
+  const estate = (path: string) => estateFiles.some((name) => path === name || path.startsWith(`${name}/`));
+  const runtimeWrites: string[] = [];
+  const keep = (paths: string[]) =>
+    paths.filter((path) => {
+      if (!estate(path) || named.has(path)) return true;
+      runtimeWrites.push(path);
+      return false;
+    });
+  const out = { created: keep(diff.created), changed: keep(diff.changed), deleted: keep(diff.deleted) };
+  return { diff: out, runtimeWrites: runtimeWrites.sort() };
 }
