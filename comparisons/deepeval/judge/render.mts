@@ -21,6 +21,10 @@ const push = (set: string, id: string, criterion: any, transcript: any[], extra:
 };
 const cR = crit('relevancy.yaml');
 for (const r of ds('relevancy')) push('relevancy', r.id, cR, [{ role: 'user', text: r.ask }, { role: 'agent', text: r.reply }]);
+for (const r of ds('relevancy-hard')) push('relevancy-hard', r.id, cR, [{ role: 'user', text: r.ask }, { role: 'agent', text: r.reply }]);
+const cV = crit('relevancy-vague.yaml', 'comparisons/deepeval/criteria');
+for (const r of ds('relevancy-hard2')) push('relevancy-hard2', 'p2-' + r.id, cR, [{ role: 'user', text: r.ask }, { role: 'agent', text: r.reply }]);
+for (const r of ds('relevancy-hard2')) push('relevancy-hard2-vague', 'vague-' + r.id, cV, [{ role: 'user', text: r.ask }, { role: 'agent', text: r.reply }]);
 const cB = crit('role.yaml');
 for (const r of ds('role')) push('role', r.id, cB, [{ role: 'user', text: ASK }, { role: 'agent', text: r.reply }]);
 const cC = crit('conversation_completeness.yaml');

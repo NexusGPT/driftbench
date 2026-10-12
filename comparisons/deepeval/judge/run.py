@@ -54,7 +54,7 @@ def parse(t):
         try: return json.loads(t[s:e])
         except Exception: return {}
 SYS = "You answer with one JSON object and nothing else."
-def load(n): return json.load(open(os.path.join(DATA, n + ".json")))
+def load(n): return json.load(open(os.path.join(DATA, n.replace("-vague", "") + ".json")))
 PROMPTS = {p["id"]: p for p in json.load(open(os.path.join(ROOT, "judge", "ours-prompts.json")))}
 TPL = {
  "turnrel": "turn_relevancy/templates/generate_verdicts.txt",
@@ -84,8 +84,8 @@ def ours_vote(iid):
     p = PROMPTS[iid]
     return parse(call(p["system"], p["user"])).get("outcome", "unparsed")
 def item(set_name, row):
-    iid = row["id"]; res = {"id": iid, "label": row["label"], "ours": ours_vote(iid)}
-    if set_name == "relevancy":
+    iid = row["id"]; res = {"id": iid, "label": row["label"], "ours": ours_vote(({"relevancy-hard2": "p2-", "relevancy-hard2-vague": "vague-"}.get(set_name, "") + iid))}
+    if set_name in ("relevancy", "relevancy-hard", "relevancy-hard2", "relevancy-hard2-vague"):
         msgs = [{"role": "user", "content": row["ask"]}, {"role": "assistant", "content": row["reply"]}]
         p = strip(TPL["turnrel"]).replace("{{ sliding_window }}", json.dumps(msgs, indent=1))
         res["deepeval_turnrel"] = str(parse(call(SYS, p)).get("verdict", "unparsed"))
