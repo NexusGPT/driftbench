@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +10,7 @@ import {
   loadEstateMap,
   MutantError,
   mutateEstate,
+  parseJsonRanges,
   quoteDrift,
   validateEstateMap,
 } from '../../src/index';
@@ -147,4 +148,62 @@ describe('invertText', () => {
       expect(invertText(text)).toBeUndefined();
     },
   );
+});
+
+describe('a delete in a JSON file, structurally', () => {
+  const CASES = fileURLToPath(new URL('../../../../examples/estates/reader-cases/', import.meta.url));
+
+  async function casesCopy(): Promise<{ root: string; map: EstateMap }> {
+    const loaded = await loadEstateMap(join(CASES, 'approved.yaml'));
+    if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+    const root = await mkdtemp(join(tmpdir(), 'driftbench-mutant-json-'));
+    folders.push(root);
+    await copyEstate(CASES, root, loaded.map);
+    return { root, map: loaded.map };
+  }
+
+  it('deletes a settings guard by its whole entry', async () => {
+    const guard = await casesCopy();
+    const result = await mutateEstate(guard, {
+      delete: 'guard.settings.pretooluse-bash-guard-block-force-push',
+    });
+    const settings = JSON.parse(await readFile(join(guard.root, '.claude/settings.json'), 'utf8'));
+    expect(settings.hooks.PreToolUse[0].hooks).toEqual([]);
+    expect(settings.hooks.Stop[0].hooks).toHaveLength(1);
+    expect(result.map.atoms.some((atom) => atom.id === result.atom)).toBe(false);
+    expect(result.collateral).toEqual(['invariant.settings.every-guard-finds-its-script-from']);
+  });
+
+  it('empties a JSON document whose quote only the whole document holds', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'driftbench-mutant-root-'));
+    folders.push(root);
+    const atom = {
+      ...map.atoms[0],
+      id: 'invariant.registry.the-registry',
+      kind: 'invariant',
+      provenance: { file: '.claude/hooks/CATALOGUE.json', startLine: 1, endLine: 1, quote: '{', hash: '' },
+    } as EstateMap['atoms'][number];
+    await mkdir(join(root, '.claude/hooks'), { recursive: true });
+    await writeFile(
+      join(root, '.claude/hooks/CATALOGUE.json'),
+      '{\n  "checks": [{ "id": "K1", "event": "Stop", "status": "enforce" }]\n}\n',
+    );
+    const result = await mutateEstate(
+      { root, map: { ...map, atoms: [atom], edges: [] } },
+      { delete: atom.id },
+    );
+    expect(await readFile(join(root, '.claude/hooks/CATALOGUE.json'), 'utf8')).toBe('{}\n');
+    expect(result.op).toBe('delete');
+  });
+
+  it('reads the offsets of every JSON value, and refuses a text that is not JSON', () => {
+    const text = '{ "a": [1, "two", { "b": null }], "c": true }';
+    const root = parseJsonRanges(text);
+    expect(root?.elements.map((element) => text.slice(element.start, element.end))).toEqual([
+      '"a": [1, "two", { "b": null }]',
+      '"c": true',
+    ]);
+    expect(parseJsonRanges('{ "a": }')).toBeUndefined();
+    expect(parseJsonRanges('[1, 2] 3')).toBeUndefined();
+  });
 });
