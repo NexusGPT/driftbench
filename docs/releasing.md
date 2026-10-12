@@ -11,7 +11,7 @@ driftbench ships as sixteen npm packages under the `@driftbench` scope and one P
 | `@driftbench/artifacts`, `@driftbench/stats`, `@driftbench/store`, `@driftbench/report` | file readers, statistics, the result store and scorecards |
 | `@driftbench/space`, `@driftbench/generate`, `@driftbench/estate`, `@driftbench/validators` | the map of situations, generation, estates and validators |
 | `@driftbench/vitest` | `describeSpec`, one vitest test per block |
-| `driftbench` on PyPI | the Python runner and pytest plugin in `python/driftbench` |
+| `drift-bench` on PyPI (imported as `driftbench`) | the Python runner and pytest plugin in `python/driftbench` |
 
 `@driftbench/battery` stays private until it holds code. Each package has its own `README.md`, and its tarball holds only `dist`, the README and `package.json`.
 

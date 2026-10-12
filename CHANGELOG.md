@@ -8,7 +8,7 @@ The first public release. driftbench evaluates AI agents block by block: a block
 
 ### Packages
 
-`@driftbench/cli` (the `driftbench` command), `@driftbench/core`, `@driftbench/checks`, `@driftbench/judges`, `@driftbench/users`, `@driftbench/adapters`, `@driftbench/sandbox`, `@driftbench/artifacts`, `@driftbench/stats`, `@driftbench/store`, `@driftbench/report`, `@driftbench/space`, `@driftbench/generate`, `@driftbench/estate`, `@driftbench/validators` and `@driftbench/vitest`, and `driftbench` on PyPI. `@driftbench/battery` stays private until it holds code.
+`@driftbench/cli` (the `driftbench` command), `@driftbench/core`, `@driftbench/checks`, `@driftbench/judges`, `@driftbench/users`, `@driftbench/adapters`, `@driftbench/sandbox`, `@driftbench/artifacts`, `@driftbench/stats`, `@driftbench/store`, `@driftbench/report`, `@driftbench/space`, `@driftbench/generate`, `@driftbench/estate`, `@driftbench/validators` and `@driftbench/vitest`, and `drift-bench` on PyPI (imported as `driftbench`). `@driftbench/battery` stays private until it holds code.
 
 ### Added
 

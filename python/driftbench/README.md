@@ -7,7 +7,7 @@ adds a pytest plugin. No runtime dependency beyond the standard library. See
 ## Install
 
 ```sh
-pip install driftbench               # this package, Python 3.11 or newer
+pip install drift-bench              # this package, Python 3.11 or newer
 npm install -g @driftbench/cli       # the driftbench command it runs, Node.js 22.13 or newer
 ```
 
