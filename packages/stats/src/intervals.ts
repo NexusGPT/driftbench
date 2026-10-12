@@ -47,7 +47,7 @@ export function clopperPearson(k: number, n: number, alpha = 0.05): Interval {
 export function zeroFailureBound(p: number, alpha = 0.05): number {
   assertProbability('p', p, true);
   assertProbability('alpha', alpha, true);
-  const exact = Math.log(alpha) / Math.log(1 - p);
+  const exact = Math.log(alpha) / Math.log1p(-p);
   // Guard against floating noise when the ratio is an exact integer.
   const rounded = Math.round(exact);
   return Math.abs(exact - rounded) < 1e-9 ? rounded : Math.ceil(exact);

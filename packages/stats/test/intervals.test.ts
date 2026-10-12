@@ -166,3 +166,11 @@ describe('design effect bound', () => {
     expect(designEffect(1, -1)).toBe(1);
   });
 });
+
+describe('zeroFailureBound at a tiny p', () => {
+  it('keeps the digits of ln(1 - p) for p = 1e-9', () => {
+    expect(zeroFailureBound(1e-9)).toBe(2995732273);
+    expect(zeroFailureBound(1e-12)).toBe(2995732273553);
+    expect(zeroFailureBound(0.05)).toBe(59);
+  });
+});
