@@ -117,14 +117,28 @@ export function parseAnswerText(raw: string): JudgeResult {
   return strict;
 }
 
-/** The decoded answer with its outcome trimmed and lower-cased, or undefined when that changes nothing or names no outcome. */
+/**
+ * The decoded answer with the near-JSON slips undone: an outcome with capitals or spaces, a score written as a number
+ * in quotes. Undefined when that changes nothing.
+ */
 function recaseOutcome(value: unknown): unknown {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return undefined;
-  const outcome = (value as Record<string, unknown>).outcome;
-  if (typeof outcome !== 'string') return undefined;
-  const folded = outcome.trim().toLowerCase();
-  if (folded === outcome || !JudgeOutcome.safeParse(folded).success) return undefined;
-  return { ...value, outcome: folded };
+  const fixed: Record<string, unknown> = { ...(value as Record<string, unknown>) };
+  let changed = false;
+  const outcome = fixed.outcome;
+  if (typeof outcome === 'string') {
+    const folded = outcome.trim().toLowerCase();
+    if (folded !== outcome && JudgeOutcome.safeParse(folded).success) {
+      fixed.outcome = folded;
+      changed = true;
+    }
+  }
+  const score = fixed.score;
+  if (typeof score === 'string' && /^\s*-?\d+(\.\d+)?\s*$/.test(score)) {
+    fixed.score = Number(score);
+    changed = true;
+  }
+  return changed ? fixed : undefined;
 }
 
 /**

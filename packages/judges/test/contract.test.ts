@@ -66,3 +66,19 @@ describe('near-JSON: the outcome written with capitals', () => {
   });
 });
 
+describe('near-JSON: the score written as a number in quotes', () => {
+  it('reads "0.28" as 0.28 and marks the result repaired', () => {
+    const result = parseAnswerText('{"outcome":"fail","score":"0.28","reasoning":"r"}');
+    expect(result.answer).toEqual({ outcome: 'fail', score: 0.28, reasoning: 'r' });
+    expect(result.repaired).toBe(true);
+  });
+
+  it('leaves a word, an empty string and an out-of-range number unparsed', () => {
+    for (const score of ['"high"', '""', '"7"', '" "']) {
+      const result = parseAnswerText(`{"outcome":"pass","score":${score},"reasoning":"r"}`);
+      expect(result.unparsed).toBe(true);
+      expect(result.answer.outcome).toBe('inconclusive');
+    }
+  });
+});
+
