@@ -339,7 +339,7 @@ describe('configuration is refused before any call', () => {
       rejudge: [],
       source: 'calibration' as const,
     };
-    refused({ ...base, assignment: [{ ...row, judges: ['a', 'b'] }] }, /needs 3 different judges/);
+    refused({ ...base, assignment: [{ ...row, judges: ['a', 'b'] }] }, /needs 1 or 3 different judges/);
     refused({ ...base, assignment: [{ ...row, judges: ['a', 'b', 'q'] }] }, /no judge is named q/);
     refused(
       { ...base, assignment: [{ ...row, cls: 'system2' }] },

@@ -590,6 +590,50 @@ process.stdin.on('end', () => {
     expect(report.criteria[0].escalated).toEqual([{ item: 'explicit_confirmation.3', why: 'unsure' }]);
   }, 60_000);
 
+  it('assigns the one cheapest judge at the bar with --assign cheapest, and prints its cost per call', async () => {
+    const out = join(scratch, 'cheapest.yaml');
+    const { code, out: text } = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      'examples/acme/criteria/calibration/claude-council.cassette.json',
+      '--mode',
+      'llm',
+      '--assign',
+      'cheapest',
+      '--out',
+      out,
+    ]);
+    expect(code).toBe(0);
+    expect(text).toMatch(
+      /explicit_confirmation \[gating\]: owned by claude-sonnet alone \(system2\), 0\.\d{4} USD per call/,
+    );
+    expect(text).toContain('12 of 12 criteria assigned');
+    expect(await readFile(out, 'utf8')).toContain('rule: cheapest');
+    expect(
+      (
+        await run([
+          'judge',
+          'calibrate',
+          '--criteria',
+          CRITERIA,
+          '--labels',
+          LABELS,
+          '--cassette',
+          CALIBRATION,
+          '--assign',
+          'x',
+          '--out',
+          out,
+        ])
+      ).code,
+    ).toBe(2);
+  });
+
   it('refuses --only with a name that is not a criterion', async () => {
     const { code, err } = await run([
       'judge',
