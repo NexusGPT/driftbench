@@ -17,7 +17,8 @@
  *             Denylisted terms are never printed, not even partly.
  * Allow:      a line containing "guard:allow" suppresses pattern findings on that line.
  *             It never suppresses a denylist finding.
- * Exit:       0 clean, 1 findings or a canary miss, 2 usage error.
+ * Size:       files above 10 MiB fail the guard with a named error; they are never skipped.
+ * Exit:       0 clean, 1 findings, scan errors or a canary miss, 2 usage error.
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -337,21 +338,27 @@ function readText(file) {
     return { skip: 'missing' };
   }
   if (!info.isFile()) return { skip: 'not a file' };
-  if (info.size > MAX_BYTES) return { skip: 'too large' };
+  if (info.size > MAX_BYTES)
+    return { error: `size ${info.size} bytes exceeds scan limit ${MAX_BYTES} bytes` };
   const buffer = readFileSync(file);
   if (buffer.subarray(0, 8000).includes(0)) return { skip: 'binary' };
   return { text: buffer.toString('utf8') };
 }
 
-/** Scans files and returns every finding with its path relative to the root. */
+/** Scans files and returns findings and scan errors with paths relative to the root. */
 export function scanFiles(files, root, denylist) {
   const findings = [];
   const skipped = [];
+  const errors = [];
   let scanned = 0;
   let allowed = 0;
   for (const file of files) {
     const read = readText(file);
     const shown = relative(root, file) || file;
+    if (read.error) {
+      errors.push({ file: shown, reason: read.error });
+      continue;
+    }
     if (read.skip) {
       skipped.push({ file: shown, reason: read.skip });
       continue;
@@ -361,7 +368,7 @@ export function scanFiles(files, root, denylist) {
     allowed += result.allowed;
     for (const finding of result.findings) findings.push({ file: shown, ...finding });
   }
-  return { findings, skipped, scanned, allowed };
+  return { findings, skipped, errors, scanned, allowed };
 }
 
 class UsageError extends Error {}
@@ -448,7 +455,8 @@ function parseArgs(argv) {
 
 const HELP = `Usage: node tools/guard/guard.mjs [paths...] [--json] [--canary] [--require-denylist]
 Scans for IBANs, Belgian national register numbers, phone numbers, real email addresses
-and denylisted terms. Exit 0 clean, 1 findings, 2 usage error.
+and denylisted terms. Files above 10 MiB fail with a named error.
+Exit 0 clean, 1 findings or scan errors, 2 usage error.
 `;
 
 /** Runs the guard. Returns the exit code. */
@@ -518,28 +526,40 @@ export function main(argv, io) {
     kind: kind === 'denylist' ? `denylist #${entry}` : kind,
     redacted: redact(value, kind),
   }));
+  const clean = shown.length === 0 && result.errors.length === 0;
 
   if (options.json) {
     io.out(
       `${JSON.stringify(
         {
-          clean: shown.length === 0,
+          clean,
           scanned: result.scanned,
           skipped: result.skipped.length,
           allowed: result.allowed,
           denylistTerms: denylist.length,
           findings: shown,
+          errors: result.errors,
         },
         null,
         2,
       )}\n`,
     );
-    return shown.length === 0 ? 0 : 1;
+    return clean ? 0 : 1;
   }
 
+  for (const error of result.errors) {
+    io.err(`driftbench guard: cannot scan ${error.file}: ${error.reason}.\n`);
+  }
   const allowedNote = result.allowed > 0 ? ` ${result.allowed} allowed by ${ALLOW_MARKER} markers.` : '';
   const scope = `${result.scanned} files scanned, ${result.skipped.length} skipped, ${denylist.length} denylist terms`;
   if (shown.length === 0) {
+    if (!clean) {
+      const errors = result.errors.length;
+      io.out(
+        `driftbench guard: FAILED (${scope}). ${errors} file${errors === 1 ? '' : 's'} could not be scanned.${allowedNote}\n`,
+      );
+      return 1;
+    }
     io.out(`driftbench guard: clean (${scope}).${allowedNote}\n`);
     return 0;
   }

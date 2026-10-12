@@ -1,5 +1,5 @@
 // Every fixture is generated at runtime or split in the source, so this file passes the guard itself.
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -260,6 +260,60 @@ describe('command line', () => {
     const redacted = `ja${'•'.repeat(email.length - 4)}io`;
     expect(parsed.findings).toEqual([{ file: 'a.md', line: 1, kind: 'email', redacted }]);
     expect(out).not.toContain(email);
+  });
+
+  it.each([false, true])('fails loudly on an oversized recording (JSON: %s)', (json) => {
+    const limit = 10 * 1024 * 1024;
+    const padding = `${JSON.stringify({ message: 'padding' })}\n`;
+    const email = ['canary.person', 'driftbench-canary.dev'].join('@');
+    const content =
+      padding.repeat(Math.ceil((30 * 1024 * 1024) / padding.length)) +
+      `${JSON.stringify({ message: email })}\n`;
+    expect(content.indexOf(email)).toBeGreaterThan(limit);
+    const dir = folder({ 'recordings.jsonl': content });
+    try {
+      const { code, out, err } = run(json ? ['--json', dir] : [dir], dir);
+      expect(code).toBe(1);
+      expect(out + err).toContain('recordings.jsonl');
+      expect(out + err).toContain('exceeds scan limit');
+      expect(out + err).not.toContain(email);
+      if (json) {
+        const parsed = JSON.parse(out);
+        expect(parsed.clean).toBe(false);
+        expect(parsed.skipped).toBe(0);
+        expect(parsed.errors).toEqual([
+          {
+            file: 'recordings.jsonl',
+            reason: `size ${content.length} bytes exceeds scan limit ${limit} bytes`,
+          },
+        ]);
+      } else {
+        expect(err).toContain('recordings.jsonl');
+        expect(out).not.toContain('guard: clean');
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('still scans files exactly at the byte limit', () => {
+    const iban = makeIban('BE', '539007547034');
+    const content = Buffer.alloc(10 * 1024 * 1024, ' ');
+    content.write(iban, content.length - iban.length);
+    const dir = folder({ 'at-limit.jsonl': content });
+    try {
+      const { code, out } = run(['--json', dir], dir);
+      expect(code).toBe(1);
+      const parsed = JSON.parse(out);
+      expect(parsed.scanned).toBe(1);
+      expect(parsed.skipped).toBe(0);
+      expect(parsed.errors).toEqual([]);
+      expect(parsed.findings).toEqual([
+        { file: 'at-limit.jsonl', line: 1, kind: 'iban', redacted: redact(iban, 'iban') },
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('exits 2 on a usage error', () => {
