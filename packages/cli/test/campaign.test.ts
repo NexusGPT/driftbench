@@ -971,3 +971,44 @@ describe('driftbench campaign retries', () => {
     expect(err).toContain('--retry-attempts takes a whole number of at least 1, not "0".');
   });
 });
+
+describe('campaign --route', () => {
+  it('runs the specs a tag marks on the route target, every other spec on --target', async () => {
+    const { out, code } = await cli([
+      'campaign',
+      'plan',
+      'examples/acme/specs',
+      '--target',
+      'function:acme',
+      '--route',
+      'flow:price-sheet=process:acme-ops',
+    ]);
+    expect(code).toBe(0);
+    // The price-sheet task is routed, so --target no longer overrides it and no note says so.
+    expect(out).not.toContain('Note: acme-price-sheet names the process adapter');
+    expect(out).toMatch(/acme-price-sheet +process:acme-ops/);
+  });
+
+  it('refuses a route that is not tag=target, and a route without --target', async () => {
+    const bad = await cli([
+      'campaign',
+      'plan',
+      'examples/acme/specs',
+      '--target',
+      'function:acme',
+      '--route',
+      'nothing',
+    ]);
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('--route takes tag=target');
+    const alone = await cli([
+      'campaign',
+      'plan',
+      'examples/acme/specs',
+      '--route',
+      'flow:price-sheet=process:acme-ops',
+    ]);
+    expect(alone.code).toBe(2);
+    expect(alone.err).toContain('--route goes with --target');
+  });
+});

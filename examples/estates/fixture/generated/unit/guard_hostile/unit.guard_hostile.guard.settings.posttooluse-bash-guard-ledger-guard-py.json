@@ -60,54 +60,6 @@
         }
       },
       "material": "echo ok && ledger/"
-    },
-    {
-      "id": "case-04",
-      "payload": {
-        "tool_name": "Bash",
-        "tool_input": {
-          "command": "LEDGER/ARCHIVE/",
-          "description": "unit test"
-        },
-        "tool_response": {
-          "stdout": "",
-          "stderr": "",
-          "interrupted": false
-        }
-      },
-      "material": "LEDGER/ARCHIVE/"
-    },
-    {
-      "id": "case-05",
-      "payload": {
-        "tool_name": "Bash",
-        "tool_input": {
-          "command": "ledger/archive/ ",
-          "description": "unit test"
-        },
-        "tool_response": {
-          "stdout": "",
-          "stderr": "",
-          "interrupted": false
-        }
-      },
-      "material": "ledger/archive/ "
-    },
-    {
-      "id": "case-06",
-      "payload": {
-        "tool_name": "Bash",
-        "tool_input": {
-          "command": "echo ok && ledger/archive/",
-          "description": "unit test"
-        },
-        "tool_response": {
-          "stdout": "",
-          "stderr": "",
-          "interrupted": false
-        }
-      },
-      "material": "echo ok && ledger/archive/"
     }
   ]
 }

@@ -1,7 +1,6 @@
-import { DeviationClass } from '@driftbench/core';
 import type { Section } from '@driftbench/generate';
 import type { Span } from './render';
-import type { ArgSchema, HiddenArg, HiddenSpec, Role } from './spec';
+import { type ArgSchema, type HiddenArg, type HiddenSpec, MAP_DEVIATIONS, type Role } from './spec';
 
 /**
  * What the map must hold, written from the hidden specification alone, by the rules of docs/validators.md
@@ -55,7 +54,7 @@ export function truthOf(spec: HiddenSpec): Truth {
   for (const behaviour of spec.behaviours) add('behaviour', 'behaviour', behaviour.id, 'inventory');
   for (const flow of spec.flows) add('flow', 'behaviour', flow.id, 'inventory');
   const required = new Set(spec.flows.flatMap((flow) => flow.deviations));
-  for (const deviation of DeviationClass.options) {
+  for (const deviation of MAP_DEVIATIONS) {
     if (required.has(deviation)) add('deviation', 'deviation', deviation, 'inventory');
   }
   for (const channel of spec.channels) add('channel', 'channel', channel, 'inventory');
@@ -136,6 +135,18 @@ export function truthOf(spec: HiddenSpec): Truth {
       constraints.push({
         id: `behaviour=${behaviour.id},channel=${channel}`,
         forbid: { behaviour: behaviour.id, channel },
+        from: 'inventory',
+      });
+    }
+  }
+  // A behaviour a flow lists belongs to that flow: the pre-pass forbids it in every flow that does not list it.
+  for (const behaviour of spec.behaviours) {
+    if (!spec.flows.some((flow) => flow.behaviours.includes(behaviour.id))) continue;
+    for (const flow of spec.flows) {
+      if (flow.behaviours.includes(behaviour.id)) continue;
+      constraints.push({
+        id: `behaviour=${behaviour.id},flow=${flow.id}`,
+        forbid: { behaviour: behaviour.id, flow: flow.id },
         from: 'inventory',
       });
     }

@@ -4,6 +4,7 @@ import {
   BANK_COMPONENTS,
   blockOf,
   drawFor,
+  fieldId,
   inventoryCode,
   inventorySource,
   MEMBER_POOL,
@@ -56,7 +57,7 @@ function inputOf(draw: Draw, name: string, schema: Schema, partitions: string[],
   const tool = draw.pick(TOOL_POOL);
   return {
     tools: [{ name: tool, input_schema: object({ [name]: schema }, optional ? [] : [name]) }] as ToolEntry[],
-    expected: [{ dimension: `${tool}.in.${name}`, partitions }] as Array<{
+    expected: [{ dimension: `${tool}.in.${fieldId(name)}`, partitions }] as Array<{
       dimension: string;
       partitions: string[];
       quoteKey?: string;
@@ -111,14 +112,14 @@ const TOOL_CASES: readonly ToolCase[] = [
     cause: 'tools:ref-key-as-property-name',
     tier: 2,
     title:
-      'a property named $ref is a plain property, name kept as written: a uri format gives well-formed and malformed',
+      'a property named $ref is a plain property, its id _ref as the field id rule writes it: a uri format gives well-formed and malformed',
     make: (d) => inputOf(d, '$ref', { type: 'string', format: 'uri' }, FORMAT),
   },
   {
     slug: 'property-name-with-dot',
     cause: 'tools:property-name-with-dot',
     tier: 2,
-    title: 'a property named user.email gives the dimension <tool>.in.user.email, name kept whole',
+    title: 'a property named user.email gives the dimension <tool>.in.user_email, one field, not a path',
     make: (d) => inputOf(d, 'user.email', { type: 'string', format: 'email' }, FORMAT),
   },
   {
