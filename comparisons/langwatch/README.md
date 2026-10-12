@@ -72,3 +72,20 @@ python3 comparisons/langwatch/pii/score.py
 - The judge commands call the local `claude` command and cost money; `--cap` stops the run at that spend.
 - `<presidio-env>` has presidio-analyzer, spacy and the en_core_web_sm model. Setup is in the header of `presidio.py`.
 - Output: `pii/recorded/results.md`.
+
+### Row 10: pairwise judging (driftbench against the competitor's golden-aware comparison prompt)
+
+- Input: `pairwise/set.json`, 120 generated cases, made by `pairwise/generate.mjs --n 120 --seed 20260612`. Each case has a task, a golden answer, a correct candidate and a wrong one; the truth is fixed by construction.
+- Protocol, the same for both systems: two calls per pair with the candidates swapped; a tie when the calls disagree.
+- Commands, from the repository root:
+
+```sh
+node comparisons/langwatch/pairwise/generate.mjs --n 120 --seed 20260612 > comparisons/langwatch/pairwise/set.json
+npx tsx comparisons/langwatch/pairwise/measure.mts ours --model haiku --cap 0.6
+npx tsx comparisons/langwatch/pairwise/measure.mts theirs --model haiku --cap 0.6
+npx tsx comparisons/langwatch/pairwise/measure.mts ours --model sonnet --cap 1.5
+npx tsx comparisons/langwatch/pairwise/measure.mts theirs --model sonnet --cap 1.5
+python3 comparisons/langwatch/pairwise/score.py
+```
+
+- Output: `pairwise/recorded/results.md`. Each record keeps the answers, the unanswered count and the spend.

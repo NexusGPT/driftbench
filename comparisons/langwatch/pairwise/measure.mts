@@ -94,17 +94,30 @@ function claudeCall(prompt: string): Promise<{ outcome: string; cost: number }> 
     child.on('error', reject);
     child.on('close', (code) => {
       if (code !== 0) return reject(new Error(`claude exited ${code}: ${err.slice(0, 200)}`));
-      const payload = JSON.parse(out);
+      let payload: { is_error?: boolean; result?: unknown; total_cost_usd?: number };
+      try {
+        payload = JSON.parse(out);
+      } catch {
+        return reject(new Error(`claude printed no JSON: ${out.slice(0, 120)}`));
+      }
       if (payload.is_error) return reject(new Error(`claude error: ${String(payload.result).slice(0, 200)}`));
       const text = String(payload.result ?? '');
-      const match = text.match(/\{[\s\S]*\}/);
-      const outcome = match ? JSON.parse(match[0]).outcome : 'inconclusive';
+      // An answer that is not one JSON object with an outcome is inconclusive, never a winner.
+      let outcome = 'inconclusive';
+      try {
+        const match = text.match(/\{[\s\S]*\}/);
+        const parsed = match ? JSON.parse(match[0]) : undefined;
+        if (parsed && typeof parsed.outcome === 'string') outcome = parsed.outcome;
+      } catch {
+        outcome = 'inconclusive';
+      }
       resolve({ outcome, cost: Number(payload.total_cost_usd ?? 0) });
     });
     child.stdin.end(prompt);
   });
 }
 
+let unanswered = 0;
 const answers: Array<{
   id: string;
   choice: string;
@@ -144,12 +157,21 @@ for (const item of items) {
       costUsd: spent - before,
     });
   } else if (system === 'theirs') {
-    const first = await claudeCall(
-      THEIR_TEMPLATE(item.task, item.golden, item.candidate_a, item.candidate_b),
-    );
-    const second = await claudeCall(
-      THEIR_TEMPLATE(item.task, item.golden, item.candidate_b, item.candidate_a),
-    );
+    // One retry per call; a call that still gives no answer is an inconclusive answer, counted and reported.
+    const ask = async (prompt: string) => {
+      try {
+        return await claudeCall(prompt);
+      } catch {
+        try {
+          return await claudeCall(prompt);
+        } catch {
+          unanswered += 1;
+          return { outcome: 'inconclusive', cost: 0 };
+        }
+      }
+    };
+    const first = await ask(THEIR_TEMPLATE(item.task, item.golden, item.candidate_a, item.candidate_b));
+    const second = await ask(THEIR_TEMPLATE(item.task, item.golden, item.candidate_b, item.candidate_a));
     spent += first.cost + second.cost;
     // Map each call's winner back to the original candidates: pass names A (the first candidate) in the first call and B in the second.
     const pickFirst = first.outcome === 'pass' ? 'first' : first.outcome === 'fail' ? 'second' : 'tie';
@@ -169,6 +191,8 @@ for (const item of items) {
 }
 writeFileSync(
   join(here, 'recorded', `${system}-${model}.json`),
-  `${JSON.stringify({ system, model, spentUsd: spent, answers }, null, 1)}\n`,
+  `${JSON.stringify({ system, model, spentUsd: spent, unanswered, answers }, null, 1)}\n`,
 );
-console.log(`${system} ${model}: ${answers.length} cases, spent ${spent.toFixed(4)} USD`);
+console.log(
+  `${system} ${model}: ${answers.length} cases, ${unanswered} calls without an answer, spent ${spent.toFixed(4)} USD`,
+);
