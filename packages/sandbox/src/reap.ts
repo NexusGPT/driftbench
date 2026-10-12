@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readlinkSync, realpathSync, statSync } from 'node:fs';
+import { PROCESS_SCAN_TIMEOUT_MS, scanWorkingFolders } from './process-scan';
 
 /**
  * Ends every process a run left behind in its folders: a process whose command line names one of them, or
@@ -86,6 +87,7 @@ function processes(): Proc[] {
   const ps = spawnSync('ps', ['-A', '-ww', '-o', 'pid=,ppid=,etime=,command='], {
     encoding: 'utf8',
     maxBuffer: 64 << 20,
+    ...(process.platform === 'linux' ? {} : { timeout: PROCESS_SCAN_TIMEOUT_MS, killSignal: 'SIGKILL' }),
   });
   if (ps.status !== 0 || typeof ps.stdout !== 'string') return [];
   const now = Date.now();
@@ -135,18 +137,9 @@ function workingFolders(pids: readonly number[]): Array<{ pid: number; cwd: stri
     }
     return out;
   }
-  const lsof = spawnSync('lsof', ['-nP', '-a', '-d', 'cwd', '-p', pids.join(','), '-Fpn'], {
-    encoding: 'utf8',
-    maxBuffer: 64 << 20,
-  });
-  if (typeof lsof.stdout !== 'string') return [];
-  const out: Array<{ pid: number; cwd: string }> = [];
-  let pid: number | undefined;
-  for (const line of lsof.stdout.split('\n')) {
-    if (line.startsWith('p')) pid = Number(line.slice(1));
-    else if (line.startsWith('n') && pid !== undefined) out.push({ pid, cwd: line.slice(1) });
-  }
-  return out;
+  const { folders, note } = scanWorkingFolders(pids);
+  if (note) process.stderr.write(`${note}\n`);
+  return folders;
 }
 
 /** This process and its ancestors: never ended, whatever their command line or working folder. */
