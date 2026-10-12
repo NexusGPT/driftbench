@@ -51,10 +51,11 @@ def normalize_singletons(obj):
     """
     if not isinstance(obj, dict):
         return obj
-    for key, required in [("verdicts", {"index", "reason"}),
-                          ("checks", {"requirement", "evidence", "status"})]:
+    shapes = {"verdicts": [{"index", "reason"}, {"verdict"}],
+              "checks": [{"requirement", "evidence", "status"}]}
+    for key, required_shapes in shapes.items():
         value = obj.get(key)
-        if isinstance(value, dict) and required <= value.keys():
+        if isinstance(value, dict) and any(required <= value.keys() for required in required_shapes):
             obj = {**obj, key: [value]}
     return obj
 
@@ -119,7 +120,8 @@ class Recorder:
         row = {"key": key, "system": system, "user": user, "requested_model": "haiku",
                "timestamp": datetime.now().astimezone().isoformat(), **self.context}
         try:
-            proc = subprocess.run(args, input=user, text=True, capture_output=True, cwd=cwd, timeout=180)
+            remaining = (self.deadline-datetime.now(ZoneInfo("Europe/Brussels"))).total_seconds() if self.deadline else 180
+            proc = subprocess.run(args, input=user, text=True, capture_output=True, cwd=cwd, timeout=max(.01,min(180,remaining)))
             env = json.loads(proc.stdout)
             row.update(result=str(env.get("result", "")), envelope=env,
                        charged_usd=float(env["total_cost_usd"]))
@@ -242,6 +244,9 @@ def main():
     prompts_file = ROOT / f"baseline-prompts{suffix}.json"
     sets = json.loads(sets_file.read_text())
     prompts = json.loads(prompts_file.read_text())
+    if args.corpus == "heldout":
+        from freeze import verify
+        verify(ROOT)
     # A process-wide lock keeps all metric stages and runs at concurrency one.
     with (ROOT / ".run.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)

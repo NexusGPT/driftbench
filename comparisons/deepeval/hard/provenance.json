@@ -1,6 +1,6 @@
 {
   "package": "deepeval==4.2.8",
-  "source_commit": "12801e1b9b9ae4d9c1bfb4ae6789bb70f1abd57c",
+  "driftbench_base_commit": "12801e1b9b9ae4d9c1bfb4ae6789bb70f1abd57c",
   "claude_version": "2.1.296 (Claude Code)",
   "sha256": {
     "metrics/conversation_completeness/__init__.py": "c2e13c489488b083d0348609ef66a16c1fc053901144607053710943906263c7",

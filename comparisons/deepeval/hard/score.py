@@ -66,7 +66,7 @@ def main():
                 for key in r[side]["keys"]:
                     audit.extend(["", f"Call `{key}`", "", "```json", calls[key]["result"], "```"])
             audit.append("")
-    (ROOT / f"losses-{recording['variant']}.md").write_text("\n".join(audit)+"\n")
+    (ROOT / f"losses-{args.recording.stem}.md").write_text("\n".join(audit)+"\n")
 
 
 if __name__ == "__main__":

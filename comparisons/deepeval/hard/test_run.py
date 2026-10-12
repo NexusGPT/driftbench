@@ -72,6 +72,8 @@ class HardTests(unittest.TestCase):
         self.assertEqual(normalized["outcome"], "fail")
         self.assertIsInstance(obj["verdicts"], dict)
         self.assertEqual(normalize_singletons({"verdicts": {"unexpected": "value"}}), {"verdicts": {"unexpected": "value"}})
+        native = {"verdicts": {"verdict": "no", "reason": "contradiction"}}
+        self.assertEqual(normalize_singletons(native)["verdicts"], [native["verdicts"]])
         audit = {"checks": {"requirement": "price", "evidence": "$45", "status": "not_met"}}
         self.assertFalse(aggregate(normalize_singletons(audit)))
 
@@ -169,6 +171,27 @@ class HardTests(unittest.TestCase):
         self.assertEqual(paired_p(0,0),1)
         self.assertEqual(paired_p(5,0),.0625)
         self.assertLess(paired_p(10,0),.05)
+
+    def test_freeze_rejects_changed_candidate_or_corpus(self):
+        from freeze import FILES, hashes, verify
+        root = Path(self.temp.name)
+        for name in FILES: (root/name).write_text(name)
+        (root/"candidate-freeze.json").write_text(json.dumps({"sha256":hashes(root)}))
+        verify(root)
+        (root/"audit.py").write_text("new candidate")
+        with self.assertRaises(ValueError): verify(root)
+
+    def test_freeze_rejects_selection_after_heldout_or_stale_selection(self):
+        from freeze import FILES, freeze, hashes
+        root = Path(self.temp.name)
+        for name in FILES: (root/name).write_text(name)
+        current = hashes(root)
+        (root/"audit-v2.json").write_text(json.dumps({"procedure_sha256":current['audit.py'],"sets_sha256":current['sets.json']}))
+        (root/"calls.jsonl").write_text(json.dumps({"run":"baseline-heldout"})+"\n")
+        with patch("score.tally"):
+            with self.assertRaisesRegex(ValueError,"Held-out"): freeze(root)
+            (root/"audit.py").write_text("changed")
+            with self.assertRaisesRegex(ValueError,"Selection"): freeze(root)
 
 
 if __name__ == "__main__":

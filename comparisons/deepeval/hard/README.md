@@ -22,6 +22,8 @@ three pairs per family, giving 72 cases per set. It uses fresh fictional client
 contexts and values, with 36 cases per label. Labels and data are fixed before
 any held-out model call. The shipped judge, candidate and default metric each
 receive one evaluation per case. Candidate selection uses only the hard corpus.
+`candidate-freeze.json` stamps the selected procedure, hard results and both
+corpora. The runner rejects any change to those files before held-out measurement.
 
 | Set | Passing rule | Near misses |
 |---|---|---|
@@ -69,8 +71,8 @@ The new runner repairs errors in the inherited manual runner:
 - Knowledge retention runs the native extraction stage before its verdict.
 - Invalid model responses count as undecided and wrong, never as a default pass.
 
-The parser normalizes a singleton object to a one-element list for role verdicts
-and audit checks. This layout-only rule applies to every contestant. It changes
+The parser normalizes a singleton object to a one-element list for native verdict
+lists and audit checks. This layout-only rule applies to every contestant. It changes
 no decision, status or evidence. The original raw responses remain available.
 The role template itself shows a singleton object despite declaring a list.
 
@@ -96,6 +98,7 @@ python3 comparisons/deepeval/hard/generate.py --seed 20261019 --pairs-per-family
 pnpm exec tsx comparisons/deepeval/hard/render.mts heldout
 .venv/bin/python comparisons/deepeval/hard/run.py --tag baseline-v2 --record --cap-usd 4
 .venv/bin/python comparisons/deepeval/hard/run.py --variant audit --tag audit-v2 --record --cap-usd 4
+python3 comparisons/deepeval/hard/freeze.py
 .venv/bin/python comparisons/deepeval/hard/run.py --corpus heldout --tag baseline-heldout --record --cap-usd 4
 .venv/bin/python comparisons/deepeval/hard/run.py --corpus heldout --variant audit --tag audit-heldout --record --cap-usd 4
 ```
@@ -129,6 +132,6 @@ usage and cost for each unique invocation. Per-row costs charge their underlying
 calls, including shared recordings. These row costs must not be added as actual
 billed spend. Actual spend is the sum of unique recorded invocation costs.
 
-`losses-baseline.md` and `losses-audit.md` are free replay audits. The audit variant
+`losses-RECORDING.md` files are free replay audits. The audit variant
 is measured on the exact same case set and competitor recordings as the baseline.
 It is a selected procedure on this tuning set, not an unseen-test result.
