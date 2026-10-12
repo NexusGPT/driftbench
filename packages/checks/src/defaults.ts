@@ -10,10 +10,12 @@ import { guards } from './checks/guards';
 import { lang } from './checks/lang';
 import { must, mustNot } from './checks/must';
 import { pii } from './checks/pii';
+import { references } from './checks/references';
 import { safety } from './checks/safety';
 import { schemaStrict } from './checks/schema_strict';
 import { skills } from './checks/skills';
 import { stage } from './checks/stage';
+import { subagents } from './checks/subagents';
 import { tools } from './checks/tools';
 import { workspace } from './checks/workspace';
 
@@ -49,6 +51,8 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     stage,
     skills,
     guards,
+    references,
+    subagents,
     execution,
     workspace,
     safety,

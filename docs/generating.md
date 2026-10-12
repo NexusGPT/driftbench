@@ -592,22 +592,22 @@ Every variant is stored as a spec with its factors under `metadata.pilot`, so ev
 $ pnpm -s driftbench pilot plan --map examples/acme/map/approved.yaml --suite examples/acme/generated/specs
 Pilot plan: 13 cells by behaviour; per cell up to 10 conversations x 3 approved wordings x 5 repeats.
   cell             conversations  wordings  runs  blocks  cost
-  behaviour=-      10             29        145   485     $0.00
-  behaviour=B-001  10             30        150   735     $0.00
-  behaviour=B-002  10             30        150   645     $0.00
-  behaviour=B-003  9              27        135   690     $0.00
-  behaviour=B-004  10             30        150   690     $0.00
-  behaviour=B-005  9              27        135   570     $0.00
+  behaviour=-      10             23        115   425     $0.00
+  behaviour=B-001  10             27        135   695     $0.00
+  behaviour=B-002  10             25        125   580     $0.00
+  behaviour=B-003  9              23        115   605     $0.00
+  behaviour=B-004  10             24        120   575     $0.00
+  behaviour=B-005  9              19        95    410     $0.00
   behaviour=B-006  10             30        150   975     $0.00
-  behaviour=B-007  10             29        145   950     $0.00
-  behaviour=B-008  10             30        150   855     $0.00
-  behaviour=B-009  10             30        150   720     $0.00
-  behaviour=B-010  9              27        135   750     $0.00
-  behaviour=B-011  10             30        150   690     $0.00
-  behaviour=B-012  10             30        150   555     $0.00
-  total            127            379       1895  9310    $0.00
+  behaviour=B-007  10             28        140   940     $0.00
+  behaviour=B-008  10             29        145   845     $0.00
+  behaviour=B-009  10             26        130   665     $0.00
+  behaviour=B-010  9              24        120   685     $0.00
+  behaviour=B-011  10             23        115   550     $0.00
+  behaviour=B-012  10             23        115   460     $0.00
+  total            127            324       1620  8410    $0.00
 Cost: the agent runs in process: no model call, nothing billed.
-Wordings: the approved phrase bank gives fewer than 3 wordings to some conversations (2 with 2).
+Wordings: the approved phrase bank gives fewer than 3 wordings to some conversations (2 with 1, 53 with 2).
 exit 0
 ```
 
@@ -625,20 +625,20 @@ exit 0
 On the seeded random control, `function:acme-random`, the Acme agent with failures planted at a known rate per source, the report sets the planted shares beside the estimates:
 
 ```
-$ pnpm -s driftbench pilot run --map examples/acme/map/approved.yaml --suite examples/acme/generated/specs --target function:acme-random --store _captures/docs3/generating/pilot/pilot.db --out _captures/docs3/generating/pilot/acme-random --concurrency 1
-Pilot on function:acme-random: 1895 runs over 13 cells (127 conversations, 379 wordings, 5 repeats).
-Pilot pilot-132dc456443d on function:acme-random: 1895 runs.
-Pass rate 11.6% (10.2% to 13.1%, Wilson on 1895.0 effective runs).
+$ pnpm -s driftbench pilot run --map examples/acme/map/approved.yaml --suite examples/acme/generated/specs --target function:acme-random --store _captures/pilot2/after-acme-random.db --out examples/acme/pilot/acme-random --concurrency 1
+Pilot on function:acme-random: 1620 runs over 13 cells (127 conversations, 324 wordings, 5 repeats).
+Pilot pilot-d24f99408267 on function:acme-random: 1620 runs.
+Pass rate 15.9% (13.3% to 19.0%, Wilson on 638.6 effective runs).
 Where the spread comes from (pooled; 95% bootstrap interval, 500 draws of the 13 cells, then conversations inside each):
   level         variance  share  interval
-  cell          0.0015    1.4%   0.1% to 5.2%
-  conversation  0.0000    0.0%   0.0% to 2.9%
-  wording       0.0219    21.4%  12.1% to 28.3%
-  repeat        0.0792    77.2%  68.0% to 85.6%
-Intraclass correlation: cell 0.014, conversation 0.014, wording 0.228.
-Design effect: 1.00 for 14.9 runs per conversation at rho 0.000; a run of a conversation counts as 1 / design effect of an independent conversation.
-Noise floor 5.0%: run-to-run variance 0.0792; 244 repeat(s) per block (floor reached 5.0%), 25 per block for a cell figure over 10 conversations; this pilot's repeats reach 34.9% on one block.
-Flip rate: 821 of 1862 blocks flip between repeats; mean 0.225.
+  cell          0.0006    0.4%   0.0% to 6.8%
+  conversation  0.0175    13.0%  3.5% to 18.7%
+  wording       0.0057    4.2%   0.0% to 12.0%
+  repeat        0.1105    82.4%  74.9% to 90.1%
+Intraclass correlation: cell 0.004, conversation 0.134, wording 0.176.
+Design effect: 2.54 for 12.8 runs per conversation at rho 0.131; a run of a conversation counts as 1 / design effect of an independent conversation.
+Noise floor 5.0%: run-to-run variance 0.1105; 340 repeat(s) per block (floor reached 5.0%), 34 per block for a cell figure over 10 conversations; this pilot's repeats reach 41.2% on one block.
+Flip rate: 1030 of 1682 blocks flip between repeats; mean 0.316.
 ```
 
 The per-cell table follows, then:
@@ -646,24 +646,32 @@ The per-cell table follows, then:
 ```
 Control: planted shares against the estimates (every planted share lies inside its interval):
   level         planted  estimate  interval
-  cell          1.1%     1.4%      0.1% to 5.2%    recovered
-  conversation  0.0%     0.0%      0.0% to 2.9%    recovered
-  wording       25.0%    21.4%     12.1% to 28.3%  recovered
-  repeat        73.9%    77.2%     68.0% to 85.6%  recovered
-Report: _captures/docs3/generating/pilot/acme-random/pilot-report.json
+  cell          0.9%     0.4%      0.0% to 6.8%    recovered
+  conversation  9.1%     13.0%     3.5% to 18.7%   recovered
+  wording       7.1%     4.2%      0.0% to 12.0%   recovered
+  repeat        82.9%    82.4%     74.9% to 90.1%  recovered
+Report: examples/acme/pilot/acme-random/pilot-report.json
 exit 0
 ```
 
 The control hands out its run draws in the order sessions open, so its report is reproducible only with `--concurrency 1`.
 
-The deterministic Acme agent, `function:acme`, has no run-to-run variance on the same design: 0 of 1862 blocks flip, so one repeat per block reaches any floor.
+The deterministic Acme agent, `function:acme`, has no run-to-run variance on the same design: 0 of 1682 blocks flip, so one repeat per block reaches any floor.
 
 ```
 Noise floor 5.0%: run-to-run variance 0.0000; 1 repeat(s) per block (floor reached 0.0%), 1 per block for a cell figure over 10 conversations; this pilot's repeats reach 0.0% on one block.
-Flip rate: 0 of 1862 blocks flip between repeats; mean 0.000.
+Flip rate: 0 of 1682 blocks flip between repeats; mean 0.000.
 ```
 
-On that run the wording level carries 96.5% of the spread. A wording swaps in the text of another approved phrase as it is written: a `{slot}` in it stays unfilled (`It's {email}.`), and its `when` and `binds` are not read. On a suite whose Thens come from the phrases' slots, such a wording changes what the agent is asked, not only how. `pilot run` exits 0 when every run completed, 1 when some did not, 2 on bad input.
+It passes all 1620 runs, and every level, wording included, carries 0.0% of the spread.
+
+A wording other than the generated one is the approved phrase said as the generator would say it:
+
+* its `when` holds in the cell, at the stage the block is said at;
+* it states the same `binds` as the phrase the generator chose, so later turns still expect the same plan;
+* every `{slot}` is filled from the values the cell binds and the binds said before it.
+
+`pilot run` exits 0 when every run completed, 1 when some did not, 2 on bad input.
 
 ## Intake: the reference set of user turns
 

@@ -4,21 +4,21 @@ class: D2_goal_shift
 title: goal shift
 conversation:
   - id: d2-home-instead
-    approved: false
+    approved: true
     user: Actually, scratch that. I'd rather look at home internet.
   - id: d2-cheaper-plan
-    approved: false
+    approved: true
     user: Wait, can you show me the cheapest plan instead?
   - id: d2-keep-number
-    approved: false
+    approved: true
     user: Change of plan, I want to bring my old number over too.
 task:
   - id: d2-pdf-instead
-    approved: false
+    approved: true
     user: Change of plan, I need this as a PDF and not as a workbook.
   - id: d2-weekly-prices
-    approved: false
+    approved: true
     user: Actually, forget the yearly prices. Show weekly prices instead.
   - id: d2-one-sheet
-    approved: false
+    approved: true
     user: Scratch that. I want a single sheet with every plan, not one per category.

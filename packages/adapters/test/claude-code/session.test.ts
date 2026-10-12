@@ -378,7 +378,7 @@ describe('mapSession: guard decisions and steps', () => {
 
   it('without a decision log or step feed the trace has no guards or stages', () => {
     const runtime = map(transcript).blocks[0]?.observed.runtime;
-    expect(runtime).toEqual({ skills: [] });
+    expect(runtime).toEqual({ skills: [], references: [], subagents: [] });
   });
 });
 

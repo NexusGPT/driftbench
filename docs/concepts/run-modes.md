@@ -12,7 +12,7 @@ Run records carry the mode as `T`, `F` or `P`. `runSpec` runs all three, and a c
 
 ## Teacher-forced
 
-Each block opens its own session from its canonical Given, never from what the agent did in the blocks before. Blocks become independent samples: a block run N times from its Given gets its own pass rate, free of the blocks before it.
+Each block opens its own session from its canonical Given, never from what the agent said in the blocks before. Blocks become independent samples: a block run N times from its Given gets its own pass rate, free of the blocks before it. One exception keeps a task runnable: on an adapter with a sandbox, a block keeps the session of the block before, so it starts from the workspace that block left, and only its history is replaced by the canonical prefix. See [tasks](#tasks-run-in-the-same-three-modes).
 
 The canonical Given of block k is built from the spec alone:
 
@@ -66,18 +66,19 @@ T passes all five blocks: each starts from the canonical prefix, whose assistant
 
 ## Tasks run in the same three modes
 
-* T: each step starts from its own Given: a fresh workspace from the latest `given.world.workspace` up to it (the spec's `workspace_seed` is its first value), and the earlier steps as written. No file an earlier step made is there, unless the spec writes it into that step's workspace. The Acme price-sheet task writes none, so its second step, which edits the workbook the first one made, fails in T:
+* T: each step starts from the state the reference trajectory had at that step. Its history is the canonical prefix: the earlier steps as written, never the agent's own replies. Its workspace is the one the step before left, in the same sandbox; a step that writes its own `given.world.workspace` starts instead from a fresh workspace with exactly that. The first step starts from the spec's `workspace_seed`. The Acme price-sheet task writes no workspace on its second step, so the summary step finds the workbook the build step made and passes in all three modes:
 
   ```
   $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --mode T,F,P
-  Campaign c-a13ef21a22c8: 3 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
-  ✗ acme-price-sheet · process:acme-ops · T · repeat 0  fail  block 1 skills.xlsx, block 1 execution.ran_code, block 1 workspace.changed, block 1 artifacts.out/acme-price-sheet.xlsx
+  Campaign c-2764042aa240: 3 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+  ✓ acme-price-sheet · process:acme-ops · T · repeat 0  pass  2 blocks
   ✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
   ✓ acme-price-sheet · process:acme-ops · P · repeat 0 · instruction-in-notes  pass  2 blocks
-  3 cells: 2 pass, 1 fail, 0 failed. Spent $0.00.
+  3 cells: 3 pass, 0 fail, 0 failed. Spent $0.00.
   The runs are not kept: pass --store <file> to keep them.
   ```
 
+  The workspace a step inherits in T is the one the agent made on the step before, so a wrong workbook carries into the next step, as in F. To pin the state a step starts from, write it into that step's `given.world.workspace`; `from` names a folder, which also holds binary files such as a workbook.
 * F: each step starts from the workspace the agent itself left behind.
 * P: a deviation is injected into the task. The injecting driver runs any perturbation the spec writes, such as the workspace file above that carries an instruction (`instruction-in-notes`, a world-only perturbation that runs under its own step). Drawing task deviations on their own, such as a command that fails, comes with the perturbing driver, planned, phase 3.
 

@@ -4,11 +4,11 @@ class: D9_out_of_scope
 title: out of scope
 conversation:
   - id: d9-double-charge
-    approved: false
+    approved: true
     user: By the way, I was charged twice on my last invoice. Can you refund it?
   - id: d9-technician
-    approved: false
+    approved: true
     user: My internet has been down since yesterday, can you send a technician?
   - id: d9-cancel-line
-    approved: false
+    approved: true
     user: I also want to cancel my contract for my mother's line.

@@ -71,7 +71,10 @@ export type RunOptions = {
  * them and the run compares them.
  *
  * In mode T each block is an independent sample: it opens its own session from `canonicalGiven`, its
- * checks see no earlier block, and it may not be injected. The end state of a T run is composed from a read
+ * checks see no earlier block, and it may not be injected. On an adapter with a sandbox (a task), the
+ * workspace is part of the state the reference trajectory had at the block: the block keeps the session of
+ * the block before, with its history replaced by the canonical prefix, so it starts from the workspace that
+ * block left; a block that writes its own `given.world.workspace` starts in a new session from it. The end state of a T run is composed from a read
  * after every block, in block order: a source keeps the last value a block's session recorded, and `*`
  * joins the payload lists, so the last block's checks and the run see what the blocks left between them.
  *
@@ -186,6 +189,8 @@ type Channel = {
   readonly replay: boolean;
   /** Ends the open session, so the next block opens a new one from its own prefix. */
   restart(): Promise<void>;
+  /** Keeps the open session and replaces its history with this prefix; false when no session is open. */
+  reseat(prefix: readonly Message[]): boolean;
   /** The block's Observed; undefined when a replay misses. */
   observe(turn: Turn, user: Message[], key: string): Promise<Observed | undefined>;
   endState(sources: string[], key: string): Promise<EndStateRead>;
@@ -210,6 +215,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let endRead: { states: unknown[]; afterBlock: number } | undefined;
   /** The end-state values so far: in mode T composed over the blocks, else the last read. */
   let composed: unknown[] | undefined;
+  /** In mode T, the end state composed before the open session opened. */
+  let sessionBase: unknown[] | undefined;
   let status: RunResult['status'] = 'completed';
   let error: string | undefined;
 
@@ -233,7 +240,15 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         }
         const canonical = canonicalGiven(spec, step.blockIndex);
         state = canonical.state;
-        await channel.restart();
+        // A task's workspace is part of the state the reference trajectory had at this block: the session
+        // of the block before keeps it, unless this block writes its own workspace. Its history becomes the
+        // canonical prefix. Every other block starts in a new session from its canonical Given.
+        const keepsWorkspace =
+          run.capabilities.sandbox && spec.blocks[step.blockIndex]?.given?.world?.workspace === undefined;
+        if (!(keepsWorkspace && channel.reseat(canonical.prefix))) {
+          await channel.restart();
+          sessionBase = composed;
+        }
         history = canonical.prefix;
       } else {
         state = enterBlock(state, planned.given, planned.world);
@@ -273,7 +288,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         const read = await channel.endState(sources, key);
         if (read.kind === 'miss') return undefined;
         if (read.kind === 'read') {
-          const states = run.mode === 'T' ? composeStates(sources, composed, read.states) : read.states;
+          // A read covers what the open session recorded since it opened, so it joins what came before.
+          const states = run.mode === 'T' ? composeStates(sources, sessionBase, read.states) : read.states;
           composed = states;
           endRead = { states, afterBlock: position };
         }
@@ -551,6 +567,11 @@ function liveChannel(run: RunContext): Channel {
   return {
     replay: false,
     restart: closeSession,
+    reseat(prefix) {
+      if (!session) return false;
+      session.history = structuredClone([...prefix]);
+      return true;
+    },
     async observe(turn, user, key) {
       if (!session) session = await call(`open on block ${turn.index}`, () => adapter.open(turn.given));
       const current = session;
@@ -613,6 +634,7 @@ function replayChannel(cache: ObservedCache): Channel {
   return {
     replay: true,
     async restart() {},
+    reseat: () => false,
     async observe(_turn, _user, key) {
       const parsed = Observed.safeParse(await cache.cacheGet(key));
       return parsed.success ? parsed.data : undefined;
