@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Use the shipment-tracker skill to check, match or reconcile an invoice.
+      user: Please check, match or reconcile an invoice.
     expect:
       skills:
         - name: invoice-reconcile
