@@ -194,6 +194,54 @@ Wrote _captures/docs3/estate/map-nomodel.yaml: 68 atoms (68 read by code and app
 Next: driftbench estate lint _captures/docs3/estate/map-nomodel.yaml; driftbench estate approve _captures/docs3/estate/map-nomodel.yaml --kind instruction
 ```
 
+### Current structured scan output
+
+The captures above retain their original scan output. The current structured scan also lists the prose chunks that wait for a model answer, before the refusals.
+
+```
+$ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/current/estate-map.yaml
+Wrote _captures/current/estate-map.yaml: 68 atoms (68 read by code and approved, 0 split from prose by the model and waiting for approval), 47 edges.
+  Atoms per kind:
+    gate         4
+    route       13
+    skill        4
+    reference    9
+    script       2
+    subagent     3
+    guard        6
+    tool        12
+    setting      4
+    stage        5
+    hazard       2
+    invariant    4
+  No model call: structured atoms only (--no-model).
+  Prose: 14 chunks, 6775 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
+  Unanswered prose chunks (no model call): 14, 6775 characters.
+    CLAUDE.md  2782 characters
+    .claude/agents/inbox-triager.md  169 characters
+    .claude/agents/ledger-auditor.md  519 characters
+    .claude/agents/route-planner.md  301 characters
+    .claude/memory/MEMORY.md  236 characters
+    .claude/memory/supplier-languages.md  271 characters
+    .claude/skills/invoice-reconcile/SKILL.md  547 characters
+    .claude/skills/invoice-reconcile/references/currency-table.md  143 characters
+    .claude/skills/invoice-reconcile/references/matching-rules.md  261 characters
+    .claude/skills/invoice-reconcile/references/old-tolerances.md  144 characters
+    .claude/skills/shipment-tracker/SKILL.md  350 characters
+    .claude/skills/supplier-email/SKILL.md  507 characters
+    .claude/skills/weekly-report/SKILL.md  419 characters
+    .claude/skills/weekly-report/templates/report.md  126 characters
+  Refused: none.
+  Ignored: none.
+  Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
+  Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
+  Unenforced: 3 of 4 rules have no guard.
+    gate.standing.read-git-status-before-commit-to
+    gate.invoice-reconcile.read-references-matching-rules-md-before
+    gate.weekly-report.read-templates-report-md-before-writing
+Next: driftbench estate lint _captures/current/estate-map.yaml; driftbench estate approve _captures/current/estate-map.yaml --kind instruction
+```
+
 The map is YAML with a header on how to approve it, `producedBy` per atom and, for the map, the model family and model that split the prose. The loader recomputes every provenance hash and the map hash, so a map whose quote or span was edited is refused; `approved` and `role` may be edited by hand.
 
 ### Approving the prose atoms: `estate approve`
@@ -221,7 +269,7 @@ The committed `examples/estates/fixture/approved.yaml` is the Northwind map with
 
 ```
 $ pnpm -s driftbench estate approve examples/estates/fixture/approved.yaml
-examples/estates/fixture/approved.yaml: all 122 atoms are approved.
+examples/estates/fixture/approved.yaml: all 125 atoms are approved.
 ```
 
 ## 2. Relations: the estate graph
@@ -256,6 +304,7 @@ The graph answers what code can walk:
 | `ORPHAN` | a file nothing names |
 | `UNREACHABLE` | a file the standing instructions never lead to (orphans are listed apart) |
 | `UNENFORCED` | an instruction, gate or register atom no guard enforces: trusted, reported as a count, never failing alone |
+| `EXTERNAL` | a named path outside the estate: information, never failing alone |
 | `OVERSIZE` | the standing instructions are over the ceiling |
 | `UNANCHORED_GUARD` | a guard command finds its script from the working folder, not from an anchor |
 | `MISSING_REFERENCE` | a file a body names does not exist |
@@ -281,6 +330,24 @@ examples/estates/fixture/map.yaml: estate at examples/estates/fixture, 122 atoms
 ```
 
 It exits 1.
+
+On the committed approved map, the current output is:
+
+```
+$ pnpm -s driftbench estate lint examples/estates/fixture/approved.yaml
+examples/estates/fixture/approved.yaml: estate at examples/estates/fixture, 125 atoms.
+  ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
+  UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
+  MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:13 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
+  UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
+  REGISTRY_ROW       the guard reply-length.py has no row in the check registry
+  REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
+  UNENFORCED  54 rules no guard enforces (trusted; listed by estate scan).
+  EXTERNAL    0 named paths outside the estate (information).
+6 findings.
+```
+
+`EXTERNAL` and `UNENFORCED` are information. The other findings make this command exit 1.
 
 ## 3. Variables: the interaction space of an estate
 
@@ -633,7 +700,7 @@ metadata:
     phrase: 0
 ```
 
-Each spec inlines the workspace seed's files, since `world.workspace.from` resolves from the process folder. Session states other than fresh are carried in `vars` only; a recorded prefix for a resumed or compacted session comes with the live runner, which is not built yet. `stop_resume` marks its second block with `vars.event: helper_stopped`, whose meaning the live runner defines.
+Each spec inlines the workspace seed's files, since `world.workspace.from` resolves from the process folder. Session states other than fresh are carried in `vars`; the live runner maps them to recorded-prefix and compaction operations through its `--states` library. `stop_resume` marks its second block with `vars.event: helper_stopped`, whose meaning the live runner defines.
 
 ## 6. Running an estate test: replay, unit, live
 
