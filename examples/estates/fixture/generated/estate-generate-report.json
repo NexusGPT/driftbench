@@ -15,9 +15,9 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 21,
-    "phrases": 40,
-    "workspaces": 1
+    "situations": 25,
+    "phrases": 48,
+    "workspaces": 4
   },
   "sessions": {
     "path": "../sessions/index.yaml",
@@ -49,18 +49,18 @@
   },
   "sources": {
     "asks": {
-      "bank": 377,
-      "code": 976,
+      "bank": 425,
+      "code": 928,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 740,
+      "bank": 845,
       "no-change:denied": 2,
       "no-change:guard": 23,
       "no-change:negative": 58,
-      "no-change:read-only": 38,
-      "no-delete": 492,
+      "no-change:read-only": 18,
+      "no-delete": 407,
       "static": 8
     },
     "judged": 255
