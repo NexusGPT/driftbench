@@ -40,6 +40,31 @@ export function chunkText(text: string, max = CHUNK_CHARS, threshold = CHUNK_THR
   return chunks;
 }
 
+/**
+ * The lines a chunk needs to be read right, given the text before it: the headings it sits under, and the
+ * header of the table it continues. Both are lines of the file, so a quote taken from them is still found.
+ */
+function contextBefore(lines: readonly string[], start: number, first: string): string[] {
+  const stack: Array<{ level: number; line: string }> = [];
+  let header: string[] = [];
+  for (let i = 0; i < start; i++) {
+    const line = lines[i] as string;
+    const heading = /^(#{1,6})\s+\S/.exec(line);
+    if (heading) {
+      const level = (heading[1] as string).length;
+      while (stack.length > 0 && (stack[stack.length - 1] as { level: number }).level >= level) stack.pop();
+      stack.push({ level, line });
+    }
+    if (/^\|\s*:?-{2,}/.test(line) && /^\|/.test(lines[i - 1] ?? '')) header = [lines[i - 1] as string, line];
+    else if (!/^\|/.test(line) && line.trim() !== '') header = [];
+  }
+  const own = /^(#{1,6})\s+\S/.exec(first);
+  const ownLevel = own ? (own[1] as string).length : 7;
+  const out = stack.filter((entry) => entry.level < ownLevel).map((entry) => entry.line);
+  const inTable = /^\|/.test(first) && header.length > 0 && first !== header[0];
+  return inTable ? [...out, '', ...header] : out;
+}
+
 type Source = { kind: string; path: string; text: string };
 
 /**
@@ -51,9 +76,22 @@ export function chunkSources<T extends Source>(
   max = CHUNK_CHARS,
   threshold = CHUNK_THRESHOLD,
 ): T[][] {
-  const pieces = sources.map((source) =>
-    source.kind === 'prompt' ? chunkText(source.text, max, threshold) : [source.text],
-  );
+  const pieces = sources.map((source) => {
+    if (source.kind !== 'prompt') return [source.text];
+    const chunks = chunkText(source.text, max, threshold);
+    if (chunks.length === 1) return chunks;
+    // A chunk after the first carries the headings it sits under and the header of its table.
+    const lines = source.text.split('\n');
+    let at = 0;
+    return chunks.map((chunk, index) => {
+      const start = at;
+      at += chunk.split('\n').length;
+      if (index === 0) return chunk;
+      const first = chunk.split('\n').find((line) => line.trim() !== '') ?? '';
+      const context = contextBefore(lines, start, first);
+      return context.length > 0 ? `${context.join('\n')}\n\n${chunk}` : chunk;
+    });
+  });
   const rounds = Math.max(1, ...pieces.map((list) => list.length));
   return Array.from({ length: rounds }, (_, round) =>
     sources.flatMap((source, index) => {

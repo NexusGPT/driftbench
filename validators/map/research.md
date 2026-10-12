@@ -866,3 +866,14 @@ Sources read:
 What others do: A prompt over 40000 characters is cut in chunks of 12000 at line boundaries; the answers are merged by the draft.
 
 What to try, and why: a long prompt is read in chunks
+
+## Iteration 75
+
+Question: packages/generate/src/extract/chunks.ts: a chunk after the first starts mid-section or mid-table, so its rules lose their heading scope and its table rows lose their column header; scale.chunk.heading-path, table-header, deprecated-marker and the table and nested scale items prove it.
+
+Sources read:
+* docs/generating.md section Planned: long prompts (a table with its header, a section with its heading path, a deprecation marker)
+
+What others do: Context lines are lines of the file, so quotes from them stay found.
+
+What to try, and why: a chunk carries the headings and the table header it sits under

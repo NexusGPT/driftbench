@@ -75,4 +75,41 @@ describe('extractMap on a long prompt', () => {
     expect(rules?.calls).toBeGreaterThan(3);
     expect(result.proposal.dimensions.find((d) => d.id === 'rule')?.values.length).toBe(rules?.calls);
   });
+
+  describe('chunk context', () => {
+    const rows = (from: number, to: number) =>
+      Array.from({ length: to - from }, (_, i) => `| ${from + i} | Rule ${from + i} | all |`);
+    const text = [
+      '# Guide',
+      '',
+      '## Rules',
+      '',
+      '### Web',
+      '',
+      '| # | Rule | Applies to |',
+      '|---|---|---|',
+      ...rows(0, 30),
+    ].join('\n');
+    it('repeats the headings and the table header at the start of a later chunk', () => {
+      const rounds = chunkSources([{ kind: 'prompt', path: 'p.md', text }], 200, 0);
+      expect(rounds.length).toBeGreaterThan(2);
+      const later = rounds[2]?.[0]?.text ?? '';
+      expect(
+        later.startsWith('# Guide\n## Rules\n### Web\n\n| # | Rule | Applies to |\n|---|---|---|\n'),
+      ).toBe(true);
+      for (const line of later.split('\n')) expect(text).toContain(line);
+    });
+    it('does not repeat a heading the chunk starts with', () => {
+      const doc = [
+        '# Guide',
+        '## A',
+        ...Array.from({ length: 30 }, (_, i) => `line ${i}`),
+        '## B',
+        ...Array.from({ length: 30 }, (_, i) => `more ${i}`),
+      ].join('\n');
+      const rounds = chunkSources([{ kind: 'prompt', path: 'p.md', text: doc }], 120, 0);
+      const withB = rounds.map((round) => round[0]?.text ?? '').find((t) => t.includes('## B')) ?? '';
+      expect(withB.split('## B').length).toBe(2);
+    });
+  });
 });
