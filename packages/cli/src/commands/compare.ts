@@ -276,6 +276,11 @@ export function resolveMargin(
   io?: Io,
 ): number {
   if (gate.margin !== 'auto') return gate.margin;
+  if (baseline.runs.length === 0) {
+    // Nothing to measure the margin on: a campaign with no runs keeps the 2 point default and says so.
+    io?.out('Margin auto: the campaign has no runs to measure it on; 2.0 points.\n');
+    return 0.02;
+  }
   const auto = autoMargin(baseline, options);
   io?.out(
     `Margin auto: ${(auto.margin * 100).toFixed(1)} points, the smallest half point at which the baseline compared with itself is non-inferior (set by ${auto.limitedBy}, ${(auto.needed * 100).toFixed(1)} points).\n`,
