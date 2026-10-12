@@ -221,7 +221,7 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
         ...(run.truncated ? { truncated: true } : {}),
       };
       // The reply is stdout, without the final line break a command line prints.
-      const reply = (run.stdout ?? '').replace(/[\r\n]+$/, '');
+      const reply = (run.stdout ?? '').replace(/\r?\n$/, '');
       const observed: Observed = {
         segments: reply === '' ? [] : [{ type: 'text', text: reply }],
         text: reply,
