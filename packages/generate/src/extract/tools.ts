@@ -34,7 +34,15 @@ const MAX_DEPTH = 2;
 /** A property's whole text is its quote when it is this short; a longer one is quoted by its keyword. */
 const WHOLE_PROPERTY_QUOTE = 300;
 
-type Tool = { name: string; path: string; input?: YAMLMap; output?: YAMLMap };
+type Tool = {
+  name: string;
+  path: string;
+  input?: YAMLMap;
+  output?: YAMLMap;
+  /** The text a schema was read from, when it is a JSON string inside the file (quotes come from it). */
+  inputText?: string;
+  outputText?: string;
+};
 type Partition = { id: string; title: string; quote: string };
 
 export function toolsPrepass(text: string, source: string): ToolsPrepass {
@@ -64,7 +72,8 @@ export function toolsPrepass(text: string, source: string): ToolsPrepass {
     ] as const) {
       if (!schema) continue;
       const open: string[] = [];
-      walk({ text, source, tool, direction, dimensions, ids, open, root: schema }, schema, [], 0);
+      const own = direction === 'in' ? tool.inputText : tool.outputText;
+      walk({ text: own ?? text, source, tool, direction, dimensions, ids, open, root: schema }, schema, [], 0);
       if (open.length > 0) {
         const side = direction === 'in' ? 'input' : 'output';
         notes.push(`${tool.name} ${side}: no partition stated for ${open.join(', ')}`);
@@ -411,11 +420,15 @@ function readTools(node: unknown, path: string): { tools: Tool[] } | { errors: T
       continue;
     }
     names.add(candidate.name);
+    const input = schemaOf(candidate.map, ['input_schema', 'inputSchema', 'parameters']);
+    const output = schemaOf(candidate.map, ['output_schema', 'outputSchema', 'returns']);
     tools.push({
       name: candidate.name,
       path: candidate.path,
-      input: firstMap(candidate.map, ['input_schema', 'inputSchema', 'parameters']),
-      output: firstMap(candidate.map, ['output_schema', 'outputSchema', 'returns']),
+      input: input?.map,
+      output: output?.map,
+      inputText: input?.text,
+      outputText: output?.text,
     });
   }
   return errors.length > 0 ? { errors } : { tools };
@@ -426,6 +439,19 @@ function unwrap(node: unknown): unknown {
   const fn = mapAt(node, 'function');
   if (fn && plain(entry(node, 'type')?.value) === 'function') return fn;
   return mapAt(node, 'toolSpec') ?? node;
+}
+
+/** A schema given as a map, or as a JSON string (some exports stringify their parameters). */
+function schemaOf(map: unknown, keys: string[]): { map: YAMLMap; text?: string } | undefined {
+  const found = firstMap(map, keys);
+  if (found) return { map: found };
+  for (const key of keys) {
+    const value = entry(map, key)?.value;
+    if (!isScalar(value) || typeof value.value !== 'string') continue;
+    const parsed = parseDocument(value.value, { uniqueKeys: true });
+    if (parsed.errors.length === 0 && isMap(parsed.contents)) return { map: parsed.contents, text: value.value };
+  }
+  return undefined;
 }
 
 function firstMap(map: unknown, keys: string[]): YAMLMap | undefined {

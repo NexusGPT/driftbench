@@ -183,3 +183,15 @@ Sources read:
 What others do: Agent frameworks keep tool definitions inside the agent block of their config, in the provider's own tool form.
 
 What to try, and why: the tool pre-pass reads an agent configuration's tools under agent.tools
+
+## Iteration 16
+
+Question: packages/generate/src/extract/tools.ts: firstMap takes a mapping only, so parameters that are a JSON string give no schema; tool-formats.stringified-parameters proves it.
+
+Sources read:
+* https://platform.openai.com/docs/api-reference/chat/create (function arguments travel as JSON strings)
+* packages/validators/src/ladders/map/bank/families/formats.ts (stringified-parameters)
+
+What others do: Exports that keep a schema as a string parse it as JSON, which YAML reads as well; quotes then come from the string, which the file holds verbatim.
+
+What to try, and why: the tool pre-pass reads parameters given as a JSON string
