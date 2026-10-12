@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { rm } from 'node:fs/promises';
 import { posix } from 'node:path';
 import type { ExecOptions, ExecutionRecord, SandboxOptions, SandboxProvider } from '@driftbench/core';
+import { untrackFolder } from './cleanup';
 import { FolderSandbox, makeWorkspaceFolder } from './folder';
 import {
   DEFAULT_EXEC_TIMEOUT_MS,
@@ -74,6 +75,7 @@ export function dockerProvider(options: DockerProviderOptions): SandboxProvider 
       if (started.exitCode !== 0) {
         await docker(binary, ['rm', '-f', container], HOUSEKEEPING_TIMEOUT_MS).catch(() => undefined);
         await rm(folder, { recursive: true, force: true });
+        untrackFolder(folder);
         throw new Error(`docker could not start a container from ${image}: ${(started.stderr ?? '').trim()}`);
       }
       return new DockerSandbox(folder, limits, create.keep ?? false, binary, container);
