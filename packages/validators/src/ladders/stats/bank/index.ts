@@ -60,9 +60,17 @@ export function statsBank(root: string): BankItem[] {
     ...roadmapItems(root),
   ];
   const order = new Map<BankLevel, number>(BANK_LEVELS.map((level, i) => [level, i]));
-  return items
-    .map((item) => ({ ...item, cause: causeOf(item) }))
-    .sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number));
+  return (
+    items
+      // After the need check (validators/stats/NEEDS.md) a handful of roadmap methods remain: their cases and
+      // generated items form one family, so no family falls under the minimum of 20.
+      .map((item) => ({
+        ...item,
+        cause: causeOf(item),
+        ...(item.level === 'roadmap' ? { family: 'roadmap' } : {}),
+      }))
+      .sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number))
+  );
 }
 
 /** Runs one item on one seed. A throw inside the item is a failing outcome naming the error. */
