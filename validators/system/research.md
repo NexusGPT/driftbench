@@ -15,3 +15,13 @@ What was measured, with the statistics functions alone (no runner):
 * The mean ANOVA design effect over 100 clustered campaigns (20 specs, 4 runs, rate 0.8, rho 0.25): the 99 percent bootstrap interval held the true 1.75 on 199 of 200 seeds, and the 99.9 percent interval the ladder uses held it on 200 of 200.
 
 What to try next if level 6 or 7 flakes: more pairs per campaign (the cost grows linearly), or a rate with a higher exact Wilson coverage at the chosen n; never a lower bar.
+
+## 2026-10-12: the hardness pilot (lane V2)
+
+Question: does the system bank meet the gate of section 12.4 (forecast at least 100, score at most 0.4 after a ten-iteration pilot)?
+
+Sources: docs/validators.md section 12; the parity matrix (research/parity/MATRIX.md, rows 16 to 18, 25, 26); validators/system/journal.jsonl rows 0 to 10.
+
+Finding: no. Iteration 0 passed 519 of 665 (0.780); after ten one-cause fixes, 572 (0.860); 5.3 items fixed per iteration; forecast 17.6. The chain built in phases 1 to 3 (runner, checks, store, cache, recovery, drift classes) passes nearly every item the bank asks of it, including 179 generated fault-reach and class items and 82 precision items; what fails is phase 4 (report, compare, ci) and three scale items. Reaching a score of 0.4 would need about 800 more failing items, which the system's documented contract does not supply; padding them would break section 12.1.
+
+What to try: items with independent causes (one fix, one item): the documented verdict ids of every check (docs/reference/checks.md), every assertion kind in every position, the artifact checks per file kind through a campaign, and a breaker lane that has not read the runner (section 12.2, item 5).
