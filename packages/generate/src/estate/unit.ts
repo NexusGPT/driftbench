@@ -245,11 +245,15 @@ export function unitTestOf(
     ...(timeout !== undefined ? { timeout } : {}),
   };
   const tools = TOOL_EVENTS.has(event) ? matcherTools(matcher) : [undefined];
-  const enforced = Array.isArray(fields.enforces)
-    ? (fields.enforces as Array<{ atom?: unknown }>).flatMap((entry) =>
-        typeof entry.atom === 'string' ? [entry.atom] : [],
+  // A rule linked by a registry row or an id the guard cites is what the guard checks; a rule linked only
+  // because the guard's source repeats some of its words is a weaker link, used when there is no other.
+  const links = Array.isArray(fields.enforces)
+    ? (fields.enforces as Array<{ atom?: unknown; by?: unknown }>).flatMap((entry) =>
+        typeof entry.atom === 'string' ? [{ atom: entry.atom, by: entry.by }] : [],
       )
     : [];
+  const strong = links.filter((link) => link.by === 'registry' || link.by === 'id');
+  const enforced = (strong.length > 0 ? strong : links).map((link) => link.atom);
   const material = [
     ...new Set(
       enforced.flatMap((ruleId) => {

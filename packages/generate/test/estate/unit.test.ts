@@ -131,6 +131,34 @@ describe('the payloads of a guard unit test', () => {
   });
 });
 
+describe('the rules a guard test takes material from', () => {
+  it('takes the rules linked by registry or cited id, and a rule linked only by a repeated quote when no other link exists', () => {
+    const atoms = new Map([
+      ['r1', rule('r1', 'Never run `rm -rf` here.')],
+      ['r2', rule('r2', 'Never write `2>/dev/null` after a command.')],
+    ]);
+    const linked = guard({
+      event: 'PreToolUse',
+      matcher: 'Bash',
+      enforces: [
+        { atom: 'r1', by: 'quote' },
+        { atom: 'r2', by: 'id' },
+      ],
+    });
+    const positive = unitTestOf(row('guard_positive'), linked, atoms, 'h', 'p');
+    expect(typeof positive !== 'string' && positive.cases.map((entry) => entry.material)).toEqual([
+      '2>/dev/null',
+    ]);
+    const quoteOnly = guard({
+      event: 'PreToolUse',
+      matcher: 'Bash',
+      enforces: [{ atom: 'r1', by: 'quote' }],
+    });
+    const fallback = unitTestOf(row('guard_positive'), quoteOnly, atoms, 'h', 'q');
+    expect(typeof fallback !== 'string' && fallback.cases.map((entry) => entry.material)).toEqual(['rm -rf']);
+  });
+});
+
 describe('the speed test of a guard', () => {
   it('times a spread of at most five positive payloads, not every one', () => {
     const quote = Array.from({ length: 12 }, (_, index) => `\`cmd-${index + 1}\``).join(' ');
