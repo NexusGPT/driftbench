@@ -1,7 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { parseCorrectnessLedger, parseDirectWinner, parseFormatLedger } from '../src/contestants';
+import {
+  parseCorrectnessLedger,
+  parseDirectWinner,
+  parseFactWinner,
+  parseFormatLedger,
+} from '../src/contestants';
 
 describe('direct winner and code-computed verdict', () => {
+  it('preserves a reasoned equal-correctness choice but computes unequal factual verdicts', () => {
+    expect(parseFactWinner('{"a_correct":false,"b_correct":true,"winner":"A"}')).toBe('B');
+    expect(parseFactWinner('{"a_correct":true,"b_correct":false,"winner":"B"}')).toBe('A');
+    expect(parseFactWinner('{"a_correct":true,"b_correct":true,"winner":"B"}')).toBe('B');
+    expect(parseFactWinner('{"a_correct":false,"b_correct":false,"winner":"A"}')).toBe('tie');
+    expect(parseFactWinner('{"a_correct":null,"b_correct":true,"winner":"B"}')).toBe('B');
+    expect(parseFactWinner('{"a_correct":"true","b_correct":false,"winner":"B"}')).toBe('B');
+  });
   it('uses a validated general format signal only after equally correct final answers', () => {
     const text = '{"a_correct":true,"b_correct":true,"winner":"A"}';
     const context = { question: 'Return JSON only.', a: '{}', b: 'not JSON', format: { a: true, b: false } };

@@ -1,4 +1,11 @@
-import { buildPrompt, type JudgeRequest, pairwiseRequest, parseAnswerText } from '@driftbench/judges';
+import {
+  ANSWER_CONTRACT,
+  buildPrompt,
+  type JudgeRequest,
+  pairwiseRequest,
+  parseAnswerText,
+} from '@driftbench/judges';
+import { answerKey } from './answer-key';
 
 /**
  * The contestants: one judge prompt each, run on the same model. driftbench's prompt comes from
@@ -77,6 +84,7 @@ export type Contestant = {
   /** Omit the reference unless a strict majority states the same final answer. */
   readonly referenceConsensus?: boolean | 'unanimous';
   readonly referenceMinimumAgreement?: number;
+  readonly referenceOnCompute?: boolean;
   /** Separate executable questions from factual knowledge before preparing evidence. */
   readonly computationalRoute?: (question: string) => Prompt;
   /** A pure program checks both proposals and emits JSON with first/second evidence, relabelled per order. */
@@ -881,6 +889,15 @@ export function parseCorrectnessLedger(text: string): PairDecision {
   return parseDirectWinner(text);
 }
 
+/** Compute unequal factual verdicts; preserve the named comparison when both finals are valid or uncertain. */
+export function parseFactWinner(text: string): PairDecision {
+  const ledger = lastJson(text, 'a_correct');
+  if (ledger?.a_correct === true && ledger.b_correct === false) return 'A';
+  if (ledger?.b_correct === true && ledger.a_correct === false) return 'B';
+  if (ledger?.a_correct === false && ledger.b_correct === false) return 'tie';
+  return parseDirectWinner(text);
+}
+
 /** Break an equal-correctness tie only with a validated, question-derived format check. */
 export function parseFormatLedger(
   text: string,
@@ -1006,7 +1023,62 @@ const driftbenchDirectDivergence: Contestant = {
   },
 };
 
+/** Keep reference3's reasoning and data layout; change only the verdict contract and evidence preparation. */
+const driftbenchReference3Tools: Contestant = {
+  ...driftbenchReference3,
+  id: 'driftbench-reference3-tools',
+  source:
+    'reference3 reasoning and symmetric rules with five gated blind solves, executable backward checks, and a directly named winner (dev candidate)',
+  referenceSamples: driftbenchDirectStrategy.referenceSamples,
+  referenceVariants: driftbenchDirectStrategy.referenceVariants?.map((write) => (question) => {
+    const p = write(question);
+    return {
+      ...p,
+      user: `${p.user}\n\nFor a task without answer choices, use the stated method to derive an independent exact answer instead. Check every condition by substitution or exhaustive small cases; for algorithms derive a simple oracle and check boundary conditions. Do not assume the other independent solves are correct.`,
+    };
+  }),
+  referenceConsensus: driftbenchDirectStrategy.referenceConsensus,
+  referenceOnCompute: true,
+  computationalRoute: driftbenchDirectStrategy.computationalRoute,
+  codeCheck: driftbenchDirectStrategy.codeCheck,
+  pairCodeCheck: driftbenchDirectStrategy.pairCodeCheck,
+  repairPrograms: true,
+  parsePair: parseFactWinner,
+  pair: (input) => {
+    const p = driftbenchReference3.pair?.(input);
+    if (!p?.system.includes(ANSWER_CONTRACT))
+      throw new Error('reference3 contract changed; re-audit the transformation');
+    const contract =
+      'Before the JSON, keep the step-by-step reasoning stage and verify the decisive disagreement. Then give one final JSON object: {"winner":"A or B or tie", "score":0 to 1 confidence in that named winner, "a_correct":true or false or null, "b_correct":true or false or null, "reasoning":"decisive facts", "evidence":"a quote"}. Name the displayed winner directly. Never emit an outcome field or pass/fail verdict. Facts and code checks are fallible evidence, never hidden labels.';
+    return {
+      ...p,
+      system: p.system
+        .replace(ANSWER_CONTRACT, contract)
+        .replace(
+          'You are a strict judge. You answer one question about the data below: does it pass or fail the criterion.',
+          'You compare two replies against the criterion and name the displayed winner directly.',
+        )
+        .replace(
+          '- Judge only the criterion. The verdict is binary: pass or fail.',
+          '- Judge only the criterion. Return A, B or tie as the named winner.',
+        )
+        .replace(
+          'This is a choice between two replies, not a strict pass check: pass means Reply A is the better reply, fail means Reply B is the better reply. Both answers need the same evidence; neither is a default.',
+          'This is a choice between replies A and B. Both need the same evidence; neither is a default. Name the winner directly.',
+        )
+        .replace(
+          'check it yourself and decide pass or fail',
+          'check it yourself and name the winner directly',
+        )
+        .replaceAll('Answer inconclusive', 'Answer tie')
+        .replaceAll('Inconclusive is only', 'Tie is only'),
+    };
+  },
+};
+
 const formattedStrategies: Contestant[] = [
+  driftbenchReference3,
+  driftbenchReference3Tools,
   driftbenchDirectStrategy,
   driftbenchDirectStrategy3,
   driftbenchDirectStrategy5,
@@ -1016,7 +1088,26 @@ const formattedStrategies: Contestant[] = [
   id: `${c.id}-format`,
   source: `${c.source}; with a question-only executable format checker`,
   answerFormat: driftbenchDirectFormatLedger.answerFormat,
-  parsePair: parseFormatLedger,
+  parsePair:
+    c.id === 'driftbench-reference3'
+      ? (text, input) => {
+          const semantic = driftbenchReference3.parsePair?.(text, input) ?? 'tie';
+          if (!input?.format) return semantic;
+          const aFinal = answerKey(input.a),
+            bFinal = answerKey(input.b);
+          if (aFinal === undefined || aFinal !== bFinal) return semantic;
+          const { a, b } = input.format;
+          return a === true && b === false ? 'A' : b === true && a === false ? 'B' : semantic;
+        }
+      : c.id === 'driftbench-reference3-tools'
+        ? (text, input) => {
+            const semantic = parseFactWinner(text);
+            const ledger = lastJson(text, 'a_correct');
+            if (ledger?.a_correct !== true || ledger.b_correct !== true || !input?.format) return semantic;
+            const { a, b } = input.format;
+            return a === true && b === false ? 'A' : b === true && a === false ? 'B' : semantic;
+          }
+        : parseFormatLedger,
 }));
 
 /** Long replies read in parts before the verdict (tuning candidate). */
@@ -1078,6 +1169,7 @@ const driftbenchChecklist: Contestant = {
 };
 
 export const CANDIDATES: readonly Contestant[] = [
+  driftbenchReference3Tools,
   ...formattedStrategies,
   driftbenchDirect,
   driftbenchDirectLedger,

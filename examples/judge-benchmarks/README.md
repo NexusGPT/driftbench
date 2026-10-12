@@ -63,3 +63,17 @@ It writes `docs/comparison/benchmarks/<bench>-<model>.svg` and, with `--doc`, th
 ## Tests
 
 `pnpm -s vitest run examples/judge-benchmarks` checks the metrics, the parsers, the loaders on rows in each source's format, the stratified sample, and the runner on a fake command, recordings and replay included. No model is called.
+
+## JudgeBench reference experiments
+
+The original `driftbench-reference3` remains available unchanged. `driftbench-reference3-tools` keeps its reasoning stage and data layout, adds five independent blind solves, supplies their reference only at unanimity, and runs pure Python for arithmetic/code and backward checks. It asks for a directly named winner. Code resolves unequal factual correctness fields without translating pass/fail.
+
+`runReferenceCascade` first runs reference3 and escalates only when its recorded confidence is low, its normalized judgement categories split, its parsed solve disagrees with both finals, or its reference is explicitly uncertain. The default confidence threshold is 0.75. Neither labels nor answer length enter this decision. The formatted cascade adds the general format compiler to both the base and escalation stages, while retaining the same raw reasoning prompts and uncertainty gate.
+
+The `-format` variants compile explicit format requirements from the question alone into an executed `check(response)` predicate. The quoted instruction must occur verbatim in the question. Failed or uncertain checks abstain. For the original reference3, a format preference applies only when both extracted final answers are equivalent. The direct ledger requires both factual correctness fields to be true.
+
+Task runs set `TMPDIR` and `DRIFTBENCH_BENCH_CACHE` inside this worktree. Use `node --import tsx`, since the `tsx` executable's IPC socket can exceed this host's path limit. All paid experiments use concurrency one and a per-call cap. Model and execution recordings are reused by exact content keys.
+
+After dev selection, commit the design and run `src/jb-freeze.ts <without-format-id> <with-format-id> <sample-size>`. A sample size of zero selects the full held-out split. The freeze records the commit, source hashes, seed, confidence threshold and 06:30 Brussels cutoff. `src/jb-final-test.ts` accepts no configuration arguments, checks the frozen source hashes, and creates its start marker exclusively so the test cannot be launched twice. It exports a candidate-only blind audit file before scoring. `src/jb-test-audit-report.ts` requires a documented review of every sampled item and reports official and audited scores with 95 percent Wilson intervals. The judge is never changed after the freeze.
+
+`src/jb-report.ts` rebuilds complete dev results without model calls, including cascade and format ablations. Audited accuracy excludes documented ambiguous or defensible alternatives and publishes the retained denominator. Official labels always remain intact.

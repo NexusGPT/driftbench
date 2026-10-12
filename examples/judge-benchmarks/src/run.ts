@@ -1,5 +1,6 @@
-import { writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { createHash } from 'node:crypto';
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Caller, CallFailed, createCaller, Recordings, SpendCapReached } from './call';
 import {
@@ -26,6 +27,7 @@ import {
   extractPython,
   finalLine,
   majoritySolve,
+  type PythonResult,
   pythonRun,
   unanimousSolve,
   validateDivergence,
@@ -166,6 +168,39 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       ...(options.replayOnly ? { replayOnly: options.replayOnly } : {}),
     },
   );
+  // Replay observed execution evidence, including failures, so speed or set ordering cannot change a prompt.
+  const executionFile = join(
+    options.recordingsDir ?? RECORDINGS,
+    options.bench,
+    `${options.model}.executions.jsonl`,
+  );
+  type Execution = PythonResult & { key: string; recordedAt: string };
+  const executions = new Map<string, Execution>();
+  try {
+    for (const line of (await readFile(executionFile, 'utf8')).split('\n').filter(Boolean)) {
+      const r = JSON.parse(line) as Execution;
+      executions.set(r.key, r);
+    }
+  } catch (cause) {
+    if ((cause as NodeJS.ErrnoException).code !== 'ENOENT') throw cause;
+  }
+  const runnerSource = await readFile(join(HERE, 'extras.ts'), 'utf8');
+  const runProgram = async (code: string, pure: boolean) => {
+    const key = createHash('sha256')
+      .update(JSON.stringify([runnerSource, process.platform, 'python3', pure, code]))
+      .digest('hex');
+    const hit = executions.get(key);
+    if (hit) return { ...hit, cached: true };
+    const r: Execution = {
+      ...(await pythonRun(code, 'python3', pure)),
+      key,
+      recordedAt: new Date().toISOString(),
+    };
+    await mkdir(dirname(executionFile), { recursive: true });
+    await appendFile(executionFile, `${JSON.stringify(r)}\n`);
+    executions.set(key, r);
+    return { ...r, cached: false };
+  };
   let stopped: string | undefined;
   let failedCalls = 0;
   const costs = new Map<string, { usd: number; calls: number }>();
@@ -298,6 +333,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       await signal(item.id, 'reference', reference ? 'used' : 'omitted', {
         finals: texts.map(finalLine),
         selected: finalLine(reference),
+        text: reference,
       });
       return reference;
     };
@@ -341,7 +377,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
           return undefined;
         }
         const code = extractPython(written.text);
-        const ran = code ? await pythonRun(code, 'python3', pure) : { error: 'No program was provided.' };
+        const ran: PythonResult = code ? await runProgram(code, pure) : { error: 'No program was provided.' };
         await signal(item.id, order, ran.output ? 'executed' : 'failed', ran);
         if (ran.output) return ran.output;
         if (attempt === 0 && contestant.repairPrograms)
@@ -374,7 +410,10 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
     const referenceFor = async (item: Item, response?: string): Promise<string | undefined> => {
       const isChecked = await checkable(item);
       const computation = await computational(item);
-      const solved = isChecked && computation !== true ? await solveFor(item) : undefined;
+      const solved =
+        isChecked && (computation !== true || contestant.referenceOnCompute)
+          ? await solveFor(item)
+          : undefined;
       const extras: (string | undefined)[] = [];
       if (response !== undefined) extras.push(await readingsFor(item, response));
       if (isChecked && contestant.codeCheck && computation !== false) extras.push(await programFor(item));
@@ -410,7 +449,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
           return undefined;
         }
         const code = `${spec.python}\nimport json\nprint(json.dumps({"first": check(json.loads(${JSON.stringify(JSON.stringify(item.a))})), "second": check(json.loads(${JSON.stringify(JSON.stringify(item.b))}))}))`;
-        const ran = await pythonRun(code, 'python3', true);
+        const ran = await runProgram(code, true);
         if (ran.output) {
           try {
             const checks = JSON.parse(ran.output) as Record<string, unknown>;
@@ -575,6 +614,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
             });
             if (!prompt) return undefined;
             const texts = await sampled(prompt, item.id, order);
+            await signal(item.id, 'judgements', 'observed', { order, texts });
             return texts.length === 0
               ? undefined
               : texts.map((text) =>

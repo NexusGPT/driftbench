@@ -41,12 +41,14 @@ for (const row of records) {
     .at(-1);
   if (!value || !['pass', 'fail'].includes(String(value.outcome))) continue;
   examined++;
-  const reasoning = String(value.reasoning);
+  // Include the step-by-step prelude as well as the structured reasoning field.
+  const reasoning = row.text;
   const named = new Set<string>();
   const patterns = [
     /(?:reply|candidate|response)\s+([AB])(?:'s)?\s+(?:final answer\s+|answer\s+)?(?:is|remains|provides|gives|offers)\s+(?:(?:clearly|the|a|much|overall|therefore)\s+)*(?:better|correct|superior|more\s+(?:accurate|complete|correct|reliable))\b/gi,
     /(?:reply|candidate|response)\s+([AB])\s+(?:wins|is preferable|satisfies the criterion better|better fits|better meets)\b/gi,
     /(?:prefer|choose|select|favor|favour)\s+(?:reply|candidate|response)\s+([AB])\b/gi,
+    /\b([AB])\s+(?:wins|is the (?:better|correct|superior) (?:reply|candidate|response))\b/gi,
   ];
   for (const pattern of patterns)
     for (const m of reasoning.matchAll(pattern)) {

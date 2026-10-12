@@ -238,13 +238,26 @@ process.stdin.on('end',()=>{
       recordingsDir: join(dir, 'rec-repair-program'),
       concurrency: 1,
       onEvidence: (s) => {
-        signals.push(s);
+        if (s.kind === 'program') signals.push(s);
       },
     });
     expect(report.newCalls).toBe(4);
     expect(signals.map((s) => s.status)).toEqual(['failed', 'executed']);
     expect(JSON.stringify(signals[0]?.details)).toContain('ZeroDivisionError');
     expect(references.every((r) => r?.includes('42'))).toBe(true);
+    const replay = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [c],
+      items: pairs.slice(0, 1),
+      command: cmd,
+      recordingsDir: join(dir, 'rec-repair-program'),
+      concurrency: 1,
+      replayOnly: true,
+    });
+    expect(replay.newCalls).toBe(0);
+    expect(replay.stopped).toBeUndefined();
+    expect(replay.contestants[0]?.summary).toEqual(report.contestants[0]?.summary);
   });
 
   it('relabels executed first/second program evidence for each displayed pair order', async () => {
