@@ -80,7 +80,9 @@ export function hillNumber(counts: readonly number[], q: number): number {
   const ps = counts.filter((c) => c > 0).map((c) => c / f.n);
   if (q === 0) return ps.length;
   if (q === 1) return Math.exp(-ps.reduce((s, p) => s + p * Math.log(p), 0));
-  return ps.reduce((s, p) => s + p ** q, 0) ** (1 / (1 - q));
+  // sum p^q = 1 + sum p (p^(q-1) - 1) because the p sum to 1; expm1 and log1p keep the digits when q is near 1.
+  const excess = ps.reduce((s, p) => s + p * Math.expm1((q - 1) * Math.log(p)), 0);
+  return Math.exp(Math.log1p(excess) / (1 - q));
 }
 
 export interface HillNumbers {

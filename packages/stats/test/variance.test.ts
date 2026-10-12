@@ -164,3 +164,17 @@ describe('varianceComponents is stable under a common offset', () => {
     a.forEach((x, i) => expect(Math.abs((b[i] as number) - x)).toBeLessThan(1e-5 * Math.max(1, Math.abs(x))));
   });
 });
+
+describe('hillNumber near q = 1', () => {
+  it('is continuous in q', () => {
+    const c = [40, 12, 7, 3, 3, 2, 2, 1, 1, 1];
+    const q1 = hillNumber(c, 1);
+    for (const q of [1 + 1e-12, 1 - 1e-12, 1 + 1e-7]) {
+      expect(Math.abs(hillNumber(c, q) - q1) / q1).toBeLessThan(1e-6);
+    }
+  });
+  it('still gives the closed form at q = 2', () => {
+    expect(hillNumber([1, 1], 2)).toBeCloseTo(2, 12);
+    expect(hillNumber([3, 1], 2)).toBeCloseTo(1 / (0.75 ** 2 + 0.25 ** 2), 12);
+  });
+});
