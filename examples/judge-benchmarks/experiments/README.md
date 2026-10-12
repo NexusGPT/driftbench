@@ -1,6 +1,6 @@
 # MM-Eval DEV experiments
 
-These experiments preserve the harness's existing DEV split. They never run TEST.
+These experiments preserve the harness's existing DEV split. DEV selects the design; one frozen stratified test sample follows. No test output selects a design.
 The competitors keep their original templates. Every new judge sees only the
 criterion, request, candidate replies and its own generated reference or code
 observations. Subset names and language metadata never enter a model prompt. The explicitly
@@ -69,22 +69,24 @@ The shared architecture requests the full DEV split:
 
 ```sh
 node --import tsx examples/judge-benchmarks/experiments/mm-cascade.ts \
-  --tag cascade-full-dev --cap-usd 7.7 --concurrency 3 --first-count 400 \
+  --tag cascade-dev400 --cap-usd 7.4 --concurrency 3 --first-count 400 --stop-after-first \
   --contract-sha <integrated-commit> --ledger /path/to/spend-ledger.md \
   --deadline 2026-10-13T06:30:00+02:00
 ```
 
 The first stage judges each pair directly in both orders using the shared explicit
-winner API. Safety pairs receive an additional question-only premise extraction,
-followed by both-order comparisons with those exact premises as requirements.
-A paired ablation retains the direct safety score and cost separately.
+winner API. The selective crowd stage runs before the safety ablation. Safety pairs then receive
+a question-only premise extraction followed by both-order comparisons with those
+exact premises as requirements. The paired ablation retains the direct safety score
+and cost separately.
 Only chat items, order disagreements or parse failures escalate to three blind
 crowd replies, two independent readings and two final shared comparisons.
 Code discards evidence quotes absent from the original source. A quotation checks
 winner identity; it never selects the winner. Raw winner fields remain recorded.
 
 The fixed seed `mm-cascade-proportional-400-v1` selects 400 DEV items proportionally
-across subsets. That complete cascade is reported before the remaining DEV items.
+across subsets. That complete cascade selects the design before the frozen test
+sample. Remaining DEV runs only after the test sample, if time and budget remain.
 At most three item workers each issue one model call at a time, including bounded
 shared-contract repairs. No new call begins after the passed deadline.
 Normal production calls are two per direct item, three per premise-aware safety
@@ -105,3 +107,29 @@ judge correction.
 
 Raw manifests, decisions and reports live in `mm-results`. Final interpretation
 must separate pilot selection, confirmation and any partial full-DEV run.
+
+## Frozen test sample
+
+`mm-freeze.ts` chooses the highest complete DEV400 subset mean; lower cost breaks
+an exact tie. It writes source hashes and the shared contract commit. Commit that
+configuration before invoking `mm-test-sample.ts --frozen-commit <sha>`. The test
+runner verifies HEAD and source hashes, declares the fixed cohort before any call,
+and records the frozen commit with every report. No configuration changes follow
+test observations. `--resume` continues the same declared cohort only.
+
+`mm-size-test.ts` sizes that one test sample from measured calls, latency, remaining
+budget and the 06:30 cutoff. It reserves thirty minutes and applies explicit cost
+and latency margins; these are planning margins, not measured uncertainties.
+The score interval is a fixed-seed percentile bootstrap over pairs within each
+subset, followed by the unweighted mean of subset means.
+
+Provider-refused payloads are unavailable. They score zero in the official view,
+and a second view excludes them with their count stated. The same unavailable-item
+set applies to every compared variant. No bypass prompt is used. Reported provider
+error charges enter the budget; unreported interrupted charges stay named unknowns.
+The call-level cap reserves headroom for these unknowns.
+
+`mm-rescore.ts` replays stored raw winner replies under the imported shared parser.
+It selects the first valid stored attempt in each order, because a parser fix can
+remove a repair call. It never changes a raw winner. Older-prompt replay and fresh
+current-contract inference are distinct measurements in the report.

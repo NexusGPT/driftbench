@@ -7,6 +7,7 @@ import {
   judgePairwise,
   parseJudgeText,
   repairAnswerText,
+  pairwiseRequest,
 } from '@driftbench/judges';
 import { createCaller, promptKey, ProviderRefused, type Recorded, Recordings } from '../src/call';
 import type { PairDecision, Prompt } from '../src/contestants';
@@ -92,15 +93,11 @@ export async function directItem(item: PairItem, ask: Ask, premises?: string) {
       const record = await ask(buildPrompt(actual), 'direct');
       const parsed = parseJudgeText(record.text, request);
       let value: Record<string, unknown> | undefined;
+      const rawText = record.text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
       try {
-        value = JSON.parse(
-          record.text
-            .trim()
-            .replace(/^```(?:json)?\s*/i, '')
-            .replace(/\s*```$/, ''),
-        );
+        value = JSON.parse(rawText);
       } catch {
-        value = undefined;
+        try { value = JSON.parse(repairAnswerText(rawText)); } catch { value = undefined; }
       }
       rawComparisons.push({
         key: record.key,
@@ -156,6 +153,8 @@ async function main() {
   )
     throw new Error('Require tag, ledger, contract-sha, deadline and concurrency 1..3');
   const recordings = await new Recordings(RECORDING).load();
+  const replayRows = new Map<string, any>();
+  if (arg('direct-replay')) for (const line of (await readFile(arg('direct-replay')!, 'utf8')).trim().split('\n')) { const row = JSON.parse(line); replayRows.set(row.id, row); }
   const priorSpent = (await priorMMSpend(RECORDING, ROOT)).total;
   const cap = Math.min(Number(arg('cap-usd') ?? 7.4), 7.4 - priorSpent);
   if (!Number.isFinite(cap) || cap <= 0) throw new Error('Invalid cap or exhausted task budget');
@@ -278,6 +277,7 @@ async function main() {
     const report = {
       contestant: ID,
       phase,
+      directSource: arg('direct-replay') ?? 'current shared prompt',
       contractSha,
       seed,
       concurrency,
@@ -407,7 +407,35 @@ async function main() {
         );
         return;
       }
-      const result = await directItem(item, askFor(item));
+      let result: Awaited<ReturnType<typeof directItem>>;
+      const stored = replayRows.get(item.id);
+      if (stored) {
+        const rawComparisons: any[] = [];
+        const outcomes = (['AB', 'BA'] as const).map((order, index) => {
+          const attempts = item.a === item.b ? [stored.rawComparisons[index]] : stored.rawComparisons.filter((r: any) => r.order === order);
+          const request = pairwiseRequest({ name: 'benchmark', rubric: CRITERIA.mmeval }, [{ role: 'user', text: item.question }], order === 'AB' ? item.a : item.b, order === 'AB' ? item.b : item.a);
+          let answer: ReturnType<typeof parseJudgeText> | undefined;
+          for (const record of attempts) {
+            answer = parseJudgeText(record.text, request);
+            rawComparisons.push({ ...record, order, unparsed: !!answer.unparsed });
+            if (!seen.has(record.key)) {
+              const original = recordings.get(record.key);
+              if (!original) throw new Error(`Missing recording ${record.key}`);
+              seen.add(record.key);
+              phaseCosts.direct.costUsd += original.costUsd; phaseCosts.direct.calls++;
+              const stat = directItemCosts.get(item.id) ?? { costUsd: 0, calls: 0 };
+              stat.costUsd += original.costUsd; stat.calls++; directItemCosts.set(item.id, stat);
+            }
+            if (!answer.unparsed) break;
+          }
+          if (!answer) throw new Error(`Missing stored ${order} for ${item.id}`);
+          return answer.unparsed ? 'inconclusive' as const : answer.answer.outcome;
+        });
+        const decision = (o: string): PairDecision => o === 'pass' ? 'A' : o === 'fail' ? 'B' : 'tie';
+        const games = pairGames(decision(outcomes[0]!), decision(outcomes[1]!));
+        const consistent = games[0] === games[1];
+        result = { games, rawComparisons, parseFailed: rawComparisons.some((r) => r.unparsed), verdict: { ordered: outcomes[0]!, swapped: outcomes[1]!, calls: rawComparisons.length, choice: consistent && games[0] !== 'tie' ? games[0] === 'A' ? 'first' : 'second' : 'tie', consistent, positionBias: outcomes[0] === outcomes[1] && outcomes[0] !== 'inconclusive' } };
+      } else result = await directItem(item, askFor(item));
       directDetails.set(item.id, result);
       const row = { item, games: result.games, missing: 0 };
       direct.push(row);
@@ -425,6 +453,42 @@ async function main() {
       if (direct.length % 25 === 0) await checkpoint(`batch${batchIndex + 1}-direct-progress`);
     });
     await checkpoint(`batch${batchIndex + 1}-direct`);
+    eligible = final.flatMap((row, index) => {
+      if (providerRefusedIds.has(row.item.id)) return [];
+      const r = directDetails.get(row.item.id)!;
+      const reasons = escalationReasons(row.item.group, r.games, r.parseFailed);
+      return reasons.length
+        ? [{ item: row.item, premises: premiseById.get(row.item.id), reasons, index }]
+        : [];
+    });
+    await checkpoint(`batch${batchIndex + 1}-eligibility`);
+    activePhase = 'crowd';
+    const batchIds = new Set(batch.map((i) => i.id));
+    await pool(
+      eligible.filter((e) => batchIds.has(e.item.id)),
+      async (entry) => {
+        const ask = askFor(entry.item);
+        const result = await crowdItem(
+          entry.item,
+          (prompt, stage) => ask(prompt, `crowd-${stage}`),
+          entry.premises,
+        );
+        final[entry.index] = { item: entry.item, games: result.games, missing: 0 };
+        escalated++;
+        await appendFile(
+          `${ROOT}/${tag}-crowd-decisions.jsonl`,
+          JSON.stringify({
+            id: entry.item.id,
+            group: entry.item.group,
+            language: entry.item.language,
+            label: entry.item.label,
+            reasons: entry.reasons,
+            ...result,
+          }) + '\n',
+        );
+      },
+    );
+    await checkpoint(`batch${batchIndex + 1}-cascade`);
     activePhase = 'premise';
     for (const item of batch.filter((i) => i.group === 'safety' && providerRefusedIds.has(i.id)))
       premiseResults.push(final.find((r) => r.item.id === item.id)!);
@@ -455,42 +519,7 @@ async function main() {
         );
       },
     );
-    eligible = final.flatMap((row, index) => {
-      if (providerRefusedIds.has(row.item.id)) return [];
-      const r = directDetails.get(row.item.id)!;
-      const reasons = escalationReasons(row.item.group, r.games, r.parseFailed);
-      return reasons.length
-        ? [{ item: row.item, premises: premiseById.get(row.item.id), reasons, index }]
-        : [];
-    });
     await checkpoint(`batch${batchIndex + 1}-premise`);
-    activePhase = 'crowd';
-    const batchIds = new Set(batch.map((i) => i.id));
-    await pool(
-      eligible.filter((e) => batchIds.has(e.item.id)),
-      async (entry) => {
-        const ask = askFor(entry.item);
-        const result = await crowdItem(
-          entry.item,
-          (prompt, stage) => ask(prompt, `crowd-${stage}`),
-          entry.premises,
-        );
-        final[entry.index] = { item: entry.item, games: result.games, missing: 0 };
-        escalated++;
-        await appendFile(
-          `${ROOT}/${tag}-crowd-decisions.jsonl`,
-          JSON.stringify({
-            id: entry.item.id,
-            group: entry.item.group,
-            language: entry.item.language,
-            label: entry.item.label,
-            reasons: entry.reasons,
-            ...result,
-          }) + '\n',
-        );
-      },
-    );
-    await checkpoint(`batch${batchIndex + 1}-cascade`);
     if (stopped || process.argv.includes('--stop-after-first')) break;
   }
   const report = await checkpoint('final');

@@ -89,7 +89,7 @@ lines.extend(['', '## Selective cascade and explicit premise ablation', '',
               'The lead authorizes chat-subset routing, order disagreement and parse failures as escalation signals. No label controls routing or a verdict.',
               'The direct baseline runs in both orders. A separate extraction of exact request premises precedes every safety-item ablation.',
               'Three blind references and two independent readings feed the shared comparison only on eligible items. All readers receive the premise ledger when present.',
-              'A fixed proportional 400-item DEV subset is evaluated first when timing projects past 05:30. The rest follows without selecting items by their labels.',
+              'A fixed proportional 400-item DEV subset selects and freezes the design before the single test sample. Remaining DEV follows only after test.',
               'Production cost excludes baseline safety calls retained only for the paired ablation. New experimental spend includes those calls.', '',
               '| Round | Direct complete / requested | Variant | Total % | Reasoning n/% | Chat n/% | Linguistics n/% | Mixing n/% | Safety n/% | Escalated % | Pending | USD / 100 | Calls / item |',
               '|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|'])
@@ -181,6 +181,20 @@ lines.extend(['', '## Stored raw winner re-score', '',
               '|---|---|---:|---:|---:|---:|---:|---:|'])
 for path in sorted(root.glob('*-rescore.json')):
     r=json.loads(path.read_text());lines.append(f"| {path.stem} | {r['contractSha']} | {r['items']} | {r['changedItems']} | {r['unparsedGames']} | {r['blankQuotes']} | {r['ambiguousQuotes']} | {r['summary']['value']['estimate']*100:.2f} |")
+
+if (root/'dev400-a6-direct-replay.json').exists():
+    r=json.loads((root/'dev400-a6-direct-replay.json').read_text())
+    lines.extend(['', '## DEV400 direct stage: shared contract before and after', '',
+      'Free replay uses the first valid stored attempt in each order; a repaired parser skips a re-ask that would no longer happen. Raw winner fields are unchanged.',
+      'Both views apply provider-refused IDs 4141 and 4234 as wrong. Original direct inference cost is USD 0.26492 per 100 items; replay adds no model spend.', '',
+      '| Class | Items | Before accuracy % | After accuracy % | Before unparsed games | After unparsed games |',
+      '|---|---:|---:|---:|---:|---:|'])
+    for g in groups:
+        b=r['before']['byGroup'][g];a=r['summary']['byGroup'][g];u=r['byClass'][g]
+        lines.append(f"| {g} | {a['n']} | {b['value']*100:.2f} | {a['value']*100:.2f} | {u['beforeUnparsed']} | {u['afterUnparsed']} |")
+    lines.append(f"| Total | 400 | {r['before']['value']['estimate']*100:.2f} | {r['summary']['value']['estimate']*100:.2f} | 94 | {r['unparsedGames']} |")
+    lines.extend(['', f"After excluding the two provider-refused items: {r['excludedSummary']['value']['estimate']*100:.2f}% on 398 items. Contract: {r['contractSha']}.",
+      'The lead reports 244 of 267 previously rejected attempts now parsed. Final unparsed games differ from attempts because the native contract allows one re-ask.'])
 
 if (root/'dev400-chat-miss-audit.md').exists():
     lines.extend(['', '## Fixed DEV400 chat audit', '', (root/'dev400-chat-miss-audit.md').read_text()])

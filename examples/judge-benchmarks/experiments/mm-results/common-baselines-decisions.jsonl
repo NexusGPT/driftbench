@@ -7,7 +7,7 @@
 {"contestant":"driftbench","id":"1082","group":"reasoning","language":"ru","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["c1d5bc30cb1d3ed27de4","f5262678959647447682"]}
 {"contestant":"driftbench","id":"110","group":"reasoning","language":"bn","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["99f7a4fc3442e63c1b9a","7a7f9246347324784cf8"]}
 {"contestant":"driftbench","id":"1117","group":"reasoning","language":"ru","label":"A","complete":true,"games":["A","B"],"score":0.5,"keys":["484eae2620dfca4e2144","fce77489c4faddf3151a"]}
-{"contestant":"driftbench","id":"1126","group":"reasoning","language":"ru","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["eb4066191d0471141289","0648723b6d2c47cff6b4"]}
+{"contestant":"driftbench","id":"1126","group":"reasoning","language":"ru","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["eb4066191d0471141289","0648723b6d2c47cff6b4"],"guard":"guard:allow"}
 {"contestant":"driftbench","id":"1141","group":"reasoning","language":"ru","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["beb874f40110a4de611d","2150a62f3df629585e69"]}
 {"contestant":"driftbench","id":"1149","group":"reasoning","language":"ru","label":"B","complete":true,"games":["B","B"],"score":1,"keys":["73e8c479f71ee991446e","f942fbfb4e80c6da88ab"]}
 {"contestant":"driftbench","id":"1153","group":"reasoning","language":"ru","label":"A","complete":true,"games":["A","A"],"score":1,"keys":["c4f8f8159acae08a144f","cddfb38da1abe027781e"]}
