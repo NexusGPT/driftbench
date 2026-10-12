@@ -1,7 +1,7 @@
 import { basename, posix } from 'node:path';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
-import { type Located, linesOf, provenanceHash, readTables, slug } from './text';
+import { blankFences, type Located, linesOf, provenanceHash, readTables, slug } from './text';
 
 /**
  * The code half of the scan: every atom whose source has structure. Skills, helpers, guards, permissions,
@@ -653,7 +653,7 @@ function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, 
 
 /** The non-blank lines of a chunk, numbered as lines of its file. */
 export function chunkLines(chunk: ProseChunk): Array<{ line: number; text: string }> {
-  return linesOf(chunk.text)
+  return linesOf(blankFences(chunk.text))
     .filter((line) => line.text !== '')
     .map((line) => ({ line: chunk.startLine + line.line - 1, text: line.text }));
 }

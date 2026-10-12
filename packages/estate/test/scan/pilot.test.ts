@@ -93,3 +93,17 @@ describe('gates (executor pilot)', () => {
     expect(gate?.fields?.first).toBe('references/rules.md');
   });
 });
+
+describe('code fences (executor pilot)', () => {
+  it('reads no gate, reference or hazard from a fenced example', async () => {
+    const atoms = await skillAtoms([
+      'Always tally twice.',
+      '',
+      '```text',
+      'Before editing a file: read `references/example.md`.',
+      'log: restart of the worker after a compaction',
+      '```',
+    ]);
+    expect(atoms.filter((atom) => ['gate', 'reference', 'hazard'].includes(atom.kind))).toEqual([]);
+  });
+});

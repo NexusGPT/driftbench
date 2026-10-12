@@ -1,6 +1,6 @@
 import { guardName, registryRowOf, toolBase } from '../scan/code';
 import type { EstateFile, RawEstate } from '../scan/reader';
-import { labelOfLine, linesOf, plain } from '../scan/text';
+import { blankFences, labelOfLine, linesOf, plain } from '../scan/text';
 import type { Atom, Edge } from '../schema';
 
 /**
@@ -82,7 +82,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     if (!unit) continue;
     for (const helper of helpers) {
       const name = String(helper.fields?.name ?? '');
-      if (name !== '' && chunk.text.includes(`\`${name}\``)) add(unit.id, helper.id, 'dispatch');
+      if (name !== '' && blankFences(chunk.text).includes(`\`${name}\``)) add(unit.id, helper.id, 'dispatch');
     }
   }
 
