@@ -15,6 +15,7 @@ import * as stats from '@driftbench/stats';
 import { openMemoryStore, openStore } from '@driftbench/store';
 import { LOOKUP, withForbiddenCall } from '../../family';
 import type { Behaviour, Flow } from '../../plant';
+import { MIN_GOLDENS } from '../documented';
 import { withPerturbation } from '../reach';
 import { type BankItem, fail, type ItemSource, PASS, type Tier } from '../types';
 import { behavioursFor, type Faults, memoryCache, plantedFlow, runScenario } from '../world';
@@ -767,13 +768,30 @@ function lineItems(): BankItem[] {
         ? undefined
         : `${which} ${show(got)}, expected ${show(want)} with c ${c} of n ${runs.length}`;
     };
+  // statistics.md: the interval is the Wilson bounds of the per-run rate put through k, widened so that it
+  // contains the value. Runs that did not complete count as failing in the value, and the interval also covers
+  // both ends, all of them failing and all of them passing: the exact estimator at c and at c plus them.
   const bounds =
-    (which: 'passK' | 'passAtK', raise: (p: number, k: number) => number) =>
+    (
+      which: 'passK' | 'passAtK',
+      raise: (p: number, k: number) => number,
+      exact: (c: number, n: number, k: number) => number,
+    ) =>
     (line: report.ReliabilityLine, runs: RunResult[]) => {
-      const w = stats.wilson(runs.filter(passes).length, runs.length);
+      const c = runs.filter(passes).length;
+      const n = runs.length;
+      const incomplete = runs.filter((run) => run.status !== 'completed').length;
+      const w = stats.wilson(c, n);
       for (const entry of line[which]) {
-        if (!near(entry.lower, raise(w.lower, entry.k)) || !near(entry.upper, raise(w.upper, entry.k)))
-          return `${which} at k ${entry.k} has [${entry.lower}, ${entry.upper}], expected [${raise(w.lower, entry.k)}, ${raise(w.upper, entry.k)}]`;
+        // Widened where needed so that it contains the value (statistics.md, "Intervals on pass^k and pass@k").
+        let lower = Math.min(raise(w.lower, entry.k), exact(c, n, entry.k));
+        let upper = Math.max(raise(w.upper, entry.k), exact(c, n, entry.k));
+        if (incomplete > 0) {
+          lower = Math.min(lower, exact(c, n, entry.k));
+          upper = Math.max(upper, exact(Math.min(n, c + incomplete), n, entry.k));
+        }
+        if (!near(entry.lower, lower) || !near(entry.upper, upper))
+          return `${which} at k ${entry.k} has [${entry.lower}, ${entry.upper}], expected [${lower}, ${upper}] (${incomplete} incomplete of ${n})`;
       }
       return undefined;
     };
@@ -843,12 +861,12 @@ function lineItems(): BankItem[] {
       'report-brute-force',
       3,
       REL,
-      'the pass^k bounds are the Wilson bounds of the per-run rate raised to k (estimate.ts, "wilson, raised")',
+      'the pass^k bounds are the Wilson bounds of the per-run rate raised to k, widened to hold the value and the incomplete runs (statistics.md)',
       'reliability raises the Wilson bounds of the line pass rate to the power k for pass^k.',
       (fx) =>
         lineCheck(
           fx,
-          bounds('passK', (p, k) => p ** k),
+          bounds('passK', (p, k) => p ** k, stats.passK),
         ),
     ),
     item(
@@ -856,12 +874,12 @@ function lineItems(): BankItem[] {
       'report-brute-force',
       3,
       REL,
-      'the pass@k bounds are 1 - (1 - bound)^k of the Wilson bounds of the per-run rate (estimate.ts)',
+      'the pass@k bounds are 1 - (1 - bound)^k of the Wilson bounds of the per-run rate, widened to hold the value and the incomplete runs (statistics.md)',
       'reliability maps the Wilson bounds of the line pass rate through 1 - (1 - p)^k for pass@k.',
       (fx) =>
         lineCheck(
           fx,
-          bounds('passAtK', (p, k) => 1 - (1 - p) ** k),
+          bounds('passAtK', (p, k) => 1 - (1 - p) ** k, stats.passAtK),
         ),
     ),
     item(
@@ -2047,12 +2065,19 @@ function criteriaTruth(fx: Fixture, baseRuns = fx.rawBase, candRuns = fx.rawCand
  * The verdict of a campaign against itself (compare.ts): no discordant golden and no new flag, so it is
  * non-inferior when the all-pass bound and every gating criterion bound are under the margin, else unproven.
  */
+/** The goldens a paired table decides: every cell. */
+function decided(table: { bothPass: number; regressed: number; improved: number; bothFail: number }): number {
+  return table.bothPass + table.regressed + table.improved + table.bothFail;
+}
+
 function selfVerdict(fx: Fixture, margin: number): { verdict: string; bounds: string } {
   const all = pairsTruth(fx, fx.rawBase, fx.rawBase).table;
   const uppers = [
     ['all-pass', stats.pairedRateDifference(all).upper] as const,
+    // statistics.md, "Underpowered criteria": a gating criterion decided on fewer than minGoldens goldens is
+    // reported and left out of the non-inferiority conjunction.
     ...criteriaTruth(fx, fx.rawBase, fx.rawBase)
-      .filter((row) => row.gating)
+      .filter((row) => row.gating && decided(row.table) >= MIN_GOLDENS)
       .map((row) => [row.name, stats.pairedRateDifference(row.table).upper] as const),
   ];
   const within = uppers.every(([, upper]) => upper < margin);
@@ -2220,7 +2245,7 @@ function compareItems(): BankItem[] {
       'claim-report',
       3,
       CMP,
-      'a campaign against itself is non-inferior only when the all-pass and every gating criterion Newcombe bound, with no discordant golden, are under the margin (README: not shown at 15 points, shown at 60)',
+      'a campaign against itself is non-inferior only when the all-pass and every gating criterion that is not underpowered have a Newcombe bound under the margin (statistics.md)',
       'compareCampaigns gives a campaign against itself non-inferior when every gating upper bound is below the margin, else unproven, never regressed.',
       (fx) => {
         for (const margin of [0.15, 0.6]) {
@@ -2391,7 +2416,7 @@ function cliItems(): BankItem[] {
       'claim-report',
       3,
       CLI_COMPARE,
-      'driftbench compare of a campaign against itself exits 0 exactly when every gating no-discordance bound is under the margin (README: exit 1 at 15 points, exit 0 at 60)',
+      'driftbench compare of a campaign against itself exits 0 exactly when the all-pass and every gating criterion that is not underpowered have a bound under the margin (statistics.md)',
       'the compare command exits 0 on a non-inferior verdict and 1 otherwise.',
       async (_fx, { seed, scratch }) => {
         const { path, fx } = await fileFixture(seed, scratch);

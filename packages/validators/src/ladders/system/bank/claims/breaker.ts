@@ -1,3 +1,4 @@
+import { DOCUMENTED_CHECKS } from '../documented';
 /**
  * Blind-breaker claims: executable claims taken from the documentation pages and the command-line help
  * only. Each item runs the command line in process on fictional data, built from the seed under the
@@ -1072,13 +1073,13 @@ function datasetItems(): BankItem[] {
       },
     }),
     ds({
-      id: 'campaign-records-repeated-prompts',
+      id: 'campaign-refuses-repeated-prompts',
       tier: 4,
       level: 1,
       component: 'driftbench campaign',
       title:
-        'datasets.md "A campaign records the versions it ran": --prompt can be repeated, and each version is recorded in the sources',
-      cause: 'driftbench campaign run records one prompt source for every --prompt given',
+        'datasets.md "A campaign records the versions it ran": two --prompt options are refused with exit 2 and nothing is stored; one --prompt is recorded in the sources',
+      cause: 'driftbench campaign run refuses a second --prompt and records the one prompt version it ran',
       async check(ctx) {
         const dir = work(ctx, 'camp-prompts');
         const store = join(dir, 's.db');
@@ -1087,23 +1088,24 @@ function datasetItems(): BankItem[] {
         put(dir, 'p2/y.md', `second prompt ${ctx.seed}`);
         await pushOf('prompt', 'pone', join(dir, 'p1'), store, dir);
         await pushOf('prompt', 'ptwo', join(dir, 'p2'), store, dir);
-        const c = await cli(
-          [
-            'campaign',
-            'run',
-            join(dir, 'specs'),
-            '--prompt',
-            'pone',
-            '--prompt',
-            'ptwo@1',
-            '--campaign',
-            'cpp',
-            '--store',
-            store,
-          ],
-          dir,
-        );
-        if (c.code !== 0) return fail(`the campaign should run; got ${shown(c)}`);
+        const run = (prompts: string[], campaign: string) =>
+          cli(
+            [
+              'campaign',
+              'run',
+              join(dir, 'specs'),
+              ...prompts.flatMap((prompt) => ['--prompt', prompt]),
+              '--campaign',
+              campaign,
+              '--store',
+              store,
+            ],
+            dir,
+          );
+        const two = await run(['pone', 'ptwo@1'], 'ctwo');
+        if (two.code !== 2) return fail(`two --prompt options should exit 2; got ${shown(two)}`);
+        const one = await run(['pone'], 'cone');
+        if (one.code !== 0) return fail(`one --prompt should run; got ${shown(one)}`);
         let flat = '';
         try {
           flat = JSON.stringify(await storedSources(store));
@@ -1115,7 +1117,10 @@ function datasetItems(): BankItem[] {
             /"kind":"prompt"/.test(flat) && /"name":"pone"/.test(flat),
             `the source list should hold prompt pone; got ${clip(flat)}`,
           ],
-          [/"name":"ptwo"/.test(flat), `the source list should hold prompt ptwo; got ${clip(flat)}`],
+          [
+            !/"name":"ptwo"/.test(flat),
+            `the refused campaign should record no prompt ptwo; got ${clip(flat)}`,
+          ],
         ]);
       },
     }),
@@ -3036,8 +3041,8 @@ function campaignItems(): BankItem[] {
             `campaignId cj and stored false expected; got ${clip(c.out)}`,
           ],
           [
-            Array.isArray(j?.checks) && j.checks.length === 23,
-            `23 checks expected; got ${j?.checks?.length}`,
+            Array.isArray(j?.checks) && j.checks.length === DOCUMENTED_CHECKS.length,
+            `${DOCUMENTED_CHECKS.length} checks expected; got ${j?.checks?.length}`,
           ],
           [
             j?.cells?.[0]?.state === 'pass' &&
@@ -4157,11 +4162,21 @@ function checkItems(): BankItem[] {
       failing: [],
     },
     {
-      slug: 'relevancy-quarter-of-terms-fails',
+      slug: 'relevancy-quarter-of-terms-inconclusive',
       tier: 2,
       page: 'Similarity, relevancy and knowledge retention',
-      claim: 'relevancy fails as relevancy.terms under the min share',
+      claim:
+        'without a judge, a reply that holds some key terms but fewer than min gives an inconclusive verdict that does not gate',
       turns: [one(['plan'])],
+      spec: spc('{ relevancy: { terms: [plan, data, cost, month], min: 0.5 } }'),
+      failing: [],
+    },
+    {
+      slug: 'relevancy-no-term-fails',
+      tier: 2,
+      page: 'Similarity, relevancy and knowledge retention',
+      claim: 'without a judge, a reply that holds no key term fails relevancy.terms and gates',
+      turns: [one(['hello'])],
       spec: spc('{ relevancy: { terms: [plan, data, cost, month], min: 0.5 } }'),
       failing: ['block 0: relevancy.terms'],
     },
@@ -4471,7 +4486,8 @@ function toolItems(): BankItem[] {
       source: 'adversarial',
       component: 'driftbench compare',
       title: 'compare --help: exit 2 on bad input, an unknown campaign among them',
-      cause: 'driftbench compare exits 2 for a campaign the store does not hold and for a missing margin',
+      cause:
+        'driftbench compare exits 2 for a campaign the store does not hold and for a margin that is not a number or auto',
       async check(ctx) {
         const dir = work(ctx, 'compare-bad');
         put(dir, 's/a.yaml', spec('a'));
@@ -4480,10 +4496,14 @@ function toolItems(): BankItem[] {
           ['compare', '--baseline', 'base', '--candidate', 'ghost', '--store', 'c.db', '--margin', '5'],
           dir,
         );
-        const b = await cli(['compare', '--baseline', 'base', '--candidate', 'base', '--store', 'c.db'], dir);
+        // cli.md: --margin defaults to auto, so a missing margin is no bad input; a margin that is not a number is.
+        const b = await cli(
+          ['compare', '--baseline', 'base', '--candidate', 'base', '--store', 'c.db', '--margin', 'wide'],
+          dir,
+        );
         return expectAll([
           [a.code === 2, `an unknown candidate should exit 2; got ${shown(a)}`],
-          [b.code === 2, `a missing margin should exit 2; got ${shown(b)}`],
+          [b.code === 2, `a margin that is not a number should exit 2; got ${shown(b)}`],
         ]);
       },
     }),
@@ -5058,8 +5078,8 @@ function toolItems(): BankItem[] {
       tier: 3,
       component: 'driftbench judge calibrate',
       title:
-        'concepts/judges.md calibrate example: the system1 judges are named s1p-a and s1p-b in the assignment table output',
-      cause: 'driftbench judge calibrate names the system1 judges s1p-a and s1p-b as the judges page shows',
+        'concepts/judges.md calibrate example: the assignment table names every judge of the cassette, as the cassette names it',
+      cause: 'driftbench judge calibrate names each judge by the id its cassette gives',
       async check(ctx) {
         const dir = work(ctx, 'judge-calibrate');
         const ex = join(ctx.root, 'examples/acme');
@@ -5078,9 +5098,17 @@ function toolItems(): BankItem[] {
           ],
           dir,
         );
-        return c.code === 0 && c.out.includes('s1p-a') && c.out.includes('s1p-b')
+        // judges.md prints the first two judges as s1p-a and s1p-b and says that substitution is the only change
+        // to the output: the command prints the ids of the cassette.
+        const cassette = JSON.parse(readFileSync(join(ex, 'criteria/calibration/cassette.json'), 'utf8')) as {
+          judges: { id: string }[];
+        };
+        const missing = cassette.judges.map((judge) => judge.id).filter((id) => !c.out.includes(id));
+        return c.code === 0 && missing.length === 0
           ? PASS
-          : fail(`expected judges s1p-a and s1p-b; got ${shown(c)}`);
+          : fail(
+              `expected every cassette judge in the table; missing ${missing.join(', ')}; got ${shown(c)}`,
+            );
       },
     }),
     tl({
@@ -5088,16 +5116,22 @@ function toolItems(): BankItem[] {
       tier: 2,
       component: 'driftbench validate floors',
       title:
-        'cli.md "driftbench validate": validate floors prints "Floors (validators/floors.json): stats = 1."',
-      cause:
-        'driftbench validate floors prints the floor of the stats validator as the CLI page shows, or the page lists every registered floor',
+        'cli.md "driftbench validate": validate floors prints "Floors (validators/floors.json): <name> = <floor>, ..." for every floor the file holds',
+      cause: 'driftbench validate floors prints one line naming every floor of validators/floors.json',
       async check(ctx) {
-        const dir = work(ctx, 'validate-floors');
         const c = await cli(['validate', 'floors'], ctx.root);
-        void dir;
-        return c.code === 0 && c.out.trim() === 'Floors (validators/floors.json): stats = 1.'
+        const file = JSON.parse(readFileSync(join(ctx.root, 'validators/floors.json'), 'utf8')) as {
+          floors: Record<string, number>;
+        };
+        const names = Object.keys(file.floors).sort();
+        const line =
+          c.out.split('\n').find((text) => text.startsWith('Floors (validators/floors.json):')) ?? '';
+        const missing = names.filter((name) => !line.includes(`${name} = ${file.floors[name]}`));
+        return c.code === 0 && line !== '' && missing.length === 0
           ? PASS
-          : fail(`expected the one line for stats; got ${shown(c)}`);
+          : fail(
+              `expected a floors line naming ${names.join(', ')}; missing ${missing.join(', ')}; got ${shown(c)}`,
+            );
       },
     }),
     tl({

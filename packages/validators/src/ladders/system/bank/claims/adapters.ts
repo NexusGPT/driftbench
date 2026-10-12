@@ -1311,15 +1311,22 @@ function httpItems(): BankItem[] {
       level: 2,
       component: HTTP,
       source: 'contract',
-      title: 'http.md "Errors": any 5xx and any other failing status is an AgentFailure: the run fails',
-      cause: 'httpAdapter classes 5xx and other failing statuses as agent failures',
+      title:
+        'http.md "Errors": any 5xx is an AdapterTransportError the runner retries; any other failing status is an AgentFailure: the run fails',
+      cause: 'httpAdapter classes 5xx as transport errors and other failing statuses as agent failures',
       async check() {
         const got: string[] = [];
-        for (const status of [500, 502, 503, 400, 401, 404, 302]) {
-          const r = await httpSend(() => new Response('nope', { status }));
-          if (!(r.error instanceof AgentFailure)) got.push(`${status}: ${kindOf(r.error)}`);
+        for (const status of [500, 502, 503]) {
+          const r = await httpSend(() => new Response('busy', { status }));
+          if (!(r.error instanceof AdapterTransportError))
+            got.push(`${status}: ${kindOf(r.error)}, expected AdapterTransportError`);
         }
-        return got.length === 0 ? PASS : fail(`expected AgentFailure for each status, got ${got.join(', ')}`);
+        for (const status of [400, 401, 404, 302]) {
+          const r = await httpSend(() => new Response('nope', { status }));
+          if (!(r.error instanceof AgentFailure))
+            got.push(`${status}: ${kindOf(r.error)}, expected AgentFailure`);
+        }
+        return got.length === 0 ? PASS : fail(got.join('; '));
       },
     }),
     adapterItem({
