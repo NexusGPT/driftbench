@@ -327,3 +327,15 @@ Sources read:
 What others do: A quote is a passage of the file; a prefix of a long line is still a passage.
 
 What to try, and why: a quote of a very long pattern stays within 1000 characters
+
+## Iteration 28
+
+Question: packages/generate/src/extract/tools.ts: propertySlug replaces every character outside a-z, 0-9, underscore and hyphen, so user.email becomes user_email and $ref becomes _ref; adversarial.property-name-with-dot and property-named-ref prove it.
+
+Sources read:
+* packages/validators/src/ladders/map/bank/families/adversarial.ts (the two items)
+* https://json-schema.org/draft/2020-12/json-schema-core (a property name is any string)
+
+What others do: A dimension id keeps the property name as written so a spec can name it back.
+
+What to try, and why: a property name keeps its dot and dollar sign
