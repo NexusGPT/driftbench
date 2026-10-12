@@ -458,4 +458,25 @@ type = "boolean"
     for (const dimension of result.dimensions)
       for (const value of dimension.values) expect(text).toContain(value.evidence.quote);
   });
+
+  it('keeps a quote of a very long pattern within 1000 characters, as a passage of the file', () => {
+    const pattern = `^(${Array.from({ length: 160 }, (_, i) => `code${i}`).join('|')})$`;
+    const text = stringify(
+      {
+        tools: [
+          {
+            name: 't.x',
+            input_schema: { type: 'object', required: ['p'], properties: { p: { type: 'string', pattern } } },
+          },
+        ],
+      },
+      { lineWidth: 0 },
+    );
+    const result = toolsPrepass(text, 'tools.yaml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    for (const value of result.dimensions[0]?.values ?? []) {
+      expect(value.evidence.quote.length).toBeLessThanOrEqual(1000);
+      expect(text).toContain(value.evidence.quote);
+    }
+  });
 });

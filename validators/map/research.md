@@ -315,3 +315,15 @@ Sources read:
 What others do: Tool configs in TOML are read by a TOML parser into the same data; quotes stay lines of the file.
 
 What to try, and why: the tool pre-pass reads TOML
+
+## Iteration 27
+
+Question: packages/generate/src/extract/tools.ts: quoter returns the whole keyword line, so a pattern line over 1000 characters gives a quote over the limit and an invalid proposal; schema-keywords.long-pattern proves it.
+
+Sources read:
+* packages/generate/src/extract/proposal.ts (a quote is at most 1000 characters)
+* packages/validators/src/ladders/map/bank/families/schema.ts (long-pattern)
+
+What others do: A quote is a passage of the file; a prefix of a long line is still a passage.
+
+What to try, and why: a quote of a very long pattern stays within 1000 characters

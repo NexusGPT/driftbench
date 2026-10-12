@@ -34,6 +34,8 @@ export type ToolsPrepass =
 const MAX_DEPTH = 2;
 /** A property's whole text is its quote when it is this short; a longer one is quoted by its keyword. */
 const WHOLE_PROPERTY_QUOTE = 300;
+/** The longest quote a proposal may hold. */
+const MAX_QUOTE = 1000;
 
 type Requote = (quote: string, path: string[]) => string;
 
@@ -596,9 +598,11 @@ function arrayPartitions(name: string, property: YAMLMap, add: Add): void {
 /** The quote for a partition: the whole property when it is short, else the keyword's own line. */
 function quoter(text: string, pair: Pair, property: YAMLMap): (keyword?: string) => string {
   const whole = pairText(text, pair) ?? '';
+  // A quote is at most 1000 characters: a longer line is quoted by its first passage.
+  const cap = (quote: string) => (quote.length > MAX_QUOTE ? quote.slice(0, MAX_QUOTE).trimEnd() : quote);
   return (keyword) => {
-    if (foldQuote(whole).length <= WHOLE_PROPERTY_QUOTE || !keyword) return whole;
-    return pairText(text, entry(property, keyword)) ?? whole;
+    if (foldQuote(whole).length <= WHOLE_PROPERTY_QUOTE || !keyword) return cap(whole);
+    return cap(pairText(text, entry(property, keyword)) ?? whole);
   };
 }
 
