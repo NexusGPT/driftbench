@@ -782,6 +782,28 @@ function unseenItems(): BankItem[] {
               `chaoCoverage(counts).coverage on ${4 * S} draws from ${S} known classes (${pop.key}) misses the true covered probability by ${err} on average over ${draws} samples; the Chao form is within 0.05 at four draws per class.`,
             );
       }),
+      ...[1.5, 3].map((multiple) => ({
+        ...item(
+          `analytic.unseen.chao1-near.${pop.key}.x${multiple}`,
+          'unseen-known',
+          4,
+          FILES.coverage,
+          ({ s, rng }) => {
+            const n = Math.round(multiple * S);
+            let err = 0;
+            const draws = 100;
+            for (let d = 0; d < draws; d += 1)
+              err += Math.abs(s.chaoCoverage(sample(rng, pop.probs, n)).chao1 - S) / S;
+            err /= draws;
+            return err <= 0.1
+              ? ok()
+              : fail(
+                  `chaoCoverage(counts).chao1 on ${n} draws (${multiple} times the class count) from ${S} known classes (${pop.key}) misses the true count by ${err} on average over ${draws} samples; section 7 asks for an error below 10 percent when conversations exceed classes. Chao1 is a lower bound: a less biased richness estimate (for example the improved iChao1 or a coverage-adjusted estimator) is the fix.`,
+                );
+          },
+        ),
+        cause: 'chaoCoverage: a richness estimate within 10 percent just above the class count',
+      })),
       item(`analytic.unseen.chao1-large.${pop.key}`, 'unseen-known', 3, FILES.coverage, ({ s, rng }) => {
         const counts = sample(rng, pop.probs, 20 * S);
         const r = s.chaoCoverage(counts);

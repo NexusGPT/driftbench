@@ -1216,6 +1216,243 @@ method('roadmap-sequential', 'confidenceSequence', 'packages/stats/src/intervals
        'Howard, Ramdas, McAuliffe and Sekhon 2021 (dossier S7)',
        [dict(args=[k, n], expect=cs_normal_mixture(k, n)) for k, n in [(3, 20), (17, 40), (80, 100), (450, 500)]], tol=1e-12, tier=5)
 
+
+# --- extension after the pilot (section 12.4.4): more of what the dossiers and parity notes name ------------
+def gt_smoothed(c):
+    c = [x for x in c if x > 0]
+    from collections import Counter
+    N = Counter(c)
+    out = {}
+    for r in sorted(N):
+        out[str(r)] = (r + 1) * N.get(r + 1, 0) / N[r]
+    return out
+
+
+GTC = [[1, 1, 1, 2, 2, 3, 1, 4, 2, 1], [5, 1, 1, 2, 3, 1, 2, 1, 1, 1, 2], [1, 2, 3, 4, 1, 1, 2]]
+method('roadmap-diversity', 'turingAdjustedCounts', 'packages/stats/src/coverage.ts',
+       'turingAdjustedCounts(counts: readonly number[]): Record<string, number>',
+       'The Turing estimator of the adjusted count of a class seen r times: r* = (r + 1) N(r + 1) / N(r), N(r) the number of classes seen exactly r times, for each r observed (key the count r as a string); 0 when no class was seen r + 1 times',
+       'Good 1953; Good-Turing frequency estimation (dossier S9)',
+       [dict(args=[c], expect=gt_smoothed(c)) for c in GTC], tol=1e-12, tier=3)
+
+
+def ichao1(c):
+    c = np.array([x for x in c if x > 0])
+    n = c.sum()
+    s = len(c)
+    f = lambda k: int((c == k).sum())
+    f1, f2, f3, f4 = f(1), f(2), f(3), f(4)
+    chao = s + (n - 1) / n * (f1 * f1 / (2 * f2) if f2 > 0 else f1 * (f1 - 1) / 2)
+    f4c = max(f4, 1)
+    return float(chao + (n - 3) / (4 * n) * f3 / f4c * max(f1 - (n - 3) / (2 * (n - 1)) * f2 * f3 / f4c, 0))
+
+
+IC = [[1, 1, 1, 2, 2, 3, 3, 4, 5, 8, 1, 1, 2, 6], [10, 4, 3, 3, 2, 2, 1, 1, 1, 1, 4, 3], [1, 2, 3, 4, 4, 1, 1, 2, 7, 9, 1]]
+method('roadmap-diversity', 'iChao1', 'packages/stats/src/coverage.ts',
+       'iChao1(counts: readonly number[]): number',
+       'The improved Chao1 lower bound (Chiu, Wang, Walther and Chao 2014): Chao1 + ((n - 3) / (4n)) (f3 / f4) max(f1 - ((n - 3) / (2(n - 1))) f2 f3 / f4, 0), f4 replaced by 1 when 0; Chao1 with the bias-corrected form when f2 = 0',
+       'Chiu, Wang, Walther and Chao 2014, Biometrics',
+       [dict(args=[c], expect=ichao1(c)) for c in IC], tol=1e-9, tier=5)
+
+
+def jack(c, order):
+    c = np.array([x for x in c if x > 0])
+    n = c.sum()
+    s = len(c)
+    f1, f2 = int((c == 1).sum()), int((c == 2).sum())
+    if order == 1:
+        return float(s + f1 * (n - 1) / n)
+    return float(s + f1 * (2 * n - 3) / n - f2 * (n - 2) ** 2 / (n * (n - 1)))
+
+
+method('roadmap-diversity', 'jackknifeRichness', 'packages/stats/src/coverage.ts',
+       'jackknifeRichness(counts: readonly number[], order: 1 | 2): number',
+       'Jackknife richness estimators for abundance data (Burnham and Overton): first order S + f1 (n - 1)/n; second order S + f1 (2n - 3)/n - f2 (n - 2)^2 / (n (n - 1))',
+       'Burnham and Overton 1979; EstimateS',
+       [dict(args=[c, o], expect=jack(c, o)) for c, o in [(IC[0], 1), (IC[1], 1), (IC[0], 2), (IC[2], 2)]], tol=1e-12, tier=4)
+
+
+def simpson_unbiased(c):
+    c = np.array([x for x in c if x > 0], float)
+    n = c.sum()
+    return float(n * (n - 1) / (c * (c - 1)).sum())
+
+
+method('roadmap-diversity', 'hillQ2Estimator', 'packages/stats/src/coverage.ts',
+       'hillQ2Estimator(counts: readonly number[]): number',
+       'The nearly unbiased inverse Simpson (Hill number of order 2) estimator: n (n - 1) / sum x (x - 1)',
+       'Chao, Gotelli and co-authors 2014 (dossier S24)',
+       [dict(args=[c], expect=simpson_unbiased(c)) for c in IC], tol=1e-12, tier=3)
+
+
+def chao2(m):
+    x = np.array(m)
+    T = x.shape[0]
+    q = x.sum(0)
+    q = q[q > 0]
+    s = len(q)
+    q1, q2 = int((q == 1).sum()), int((q == 2).sum())
+    return float(s + (T - 1) / T * (q1 * q1 / (2 * q2) if q2 > 0 else q1 * (q1 - 1) / 2))
+
+
+INC = [[[1, 0, 1, 0, 0, 1], [1, 1, 0, 0, 0, 0], [1, 0, 0, 1, 0, 0], [0, 0, 1, 0, 1, 0]],
+       [[1, 1, 0, 0, 1, 0, 0], [1, 0, 1, 0, 0, 0, 1], [1, 1, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 1, 0], [1, 0, 0, 0, 0, 0, 0]],
+       [[1, 0, 0, 1], [0, 1, 0, 1], [1, 1, 1, 0]]]
+method('roadmap-diversity', 'chao2', 'packages/stats/src/coverage.ts',
+       'chao2(incidence: readonly (readonly (0 | 1)[])[]): number',
+       'Chao2 for incidence data (rows sampling units such as conversations, columns classes such as cells; a 1 when the unit shows the class): S + ((T - 1)/T) Q1^2 / (2 Q2), Q1 and Q2 the classes seen in exactly one and two units; ((T - 1)/T) Q1 (Q1 - 1) / 2 when Q2 = 0 (one conversation can show several cells: dossier S2, section 7)',
+       'Chao 1987; Colwell and co-authors 2012 (dossier S25)',
+       [dict(args=[m], expect=chao2(m)) for m in INC], tol=1e-12, tier=4)
+
+# tests
+GOF = [([18, 22, 20, 40], [0.25, 0.25, 0.25, 0.25]), ([5, 15, 30], [0.2, 0.3, 0.5]), ([12, 8, 10, 10, 10], [0.2] * 5)]
+
+
+def gof(obs, p):
+    e = np.array(p) * sum(obs)
+    r = stats.chisquare(obs, e)
+    return dict(statistic=float(r.statistic), df=len(obs) - 1, pValue=float(r.pvalue))
+
+
+method('roadmap-tests', 'chiSquareGoodnessOfFit', 'packages/stats/src/paired.ts',
+       'chiSquareGoodnessOfFit(observed: readonly number[], expectedShares: readonly number[]): { statistic: number; df: number; pValue: number }',
+       "Pearson's goodness-of-fit test of counts against expected shares (scaled to the total): sum (O - E)^2 / E, chi-square with k - 1 df",
+       'scipy.stats.chisquare',
+       [dict(args=[o, p], expect=gof(o, p)) for o, p in GOF], tol=1e-9, tier=3)
+
+
+def gtest(obs, p):
+    e = np.array(p) * sum(obs)
+    r = stats.power_divergence(obs, e, lambda_='log-likelihood')
+    return dict(statistic=float(r.statistic), df=len(obs) - 1, pValue=float(r.pvalue))
+
+
+method('roadmap-tests', 'gTest', 'packages/stats/src/paired.ts',
+       'gTest(observed: readonly number[], expectedShares: readonly number[]): { statistic: number; df: number; pValue: number }',
+       'The G-test (log-likelihood ratio) of counts against expected shares: 2 sum O ln(O / E) (terms with O = 0 are 0), chi-square with k - 1 df',
+       "scipy.stats.power_divergence(lambda_='log-likelihood')",
+       [dict(args=[o, p], expect=gtest(o, p)) for o, p in GOF], tol=1e-9, tier=3)
+
+
+def levene(*g):
+    r = stats.levene(*g, center='median')
+    return dict(statistic=float(r.statistic), pValue=float(r.pvalue))
+
+
+LV = [([8.9, 9.1, 9.0, 9.3, 8.8], [7.0, 11.2, 9.5, 8.1, 10.4, 12.0], [9.0, 9.2, 8.7, 9.4]), ([1, 2, 3, 4, 5], [2, 4, 6, 8, 10]), ([0.5, 0.6, 0.55, 0.52], [0.1, 0.9, 0.4, 0.7, 0.2])]
+method('roadmap-tests', 'leveneTest', 'packages/stats/src/paired.ts',
+       'leveneTest(groups: readonly (readonly number[])[]): { statistic: number; pValue: number }',
+       "Levene's test of equal variances with the median center (Brown-Forsythe): one-way ANOVA F on |x - median of its group|, F(k - 1, N - k) p-value",
+       "scipy.stats.levene(center='median')",
+       [dict(args=[list(map(list, g))], expect=levene(*g)) for g in LV], tol=1e-9, tier=4)
+
+
+def perm_test(x, y):
+    import itertools
+    pooled = list(x) + list(y)
+    n = len(x)
+    obs = abs(np.mean(x) - np.mean(y))
+    count = 0
+    total = 0
+    for idx in itertools.combinations(range(len(pooled)), n):
+        a = [pooled[i] for i in idx]
+        b = [pooled[i] for i in range(len(pooled)) if i not in idx]
+        total += 1
+        if abs(np.mean(a) - np.mean(b)) >= obs - 1e-12:
+            count += 1
+    return dict(statistic=float(np.mean(x) - np.mean(y)), pValue=count / total)
+
+
+PM = [([3.1, 4.2, 2.8, 5.0], [1.2, 2.0, 1.8, 2.4, 1.1]), ([10, 12, 11], [9, 13, 10, 8]), ([0.7, 0.9, 0.8, 0.95, 0.85], [0.6, 0.75, 0.65, 0.7])]
+method('roadmap-tests', 'permutationTest', 'packages/stats/src/paired.ts',
+       'permutationTest(x: readonly number[], y: readonly number[]): { statistic: number; pValue: number }',
+       'The exact two-sample permutation test of the difference in means: every split of the pooled values into groups of the original sizes, p the share with |difference| at least the observed one (1e-12 slack); statistic mean(x) - mean(y). Exact enumeration up to C(N, n) = 1e6 splits',
+       'Fisher 1935; dossier section 3.4 (a test counts only if it can fail)',
+       [dict(args=[x, y], expect=perm_test(x, y)) for x, y in PM], tol=1e-12, tier=4)
+method('roadmap-tests', 'signTest', 'packages/stats/src/paired.ts',
+       'signTest(x: readonly number[], y: readonly number[]): { positive: number; negative: number; pValue: number }',
+       'The sign test on paired values: zero differences dropped, the exact two-sided binomial test of the positive count at 1/2',
+       'scipy.stats.binomtest on the signs',
+       [dict(args=[x, y], expect=dict(positive=int(sum(1 for a, b in zip(x, y) if a > b)), negative=int(sum(1 for a, b in zip(x, y) if a < b)), pValue=float(stats.binomtest(sum(1 for a, b in zip(x, y) if a > b), sum(1 for a, b in zip(x, y) if a != b)).pvalue))) for x, y in PT], tol=1e-12, tier=3)
+
+# intervals
+MED = [[2.1, 3.4, 1.9, 5.6, 4.2, 3.0, 2.8, 3.3, 4.1, 2.6, 3.9, 2.2], list(range(1, 21)), [10, 12, 9, 11, 13, 10, 12, 30, 5, 11, 10, 14, 9, 8, 15]]
+
+
+def median_ci(v, a=0.05):
+    x = sorted(v)
+    n = len(x)
+    # largest j (1-based) with P(B <= j - 1) <= alpha / 2, B ~ Binomial(n, 1/2); interval [x_(j), x_(n + 1 - j)]
+    j = max(k for k in range(1, n // 2 + 1) if stats.binom.cdf(k - 1, n, 0.5) <= a / 2)
+    return dict(estimate=float(np.median(x)), lower=float(x[j - 1]), upper=float(x[n - j]))
+
+
+method('roadmap-intervals', 'medianInterval', 'packages/stats/src/intervals.ts',
+       'medianInterval(values: readonly number[], alpha = 0.05): Interval',
+       'Distribution-free interval for the median from order statistics: with B ~ Binomial(n, 1/2), j the largest index with P(B <= j - 1) <= alpha / 2, the interval [x_(j), x_(n + 1 - j)] of the sorted values; estimate the median',
+       'Hollander, Wolfe and Chicken, Nonparametric Statistical Methods, 3.6',
+       [dict(args=[v], expect=median_ci(v)) for v in MED], tol=1e-12, tier=3)
+
+
+def wald(k, n):
+    p = k / n
+    h = Z * math.sqrt(p * (1 - p) / n)
+    return dict(estimate=p, lower=max(0.0, p - h), upper=min(1.0, p + h))
+
+
+method('roadmap-intervals', 'waldInterval', 'packages/stats/src/intervals.ts',
+       'waldInterval(k: number, n: number, z = Z95): Interval',
+       'The Wald interval p -/+ z sqrt(p (1 - p) / n), clipped to [0, 1]; kept to show why the report prints Wilson (dossier S8: the one to avoid)',
+       'Brown, Cai and DasGupta 2001 (dossier S8)',
+       [dict(args=[k, n], expect=wald(k, n)) for k, n in KN], tol=1e-12, tier=2)
+
+
+def arcsine(k, n):
+    p = k / n
+    a = math.asin(math.sqrt(p))
+    h = Z / (2 * math.sqrt(n))
+    lo = math.sin(max(0.0, a - h)) ** 2
+    hi = math.sin(min(math.pi / 2, a + h)) ** 2
+    return dict(estimate=p, lower=lo, upper=hi)
+
+
+method('roadmap-intervals', 'arcsineInterval', 'packages/stats/src/intervals.ts',
+       'arcsineInterval(k: number, n: number, z = Z95): Interval',
+       'The arcsine (variance-stabilised) interval: sin^2(asin(sqrt(p)) -/+ z / (2 sqrt(n))), the angle clipped to [0, pi/2]',
+       'Brown, Cai and DasGupta 2001 (dossier S8)',
+       [dict(args=[k, n], expect=arcsine(k, n)) for k, n in KN], tol=1e-12, tier=3)
+
+
+def rate_ratio(c1, t1, c2, t2, a=0.05):
+    # Conditional on the total, c1 ~ Binomial(c1 + c2, t1 r / (t1 r + t2)): Clopper-Pearson on the share, mapped to the ratio.
+    n = c1 + c2
+    lo = 0.0 if c1 == 0 else stats.beta.ppf(a / 2, c1, n - c1 + 1)
+    hi = 1.0 if c1 == n else stats.beta.ppf(1 - a / 2, c1 + 1, n - c1)
+    f = lambda s: (s / (1 - s)) * (t2 / t1) if s < 1 else float('inf')
+    return dict(estimate=(c1 / t1) / (c2 / t2), lower=float(f(lo)), upper=float(f(hi)))
+
+
+method('roadmap-intervals', 'poissonRateRatioInterval', 'packages/stats/src/intervals.ts',
+       'poissonRateRatioInterval(count1: number, exposure1: number, count2: number, exposure2: number, alpha = 0.05): Interval',
+       'Exact conditional interval for the ratio of two Poisson rates: Clopper-Pearson on count1 out of count1 + count2, the share s mapped to (s / (1 - s)) (exposure2 / exposure1); cases have both counts above 0',
+       'Ederer and Mantel 1974',
+       [dict(args=list(a), expect=rate_ratio(*a)) for a in [(12, 100, 5, 100), (30, 250, 40, 300), (3, 10, 9, 12), (50, 1000, 45, 900)]], tol=1e-7, tier=4)
+
+# agreement
+def pabak(rows):
+    a = [str(r[0]) for r in rows]
+    b = [str(r[1]) for r in rows]
+    k = len(set(a) | set(b))
+    po = np.mean([x == y for x, y in zip(a, b)])
+    return float((k * po - 1) / (k - 1))
+
+
+method('roadmap-agreement', 'brennanPrediger', 'packages/stats/src/agreement.ts',
+       'brennanPrediger(a: readonly Label[], b: readonly Label[]): number',
+       'Brennan-Prediger kappa (PABAK for two categories): (k po - 1) / (k - 1), k the categories used by either rater, po the observed agreement',
+       'Brennan and Prediger 1981; Byrt, Bishop and Carlin 1993',
+       [dict(args=[[r[0] for r in rows], [r[1] for r in rows]], expect=pabak(rows)) for rows in RATINGS], tol=1e-12, tier=3)
+
 Path(__file__).with_name('roadmap.json').write_text(json.dumps(dict(
     generatedBy='packages/validators/fixtures/stats/make_roadmap.py',
     scipy=__import__('scipy').__version__, numpy=np.__version__, methods=methods), indent=1) + '\n')

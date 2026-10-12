@@ -39,6 +39,11 @@ export type BankItem = {
   tier: Tier;
   level: BankLevel;
   component: string;
+  /**
+   * The one change that would make the item pass (docs/validators.md section 12.4: items sharing a cause count
+   * once). Filled by `causeOf` in bank/index.ts when the item does not name it.
+   */
+  cause?: string;
   /** How long the item may run before the validator stops it; DEFAULT_ITEM_BUDGET_MS when absent. */
   budgetMs?: number;
   check(ctx: ItemContext): ItemOutcome | Promise<ItemOutcome>;

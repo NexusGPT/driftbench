@@ -1,5 +1,5 @@
 import * as stats from '@driftbench/stats';
-import type { Item, Measure } from '../../../ladder';
+import { bankMeasure, type Item, type Measure } from '../../../ladder';
 import type { StatsImpl } from '../reference';
 import { analyticItems } from './analytic';
 import { degenerateItems } from './degenerate';
@@ -14,9 +14,42 @@ export { BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, type Tier
 
 export type BankOptions = { s?: StatsImpl; extra?: BankItem[] };
 
+/**
+ * The one change that would make an item pass, when the item does not name it. Conservative: a function's
+ * input checks are one cause, a roadmap method with all its generated items is one cause (add it, correctly).
+ */
+export function causeOf(item: BankItem): string {
+  if (item.cause) return item.cause;
+  const [head, fn = '', name = ''] = item.id.split('.');
+  if (head === 'reference') return `match the reference values of ${fn}.${name}`;
+  if (head === 'degenerate') {
+    if (item.family === 'degenerate-single-equal') return `${fn}: exact answer on one or all-equal values`;
+    if (
+      name.startsWith('domain-') &&
+      /special\.ts|drift\.ts$/.test(item.component) &&
+      !/must throw/.test(name)
+    )
+      return `${fn}: domain limits`;
+    return `${fn}: input validation`;
+  }
+  if (
+    head === 'roadmap' ||
+    head === 'roadmap-degenerate' ||
+    head === 'roadmap-scale' ||
+    head === 'roadmap-coverage' ||
+    head === 'roadmap-purity'
+  )
+    return `add ${fn}`;
+  if (head === 'analytic' && fn === 'allocation' && name.startsWith('neyman-optimal'))
+    return 'neymanAllocation: optimal integer allocation';
+  if (head === 'stability' && fn.startsWith('components-shift'))
+    return 'varianceComponents: centre the values before the sums';
+  return item.id;
+}
+
 /** Every item of the statistics bank, in ladder order. */
 export function statsBank(root: string): BankItem[] {
-  const items = [
+  const items: BankItem[] = [
     ...referenceItems(),
     ...degenerateItems(),
     ...reproducibilityItems(),
@@ -27,7 +60,9 @@ export function statsBank(root: string): BankItem[] {
     ...roadmapItems(root),
   ];
   const order = new Map<BankLevel, number>(BANK_LEVELS.map((level, i) => [level, i]));
-  return items.sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number));
+  return items
+    .map((item) => ({ ...item, cause: causeOf(item) }))
+    .sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number));
 }
 
 /** Runs one item on one seed. A throw inside the item is a failing outcome naming the error. */
@@ -73,18 +108,22 @@ export async function runInProcess(
 
 /** The measure of one level from a seed's run: passing over the level's items, the failing ones named. */
 export function levelMeasure(items: readonly BankItem[], run: BankRun): Measure {
-  const failing: Item[] = [];
-  for (const item of items) {
-    const outcome = run.get(item.id) ?? { pass: false, detail: 'the item was not run' };
-    if (!outcome.pass) {
-      failing.push({
+  return bankMeasure(
+    items.map((item) => {
+      const outcome = run.get(item.id) ?? { pass: false, detail: 'the item was not run' };
+      return {
         id: item.id,
         component: item.component,
-        detail: `[${item.family}, tier ${item.tier}] ${outcome.detail}`,
-      });
-    }
-  }
-  return { value: items.length === 0 ? 1 : (items.length - failing.length) / items.length, items: failing };
+        family: item.family,
+        tier: item.tier,
+        pass: outcome.pass,
+        ...(outcome.pass
+          ? {}
+          : { detail: `[${item.family}, tier ${item.tier}, cause: ${item.cause}] ${outcome.detail}` }),
+      };
+    }),
+    'packages/stats/src',
+  );
 }
 
 /** One level of the ladder: every item of the sub-bank on the seed; the value is passing over total. */

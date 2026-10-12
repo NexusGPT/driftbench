@@ -121,6 +121,7 @@ export function statsLadder(options: StatsLadderOptions = {}): Ladder {
   };
   return defineLadder({
     component: 'stats',
+    version: STATS_LADDER_VERSION,
     levels: BANK_LEVELS.map((level) => ({
       id: level,
       name: LEVEL_TEXT[level].name,
