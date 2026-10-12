@@ -19,6 +19,7 @@ import { openStore } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { loadValidSpecs } from './campaign';
 import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
@@ -121,11 +122,16 @@ export type EstateRunOptions = {
   json?: boolean;
 } & RunJudgeOptions;
 
-type RunLine = {
+export type RunLine = {
   spec: string;
   runId: string;
   status: RunResult['status'];
   pass: boolean;
+  /**
+   * True when only inconclusive checks keep the spec from passing (no stage feed, no judge): the run could
+   * not decide it. It still counts as not passed; `undecided` counts these apart from the specs that fail.
+   */
+  undecided: boolean;
   failing: string[];
   costUsd: number | null;
   /** What the judge spent on this spec, included in costUsd. */
@@ -191,7 +197,7 @@ export async function estateRunCommand(
   }
   let timeoutMs: number | undefined;
   if (options.timeout !== undefined) {
-    timeoutMs = Number(options.timeout);
+    timeoutMs = optionNumber(options.timeout);
     if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) {
       io.err(`--timeout is a whole number of milliseconds, got "${options.timeout}".\n`);
       return 2;
@@ -208,7 +214,7 @@ export async function estateRunCommand(
     args.push('--max-turns', options.maxTurns);
   }
   if (options.maxBudgetUsd !== undefined) {
-    const value = Number(options.maxBudgetUsd);
+    const value = optionNumber(options.maxBudgetUsd);
     if (!Number.isFinite(value) || value <= 0) {
       io.err(`--max-budget-usd is a positive amount, got "${options.maxBudgetUsd}".\n`);
       return 2;
@@ -384,16 +390,17 @@ export async function estateRunCommand(
   await store.close();
 
   const passed = lines.filter((line) => line.pass).length;
+  const undecided = lines.filter((line) => line.undecided).length;
   const costs = lines.map((line) => line.costUsd).filter((cost): cost is number => cost !== null);
   const total = costs.reduce((sum, cost) => sum + cost, 0);
   if (options.json) {
     io.out(
-      `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, judge: judge.label, judgeCostUsd: judge.spend.usd, runs: lines, passed, failed: lines.length - passed, costUsd: total }, null, 2)}\n`,
+      `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, judge: judge.label, judgeCostUsd: judge.spend.usd, runs: lines, passed, failed: lines.length - passed, undecided, costUsd: total }, null, 2)}\n`,
     );
   } else {
     for (const note of notes) io.out(`note: ${note}\n`);
     for (const line of lines) {
-      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : '✗';
+      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : line.undecided ? '?' : '✗';
       const cost = line.costUsd === null ? 'no cost in the stream' : `${line.costUsd.toFixed(4)} USD`;
       io.out(`${mark} ${line.spec}  (${cost})\n`);
       if (line.error) io.out(`    error: ${line.error}\n`);
@@ -401,13 +408,14 @@ export async function estateRunCommand(
       for (const verdict of line.judged) io.out(`    judged ${verdict.criterion}: ${verdict.outcome}\n`);
     }
     io.out(
-      `${lines.length} spec${lines.length === 1 ? '' : 's'} run live${standIn ? ' on a stand-in' : ''}: ${passed} pass, ${lines.length - passed} fail. Cost ${total.toFixed(4)} USD over ${costs.length} run${costs.length === 1 ? '' : 's'} that report one, judge ${judge.label} ${judge.spend.usd.toFixed(4)} USD of it. Campaign ${campaignId}.\n`,
+      `${lines.length} spec${lines.length === 1 ? '' : 's'} run live${standIn ? ' on a stand-in' : ''}: ${passed} pass, ${lines.length - passed} fail${undecided > 0 ? ` (${undecided} undecided: only inconclusive checks)` : ''}. Cost ${total.toFixed(4)} USD over ${costs.length} run${costs.length === 1 ? '' : 's'} that report one, judge ${judge.label} ${judge.spend.usd.toFixed(4)} USD of it. Campaign ${campaignId}.\n`,
     );
   }
   return passed === lines.length ? 0 : 1;
 }
 
-function lineOf(run: RunResult, judgeCostUsd: number): RunLine {
+/** The line of one run: pass, undecided (only inconclusive checks), the failing checks and the cost. */
+export function lineOf(run: RunResult, judgeCostUsd: number): RunLine {
   const failing = run.blocks.flatMap((block) =>
     block.verdicts
       .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
@@ -417,12 +425,22 @@ function lineOf(run: RunResult, judgeCostUsd: number): RunLine {
       ),
   );
   const reported = run.blocks.filter((block) => block.observed.cost.usd !== undefined);
+  const pass =
+    run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
+  const gating = run.blocks.flatMap((block) =>
+    block.verdicts.filter((verdict) => verdict.gating && verdict.outcome !== 'pass'),
+  );
   return {
     spec: run.specId,
     runId: run.runId,
     status: run.status,
-    pass:
-      run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false,
+    pass,
+    undecided:
+      !pass &&
+      run.status === 'completed' &&
+      run.endState?.match !== false &&
+      gating.length > 0 &&
+      gating.every((verdict) => verdict.outcome === 'inconclusive'),
     failing,
     costUsd:
       reported.length === 0 && judgeCostUsd === 0

@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Could you handle this for me: a session starts? Thanks."
+      user: Could you read the memory index at the start of a session? Thanks.
     expect:
       references:
         - path: "**/MEMORY.md"
@@ -48,5 +48,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.standing.read-the-memory-index-at-the (situation)
+    askFrom: instruction.standing.read-the-memory-index-at-the (title)
     outcome: no-delete

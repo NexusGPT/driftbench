@@ -24,8 +24,17 @@ beforeAll(async () => {
   labels = join(dir, 'labels');
   viewer = await startViewer({ store: db, labels, port: 0, labelledBy: 'a reviewer' });
   const page = await (await fetch(`${viewer.url}/campaign/c-x3`)).text();
-  const link = [...page.matchAll(/href="(\/campaign\/[^/"]+\/run\/[^"#]+)"/g)][0]?.[1] as string;
-  runPage = await (await fetch(`${viewer.url}${link}`)).text();
+  // A label goes only on a criterion the block offers: the run must be one whose form offers no_invented_data.
+  const links = [...page.matchAll(/href="(\/campaign\/[^/"]+\/run\/[^"#]+)"/g)].map(
+    (match) => match[1] as string,
+  );
+  for (const link of links) {
+    const text = await (await fetch(`${viewer.url}${link}`)).text();
+    if (text.includes('<option value="no_invented_data">')) {
+      runPage = text;
+      break;
+    }
+  }
 }, 120_000);
 
 afterAll(async () => {
@@ -69,7 +78,11 @@ describe('the label form picks an anchor: a message or a tool call of the block'
   });
 
   it('saves a tool-call anchor, by tool name and occurrence', async () => {
-    const match = runPage.match(/<option value="(tool:[^"]+:1)"/);
+    // The page lists anchors for every block: take the one in block 1's section.
+    const start = runPage.indexOf('id="block-1"');
+    const end = runPage.indexOf('id="block-2"', start);
+    const section = runPage.slice(start, end > start ? end : undefined);
+    const match = section.match(/<option value="(tool:[^"]+:1)"/);
     const option = match?.[1] ?? '';
     expect(option).not.toBe('');
     const response = await save({ block: '1', anchor: option });

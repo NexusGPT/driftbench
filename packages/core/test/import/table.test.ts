@@ -106,6 +106,13 @@ describe('importTable', () => {
     expect(loaded.ok && loaded.spec.blocks[0]?.expect?.tools).toEqual([{ label: 'coverage.check' }]);
   });
 
+  it('writes one opening brace for two in a row, as docs/datasets.md says, and still fills the columns', () => {
+    const text = MAPPING.replace('title: "{title}"', 'title: "Brace {{ here, {{literal} and {title}"');
+    const result = importTable([CASES], mapping(text), 'cases.csv');
+    expect(result.errors).toEqual([]);
+    expect(result.specs[0]?.spec.title).toBe('Brace { here, {literal} and A customer upgrades');
+  });
+
   it('makes one spec per row without group_by, with {row} for an id', () => {
     const text = MAPPING.replace('group_by: conversation\n', '').replace('{conversation}', 'row-{row}');
     const result = importTable([CASES], mapping(text), 'cases.csv');

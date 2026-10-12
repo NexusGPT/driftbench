@@ -10,6 +10,7 @@ import {
 } from '@driftbench/judges';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 /**
  * The judge of a run (`estate run`, `replay`): `--judge claude:<model>` asks the local `claude` command,
@@ -83,7 +84,7 @@ export async function runJudgeFrom(
   const model = match[1];
   let budget: number | undefined;
   if (options.judgeBudget !== undefined) {
-    budget = Number(options.judgeBudget);
+    budget = optionNumber(options.judgeBudget);
     if (!Number.isFinite(budget) || budget <= 0) {
       io.err(`error: --judge-budget takes a positive number of US dollars, not "${options.judgeBudget}"\n`);
       return undefined;

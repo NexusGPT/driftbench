@@ -629,7 +629,28 @@ async function saveFromForm(
   const block = detail.blocks.find((entry) => entry.index === index);
   if (!Number.isInteger(index) || !block)
     throw new HttpError(400, `The run has no block ${fields.get('block')}.`);
-  const transcript = transcriptOf(block);
+  // The form offers the judged criteria of the spec and those that voted on the block; when it offers some,
+  // a label on any other criterion is refused and writes no file. With none, the form takes a free name.
+  const offered = criteriaOf(data.specs.get(`${run.specId}@${run.specHash}`)?.spec, run, index);
+  if (offered.length > 0 && !offered.includes(criterion)) {
+    throw new HttpError(400, `The block offers the criteria ${offered.join(', ')}, not ${criterion}.`);
+  }
+  const transcript = [
+    ...(block.stimulus === undefined ? [] : [{ role: 'user' as const, text: block.stimulus }]),
+    ...block.toolCalls.flatMap((call) => [
+      { role: 'tool_call' as const, text: JSON.stringify(call.input ?? null), tool: call.label },
+      ...(call.output === undefined && call.error === undefined
+        ? []
+        : [
+            {
+              role: 'tool_result' as const,
+              text: call.error ?? JSON.stringify(call.output),
+              tool: call.label,
+            },
+          ]),
+    ]),
+    { role: 'agent' as const, text: block.text },
+  ];
   const picked = fields.get('anchor') ?? 'none';
   let anchor: AnnotationAnchor | undefined;
   if (picked !== 'none') {
@@ -648,6 +669,10 @@ async function saveFromForm(
   };
   const queue = await readQueue(labelsDir);
   const entry = queue.entries.find((item) => item.criterion === criterion && item.id === labelled.id);
+  // Another reviewer cannot label an item held by someone else.
+  if (entry && entry.state === 'assigned' && entry.assignee !== labelledBy) {
+    throw new HttpError(409, `${entry.id} on ${criterion} is held by ${entry.assignee}.`);
+  }
   if (entry && entry.state === 'assigned' && entry.assignee === labelledBy) {
     await writeQueue(
       labelsDir,

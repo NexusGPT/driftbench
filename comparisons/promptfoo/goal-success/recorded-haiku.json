@@ -1,0 +1,707 @@
+{
+  "model": "haiku",
+  "calls": 100,
+  "costUsd": 0.0019486599999999983,
+  "rows": [
+    {
+      "id": "goal.001",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.0001328,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.002",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.0001336,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.003",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.004",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.0001327,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.005",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.0001321,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.006",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.0001336,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.007",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.008",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.009",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.0000092,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.010",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.011",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.012",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.013",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.0001334,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.014",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.015",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000917,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.016",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.0001342,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.017",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.018",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.019",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.020",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000917,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.021",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.022",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.023",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.024",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.0000092,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.025",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.026",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.027",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.028",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00013390000000000003,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.029",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000975,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.030",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.031",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.032",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.033",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.034",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.035",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.036",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.037",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.038",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000917,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.039",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.040",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.041",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.042",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.043",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.044",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.045",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.046",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.047",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.048",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.049",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000926,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.050",
+      "truth": "pass",
+      "outcome": "pass",
+      "cost": 0.0000092,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.051",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.052",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000975,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.053",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.054",
+      "truth": "pass",
+      "outcome": "pass",
+      "cost": 0.00000917,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.055",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.056",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.057",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.0000092,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.058",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000975,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.059",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.0000092,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.060",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.061",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.062",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.063",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000926,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.064",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.0000092,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.065",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000975,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.066",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.067",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.068",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000975,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.069",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.070",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.071",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.072",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.073",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.074",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.075",
+      "truth": "pass",
+      "outcome": "pass",
+      "cost": 0.0000092,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.076",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000926,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.077",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.078",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.079",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.080",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000975,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.081",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.082",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000926,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.083",
+      "truth": "pass",
+      "outcome": "fail",
+      "cost": 0.00000971,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.084",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000917,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.085",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.086",
+      "truth": "pass",
+      "outcome": "pass",
+      "cost": 0.0000092,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.087",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000917,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.088",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.089",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.090",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000926,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.091",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.092",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000917,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.093",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.094",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.095",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000972,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.096",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000975,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.097",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.0000092,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.098",
+      "truth": "fail",
+      "outcome": "pass",
+      "cost": 0.00000926,
+      "text": "PASS"
+    },
+    {
+      "id": "goal.099",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    },
+    {
+      "id": "goal.100",
+      "truth": "fail",
+      "outcome": "fail",
+      "cost": 0.00000968,
+      "text": "FAIL"
+    }
+  ]
+}
