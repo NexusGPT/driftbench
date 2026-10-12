@@ -39,6 +39,8 @@ const RULES: readonly Rule[] = [
     code: 'picture-contradicts-rubric',
     found: (c) => negationOnly(c.pass, c.fail) || negationOnly(c.fail, c.pass),
   },
+  // A conversation criterion that judges one reply: the judge reads the whole conversation and the rubric points at a slice.
+  { code: 'scope-mismatch', found: (c) => c.scope === 'conversation' && /\b(the last|this|that) reply\b/i.test(c.rubric) },
 ];
 
 const countNot = (text: string): number => (text.match(/\bnot\b/gi) ?? []).length;

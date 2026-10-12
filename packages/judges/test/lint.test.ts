@@ -95,4 +95,13 @@ describe('lintCriterion', () => {
     expect(lintCriterion({ ...clean, pass: 'The reply names Acme Care.', fail: 'The reply does not name Acme Care.' }).issues.map((i) => i.code)).toContain('picture-contradicts-rubric');
     expect(lintCriterion({ ...clean, pass, fail: 'The reply leaves out what the rubric asks.' }).issues.map((i) => i.code)).not.toContain('picture-contradicts-rubric');
   });
+
+  it('reports scope-mismatch for a conversation criterion that speaks of the last reply', () => {
+    const codes = (c: CriterionText) => lintCriterion(c).issues.map((i) => i.code);
+    for (const rubric of ['In the last reply, the agent names Acme Care.', 'This reply names Acme Care.', 'The last reply names Acme Care.']) {
+      expect(codes({ ...clean, rubric, scope: 'conversation' }), rubric).toContain('scope-mismatch');
+      expect(codes({ ...clean, rubric, scope: 'block' }), rubric).not.toContain('scope-mismatch');
+    }
+    expect(codes({ ...clean, scope: 'conversation' })).not.toContain('scope-mismatch');
+  });
 });
