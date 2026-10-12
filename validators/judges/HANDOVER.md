@@ -96,6 +96,7 @@ Iteration 67 (cause: leetspeak): reading with 4 3 1 0 5 7 folded to letters insi
 Iteration 68 (cause: letters spaced one by one): reading with single spaces between letters dropped. Test: screen.test.ts (red proved). Bank 469 -> 470.
 Iteration 69 (cause: letters separated by dots): reading with dots between letters dropped. Test: screen.test.ts (red proved). Bank 470 -> 471.
 Iteration 70 (cause: reversed text): reversed reading. Test: screen.test.ts (red proved). Bank 471 -> 472. The first measure run failed three scale items under a load average of 154 (they pass when re-run); re-measured.
+Iteration 71 (cause: ROT13): rotated reading. Test: screen.test.ts (red proved). Bank 472 -> 473 (0.7414).
 
 ## Next actions
 
