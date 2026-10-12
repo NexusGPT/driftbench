@@ -446,37 +446,37 @@
     },
     {
       "judge": "openai-chat",
-      "key": "ac6bd9c521c9",
+      "key": "33bbec1d3220",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"Matches the PASS picture.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "ac6bd9c521c9",
+      "key": "33bbec1d3220",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"Matches the PASS picture.\"}"
     },
     {
       "judge": "anthropic-chat",
-      "key": "ac6bd9c521c9",
+      "key": "33bbec1d3220",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"Matches the PASS picture.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "65b5e5cb02cb",
+      "key": "4619448d3b8a",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "65b5e5cb02cb",
+      "key": "4619448d3b8a",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
     },
     {
       "judge": "anthropic-chat",
-      "key": "65b5e5cb02cb",
+      "key": "4619448d3b8a",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"Matches the FAIL picture.\"}"
     },
@@ -662,7 +662,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "2d73b2c3b559",
+      "key": "3fc3bd2949e7",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -672,7 +672,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "2d73b2c3b559",
+      "key": "3fc3bd2949e7",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -682,7 +682,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "2d73b2c3b559",
+      "key": "3fc3bd2949e7",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -692,7 +692,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "94a125b1faa1",
+      "key": "9d9df4d109ce",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -702,7 +702,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "94a125b1faa1",
+      "key": "9d9df4d109ce",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -712,7 +712,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "94a125b1faa1",
+      "key": "9d9df4d109ce",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",

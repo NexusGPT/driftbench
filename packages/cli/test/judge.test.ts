@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -472,4 +472,98 @@ describe('the judge check in the default check set', () => {
     expect(request?.artifact).toContain('| 3 | Acme Mobile M | 40 GB | 25 | 300 (=C3*12) |');
     expect(request?.artifact).toMatch(/Workspace changes: created out\/acme-price-sheet\.xlsx/);
   }, 120_000);
+});
+
+describe('driftbench judge calibrate with a live judge on the claude command', () => {
+  /** A fake claude command: every answer is pass, each call costs 0.001 USD. No model is called. */
+  async function fakeClaude(): Promise<string> {
+    const path = join(scratch, 'fake-claude.mjs');
+    await writeFile(
+      path,
+      `#!/usr/bin/env node
+let input = '';
+process.stdin.on('data', (c) => { input += c; });
+process.stdin.on('end', () => {
+  process.stdout.write(JSON.stringify({ type: 'result', subtype: 'success', is_error: false, total_cost_usd: 0.001,
+    result: JSON.stringify({ outcome: 'pass', reasoning: 'fake: always pass' }) }));
+});
+`,
+    );
+    await chmod(path, 0o755);
+    return path;
+  }
+
+  function liveArgs(command: string, out: string, extra: string[] = []): string[] {
+    return [
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--claude',
+      'haiku',
+      '--claude-command',
+      command,
+      '--out',
+      out,
+      ...extra,
+    ];
+  }
+
+  it('runs the judge, reports its spend, and records a cassette that replays to the same report', async () => {
+    const command = await fakeClaude();
+    const record = join(scratch, 'live.cassette.json');
+    const first = await run(liveArgs(command, join(scratch, 'live.yaml'), ['--record', record, '--json']));
+    expect(first.err).toBe('');
+    const report = JSON.parse(first.out);
+    // 12 criteria x 2 fixtures x 3 repeats + 40 labelled blocks, one judge.
+    expect(report.spentUsd).toBeCloseTo(0.112, 9);
+    const row = report.criteria.find((c: { criterion: string }) => c.criterion === 'care_redirect').judges[0];
+    expect(row).toMatchObject({ judge: 'claude-haiku', cls: 'system2' });
+    expect(row.separation.separated).toBe(0);
+    // One judge cannot seat a council of three: every criterion stays unassigned, exit 1.
+    expect(first.code).toBe(1);
+    const replay = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      record,
+      '--out',
+      join(scratch, 'replay.yaml'),
+      '--json',
+    ]);
+    const again = JSON.parse(replay.out);
+    expect(again.criteria).toEqual(report.criteria);
+    expect(again.spentUsd).toBeCloseTo(0.112, 9);
+  }, 120_000);
+
+  it('stops calling once the spend cap is reached: the rest give no answer', async () => {
+    const command = await fakeClaude();
+    const { code, out } = await run(
+      liveArgs(command, join(scratch, 'capped.yaml'), ['--spend-cap-usd', '0.0025']),
+    );
+    expect(code).toBe(1);
+    expect(out).toContain('Spent 0.0030 USD.');
+    expect(out).toContain('109 judge call(s) gave no answer.');
+  });
+
+  it('exits 2 without a cassette or a live judge, and on a bad cap', async () => {
+    const base = [
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--out',
+      join(scratch, 'x.yaml'),
+    ];
+    expect((await run(base)).code).toBe(2);
+    expect((await run([...base, '--claude', 'haiku', '--spend-cap-usd', '0'])).code).toBe(2);
+  });
 });

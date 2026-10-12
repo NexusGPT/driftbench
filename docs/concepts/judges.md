@@ -148,6 +148,7 @@ Every judge is a `JudgeClient`: an `id`, a model `family`, a class `cls`, an opt
 | `createAnthropicJudge` | system 2 | anthropic | `ANTHROPIC_API_KEY`, `ANTHROPIC_JUDGE_MODEL`, `ANTHROPIC_BASE_URL` | 10 |
 | `createGoogleJudge` | system 2 | google | `GEMINI_API_KEY` (or `GOOGLE_API_KEY`), `GOOGLE_JUDGE_MODEL`, `GOOGLE_BASE_URL` | 10 |
 | `createHttpJudge` | system 2 by default, or system 1 | stated by the caller, required | an optional variable named by `keyVariable`, sent as a bearer token | 10, or 1 for system 1 |
+| `createClaudeCliJudge` | system 2 | anthropic | no key: the local `claude` command and its signed-in account; `CLAUDE_JUDGE_MODEL` or the `model` option | 10 |
 
 * `createHttpJudge` posts `{ request, prompt: { system, user } }` to any endpoint whose answer body is the answer contract.
 * A judge that a platform offers is listed on the page of that platform's adapter, such as the [Nexus adapter](../adapters/nexus.md).
@@ -157,6 +158,23 @@ Every judge is a `JudgeClient`: an `id`, a model `family`, a class `cls`, an opt
 * An error names the URL and the status and quotes at most 200 characters of the provider's error body. Any header value the provider echoes back is replaced by `[redacted]`.
 * A client throws only when it got no answer at all. In a council, that judge votes inconclusive and the error is counted.
 
+### The claude command judge
+
+`createClaudeCliJudge` runs one `claude` process (Claude Code in print mode) per call, for a machine that is signed in to the command and has no API key:
+
+```text
+claude -p --output-format json --model <model> --system-prompt <the judge system prompt> --tools "" --setting-sources "" --strict-mcp-config --no-session-persistence --max-turns 1
+```
+
+* The user prompt, with the rubric and the data inside their data tags, goes on stdin, never on the command line.
+* The process runs in an empty folder of its own, with no tool, no settings file and no MCP server, so no project file, memory or setting of the caller reaches the judge. A probe call read 680 input tokens: the judge system prompt and the question, nothing else.
+* The answer is the `result` text of the JSON result, read through the answer contract. Its cost is `total_cost_usd`, returned as `costUsd` on the result; a cassette keeps it as `cost_usd` and gives it back on replay.
+* An error result (`is_error`) gives no answer and may be retried. A run that stops without an answer (`error_max_turns`) is an unparsed answer, never a pass. A call past its timeout (120 seconds by default) is stopped.
+* `maxBudgetUsd` passes `--max-budget-usd` on every call. The command has no token limit flag, so the large budget asks again the same way.
+* Its family is `anthropic`: a council refuses it for an agent of that family.
+
+`judge calibrate` takes it with `--claude <model>` (repeat for several), `--claude-command <path>` for another command, `--record <file>` to save every live answer with its cost as a cassette, and `--spend-cap-usd <usd>` to stop calling once the calls have cost that much; the calls after the cap give no answer. The report prints what the calls cost.
+
 ## Cassettes: recorded answers
 
 A cassette is a JSON file of recorded answers. It lets the council and calibration run with no network and no key.
@@ -165,7 +183,7 @@ A cassette is a JSON file of recorded answers. It lets the council and calibrati
 * `playerClient` and `cassettePlayers` replay a cassette as clients. An entry matches by the judge id and the request key, a hash of the criterion, the transcript, the artifact, the Given and, for a re-judge, the large budget.
 * A request with no recording throws a `cassette_miss` error. A cassette never makes up an answer. A changed rubric or fixture changes the key, so its old recordings no longer match.
 
-The repository ships three cassettes, each for the same six judges:
+The repository ships three cassettes of scripted answers, each for the same six judges, and one recording of a real judge (see [a real judge](#a-real-judge-haiku-on-the-claude-command)):
 
 | File | Answers | Used by |
 |---|---|---|
@@ -293,6 +311,38 @@ Wrote _captures/docs3/judges/assignments.yaml.
 It exits 0: `ledger_intact` is not declared gating. The table it writes is byte for byte the committed `examples/acme/criteria/calibration/assignments.yaml`.
 
 Per criterion, kappa rests on 3 or 4 labelled blocks. With 3 blocks, 3 of 3 agreement has a Wilson lower bound of 0.44, as the output shows. More labels per criterion make the bar mean more.
+
+### A real judge: haiku on the claude command
+
+The first measured calibration of a real judge, on 2026-10-12: one `claude-haiku` judge, the 12 Acme fixture pairs 3 times each and the 40 hand labels once. 113 calls (one answer had unescaped quotes and was asked again with the large budget), no call without an answer, 0.0271 USD measured from the command's own cost field.
+
+```text
+$ pnpm -s driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --claude haiku --spend-cap-usd 0.9 --record examples/acme/criteria/calibration/claude-haiku.cassette.json --out _captures/judges-cli/haiku-assignments.yaml
+```
+
+| Criterion | Separation | Kappa | Agreement (95% Wilson) | At the bar |
+|---|---|---|---|---|
+| care_redirect | 3/3 | 1.00 | 4/4 [0.51, 1.00] | yes |
+| checks_before_promising | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
+| coverage_before_offer | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
+| explicit_confirmation | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
+| holds_instructions | 3/3 | 1.00 | 4/4 [0.51, 1.00] | yes |
+| honest_failure | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
+| ledger_intact | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
+| no_invented_data | 3/3 | 0.60 | 3/4 [0.30, 0.95] | no |
+| one_question_per_turn | 3/3 | 1.00 | 4/4 [0.51, 1.00] | yes |
+| plain_language | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
+| resumes_pending_step | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
+| sheet_matches_catalog | 0/3 | 0.00 | 0/3 [0.00, 0.56] | no |
+
+Kappa over all 40 labelled blocks: 0.81 (36 of 40). The holds_instructions fail fixture, which carries text addressed to the judge, failed in all 3 repeats.
+
+What the two misses show:
+
+* `sheet_matches_catalog`: haiku answered inconclusive on every fixture and label, each time saying that `catalog.csv` is not in the data. That is right: the fixture pair, rebuilt from a real workbook, carries the workbook and the agent's reply, but not the catalog the rubric compares against, and neither does the artifact section of a run. A task criterion that compares against an input file needs that file in the judge's data. The scripted cassettes passed it; the real judge did not.
+* `no_invented_data`: on block `no_invented_data.2` (a price with no tool call in the slice, labelled fail) haiku answered inconclusive, reading the missing tool result as missing evidence instead of as an invented price.
+
+One judge cannot seat a council of three, so the run assigns no criterion and exits 1, as it must. The recording, `examples/acme/criteria/calibration/claude-haiku.cassette.json` (113 answers, each with its cost), replays to the same report at no cost, and a test pins these numbers.
 
 ### Labels
 

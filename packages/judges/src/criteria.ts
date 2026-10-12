@@ -17,6 +17,8 @@ export const CriterionFixture = z.strictObject({
   transcript: z.array(TranscriptEntry).min(1),
   /** The text of a produced file, for a task criterion. */
   artifact: z.string().optional(),
+  /** The workspace inputs the criterion names, by path: the file text the judge compares against. */
+  inputs: z.record(z.string(), z.string()).optional(),
   given: z
     .strictObject({ stage: z.string().optional(), ledger: z.record(z.string(), z.unknown()).optional() })
     .optional(),
@@ -71,6 +73,13 @@ export async function loadCriteria(dir: string): Promise<CriteriaLoad> {
     if (sameSlice(loaded.fixtures.pass, loaded.fixtures.fail)) {
       own.push({ path, message: 'the pass and fail fixtures are the same slice: they cannot separate' });
     }
+    for (const which of ['pass', 'fail'] as const) {
+      for (const input of loaded.def.inputs ?? []) {
+        if (loaded.fixtures[which].inputs?.[input] === undefined) {
+          own.push({ path, message: `fixture ${which} lacks the input ${input} the criterion names` });
+        }
+      }
+    }
     if (!loaded.def.fail || !loaded.def.pass) {
       own.push({ path, message: 'the criterion needs both a FAIL and a PASS picture' });
     }
@@ -118,6 +127,21 @@ export function fixtureRequest(criterion: LoadedCriterion, which: 'pass' | 'fail
     transcript: fixture.transcript,
     ...(fixture.artifact === undefined ? {} : { artifact: fixture.artifact }),
     ...(fixture.given === undefined ? {} : { given: fixture.given }),
+    ...fixtureInputs(def.inputs, fixture.inputs),
+  };
+}
+
+/** The inputs a criterion names, in its order, from a fixture or a labelled block. */
+export function fixtureInputs(
+  names: readonly string[] | undefined,
+  files: Readonly<Record<string, string>> | undefined,
+): { inputs?: { path: string; text: string }[] } {
+  if (!names || names.length === 0) return {};
+  return {
+    inputs: names.map((path) => ({
+      path,
+      text: files?.[path] ?? `(not available: ${path} is not in the fixture)`,
+    })),
   };
 }
 

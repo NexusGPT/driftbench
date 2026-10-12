@@ -57,6 +57,8 @@ export type JudgeRequest = {
   readonly transcript: readonly TranscriptEntry[];
   /** The text of a produced file, as an artifact reader extracted it. */
   readonly artifact?: string;
+  /** The workspace inputs the criterion names (`inputs`), each with its path: what the output is compared against. */
+  readonly inputs?: readonly { readonly path: string; readonly text: string }[];
   /** A summary of the block's Given: the stage expected and the ledger. */
   readonly given?: { readonly stage?: string; readonly ledger?: Readonly<Record<string, unknown>> };
   readonly budget?: Budget;
@@ -69,6 +71,8 @@ export type JudgeResult = {
   readonly raw: string;
   /** True when the raw answer did not satisfy the contract. The answer is then inconclusive. */
   readonly unparsed?: boolean;
+  /** What the call cost in US dollars, when the provider reports it (the claude command does). */
+  readonly costUsd?: number;
 };
 
 /** An inconclusive answer that names why. */

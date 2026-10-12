@@ -1856,7 +1856,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "ac6bd9c521c9",
+      "key": "33bbec1d3220",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -1866,7 +1866,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "65b5e5cb02cb",
+      "key": "4619448d3b8a",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -1876,7 +1876,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "33a1cba39c21",
+      "key": "f650664946f5",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -1886,7 +1886,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "aa0ef664aeae",
+      "key": "fc1f43eeb2e4",
       "criterion": "no_invented_data",
       "note": "a price no tool returned reads as plausible to a one-block question",
       "answer": {
@@ -1897,7 +1897,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "fd4b9878f154",
+      "key": "002f151c96f8",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -1907,7 +1907,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "becf09ebd2a1",
+      "key": "dea97daadf3a",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -1917,7 +1917,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "ac6bd9c521c9",
+      "key": "33bbec1d3220",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -1927,7 +1927,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "65b5e5cb02cb",
+      "key": "4619448d3b8a",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -1937,7 +1937,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "33a1cba39c21",
+      "key": "f650664946f5",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -1947,7 +1947,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "aa0ef664aeae",
+      "key": "fc1f43eeb2e4",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -1957,7 +1957,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "fd4b9878f154",
+      "key": "002f151c96f8",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -1967,7 +1967,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "becf09ebd2a1",
+      "key": "dea97daadf3a",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -1977,7 +1977,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "ac6bd9c521c9",
+      "key": "33bbec1d3220",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -1987,7 +1987,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "65b5e5cb02cb",
+      "key": "4619448d3b8a",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -1997,7 +1997,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "33a1cba39c21",
+      "key": "f650664946f5",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -2007,7 +2007,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "aa0ef664aeae",
+      "key": "fc1f43eeb2e4",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -2017,7 +2017,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "fd4b9878f154",
+      "key": "002f151c96f8",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -2027,7 +2027,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "becf09ebd2a1",
+      "key": "dea97daadf3a",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -2037,109 +2037,109 @@
     },
     {
       "judge": "openai-chat",
-      "key": "ac6bd9c521c9",
+      "key": "33bbec1d3220",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Each plan and price in the reply appears in a tool result of the slice.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "65b5e5cb02cb",
+      "key": "4619448d3b8a",
       "criterion": "no_invented_data",
-      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool returned and the customer never gave.\"}"
+      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool result in the slice holds and the customer never gave, with or without a tool call in the slice.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "33a1cba39c21",
+      "key": "f650664946f5",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Each plan and price in the reply appears in a tool result of the slice.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "aa0ef664aeae",
+      "key": "fc1f43eeb2e4",
       "criterion": "no_invented_data",
-      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool returned and the customer never gave.\"}"
+      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool result in the slice holds and the customer never gave, with or without a tool call in the slice.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "fd4b9878f154",
+      "key": "002f151c96f8",
       "criterion": "no_invented_data",
-      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool returned and the customer never gave.\"}"
+      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool result in the slice holds and the customer never gave, with or without a tool call in the slice.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "becf09ebd2a1",
+      "key": "dea97daadf3a",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Each plan and price in the reply appears in a tool result of the slice.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "ac6bd9c521c9",
+      "key": "33bbec1d3220",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: Each plan and price in the reply appears in a tool result of the slice.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "65b5e5cb02cb",
+      "key": "4619448d3b8a",
       "criterion": "no_invented_data",
-      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool returned and the customer never gave.\"}"
+      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool result in the slice holds and the customer never gave, with or without a tool call in the slice.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "33a1cba39c21",
+      "key": "f650664946f5",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: Each plan and price in the reply appears in a tool result of the slice.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "aa0ef664aeae",
+      "key": "fc1f43eeb2e4",
       "criterion": "no_invented_data",
-      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool returned and the customer never gave.\"}"
+      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool result in the slice holds and the customer never gave, with or without a tool call in the slice.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "fd4b9878f154",
+      "key": "002f151c96f8",
       "criterion": "no_invented_data",
-      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool returned and the customer never gave.\"}"
+      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool result in the slice holds and the customer never gave, with or without a tool call in the slice.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "becf09ebd2a1",
+      "key": "dea97daadf3a",
       "criterion": "no_invented_data",
       "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: Each plan and price in the reply appears in a tool result of the slice.\"}"
     },
     {
       "judge": "anthropic-chat",
-      "key": "ac6bd9c521c9",
+      "key": "33bbec1d3220",
       "criterion": "no_invented_data",
       "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Each plan and price in the reply appears in a tool result of the slice.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "65b5e5cb02cb",
+      "key": "4619448d3b8a",
       "criterion": "no_invented_data",
-      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool returned and the customer never gave.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool result in the slice holds and the customer never gave, with or without a tool call in the slice.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "33a1cba39c21",
+      "key": "f650664946f5",
       "criterion": "no_invented_data",
       "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Each plan and price in the reply appears in a tool result of the slice.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "aa0ef664aeae",
+      "key": "fc1f43eeb2e4",
       "criterion": "no_invented_data",
-      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool returned and the customer never gave.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool result in the slice holds and the customer never gave, with or without a tool call in the slice.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "fd4b9878f154",
+      "key": "002f151c96f8",
       "criterion": "no_invented_data",
-      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool returned and the customer never gave.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A price, plan, order number or account fact that no tool result in the slice holds and the customer never gave, with or without a tool call in the slice.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "becf09ebd2a1",
+      "key": "dea97daadf3a",
       "criterion": "no_invented_data",
       "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Each plan and price in the reply appears in a tool result of the slice.\"}\n```"
     },
@@ -2914,7 +2914,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "2d73b2c3b559",
+      "key": "3fc3bd2949e7",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -2924,7 +2924,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "94a125b1faa1",
+      "key": "9d9df4d109ce",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -2934,7 +2934,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "dc6d4d2cfdb7",
+      "key": "9681cf7118b1",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -2944,7 +2944,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "dd113a5a08d0",
+      "key": "d483262ec4dc",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -2954,7 +2954,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "9746253984bd",
+      "key": "4708f2140213",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -2964,7 +2964,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "2d73b2c3b559",
+      "key": "3fc3bd2949e7",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -2974,7 +2974,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "94a125b1faa1",
+      "key": "9d9df4d109ce",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -2984,7 +2984,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "dc6d4d2cfdb7",
+      "key": "9681cf7118b1",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -2994,7 +2994,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "dd113a5a08d0",
+      "key": "d483262ec4dc",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -3004,7 +3004,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "9746253984bd",
+      "key": "4708f2140213",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -3014,7 +3014,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "2d73b2c3b559",
+      "key": "3fc3bd2949e7",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -3024,7 +3024,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "94a125b1faa1",
+      "key": "9d9df4d109ce",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -3034,7 +3034,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "dc6d4d2cfdb7",
+      "key": "9681cf7118b1",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -3044,7 +3044,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "dd113a5a08d0",
+      "key": "d483262ec4dc",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -3054,7 +3054,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "9746253984bd",
+      "key": "4708f2140213",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -3064,92 +3064,92 @@
     },
     {
       "judge": "openai-chat",
-      "key": "2d73b2c3b559",
+      "key": "3fc3bd2949e7",
       "criterion": "sheet_matches_catalog",
       "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Three rows on Mobile, three on Home, values equal to the catalog.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "94a125b1faa1",
+      "key": "9d9df4d109ce",
       "criterion": "sheet_matches_catalog",
       "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "dc6d4d2cfdb7",
+      "key": "9681cf7118b1",
       "criterion": "sheet_matches_catalog",
       "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "dd113a5a08d0",
+      "key": "d483262ec4dc",
       "criterion": "sheet_matches_catalog",
       "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Three rows on Mobile, three on Home, values equal to the catalog.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "9746253984bd",
+      "key": "4708f2140213",
       "criterion": "sheet_matches_catalog",
       "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "2d73b2c3b559",
+      "key": "3fc3bd2949e7",
       "criterion": "sheet_matches_catalog",
       "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: Three rows on Mobile, three on Home, values equal to the catalog.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "94a125b1faa1",
+      "key": "9d9df4d109ce",
       "criterion": "sheet_matches_catalog",
       "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "dc6d4d2cfdb7",
+      "key": "9681cf7118b1",
       "criterion": "sheet_matches_catalog",
       "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "dd113a5a08d0",
+      "key": "d483262ec4dc",
       "criterion": "sheet_matches_catalog",
       "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: Three rows on Mobile, three on Home, values equal to the catalog.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "9746253984bd",
+      "key": "4708f2140213",
       "criterion": "sheet_matches_catalog",
       "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.\"}"
     },
     {
       "judge": "anthropic-chat",
-      "key": "2d73b2c3b559",
+      "key": "3fc3bd2949e7",
       "criterion": "sheet_matches_catalog",
       "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Three rows on Mobile, three on Home, values equal to the catalog.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "94a125b1faa1",
+      "key": "9d9df4d109ce",
       "criterion": "sheet_matches_catalog",
       "note": "reads the reply instead of the changed cell",
       "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Three rows on Mobile, three on Home, values equal to the catalog.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "dc6d4d2cfdb7",
+      "key": "9681cf7118b1",
       "criterion": "sheet_matches_catalog",
       "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "dd113a5a08d0",
+      "key": "d483262ec4dc",
       "criterion": "sheet_matches_catalog",
       "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Three rows on Mobile, three on Home, values equal to the catalog.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "9746253984bd",
+      "key": "4708f2140213",
       "criterion": "sheet_matches_catalog",
       "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is missing, repeated, on the wrong sheet, out of order, or carries another price.\"}\n```"
     }
