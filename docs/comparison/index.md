@@ -4,13 +4,15 @@ These pages compare driftbench with five evaluation tools, one page per tool. Ev
 
 ## Results at a glance
 
-| Tool | Ahead | Equal | Behind | In progress | Page |
-|---|---|---|---|---|---|
-| promptfoo | 9 | 13 | 7 | 4 | [promptfoo](promptfoo.md) |
-| LangWatch | 7 | 1 | 2 | 2 | [LangWatch](langwatch.md) |
-| DeepEval | 9 | 0 | 0 | 2 | [DeepEval](deepeval.md) |
-| Inspect | 18 | 7 | 2 | 3 | [Inspect](inspect.md) |
-| Langfuse | 5 | 3 | 0 | 0 | [Langfuse](langfuse.md) |
+| Tool | Ahead | Equal | Behind | In progress | Limit | Page |
+|---|---|---|---|---|---|---|
+| promptfoo | 9 | 16 | 1 | 5 | 5 | [promptfoo](promptfoo.md) |
+| LangWatch | 7 | 2 | 4 | 0 | 3 | [LangWatch](langwatch.md) |
+| DeepEval | 10 | 1 | 0 | 0 | 2 | [DeepEval](deepeval.md) |
+| Inspect | 20 | 0 | 0 | 0 | 3 | [Inspect](inspect.md) |
+| Langfuse | 10 | 2 | 0 | 0 | 3 | [Langfuse](langfuse.md) |
+
+The counts come from each tool's comparison table in the repository's evidence record. Each page follows its table row for row.
 
 ## How each row was checked
 
@@ -22,9 +24,13 @@ A row has one of these bases:
 
 Langfuse rows are all of the last kind, because no Langfuse instance was run. Most promptfoo and Inspect rows are also of that kind.
 
-## What "in progress" means
+## What the results mean
 
-A row is in progress when its evidence is incomplete: a measurement was not run, or a test that reproduces it is not yet merged. Such a row states what is still open. No result is assumed for it.
+* **Ahead:** driftbench does the thing better on the stated case.
+* **Equal:** both do it the same way on the stated case.
+* **Behind:** the other tool does it better. Each such row says what is missing.
+* **In progress:** the evidence is incomplete, and the work is still going on. The row says what is still open.
+* **Limit:** the row is not being worked, and the reason is stated: for example, the host has no container runtime, or the other tool runs its own tools, so our gate cannot see the call before it is made.
 
 ## Reproducing a row
 
