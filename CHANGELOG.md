@@ -19,6 +19,9 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 * Binary text parsing utilities add narrow repairs for recased outcomes, quoted numeric scores, single or typographic quotes, trailing commas and comment lines. Additional quote and backslash repairs apply only to new paths; legacy uses its frozen extractor and repair.
 * Council size and per-judge cascade thresholds are configurable; explicit `majority(votes, { weights })` supports weighted votes. `CouncilResult.cost` reports relative call cost. The default numeric quorum remains three seats. Invalid probability values abstain, and reversed or equal probability bounds throw.
 * `combineVerdicts([], [])` returns `pass: false`; duplicate judged verdict ids are refused. Judge-check ids distinguish criterion names that sanitize to the same string. Workspace-diff paths escape line separators.
+* OpenAI, Anthropic and Google chat judge providers now send temperature zero.
+* HTTP judge error diagnostics redact echoed nonempty authentication header values, including secrets shorter than eight characters.
+* New quote grounding ignores Markdown presentation syntax on both sides and requires a letter or digit from the quoted source text. Labels, renderer separators and punctuation alone abstain; frozen legacy is unchanged.
 * Calibration adds PABAK, AC1 and agreement intervals. Chat providers use request-specific structured output schemas; OpenAI chat calls use temperature zero. Invalid caller requirement sets report their own diagnostic rather than an invalid-JSON error.
 
 ## [0.1.0] - 2026-10-12

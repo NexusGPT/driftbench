@@ -1,12 +1,11 @@
 import type { JudgeAnswer, JudgeRequest } from './contract';
-import { renderEntry } from './transcript';
 
 /** What `groundEvidence` returns: whether the quote is in the data, and the first place that holds it. */
 export type Grounding = { readonly grounded: boolean; readonly where?: string };
 
 /** Case, compatibility forms, typographic quotes and runs of white space folded, so a quote survives the way a model copies it. */
 function fold(text: string): string {
-  return text
+  return markdownText(text)
     .normalize('NFKC')
     .toLowerCase()
     .replace(/[‘’]/g, "'")
@@ -14,6 +13,17 @@ function fold(text: string): string {
     .replace(/\s+/g, ' ')
     .trim();
 }
+
+/** Remove presentation syntax without collapsing semantic intra-word underscores or arithmetic. */
+function markdownText(text: string): string {
+  return text
+    .replace(/^ {0,3}#{1,6}[\t ]+/gm, '')
+    .replace(/^ {0,3}(?:[-+*]|\d+[.)])[\t ]+/gm, '')
+    .replace(/(^|[^\p{L}\p{N}_])([*_]{1,3})(?=\S)([\s\S]*?\S)\2(?![\p{L}\p{N}_])/gu, '$1$3')
+    .replace(/(`+)([\s\S]*?)\1/g, '$2');
+}
+
+const substantive = (text: string): boolean => /[\p{L}\p{N}]/u.test(text);
 
 const isWordChar = (ch: string | undefined): boolean => ch !== undefined && /[\p{L}\p{N}]/u.test(ch);
 
@@ -37,32 +47,17 @@ function findOnWords(hay: string, needle: string, from: number): number {
 export function groundEvidence(request: JudgeRequest, answer: JudgeAnswer): Grounding {
   let quote = fold(answer.evidence ?? '');
   if (/^".*"$/.test(quote)) quote = quote.slice(1, -1).trim();
-  if (quote === '') return { grounded: false };
+  if (!substantive(quote)) return { grounded: false };
   const parts = quote.split(/\s*\.\.\.\s*/).filter(Boolean);
   if (parts.length === 0) return { grounded: false };
+  for (const [i, entry] of request.transcript.entries()) {
+    const label = fold(`[${entry.role}${entry.tool ? ` ${entry.tool}` : ''}]`);
+    const prefixed = quote === label || quote.startsWith(`${label} `);
+    const tail = prefixed ? quote.slice(label.length).replace(/⏎/g, ' ') : '';
+    if (prefixed ? textContainsQuote(entry.text, tail) : containsParts(entry.text, parts))
+      return { grounded: true, where: `transcript.${i}` };
+  }
   const places: [string, string][] = [
-    ...request.transcript.flatMap((entry, i): [string, string][] => {
-      const label = fold(`[${entry.role}${entry.tool ? ` ${entry.tool}` : ''}]`);
-      const tail = quote.startsWith(`${label} `)
-        ? quote
-            .slice(label.length)
-            .replace(/\s*\.\.\.\s*/g, '')
-            .trim()
-        : '';
-      return [
-        [`transcript.${i}`, entry.text],
-        ...(tail
-          ? [
-              [
-                `transcript.${i}`,
-                request.answerContract === 'legacy'
-                  ? `[${entry.role}${entry.tool ? ` ${entry.tool}` : ''}] ${entry.text}`
-                  : renderEntry(entry),
-              ] as [string, string],
-            ]
-          : []),
-      ];
-    }),
     ...(request.artifact === undefined ? [] : [['artifact', request.artifact] as [string, string]]),
     ...(request.given === undefined ? [] : [['given', JSON.stringify(request.given)] as [string, string]]),
     ...(request.inputs ?? []).map((input): [string, string] => [`input.${input.path}`, input.text]),
@@ -90,5 +85,5 @@ export function textContainsQuote(text: string, evidence: string): boolean {
   let quote = fold(evidence);
   if (/^".*"$/.test(quote)) quote = quote.slice(1, -1).trim();
   const parts = quote.split(/\s*\.\.\.\s*/).filter(Boolean);
-  return parts.length > 0 && containsParts(text, parts);
+  return parts.length > 0 && substantive(quote) && containsParts(text, parts);
 }
