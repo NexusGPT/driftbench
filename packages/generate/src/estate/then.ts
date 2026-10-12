@@ -63,6 +63,7 @@ export const MARKERS = {
   noThen: 'needs-derivable-then',
   askable: 'needs-askable-act',
   existingFile: 'needs-existing-file',
+  guardTrace: 'needs-guard-trace',
 } as const;
 export type Marker = (typeof MARKERS)[keyof typeof MARKERS];
 export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS));
@@ -135,6 +136,10 @@ export type ThenContext = {
   judge?: boolean;
   /** The files of the estate, relative to its root: a read is expected only of one of them. */
   files?: ReadonlySet<string>;
+  /** True for a live row: the runtime's own trace is all there is, no decision log the estate writes. */
+  live?: boolean;
+  /** Files the runtime loads by itself (no Read call ever shows it): a read of one is never expected. */
+  loaded?: (path: string) => boolean;
 };
 
 export type Polarity = 'positive' | 'negative';
@@ -186,6 +191,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       addSkill(then, { name: evidence.name, count: 0 });
       return;
     case 'guard':
+      if (untraced(then, atom, evidence.name, ctx)) return;
       addGuard(then, {
         name: evidence.name,
         ...(evidence.verdict === undefined ? {} : { verdict: evidence.verdict }),
@@ -194,6 +200,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
+        if (loadedRead(evidence.label, evidence.input, ctx)) return;
         if (missingRead(then, atom, evidence.label, evidence.input, ctx)) return;
         if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
         if (ctx.customChecks.has('some_call')) {
@@ -351,6 +358,7 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       addSkill(then, { name: evidence.name, count: 0 });
       return;
     case 'guard':
+      if (untraced(then, atom, evidence.name, ctx)) return;
       addGuard(then, {
         name: evidence.name,
         ...(evidence.verdict === undefined ? {} : { verdict: evidence.verdict }),
@@ -649,6 +657,32 @@ function addTool(then: ThenParts, tool: ToolExpect): void {
 
 function addUnique(list: string[], item: string): void {
   if (!list.includes(item)) list.push(item);
+}
+
+/**
+ * A check that runs inside another guard's script (a registry code with no script of its own), in a live row: the
+ * runtime's trace names that script, never the check inside it, so no live run can see it fire. The row
+ * gets a needs-guard-trace gap; the unit runner tests the check. True when it is such a guard.
+ */
+function untraced(then: ThenParts, atom: EstateAtom, name: string, ctx: ThenContext): boolean {
+  const fields = atom.fields ?? {};
+  if (!ctx.live || typeof fields.check !== 'string' || fields.check !== name || fields.script !== undefined) {
+    return false;
+  }
+  gap(
+    then,
+    MARKERS.guardTrace,
+    atom,
+    `${name} runs inside a guard script the live trace names, never the check`,
+  );
+  return true;
+}
+
+/** A Read of a file the runtime loads by itself: never seen as a call, so never expected. */
+function loadedRead(label: string, input: Record<string, unknown>, ctx: ThenContext): boolean {
+  if (label !== 'Read' || !ctx.loaded) return false;
+  const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
+  return value !== undefined && ctx.loaded(value.replace(/^\.?\/+/, ''));
 }
 
 /**

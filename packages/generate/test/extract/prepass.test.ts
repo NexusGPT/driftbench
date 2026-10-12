@@ -52,13 +52,20 @@ describe('inventoryPrepass on the Acme inventory', () => {
     );
   });
 
-  it('forbids a channel a behaviour leaves out, and nothing else', () => {
-    expect(result.constraints.map((constraint) => constraint.forbid)).toEqual([
+  it('forbids a channel a behaviour leaves out, and a flow a behaviour does not belong to, and nothing else', () => {
+    const forbids = result.constraints.map((constraint) => constraint.forbid);
+    expect(forbids.filter((forbid) => 'channel' in forbid)).toEqual([
       { behaviour: 'B-001', channel: 'whatsapp' },
       { behaviour: 'B-013', channel: 'whatsapp' },
       { behaviour: 'B-014', channel: 'whatsapp' },
     ]);
     expect(result.constraints[0]?.reason).toBe('B-001 applies only on chat');
+    // 14 behaviours, 5 flows: each behaviour is forbidden in every flow that does not list it.
+    const flows = forbids.filter((forbid) => 'flow' in forbid);
+    expect(flows).toHaveLength(52);
+    expect(flows).toContainEqual({ behaviour: 'B-013', flow: 'order' });
+    expect(flows).not.toContainEqual({ behaviour: 'B-008', flow: 'porting' });
+    expect(forbids).toHaveLength(55);
   });
 
   it('quotes the inventory text of every entry, verbatim once white space is folded', () => {

@@ -82,3 +82,56 @@ describe('pairwiseTally', () => {
     });
   });
 });
+
+describe('pairwise against a reference answer', () => {
+  const reference = 'Acme Air 5G is available at 88 Summit Avenue for $35 a month.';
+
+  it('puts the reference answer in every request and asks which reply matches it better', () => {
+    const request = pairwiseRequest(criterion, transcript, 'one.', 'two.', reference);
+    expect(request.transcript.map((entry) => entry.text)).toEqual([
+      'Is fiber available at 12 Main St?',
+      'Reply A: one.',
+      'Reply B: two.',
+      `Reference answer: ${reference}`,
+    ]);
+    expect(request.criterion.rubric).toMatch(/matches the reference answer/);
+  });
+
+  it('keeps the two orders, and calls a reply that matches the reference better the winner', async () => {
+    const judge = new FakeJudge('j', [
+      (request) => {
+        const a = request.transcript.find((entry) => entry.text.startsWith('Reply A:'))?.text ?? '';
+        return a.includes('Summit Avenue')
+          ? { outcome: 'pass' as const, reasoning: 'A matches the reference' }
+          : { outcome: 'fail' as const, reasoning: 'B matches the reference' };
+      },
+    ]);
+    const verdict = await judgePairwise(
+      judge,
+      criterion,
+      transcript,
+      'Acme Air 5G at 88 Summit Avenue, $35.',
+      'Fiber is not offered here.',
+      { reference },
+    );
+    expect(verdict).toMatchObject({ choice: 'first', consistent: true, positionBias: false });
+    expect(judge.requests).toHaveLength(2);
+    expect(
+      judge.requests.every((request) =>
+        request.transcript.some((entry) => entry.text.startsWith('Reference answer:')),
+      ),
+    ).toBe(true);
+  });
+});
+
+describe('the pairwise request carries its own comparison system prompt', () => {
+  it('sets a system prompt for the comparison, and buildPrompt sends it instead of the criterion prompt', async () => {
+    const { buildPrompt, SYSTEM_PROMPT } = await import('../src/index');
+    const request = pairwiseRequest(criterion, transcript, 'one.', 'two.', 'reference text');
+    expect(request.system).toBeDefined();
+    expect(request.system).toMatch(/Reply A/);
+    expect(request.system).toMatch(/reference/);
+    expect(buildPrompt(request).system).toBe(request.system);
+    expect(buildPrompt({ criterion, transcript }).system).toBe(SYSTEM_PROMPT);
+  });
+});

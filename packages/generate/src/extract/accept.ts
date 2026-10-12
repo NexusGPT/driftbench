@@ -338,6 +338,7 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
         relation.when ? unknownWhen(draft, relation.when) : undefined,
       );
     case 'uses_tool':
+    case 'states':
       return first(
         value(relation.subject.dimension, relation.subject.value),
         stage(relation.stage),
@@ -358,6 +359,19 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
         relation.stage_after === undefined || relation.stage_after === PENDING_STAGE
           ? undefined
           : stage(relation.stage_after),
+      );
+    }
+    case 'task_family': {
+      const deviation = draft.dimensions.find((dimension) => dimension.kind === 'deviation');
+      return first(
+        value(FLOW_DIMENSION, relation.flow),
+        ...relation.stages.map(stage),
+        relation.holds ? unknownWhen(draft, relation.holds) : undefined,
+        ...(relation.deviations ?? []).map((cls) =>
+          deviation?.values.some((entry) => entry.id === cls)
+            ? undefined
+            : `${cls} is not a proposed deviation class`,
+        ),
       );
     }
   }

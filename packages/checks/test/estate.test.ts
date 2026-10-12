@@ -193,6 +193,30 @@ describe('permission: what a permission rule allows or denies', () => {
     expect(out[0]?.outcome).toBe('inconclusive');
   });
 
+  it('reads the list the estate generator writes: { rules: [{ effect, rule }], block }, one verdict per rule', async () => {
+    // Seen on the Cue bench: every generated tool_boundary spec carried this form and the check threw.
+    const options = {
+      rules: [
+        { effect: 'allow', rule: 'Edit(~/nexus/**)' },
+        { effect: 'deny', rule: 'WebFetch' },
+      ],
+      block: 0,
+    };
+    const out = await verdicts(
+      permission,
+      ctx('ok', [{ label: 'Edit', input: { file_path: '~/nexus/a.md' } }]),
+      options,
+    );
+    expect(out.map((verdict) => [verdict.id, verdict.outcome])).toEqual([
+      ['permission.allow', 'pass'],
+      ['permission.deny', 'pass'],
+    ]);
+    expect(await verdicts(permission, ctx('ok', [], {}, 1), options)).toEqual([]);
+    await expect(verdicts(permission, ctx('ok'), { rules: [{ effect: 'allow' }] })).rejects.toThrow(
+      'permission needs { effect, rule }',
+    );
+  });
+
   it('lists the estate checks by the names the estate generator writes', () => {
     expect(Object.keys(ESTATE_CHECKS).sort()).toEqual([
       'grounded_values',
@@ -368,8 +392,13 @@ describe('stage_seen: a step allowed at any point was reached at least once', ()
     ).toBe('fail');
   });
 
-  it('is inconclusive when the runtime reports no stages, and checks only its block', async () => {
-    expect((await verdicts(stageSeen, ctx('ok'), { name: 'note' }))[0]?.outcome).toBe('inconclusive');
+  it('is not applicable when the runtime reports no stages, and gates as a failure of the block', async () => {
+    expect(await verdicts(stageSeen, ctx('ok'), { name: 'note' })).toMatchObject([
+      { id: 'stage_seen.note', outcome: 'not_applicable', gating: true },
+    ]);
+  });
+
+  it('checks only its block when the runtime reports no stages', async () => {
     expect(await verdicts(stageSeen, ctx('ok', [], stages(['note']), 1), { name: 'note', block: 0 })).toEqual(
       [],
     );

@@ -198,6 +198,7 @@ atoms:
       work: claim-window.py
       steps:
         - claim/file
+      host: .claude/guards/claim-window.py
       enforces:
         - atom: instruction.parcel-claims.never-promise-a-refund-date
           by: registry

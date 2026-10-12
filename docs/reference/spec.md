@@ -40,6 +40,9 @@ The loader rewrites these forms before it validates a spec.
 * [Count](#count)
 * [Assertion](#assertion)
 * [ToolsOfferedExpect](#toolsofferedexpect)
+* [Expect rouge_l](#expect-rouge_l)
+* [Expect bleu](#expect-bleu)
+* [Expect sql](#expect-sql)
 * [SimilarityExpect](#similarityexpect)
 * [RelevancyExpect](#relevancyexpect)
 * [RetentionExpect](#retentionexpect)
@@ -53,6 +56,7 @@ The loader rewrites these forms before it validates a spec.
 * [WorkspaceExpect](#workspaceexpect)
 * [SafetyExpect](#safetyexpect)
 * [Budget](#budget)
+* [Spec end](#spec-end)
 * [Rules](#rules)
 * [EndState](#endstate)
 * [EndStateSpec](#endstatespec)
@@ -84,6 +88,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 | `stages` | list of strings, each not empty | no |  | The stage catalogue of the flow. expect.stage and recovery.stage_after must name one of these. |
 | `criteria` | list of [CriterionDef](#criteriondef) | no |  | The judged criteria the blocks may reference. |
 | `blocks` | list of [Block](#block), at least 1 item | yes |  | The blocks, in order. At least one. |
+| `end` | [Spec end](#spec-end) | no |  | An end verdict, given after the last block: the run stops there with this verdict. |
 | `rules` | [Rules](#rules) | no |  | Rules for the whole conversation. |
 | `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
 | `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
@@ -116,7 +121,7 @@ A prompt version from the registry, handed to the agent as its system prompt. ca
 
 ## RetrySettings
 
-How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.
+How model calls are retried. Only a 408, a 429, a 5xx (529 included) or a network error is retried.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
@@ -279,6 +284,9 @@ The expected output and state delta of a block. Every field is optional.
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
 | `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
 | `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
+| `rouge_l` | [Expect rouge_l](#expect-rouge_l) | no |  | The reply must overlap a reference text: its word-level ROUGE-L F measure must reach min. |
+| `bleu` | [Expect bleu](#expect-bleu) | no |  | The reply must overlap a reference text: its BLEU score over words must reach min. |
+| `sql` | [Expect sql](#expect-sql) | no |  | The SQL the agent ran must return the same rows as the golden query on the database. |
 | `injection` | boolean | no |  | True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it. |
 | `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. |
 | `similarity` | list of [SimilarityExpect](#similarityexpect) | no |  | Reference texts the reply must be close to, each with its lowest passing score. |
@@ -350,6 +358,36 @@ The tools the runtime offers the agent, read from the runtime trace; calls do no
 |---|---|---|---|---|
 | `include` | list of strings, each not empty | no |  | Tools the runtime must offer. |
 | `exclude` | list of strings, each not empty | no |  | Tools the runtime must not offer, such as a tool a setting denies. |
+
+## Expect rouge_l
+
+The reply must overlap a reference text: its word-level ROUGE-L F measure must reach min.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `reference` | string, not empty | yes |  | The reference text the reply is compared with. |
+| `profile` | `driftbench` or `ragas` | no |  | The overlap profile: driftbench (default) or ragas, the reference implementation of this score. |
+| `min` | number, 0 to 1 | yes |  | The lowest ROUGE-L F measure that passes, from 0 to 1. |
+
+## Expect bleu
+
+The reply must overlap a reference text: its BLEU score over words must reach min.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `reference` | string, not empty | yes |  | The reference text the reply is compared with. |
+| `profile` | `driftbench` or `ragas` | no |  | The overlap profile: driftbench (default) or ragas, the reference implementation of this score. |
+| `min` | number, 0 to 1 | yes |  | The lowest BLEU score that passes, from 0 to 1. |
+
+## Expect sql
+
+The SQL the agent ran must return the same rows as the golden query on the database.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `tool` | string, not empty | yes |  | The tool whose call input holds the query, in its query field. |
+| `golden` | string, not empty | yes |  | The golden query: one read statement. |
+| `database` | string, not empty | yes |  | The SQLite database both queries run on, read-only. |
 
 ## SimilarityExpect
 
@@ -475,6 +513,15 @@ Limits for one block.
 | `steps` | integer, at least 1 | no |  | The most agent steps. |
 | `cost_usd` | number, at least 0 | no |  | The most cost, in US dollars. |
 | `latency_ms` | number, at least 0 | no |  | The most latency, in milliseconds. |
+
+## Spec end
+
+An end verdict, given after the last block: the run stops there with this verdict.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `verdict` | `success` or `failure` | yes |  | success when the script ends the conversation well, failure when it ends it badly. |
+| `reason` | string, not empty | no |  | Why the script ends here. |
 
 ## Rules
 

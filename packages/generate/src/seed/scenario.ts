@@ -107,6 +107,15 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     cell.push(chosen);
   }
   if (!prepared.feasibility.allowed(cell)) return fail('the constraints forbid its values with this cell');
+  // Every stage the walk reaches holds with the cell: a value the path states nothing about (a coverage
+  // result on a flow that checks no coverage) rules the path out.
+  if (prepared.stage !== undefined) {
+    for (const stage of path.stages.slice(1)) {
+      const at = dimensions[prepared.stage]?.index.get(stage);
+      if (at !== undefined && !prepared.feasibility.allowed([...cell, [prepared.stage, at]]))
+        return fail(`the constraints forbid the stage ${stage} with this cell`);
+    }
+  }
 
   const stageKey = prepared.stage === undefined ? 'stage' : dimensionId(prepared, prepared.stage);
   const transitionKey =
@@ -172,11 +181,29 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     if (!recovery) return fail(`the map gives no recovery from ${probe.classId} in the flow ${path.flow}`);
     const allowed = path.stages
       .map((stage, index) => ({ stage, index }))
-      .filter(({ index }) => index <= path.stages.length - 2 || lastStageProbe(recovery as Recovery, path))
+      // A probe goes in before a move, or after the last stage when its recovery keeps the conversation
+      // there (a question once the order is placed); a recovery that moves it needs a move after.
+      .filter(({ stage, index }) => {
+        if (index <= path.stages.length - 2) return true;
+        const after = recovery ? stageAfter(recovery, stage) : undefined;
+        return after === undefined || after === stage;
+      })
       .filter(({ index }) => index >= 1 || OPENING_CLASSES.has(probe.classId))
       .filter(({ stage, index }) => index >= 1 || discriminates(recovery as Recovery, stage, path.stages[0]))
       .filter(({ stage }) => (recovery?.at ? recovery.at.includes(stage) : true))
       .filter(({ stage }) => (probe.stage === undefined ? true : stage === probe.stage))
+      // The map's constraints hold for the probe too: a class the map forbids at a stage is never said there.
+      .filter(({ stage }) => {
+        const stageIndex = prepared.stage;
+        const deviationIndex = prepared.deviation;
+        const stagePick = stageIndex === undefined ? undefined : dimensions[stageIndex]?.index.get(stage);
+        const classPick =
+          deviationIndex === undefined ? undefined : dimensions[deviationIndex]?.index.get(probe.classId);
+        const picks: Pick[] = [...cell];
+        if (stageIndex !== undefined && stagePick !== undefined) picks.push([stageIndex, stagePick]);
+        if (deviationIndex !== undefined && classPick !== undefined) picks.push([deviationIndex, classPick]);
+        return prepared.feasibility.allowed(picks);
+      })
       .filter(({ stage }) =>
         choosePhraseExists(prepared, deviationKey, probe.classId, contextOf(stage), slots, request),
       );
@@ -241,7 +268,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         break;
       }
     }
-    // The last stage has no move after it: a probe there closes the walk.
+    // The last stage takes no move: only a probe said after it.
     if (index + 1 >= path.stages.length) break;
     const from = path.stages[index] as string;
     const to = path.stages[index + 1] as string;
@@ -278,6 +305,27 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       }
       ruled.push(...sourcesOf(call.input ?? {}));
     }
+    // What the reply of this turn must state (a quoted price read from the tool's answer), from the map.
+    const stated: string[] = [];
+    for (const entry of relations.states) {
+      const subject =
+        entry.subject.dimension === 'flow'
+          ? entry.subject.value === path.flow
+          : context[entry.subject.dimension] === entry.subject.value;
+      if (!subject || entry.stage !== from || (entry.to !== undefined && entry.to !== to)) continue;
+      if (!matches(entry.when, context)) continue;
+      for (const pattern of entry.must) {
+        const filled = fillText(pattern, slots, true);
+        if (!filled.ok)
+          return fail(`what the reply states at ${from} reads unbound slots ${filled.missing.join(', ')}`);
+        stated.push(filled.value);
+      }
+      for (const dimension of Object.keys(entry.when ?? {})) {
+        const value = held(indexOf(dimension));
+        if (value) ruled.push(value);
+      }
+      ruled.push(...sourcesOf(entry.must));
+    }
     const carries = unique([
       [prepared.transition as number, transition],
       ...sourcesOf(phrase?.text ?? ''),
@@ -289,6 +337,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       stage: to,
       carries,
       ...(tools.length > 0 ? { tools } : {}),
+      ...(stated.length > 0 ? { must: stated } : {}),
       ...(lang === undefined ? {} : { lang }),
     });
   }
@@ -380,16 +429,6 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     ...(perturbations.length > 0 ? { perturbations } : {}),
     title,
   };
-}
-
-/**
- * True when a probe may follow the last stage of a path: the recovery stays on the stage (or answers
- * pending), so the conversation is where the walk left it and the probe's own Then is the whole check.
- */
-function lastStageProbe(recovery: Recovery, path: PathRelation): boolean {
-  const last = path.stages[path.stages.length - 1] as string;
-  const after = stageAfter(recovery, last);
-  return after === undefined || after === last;
 }
 
 /**
@@ -493,8 +532,9 @@ function toolFailure(
     .map(([dimension, value]) => valueId(prepared, dimension, value))
     .find((id) => recoverable.includes(id));
   const wanted = probe.tool ?? named;
+  // A probe asked at a stage fails a tool of the turn said at that stage.
   const options = blocks.flatMap((block, index) =>
-    (block.tools ?? [])
+    (probe.stage === undefined || path.stages[index] === probe.stage ? (block.tools ?? []) : [])
       .filter((tool) => calls(tool) && recoverable.includes(tool.label))
       .filter((tool) => wanted === undefined || tool.label === wanted)
       .map((tool) => ({ index, tool: tool.label })),
@@ -503,7 +543,7 @@ function toolFailure(
   if (!chosen) {
     return {
       ok: false,
-      reason: `no turn calls a tool whose failure the map recovers in ${path.flow}${wanted ? ` (${wanted})` : ''}`,
+      reason: `no turn${probe.stage ? ` said at ${probe.stage}` : ''} calls a tool whose failure the map recovers in ${path.flow}${wanted ? ` (${wanted})` : ''}`,
     };
   }
   const recovery = recoveryFor(prepared.relations, TOOL_FAILURE, path.flow, chosen.tool) as Recovery;
@@ -543,7 +583,9 @@ function toolFailure(
     });
   const must = words(recovery.must);
   const mustNot = words(recovery.mustNot);
+  // The failing turn states the recovery's words, not what the turn would have stated with an answer.
   if (must.length > 0) block.must = must;
+  else delete block.must;
   if (mustNot.length > 0) block.must_not = mustNot;
   const deviation = prepared.space.dimensions[prepared.deviation ?? -1]?.index.get(TOOL_FAILURE);
   if (deviation !== undefined) block.carries = [[prepared.deviation as number, deviation], ...block.carries];

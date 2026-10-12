@@ -50,6 +50,33 @@ export function mean(values: readonly number[]): number {
   return sum(values) / values.length;
 }
 
+/**
+ * The weighted mean, sum(w x) / sum(w) (numpy.average). Throws a RangeError on no values, mismatched lengths,
+ * a value or weight that is not finite, a negative weight, or weights that sum to zero.
+ */
+export function weightedMean(values: readonly number[], weights: readonly number[]): number {
+  if (values.length === 0) throw new RangeError('weightedMean of an empty sample');
+  if (values.length !== weights.length) {
+    throw new RangeError(
+      `weightedMean: values and weights must have the same length, got ${values.length} and ${weights.length}`,
+    );
+  }
+  let sw = 0;
+  let swx = 0;
+  for (let i = 0; i < values.length; i += 1) {
+    const x = values[i] as number;
+    const w = weights[i] as number;
+    if (!Number.isFinite(x)) throw new RangeError(`weightedMean: values[${i}] must be finite, got ${x}`);
+    if (!Number.isFinite(w) || w < 0) {
+      throw new RangeError(`weightedMean: weights[${i}] must be finite and not negative, got ${w}`);
+    }
+    sw += w;
+    swx += w * x;
+  }
+  if (!(sw > 0)) throw new RangeError('weightedMean: the weights must not sum to zero');
+  return swx / sw;
+}
+
 /** Sample variance with n - 1 in the denominator. */
 export function sampleVariance(values: readonly number[]): number {
   const n = values.length;

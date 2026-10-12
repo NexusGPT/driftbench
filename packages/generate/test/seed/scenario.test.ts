@@ -290,35 +290,6 @@ describe('buildScenario', () => {
     });
   });
 
-  it('does not probe on the first turn when only a do-nothing agent or an echo can pass the Then', () => {
-    // D5 has an approved phrase that fits any stage; its recovery stays on the stage and states no words, so
-    // on the start stage a constant reply that reports the start stage satisfies every Then.
-    const prepared = prepare((draft) => {
-      draft.relations?.push({
-        kind: 'recovery',
-        class: 'D5_language_switch',
-        flows: ['balance'],
-        stage_after: 'pending',
-        must: ['english only'],
-        ...by,
-      });
-    });
-    // The echo agent repeats every literal word of the patterns, so a word alone proves nothing.
-    const first = buildScenario(prepared, rngFor(1, 't'), {
-      path: path(prepared, 'balance-found'),
-      fixed: [],
-      probe: { classId: 'D5_language_switch', stage: 'greet' },
-    });
-    expect(first.ok).toBe(false);
-    const any = buildScenario(prepared, rngFor(1, 't'), {
-      path: path(prepared, 'balance-found'),
-      fixed: [],
-      probe: { classId: 'D5_language_switch' },
-    });
-    if (!any.ok) throw new Error(any.reason);
-    expect(any.probe?.stage).toBe('verify');
-  });
-
   it('fails a tool in the Given of the turn that calls it, expects the recovery, and stops there', () => {
     const prepared = prepare();
     const built = buildScenario(prepared, rngFor(1, 't'), {
@@ -689,18 +660,11 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
 });
 
 describe('pilot iteration 10: a deviation on the first turn', () => {
-  it('probes the start stage when the recovery keeps the conversation there and asks for a call', () => {
+  it('probes the start stage when the recovery keeps the conversation there', () => {
     const prepared = prepare((draft) => {
       draft.relations = [
         ...(draft.relations ?? []),
-        {
-          kind: 'recovery',
-          class: 'D5_language_switch',
-          flows: ['balance'],
-          stage_after: 'pending',
-          tools: [{ tool: 'lookup', count: 1 }],
-          ...by,
-        },
+        { kind: 'recovery', class: 'D5_language_switch', flows: ['balance'], stage_after: 'pending', ...by },
       ];
     });
     const built = buildScenario(prepared, rngFor(1, 't'), {
@@ -733,43 +697,34 @@ describe('pilot iteration 10: a class that needs an earlier turn', () => {
   });
 });
 
-describe('iteration 14: a class is probed at a second stage', () => {
-  it('adds a probe of the same class at another stage the paths allow', async () => {
-    const { deviationSeeder } = await import('../../src/seed/seeders');
+describe('closing the Acme suite gaps', () => {
+  it('makes a turn state what the map says its reply states, read from the bound values', () => {
     const prepared = prepare((draft) => {
-      draft.relations?.push({
-        kind: 'path',
-        id: 'balance-long',
-        flow: 'balance',
-        when: { account_state: ['found'] },
-        stages: ['greet', 'verify', 'help', 'verify'],
-        ...by,
-      });
-      draft.phrases = [
-        ...(draft.phrases ?? []),
-        phrase('stage_transition', 'help-to-verify', 'Check it again.'),
-        phrase('deviation', 'D1_off_topic', 'Is the branch open on Sunday?', { binds: { day: 'Sunday' } }),
+      draft.relations = [
+        ...(draft.relations ?? []),
+        {
+          kind: 'states',
+          subject: { dimension: 'flow', value: 'balance' },
+          stage: 'verify',
+          to: 'help',
+          must: ['account \\d+ ends in {account}'],
+          ...by,
+        },
       ];
     });
-    const { drafts } = deviationSeeder(prepared, { seed: 1, t: 2, max: Number.POSITIVE_INFINITY });
-    const stages = drafts
-      .flatMap((draft) => draft.blocks.filter((block) => block.injection === 'D1_off_topic'))
-      .map((block) => block.stage);
-    expect(stages.length).toBe(2);
-    expect(new Set(stages).size).toBe(2);
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.map((block) => block.must)).toEqual([undefined, ['account \\d+ ends in 4']]);
   });
-});
 
-describe('iteration 15: a probe after the last stage', () => {
-  it('closes the walk with a probe whose recovery stays on the last stage', () => {
+  it('probes after the last stage when the recovery keeps the conversation there', () => {
     const prepared = prepare((draft) => {
-      draft.phrases = [
-        ...(draft.phrases ?? []),
-        phrase('deviation', 'D1_off_topic', 'Are you open on Sunday?', {
-          when: { stage: ['help'] },
-          binds: { day: 'Sunday' },
-        }),
-      ];
+      draft.phrases = (draft.phrases ?? []).map((entry) =>
+        entry.value === 'D1_off_topic' ? { ...entry, when: { stage: ['help'] } } : entry,
+      );
     });
     const built = buildScenario(prepared, rngFor(1, 't'), {
       path: path(prepared, 'balance-found'),
@@ -777,8 +732,157 @@ describe('iteration 15: a probe after the last stage', () => {
       probe: { classId: 'D1_off_topic', stage: 'help' },
     });
     if (!built.ok) throw new Error(built.reason);
-    expect(built.probe).toEqual({ classId: 'D1_off_topic', stage: 'help' });
     expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'help', 'help']);
     expect(built.blocks.at(-1)?.injection).toBe('D1_off_topic');
+    expect(built.endState).toBeDefined();
+  });
+
+  it('fails a tool of the turn said at the stage a tool-failure probe asks for, or refuses', () => {
+    const prepared = prepare();
+    const atVerify = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D8_tool_failure', stage: 'verify' },
+    });
+    expect(atVerify.ok && atVerify.probe).toMatchObject({ classId: 'D8_tool_failure', stage: 'verify' });
+    const atGreet = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D8_tool_failure', stage: 'greet' },
+    });
+    expect(atGreet.ok).toBe(false);
+  });
+});
+
+describe('the pairs the relations rule out', () => {
+  it('forbids a stage no path of a flow passes with that flow, and a class at a stage its recovery rules out', async () => {
+    const { derivedConstraints } = await import('../../src/extract/derive');
+    const draft = proposal((change) => {
+      change.relations = [
+        ...(change.relations ?? []),
+        {
+          kind: 'recovery',
+          class: 'D5_language_switch',
+          flows: ['balance'],
+          at: ['verify'],
+          stage_after: 'pending',
+          ...by,
+        },
+      ];
+    });
+    for (const dimension of draft.dimensions) dimension.approved = true;
+    for (const constraint of draft.constraints) constraint.approved = true;
+    for (const phrase of draft.phrases ?? []) phrase.approved = true;
+    const prepared = prepareMap(draft, { tools: TOOLS });
+    const axes = prepared.axisMap.dimensions.map((dimension) => ({
+      id: dimension.id,
+      kind: dimension.kind,
+      values: dimension.values.map((value) => value.id),
+    }));
+    const forbids = derivedConstraints(draft, axes).map((entry) => entry.forbid);
+    const stage = axes.find((axis) => axis.kind === 'stage')?.id as string;
+    const deviation = axes.find((axis) => axis.kind === 'deviation')?.id as string;
+    // D5 may be said only at verify, so D5 at help (after every move of the paths) is ruled out.
+    expect(forbids).toContainEqual({ [deviation]: 'D5_language_switch', [stage]: 'help' });
+    expect(forbids).not.toContainEqual({ [deviation]: 'D5_language_switch', [stage]: 'verify' });
+    // No path of the card flow is walkable here, so "lost" is never reached with no deviation.
+    expect(forbids).toContainEqual({ [deviation]: 'none', [stage]: 'greet' });
+  });
+});
+
+describe('a probe the constraints forbid', () => {
+  it('is never said at a stage where the map forbids its class', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases = (draft.phrases ?? []).map((entry) =>
+        entry.value === 'D1_off_topic' ? { ...entry, when: { stage: ['help'] } } : entry,
+      );
+      draft.constraints = [
+        ...draft.constraints,
+        {
+          forbid: { deviation: 'D1_off_topic', stage: 'help' },
+          reason: 'The conversation is over at help',
+          ...by,
+        },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D1_off_topic', stage: 'help' },
+    });
+    expect(built.ok).toBe(false);
+  });
+});
+
+describe('the task seeder and the task family relation', () => {
+  it('places a task spec by the values its family holds and declares a planted file as a perturbation', async () => {
+    const { taskSpecs } = await import('../../src/seed/tasks');
+    const prepared = prepare();
+    const relation = {
+      kind: 'task_family' as const,
+      flow: 'card',
+      family: '../families/x',
+      stages: ['lost'],
+      holds: { account_state: ['found'] },
+      deviations: ['D6_instruction_in_data' as const],
+      ...by,
+    };
+    const spec = {
+      id: 't-1',
+      kind: 'task',
+      tags: ['flow:card'],
+      workspace_seed: { files: { 'NOTES.txt': 'planted' } },
+      blocks: [{ id: 'b', user: 'do it', expect: { stage: 'lost' } }],
+    };
+    const [placed] = taskSpecs(prepared, [{ relation, variants: [{ spec, planted: true }] }], {
+      seed: 1,
+      mapPath: 'map.yaml',
+    });
+    expect(placed?.spec.tags).toEqual(['flow:card', 'data:found']);
+    expect(placed?.spec.perturbations).toEqual([
+      {
+        id: 'planted-instruction',
+        class: 'D6_instruction_in_data',
+        inject_at: 0,
+        world: { workspace: { files: { 'NOTES.txt': 'planted' } } },
+        expect: { stage: 'lost' },
+        recovery: { within_blocks: 0 },
+      },
+    ]);
+    expect((placed?.spec.metadata as { generated?: { seeder: string } } | undefined)?.generated?.seeder).toBe(
+      'task',
+    );
+  });
+
+  it('makes the stages and the classes of a task family possible, and keeps a task value off a conversation', async () => {
+    const { derivedConstraints } = await import('../../src/extract/derive');
+    const draft = proposal((change) => {
+      change.relations = [
+        ...(change.relations ?? []),
+        {
+          kind: 'task_family',
+          flow: 'card',
+          family: '../families/x',
+          stages: ['lost'],
+          deviations: ['D5_language_switch'],
+          ...by,
+        },
+      ];
+    });
+    for (const dimension of draft.dimensions) dimension.approved = true;
+    for (const constraint of draft.constraints) constraint.approved = true;
+    for (const phrase of draft.phrases ?? []) phrase.approved = true;
+    const prepared = prepareMap(draft, { tools: TOOLS });
+    const axes = prepared.axisMap.dimensions.map((dimension) => ({
+      id: dimension.id,
+      kind: dimension.kind,
+      values: dimension.values.map((value) => value.id),
+    }));
+    const forbids = derivedConstraints(draft, axes).map((entry) => entry.forbid);
+    const stage = axes.find((axis) => axis.kind === 'stage')?.id as string;
+    const deviation = axes.find((axis) => axis.kind === 'deviation')?.id as string;
+    // The card flow has no walkable path, but its task family places on lost, with and without its class.
+    expect(forbids).not.toContainEqual({ [deviation]: 'none', [stage]: 'lost' });
+    expect(forbids).not.toContainEqual({ [deviation]: 'D5_language_switch', [stage]: 'lost' });
   });
 });

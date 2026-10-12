@@ -238,7 +238,9 @@ export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_
     let next = index + 2;
     for (; next < lines.length; next++) {
       const row = lines[next];
-      if (!row?.text.startsWith('|') || row.line > toLine) break;
+      // A table belongs to the range that holds its header, and runs to its last row: a chunk that ends
+      // inside a table must not cut it, and the next chunk never sees its header, so it would lose the rest.
+      if (!row?.text.startsWith('|')) break;
       table.rows.push({ line: row.line, text: row.text, cells: cells(row.text) });
     }
     tables.push(table);
@@ -265,6 +267,6 @@ export function plain(text: string): string {
 
 /** A rule label at the start of a line, such as `- **R5.**` or `R5.`: the label, else undefined. */
 export function labelOfLine(line: string): string | undefined {
-  const match = /^\s*(?:[-*]\s+)?(?:\*\*)?([A-Z]{1,3}\d{1,3})\.?(?:\*\*)?[.:]?\s/.exec(line);
-  return match?.[1];
+  const match = /^\s*(?:[-*]\s+)?(?:\*\*)?([A-Z]{1,3})#?(\d{1,3})\.?(?:\*\*)?[.:]?\s/.exec(line);
+  return match ? `${match[1]}${match[2]}` : undefined;
 }

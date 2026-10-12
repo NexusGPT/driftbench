@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { parseSpecText } from '@driftbench/core';
+import { parseSpecText, type RunFilter } from '@driftbench/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   assertNodeVersion,
@@ -108,6 +108,35 @@ describe('a store on disk', () => {
   });
 });
 
+describe('a run and its blocks are read in one transaction', () => {
+  it('holds a writer off between the summary read and the blocks read, so a read is one whole version', async () => {
+    const stored = await seed();
+    const writer = new DatabaseSync(path);
+    writer.exec('PRAGMA busy_timeout = 0');
+    const sql = (store as unknown as { sql: { selectBlocks: { all: (...args: unknown[]) => unknown } } }).sql;
+    const original = sql.selectBlocks.all.bind(sql.selectBlocks);
+    let writerRefused = false;
+    sql.selectBlocks.all = (...args: unknown[]) => {
+      try {
+        writer.prepare('UPDATE runs SET cost = cost + 1 WHERE run_id = ?').run(stored.runId);
+      } catch (error) {
+        writerRefused = true;
+      }
+      return original(...args);
+    };
+    try {
+      await store.getRun(stored.runId, ID);
+      expect(writerRefused).toBe(true);
+      writerRefused = false;
+      await store.listRuns();
+      expect(writerRefused).toBe(true);
+    } finally {
+      sql.selectBlocks.all = original;
+      writer.close();
+    }
+  });
+});
+
 describe('a corrupt row raises a clear error', () => {
   it('for a run whose JSON does not parse', async () => {
     const stored = await seed();
@@ -120,6 +149,21 @@ describe('a corrupt row raises a clear error', () => {
     );
     expect((await storeError(() => store.listRuns())).code).toBe('CORRUPT_ROW');
   });
+
+  it.each<[string, string, RunFilter]>([
+    ['status', 'failed', { status: 'failed' }],
+    ['spec_id', 's-other', { specId: 's-other' }],
+    ['mode', 'T', { mode: 'T' }],
+  ])(
+    'for a run whose %s column was edited away from its record, so a filter never returns it',
+    async (column, value, filter) => {
+      const stored = await seed();
+      damage(`UPDATE runs SET ${column} = ? WHERE run_id = ?`, value, stored.runId);
+      const error = await storeError(() => store.listRuns(filter));
+      expect(error.code).toBe('CORRUPT_ROW');
+      expect(error.message).toContain(`the runs row ${ID}/${stored.runId}`);
+    },
+  );
 
   it('for a block whose observed JSON does not parse', async () => {
     const stored = await seed();

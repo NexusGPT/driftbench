@@ -13,14 +13,14 @@ Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (
 
 Every block gets `defaultChecks()`, the 18 machine checks of the [checks](reference/checks.md) page, with the artifact readers of `@driftbench/artifacts`. Other adapters are used from code: see [runSpec](#runspec).
 
-A target is written `<adapter>` or `<adapter>:<agent>`. Without `--target`, each spec runs on the target it names, and a spec that names none is refused. A `--target` overrides the target every spec names, and `plan` and `run` print a note for each spec whose own target names another adapter.
+A target is written `<adapter>` or `<adapter>:<agent>`. Without `--target`, each spec runs on the target it names, and a spec that names none is refused. A `--target` overrides the target every spec names, and `plan` and `run` print a note for each spec whose own target names another adapter. `--route <tag=target>` keeps a part of a mixed suite on its own agent: a spec carrying the tag runs on that target instead, and no note is printed for it. On the Acme suites, `--route flow:price-sheet=process:acme-ops` keeps the price-sheet task specs on the ops agent while `--target` names the sales agent; `ci` takes the same option, where a route may also name a `fault:<id>` of `--faults`, such as a fault of the ops agent.
 
 The examples below run from the repository root. `pnpm -s` keeps pnpm's own lines out of the output.
 
 ## `driftbench campaign plan`
 
 ```
-driftbench campaign plan <paths...> [--target <adapter[:agent]>] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
+driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--json]
 ```
 
 Expands the cells, projects their cost and prints the minimum detectable effect. Nothing runs.
@@ -42,7 +42,7 @@ Plan: 6 specs, 1 target, mode F, 2 repeats: 12 cells, 52 blocks.
   d44b9dfe9d1cf87a  acme-tool-failure              function:acme  F     0       3
   0e486429b58c635e  acme-tool-failure              function:acme  F     1       3
 Projected cost: $0.00 (function: no unit measured).
-Minimum detectable effect, mode F: 57.2 points on a 50% pass rate, with 12 runs per arm (two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode F: 47.8 points on a 50% pass rate, with 12 runs per arm over 6 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
 
 With several modes, the cells come in the order T, F, P, and each P cell names its perturbation:
@@ -60,9 +60,9 @@ Plan: 1 spec, 1 target, modes T, F, P, 2 repeats: 8 cells, 44 blocks.
   468e63cbd5cafa61  acme-plan-upgrade  function:acme  P     0       loose-ok       6
   96dad27d69a17729  acme-plan-upgrade  function:acme  P     1       loose-ok       6
 Projected cost: $0.00 (function: no unit measured).
-Minimum detectable effect, mode T: 140.1 points on a 50% pass rate, with 2 runs per arm (two-sided alpha 0.05, power 0.8).
-Minimum detectable effect, mode F: 140.1 points on a 50% pass rate, with 2 runs per arm (two-sided alpha 0.05, power 0.8).
-Minimum detectable effect, mode P: 99.1 points on a 50% pass rate, with 4 runs per arm (two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode T: none detectable on a 50% pass rate, with 2 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 2 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode P: none detectable on a 50% pass rate, with 4 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
 
 Without `--target`, each spec is planned on its own target:
@@ -79,16 +79,18 @@ Plan: 7 specs, each on its own target (function:acme-sales, process:acme-ops), m
   c72578fc24c33e86  acme-tool-failure              function:acme-sales  F     0       3
   500a848c99ae5b91  acme-price-sheet               process:acme-ops     F     0       2
 Projected cost: $0.00 (function: no unit measured; process: no unit measured).
-Minimum detectable effect, mode F: 74.9 points on a 50% pass rate, with 7 runs per arm (two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 7 runs per arm over 7 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
 
 | Option | Effect |
 |---|---|
 | `--target <adapter[:agent]>` | a target to run every spec on; repeat it for several. Without it, each spec runs on its own target. |
+| `--route <tag=target>` | a spec carrying the tag runs on this target instead of the `--target` list; repeat it; needs `--target`. |
 | `--mode <modes>` | the run mode: `T`, `F` or `P`, or several separated by commas, such as `T,F,P`. Default `F`. |
 | `--repeats <n>` | runs per spec, target and mode, at least 1. Default 1. |
 | `--budget-usd <usd>` | compare the projected cost with this budget |
 | `--baseline-rate <rate>` | the pass rate the minimum detectable effect assumes, between 0 and 1. Default 0.5. |
+| `--rho <rho>` | the correlation of repeats of one spec, as `icc` measures it, from 0 to 1. Default 0. |
 | `--store <file>` | read the measured unit costs from this store |
 | `--json` | print one JSON document: `cells`, `blocks`, `cost` (`usd`, `unmeasured`, `byAdapter`), `budgetUsd` and `withinBudget` when a budget is given, and `mde` |
 
@@ -97,7 +99,7 @@ The projected cost of an adapter is its blocks times the latest cost per block m
 ## `driftbench campaign run`
 
 ```
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>] [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
 ```
 
 Creates a campaign over the specs, runs every cell and prints one line per cell, in cell order.
@@ -106,7 +108,7 @@ With `--dataset <ref>`, the specs come from a dataset version of the store inste
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
-Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass  5 blocks
@@ -127,7 +129,7 @@ The command exits 0. A failing cell lists the gating verdicts that did not pass,
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --target function:acme
 Note: acme-price-sheet names the process adapter; --target runs it on function:acme.
-Campaign c-334a2d1abc96: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-334a2d1abc96: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✗ acme-price-sheet · function:acme · F · repeat 0  fail  block 0 must.0, block 0 stage.reached, block 0 skills.xlsx, block 0 guards.no_destructive_ops.pass, block 0 execution.ran_code, block 0 execution.exit_code, block 0 execution.max_commands, block 0 workspace.created, block 0 workspace.changed, block 0 workspace.deleted, block 0 workspace.others_untouched, block 0 artifacts.out/acme-price-sheet.xlsx, block 1 stage.reached, block 1 skills.xlsx, block 1 guards.no_destructive_ops.pass, block 1 execution.ran_code, block 1 execution.exit_code, block 1 workspace.created, block 1 workspace.changed, block 1 workspace.deleted, block 1 workspace.others_untouched, block 1 artifacts.out/acme-price-sheet.xlsx
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -137,7 +139,7 @@ That command exits 1. The execution and workspace verdicts are inconclusive and 
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml
-Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -166,7 +168,7 @@ The store needs Node.js 22.13 or newer, for `node:sqlite`.
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --mode T,F,P --repeats 2 --store modes.db
-Campaign c-9d34273e590c: 44 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-9d34273e590c: 44 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · T · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · T · repeat 1  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
@@ -422,7 +424,7 @@ A campaign keeps its targets, not the commands behind them: a campaign run with 
 
 ```
 $ pnpm -s driftbench campaign resume c-3e6aff180724 --store acme.db
-Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass (reused)  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass (reused)  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass (reused)  5 blocks
@@ -539,7 +541,7 @@ The campaign record stores a budget of 0 when none was given. `resume` reads a s
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --repeats 2 --budget-usd 0
-Campaign c-7572a9cb7069: 2 cells, 4 at a time. Budget $0.00. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-7572a9cb7069: 2 cells, 4 at a time. Budget $0.00. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ! acme-plan-upgrade · function:acme · F · repeat 0  stopped  not started: the campaign spent $0.00 of its $0.00 budget
 ! acme-plan-upgrade · function:acme · F · repeat 1  stopped  not started: the campaign spent $0.00 of its $0.00 budget
 2 cells: 0 pass, 0 fail, 0 failed, 2 stopped by the budget. Spent $0.00.
@@ -550,13 +552,14 @@ That command exits 1.
 
 ### The minimum detectable effect
 
-`campaign plan` prints the smallest drop in pass rate that a comparison of two arms can detect, by the two-proportion normal approximation:
+`campaign plan` prints the smallest drop in pass rate that a comparison of two arms can detect, as `mde` of the statistics library solves it: the two-proportion power equation at a two-sided alpha of 0.05 and a power of 0.8, with the specs as the independent units and the repeats of one spec counted through the design effect.
 
 ```
-effect = (z(0.975) + z(0.8)) * sqrt(2 * p * (1 - p) / n)
+design effect = 1 + (repeats - 1) * rho
+effective units per arm = specs * repeats / design effect
 ```
 
-`p` is the baseline pass rate (`--baseline-rate`, default 0.5) and `n` the runs per arm: the cells of the mode on the first target, or, when each spec runs on its own target, the cells of the mode over every spec. `z(0.975)` and `z(0.8)` are the standard normal quantiles for a two-sided alpha of 0.05 and a power of 0.8. The formula treats runs as independent, so repeats of one spec count as separate runs. With 12 runs per arm at a 50% pass rate, the effect is 57.2 points, as the first plan above prints. The statistics library's `mde` also takes the correlation of repeats of one spec (`rho`); using it in `campaign plan` is planned, phase 4. See [statistics](concepts/statistics.md).
+`--baseline-rate` is the baseline pass rate (default 0.5) and `--rho` the correlation of repeats of one spec, as `icc` measures it (default 0, which counts repeats as independent and so is optimistic). The line names the runs per arm, the specs, `rho` and the design effect. When each spec runs on its own target, one arm is every spec on its first target. At six specs of five repeats, a 90% baseline and `--rho 0.3`, the design effect is 2.2. When the campaign is too small to detect any drop below the baseline, the line reads `none detectable`. See [statistics](concepts/statistics.md).
 
 ### The store
 
@@ -682,7 +685,7 @@ The runner gives every block its drift classes from the gating verdicts it fails
 
 A run ends `completed`, `failed` or `stopped`.
 
-* An `AdapterTransportError` with a 429, a 5xx or no status (a network failure) is retried under the [shared retry policy](retries.md): 4 attempts by default, a backoff from 500 ms with full jitter, at least the server's Retry-After. Each retry is recorded in the block's Observed as `retries`. Past the attempts, or on one marked `exhausted` by the adapter, the run fails.
+* An `AdapterTransportError` with a 408, a 429, a 5xx or no status (a network failure) is retried under the [shared retry policy](retries.md): 4 attempts by default, a backoff from 500 ms with full jitter, at least the server's Retry-After. Each retry is recorded in the block's Observed as `retries`. Past the attempts, or on one marked `exhausted` by the adapter, the run fails.
 * An `AgentFailure`, an Observed that does not match the schema as JSON, or any other error fails the run at once.
 * A driver that does not stop within `maxSteps` steps stops the run.
 
@@ -698,7 +701,7 @@ On the command line the store is the cache. A second campaign over the same spec
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
-Campaign c-868fb474970f: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-868fb474970f: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass (replayed from the cache)  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass (replayed from the cache)  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass (replayed from the cache)  5 blocks

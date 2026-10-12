@@ -83,8 +83,11 @@ export function anchorProblem(block: LabelledBlock): string | undefined {
       return undefined;
     }
     case 'field': {
-      const found = fieldAt(block.given?.ledger ?? {}, anchor.path);
-      return found ? undefined : `anchor: no ledger field ${anchor.path}`;
+      if (fieldAt(block.given?.ledger ?? {}, anchor.path)) return undefined;
+      const inOutputs = block.transcript.some(
+        (entry) => entry.role === 'tool_result' && jsonHasPath(entry.text, anchor.path),
+      );
+      return inOutputs ? undefined : `anchor: no ledger field or tool output field ${anchor.path}`;
     }
     case 'span':
       return undefined;
@@ -97,6 +100,15 @@ export function anchorNote(block: LabelledBlock): string | undefined {
     return `span ${block.anchor.span_id}: not checkable from the transcript, the label stands as written`;
   }
   return undefined;
+}
+
+/** Whether a JSON text holds the dot path, with every key present. False for text that is not JSON. */
+function jsonHasPath(text: string, path: string): boolean {
+  try {
+    return fieldAt(JSON.parse(text), path);
+  } catch {
+    return false;
+  }
 }
 
 function fieldAt(root: unknown, path: string): boolean {

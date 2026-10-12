@@ -646,10 +646,14 @@ def allocation_cases():
         if (w == 0).all():
             w = np.array(sizes, dtype=float)
         exact = total * w / w.sum()
-        alloc = np.floor(exact).astype(int)
-        left = total - alloc.sum()
-        frac = exact - np.floor(exact)
-        for i in sorted(range(len(sizes)), key=lambda i: (-frac[i], i))[:left]:
+        alloc = np.zeros(len(sizes), dtype=int)
+        positive = sorted([i for i in range(len(sizes)) if w[i] > 0], key=lambda i: (-w[i], i))
+        for i in positive[:total]:
+            alloc[i] = 1
+        left = total - min(total, len(positive))
+        # integer optimum of sum w^2 / n: one at a time where the marginal gain w^2 / (n (n + 1)) is largest
+        for _ in range(left):
+            i = max(positive, key=lambda i: (Fraction(w[i] * w[i]) / (int(alloc[i]) * (int(alloc[i]) + 1)), -i))
             alloc[i] += 1
         out.append({"sizes": sizes, "sds": sds, "total": total, "exact": [f(x) for x in exact], "allocated": [int(x) for x in alloc]})
     return out

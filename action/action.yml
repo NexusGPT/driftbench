@@ -45,6 +45,10 @@ inputs:
     description: A fault set whose faults the target can name as fault:<id>. Empty means none.
     required: false
     default: ''
+  route:
+    description: Specs a tag marks that run on another target, one tag=target per line, such as flow:price-sheet=process:acme-ops. Empty means none.
+    required: false
+    default: ''
   aggregate:
     description: Campaign-level criteria, one name:op threshold per line, such as pass-rate:>=0.8. A failing one fails the job with verdict aggregate-failed. Empty means none.
     required: false
@@ -89,6 +93,7 @@ runs:
         INPUT_BUDGET_USD: ${{ inputs.budget-usd }}
         INPUT_FAULTS: ${{ inputs.faults }}
         INPUT_AGGREGATE: ${{ inputs.aggregate }}
+        INPUT_ROUTE: ${{ inputs.route }}
         INPUT_REPORT_PATH: ${{ inputs.report-path }}
         INPUT_DRIFTBENCH: ${{ inputs.driftbench }}
       run: bash "$GITHUB_ACTION_PATH/run.sh"

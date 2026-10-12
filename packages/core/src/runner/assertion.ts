@@ -116,5 +116,7 @@ function isEmpty(value: unknown): boolean {
   if (value === undefined || value === null) return true;
   if (typeof value === 'string') return value.trim() === '';
   if (Array.isArray(value)) return value.length === 0;
-  return isRecord(value) && Object.values(value).every((part) => part === undefined);
+  // docs/reference/checks.md "Assertions on values": a mapping whose keys hold nothing is empty; in JSON a
+  // key holds nothing when it is null.
+  return isRecord(value) && Object.values(value).every((part) => part === undefined || part === null);
 }

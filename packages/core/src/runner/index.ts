@@ -24,6 +24,7 @@ export {
   type CostLine,
   cellIdOf,
   type MinimumDetectableEffect,
+  mdeLine,
   minimumDetectableEffect,
   outcomeOf,
   type PlannedCell,

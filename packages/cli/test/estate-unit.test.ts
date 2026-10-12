@@ -32,12 +32,12 @@ describe('driftbench estate unit on the Northwind suite', () => {
 
     const unrecorded = await run(['estate', 'unit', tests, '--estate', FIXTURE]);
     expect(unrecorded.code).toBe(2);
-    expect(unrecorded.out).toContain('0 of 26 unit tests pass, 0 fail, 2 inert, 24 unrecorded');
+    expect(unrecorded.out).toContain('0 of 23 unit tests pass, 0 fail, 0 inert, 23 unrecorded');
 
     const recorded = await run(['estate', 'unit', tests, '--estate', FIXTURE, '--record']);
     expect(recorded.err).toBe('');
     expect(recorded.code).toBe(0);
-    expect(recorded.out).toContain('Recorded 26 unit tests');
+    expect(recorded.out).toContain('Recorded 23 unit tests');
     const file = join(
       tests,
       'guard_positive/unit.guard_positive.guard.settings.pretooluse-bash-guard-block-force-push.json',
@@ -50,7 +50,7 @@ describe('driftbench estate unit on the Northwind suite', () => {
     expect(again.code).toBe(0);
     const contract = JSON.parse(again.out);
     expect(Object.keys(contract)).toEqual(['runs', 'guards', 'scripts']);
-    expect(contract.runs).toHaveLength(26);
+    expect(contract.runs).toHaveLength(23);
     for (const entry of contract.runs) {
       expect(Object.keys(entry)).toEqual(['spec', 'pass', 'failing']);
       expect([entry.pass, entry.failing]).toEqual([true, []]);
@@ -72,7 +72,18 @@ describe('driftbench estate unit on the Northwind suite', () => {
       message: 'Never run git push --force on any branch.',
       ms: expect.any(Number),
     });
-    expect(contract.scripts).toEqual([]);
+    // The two scripts declare no fixture: each runs its two minimal fixtures, recorded on the original.
+    expect(
+      contract.scripts.map((entry: { script: string; exit: number }) => [
+        entry.script.split('/').pop(),
+        entry.exit,
+      ]),
+    ).toEqual([
+      ['reconcile.py', 2],
+      ['reconcile.py', 0],
+      ['track.sh', 2],
+      ['track.sh', 1],
+    ]);
 
     const mutant = join(dir, 'mutant');
     const atom = 'guard.settings.pretooluse-bash-guard-block-force-push';
@@ -102,7 +113,35 @@ describe('driftbench estate unit on the Northwind suite', () => {
       `unit.guard_positive.${atom}`,
       `unit.guard_speed.${atom}`,
     ]);
-  }, 120_000);
+
+    // A script mutant takes the script file with its mention, so the script's own unit test goes red.
+    const script = 'script.invoice-reconcile.script-scripts-reconcile-py';
+    const scriptMutant = join(dir, 'mutant-script');
+    expect(
+      (
+        await run([
+          'estate',
+          'mutate',
+          join(FIXTURE, 'approved.yaml'),
+          '--atom',
+          script,
+          '--delete',
+          '--to',
+          scriptMutant,
+        ])
+      ).code,
+    ).toBe(0);
+    const scriptKilled = await run(['estate', 'unit', tests, '--estate', scriptMutant, '--json']);
+    expect(scriptKilled.code).toBe(1);
+    const red = JSON.parse(scriptKilled.out).runs.filter((entry: { pass: boolean }) => !entry.pass);
+    expect(red).toEqual([
+      {
+        spec: `unit.script_fixture.${script}`,
+        pass: false,
+        failing: ['the estate no longer holds .claude/skills/invoice-reconcile/scripts/reconcile.py'],
+      },
+    ]);
+  }, 180_000);
 
   it('exits 2 on a missing estate, a missing path and a file that is no unit test', async () => {
     expect((await run(['estate', 'unit', UNIT])).code).toBe(2);

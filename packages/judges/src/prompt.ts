@@ -133,7 +133,7 @@ export function renderUser(request: JudgeRequest): string {
 
 /** The full prompt of one request. */
 export function buildPrompt(request: JudgeRequest): { system: string; user: string } {
-  return { system: SYSTEM_PROMPT, user: renderUser(request) };
+  return { system: request.system ?? SYSTEM_PROMPT, user: renderUser(request) };
 }
 
 function renderGiven(given: JudgeRequest['given']): string | undefined {

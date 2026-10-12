@@ -104,6 +104,20 @@ function transaction<T>(db: DatabaseSync, work: () => T): T {
   }
 }
 
+/** Runs reads in one transaction, so they all see one version of the file. A writer waits until it ends. */
+function readTransaction<T>(db: DatabaseSync, work: () => T): T {
+  db.exec('BEGIN');
+  try {
+    return work();
+  } finally {
+    try {
+      db.exec('COMMIT');
+    } catch {
+      // SQLite already ended it; the error worth reporting is the one the work raised.
+    }
+  }
+}
+
 function statements(db: DatabaseSync) {
   return {
     upsertSpec: db.prepare(
@@ -128,9 +142,11 @@ function statements(db: DatabaseSync) {
          pass, json)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ),
-    selectRun: db.prepare('SELECT campaign_id, run_id, json FROM runs WHERE campaign_id = ? AND run_id = ?'),
+    selectRun: db.prepare(
+      'SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs WHERE campaign_id = ? AND run_id = ?',
+    ),
     selectRunsById: db.prepare(
-      'SELECT campaign_id, run_id, json FROM runs WHERE run_id = ? ORDER BY campaign_id',
+      'SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs WHERE run_id = ? ORDER BY campaign_id',
     ),
     selectBlocks: db.prepare(
       `SELECT "index", observed_json, verdicts_json, drift_json, json FROM blocks
@@ -147,7 +163,9 @@ function statements(db: DatabaseSync) {
     upsertUnit: db.prepare(
       `INSERT INTO units (adapter, metric, usd, samples, measured_at) VALUES (?, ?, ?, ?, ?)
        ON CONFLICT (adapter, metric) DO UPDATE SET usd = excluded.usd, samples = excluded.samples,
-         measured_at = excluded.measured_at`,
+         measured_at = excluded.measured_at
+       WHERE julianday(excluded.measured_at) >= julianday(units.measured_at)
+         OR julianday(units.measured_at) IS NULL`,
     ),
     selectUnits: db.prepare(
       'SELECT adapter, metric, usd, samples, measured_at FROM units ORDER BY adapter, metric',
@@ -242,9 +260,15 @@ export class SqliteStore implements Store {
   async getRun(runId: string, campaignId?: string): Promise<RunResult | undefined> {
     this.live();
     if (campaignId !== undefined) {
-      const row = this.sql.selectRun.get(campaignId, runId);
-      return row === undefined ? undefined : this.readRun(row);
+      return readTransaction(this.db, () => {
+        const row = this.sql.selectRun.get(campaignId, runId);
+        return row === undefined ? undefined : this.readRun(row);
+      });
     }
+    return readTransaction(this.db, () => this.getRunById(runId));
+  }
+
+  private getRunById(runId: string): RunResult | undefined {
     const rows = this.sql.selectRunsById.all(runId);
     const [row] = rows;
     if (row === undefined) return undefined;
@@ -274,10 +298,14 @@ export class SqliteStore implements Store {
       params.push(value);
     }
     const where = clauses.length === 0 ? '' : ` WHERE ${clauses.join(' AND ')}`;
-    const rows = this.db
-      .prepare(`SELECT campaign_id, run_id, json FROM runs${where} ORDER BY started_at, campaign_id, run_id`)
-      .all(...params);
-    return rows.map((row) => this.readRun(row));
+    return readTransaction(this.db, () => {
+      const rows = this.db
+        .prepare(
+          `SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs${where} ORDER BY started_at, campaign_id, run_id`,
+        )
+        .all(...params);
+      return rows.map((row) => this.readRun(row));
+    });
   }
 
   async cacheGet(key: string): Promise<Observed | undefined> {
@@ -680,6 +708,16 @@ export class SqliteStore implements Store {
       throw corrupt(`${where} does not match the RunResult schema: ${describeIssues(parsed.error.issues)}`);
     }
     if (parsed.data.runId !== runId) throw corrupt(`${where} holds run ${parsed.data.runId}`);
+    // The columns a filter reads must agree with the record, or a filter returns a run it does not match.
+    for (const [column, held] of [
+      ['spec_id', parsed.data.specId],
+      ['mode', parsed.data.mode],
+      ['status', parsed.data.status],
+    ] as const) {
+      if (row[column] !== undefined && row[column] !== held) {
+        throw corrupt(`${where} has ${column} ${String(row[column])}, its record holds ${held}`);
+      }
+    }
     parsed.data.blocks.forEach((block, i) => {
       if (block.index !== blockRows[i]?.index) {
         throw corrupt(`${where} has block row ${String(blockRows[i]?.index)} holding block ${block.index}`);

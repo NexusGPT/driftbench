@@ -97,6 +97,7 @@ function sortRuns(
 export function runPassed(run: RunResult): boolean {
   return (
     run.status === 'completed' &&
+    run.endVerdict !== 'failure' &&
     run.blocks.length > 0 &&
     run.blocks.every((block) => block.pass) &&
     run.endState?.match !== false
