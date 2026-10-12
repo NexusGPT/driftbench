@@ -52,6 +52,8 @@ const RULES: readonly Rule[] = [
   },
   // Nothing to answer.
   { code: 'empty-rubric', found: (c) => c.rubric.trim() === '' },
+  // Two checks in one rubric: a pass on one and a fail on the other has no single answer.
+  { code: 'compound', found: (c) => /\b(and also|as well as)\b/i.test(c.rubric) },
 ];
 
 const countNot = (text: string): number => (text.match(/\bnot\b/gi) ?? []).length;

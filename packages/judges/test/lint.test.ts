@@ -129,4 +129,11 @@ describe('lintCriterion', () => {
     expect(codes('\n\t ')).toContain('empty-rubric');
     expect(codes(clean.rubric)).not.toContain('empty-rubric');
   });
+
+  it('reports compound for two checks joined by "and also" or "as well as"', () => {
+    const codes = (rubric: string) => lintCriterion({ ...clean, rubric }).issues.map((i) => i.code);
+    expect(codes('The reply names Acme Care, and also the reply is under 80 words.')).toContain('compound');
+    expect(codes('The reply names Acme Care as well as its phone line.')).toContain('compound');
+    expect(codes('The reply names Acme Care and its phone line.')).not.toContain('compound');
+  });
 });
