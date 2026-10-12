@@ -46,4 +46,6 @@ aggregate pass-rate >= 0.99: fails (0.75 >= 0.99)
 
 `report` prints each result and still exits 0. `ci` exits 1 when any aggregate fails, and its verdict becomes `AGGREGATE FAILED`, unless the verdict was already incomplete. An aggregate with no runs is inconclusive and does not fail the gate. A flag it cannot read exits 2 before any campaign loads.
 
+The `driftbench ci` GitHub Action takes the same criteria in its `aggregate` input, one `name:op threshold` per line. A failing one gives the job the verdict `aggregate-failed` and fails it.
+
 Declaring aggregates inside a spec or campaign file is not built: the CLI has no campaign file, and a spec holds one golden, not a campaign.

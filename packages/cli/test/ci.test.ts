@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdtempSync } from 'node:fs';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -718,9 +718,37 @@ describe('driftbench ci input', () => {
 });
 
 describe('the driftbench ci GitHub Action', () => {
+  it(
+    'run.sh passes each aggregate line to ci, and exits 2 on one it cannot read, before any campaign loads',
+    () => {
+      const dir = mkdtempSync(join(tmpdir(), 'driftbench-action-aggregate-'));
+      made.push(dir);
+      const output = join(dir, 'output.txt');
+      const tsx = join(ROOT, 'node_modules/.bin/tsx');
+      const result = spawnSync('bash', [join(ROOT, 'action/run.sh')], {
+        cwd: ROOT,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          GITHUB_OUTPUT: output,
+          INPUT_SPECS: GATED,
+          INPUT_TARGET: 'function:acme-sales',
+          INPUT_BASELINE: join(dir, 'missing.db'),
+          INPUT_STORE: join(dir, 'cand.db'),
+          INPUT_AGGREGATE: 'nope:>=1',
+          INPUT_REPORT_PATH: join(dir, 'report.json'),
+          INPUT_DRIFTBENCH: `${tsx} packages/cli/src/bin.ts`,
+        },
+      });
+      expect(result.status).toBe(2);
+      expect(result.stderr).toContain('unknown aggregate nope');
+    },
+    SLOW,
+  );
+
   it('declares the inputs and outputs the brief names and runs run.sh', async () => {
     const yml = await readFile(join(ROOT, 'action/action.yml'), 'utf8');
-    for (const input of ['specs', 'target', 'baseline', 'store', 'margin']) {
+    for (const input of ['specs', 'target', 'baseline', 'store', 'margin', 'aggregate']) {
       expect(yml).toMatch(new RegExp(`^  ${input}:\\n    description: `, 'm'));
     }
     expect(yml).toContain('verdict:\n    description:');
