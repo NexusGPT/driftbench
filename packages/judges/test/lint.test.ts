@@ -47,4 +47,13 @@ describe('lintCriterion', () => {
     expect(lintCriterion({ ...clean, rubric: 'The reply does not give legal advice.' }).issues).toEqual([]);
     expect(lintCriterion({ ...clean, rubric: 'The reply does not name a price. It never invents a plan.' }).issues).toEqual([]);
   });
+
+  it('reports no-observable when the rubric names nothing a judge can read', () => {
+    for (const rubric of ['Billing issues go to Acme Care.', 'Prices are correct.', 'Confirmation comes first.']) {
+      expect(lintCriterion({ ...clean, rubric }).issues.map((i) => i.code), rubric).toContain('no-observable');
+    }
+    for (const rubric of ['The Replies name Acme Care.', 'The agent names Acme Care.', 'Each tool calls once.', 'A file is written.']) {
+      expect(lintCriterion({ ...clean, rubric }).issues.map((i) => i.code), rubric).not.toContain('no-observable');
+    }
+  });
 });

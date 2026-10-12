@@ -18,6 +18,11 @@ const RULES: readonly Rule[] = [
   { code: 'vague-quantity', found: (c) => /\b(some|several|many|often|usually|mostly|a few|most of the time)\b/i.test(c.rubric) },
   // Two negations in one sentence: the judge has to cancel them in its head.
   { code: 'double-negative', found: (c) => sentences(c.rubric).some((sentence) => negations(sentence) >= 2) },
+  // Nothing a judge can read: no reply, agent, message, tool, call, order, customer, user, file or transcript.
+  {
+    code: 'no-observable',
+    found: (c) => !/\b(repl(y|ies)|agents?|assistants?|messages?|tools?|calls?|orders?|customers?|users?|files?|transcripts?)\b/i.test(c.rubric),
+  },
 ];
 
 const NEGATION = /\b(not|no|never|cannot|without|fails? to|failing to)\b|n't\b/gi;
