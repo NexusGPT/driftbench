@@ -304,21 +304,24 @@ describe('driftbench validate through main', () => {
 
   it('runs the registered stats ladder and exits with its level', async () => {
     const result = await run(['validate', 'stats', '--seed', '1']);
-    expect(result.code).toBe(2);
+    expect(result.code).toBe(1);
     expect(result.out).toContain('Validator stats');
     expect(result.out).toMatch(
-      /1\s+reference values\s+fixture cases matched \/ fixture cases compared\s+>= 1\s+1 pass/,
+      /1\s+reference values\s+fixture groups matching scipy and numpy \/ groups\s+>= 1\s+1 pass/,
     );
-    expect(result.out).toContain('Level of the run: 2 of 2, the minimum over 1 seed.');
-  });
+    expect(result.out).toContain('Level of the run: 1 of 7, the minimum over 1 seed.');
+  }, 600_000);
 
   it('holds the committed floors and handovers, as CI checks them', async () => {
     expect((await run(['validate', 'all', '--seed', '1', '--check-floor'])).code).toBe(0);
     const handover = await run(['validate', 'all', '--check-handover']);
     expect(handover.code).toBe(0);
     expect(handover.out).toContain('validators/stats/HANDOVER.md: every section present');
-    // Every registered ladder runs; the generator ladder generates and runs a suite (seconds of CPU).
-  }, 180_000);
+    expect(handover.out).toContain('validators/estate/HANDOVER.md: every section present');
+    // The judges ladder version 2 runs its whole bank, each item in a child process; the estate ladder runs
+    // its reader level on a bank of planted estates; the generator ladder
+    // generates and runs a suite.
+  }, 600_000);
 
   it('prints the stats brief from the real executor instruction', async () => {
     const result = await run(['validate', 'stats', '--brief', '--fresh']);
@@ -328,7 +331,7 @@ describe('driftbench validate through main', () => {
       'You drive one validator to 100 percent. The validator is `driftbench validate stats`.',
     );
     expect(result.out).toContain('validators/stats/HANDOVER.md');
-  });
+  }, 600_000);
 
   it('parses floors --raise <component> <level> and refuses a level below the committed floor', async () => {
     const result = await run([
