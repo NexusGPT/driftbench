@@ -963,16 +963,13 @@ export const SCHEMA_CASES: readonly Case[] = [
     slug: 'long-pattern',
     tier: 4,
     title:
-      'a property whose pattern line is over 1000 characters gives well-formed and malformed, each quoting the whole pattern line, with a valid proposal',
-    make: quoting(
-      one(
-        () => ({
-          type: 'string',
-          pattern: `^(${Array.from({ length: 160 }, (_, i) => `code${i}`).join('|')})$`,
-        }),
-        () => ['well-formed', 'malformed'],
-      ),
-      { 'well-formed': 'pattern', malformed: 'pattern' },
+      'a property whose pattern line is over 1000 characters gives well-formed and malformed, each quoting a passage of the file within the 1000-character limit, with a valid proposal',
+    make: one(
+      () => ({
+        type: 'string',
+        pattern: `^(${Array.from({ length: 160 }, (_, i) => `code${i}`).join('|')})$`,
+      }),
+      () => ['well-formed', 'malformed'],
     ),
   },
   {

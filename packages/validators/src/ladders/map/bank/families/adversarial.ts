@@ -212,13 +212,11 @@ const TOOL_CASES: readonly ToolCase[] = [
     slug: 'very-long-enum',
     cause: 'tools:very-long-enum',
     tier: 3,
-    title: 'an enum of 400 members gives 400 values, each quoting the whole enum (over 1000 characters)',
+    title:
+      'an enum of 400 members (over 1000 characters) gives 400 values, each quoting a passage of the file within the 1000-character limit',
     make: (d) => {
       const list = Array.from({ length: 400 }, (_, i) => `member-${String(i + 1).padStart(3, '0')}`);
-      const made = inputOf(d, 'status', { type: 'string', enum: list }, list);
-      // The quote is the whole enum, over 1000 characters: a clamped quote is not this one.
-      for (const dimension of made.expected) dimension.quoteKey = 'enum';
-      return made;
+      return inputOf(d, 'status', { type: 'string', enum: list }, list);
     },
   },
   {

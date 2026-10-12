@@ -341,14 +341,8 @@ export const FORMS: readonly Form[] = [
   {
     slug: 'long-item',
     tier: 3,
-    title: 'a behaviour item over 1000 characters is quoted whole, as written, and the proposal stays valid',
-    code: (inventory) =>
-      withQuote(
-        inventoryCode(inventory),
-        'behaviour',
-        'B-003',
-        stringify(inventory.behaviours[2], { lineWidth: 0 }),
-      ),
+    title:
+      'a behaviour item over 1000 characters is quoted by a passage of its source within the 1000-character limit, and the proposal stays valid',
     shape: (inventory) => ({
       ...inventory,
       behaviours: inventory.behaviours.map((b, i) =>
@@ -521,9 +515,8 @@ export const FORMS: readonly Form[] = [
   {
     slug: 'long-flow-title',
     tier: 3,
-    title: 'a flow item over 1000 characters is quoted whole, as written, and the proposal stays valid',
-    code: (inventory) =>
-      withQuote(inventoryCode(inventory), 'flow', 'service', stringify(inventory.flows[0], { lineWidth: 0 })),
+    title:
+      'a flow item over 1000 characters is quoted by a passage of its source within the 1000-character limit, and the proposal stays valid',
     shape: (inventory) => ({
       ...inventory,
       flows: inventory.flows.map((f, i) =>
