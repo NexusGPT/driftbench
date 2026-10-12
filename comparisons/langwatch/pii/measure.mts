@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/style/noNonNullAssertion: research script; each lookup uses a key the same script just built */
 // Measures the personal-data judge on a seeded set. The set is built in memory (set.mjs); nothing about the
 // identifiers is written to disk. Every answer is recorded under the SHA-256 of its message, never the message.
 //   patterns (no model):  npx tsx comparisons/langwatch/pii/measure.mts patterns
@@ -7,8 +8,8 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createClaudeCliJudge, PII_CRITERION } from '../../../packages/judges/src/index.ts';
 import { scanPii } from '../../../packages/checks/src/support/pii.ts';
+import { createClaudeCliJudge, PII_CRITERION } from '../../../packages/judges/src/index.ts';
 import { buildSet, SETS } from './set.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -44,7 +45,10 @@ if (mode === 'patterns') {
     excluded: scanPii(item.text).map((f) => f.kind),
     included: scanPii(item.text, { reservedDomains: 'include' }).map((f) => f.kind),
   }));
-  writeFileSync(join(recorded, `patterns-${setName}.json`), `${JSON.stringify({ set: setName, answers: out }, null, 1)}\n`);
+  writeFileSync(
+    join(recorded, `patterns-${setName}.json`),
+    `${JSON.stringify({ set: setName, answers: out }, null, 1)}\n`,
+  );
   console.log(`patterns ${setName}: ${out.length} messages scored`);
 } else if (mode === 'judge') {
   const model = opt('model', 'haiku')!;
@@ -72,7 +76,11 @@ if (mode === 'patterns') {
     `${JSON.stringify({ model, set: setName, rubric, spentUsd: spent, answers }, null, 1)}\n`,
   );
   const noAnswer = answers.filter((a) => a.personal === null).length;
-  console.log(`judge ${model} ${setName} rubric=${rubric}: ${answers.length} calls, ${noAnswer} without an answer, spent ${spent.toFixed(4)} USD`);
+  console.log(
+    `judge ${model} ${setName} rubric=${rubric}: ${answers.length} calls, ${noAnswer} without an answer, spent ${spent.toFixed(4)} USD`,
+  );
 } else {
-  throw new Error('usage: measure.mts patterns | judge --model <name> --set dev|check --rubric new|old --cap <usd>');
+  throw new Error(
+    'usage: measure.mts patterns | judge --model <name> --set dev|check --rubric new|old --cap <usd>',
+  );
 }

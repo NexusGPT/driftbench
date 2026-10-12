@@ -20,7 +20,53 @@ function rng(seed) {
 }
 const r = rng(SEED);
 const pick = (xs) => xs[Math.floor(r() * xs.length)];
-const VOCAB = ['the', 'a', 'your', 'order', 'orders', 'shipped', 'shipping', 'ships', 'refund', 'refunds', 'refunded', 'plan', 'plans', 'Café', 'cafe', 'running', 'ran', 'run', 'happy', 'happily', 'card', 'cards', 'payment', 'payments', 'to', 'of', 'on', 'for', 'is', 'will', 'be', 'within', '5', '30', 'days', 'business', 'customer', 'service', 'hours', '24', 'please', 'contact', 'us', 'at', 'support'];
+const VOCAB = [
+  'the',
+  'a',
+  'your',
+  'order',
+  'orders',
+  'shipped',
+  'shipping',
+  'ships',
+  'refund',
+  'refunds',
+  'refunded',
+  'plan',
+  'plans',
+  'Café',
+  'cafe',
+  'running',
+  'ran',
+  'run',
+  'happy',
+  'happily',
+  'card',
+  'cards',
+  'payment',
+  'payments',
+  'to',
+  'of',
+  'on',
+  'for',
+  'is',
+  'will',
+  'be',
+  'within',
+  '5',
+  '30',
+  'days',
+  'business',
+  'customer',
+  'service',
+  'hours',
+  '24',
+  'please',
+  'contact',
+  'us',
+  'at',
+  'support',
+];
 const PUNCT = ['.', ',', '!', '?', ''];
 
 function sentence(len) {
@@ -32,7 +78,10 @@ function mutate(words, rate) {
   for (const w of words) {
     const x = r();
     if (x < rate / 3) continue; // drop
-    if (x < (2 * rate) / 3) { out.push(pick(VOCAB)); continue; } // substitute
+    if (x < (2 * rate) / 3) {
+      out.push(pick(VOCAB));
+      continue;
+    } // substitute
     out.push(w);
     if (x > 1 - rate / 3) out.push(w); // repeat
   }

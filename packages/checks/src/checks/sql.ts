@@ -1,4 +1,17 @@
-import { DatabaseSync } from 'node:sqlite';
+import type { DatabaseSync as Handle } from 'node:sqlite';
+
+/**
+ * Loads `node:sqlite` at call time through the runtime, not as an import: a bundler does not know the module and
+ * rewrites its name, so the built package would fail to load it.
+ */
+function sqliteModule(): typeof import('node:sqlite') {
+  const loaded =
+    typeof process.getBuiltinModule === 'function' ? process.getBuiltinModule('node:sqlite') : undefined;
+  if (loaded === undefined)
+    throw new Error('node:sqlite is not available: the SQL check needs Node.js 22.5 or later');
+  return loaded as typeof import('node:sqlite');
+}
+
 import { type Check, machineVerdict, type Verdict } from '@driftbench/core';
 
 /**
@@ -19,7 +32,7 @@ export function singleReadStatement(query: string): string | undefined {
   return READ_ONLY_LEAD.test(trimmed) ? trimmed : undefined;
 }
 
-function rowsOf(handle: DatabaseSync, sql: string): string[] {
+function rowsOf(handle: Handle, sql: string): string[] {
   const statement = handle.prepare(sql);
   return (statement.all() as Record<string, unknown>[]).map((row) =>
     JSON.stringify(Object.values(row), (_key, value: unknown) =>
@@ -63,9 +76,9 @@ export const sqlEquivalence: Check = {
     if (goldenSql === undefined) {
       return [machineVerdict('sql', '0', 'inconclusive', 'the golden query is not one read statement')];
     }
-    let handle: DatabaseSync;
+    let handle: Handle;
     try {
-      handle = new DatabaseSync(entry.database, { readOnly: true });
+      handle = new (sqliteModule().DatabaseSync)(entry.database, { readOnly: true });
     } catch (cause) {
       return [machineVerdict('sql', '0', 'inconclusive', `the database cannot be opened: ${message(cause)}`)];
     }

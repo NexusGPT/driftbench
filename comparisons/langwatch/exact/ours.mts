@@ -15,7 +15,10 @@ const items = JSON.parse(readFileSync(join(here, 'heldout.json'), 'utf8')) as Ar
 const spec = acme('acme-new-customer-coverage');
 const out: Array<{ id: string; passed: boolean }> = [];
 for (const item of items) {
-  const verdicts = await run(exact, context(spec, 1, observed(item.reply), { expect: { exact: item.reference } }));
+  const verdicts = await run(
+    exact,
+    context(spec, 1, observed(item.reply), { expect: { exact: item.reference } }),
+  );
   out.push({ id: item.id, passed: verdicts[0]?.outcome === 'pass' });
 }
 writeFileSync(join(here, 'recorded', 'exact-ours.json'), `${JSON.stringify(out, null, 1)}\n`);

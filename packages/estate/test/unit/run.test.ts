@@ -393,6 +393,7 @@ describe.skipIf(process.platform !== 'darwin' || !existsSync('/usr/bin/sandbox-e
         `ssh=open; ls "${outside}" > /dev/null 2>&1 || ssh=closed`,
         'write=open; touch /tmp/driftbench-unit-escape 2>/dev/null || write=closed',
         'home=$HOME',
+        // biome-ignore lint/suspicious/noTemplateCurlyInString: a shell parameter expansion, run by the shell, not a template
         'echo "net=$net ssh=$ssh write=$write home=${home#/private}"',
         '',
       ].join('\n'),

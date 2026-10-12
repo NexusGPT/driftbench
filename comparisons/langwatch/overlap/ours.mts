@@ -12,8 +12,14 @@ const items = JSON.parse(readFileSync(join(here, 'heldout.json'), 'utf8')) as Ar
 }>;
 const out = items.map((item) => ({
   id: item.id,
-  rougeL: { ragas: rougeLScore(item.reply, item.reference, 'ragas'), driftbench: rougeLScore(item.reply, item.reference, 'driftbench') },
-  bleu: { ragas: bleuScore(item.reply, item.reference, 'ragas'), driftbench: bleuScore(item.reply, item.reference, 'driftbench') },
+  rougeL: {
+    ragas: rougeLScore(item.reply, item.reference, 'ragas'),
+    driftbench: rougeLScore(item.reply, item.reference, 'driftbench'),
+  },
+  bleu: {
+    ragas: bleuScore(item.reply, item.reference, 'ragas'),
+    driftbench: bleuScore(item.reply, item.reference, 'driftbench'),
+  },
 }));
 writeFileSync(join(here, 'recorded', 'overlap-ours.json'), `${JSON.stringify(out, null, 1)}\n`);
 console.log(`ours: ${out.length} pairs recorded`);
