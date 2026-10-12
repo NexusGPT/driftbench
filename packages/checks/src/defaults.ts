@@ -4,9 +4,11 @@ import { budget } from './checks/budget';
 import { cards } from './checks/cards';
 import { type CheckRegistry, createCustomCheck, defaultRegistry } from './checks/custom';
 import { endState } from './checks/end_state';
+import { exact } from './checks/exact';
 import { execution } from './checks/execution';
 import { forbidden } from './checks/forbidden';
 import { guards } from './checks/guards';
+import { injection } from './checks/injection';
 import { knowledgeRetention } from './checks/knowledge_retention';
 import { lang } from './checks/lang';
 import { must, mustNot } from './checks/must';
@@ -57,6 +59,8 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     forbidden,
     must,
     mustNot,
+    exact,
+    injection,
     createSimilarityCheck(options.embedder),
     relevancy,
     knowledgeRetention,

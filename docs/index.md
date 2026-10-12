@@ -13,6 +13,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Run modes](concepts/run-modes.md): teacher-forced, free-running and perturbed runs of the same spec.
 * [Drift](concepts/drift.md): the five drift classes, and the metrics across a succession of blocks.
 * [Recovery](concepts/recovery.md): the ten deviation classes, and how fast the agent comes back.
+* [Script](concepts/script.md): writing a conversation spec in code, with the steps `user`, `agent`, `judge` and `injection`, and the steps that have no spec form.
 * [Judges](concepts/judges.md): judged criteria, the judge council and calibration.
 * [Statistics](concepts/statistics.md): repeats, intervals, paired tests and the parity verdict.
 

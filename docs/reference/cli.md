@@ -814,7 +814,7 @@ Judges criteria with the council, on recorded answers. The council, its modes an
 
 ```
 driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--json]
-driftbench judge calibrate --criteria <dir> --labels <dir> --cassette <file> --out <file> [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
+driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--cascade] [--only <criterion>...] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
 driftbench judge check <criteria> [--json]
 ```
 
@@ -828,7 +828,13 @@ driftbench judge check <criteria> [--json]
 |---|---|
 | `--criteria <dir>` | the criteria folder: one YAML file per criterion with its fixture pair; required by `run` and `calibrate` |
 | `--labels <dir>` | `calibrate`: the labels folder, one YAML file of hand-labelled blocks per criterion; required |
-| `--cassette <file>` | the recorded answers of every judge, as a cassette JSON file; required by `run` and `calibrate` |
+| `--cassette <file>` | the recorded answers of every judge, as a cassette JSON file; required by `run`; `calibrate` needs it or `--claude` |
+| `--claude <model>` | `calibrate`: add a live judge on the local `claude` command with this model, such as `haiku`; repeat for several. Paid calls, see [the claude command judge](../concepts/judges.md#the-claude-command-judge) |
+| `--claude-command <path>` | `calibrate`: the claude command to run; default `claude` |
+| `--record <file>` | `calibrate`: save every live answer, with its cost, as a cassette to replay later |
+| `--spend-cap-usd <usd>` | `calibrate`: stop calling live judges once their calls have cost this much; later calls give no answer |
+| `--cascade` | `calibrate`: the first judge answers everything, the others only where it is unsure or disagrees with the label; writes the cascade report as JSON to `--out`. See [a cascade](../concepts/judges.md#a-cascade-the-costly-judges-only-where-the-cheap-one-is-unsure) |
+| `--only <criterion>` | `calibrate`: only this criterion; repeat for several |
 | `--out <file>` | `calibrate`: where to write the assignment table, in YAML; required |
 | `--repeats <n>` | `calibrate`: how many times each judge answers each fixture; default 3 |
 | `--mode <mode>` | the council mode, `system1`, `hybrid` or `llm`; default `hybrid` |
@@ -1239,7 +1245,7 @@ Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate"
 
 ```
 driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points|auto>] [--min-goldens <n>] [--strict] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--aggregate <name:op threshold>]... [--json]
-driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json]
+driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json] [--pairwise <criterion.yaml>] [--pairwise-judge <openai|anthropic|google>]
 ```
 
 `report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
@@ -1255,6 +1261,8 @@ driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--
 | `--strict` | underpowered criteria gate too, as before the minimum existed |
 
 New flags always gate, and so does an underpowered criterion whose regression Benjamini-Hochberg keeps.
+
+`compare --pairwise <criterion.yaml>` also judges, for every block both campaigns ran, which of the two replies better meets one criterion. The criterion file holds a `name` and a `rubric`, and optionally `pass` and `fail`. `--pairwise-judge` picks the provider judge, `openai` by default; its key is read from the environment. Each pair is judged twice, in both orders, so a judge that favours a position is caught: the printed line counts the baseline and candidate wins, the ties, the calls whose two orders disagreed, and the calls where the judge chose a position. A judge that gives no answer fails the command with its reason. The pairwise line never changes the exit code.
 
 ## `driftbench ci`
 

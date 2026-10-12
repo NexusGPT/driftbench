@@ -6,8 +6,8 @@ import { z } from 'zod';
 import type { JudgeClient } from './client';
 import { JudgeClass, type JudgeOutcome, type JudgeRequest } from './contract';
 import type { AssignmentRow, CouncilMode, UnassignedCriterion } from './council';
-import { CriterionFixture, fixtureRequest, type LoadedCriterion } from './criteria';
-import { sameFamily } from './family';
+import { CriterionFixture, fixtureInputs, fixtureRequest, type LoadedCriterion } from './criteria';
+import { normalizeFamily, sameFamily } from './family';
 
 /**
  * Calibration (P2.3): a judge earns a criterion, it is never assumed to own one.
@@ -35,11 +35,78 @@ export const DEFAULT_REPEATS = 3;
 const COUNCIL_SIZE = 3;
 
 /** A block a human labelled: a fixture-shaped slice, its id, and the human's pass or fail. */
+/**
+ * The element of a labelled block a human label is about. A message is a transcript line by index; a tool
+ * call is a tool the transcript calls, by name and occurrence; a field is a dot path into the block's ledger;
+ * a span is a trace span id, which the transcript cannot show.
+ */
+export const AnnotationAnchor = z.discriminatedUnion('kind', [
+  z.strictObject({ kind: z.literal('message'), index: z.number().int().min(0) }),
+  z.strictObject({
+    kind: z.literal('tool_call'),
+    tool: z.string().min(1),
+    occurrence: z.number().int().min(1).optional(),
+  }),
+  z.strictObject({ kind: z.literal('field'), path: z.string().min(1) }),
+  z.strictObject({ kind: z.literal('span'), span_id: z.string().min(1) }),
+]);
+export type AnnotationAnchor = z.infer<typeof AnnotationAnchor>;
+
 export const LabelledBlock = CriterionFixture.extend({
   id: z.string().min(1),
   label: z.enum(['pass', 'fail']),
+  anchor: AnnotationAnchor.optional(),
 });
 export type LabelledBlock = z.infer<typeof LabelledBlock>;
+
+/**
+ * Why an anchor does not point at an element of its block, or undefined when it does or has none. A span
+ * anchor is never a problem here: the transcript cannot show a span (see `anchorNote`).
+ */
+export function anchorProblem(block: LabelledBlock): string | undefined {
+  const anchor = block.anchor;
+  if (anchor === undefined) return undefined;
+  switch (anchor.kind) {
+    case 'message': {
+      if (anchor.index >= block.transcript.length) {
+        return `anchor: no transcript line ${anchor.index} (the block has ${block.transcript.length})`;
+      }
+      return undefined;
+    }
+    case 'tool_call': {
+      const calls = block.transcript.filter(
+        (entry) => entry.role === 'tool_call' && entry.tool === anchor.tool,
+      );
+      if (calls.length === 0) return `anchor: calls no ${anchor.tool}`;
+      const wanted = anchor.occurrence ?? 1;
+      if (wanted > calls.length) return `anchor: calls ${anchor.tool} ${calls.length} times, not ${wanted}`;
+      return undefined;
+    }
+    case 'field': {
+      const found = fieldAt(block.given?.ledger ?? {}, anchor.path);
+      return found ? undefined : `anchor: no ledger field ${anchor.path}`;
+    }
+    case 'span':
+      return undefined;
+  }
+}
+
+/** The note an anchor carries for a reader, when the transcript cannot check it. */
+export function anchorNote(block: LabelledBlock): string | undefined {
+  if (block.anchor?.kind === 'span') {
+    return `span ${block.anchor.span_id}: not checkable from the transcript, the label stands as written`;
+  }
+  return undefined;
+}
+
+function fieldAt(root: unknown, path: string): boolean {
+  let at: unknown = root;
+  for (const key of path.split('.')) {
+    if (at === null || typeof at !== 'object' || !(key in at)) return false;
+    at = (at as Record<string, unknown>)[key];
+  }
+  return true;
+}
 
 /** One labels file: the hand-labelled blocks of one criterion. */
 export const LabelFile = z.strictObject({
@@ -104,6 +171,8 @@ export async function loadLabels(dir: string): Promise<LabelsLoad> {
       const twin = ids.get(block.id);
       if (twin) issues.push({ path, message: `block id ${block.id} is also used in ${twin}` });
       ids.set(block.id, path);
+      const problem = anchorProblem(block);
+      if (problem !== undefined) issues.push({ path, message: `block ${block.id}: ${problem}` });
     }
     const kinds = new Set(file.blocks.map((block) => block.label));
     if (kinds.size < 2) {
@@ -125,6 +194,8 @@ export function labelRequest(criterion: LoadedCriterion, block: LabelledBlock): 
     transcript: block.transcript,
     ...(block.artifact === undefined ? {} : { artifact: block.artifact }),
     ...(block.given === undefined ? {} : { given: block.given }),
+    // A block that carries no input of its own reads those of the criterion's pass fixture.
+    ...fixtureInputs(criterion.def.inputs, block.inputs ?? criterion.fixtures.pass.inputs),
   };
 }
 
@@ -164,6 +235,8 @@ export type LabelAgreement = {
     readonly id: string;
     readonly label: 'pass' | 'fail';
     readonly judged: JudgeOutcome;
+    /** The element the human label is about, when the label names one. */
+    readonly anchor?: AnnotationAnchor;
   }[];
 };
 
@@ -187,6 +260,11 @@ export type CriterionAssignment =
       readonly cls: JudgeClass;
       readonly judges: readonly string[];
       readonly rejudge: readonly string[];
+      /**
+       * The one model family every judge of the row belongs to, when they share one. Judges of one family
+       * share its blind spots: such a council is weaker evidence than one across families.
+       */
+      readonly singleFamily?: string;
     }
   | { readonly status: 'unassigned'; readonly reason: string };
 
@@ -215,6 +293,8 @@ export type CalibrationReport = {
   /** Judges left out because they share the agent's family. */
   readonly excluded: readonly string[];
   readonly errors: number;
+  /** What every call cost in US dollars, summed from the clients that report a cost; 0 for a replay without one. */
+  readonly spentUsd: number;
 };
 
 /** Runs calibration. Never throws on a judge failure: the failure is an inconclusive answer, counted. */
@@ -231,6 +311,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
   const criteria: CriterionCalibration[] = [];
   const pooled = new Map<string, { judged: JudgeOutcome[]; human: ('pass' | 'fail')[] }>();
   let errors = 0;
+  let spentUsd = 0;
 
   for (const criterion of config.criteria) {
     const blocks = config.labels.get(criterion.def.name) ?? [];
@@ -238,7 +319,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     // Units for alpha: the pass fixture, the fail fixture, then each labelled block; one row per judge.
     const matrix: (JudgeOutcome | null)[][] = [];
     for (const judge of judges) {
-      const counter = { errors: 0 };
+      const counter = { errors: 0, spentUsd: 0 };
       const pass: JudgeOutcome[] = [];
       const fail: JudgeOutcome[] = [];
       for (let r = 0; r < repeats; r += 1) {
@@ -248,12 +329,14 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       const judged: JudgeOutcome[] = [];
       for (const block of blocks) judged.push(await answer(judge, labelRequest(criterion, block), counter));
       errors += counter.errors;
+      spentUsd += counter.spentUsd;
 
       const separated = pass.filter((outcome, r) => outcome === 'pass' && fail[r] === 'fail').length;
       const labels = agreement(
         blocks.map((block) => block.id),
         blocks.map((block) => block.label),
         judged,
+        blocks.map((block) => block.anchor),
       );
       const misses: string[] = [];
       if (separated < repeats) misses.push(`separates the fixture pair ${separated} of ${repeats} times`);
@@ -299,6 +382,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     }),
     excluded,
     errors,
+    spentUsd,
   };
 }
 
@@ -306,11 +390,15 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
 async function answer(
   judge: JudgeClient,
   request: JudgeRequest,
-  counter: { errors: number },
+  counter: { errors: number; spentUsd: number },
 ): Promise<JudgeOutcome> {
   try {
     let result = await judge.judge({ ...request, budget: 'normal' });
-    if (result.unparsed) result = await judge.judge({ ...request, budget: 'large' });
+    counter.spentUsd += result.costUsd ?? 0;
+    if (result.unparsed) {
+      result = await judge.judge({ ...request, budget: 'large' });
+      counter.spentUsd += result.costUsd ?? 0;
+    }
     return result.unparsed ? 'inconclusive' : result.answer.outcome;
   } catch {
     counter.errors += 1;
@@ -318,10 +406,11 @@ async function answer(
   }
 }
 
-function agreement(
+export function agreement(
   ids: readonly string[],
   human: readonly ('pass' | 'fail')[],
   judged: readonly JudgeOutcome[],
+  anchors: readonly (AnnotationAnchor | undefined)[] = [],
 ): LabelAgreement {
   const n = human.length;
   const agree = human.filter((label, i) => judged[i] === label).length;
@@ -335,11 +424,15 @@ function agreement(
     agree,
     ...(kappa === undefined ? {} : { kappa }),
     agreement: interval,
-    blocks: ids.map((id, i) => ({
-      id,
-      label: human[i] as 'pass' | 'fail',
-      judged: judged[i] as JudgeOutcome,
-    })),
+    blocks: ids.map((id, i) => {
+      const anchor = anchors[i];
+      return {
+        id,
+        label: human[i] as 'pass' | 'fail',
+        judged: judged[i] as JudgeOutcome,
+        ...(anchor === undefined ? {} : { anchor }),
+      };
+    }),
   };
 }
 
@@ -401,12 +494,18 @@ function assign(
       if (pool.length < COUNCIL_SIZE) continue;
       rejudge = pool.slice(0, COUNCIL_SIZE).map((judge) => judge.id);
     }
+    const seatedIds = seated.slice(0, COUNCIL_SIZE).map((judge) => judge.id);
+    const families = new Set(
+      [...seatedIds, ...rejudge].map((id) => normalizeFamily(judges.find((j) => j.id === id)?.family ?? id)),
+    );
+    const [only] = families;
     return {
       status: 'assigned',
       owner: owner.id,
       cls: owner.cls,
-      judges: seated.slice(0, COUNCIL_SIZE).map((judge) => judge.id),
+      judges: seatedIds,
       rejudge,
+      ...(families.size === 1 && only !== undefined ? { singleFamily: only } : {}),
     };
   }
   const counts = classes
@@ -442,6 +541,8 @@ const AssignedEntry = z.strictObject({
   class: JudgeClass,
   judges: z.array(z.string().min(1)),
   rejudge: z.array(z.string().min(1)),
+  /** Every judge of the row is of this one family: weaker evidence than a council across families. */
+  single_family: z.string().optional(),
   /** The owner's separation, as "k of n". */
   separation: z.string(),
   /** The owner's kappa against the labels. */
@@ -483,6 +584,7 @@ export function assignmentTable(report: CalibrationReport): AssignmentTable {
         class: a.cls,
         judges: [...a.judges],
         rejudge: [...a.rejudge],
+        ...(a.singleFamily === undefined ? {} : { single_family: a.singleFamily }),
         separation: `${owner.separation.separated} of ${owner.separation.repeats}`,
         kappa: Number(fixed(owner.labels.kappa ?? 0)),
       };
