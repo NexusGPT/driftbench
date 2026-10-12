@@ -926,6 +926,15 @@ function arrayPartitions(name: string, property: YAMLMap, add: Add): void {
   if (plain(entry(property, 'uniqueItems')?.value) === true) {
     add('duplicate-items', `${name} holds the same item twice`, 'uniqueItems');
   }
+  // A closed tuple: an item beyond the listed positions is one more case.
+  const tuple = isSeq(entry(property, 'prefixItems')?.value) || isSeq(entry(property, 'items')?.value);
+  if (
+    tuple &&
+    (plain(entry(property, 'unevaluatedItems')?.value) === false ||
+      plain(entry(property, 'additionalItems')?.value) === false)
+  ) {
+    add('extra-item', `${name} has an item beyond its listed positions`, 'unevaluatedItems');
+  }
   if (entry(property, 'contains')) {
     add('has-match', `${name} has an item matching contains`, 'contains');
     add('no-match', `${name} has no item matching contains`, 'contains');

@@ -862,4 +862,16 @@ type = "boolean"
       ['t.x.in.p.true', 't.x.in.p.false'],
     ]);
   });
+
+  it('unevaluatedItems false or additionalItems false on a tuple adds extra-item and keeps the positions', () => {
+    for (const closed of [
+      { unevaluatedItems: false, prefixItems: [{ type: 'boolean' }] },
+      { additionalItems: false, items: [{ type: 'boolean' }] },
+    ]) {
+      expect(partitions({ type: 'array', ...closed })).toEqual({
+        't.x.in.p': ['empty', 'one-item', 'several-items', 'extra-item'],
+        't.x.in.p.0': ['true', 'false'],
+      });
+    }
+  });
 });

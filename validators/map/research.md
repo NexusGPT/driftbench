@@ -776,3 +776,14 @@ Sources read:
 What others do: A closed object rejects an unknown key; a test sends one.
 
 What to try, and why: a closed input gives an unknown-key case
+
+## Iteration 67
+
+Question: packages/generate/src/extract/tools.ts: unevaluatedItems false and additionalItems false give no extra-item; schema-keywords.unevaluated-items and additional-items prove it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-core section 11.2
+
+What others do: A closed tuple rejects an item past its positions.
+
+What to try, and why: a closed tuple gives an extra-item case
