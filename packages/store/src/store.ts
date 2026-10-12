@@ -17,6 +17,7 @@ import { describeCause, describeIssues, StoreError } from './errors';
 import {
   checkName,
   entriesOf,
+  isVersionPath,
   isVersionRecord,
   REGISTRY_KINDS,
   type RegistryFile,
@@ -139,7 +140,8 @@ function statements(db: DatabaseSync) {
          expires_at = excluded.expires_at`,
     ),
     selectCache: db.prepare('SELECT observed_json, expires_at FROM cache WHERE key = ?'),
-    deleteCache: db.prepare('DELETE FROM cache WHERE key = ?'),
+    /** Deletes the entry only while it still holds the expiry that was read: a fresher put stays. */
+    deleteExpiredCache: db.prepare('DELETE FROM cache WHERE key = ? AND expires_at = ?'),
     upsertUnit: db.prepare(
       `INSERT INTO units (adapter, metric, usd, samples, measured_at) VALUES (?, ?, ?, ?, ?)
        ON CONFLICT (adapter, metric) DO UPDATE SET usd = excluded.usd, samples = excluded.samples,
@@ -206,7 +208,9 @@ export class SqliteStore implements Store {
 
   async putCampaign(campaign: Campaign): Promise<void> {
     this.live();
-    this.putCampaignNow(campaign);
+    // One write transaction: the check for a held campaign and the insert see the same store, so a campaign
+    // another process commits in between is compared, not hit as a raw constraint error.
+    transaction(this.db, () => this.putCampaignNow(campaign));
   }
 
   async getCampaign(campaignId: string): Promise<Campaign | undefined> {
@@ -285,7 +289,7 @@ export class SqliteStore implements Store {
       const expiresAt = Date.parse(text(row, 'expires_at', where));
       if (Number.isNaN(expiresAt)) throw corrupt(`${where} holds an expiry that is not a date`);
       if (Date.now() >= expiresAt) {
-        this.sql.deleteCache.run(key);
+        this.sql.deleteExpiredCache.run(key, text(row, 'expires_at', where));
         return undefined;
       }
     }
@@ -427,6 +431,14 @@ export class SqliteStore implements Store {
       .get(kind, name, hash);
     if (held !== undefined) return { version: readVersion(held, `${kind} ${name}`), created: false };
     return transaction(this.db, () => {
+      // Checked again under the write lock: the same content pushed by another process in between is
+      // given back, not inserted twice.
+      const committed = this.db
+        .prepare('SELECT json FROM versions WHERE kind = ? AND name = ? AND hash = ?')
+        .get(kind, name, hash);
+      if (committed !== undefined) {
+        return { version: readVersion(committed, `${kind} ${name}`), created: false };
+      }
       const insertBlob = this.db.prepare(
         'INSERT OR IGNORE INTO blobs (sha256, size, bytes) VALUES (?, ?, ?)',
       );
@@ -517,6 +529,15 @@ export class SqliteStore implements Store {
     checkKind(version.kind);
     checkName(version.name);
     const label = `${version.kind} ${version.name}@${version.version}`;
+    const escaping = [...version.files.map((entry) => entry.path), ...files.map((file) => file.path)].find(
+      (path) => !isVersionPath(path),
+    );
+    if (escaping !== undefined) {
+      throw new StoreError(
+        'BUNDLE_INVALID',
+        `${label} names the file path "${escaping}", which leaves the version`,
+      );
+    }
     const held = this.db
       .prepare('SELECT hash FROM versions WHERE kind = ? AND name = ? AND (hash = ? OR version = ?)')
       .all(version.kind, version.name, version.hash, version.version);

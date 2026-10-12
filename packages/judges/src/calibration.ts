@@ -211,6 +211,11 @@ export type CalibrationConfig = {
   readonly agentFamily?: string;
   /** The kappa a judge needs against the labels. Default 0.8. */
   readonly kappaMin?: number;
+  /**
+   * How a criterion is assigned. `council` (default): the cheapest judge at the bar in a class that seats
+   * three judges at the bar, with the next two. `cheapest`: the one cheapest judge at the bar, alone.
+   */
+  readonly rule?: 'council' | 'cheapest';
 };
 
 export type Separation = {
@@ -248,6 +253,9 @@ export type JudgeCalibration = {
   readonly labels: LabelAgreement;
   /** Calls that gave no answer at all. */
   readonly errors: number;
+  /** Calls made, re-asks included, and what they cost in US dollars as the clients reported it. */
+  readonly calls: number;
+  readonly spentUsd: number;
   readonly meetsBar: boolean;
   /** Why the judge misses the bar, when it does. */
   readonly misses: readonly string[];
@@ -281,6 +289,8 @@ export type CalibrationReport = {
   readonly mode: CouncilMode;
   readonly repeats: number;
   readonly kappaMin: number;
+  /** The assignment rule used; absent means council. */
+  readonly rule?: 'cheapest';
   readonly criteria: readonly CriterionCalibration[];
   /** Per judge, kappa over every labelled block of every criterion. */
   readonly pooled: readonly {
@@ -319,7 +329,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     // Units for alpha: the pass fixture, the fail fixture, then each labelled block; one row per judge.
     const matrix: (JudgeOutcome | null)[][] = [];
     for (const judge of judges) {
-      const counter = { errors: 0, spentUsd: 0 };
+      const counter = { errors: 0, spentUsd: 0, calls: 0 };
       const pass: JudgeOutcome[] = [];
       const fail: JudgeOutcome[] = [];
       for (let r = 0; r < repeats; r += 1) {
@@ -350,6 +360,8 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
         separation: { pass, fail, separated, repeats },
         labels,
         errors: counter.errors,
+        calls: counter.calls,
+        spentUsd: counter.spentUsd,
         meetsBar: misses.length === 0,
         misses,
       });
@@ -366,7 +378,8 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       gating: criterion.def.gating === true,
       judges: rows,
       ...(alpha === undefined ? {} : { alpha }),
-      assignment: assign(rows, judges, mode),
+      assignment:
+        config.rule === 'cheapest' ? assignCheapest(rows, judges, mode) : assign(rows, judges, mode),
     });
   }
 
@@ -374,6 +387,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     mode,
     repeats,
     kappaMin,
+    ...(config.rule === 'cheapest' ? { rule: 'cheapest' as const } : {}),
     criteria,
     pooled: judges.map((judge) => {
       const own = pooled.get(judge.id) ?? { judged: [], human: [] };
@@ -390,12 +404,14 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
 async function answer(
   judge: JudgeClient,
   request: JudgeRequest,
-  counter: { errors: number; spentUsd: number },
+  counter: { errors: number; spentUsd: number; calls: number },
 ): Promise<JudgeOutcome> {
   try {
+    counter.calls += 1;
     let result = await judge.judge({ ...request, budget: 'normal' });
     counter.spentUsd += result.costUsd ?? 0;
     if (result.unparsed) {
+      counter.calls += 1;
       result = await judge.judge({ ...request, budget: 'large' });
       counter.spentUsd += result.costUsd ?? 0;
     }
@@ -458,6 +474,32 @@ function classesOf(mode: CouncilMode): JudgeClass[] {
 
 function byCost<T extends { cost: number; id: string }>(a: T, b: T): number {
   return a.cost - b.cost || a.id.localeCompare(b.id);
+}
+
+/** The cheapest-judge rule: the one cheapest judge at the bar, in a class the mode uses, judges alone. */
+function assignCheapest(
+  rows: readonly JudgeCalibration[],
+  judges: readonly JudgeClient[],
+  mode: CouncilMode,
+): CriterionAssignment {
+  const classes = classesOf(mode);
+  const [owner] = rows
+    .filter((row) => row.meetsBar && classes.includes(row.cls))
+    .map((row) => ({ id: row.judge, cost: row.cost, cls: row.cls }))
+    .sort(byCost);
+  if (!owner) {
+    const missing = rows.map((row) => `${row.judge} ${row.misses.join(' and ')}`).join('; ');
+    return { status: 'unassigned', reason: `no judge meets the bar${missing ? `: ${missing}` : ''}` };
+  }
+  const family = judges.find((j) => j.id === owner.id)?.family;
+  return {
+    status: 'assigned',
+    owner: owner.id,
+    cls: owner.cls,
+    judges: [owner.id],
+    rejudge: [],
+    ...(family === undefined ? {} : { singleFamily: normalizeFamily(family) }),
+  };
 }
 
 /** The assignment rule of the module comment: the cheapest judge at the bar in a class with three. */
@@ -543,6 +585,8 @@ const AssignedEntry = z.strictObject({
   rejudge: z.array(z.string().min(1)),
   /** Every judge of the row is of this one family: weaker evidence than a council across families. */
   single_family: z.string().optional(),
+  /** The owner's measured cost per call on this criterion in US dollars, when its client reports a cost. */
+  cost_per_call_usd: z.number().optional(),
   /** The owner's separation, as "k of n". */
   separation: z.string(),
   /** The owner's kappa against the labels. */
@@ -560,6 +604,8 @@ export const AssignmentTable = z.strictObject({
   mode: z.enum(['system1', 'hybrid', 'llm']),
   repeats: z.number().int().min(1),
   kappa_min: z.number(),
+  /** The assignment rule; absent means council. */
+  rule: z.literal('cheapest').optional(),
   criteria: z.array(z.discriminatedUnion('status', [AssignedEntry, UnassignedEntry])),
 });
 export type AssignmentTable = z.infer<typeof AssignmentTable>;
@@ -571,6 +617,7 @@ export function assignmentTable(report: CalibrationReport): AssignmentTable {
     mode: report.mode,
     repeats: report.repeats,
     kappa_min: report.kappaMin,
+    ...(report.rule === 'cheapest' ? { rule: 'cheapest' as const } : {}),
     criteria: report.criteria.map((criterion) => {
       const a = criterion.assignment;
       if (a.status === 'unassigned') {
@@ -587,12 +634,18 @@ export function assignmentTable(report: CalibrationReport): AssignmentTable {
         ...(a.singleFamily === undefined ? {} : { single_family: a.singleFamily }),
         separation: `${owner.separation.separated} of ${owner.separation.repeats}`,
         kappa: Number(fixed(owner.labels.kappa ?? 0)),
+        ...(owner.spentUsd > 0 && owner.calls > 0
+          ? { cost_per_call_usd: Number((owner.spentUsd / owner.calls).toFixed(6)) }
+          : {}),
       };
     }),
   };
 }
 
 export function renderAssignmentTable(table: AssignmentTable): string {
+  if (table.rule === 'cheapest') {
+    return `# Written by driftbench judge calibrate --assign cheapest. Each criterion is owned by the one cheapest judge\n# that separates its fixture pair in every repeat and reaches kappa ${table.kappa_min} against the hand labels; it\n# judges alone. An unassigned criterion is judged but never gates.\n${stringifyYaml(table, { lineWidth: 0 })}`;
+  }
   return `# Written by driftbench judge calibrate. A criterion is owned by the cheapest judge that separates its\n# fixture pair in every repeat and reaches kappa ${table.kappa_min} against the hand labels, in a class with three\n# such judges. An unassigned criterion is judged but never gates.\n${stringifyYaml(table, { lineWidth: 0 })}`;
 }
 

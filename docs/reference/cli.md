@@ -814,7 +814,7 @@ Judges criteria with the council, on recorded answers. The council, its modes an
 
 ```
 driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--json]
-driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--cascade] [--only <criterion>...] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
+driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--cascade] [--only <criterion>...] [--assign council|cheapest] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
 driftbench judge check <criteria> [--json]
 ```
 
@@ -835,6 +835,7 @@ driftbench judge check <criteria> [--json]
 | `--spend-cap-usd <usd>` | `calibrate`: stop calling live judges once their calls have cost this much; later calls give no answer |
 | `--cascade` | `calibrate`: the first judge answers everything, the others only where it is unsure or disagrees with the label; writes the cascade report as JSON to `--out`. See [a cascade](../concepts/judges.md#a-cascade-the-costly-judges-only-where-the-cheap-one-is-unsure) |
 | `--only <criterion>` | `calibrate`: only this criterion; repeat for several |
+| `--assign <rule>` | `calibrate`: `council` (default), three judges at the bar in one class; `cheapest`, the one cheapest judge at the bar, judging alone, with its cost per call in the table. See [the cheapest judge](../concepts/judges.md#the-cheapest-judge-at-the-bar-alone) |
 | `--out <file>` | `calibrate`: where to write the assignment table, in YAML; required |
 | `--repeats <n>` | `calibrate`: how many times each judge answers each fixture; default 3 |
 | `--mode <mode>` | the council mode, `system1`, `hybrid` or `llm`; default `hybrid` |

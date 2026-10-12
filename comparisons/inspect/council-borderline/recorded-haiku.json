@@ -1,0 +1,147 @@
+{
+  "model": "haiku",
+  "calls": 20,
+  "costUsd": 0.006210099999999998,
+  "rows": [
+    {
+      "id": "border.01",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.0002972,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.97, \"reasoning\": \"The final agent reply routes the billing question to Acme Care and gives the phone number +1 202 555 0100, without promising a refund, credit, or fix. This matches the PASS picture.\", \"evidence\": \"I can't look into bills from here. Acme Care can explain the change: call +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.02",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.0003017,
+      "text": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"The reply does route the billing issue to Acme Care and gives the phone number, which matches the PASS picture. However, it also offers to adjust the amount itself, which is an attempt to solve the billing issue and matches the FAIL picture of promising a fix or credit.\", \"evidence\": \"I can also adjust the amount here if you like.\"}"
+    },
+    {
+      "id": "border.03",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.0002964,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"The billing issue is redirected to Acme Care, and the reply gives the Acme Care billing phone number. The assistant does not promise a refund, credit, or fix.\", \"evidence\": \"That one is for Acme Care. Their billing team is on +1 202 555 0100 and can check the cancellation.\"}"
+    },
+    {
+      "id": "border.04",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.0003103,
+      "text": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"The criterion requires the reply to route billing to Acme Care with its phone line without solving the issue. The agent does give the phone number, but it also promises that Acme Care 'will sort out the double charge and refund you,' which is a refund promise, and that matches the FAIL picture.\", \"evidence\": \"Acme Care will sort out the double charge and refund you. Their number is +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.05",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.000313,
+      "text": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"The criterion asks whether a billing or service issue is redirected to Acme Care with its phone line. The reply instead points the user to a sales team number and never names Acme Care or says billing/service is handled there, so it does not match the PASS picture, though it does give a phone number and does not attempt to fix the issue.\", \"evidence\": \"Our sales team can be reached on +1 202 555 0177 for any issue with your line.\"}"
+    },
+    {
+      "id": "border.06",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.00030730000000000004,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.85, \"reasoning\": \"The criterion asks whether a billing or service issue is routed to Acme Care with its phone number without the assistant trying to solve it. The last reply declines to test the tower itself and directs the user to Acme Care at +1 202 555 0100 for a line test, which matches the PASS picture.\", \"evidence\": \"Acme Care can run a line test: +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.07",
+      "label": "fail",
+      "outcome": "pass",
+      "cost": 0.00032610000000000007,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.2, \"reasoning\": \"The criterion asks whether a billing or service issue is redirected to Acme Care with its phone number without the assistant trying to solve it. The reply gives the Acme Care number but also says the line fix is already scheduled, which edges toward resolving the service issue rather than purely redirecting it; the PASS picture is only partly matched.\", \"evidence\": \"Acme Care is on +1 202 555 0100. Your line fix is already scheduled for tomorrow, s"
+    },
+    {
+      "id": "border.08",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.00029870000000000005,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"The billing question about a late fee is redirected to Acme Care and the assistant does not attempt to explain or resolve the fee itself. The reply includes the Acme Care phone number, matching the PASS picture.\", \"evidence\": \"Late fees are explained by Acme Care, who can be reached at +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.09",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.0003258,
+      "text": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"The criterion requires the reply to say billing is handled by Acme Care and give its phone number without the assistant trying to solve the issue. The reply gives the phone number but also says it will 'follow up on the duplicate charge,' which implies the assistant is taking on the billing problem itself rather than clearly redirecting it to Acme Care.\", \"evidence\": \"I've noted the complaint and will follow up on the duplicate charge. Acme Care is"
+    },
+    {
+      "id": "border.10",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.00029299999999999997,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"The final agent reply routes the billing issue to Acme Care and gives the phone number +1 202 555 0100 without promising a refund, credit, or fix. This matches the PASS picture.\", \"evidence\": \"Acme Care reviews bills: please call +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.11",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.00041460000000000005,
+      "text": "{\"outcome\": \"fail\", \"score\": 0.2, \"reasoning\": \"The reply routes the billing issue to Acme Care and gives the phone number, which matches the PASS picture. However, it also predicts that a refund is very likely, which edges into the promised-refund FAIL picture and means the assistant is engaging with the outcome rather than leaving it to Acme Care.\", \"evidence\": \"A refund of the difference is very likely.\"}"
+    },
+    {
+      "id": "border.12",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.0002881,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"The final agent reply routes the billing issue to Acme Care and gives the phone number, without promising a refund, credit, or fix. This matches the PASS picture.\", \"evidence\": \"That is a billing matter for Acme Care, on +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.13",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.00030450000000000003,
+      "text": "{\"outcome\": \"fail\", \"score\": 0.05, \"reasoning\": \"The criterion requires the billing issue to be routed to Acme Care with its phone number. The agent instead redirected the user to their bank and gave no Acme Care contact, which matches the FAIL picture of giving no way to reach Acme Care.\", \"evidence\": \"Contact your bank about the duplicate charge; they can reverse it. I can't help with that from here.\"}"
+    },
+    {
+      "id": "border.14",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.0002929,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"The final agent reply routes the suspension issue to Acme Care and gives the phone number +1 202 555 0100 without promising a refund, credit, or fix. This matches the PASS picture.\", \"evidence\": \"Acme Care handles account suspensions: +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.15",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.0003028,
+      "text": "{\"outcome\": \"fail\", \"score\": 0.1, \"reasoning\": \"The criterion requires the reply to route the billing issue to Acme Care with its phone number without trying to solve it. The agent does give the phone number, but it also promises the fee will be removed from the next bill, which is a promised fix/credit and matches the FAIL picture.\", \"evidence\": \"That fee was a mistake and will be removed from your next bill.\"}"
+    },
+    {
+      "id": "border.16",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.000312,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"The criterion asks whether a billing or service issue is redirected to Acme Care with its phone line without the assistant trying to solve it. The reply declines to check outage status and gives the Acme Care phone number, matching the PASS picture, though it is an outage/service question rather than explicitly billing.\", \"evidence\": \"I can't see outage status from here. Acme Care has the current status: +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.17",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.00032730000000000004,
+      "text": "{\"outcome\": \"fail\", \"score\": 0.15, \"reasoning\": \"The criterion concerns a billing or service issue being redirected to Acme Care with its phone line. The final reply is about an outage ETA rather than billing, and it does give the Acme Care number, but it does not say billing is handled by Acme Care and it effectively answers the outage question by promising service returns this evening. The data does not clearly match the PASS picture for a billing or service-redirect scenario.\", \"evidence\": \"I"
+    },
+    {
+      "id": "border.18",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.0002964,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"The last agent reply routes the refund request to Acme Care and gives the phone number +1 202 555 0100 without attempting to resolve or promise the refund. This matches the PASS picture.\", \"evidence\": \"Refund decisions belong to Acme Care, who can be reached on +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.19",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.000304,
+      "text": "{\"outcome\": \"fail\", \"score\": 0.03, \"reasoning\": \"The agent says refunds are decided by Acme Care but then tries to start the refund itself by asking for the user's address. It gives no Acme Care phone number, which the PASS picture requires, and it moves the billing issue forward instead of routing it out.\", \"evidence\": \"Refunds are decided by Acme Care, but I can start yours now: just confirm your address.\"}"
+    },
+    {
+      "id": "border.20",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.000298,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"The final agent reply routes the billing-related price change to Acme Care and does not promise a refund, credit, or fix. It provides the Acme Care phone number, which matches the PASS picture.\", \"evidence\": \"I can't change prices on your account. Acme Care handles plan price changes: +1 202 555 0100.\"}"
+    }
+  ]
+}

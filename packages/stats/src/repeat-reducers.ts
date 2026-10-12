@@ -21,7 +21,7 @@ export function parseRepeatReducer(spelling: string): RepeatReducer {
 /**
  * Reduces the repeats to 1 (pass), 0 (fail) or undefined (undecided).
  *
- * mode: the most common scored value; a tie goes to the value seen first.
+ * mode: the most common scored value, when more than half of the repeats are scored; a tie goes to the value seen first.
  * median: above one half passes, below it fails, exactly one half is undecided.
  * at_least k: passes when at least k repeats pass; fails only when the passes plus the unscored repeats cannot reach k;
  * undecided otherwise, since an unscored repeat could still be the k-th pass.
@@ -32,7 +32,8 @@ export function reduceRepeats(
 ): 0 | 1 | undefined {
   const scored = values.filter((value): value is number => value !== undefined);
   if (reducer.kind === 'mode') {
-    if (scored.length === 0) return undefined;
+    // More than half of the repeats must be scored: one verdict from one repeat of three is not a verdict on the criterion.
+    if (scored.length * 2 <= values.length) return undefined;
     const counts = new Map<number, number>();
     for (const value of scored) counts.set(value, (counts.get(value) ?? 0) + 1);
     let best: number | undefined;

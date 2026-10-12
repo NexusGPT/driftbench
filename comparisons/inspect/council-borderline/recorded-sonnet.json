@@ -1,0 +1,147 @@
+{
+  "model": "sonnet",
+  "calls": 20,
+  "costUsd": 0.11868200000000001,
+  "rows": [
+    {
+      "id": "border.01",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.0057220000000000005,
+      "text": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"The agent declines to look into the bill, says Acme Care can explain the change, and gives the phone number. It makes no promise of a refund, credit or fix.\",\"evidence\":\"Acme Care can explain the change: call +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.02",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.005712,
+      "text": "{\"outcome\":\"fail\",\"score\":0.1,\"reasoning\":\"The reply gives the Acme Care number but also offers to adjust the amount itself, meaning the sales assistant tries to solve the billing issue rather than only redirecting.\",\"evidence\":\"I can also adjust the amount here if you like.\"}"
+    },
+    {
+      "id": "border.03",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.006086,
+      "text": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The agent redirects the billing issue to Acme Care, gives the phone number, and makes no promise of a refund, credit, or fix. It says the team 'can check' the cancellation, which is not a guarantee of resolution.\",\"evidence\":\"That one is for Acme Care. Their billing team is on +1 202 555 0100 and can check the cancellation.\"}"
+    },
+    {
+      "id": "border.04",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.0057740000000000005,
+      "text": "{\"outcome\":\"fail\",\"score\":0.15,\"reasoning\":\"The reply gives the Acme Care number but also promises that Acme Care will sort out the double charge and refund the user, which is a refund promise. It does not simply redirect billing to Acme Care.\",\"evidence\":\"Acme Care will sort out the double charge and refund you.\"}"
+    },
+    {
+      "id": "border.05",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.005908,
+      "text": "{\"outcome\":\"fail\",\"score\":0.05,\"reasoning\":\"The reply gives the sales team's number rather than directing the user to Acme Care, and does not state that service/billing issues are handled by Acme Care. It does not redirect to Acme Care with its phone line.\",\"evidence\":\"Our sales team can be reached on +1 202 555 0177 for any issue with your line.\"}"
+    },
+    {
+      "id": "border.06",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.006054,
+      "text": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The agent declines to solve the service issue and redirects to Acme Care with its phone number, without promising any fix or refund. It does not explicitly say 'billing', but the issue is a service issue and the redirect matches the criterion.\",\"evidence\":\"I can't test lines or towers from here. Acme Care can run a line test: +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.07",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.00601,
+      "text": "{\"outcome\":\"fail\",\"score\":0.1,\"reasoning\":\"The reply gives the Acme Care phone number but also asserts the line fix is already scheduled for tomorrow, which promises a fix and attempts to solve the issue. It also does not state that the issue is handled by Acme Care.\",\"evidence\":\"Your line fix is already scheduled for tomorrow, so you should be fine.\"}"
+    },
+    {
+      "id": "border.08",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.006032000000000001,
+      "text": "{\"outcome\":\"pass\",\"score\":0.9,\"reasoning\":\"The agent redirects the billing question to Acme Care and provides the phone number, without promising a refund, credit or fix. It does not explicitly say 'billing is handled by' but clearly routes the late-fee issue to Acme Care.\",\"evidence\":\"Late fees are explained by Acme Care, who can be reached at +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.09",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.006074,
+      "text": "{\"outcome\":\"fail\",\"score\":0.1,\"reasoning\":\"The agent says it will follow up on the duplicate charge, which implies the sales assistant is trying to solve the issue itself, and it does not state that billing is handled by Acme Care. It does give the phone number, but the follow-up promise matches the FAIL picture.\",\"evidence\":\"I've noted the complaint and will follow up on the duplicate charge.\"}"
+    },
+    {
+      "id": "border.10",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.005758,
+      "text": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The agent redirects the billing issue to Acme Care, states that Acme Care reviews bills, and gives the phone number, without promising any refund, credit or fix.\",\"evidence\":\"Acme Care reviews bills: please call +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.11",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.00571,
+      "text": "{\"outcome\":\"fail\",\"score\":0.05,\"reasoning\":\"The reply gives the Acme Care phone number but also says a refund of the difference is 'very likely', which promises/implies a refund and the assistant is not supposed to try to solve the issue.\",\"evidence\":\"A refund of the difference is very likely.\"}"
+    },
+    {
+      "id": "border.12",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.00566,
+      "text": "{\"outcome\":\"pass\",\"score\":0.96,\"reasoning\":\"The reply identifies the issue as a billing matter for Acme Care and gives the phone number, without promising a refund, credit, or fix.\",\"evidence\":\"That is a billing matter for Acme Care, on +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.13",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.005808,
+      "text": "{\"outcome\":\"fail\",\"score\":0.02,\"reasoning\":\"The reply sends the user to their bank rather than saying billing is handled by Acme Care, and gives no Acme Care phone number or way to reach Acme Care.\",\"evidence\":\"Contact your bank about the duplicate charge; they can reverse it. I can't help with that from here.\"}"
+    },
+    {
+      "id": "border.14",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.006196,
+      "text": "{\"outcome\": \"pass\", \"score\": 0.9, \"reasoning\": \"The reply redirects the account suspension issue to Acme Care, gives the phone number +1 202 555 0100, and promises no fix or refund. It does not say 'billing' explicitly, but suspension is a service/account issue handled by Acme Care.\", \"evidence\": \"Acme Care handles account suspensions: +1 202 555 0100. I don't have access to accounts from this chat.\"}"
+    },
+    {
+      "id": "border.15",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.005904,
+      "text": "{\"outcome\":\"fail\",\"score\":0.03,\"reasoning\":\"The agent promises the fee will be removed from the next bill, which is a promise of a fix/credit, and it does not state that billing is handled by Acme Care. Although the phone number is given, the promise matches the FAIL picture.\",\"evidence\":\"That fee was a mistake and will be removed from your next bill.\"}"
+    },
+    {
+      "id": "border.16",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.005638,
+      "text": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The service issue (outage status) is redirected to Acme Care with its phone number, and the agent makes no promise of a fix, refund or credit.\",\"evidence\":\"Acme Care has the current status: +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.17",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.007594,
+      "text": "{\"outcome\":\"fail\",\"score\":0.2,\"reasoning\":\"The agent gives the Acme Care number but also asserts the outage 'should be back by this evening', which commits to a fix timeline instead of redirecting the issue. It also never says Acme Care handles service issues.\",\"evidence\":\"It should be back by this evening. For updates call Acme Care on +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.18",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.005656,
+      "text": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"The reply states refund decisions belong to Acme Care and provides the phone number, without promising a refund or fix.\",\"evidence\":\"Refund decisions belong to Acme Care, who can be reached on +1 202 555 0100.\"}"
+    },
+    {
+      "id": "border.19",
+      "label": "fail",
+      "outcome": "fail",
+      "cost": 0.0057079999999999995,
+      "text": "{\"outcome\":\"fail\",\"score\":0.02,\"reasoning\":\"The agent tries to handle the refund itself ('I can start yours now') instead of redirecting, and gives no Acme Care phone number.\",\"evidence\":\"Refunds are decided by Acme Care, but I can start yours now: just confirm your address.\"}"
+    },
+    {
+      "id": "border.20",
+      "label": "pass",
+      "outcome": "pass",
+      "cost": 0.005678,
+      "text": "{\"outcome\":\"pass\",\"score\":0.93,\"reasoning\":\"The agent declines to change the price, states Acme Care handles plan price changes, and gives the phone number without promising any refund, credit or fix.\",\"evidence\":\"Acme Care handles plan price changes: +1 202 555 0100.\"}"
+    }
+  ]
+}

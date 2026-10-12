@@ -56,6 +56,7 @@ export type JudgeCalibrateOptions = {
   record?: string;
   spendCapUsd?: string;
   cascade?: boolean;
+  assign: string;
   only?: string[];
   json?: boolean;
 };
@@ -115,6 +116,11 @@ export function registerJudgeCommand(program: Command, io: Io, setExit: (code: n
     .option(
       '--cascade',
       'the first judge answers everything; the others only where it is unsure or disagrees with the label. Writes the cascade report as JSON to --out',
+    )
+    .option(
+      '--assign <rule>',
+      'council: three judges at the bar in one class; cheapest: the one cheapest judge at the bar, alone',
+      'council',
     )
     .option('--only <criterion>', 'calibrate only this criterion; repeat for several', collectValues, [])
     .requiredOption('--out <file>', 'where to write the assignment table (YAML)')
@@ -285,6 +291,10 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
     io.err(`--mode takes ${MODES.join(', ')}, not "${options.mode}".\n`);
     return 2;
   }
+  if (options.assign !== undefined && options.assign !== 'council' && options.assign !== 'cheapest') {
+    io.err(`--assign takes council or cheapest, not "${options.assign}".\n`);
+    return 2;
+  }
   const repeats = Number(options.repeats);
   if (!Number.isInteger(repeats) || repeats < 1) {
     io.err(`--repeats takes a whole number from 1, not "${options.repeats}".\n`);
@@ -348,6 +358,7 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
     report = await calibrate({
       judges,
       criteria: chosen,
+      ...(options.assign === 'cheapest' ? { rule: 'cheapest' as const } : {}),
       labels: labels.labels,
       repeats,
       mode: options.mode as CouncilMode,
@@ -399,7 +410,9 @@ function describeCalibration(criterion: CriterionCalibration, report: Calibratio
   const a = criterion.assignment;
   const head =
     a.status === 'assigned'
-      ? `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: owned by ${a.owner} (${a.cls}: ${a.judges.join(', ')}${a.rejudge.length > 0 ? `; re-judge ${a.rejudge.join(', ')}` : ''})${a.singleFamily ? ` [single family: ${a.singleFamily}]` : ''}`
+      ? a.judges.length === 1
+        ? `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: owned by ${a.owner} alone (${a.cls})${perCall(criterion, a.owner)}`
+        : `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: owned by ${a.owner} (${a.cls}: ${a.judges.join(', ')}${a.rejudge.length > 0 ? `; re-judge ${a.rejudge.join(', ')}` : ''})${a.singleFamily ? ` [single family: ${a.singleFamily}]` : ''}`
       : `${criterion.criterion}${criterion.gating ? ' [gating]' : ''}: UNASSIGNED, judged but not gating: ${a.reason}`;
   const lines = [head];
   for (const row of criterion.judges) {
@@ -502,4 +515,11 @@ function printCascade(report: CascadeReport, io: Io, options: JudgeCalibrateOpti
     `\nSpent ${report.spentUsd.toFixed(4)} USD${errors > 0 ? `; ${errors} call(s) gave no answer` : ''}. Wrote ${show(io, out)}${options.record ? ` and ${show(io, resolve(io.cwd, options.record))}` : ''}.\n`,
   );
   return errors > 0 ? 1 : 0;
+}
+
+/** The owner's measured cost per call on a criterion, when its client reported one. */
+function perCall(criterion: CriterionCalibration, owner: string): string {
+  const row = criterion.judges.find((judge) => judge.judge === owner);
+  if (!row || row.spentUsd <= 0 || row.calls === 0) return '';
+  return `, ${(row.spentUsd / row.calls).toFixed(4)} USD per call`;
 }
