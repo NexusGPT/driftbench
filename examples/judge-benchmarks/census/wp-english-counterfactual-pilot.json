@@ -1,0 +1,12 @@
+{
+  "rowKey": "ebf7409185f6d88ff350",
+  "kind": "diagnostic counterfactual, not an official or new model result",
+  "observedFirst": 0.7778846153846155,
+  "observedSecond": 0.8192307692307694,
+  "observedMargin": -0.04134615384615392,
+  "oneCraftLevelContribution": 0.05,
+  "counterfactualMarginIfFirstCraftRisesOneLevel": 0.008653846153846123,
+  "basis": "The first craft score is2 and the second3. The first score explicitly cites an unrequested prohibition on invented plot events. Removing that mistaken penalty could decide the aggregate; only a fresh model run can establish revised scores.",
+  "noScoreOverrideApplied": true,
+  "weightsUnchanged": true
+}
