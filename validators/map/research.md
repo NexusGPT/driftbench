@@ -688,3 +688,14 @@ Sources read:
 What others do: A model writes only the keys the template lists.
 
 What to try, and why: a rule records the cell it applies in (when; level 1 is blocked on validator defects, so the level stays 0)
+
+## Iteration 59
+
+Question: packages/generate/src/extract/contract.ts: the answer template shows no unless key on a value; contract:rule-unless proves it.
+
+Sources read:
+* docs/generating.md section Planned: what a rule states (unless)
+
+What others do: A model writes only the keys the template lists.
+
+What to try, and why: a rule records the case it excludes (unless)

@@ -72,4 +72,37 @@ describe('what a rule states', () => {
       channel: ['sms'],
     });
   });
+
+  it('the answer template shows unless, and the model may state it on a rule', () => {
+    expect(SYSTEM_PROMPT).toContain('"unless": {"<dimension id>": ["<value id>"]}');
+    const target = { dimensions: [], constraints: [], phrases: [], relations: [] };
+    const answer = {
+      section: 'rules',
+      dimensions: [
+        {
+          id: 'rule',
+          title: 'Rules',
+          kind: 'behaviour',
+          values: [
+            {
+              id: 'R-03',
+              title: 'A rule',
+              polarity: 'must',
+              unless: { channel: ['sms'] },
+              source: 'prompt.md',
+              quote: 'Never promise a delivery date.',
+            },
+          ],
+        },
+      ],
+      constraints: [],
+      phrases: [],
+      relations: [],
+    };
+    const result = acceptAnswer('rules', answer as never, target as never, quotes);
+    expect(result.refusals).toEqual([]);
+    expect((target.dimensions[0] as { values: Array<Record<string, unknown>> }).values[0]?.unless).toEqual({
+      channel: ['sms'],
+    });
+  });
 });
