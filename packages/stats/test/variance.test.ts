@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   abundances,
+  betaQuantile,
   chaoCoverage,
   designEffect,
   goodTuring,
@@ -176,5 +177,12 @@ describe('hillNumber near q = 1', () => {
   it('still gives the closed form at q = 2', () => {
     expect(hillNumber([1, 1], 2)).toBeCloseTo(2, 12);
     expect(hillNumber([3, 1], 2)).toBeCloseTo(1 / (0.75 ** 2 + 0.25 ** 2), 12);
+  });
+});
+
+describe('betaQuantile in the lower tail of a U-shaped beta', () => {
+  it('keeps its relative accuracy', () => {
+    const got = betaQuantile(1e-6, 0.5, 0.5);
+    expect(Math.abs(got - 2.46740110027031e-12) / 2.46740110027031e-12).toBeLessThan(1e-6);
   });
 });

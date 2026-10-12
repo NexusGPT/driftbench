@@ -85,7 +85,7 @@ export function betaQuantile(p: number, a: number, b: number): number {
     const mid = (lo + hi) / 2;
     if (incompleteBeta(mid, a, b) < p) lo = mid;
     else hi = mid;
-    if (hi - lo < 1e-16) break;
+    if (hi - lo <= 1e-15 * hi) break;
   }
   return (lo + hi) / 2;
 }
