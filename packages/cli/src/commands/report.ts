@@ -4,6 +4,7 @@ import type { RunMode } from '@driftbench/core';
 import {
   buildScorecard,
   type CampaignData,
+  criterionRepeatsText,
   MIN_GOLDENS,
   type PilotReport,
   ReportInputError,
@@ -173,6 +174,7 @@ export async function reportCommand(
     io.out(
       `Campaign ${c.campaignId}: ${c.runs} runs, ${c.passing} pass, ${c.failing} fail, ${c.broken} did not complete.\n`,
     );
+    for (const line of criterionRepeatsText(card.criterionRepeats)) io.out(`${line}\n`);
     if (card.compare) {
       io.out(
         `Against baseline ${card.compare.baseline.campaignId}: ${card.compare.verdict}, margin ${(margin * 100).toFixed(1)} points.\n`,
