@@ -515,10 +515,10 @@ function prefixOf(rule: string): string {
 
 /** Containers one decoder fixes together. */
 const CONTAINER_CAUSE: Record<string, string> = {
-  'json-messages': 'quote:decode-json-strings',
-  'json-ascii': 'quote:decode-json-strings',
-  'json-prompt-key': 'quote:decode-json-strings',
-  jsonl: 'quote:decode-json-strings',
+  'json-messages': 'quote:read-json-prompt-files',
+  'json-ascii': 'quote:read-json-prompt-files',
+  'json-prompt-key': 'quote:read-json-prompt-files',
+  jsonl: 'quote:read-json-prompt-files',
   'yaml-double': 'quote:decode-yaml-scalars',
   'yaml-single': 'quote:decode-yaml-scalars',
   'ts-template': 'quote:resolve-interpolated-constants',

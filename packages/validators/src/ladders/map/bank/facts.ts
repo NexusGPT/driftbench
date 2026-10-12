@@ -28,8 +28,8 @@ export type Parts = {
   dimension?: (id: string) => boolean;
   /** produced_by of every value, constraint and relation. */
   produced?: boolean;
-  /** The value fields of VALUE_FIELDS. */
-  fields?: boolean;
+  /** The value fields of VALUE_FIELDS: all of them, or only those listed. */
+  fields?: boolean | readonly string[];
   roles?: boolean;
   constraints?: boolean;
   phrases?: boolean;
@@ -52,6 +52,11 @@ function relationBody(relation: Record<string, unknown>): string {
   return canonicalJson(body);
 }
 
+/** Whether the parts check one value field. */
+function fieldOn(parts: Parts, field: string): boolean {
+  return Array.isArray(parts.fields) ? parts.fields.includes(field) : parts.fields === true;
+}
+
 /** The facts a proposal holds. */
 export function proposalFacts(proposal: Proposal, parts: Parts): Set<string> {
   const facts = new Set<string>();
@@ -67,6 +72,7 @@ export function proposalFacts(proposal: Proposal, parts: Parts): Set<string> {
       if (parts.fields) {
         const record = value as unknown as Record<string, unknown>;
         for (const field of VALUE_FIELDS) {
+          if (!fieldOn(parts, field)) continue;
           if (record[field] !== undefined) facts.add(`${field} ${key} = ${canonicalJson(record[field])}`);
         }
       }
@@ -123,6 +129,7 @@ export function expectedFacts(
     if (parts.produced) facts.add(`by ${dimension}/${id} = ${by}`);
     if (parts.fields) {
       for (const [field, content] of Object.entries(fields ?? {})) {
+        if (!fieldOn(parts, field)) continue;
         if (content !== undefined) facts.add(`${field} ${dimension}/${id} = ${canonicalJson(content)}`);
       }
     }

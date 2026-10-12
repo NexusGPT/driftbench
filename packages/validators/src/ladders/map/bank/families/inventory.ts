@@ -333,32 +333,103 @@ export const FORMS: readonly Form[] = [
         '',
       ].join('\n'),
   },
+  {
+    slug: 'long-flow-title',
+    tier: 3,
+    title:
+      'a flow item longer than a quote may be is quoted by a passage within the limit, and the proposal stays valid',
+    shape: (inventory) => ({
+      ...inventory,
+      flows: inventory.flows.map((f, i) =>
+        i === 0
+          ? {
+              ...f,
+              title: `A customer asks for help ${'with one more detail of the plan '.repeat(40)}`.trim(),
+            }
+          : f,
+      ),
+    }),
+  },
 ];
 
 export function inventoryItems(): BankItem[] {
-  return FORMS.map((form) =>
-    mapItem({
-      id: `inventory-forms.${form.slug}`,
-      family: 'inventory-forms',
-      tier: form.tier,
-      level: levelOf('structured'),
-      component: BANK_COMPONENTS.inventory,
-      title: form.title,
-      cause: `inventory:${form.slug}`,
-      build: (seed) => {
-        const drawn = miniInventory(drawFor(seed, `inventory-forms.${form.slug}`));
-        const inventory = form.shape ? form.shape(drawn, seed) : drawn;
-        const text = (form.write ?? yaml)(inventory);
-        return {
-          case: {
-            label: form.slug,
-            sources: [{ kind: 'inventory', path: form.path ?? 'inventory.yaml', text }],
-            planted: [],
-          },
-          code: (form.code ?? inventoryCode)(inventory),
-          parts: { values: true, produced: true, constraints: true, relations: true },
-        };
+  return [
+    ...FORMS.map((form) =>
+      mapItem({
+        id: `inventory-forms.${form.slug}`,
+        family: 'inventory-forms',
+        tier: form.tier,
+        level: levelOf('structured'),
+        component: BANK_COMPONENTS.inventory,
+        title: form.title,
+        cause: `inventory:${form.slug}`,
+        build: (seed) => {
+          const drawn = miniInventory(drawFor(seed, `inventory-forms.${form.slug}`));
+          const inventory = form.shape ? form.shape(drawn, seed) : drawn;
+          const text = (form.write ?? yaml)(inventory);
+          return {
+            case: {
+              label: form.slug,
+              sources: [{ kind: 'inventory', path: form.path ?? 'inventory.yaml', text }],
+              planted: [],
+            },
+            code: (form.code ?? inventoryCode)(inventory),
+            parts: { values: true, produced: true, constraints: true, relations: true },
+          };
+        },
+      }),
+    ),
+    ownQuoteItem(),
+  ];
+}
+
+/** The flow and behaviour values each quote their own inventory item: the quote holds the id it stands for. */
+function ownQuoteItem(): BankItem {
+  const build = (seed: number) => {
+    const inventory = miniInventory(drawFor(seed, 'inventory-forms.own-quotes'));
+    inventory.flows = [
+      {
+        id: 'service',
+        title: 'A customer asks for help',
+        behaviours: ['B-001'],
+        deviations: ['D1_off_topic'],
       },
-    }),
-  );
+      { id: 'refund', title: 'A customer asks for money back', behaviours: ['B-002'] },
+      { id: 'renewal', title: 'A customer renews a plan', behaviours: ['B-003'] },
+    ];
+    return inventory;
+  };
+  return {
+    id: 'inventory-forms.own-quotes',
+    family: 'inventory-forms',
+    tier: 2,
+    level: levelOf('structured'),
+    component: BANK_COMPONENTS.inventory,
+    title: 'each flow and behaviour value quotes its own item of the inventory: the quote holds its id',
+    cause: 'inventory:quote-own-item',
+    generate: (seed) => [
+      {
+        label: 'own-quotes',
+        sources: [{ kind: 'inventory', path: 'inventory.yaml', text: yaml(build(seed)) }],
+        planted: [],
+      },
+    ],
+    check: (runs) => {
+      const run = runs[0];
+      if (!run?.result.ok) return { pass: false, detail: 'no proposal' };
+      for (const dimension of run.result.proposal.dimensions.filter(
+        (d) => d.id === 'flow' || d.id === 'behaviour',
+      )) {
+        for (const value of dimension.values) {
+          if (!value.evidence.quote.includes(value.id)) {
+            return {
+              pass: false,
+              detail: `${dimension.id}/${value.id} quotes "${value.evidence.quote.slice(0, 80)}", which does not name it`,
+            };
+          }
+        }
+      }
+      return { pass: true, detail: 'every value quotes its own item' };
+    },
+  };
 }

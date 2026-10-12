@@ -808,9 +808,7 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
     const scoped = rule.when?.how === 'scope' && written?.context;
     planted.push({
       ...entry,
-      ...(scoped
-        ? { context: { anchor: written.context as string, ifMissing: 'without-when' as const } }
-        : {}),
+      ...(scoped ? { context: { anchor: written.context as string, ifMissing: 'drop' as const } } : {}),
       ...extra,
     });
     if (extra.silent) return;

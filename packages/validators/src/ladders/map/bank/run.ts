@@ -1,5 +1,5 @@
 import { performance } from 'node:perf_hooks';
-import { type ExtractResult, extractMap } from '@driftbench/generate';
+import { checkQuotes, type ExtractResult, extractMap, validateProposal } from '@driftbench/generate';
 import {
   type CodeEntry,
   compareFacts,
@@ -77,6 +77,22 @@ export function runProblem(run: CaseRun): string | undefined {
   return `${run.case.label}: the extractor gave no proposal (${first?.code} ${first?.path} ${first?.message})`;
 }
 
+/**
+ * Why a returned proposal is not a valid one: the schema, the references, the space map rules, or a quote not
+ * in its source. An extractor that returns such a proposal fails the item, whatever its facts say.
+ */
+export function proposalProblem(run: CaseRun): string | undefined {
+  if (!run.result.ok) return undefined;
+  const checked = validateProposal(run.result.proposal);
+  const problems = checked.ok
+    ? checkQuotes(run.result.proposal, new Map(run.case.sources.map((source) => [source.path, source.text])))
+    : checked.errors;
+  const first = problems[0];
+  return first
+    ? `${run.case.label}: the extractor returned an invalid proposal (${first.code} ${first.path} ${first.message})`
+    : undefined;
+}
+
 /** The sections that failed in a run, for an item detail. */
 export function failedSections(run: CaseRun): string {
   if (!run.result.ok) return '';
@@ -94,6 +110,8 @@ export function checkMap(run: CaseRun, code: readonly CodeEntry[], parts: Parts)
   const problem = runProblem(run);
   if (problem) return { pass: false, detail: problem };
   if (!run.result.ok) return { pass: false, detail: 'no proposal' };
+  const invalid = proposalProblem(run);
+  if (invalid) return { pass: false, detail: invalid };
   const expected = expectedFacts(run.case.planted, code, parts);
   const actual = proposalFacts(run.result.proposal, parts);
   const { lost, gained } = compareFacts(expected, actual);

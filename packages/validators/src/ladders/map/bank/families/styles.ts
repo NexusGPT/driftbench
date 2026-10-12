@@ -73,7 +73,8 @@ function styledItem(meta: {
         meta.render ?? {},
         meta.budgetMs,
       );
-      return { case: built.item, code: built.code, parts: meta.parts ?? MAP };
+      const cause = meta.cause ?? styleCause(meta.styles, meta.extras);
+      return { case: built.item, code: built.code, parts: meta.parts ?? { ...MAP, fields: fieldsOf(cause) } };
     },
   });
 }
@@ -97,6 +98,24 @@ export function styleCause(styles: readonly Style[], extras: Extras = {}): strin
   if (styles.some((style) => style === 'conditional' || style === 'nested' || style === 'table'))
     return 'contract:rule-when';
   return 'contract:rule-polarity';
+}
+
+/**
+ * The value fields an item checks: only the one its cause adds, so the item turns green on that one change.
+ * Items whose cause is no field (a relation, a chunking change) check no field.
+ */
+export function fieldsOf(cause: string): string[] {
+  const field: Record<string, string> = {
+    'contract:rule-polarity': 'polarity',
+    'contract:rule-when': 'when',
+    'contract:rule-unless': 'unless',
+    'contract:rule-limit': 'limit',
+    'contract:rule-within': 'within',
+    'contract:rule-priority': 'priority',
+    'contract:value-weight': 'weight',
+    'contract:value-required': 'required',
+  };
+  return field[cause] ? [field[cause] as string] : [];
 }
 
 const STYLE_TIER: Record<Style, Tier> = {

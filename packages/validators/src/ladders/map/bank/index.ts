@@ -7,6 +7,7 @@ import { hostileItems } from './families/hostile';
 import { inventoryItems } from './families/inventory';
 import { relationItems } from './families/relations';
 import { schemaItems } from './families/schema';
+import { spaceItems } from './families/space';
 import {
   compositionItems,
   constraintItems,
@@ -35,6 +36,7 @@ export function mapBank(): BankItem[] {
     ...pairItems(),
     ...relationItems(),
     ...constraintItems(),
+    ...spaceItems(),
     ...transformItems(),
     ...compositionItems(),
     ...semanticsItems(),

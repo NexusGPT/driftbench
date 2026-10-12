@@ -607,40 +607,80 @@ export const FORMATS: readonly Format[] = [
 ];
 
 export function formatItems(): BankItem[] {
-  return FORMATS.map((format) =>
-    mapItem({
-      id: `tool-formats.${format.slug}`,
-      family: 'tool-formats',
-      tier: format.tier,
-      level: levelOf('structured'),
-      component: BANK_COMPONENTS.tools,
-      title: format.title,
-      cause: `tools:shape-${format.slug === 'gemini-nested' ? 'gemini' : format.slug}`,
-      build: (seed) => {
-        const draw = drawFor(seed, `tool-formats.${format.slug}`);
-        const drawn = tools(draw);
-        const inventory = miniInventory(draw);
-        const code = [
-          ...inventoryCode(inventory),
-          ...(format.code ?? ((entries: CodeEntry[]) => entries))(
-            drawn.code.filter(
-              (entry) => !format.inputOnly || !(entry.type === 'value' && entry.dimension.includes('.out.')),
+  return [
+    ...FORMATS.map((format) =>
+      mapItem({
+        id: `tool-formats.${format.slug}`,
+        family: 'tool-formats',
+        tier: format.tier,
+        level: levelOf('structured'),
+        component: BANK_COMPONENTS.tools,
+        title: format.title,
+        cause: `tools:shape-${format.slug === 'gemini-nested' ? 'gemini' : format.slug}`,
+        build: (seed) => {
+          const draw = drawFor(seed, `tool-formats.${format.slug}`);
+          const drawn = tools(draw);
+          const inventory = miniInventory(draw);
+          const code = [
+            ...inventoryCode(inventory),
+            ...(format.code ?? ((entries: CodeEntry[]) => entries))(
+              drawn.code.filter(
+                (entry) =>
+                  !format.inputOnly || !(entry.type === 'value' && entry.dimension.includes('.out.')),
+              ),
             ),
-          ),
-        ];
-        return {
-          case: {
-            label: format.slug,
-            sources: [
-              inventorySource(inventory),
-              { kind: 'tools', path: format.path ?? 'tools.yaml', text: format.write(drawn.list) },
-            ],
-            planted: [],
-          },
-          code,
-          parts: { values: true, produced: true, constraints: true, relations: true },
-        };
-      },
-    }),
-  );
+          ];
+          return {
+            case: {
+              label: format.slug,
+              sources: [
+                inventorySource(inventory),
+                { kind: 'tools', path: format.path ?? 'tools.yaml', text: format.write(drawn.list) },
+              ],
+              planted: [],
+            },
+            code,
+            parts: { values: true, produced: true, constraints: true, relations: true },
+          };
+        },
+      }),
+    ),
+    refusedItem(),
+  ];
+}
+
+/** A tools file that cannot be read stops the extraction with the pre-pass error, before any model call. */
+function refusedItem(): BankItem {
+  return {
+    id: 'tool-formats.unreadable-refused',
+    family: 'tool-formats',
+    tier: 2,
+    level: levelOf('structured'),
+    component: BANK_COMPONENTS.extract,
+    title: 'a tools file that is not YAML or JSON is refused with TOOLS_PARSE: no proposal is made',
+    cause: 'extract:refuse-unreadable-tools',
+    generate: (seed) => {
+      const inventory = miniInventory(drawFor(seed, 'tool-formats.unreadable-refused'));
+      return [
+        {
+          label: 'unreadable-refused',
+          sources: [
+            inventorySource(inventory),
+            { kind: 'tools', path: 'tools.yaml', text: 'tools: [\n  { name: "broken", input_schema: {\n' },
+          ],
+          planted: [],
+        },
+      ];
+    },
+    check: (runs) => {
+      const run = runs[0];
+      if (!run) return { pass: false, detail: 'no run' };
+      if (run.result.ok)
+        return { pass: false, detail: 'the extractor made a proposal from an unreadable tools file' };
+      const codes = run.result.errors.map((error) => error.code);
+      return codes.includes('TOOLS_PARSE')
+        ? { pass: true, detail: 'refused with TOOLS_PARSE' }
+        : { pass: false, detail: `refused with ${codes.join(', ')}, not TOOLS_PARSE` };
+    },
+  };
 }

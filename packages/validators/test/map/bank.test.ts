@@ -307,7 +307,7 @@ describe('the bank as a ladder', () => {
     expect(run.rows[1]?.pass).toBeNull();
     const ids = run.failing?.items.map((one) => one.id) ?? [];
     expect(ids).toEqual(expect.arrayContaining(['schema-keywords.enum', 'tool-formats.mcp']));
-    expect(run.failing?.items[0]?.detail).toMatch(/^\[[a-z-]+, tier [1-5], cause [a-z]+:[a-z0-9+.-]+\] /);
+    expect(run.failing?.items[0]?.detail).toMatch(/^\[[a-z-]+, tier [1-5]\] .*\. Fix: [a-z]+:[a-z0-9+.-]+$/s);
   });
 });
 
@@ -324,7 +324,7 @@ describe('the hardness measurement', () => {
     const { rows, problems } = readJournal(ROOT, 'map');
     expect(problems).toEqual([]);
     const measured = measureHardness(rows);
-    expect(measured.iteration0).toMatchObject({ bankSize: 546, passing: 192 });
+    expect(measured.iteration0).toMatchObject({ bankSize: 565, passing: 209 });
     expect(measured.pilot).toMatchObject({ iterations: 10, complete: true });
     expect(measured.forecast).toBeGreaterThanOrEqual(100);
     expect(measured.causes?.distinct).toBeGreaterThanOrEqual(100);
