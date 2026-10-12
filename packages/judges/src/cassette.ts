@@ -70,6 +70,7 @@ export function dataKey(request: JudgeRequest): string {
     artifact: request.artifact,
     inputs: request.inputs,
     given: request.given,
+    reference: request.reference,
     budget: request.budget === 'large' ? 'large' : undefined,
   });
 }

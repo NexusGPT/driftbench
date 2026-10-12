@@ -169,3 +169,15 @@ describe('the request key covers the prompt and the client', () => {
     await expect(playerClient(other, 'cli').judge(REQUEST)).rejects.toMatchObject({ code: 'cassette_miss' });
   });
 });
+
+describe('the request key and a reference answer', () => {
+  const base = { criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user' as const, text: 'hi' }] };
+
+  it('gives two references two keys, and none the key it had before', () => {
+    const a = requestKey({ ...base, reference: 'Call Acme Care.' });
+    const b = requestKey({ ...base, reference: 'Call the billing desk.' });
+    expect(a).not.toBe(b);
+    expect(requestKey(base)).toBe(requestKey({ ...base, reference: undefined }));
+    expect(requestKey(base)).not.toBe(a);
+  });
+});

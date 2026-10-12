@@ -61,6 +61,8 @@ export type JudgeRequest = {
   readonly inputs?: readonly { readonly path: string; readonly text: string }[];
   /** A summary of the block's Given: the stage expected and the ledger. */
   readonly given?: { readonly stage?: string; readonly ledger?: Readonly<Record<string, unknown>> };
+  /** The answer the block is expected to give. It is part of the request key, so a changed reference never replays. */
+  readonly reference?: string;
   readonly budget?: Budget;
 };
 
