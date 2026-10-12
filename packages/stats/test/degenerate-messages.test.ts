@@ -198,3 +198,19 @@ describe('varianceComponents names the observations argument', () => {
     );
   });
 });
+
+describe('cusum and pageHinkley name the option they refuse', () => {
+  const s = [1, 2, 3, 2, 1];
+  it('cusum refuses a bad sd, k, h or warmup by name', () => {
+    for (const sd of [Number.NaN, Number.POSITIVE_INFINITY, -1, 0]) {
+      expect(() => cusum(s, { sd })).toThrow(/^cusum: sd/);
+    }
+    expect(() => cusum(s, { sd: 1, k: -0.5 })).toThrow(/^cusum: k/);
+    expect(() => cusum(s, { sd: 1, h: Number.NaN })).toThrow(/^cusum: h/);
+    expect(() => cusum(s, { sd: 1, warmup: 0 })).toThrow(/^cusum: warmup/);
+  });
+  it('pageHinkley refuses a bad delta or threshold by name', () => {
+    expect(() => pageHinkley(s, { delta: Number.NaN })).toThrow(/^pageHinkley: delta/);
+    expect(() => pageHinkley(s, { threshold: -1 })).toThrow(/^pageHinkley: threshold/);
+  });
+});

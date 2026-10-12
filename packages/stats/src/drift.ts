@@ -2,6 +2,16 @@
 
 import { assertFiniteValues, mean, sampleVariance } from './basics';
 
+/** Rule 1 for an option: a RangeError that begins `<function>: <option>` when a number is not finite or below its bound. */
+function assertOption(fn: string, name: string, value: number | undefined, min: number, open: boolean): void {
+  if (value === undefined) return;
+  if (!Number.isFinite(value) || (open ? value <= min : value < min)) {
+    throw new RangeError(
+      `${fn}: ${name} must be a finite number ${open ? 'above' : 'of at least'} ${min}, got ${value}`,
+    );
+  }
+}
+
 export interface Alarm {
   readonly index: number;
   readonly direction: 'up' | 'down';
@@ -39,6 +49,13 @@ export interface CusumResult {
 export function cusum(series: readonly number[], options: CusumOptions = {}): CusumResult {
   if (series.length === 0) throw new RangeError('cusum: series must not be empty');
   assertFiniteValues('cusum', 'series', series);
+  assertOption('cusum', 'target', options.target, Number.NEGATIVE_INFINITY, true);
+  assertOption('cusum', 'sd', options.sd, 0, true);
+  assertOption('cusum', 'k', options.k, 0, false);
+  assertOption('cusum', 'h', options.h, 0, false);
+  if (options.warmup !== undefined && (!Number.isInteger(options.warmup) || options.warmup < 1)) {
+    throw new RangeError(`cusum: warmup must be a positive integer, got ${options.warmup}`);
+  }
   const warmup = options.warmup ?? Math.min(20, series.length);
   const head = series.slice(0, warmup);
   const target = options.target ?? mean(head);
@@ -96,6 +113,8 @@ export interface PageHinkleyResult {
 export function pageHinkley(series: readonly number[], options: PageHinkleyOptions = {}): PageHinkleyResult {
   if (series.length === 0) throw new RangeError('pageHinkley: series must not be empty');
   assertFiniteValues('pageHinkley', 'series', series);
+  assertOption('pageHinkley', 'delta', options.delta, Number.NEGATIVE_INFINITY, true);
+  assertOption('pageHinkley', 'threshold', options.threshold, 0, false);
   const delta = options.delta ?? 0.005;
   const threshold = options.threshold ?? 50;
   const minInstances = options.minInstances ?? 30;
