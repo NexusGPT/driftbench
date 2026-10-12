@@ -246,3 +246,23 @@ describe('loading a cassette with an empty entry', () => {
     }
   });
 });
+
+describe('loading a cassette with a key that is not a request hash', () => {
+  it('refuses a key that is not 12 hex characters', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'judges-cassette-'));
+    try {
+      const path = join(dir, 'c.json');
+      const cassette = emptyCassette();
+      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(REQUEST);
+      const [entry] = cassette.entries as [Cassette['entries'][number]];
+      for (const key of ['nothex', 'ABCDEF012345', `${entry.key}0`]) {
+        await saveCassette(path, { ...cassette, entries: [{ ...entry, key }] });
+        await expect(loadCassette(path)).rejects.toThrow(/key/);
+      }
+      await saveCassette(path, cassette);
+      expect(await loadCassette(path)).toEqual(cassette);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+});
