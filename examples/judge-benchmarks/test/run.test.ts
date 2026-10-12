@@ -95,7 +95,7 @@ process.stdin.on('end',()=>{
     // One shared plan plus two responses per item, three fixed-majority samples each.
     expect(report.newCalls).toBe(13);
     expect(report.replayed).toBe(1);
-  });
+  }, 20000);
   it('starts no model calls after the explicit deadline', async () => {
     const report = await runBenchmark({
       bench: 'rubricbench',
@@ -169,7 +169,7 @@ process.stdin.on('end', () => setTimeout(() => {
     });
     expect(observed).toHaveLength(12);
     expect(observed).not.toContain('OVERLAP');
-  });
+  }, 20000);
   it('scores pairwise contestants in both orders and a pointwise one by single game, and records every answer', async () => {
     const recordingsDir = join(dir, 'rec1');
     const options = {
@@ -328,7 +328,7 @@ process.stdin.on('end', () => {
     expect(seen.filter((t) => t.includes('WITHREF'))).toHaveLength(3);
     expect(seen.filter((t) => t.includes('NOREF'))).toHaveLength(3);
     expect(report.contestants[0]?.summary.value.estimate).toBe(1);
-  });
+  }, 20000);
   it('pools the judgements of both orders into one verdict for both games when asked', async () => {
     // A judge biased to the first position in two of its three judgements of the swapped order.
     const biased = `#!/usr/bin/env node

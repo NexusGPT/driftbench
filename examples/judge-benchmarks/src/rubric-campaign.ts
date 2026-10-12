@@ -47,8 +47,14 @@ async function main(): Promise<void> {
   let targetReached = won(initial);
   let executedMeasured = false;
   const stages: { name: string; contestants: Contestant[] }[] = [
-    { name: 'hardpoint-dev', contestants: [contestantById('driftbench-rb-hardpoint')] },
-    { name: 'hardpoint5-dev', contestants: [contestantById('driftbench-rb-hardpoint5')] },
+    {
+      name: 'hardpoint-dev',
+      contestants: ['driftbench-rb-hardpoint', 'driftbench-rb-quotedcounts'].map(contestantById),
+    },
+    {
+      name: 'hardpoint5-dev',
+      contestants: ['driftbench-rb-hardpoint5', 'driftbench-rb-quotedcounts5'].map(contestantById),
+    },
     { name: 'hardpoint5-executed-dev', contestants: [contestantById('driftbench-rb-hardpoint5-executed')] },
     { name: 'checklist-dev', contestants: [contestantById('driftbench-checklist')] },
     { name: 'contract-dev', contestants: [contestantById('driftbench-rb-contract')] },

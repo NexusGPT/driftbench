@@ -171,6 +171,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
   const askNow: Ask = async (contestant, prompt, item, order) => {
     if (stopped) return undefined;
     try {
+      const beforeCalls = caller.calls();
       const r = await caller.call(prompt, { bench: options.bench, contestant: contestant.id, item, order });
       const c = costs.get(contestant.id) ?? { usd: 0, calls: 0 };
       c.usd += r.costUsd;
@@ -179,7 +180,8 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       const unique = uniqueCosts.get(contestant.id) ?? new Map<string, number>();
       unique.set(promptKey(options.model, prompt), r.costUsd);
       uniqueCosts.set(contestant.id, unique);
-      options.onProgress?.({ calls: caller.calls(), spentUsd: caller.spent(), item });
+      if (caller.calls() > beforeCalls)
+        options.onProgress?.({ calls: caller.calls(), spentUsd: caller.spent(), item });
       return r;
     } catch (cause) {
       if (cause instanceof CallFailed) {
@@ -346,6 +348,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
     if (pairwiseBench) {
       const pairs = items as PairItem[];
       const tasks = pairs.map((item) => async (): Promise<PairResult> => {
+        if (stopped) return { item, games: ['tie', 'tie'], missing: 2 };
         if (contestant.rubricEngine) {
           const engine = contestant.rubricEngine;
           const criterion = await criterionFor(item);
@@ -388,7 +391,15 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
           const a = await grade(item.a, 'A');
           const b = await grade(item.b, 'B');
           if (!a || !b) return { item, games: ['tie', 'tie'], missing: Number(!a) + Number(!b) };
-          let decision = hardDecision(a, b, rules);
+          const countDifference = a.filter(Boolean).length - b.filter(Boolean).length;
+          let decision: PairDecision =
+            engine.hardGate === false
+              ? countDifference > 0
+                ? 'A'
+                : countDifference < 0
+                  ? 'B'
+                  : 'tie'
+              : hardDecision(a, b, rules);
           if (decision === 'tie') {
             const hash = (reply: string) => createHash('sha256').update(reply).digest('hex');
             const reversed = hash(item.a) > hash(item.b);

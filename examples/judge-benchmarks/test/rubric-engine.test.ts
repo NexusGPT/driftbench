@@ -29,6 +29,15 @@ describe('pointwise rubric engine', () => {
     expect(hardDecision([true, false, false], [false, true, true], rules)).toBe('A');
     expect(hardDecision([true, true, false], [true, false, false], rules)).toBe('A');
   });
+  it('does not compensate a central hard failure with several lower-priority hard successes', () => {
+    const rules = [
+      { id: 1, hard: true, weight: 3 },
+      { id: 2, hard: true, weight: 1 },
+      { id: 3, hard: true, weight: 1 },
+      { id: 4, hard: true, weight: 1 },
+    ];
+    expect(hardDecision([false, true, true, true], [true, false, false, false], rules)).toBe('B');
+  });
   it('validates classes and weights without coercing strings', () => {
     expect(parseRubricPlan('{"rules":[{"id":1,"hard":true,"weight":3}]}', 1)).toEqual([
       { id: 1, hard: true, weight: 3 },

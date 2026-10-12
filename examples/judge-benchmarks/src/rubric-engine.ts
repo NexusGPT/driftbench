@@ -4,7 +4,7 @@ import { jsonObjects } from './json';
 import { atomicPrompt, CONTRACT_CONTESTANT } from './rubric-atomic';
 
 export type RubricRule = { id: number; hard: boolean; weight: number };
-export type RubricEngine = { samples: number; execution: boolean };
+export type RubricEngine = { samples: number; execution: boolean; hardGate?: boolean };
 
 export function rubricPlan(question: string, rubrics: readonly string[]): Prompt {
   return {
@@ -127,13 +127,31 @@ export function hardDecision(
 ): PairDecision {
   const delta = (hard: boolean) =>
     rules.reduce((sum, r, i) => sum + (r.hard === hard ? r.weight * (Number(a[i]) - Number(b[i])) : 0), 0);
-  const hard = delta(true);
-  if (hard !== 0) return hard > 0 ? 'A' : 'B';
+  // Lower-priority requirements never compensate for a central binding failure.
+  for (const priority of [3, 2, 1]) {
+    const hard = rules.reduce(
+      (sum, r, i) => sum + (r.hard && r.weight === priority ? Number(a[i]) - Number(b[i]) : 0),
+      0,
+    );
+    if (hard !== 0) return hard > 0 ? 'A' : 'B';
+  }
   const soft = delta(false);
   return soft > 0 ? 'A' : soft < 0 ? 'B' : 'tie';
 }
 
 export const ENGINE_CONTESTANTS: readonly Contestant[] = [
+  {
+    ...CONTRACT_CONTESTANT,
+    id: 'driftbench-rb-quotedcounts',
+    rubricEngine: { samples: 1, execution: false, hardGate: false },
+    source: 'Quoted pointwise Boolean checks, unweighted count comparison (dev ablation)',
+  },
+  {
+    ...CONTRACT_CONTESTANT,
+    id: 'driftbench-rb-quotedcounts5',
+    rubricEngine: { samples: 5, execution: false, hardGate: false },
+    source: 'Five-vote permuted quoted Boolean checks, unweighted count comparison (dev ablation)',
+  },
   {
     ...CONTRACT_CONTESTANT,
     id: 'driftbench-rb-hardpoint',
