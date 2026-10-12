@@ -533,6 +533,15 @@ export const Spec = z
       ),
     criteria: z.array(CriterionDef).optional().describe('The judged criteria the blocks may reference.'),
     blocks: z.array(BlockSpec).min(1).describe('The blocks, in order. At least one.'),
+    end: z
+      .strictObject({
+        verdict: z
+          .enum(['success', 'failure'])
+          .describe('success when the script ends the conversation well, failure when it ends it badly.'),
+        reason: z.string().min(1).optional().describe('Why the script ends here.'),
+      })
+      .optional()
+      .describe('An end verdict, given after the last block: the run stops there with this verdict.'),
     rules: Rules.optional().describe('Rules for the whole conversation.'),
     end_state: EndState.optional().describe('The expected end state of the world after the run.'),
     perturbations: z.array(PerturbationSpec).optional().describe('Deviations to inject in perturbed mode.'),

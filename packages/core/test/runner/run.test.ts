@@ -1161,6 +1161,20 @@ describe('the cache', () => {
     }
   });
 
+  it('a script that ends with a failure verdict records it on the run, and the run is not passed', async () => {
+    const ended = { ...spec(), end: { verdict: 'failure' as const, reason: 'the agent refused' } };
+    const result = await runSpec(ended, {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+    });
+    expectValid(result);
+    expect(result.endVerdict).toBe('failure');
+    expect(result.status).toBe('completed');
+  });
+
   it('a run in another suite does not replay the cache of the first suite', async () => {
     const cache = memoryCache();
     await runSpec(spec(), {

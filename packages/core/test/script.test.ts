@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   agent,
   conversation,
+  fail,
   injection,
   judge,
   proceed,
@@ -80,7 +81,7 @@ describe('the script API compiles to a spec', () => {
     expect(() => proceed(0)).toThrow(/at least one turn/);
     expect(() => proceed(1.5)).toThrow(/whole number/);
     expect(() => (proceed as unknown as () => unknown)()).toThrow(/how many turns/);
-    expect(() => succeed()).toThrow(/no early-stop step/);
+    expect(succeed().kind).toBe('end');
   });
 
   it('reports a spec the loader rejects, as issues', () => {
@@ -123,5 +124,23 @@ describe('proceed reserves turns for the simulated user', () => {
     });
     const plain = conversation('plain', [user('hi')]);
     expect(plain.spec.metadata).toBeUndefined();
+  });
+});
+
+describe('succeed and fail end the script with a verdict', () => {
+  it('succeed() as the last step compiles an end verdict of success, with its reason', () => {
+    const result = conversation('ends-ok', [user('hi'), succeed('the order is placed')]);
+    expect(result.load.ok).toBe(true);
+    expect(result.spec.end).toEqual({ verdict: 'success', reason: 'the order is placed' });
+    expect(result.spec.blocks).toHaveLength(1);
+  });
+
+  it('fail() as the last step compiles an end verdict of failure', () => {
+    const result = conversation('ends-bad', [user('hi'), fail('the agent refused')]);
+    expect(result.spec.end).toEqual({ verdict: 'failure', reason: 'the agent refused' });
+  });
+
+  it('a turn after succeed() is refused: the script ends there', () => {
+    expect(() => conversation('after', [succeed('done'), user('one more')])).toThrow(/ends the script/);
   });
 });

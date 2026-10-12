@@ -118,3 +118,52 @@ describe('the anchor form on the review queue: a queued block, labelled with an 
     expect(row?.anchor).toEqual({ kind: 'message', index: 1 });
   });
 });
+
+describe('the anchor options offer tool-output fields and runtime events', () => {
+  it('lists a field of a tool output and a runtime event as anchors of the block', async () => {
+    const { anchorOptions } = await import('../src/view/server');
+    const block = {
+      index: 0,
+      injected: false,
+      pass: true,
+      latencyMs: 0,
+      retries: 0,
+      drift: [],
+      text: 'Yes.',
+      toolCalls: [
+        { label: 'coverage.lookup', input: { address: 'x' }, output: { coverage: { fiber: true } } },
+      ],
+      verdicts: [],
+      stimulus: 'Is fiber available?',
+      runtimeEvents: [{ kind: 'guard', name: 'billing', verdict: 'pass' }],
+    } as never;
+    const values = anchorOptions(block).map((option) => option.value);
+    expect(values).toContain('field:coverage.lookup:coverage.fiber');
+    expect(values).toContain('span:guard:billing');
+  });
+});
+
+describe('a score typed with the label is kept on the queue vote', () => {
+  it('stores the score of a queued item when the label completes it', async () => {
+    const { emptyQueue, enqueue, readQueue, writeQueue } = await import('@driftbench/judges');
+    const runId = runIdOf();
+    await writeQueue(
+      labels,
+      enqueue(emptyQueue(), [
+        { id: `${runId}.b2`, criterion: 'no_invented_data', campaign: 'c-x3', runId, index: 2 },
+      ]),
+    );
+    await fetch(`${viewer.url}/queue/assign`, {
+      method: 'POST',
+      redirect: 'manual',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ criterion: 'no_invented_data', id: `${runId}.b2` }),
+    });
+    const response = await save({ block: '2', label: 'pass', score: '0.7' });
+    expect(response.status).toBe(303);
+    const queue = await readQueue(labels);
+    expect(queue.entries.find((entry) => entry.id === `${runId}.b2`)?.votes).toEqual([
+      { reviewer: 'a reviewer', label: 'pass', score: 0.7 },
+    ]);
+  });
+});

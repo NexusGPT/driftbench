@@ -38,6 +38,7 @@ export type Turn =
     }
   | { readonly kind: 'agent'; readonly expect: Expectations }
   | { readonly kind: 'judge'; readonly criteria: readonly string[] }
+  | { readonly kind: 'end'; readonly verdict: 'success' | 'failure'; readonly reason?: string }
   | {
       readonly kind: 'proceed';
       readonly turns: number;
@@ -105,18 +106,17 @@ export function proceed(turns: number, options: { hint?: string; expect?: Expect
   return { kind: 'proceed', turns, hint, expect: options.expect ?? {} };
 }
 
-/** `succeed()` ends the run early. The spec has no early-stop step. */
-export function succeed(): never {
-  throw new ScriptError(
-    'succeed() ends the run early, and the spec has no early-stop step: end the script instead',
-  );
+/**
+ * `succeed(reason?)` ends the script with a success verdict: the run stops after the blocks before it. It must be the
+ * last step; a turn after it cannot run.
+ */
+export function succeed(reason?: string): Turn {
+  return { kind: 'end', verdict: 'success', ...(reason === undefined ? {} : { reason }) };
 }
 
-/** `fail()` ends the run early. The spec has no early-stop step. */
-export function fail(): never {
-  throw new ScriptError(
-    'fail() ends the run early, and the spec has no early-stop step: end the script instead',
-  );
+/** `fail(reason?)` ends the script with a failure verdict. Like `succeed`, it must be the last step. */
+export function fail(reason?: string): Turn {
+  return { kind: 'end', verdict: 'failure', ...(reason === undefined ? {} : { reason }) };
 }
 
 /**
@@ -132,7 +132,17 @@ export function conversation(
   const blocks: Record<string, unknown>[] = [];
   const expects: Expectations[] = [];
   const simulated: number[] = [];
+  let endSpec: { verdict: 'success' | 'failure'; reason?: string } | undefined;
   for (const turn of turns) {
+    if (endSpec !== undefined) {
+      throw new ScriptError(
+        'a turn follows succeed() or fail(), which ends the script: that turn cannot run',
+      );
+    }
+    if (turn.kind === 'end') {
+      endSpec = { verdict: turn.verdict, ...(turn.reason === undefined ? {} : { reason: turn.reason }) };
+      continue;
+    }
     if (turn.kind === 'proceed') {
       for (let n = 0; n < turn.turns; n += 1) {
         const number = blocks.length + 1;
@@ -178,6 +188,7 @@ export function conversation(
   if (options.stages !== undefined) spec.stages = [...options.stages];
   if (options.criteria !== undefined) spec.criteria = [...options.criteria];
   spec.blocks = compiled;
+  if (endSpec !== undefined) spec.end = endSpec;
   if (simulated.length > 0) spec.metadata = { simulated_blocks: simulated };
   return { spec, load: validateSpec(spec, `script:${id}`) };
 }

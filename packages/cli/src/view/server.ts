@@ -490,6 +490,7 @@ async function runPage(
 ${criterionField}
 ${anchorField}
 <label><input type="radio" name="label" value="pass" required> pass</label><label><input type="radio" name="label" value="fail"> fail</label>
+<label>Score <input name="score" type="number" min="0" max="1" step="0.01" aria-label="Score" placeholder="0 to 1"></label>
 <p class="muted">With script on: 1 marks pass, 2 marks fail, Cmd or Ctrl+Enter saves. Without it the buttons work the same.</p>
 <input name="note" aria-label="Note" placeholder="note: why">
 <button type="submit">Save label</button></form></div>`;
@@ -567,7 +568,34 @@ export function anchorOptions(
       });
     }
   });
+  for (const [call, output] of block.toolCalls.map((call) => [call, call.output] as const)) {
+    for (const path of leafPaths(output, 3)) {
+      options.push({
+        value: `field:${call.label}:${path}`,
+        label: `field ${path} of ${call.label}`,
+        anchor: { kind: 'field', path },
+      });
+    }
+  }
+  for (const event of block.runtimeEvents ?? []) {
+    const spanId = `${event.kind}:${event.name}`;
+    options.push({
+      value: `span:${spanId}`,
+      label: `${event.kind} ${event.name}`,
+      anchor: { kind: 'span', span_id: spanId },
+    });
+  }
   return options;
+}
+
+/** The dot paths of the leaf values of a JSON value, up to a depth. Arrays and text count as leaves. */
+export function leafPaths(value: unknown, depth: number, prefix = ''): string[] {
+  if (value === null || typeof value !== 'object' || Array.isArray(value) || depth === 0) {
+    return prefix === '' ? [] : [prefix];
+  }
+  return Object.entries(value).flatMap(([key, child]) =>
+    leafPaths(child, depth - 1, prefix === '' ? key : `${prefix}.${key}`),
+  );
 }
 
 async function saveFromForm(
@@ -609,6 +637,8 @@ async function saveFromForm(
     if (!option) throw new HttpError(400, `${picked} is not an anchor of this block.`);
     anchor = option.anchor;
   }
+  const scoreText = (fields.get('score') ?? '').trim();
+  const score = scoreText === '' ? undefined : Number(scoreText);
   const labelled: LabelledBlock = {
     id: blockId(run.runId, index),
     label,
@@ -621,7 +651,7 @@ async function saveFromForm(
   if (entry && entry.state === 'assigned' && entry.assignee === labelledBy) {
     await writeQueue(
       labelsDir,
-      await completeItem(labelsDir, queue, criterion, entry.id, labelledBy, labelled),
+      await completeItem(labelsDir, queue, criterion, entry.id, labelledBy, labelled, score),
     );
   } else {
     await saveLabel(labelsDir, criterion, labelled, labelledBy);

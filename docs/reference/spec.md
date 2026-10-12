@@ -56,6 +56,7 @@ The loader rewrites these forms before it validates a spec.
 * [WorkspaceExpect](#workspaceexpect)
 * [SafetyExpect](#safetyexpect)
 * [Budget](#budget)
+* [Spec end](#spec-end)
 * [Rules](#rules)
 * [EndState](#endstate)
 * [EndStateSpec](#endstatespec)
@@ -87,6 +88,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 | `stages` | list of strings, each not empty | no |  | The stage catalogue of the flow. expect.stage and recovery.stage_after must name one of these. |
 | `criteria` | list of [CriterionDef](#criteriondef) | no |  | The judged criteria the blocks may reference. |
 | `blocks` | list of [Block](#block), at least 1 item | yes |  | The blocks, in order. At least one. |
+| `end` | [Spec end](#spec-end) | no |  | An end verdict, given after the last block: the run stops there with this verdict. |
 | `rules` | [Rules](#rules) | no |  | Rules for the whole conversation. |
 | `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
 | `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
@@ -511,6 +513,15 @@ Limits for one block.
 | `steps` | integer, at least 1 | no |  | The most agent steps. |
 | `cost_usd` | number, at least 0 | no |  | The most cost, in US dollars. |
 | `latency_ms` | number, at least 0 | no |  | The most latency, in milliseconds. |
+
+## Spec end
+
+An end verdict, given after the last block: the run stops there with this verdict.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `verdict` | `success` or `failure` | yes |  | success when the script ends the conversation well, failure when it ends it badly. |
+| `reason` | string, not empty | no |  | Why the script ends here. |
 
 ## Rules
 

@@ -12,7 +12,7 @@ A script writes one conversation spec in code. Each step is a function call, and
 | `judge(criteria)` | Judged criteria, by name, on the last block. Needs criteria. |
 | `proceed(n, { hint, expect })` | `n` blocks reserved for the simulated user, each with the hint as its stimulus. |
 
-`proceed(n, { hint, expect })` reserves `n` user turns for the simulated user. The spec gets one block per turn, whose stimulus is the hint, and the block positions are listed in the metadata under `simulated_blocks`. The simulated driver plays those turns at run time, from the hint. `succeed()` and `fail()` end a run early, and the spec has no early-stop step, so they throw. End the script instead.
+`proceed(n, { hint, expect })` reserves `n` user turns for the simulated user. The spec gets one block per turn, whose stimulus is the hint, and the block positions are listed in the metadata under `simulated_blocks`. The simulated driver plays those turns at run time, from the hint. `succeed(reason?)` and `fail(reason?)` end the script with a verdict. The run stops after the blocks before them, and the spec records the verdict in its `end` field. The scripted driver returns it with the stop, and the run result carries it as `endVerdict`. A failure verdict makes the run not passed in the report. They must be the last step: a turn after them is refused.
 
 ## An example
 

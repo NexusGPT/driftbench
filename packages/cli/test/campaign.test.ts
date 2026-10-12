@@ -464,6 +464,24 @@ describe('driftbench campaign run', () => {
     );
   });
 
+  it('--cache-suite with a new name does not replay a cell from another suite, and the same name does', async () => {
+    const path = await storePath();
+    const base = [
+      'campaign',
+      'run',
+      'examples/acme/specs/conversations/plan-upgrade.yaml',
+      '--target',
+      'function:acme',
+      '--store',
+      path,
+    ];
+    await cli([...base, '--campaign', 'c-s1', '--cache-suite', 'nightly-1']);
+    const other = await cli([...base, '--campaign', 'c-s2', '--cache-suite', 'nightly-2']);
+    expect(other.out).not.toContain('replayed from the cache');
+    const same = await cli([...base, '--campaign', 'c-s3', '--cache-suite', 'nightly-1']);
+    expect(same.out).toContain('replayed from the cache');
+  });
+
   it('replays a cell from the cache in a later campaign on the same store, unless --no-cache', async () => {
     const path = await storePath();
     const base = [

@@ -76,6 +76,8 @@ export type BlockDetail = {
   drift: DriftClass[];
   text: string;
   toolCalls: ToolCall[];
+  /** The runtime events the block recorded: a guard that ran and a skill that was loaded, by name. */
+  runtimeEvents?: { kind: 'guard' | 'skill'; name: string; verdict?: string }[];
   verdicts: Verdict[];
 };
 
@@ -272,11 +274,33 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
           ...(call.output === undefined ? {} : { output: call.output }),
           ...optional('error', call.error),
         })),
+        ...(runtimeEventsOf(result.observed.runtime).length > 0
+          ? { runtimeEvents: runtimeEventsOf(result.observed.runtime) }
+          : {}),
         verdicts: result.verdicts,
       };
     }),
   };
 }
+
+/** The guards and skills a block's runtime trace recorded, in the order they ran. */
+function runtimeEventsOf(
+  runtime: RuntimeTraceLike | undefined,
+): { kind: 'guard' | 'skill'; name: string; verdict?: string }[] {
+  if (!runtime) return [];
+  const guards = (runtime.guards ?? []).map((guard) => ({
+    kind: 'guard' as const,
+    name: guard.name,
+    verdict: guard.verdict,
+  }));
+  const skills = (runtime.skills ?? []).map((skill) => ({ kind: 'skill' as const, name: skill.name }));
+  return [...guards, ...skills];
+}
+
+type RuntimeTraceLike = {
+  guards?: { name: string; verdict: string }[];
+  skills?: { name: string }[];
+};
 
 /** The expected number of calls for a tool expectation: the count, else its min, else 1. */
 function expectedCalls(count: Count | undefined): number {

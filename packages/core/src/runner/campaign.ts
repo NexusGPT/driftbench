@@ -253,6 +253,8 @@ export type CampaignRunOptions = {
   artifacts?: ArtifactReaderRegistry;
   store: Store;
   cache?: ObservedCache;
+  /** The cache suite every run of the campaign belongs to. A new name starts from an empty cache. */
+  cacheSuite?: string;
   retry?: RetryOptions;
   now?: () => Date;
   /** Cells that run at the same time. Default 4. */
@@ -331,6 +333,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       store: options.store,
       campaignId: options.campaignId,
       ...(options.cache ? { cache: options.cache } : {}),
+      ...(options.cacheSuite === undefined ? {} : { suite: options.cacheSuite }),
       ...(options.retry ? { retry: options.retry } : {}),
       ...(options.now ? { now: options.now } : {}),
       ...(reference ? { reference } : {}),

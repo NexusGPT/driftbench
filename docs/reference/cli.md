@@ -1441,3 +1441,8 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 | a rerun of one stored cell | run one cell of a stored campaign again | no phase assigned |
 | `init` | start a project | no phase assigned |
 | `spec synth` | specs from traffic clusters | no phase assigned |
+
+## `driftbench campaign run --cache-suite`
+
+`--cache-suite <name>` names the cache suite of a campaign. Its block keys include the name, so a campaign under a new name starts from an empty cache, and the entries of the other suites stay in the store. A campaign under the same name replays from its own suite. Without the flag, the keys are the ones earlier caches used.
+
