@@ -107,10 +107,18 @@ function resultOf(record: Record<string, unknown>): StreamResult {
 const OVERLOADED = /overloaded|\b529\b|rate[ _-]?limit|\b429\b/i;
 
 /**
- * True when a run ended on the provider's overload or rate limit rather than on the agent: the result
- * record is an error whose text names it, or the run failed with no result and its error output names it.
+ * True when a run ended on the provider's overload or rate limit, or on an API it could not reach, rather
+ * than on the agent: the result record is an error whose text names it, or its text is an `API Error:` that
+ * names one, or the run failed with no result and its error output names it.
  */
+const UNREACHABLE =
+  /can't reach the API|ENOTFOUND|ECONNRESET|ECONNREFUSED|ETIMEDOUT|fetch failed|connection error/i;
+
 export function isOverloaded(parsed: ParsedStream, exitCode: number, stderr: string): boolean {
+  // An API the runtime could not reach ends the run with subtype success and the error as the text (seen on
+  // the Cue bench in a network outage): the turn never reached the agent.
+  const text = parsed.result?.text ?? '';
+  if (/^API Error:/.test(text) && (UNREACHABLE.test(text) || OVERLOADED.test(text))) return true;
   if (parsed.result?.isError)
     return OVERLOADED.test(`${parsed.result.text ?? ''} ${parsed.result.subtype ?? ''}`);
   if (parsed.result === undefined && exitCode !== 0) return OVERLOADED.test(stderr);

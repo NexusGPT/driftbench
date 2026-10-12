@@ -94,6 +94,20 @@ describe('parseStream', () => {
 });
 
 describe('isOverloaded', () => {
+  it('reads an API the runtime could not reach as transient, even when the result says success', () => {
+    // Seen on the Cue bench during a network outage: subtype success, the text an API error, no tool call.
+    const unreachable = parseStream(
+      result({
+        subtype: 'success',
+        is_error: false,
+        result: "API Error: Can't reach the API server \u2014 check your internet or DNS (ENOTFOUND)",
+      }),
+    );
+    expect(isOverloaded(unreachable, 0, '')).toBe(true);
+    const answer = parseStream(result({ result: 'The API Error page explains what ENOTFOUND means.' }));
+    expect(isOverloaded(answer, 0, '')).toBe(false);
+  });
+
   it('reads an overloaded or rate-limited error result, and an error output with no result', () => {
     const overloaded = parseStream(
       result({ subtype: 'error_during_execution', is_error: true, result: 'API Error: 529 Overloaded' }),
