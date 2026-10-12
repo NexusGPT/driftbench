@@ -75,6 +75,7 @@ metadata:
     atoms:
       - route.weekly-report.an-ask-that-fits-weekly-report
     planRow: pairwise.0691
+    focusVariant: 690
     cell:
       ask_class: research
       ask_shape: correction

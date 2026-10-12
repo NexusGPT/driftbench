@@ -154,7 +154,7 @@ export function combineVerdicts(
   return { verdicts, pass };
 }
 
-function safeId(name: string): string {
+export function safeId(name: string): string {
   return name.replace(/[^A-Za-z0-9_.-]/g, '_');
 }
 

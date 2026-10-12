@@ -205,7 +205,16 @@ function count(value: unknown): number {
 }
 
 /** One guard row, in the shape of a decision-log row. */
-export type HookRow = { at: string; event: string; check: string; verdict: string };
+export type HookRow = {
+  at: string;
+  event: string;
+  check: string;
+  verdict: string;
+  stdout?: string;
+  stderr?: string;
+  exitCode?: number;
+  outcome?: string;
+};
 
 /**
  * Guard rows from the stream itself, seen in the first real run with `--include-hook-events`:
@@ -219,6 +228,7 @@ export type HookRow = { at: string; event: string; check: string; verdict: strin
  */
 export function hookDecisions(parsed: ParsedStream, settings: unknown, at: string): HookRow[] {
   const rows: HookRow[] = [];
+  const started = new Map<string, Record<string, unknown>>();
   const seen = new Map<string, number>();
   for (const entry of parsed.lines) {
     if (!entry.ok || !isRecord(entry.value)) continue;
@@ -230,20 +240,53 @@ export function hookDecisions(parsed: ParsedStream, settings: unknown, at: strin
       rows.push({ at, event: 'PermissionRequest', check: `permission:${tool}`, verdict: 'deny' });
       continue;
     }
+    if (subtype === 'hook_started') {
+      const id = stringField(record, 'hook_id');
+      if (id !== undefined) started.set(id, record);
+      continue;
+    }
     if (subtype !== 'hook_response') continue;
-    const name = stringField(record, 'hook_name') ?? stringField(record, 'hook_event') ?? 'hook';
-    const event = stringField(record, 'hook_event') ?? name.split(':')[0] ?? name;
-    const matcher = name.includes(':') ? name.slice(name.indexOf(':') + 1) : undefined;
-    const scripts = scriptsOf(settings, event, matcher);
-    // A matcher holding several commands: the responses take the commands in turn. Each command of the group
-    // runs once per event, so the counts per command hold; which verdict belongs to which command is as good
-    // as the order the responses arrive in.
-    const turn = seen.get(name) ?? 0;
-    seen.set(name, turn + 1);
-    const check = scripts.length === 0 ? name : (scripts[turn % scripts.length] ?? name);
-    rows.push({ at, event, check, verdict: verdictOf(record) });
+    const id = stringField(record, 'hook_id');
+    if (id !== undefined) started.delete(id);
+    const { event, check } = named(record, settings, seen);
+    const stdout = stringField(record, 'stdout');
+    const stderr = stringField(record, 'stderr');
+    const outcome = stringField(record, 'outcome');
+    rows.push({
+      at,
+      event,
+      check,
+      verdict: verdictOf(record),
+      ...(stdout === undefined ? {} : { stdout }),
+      ...(stderr === undefined ? {} : { stderr }),
+      ...(typeof record.exit_code === 'number' ? { exitCode: record.exit_code } : {}),
+      ...(outcome === undefined ? {} : { outcome }),
+    });
+  }
+  // A hook that started and never answered: it ran past its time or was stopped.
+  for (const record of started.values()) {
+    const { event, check } = named(record, settings, seen);
+    rows.push({ at, event, check, verdict: 'error', outcome: 'no_response' });
   }
   return rows;
+}
+
+/** The event of a hook record and the guard it names: the script of the one hook the settings put there. */
+function named(
+  record: Record<string, unknown>,
+  settings: unknown,
+  seen: Map<string, number>,
+): { event: string; check: string } {
+  const name = stringField(record, 'hook_name') ?? stringField(record, 'hook_event') ?? 'hook';
+  const event = stringField(record, 'hook_event') ?? name.split(':')[0] ?? name;
+  const matcher = name.includes(':') ? name.slice(name.indexOf(':') + 1) : undefined;
+  const scripts = scriptsOf(settings, event, matcher);
+  // A matcher holding several commands: the responses take the commands in turn. Each command of the group
+  // runs once per event, so the counts per command hold; which verdict belongs to which command is as good
+  // as the order the responses arrive in.
+  const turn = seen.get(name) ?? 0;
+  seen.set(name, turn + 1);
+  return { event, check: scripts.length === 0 ? name : (scripts[turn % scripts.length] ?? name) };
 }
 
 function verdictOf(record: Record<string, unknown>): string {

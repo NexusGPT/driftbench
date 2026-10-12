@@ -171,3 +171,31 @@ describe('replayAdapter', () => {
     expect(() => replayAdapter({ session, fromBlock: -1 })).toThrow('fromBlock');
   });
 });
+
+describe('orderedCheck with an end anchored on what a call holds', () => {
+  const bash = (command: string): Call => ({ label: 'Bash', input: { command } });
+  const pair = { before: 'Bash~git status', after: 'Bash~commit' };
+
+  it('tells two calls of one tool apart by their command: git status before git commit', () => {
+    expect(orderedCheck(context(observed([bash('git status'), bash('git commit -m x')])), pair)).toEqual([
+      expect.objectContaining({ id: 'ordered.Bash_git_status.Bash_commit', outcome: 'pass' }),
+    ]);
+    expect(orderedCheck(context(observed([bash('ls'), bash('git commit -m x')])), pair)[0]?.outcome).toBe(
+      'fail',
+    );
+    expect(
+      orderedCheck(context(observed([bash('git commit -m x'), bash('git status')])), pair)[0]?.outcome,
+    ).toBe('fail');
+  });
+
+  it('says nothing when no call holds the after end, and reads a file path too', () => {
+    expect(orderedCheck(context(observed([bash('git status'), bash('ls')])), pair)).toEqual([]);
+    const read = { before: 'Read~rules.md', after: 'Edit' };
+    expect(
+      orderedCheck(
+        context(observed([{ label: 'Read', input: { file_path: '/w/refs/rules.md' } }, edit('a')])),
+        read,
+      )[0]?.outcome,
+    ).toBe('pass');
+  });
+});

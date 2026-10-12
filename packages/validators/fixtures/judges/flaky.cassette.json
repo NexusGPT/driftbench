@@ -191,7 +191,7 @@
     },
     {
       "judge": "flaky",
-      "key": "83e798df9b0f",
+      "key": "add3fed250fb",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -200,7 +200,43 @@
     },
     {
       "judge": "flaky",
-      "key": "02d57f5b402e",
+      "key": "add3fed250fb",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "add3fed250fb",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "add3fed250fb",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "add3fed250fb",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "d745b88a7602",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -407,7 +443,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9254ff17df55",
+      "key": "faa710ad2cc5",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -416,7 +452,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c3b110c68793",
+      "key": "668985520378",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -425,7 +461,7 @@
     },
     {
       "judge": "flaky",
-      "key": "67f79658fce5",
+      "key": "8c71012721c9",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -578,7 +614,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c4422096c17c",
+      "key": "d039c690771e",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -587,7 +623,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9028239c14be",
+      "key": "bf22734a56b6",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -596,7 +632,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e3adff6d415b",
+      "key": "75f67ab0e0b4",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -641,7 +677,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9f3a818d67cc",
+      "key": "32dd7cc86b9e",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -650,43 +686,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c64eb67005da",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "c64eb67005da",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "c64eb67005da",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "c64eb67005da",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "c64eb67005da",
+      "key": "64a1fbc6810c",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -803,7 +803,7 @@
     },
     {
       "judge": "flaky",
-      "key": "bc06fdc781e9",
+      "key": "494a90a45c42",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -812,7 +812,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3c7176ac52ef",
+      "key": "41ebc70432af",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -821,7 +821,7 @@
     },
     {
       "judge": "flaky",
-      "key": "575c16e33c31",
+      "key": "97c65ff4d89d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -830,7 +830,7 @@
     },
     {
       "judge": "flaky",
-      "key": "575c16e33c31",
+      "key": "97c65ff4d89d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -839,7 +839,7 @@
     },
     {
       "judge": "flaky",
-      "key": "575c16e33c31",
+      "key": "97c65ff4d89d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -848,7 +848,7 @@
     },
     {
       "judge": "flaky",
-      "key": "575c16e33c31",
+      "key": "97c65ff4d89d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -857,7 +857,7 @@
     },
     {
       "judge": "flaky",
-      "key": "575c16e33c31",
+      "key": "97c65ff4d89d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -1586,7 +1586,7 @@
     },
     {
       "judge": "flaky",
-      "key": "967249776b7a",
+      "key": "53455be9a901",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -1595,7 +1595,7 @@
     },
     {
       "judge": "flaky",
-      "key": "0cf0e24860ee",
+      "key": "5699257b1c8d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -1604,7 +1604,7 @@
     },
     {
       "judge": "flaky",
-      "key": "0cf0e24860ee",
+      "key": "5699257b1c8d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -1613,7 +1613,7 @@
     },
     {
       "judge": "flaky",
-      "key": "0cf0e24860ee",
+      "key": "5699257b1c8d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -1622,7 +1622,7 @@
     },
     {
       "judge": "flaky",
-      "key": "0cf0e24860ee",
+      "key": "5699257b1c8d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -1631,7 +1631,7 @@
     },
     {
       "judge": "flaky",
-      "key": "0cf0e24860ee",
+      "key": "5699257b1c8d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2486,7 +2486,7 @@
     },
     {
       "judge": "flaky",
-      "key": "89f35e5bd5a6",
+      "key": "1a4fd8f02d6a",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2495,7 +2495,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7e2dbc27fa06",
+      "key": "a9377271d956",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2504,7 +2504,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7e2dbc27fa06",
+      "key": "030e3e363779",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2513,7 +2513,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7e2dbc27fa06",
+      "key": "030e3e363779",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2522,7 +2522,16 @@
     },
     {
       "judge": "flaky",
-      "key": "7e2dbc27fa06",
+      "key": "030e3e363779",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "030e3e363779",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2531,7 +2540,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7e2dbc27fa06",
+      "key": "030e3e363779",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2540,7 +2549,7 @@
     },
     {
       "judge": "flaky",
-      "key": "164f34fd27f1",
+      "key": "d15671b06a46",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2549,7 +2558,7 @@
     },
     {
       "judge": "flaky",
-      "key": "873878cddbe3",
+      "key": "b04821dd1c50",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2558,7 +2567,7 @@
     },
     {
       "judge": "flaky",
-      "key": "873878cddbe3",
+      "key": "f76ff8026493",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2567,7 +2576,7 @@
     },
     {
       "judge": "flaky",
-      "key": "873878cddbe3",
+      "key": "30230d076565",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2576,7 +2585,43 @@
     },
     {
       "judge": "flaky",
-      "key": "873878cddbe3",
+      "key": "9bf05b60abba",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "034001a06530",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "034001a06530",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "034001a06530",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "034001a06530",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2585,7 +2630,7 @@
     },
     {
       "judge": "flaky",
-      "key": "873878cddbe3",
+      "key": "034001a06530",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2594,88 +2639,7 @@
     },
     {
       "judge": "flaky",
-      "key": "718887be3c94",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "718887be3c94",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "718887be3c94",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "718887be3c94",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "718887be3c94",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "1768d7777043",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "566311c2f5c8",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a8834d80b2cb",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "23b9754b0850",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "01ce9988cbda",
+      "key": "c2737c16b4ff",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2684,43 +2648,7 @@
     },
     {
       "judge": "flaky",
-      "key": "01ce9988cbda",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"ok\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "01ce9988cbda",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"ok\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "01ce9988cbda",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "01ce9988cbda",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"ok\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "e433192c58d1",
+      "key": "48615cd06e87",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2729,7 +2657,7 @@
     },
     {
       "judge": "flaky",
-      "key": "b7ca4af0d389",
+      "key": "2c22c0d764f3",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2738,7 +2666,7 @@
     },
     {
       "judge": "flaky",
-      "key": "68be1e58e41a",
+      "key": "4f22c6ba78b3",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2747,7 +2675,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c18f2d2ec76a",
+      "key": "19c04aef9c1a",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2756,7 +2684,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e699a1e89c59",
+      "key": "7d524ce826eb",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2765,7 +2693,43 @@
     },
     {
       "judge": "flaky",
-      "key": "fec1a17344e2",
+      "key": "7d524ce826eb",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Jo Okafor, jo.okafor@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7d524ce826eb",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Jo Okafor, jo.okafor@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7d524ce826eb",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7d524ce826eb",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Jo Okafor, jo.okafor@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "d8e748a4c77c",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2774,7 +2738,43 @@
     },
     {
       "judge": "flaky",
-      "key": "5b8825905de8",
+      "key": "d8e748a4c77c",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Rene Marsh, rene.marsh@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "d8e748a4c77c",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Rene Marsh, rene.marsh@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "d8e748a4c77c",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "d8e748a4c77c",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Rene Marsh, rene.marsh@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "789373eae950",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2783,7 +2783,43 @@
     },
     {
       "judge": "flaky",
-      "key": "5ff573cb00f1",
+      "key": "789373eae950",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Kit Alvarez, kit.alvarez@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "789373eae950",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Kit Alvarez, kit.alvarez@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "789373eae950",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "789373eae950",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Kit Alvarez, kit.alvarez@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "6676a4be25aa",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2792,43 +2828,25 @@
     },
     {
       "judge": "flaky",
-      "key": "5356681fa42a",
+      "key": "6676a4be25aa",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"Jo Okafor, jo.okafor@example.com\", not CONFIRM"
+        "reasoning": "order.create follows \"Noor Haddad, noor.haddad@example.com\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "4e3d6e423752",
+      "key": "6676a4be25aa",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"Jo Okafor, jo.okafor@example.com\", not CONFIRM"
+        "reasoning": "order.create follows \"Noor Haddad, noor.haddad@example.com\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "4e3d6e423752",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Jo Okafor, jo.okafor@example.com\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4e3d6e423752",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Jo Okafor, jo.okafor@example.com\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4e3d6e423752",
+      "key": "6676a4be25aa",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2837,7 +2855,16 @@
     },
     {
       "judge": "flaky",
-      "key": "4e3d6e423752",
+      "key": "6676a4be25aa",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Noor Haddad, noor.haddad@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "25183075efca",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2846,7 +2873,16 @@
     },
     {
       "judge": "flaky",
-      "key": "84c174e254cf",
+      "key": "1af08f1db55f",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Jo Okafor, jo.okafor@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5cff3cc64bfd",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2855,7 +2891,7 @@
     },
     {
       "judge": "flaky",
-      "key": "2e74376f5bbe",
+      "key": "3ad1d818f27e",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2864,7 +2900,7 @@
     },
     {
       "judge": "flaky",
-      "key": "2e74376f5bbe",
+      "key": "febfb9c9fad7",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2873,7 +2909,7 @@
     },
     {
       "judge": "flaky",
-      "key": "2e74376f5bbe",
+      "key": "229526843ff7",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2882,7 +2918,25 @@
     },
     {
       "judge": "flaky",
-      "key": "2e74376f5bbe",
+      "key": "229526843ff7",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"ok perfect\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "229526843ff7",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"ok perfect\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "229526843ff7",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2891,7 +2945,7 @@
     },
     {
       "judge": "flaky",
-      "key": "2e74376f5bbe",
+      "key": "229526843ff7",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2900,7 +2954,7 @@
     },
     {
       "judge": "flaky",
-      "key": "a99194ecb08a",
+      "key": "bf90c9af7a8d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2909,7 +2963,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8043b470e4b4",
+      "key": "bce4a67f0e44",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2918,7 +2972,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8043b470e4b4",
+      "key": "bce4a67f0e44",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2927,7 +2981,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8043b470e4b4",
+      "key": "bce4a67f0e44",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2936,7 +2990,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8043b470e4b4",
+      "key": "bce4a67f0e44",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -2945,7 +2999,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8043b470e4b4",
+      "key": "bce4a67f0e44",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2954,7 +3008,7 @@
     },
     {
       "judge": "flaky",
-      "key": "564c2451fe00",
+      "key": "51c2a018ecf6",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2963,7 +3017,7 @@
     },
     {
       "judge": "flaky",
-      "key": "6b79489f758f",
+      "key": "7b2de8d6eb58",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -2972,25 +3026,7 @@
     },
     {
       "judge": "flaky",
-      "key": "b2d5271a492d",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"ok perfect\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "192a692361bb",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"ok perfect\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "c327633a1050",
+      "key": "ca5ab6243bfe",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4331,7 +4367,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e7f9a2544cd3",
+      "key": "c5c5c0049f37",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4340,7 +4376,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ca789c7724a7",
+      "key": "dad13a0dd82e",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4349,7 +4385,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ec1739ad93a1",
+      "key": "3f939036abce",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4358,7 +4394,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ec1739ad93a1",
+      "key": "2a35faa8d892",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4367,7 +4403,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ec1739ad93a1",
+      "key": "b3a5950063e5",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4376,16 +4412,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ec1739ad93a1",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "ec1739ad93a1",
+      "key": "1c8d318a0a08",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4394,7 +4421,7 @@
     },
     {
       "judge": "flaky",
-      "key": "b7a5e138bb7e",
+      "key": "9943753638bc",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4403,7 +4430,7 @@
     },
     {
       "judge": "flaky",
-      "key": "84575c433c1a",
+      "key": "189053766ec6",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4412,7 +4439,7 @@
     },
     {
       "judge": "flaky",
-      "key": "84575c433c1a",
+      "key": "42eca3bbc159",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4421,70 +4448,7 @@
     },
     {
       "judge": "flaky",
-      "key": "84575c433c1a",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "84575c433c1a",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "84575c433c1a",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "90edd93725d4",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "82ba5ebefa01",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "6991c3e64697",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "17a0d232ac6c",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "110c75804356",
+      "key": "8d3af3a96e6f",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4493,7 +4457,7 @@
     },
     {
       "judge": "flaky",
-      "key": "26e3e3677ca9",
+      "key": "ef559a531bc4",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4502,7 +4466,7 @@
     },
     {
       "judge": "flaky",
-      "key": "129069d1defc",
+      "key": "41a50be16656",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4511,7 +4475,7 @@
     },
     {
       "judge": "flaky",
-      "key": "129069d1defc",
+      "key": "657c9730fdb6",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4520,7 +4484,7 @@
     },
     {
       "judge": "flaky",
-      "key": "129069d1defc",
+      "key": "685169fb95cd",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4529,16 +4493,7 @@
     },
     {
       "judge": "flaky",
-      "key": "129069d1defc",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "129069d1defc",
+      "key": "a98dd5756526",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4547,34 +4502,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c5b9c9e09089",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4daab12fd078",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "89378afed7e4",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "51f2340e4489",
+      "key": "e9ea29e29057",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4583,7 +4511,43 @@
     },
     {
       "judge": "flaky",
-      "key": "33b42247857a",
+      "key": "e9ea29e29057",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Kit Alvarez, kit.alvarez@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "e9ea29e29057",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Kit Alvarez, kit.alvarez@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "e9ea29e29057",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "e9ea29e29057",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Kit Alvarez, kit.alvarez@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "90d3befc1f28",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4592,7 +4556,7 @@
     },
     {
       "judge": "flaky",
-      "key": "887a8788793d",
+      "key": "1bc9f4faebef",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4601,7 +4565,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8a352c64790e",
+      "key": "0c78f42f731d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4610,7 +4574,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8a352c64790e",
+      "key": "c8e6ce35042b",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4619,7 +4583,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8a352c64790e",
+      "key": "c8e6ce35042b",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4628,7 +4592,16 @@
     },
     {
       "judge": "flaky",
-      "key": "8a352c64790e",
+      "key": "c8e6ce35042b",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "c8e6ce35042b",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4637,7 +4610,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8a352c64790e",
+      "key": "c8e6ce35042b",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4646,34 +4619,61 @@
     },
     {
       "judge": "flaky",
-      "key": "dc40474914cb",
+      "key": "02a01bc1702f",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
+        "reasoning": "order.create follows \"sounds good\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "dc40474914cb",
+      "key": "575bef81a824",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
+        "reasoning": "order.create follows \"sounds good\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "dc40474914cb",
+      "key": "d60e197eb67a",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
+        "reasoning": "order.create follows \"sounds good\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "dc40474914cb",
+      "key": "18d2a3962d26",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"sounds good\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "18d2a3962d26",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"sounds good\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "18d2a3962d26",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"sounds good\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "18d2a3962d26",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -4682,16 +4682,7 @@
     },
     {
       "judge": "flaky",
-      "key": "dc40474914cb",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f525b8520d25",
+      "key": "18d2a3962d26",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4700,7 +4691,7 @@
     },
     {
       "judge": "flaky",
-      "key": "85f53ee303c6",
+      "key": "be243689ffb1",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4709,7 +4700,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7bf25ed4af26",
+      "key": "25c57e34bf4a",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4718,7 +4709,7 @@
     },
     {
       "judge": "flaky",
-      "key": "216a5b285667",
+      "key": "de85ae901c86",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4727,7 +4718,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7eef60d20547",
+      "key": "77ebbc696e68",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -4736,34 +4727,7 @@
     },
     {
       "judge": "flaky",
-      "key": "a1891e8d42d1",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"sounds good\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2dde91deb77c",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"sounds good\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "9f5972f9c93c",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"sounds good\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d0c6be0ee20a",
+      "key": "bf9b39e02e23",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5492,7 +5456,7 @@
     },
     {
       "judge": "flaky",
-      "key": "aef84c15b165",
+      "key": "3fe2eeb859d2",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5501,7 +5465,7 @@
     },
     {
       "judge": "flaky",
-      "key": "b8c36ae7324f",
+      "key": "336048bef532",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5510,7 +5474,7 @@
     },
     {
       "judge": "flaky",
-      "key": "b8c36ae7324f",
+      "key": "4314860eefaa",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5519,7 +5483,7 @@
     },
     {
       "judge": "flaky",
-      "key": "b8c36ae7324f",
+      "key": "f5456ca3ed02",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5528,7 +5492,43 @@
     },
     {
       "judge": "flaky",
-      "key": "b8c36ae7324f",
+      "key": "25dbfbfc1e13",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "2c26726c01de",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "2c26726c01de",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "2c26726c01de",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "2c26726c01de",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5537,7 +5537,7 @@
     },
     {
       "judge": "flaky",
-      "key": "b8c36ae7324f",
+      "key": "2c26726c01de",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5546,7 +5546,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8814c14ec9b1",
+      "key": "6a79446a4624",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5555,7 +5555,7 @@
     },
     {
       "judge": "flaky",
-      "key": "26b25871b3dd",
+      "key": "8973ce516fe6",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5564,7 +5564,7 @@
     },
     {
       "judge": "flaky",
-      "key": "715fcdb5dd7d",
+      "key": "a99a383455e5",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5573,79 +5573,7 @@
     },
     {
       "judge": "flaky",
-      "key": "715fcdb5dd7d",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "715fcdb5dd7d",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "715fcdb5dd7d",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "715fcdb5dd7d",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "1ba612df2ef8",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a1904386dd44",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "68b8887d2a90",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f7598aaba8be",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "8d24adbb5c25",
+      "key": "58da87091bca",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5654,7 +5582,7 @@
     },
     {
       "judge": "flaky",
-      "key": "58a8d3f55b3a",
+      "key": "fe8911491758",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5663,34 +5591,25 @@
     },
     {
       "judge": "flaky",
-      "key": "e94a0196c87f",
+      "key": "fe8911491758",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
+        "reasoning": "order.create follows \"sounds good, go ahead\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "e94a0196c87f",
+      "key": "fe8911491758",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
+        "reasoning": "order.create follows \"sounds good, go ahead\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "e94a0196c87f",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "e94a0196c87f",
+      "key": "fe8911491758",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5699,7 +5618,16 @@
     },
     {
       "judge": "flaky",
-      "key": "e94a0196c87f",
+      "key": "fe8911491758",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"sounds good, go ahead\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "96d81fc5ad64",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5708,7 +5636,7 @@
     },
     {
       "judge": "flaky",
-      "key": "dd2345e815d6",
+      "key": "1692ebe9dcb5",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5717,7 +5645,7 @@
     },
     {
       "judge": "flaky",
-      "key": "dd2345e815d6",
+      "key": "74f6f54b1bda",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5726,7 +5654,7 @@
     },
     {
       "judge": "flaky",
-      "key": "dd2345e815d6",
+      "key": "74f6f54b1bda",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5735,7 +5663,16 @@
     },
     {
       "judge": "flaky",
-      "key": "dd2345e815d6",
+      "key": "74f6f54b1bda",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "74f6f54b1bda",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5744,7 +5681,7 @@
     },
     {
       "judge": "flaky",
-      "key": "dd2345e815d6",
+      "key": "74f6f54b1bda",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5753,7 +5690,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d7a47dafd2e2",
+      "key": "58c57259390c",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5762,7 +5699,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d7a47dafd2e2",
+      "key": "d94bbf06a3a7",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5771,7 +5708,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d7a47dafd2e2",
+      "key": "535a9a95106a",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5780,7 +5717,25 @@
     },
     {
       "judge": "flaky",
-      "key": "d7a47dafd2e2",
+      "key": "535a9a95106a",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "535a9a95106a",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "535a9a95106a",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5789,7 +5744,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d7a47dafd2e2",
+      "key": "535a9a95106a",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5798,7 +5753,7 @@
     },
     {
       "judge": "flaky",
-      "key": "132bd997175e",
+      "key": "40eaca690db8",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5807,7 +5762,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8c14d008dcfe",
+      "key": "40eaca690db8",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5816,7 +5771,7 @@
     },
     {
       "judge": "flaky",
-      "key": "099070d25c42",
+      "key": "40eaca690db8",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5825,34 +5780,7 @@
     },
     {
       "judge": "flaky",
-      "key": "fecde80e3921",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "fecde80e3921",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "fecde80e3921",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "fecde80e3921",
+      "key": "40eaca690db8",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -5861,7 +5789,7 @@
     },
     {
       "judge": "flaky",
-      "key": "fecde80e3921",
+      "key": "40eaca690db8",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5870,7 +5798,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ac45c8bf4cbd",
+      "key": "5a4798be8b1d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -5879,43 +5807,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ac45c8bf4cbd",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "ac45c8bf4cbd",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "ac45c8bf4cbd",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "ac45c8bf4cbd",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"The unlimited one, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "7afce3ef79aa",
+      "key": "c7d9bb36fb74",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6644,7 +6536,7 @@
     },
     {
       "judge": "flaky",
-      "key": "4080dd2fe70b",
+      "key": "203392bc1445",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6653,7 +6545,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d32589203633",
+      "key": "203392bc1445",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6662,7 +6554,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d32589203633",
+      "key": "203392bc1445",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6671,16 +6563,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d32589203633",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d32589203633",
+      "key": "203392bc1445",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6689,7 +6572,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d32589203633",
+      "key": "203392bc1445",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6698,7 +6581,7 @@
     },
     {
       "judge": "flaky",
-      "key": "bcc1089e45de",
+      "key": "0f40f7dc0dea",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6707,7 +6590,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1bdab95d5971",
+      "key": "0f40f7dc0dea",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6716,7 +6599,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1bdab95d5971",
+      "key": "0f40f7dc0dea",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6725,16 +6608,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1bdab95d5971",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "1bdab95d5971",
+      "key": "0f40f7dc0dea",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6743,7 +6617,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1bdab95d5971",
+      "key": "0f40f7dc0dea",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6752,7 +6626,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ec57e9c8521f",
+      "key": "204ced24da09",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6761,7 +6635,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9c060b825313",
+      "key": "f9bb41aa4b87",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6770,7 +6644,7 @@
     },
     {
       "judge": "flaky",
-      "key": "12b0ea830f10",
+      "key": "4dbd7b5f2dd0",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6779,7 +6653,7 @@
     },
     {
       "judge": "flaky",
-      "key": "de66acf9e5f7",
+      "key": "c711149e986b",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6788,7 +6662,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7d095ef3da2c",
+      "key": "6f512fb32a8e",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6797,7 +6671,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7d095ef3da2c",
+      "key": "bba2c94eca7b",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6806,7 +6680,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7d095ef3da2c",
+      "key": "9958d3aaa775",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6815,25 +6689,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7d095ef3da2c",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "7d095ef3da2c",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "506f4202b62a",
+      "key": "5289aada2ea8",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6842,7 +6698,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d10a0cf56455",
+      "key": "6cb60a7b2ec1",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6851,7 +6707,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1b1f299ebd63",
+      "key": "3a18f10503bf",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6860,7 +6716,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9f2977103cfe",
+      "key": "55526d00ade8",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6869,7 +6725,7 @@
     },
     {
       "judge": "flaky",
-      "key": "719b1d54ef81",
+      "key": "1d4b34f5c9d9",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6878,7 +6734,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1e635eb231eb",
+      "key": "1d4b34f5c9d9",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6887,7 +6743,7 @@
     },
     {
       "judge": "flaky",
-      "key": "2144afa75c1c",
+      "key": "1d4b34f5c9d9",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6896,43 +6752,7 @@
     },
     {
       "judge": "flaky",
-      "key": "be398baf753b",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f421ed6acdb0",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f421ed6acdb0",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f421ed6acdb0",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f421ed6acdb0",
+      "key": "1d4b34f5c9d9",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -6941,7 +6761,7 @@
     },
     {
       "judge": "flaky",
-      "key": "f421ed6acdb0",
+      "key": "1d4b34f5c9d9",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6950,7 +6770,7 @@
     },
     {
       "judge": "flaky",
-      "key": "b4ed1741a908",
+      "key": "6bbb546502e4",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6959,7 +6779,7 @@
     },
     {
       "judge": "flaky",
-      "key": "10f900869e90",
+      "key": "2028cc078241",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -6968,34 +6788,61 @@
     },
     {
       "judge": "flaky",
-      "key": "d8bbe12fb6aa",
+      "key": "d6bc0d225a4b",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"yes\", not CONFIRM"
+        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "d8bbe12fb6aa",
+      "key": "4ce0e4e1a1a4",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"yes\", not CONFIRM"
+        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "d8bbe12fb6aa",
+      "key": "3a82fcd823b9",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"yes\", not CONFIRM"
+        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "d8bbe12fb6aa",
+      "key": "c957f9948bba",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "c957f9948bba",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "c957f9948bba",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "c957f9948bba",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -7004,7 +6851,16 @@
     },
     {
       "judge": "flaky",
-      "key": "d8bbe12fb6aa",
+      "key": "c957f9948bba",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Acme Mobile M, please.\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f3c4e9487302",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -7013,7 +6869,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d1beaae19dea",
+      "key": "fba6f891b6c7",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -7022,7 +6878,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d1beaae19dea",
+      "key": "7a7901bd61c3",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -7031,7 +6887,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d1beaae19dea",
+      "key": "05d6e1d599ba",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -7040,7 +6896,34 @@
     },
     {
       "judge": "flaky",
-      "key": "d1beaae19dea",
+      "key": "0ca360065e60",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"yes\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "0ca360065e60",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"yes\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "0ca360065e60",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"yes\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "0ca360065e60",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -7049,7 +6932,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d1beaae19dea",
+      "key": "0ca360065e60",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -7058,7 +6941,7 @@
     },
     {
       "judge": "flaky",
-      "key": "10ba25ab4aeb",
+      "key": "b6c34d9c0961",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -7067,7 +6950,7 @@
     },
     {
       "judge": "flaky",
-      "key": "10ba25ab4aeb",
+      "key": "58fd92fc8117",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -7076,7 +6959,7 @@
     },
     {
       "judge": "flaky",
-      "key": "10ba25ab4aeb",
+      "key": "3b608e8407a2",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -7085,70 +6968,7 @@
     },
     {
       "judge": "flaky",
-      "key": "10ba25ab4aeb",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "10ba25ab4aeb",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"yes\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "c9400b73a79e",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"yes\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2f8969fffd2b",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"yes\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "19b60d1ef17a",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"yes\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a93f76974080",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"yes\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d9244fd5e4fd",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"yes\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "081777ff35fc",
+      "key": "fcc5488d01b2",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13277,7 +13097,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8d41019a52b6",
+      "key": "a3f5fba390db",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13286,7 +13106,7 @@
     },
     {
       "judge": "flaky",
-      "key": "cbb051cde21d",
+      "key": "ca5b8d1a98d5",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13295,7 +13115,7 @@
     },
     {
       "judge": "flaky",
-      "key": "cbb051cde21d",
+      "key": "ca5b8d1a98d5",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13304,7 +13124,7 @@
     },
     {
       "judge": "flaky",
-      "key": "cbb051cde21d",
+      "key": "ca5b8d1a98d5",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13313,7 +13133,7 @@
     },
     {
       "judge": "flaky",
-      "key": "cbb051cde21d",
+      "key": "ca5b8d1a98d5",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13322,7 +13142,7 @@
     },
     {
       "judge": "flaky",
-      "key": "cbb051cde21d",
+      "key": "ca5b8d1a98d5",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13331,7 +13151,7 @@
     },
     {
       "judge": "flaky",
-      "key": "fc962449e2e1",
+      "key": "3b67df012d37",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13340,7 +13160,7 @@
     },
     {
       "judge": "flaky",
-      "key": "bb45ae8c643c",
+      "key": "1dbc5900f753",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13349,7 +13169,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e92f49c5900e",
+      "key": "1dbc5900f753",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13358,7 +13178,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e5dfb7555258",
+      "key": "1dbc5900f753",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13367,25 +13187,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e5dfb7555258",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "e5dfb7555258",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "every order follows the CONFIRM token"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "e5dfb7555258",
+      "key": "1dbc5900f753",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13394,7 +13196,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e5dfb7555258",
+      "key": "1dbc5900f753",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13403,7 +13205,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c8e0f3d0c031",
+      "key": "9668ebb5ccec",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13412,7 +13214,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c2646fe271f9",
+      "key": "69bbfa4b9659",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13421,7 +13223,7 @@
     },
     {
       "judge": "flaky",
-      "key": "5ce3e1f631dc",
+      "key": "644251f0550a",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13430,7 +13232,61 @@
     },
     {
       "judge": "flaky",
-      "key": "089e9a36bb3e",
+      "key": "0bcdffd7b97c",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "0bcdffd7b97c",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "0bcdffd7b97c",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "0bcdffd7b97c",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "0bcdffd7b97c",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "050bec45720e",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "every order follows the CONFIRM token"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "b38635a9de5a",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13439,7 +13295,7 @@
     },
     {
       "judge": "flaky",
-      "key": "5fac143ddf3c",
+      "key": "7e1dcc84ec50",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13448,43 +13304,25 @@
     },
     {
       "judge": "flaky",
-      "key": "4cd78ee2c2ff",
+      "key": "7e1dcc84ec50",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
+        "reasoning": "order.create follows \"sounds good, go ahead\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "0c43812504f2",
+      "key": "7e1dcc84ec50",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
+        "reasoning": "order.create follows \"sounds good, go ahead\", not CONFIRM"
       }
     },
     {
       "judge": "flaky",
-      "key": "0c43812504f2",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "0c43812504f2",
-      "criterion": "explicit_confirmation",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "0c43812504f2",
+      "key": "7e1dcc84ec50",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13493,7 +13331,16 @@
     },
     {
       "judge": "flaky",
-      "key": "0c43812504f2",
+      "key": "7e1dcc84ec50",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"sounds good, go ahead\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "162abe2deb21",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13502,7 +13349,7 @@
     },
     {
       "judge": "flaky",
-      "key": "94d0181dbf5e",
+      "key": "edd96fc9e52d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13511,7 +13358,7 @@
     },
     {
       "judge": "flaky",
-      "key": "94d0181dbf5e",
+      "key": "edd96fc9e52d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13520,7 +13367,7 @@
     },
     {
       "judge": "flaky",
-      "key": "94d0181dbf5e",
+      "key": "edd96fc9e52d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13529,7 +13376,7 @@
     },
     {
       "judge": "flaky",
-      "key": "94d0181dbf5e",
+      "key": "edd96fc9e52d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -13538,7 +13385,7 @@
     },
     {
       "judge": "flaky",
-      "key": "94d0181dbf5e",
+      "key": "edd96fc9e52d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13547,7 +13394,7 @@
     },
     {
       "judge": "flaky",
-      "key": "19afdb0b6ae5",
+      "key": "167a72c8aa0f",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13556,7 +13403,16 @@
     },
     {
       "judge": "flaky",
-      "key": "669f0fcbb0c3",
+      "key": "9087fd373052",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "order.create follows \"Pat Lin, pat.lin@example.com\", not CONFIRM"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "a1448ac89db1",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13565,7 +13421,7 @@
     },
     {
       "judge": "flaky",
-      "key": "a362db0f77d6",
+      "key": "cce7ad08f7b3",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13574,7 +13430,7 @@
     },
     {
       "judge": "flaky",
-      "key": "00c01616c111",
+      "key": "ccd02585392f",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13583,7 +13439,7 @@
     },
     {
       "judge": "flaky",
-      "key": "60198db991e7",
+      "key": "a8121e6fa8fc",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -13592,7 +13448,7 @@
     },
     {
       "judge": "flaky",
-      "key": "073d56b8e788",
+      "key": "e1b28b6975de",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",

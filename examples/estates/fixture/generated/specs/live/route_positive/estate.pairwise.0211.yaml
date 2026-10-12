@@ -64,6 +64,7 @@ metadata:
     atoms:
       - route.ledger-auditor.an-ask-that-fits-ledger-auditor
     planRow: pairwise.0211
+    focusVariant: 210
     cell:
       ask_class: operate
       ask_shape: prescribed

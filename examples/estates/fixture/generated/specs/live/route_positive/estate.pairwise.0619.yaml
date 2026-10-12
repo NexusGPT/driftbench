@@ -72,6 +72,7 @@ metadata:
     atoms:
       - skill.invoice-reconcile.skill-invoice-reconcile
     planRow: pairwise.0619
+    focusVariant: 618
     cell:
       ask_class: chat
       ask_shape: problem

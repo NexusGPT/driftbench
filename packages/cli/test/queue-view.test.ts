@@ -100,3 +100,20 @@ describe('the label form: number keys and Cmd/Ctrl+Enter, script by hash, plain 
     expect(html).toContain('name="label" value="fail"');
   });
 });
+
+describe('keyboard help and arrow keys', () => {
+  it('serves a script-free cheatsheet at /keys, linked from the pages, and both scripts move with the arrows', async () => {
+    const keys = await fetch(`${viewer.url}/keys`);
+    expect(keys.status).toBe(200);
+    expect(keys.headers.get('content-security-policy')).not.toContain('script-src');
+    const help = await keys.text();
+    expect(help).toContain('Cmd or Ctrl+Enter');
+    expect(help).toContain('ArrowDown');
+    expect(help).toContain('?');
+    const queuePage = await (await fetch(`${viewer.url}/queue`)).text();
+    expect(queuePage).toContain('href="/keys"');
+    expect(QUEUE_KEYS_SCRIPT).toContain('ArrowDown');
+    expect(LABEL_KEYS_SCRIPT).toContain('ArrowDown');
+    expect(LABEL_KEYS_SCRIPT).toContain("'?'");
+  });
+});
