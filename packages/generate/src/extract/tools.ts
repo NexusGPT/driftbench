@@ -389,7 +389,21 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
     const items = entry(property, 'items')?.value;
     // A $ref already entered once is read a second time for its plain properties, never a third time.
     if (entered(ctx, via) >= 2 || entered(ctx, refOf(items)) >= 2) continue;
-    field(ctx, name, pair, property, required.has(name), requiredPair, prefix, depth, via, needs.get(name));
+    // A readOnly output and a writeOnly input are always there: the side that sets them gives them.
+    const always =
+      (flag('readOnly') && ctx.direction === 'out') || (flag('writeOnly') && ctx.direction === 'in');
+    field(
+      ctx,
+      name,
+      pair,
+      property,
+      required.has(name) || always,
+      requiredPair,
+      prefix,
+      depth,
+      via,
+      needs.get(name),
+    );
   }
   objectCases(ctx, schema, prefix);
 }

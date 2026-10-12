@@ -433,3 +433,14 @@ Sources read:
 What others do: A readOnly property is set by the server, a writeOnly one is never returned, a deprecated one is retired.
 
 What to try, and why: the tool pre-pass leaves out readOnly inputs, writeOnly outputs and deprecated properties
+
+## Iteration 37
+
+Question: packages/generate/src/extract/tools.ts: a readOnly output property and a writeOnly input property that the schema does not list as required gain an absent case, though the side that sets them always gives them; schema-keywords.read-only-input and write-only-output prove it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-validation section 9.4 (readOnly, writeOnly)
+
+What others do: The server always returns a readOnly value, and a caller always gives a writeOnly one when it sets it.
+
+What to try, and why: a readOnly output and a writeOnly input have no absent case

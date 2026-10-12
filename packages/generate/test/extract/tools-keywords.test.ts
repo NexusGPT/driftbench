@@ -747,4 +747,20 @@ type = "boolean"
     expect(read('input_schema')).toEqual(['t.x.in.p', 't.x.in.secret']);
     expect(read('output_schema')).toEqual(['t.x.out.p', 't.x.out.made']);
   });
+
+  it('a readOnly output and a writeOnly input are always there: no absent case', () => {
+    const read = (side: 'input_schema' | 'output_schema', flag: 'readOnly' | 'writeOnly') => {
+      const schema = {
+        type: 'object',
+        required: [],
+        properties: { q: { type: 'string', format: 'date-time', [flag]: true } },
+      };
+      const result = toolsPrepass(stringify({ tools: [{ name: 't.x', [side]: schema }] }), 'tools.yaml');
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      return result.dimensions.map((d) => d.values.map((v) => v.id.slice(d.id.length + 1)));
+    };
+    expect(read('output_schema', 'readOnly')).toEqual([['well-formed', 'malformed']]);
+    expect(read('input_schema', 'writeOnly')).toEqual([['well-formed', 'malformed']]);
+    expect(read('input_schema', 'readOnly')).toEqual([]);
+  });
 });
