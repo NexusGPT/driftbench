@@ -69,6 +69,23 @@ describe('majority with weights: a vote weighs its judge weight', () => {
   });
 });
 
+describe('the council reports its cost', () => {
+  it('sums the cost of every judge called, cheap and full rounds alike', async () => {
+    const cheap = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      judges: [s1('a', [PASS()], 1), s1('b', [PASS()], 2), s1('c', [PASS()], 4)],
+    });
+    expect((await cheap.judge(REQUEST)).cost).toBe(7);
+    const full = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      judges: [s1('a', [FAIL], 1), s1('b', [FAIL], 2), s1('c', [PASS()], 4)],
+    });
+    expect((await full.judge(REQUEST)).cost).toBe(7);
+  });
+});
+
 describe('the council', () => {
   it('records the retries each judge took in its own vote, and none in a vote that took none', async () => {
     /** A judge whose provider answers 503 once, then passes: the client retries under the shared policy. */

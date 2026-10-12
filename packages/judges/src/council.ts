@@ -84,6 +84,8 @@ export type CouncilResult = {
   readonly cascaded: boolean;
   /** Judges that gave no answer at all. */
   readonly errors: number;
+  /** The sum of the costs of every judge called, re-asks and later rounds included. Set by every council round. */
+  readonly cost?: number;
   /** The mean score of the votes that agree with the outcome, when they carry one. */
   readonly score?: number;
   /** One line per round, for the verdict's evidence. */
@@ -157,7 +159,7 @@ export function createCouncil(config: CouncilConfig): Council {
       const row = assignmentFor(request.criterion.name, judgeClass);
       const pick = (ids: readonly string[]) => ids.map((id) => byId.get(id) as JudgeClient);
       const rounds: CouncilRound[] = [];
-      const counter = { errors: 0 };
+      const counter = { errors: 0, cost: 0 };
 
       const first = await runRound(request, row.cls, pick(row.judges), 'normal', threshold, counter);
       rounds.push(first);
@@ -192,6 +194,7 @@ export function createCouncil(config: CouncilConfig): Council {
         split: first.outcome === 'split',
         cascaded: first.cascaded,
         errors: counter.errors,
+        cost: counter.cost,
         ...(score === undefined ? {} : { score }),
         log: rounds.map(describeRound),
       };
@@ -303,7 +306,7 @@ async function runRound(
   judges: readonly JudgeClient[],
   budget: Budget,
   threshold: number | undefined,
-  counter: { errors: number },
+  counter: { errors: number; cost: number },
 ): Promise<CouncilRound> {
   const ordered = [...judges].sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id));
   const votes: Vote[] = [];
@@ -349,13 +352,16 @@ async function castVote(
   request: JudgeRequest,
   judge: JudgeClient,
   budget: Budget,
-  counter: { errors: number },
+  counter: { errors: number; cost: number },
 ): Promise<Vote> {
   const name = budget === 'large' ? `${judge.id}@large` : judge.id;
   // Every retry the judge's client takes, under the shared policy, is recorded in its vote.
   const spent: RetryEvent[] = [];
   const retries = () => (spent.length > 0 ? { retries: spent } : {});
-  const ask = (asked: Budget) => retriesInto(spent, () => judge.judge({ ...request, budget: asked }));
+  const ask = (asked: Budget) => {
+    counter.cost += judge.cost;
+    return retriesInto(spent, () => judge.judge({ ...request, budget: asked }));
+  };
   try {
     let result = await ask(budget);
     let note = '';
