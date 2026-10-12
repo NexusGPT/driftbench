@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Nudges when the last reply promises the user a refund date. Runs the check C1 of the catalogue,
-and the checks HANDBACK and STOP-WAKE of the check registry."""
+and the checks HANDBACK, STOP-WAKE, W8 and W9 of the check registry."""
 import json
 import re
 import sys

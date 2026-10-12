@@ -109,4 +109,24 @@ describe('the reader-cases names', () => {
     ]);
     expect(lintEstate(map, raw).counts.MISSING_REFERENCE).toBe(0);
   });
+
+  it('never offers a skipped file as a candidate for a name: the estate file alone resolves it', () => {
+    const skipped = new Set([
+      '.claude/hooks/tests/fixtures/section-scan.md',
+      '.claude/node_modules/x/notes.md',
+    ]);
+    expect(locateNamed('section-scan.md', FROM, FILES, { skipped })).toEqual({
+      path: '.claude/skills/b/rules/section-scan.md',
+      via: 'suffix',
+    });
+    expect(locateNamed('notes.md', FROM, FILES, { skipped }).candidates).toEqual([
+      '.claude/skills/c/notes.md',
+      '.claude/skills/d/notes.md',
+    ]);
+    // Named by its place, a skipped file is still found.
+    expect(locateNamed('.claude/node_modules/x/notes.md', FROM, FILES, { skipped })).toEqual({
+      path: '.claude/node_modules/x/notes.md',
+      via: 'place',
+    });
+  });
 });

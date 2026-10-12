@@ -1,6 +1,6 @@
 # An example workflow: copy it to .github/workflows/ to gate pull requests on the Acme sales assistant.
 # It builds the baseline from the pull request's base branch, runs the same suite on the head with the
-# driftbench ci action, and fails the job on a regression beyond the margin or a new gating flag.
+# driftbench ci action, and fails the job unless ci shows parity, by the rule of driftbench compare.
 # Fictional data only: the Acme Telecom example agent, no secret, no paid model.
 name: driftbench ci (Acme example)
 
@@ -54,7 +54,6 @@ jobs:
           target: function:acme-sales
           baseline: ${{ runner.temp }}/baseline.db
           store: ${{ runner.temp }}/candidate.db
-          margin: '5'
           report-path: driftbench-ci.json
 
       - name: Keep the summary

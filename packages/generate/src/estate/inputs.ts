@@ -36,6 +36,8 @@ export type EstateAtom = {
   situation?: string;
   evidence: EstateEvidence[];
   fields?: Record<string, unknown>;
+  /** The passage the atom is read from; the generator reads the paths a hazard passage names from it. */
+  provenance?: { quote: string };
 };
 
 export type EstateMapInput = { runtime: string; hash: string; atoms: EstateAtom[] };
@@ -122,7 +124,12 @@ export const PhraseBank = z.strictObject({
   estate: z.string().min(1),
   mapHash: z.string().min(1).describe('The hash of the approved map the bank was written against'),
   workspaces: z.array(WorkspaceSeed).default([]),
-  situations: z.array(Situation).min(1),
+  situations: z
+    .array(Situation)
+    .default([])
+    .describe(
+      'May be empty: a model-free run still gets the gap report, each row naming the phrase it needs',
+    ),
   deviations: z.array(DeviationPhrases).default([]),
 });
 export type PhraseBank = z.infer<typeof PhraseBank>;

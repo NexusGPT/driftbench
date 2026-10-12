@@ -163,3 +163,19 @@ describe('tracesFromOtel: edge cases', () => {
     expect(tracesFromOtel([]).traces).toEqual([]);
   });
 });
+
+describe('tracesFromOtel keeps the span tree as observations', () => {
+  it('keeps every span with its kind, its parent link and its times', async () => {
+    const [trace] = tracesFromOtel(parseOtlp(await read('otel-flat.jsonl')).spans).traces;
+    const observations = trace?.observations ?? [];
+    expect(observations).toHaveLength(6);
+    const ids = new Set(observations.map((entry) => entry.id));
+    expect(observations.every((entry) => entry.parentId === undefined || ids.has(entry.parentId))).toBe(true);
+    const root = observations.find((entry) => entry.id === 'b200000000000001');
+    expect(root).toMatchObject({ kind: 'other', name: 'acme.turn.workflow' });
+    expect(root?.parentId).toBeUndefined();
+    const tool = observations.find((entry) => entry.id === 'b200000000000003');
+    expect(tool).toMatchObject({ kind: 'tool', name: 'port.check.tool', parentId: 'b200000000000001' });
+    expect(tool?.start).toBe(new Date(1772450431050).toISOString());
+  });
+});

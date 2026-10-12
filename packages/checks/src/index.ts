@@ -17,13 +17,23 @@ export {
   registerCheck,
 } from './checks/custom';
 export { endState } from './checks/end_state';
+export {
+  draftOf,
+  ESTATE_CHECKS,
+  groundedValues,
+  hazardRecovery,
+  maxWords,
+  noDeleteUnder,
+  permission,
+  someCall,
+} from './checks/estate';
 export { execution } from './checks/execution';
 export { forbidden } from './checks/forbidden';
 export { guards } from './checks/guards';
 export { knowledgeRetention } from './checks/knowledge_retention';
 export { createLangCheck, lang } from './checks/lang';
 export { must, mustNot } from './checks/must';
-export { pii } from './checks/pii';
+export { createPiiCheck, ownerKey, type PiiCheckOptions, pii } from './checks/pii';
 export { references } from './checks/references';
 export { relevancy } from './checks/relevancy';
 export { safety } from './checks/safety';

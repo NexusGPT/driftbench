@@ -80,6 +80,8 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: invoice-file-edit
     phrase: 0
+    ask: bank
+    outcome: bank
     needs:
       - marker: needs-recorded-session
         atom: guard.settings.pretooluse-edit-write-guard-read-before

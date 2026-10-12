@@ -1,7 +1,7 @@
 {
   "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10",
   "spaceHash": "5618a6f5b51c",
-  "cells": 1240,
+  "cells": 1244,
   "coveringArraySize": 1012,
   "perKind": {
     "instruction": 129,
@@ -13,6 +13,7 @@
     "subagent": 69,
     "guard": 30,
     "tool": 12,
+    "setting": 4,
     "stage": 9,
     "register": 70,
     "hazard": 2,
@@ -45,6 +46,7 @@
     "register_sample": 180,
     "hazard_recovery": 2,
     "invariant": 4,
+    "setting": 4,
     "journey": 10
   },
   "unenforcedAtoms": [
@@ -103,14 +105,14 @@
     "instruction.weekly-report.count-only-the-last-seven-days",
     "instruction.weekly-report.save-the-report-by-week-and"
   ],
-  "cellsWithoutPhrase": 1240,
+  "cellsWithoutPhrase": 1244,
   "edgesWithoutJourney": 7,
   "t": 2,
   "k": 3,
   "seed": 1,
   "rows": {
-    "total": 1379,
-    "contract": 357,
+    "total": 1383,
+    "contract": 361,
     "journey": 10,
     "pairwise": 1012
   },
@@ -119,12 +121,7 @@
     "allowed": 4842,
     "covered": 4842
   },
-  "noContract": [
-    "setting.settings.setting-model-is-opus",
-    "setting.settings.setting-permissions-defaultmode-is-default",
-    "setting.settings.setting-env-northwind-region",
-    "setting.settings.setting-env-northwind-ledger-dir"
-  ],
+  "noContract": [],
   "unapproved": 0,
   "uncoveredEdges": [
     {
