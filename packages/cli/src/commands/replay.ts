@@ -1,7 +1,7 @@
 import { basename, dirname, resolve } from 'node:path';
 import { orderedCheck, type ReplaySession, readSession, replayAdapter } from '@driftbench/adapters';
 import { defaultReaders } from '@driftbench/artifacts';
-import { CheckRegistry, defaultChecks, defaultRegistry } from '@driftbench/checks';
+import { CheckRegistry, defaultChecks, defaultRegistry, ESTATE_CHECKS } from '@driftbench/checks';
 import {
   type Campaign,
   type CheckSet,
@@ -291,15 +291,27 @@ function referencesOf(spec: LoadedSpec): string[] {
   ];
 }
 
-/** The checks of a replay: every default check, with the ordered-pair check added to the custom registry. */
-export function replayChecks(): CheckSet {
+/**
+ * The custom checks of an estate run: every check of the default registry, the ordered-pair check, and
+ * the estate checks (`some_call`, `hazard_recovery`, `permission`). The estate generator writes only names
+ * this registry holds (`REPLAY_CUSTOM_CHECKS`).
+ */
+export function replayRegistry(): CheckRegistry {
   const registry = new CheckRegistry();
   for (const name of defaultRegistry.names()) {
     const check = defaultRegistry.get(name);
     if (check) registry.register(name, check);
   }
   if (!registry.get('ordered')) registry.register('ordered', orderedCheck);
-  return defaultChecks({ registry });
+  for (const [name, check] of Object.entries(ESTATE_CHECKS)) {
+    if (!registry.get(name)) registry.register(name, check);
+  }
+  return registry;
+}
+
+/** The checks of a replay: every default check, with the replay registry's custom checks. */
+export function replayChecks(): CheckSet {
+  return defaultChecks({ registry: replayRegistry() });
 }
 
 /** A session's name: its file name without `.jsonl`. */

@@ -79,7 +79,12 @@ export const ESTATE_INCOMPLETE_DIR = 'incomplete';
 export const ESTATE_SEEDER = 'estate';
 export const ESTATE_DEFAULT_SEED = 1;
 /** The custom checks the replay runner registers. */
-export const REPLAY_CUSTOM_CHECKS: readonly string[] = ['ordered'];
+export const REPLAY_CUSTOM_CHECKS: readonly string[] = [
+  'hazard_recovery',
+  'ordered',
+  'permission',
+  'some_call',
+];
 
 /** The situation each test type is asked in; `none` for a test that needs no ask. */
 export const SITUATION_OF: Readonly<Record<string, SituationUse | 'none'>> = {
@@ -577,6 +582,9 @@ function build(
     );
   }
 
+  // A reply in the language of the ask: the phrase's language, once it is known.
+  if (then.langFromAsk && phrase && then.lang === undefined) then.lang = phrase.lang.toUpperCase();
+
   // Blocks.
   const placeholder = `[no approved phrase: ${use} situation for ${first.id}]`;
   const blocks: Array<Record<string, unknown>> = [
@@ -691,7 +699,7 @@ function build(
     ...(usesStages ? { stages: ctx.stages.ids } : {}),
     ...(complete && then.criteria.length > 0 ? { criteria: then.criteria } : {}),
     blocks,
-    ...(then.ordered.length > 0 ? { rules: { custom: { ordered: { pairs: then.ordered } } } } : {}),
+    ...(customOf(then) ? { rules: { custom: customOf(then) } } : {}),
     ...(perturbation ? { perturbations: [perturbation] } : {}),
     metadata: {
       estate: {
@@ -737,6 +745,17 @@ function build(
   };
 }
 
+/** `rules.custom` of a spec: the ordered pairs, the some_call entries of the first block, the other checks. */
+function customOf(then: ThenParts): Record<string, unknown> | undefined {
+  const custom: Record<string, unknown> = {};
+  if (then.ordered.length > 0) custom.ordered = { pairs: then.ordered };
+  if (then.someCalls.length > 0) {
+    custom.some_call = { calls: then.someCalls.map((call) => ({ ...call, block: 0 })) };
+  }
+  for (const [name, options] of Object.entries(then.custom)) custom[name] = options;
+  return Object.keys(custom).length > 0 ? custom : undefined;
+}
+
 /** The Then of a block as `expect`. The first block holds the outcome and the judged criteria. */
 function expectOf(then: ThenParts, first: boolean): Record<string, unknown> {
   const expect: Record<string, unknown> = {};
@@ -750,7 +769,13 @@ function expectOf(then: ThenParts, first: boolean): Record<string, unknown> {
   if (first && then.must.length > 0) expect.must = [...then.must];
   if (first && then.mustNot.length > 0) expect.must_not = [...then.mustNot];
   if (first && then.lang !== undefined) expect.lang = then.lang;
-  if (first && then.ranCode) expect.execution = { ran_code: true };
+  if (first && (then.ranCode || then.maxCommands !== undefined)) {
+    expect.execution = {
+      ...(then.ranCode ? { ran_code: true } : {}),
+      ...(then.maxCommands !== undefined ? { max_commands: then.maxCommands } : {}),
+    };
+  }
+  if (first && then.safetyConfirm.length > 0) expect.safety = { confirm_before: [...then.safetyConfirm] };
   if (first && then.artifacts.length > 0) expect.artifacts = then.artifacts.map((item) => ({ ...item }));
   if (first && then.workspace) {
     const { created, changed, deleted, othersUntouched, noDeletes } = then.workspace;
