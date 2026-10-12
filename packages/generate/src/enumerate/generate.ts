@@ -78,6 +78,8 @@ export type SeederTotals = {
   /** Incomplete specs: a block with no Then the map supports. */
   needs_then: number;
   cut: boolean;
+  /** The diversity measures of this seeder's complete specs (see `coverageMeasures`). */
+  measures?: Record<string, number>;
 };
 
 export type GenerateReport = {
@@ -114,6 +116,8 @@ export type GenerateReport = {
     allowed: number;
     complete: MeasuredCoverage;
     all: MeasuredCoverage;
+    /** The coverage and diversity measures of the complete specs. */
+    measures: Record<string, number>;
     baseline?: MeasuredCoverage & { label: string };
   };
   /** Specs the core loader refused: a generator defect. Never written. */
@@ -182,6 +186,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const gaps = new Map<string, { dimension: string; value: string; blocks: number; specs: string[] }>();
   const noThen: GenerateReport['no_then'] = [];
   const seeders = {} as Record<Seeder, SeederTotals>;
+  const completeBy: Partial<Record<Seeder, Spec[]>> = {};
 
   /** Renders drafts of one seeder, adds them to the suite and the seeder's totals; returns the complete ones. */
   const renderSeeder = (seeder: Seeder, list: readonly SpecDraft[]): Spec[] => {
@@ -234,6 +239,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
         totals.complete += 1;
         complete.push(loaded.spec);
         own.push(loaded.spec);
+        (completeBy[seeder] ??= []).push(loaded.spec);
       }
       const folder = needsPhrase || needsThen ? INCOMPLETE_DIR : COMPLETE_DIR;
       files.push({ path: `${folder}/${seeder}/${rendered.id}.yaml`, text });
@@ -263,6 +269,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     totals.complete += 1;
     all.push(loaded.spec);
     complete.push(loaded.spec);
+    (completeBy.task ??= []).push(loaded.spec);
     files.push({ path: `${COMPLETE_DIR}/task/${id}.yaml`, text });
   }
 
@@ -315,6 +322,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const baseline = options.baseline
     ? { label: options.baseline.label, ...measure(options.baseline.specs) }
     : undefined;
+  for (const seeder of SEEDERS) {
+    (seeders[seeder] as SeederTotals).measures = coverageMeasures(prepared, completeBy[seeder] ?? []);
+  }
   const totals = Object.values(seeders);
   const report: GenerateReport = {
     generator: 'driftbench generate',
@@ -356,6 +366,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       allowed: completeCoverage.allowed,
       complete: completeCoverage,
       all: measure(all),
+      measures: coverageMeasures(prepared, complete),
       ...(baseline ? { baseline } : {}),
     },
     invalid,
@@ -416,6 +427,73 @@ function measured(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCove
     covered: grid.covered,
     share: grid.share,
   };
+}
+
+/**
+ * The coverage and diversity measures of a set of specs on the axis map: Good-Turing discovery, Chao
+ * coverage and richness, Hill numbers of order 0, 1 and 2, Pielou evenness (all over the counts of the t = 2
+ * cells the specs cover), the t = 3 share, the weighted share and its effective sample size, the required
+ * cells, the values covered per axis, and the share of blocks with a machine Then.
+ */
+export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]): Record<string, number> {
+  const results: LoadResult[] = specs.map((spec) => ({
+    ok: true,
+    path: spec.id,
+    spec,
+    hash: '',
+    warnings: [],
+  }));
+  const axisMap = prepared.axisMap;
+  const two = coverage(axisMap, results, {
+    t: 2,
+    ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
+  });
+  const three = axisMap.dimensions.length >= 3 ? coverage(axisMap, results, { t: 3 }) : undefined;
+  const counts = two.grid.cells.map((cell) => cell.count).filter((count) => count > 0);
+  const n = counts.reduce((sum, count) => sum + count, 0);
+  const f1 = counts.filter((count) => count === 1).length;
+  const f2 = counts.filter((count) => count === 2).length;
+  const shares = counts.map((count) => count / Math.max(1, n));
+  const entropy = -shares.reduce((sum, share) => sum + (share > 0 ? share * Math.log(share) : 0), 0);
+  const out: Record<string, number> = {
+    discovery: n === 0 ? 1 : f1 / n,
+    chao_coverage: n === 0 ? 0 : 1 - (f1 / n) * (((n - 1) * f1) / ((n - 1) * f1 + 2 * f2 || 1)),
+    chao1:
+      counts.length +
+      (n === 0 ? 0 : f2 > 0 ? ((n - 1) / n) * ((f1 * f1) / (2 * f2)) : ((n - 1) / n) * ((f1 * (f1 - 1)) / 2)),
+    hill_q0: counts.length,
+    hill_q1: Math.exp(entropy),
+    hill_q2:
+      1 /
+      Math.max(
+        Number.EPSILON,
+        shares.reduce((sum, share) => sum + share * share, 0),
+      ),
+    pielou: counts.length > 1 ? entropy / Math.log(counts.length) : 1,
+    t3_share: three?.grid.share ?? 0,
+    t3_allowed: three?.grid.allowed ?? 0,
+    weighted_share: two.grid.weighted ?? 0,
+    effective_sample_size: two.grid.effectiveSampleSize ?? 0,
+    required_covered: two.required.filter((cell) => cell.covered).length,
+    required_total: two.required.length,
+  };
+  for (const dimension of two.dimensions) out[`axis_${dimension.id}`] = dimension.covered;
+  let blocks = 0;
+  let machine = 0;
+  for (const spec of specs) {
+    for (const block of spec.blocks) {
+      blocks += 1;
+      const expect = block.expect ?? {};
+      if (
+        Object.keys(expect).some((key) => key !== 'criteria' && key !== 'ledger_add') ||
+        spec.rules !== undefined
+      )
+        machine += 1;
+    }
+  }
+  out.machine_then_share = blocks === 0 ? 0 : machine / blocks;
+  out.judged_only_blocks = blocks - machine;
+  return out;
 }
 
 function dataValues(prepared: PreparedMap): number {

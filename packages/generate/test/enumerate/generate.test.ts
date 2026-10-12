@@ -308,3 +308,34 @@ describe('pilot iteration 2: the default strength of the covering array', () => 
     expect(result.report.twise.share).toBe(1);
   });
 });
+
+describe('iteration 17: the report states the coverage and diversity measures', () => {
+  it('states every measure of the complete suite, and four of each seeder', () => {
+    const { report, complete } = run();
+    const measures = (report.coverage as unknown as { measures?: Record<string, number> }).measures;
+    for (const name of [
+      'discovery',
+      'chao_coverage',
+      'chao1',
+      'hill_q0',
+      'hill_q1',
+      'hill_q2',
+      'pielou',
+      't3_share',
+      't3_allowed',
+      'weighted_share',
+      'effective_sample_size',
+      'required_covered',
+      'required_total',
+      'machine_then_share',
+      'judged_only_blocks',
+    ]) {
+      expect(typeof measures?.[name], name).toBe('number');
+    }
+    expect(measures?.judged_only_blocks).toBeLessThanOrEqual(complete.flatMap((spec) => spec.blocks).length);
+    const graph = (report.seeders.graph as unknown as { measures?: Record<string, number> }).measures;
+    for (const name of ['machine_then_share', 'judged_only_blocks', 'hill_q0', 'pielou']) {
+      expect(typeof graph?.[name], `graph ${name}`).toBe('number');
+    }
+  });
+});
