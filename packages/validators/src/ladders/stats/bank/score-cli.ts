@@ -1,9 +1,10 @@
 /**
  * Scores the statistics bank on seeds and the hidden seed, prints the measurement, and with --record appends the
  * row to validators/stats/bank-scores.jsonl. Usage, from the repository root:
- *   pnpm exec tsx packages/validators/src/ladders/stats/bank/score-cli.ts --seeds 1..20 --hidden [--record <iteration>] [--note "..."]
+ *   pnpm exec tsx packages/validators/src/ladders/stats/bank/score-cli.ts --seeds 1..20 --hidden [--record <iteration>] [--out <file.json>] [--note "..."]
  */
 import { execFileSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
 import { findRoot } from '../../../root';
 import { hiddenSeed } from '../../../seeds';
 import { appendBankScore, forecast, readBankScores, scoreBank } from './hardness';
@@ -43,6 +44,8 @@ async function main(): Promise<void> {
     process.stdout.write(`  ${family}: ${c.passing} of ${c.items}\n`);
   for (const [tier, c] of Object.entries(row.byTier))
     process.stdout.write(`  tier ${tier}: ${c.passing} of ${c.items}\n`);
+  const outFile = value('--out');
+  if (outFile) writeFileSync(outFile, `${JSON.stringify(row)}\n`);
   if (record !== undefined) {
     appendBankScore(root, row);
     const f = forecast(readBankScores(root));

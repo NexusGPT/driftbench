@@ -28,6 +28,8 @@ export type BankScore = {
   failingDetails?: Record<string, { seeds: string[]; detail: string }>;
   /** The ladder level per seed: the levels passed in order before the first one with a failing item. */
   levelPerSeed: Record<string, number>;
+  /** Distinct causes among the items failing on some seed. */
+  failingCauses: number;
   note: string;
 };
 
@@ -73,7 +75,11 @@ export async function scoreBank(
     return out;
   };
   const passing = bank.length - failing.size;
+  const failingCauses = new Set(
+    bank.filter((item) => failing.has(item.id)).map((item) => item.cause ?? item.id),
+  ).size;
   return {
+    failingCauses,
     seeds: seeds.map((s) => s.label),
     bank: bank.length,
     passing,
