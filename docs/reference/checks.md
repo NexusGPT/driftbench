@@ -162,6 +162,9 @@ An adapter that does not report the files read, or the helpers dispatched, leave
 
 ## Rules on tools
 
+A run-wide tool policy is off by default. Pass `defaultChecks({ toolPolicy: [...] })` to add the `tool_policy` check. Each rule is `{ pattern, action }`: `pattern` is a glob over the tool name (`*` matches any run of characters), and `action` is `allow`, `deny` or `ask`. The first rule that matches a call decides, and a call no rule matches is allowed. A deny fails the block with one verdict per tool, `tool_policy.<label>`. An ask also fails, since a check has no approver. The check reads the calls every adapter records, so it covers a tool the runtime ran itself, after the call. A tool the harness runs itself is gated before it runs, by the sandbox's approval policy.
+
+
 * A tool is forbidden in a block when `rules.forbidden_tools` lists it, when `rules.max_calls` caps it at 0, or when the block expects it 0 times. One verdict per tool names every reason.
 * `rules.max_calls` above 0 caps the calls across the run: the blocks before and this one together. A block fails the cap only when its own calls go past it, so one excess is reported once.
 
