@@ -331,24 +331,6 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
   (text) => [...text].reverse().join(''),
   // ROT13: each letter moved 13 places along the alphabet.
   (text) => shift(text, 13),
-  // Base64 runs of 16 characters or more, replaced by the text they decode to when it is readable UTF-8.
-  (text) => {
-    const decoded = text.replace(
-      /(?<![A-Za-z0-9+/_-])[A-Za-z0-9+/_-]{16,}={0,2}(?![A-Za-z0-9+/=_-])/g,
-      (run) => {
-        const bytes = Buffer.from(run.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
-        const plain = new TextDecoder('utf-8', { fatal: true });
-        try {
-          const out = plain.decode(bytes);
-          const printable = [...out].filter((ch) => /[\p{L}\p{N}\p{P}\p{Z}]/u.test(ch)).length;
-          return printable >= 0.9 * [...out].length ? out : run;
-        } catch {
-          return run;
-        }
-      },
-    );
-    return decoded === text ? undefined : decoded;
-  },
   // File names written as a slug (words joined by - _ / or by capitals), each read as a sentence of its own.
   (text) => {
     const words = (slug: string) =>
@@ -369,10 +351,37 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
   },
 ];
 
-const readingsOf = (text: string): string[] => [
-  text,
-  ...READINGS.map((read) => read(text)).filter((reading): reading is string => reading !== undefined),
+/**
+ * Encodings undone before the other readings: each result is screened as written and again through every reading
+ * (a base64 text that holds ROT13).
+ */
+const DECODERS: readonly ((text: string) => string | undefined)[] = [
+  // Base64 runs of 16 characters or more, replaced by the text they decode to when it is readable UTF-8.
+  (text) => {
+    const decoded = text.replace(
+      /(?<![A-Za-z0-9+/_-])[A-Za-z0-9+/_-]{16,}={0,2}(?![A-Za-z0-9+/=_-])/g,
+      (run) => {
+        const bytes = Buffer.from(run.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+        const plain = new TextDecoder('utf-8', { fatal: true });
+        try {
+          const out = plain.decode(bytes);
+          const printable = [...out].filter((ch) => /[\p{L}\p{N}\p{P}\p{Z}]/u.test(ch)).length;
+          return printable >= 0.9 * [...out].length ? out : run;
+        } catch {
+          return run;
+        }
+      },
+    );
+    return decoded === text ? undefined : decoded;
+  },
 ];
+
+const readingsOf = (text: string, depth = 2): string[] => {
+  const readings = (t: string) => READINGS.map((read) => read(t)).filter((r): r is string => r !== undefined);
+  const decoded =
+    depth === 0 ? [] : DECODERS.map((decode) => decode(text)).filter((r): r is string => r !== undefined);
+  return [text, ...readings(text), ...decoded.flatMap((d) => readingsOf(d, depth - 1))];
+};
 
 /**
  * Screens a request before a judge reads it. Every sentence (split after . ! ? ; and at line breaks) of each place is
