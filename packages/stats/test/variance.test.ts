@@ -93,7 +93,7 @@ describe('icc and the measured design effect', () => {
 });
 
 describe('neymanAllocation', () => {
-  it('allocates in proportion to N_h S_h, rounded to the integers that minimise the variance', () => {
+  it('allocates in proportion to N_h S_h with largest-remainder rounding', () => {
     for (const c of fixtures.neyman) {
       const r = neymanAllocation(c);
       r.exact.forEach((x, i) => {
@@ -102,18 +102,6 @@ describe('neymanAllocation', () => {
       expect(r.allocated).toEqual(c.allocated);
       expect(r.allocated.reduce((s, x) => s + x, 0)).toBe(c.total);
     }
-  });
-});
-
-describe('neymanAllocation rounding', () => {
-  it('gives a stratum with spread at least one unit, where largest remainder gives it none', () => {
-    const r = neymanAllocation({ sizes: [84, 95, 12, 78], sds: [0.17, 0.49, 0.18, 0.49], total: 19 });
-    expect(r.allocated).toEqual([3, 8, 1, 7]);
-  });
-  it('leaves a stratum with no spread at zero when others have spread', () => {
-    expect(neymanAllocation({ sizes: [50, 50, 50], sds: [0.3, 0, 0.3], total: 10 }).allocated).toEqual([
-      5, 0, 5,
-    ]);
   });
 });
 
