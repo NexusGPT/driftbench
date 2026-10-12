@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 /**
  * The second blind breaker: claims about report, ci, compare, view, queue, import, monitor, select, holdout,
  * simulate and attack, written from the documentation and the command line only. Every oracle is computed
@@ -308,37 +309,7 @@ function mcnemarExact(b: number, c: number): number {
   return Math.min(1, (2 * s) / 2 ** n);
 }
 
-function erfc(x: number): number {
-  // Numerical Recipes erfc, fractional error below 1.2e-7.
-  const z = Math.abs(x);
-  const t = 1 / (1 + 0.5 * z);
-  const r =
-    t *
-    Math.exp(
-      -z * z -
-        1.26551223 +
-        t *
-          (1.00002368 +
-            t *
-              (0.37409196 +
-                t *
-                  (0.09678418 +
-                    t *
-                      (-0.18628806 +
-                        t *
-                          (0.27886807 +
-                            t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))),
-    );
-  return x >= 0 ? r : 2 - r;
-}
-
 /** Continuity-corrected McNemar chi-square p. */
-function mcnemarChi(b: number, c: number): number {
-  const n = b + c;
-  if (n === 0) return 1;
-  const stat = (Math.abs(b - c) - 1) ** 2 / n;
-  return erfc(Math.sqrt(stat / 2));
-}
 
 function close(x: number, y: number, tol: number): boolean {
   return Number.isFinite(x) && Number.isFinite(y) && Math.abs(x - y) <= tol;
@@ -598,21 +569,21 @@ add(
 
 add(
   FC,
-  'mcnemar-chi-square',
+  'mcnemar-exact-large',
   3,
   10,
   'contract',
   'driftbench compare',
-  'docs/concepts/statistics.md "Comparing a baseline and a candidate"',
-  'McNemar from 25 discordant pairs is the continuity-corrected chi-square',
+  'docs/concepts/statistics.md "Comparing a baseline and a candidate" (compare always uses the exact McNemar test, also from 25 discordant pairs)',
+  'compare gives the exact two-sided McNemar p value, also with 25 or more discordant pairs',
   async (ctx) => {
     const p = await bigPair(ctx.scratch);
     const { j } = await compareJson(p);
-    const want = mcnemarChi(p.b, p.c);
+    const want = mcnemarExact(p.b, p.c);
     const got = j?.allPass?.mcnemar?.pValue;
     return expectAll([
       [p.b + p.c >= 25, `fixture should hold 25 or more discordant pairs, got b=${p.b} c=${p.c}`],
-      [close(got, want, 2e-6), `b=${p.b} c=${p.c}: expected corrected chi-square p ${want}, got ${got}`],
+      [close(got, want, 1e-9), `b=${p.b} c=${p.c}: expected the exact McNemar p ${want}, got ${got}`],
     ]);
   },
 );
@@ -1220,7 +1191,7 @@ add(
   async (ctx) => {
     const p = await bigPair(ctx.scratch);
     const { r, j } = await compareJson(p);
-    const pv = mcnemarChi(p.b, p.c);
+    const pv = mcnemarExact(p.b, p.c);
     return expectAll([
       [
         pv < 0.05 && p.b > p.c,
@@ -2891,17 +2862,38 @@ add(
   10,
   'contract',
   'driftbench view',
-  `${QVW} (no script, no external asset, a content security policy says so)`,
-  'every page carries a content security policy that blocks script and holds no script element',
+  `${QVW} (no script and no external asset, a content security policy says so; the queue page and the block pages may run their keyboard script, allowed by the hash of its exact text, and nothing else runs script)`,
+  'every page carries a content security policy that blocks script except the hash of its own inline keyboard script, and only the queue and block pages hold one',
   async (ctx) => {
     const f = await judged(ctx.scratch);
     const bad: string[] = [];
+    // docs/viewer.md: the queue page and a block page (the label form) may each run one inline script, allowed
+    // by the sha256 of its exact text in script-src; every other page holds no script.
+    const scripted = new Set(['/queue', `/campaign/q1/run/${f.runIds[0]}`]);
     await withViewer(['--store', f.store, '--port', '0', '--labels', freshLabels(f)], f.dir, async (base) => {
-      for (const path of ['/', '/compare', '/queue', '/campaign/q1', `/campaign/q1/run/${f.runIds[0]}`]) {
+      for (const path of [
+        '/',
+        '/compare',
+        '/queue',
+        '/keys',
+        '/campaign/q1',
+        `/campaign/q1/run/${f.runIds[0]}`,
+      ]) {
         const r = await http(base, path);
-        if (!r.csp || !/default-src 'none'/.test(r.csp) || /script-src[^;]*(unsafe|\*)/.test(r.csp))
+        const csp = r.csp ?? '';
+        if (!/default-src 'none'/.test(csp) || /script-src[^;]*('unsafe|\*)/.test(csp))
           bad.push(`${path}: csp ${r.csp}`);
-        if (/<script/i.test(r.text)) bad.push(`${path}: script element`);
+        const scripts = [...r.text.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+        if (scripts.length > 0 && !scripted.has(path))
+          bad.push(`${path}: ${scripts.length} script element(s)`);
+        for (const [, attributes, body] of scripts) {
+          if (/\bsrc=/i.test(attributes ?? '')) bad.push(`${path}: a script with src`);
+          const hash = createHash('sha256')
+            .update(body ?? '')
+            .digest('base64');
+          if (!csp.includes(`'sha256-${hash}'`))
+            bad.push(`${path}: a script whose hash ${hash} the csp does not allow`);
+        }
         if (/(?:src|href)="https?:/.test(r.text)) bad.push(`${path}: external asset`);
       }
     });
@@ -4534,56 +4526,48 @@ add(
 
 add(
   FI,
-  'traces-dataset-new-version-each-import',
+  'traces-dataset-unchanged-repeat',
   4,
   10,
   'contract',
   'driftbench import traces',
-  `${QTR} (Each import with --dataset makes a new version, because the drafts carry their import time)`,
-  'importing the same traces twice with --dataset pushes version 1 then version 2',
+  `${QTR} (--dataset pushes the drafts as the next version, the same push as dataset push: an unchanged repeat import makes no new version, other traces make the next one)`,
+  'import traces --dataset keeps one version for the same traces imported twice and pushes version 2 for other traces',
   async (ctx) => {
     const d = impDir(ctx.scratch);
-    const src = join(d, 't.json');
-    put(src, otelDoc([twoTurn('c1', T0)]));
     const store = join(d, 's.db');
-    const a = await cli(
-      [
-        'import',
-        'traces',
-        src,
-        '--from',
-        'otel',
-        '--out',
-        join(d, 'a'),
-        '--dataset',
-        'prod',
-        '--store',
-        store,
-      ],
-      d,
-    );
-    await new Promise((r) => setTimeout(r, 1100));
-    const b = await cli(
-      [
-        'import',
-        'traces',
-        src,
-        '--from',
-        'otel',
-        '--out',
-        join(d, 'b'),
-        '--dataset',
-        'prod',
-        '--store',
-        store,
-      ],
-      d,
-    );
+    const once = join(d, 't.json');
+    put(once, otelDoc([twoTurn('c1', T0)]));
+    const other = join(d, 'u.json');
+    put(other, otelDoc([twoTurn('c2', T0 + 86_400_000)]));
+    const run = (src: string, out: string) =>
+      cli(
+        [
+          'import',
+          'traces',
+          src,
+          '--from',
+          'otel',
+          '--out',
+          join(d, out),
+          '--dataset',
+          'prod',
+          '--store',
+          store,
+        ],
+        d,
+      );
+    const a = await run(once, 'a');
+    const b = await run(once, 'b');
+    const c = await run(other, 'c');
+    const last = (r: { out: string }) => brief(r.out.split('\n').filter(Boolean).pop() ?? '');
     return expectAll([
+      [/prod@1/.test(a.out), `expected the first import to push prod@1, got "${last(a)}"`],
       [
-        /prod@1/.test(a.out) && /prod@2/.test(b.out),
-        `expected prod@1 then prod@2, got "${brief(a.out.split('\n').filter(Boolean).pop() ?? '')}" then "${brief(b.out.split('\n').filter(Boolean).pop() ?? '')}"`,
+        !/prod@2/.test(b.out) && /prod@1/.test(b.out),
+        `expected the same traces again to keep prod@1, got "${last(b)}"`,
       ],
+      [/prod@2/.test(c.out), `expected other traces to push prod@2, got "${last(c)}"`],
     ]);
   },
 );

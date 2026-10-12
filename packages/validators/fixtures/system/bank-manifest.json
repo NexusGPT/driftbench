@@ -15392,13 +15392,13 @@
       "cause": "driftbench compare: McNemar is exact below 25 discordant pairs and equals the two-sided binomial tail"
     },
     {
-      "id": "breaker2/compare/mcnemar-chi-square",
+      "id": "breaker2/compare/mcnemar-exact-large",
       "family": "breaker2-compare",
       "tier": 3,
       "level": 10,
       "source": "contract",
       "component": "driftbench compare",
-      "cause": "driftbench compare: McNemar from 25 discordant pairs is the continuity-corrected chi-square"
+      "cause": "driftbench compare: compare gives the exact two-sided McNemar p value, also with 25 or more discordant pairs"
     },
     {
       "id": "breaker2/compare/effect-estimate",
@@ -15992,7 +15992,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench view",
-      "cause": "driftbench view: every page carries a content security policy that blocks script and holds no script element"
+      "cause": "driftbench view: every page carries a content security policy that blocks script except the hash of its own inline keyboard script, and only the queue and block pages hold one"
     },
     {
       "id": "breaker2/viewer/home-lists-campaigns",
@@ -16391,13 +16391,13 @@
       "cause": "driftbench import traces: --dataset without --store exits 2"
     },
     {
-      "id": "breaker2/import/traces-dataset-new-version-each-import",
+      "id": "breaker2/import/traces-dataset-unchanged-repeat",
       "family": "breaker2-import",
       "tier": 4,
       "level": 10,
       "source": "contract",
       "component": "driftbench import traces",
-      "cause": "driftbench import traces: importing the same traces twice with --dataset pushes version 1 then version 2"
+      "cause": "driftbench import traces: import traces --dataset keeps one version for the same traces imported twice and pushes version 2 for other traces"
     },
     {
       "id": "breaker2/import/traces-existing-draft",
