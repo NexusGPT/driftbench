@@ -26,8 +26,20 @@ export type Trace = {
   /** The model that answered, as the source names it, when it names one. */
   model?: string;
   turns: TraceTurn[];
+  /** The spans as the source wrote them, with their parent links, when the source has a tree (OpenTelemetry). */
+  observations?: TraceObservation[];
   /** What the reader noticed and could not map: a span with no turn, a call with no result. */
   issues: string[];
+};
+
+/** One span of a traced conversation, with the span it is nested in. Times are ISO 8601. */
+export type TraceObservation = {
+  id: string;
+  parentId?: string;
+  kind: 'chat' | 'tool' | 'other';
+  name: string;
+  start: string;
+  end: string;
 };
 
 /** Prices per million tokens, by model, for sources that report tokens but no cost. */
