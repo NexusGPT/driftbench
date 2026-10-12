@@ -4,7 +4,7 @@
 id: gen-twise-083
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 83 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D5_language_switch at offer"
+title: "t-wise row 83 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D5_language_switch at details"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -74,26 +74,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b3-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: offer
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-      criteria:
-        - deviation.D5_language_switch
-  - id: b4-offer-to-details
+  - id: b3-offer-to-details
     when:
       user: Acme Mobile M, please.
     expect:
@@ -106,6 +87,25 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b4-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: details
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - deviation.D5_language_switch
   - id: b5-details-to-recap
     when:
       user: I'm Jo Okafor and my email is jo.okafor@example.com.
@@ -212,16 +212,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
-      - block: b3-D5_language_switch
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: offer
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
-      - block: b4-offer-to-details
+      - block: b3-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -230,6 +221,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
+      - block: b4-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: details
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
       - block: b5-details-to-recap
         seeder: twise
         cell:

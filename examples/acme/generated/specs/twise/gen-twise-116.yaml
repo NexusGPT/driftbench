@@ -4,7 +4,7 @@
 id: gen-twise-116
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 116 of 132: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D5_language_switch at needs"
+title: "t-wise row 116 of 132: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D5_language_switch at port_number"
 channel: chat
 lang: EN
 tier: generated
@@ -41,28 +41,7 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: needs
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-      criteria:
-        - behaviour.B-011
-        - flow.porting
-        - deviation.D5_language_switch
-  - id: b2-needs-to-port_number
+  - id: b1-needs-to-port_number
     when:
       user: I'd like to move to Acme and keep my phone number.
     expect:
@@ -75,6 +54,28 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+      criteria:
+        - behaviour.B-011
+        - flow.porting
+  - id: b2-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: port_number
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - deviation.D5_language_switch
   - id: b3-port_number-to-offer
     when:
       user: My number is +1 202 555 0165.
@@ -177,16 +178,7 @@ metadata:
       plan_choice: names-one
       customer_details: name-and-email
     blocks:
-      - block: b1-D5_language_switch
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: needs
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
-      - block: b2-needs-to-port_number
+      - block: b1-needs-to-port_number
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -195,6 +187,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
+      - block: b2-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: port_number
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
       - block: b3-port_number-to-offer
         seeder: twise
         cell:

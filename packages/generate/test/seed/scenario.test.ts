@@ -290,6 +290,35 @@ describe('buildScenario', () => {
     });
   });
 
+  it('does not probe on the first turn when only a do-nothing agent or an echo can pass the Then', () => {
+    // D5 has an approved phrase that fits any stage; its recovery stays on the stage and states no words, so
+    // on the start stage a constant reply that reports the start stage satisfies every Then.
+    const prepared = prepare((draft) => {
+      draft.relations?.push({
+        kind: 'recovery',
+        class: 'D5_language_switch',
+        flows: ['balance'],
+        stage_after: 'pending',
+        must: ['english only'],
+        ...by,
+      });
+    });
+    // The echo agent repeats every literal word of the patterns, so a word alone proves nothing.
+    const first = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D5_language_switch', stage: 'greet' },
+    });
+    expect(first.ok).toBe(false);
+    const any = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D5_language_switch' },
+    });
+    if (!any.ok) throw new Error(any.reason);
+    expect(any.probe?.stage).toBe('verify');
+  });
+
   it('fails a tool in the Given of the turn that calls it, expects the recovery, and stops there', () => {
     const prepared = prepare();
     const built = buildScenario(prepared, rngFor(1, 't'), {
@@ -660,11 +689,18 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
 });
 
 describe('pilot iteration 10: a deviation on the first turn', () => {
-  it('probes the start stage when the recovery keeps the conversation there', () => {
+  it('probes the start stage when the recovery keeps the conversation there and asks for a call', () => {
     const prepared = prepare((draft) => {
       draft.relations = [
         ...(draft.relations ?? []),
-        { kind: 'recovery', class: 'D5_language_switch', flows: ['balance'], stage_after: 'pending', ...by },
+        {
+          kind: 'recovery',
+          class: 'D5_language_switch',
+          flows: ['balance'],
+          stage_after: 'pending',
+          tools: [{ tool: 'lookup', count: 1 }],
+          ...by,
+        },
       ];
     });
     const built = buildScenario(prepared, rngFor(1, 't'), {

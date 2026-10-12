@@ -174,6 +174,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       .map((stage, index) => ({ stage, index }))
       .filter(({ index }) => index <= path.stages.length - 2)
       .filter(({ index }) => index >= 1 || OPENING_CLASSES.has(probe.classId))
+      .filter(({ stage, index }) => index >= 1 || discriminates(recovery as Recovery, stage, path.stages[0]))
       .filter(({ stage }) => (recovery?.at ? recovery.at.includes(stage) : true))
       .filter(({ stage }) => (probe.stage === undefined ? true : stage === probe.stage))
       .filter(({ stage }) =>
@@ -377,6 +378,18 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     ...(perturbations.length > 0 ? { perturbations } : {}),
     title,
   };
+}
+
+/**
+ * True when a recovery said on the first turn can fail a reply that does nothing: it leaves the start stage,
+ * or asks for a tool call. A word it states does not help: the echo agent repeats every literal word of the
+ * spec's patterns, so a `must` alone is passed by it. A recovery that stays on the start stage and
+ * states no such word is passed by an agent that reports the start stage and replies in English.
+ */
+function discriminates(recovery: Recovery, stage: string, start: string | undefined): boolean {
+  const after = stageAfter(recovery, stage);
+  if (after !== undefined && after !== start) return true;
+  return recovery.tools.some((call) => call.count !== 0);
 }
 
 /**
