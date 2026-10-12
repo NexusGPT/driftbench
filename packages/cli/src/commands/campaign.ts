@@ -28,6 +28,7 @@ import {
   type PlannedCell,
   type PlanOptions,
   planCampaign,
+  type RegistrySource,
   RunMode,
   type RunResult,
   runCampaign,
@@ -39,7 +40,13 @@ import {
 } from '@driftbench/core';
 import { localProvider } from '@driftbench/sandbox';
 import { bootstrapCI } from '@driftbench/stats';
-import { openMemoryStore, openStore } from '@driftbench/store';
+import {
+  openMemoryStore,
+  openStore,
+  parseVersionRef,
+  restoreFiles,
+  type SqliteStore,
+} from '@driftbench/store';
 import { createPerturbingDriver, createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -124,6 +131,8 @@ type PlanCommandOptions = {
 };
 
 type RunCommandOptions = {
+  dataset?: string;
+  prompt?: string[];
   target: string[];
   mode: string;
   repeats: string;
@@ -172,7 +181,14 @@ export function registerCampaignCommands(
   campaign
     .command('run')
     .description('Run every cell and print pass or fail per cell. Exit 1 on any failed or failing cell.')
-    .argument('<paths...>', 'spec files or folders')
+    .argument('[paths...]', 'spec files or folders; none when --dataset gives the specs')
+    .option('--dataset <name[@version]>', 'run the specs of this dataset version of the store, and record it')
+    .option(
+      '--prompt <name[@version]>',
+      'record this prompt version of the store; repeat for several',
+      collect,
+      [],
+    )
     .option('--target <adapter[:agent]>', TARGET_HELP, collect, [])
     .option('--mode <modes>', MODE_HELP, 'F')
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
@@ -305,12 +321,14 @@ export async function campaignRunCommand(
   const shape = parseShape(options, io);
   const pool = parsePool(options, io);
   if (!shape || !pool) return 2;
-  const loaded = await loadValidSpecs(paths, io);
-  if (!loaded) return 2;
-  const runs = specRuns(loaded, shape.targets, io);
-  if (!runs) return 2;
   const scope = openScope();
   try {
+    const registry = await registrySources(options, scope, io);
+    if (!registry) return 2;
+    const loaded = await loadValidSpecs([...paths, ...registry.paths], io);
+    if (!loaded) return 2;
+    const runs = specRuns(loaded, shape.targets, io);
+    if (!runs) return 2;
     const adapters = await adaptersFor(runs, deps, scope, io);
     if (!adapters) return 2;
     if (!options.json) io.out(targetNotes(loaded, shape.targets));
@@ -348,6 +366,7 @@ export async function campaignRunCommand(
         budgetUsd: pool.budgetUsd ?? 0,
         judge: { mode: 'system1', judges: [] },
         createdAt,
+        ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
       };
       await store.putCampaign(campaign);
       return await executeCampaign(campaign, loaded, adapters, store, deps, io, {
@@ -361,6 +380,62 @@ export async function campaignRunCommand(
     }
   } finally {
     await closeScope(scope, io);
+  }
+}
+
+/**
+ * The registry versions `--dataset` and `--prompt` name, read from the store. The dataset's files are
+ * restored, byte for byte, into the campaign's temporary folder, and its specs load from there.
+ */
+async function registrySources(
+  options: RunCommandOptions,
+  scope: CampaignScope,
+  io: Io,
+): Promise<{ paths: string[]; sources: RegistrySource[] } | undefined> {
+  const prompts = options.prompt ?? [];
+  if (options.dataset === undefined && prompts.length === 0) return { paths: [], sources: [] };
+  if (options.store === undefined) {
+    io.err('--dataset and --prompt read the registry of a store: add --store <file>.\n');
+    return undefined;
+  }
+  let store: SqliteStore;
+  try {
+    store = openStore(resolve(io.cwd, options.store));
+  } catch (cause) {
+    io.err(
+      `Cannot open the store at ${options.store}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+    );
+    return undefined;
+  }
+  try {
+    const sources: RegistrySource[] = [];
+    const paths: string[] = [];
+    const wanted = [
+      ...(options.dataset === undefined ? [] : [{ kind: 'dataset' as const, text: options.dataset }]),
+      ...prompts.map((text) => ({ kind: 'prompt' as const, text })),
+    ];
+    for (const { kind, text } of wanted) {
+      const { name, ref } = parseVersionRef(text);
+      const version = await store.getVersion(kind, name, ref);
+      if (!version) {
+        io.err(
+          `No ${kind} ${text} in ${options.store}. Push it with: driftbench ${kind} push ${name} <path>\n`,
+        );
+        return undefined;
+      }
+      sources.push({ kind, name: version.name, version: version.version, hash: version.hash });
+      if (kind === 'dataset') {
+        const folder = join(await scope.tempDir(), `dataset-${version.name}-${version.version}`);
+        await restoreFiles(await store.readVersionFiles(version), folder, { single: false });
+        paths.push(folder);
+      }
+    }
+    return { paths, sources };
+  } catch (cause) {
+    io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return undefined;
+  } finally {
+    await store.close();
   }
 }
 

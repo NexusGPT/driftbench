@@ -1,0 +1,20 @@
+# Maps the rows of cases.csv (or the Cases sheet of cases.xlsx) to Acme specs.
+# Fictional data only: Acme Telecom, Acmeville.
+sheet: Cases
+group_by: conversation
+spec:
+  id: "acme-imported-{conversation}"
+  title: "{title}"
+  channel: chat
+  lang: EN
+  target: { adapter: function, agent: acme-sales }
+  stages: [address, offer, details, recap, order_placed, callback, handover, closing]
+block:
+  user: "{question}"
+  expect:
+    stage: "{stage}"
+    must: { $column: must, $split: "|" }
+    must_not: { $column: must_not, $list: true }
+    tools:
+      - label: coverage.check
+        count: { max: { $column: max_calls, $as: number } }

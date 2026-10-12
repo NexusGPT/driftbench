@@ -1,5 +1,15 @@
 export * from './contracts';
 export * from './coverage';
+export {
+  type ImportError,
+  type ImportedSpec,
+  type ImportResult,
+  importTable,
+  parseTableMapping,
+  type TableCell,
+  type TableInput,
+  type TableMapping,
+} from './import/table';
 export * from './runner';
 export * from './schema/common';
 export * from './schema/run';
