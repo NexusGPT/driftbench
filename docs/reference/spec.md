@@ -187,7 +187,7 @@ Write a mapping with exactly one of these keys.
 
 The ten deviation classes a perturbed run can inject.
 
-Used by `when.injection.class` and `perturbations[].class`. Running a perturbation is planned, phase 3. See [recovery](../concepts/recovery.md).
+Used by `when.injection.class` and `perturbations[].class`. Mode P runs them with the perturbing driver, and `driftbench perturb` runs one. See [recovery](../concepts/recovery.md).
 
 | Value | Meaning |
 |---|---|
@@ -495,7 +495,7 @@ How the agent should come back after an injected deviation.
 
 The five drift classes a failing block can carry.
 
-Run records, not specs, carry these classes: one or more on each failing block. The drift engine that assigns them is planned, phase 3. See [drift](../concepts/drift.md).
+Run records, not specs, carry these classes: one or more on each failing block. The runner assigns them from the failing gating verdicts of each block. See [drift](../concepts/drift.md).
 
 | Value | Meaning |
 |---|---|

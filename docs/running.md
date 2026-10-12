@@ -2,7 +2,7 @@
 
 The runner runs a spec through an adapter, block by block, applies every check to each block, and records the run. A campaign runs many specs on many targets, in several modes, with repeats, and keeps every run in a store.
 
-Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (P); the scripted driver that replays a spec's blocks, and the injecting driver that adds one of the spec's perturbations; campaigns; the cache; the determinism smoke test; the ledger check, the stage classifier and the drift classes on every block; the compounding index and the recovery metrics. The perturbing driver and the simulated user are planned, phase 3. See [run modes](concepts/run-modes.md).
+Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (P); the scripted driver that replays a spec's blocks, and the perturbing driver that injects one deviation, declared by the spec or drawn from the red-team pack; campaigns; the cache; the determinism smoke test; the ledger check, the stage classifier and the drift classes on every block; the compounding index and the recovery metrics. The simulated user is built as a library and has no command yet. See [run modes](concepts/run-modes.md).
 
 ## From the command line
 
@@ -159,7 +159,7 @@ The store needs Node.js 22.13 or newer, for `node:sqlite`.
 
 ### Campaigns in T, F and P
 
-`--mode T,F,P` runs every spec in the three modes. T cells run every block from its canonical Given; F cells run free; P cells run one cell per perturbation and repeat, with the injecting driver. Each P cell takes the F run of the same spec, target and repeat as the reference of its recovery, so a campaign that holds F cells measures collateral against them. See [recovery](concepts/recovery.md#collateral).
+`--mode T,F,P` runs every spec in the three modes. T cells run every block from its canonical Given; F cells run free; P cells run one cell per perturbation and repeat, with the perturbing driver. Each P cell takes the F run of the same spec, target and repeat as the reference of its recovery, so a campaign that holds F cells measures collateral against them. See [recovery](concepts/recovery.md#collateral).
 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --mode T,F,P --repeats 2 --store modes.db
@@ -586,7 +586,7 @@ With `mode: 'T'`, it prints:
 | Option | Meaning |
 |---|---|
 | `adapter` | the adapter that reaches the agent |
-| `driver` | decides each block's stimulus. `createScriptedDriver()` of `@driftbench/users` replays the spec's blocks in order and stops after the last. `injectingDriver(base, perturbationId)` of `@driftbench/core` adds one of the spec's perturbations to the steps of `base`. |
+| `driver` | decides each block's stimulus. `createScriptedDriver()` of `@driftbench/users` replays the spec's blocks in order and stops after the last. `createPerturbingDriver({ spec, perturbation })` of `@driftbench/users` injects one deviation into the scripted steps (the CLI's P cells); `injectingDriver(base, perturbationId)` of `@driftbench/core` adds one of the spec's perturbations to the steps of `base`. |
 | `checks` | applied to every block, in order, such as `defaultChecks()` |
 | `mode` | `T`, `F` or `P`. T runs every block from its canonical Given in a session of its own; F runs one session; P is F with the blocks a driver injects. See [run modes](concepts/run-modes.md). |
 | `repeat` | the repeat number, part of the run id and of the cache key |
