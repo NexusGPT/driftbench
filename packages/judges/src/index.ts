@@ -28,6 +28,13 @@ export {
   writeAssignmentTable,
 } from './calibration';
 export {
+  type CascadeConfig,
+  type CascadeCriterion,
+  type CascadeReport,
+  type CascadeVariant,
+  calibrateCascade,
+} from './cascade';
+export {
   Cassette,
   CassetteEntry,
   CassetteJudge,

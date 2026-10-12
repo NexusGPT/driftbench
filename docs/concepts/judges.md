@@ -353,6 +353,25 @@ The one criterion under the bar is `explicit_confirmation`, on the block `explic
 
 The recording (`claude-council.cassette.json`, 197 calls, 0.81 USD) stopped at its spend cap after the first 7 criteria in name order. Of those 7, 6 are assigned to `claude-haiku` with sonnet and opus: `care_redirect`, `checks_before_promising`, `coverage_before_offer`, `holds_instructions`, `honest_failure` and `ledger_intact`. `explicit_confirmation` stays unassigned: sonnet and opus meet the bar, haiku reaches kappa 0.40. A sonnet or opus call costs about 20 times a haiku call here.
 
+### A cascade: the costly judges only where the cheap one is unsure
+
+`judge calibrate --cascade` takes the judges in order: the first answers every fixture (each repeat) and every labelled block; the others answer only the items where the first is unsure (inconclusive, or a score between 0.2 and 0.8) or disagrees with the truth (the fixture's side or the label). An escalated item takes the majority of every judge that answered it, two agreeing votes needed. `--only <criterion>` limits the run; the report, written as JSON to `--out`, gives per criterion the separation, the kappa, the escalated items with the reason, and the cost.
+
+Escalating on disagreement uses the label, which a run does not have: it measures whether the costly judges fix the cheap judge's errors. The report also gives `unsureOnly`, from the same answers, which escalates only the unsure items, as a deployed cascade could.
+
+On the 5 criteria the council recording did not reach, with haiku replayed from its recording and sonnet and opus live:
+
+```text
+$ pnpm -s driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-haiku.cassette.json --claude sonnet --claude opus --cascade --only no_invented_data --only one_question_per_turn --only plain_language --only resumes_pending_step --only sheet_matches_catalog --out examples/acme/criteria/calibration/claude-cascade.json
+no_invented_data: separation 3/3, kappa 1.00 (4/4), 0.0020 USD; escalated: none
+one_question_per_turn: separation 3/3, kappa 1.00 (4/4), 0.0017 USD; escalated: none
+plain_language: separation 3/3, kappa 1.00 (3/3), 0.0016 USD; escalated: none
+resumes_pending_step: separation 3/3, kappa 1.00 (3/3), 0.0015 USD; escalated: none
+sheet_matches_catalog: separation 3/3, kappa 1.00 (3/3), 0.0026 USD; escalated: none
+```
+
+Haiku was sure and right on every item of those 5 criteria, so sonnet and opus were never called: the cost per criterion is haiku's recorded cost alone, and the run spent nothing new. Run in full, the same 5 criteria would have cost about 0.6 USD more at the measured sonnet and opus price per call.
+
 ### Main's judge prompt against per-criterion rules
 
 The same haiku calibration, once on this prompt and once with the per-criterion rules of the Scenario library added to the system prompt (lane/harvest-langwatch):
