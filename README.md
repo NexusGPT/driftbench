@@ -485,7 +485,7 @@ The holdout is 20 percent of whole specs by default. The gate checks it like the
 
 ### Budget mode (in progress)
 
-Budget mode picks N tests from a larger suite. It is being built in parallel, so its options and numbers may change. The rule is: pair coverage first, Latin hypercube balance on ties, and sliced Latin hypercube values for numeric settings. See [generating](docs/generating.md) for the current pipeline.
+Budget mode selects allowed conversation cells by pair coverage first, then value balance and a seeded tie-break. Numeric sliced Latin hypercube sampling is pending. See [generating](docs/generating.md) for the current pipeline.
 
 ### Command walkthrough
 
