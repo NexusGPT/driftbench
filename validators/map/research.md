@@ -842,3 +842,15 @@ Sources read:
 What others do: A relation kind outside the union is refused.
 
 What to try, and why: the relation kind reply_text, completed (iteration 71 left it out of the union)
+
+## Iteration 73
+
+Question: packages/generate/src/extract/quote.ts: foldQuote keeps decomposed accents, zero-width characters and markdown backslashes, so a model quote that differs only by them is refused; hostile-inputs.decomposed-accents, zero-width-space, soft-hyphen, direction-mark and markdown-escapes prove it. One mechanism, five items.
+
+Sources read:
+* https://unicode.org/reports/tr15/ (normalization forms)
+* https://spec.commonmark.org/0.31.2/#backslash-escapes
+
+What others do: A quote check that is strict about bytes refuses a faithful copy.
+
+What to try, and why: quote folding ignores accent form, invisible characters and markdown escapes
