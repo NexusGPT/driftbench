@@ -893,3 +893,26 @@ describe('the task seeder and the task family relation', () => {
     expect(forbids).not.toContainEqual({ [deviation]: 'D5_language_switch', [stage]: 'lost' });
   });
 });
+
+describe('iteration 18: a flow phrase opens a path of its flow', () => {
+  it('says the forced flow phrase as the first turn and keeps the Then of the opening move', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases.push(phrase('flow', 'balance', 'What is my balance?'));
+    });
+    const forced = prepared.phrases.find((entry) => entry.text === 'What is my balance?');
+    if (!forced) throw new Error('no flow phrase');
+    const plain = buildScenario(prepared, rngFor(1, 'family'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
+    const said = buildScenario(prepared, rngFor(1, 'family'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      force: forced,
+    });
+    if (!plain.ok || !said.ok) throw new Error('unbuilt');
+    expect(texts(said.blocks)[0]).toBe('What is my balance?');
+    expect(said.blocks[0]?.stage).toBe(plain.blocks[0]?.stage);
+    expect(texts(said.blocks).slice(1)).toEqual(texts(plain.blocks).slice(1));
+  });
+});

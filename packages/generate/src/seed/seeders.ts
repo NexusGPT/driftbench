@@ -1198,6 +1198,9 @@ function metamorphicOnPaths(
       } else if (first.dimension === deviationKey) {
         candidates = prepared.relations.paths;
         probe = { classId: first.value };
+      } else if (first.dimension === 'flow') {
+        // A flow phrase opens a path of its flow: the first turn says it in place of the opening move.
+        candidates = prepared.relations.paths.filter((path) => path.flow === first.value);
       }
       families += 1;
       values.push(key);

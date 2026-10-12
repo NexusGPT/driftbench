@@ -149,8 +149,13 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     value: string,
     context: Context,
     at: Slots,
+    opening = false,
   ): ProposalPhrase | undefined => {
     if (request.force && isOf(request.force, dimension, value)) {
+      return phraseFits(request.force, context, at) ? request.force : undefined;
+    }
+    // A phrase of the flow, said on the first turn of a path of that flow, stands in for the opening move.
+    if (opening && request.force && isOf(request.force, 'flow', path.flow)) {
       return phraseFits(request.force, context, at) ? request.force : undefined;
     }
     const phrases = (prepared.phrasesOf.get(phraseKey(dimension, value)) ?? []).filter((phrase) =>
@@ -281,7 +286,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       return fail(`the map has no stage transition ${transitionId}`);
     }
     const context = contextOf(from);
-    const phrase = choosePhrase(transitionKey, transitionId, context, slots);
+    const phrase = choosePhrase(transitionKey, transitionId, context, slots, index === 0);
     for (const [slot, value] of Object.entries(phrase?.binds ?? {})) slots[slot] = value;
     const tools: ToolExpect[] = [];
     const ruled: Pick[] = [];
