@@ -159,7 +159,8 @@ export function combineVerdicts(
     if (ids.has(verdict.id)) {
       throw new Error(`judge verdict ${verdict.id} reuses a machine verdict id: a judge cannot override it`);
     }
-    if (judgeIds.has(verdict.id)) throw new Error(`judge verdict ${verdict.id} appears twice: ids must be unique`);
+    if (judgeIds.has(verdict.id))
+      throw new Error(`judge verdict ${verdict.id} appears twice: ids must be unique`);
     judgeIds.add(verdict.id);
   }
   const verdicts = [...machine, ...judged];

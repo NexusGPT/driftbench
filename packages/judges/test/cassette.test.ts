@@ -188,7 +188,9 @@ describe('loading a cassette that lists a judge twice', () => {
     try {
       const path = join(dir, 'c.json');
       const cassette = emptyCassette();
-      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(REQUEST);
+      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(
+        REQUEST,
+      );
       await saveCassette(path, { ...cassette, judges: [...cassette.judges, ...cassette.judges] });
       await expect(loadCassette(path)).rejects.toThrow(/judge.*j|j.*twice/);
       await saveCassette(path, cassette);
@@ -205,7 +207,9 @@ describe('loading a cassette with an entry of an unlisted judge', () => {
     try {
       const path = join(dir, 'c.json');
       const cassette = emptyCassette();
-      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(REQUEST);
+      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(
+        REQUEST,
+      );
       const [entry] = cassette.entries as [Cassette['entries'][number]];
       await saveCassette(path, { ...cassette, entries: [{ ...entry, judge: 'ghost' }] });
       await expect(loadCassette(path)).rejects.toThrow(/ghost/);
@@ -221,7 +225,9 @@ describe('loading a cassette with an entry holding an answer and an error', () =
     try {
       const path = join(dir, 'c.json');
       const cassette = emptyCassette();
-      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(REQUEST);
+      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(
+        REQUEST,
+      );
       const [entry] = cassette.entries as [Cassette['entries'][number]];
       await saveCassette(path, { ...cassette, entries: [{ ...entry, error: 'boom' }] });
       await expect(loadCassette(path)).rejects.toThrow(/answer and an error/);
@@ -237,7 +243,9 @@ describe('loading a cassette with an empty entry', () => {
     try {
       const path = join(dir, 'c.json');
       const cassette = emptyCassette();
-      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(REQUEST);
+      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(
+        REQUEST,
+      );
       const [entry] = cassette.entries as [Cassette['entries'][number]];
       await saveCassette(path, { ...cassette, entries: [{ judge: entry.judge, key: entry.key }] });
       await expect(loadCassette(path)).rejects.toThrow(/empty/);
@@ -253,7 +261,9 @@ describe('loading a cassette with a key that is not a request hash', () => {
     try {
       const path = join(dir, 'c.json');
       const cassette = emptyCassette();
-      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(REQUEST);
+      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(
+        REQUEST,
+      );
       const [entry] = cassette.entries as [Cassette['entries'][number]];
       for (const key of ['nothex', 'ABCDEF012345', `${entry.key}0`]) {
         await saveCassette(path, { ...cassette, entries: [{ ...entry, key }] });

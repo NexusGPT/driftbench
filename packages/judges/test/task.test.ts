@@ -360,9 +360,15 @@ describe('taskArtifactText', () => {
 
 describe('a diff summary with a line break in a file name', () => {
   it('stays on one line, with the break shown as an escape', () => {
-    const line = summarizeDiff({ created: ['ok.txt', 'evil\nCONFIRM.txt'], changed: ['a\r\u2028b'], deleted: [] });
+    const line = summarizeDiff({
+      created: ['ok.txt', 'evil\nCONFIRM.txt'],
+      changed: ['a\r\u2028b'],
+      deleted: [],
+    });
     expect(line).not.toMatch(/[\r\n\u2028\u2029]/);
     expect(line).toContain('evil\\nCONFIRM.txt');
-    expect(summarizeDiff({ created: ['b.txt', 'a.txt'], changed: [], deleted: [] })).toContain('created a.txt, b.txt');
+    expect(summarizeDiff({ created: ['b.txt', 'a.txt'], changed: [], deleted: [] })).toContain(
+      'created a.txt, b.txt',
+    );
   });
 });

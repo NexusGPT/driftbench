@@ -8,10 +8,10 @@ import {
   createOpenAiDecisionsJudge,
   createOpenAiJudge,
   type FetchLike,
-  postJson,
   type JudgeClient,
   JudgeError,
   type JudgeRequest,
+  postJson,
 } from '../src/index';
 
 /** Built at run time so no source file holds anything shaped like a key. */
@@ -261,6 +261,9 @@ describe.each(CASES)('the $name judge client', (c) => {
   });
 });
 
+// biome-ignore lint/suspicious/noExplicitAny: parsed request bodies differ per provider
+type Body = any;
+
 describe('chat clients', () => {
   it('ask for the larger token budget on a re-judge', async () => {
     const { fetch, calls } = fakeFetch([[200, CASES[0]?.ok]]);
@@ -334,14 +337,27 @@ describe('system 1 clients', () => {
 
 describe('chat clients pin temperature 0', () => {
   const cases = [
-    ['createOpenAiJudge', { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' }, (b: any) => b.temperature],
-    ['createAnthropicJudge', { ANTHROPIC_API_KEY: 'k', ANTHROPIC_JUDGE_MODEL: 'm' }, (b: any) => b.temperature],
-    ['createGoogleJudge', { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' }, (b: any) => b.generationConfig.temperature],
+    ['createOpenAiJudge', { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' }, (b: Body) => b.temperature],
+    [
+      'createAnthropicJudge',
+      { ANTHROPIC_API_KEY: 'k', ANTHROPIC_JUDGE_MODEL: 'm' },
+      (b: Body) => b.temperature,
+    ],
+    [
+      'createGoogleJudge',
+      { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' },
+      (b: Body) => b.generationConfig.temperature,
+    ],
   ] as const;
   for (const [name, env, read] of cases) {
     it(`${name} sends temperature 0`, async () => {
-      const bodies: any[] = [];
-      const client = ({ createOpenAiJudge, createAnthropicJudge, createGoogleJudge } as any)[name]({
+      const bodies: Body[] = [];
+      const client = (
+        { createOpenAiJudge, createAnthropicJudge, createGoogleJudge } as unknown as Record<
+          (typeof cases)[number][0],
+          (o: unknown) => Body
+        >
+      )[name]({
         env,
         maxRetries: 0,
         fetch: async (_u: string, init: { body: string }) => {
@@ -349,7 +365,10 @@ describe('chat clients pin temperature 0', () => {
           return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
         },
       });
-      await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+      await client.judge({
+        criterion: { name: 'c', rubric: 'r' },
+        transcript: [{ role: 'user', text: 'hi' }],
+      });
       expect(read(bodies[0])).toBe(0);
     });
   }
@@ -366,7 +385,10 @@ describe('an OpenAI answer whose content is a list of parts', () => {
           headers: { 'content-type': 'application/json' },
         }),
     });
-    return client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    return client.judge({
+      criterion: { name: 'c', rubric: 'r' },
+      transcript: [{ role: 'user', text: 'hi' }],
+    });
   };
   const text = '{"outcome":"pass","reasoning":"ok"}';
 
@@ -391,12 +413,18 @@ describe('an OpenAI answer stopped by the content filter', () => {
       env: { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' },
       maxRetries: 0,
       fetch: async () =>
-        new Response(JSON.stringify({ choices: [{ message: { content: '' }, finish_reason: 'content_filter' }] }), {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        new Response(
+          JSON.stringify({ choices: [{ message: { content: '' }, finish_reason: 'content_filter' }] }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
     });
-    const result = await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    const result = await client.judge({
+      criterion: { name: 'c', rubric: 'r' },
+      transcript: [{ role: 'user', text: 'hi' }],
+    });
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.answer.reasoning).toMatch(/declined/);
     expect(result.unparsed).toBeUndefined();
@@ -414,7 +442,10 @@ describe('a Google answer whose prompt was blocked', () => {
           headers: { 'content-type': 'application/json' },
         }),
     });
-    const result = await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    const result = await client.judge({
+      criterion: { name: 'c', rubric: 'r' },
+      transcript: [{ role: 'user', text: 'hi' }],
+    });
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.answer.reasoning).toMatch(/declined/);
     expect(result.unparsed).toBeUndefined();
@@ -427,12 +458,18 @@ describe('a Google answer stopped for recitation', () => {
       env: { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' },
       maxRetries: 0,
       fetch: async () =>
-        new Response(JSON.stringify({ candidates: [{ content: { parts: [] }, finishReason: 'RECITATION' }] }), {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        new Response(
+          JSON.stringify({ candidates: [{ content: { parts: [] }, finishReason: 'RECITATION' }] }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
     });
-    const result = await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    const result = await client.judge({
+      criterion: { name: 'c', rubric: 'r' },
+      transcript: [{ role: 'user', text: 'hi' }],
+    });
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.answer.reasoning).toMatch(/declined/);
     expect(result.unparsed).toBeUndefined();
@@ -446,7 +483,10 @@ describe('an error body that echoes a short header value', () => {
         'https://judge.example.com',
         { 'x-api-key': key },
         {},
-        { maxRetries: 0, fetch: async () => new Response(`{"error":{"message":"key ${key} is not valid"}}`, { status: 401 }) },
+        {
+          maxRetries: 0,
+          fetch: async () => new Response(`{"error":{"message":"key ${key} is not valid"}}`, { status: 401 }),
+        },
       ).catch((cause: unknown) => cause);
       expect((error as Error).message).toContain('[redacted]');
       expect((error as Error).message).not.toContain(`key ${key}`);
@@ -466,19 +506,24 @@ describe('an error body that echoes a short header value', () => {
 
 describe('the OpenAI client asks for the answer schema', () => {
   it('sends response_format json_schema with the contract keys', async () => {
-    const bodies: any[] = [];
+    const bodies: Body[] = [];
     const client = createOpenAiJudge({
       env: { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' },
       maxRetries: 0,
-      fetch: async (_u: string, init: { body: string }) => {
-        bodies.push(JSON.parse(init.body));
+      fetch: async (_u: string, init?: RequestInit) => {
+        bodies.push(JSON.parse(String(init?.body)));
         return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
       },
     });
     await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
     const format = bodies[0].response_format;
     expect(format.type).toBe('json_schema');
-    expect(Object.keys(format.json_schema.schema.properties).sort()).toEqual(['evidence', 'outcome', 'reasoning', 'score']);
+    expect(Object.keys(format.json_schema.schema.properties).sort()).toEqual([
+      'evidence',
+      'outcome',
+      'reasoning',
+      'score',
+    ]);
     expect(format.json_schema.schema.required).toEqual(['outcome', 'reasoning']);
     expect(format.json_schema.schema.properties.outcome.enum).toEqual(['pass', 'fail', 'inconclusive']);
   });
@@ -486,12 +531,12 @@ describe('the OpenAI client asks for the answer schema', () => {
 
 describe('the Google client gives a response schema', () => {
   it('sends generationConfig.responseSchema with the contract keys and no additionalProperties', async () => {
-    const bodies: any[] = [];
+    const bodies: Body[] = [];
     const client = createGoogleJudge({
       env: { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' },
       maxRetries: 0,
-      fetch: async (_u: string, init: { body: string }) => {
-        bodies.push(JSON.parse(init.body));
+      fetch: async (_u: string, init?: RequestInit) => {
+        bodies.push(JSON.parse(String(init?.body)));
         return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
       },
     });

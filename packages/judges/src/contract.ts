@@ -101,7 +101,13 @@ export function parseAnswerText(raw: string): JudgeResult {
   } catch (cause) {
     // One strict repair: escape the double quotes inside string values, then read it again. A repaired
     // answer still meets the whole contract or stays unparsed.
-    for (const repair of [repairAnswerText, singleToDoubleQuotes, dropTrailingComma, dropCommentLines, straightenCurlyQuotes]) {
+    for (const repair of [
+      repairAnswerText,
+      singleToDoubleQuotes,
+      dropTrailingComma,
+      dropCommentLines,
+      straightenCurlyQuotes,
+    ]) {
       try {
         const repaired = parseAnswerValue(JSON.parse(repair(candidate)), raw);
         if (!repaired.unparsed) return { ...repaired, repaired: true };

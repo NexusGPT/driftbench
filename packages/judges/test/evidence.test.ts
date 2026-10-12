@@ -11,7 +11,8 @@ const request: JudgeRequest = {
   artifact: 'File plan.txt\nThe monthly price is 45 USD.',
   given: { stage: 'offer' },
 };
-const g = (evidence: string | undefined, r = request) => groundEvidence(r, { outcome: 'pass', reasoning: 'r', evidence });
+const g = (evidence: string | undefined, r = request) =>
+  groundEvidence(r, { outcome: 'pass', reasoning: 'r', evidence });
 
 describe('groundEvidence', () => {
   it('grounds an exact quote and names the first place', () => {

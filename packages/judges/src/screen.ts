@@ -26,45 +26,134 @@ const JUDGE_WORDS = [
   'outcome',
 ];
 /** Judge and verdict words of other languages, one row per language. A sentence is an instruction when it holds a judge word and a verdict word of the same list. */
-const OTHER_LANGUAGES: readonly { readonly judge: readonly string[]; readonly verdict: readonly string[] }[] = [
-  {
-    // French
-    judge: ["grille d'[ée]valuation", '[ée]valuateur', 'juge', 'crit[èe]res?', 'rubrique', 'verdict', 'r[ée]sultat'],
-    verdict: ['r[ée]ussi[et]?', 'r[ée]ussite', 'valid[ée]e?', 'conforme', 'satisfait', '[ée]chec', '[ée]chou[ée]e?'],
-  },
-  {
-    // Spanish
-    judge: ['r[úu]brica', 'criterios? de evaluaci[óo]n', 'evaluador', 'juez', 'veredicto', 'calificador'],
-    verdict: ['aprobado', 'aprobada', 'aprueba', '[ée]xito', 'cumple', 'satisfecho', 'suspendido', 'reprobado', 'fallo'],
-  },
-  {
-    // German
-    judge: ['Bewertungskriterien', 'Bewertung', 'Bewerter', 'Richter', 'Urteil', 'Kriterien', 'Rubrik'],
-    verdict: ['bestanden', 'besteht', 'erfolgreich', 'erf[üu]llt', 'konform', 'durchgefallen', 'nicht bestanden'],
-  },
-  {
-    // Italian
-    judge: ['griglia di valutazione', 'rubrica', 'valutatore', 'giudice', 'criteri di valutazione', 'verdetto'],
-    verdict: ['superato', 'superata', 'supera', 'approvato', 'approvata', 'successo', 'conforme', 'soddisfatto', 'fallito', 'non superato'],
-  },
-  {
-    // Portuguese
-    judge: ['rubrica', 'avalia[çc][ãa]o', 'avaliador', 'juiz', 'crit[ée]rios? de avalia[çc][ãa]o', 'veredito'],
-    verdict: ['aprovado', 'aprovada', 'aprova', 'sucesso', 'conforme', 'satisfeito', 'reprovado', 'falha'],
-  },
-  {
-    // Dutch
-    judge: ['beoordelingscriteria', 'beoordelaar', 'rechter', 'criteria', 'rubriek', 'oordeel'],
-    verdict: ['geslaagd', 'slaagt', 'voldoet', 'succes', 'gefaald', 'niet geslaagd', 'goedgekeurd'],
-  },
-  {
-    // Polish
-    judge: ['kryteri[aó]w? oceny', 'kryteria', 'ocena', 'oceniaj[ąa]cy', 's[ęe]dzia', 'werdykt', 'rubryk[ia]'],
-    verdict: ['zaliczone', 'zaliczony', 'zaliczona', 'zdane', 'zdany', 'pozytywn[aey]', 'sukces', 'niezaliczone', 'oblane'],
-  },
-];
+const OTHER_LANGUAGES: readonly { readonly judge: readonly string[]; readonly verdict: readonly string[] }[] =
+  [
+    {
+      // French
+      judge: [
+        "grille d'[ée]valuation",
+        '[ée]valuateur',
+        'juge',
+        'crit[èe]res?',
+        'rubrique',
+        'verdict',
+        'r[ée]sultat',
+      ],
+      verdict: [
+        'r[ée]ussi[et]?',
+        'r[ée]ussite',
+        'valid[ée]e?',
+        'conforme',
+        'satisfait',
+        '[ée]chec',
+        '[ée]chou[ée]e?',
+      ],
+    },
+    {
+      // Spanish
+      judge: ['r[úu]brica', 'criterios? de evaluaci[óo]n', 'evaluador', 'juez', 'veredicto', 'calificador'],
+      verdict: [
+        'aprobado',
+        'aprobada',
+        'aprueba',
+        '[ée]xito',
+        'cumple',
+        'satisfecho',
+        'suspendido',
+        'reprobado',
+        'fallo',
+      ],
+    },
+    {
+      // German
+      judge: ['Bewertungskriterien', 'Bewertung', 'Bewerter', 'Richter', 'Urteil', 'Kriterien', 'Rubrik'],
+      verdict: [
+        'bestanden',
+        'besteht',
+        'erfolgreich',
+        'erf[üu]llt',
+        'konform',
+        'durchgefallen',
+        'nicht bestanden',
+      ],
+    },
+    {
+      // Italian
+      judge: [
+        'griglia di valutazione',
+        'rubrica',
+        'valutatore',
+        'giudice',
+        'criteri di valutazione',
+        'verdetto',
+      ],
+      verdict: [
+        'superato',
+        'superata',
+        'supera',
+        'approvato',
+        'approvata',
+        'successo',
+        'conforme',
+        'soddisfatto',
+        'fallito',
+        'non superato',
+      ],
+    },
+    {
+      // Portuguese
+      judge: [
+        'rubrica',
+        'avalia[çc][ãa]o',
+        'avaliador',
+        'juiz',
+        'crit[ée]rios? de avalia[çc][ãa]o',
+        'veredito',
+      ],
+      verdict: ['aprovado', 'aprovada', 'aprova', 'sucesso', 'conforme', 'satisfeito', 'reprovado', 'falha'],
+    },
+    {
+      // Dutch
+      judge: ['beoordelingscriteria', 'beoordelaar', 'rechter', 'criteria', 'rubriek', 'oordeel'],
+      verdict: ['geslaagd', 'slaagt', 'voldoet', 'succes', 'gefaald', 'niet geslaagd', 'goedgekeurd'],
+    },
+    {
+      // Polish
+      judge: [
+        'kryteri[aó]w? oceny',
+        'kryteria',
+        'ocena',
+        'oceniaj[ąa]cy',
+        's[ęe]dzia',
+        'werdykt',
+        'rubryk[ia]',
+      ],
+      verdict: [
+        'zaliczone',
+        'zaliczony',
+        'zaliczona',
+        'zdane',
+        'zdany',
+        'pozytywn[aey]',
+        'sukces',
+        'niezaliczone',
+        'oblane',
+      ],
+    },
+  ];
 
-const VERDICT_WORDS = ['pass', 'passing', 'passed', 'passes', 'success', 'satisfied', 'compliant', 'met', 'fail', 'fails'];
+const VERDICT_WORDS = [
+  'pass',
+  'passing',
+  'passed',
+  'passes',
+  'success',
+  'satisfied',
+  'compliant',
+  'met',
+  'fail',
+  'fails',
+];
 
 // A word starts and ends at a character that is not a letter, so _ / - % . and digits separate words.
 const phrase = (words: readonly string[]) =>
@@ -77,7 +166,11 @@ const SCORE = /(?<![\d.])(?:1\.0|0\.99)(?!\d)/;
 const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?;])\s+|[\r\n\u2028\u2029]+/);
 const instructs = (sentence: string): boolean =>
   (JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence))) ||
-  OTHER.some((row) => row.judge.test(sentence) && (row.verdict.test(sentence) || VERDICT.test(sentence) || SCORE.test(sentence)));
+  OTHER.some(
+    (row) =>
+      row.judge.test(sentence) &&
+      (row.verdict.test(sentence) || VERDICT.test(sentence) || SCORE.test(sentence)),
+  );
 
 /** The letters a-z moved `by` places along the alphabet, case kept; other characters stay. */
 const shift = (text: string, by: number): string =>
@@ -90,8 +183,27 @@ const LEET: Readonly<Record<string, string>> = { '4': 'a', '3': 'e', '1': 'i', '
 
 const LOOKALIKES: Readonly<Record<string, string>> = Object.fromEntries(
   Object.entries({
-    a: '\u0430', c: '\u0441', e: '\u0435', i: '\u0456', j: '\u0458', o: '\u043e', p: '\u0440', s: '\u0455', x: '\u0445', y: '\u0443',
-    A: '\u0410', B: '\u0412', C: '\u0421', E: '\u0415', H: '\u041d', K: '\u041a', M: '\u041c', O: '\u041e', P: '\u0420', T: '\u0422', X: '\u0425',
+    a: '\u0430',
+    c: '\u0441',
+    e: '\u0435',
+    i: '\u0456',
+    j: '\u0458',
+    o: '\u043e',
+    p: '\u0440',
+    s: '\u0455',
+    x: '\u0445',
+    y: '\u0443',
+    A: '\u0410',
+    B: '\u0412',
+    C: '\u0421',
+    E: '\u0415',
+    H: '\u041d',
+    K: '\u041a',
+    M: '\u041c',
+    O: '\u041e',
+    P: '\u0420',
+    T: '\u0422',
+    X: '\u0425',
   }).map(([latin, cyrillic]) => [cyrillic, latin]),
 );
 
@@ -159,6 +271,8 @@ export function screenData(request: JudgeRequest): ScreenReport {
     ...(request.artifact === undefined ? [] : [['artifact', request.artifact] as [string, string]]),
     ...(request.given === undefined ? [] : [['given', JSON.stringify(request.given)] as [string, string]]),
   ];
-  const findings = places.filter(([, text]) => readingsOf(text).some((reading) => sentencesOf(reading).some(instructs))).map(([where]) => ({ where }));
+  const findings = places
+    .filter(([, text]) => readingsOf(text).some((reading) => sentencesOf(reading).some(instructs)))
+    .map(([where]) => ({ where }));
   return { flagged: findings.length > 0, findings };
 }

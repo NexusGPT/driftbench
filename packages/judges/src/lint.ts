@@ -13,15 +13,27 @@ const RULES: readonly Rule[] = [
   // More than one question mark: a judge cannot answer two questions with one verdict.
   { code: 'two-questions', found: (c) => (c.rubric.match(/\?/g) ?? []).length > 1 },
   // A taste word: two judges read it two ways.
-  { code: 'subjective', found: (c) => /\b(good|appropriate|nice|reasonable|properly|adequate|helpful|polite|professional|friendly)\b/i.test(c.rubric) },
+  {
+    code: 'subjective',
+    found: (c) =>
+      /\b(good|appropriate|nice|reasonable|properly|adequate|helpful|polite|professional|friendly)\b/i.test(
+        c.rubric,
+      ),
+  },
   // A quantity word that hides the count.
-  { code: 'vague-quantity', found: (c) => /\b(some|several|many|often|usually|mostly|a few|most of the time)\b/i.test(c.rubric) },
+  {
+    code: 'vague-quantity',
+    found: (c) => /\b(some|several|many|often|usually|mostly|a few|most of the time)\b/i.test(c.rubric),
+  },
   // Two negations in one sentence: the judge has to cancel them in its head.
   { code: 'double-negative', found: (c) => sentences(c.rubric).some((sentence) => negations(sentence) >= 2) },
   // Nothing a judge can read: no reply, agent, message, tool, call, order, customer, user, file or transcript.
   {
     code: 'no-observable',
-    found: (c) => !/\b(repl(y|ies)|agents?|assistants?|messages?|tools?|calls?|orders?|customers?|users?|files?|transcripts?)\b/i.test(c.rubric),
+    found: (c) =>
+      !/\b(repl(y|ies)|agents?|assistants?|messages?|tools?|calls?|orders?|customers?|users?|files?|transcripts?)\b/i.test(
+        c.rubric,
+      ),
   },
   // Over 400 characters: the question is lost in the text.
   { code: 'too-long', found: (c) => c.rubric.length > 400 },
@@ -40,7 +52,9 @@ const RULES: readonly Rule[] = [
     found: (c) => negationOnly(c.pass, c.fail) || negationOnly(c.fail, c.pass),
   },
   // A conversation criterion that judges one reply: the judge reads the whole conversation and the rubric points at a slice.
-  { code: 'scope-mismatch', found: (c) =>
+  {
+    code: 'scope-mismatch',
+    found: (c) =>
       (c.scope === 'conversation' && /\b(the last|this|that) reply\b/i.test(c.rubric)) ||
       (c.scope !== 'conversation' && /\b(the whole conversation|every turn)\b/i.test(c.rubric)),
   },
@@ -58,16 +72,25 @@ const RULES: readonly Rule[] = [
   // Two checks in one rubric: a pass on one and a fail on the other has no single answer.
   { code: 'compound', found: (c) => /\b(and also|as well as)\b/i.test(c.rubric) },
   // A hedge in the rubric or the PASS picture: the bar moves with the reader.
-  { code: 'hedged', found: (c) => /\b(might|may|could|perhaps|possibly)\b/i.test(`${c.rubric}\n${c.pass ?? ''}`) },
+  {
+    code: 'hedged',
+    found: (c) => /\b(might|may|could|perhaps|possibly)\b/i.test(`${c.rubric}\n${c.pass ?? ''}`),
+  },
   // The rubric tells the judge the verdict instead of asking a question.
   {
     code: 'instruction-to-judge',
-    found: (c) => /\b(answer|reply with|respond with)\s+(pass|fail)\b|\balways\s+(pass|fail)\b|\bmark\s+(it\s+)?as\s+(pass|passed|fail|failed)\b/i.test(c.rubric),
+    found: (c) =>
+      /\b(answer|reply with|respond with)\s+(pass|fail)\b|\balways\s+(pass|fail)\b|\bmark\s+(it\s+)?as\s+(pass|passed|fail|failed)\b/i.test(
+        c.rubric,
+      ),
   },
   // The pictures sit under the wrong label: PASS describes a failure, or FAIL describes a pass.
   {
     code: 'pictures-swapped',
-    found: (c) => /\b(fails?|failed|failing)\b/i.test(c.pass ?? '') && !/\b(not|never)\s+(fails?|failed)\b/i.test(c.pass ?? '') || /\b(passes|passed|passing)\b/i.test(c.fail ?? ''),
+    found: (c) =>
+      (/\b(fails?|failed|failing)\b/i.test(c.pass ?? '') &&
+        !/\b(not|never)\s+(fails?|failed)\b/i.test(c.pass ?? '')) ||
+      /\b(passes|passed|passing)\b/i.test(c.fail ?? ''),
   },
 ];
 

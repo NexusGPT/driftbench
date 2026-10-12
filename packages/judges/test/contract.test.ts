@@ -50,7 +50,11 @@ describe('the answer contract', () => {
 
 describe('near-JSON: the outcome written with capitals', () => {
   it('reads Pass, FAIL and Inconclusive as the verdict they spell, and marks the result repaired', () => {
-    for (const [written, outcome] of [['Pass', 'pass'], ['FAIL', 'fail'], [' Inconclusive ', 'inconclusive']] as const) {
+    for (const [written, outcome] of [
+      ['Pass', 'pass'],
+      ['FAIL', 'fail'],
+      [' Inconclusive ', 'inconclusive'],
+    ] as const) {
       const result = parseAnswerText(`{"outcome":"${written}","reasoning":"r"}`);
       expect(result.answer.outcome).toBe(outcome);
       expect(result.unparsed).toBeUndefined();
@@ -96,7 +100,7 @@ describe('near-JSON: an object written with single quotes', () => {
   });
 
   it('leaves a half-quoted object unparsed', () => {
-    const result = parseAnswerText("{'outcome':'pass\",\"reasoning\":\"r\"}");
+    const result = parseAnswerText('{\'outcome\':\'pass","reasoning":"r"}');
     expect(result.unparsed).toBe(true);
   });
 });
@@ -121,13 +125,17 @@ describe('near-JSON: a comma before a closing brace', () => {
 
 describe('near-JSON: a line that is only a comment', () => {
   it('drops the // line, reads the object and marks the result repaired', () => {
-    const result = parseAnswerText('{\n  // the verdict follows\n  "outcome": "pass",\n  "reasoning": "ok"\n}');
+    const result = parseAnswerText(
+      '{\n  // the verdict follows\n  "outcome": "pass",\n  "reasoning": "ok"\n}',
+    );
     expect(result.answer).toEqual({ outcome: 'pass', reasoning: 'ok' });
     expect(result.repaired).toBe(true);
   });
 
   it('keeps a // inside a string value', () => {
-    const result = parseAnswerText('{\n  "outcome": "pass",\n  "reasoning": "see http://a.b\\n// not a comment"\n}');
+    const result = parseAnswerText(
+      '{\n  "outcome": "pass",\n  "reasoning": "see http://a.b\\n// not a comment"\n}',
+    );
     expect(result.answer.reasoning).toBe('see http://a.b\n// not a comment');
     expect(result.repaired).toBeUndefined();
   });
@@ -183,4 +191,3 @@ describe('bounds that cross', () => {
     expect(() => outcomeFromProbability(0.5, { failAt: 0.7 })).toThrow(RangeError);
   });
 });
-

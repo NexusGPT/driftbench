@@ -78,14 +78,20 @@ async function render(
 
 /** A file name on one line: a line break is shown as its escape, so a name cannot start a new line of the summary. */
 function oneLine(path: string): string {
-  const escapes: Record<string, string> = { '\n': '\\n', '\r': '\\r', '\u2028': '\\u2028', '\u2029': '\\u2029' };
+  const escapes: Record<string, string> = {
+    '\n': '\\n',
+    '\r': '\\r',
+    '\u2028': '\\u2028',
+    '\u2029': '\\u2029',
+  };
   return path.replace(/[\r\n\u2028\u2029]/g, (ch) => escapes[ch] as string);
 }
 
 /** The workspace diff in one line, as a judge reads it. */
 export function summarizeDiff(diff: WorkspaceDiff | undefined): string {
   if (diff === undefined) return 'Workspace changes: the adapter reported none.';
-  const list = (paths: readonly string[]) => (paths.length === 0 ? 'none' : [...paths].sort().map(oneLine).join(', '));
+  const list = (paths: readonly string[]) =>
+    paths.length === 0 ? 'none' : [...paths].sort().map(oneLine).join(', ');
   return `Workspace changes: created ${list(diff.created)}; changed ${list(diff.changed)}; deleted ${list(diff.deleted)}.`;
 }
 

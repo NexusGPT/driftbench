@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { FakeJudge, type JudgeAnswer, type JudgeRequest, judgeRepeated } from '../src/index';
 
-const request: JudgeRequest = { criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] };
+const request: JudgeRequest = {
+  criterion: { name: 'c', rubric: 'r' },
+  transcript: [{ role: 'user', text: 'hi' }],
+};
 const answer = (outcome: JudgeAnswer['outcome']): JudgeAnswer => ({ outcome, reasoning: 's' });
 
 describe('judgeRepeated', () => {
@@ -18,12 +21,16 @@ describe('judgeRepeated', () => {
   });
 
   it('never calls a run of inconclusive answers consistent', async () => {
-    expect((await judgeRepeated(new FakeJudge('a', [answer('inconclusive')]), request, 3)).consistent).toBe(false);
+    expect((await judgeRepeated(new FakeJudge('a', [answer('inconclusive')]), request, 3)).consistent).toBe(
+      false,
+    );
   });
 
   it('refuses k that is not a whole number from 1', async () => {
     for (const k of [0, -1, 2.5, Number.NaN]) {
-      await expect(judgeRepeated(new FakeJudge('a', [answer('pass')]), request, k)).rejects.toThrow(RangeError);
+      await expect(judgeRepeated(new FakeJudge('a', [answer('pass')]), request, k)).rejects.toThrow(
+        RangeError,
+      );
     }
   });
 });

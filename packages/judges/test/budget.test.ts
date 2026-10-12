@@ -24,17 +24,26 @@ describe('fitPrompt', () => {
     const max = size(q) - 150;
     const got = fitPrompt(q, max);
     expect(size(got)).toBeLessThanOrEqual(max);
-    expect(got.transcript[0]).toEqual({ role: 'context', text: expect.stringMatching(/^\[\d+ earlier entries omitted\]$/) });
+    expect(got.transcript[0]).toEqual({
+      role: 'context',
+      text: expect.stringMatching(/^\[\d+ earlier entries omitted\]$/),
+    });
     const dropped = Number(/\[(\d+)/.exec(got.transcript[0]?.text ?? '')?.[1]);
     expect(got.transcript.slice(1)).toEqual(q.transcript.slice(dropped));
     // one fewer drop would not fit
-    const fewer = { ...q, transcript: [got.transcript[0] as TranscriptEntry, ...q.transcript.slice(dropped - 1)] };
+    const fewer = {
+      ...q,
+      transcript: [got.transcript[0] as TranscriptEntry, ...q.transcript.slice(dropped - 1)],
+    };
     expect(size(fewer)).toBeGreaterThan(max);
     expect(fitPrompt(got, max)).toEqual(got);
   });
 
   it('says "entry" for one dropped entry, keeps the artifact and the Given, and never orphans a tool result', () => {
-    const one: JudgeRequest = { ...request(3), transcript: [{ role: 'agent', text: 'z'.repeat(150) }, ...request(3).transcript] };
+    const one: JudgeRequest = {
+      ...request(3),
+      transcript: [{ role: 'agent', text: 'z'.repeat(150) }, ...request(3).transcript],
+    };
     expect(fitPrompt(one, size(one) - 5).transcript[0]?.text).toBe('[1 earlier entry omitted]');
     const kept = request(6, { artifact: 'File a.txt\nhello', given: { stage: 'offer' } });
     const got = fitPrompt(kept, size(kept) - 150);
