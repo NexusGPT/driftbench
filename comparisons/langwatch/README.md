@@ -105,3 +105,17 @@ python3 comparisons/langwatch/injection/score.py
 ```
 
 - Output: `injection/recorded/results.md`.
+
+### Row 10, hard set: pairwise judging with near misses and partly right candidates
+
+- Input: `pairwise/hard.json`, 120 pairs, made by `pairwise/generate-hard.mjs --n 120 --seed 20260701`. Each candidate states three facts (price, data, availability) and has a fixed error count. Kinds: an unsupported claim, a near miss on one fact (off by one, or a unit swapped), a long fluent answer with one wrong fact, and an answer wrong on two facts. Equal error counts are never paired, so each pair has a defined winner.
+- Commands, from the repository root:
+
+```sh
+node comparisons/langwatch/pairwise/generate-hard.mjs --n 120 --seed 20260701 > comparisons/langwatch/pairwise/hard.json
+npx tsx comparisons/langwatch/pairwise/measure.mts ours --model haiku --cap 0.15 --set hard.json
+npx tsx comparisons/langwatch/pairwise/measure.mts theirs --model haiku --cap 0.15 --set hard.json
+python3 comparisons/langwatch/pairwise/score.py
+```
+
+- Output: `pairwise/recorded/results.md`. Sonnet on this set is not complete (see the evidence log).

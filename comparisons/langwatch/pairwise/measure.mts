@@ -18,7 +18,9 @@ import {
 } from '../../../packages/judges/src/index.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const items = JSON.parse(readFileSync(join(here, 'set.json'), 'utf8')) as Array<{
+const setFile = process.argv.includes('--set') ? process.argv[process.argv.indexOf('--set') + 1] : 'set.json';
+const setTag = setFile === 'set.json' ? '' : `-${setFile.replace(/\.json$/, '')}`;
+const items = JSON.parse(readFileSync(join(here, setFile), 'utf8')) as Array<{
   id: string;
   task: string;
   golden: string;
@@ -190,8 +192,8 @@ for (const item of items) {
   }
 }
 writeFileSync(
-  join(here, 'recorded', `${system}-${model}.json`),
-  `${JSON.stringify({ system, model, spentUsd: spent, unanswered, answers }, null, 1)}\n`,
+  join(here, 'recorded', `${system}-${model}${setTag}.json`),
+  `${JSON.stringify({ system, model, set: setFile, spentUsd: spent, unanswered, answers }, null, 1)}\n`,
 );
 console.log(
   `${system} ${model}: ${answers.length} cases, ${unanswered} calls without an answer, spent ${spent.toFixed(4)} USD`,

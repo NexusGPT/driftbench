@@ -29,18 +29,26 @@ def cell(k, n):
     return f"{k}/{n} ({pct(k / n) if n else 'n/a'}; 95% {pct(lo)} to {pct(hi)})"
 
 
-items = {x["id"]: x for x in json.load(open(os.path.join(HERE, "set.json")))}
+sets = {}
+
+
+def truth_of(set_name):
+    if set_name not in sets:
+        sets[set_name] = {x["id"]: x["better"] for x in json.load(open(os.path.join(HERE, set_name)))}
+    return sets[set_name]
+
 rows = ["| System | Model | Accuracy | Ties | Position-inconsistent | Unanswered | Spend |", "|---|---|---|---|---|---|---|"]
 for path in sorted(glob.glob(os.path.join(HERE, "recorded", "*.json"))):
     rec = json.load(open(path))
     answers = rec["answers"]
     n = len(answers)
-    truth = {i: ("first" if items[i]["better"] == "A" else "second") for i in items}
+    better = truth_of(rec.get("set", "set.json"))
+    truth = {i: ("first" if b == "A" else "second") for i, b in better.items()}
     correct = sum(1 for a in answers if a["choice"] == truth[a["id"]])
     ties = sum(1 for a in answers if a["choice"] == "tie")
     inconsistent = sum(1 for a in answers if not a["consistent"])
     rows.append(
-        f"| {rec['system']} | {rec['model']} | {cell(correct, n)} | {ties}/{n} | {inconsistent}/{n} | "
+        f"| {rec['system']} | {rec['model']} ({rec.get('set', 'set.json')}) | {cell(correct, n)} | {ties}/{n} | {inconsistent}/{n} | "
         f"{rec.get('unanswered', 0)} | {rec['spentUsd']:.4f} USD |"
     )
 out = "\n".join(rows)
