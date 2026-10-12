@@ -1,10 +1,16 @@
-import { anyGlobMatches, type Check, machineVerdict, type ToolCall, type Verdict } from '@driftbench/core';
+import {
+  anyGlobMatches,
+  type Check,
+  machineVerdict,
+  type ToolCall,
+  type ToolRule,
+  type Verdict,
+} from '@driftbench/core';
 import { times } from '../support/values';
 
 const NAME = 'tool_policy';
 
-/** One rule of a tool policy: a glob over the tool name, and what to do with a call it matches. */
-export type ToolRule = { pattern: string; action: 'allow' | 'deny' | 'ask' };
+export type { ToolRule };
 
 /**
  * A run-wide tool policy over the calls every adapter records in a block. Each call takes the first rule whose

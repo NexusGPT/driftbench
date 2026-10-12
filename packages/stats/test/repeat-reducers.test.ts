@@ -37,6 +37,11 @@ describe('reduceRepeats', () => {
     expect(reduceRepeats([0, 1], { kind: 'median' })).toBeUndefined();
   });
 
+  it('a median tie is undecided, never a half score: a verdict reducer must not hand a caller 0.5', () => {
+    expect(reduceRepeats([1, 0], { kind: 'median' })).toBeUndefined();
+    expect(reduceRepeats([1, 0, 1, 0], { kind: 'median' })).toBeUndefined();
+  });
+
   it('median of an even count takes the middle pair', () => {
     expect(reduceRepeats([1, 1, 1, 0], { kind: 'median' })).toBe(1);
     expect(reduceRepeats([0, 0, 0, 1], { kind: 'median' })).toBe(0);
