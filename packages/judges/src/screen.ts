@@ -111,7 +111,7 @@ const LANGUAGE_WORDS: readonly {
 
 /** True when a phrase occurs in the lowered text: on word boundaries for plain letters, as a part of a word otherwise. */
 function occurs(lower: string, phrase: string): boolean {
-  if (/^[\x00-\x7F]+$/.test(phrase)) {
+  if (/^[ -~]+$/.test(phrase)) {
     return new RegExp(`(?<!\\p{L}|\\p{M})${phrase}(?!\\p{L}|\\p{M})`, 'iu').test(lower);
   }
   return lower.includes(phrase);
