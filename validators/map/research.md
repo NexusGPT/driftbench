@@ -121,3 +121,17 @@ Sources read:
 What others do: Gemini groups declarations as tools: [{ functionDeclarations: [...] }] and some exports keep the declarations list alone; each declaration has the OpenAI name and parameters keys.
 
 What to try, and why: the tool pre-pass reads Gemini function declarations, the convention the item names, because the item is the first failing one of level 1 and the source states the keyword is a partition of the input.
+
+## Iteration 11
+
+Question: packages/generate/src/extract/tools.ts: an optional property with a default gives no at-default partition, so schema-keywords.default loses it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-validation section 9.2 (default: the value that applies when the instance omits the property)
+* packages/validators/src/ladders/map/bank/families/schema.ts (the default case and its convention)
+
+What others do: schema-driven generators send an omitted optional property as its own input; with a default the omitted case is the default applying.
+
+What to try, and why: the tool pre-pass adds at-default before absent for an optional property that states a default, because the item names that convention and the keyword states a distinct input class.
+
+Also found and not fixed: schema-keywords.closed-object conflicts with styles.v1-precision. See HANDOVER.md.

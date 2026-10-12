@@ -129,4 +129,16 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
     }
   });
+
+  it('an optional property with a default adds at-default before absent; a required one does not', () => {
+    expect(partitions({ type: 'integer', minimum: 1, default: 3 }, false)).toEqual({
+      't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum', 'at-default', 'absent'],
+    });
+    expect(partitions({ type: 'integer', minimum: 1, default: 3 }, true)).toEqual({
+      't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum'],
+    });
+    expect(partitions({ type: 'integer', minimum: 1 }, false)).toEqual({
+      't.x.in.p': ['below-minimum', 'at-minimum', 'above-minimum', 'absent'],
+    });
+  });
 });

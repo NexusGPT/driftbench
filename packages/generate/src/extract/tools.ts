@@ -100,6 +100,14 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
     const partitions = partitionsOf(name, property, quote);
     const types = typesOf(property);
     if (!required.has(name)) {
+      // An optional property with a default is left out and the default applies: that is a case of its own.
+      if (entry(property, 'default') !== undefined) {
+        partitions.push({
+          id: 'at-default',
+          title: `${name} is left to its default`,
+          quote: quote('default'),
+        });
+      }
       if (partitions.length === 0) {
         partitions.push({ id: 'present', title: `${name} is given`, quote: quote() });
       }
