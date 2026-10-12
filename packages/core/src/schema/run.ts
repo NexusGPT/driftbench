@@ -238,6 +238,44 @@ export const Recovery = z.strictObject({
   clarified: z.boolean().optional(),
 });
 
+/**
+ * What the runner reports as a run goes, in order. A model call carries its tokens, cost and latency when the adapter
+ * gives them; its start is the reply time less its latency.
+ */
+export const RunEvent = z.discriminatedUnion('type', [
+  z.strictObject({ type: z.literal('block_start'), index: z.number().int().min(0), at: z.string().min(1) }),
+  z.strictObject({
+    type: z.literal('model_call'),
+    index: z.number().int().min(0),
+    inputTokens: z.number().int().nonnegative().optional(),
+    outputTokens: z.number().int().nonnegative().optional(),
+    usd: z.number().nonnegative().optional(),
+    latencyMs: z.number().nonnegative().optional(),
+    startedAt: z.string().min(1),
+    at: z.string().min(1),
+  }),
+  z.strictObject({
+    type: z.literal('tool_call'),
+    index: z.number().int().min(0),
+    label: z.string().min(1),
+    error: z.string().optional(),
+    at: z.string().min(1),
+  }),
+  z.strictObject({ type: z.literal('retry'), index: z.number().int().min(0), at: z.string().min(1) }),
+  z.strictObject({
+    type: z.literal('block_end'),
+    index: z.number().int().min(0),
+    pass: z.boolean(),
+    at: z.string().min(1),
+  }),
+  z.strictObject({
+    type: z.literal('run_end'),
+    status: z.enum(['completed', 'failed', 'stopped']),
+    at: z.string().min(1),
+  }),
+]);
+export type RunEvent = z.infer<typeof RunEvent>;
+
 export const RunResult = z.strictObject({
   runId: z.string().min(1),
   specId: z.string().min(1),
@@ -262,6 +300,8 @@ export const RunResult = z.strictObject({
   startedAt: z.string().min(1),
   finishedAt: z.string().min(1),
   cacheHit: z.boolean(),
+  /** The events the run reported, in order, when the run recorded them. Absent otherwise. */
+  events: z.array(RunEvent).optional(),
 });
 export type RunResult = z.infer<typeof RunResult>;
 

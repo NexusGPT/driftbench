@@ -18,7 +18,7 @@ beforeAll(async () => {
   const db = join(dir, 'store.db');
   const store = openStore(db);
   try {
-    await storeAcmeCampaign(store, { campaignId: 'c-acme', modes: ['F'], repeats: 1 });
+    await storeAcmeCampaign(store, { campaignId: 'c-acme', modes: ['F'], repeats: 1, reportsUsage: true });
     await storeAcmeCampaign(store, { campaignId: 'c-x3', modes: ['F'], repeats: 1, fault: 'x3-skips-recap' });
   } finally {
     await store.close();
@@ -49,6 +49,19 @@ async function firstRun(campaign: string, failing = false): Promise<string> {
   );
   expect(links.length).toBeGreaterThan(0);
   return failing ? (links[0] as string) : (links[links.length - 1] as string);
+}
+
+/** The first run of a campaign, of the given spec, whose label form offers the criterion. */
+async function runOffering(campaign: string, criterion: string, spec: string): Promise<string> {
+  const page = await get(`/campaign/${campaign}`);
+  const links = [...page.text.matchAll(/href="(\/campaign\/[^/"]+\/run\/[^"#]+)"/g)].map(
+    (match) => match[1] as string,
+  );
+  for (const link of links) {
+    const text = (await get(link)).text;
+    if (text.includes(`<option value="${criterion}">`) && text.includes(spec)) return link;
+  }
+  throw new Error(`no run of ${campaign} offers ${criterion}`);
 }
 
 describe('driftbench view', () => {
@@ -91,8 +104,25 @@ describe('driftbench view', () => {
     expect(page.text).toContain('No label in the folder yet.');
   });
 
+  it('shows the timeline of a run in order, with the start, end, tokens and cost of each model call, and no script', async () => {
+    const page = await get(await firstRun('c-acme', true));
+    expect(page.status).toBe(200);
+    const timeline = page.text.slice(
+      page.text.indexOf('<h3>Timeline</h3>'),
+      page.text.indexOf('<h3>Timeline</h3>') + 4000,
+    );
+    expect(timeline).toContain('<ol class="timeline">');
+    const types = [...timeline.matchAll(/<li class="event (\w+)"/g)].map((m) => m[1]);
+    expect(types[0]).toBe('block_start');
+    expect(types.at(-1)).toBe('run_end');
+    expect(types).toContain('model_call');
+    expect(timeline).toMatch(/\d+ in, \d+ out/);
+    expect(timeline).not.toMatch(/<script/i);
+  });
+
   it('saves a label, reads it back on the page, and writes the file judge calibrate reads', async () => {
-    const run = await firstRun('c-x3', true);
+    // A run whose form offers no_invented_data: a label goes only on a criterion the block offers.
+    const run = await runOffering('c-x3', 'no_invented_data', 'acme-plan-upgrade');
     const runId = decodeURIComponent(run.split('/').pop() as string);
     const save = (label: string, block: string, note: string) =>
       fetch(`${viewer.url}/labels`, {
@@ -158,6 +188,9 @@ describe('driftbench view', () => {
         })
       ).status;
     expect(await bad({ criterion: '../escape' })).toBe(400);
+    // A criterion the block's form does not offer: the spec's judged criteria and those that voted on it.
+    expect(await bad({ criterion: 'not_a_criterion' })).toBe(400);
+    expect(existsSync(join(labels, 'not_a_criterion.yaml'))).toBe(false);
     expect(await bad({ label: 'maybe' })).toBe(400);
     expect(await bad({ block: '99' })).toBe(400);
     expect(await bad({ run: 'no-such-run' })).toBe(400);

@@ -54,6 +54,20 @@ export const DEVIATION_ASKS: Readonly<Record<string, string>> = {
 export type CodeAsk = { text?: string; lang: string; source: string; refused?: string };
 
 /**
+ * The clause of an act before its first token made of symbols only (a dash, an arrow, a pipe, a middle dot,
+ * a slash, a heading mark): what stands alone as the task. The whole act when it holds no such token.
+ */
+export function clauseOf(act: string): string {
+  const tokens = act.split(/\s+/).filter((token) => token !== '');
+  const cut = tokens.findIndex((token) => !/[\p{L}\p{N}]/u.test(token));
+  const clause = (cut < 0 ? tokens : tokens.slice(0, cut)).join(' ');
+  // A cut inside brackets ("its own URL (custom UI · ...") drops the bracket it left open.
+  const open = clause.lastIndexOf('(');
+  const kept = open > clause.lastIndexOf(')') ? clause.slice(0, open) : clause;
+  return kept.trim().replace(/[,;:]+$/, '');
+}
+
+/**
  * The quality floor of an act: a verb and its object, at least three words of letters (four with
  * "Please"), the first a word, and no token made of symbols only (an arrow, a pipe). Undefined when the act
  * passes, else why it fails. "text in → text out" and "6" fail: they name no task.
@@ -63,6 +77,19 @@ export function askable(act: string): string | undefined {
   const symbol = tokens.find((token) => !/[\p{L}\p{N}]/u.test(token));
   if (symbol !== undefined) return `the act holds the symbol ${symbol}, not words`;
   if (!/^\p{L}{2,}/u.test(tokens[0] ?? '')) return `the act does not start with a verb: "${act}"`;
+  // A rule label or a check code ("R#40", "S2", "KILL1") is a name from the estate, no words an owner says.
+  const code = tokens.find((token) => /^[A-Z]+#?\d+[A-Za-z]*\W*$|#\d/.test(token.replace(/^\W+/, '')));
+  if (code !== undefined) return `the act names the code ${code}, not a task`;
+  for (const [open, close] of [
+    ['(', ')'],
+    ['[', ']'],
+    ['"', '"'],
+  ] as const) {
+    const opened = act.split(open).length - 1;
+    const closed = act.split(close).length - 1;
+    if (open === close ? opened % 2 === 1 : opened !== closed)
+      return `the act is cut inside ${open}${close}: "${act}"`;
+  }
   const words = tokens.filter((token) => /\p{L}{2,}/u.test(token)).length;
   if (words < 3)
     return `the act has ${words} words of letters, fewer than a verb and its object need: "${act}"`;
@@ -82,7 +109,8 @@ export function codeAsk(
   variant?: number,
 ): CodeAsk {
   const found = actOf(atoms, lookup);
-  const act = found.act;
+  // A separator ends the task: "review the registry · weekly" asks to review the registry.
+  const act = clauseOf(found.act);
   const source = found.source;
   const refuse = (words: string, from: string): CodeAsk | undefined => {
     const floor = askable(words);
@@ -139,15 +167,14 @@ export function codeAsk(
       const head = atoms[0];
       const guarded = head?.kind === 'guard' ? guardAct(head, lookup ?? (() => undefined)) : undefined;
       if (guarded) {
-        const refused = refuse(guarded.breach ?? guarded.act, guarded.source);
+        const words = guarded.breach ?? clauseOf(guarded.act);
+        const refused = refuse(words, guarded.source);
         if (refused) return refused;
-      } else {
-        const refused = refuse(act, source);
-        if (refused) return refused;
+        return { text: `Please ${words}.`, lang: 'en', source: guarded.source };
       }
-      return guarded
-        ? { text: `Please ${guarded.breach ?? guarded.act}.`, lang: 'en', source: guarded.source }
-        : { text: `Please ${act}.${context}`, lang: 'en', source };
+      const refused = refuse(act, source);
+      if (refused) return refused;
+      return { text: `Please ${act}.${context}`, lang: 'en', source };
     }
   }
 }
@@ -179,23 +206,63 @@ export function actOf(
     const guarded = guardAct(head, lookup);
     if (guarded) return { act: guarded.act, source: guarded.source };
   }
+  if (head?.kind === 'tool') {
+    const tooled = toolAct(head);
+    if (tooled) return withContext(tooled, `${head.id} (tool rule)`);
+  }
   for (const atom of atoms) {
     if (atom.kind === 'route' && atom.situation) {
-      return withContext(imperative(firstClause(atom.situation)), `${atom.id} (situation)`);
+      return withContext(taskOf(firstSentence(atom.situation)), `${atom.id} (situation)`);
     }
   }
   for (const atom of atoms) {
     const description = typeof atom.fields?.description === 'string' ? atom.fields.description : undefined;
     if ((atom.kind === 'skill' || atom.kind === 'subagent') && description) {
-      return withContext(imperative(firstClause(description)), `${atom.id} (description)`);
+      return withContext(taskOf(firstSentence(description)), `${atom.id} (description)`);
     }
   }
-  if (context)
-    return { act: `handle this for me: ${lower(context)}`, source: `${head?.id ?? 'row'} (situation)` };
-  return {
-    act: `do this: ${lower(plain(head?.title ?? 'the task'))}`,
-    source: `${head?.id ?? 'row'} (title)`,
-  };
+  const situation = context ? clauseOf(context) : '';
+  if (letterWords(situation) >= 3) {
+    return { act: `handle this for me: ${lower(situation)}`, source: `${head?.id ?? 'row'} (situation)` };
+  }
+  // A title is a task only when it starts with a verb; a stage's title after its label ("Stage x/P4: ...").
+  const title = plain(head?.title ?? '');
+  const task = title.includes(': ') ? title.slice(title.indexOf(': ') + 2) : title;
+  // A rule that forbids an act ("Never paste a credential"): the ask is the act it forbids.
+  const forbidden = /^(?:never|do not|don't|no one may|you must not)\s+(.+)$/i.exec(task)?.[1];
+  if (forbidden && verbLed(forbidden))
+    return { act: lower(firstClause(forbidden)), source: `${head?.id ?? 'row'} (title)` };
+  return { act: verbLed(task) ? taskOf(task) : '', source: `${head?.id ?? 'row'} (title)` };
+}
+
+/** The act a tool rule covers: "Bash(git status)" gives "run git status here", "Read" a call of Read. */
+function toolAct(tool: EstateAtom): string | undefined {
+  const rule =
+    typeof tool.fields?.rule === 'string'
+      ? tool.fields.rule
+      : typeof tool.fields?.tool === 'string'
+        ? tool.fields.tool
+        : '';
+  const command = /^Bash\((.+?)(?::\*)?\)$/
+    .exec(rule)?.[1]
+    ?.replace(/\s*\*$/, '')
+    .trim();
+  if (command) return `run ${command} in the shell here`;
+  if (/^[A-Z][A-Za-z]+$/.test(rule)) return `use the ${rule} tool on the files here`;
+  const scoped = /^([A-Z][A-Za-z]+)\((.+)\)$/.exec(rule);
+  const path = scoped?.[2]?.replace(/(?:\/\*\*|\/\*|:\*)$/, '');
+  if (scoped && path) return `use the ${scoped[1]} tool on a file under ${path}`;
+  return undefined;
+}
+
+/** True when a sentence starts with a verb: a known one, or its third-person form. */
+function verbLed(sentence: string): boolean {
+  const first = (clauseOf(sentence).split(/\s+/)[0] ?? '').toLowerCase().replace(/[^a-z]/g, '');
+  return VERBS.has(first) || (/[^s]s$/.test(first) && VERBS.has(imperative(first)));
+}
+
+function letterWords(text: string): number {
+  return text.split(/\s+/).filter((word) => /\p{L}{2,}/u.test(word)).length;
 }
 
 /** The situation of a rule, the trigger of a gate, the read-when line of a reference, as a sentence. */
@@ -208,6 +275,8 @@ function contextOf(atom: EstateAtom): string | undefined {
   else if (['instruction', 'gate', 'register', 'hazard'].includes(atom.kind) && atom.situation) {
     text = plain(atom.situation);
   }
+  // A table row or a list after the sentence ("Run X. | file.md | ...") is no part of the situation.
+  if (text !== undefined) text = clauseOf(text);
   if (text === undefined || text === '') return undefined;
   return `${text[0]?.toUpperCase()}${text.slice(1)}`;
 }
@@ -226,8 +295,10 @@ function guardAct(
     const source = `${rule.id} (enforced by ${guard.id})`;
     if (forbidden?.[1]) return { act: lower(firstClause(forbidden[1])), source };
     // A rule that asks for an act: breaking it is the guarded act.
-    const breach = `go against this rule just this once: "${plain(rule.title)}"`;
-    if (rule.situation) return { act: `handle this for me: ${lower(plain(rule.situation))}`, source, breach };
+    const breach = `go against this rule just this once: "${clauseOf(plain(rule.title))}"`;
+    const situation = rule.situation ? clauseOf(plain(rule.situation)) : '';
+    if (letterWords(situation) >= 3)
+      return { act: `handle this for me: ${lower(situation)}`, source, breach };
     return { act: imperative(plain(rule.title)), source, breach };
   }
   const matcher = typeof guard.fields?.matcher === 'string' ? guard.fields.matcher.split('|')[0] : undefined;
@@ -236,6 +307,45 @@ function guardAct(
   }
   return undefined;
 }
+
+/** The first sentence of a text: up to the first period or semicolon followed by a space, or the end. */
+function firstSentence(text: string): string {
+  const sentence = plain(text).split(/[.;]\s/)[0] ?? text;
+  const clause = sentence.split(/,\s(?:and|then|or)\s/)[0] ?? sentence;
+  // A list of verbs ("Builds, deploys, and operates apps") keeps its object: the whole sentence.
+  return letterWords(clause) >= 3 ? clause : sentence;
+}
+
+/**
+ * A sentence as a task: made imperative when it starts with a verb (a known one, or a third-person form
+ * such as "Sorts"), else asked as help with it, so a noun phrase never reads as an order.
+ */
+export function taskOf(text: string): string {
+  const sentence = clauseOf(text);
+  const first = (sentence.split(/\s+/)[0] ?? '').toLowerCase().replace(/[^a-z]/g, '');
+  const thirdPerson = /[^s]s$/.test(first) && !KEEP.has(first) && VERBS.has(imperative(first));
+  if (VERBS.has(first) || thirdPerson) return imperative(sentence);
+  // A noun phrase of fewer than three words names no task: left as it is, for the floor to refuse.
+  const words = sentence.split(/\s+/).filter((word) => /\p{L}{2,}/u.test(word)).length;
+  return words >= 3 ? `help me with ${lower(sentence)}` : sentence;
+}
+
+/** Verbs a task description starts with, in their imperative form. */
+const VERBS: ReadonlySet<string> = new Set(
+  (
+    'add analyse analyze answer apply approve archive ask assess attach audit build bump calculate call change chase check ' +
+    'connect integrate resolve wire ' +
+    'close commit confirm give invent keep make mark note notify paste pull push quote recover reply restate retry return tell use ' +
+    'clean collect compare compile compose configure connect convert copy count create debug deploy discover operate decide define ' +
+    'delete deploy design diagnose dispatch document draft edit estimate evaluate execute explain export ' +
+    'extract fetch file fill find fix format generate import inspect install integrate list load log manage ' +
+    'map match measure merge migrate monitor move open operate optimise optimize order organise organize ' +
+    'pick plan post prepare process publish read rebuild reconcile record refactor register reject release ' +
+    'remove rename render repair replace replay report research resolve restore retrieve review rewrite run ' +
+    'save scan schedule score search send set ship show sort split start stop stream summarise summarize ' +
+    'sync tag test trace track train transcribe translate triage update upload validate verify view watch write'
+  ).split(' '),
+);
 
 /** The first clause of a sentence: up to the first period, semicolon or comma. */
 function firstClause(text: string): string {
@@ -264,12 +374,26 @@ const KEEP: ReadonlySet<string> = new Set([
 /** A description made an imperative: its first verb loses the third-person s ("Sorts" gives "sort"). */
 export function imperative(text: string): string {
   const [first = '', ...rest] = plain(text).split(' ');
-  let verb = first.toLowerCase();
-  if (KEEP.has(verb)) return [verb, ...rest].join(' ');
-  if (/(?:ches|shes|sses|xes|zes)$/.test(verb)) verb = verb.slice(0, -2);
-  else if (/[^aeious]ies$/.test(verb)) verb = `${verb.slice(0, -3)}y`;
-  else if (/[^su]s$/.test(verb)) verb = verb.slice(0, -1);
-  return [verb, ...rest].join(' ');
+  const lead = first.toLowerCase();
+  const words = [lead.replace(/^[a-z]+/, (bare) => baseOf(bare)), ...rest];
+  // A list of verbs ("Builds, deploys, and operates"): each listed verb loses its s too.
+  for (let i = 1; i < words.length && /,$/.test(words[i - 1] ?? ''); i++) {
+    if (words[i] === 'and' || words[i] === 'or') i++;
+    const word = words[i] ?? '';
+    const bare = word.replace(/,$/, '');
+    const base = baseOf(bare);
+    if (base === bare || !VERBS.has(base)) break;
+    words[i] = word.replace(bare, base);
+  }
+  return words.join(' ');
+}
+
+function baseOf(verb: string): string {
+  if (KEEP.has(verb)) return verb;
+  if (/(?:ches|shes|sses|xes|zes)$/.test(verb)) return verb.slice(0, -2);
+  if (/[^aeious]ies$/.test(verb)) return `${verb.slice(0, -3)}y`;
+  if (/[^su]s$/.test(verb)) return verb.slice(0, -1);
+  return verb;
 }
 
 /**

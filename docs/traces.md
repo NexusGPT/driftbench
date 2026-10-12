@@ -52,7 +52,7 @@ driftbench import approve <path> [--all]
 
 `--select <ids>` drafts only the traces named by a comma-separated list of trace ids. An id that names no trace in the input stops the run with exit 2 and writes nothing.
 
-`--dataset <name> --store <file>` pushes the drafts as the next version of that dataset in the store, the same push as `driftbench dataset push`. Each import with `--dataset` makes a new version, because the drafts carry their import time. `--dataset` without `--store` exits 2.
+`--dataset <name> --store <file>` pushes the drafts as the next version of that dataset in the store, the same push as `driftbench dataset push`. The drafts take their time from the traces, never the clock, so the same traces draft the same bytes: importing unchanged traces again pushes no new version and prints that the dataset already holds them. Traces that changed make the next version. `--dataset` without `--store` exits 2.
 
 Personal data is redacted by default with the [intake](generating.md) privacy rules: checksum detectors for emails, phones, IBANs, national ids, card numbers and addresses, then the independent second pass. One value keeps one placeholder across the whole conversation (`[ADDRESS_1]` in the user message and in the tool input). `--no-redact` keeps the data; do not commit such drafts to a public repository.
 

@@ -10,8 +10,8 @@ import { majority } from '../../../packages/judges/src/council';
 import { loadCriteria, parseCriterionFile } from '../../../packages/judges/src/criteria';
 import { type PanelVote, weightedPanel } from '../../../packages/judges/src/weighted-panel';
 
-const CASSETTE = process.env.CASSETTE;
-if (!CASSETTE) throw new Error('set CASSETTE to the council cassette path');
+const CASSETTE =
+  process.env.CASSETTE ?? fileURLToPath(new URL('./data/claude-council.cassette.json', import.meta.url));
 const cassette = JSON.parse(readFileSync(CASSETTE, 'utf8')) as Cassette;
 const criteriaDir = fileURLToPath(new URL('../../../examples/acme/criteria', import.meta.url));
 const labelsDir = fileURLToPath(new URL('../../../examples/acme/labels', import.meta.url));

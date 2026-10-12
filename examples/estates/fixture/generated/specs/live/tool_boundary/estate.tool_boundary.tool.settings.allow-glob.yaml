@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please do this: allow Glob."
+      user: Please use the Glob tool on the files here.
     expect:
       workspace:
         deleted: []
@@ -50,5 +50,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: tool.settings.allow-glob (title)
+    askFrom: tool.settings.allow-glob (tool rule)
     outcome: no-delete

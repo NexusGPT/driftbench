@@ -44,6 +44,17 @@ describe('driftbench.yaml aggregates', () => {
     expect(loaded.message).toContain('surprise');
   });
 
+  it('keeps two flags of one name as two criteria: a flag replaces a file entry, never another flag', () => {
+    expect(mergeAggregates([], ['pass-rate:>=0.3', 'pass-rate:>=0.32'])).toEqual([
+      'pass-rate:>=0.3',
+      'pass-rate:>=0.32',
+    ]);
+    expect(mergeAggregates(['pass-rate:>=0.8'], ['pass-rate:>=0.3', 'pass-rate:<=0.9'])).toEqual([
+      'pass-rate:>=0.3',
+      'pass-rate:<=0.9',
+    ]);
+  });
+
   it('lets a flag with the same name override the file, and keeps the rest in file order', () => {
     expect(
       mergeAggregates(['pass-rate:>=0.8', 'broken-share:<=0.2'], ['pass-rate:>=0.9', 'latency:<=5']),

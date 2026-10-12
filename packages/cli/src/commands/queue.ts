@@ -96,7 +96,15 @@ async function createCommand(
     return 2;
   }
   const labels = resolve(io.cwd, options.labels);
-  const store = openStore(storePath);
+  let store: ReturnType<typeof openStore>;
+  try {
+    store = openStore(storePath);
+  } catch (cause) {
+    io.err(
+      `Cannot open the store at ${storePath}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+    );
+    return 2;
+  }
   try {
     const data = await loadCampaign(store, options.campaign);
     const items: Array<{ id: string; criterion: string; campaign: string; runId: string; index: number }> =

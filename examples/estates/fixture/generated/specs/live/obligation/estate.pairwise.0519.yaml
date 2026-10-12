@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please do this: write in the supplier's language from the memory table."
+      user: Please write in the supplier's language from the memory table.
     expect:
       references:
         - path: "**/supplier-languages.md"

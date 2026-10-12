@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Could you sort the shared operations inbox into invoices? Thanks.
+      user: Could you sort the shared operations inbox into invoices, shipment questions and supplier mail? Thanks.
     expect:
       subagents:
         - name: inbox-triager

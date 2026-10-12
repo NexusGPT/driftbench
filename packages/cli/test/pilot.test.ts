@@ -2,6 +2,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { openStore } from '@driftbench/store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PILOT_REPORT_FILE } from '../src/commands/pilot';
 import { type Io, main } from '../src/index';
@@ -168,6 +169,7 @@ describe('driftbench pilot run and analyse', () => {
     ]);
     expect(target.code).toBe(2);
     expect(target.err).toMatch(/^No adapter is set up for http:zed\./);
+    await openStore(join(dir, 'empty.db')).close();
     const empty = await cli([
       'pilot',
       'analyse',
