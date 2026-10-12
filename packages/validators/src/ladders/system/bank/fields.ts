@@ -700,6 +700,9 @@ export function fieldItems(): BankItem[] {
   return withCauses([...runFields(), ...recoveryItems()], (item) => {
     if (item.id.startsWith('fields/succession/'))
       return 'succession computes firstDriftBlock, driftCount, driftRate, longestClean and minOverBlocks from the failing blocks';
+    // One fix serves this shape and claim/concepts/recovery/label-within-window: that claim's cause, word for word.
+    if (item.family === 'recovery' && item.id.endsWith('/late-within-window'))
+      return 'recoveryOf in recovery.ts labels a recovery immediate whenever turnsToRecover is at most recovery.within_blocks.';
     if (item.family === 'recovery')
       return `recoveryOf: the ${item.id.split('/')[2]} shape gives the record docs/concepts/recovery.md defines`;
     return undefined;
