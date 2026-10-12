@@ -434,6 +434,12 @@ export const CriterionDef = z
       .enum(['block', 'conversation'])
       .optional()
       .describe('block judges one block; conversation judges the whole conversation.'),
+    inputs: z
+      .array(z.string().min(1))
+      .optional()
+      .describe(
+        'Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace.',
+      ),
     judge_class: z
       .enum(['system1', 'system2', 'auto'])
       .optional()

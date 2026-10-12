@@ -60,7 +60,10 @@ export function judgeCheck(council: Council, options: JudgeCheckOptions = {}): C
           });
           continue;
         }
-        const request = requestFor(ctx, def, artifact, options.contextMessages ?? 2);
+        const request = {
+          ...requestFor(ctx, def, artifact, options.contextMessages ?? 2),
+          ...(def.inputs && def.inputs.length > 0 ? { inputs: await readInputs(ctx, def.inputs) } : {}),
+        };
         const result = await council.judge(request, def.judge_class);
         const verdict = verdictOf(result, def, gating);
         verdicts.push(
@@ -199,4 +202,37 @@ function observedEntries(observed: Observed): TranscriptEntry[] {
 
 function json(value: unknown): string {
   return typeof value === 'string' ? value : (JSON.stringify(value) ?? 'null');
+}
+
+/**
+ * The inputs a criterion names, as the agent was given them: from the Given workspace seed first, so an
+ * input the agent changed is still read as it started, then from the workspace through `ctx.readArtifact`.
+ * An input found in neither is named as not available, never dropped.
+ */
+export async function readInputs(
+  ctx: CheckContext,
+  paths: readonly string[],
+): Promise<{ path: string; text: string }[]> {
+  const seed = ctx.given.world.workspace?.files ?? {};
+  const inputs: { path: string; text: string }[] = [];
+  for (const path of paths) {
+    const seeded = seed[path];
+    if (seeded !== undefined) {
+      inputs.push({ path, text: seeded });
+      continue;
+    }
+    let text: string | undefined;
+    if (ctx.readArtifact) {
+      try {
+        text = new TextDecoder().decode(await ctx.readArtifact(path));
+      } catch {
+        text = undefined;
+      }
+    }
+    inputs.push({
+      path,
+      text: text ?? `(not available: ${path} is neither in the seed nor in the workspace)`,
+    });
+  }
+  return inputs;
 }

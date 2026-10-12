@@ -814,7 +814,7 @@ Judges criteria with the council, on recorded answers. The council, its modes an
 
 ```
 driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--json]
-driftbench judge calibrate --criteria <dir> --labels <dir> --cassette <file> --out <file> [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
+driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
 driftbench judge check <criteria> [--json]
 ```
 
@@ -828,7 +828,11 @@ driftbench judge check <criteria> [--json]
 |---|---|
 | `--criteria <dir>` | the criteria folder: one YAML file per criterion with its fixture pair; required by `run` and `calibrate` |
 | `--labels <dir>` | `calibrate`: the labels folder, one YAML file of hand-labelled blocks per criterion; required |
-| `--cassette <file>` | the recorded answers of every judge, as a cassette JSON file; required by `run` and `calibrate` |
+| `--cassette <file>` | the recorded answers of every judge, as a cassette JSON file; required by `run`; `calibrate` needs it or `--claude` |
+| `--claude <model>` | `calibrate`: add a live judge on the local `claude` command with this model, such as `haiku`; repeat for several. Paid calls, see [the claude command judge](../concepts/judges.md#the-claude-command-judge) |
+| `--claude-command <path>` | `calibrate`: the claude command to run; default `claude` |
+| `--record <file>` | `calibrate`: save every live answer, with its cost, as a cassette to replay later |
+| `--spend-cap-usd <usd>` | `calibrate`: stop calling live judges once their calls have cost this much; later calls give no answer |
 | `--out <file>` | `calibrate`: where to write the assignment table, in YAML; required |
 | `--repeats <n>` | `calibrate`: how many times each judge answers each fixture; default 3 |
 | `--mode <mode>` | the council mode, `system1`, `hybrid` or `llm`; default `hybrid` |

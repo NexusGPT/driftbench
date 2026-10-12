@@ -6,8 +6,8 @@ import { z } from 'zod';
 import type { JudgeClient } from './client';
 import { JudgeClass, type JudgeOutcome, type JudgeRequest } from './contract';
 import type { AssignmentRow, CouncilMode, UnassignedCriterion } from './council';
-import { CriterionFixture, fixtureRequest, type LoadedCriterion } from './criteria';
-import { sameFamily } from './family';
+import { CriterionFixture, fixtureInputs, fixtureRequest, type LoadedCriterion } from './criteria';
+import { normalizeFamily, sameFamily } from './family';
 
 /**
  * Calibration (P2.3): a judge earns a criterion, it is never assumed to own one.
@@ -194,6 +194,8 @@ export function labelRequest(criterion: LoadedCriterion, block: LabelledBlock): 
     transcript: block.transcript,
     ...(block.artifact === undefined ? {} : { artifact: block.artifact }),
     ...(block.given === undefined ? {} : { given: block.given }),
+    // A block that carries no input of its own reads those of the criterion's pass fixture.
+    ...fixtureInputs(criterion.def.inputs, block.inputs ?? criterion.fixtures.pass.inputs),
   };
 }
 
@@ -258,6 +260,11 @@ export type CriterionAssignment =
       readonly cls: JudgeClass;
       readonly judges: readonly string[];
       readonly rejudge: readonly string[];
+      /**
+       * The one model family every judge of the row belongs to, when they share one. Judges of one family
+       * share its blind spots: such a council is weaker evidence than one across families.
+       */
+      readonly singleFamily?: string;
     }
   | { readonly status: 'unassigned'; readonly reason: string };
 
@@ -286,6 +293,8 @@ export type CalibrationReport = {
   /** Judges left out because they share the agent's family. */
   readonly excluded: readonly string[];
   readonly errors: number;
+  /** What every call cost in US dollars, summed from the clients that report a cost; 0 for a replay without one. */
+  readonly spentUsd: number;
 };
 
 /** Runs calibration. Never throws on a judge failure: the failure is an inconclusive answer, counted. */
@@ -302,6 +311,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
   const criteria: CriterionCalibration[] = [];
   const pooled = new Map<string, { judged: JudgeOutcome[]; human: ('pass' | 'fail')[] }>();
   let errors = 0;
+  let spentUsd = 0;
 
   for (const criterion of config.criteria) {
     const blocks = config.labels.get(criterion.def.name) ?? [];
@@ -309,7 +319,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     // Units for alpha: the pass fixture, the fail fixture, then each labelled block; one row per judge.
     const matrix: (JudgeOutcome | null)[][] = [];
     for (const judge of judges) {
-      const counter = { errors: 0 };
+      const counter = { errors: 0, spentUsd: 0 };
       const pass: JudgeOutcome[] = [];
       const fail: JudgeOutcome[] = [];
       for (let r = 0; r < repeats; r += 1) {
@@ -319,6 +329,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       const judged: JudgeOutcome[] = [];
       for (const block of blocks) judged.push(await answer(judge, labelRequest(criterion, block), counter));
       errors += counter.errors;
+      spentUsd += counter.spentUsd;
 
       const separated = pass.filter((outcome, r) => outcome === 'pass' && fail[r] === 'fail').length;
       const labels = agreement(
@@ -371,6 +382,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     }),
     excluded,
     errors,
+    spentUsd,
   };
 }
 
@@ -378,11 +390,15 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
 async function answer(
   judge: JudgeClient,
   request: JudgeRequest,
-  counter: { errors: number },
+  counter: { errors: number; spentUsd: number },
 ): Promise<JudgeOutcome> {
   try {
     let result = await judge.judge({ ...request, budget: 'normal' });
-    if (result.unparsed) result = await judge.judge({ ...request, budget: 'large' });
+    counter.spentUsd += result.costUsd ?? 0;
+    if (result.unparsed) {
+      result = await judge.judge({ ...request, budget: 'large' });
+      counter.spentUsd += result.costUsd ?? 0;
+    }
     return result.unparsed ? 'inconclusive' : result.answer.outcome;
   } catch {
     counter.errors += 1;
@@ -478,12 +494,18 @@ function assign(
       if (pool.length < COUNCIL_SIZE) continue;
       rejudge = pool.slice(0, COUNCIL_SIZE).map((judge) => judge.id);
     }
+    const seatedIds = seated.slice(0, COUNCIL_SIZE).map((judge) => judge.id);
+    const families = new Set(
+      [...seatedIds, ...rejudge].map((id) => normalizeFamily(judges.find((j) => j.id === id)?.family ?? id)),
+    );
+    const [only] = families;
     return {
       status: 'assigned',
       owner: owner.id,
       cls: owner.cls,
-      judges: seated.slice(0, COUNCIL_SIZE).map((judge) => judge.id),
+      judges: seatedIds,
       rejudge,
+      ...(families.size === 1 && only !== undefined ? { singleFamily: only } : {}),
     };
   }
   const counts = classes
@@ -519,6 +541,8 @@ const AssignedEntry = z.strictObject({
   class: JudgeClass,
   judges: z.array(z.string().min(1)),
   rejudge: z.array(z.string().min(1)),
+  /** Every judge of the row is of this one family: weaker evidence than a council across families. */
+  single_family: z.string().optional(),
   /** The owner's separation, as "k of n". */
   separation: z.string(),
   /** The owner's kappa against the labels. */
@@ -560,6 +584,7 @@ export function assignmentTable(report: CalibrationReport): AssignmentTable {
         class: a.cls,
         judges: [...a.judges],
         rejudge: [...a.rejudge],
+        ...(a.singleFamily === undefined ? {} : { single_family: a.singleFamily }),
         separation: `${owner.separation.separated} of ${owner.separation.repeats}`,
         kappa: Number(fixed(owner.labels.kappa ?? 0)),
       };

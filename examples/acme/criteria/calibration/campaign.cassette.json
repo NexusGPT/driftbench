@@ -365,7 +365,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "0ea786f006cc",
+      "key": "71410cd14dd7",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -408,7 +408,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "d3727aac6986",
+      "key": "6f3a60e0af78",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",

@@ -47,11 +47,13 @@ export {
   JUDGE_CHECK,
   type JudgeCheckOptions,
   judgeCheck,
+  readInputs,
   requestFor,
   verdictOf,
 } from './check';
 export type { ClientOptions, JudgeClient } from './client';
 export { createAnthropicJudge, createGoogleJudge, createOpenAiJudge } from './clients/chat';
+export { type ClaudeCliOptions, claudeCost, createClaudeCliJudge } from './clients/claude-cli';
 export { type FakeAnswer, FakeJudge } from './clients/fake';
 export { createHttpJudge, type HttpJudgeOptions } from './clients/http-json';
 export {
@@ -96,6 +98,7 @@ export {
   type CriteriaLoad,
   CriterionFile,
   CriterionFixture,
+  fixtureInputs,
   fixtureRequest,
   type LoadedCriterion,
   loadCriteria,
