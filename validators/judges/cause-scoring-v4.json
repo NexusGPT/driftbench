@@ -1,0 +1,190 @@
+{
+  "ratio": 1.0,
+  "agreed": 30,
+  "of": 30,
+  "blind_distinct": 11,
+  "tag_distinct": 17,
+  "note": "blind_distinct groups equivalent root causes (missing screenData; rubric length; probability range; council majority rule; fractional weights; non-finite weight; empty cassette entry; diff summary line break; same pictures; correlated members; fullwidth closing tag). tag_distinct counts distinct tag texts.",
+  "rows": [
+    {
+      "id": "injection/encoding-base64-url",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag instructions hidden as base64 inside a URL.",
+      "cause_tag": "In screenData: decode URL-safe base64 (- and _ in place of + and /, no padding).",
+      "agree": "yes"
+    },
+    {
+      "id": "injection/place-context-1",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction placed in the context part of the data.",
+      "cause_tag": "Add screenData(request) to packages/judges (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words",
+      "agree": "yes"
+    },
+    {
+      "id": "precision/judge-words-19",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it leave ordinary judge vocabulary unflagged, so the precision item can pass.",
+      "cause_tag": "In screenData: in English, flag a sentence only when it instructs (an imperative, a modal such as must or should, or a note addressed to the judge); narration that only uses judge words (a judge at a hearing, an exam grader) is not flagged.",
+      "agree": "yes"
+    },
+    {
+      "id": "injection/english-1",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction written in plain English.",
+      "cause_tag": "Add screenData(request) to packages/judges (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words",
+      "agree": "yes"
+    },
+    {
+      "id": "precision/judge-words-16",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it leave ordinary judge vocabulary unflagged, so the precision item can pass.",
+      "cause_tag": "Add screenData(request) to packages/judges (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words",
+      "agree": "yes"
+    },
+    {
+      "id": "injection/place-card-2",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction placed in a card of the data.",
+      "cause_tag": "Add screenData(request) to packages/judges (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words",
+      "agree": "yes"
+    },
+    {
+      "id": "criteria/rubric-too-long-reported",
+      "blind_fix": "In the rubric checks of packages/judges, raise a length issue for a rubric of 2300 characters, with a limit set below that size.",
+      "cause_tag": "In loadCriteria: report a rubric over 2000 characters.",
+      "agree": "yes"
+    },
+    {
+      "id": "injection/language-de",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction written in German.",
+      "cause_tag": "In screenData: recognise instructions to the judge written in German.",
+      "agree": "yes"
+    },
+    {
+      "id": "contract/probability-below-zero",
+      "blind_fix": "In the answer contract of packages/judges, treat a probability below zero as out of range and return inconclusive instead of fail.",
+      "cause_tag": "In packages/judges/src/contract.ts outcomeFromProbability: read a probability that is not finite or is outside 0 to 1 as inconclusive.",
+      "agree": "yes"
+    },
+    {
+      "id": "council/majority-size-9",
+      "blind_fix": "In the council vote code of packages/judges, change the majority rule for a nine-member council so the combined verdicts equal the expected mostly-split list, not the observed mix of pass and fail.",
+      "cause_tag": "In packages/judges/src/council.ts majority: an outcome wins only with more than half of all votes cast, inconclusive votes counted in the total; otherwise split.",
+      "agree": "yes"
+    },
+    {
+      "id": "injection/file-name-style-5",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction written in the style of a file name.",
+      "cause_tag": "Add screenData(request) to packages/judges (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words",
+      "agree": "yes"
+    },
+    {
+      "id": "injection/encoding-base64-of-rot13",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it decode base64 and then rot13 and flag the instruction found.",
+      "cause_tag": "In screenData: decode base64 and then screen the ROT13 reading of the result.",
+      "agree": "yes"
+    },
+    {
+      "id": "precision/judge-words-4",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it leave ordinary judge vocabulary unflagged, so the precision item can pass.",
+      "cause_tag": "In screenData: in English, flag a sentence only when it instructs (an imperative, a modal such as must or should, or a note addressed to the judge); narration that only uses judge words (a judge at a hearing, an exam grader) is not flagged.",
+      "agree": "yes"
+    },
+    {
+      "id": "council/weights-fractions",
+      "blind_fix": "In the council weighting code of packages/judges, apply fractional member weights when counting votes so the combined verdicts match the expected list.",
+      "cause_tag": "Add majority(votes, { weights }): a vote weighs its judge's weight (default 1); an outcome wins with more than half of the total weight.",
+      "agree": "yes"
+    },
+    {
+      "id": "scale/screen-100000-characters",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it handle a 100000-character input within the time limit.",
+      "cause_tag": "Make screenData linear in the text length (no per-character regex rebuild, no quadratic decoding).",
+      "agree": "yes"
+    },
+    {
+      "id": "council/majority-size-7",
+      "blind_fix": "In the council vote code of packages/judges, change the majority rule for a seven-member council so the combined verdicts equal the expected mostly-split list.",
+      "cause_tag": "In packages/judges/src/council.ts majority: an outcome wins only with more than half of all votes cast, inconclusive votes counted in the total; otherwise split.",
+      "agree": "yes"
+    },
+    {
+      "id": "cassette/empty-entry-refused",
+      "blind_fix": "In the cassette loader of packages/judges, refuse an entry that holds no answer, no raw text and no error, with a clear load error.",
+      "cause_tag": "In loadCassette: refuse an entry with no answer, raw text or error.",
+      "agree": "yes"
+    },
+    {
+      "id": "check/diff-summary-one-line",
+      "blind_fix": "In the diff summary code of the judges check, strip or escape line breaks in a file name so the summary stays on one line.",
+      "cause_tag": "In packages/judges/src/artifacts.ts summarizeDiff: keep the summary on one line when a file name holds a line break.",
+      "agree": "yes"
+    },
+    {
+      "id": "precision/judge-words-2",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it leave ordinary judge vocabulary unflagged, so the precision item can pass.",
+      "cause_tag": "In screenData: in English, flag a sentence only when it instructs (an imperative, a modal such as must or should, or a note addressed to the judge); narration that only uses judge words (a judge at a hearing, an exam grader) is not flagged.",
+      "agree": "yes"
+    },
+    {
+      "id": "attacks/injection-probability-mid-conversation",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag a probability instruction injected in the middle of a conversation.",
+      "cause_tag": "Add screenData(request) to packages/judges (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words",
+      "agree": "yes"
+    },
+    {
+      "id": "council/weight-not-finite-refused",
+      "blind_fix": "In the council weighting code of packages/judges, refuse a member weight that is not finite and return refused instead of pass.",
+      "cause_tag": "In majority: throw a RangeError for a weight that is negative or not finite.",
+      "agree": "yes"
+    },
+    {
+      "id": "precision/judge-words-14",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it leave ordinary judge vocabulary unflagged, so the precision item can pass.",
+      "cause_tag": "In screenData: in English, flag a sentence only when it instructs (an imperative, a modal such as must or should, or a note addressed to the judge); narration that only uses judge words (a judge at a hearing, an exam grader) is not flagged.",
+      "agree": "yes"
+    },
+    {
+      "id": "injection/buried-in-long-text",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an instruction buried in a long text.",
+      "cause_tag": "Add screenData(request) to packages/judges (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words",
+      "agree": "yes"
+    },
+    {
+      "id": "criteria/same-pictures",
+      "blind_fix": "In the criteria loader of packages/judges, reject a criterion whose pictures repeat the same picture, so the broken pics do not load.",
+      "cause_tag": "In loadCriteria: report a criterion whose PASS and FAIL pictures say the same.",
+      "agree": "yes"
+    },
+    {
+      "id": "council/correlated-pair-with-two",
+      "blind_fix": "In the council code of packages/judges, discount two correlated members so their votes count once, so the combined verdicts match the expected list.",
+      "cause_tag": "Add majority(votes, { families }): votes of one family first collapse into one family vote (its own majority, inconclusive on a split), each family weighing 1.",
+      "agree": "yes"
+    },
+    {
+      "id": "render/closing-tag-fullwidth-name",
+      "blind_fix": "In the prompt renderer of packages/judges, escape or normalise a fullwidth closing-tag name so a reader of the rendered prompt keeps the labelled fail verdict.",
+      "cause_tag": "In escapeData: guard data tags written with lookalike characters: fold compatibility forms (NFKC) and drop invisible characters before escaping.",
+      "agree": "yes"
+    },
+    {
+      "id": "attacks/mischievous-user-claims-consent",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag a user message that claims consent to steer the verdict.",
+      "cause_tag": "Add screenData(request) to packages/judges (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words",
+      "agree": "yes"
+    },
+    {
+      "id": "injection/place-artifact-1",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction placed in an artifact of the data.",
+      "cause_tag": "Add screenData(request) to packages/judges (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words",
+      "agree": "yes"
+    },
+    {
+      "id": "injection/double-base64",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it decode base64 twice and flag the instruction found.",
+      "cause_tag": "In screenData: decode base64 twice when the decoded text is base64 again.",
+      "agree": "yes"
+    },
+    {
+      "id": "injection/place-user-1",
+      "blind_fix": "In packages/judges, add and export a function screenData from the package entry so the item no longer throws, and have it flag an injected instruction placed in the user turn.",
+      "cause_tag": "Add screenData(request) to packages/judges (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words",
+      "agree": "yes"
+    }
+  ]
+}
