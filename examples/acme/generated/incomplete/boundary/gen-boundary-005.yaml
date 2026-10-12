@@ -25,6 +25,14 @@ blocks:
           input:
             customer_email:
               absent: true
+        - label: coverage.check
+          count: 0
+        - label: port.check
+          count: 0
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
       criteria:
         - needs-approved-phrase
 metadata:

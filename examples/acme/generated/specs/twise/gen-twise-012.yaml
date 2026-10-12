@@ -39,7 +39,7 @@ criteria:
 blocks:
   - id: b1-needs-to-identify
     when:
-      user: I keep running out of data, can I get a bigger plan?
+      user: Hi, I already have an Acme plan and I need more data.
     expect:
       stage: identify
       tools:
@@ -67,6 +67,22 @@ rules:
     - port.check
     - order.create
     - notify_sales
+perturbations:
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
+    inject_at: 0
+    user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: needs
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate

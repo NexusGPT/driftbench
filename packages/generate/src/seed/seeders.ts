@@ -113,6 +113,7 @@ function scenarioDraft(
         path: path.id,
         ...(built.rules ? { rules: built.rules } : {}),
         ...(built.endState ? { end_state: built.endState } : {}),
+        ...(built.perturbations ? { perturbations: built.perturbations } : {}),
       },
     };
   }
@@ -451,9 +452,20 @@ export function twiseSeeder(
     const paths = prepared.relations.paths.filter((path) => flows.includes(path.flow));
     const probe = probeOf(prepared, cell);
     const fixed = cell.filter(([dimension]) => dimension !== prepared.deviation);
-    const built = scenarioDraft(prepared, context, id, 'twise', title, fixed, preferring(paths, behaviour), {
-      ...(probe ? { probe } : {}),
-    });
+    // The behaviour's own paths first; when none of them builds (no path, or its flows give no recovery
+    // from the row's deviation), a path of another flow keeps the row's cell complete.
+    const own = preferring(paths, behaviour);
+    const elsewhere = prepared.relations.paths.filter((path) => !flows.includes(path.flow));
+    const built = scenarioDraft(
+      prepared,
+      context,
+      id,
+      'twise',
+      title,
+      fixed,
+      { preferred: own.preferred, others: [...own.others, ...elsewhere] },
+      { ...(probe ? { probe } : {}) },
+    );
     if ('draft' in built) {
       const deviation = cell.find(([dimension]) => dimension === prepared.deviation);
       if (deviation) built.draft.cell.push(deviation);
@@ -672,6 +684,13 @@ export function boundarySeeder(
   const drafts: SpecDraft[] = [];
   const unsupported: string[] = [];
   let toolValues = 0;
+  // A tool a path names as its end-state source changes the world: the map calls it on a move of a flow,
+  // never on a request alone.
+  const sideEffecting = new Set(
+    prepared.relations.paths.flatMap((path) =>
+      path.end_state ? [path.end_state.source.replace(/^tool:/, '')] : [],
+    ),
+  );
   prepared.space.dimensions.forEach((dimension, index) => {
     if (dimension.kind !== 'data' || prepared.axes.has(index)) return;
     dimension.values.forEach((value, position) => {
@@ -694,7 +713,29 @@ export function boundarySeeder(
       const cell: Pick[] = [target];
       const tools: ToolExpect[] = [];
       const concrete: Record<string, unknown> = {};
-      if (found) {
+      const effect = found !== undefined && sideEffecting.has(found.tool.name);
+      if (effect && hasPaths(prepared)) {
+        // The value on a path that calls the tool on its move, when a path reads it; the spec records the
+        // concrete value as every boundary spec does.
+        const built = boundaryScenario(prepared, context, id, dimension.id, value.id, target);
+        if ('draft' in built) {
+          const shown = concreteValue((found as NonNullable<typeof found>).schema, partition);
+          if (shown.kind === 'value') built.draft.concrete = { [value.id]: shown.value };
+          else if (shown.kind === 'absent') built.draft.concrete = { [value.id]: '(absent)' };
+          toolValues += 1;
+          drafts.push(built.draft);
+          return;
+        }
+      }
+      if (found && effect) {
+        toolValues += 1;
+        const shown = concreteValue(found.schema, partition);
+        if (shown.kind === 'value') concrete[value.id] = shown.value;
+        else if (shown.kind === 'absent') concrete[value.id] = '(absent)';
+        else unsupported.push(`${value.id}: ${shown.why}`);
+        // Asked for alone, the side-effecting tool never runs.
+        tools.push({ label: found.tool.name, count: 0 });
+      } else if (found) {
         toolValues += 1;
         const shown = concreteValue(found.schema, partition);
         if (shown.kind === 'value') concrete[value.id] = shown.value;
@@ -719,6 +760,12 @@ export function boundarySeeder(
             count: { min: 1 },
             ...(assertion !== undefined && name !== undefined ? { input: { [name]: assertion } } : {}),
           });
+        }
+      }
+      // Every other tool of the map is expected 0 times: the turn asks for one tool and nothing else.
+      if (found) {
+        for (const other of prepared.tools) {
+          if (other.name !== found.tool.name) tools.push({ label: other.name, count: 0 });
         }
       }
       const world = worldFor(prepared, cell);
@@ -1123,6 +1170,62 @@ function metamorphicOnPaths(
           stimulus: { kind: 'phrase', phrase },
         });
         drafts.push(withReasons({ ...old, id, title, metamorphic }, built.reasons));
+      });
+    }
+  }
+  // Context families, CheckList's invariance over the context axes: one path walked with the same data
+  // values and each allowed value of a persona or channel axis. The relation: the same observed outcome.
+  const contextual = [...prepared.axes]
+    .sort((a, b) => a - b)
+    .filter((index) => ['persona', 'channel'].includes(prepared.space.dimensions[index]?.kind ?? ''));
+  const indexOf = (id: string) => prepared.space.dimensions.findIndex((dimension) => dimension.id === id);
+  for (const path of prepared.relations.paths) {
+    for (const axis of contextual) {
+      if (drafts.length >= context.max) break;
+      const dimension = prepared.space.dimensions[axis];
+      if (!dimension) continue;
+      const family = `gen-metamorphic-${pad(families + 1)}`;
+      const one = { preferred: [path], others: [] };
+      const base = scenarioDraft(prepared, context, `${family}-base`, 'metamorphic', '', [], one, {
+        rngLabel: family,
+      });
+      if (!('draft' in base)) continue;
+      const read = Object.keys(path.when ?? {}).map(indexOf);
+      const data = base.draft.cell.filter(([at]) => read.includes(at));
+      const members = dimension.values
+        .map((_, value) => value)
+        .filter((value) => prepared.feasibility.allowed([...data, [axis, value]]));
+      if (members.length < 2) continue;
+      const built = members.map((value, variant) =>
+        scenarioDraft(
+          prepared,
+          context,
+          `${family}-${variant + 1}`,
+          'metamorphic',
+          '',
+          [...data, [axis, value]],
+          one,
+          {
+            rngLabel: family,
+          },
+        ),
+      );
+      if (!built.every((entry) => 'draft' in entry)) continue;
+      families += 1;
+      values.push(`${path.id}@${dimension.id}`);
+      built.forEach((entry, variant) => {
+        if (!('draft' in entry)) return;
+        drafts.push({
+          ...entry.draft,
+          id: `${family}-${variant + 1}`,
+          title: `Metamorphic ${path.id} over ${dimension.id}, value ${variant + 1} of ${members.length}: ${entry.draft.title}`,
+          metamorphic: {
+            family,
+            variant: variant + 1,
+            of: members.length,
+            relation: 'same observed outcome',
+          },
+        });
       });
     }
   }

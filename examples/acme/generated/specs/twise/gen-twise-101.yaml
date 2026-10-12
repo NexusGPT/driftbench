@@ -4,7 +4,7 @@
 id: gen-twise-101
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 101 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D1_off_topic at handover"
+title: "t-wise row 101 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D1_off_topic at details"
 channel: chat
 lang: EN
 tier: generated
@@ -12,7 +12,7 @@ tags:
   - persona:new-customer
   - data:no-service
   - task:existing-workbook
-  - flow:new-home
+  - flow:porting
 covers:
   - B-010
 stages:
@@ -32,8 +32,8 @@ criteria:
     rubric: Report a failed tool honestly, invent none of its answer, and offer a fallback
     gating: false
     scope: conversation
-  - name: flow.new-home
-    rubric: A new customer asks for home internet at an address
+  - name: flow.porting
+    rubric: A new customer switches to Acme and keeps their number
     gating: false
     scope: conversation
   - name: deviation.D1_off_topic
@@ -41,47 +41,50 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-address
+  - id: b1-needs-to-port_number
     when:
-      user: Do you have home internet where I live?
+      user: I'd like to move to Acme and keep my phone number.
     expect:
-      stage: address
+      stage: port_number
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
-        - label: notify_sales
+        - label: catalog.search
+          count: 0
+        - label: order.create
           count: 0
       lang: EN
       criteria:
         - behaviour.B-010
-        - flow.new-home
-  - id: b2-address-to-callback
+        - flow.porting
+  - id: b2-port_number-to-offer
     when:
-      user: The address is 7 Quarry Lane, Acmeville.
+      user: My number is +1 202 555 0160.
     expect:
-      stage: callback
+      stage: offer
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 1
           input:
-            address: 7 Quarry Lane, Acmeville
-        - label: notify_sales
+            number: "+12025550160"
+        - label: catalog.search
+          count: 1
+          input:
+            category: mobile
+        - label: order.create
           count: 0
       lang: EN
-  - id: b3-callback-to-handover
+  - id: b3-offer-to-details
     when:
-      user: You can reach me on +1 202 555 0131.
+      user: Acme Mobile M, please.
     expect:
-      stage: handover
+      stage: details
       tools:
-        - label: notify_sales
-          count: 1
-          input:
-            reason: no_coverage
-            customer:
-              subset:
-                phone: "+12025550131"
-        - label: coverage.check
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
           count: 0
       lang: EN
   - id: b4-D1_off_topic
@@ -90,41 +93,83 @@ blocks:
         class: D1_off_topic
         user: Are your stores open on Saturday?
     expect:
-      stage: handover
+      stage: details
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
-        - label: notify_sales
+        - label: catalog.search
+          count: 0
+        - label: order.create
           count: 0
       must:
         - Monday to Saturday
       lang: EN
       criteria:
         - deviation.D1_off_topic
-  - id: b5-handover-to-closing
+  - id: b5-details-to-recap
     when:
-      user: Great, thank you. Bye!
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+    expect:
+      stage: recap
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b6-recap-to-order_placed
+    when:
+      user: CONFIRM
+    expect:
+      stage: order_placed
+      tools:
+        - label: order.create
+          count: 1
+          input:
+            type: new
+            plan_id: mobile-m
+            port_number:
+              absent: true
+            customer:
+              subset:
+                name: Jo Okafor
+                email: jo.okafor@example.com
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b7-order_placed-to-closing
+    when:
+      user: No, that's all. Thanks!
     expect:
       stage: closing
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
-        - label: notify_sales
+        - label: catalog.search
+          count: 0
+        - label: order.create
           count: 0
       lang: EN
 rules:
   forbidden_tools:
-    - catalog.search
-    - port.check
-    - order.create
+    - coverage.check
+    - notify_sales
 end_state:
-  source: tool:notify_sales
+  source: tool:order.create
   mode: subset
   expect:
-    reason: no_coverage
+    type: new
+    plan_id: mobile-m
+    port_number:
+      absent: true
     customer:
       subset:
-        phone: "+12025550131"
+        name: Jo Okafor
+        email: jo.okafor@example.com
 metadata:
   generated:
     by: driftbench generate
@@ -136,61 +181,82 @@ metadata:
       agent: acme
       version: "1"
       hash: badea3d3df7a
-    path: home-no-coverage
+    path: porting-locked-number
     cell:
       behaviour: B-010
       channel: chat
       user_type: new-customer
       coverage_result: no-service
       workspace_start: existing-workbook
-      flow: new-home
-      callback_phone: given
+      flow: porting
+      port_result: locked
+      plan_choice: names-one
+      customer_details: name-and-email
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-needs-to-port_number
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-address
-          stage: address
+          stage_transition: needs-to-port_number
+          stage: port_number
         phrase:
           dimension: stage_transition
-          value: needs-to-address
-      - block: b2-address-to-callback
+          value: needs-to-port_number
+      - block: b2-port_number-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: address-to-callback
-          coverage_result: no-service
-          stage: callback
+          stage_transition: port_number-to-offer
+          port_result: locked
+          stage: offer
         phrase:
           dimension: stage_transition
-          value: address-to-callback
-      - block: b3-callback-to-handover
+          value: port_number-to-offer
+      - block: b3-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: callback-to-handover
-          callback_phone: given
-          coverage_result: no-service
-          stage: handover
+          stage_transition: offer-to-details
+          stage: details
         phrase:
           dimension: stage_transition
-          value: callback-to-handover
+          value: offer-to-details
       - block: b4-D1_off_topic
         seeder: twise
         cell:
           spec: metadata.generated.cell
           deviation: D1_off_topic
-          stage: handover
+          stage: details
         phrase:
           dimension: deviation
           value: D1_off_topic
-      - block: b5-handover-to-closing
+      - block: b5-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: handover-to-closing
+          stage_transition: details-to-recap
+          customer_details: name-and-email
+          stage: recap
+        phrase:
+          dimension: stage_transition
+          value: details-to-recap
+      - block: b6-recap-to-order_placed
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: recap-to-order_placed
+          port_result: locked
+          customer_details: name-and-email
+          stage: order_placed
+        phrase:
+          dimension: stage_transition
+          value: recap-to-order_placed
+      - block: b7-order_placed-to-closing
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: order_placed-to-closing
           stage: closing
         phrase:
           dimension: stage_transition
-          value: handover-to-closing
+          value: order_placed-to-closing

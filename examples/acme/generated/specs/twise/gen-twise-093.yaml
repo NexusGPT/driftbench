@@ -4,7 +4,7 @@
 id: gen-twise-093
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 93 of 132: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D4_loose_confirmation at recap"
+title: "t-wise row 93 of 132: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D4_loose_confirmation at recap"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -12,7 +12,7 @@ tags:
   - persona:new-customer
   - data:fiber
   - task:catalog-only
-  - flow:order
+  - flow:new-home
 covers:
   - B-009
 stages:
@@ -32,8 +32,8 @@ criteria:
     rubric: Treat a loose yes as no confirmation and ask for CONFIRM again
     gating: false
     scope: conversation
-  - name: flow.order
-    rubric: Recap, explicit confirmation and order placement
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
     gating: false
     scope: conversation
   - name: deviation.D4_loose_confirmation
@@ -56,7 +56,7 @@ blocks:
       lang: EN
       criteria:
         - behaviour.B-009
-        - flow.order
+        - flow.new-home
   - id: b2-address-to-offer
     when:
       user: The address is 14 Harbor Road, Acmeville.
@@ -168,14 +168,14 @@ metadata:
       agent: acme
       version: "1"
       hash: badea3d3df7a
-    path: order-named-plan
+    path: home-order
     cell:
       behaviour: B-009
       channel: whatsapp
       user_type: new-customer
       coverage_result: fiber
       workspace_start: catalog-only
-      flow: order
+      flow: new-home
       plan_choice: names-one
       customer_details: name-and-email
     blocks:

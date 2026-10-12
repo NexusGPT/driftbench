@@ -4,7 +4,7 @@
 id: gen-twise-094
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 94 of 132: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D5_language_switch at recap"
+title: "t-wise row 94 of 132: Path home-callback of new-home: needs > address > offer > callback > handover, D5_language_switch at needs"
 channel: chat
 lang: EN
 tier: generated
@@ -12,7 +12,7 @@ tags:
   - persona:new-customer
   - data:fiber
   - task:catalog-only
-  - flow:order
+  - flow:new-home
 covers:
   - B-009
 stages:
@@ -32,8 +32,8 @@ criteria:
     rubric: Treat a loose yes as no confirmation and ask for CONFIRM again
     gating: false
     scope: conversation
-  - name: flow.order
-    rubric: Recap, explicit confirmation and order placement
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
     gating: false
     scope: conversation
   - name: deviation.D5_language_switch
@@ -41,7 +41,28 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-address
+  - id: b1-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: needs
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - behaviour.B-009
+        - flow.new-home
+        - deviation.D5_language_switch
+  - id: b2-needs-to-address
     when:
       user: Do you have home internet where I live?
     expect:
@@ -51,13 +72,10 @@ blocks:
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
       lang: EN
-      criteria:
-        - behaviour.B-009
-        - flow.order
-  - id: b2-address-to-offer
+  - id: b3-address-to-offer
     when:
       user: The address is 14 Harbor Road, Acmeville.
     expect:
@@ -72,70 +90,35 @@ blocks:
           input:
             category: home
             address_id: addr-101
-        - label: order.create
+        - label: notify_sales
           count: 0
       lang: EN
-  - id: b3-offer-to-details
+  - id: b4-offer-to-callback
     when:
-      user: I'll take Acme Fiber 1000.
+      user: Can someone just call me back?
     expect:
-      stage: details
+      stage: callback
       tools:
         - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
       lang: EN
-  - id: b4-details-to-recap
+  - id: b5-callback-to-handover
     when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: You can reach me on +1 202 555 0131.
     expect:
-      stage: recap
+      stage: handover
       tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b5-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: recap
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-      criteria:
-        - deviation.D5_language_switch
-  - id: b6-recap-to-order_placed
-    when:
-      user: CONFIRM
-    expect:
-      stage: order_placed
-      tools:
-        - label: order.create
+        - label: notify_sales
           count: 1
           input:
-            type: new
-            plan_id: fiber-1000
-            address_id: addr-101
+            reason: callback
             customer:
               subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
+                phone: "+12025550131"
         - label: coverage.check
           count: 0
         - label: catalog.search
@@ -144,18 +127,15 @@ blocks:
 rules:
   forbidden_tools:
     - port.check
-    - notify_sales
+    - order.create
 end_state:
-  source: tool:order.create
+  source: tool:notify_sales
   mode: subset
   expect:
-    type: new
-    plan_id: fiber-1000
-    address_id: addr-101
+    reason: callback
     customer:
       subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
+        phone: "+12025550131"
 metadata:
   generated:
     by: driftbench generate
@@ -167,18 +147,27 @@ metadata:
       agent: acme
       version: "1"
       hash: badea3d3df7a
-    path: order-named-plan
+    path: home-callback
     cell:
       behaviour: B-009
       channel: chat
       user_type: new-customer
       coverage_result: fiber
       workspace_start: catalog-only
-      flow: order
-      plan_choice: names-one
-      customer_details: name-and-email
+      flow: new-home
+      plan_choice: asks-for-callback
+      callback_phone: given
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: needs
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
+      - block: b2-needs-to-address
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -187,7 +176,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-offer
+      - block: b3-address-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -197,42 +186,24 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-offer
-      - block: b3-offer-to-details
+      - block: b4-offer-to-callback
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
+          stage_transition: offer-to-callback
+          stage: callback
         phrase:
           dimension: stage_transition
-          value: offer-to-details
-      - block: b4-details-to-recap
+          value: offer-to-callback
+      - block: b5-callback-to-handover
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
-          stage: recap
-        phrase:
-          dimension: stage_transition
-          value: details-to-recap
-      - block: b5-D5_language_switch
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: recap
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
-      - block: b6-recap-to-order_placed
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: recap-to-order_placed
+          stage_transition: callback-to-handover
+          callback_phone: given
           coverage_result: fiber
-          customer_details: name-and-email
-          stage: order_placed
+          plan_choice: asks-for-callback
+          stage: handover
         phrase:
           dimension: stage_transition
-          value: recap-to-order_placed
+          value: callback-to-handover

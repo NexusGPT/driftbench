@@ -16,10 +16,10 @@
     "max": null
   },
   "summary": {
-    "specs": 246,
-    "blocks": 901,
-    "complete": 168,
-    "incomplete": 78
+    "specs": 276,
+    "blocks": 1090,
+    "complete": 207,
+    "incomplete": 69
   },
   "seeders": {
     "graph": {
@@ -32,10 +32,10 @@
     },
     "twise": {
       "specs": 132,
-      "blocks": 636,
-      "complete": 123,
+      "blocks": 696,
+      "complete": 132,
       "needs_phrase": 0,
-      "needs_then": 9,
+      "needs_then": 0,
       "cut": false
     },
     "boundary": {
@@ -55,9 +55,9 @@
       "cut": false
     },
     "metamorphic": {
-      "specs": 12,
-      "blocks": 52,
-      "complete": 10,
+      "specs": 42,
+      "blocks": 181,
+      "complete": 40,
       "needs_phrase": 0,
       "needs_then": 2,
       "cut": false
@@ -119,7 +119,7 @@
     "probes": [
       {
         "class": "D1_off_topic",
-        "stage": "address",
+        "stage": "needs",
         "spec": "gen-deviation-001",
         "phrase": true
       },
@@ -149,7 +149,7 @@
       },
       {
         "class": "D6_instruction_in_data",
-        "stage": "callback",
+        "stage": "offer",
         "spec": "gen-deviation-006",
         "phrase": true
       },
@@ -173,22 +173,36 @@
       },
       {
         "class": "D9_out_of_scope",
-        "stage": "identify",
+        "stage": "needs",
         "spec": "gen-deviation-010",
         "phrase": true
       }
     ]
   },
   "metamorphic": {
-    "families": 6,
-    "specs": 12,
+    "families": 20,
+    "specs": 42,
     "values": [
       "flow=upgrade",
       "deviation=D4_loose_confirmation",
       "stage_transition=needs-to-identify",
       "stage_transition=needs-to-address",
       "stage_transition=details-to-recap",
-      "stage_transition=recap-to-order_placed"
+      "stage_transition=recap-to-order_placed",
+      "upgrade-order@channel",
+      "upgrade-unknown-email@channel",
+      "upgrade-most-data@channel",
+      "upgrade-plan-not-in-catalog@channel",
+      "home-order@channel",
+      "home-no-coverage@channel",
+      "home-address-not-found@channel",
+      "home-callback@channel",
+      "porting-keep-number@channel",
+      "porting-locked-number@channel",
+      "order-named-plan@channel",
+      "order-named-plan@user_type",
+      "order-single-plan@channel",
+      "order-single-plan@user_type"
     ]
   },
   "constraints": {
@@ -1015,102 +1029,6 @@
   ],
   "no_then": [
     {
-      "spec": "gen-twise-025",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-no-coverage: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service"
-      ]
-    },
-    {
-      "spec": "gen-twise-026",
-      "blocks": ["b1-open", "b2-D3_contradiction"],
-      "reasons": [
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
-        "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-036",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
-        "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-047",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-048",
-      "blocks": ["b1-open", "b2-D3_contradiction"],
-      "reasons": [
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
-        "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-098",
-      "blocks": ["b1-open", "b2-D7_silence_or_burst"],
-      "reasons": [
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service",
-        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service",
-        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-most-data: it needs user_type in existing-customer; the cell holds new-customer"
-      ]
-    },
-    {
-      "spec": "gen-twise-102",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
-        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds not-in-map",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map"
-      ]
-    },
-    {
-      "spec": "gen-twise-105",
-      "blocks": ["b1-open", "b2-D5_language_switch"],
-      "reasons": [
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
-        "path home-address-not-found: it needs user_type in new-customer; the cell holds existing-customer",
-        "path home-callback: it needs user_type in new-customer; the cell holds existing-customer",
-        "path home-no-coverage: it needs user_type in new-customer; the cell holds existing-customer",
-        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds not-in-map",
-        "path home-order: it needs user_type in new-customer; the cell holds existing-customer"
-      ]
-    },
-    {
-      "spec": "gen-twise-113",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
-        "path home-callback: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path home-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
       "spec": "gen-boundary-062",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs home_plans=one-plan"]
@@ -1176,17 +1094,17 @@
     "allowed": 840,
     "complete": {
       "t": 2,
-      "specs": 168,
+      "specs": 207,
       "allowed": 840,
-      "covered": 619,
-      "share": 0.736904761904762
+      "covered": 668,
+      "share": 0.7952380952380952
     },
     "all": {
       "t": 2,
-      "specs": 246,
+      "specs": 276,
       "allowed": 840,
-      "covered": 631,
-      "share": 0.7511904761904762
+      "covered": 670,
+      "share": 0.7976190476190477
     },
     "baseline": {
       "label": "examples/acme/specs",

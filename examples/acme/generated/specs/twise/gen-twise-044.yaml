@@ -122,7 +122,7 @@ blocks:
       lang: EN
   - id: b6-recap-to-order_placed
     when:
-      user: CONFIRM
+      user: Confirm
     expect:
       stage: order_placed
       tools:

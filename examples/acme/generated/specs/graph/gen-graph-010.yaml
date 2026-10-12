@@ -5,14 +5,14 @@ id: gen-graph-010
 version: badea3d3df7a
 kind: conversation
 title: "Stage path 10: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - flow:porting
   - persona:new-customer
   - data:not-in-map
-  - task:existing-workbook
+  - task:catalog-only
 stages:
   - needs
   - identify
@@ -140,6 +140,26 @@ end_state:
       subset:
         name: Jo Okafor
         email: jo.okafor@example.com
+perturbations:
+  - id: p1-D1_off_topic
+    class: D1_off_topic
+    inject_at: 0
+    user: Are your stores open on Saturday?
+    expect:
+      stage: needs
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -158,9 +178,9 @@ metadata:
       port_result: locked
       plan_choice: names-one
       customer_details: name-and-email
-      channel: chat
+      channel: whatsapp
       coverage_result: not-in-map
-      workspace_start: existing-workbook
+      workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-port_number
         seeder: graph

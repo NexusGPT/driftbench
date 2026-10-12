@@ -4,7 +4,7 @@
 id: gen-twise-006
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 6 of 132: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D5_language_switch at identify"
+title: "t-wise row 6 of 132: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D5_language_switch at offer"
 channel: chat
 lang: EN
 tier: generated
@@ -43,7 +43,7 @@ criteria:
 blocks:
   - id: b1-needs-to-identify
     when:
-      user: Hi, I already have an Acme plan and I need more data.
+      user: I keep running out of data, can I get a bigger plan?
     expect:
       stage: identify
       tools:
@@ -55,24 +55,7 @@ blocks:
       criteria:
         - behaviour.B-001
         - flow.upgrade
-  - id: b2-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: identify
-      tools:
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-      criteria:
-        - deviation.D5_language_switch
-  - id: b3-identify-to-offer
+  - id: b2-identify-to-offer
     when:
       user: It's sam.rivera@example.com.
     expect:
@@ -86,6 +69,23 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b3-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: offer
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - deviation.D5_language_switch
   - id: b4-offer-to-recap
     when:
       user: The unlimited one, please.
@@ -99,7 +99,7 @@ blocks:
       lang: EN
   - id: b5-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
@@ -166,16 +166,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-D5_language_switch
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: identify
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
-      - block: b3-identify-to-offer
+      - block: b2-identify-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -185,6 +176,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-offer
+      - block: b3-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: offer
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
       - block: b4-offer-to-recap
         seeder: twise
         cell:

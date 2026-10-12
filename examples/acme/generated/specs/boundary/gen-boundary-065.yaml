@@ -12,7 +12,7 @@ tags:
   - flow:porting
   - persona:new-customer
   - data:not-in-map
-  - task:catalog-only
+  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -125,6 +125,26 @@ end_state:
       subset:
         name: Jo Okafor
         email: jo.okafor@example.com
+perturbations:
+  - id: p1-D7_silence_or_burst
+    class: D7_silence_or_burst
+    inject_at: 3
+    user: hello?
+    expect:
+      stage: details
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: details
 metadata:
   generated:
     by: driftbench generate
@@ -145,7 +165,7 @@ metadata:
       customer_details: name-and-email
       channel: whatsapp
       coverage_result: not-in-map
-      workspace_start: catalog-only
+      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-port_number
         seeder: boundary

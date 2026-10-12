@@ -4,7 +4,7 @@
 id: gen-twise-090
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 90 of 132: Path upgrade-most-data of upgrade: needs > identify > closing, D1_off_topic at identify"
+title: "t-wise row 90 of 132: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer, D1_off_topic at needs"
 channel: chat
 lang: EN
 tier: generated
@@ -41,25 +41,13 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-identify
-    when:
-      user: Hi, I already have an Acme plan and I need more data.
-    expect:
-      stage: identify
-      tools:
-        - label: catalog.search
-          count: 0
-      lang: EN
-      criteria:
-        - behaviour.B-009
-        - flow.upgrade
-  - id: b2-D1_off_topic
+  - id: b1-D1_off_topic
     when:
       injection:
         class: D1_off_topic
         user: Are your stores open on Saturday?
     expect:
-      stage: identify
+      stage: needs
       tools:
         - label: catalog.search
           count: 0
@@ -67,18 +55,29 @@ blocks:
         - Monday to Saturday
       lang: EN
       criteria:
+        - behaviour.B-009
+        - flow.upgrade
         - deviation.D1_off_topic
-  - id: b3-identify-to-closing
+  - id: b2-needs-to-identify
     when:
-      user: It's morgan.diaz@example.com.
+      user: I keep running out of data, can I get a bigger plan?
     expect:
-      stage: closing
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b3-identify-to-offer
+    when:
+      user: It's lee.jensen@example.com.
+    expect:
+      stage: offer
       tools:
         - label: catalog.search
           count: 1
           input:
             category: mobile
-            customer_email: morgan.diaz@example.com
+            customer_email: lee.jensen@example.com
       lang: EN
 rules:
   forbidden_tools:
@@ -97,7 +96,7 @@ metadata:
       agent: acme
       version: "1"
       hash: badea3d3df7a
-    path: upgrade-most-data
+    path: upgrade-plan-not-in-catalog
     cell:
       behaviour: B-009
       channel: chat
@@ -105,9 +104,18 @@ metadata:
       coverage_result: fiber
       workspace_start: existing-workbook
       flow: upgrade
-      account_lookup: most-data
+      account_lookup: plan-not-in-catalog
     blocks:
-      - block: b1-needs-to-identify
+      - block: b1-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: needs
+        phrase:
+          dimension: deviation
+          value: D1_off_topic
+      - block: b2-needs-to-identify
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -116,22 +124,13 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-D1_off_topic
+      - block: b3-identify-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: identify
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b3-identify-to-closing
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: identify-to-closing
-          account_lookup: most-data
-          stage: closing
+          stage_transition: identify-to-offer
+          account_lookup: plan-not-in-catalog
+          stage: offer
         phrase:
           dimension: stage_transition
-          value: identify-to-closing
+          value: identify-to-offer

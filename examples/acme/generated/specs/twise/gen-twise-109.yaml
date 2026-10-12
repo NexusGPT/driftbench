@@ -43,7 +43,7 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Do you have home internet where I live?
+      user: Hello, I'm looking for home internet.
     expect:
       stage: address
       tools:
@@ -109,7 +109,7 @@ blocks:
       lang: EN
   - id: b5-details-to-recap
     when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: Jo Okafor, jo.okafor@example.com
     expect:
       stage: recap
       tools:
@@ -122,7 +122,7 @@ blocks:
       lang: EN
   - id: b6-recap-to-order_placed
     when:
-      user: CONFIRM
+      user: Confirm
     expect:
       stage: order_placed
       tools:

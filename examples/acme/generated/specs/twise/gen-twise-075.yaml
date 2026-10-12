@@ -4,7 +4,7 @@
 id: gen-twise-075
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 75 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D10_return at port_number"
+title: "t-wise row 75 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D10_return at offer"
 channel: chat
 lang: EN
 tier: generated
@@ -57,26 +57,7 @@ blocks:
       criteria:
         - behaviour.B-007
         - flow.porting
-  - id: b2-D10_return
-    when:
-      injection:
-        class: D10_return
-        user: ok, let's continue with the order.
-    expect:
-      stage: port_number
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - We were|pick up where we left off
-      lang: EN
-      criteria:
-        - deviation.D10_return
-  - id: b3-port_number-to-offer
+  - id: b2-port_number-to-offer
     when:
       user: My number is +1 202 555 0160.
     expect:
@@ -93,6 +74,25 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b3-D10_return
+    when:
+      injection:
+        class: D10_return
+        user: ok, let's continue with the order.
+    expect:
+      stage: offer
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - We were|pick up where we left off
+      lang: EN
+      criteria:
+        - deviation.D10_return
   - id: b4-offer-to-details
     when:
       user: Acme Mobile M, please.
@@ -121,7 +121,7 @@ blocks:
       lang: EN
   - id: b6-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
@@ -202,16 +202,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
-      - block: b2-D10_return
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D10_return
-          stage: port_number
-        phrase:
-          dimension: deviation
-          value: D10_return
-      - block: b3-port_number-to-offer
+      - block: b2-port_number-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -221,6 +212,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
+      - block: b3-D10_return
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D10_return
+          stage: offer
+        phrase:
+          dimension: deviation
+          value: D10_return
       - block: b4-offer-to-details
         seeder: twise
         cell:

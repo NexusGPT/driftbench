@@ -63,7 +63,7 @@ export function registerGenerateCommand(
     .description('Generate specs from an approved map, by code: graph paths, t-wise rows, boundaries, probes')
     .requiredOption('--map <file>', 'the approved map (a proposal whose every entry is approved)')
     .requiredOption('--out <dir>', 'the folder to write the specs and generate-report.json into')
-    .option('--t <n>', 'the strength of the covering array (default 2)')
+    .option('--t <n>', 'the strength of the covering array (default 3)')
     .option('--seed <n>', 'the integer seed of every seeded choice (default 1)')
     .option('--max <n>', 'the most specs per seeder')
     .option('--baseline <path>', 'specs to measure on the same map for comparison; repeat it', collect)

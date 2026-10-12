@@ -6,12 +6,12 @@ id: gen-boundary-056
 version: badea3d3df7a
 kind: conversation
 title: "Boundary value notify_sales.out.queued.true: queued is true"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
-  - persona:existing-customer
-  - data:5g-only
+  - persona:new-customer
+  - data:no-service
   - task:existing-workbook
 given:
   world:
@@ -27,8 +27,15 @@ blocks:
     expect:
       tools:
         - label: notify_sales
-          count:
-            min: 1
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: coverage.check
+          count: 0
+        - label: port.check
+          count: 0
+        - label: order.create
+          count: 0
       criteria:
         - needs-approved-phrase
 metadata:
@@ -44,9 +51,9 @@ metadata:
       hash: badea3d3df7a
     cell:
       notify_sales.out.queued: notify_sales.out.queued.true
-      channel: chat
-      user_type: existing-customer
-      coverage_result: 5g-only
+      channel: whatsapp
+      user_type: new-customer
+      coverage_result: no-service
       workspace_start: existing-workbook
     blocks:
       - block: b1-value

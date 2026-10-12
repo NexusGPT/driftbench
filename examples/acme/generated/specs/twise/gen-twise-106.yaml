@@ -43,7 +43,7 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Do you have home internet where I live?
+      user: Hello, I'm looking for home internet.
     expect:
       stage: address
       tools:

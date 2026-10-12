@@ -4,7 +4,7 @@
 id: gen-twise-024
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 24 of 132: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D1_off_topic at recap"
+title: "t-wise row 24 of 132: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D1_off_topic at address"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -43,7 +43,7 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Do you have home internet where I live?
+      user: Hello, I'm looking for home internet.
     expect:
       stage: address
       tools:
@@ -57,7 +57,26 @@ blocks:
       criteria:
         - behaviour.B-003
         - flow.new-home
-  - id: b2-address-to-offer
+  - id: b2-D1_off_topic
+    when:
+      injection:
+        class: D1_off_topic
+        user: Are your stores open on Saturday?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+      criteria:
+        - deviation.D1_off_topic
+  - id: b3-address-to-offer
     when:
       user: The address is 14 Harbor Road, Acmeville.
     expect:
@@ -75,7 +94,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b3-offer-to-details
+  - id: b4-offer-to-details
     when:
       user: I'll take Acme Fiber 1000.
     expect:
@@ -88,9 +107,9 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b4-details-to-recap
+  - id: b5-details-to-recap
     when:
-      user: Jo Okafor, jo.okafor@example.com
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
       stage: recap
       tools:
@@ -101,25 +120,6 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-D1_off_topic
-    when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
-    expect:
-      stage: recap
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Monday to Saturday
-      lang: EN
-      criteria:
-        - deviation.D1_off_topic
   - id: b6-recap-to-order_placed
     when:
       user: Confirm
@@ -187,7 +187,16 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-offer
+      - block: b2-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: address
+        phrase:
+          dimension: deviation
+          value: D1_off_topic
+      - block: b3-address-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -197,7 +206,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-offer
-      - block: b3-offer-to-details
+      - block: b4-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -206,7 +215,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b4-details-to-recap
+      - block: b5-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -216,15 +225,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
-      - block: b5-D1_off_topic
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: recap
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
       - block: b6-recap-to-order_placed
         seeder: twise
         cell:

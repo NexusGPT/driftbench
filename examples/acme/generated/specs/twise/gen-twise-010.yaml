@@ -4,7 +4,7 @@
 id: gen-twise-010
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 10 of 132: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D7_silence_or_burst at offer"
+title: "t-wise row 10 of 132: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D7_silence_or_burst at recap"
 channel: chat
 lang: EN
 tier: generated
@@ -69,24 +69,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b3-D7_silence_or_burst
-    when:
-      injection:
-        class: D7_silence_or_burst
-        user: hello?
-    expect:
-      stage: offer
-      tools:
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I'm here
-      lang: EN
-      criteria:
-        - deviation.D7_silence_or_burst
-  - id: b4-offer-to-recap
+  - id: b3-offer-to-recap
     when:
       user: The unlimited one, please.
     expect:
@@ -97,6 +80,23 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b4-D7_silence_or_burst
+    when:
+      injection:
+        class: D7_silence_or_burst
+        user: hello?
+    expect:
+      stage: recap
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+      criteria:
+        - deviation.D7_silence_or_burst
   - id: b5-recap-to-order_placed
     when:
       user: CONFIRM
@@ -177,16 +177,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-offer
-      - block: b3-D7_silence_or_burst
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: offer
-        phrase:
-          dimension: deviation
-          value: D7_silence_or_burst
-      - block: b4-offer-to-recap
+      - block: b3-offer-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -195,6 +186,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-recap
+      - block: b4-D7_silence_or_burst
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: recap
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
       - block: b5-recap-to-order_placed
         seeder: twise
         cell:

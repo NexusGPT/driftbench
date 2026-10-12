@@ -4,7 +4,7 @@
 id: gen-twise-049
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 49 of 132: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D4_loose_confirmation at recap"
+title: "t-wise row 49 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D4_loose_confirmation at recap"
 channel: chat
 lang: EN
 tier: generated
@@ -12,7 +12,7 @@ tags:
   - persona:new-customer
   - data:5g-only
   - task:existing-workbook
-  - flow:new-home
+  - flow:porting
 covers:
   - B-005
 stages:
@@ -32,8 +32,8 @@ criteria:
     rubric: Book a sales callback with a phone number when the customer asks or a check cannot be done
     gating: false
     scope: conversation
-  - name: flow.new-home
-    rubric: A new customer asks for home internet at an address
+  - name: flow.porting
+    rubric: A new customer switches to Acme and keeps their number
     gating: false
     scope: conversation
   - name: deviation.D4_loose_confirmation
@@ -41,13 +41,13 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-address
+  - id: b1-needs-to-port_number
     when:
-      user: Do you have home internet where I live?
+      user: I'd like to move to Acme and keep my phone number.
     expect:
-      stage: address
+      stage: port_number
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
@@ -56,32 +56,31 @@ blocks:
       lang: EN
       criteria:
         - behaviour.B-005
-        - flow.new-home
-  - id: b2-address-to-offer
+        - flow.porting
+  - id: b2-port_number-to-offer
     when:
-      user: The address is 88 Summit Avenue, Acmeville.
+      user: My number is +1 202 555 0160.
     expect:
       stage: offer
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 1
           input:
-            address: 88 Summit Avenue, Acmeville
+            number: "+12025550160"
         - label: catalog.search
           count: 1
           input:
-            category: home
-            address_id: addr-103
+            category: mobile
         - label: order.create
           count: 0
       lang: EN
   - id: b3-offer-to-details
     when:
-      user: I'll take Acme Air 5G.
+      user: Acme Mobile M, please.
     expect:
       stage: details
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
@@ -94,7 +93,7 @@ blocks:
     expect:
       stage: recap
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
@@ -109,7 +108,7 @@ blocks:
     expect:
       stage: recap
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
@@ -131,28 +130,43 @@ blocks:
           count: 1
           input:
             type: new
-            plan_id: air-5g
-            address_id: addr-103
+            plan_id: mobile-m
+            port_number:
+              absent: true
             customer:
               subset:
                 name: Jo Okafor
                 email: jo.okafor@example.com
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
       lang: EN
+  - id: b7-order_placed-to-closing
+    when:
+      user: No, that's all. Thanks!
+    expect:
+      stage: closing
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
 rules:
   forbidden_tools:
-    - port.check
+    - coverage.check
     - notify_sales
 end_state:
   source: tool:order.create
   mode: subset
   expect:
     type: new
-    plan_id: air-5g
-    address_id: addr-103
+    plan_id: mobile-m
+    port_number:
+      absent: true
     customer:
       subset:
         name: Jo Okafor
@@ -168,36 +182,37 @@ metadata:
       agent: acme
       version: "1"
       hash: badea3d3df7a
-    path: home-order
+    path: porting-locked-number
     cell:
       behaviour: B-005
       channel: chat
       user_type: new-customer
       coverage_result: 5g-only
       workspace_start: existing-workbook
-      flow: new-home
+      flow: porting
+      port_result: locked
       plan_choice: names-one
       customer_details: name-and-email
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-needs-to-port_number
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-address
-          stage: address
+          stage_transition: needs-to-port_number
+          stage: port_number
         phrase:
           dimension: stage_transition
-          value: needs-to-address
-      - block: b2-address-to-offer
+          value: needs-to-port_number
+      - block: b2-port_number-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: address-to-offer
-          coverage_result: 5g-only
+          stage_transition: port_number-to-offer
+          port_result: locked
           stage: offer
         phrase:
           dimension: stage_transition
-          value: address-to-offer
+          value: port_number-to-offer
       - block: b3-offer-to-details
         seeder: twise
         cell:
@@ -231,9 +246,18 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
-          coverage_result: 5g-only
+          port_result: locked
           customer_details: name-and-email
           stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
+      - block: b7-order_placed-to-closing
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: order_placed-to-closing
+          stage: closing
+        phrase:
+          dimension: stage_transition
+          value: order_placed-to-closing

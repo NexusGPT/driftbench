@@ -4,7 +4,7 @@
 id: gen-twise-099
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 99 of 132: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D9_out_of_scope at details"
+title: "t-wise row 99 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D9_out_of_scope at recap"
 channel: chat
 lang: EN
 tier: generated
@@ -12,7 +12,7 @@ tags:
   - persona:new-customer
   - data:5g-only
   - task:existing-workbook
-  - flow:order
+  - flow:porting
 covers:
   - B-009
 stages:
@@ -32,8 +32,8 @@ criteria:
     rubric: Treat a loose yes as no confirmation and ask for CONFIRM again
     gating: false
     scope: conversation
-  - name: flow.order
-    rubric: Recap, explicit confirmation and order placement
+  - name: flow.porting
+    rubric: A new customer switches to Acme and keeps their number
     gating: false
     scope: conversation
   - name: deviation.D9_out_of_scope
@@ -41,13 +41,13 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-address
+  - id: b1-needs-to-port_number
     when:
-      user: Hello, I'm looking for home internet.
+      user: I'd like to move to Acme and keep my phone number.
     expect:
-      stage: address
+      stage: port_number
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
@@ -56,47 +56,59 @@ blocks:
       lang: EN
       criteria:
         - behaviour.B-009
-        - flow.order
-  - id: b2-address-to-offer
+        - flow.porting
+  - id: b2-port_number-to-offer
     when:
-      user: The address is 88 Summit Avenue, Acmeville.
+      user: My number is +1 202 555 0160.
     expect:
       stage: offer
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 1
           input:
-            address: 88 Summit Avenue, Acmeville
+            number: "+12025550160"
         - label: catalog.search
           count: 1
           input:
-            category: home
-            address_id: addr-103
+            category: mobile
         - label: order.create
           count: 0
       lang: EN
   - id: b3-offer-to-details
     when:
-      user: Yes, that one.
+      user: Acme Mobile M, please.
     expect:
       stage: details
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
         - label: order.create
           count: 0
       lang: EN
-  - id: b4-D9_out_of_scope
+  - id: b4-details-to-recap
+    when:
+      user: Jo Okafor, jo.okafor@example.com
+    expect:
+      stage: recap
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b5-D9_out_of_scope
     when:
       injection:
         class: D9_out_of_scope
         user: My last bill charged me twice, can you fix it?
     expect:
-      stage: details
+      stage: recap
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
@@ -107,22 +119,9 @@ blocks:
       lang: EN
       criteria:
         - deviation.D9_out_of_scope
-  - id: b5-details-to-recap
-    when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
-    expect:
-      stage: recap
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
   - id: b6-recap-to-order_placed
     when:
-      user: CONFIRM
+      user: Confirm
     expect:
       stage: order_placed
       tools:
@@ -130,13 +129,14 @@ blocks:
           count: 1
           input:
             type: new
-            plan_id: air-5g
-            address_id: addr-103
+            plan_id: mobile-m
+            port_number:
+              absent: true
             customer:
               subset:
                 name: Jo Okafor
                 email: jo.okafor@example.com
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
@@ -147,7 +147,7 @@ blocks:
     expect:
       stage: closing
       tools:
-        - label: coverage.check
+        - label: port.check
           count: 0
         - label: catalog.search
           count: 0
@@ -156,15 +156,16 @@ blocks:
       lang: EN
 rules:
   forbidden_tools:
-    - port.check
+    - coverage.check
     - notify_sales
 end_state:
   source: tool:order.create
   mode: subset
   expect:
     type: new
-    plan_id: air-5g
-    address_id: addr-103
+    plan_id: mobile-m
+    port_number:
+      absent: true
     customer:
       subset:
         name: Jo Okafor
@@ -180,36 +181,37 @@ metadata:
       agent: acme
       version: "1"
       hash: badea3d3df7a
-    path: order-single-plan
+    path: porting-locked-number
     cell:
       behaviour: B-009
       channel: chat
       user_type: new-customer
       coverage_result: 5g-only
       workspace_start: existing-workbook
-      flow: order
-      plan_choice: loose-yes-to-single-offer
+      flow: porting
+      port_result: locked
+      plan_choice: names-one
       customer_details: name-and-email
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-needs-to-port_number
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-address
-          stage: address
+          stage_transition: needs-to-port_number
+          stage: port_number
         phrase:
           dimension: stage_transition
-          value: needs-to-address
-      - block: b2-address-to-offer
+          value: needs-to-port_number
+      - block: b2-port_number-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: address-to-offer
-          coverage_result: 5g-only
+          stage_transition: port_number-to-offer
+          port_result: locked
           stage: offer
         phrase:
           dimension: stage_transition
-          value: address-to-offer
+          value: port_number-to-offer
       - block: b3-offer-to-details
         seeder: twise
         cell:
@@ -219,16 +221,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b4-D9_out_of_scope
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: details
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope
-      - block: b5-details-to-recap
+      - block: b4-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -238,12 +231,21 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
+      - block: b5-D9_out_of_scope
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: recap
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
       - block: b6-recap-to-order_placed
         seeder: twise
         cell:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
-          coverage_result: 5g-only
+          port_result: locked
           customer_details: name-and-email
           stage: order_placed
         phrase:

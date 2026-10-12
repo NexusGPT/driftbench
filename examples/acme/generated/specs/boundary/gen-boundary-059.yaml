@@ -5,14 +5,14 @@ id: gen-boundary-059
 version: badea3d3df7a
 kind: conversation
 title: "Boundary value account_lookup=not-found: Path upgrade-unknown-email of upgrade: needs > identify > identify"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - flow:upgrade
   - persona:existing-customer
-  - data:no-service
-  - task:existing-workbook
+  - data:fiber
+  - task:catalog-only
 stages:
   - needs
   - identify
@@ -60,6 +60,22 @@ rules:
     - port.check
     - order.create
     - notify_sales
+perturbations:
+  - id: p1-D5_language_switch
+    class: D5_language_switch
+    inject_at: 1
+    user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: identify
 metadata:
   generated:
     by: driftbench generate
@@ -76,9 +92,9 @@ metadata:
       account_lookup: not-found
       flow: upgrade
       user_type: existing-customer
-      channel: chat
-      coverage_result: no-service
-      workspace_start: existing-workbook
+      channel: whatsapp
+      coverage_result: fiber
+      workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-identify
         seeder: boundary

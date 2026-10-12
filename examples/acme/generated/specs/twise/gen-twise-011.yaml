@@ -4,7 +4,7 @@
 id: gen-twise-011
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 11 of 132: Path upgrade-unknown-email of upgrade: needs > identify > identify, D9_out_of_scope at identify"
+title: "t-wise row 11 of 132: Path upgrade-unknown-email of upgrade: needs > identify > identify, D9_out_of_scope at needs"
 channel: chat
 lang: EN
 tier: generated
@@ -41,25 +41,13 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-identify
-    when:
-      user: Hi, I already have an Acme plan and I need more data.
-    expect:
-      stage: identify
-      tools:
-        - label: catalog.search
-          count: 0
-      lang: EN
-      criteria:
-        - behaviour.B-001
-        - flow.upgrade
-  - id: b2-D9_out_of_scope
+  - id: b1-D9_out_of_scope
     when:
       injection:
         class: D9_out_of_scope
         user: My last bill charged me twice, can you fix it?
     expect:
-      stage: identify
+      stage: needs
       tools:
         - label: catalog.search
           count: 0
@@ -67,7 +55,18 @@ blocks:
         - Acme Care
       lang: EN
       criteria:
+        - behaviour.B-001
+        - flow.upgrade
         - deviation.D9_out_of_scope
+  - id: b2-needs-to-identify
+    when:
+      user: I keep running out of data, can I get a bigger plan?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
   - id: b3-identify-to-identify
     when:
       user: It's pat.quinn@example.com.
@@ -107,7 +106,16 @@ metadata:
       flow: upgrade
       account_lookup: not-found
     blocks:
-      - block: b1-needs-to-identify
+      - block: b1-D9_out_of_scope
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: needs
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
+      - block: b2-needs-to-identify
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -116,15 +124,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-D9_out_of_scope
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: identify
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope
       - block: b3-identify-to-identify
         seeder: twise
         cell:

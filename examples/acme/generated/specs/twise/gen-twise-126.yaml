@@ -84,7 +84,7 @@ blocks:
     when:
       injection:
         class: D4_loose_confirmation
-        user: ok perfect
+        user: yeah sounds good
     expect:
       stage: recap
       tools:

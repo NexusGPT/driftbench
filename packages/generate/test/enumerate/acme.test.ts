@@ -31,7 +31,9 @@ describe('generate on the approved Acme map', () => {
     prepared = loaded.prepared;
     const hand = await loadSpecs([`${ACME}specs`]);
     handWritten = hand.filter((entry): entry is LoadedSpec => entry.ok).map((entry) => entry.spec);
+    // The committed suite is written at strength 2 (`--t 2`); the default is 3.
     result = generateSuite(prepared, {
+      t: 2,
       mapPath: '../map/approved.yaml',
       baseline: { label: 'examples/acme/specs', specs: handWritten },
     });
@@ -119,7 +121,12 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 168, incomplete: 78 });
+    expect(result.report.summary).toMatchObject({ complete: 207, incomplete: 69 });
+  });
+
+  it('walks a t-wise row whose behaviour no path of its own flows can carry on a path of another flow', () => {
+    // Before the fallback, rows of behaviours whose flows have no path stayed incomplete: 123 complete rows.
+    expect(result.report.seeders.twise.complete).toBeGreaterThan(123);
   });
 
   it('probes all 10 deviation classes, each user turn an approved phrase with its slots filled from the map', () => {
@@ -148,7 +155,8 @@ describe('generate on the approved Acme map', () => {
     const family = (spec: Spec) =>
       (spec.metadata as { generated: { metamorphic?: { family: string } } }).generated.metamorphic?.family;
     const groups = new Map<string, Spec[]>();
-    for (const spec of result.all) {
+    // Phrasing families only: a context family varies a persona or a channel (its title says over).
+    for (const spec of result.all.filter((entry) => !(entry.title ?? '').includes(' over '))) {
       const name = family(spec);
       if (name) groups.set(name, [...(groups.get(name) ?? []), spec]);
     }
@@ -200,7 +208,7 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(168);
+    expect(result.complete).toHaveLength(207);
     for (const spec of result.complete) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;
       expect(

@@ -90,7 +90,7 @@ blocks:
       lang: EN
   - id: b4-details-to-recap
     when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: Jo Okafor, jo.okafor@example.com
     expect:
       stage: recap
       tools:
@@ -105,7 +105,7 @@ blocks:
     when:
       injection:
         class: D4_loose_confirmation
-        user: ok perfect
+        user: yeah sounds good
     expect:
       stage: recap
       tools:
@@ -123,7 +123,7 @@ blocks:
         - deviation.D4_loose_confirmation
   - id: b6-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
