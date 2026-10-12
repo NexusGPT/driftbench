@@ -119,6 +119,26 @@ export const GuardExpect = z
   );
 export type GuardExpect = z.infer<typeof GuardExpect>;
 
+/** The reply is JSON: an optional JSON Schema (strict) and paths with an assertion each. */
+export const JsonExpect = z
+  .strictObject({
+    schema: z
+      .record(z.string(), z.json())
+      .optional()
+      .describe('A JSON Schema the reply must match; an undeclared key fails.'),
+    paths: z
+      .array(
+        z.strictObject({
+          path: z.string().min(1).describe('A dotted path; a number indexes an array.'),
+          assert: Assertion.describe('What the value at the path must be, in the spec assertion vocabulary.'),
+        }),
+      )
+      .optional()
+      .describe('Paths of the reply, each with its assertion.'),
+  })
+  .describe('The reply is JSON, optionally with a schema and paths.');
+export type JsonExpect = z.infer<typeof JsonExpect>;
+
 /** A minimum and a maximum for a count of the reply: at least one of the two, and min not above max. */
 export const LengthBound = z
   .strictObject({
@@ -292,6 +312,17 @@ export const Expect = z
       .describe('How the expected tools line up with the observed calls: exact, in_order or any_order.'),
     must: z.array(Pattern).optional().describe('Patterns the visible text must match.'),
     must_not: z.array(Pattern).optional().describe('Patterns the visible text must not match.'),
+    json: JsonExpect.optional().describe('The reply is valid JSON, optionally with a schema and paths.'),
+    tool_f1: z
+      .strictObject({
+        min: z.number().min(0).max(1).describe('The least F1 that passes, from 0 to 1.'),
+      })
+      .optional()
+      .describe('Precision, recall and F1 of the tool calls against the expected ones.'),
+    refusal: z
+      .enum(['refuses', 'answers'])
+      .optional()
+      .describe('Whether the reply must be a refusal, read from refusal phrases in seven languages.'),
     length: z
       .strictObject({
         words: LengthBound.optional().describe('Bounds on the words of the visible text.'),

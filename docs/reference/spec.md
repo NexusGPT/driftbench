@@ -40,6 +40,9 @@ The loader rewrites these forms before it validates a spec.
 * [Count](#count)
 * [Assertion](#assertion)
 * [ToolsOfferedExpect](#toolsofferedexpect)
+* [JsonExpect](#jsonexpect)
+* [JsonExpect paths](#jsonexpect-paths)
+* [Expect tool_f1](#expect-tool_f1)
 * [Expect length](#expect-length)
 * [LengthBound](#lengthbound)
 * [SimilarityExpect](#similarityexpect)
@@ -280,6 +283,9 @@ The expected output and state delta of a block. Every field is optional.
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
 | `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
 | `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
+| `json` | [JsonExpect](#jsonexpect) | no |  | The reply is valid JSON, optionally with a schema and paths. |
+| `tool_f1` | [Expect tool_f1](#expect-tool_f1) | no |  | Precision, recall and F1 of the tool calls against the expected ones. |
+| `refusal` | `refuses` or `answers` | no |  | Whether the reply must be a refusal, read from refusal phrases in seven languages. |
 | `length` | [Expect length](#expect-length) | no |  | Word and character bounds on the customer-visible text of the block. |
 | `similarity` | list of [SimilarityExpect](#similarityexpect) | no |  | Reference texts the reply must be close to, each with its lowest passing score. |
 | `relevancy` | [RelevancyExpect](#relevancyexpect) | no |  | The reply addresses the ask of the block. |
@@ -350,6 +356,30 @@ The tools the runtime offers the agent, read from the runtime trace; calls do no
 |---|---|---|---|---|
 | `include` | list of strings, each not empty | no |  | Tools the runtime must offer. |
 | `exclude` | list of strings, each not empty | no |  | Tools the runtime must not offer, such as a tool a setting denies. |
+
+## JsonExpect
+
+The reply is JSON, optionally with a schema and paths.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `schema` | map of string to JSON value | no |  | A JSON Schema the reply must match; an undeclared key fails. |
+| `paths` | list of [JsonExpect paths](#jsonexpect-paths) | no |  | Paths of the reply, each with its assertion. |
+
+## JsonExpect paths
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `path` | string, not empty | yes |  | A dotted path; a number indexes an array. |
+| `assert` | [Assertion](#assertion) | yes |  | What the value at the path must be, in the spec assertion vocabulary. |
+
+## Expect tool_f1
+
+Precision, recall and F1 of the tool calls against the expected ones.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `min` | number, 0 to 1 | yes |  | The least F1 that passes, from 0 to 1. |
 
 ## Expect length
 
