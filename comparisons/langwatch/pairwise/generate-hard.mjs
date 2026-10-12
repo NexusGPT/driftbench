@@ -78,7 +78,15 @@ const kinds = {
     errors: 2,
   }),
 };
-const ORDER = [['correct', 'unsupported'], ['correct', 'nearMiss'], ['correct', 'longFluent'], ['unsupported', 'twoWrong'], ['nearMiss', 'twoWrong'], ['longFluent', 'twoWrong'], ['correct', 'twoWrong']];
+const ORDER = [
+  ['correct', 'unsupported'],
+  ['correct', 'nearMiss'],
+  ['correct', 'longFluent'],
+  ['unsupported', 'twoWrong'],
+  ['nearMiss', 'twoWrong'],
+  ['longFluent', 'twoWrong'],
+  ['correct', 'twoWrong'],
+];
 
 const items = [];
 for (let i = 0; i < N; i++) {

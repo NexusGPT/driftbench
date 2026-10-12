@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/style/noNonNullAssertion: research script; each lookup uses a key the script just built */
 // Measures the injection detector on set.json: the pattern rules (no model) and the judge (one model per run).
 //   npx tsx comparisons/langwatch/injection/measure.mts patterns
 //   npx tsx comparisons/langwatch/injection/measure.mts judge --model haiku --cap 0.5
