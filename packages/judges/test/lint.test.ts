@@ -56,4 +56,14 @@ describe('lintCriterion', () => {
       expect(lintCriterion({ ...clean, rubric }).issues.map((i) => i.code), rubric).not.toContain('no-observable');
     }
   });
+
+  it('reports too-long for a rubric over 400 characters', () => {
+    const base = 'The reply names Acme Care.';
+    const long = `${base} ${'The reply keeps to the facts. '.repeat(14)}`.trimEnd();
+    expect(long.length).toBeGreaterThan(400);
+    expect(lintCriterion({ ...clean, rubric: long }).issues.map((i) => i.code)).toContain('too-long');
+    const edge = base.padEnd(400, ' ').replace(/ +$/, '.'.padEnd(400 - base.length + 1, 'x'));
+    expect(lintCriterion({ ...clean, rubric: `${base}${' reply'.repeat(62)}`.slice(0, 400) }).issues.map((i) => i.code)).not.toContain('too-long');
+    expect(edge.length).toBeGreaterThan(0);
+  });
 });

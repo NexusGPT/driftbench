@@ -23,6 +23,8 @@ const RULES: readonly Rule[] = [
     code: 'no-observable',
     found: (c) => !/\b(repl(y|ies)|agents?|assistants?|messages?|tools?|calls?|orders?|customers?|users?|files?|transcripts?)\b/i.test(c.rubric),
   },
+  // Over 400 characters: the question is lost in the text.
+  { code: 'too-long', found: (c) => c.rubric.length > 400 },
 ];
 
 const NEGATION = /\b(not|no|never|cannot|without|fails? to|failing to)\b|n't\b/gi;
