@@ -40,6 +40,8 @@ The loader rewrites these forms before it validates a spec.
 * [Count](#count)
 * [Assertion](#assertion)
 * [ToolsOfferedExpect](#toolsofferedexpect)
+* [Expect length](#expect-length)
+* [LengthBound](#lengthbound)
 * [SimilarityExpect](#similarityexpect)
 * [RelevancyExpect](#relevancyexpect)
 * [RetentionExpect](#retentionexpect)
@@ -278,6 +280,7 @@ The expected output and state delta of a block. Every field is optional.
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
 | `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
 | `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
+| `length` | [Expect length](#expect-length) | no |  | Word and character bounds on the customer-visible text of the block. |
 | `similarity` | list of [SimilarityExpect](#similarityexpect) | no |  | Reference texts the reply must be close to, each with its lowest passing score. |
 | `relevancy` | [RelevancyExpect](#relevancyexpect) | no |  | The reply addresses the ask of the block. |
 | `knowledge_retention` | list of [RetentionExpect](#retentionexpect) | no |  | Facts given earlier that the block must not ask for again, and may have to use. |
@@ -347,6 +350,22 @@ The tools the runtime offers the agent, read from the runtime trace; calls do no
 |---|---|---|---|---|
 | `include` | list of strings, each not empty | no |  | Tools the runtime must offer. |
 | `exclude` | list of strings, each not empty | no |  | Tools the runtime must not offer, such as a tool a setting denies. |
+
+## Expect length
+
+Word and character bounds on the customer-visible text of the block.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `words` | [LengthBound](#lengthbound) | no |  | Bounds on the words of the visible text. |
+| `chars` | [LengthBound](#lengthbound) | no |  | Bounds on the characters (code points) of the visible text. |
+
+## LengthBound
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `min` | integer, at least 0 | no |  | The least the count may be. |
+| `max` | integer, at least 0 | no |  | The most the count may be. |
 
 ## SimilarityExpect
 

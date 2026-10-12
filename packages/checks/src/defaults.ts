@@ -9,6 +9,7 @@ import { forbidden } from './checks/forbidden';
 import { guards } from './checks/guards';
 import { knowledgeRetention } from './checks/knowledge_retention';
 import { lang } from './checks/lang';
+import { length } from './checks/length';
 import { must, mustNot } from './checks/must';
 import { createPiiCheck, pii } from './checks/pii';
 import { references } from './checks/references';
@@ -54,6 +55,7 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     forbidden,
     must,
     mustNot,
+    length,
     createSimilarityCheck(options.embedder),
     relevancy,
     knowledgeRetention,

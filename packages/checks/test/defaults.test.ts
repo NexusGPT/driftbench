@@ -12,6 +12,7 @@ const NAMES = [
   'forbidden',
   'must',
   'must_not',
+  'length',
   'similarity',
   'relevancy',
   'knowledge_retention',

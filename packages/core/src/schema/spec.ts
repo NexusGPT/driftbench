@@ -119,6 +119,22 @@ export const GuardExpect = z
   );
 export type GuardExpect = z.infer<typeof GuardExpect>;
 
+/** A minimum and a maximum for a count of the reply: at least one of the two, and min not above max. */
+export const LengthBound = z
+  .strictObject({
+    min: z.number().int().min(0).optional().describe('The least the count may be.'),
+    max: z.number().int().min(0).optional().describe('The most the count may be.'),
+  })
+  .refine(
+    (bound) => bound.min !== undefined || bound.max !== undefined,
+    'a length bound needs a min or a max',
+  )
+  .refine(
+    (bound) => bound.min === undefined || bound.max === undefined || bound.min <= bound.max,
+    'min is above max',
+  );
+export type LengthBound = z.infer<typeof LengthBound>;
+
 /** Which tools the runtime must offer the agent, and which it must not: a denied tool is not offered. */
 export const ToolsOfferedExpect = z
   .strictObject({
@@ -276,6 +292,13 @@ export const Expect = z
       .describe('How the expected tools line up with the observed calls: exact, in_order or any_order.'),
     must: z.array(Pattern).optional().describe('Patterns the visible text must match.'),
     must_not: z.array(Pattern).optional().describe('Patterns the visible text must not match.'),
+    length: z
+      .strictObject({
+        words: LengthBound.optional().describe('Bounds on the words of the visible text.'),
+        chars: LengthBound.optional().describe('Bounds on the characters (code points) of the visible text.'),
+      })
+      .optional()
+      .describe('Word and character bounds on the customer-visible text of the block.'),
     similarity: z
       .array(SimilarityExpect)
       .optional()
