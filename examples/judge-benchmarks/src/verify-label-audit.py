@@ -1,4 +1,5 @@
 """Dev-only label proofs. This file is never imported by any judge contestant."""
+import hashlib
 import json
 import math
 import os
@@ -149,6 +150,22 @@ audit('aee1de22', True,
       'Franz never shares a wall with Isaacs; Greene\'s watercolor is above Franz\'s oil; '
       'Isaacs\'s oil is lower on wall4. Greene and Hidalgo each occupy two upper slots. '
       'The submitted E is therefore correct.')
+
+# Independently reviewed after the RGB withdrawal. No completed option is supplied.
+item = next(i for i in items if i['id'].startswith('81f7ad90'))
+assert len(item['response']) == 6233
+assert hashlib.sha256(item['response'].encode()).hexdigest() == '080708c87ba3ffb433cb61047589e68d65b64501241d31613618cbe930adb2df'
+ran = subprocess.run(['python3', '-I', '-B', str(root / 'src/verify-tools.py')],
+                     input=item['question'], capture_output=True, text=True, check=True, timeout=5)
+boolean_proof = json.loads(ran.stdout)
+assert boolean_proof['assignments_checked'] == 256
+assert boolean_proof['possible_true_option_sets'] == [['A']]
+audit('81f7ad90', False,
+      'The entire 6233-character response is independently read: it only begins Expression A, '
+      'never completes its evaluation or selects any option, and ends mid-expression in step 23. '
+      'An Expression A heading is not a committed answer. Exact Fraction arithmetic and all 256 '
+      'assignments of eight factual atoms prove A uniquely true, but the response never submits A. '
+      'The criterion scores the submitted final answer; no correct option can be supplied on its behalf.')
 
 # The original tenth claim is convention-sensitive and is withdrawn.
 # BoardgameQA uses RGB primaries: yellow is not primary. Its closure differs from RYB.

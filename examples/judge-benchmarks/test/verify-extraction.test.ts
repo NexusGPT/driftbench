@@ -66,6 +66,11 @@ describe('literal local final answer extraction', () => {
     expect(extractLocalFinal('Find x and y.', 'Final answer: y=4')).toBeUndefined();
   });
 
+  it('does not discard parts numbered with Unicode Roman numerals', () => {
+    expect(extractLocalFinal('(Ⅰ) Find a.\n(Ⅱ) Find b.', 'a=3\nFinal answer: b=5')).toBeUndefined();
+    expect(extractLocalFinal('(ⅰ) Find a.\n(ⅱ) Find b.', 'a=3\nFinal answer: b=5')).toBeUndefined();
+  });
+
   it('allows a terminal output in a variable chain and a single multiple-choice answer', () => {
     expect(extractLocalFinal('Compute x. Then using x, find y.', 'x=3\nFinal answer: y=9')).toBe('y=9');
     expect(

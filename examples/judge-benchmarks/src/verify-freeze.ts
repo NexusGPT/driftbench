@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { contestantById } from './contestants';
 import { loadBenchmark, type PointItem, splitOf } from './data';
 import { runBenchmark } from './run';
-import { TEST_SEED, testSample } from './verify-test-metrics';
+import { TEST_SEED, testSample, testStratum } from './verify-test-metrics';
 
 // Zero-call confirmation and sample preregistration. The caller commits the plan, then records its SHA.
 const id = process.argv[2];
@@ -37,6 +37,10 @@ const population = benchmark.items.filter(
   (item) => splitOf('longjudge-verify', item.id) === 'test',
 ) as PointItem[];
 const sample = testSample(population, size);
+for (const stratum of new Set(population.map(testStratum))) {
+  if (!sample.some((item) => testStratum(item) === stratum))
+    throw new Error(`Sample omits stratum ${stratum}; use a larger preregistered sample.`);
+}
 const paths = (await readdir('examples/judge-benchmarks/src'))
   .filter((file) => /\.(ts|py)$/.test(file))
   .map((file) => join('examples/judge-benchmarks/src', file));
@@ -53,6 +57,7 @@ const plan = {
   seed: TEST_SEED,
   sampleIds: sample.map((item) => item.id),
   population: population.length,
+  populationHash: createHash('sha256').update(JSON.stringify(population)).digest('hex'),
   sampling: 'Proportional official-label by response-length (10000 characters) strata, fixed seeded hash.',
   dev: {
     official: c.summary,
@@ -62,7 +67,7 @@ const plan = {
   },
   criterion: benchmark.criterion,
   auditPolicy:
-    'Nine DEV changes and 23 TEST changes; TEST unresolved labels remain official. No audit ids or labels enter judging.',
+    `${audit.length} DEV changes and 23 TEST changes; TEST unresolved labels remain official. No audit ids or labels enter judging.`,
 };
 await writeFile(join(folder, 'freeze-plan.json'), `${JSON.stringify(plan, null, 2)}\n`, { flag: 'wx' });
 console.log(

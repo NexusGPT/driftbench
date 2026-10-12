@@ -13,6 +13,7 @@ const freeze = JSON.parse(await readFile(join(folder, 'freeze.json'), 'utf8')) a
   contestant: string;
   sampleIds: string[];
   hashes: Record<string, string>;
+  populationHash: string;
 };
 for (const [path, expected] of Object.entries(freeze.hashes)) {
   const actual = createHash('sha256')
@@ -25,6 +26,8 @@ const benchmark = await loadBenchmark('longjudge-verify');
 const population = benchmark.items.filter(
   (item) => splitOf('longjudge-verify', item.id) === 'test',
 ) as PointItem[];
+if (createHash('sha256').update(JSON.stringify(population)).digest('hex') !== freeze.populationHash)
+  throw new Error('TEST population differs from the frozen source data.');
 const selected = population.filter((item) => freeze.sampleIds.includes(item.id));
 if (selected.length !== freeze.sampleIds.length || new Set(freeze.sampleIds).size !== selected.length)
   throw new Error('Frozen sample does not match the TEST population.');

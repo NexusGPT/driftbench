@@ -128,6 +128,15 @@ export function dossierContestants(
     ),
     withBoardgameConvention(recoveredFive, 'driftbench-verify-diverse5-all-step-context'),
     withBoardgameConvention(
+      {
+        ...recoveredFive,
+        referenceAgreementThreshold: 0.8,
+        source:
+          'five blind solve paths, fixed four-of-five agreement gate, backward and final-step checks with quote recovery',
+      },
+      'driftbench-verify-diverse5-gated-step-context',
+    ),
+    withBoardgameConvention(
       { ...recoveredFive, samples: 3 },
       'driftbench-verify-diverse5-all-step-context-vote3',
     ),

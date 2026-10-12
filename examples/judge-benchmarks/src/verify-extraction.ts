@@ -31,7 +31,10 @@ function needsMultipartExtraction(question: string): boolean {
     );
   if (chain) return false;
   if ((question.match(/\?/g) ?? []).length > 1) return true;
-  if ((question.match(/(?:^|\n)\s*(?:\([a-z0-9]+\)|[a-z0-9]+[.)])\s+/gi) ?? []).length > 1) {
+  if (
+    (question.match(/(?:^|\n)\s*(?:\([a-z0-9\u2160-\u217f]+\)|[a-z0-9\u2160-\u217f]+[.)])\s+/gi) ?? [])
+      .length > 1
+  ) {
     // Multiple-choice options describe one requested answer, not independent parts.
     if (!/\b(?:option|choice|which|select)\b/i.test(question)) return true;
   }
