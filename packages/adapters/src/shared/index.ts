@@ -3,4 +3,5 @@
  */
 export * from './observed';
 export * from './openai';
+export * from './prompt';
 export * from './transport';

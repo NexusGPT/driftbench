@@ -368,10 +368,21 @@ export function generateEstateSuite(
   return { files, report, specs: records };
 }
 
+/**
+ * The situation a row is asked in. A live guard_positive row takes a `forced` situation, whose phrase
+ * instructs the guarded act: whether the guard fires must not hang on the agent choosing a forbidden act
+ * (the first real run saw the agent refuse it from the standing rules, and the guard never fired). A row
+ * with no forced situation stays incomplete under the phrase marker.
+ */
+export function useOf(row: Pick<EstatePlanRow, 'testType' | 'mode'>): SituationUse | 'none' {
+  if (row.testType === 'guard_positive' && row.mode === 'live') return 'forced';
+  return SITUATION_OF[row.testType] ?? 'none';
+}
+
 /** The specs of one row: one, or one per recorded session of its situation for a replay row. */
 function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): Built[] {
   const atoms = row.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
-  const use = SITUATION_OF[row.testType] ?? 'none';
+  const use = useOf(row);
   const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, row);
   if (row.mode !== 'replay') return [build(row, atoms, ctx, used, situation)];
   const sessions = situation
@@ -390,7 +401,7 @@ function build(
   session?: SessionEntry,
   noSession = false,
 ): Built {
-  const use = SITUATION_OF[row.testType] ?? 'none';
+  const use = useOf(row);
   const polarity = NEGATIVE_TESTS.has(row.testType) ? 'negative' : 'positive';
   const own = row.testType === 'contract_alone' ? atoms.filter((atom) => atom.kind !== 'subagent') : atoms;
   const then = thenOf(own, polarity, ctx);
@@ -608,6 +619,7 @@ function expectOf(then: ThenParts, first: boolean): Record<string, unknown> {
   if (then.skills.length > 0) expect.skills = then.skills.map((skill) => ({ ...skill }));
   if (then.guards.length > 0) expect.guards = then.guards.map((guard) => ({ ...guard }));
   if (then.tools.length > 0) expect.tools = then.tools.map((tool) => ({ ...tool }));
+  if (then.offeredExclude.length > 0) expect.tools_offered = { exclude: [...then.offeredExclude] };
   if (first && then.must.length > 0) expect.must = [...then.must];
   if (first && then.mustNot.length > 0) expect.must_not = [...then.mustNot];
   if (first && then.lang !== undefined) expect.lang = then.lang;

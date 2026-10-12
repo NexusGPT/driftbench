@@ -30,7 +30,7 @@ export {
   showTarget,
 } from './data';
 export { type Estimate, type IntervalMethod, type Rate, rate } from './estimate';
-export { renderHtml } from './html';
+export { type RenderOptions, renderCompare, renderHtml, renderPage, renderRun, renderSpread } from './html';
 export { failures, renderJunit } from './junit';
 export { PilotReport, readPilotReport } from './pilot';
 export {
@@ -48,6 +48,7 @@ export {
   type BlockDetail,
   buildScorecard,
   type RunDetail,
+  runDetailOf,
   type Scorecard,
   type ScorecardOptions,
   type ToolAccuracy,

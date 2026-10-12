@@ -7,7 +7,13 @@ export const packageName = '@driftbench/store';
 
 /** The cell id is the runner's own, so a resumed campaign finds the runs the store holds under it. */
 export { type CellKey, cellId } from '@driftbench/core';
-export { BUNDLE_FORMAT, type BundleManifest, type CampaignBundle, readCampaignBundle } from './bundle';
+export {
+  BUNDLE_FORMAT,
+  type BundleManifest,
+  type BundleSource,
+  type CampaignBundle,
+  readCampaignBundle,
+} from './bundle';
 export { StoreError, type StoreErrorCode } from './errors';
 export {
   diffFiles,

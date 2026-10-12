@@ -76,7 +76,7 @@ Each adapter page says where the payloads come from.
 
 | Error | Means | The runner |
 |---|---|---|
-| `AdapterTransportError` | the transport failed: no connection, a timeout, a status the adapter treats as retryable | retries the call 3 times, after 200, 400 and 800 ms, then fails the run |
+| `AdapterTransportError` | the transport failed: a 429, a 5xx, or a network error | retries the call under the [shared retry policy](../retries.md) (4 attempts, backoff from 500 ms with jitter, Retry-After honoured), records each retry in the block, then fails the run; one marked `exhausted` (the adapter already retried it) is not retried again |
 | `AgentFailure` | the agent itself failed: an error it threw, an answer that is not an Observed, a failing status | fails the run at once, with no retry |
 
 Any other error fails the run at once too. A failed run is recorded with status `failed` and the error; it is never skipped. See [running](../running.md).
@@ -113,6 +113,16 @@ Any other error fails the run at once too. A failed run is recorded with status 
 | `endState` | with `sideEffects` | with `sideEffects` | with `sideEffects` | with `sideEffects`, or a checkpointer | no |
 | `deterministic` | as declared | as declared | as declared | as declared | yes |
 
+| Capability | crewai | vercel-ai | pydantic-ai | litellm |
+|---|---|---|---|---|
+| `variants` | no | no | no | no |
+| `seedPrefix` | yes | yes | yes | yes |
+| `toolStubs` | no: the crew runs the tools | yes: the adapter wraps each `execute` | no: the agent runs the tools | yes |
+| `trace` | no | no | no | no |
+| `sandbox` | no | no | no | no |
+| `endState` | with `sideEffects`, process interface only | with `sideEffects` | with `sideEffects` | with `sideEffects` |
+| `deterministic` | as declared | as declared | as declared | as declared |
+
 The four SDK adapters report tokens, never a cost in USD.
 
 The runner uses `trace` and `endState` today. It does not act on the others yet: a forced tool result in `world.tools` on an adapter without `toolStubs` is not applied, and a spec's `prefix` on an adapter without `seedPrefix` is not replayed to the agent.
@@ -137,7 +147,7 @@ It runs in one of two modes. A chat adapter holds the conversation of the Acme T
 | releases the session on close | a later `send` rejects, and the adapter's own release probe agrees when one is given |
 | throws `AdapterTransportError` when the transport fails | a broken transport fails `open` or `send` with that error |
 
-The function, http and nexus adapters and the four SDK adapters run it in chat mode; the langgraph adapter runs it twice, on a graph with a checkpointer and on one without. The SDK adapters run it on fakes that play the Acme agent and refuse what the real API refuses (roles out of order, a dotted Anthropic tool name, an unanswered `tool_use`, a Gemini 3 call sent back without its signature). Their requests are also checked against exchanges the real SDK packages recorded with fake transports (`packages/adapters/test/fixtures/sdk/recorded`). The process adapter runs it in task mode on the Acme price-sheet task, with the fixture code agent of the sandbox tests (`packages/adapters/test/process.contract.test.ts`). A test a capability or the mode rules out is skipped, never failed. Run it from the repository root:
+The function, http and nexus adapters, the four SDK adapters and the four framework adapters run it in chat mode (crewai through its process interface); the langgraph adapter runs it twice, on a graph with a checkpointer and on one without. The SDK adapters run it on fakes that play the Acme agent and refuse what the real API refuses (roles out of order, a dotted Anthropic tool name, an unanswered `tool_use`, a Gemini 3 call sent back without its signature). Their requests are also checked against exchanges the real SDK packages recorded with fake transports (`packages/adapters/test/fixtures/sdk/recorded`). The process adapter runs it in task mode on the Acme price-sheet task, with the fixture code agent of the sandbox tests (`packages/adapters/test/process.contract.test.ts`). A test a capability or the mode rules out is skipped, never failed. Run it from the repository root:
 
 ```sh
 pnpm vitest run packages/adapters
@@ -155,7 +165,11 @@ pnpm vitest run packages/adapters
 | [anthropic](anthropic.md) | an agent on the Anthropic Messages API, through your client; the adapter closes the tool loop | shipped, release phase; contract proven on fakes and on the real SDK with fake transports, not yet run against a live model |
 | [google](google.md) | an agent on the Gemini API, through your client; the adapter closes the tool loop | shipped, release phase; contract proven on fakes and on the real SDK with fake transports, not yet run against a live model |
 | [langgraph](langgraph.md) | a compiled LangGraph graph whose state holds `messages`, with or without a checkpointer | shipped, release phase; contract proven on fakes and on the real SDK with fake transports, not yet run against a live model |
-| [claude-code](claude-code.md) | a recorded Claude Code session (transcript, guard decision log, step feed), replayed with no model call; also the reader of a Claude Code estate | the session reader, the replay adapter and the estate reader are shipped; the live runner is not built yet |
+| [crewai](crewai.md) | a CrewAI crew, in a Python process through a bridge that reports its tools, or deployed on CrewAI AMP over HTTP | shipped, release phase; contract proven on a fake bridge, the bridge run on the real `crewai` with a scripted model; not yet run against a live model or a deployed crew |
+| [vercel-ai](vercel-ai.md) | an agent run by the Vercel AI SDK's `generateText` | shipped, release phase; contract proven on a fake and on the real `ai` package with its mock model; not yet run against a live model |
+| [pydantic-ai](pydantic-ai.md) | a Pydantic AI agent, in a Python process through a bridge | shipped, release phase; contract proven on a fake bridge, the bridge run on the real `pydantic-ai` with a `FunctionModel`; not yet run against a live model |
+| [litellm](litellm.md) | a model behind a LiteLLM proxy or any OpenAI-compatible chat completions endpoint, the agent loop closed in the adapter | shipped, release phase; contract proven on a fake proxy and on the real `openai` client; not yet run against a live proxy |
+| [claude-code](claude-code.md) | a recorded Claude Code session (transcript, guard decision log, step feed), replayed with no model call; also the reader of a Claude Code estate | the session reader, the replay adapter, the estate reader and the live runner are shipped |
 
 ## Runtime vocabulary
 

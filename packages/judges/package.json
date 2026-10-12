@@ -1,9 +1,31 @@
 {
   "name": "@driftbench/judges",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "version": "0.1.0",
+  "description": "Judge clients, the judge council, calibration, the prompt kit and cassettes for judged criteria in driftbench.",
+  "keywords": [
+    "driftbench",
+    "ai-agents",
+    "evaluation",
+    "llm",
+    "testing",
+    "llm-as-judge",
+    "judges",
+    "calibration"
+  ],
+  "homepage": "https://github.com/achammah/driftbench#readme",
+  "bugs": {
+    "url": "https://github.com/achammah/driftbench/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achammah/driftbench.git",
+    "directory": "packages/judges"
+  },
   "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -24,5 +46,9 @@
     "@driftbench/artifacts": "workspace:*",
     "zod": "^4.6.5",
     "yaml": "^2.9.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

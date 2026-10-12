@@ -1,3 +1,4 @@
+import { retrying } from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
 import {
   type CouncilConfig,
@@ -47,6 +48,54 @@ describe('majority of three', () => {
 });
 
 describe('the council', () => {
+  it('records the retries each judge took in its own vote, and none in a vote that took none', async () => {
+    /** A judge whose provider answers 503 once, then passes: the client retries under the shared policy. */
+    const flaky: FakeAnswer = async () => {
+      let attempt = 0;
+      return retrying(
+        'judge call',
+        async () => {
+          attempt += 1;
+          if (attempt === 1) throw Object.assign(new Error('overloaded'), { status: 503 });
+          return PASS(0.9) as Exclude<FakeAnswer, Error | string | ((request: JudgeRequest) => unknown)>;
+        },
+        { sleep: async () => {} },
+      );
+    };
+    const council = hybrid(
+      [s1('a', [flaky]), s1('b', [PASS(0.8)]), s1('c', [PASS(0.7)])],
+      [s2('x', [FAIL]), s2('y', [FAIL]), s2('z', [FAIL])],
+    );
+    const result = await council.judge(REQUEST, 'system1');
+    expect(result.outcome).toBe('pass');
+    const [first, second] = result.votes;
+    expect(first?.retries?.map((event) => [event.call, event.attempt, event.status])).toEqual([
+      ['judge call', 1, 503],
+    ]);
+    expect(second?.retries).toBeUndefined();
+  });
+
+  it('keeps the retries of a judge that never answered in its inconclusive vote', async () => {
+    const down: FakeAnswer = async () =>
+      retrying(
+        'judge call',
+        async () => {
+          throw Object.assign(new Error('overloaded'), { status: 529 });
+        },
+        {
+          sleep: async () => {},
+          policy: { maxAttempts: 2, baseDelayMs: 0, maxDelayMs: 0, jitter: false, retryAfter: true },
+        },
+      );
+    const council = hybrid(
+      [s1('a', [down]), s1('b', [PASS(0.8)]), s1('c', [PASS(0.7)])],
+      [s2('x', [FAIL]), s2('y', [FAIL]), s2('z', [FAIL])],
+    );
+    const result = await council.judge(REQUEST, 'system1');
+    expect(result.votes[0]?.outcome).toBe('inconclusive');
+    expect(result.votes[0]?.retries?.map((event) => event.status)).toEqual([529]);
+  });
+
   it('decides by the majority of the three assigned judges and keeps every vote', async () => {
     const a = s1('a', [PASS(0.8)]);
     const b = s1('b', [FAIL]);

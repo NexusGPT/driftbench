@@ -7,7 +7,7 @@ What is built and what is not:
 * Built, phase 1: repeats in a campaign, and the minimum detectable effect `campaign plan` prints. See [running](../running.md).
 * Built: every function below, as a library.
 * Built, used by other parts: `campaign status --detail` puts a `bootstrapCI` interval on the compounding index ([run modes](run-modes.md#the-compounding-index)); the gate uses `passK` and `wilson` ([generating tests](../generating.md)); judge calibration uses `cohenKappa`, `krippendorffAlpha` and `wilson` ([judges](judges.md)); the variance pilot uses the variance components ([generating tests](../generating.md)).
-* Planned, phase 4: wiring them into the run records and reports, the parity verdict of a whole campaign, the scorecard, and the `stats`, `compare` and `ci` commands.
+* Built, phase 4: the scorecard of a stored campaign with an interval on every rate (`driftbench report`, see [example scorecards](../scorecards.md)), the paired comparison and the parity verdict of a whole campaign (`driftbench compare`), and the CI gate (`driftbench ci`). See the [CLI reference](../reference/cli.md#driftbench-report-and-driftbench-compare). There is no `stats` command.
 
 The same statistics serve conversations and tasks. One conversation, or one task, is one cluster. An artifact check is a pass or a fail per repeat, so pass^k reads the same way for a workbook as for a reply.
 
@@ -151,7 +151,7 @@ To watch a live agent, on its pass rate, cost or latency:
 
 Each detector returns its statistics after every point and the alarms, with their position and direction.
 
-`driftbench monitor` runs the three over the campaigns of a store and exits 1 when two of the three alarm. See [CLI](../reference/cli.md#driftbench-compare-driftbench-ci-and-driftbench-monitor).
+`driftbench monitor` runs the three over the campaigns of a store and exits 1 when two of the three alarm. See [CLI](../reference/cli.md#driftbench-monitor).
 
 ## Judges
 

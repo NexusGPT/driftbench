@@ -24,6 +24,7 @@ import {
   ToolLabels,
   vendorError,
 } from '../anthropic/common';
+import { promptMessages } from '../shared/prompt';
 import {
   type GuardrailResultLike,
   mapItems,
@@ -128,7 +129,7 @@ export function openaiAgentsAdapter(options: OpenAIAgentsAdapterOptions): AgentA
 
     async send(session: Session, turn: Turn) {
       const state = ownState<AgentsState>(session, id, 'openai-agents');
-      const input = toInputItems(session.history, labels);
+      const input = toInputItems(promptMessages(session.history, session.target), labels);
       const agent = state.startedFrom.has(turn.index) ? state.startedFrom.get(turn.index) : state.agent;
       state.startedFrom.set(turn.index, agent);
       const turns = stepCap(maxTurns, turn.budget?.steps);

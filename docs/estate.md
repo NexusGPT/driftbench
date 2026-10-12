@@ -2,12 +2,7 @@
 
 This page extends [generating tests](../README.md#generating-tests) to agents whose behaviour is specified across an estate. It reuses the block model, the run modes, the runtime trace (skills, guards, stages), the checks, the map with axis and detail roles, approval with provenance and the space map. Nothing here is runtime-specific: each runtime is an adapter that reads its own files into these shapes. The Claude Code mapping is on [its adapter page](adapters/claude-code.md).
 
-Status. Built: `driftbench estate scan`, `lint`, `approve`, `map`, `plan` (with `plan approve`), `generate`, `diff`, `impact`, and `driftbench replay`. Not built yet: `driftbench estate run` (the live runner) and `driftbench estate mutate` (estate mutants), the unit runner for guards, scripts and helpers, and the estate statistics of section 7. The two commands that are not built print that they are not built yet and exit 2:
-
-```
-driftbench estate run is not built yet.
-driftbench estate mutate is not built yet.
-```
+Status. Built: `driftbench estate scan`, `lint`, `approve`, `map`, `plan` (with `plan approve`), `generate`, `diff`, `impact`, `run` (the live runner), `mutate` (estate mutants), and `driftbench replay`. Not built yet: the unit runner for guards, scripts and helpers, and the estate statistics of section 7. The live runner and the mutants, with a run on the fixture's stand-in command, are in the [CLI reference](reference/cli.md#driftbench-estate-run-and-driftbench-estate-mutate).
 
 ## 0. What changes when the agent is an estate
 
@@ -48,7 +43,8 @@ No command on this page calls a paid model. The Northwind map is scanned with re
 | `driftbench estate diff <old map> <new map>` | Atoms added, removed, changed (white space or semantic), moved and restated, edges added and removed, and guard state changes. `--json`, `--out <file>` (the JSON that `estate impact` reads), `--old-guards <file>`, `--new-guards <file>`. | 0 computed; 2 a map or a guard state cannot be read |
 | `driftbench estate impact <diff> --tests <dir>` | What the diff does to the tests: regenerate, re-approve, retire, new. `--write` writes each retirement into its spec, `--json`, `--out <file>`; `--replay <sessions> [--suite <dir>] [--store <db>]` adds the regression run. | 0 nothing needs a person; 1 something needs a person; 2 usage or input error |
 | `driftbench replay <session.jsonl...> --suite <specs>` | Runs a suite over recorded sessions, offline, with no model call. `--decisions <logs...>`, `--steps <feeds...>`, `--store <db>` (in memory without it), `--json`. | 0 every aligned spec passes; 1 a spec fails; 2 bad input |
-| `driftbench estate run`, `driftbench estate mutate` | Not built yet. | 2 |
+| `driftbench estate run <specs...> --estate <root> --runtime claude-code --store <db>` | Runs live estate specs through the runtime headless, in a sandbox holding a copy of the estate; `--map` pins the copy to the map's hash, `--states` plants session states and hazards from a state library. Only a stand-in command runs without `--allow-billed`. | 0 every spec passes; 1 a spec fails; 2 usage or input error |
+| `driftbench estate mutate <map> --atom <id> (--delete \| --invert) --to <dir>` | Copies the estate and deletes or inverts one atom in the copy, with `map.yaml` and `mutant.json`. | 0 the mutant is written; 2 usage or input error |
 
 ## 1. Elements: the atoms an estate specifies
 
@@ -711,11 +707,11 @@ Limits of replay today:
 * A write to a path the session never saw counts as created. Only the runtime's own result type, or a tree before and after, is certain.
 * A tree diff (which also sees deletions) goes on the last block only; a tree per block needs a snapshot per turn. The adapter reads a before and after tree; the command has no option for them yet.
 
-### Unit, live and estate mutants (not built yet)
+### Unit, live and estate mutants
 
 * Unit (offline). Guards replayed with synthetic events; scripts on fixtures; a subagent alone, run headless with its agent file as the system prompt, in a sandbox. Not built yet: the plan marks these rows `unit`, and the generator writes their specs.
-* Live (online, blind), `driftbench estate run`. The agent runs headless in a sandboxed copy of the estate pinned by hash, on a seeded workspace, from the ask alone: no test word in the prompt or the dispatch description. Teacher-forced resumes from a recorded prefix cut at block k; free running; perturbed injects an estate deviation at block k (a compaction marker, a mid-turn message, a planted file, a dead helper). Repeats give the variance; cost per run is measured. Not built yet.
-* Estate mutants, `driftbench estate mutate`. Delete or invert one atom in a copy of the estate. The tests derived from that atom must go red in live mode, and the replay suite must flag the corpus as now violating. The mutation score per atom kind is the stop rule. Not built yet.
+* Live (online, blind), `driftbench estate run`. The agent runs headless in a sandboxed copy of the estate pinned by hash, on a seeded workspace, from the ask alone: no test word in the prompt or the dispatch description. Teacher-forced resumes from a recorded prefix cut at block k; free running; perturbed injects an estate deviation at block k (a compaction marker, a mid-turn message, a planted file, a dead helper). Repeats give the variance; cost per run is measured. Built: `driftbench estate run`, with session states and hazards planted from the state library `--states`.
+* Estate mutants, `driftbench estate mutate`. Delete or invert one atom in a copy of the estate. The tests derived from that atom must go red in live mode, and the replay suite must flag the corpus as now violating. The mutation score per atom kind is the stop rule. Built: `driftbench estate mutate`. The fixture's proof (`packages/cli/test/estate-live.test.ts`) runs 14 live specs on the stand-in and two mutants, each turning its atom's specs red.
 
 ## 7. Judging, statistics and coverage for estates
 
@@ -906,10 +902,10 @@ The failing session that motivated a change is its fail-to-pass case: red before
 
 * `packages/estate`: the schema (atoms, edges, the map, the plan), the scanner (`scan/`, with the Claude Code reader as the one runtime-specific file), the graph, the map file and its space map, the lint, the plan (contract, journeys, pairwise), and maintenance (diff, guard state, impact, regression). It imports the covering array, the feasibility check, the graph walk and the model port from `@driftbench/generate`.
 * `packages/generate/src/estate`: the estate generator. It reads the map and plan by their shape and never imports `@driftbench/estate`, so the two packages do not import each other.
-* `packages/adapters/src/claude-code`: the session reader, the replay adapter and the ordered-pair check.
+* `packages/adapters/src/claude-code`: the session reader, the replay adapter, the ordered-pair check, and the live runner in `live/`.
 * `packages/cli`: the `estate` commands and `replay`.
 * The estate validator, which checks this whole loop on an estate nobody wrote by hand, is designed on the [validators](validators.md) page and not built yet.
 
-Built, in order: scan, lint and map; plan; the session reader and replay; generation; maintenance. Not built yet: the live runner, estate deviations in live runs, estate mutants, the unit runner, and a validation on a real estate against its native test battery.
+Built, in order: scan, lint and map; plan; the session reader and replay; generation; maintenance; the live runner with planted session states and hazards; estate mutants. Not built yet: the unit runner, and a validation on a real estate against its native test battery.
 
 See also: [checks](reference/checks.md), [running](running.md), [statistics](concepts/statistics.md).

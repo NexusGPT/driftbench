@@ -1,4 +1,4 @@
-import type { Check, Vote as VoteSchema } from '@driftbench/core';
+import { type Check, type RetryEvent, retriesInto, type Vote as VoteSchema } from '@driftbench/core';
 import type { z } from 'zod';
 import { type JudgeCheckOptions, judgeCheck } from './check';
 import type { JudgeClient } from './client';
@@ -336,11 +336,15 @@ async function castVote(
   counter: { errors: number },
 ): Promise<Vote> {
   const name = budget === 'large' ? `${judge.id}@large` : judge.id;
+  // Every retry the judge's client takes, under the shared policy, is recorded in its vote.
+  const spent: RetryEvent[] = [];
+  const retries = () => (spent.length > 0 ? { retries: spent } : {});
+  const ask = (asked: Budget) => retriesInto(spent, () => judge.judge({ ...request, budget: asked }));
   try {
-    let result = await judge.judge({ ...request, budget });
+    let result = await ask(budget);
     let note = '';
     if (result.unparsed && budget === 'normal') {
-      result = await judge.judge({ ...request, budget: 'large' });
+      result = await ask('large');
       note = 'unparsed at the normal budget, asked again with the large budget; ';
     }
     const { answer } = result;
@@ -349,11 +353,12 @@ async function castVote(
       outcome: answer.outcome,
       ...(answer.score === undefined ? {} : { score: answer.score }),
       reasoning: `${note}${answer.reasoning}${answer.evidence ? ` (evidence: ${answer.evidence})` : ''}`,
+      ...retries(),
     };
   } catch (cause) {
     counter.errors += 1;
     const why = cause instanceof Error ? cause.message : String(cause);
-    return { judge: name, outcome: 'inconclusive', reasoning: `no answer: ${why}` };
+    return { judge: name, outcome: 'inconclusive', reasoning: `no answer: ${why}`, ...retries() };
   }
 }
 

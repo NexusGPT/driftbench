@@ -1,4 +1,12 @@
-import { AdapterTransportError, AgentFailure, type Message, type Session } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  collectRetries,
+  type Message,
+  type RetryPolicy,
+  retryPolicy,
+  type Session,
+} from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
 import { isTransient, vendorError, WireNames } from '../src/anthropic/common';
 import { type AnthropicCreateParams, anthropicAdapter } from '../src/anthropic/index';
@@ -36,7 +44,7 @@ function acme() {
 }
 
 adapterContract('anthropic', acme, {
-  brokenTransport: () => anthropicAdapter({ client: deadAnthropic(), model: MODEL }),
+  brokenTransport: () => anthropicAdapter({ client: deadAnthropic(), model: MODEL, sleep: async () => {} }),
   released: (session: Session) => (session.state as { closed?: boolean }).closed === true,
 });
 
@@ -80,8 +88,17 @@ describe('anthropic adapter', () => {
 
   it('sends tool names the API accepts and reads them back as the spec labels', async () => {
     const client = fakeAnthropic();
+    const passed: unknown[] = [];
+    const create = client.messages.create.bind(client.messages);
+    client.messages.create = (body, options) => {
+      passed.push(options);
+      return create(body, options);
+    };
     const adapter = anthropicAdapter({ client, model: MODEL, tools: () => acmeTools().tools });
     await sendUser(adapter, await adapter.open(given), COVERAGE_QUESTION, 0);
+    expect(passed[0], "the SDK's own retries are off: the shared policy owns them").toEqual({
+      maxRetries: 0,
+    });
     expect(client.requests[0]?.tools?.map((tool) => tool.name)).toEqual([
       'catalog_search',
       'coverage_check',
@@ -312,18 +329,24 @@ describe('anthropic adapter', () => {
 
   it('tells a transport failure from the agent failing, by status, name and cause', async () => {
     const failing = (error: unknown) =>
-      anthropicAdapter({ client: { messages: { create: async () => Promise.reject(error) } }, model: MODEL });
+      anthropicAdapter({
+        client: { messages: { create: async () => Promise.reject(error) } },
+        model: MODEL,
+        sleep: async () => {},
+      });
     const sent = async (error: unknown) => {
       const adapter = failing(error);
       return sendUser(adapter, await adapter.open(given), 'hi', 0).catch((caught: unknown) => caught);
     };
-    for (const status of [408, 409, 429, 500, 529]) {
-      expect(
-        await sent(new FakeAnthropicError(status, `status ${status}`)),
-        `status ${status}`,
-      ).toBeInstanceOf(AdapterTransportError);
+    for (const status of [429, 500, 529]) {
+      const failure = await sent(new FakeAnthropicError(status, `status ${status}`));
+      expect(failure, `status ${status}`).toBeInstanceOf(AdapterTransportError);
+      expect(failure, 'retried in full: the runner does not retry it again').toMatchObject({
+        exhausted: true,
+        attempts: 4,
+      });
     }
-    for (const status of [400, 401, 403, 404]) {
+    for (const status of [400, 401, 403, 404, 408, 409]) {
       expect(
         await sent(new FakeAnthropicError(status, `status ${status}`)),
         `status ${status}`,
@@ -345,6 +368,82 @@ describe('anthropic adapter', () => {
     );
     expect(isTransient('a string')).toBe(false);
     expect(vendorError(new AgentFailure('kept'), 'x').message).toBe('kept');
+  });
+
+  it('retries a model call that fails with 429 then 529, honours Retry-After, and records both retries', async () => {
+    let calls = 0;
+    const waits: number[] = [];
+    const inner = fakeAnthropic();
+    const client = {
+      messages: {
+        async create(body: AnthropicCreateParams) {
+          calls += 1;
+          if (calls === 1) {
+            throw Object.assign(new FakeAnthropicError(429, 'rate_limit_error'), {
+              headers: new Headers({ 'retry-after': '2' }),
+            });
+          }
+          if (calls === 2) throw new FakeAnthropicError(529, 'overloaded_error', 'InternalServerError');
+          return inner.messages.create(body);
+        },
+      },
+    };
+    const adapter = anthropicAdapter({
+      client,
+      model: MODEL,
+      tools: () => acmeTools().tools,
+      retry: { jitter: false, baseDelayMs: 100 },
+      sleep: async (ms) => void waits.push(ms),
+    });
+    const session = await adapter.open(given);
+    session.history.push({ role: 'user', content: COVERAGE_QUESTION });
+    const { value: observed, retries } = await collectRetries(() =>
+      adapter.send(session, { index: 0, stimulus: { user: COVERAGE_QUESTION }, given }),
+    );
+    expectWholeObserved(observed);
+    expect(observed.toolCalls.map((call) => call.label)).toEqual(['coverage.check', 'catalog.search']);
+    expect(calls, 'two failures, then the three calls of the turn').toBe(5);
+    expect(waits, 'Retry-After 2 s, then the doubled backoff').toEqual([2_000, 200]);
+    expect(retries.map(({ call, attempt, status, delayMs }) => ({ call, attempt, status, delayMs }))).toEqual(
+      [
+        { call: `messages.create (${MODEL}) on block 0`, attempt: 1, status: 429, delayMs: 2_000 },
+        { call: `messages.create (${MODEL}) on block 0`, attempt: 2, status: 529, delayMs: 200 },
+      ],
+    );
+  });
+
+  it('takes its retry policy from the turn, then the spec target, then its own settings', async () => {
+    const attempts = async (turnRetry: RetryPolicy | undefined, target: Record<string, unknown> = {}) => {
+      let calls = 0;
+      const adapter = anthropicAdapter({
+        client: {
+          messages: {
+            create: async () => {
+              calls += 1;
+              throw new FakeAnthropicError(503, 'down');
+            },
+          },
+        },
+        model: MODEL,
+        retry: { maxAttempts: 5 },
+        sleep: async () => {},
+      });
+      const start = acmeGiven({ adapter: 'anthropic', ...target });
+      const session = await adapter.open(start);
+      session.history.push({ role: 'user', content: 'hi' });
+      await adapter
+        .send(session, {
+          index: 0,
+          stimulus: { user: 'hi' },
+          given: start,
+          ...(turnRetry ? { retry: turnRetry } : {}),
+        })
+        .catch(() => undefined);
+      return calls;
+    };
+    expect(await attempts(undefined)).toBe(5);
+    expect(await attempts(undefined, { retry: { max_attempts: 2 } })).toBe(2);
+    expect(await attempts(retryPolicy({ maxAttempts: 3 }), { retry: { max_attempts: 2 } })).toBe(3);
   });
 
   it("records each block's payloads once, so a retried block replaces its own", async () => {
