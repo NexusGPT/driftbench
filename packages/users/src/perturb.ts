@@ -195,12 +195,17 @@ export function fromPhrasing(
     const world: WorldState = task
       ? { workspace: plantFile(spec, injectAt, phrasing.file ?? 'NOTES.txt', phrasing.content ?? '') }
       : (phrasing.world ?? {});
+    const reply: Expect = {
+      ...(phrasing.must ? { must: phrasing.must } : {}),
+      ...(phrasing.must_not ? { must_not: phrasing.must_not } : {}),
+    };
+    const merged: Expect = { ...(expect ?? {}), ...reply };
     return {
       id,
       class: cls,
       inject_at: injectAt,
       world,
-      ...(expect ? { expect } : {}),
+      ...(Object.keys(merged).length > 0 ? { expect: merged } : {}),
       recovery: { within_blocks: within, ...(stage ? { stage_after: stage } : {}) },
     };
   }
@@ -235,12 +240,17 @@ export function fromPhrasing(
     ...(cls === 'D5_language_switch' && spec.lang ? { lang: spec.lang } : {}),
   };
   const recovery: RecoveryExpect = { within_blocks: within, ...(pending ? { stage_after: pending } : {}) };
+  const reply: Expect = {
+    ...(phrasing.must ? { must: phrasing.must } : {}),
+    ...(phrasing.must_not ? { must_not: phrasing.must_not } : {}),
+  };
+  const merged: Expect = { ...expect, ...reply };
   return {
     id,
     class: cls,
     inject_at: injectAt,
     ...(phrasing.burst ? { burst: phrasing.burst } : { user: phrasing.user ?? '' }),
-    ...(Object.keys(expect).length > 0 ? { expect } : {}),
+    ...(Object.keys(merged).length > 0 ? { expect: merged } : {}),
     recovery,
   };
 }

@@ -11,16 +11,20 @@ import { guards } from './checks/guards';
 import { injection } from './checks/injection';
 import { knowledgeRetention } from './checks/knowledge_retention';
 import { lang } from './checks/lang';
+import { length } from './checks/length';
 import { must, mustNot } from './checks/must';
 import { createPiiCheck, pii } from './checks/pii';
 import { references } from './checks/references';
+import { refusal } from './checks/refusal';
 import { relevancy } from './checks/relevancy';
+import { replyJson } from './checks/reply_json';
 import { safety } from './checks/safety';
 import { schemaStrict } from './checks/schema_strict';
 import { createSimilarityCheck } from './checks/similarity';
 import { skills } from './checks/skills';
 import { stage } from './checks/stage';
 import { subagents } from './checks/subagents';
+import { toolF1 } from './checks/tool_f1';
 import { createToolPolicyCheck, type ToolRule } from './checks/tool-policy';
 import { tools } from './checks/tools';
 import { toolsOffered } from './checks/tools_offered';
@@ -61,6 +65,10 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     mustNot,
     exact,
     injection,
+    length,
+    replyJson,
+    toolF1,
+    refusal,
     createSimilarityCheck(options.embedder),
     relevancy,
     knowledgeRetention,
