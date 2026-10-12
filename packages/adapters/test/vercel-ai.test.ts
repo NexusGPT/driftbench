@@ -81,6 +81,33 @@ describe('vercel-ai adapter', () => {
     expect(generateText.calls[0]?.maxRetries).toBe(0);
   });
 
+  it('refuses a tool the policy denies before the call: the original execute never runs', async () => {
+    const tools = acmeVercelTools();
+    const original = tools.coverage_check?.execute;
+    let ran = 0;
+    if (tools.coverage_check) {
+      tools.coverage_check.execute = async (input, options) => {
+        ran += 1;
+        return original ? original(input, options) : null;
+      };
+    }
+    const generateText = fakeGenerateText();
+    const adapter = vercelAiAdapter({
+      generateText,
+      model: acmeModel(),
+      tools,
+      toolLabels: ACME_TOOL_NAMES,
+      toolPolicy: [{ pattern: 'coverage.check', action: 'deny' }],
+    });
+    const start = acmeGiven({ adapter: 'vercel-ai' });
+    const observed = await sendUser(adapter, await adapter.open(start), COVERAGE_QUESTION, 0, start);
+    expect(ran, 'the denied tool was not called').toBe(0);
+    expect(observed.toolCalls[0]).toMatchObject({
+      label: 'coverage.check',
+      error: 'denied by tool policy rule coverage.check',
+    });
+  });
+
   it('retries a model call that fails twice under the shared policy, and records both retries', async () => {
     const model = acmeModel();
     const inner = model.doGenerate.bind(model);

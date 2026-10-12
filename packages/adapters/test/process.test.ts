@@ -17,7 +17,7 @@ import {
   type Session,
   type Turn,
 } from '@driftbench/core';
-import { dockerProvider, localProvider } from '@driftbench/sandbox';
+import { dockerProvider, localProvider, withApprovalPolicy } from '@driftbench/sandbox';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { type ProcessAdapterOptions, processAdapter, processProtocolFiles } from '../src/process';
 
@@ -148,6 +148,22 @@ describe('the process adapter', () => {
     });
     expect(adapter.endState).toBeUndefined();
     expect(setup({ deterministic: true }).adapter.capabilities().deterministic).toBe(true);
+  });
+
+  it('a sandbox approval policy that denies the agent command stops it before it runs', async () => {
+    const denied = tracked(localProvider({ dir: join(parent, 'denied-boxes') }));
+    const { adapter, open } = setup({
+      provider: withApprovalPolicy(denied.provider, {
+        rules: [{ match: 'command', pattern: '*code-agent.mjs*', action: 'deny' }],
+      }),
+    });
+    const from = given();
+    const session = await open(from);
+    await runnerSend(adapter, session, turn(0, 'Build a price sheet from catalog.csv.', from)).catch(
+      () => undefined,
+    );
+    const files = await denied.boxes[0]?.sandbox.listFiles();
+    expect(files, 'the denied agent wrote no output').not.toContain('out/acme-price-sheet.csv');
   });
 
   it('seeds the workspace, runs the agent on the stimulus and returns an ordinary Observed', async () => {

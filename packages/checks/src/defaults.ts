@@ -19,6 +19,7 @@ import { createSimilarityCheck } from './checks/similarity';
 import { skills } from './checks/skills';
 import { stage } from './checks/stage';
 import { subagents } from './checks/subagents';
+import { createToolPolicyCheck, type ToolRule } from './checks/tool-policy';
 import { tools } from './checks/tools';
 import { toolsOffered } from './checks/tools_offered';
 import { workspace } from './checks/workspace';
@@ -39,6 +40,8 @@ export type DefaultChecksOptions = {
   embedder?: Embedder;
   /** The owner's own values the pii check leaves out (see `createPiiCheck`). Empty when absent. */
   piiOwner?: readonly string[];
+  /** A run-wide tool policy over the recorded calls of every block. Off when absent. */
+  toolPolicy?: readonly ToolRule[];
 };
 
 /**
@@ -60,6 +63,7 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     lang,
     options.piiOwner?.length ? createPiiCheck({ owner: options.piiOwner }) : pii,
     cards,
+    ...(options.toolPolicy?.length ? [createToolPolicyCheck(options.toolPolicy)] : []),
     stage,
     skills,
     guards,

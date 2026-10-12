@@ -48,7 +48,7 @@ export async function readTraces(
   const full = (name: string) => (base === '' ? name : join(base, name));
   if (from === 'claude-code') {
     const traces: Trace[] = [];
-    for (const name of files) traces.push(await traceFromClaudeCode(full(name)));
+    for (const name of files) traces.push(await traceFromClaudeCode(full(name), options));
     return { traces, issues: [], files };
   }
   if (from === 'otel') {

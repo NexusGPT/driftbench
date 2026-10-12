@@ -235,7 +235,7 @@ export async function intakeLogs(
   }
 
   // Near-duplicates, compared on what the user wrote after redaction. Failures go first, so a failure is
-  // the one kept (the Langfuse rule: keep the hardest variant of a duplicate group).
+  // the one kept (keep the hardest variant of a duplicate group).
   const ordered = [...anonymised].sort((a, b) => Number(b.failure) - Number(a.failure) || a.line - b.line);
   const vectors = gramTfidf(ordered.map(userText));
   const threshold = options.dedup ?? 0.95;

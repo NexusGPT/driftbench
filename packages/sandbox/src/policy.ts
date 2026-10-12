@@ -1,10 +1,11 @@
-import type {
-  ExecOptions,
-  ExecutionRecord,
-  Sandbox,
-  SandboxProvider,
-  WorkspaceSnapshot,
-  WorldState,
+import {
+  anyGlobMatches,
+  type ExecOptions,
+  type ExecutionRecord,
+  type Sandbox,
+  type SandboxProvider,
+  type WorkspaceSnapshot,
+  type WorldState,
 } from '@driftbench/core';
 
 /**
@@ -54,18 +55,9 @@ export class SandboxApprovalError extends Error {
 
 export type PolicedSandbox = Sandbox & { approvals(): ApprovalDecision[] };
 
-/** Turns a glob into an anchored regular expression: `*` is any run of characters, everything else is literal. */
-export function globToRegExp(pattern: string): RegExp {
-  const body = pattern
-    .split('*')
-    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-    .join('.*');
-  return new RegExp(`^${body}$`, 's');
-}
-
 export async function decide(policy: ApprovalPolicy, request: ApprovalRequest): Promise<ApprovalDecision> {
   const rule = policy.rules.find(
-    (candidate) => candidate.match === request.match && globToRegExp(candidate.pattern).test(request.subject),
+    (candidate) => candidate.match === request.match && anyGlobMatches(candidate.pattern, request.subject),
   );
   const base = { match: request.match, subject: request.subject, ...(rule ? { pattern: rule.pattern } : {}) };
   if (!rule) return { ...base, decision: 'allow', by: 'default' };
