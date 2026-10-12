@@ -475,7 +475,7 @@ describe('the judge check in the default check set', () => {
 
 describe('driftbench judge calibrate with a live judge on the claude command', () => {
   /** A fake claude command: every answer is pass, each call costs 0.001 USD. No model is called. */
-  async function fakeClaude(): Promise<string> {
+  async function fakeClaude(legacy = false): Promise<string> {
     const path = join(scratch, 'fake-claude.mjs');
     await writeFile(
       path,
@@ -484,7 +484,7 @@ let input = '';
 process.stdin.on('data', (c) => { input += c; });
 process.stdin.on('end', () => {
   process.stdout.write(JSON.stringify({ type: 'result', subtype: 'success', is_error: false, total_cost_usd: 0.001,
-    result: JSON.stringify({ outcome: 'pass', reasoning: 'fake: always pass' }) }));
+    result: JSON.stringify(${legacy ? "{ outcome: 'pass', reasoning: 'fake: always pass' }" : "{ checks: [{ requirement: 'Meet the criterion.', reasoning: 'fake: always pass', evidence: input.match(/\\[agent\\] ([^\\n]+)/)?.[1] ?? input.match(/\\[user\\] ([^\\n]+)/)?.[1] ?? null, met: true }] }"}) }));
 });
 `,
     );
@@ -540,6 +540,17 @@ process.stdin.on('end', () => {
     expect(again.criteria).toEqual(report.criteria);
     expect(again.spentUsd).toBeCloseTo(0.112, 9);
   }, 120_000);
+
+  it('retries old binary JSON once, then abstains under the default ledger contract', async () => {
+    const command = await fakeClaude(true);
+    const { code, out } = await run(
+      liveArgs(command, join(scratch, 'legacy-rejected.yaml'), ['--spend-cap-usd', '0.0015']),
+    );
+    expect(code).toBe(1);
+    expect(out).toContain('Spent 0.0020 USD.');
+    expect(out).toContain('111 judge call(s) gave no answer.');
+    expect(out).toContain('0 of 12 criteria assigned');
+  });
 
   it('stops calling once the spend cap is reached: the rest give no answer', async () => {
     const command = await fakeClaude();

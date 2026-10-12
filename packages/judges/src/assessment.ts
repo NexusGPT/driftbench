@@ -8,6 +8,7 @@ import {
   parseAnswerText,
   parseAnswerValue,
 } from './contract';
+import { CriterionLedger, parseCriterionLedger } from './criterion-ledger';
 import { FactLedgerAnswer, parseFactLedger } from './fact-audit';
 
 /** A caller-supplied rubric item. Weights belong to the caller, never to the model. */
@@ -100,7 +101,9 @@ export function responseSchema(request: JudgeRequest): Record<string, unknown> &
           ? a.pairwise
             ? pairLedger
             : pointLedger
-          : undefined;
+          : request.answerContract === 'legacy'
+            ? undefined
+            : CriterionLedger;
   if (!schema)
     return {
       type: 'object',
@@ -119,7 +122,7 @@ export function responseSchema(request: JudgeRequest): Record<string, unknown> &
 
 /** Parse only the final complete object. No binary fallback can reverse an explicit winner. */
 export function parseJudgeText(raw: string, request: JudgeRequest): JudgeResult {
-  if (request.answerContract === 'legacy' || !request.assessment) return parseAnswerText(raw);
+  if (request.answerContract === 'legacy') return parseAnswerText(raw);
   const text = extractObject(raw);
   if (text === undefined) return invalid(raw, 'no final complete JSON object');
   try {
@@ -136,7 +139,7 @@ export function parseJudgeValue(
 ): JudgeResult {
   if (request.answerContract === 'legacy') return parseAnswerValue(value, raw);
   const assessment = request.assessment;
-  if (!assessment) return parseAnswerValue(value, raw);
+  if (!assessment) return parseCriterionLedger(value, request, raw);
   validateAssessment(assessment);
   if (assessment.kind === 'fact-ledger') return parseFactLedger(value, request, raw);
   if (assessment.kind === 'pairwise') {

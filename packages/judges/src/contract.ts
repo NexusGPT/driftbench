@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
+import type { CriterionLedger } from './criterion-ledger';
 import type { FactLedgerAnswer } from './fact-audit';
 
 /**
@@ -54,7 +55,7 @@ export type CriterionText = z.infer<typeof CriterionText>;
 
 /** Everything one judge call reads. */
 export type JudgeRequest = {
-  /** Previous model-facing prompt and parser, for exact replay of existing scores. Ordinary criteria retain their prior binary contract. */
+  /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
   /** Opt-in answer contract. Pairwise calls name the winner; rubric calls score each supplied item. */
   readonly assessment?: Assessment;
@@ -84,6 +85,8 @@ export type JudgeResult = {
   /** Validated item scores and the deterministic aggregate. */
   readonly rubric?: RubricScores;
   readonly factLedger?: FactLedgerAnswer;
+  /** Default chat-model requirement ledger, with the public outcome computed in code. */
+  readonly checks?: CriterionLedger['checks'];
   readonly referenceAgreement?: {
     readonly attempts: number;
     readonly agreement: number;

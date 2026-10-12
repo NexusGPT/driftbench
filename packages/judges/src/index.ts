@@ -145,6 +145,7 @@ export {
   loadCriteria,
   parseCriterionFile,
 } from './criteria';
+export { CriterionLedger } from './criterion-ledger';
 export { type Grounding, groundEvidence } from './evidence';
 export { FactLedgerAnswer } from './fact-audit';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';

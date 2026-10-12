@@ -66,11 +66,11 @@ describe('the prompt kit', () => {
     expect(rubric).not.toMatch(/\{\w+\}/);
   });
 
-  it('asks for a binary strict verdict and states the answer contract', () => {
-    expect(SYSTEM_PROMPT).toContain('The verdict is binary: pass or fail.');
+  it('asks for evidence checks and lets code decide the public binary verdict', () => {
+    expect(SYSTEM_PROMPT).toContain('code computes the verdict');
     expect(SYSTEM_PROMPT).toContain(ANSWER_CONTRACT);
-    expect(ANSWER_CONTRACT).toContain('"outcome"');
-    expect(ANSWER_CONTRACT).toContain('No other key is allowed.');
+    expect(ANSWER_CONTRACT).toContain('"checks"');
+    expect(ANSWER_CONTRACT).toContain('No overall verdict');
   });
 
   it('puts the observed text, the artifact and the Given inside data tags under the data rule', () => {

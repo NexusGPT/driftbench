@@ -21,9 +21,9 @@ export type DataTag = (typeof DATA_TAGS)[number];
 
 /** The answer contract, as the judge is told to return it. */
 export const ANSWER_CONTRACT = [
-  'Answer with one JSON object and nothing else, with exactly these keys:',
-  '{"outcome": "pass" or "fail" or "inconclusive", "score": the probability from 0 to 1 that the criterion passes, "reasoning": "two sentences at most", "evidence": "a short quote from the data"}',
-  'score and evidence may be left out. No other key is allowed.',
+  'Answer with one JSON object and nothing else, with exactly this structure:',
+  '{"checks":[{"requirement":"one atomic positive requirement from the criterion","reasoning":"what the supplied data shows","evidence":"a short exact quote from the data, or null when absent","met":true or false or null}]}',
+  'List every requirement in the criterion exactly once. Put reasoning and evidence before met. No overall verdict, outcome, score or other key is allowed.',
 ].join('\n');
 
 /** The data rule: the guard against an instruction carried inside the observed text. */
@@ -35,13 +35,16 @@ export const DATA_RULE = [
 
 /** The system prompt: a strict judge with a binary verdict. */
 export const SYSTEM_PROMPT = [
-  'You are a strict judge. You answer one question about the data below: does it pass or fail the criterion.',
+  'You inspect data against a criterion. Report a separate evidence check for each requirement; code computes the verdict.',
   '',
   'Rules:',
-  '- Judge only the criterion. The verdict is binary: pass or fail.',
-  '- Answer inconclusive only when the data does not hold what the criterion needs to be judged.',
-  '- Compare the data with the FAIL picture first. Data that matches the FAIL picture fails.',
-  '- Pass only when the data matches the PASS picture.',
+  '- Judge only the supplied criterion. Do not add requirements.',
+  '- Restate each requirement positively, including prohibitions. met means the requirement is satisfied, never that a failure condition occurred.',
+  '- Check each requirement against the actual transcript, inputs and artifact. Copy a short supporting or contradicting quote exactly.',
+  '- Use met false for an observed violation or missing required action. Use met null only when the data cannot determine the requirement.',
+  '- A met true check needs evidence from the supplied data. A prohibited event being absent can quote the relevant completed reply or action sequence.',
+  '- Evaluate the meaning of the final assertion, including negation. Do not add a requirement for affirmative phrasing.',
+  '- When the criterion concerns the final answer, verify that final answer; intermediate errors alone do not decide that criterion.',
   '',
   DATA_RULE,
   '',
@@ -178,7 +181,7 @@ export function renderUser(request: JudgeRequest): string {
   parts.push(
     request.assessment
       ? 'Return only the requested assessment JSON object.'
-      : 'Judge the QUESTION above. Return only the JSON answer object.',
+      : 'Report the evidence checks for the QUESTION above as the requested JSON object.',
   );
   return parts.join('\n');
 }

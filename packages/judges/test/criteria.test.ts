@@ -76,7 +76,7 @@ describe('the Acme criteria', () => {
       for (const which of ['pass', 'fail'] as const) {
         for (const judge of row.judges) {
           const meta = cassette.judges.find((j) => j.id === judge);
-          const key = requestKey(fixtureRequest(criterion, which), meta);
+          const key = requestKey({ ...fixtureRequest(criterion, which), answerContract: 'legacy' }, meta);
           expect(keys.has(`${judge} ${key}`), `${criterion.def.name} ${which} ${judge}`).toBe(true);
         }
       }

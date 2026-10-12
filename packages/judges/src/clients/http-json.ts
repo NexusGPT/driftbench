@@ -29,7 +29,8 @@ export function createHttpJudge(options: HttpJudgeOptions): JudgeClient {
     cls,
     ...(options.model ? { model: options.model } : {}),
     cost: options.cost ?? (cls === 'system1' ? 1 : 10),
-    async judge(request) {
+    async judge(original) {
+      const request = cls === 'system1' ? { ...original, answerContract: 'legacy' as const } : original;
       const payload = await postJson(
         options.url,
         headers,

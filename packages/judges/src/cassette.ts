@@ -89,10 +89,7 @@ export function dataKey(request: JudgeRequest): string {
  * silent replay of an answer to another question.
  */
 export function requestKey(request: JudgeRequest, client?: KeyClient, prompt?: string): string {
-  const effective =
-    client?.cls === 'system1' && request.answerContract === undefined
-      ? { ...request, answerContract: 'legacy' as const }
-      : request;
+  const effective = client?.cls === 'system1' ? { ...request, answerContract: 'legacy' as const } : request;
   return contentHash({
     data: dataKey(effective),
     prompt:
@@ -134,7 +131,7 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
         const result = await client.judge(request);
         // An unparsed answer is kept as raw text only, so its replay is unparsed too and is re-judged.
         cassette.entries.push(
-          result.unparsed || request.assessment
+          result.unparsed || request.assessment || result.checks
             ? { ...base, raw: result.raw, ...cost(result) }
             : {
                 ...base,
@@ -210,7 +207,7 @@ function replay(entry: CassetteEntry, request: JudgeRequest): JudgeResult {
   if (entry.answer !== undefined) return { ...parseAnswerValue(entry.answer, entry.raw), ...cost };
   if (entry.raw !== undefined)
     return {
-      ...parseAnswerText(entry.raw),
+      ...parseJudgeText(entry.raw, request),
       ...cost,
     };
   throw new JudgeError(

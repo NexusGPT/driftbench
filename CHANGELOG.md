@@ -10,7 +10,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 * Reference-guided factual comparisons audit requested facts and recover ties through a structured fact ledger. Code computes the fallback winner from factual defects and unsupported additions.
 * Optional itemized rubric scoring aggregates caller weights and hard requirements in code. Candidate swaps reverse the item presentation order.
 * Optional bounded arithmetic verification, grounded final-answer extraction and strict blind-solve reference agreement are available through provider-neutral interfaces. Verification defaults to off.
-* Existing binary criterion answers and pairwise verdict fields remain supported. Pairwise model JSON now uses `winner` and `winnerQuote`; custom chat clients should use the request-aware parsers. Assessment and custom system text enter cassette identity, so old pairwise cassettes must be recorded again. See [judges](docs/concepts/judges.md#pairwise-comparison).
+* Behaviour change: ordinary chat criterion checks now request a per-requirement evidence ledger; code computes pass, fail or inconclusive. Old binary model JSON is retried by council/calibration paths, then abstains. Select `answerContract: 'legacy'` to restore the previous prompt and parser; probability judges are unchanged.
+* Existing public binary criterion answers and pairwise verdict fields remain supported. Pairwise model JSON now uses `winner` and `winnerQuote`; custom chat clients should use the request-aware parsers. Assessment and custom system text enter cassette identity, so the new contract needs fresh recordings. Existing cassettes replay unchanged with `answerContract: 'legacy'`. See [judges](docs/concepts/judges.md#pairwise-comparison).
 
 ## [0.1.0] - 2026-10-12
 

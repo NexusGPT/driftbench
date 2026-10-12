@@ -564,6 +564,16 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 
 `driftbench campaign run` cannot load a council yet: it runs `defaultChecks()` and its record stores `judge: { mode: system1, judges: [] }`. A caller that wants judged criteria in a campaign passes `defaultChecks({ judges: council })` as the campaign's checks from code. A command line option to load a cassette and an assignment table is not built yet. See [running](../running.md).
 
+## Model-facing criterion checks
+
+Ordinary chat checks return one evidence row per atomic requirement: `requirement`, `reasoning`, a grounded `evidence` quote (or null), and `met` (true, false or null). The model returns no overall verdict. Code computes fail when any requirement is unmet, inconclusive when a requirement is unknown, and pass when all requirements are met. A met requirement needs a quote from the supplied data. Invented evidence, duplicate requirements and extra keys are unparseable.
+
+The public `JudgeAnswer` remains `{ outcome, reasoning, evidence?, score? }`. `parseAnswerText` and `parseAnswerValue` retain their binary parsing behavior. Custom chat clients use `parseJudgeText` or `parseJudgeValue` with the request. Probability judges retain their existing binary question and mapping.
+
+Select `answerContract: 'legacy'` on a request to use the previous prompt and parser byte for byte. This keeps existing cassettes and old scores reproducible. Cassette players also accept that option; recordings made before the ledger contract select legacy automatically. A new ledger recording identifies its contract explicitly and cannot silently replay under a different prompt. No existing cassette needs to be re-recorded to keep using legacy.
+
+Under the new default, an old binary model response is unparseable. Council and calibration paths retry it once with the large budget and then abstain; the single-judge path abstains directly. An unparseable response cannot become a fail or pass from its explanation.
+
 ## Pairwise comparison
 
 `judgePairwise(client, criterion, transcript, first, second, options)` compares both candidate orders and reconciles their identities in code. Its public `choice`, `ordered`, `swapped`, `consistent` and `positionBias` fields remain available. A disagreement remains a tie. `calls` counts the actual calls; `recovered` marks a fact-ledger recovery.
