@@ -11,15 +11,14 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:end -->
 The stats validator is ladder version 2: 651 items in seven levels, each with threshold 1. The bank score is the share of items passing on every seed (seeds 1 to 20 and the hidden seed).
 
-## State (executor exec/stats-v2, branch of lane/v-stats)
+## State (executor exec/stats-v3, PR 107)
 
-This branch does not hold the statistics fixes of the old pilot branch (exec/stats-pilot), so its starting point is iteration 0: 418 of 651 items (0.6421). After journal iterations 11 to 25 the full sweep at 92402e15 shows 496 of 651 (0.7619), 47 failing causes, level 1 on every seed. Iteration 15 (100f64c5) was 435 (0.6682). Journal rows 11 to 14 and 16 to 24 were measured on seed 1 only (one sweep at a time under load): their passing counts are not comparable to rows 15 and 25. `validators/stats/bank-scores.jsonl` holds iteration 25 (so `--hardness` shows this run).
+Seed 1 bank: 648 of 651 items pass after journal iteration 40 (it was 592 at iteration 30). The seven missing methods are built. Fixed in iterations 31 to 40, one cause each: varianceComponents names `observations`; cusum and pageHinkley name the option they refuse; non-finite and out-of-range scalars are named (wilson z, designEffect, effectiveSampleSize, mde, quantile, hillNumber, betaQuantile, repeatsForFloor, neymanAllocation sizes); special functions return the scipy limit at the domain edge; agreement, paired, ksTest, bootstrapCI and quantileSorted refusals name their argument; mean is exact on equal values and overflow safe; varianceComponents centres values before the sums of squares; hillNumber is continuous at q = 1; betaQuantile stops on relative width; neymanAllocation uses a heap. The full sweep (seeds 1 to 20 and hidden) is not yet in `bank-scores.jsonl`.
 
-Fixed so far, one cause per iteration: mde at a baseline of 0 or 1; designEffect below its bound; zeroFailureBound at a tiny p; campaign plan uses stats.mde (new `--rho`); the report run pass interval (Wilson on effective runs, t quantile); weightedMean; kishEffectiveSize; iccOneWay; designEffectFromData; clusteredMeanInterval; oneWayAnova; stratifiedMean; sessionRate in @driftbench/estate; runCampaign earlyStop (iteration 25 is the tip after a revert, no new cause).
+## Validator item defects (for the maintainer)
 
-## For the maintainer
-
-* `neymanAllocation`: the reference fixture `packages/stats/test/reference/fixtures.json` (case sizes [500,200,50,250], sds [0.45,0.5,0.2,0.3], total 200) pins the largest-remainder answer [110,49,5,36], variance 840.55891. The bank items `analytic.allocation.neyman-optimal.*` want the best integer allocation, here [109,49,5,37], variance 840.55820, and four of them fail because largest remainder can leave a stratum with spread at 0 units (variance infinite). The two oracles disagree. A fix exists (one unit to each stratum with spread, then each unit to the largest drop in w^2 / (n (n + 1))) but needs the fixture and make_fixtures.py changed, which executor branches may not do (CI refuses it). It was tried and reverted.
+* `analytic.unseen.chao1-near.s20-even.x1.5`, `.s40-tail5.x1.5`, `.s80-tail10.x1.5` (3 items): they read `chaoCoverage(counts).chao1` and want it within 10 percent of the true class count at 1.5 draws per class. Chao1 is a lower bound and at that sample size it is far below the truth by construction. `packages/stats/test/reference/fixtures.json` pins `chao1` to the classic estimator (for example 13.851851851851851 for the counts [5,3,1,1,2,1,2,4,1,7]), so the reference level and these items cannot both pass with one `chao1` field. Fixing it needs a new field (for example `iChao1`) that the items read, or a changed fixture. Executor branches may not change either. Not attempted.
+* `neymanAllocation` reference fixture versus `analytic.allocation.neyman-optimal.*`: now resolved on this branch (integer optimum by greedy gain, all items pass on seed 1).
 
 ## Floor
 
