@@ -1236,11 +1236,11 @@ Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate"
 ## `driftbench report` and `driftbench compare`
 
 ```
-driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points|auto>] [--min-goldens <n>] [--strict] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--json]
+driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points|auto>] [--min-goldens <n>] [--strict] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--aggregate <name:op threshold>]... [--json]
 driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json]
 ```
 
-`report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
+`report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
 
 `compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Per criterion and for the all-pass flag it also prints three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page. The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
 
@@ -1257,8 +1257,10 @@ New flags always gate, and so does an underpowered criterion whose regression Be
 ## `driftbench ci`
 
 ```
-driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--flag <family>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
 ```
+
+A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
 
 Runs the specs on a candidate target, then compares the new campaign with a baseline campaign by the rule of `compare`, and gates. On one pair of campaigns, `ci` and `compare` give the same verdict and the same exit code. `--baseline` is a store file (its latest campaign) or a campaign id held in `--store`, read before the candidate runs. The summary goes to `--out` (default `driftbench-ci.json`). `--faults` lets the target name a planted fault as `fault:<id>`. `--flag` sets the flag families (default `safety`, `forbidden`, `pii`). The cache is off unless `--cache`. The summary opens with the auto margin and the underpowered criteria, so a lenient gate says why.
 
@@ -1350,6 +1352,16 @@ $ pnpm driftbench holdout score --sealed <dir> --target function:acme-sales --bu
 Budget: 1 of 3 queries used, 2 left. Which conversation passed is not shown: the holdout stays sealed.
 (exit 0)
 ```
+
+## `driftbench queue`
+
+```
+driftbench queue create --store <db> --campaign <id> [--labels <dir>]
+driftbench queue list [--labels <dir>]
+driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> [--labels <dir>]
+```
+
+The review queue of blocks to label, kept beside the labels as `queue.json`. `create` queues each block of a campaign once per criterion of its spec, skipping blocks already labelled. `list` prints each item with its state and holder. `assign` takes an item for a reviewer; a second reviewer is refused with exit 2. Saving a label on the viewer's queue page marks its item done. See [viewer](../viewer.md#review-queue).
 
 ## `driftbench view`
 
