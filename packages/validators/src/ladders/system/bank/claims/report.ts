@@ -253,6 +253,8 @@ export function fixture(seed: number): Promise<Fixture> {
   let held = fixtures.get(seed);
   if (!held) {
     held = build(seed);
+    // One seed at a time: the seeds of a run come one after another, so only the last fixture is kept.
+    fixtures.clear();
     fixtures.set(seed, held);
   }
   return held;
@@ -270,6 +272,7 @@ function fileFixture(seed: number, scratch: string): Promise<{ path: string; fx:
       await store.close();
       return { path, fx };
     })();
+    files.clear();
     files.set(path, held);
   }
   return held;
@@ -2270,7 +2273,7 @@ function textItems(): BankItem[] {
       (_fx, { seed }) => {
         const rows = [
           ['spec', 'mode', 'rate'],
-          [`s-${'x'.repeat(seed)}`, 'T', ''],
+          [`s-${'x'.repeat(1 + (seed % 17))}`, 'T', ''],
           ['s', 'F,P', '33.3%'],
         ];
         const widths = rows[0]?.map((_, col) =>

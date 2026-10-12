@@ -996,7 +996,7 @@ add({
   cause: 'campaign plan passes --baseline-rate into the minimum detectable effect.',
   flags: true,
   async run(ctx) {
-    const repeats = 2 + ctx.seed;
+    const repeats = 2 + (ctx.seed % 7);
     const result = await cli(
       [
         'campaign',

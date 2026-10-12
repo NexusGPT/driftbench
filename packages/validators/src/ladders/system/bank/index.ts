@@ -74,6 +74,15 @@ export function countBy<T>(items: readonly T[], key: (item: T) => string | numbe
 }
 
 /** Runs one item: a throw is a failure that names the error. */
+/**
+ * The seed an item sees. The visible seeds (1 to 20) pass as they are; the hidden seed (about 10 to the 9)
+ * is folded into 1000 to 9999, still one value per commit, so an item that sizes its input from the seed
+ * stays bounded.
+ */
+export function itemSeed(seed: number): number {
+  return seed > 1000 ? 1000 + (seed % 9000) : seed;
+}
+
 export async function runItem(
   item: BankItem,
   seed: number,
@@ -81,7 +90,7 @@ export async function runItem(
   scratch: string,
 ): Promise<ItemResult> {
   try {
-    return await item.check({ seed, root, scratch });
+    return await item.check({ seed: itemSeed(seed), root, scratch });
   } catch (cause) {
     return {
       pass: false,
