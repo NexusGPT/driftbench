@@ -378,3 +378,21 @@ describe('an OpenAI answer whose content is a list of parts', () => {
     expect(result.unparsed).toBe(true);
   });
 });
+
+describe('an OpenAI answer stopped by the content filter', () => {
+  it('is a decline: inconclusive, not unparsed', async () => {
+    const client = createOpenAiJudge({
+      env: { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' },
+      maxRetries: 0,
+      fetch: async () =>
+        new Response(JSON.stringify({ choices: [{ message: { content: '' }, finish_reason: 'content_filter' }] }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    });
+    const result = await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    expect(result.answer.outcome).toBe('inconclusive');
+    expect(result.answer.reasoning).toMatch(/declined/);
+    expect(result.unparsed).toBeUndefined();
+  });
+});

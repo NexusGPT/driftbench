@@ -75,6 +75,9 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
       if (typeof message.refusal === 'string' && message.refusal !== '') {
         return { answer: inconclusive(`${model} declined: ${message.refusal}`), raw };
       }
+      if (choice.finish_reason === 'content_filter') {
+        return { answer: inconclusive(`${model} declined: its content filter stopped the answer`), raw };
+      }
       const content = contentText(message.content);
       if (choice.finish_reason === 'length') return truncated(content, model);
       return parseAnswerText(content);
