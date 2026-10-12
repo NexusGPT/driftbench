@@ -192,4 +192,22 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
     expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
   });
+
+  it('reads the tools of an agent configuration under agent.tools', () => {
+    const file = {
+      agent: {
+        name: 'demo',
+        tools: [
+          {
+            name: 'findAccount',
+            input_schema: { type: 'object', required: ['flag'], properties: { flag: { type: 'boolean' } } },
+          },
+        ],
+      },
+    };
+    const result = toolsPrepass(stringify(file), 'tools.yaml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.tools).toEqual(['findAccount']);
+    expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
+  });
 });

@@ -171,3 +171,15 @@ Sources read:
 What others do: The AI SDK wraps the JSON Schema of a tool in a jsonSchema value and keys tools by name.
 
 What to try, and why: the tool pre-pass reads Vercel parameters wrapped as jsonSchema
+
+## Iteration 15
+
+Question: packages/generate/src/extract/tools.ts: locate looks at tools, tool_schemas, functionDeclarations, functions and metadata.tool_schemas, so an agent configuration holding agent.tools gives no tool; tool-formats.agent-config proves it.
+
+Sources read:
+* https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview (a tool is name, description, input_schema)
+* packages/validators/src/ladders/map/bank/families/formats.ts (agent-config)
+
+What others do: Agent frameworks keep tool definitions inside the agent block of their config, in the provider's own tool form.
+
+What to try, and why: the tool pre-pass reads an agent configuration's tools under agent.tools

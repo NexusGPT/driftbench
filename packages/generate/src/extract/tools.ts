@@ -354,7 +354,10 @@ function locate(root: unknown): { node: unknown; path: string } | undefined {
     if (found) return { node: found.value, path: key };
   }
   const nested = entry(mapAt(root, 'metadata'), 'tool_schemas');
-  return nested ? { node: nested.value, path: 'metadata.tool_schemas' } : undefined;
+  if (nested) return { node: nested.value, path: 'metadata.tool_schemas' };
+  // An agent configuration keeps its tools under agent.
+  const agent = entry(mapAt(root, 'agent'), 'tools');
+  return agent ? { node: agent.value, path: 'agent.tools' } : undefined;
 }
 
 function readTools(node: unknown, path: string): { tools: Tool[] } | { errors: ToolsIssue[] } {
