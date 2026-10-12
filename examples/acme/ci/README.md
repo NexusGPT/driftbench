@@ -31,25 +31,30 @@ driftbench ci --specs <path> --target <adapter[:agent]> --baseline <store file |
 ## Run it locally
 
 ```
-pnpm -s driftbench campaign run examples/acme/golden/specs --target function:acme-sales --store .driftbench/ci.db --campaign baseline
+pnpm -s driftbench campaign run examples/acme/golden/specs --target function:acme-sales --route flow:price-sheet=process:acme-ops \
+  --store .driftbench/ci.db --campaign baseline
 pnpm -s driftbench ci --specs examples/acme/golden/specs --target fault:control-sales-identity --faults examples/acme/faults \
-  --baseline baseline --store .driftbench/ci.db
+  --route flow:price-sheet=process:acme-ops --baseline baseline --store .driftbench/ci.db
 pnpm -s driftbench ci --specs examples/acme/golden/specs --target fault:x3-skips-recap --faults examples/acme/faults \
-  --baseline baseline --store .driftbench/ci.db
+  --route flow:price-sheet=process:acme-ops --baseline baseline --store .driftbench/ci.db
+pnpm -s driftbench ci --specs examples/acme/golden/specs --target function:acme-sales --faults examples/acme/faults \
+  --route flow:price-sheet=fault:ops-x1-wrong-price --baseline baseline --store .driftbench/ci.db
 ```
+
+The route keeps the price-sheet task specs on the ops agent. A fault of the ops agent is a candidate through the route, as in the last command: the conversations stay on the sales agent.
 
 Measured 2026-10-12 with the defaults:
 
 | Suite | Auto margin | Identity control | Faults |
 |---|---|---|---|
-| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning that the suite cannot show parity under 15 points | `parity`, exit 0 | d2, d4, d6, d8, d9, x1, x3, x4, x5: exit 1 (d4, x3, x4 `regression`; the other six `not-shown-non-inferior`). x2 reads parity: the suite does not catch it |
-| `examples/acme/gated/specs`, 134 goldens | 6.5 points, set by `must`; `cards` and `guards` underpowered | `parity`, exit 0 | the same nine minus x1: `regression`, exit 1. x1 reads parity: no gated golden catches it |
+| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning that the suite cannot show parity under 15 points | `parity`, exit 0, for both the sales and the ops identity control | exit 1 on 12 faults: d4, x1, x3, x4, x5 `regression`; d2, d6, d8, d9 and ops-x1, ops-x4, ops-x5 `not-shown-non-inferior`. x2 and ops-d6 read parity: the ten do not catch them |
+| `examples/acme/gated/specs`, 193 goldens | 7.5 points, set by `guards`; `cards` and the criteria only the 24 task specs read underpowered | `parity`, exit 0, for both controls | all thirteen scored faults, the four ops faults included through the route: `regression`, exit 1. x2 reads parity |
 
 With `--strict --margin 30`, the identity control on the 10-golden suite reads `not-shown-non-inferior`, the rule before the minimum existed.
 
 ## In GitHub Actions
 
-`action/action.yml` at the repository root is a composite action around the command. Inputs: `specs`, `target`, `baseline`, `store`, `margin` (default `auto`), `min-goldens` (default 30), `strict`, `repeats`, `mode`, `budget-usd`, `faults`, `report-path`, `working-directory`, `driftbench` (the command that runs the CLI). Outputs: `verdict` and `report-path`. The step exits with the CLI exit code, so any verdict but parity fails the job.
+`action/action.yml` at the repository root is a composite action around the command. Inputs: `specs`, `target`, `baseline`, `store`, `margin` (default `auto`), `min-goldens` (default 30), `strict`, `repeats`, `mode`, `budget-usd`, `faults`, `route` (one `tag=target` per line), `report-path`, `working-directory`, `driftbench` (the command that runs the CLI). Outputs: `verdict` and `report-path`. The step exits with the CLI exit code, so any verdict but parity fails the job.
 
 `driftbench-ci.yml` in this folder is a complete workflow. Copy it to `.github/workflows/`. It checks out the pull request's base and head, runs the baseline campaign on the base, runs the action on the head, and uploads the summary.
 

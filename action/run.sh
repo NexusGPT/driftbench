@@ -31,6 +31,9 @@ if [ "${INPUT_STRICT:-false}" = "true" ]; then args+=(--strict); fi
 while IFS= read -r line; do
   if [ -n "$line" ]; then args+=(--aggregate "$line"); fi
 done <<< "${INPUT_AGGREGATE:-}"
+while IFS= read -r line; do
+  if [ -n "$line" ]; then args+=(--route "$line"); fi
+done <<< "${INPUT_ROUTE:-}"
 
 code=0
 "${cli[@]}" "${args[@]}" || code=$?
