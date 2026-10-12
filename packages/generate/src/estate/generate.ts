@@ -1,3 +1,4 @@
+import { runtimeLoaded } from '@driftbench/adapters';
 import { type CriterionDef, type Issue, parseSpecText } from '@driftbench/core';
 import { stringify } from 'yaml';
 import type { GeneratedFile } from '../enumerate/generate';
@@ -188,6 +189,11 @@ export type EstateGenerateOptions = {
    * scripts that exist).
    */
   files?: readonly string[];
+  /**
+   * Files the runtime loads by itself, so a read of one is never expected. Default: the runtime adapter's
+   * own rule for the map's runtime (`runtimeLoaded`).
+   */
+  loaded?: (path: string) => boolean;
 };
 
 export type Totals = { rows: number; specs: number; complete: number; incomplete: number };
@@ -345,6 +351,7 @@ export function generateEstateSuite(
     fallback: options.fallback ?? true,
     judge: options.judge ?? true,
     files: new Set(options.files ?? mapFiles(input.map)),
+    ...(loadedOf(options, input.map.runtime) ? { loaded: loadedOf(options, input.map.runtime) } : {}),
     units: [
       ...new Set(
         input.map.atoms
@@ -653,6 +660,12 @@ function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): Built[] 
   return sessions.map((session) => build(row, atoms, ctx, used, situation, session));
 }
 
+/** The rule for files the runtime loads by itself: the caller's, else the runtime adapter's. */
+function loadedOf(options: EstateGenerateOptions, runtime: string): ((path: string) => boolean) | undefined {
+  if (options.loaded) return options.loaded;
+  return runtimeLoaded(runtime);
+}
+
 function build(
   row: EstatePlanRow,
   atoms: readonly EstateAtom[],
@@ -666,7 +679,7 @@ function build(
   const use = useOf(row);
   const polarity = NEGATIVE_TESTS.has(row.testType) ? 'negative' : 'positive';
   const own = row.testType === 'contract_alone' ? atoms.filter((atom) => atom.kind !== 'subagent') : atoms;
-  const then = thenOf(own, polarity, ctx);
+  const then = thenOf(own, polarity, { ...ctx, live: row.mode === 'live' });
   const first = atoms[0] as EstateAtom;
 
   // Test types that add to or change what the atoms say.

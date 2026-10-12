@@ -518,6 +518,26 @@ prose:
     lang: de
     text: Hallo, ich möchte meinen Tarif ändern.
 constraints:
+  - id: behaviour=B-002,flow=refund
+    forbid:
+      behaviour: B-002
+      flow: refund
+    from: inventory
+  - id: behaviour=B-002,flow=new-order
+    forbid:
+      behaviour: B-002
+      flow: new-order
+    from: inventory
+  - id: behaviour=B-003,flow=new-order
+    forbid:
+      behaviour: B-003
+      flow: new-order
+    from: inventory
+  - id: behaviour=B-003,flow=cancellation
+    forbid:
+      behaviour: B-003
+      flow: cancellation
+    from: inventory
   - id: stage=recap,channel=web
     forbid:
       stage: recap

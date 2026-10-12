@@ -119,6 +119,15 @@ export function inventoryCode(inventory: MiniInventory): CodeEntry[] {
       }
     }
   }
+  // A behaviour a flow lists belongs to that flow: one constraint per flow that does not list it.
+  for (const behaviour of inventory.behaviours) {
+    const owners = inventory.flows.filter((flow) => (flow.behaviours ?? []).includes(behaviour.id));
+    if (owners.length === 0) continue;
+    for (const flow of inventory.flows) {
+      if (!owners.includes(flow))
+        out.push({ type: 'constraint', forbid: { behaviour: behaviour.id, flow: flow.id } });
+    }
+  }
   for (const flow of inventory.flows) {
     for (const deviation of flow.deviations ?? []) {
       if (!DETOURS.has(deviation)) continue;
@@ -188,4 +197,17 @@ export function blockOf(text: string, key: string, ...after: string[]): string {
     block.push(line);
   }
   return block.join('\n');
+}
+
+/**
+ * A field name as it enters a dimension id (docs/generating.md, "The code pre-pass"): a capital after a letter or
+ * digit is split off with `_`, the name is lower-cased, and each run of characters other than letters, digits,
+ * `_` and `-` becomes `_`. `$ref` gives `_ref`, `user.email` gives `user_email`, `getWeather` gives `get_weather`.
+ */
+export function fieldId(name: string): string {
+  const id = name
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, '_');
+  return id === '' ? 'p' : id;
 }

@@ -13,6 +13,8 @@ import {
   ReplyLanguageRelation,
   Slots,
   type SourceKind,
+  StatesRelation,
+  TaskFamilyRelation,
   UsesToolRelation,
   ValueFields,
   ValueId,
@@ -65,7 +67,7 @@ Rules:
     {"dimension": "<dimension id>", "value": "<value id>", "text": "<one user message>", "lang": "<language tag such as en>", "when": {"<dimension id>": ["<value id>"]}, "binds": {"<slot>": "<value the text states>"}, "source": "<path, only when the text is copied from a source>", "quote": "<the copied text, only with source>"}
   ],
   "relations": [
-    {"kind": "<path, uses_tool, binds, recovery or reply_language>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
+    {"kind": "<path, uses_tool, states, task_family, binds, recovery or reply_language>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
   ]
 }
 On a rule, "polarity" says whether the agent must do it or must not do it; leave it out on every other value. On a persona or data value, "required" is true when the source says every test plan must include it; leave it out otherwise. On a kind of customer or other persona value, "weight" is the share of users it stands for, between 0 and 1; leave it out otherwise. On a rule, "priority" is "first" when the source says the rule comes before every other rule; leave it out otherwise. On a rule, "within" gives the minutes within which the action happens; leave it out otherwise. On a rule, "limit" is the most times the action may happen in one conversation; leave it out otherwise. On a rule, "unless" lists the cell values the rule does not hold in ("except on sms"); leave it out otherwise. On a rule, "when" lists the cell values the rule applies in, when the source limits it (a channel, a kind of customer, a stage); leave it out for a rule that holds everywhere. A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen. A phrase may hold {slot} where a value the cell binds goes, such as "It's {email}"; "when" and "binds" are optional. Relations come from the relations section only.`;
@@ -83,9 +85,11 @@ Dimensions of kind "persona", such as "customer_type", "language" or "tone"; cha
   data: `List the data cases the agent's behaviour depends on: the results a tool can return and how the next step changes with them (found or not found, eligible or not, empty lists, errors, answers the agent cannot read), the values a user gives that change the flow, and for a code agent the task settings (the files in the workspace, their formats and sizes, what the agent must leave untouched).
 Dimensions of kind "data" for data cases and of kind "task" for task settings. The tool schema dimensions already listed come from code: add only cases they do not hold.`,
   phrases: `Propose user phrasings for the values listed above that a user expresses in a message, such as flows, stage transitions, deviation classes and kinds of users. One phrase is one user message, in the language of its "lang" tag. At most three phrases per value. A phrase may hold {slot} for a value a data case binds (the relations section binds it), may say with "when" the cell values it fits (such as the flow or the stage it is said at), and may state slot values itself with "binds" (the plan it names). When a source holds an example user message for a value, copy it and give its source and quote; otherwise leave source and quote out. Answer with phrases only: "dimensions", "constraints" and "relations" stay empty.`,
-  relations: `List the relations the sources state between the values above, so code can derive what to check: which tool a flow calls, at which stage, with which arguments; the order of stages a flow passes; what the store holds at the end; how a flow recovers from a deviation class; the language of every reply. Answer with relations only. Each relation has "kind", "source", "quote" and the keys of its kind:
+  relations: `List the relations the sources state between the values above, so code can derive what to check: which tool a flow calls, at which stage, with which arguments; what a reply states from a tool's answer; the order of stages a flow passes; what the store holds at the end; how a flow recovers from a deviation class; the language of every reply. Answer with relations only. Each relation has "kind", "source", "quote" and the keys of its kind:
 - "path": "id", "flow" (a value of the flow dimension), "stages" (the stages in the order the conversation passes them), optional "when" (the cell values the branch needs, per dimension, as lists), optional "behaviours", optional "end_state" ({"source": "tool:<label>", "mode": "subset" or "exact", "expect": {"<field>": <assertion>}}).
 - "uses_tool": "subject" ({"dimension", "value"}: the flow or behaviour), "tool", "stage" (the stage the call is made at), optional "to" (only on the turn that reaches it), optional "when", optional "count", optional "input" ({"<argument>": <assertion>}).
+- "states": "subject" ({"dimension", "value"}: the flow or behaviour), "stage" (the turn that leaves it), optional "to" (only on the turn that reaches it), optional "when", "must" (patterns the reply of that turn holds, such as each plan with the price the tool returned).
+- "task_family": "flow", "family" (the family file, relative to the proposal), "stages" (its blocks' stages in order), optional "holds" (the cell values every instance holds), optional "deviations" (the classes its variants carry).
 - "binds": "subject" (a data or persona value), "slots" ({"<slot>": "<concrete value>"}): the fictional values it stands for.
 - "recovery": "class" (a deviation class), "flows", optional "at" (the stages it is probed at), optional "tool" (the tool that fails, for D8_tool_failure), optional "stage_after" (a stage, or "pending" for the stage the conversation had reached), optional "must", "must_not" (patterns on the reply), "guards" ([{"name", "verdict"}]), "tools" ([{"tool", "count", "input"}]).
 - "reply_language": "subject" (the rule value), "lang" (the language tag every reply is in).
@@ -248,6 +252,8 @@ const strip = { evidence: true, produced_by: true, approved: true } as const;
 export const AnswerRelation = z.discriminatedUnion('kind', [
   PathRelation.omit(strip).extend(answerEvidence),
   UsesToolRelation.omit(strip).extend(answerEvidence),
+  StatesRelation.omit(strip).extend(answerEvidence),
+  TaskFamilyRelation.omit(strip).extend(answerEvidence),
   BindsRelation.omit(strip).extend(answerEvidence),
   RecoveryRelation.omit(strip).extend(answerEvidence),
   ReplyLanguageRelation.omit(strip).extend(answerEvidence),
