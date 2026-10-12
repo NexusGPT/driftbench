@@ -219,7 +219,14 @@ function yamlView(raw: string): View | undefined {
   return tokens.length === 0 ? undefined : inPlace(raw, tokens);
 }
 
-type Language = { line: string[]; block: boolean; phpSingle?: boolean; templates?: boolean };
+type Language = {
+  line: string[];
+  block: boolean;
+  phpSingle?: boolean;
+  templates?: boolean;
+  /** SQL: a string is '...' and a doubled quote stands for one. */
+  sql?: boolean;
+};
 const LANGUAGES: Array<[RegExp, Language]> = [
   [
     /\.(ts|tsx|js|jsx|mjs|cjs|json5|go|java|cs|kt|swift|rs)$/i,
@@ -227,6 +234,7 @@ const LANGUAGES: Array<[RegExp, Language]> = [
   ],
   [/\.php$/i, { line: ['//', '#'], block: true, phpSingle: true }],
   [/\.py$/i, { line: ['#'], block: false, templates: true }],
+  [/\.sql$/i, { line: ['--'], block: true, sql: true }],
 ];
 
 const CODE_ESCAPES: Record<string, string> = {
@@ -337,9 +345,22 @@ function codeView(raw: string, language: Language): View | undefined {
       i = end < 0 ? raw.length : end + 1 + hashes.length;
       continue;
     }
-    if (c === '@' && raw[i + 1] === '"') {
-      let j = i + 2;
-      while (j < raw.length && !(raw[j] === '"' && raw[j + 1] !== '"')) j += raw[j] === '"' ? 2 : 1;
+    if ((c === '@' && raw[i + 1] === '"') || (language.sql && c === "'")) {
+      // A verbatim string (C#) or an SQL string: a doubled quote stands for one quote.
+      const quote = language.sql ? "'" : '"';
+      const chars: Array<[string, number, number]> = [];
+      let j = i + (language.sql ? 1 : 2);
+      while (j < raw.length) {
+        if (raw[j] === quote && raw[j + 1] === quote) {
+          chars.push([quote, j, j + 2]);
+          j += 2;
+        } else if (raw[j] === quote) break;
+        else {
+          chars.push([raw[j] as string, j, j + 1]);
+          j++;
+        }
+      }
+      if (j < raw.length) tokens.push({ start: i, end: j + 1, chars });
       i = j + 1;
       continue;
     }

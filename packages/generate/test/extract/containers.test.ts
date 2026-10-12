@@ -121,3 +121,20 @@ describe('a prompt with a constant interpolated', () => {
     expect(quote).toBe('Never offer more than');
   });
 });
+
+describe('a prompt in a string with doubled quotes', () => {
+  const cs =
+    'class Agent {\n  public const string Prompt = @"Never say ""refund"" early.\nAsk for the id.";\n}\n';
+  const sql =
+    "-- the desk's prompt\nINSERT INTO prompts (name, body) VALUES ('desk', 'Don''t promise a date.\nAsk for the id.');\n";
+  it('reads "" in a C# verbatim string and \'\' in an SQL string as one quote', () => {
+    expect(promptView('Prompt.cs', cs)?.text).toContain('Never say "refund" early.\nAsk for the id.');
+    expect(promptView('seed.sql', sql)?.text).toContain("Don't promise a date.\nAsk for the id.");
+    expect(promptView('seed.sql', sql)?.text).toContain("-- the desk's prompt");
+  });
+  it('quotes a passage of the file', () => {
+    const sources = [{ kind: 'prompt' as const, path: 'seed.sql', text: sql }];
+    const quote = rawQuote(sources, 'seed.sql', "Don't promise a date.");
+    expect(sql).toContain(quote);
+  });
+});

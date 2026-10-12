@@ -561,3 +561,15 @@ Sources read:
 What others do: A template's value has the constant in place; the model reads that.
 
 What to try, and why: constants interpolated in a template are replaced by their value
+
+## Iteration 48
+
+Question: packages/generate/src/extract/containers.ts: the doubled quote of a C# verbatim string and of an SQL string is sent as two characters; prompt-containers.csharp-verbatim and sql-string prove it.
+
+Sources read:
+* https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/verbatim
+* https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS
+
+What others do: In both, a doubled quote inside the literal stands for one.
+
+What to try, and why: doubled quotes in C# verbatim and SQL strings are one quote
