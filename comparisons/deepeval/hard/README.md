@@ -149,6 +149,9 @@ pnpm exec vitest run --config comparisons/deepeval/hard/vitest.config.ts --maxWo
 ```
 
 The per-corpus baseline and audit files contain per-case decisions and call keys.
+`calls.jsonl` stores recording identifiers as `request_sha256`; case results
+refer to `request_sha256s`. These are prompt digests, not credentials.
+The metadata migration preserves every raw prompt, response and envelope.
 `calls.jsonl` contains the full prompt, full response, CLI envelope, actual model
 usage and cost for each unique invocation. Per-row costs charge their underlying
 calls, including shared recordings. These row costs must not be added as actual

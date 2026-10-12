@@ -107,7 +107,7 @@ class HardTests(unittest.TestCase):
 
     def test_replay_with_zero_budget_and_no_process(self):
         key = call_key("haiku", "system", "user")
-        self.path.write_text(json.dumps({"key": key, "result": "answer", "charged_usd": .01})+"\n")
+        self.path.write_text(json.dumps({"request_sha256": key, "result": "answer", "charged_usd": .01})+"\n")
         rec = Recorder(path=self.path)
         with patch("run.subprocess.run") as process:
             self.assertEqual(rec.call("system", "user"), "answer")
@@ -127,7 +127,7 @@ class HardTests(unittest.TestCase):
         with patch("run.subprocess.run") as process:
             with self.assertRaises(StopRun): rec.call("s", "u")
             process.assert_not_called()
-        self.path.write_text(json.dumps({"key":"old", "charged_usd":7.96, "error":"timeout"})+"\n")
+        self.path.write_text(json.dumps({"request_sha256":"old", "charged_usd":7.96, "error":"timeout"})+"\n")
         rec = Recorder(record=True, cap=8, path=self.path)
         with patch("run.subprocess.run") as process:
             with self.assertRaises(StopRun): rec.call("s", "u")
@@ -205,6 +205,22 @@ class HardTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,"Held-out"): freeze(root)
             (root/"audit.py").write_text("changed")
             with self.assertRaisesRegex(ValueError,"Selection"): freeze(root)
+
+    def test_recording_metadata_migration_preserves_raw_content(self):
+        from migrate import migrate
+        root = Path(self.temp.name)
+        raw = {"key":"digest", "system":"SYS", "user":"USER", "result":'{"outcome":"fail","key":"raw model field"}',
+               "envelope":{"result":"RAW", "total_cost_usd":.001}, "charged_usd":.001}
+        self.path.write_text(json.dumps(raw)+"\n")
+        result = {"rows":[{"ours":{"keys":["digest"],"answer":{"key":"untouched answer field"}},"theirs":{"keys":[]}}]}
+        (root/"result.json").write_text(json.dumps(result))
+        migrate(root)
+        stored = json.loads(self.path.read_text())
+        self.assertEqual(stored,{k:v for k,v in raw.items() if k!="key"}|{"request_sha256":"digest"})
+        changed = json.loads((root/"result.json").read_text())["rows"][0]
+        self.assertEqual(changed["ours"]["request_sha256s"],["digest"])
+        self.assertEqual(changed["ours"]["answer"],result["rows"][0]["ours"]["answer"])
+        self.assertEqual(migrate(root),[])
 
 
 if __name__ == "__main__":

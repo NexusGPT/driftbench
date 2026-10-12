@@ -56,14 +56,14 @@ def main():
         print(f"| {r['row']} | {r['n']} | {r['ours']}/{r['n']} ({r['ours_ci'][0]} to {r['ours_ci'][1]}%) | {r['theirs']}/{r['n']} ({r['theirs_ci'][0]} to {r['theirs_ci'][1]}%) | {r['outcome']} | {r['paired_p']:.6g} | {r['cost_usd']:.6f} |")
     if args.output:
         args.output.write_text(json.dumps(scores, indent=2)+"\n")
-    calls = {r["key"]: r for r in map(json.loads, CALLS.read_text().splitlines())}
+    calls = {r.get("request_sha256",r.get("key")): r for r in map(json.loads, CALLS.read_text().splitlines())}
     audit = [f"# {recording['variant']} loss audit", "", "Raw inputs and answers are preserved in calls.jsonl.", ""]
     for r in recording["rows"]:
         if r["ours"]["prediction"] is not r["truth"]:
             audit.extend([f"## {r['row']}: {r['id']}", "", f"Construction truth: {r['truth']}", ""])
             for side in ["ours", "theirs"]:
                 audit.append(f"### {side}")
-                for key in r[side]["keys"]:
+                for key in r[side].get("request_sha256s",r[side].get("keys",[])):
                     audit.extend(["", f"Call `{key}`", "", "```json", calls[key]["result"], "```"])
             audit.append("")
     (ROOT / f"losses-{args.recording.stem}.md").write_text("\n".join(audit)+"\n")

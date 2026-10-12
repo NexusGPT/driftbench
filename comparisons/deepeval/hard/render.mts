@@ -23,7 +23,11 @@ type Case = {
   turns: { role: 'user' | 'assistant'; content: string }[];
   contexts?: string[];
   role?: string;
-  tool_receipts?: { name: string; input_parameters: Record<string, unknown>; output: Record<string, unknown> }[];
+  tool_receipts?: {
+    name: string;
+    input_parameters: Record<string, unknown>;
+    output: Record<string, unknown>;
+  }[];
 };
 const corpus = process.argv[2] ?? 'v2';
 if (!['v1', 'v2', 'heldout'].includes(corpus)) throw new Error(`Unknown corpus: ${corpus}`);
@@ -49,9 +53,12 @@ for (const [name, rows] of Object.entries(sets)) {
       });
     }
     for (const receipt of row.tool_receipts ?? []) {
-      transcript.splice(transcript.length - 1, 0,
+      transcript.splice(
+        transcript.length - 1,
+        0,
         { role: 'tool_call', tool: receipt.name, text: JSON.stringify(receipt.input_parameters) },
-        { role: 'tool_result', tool: receipt.name, text: JSON.stringify(receipt.output) });
+        { role: 'tool_result', tool: receipt.name, text: JSON.stringify(receipt.output) },
+      );
     }
     // Both sides receive the same explicit role, in addition to the shipped rubric.
     const inputs = row.role ? [{ path: 'role.txt', text: row.role }] : undefined;

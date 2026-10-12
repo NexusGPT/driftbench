@@ -90,9 +90,9 @@ class Recorder:
             for line in path.read_text().splitlines():
                 r = json.loads(line)
                 self.prior_spend += r["charged_usd"]
-                self.records[r["key"]] = r
+                self.records[r["request_sha256"]] = r
                 if not r.get("error"):
-                    self.cache[r["key"]] = r
+                    self.cache[r["request_sha256"]] = r
 
     @property
     def spent(self):
@@ -117,7 +117,7 @@ class Recorder:
                 "--max-turns", "1", "--max-budget-usd", str(reserve)]
         cwd = ROOT / ".runtime"
         cwd.mkdir(exist_ok=True)
-        row = {"key": key, "system": system, "user": user, "requested_model": "haiku",
+        row = {"request_sha256": key, "system": system, "user": user, "requested_model": "haiku",
                "timestamp": datetime.now().astimezone().isoformat(), **self.context}
         try:
             remaining = (self.deadline-datetime.now(ZoneInfo("Europe/Brussels"))).total_seconds() if self.deadline else 180
@@ -256,6 +256,8 @@ def main():
     # A process-wide lock keeps all metric stages and runs at concurrency one.
     with (ROOT / ".run.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        from migrate import migrate
+        migrate(ROOT)
         rec = Recorder(args.record, args.cap_usd, deadline=deadline)
         competitor = metrics(rec)
         output = {"variant": args.variant, "model": "haiku", "package": "deepeval==4.2.8",
@@ -285,8 +287,8 @@ def main():
                             ours = baseline(rec, prompts[case["id"]])
                     except ValueError as exc:
                         ours = {"prediction": None, "error": str(exc)}
-                    ours["keys"] = rec.keys[start:]
-                    ours["cost_usd"] = rec.cost(ours["keys"])
+                    ours["request_sha256s"] = rec.keys[start:]
+                    ours["cost_usd"] = rec.cost(ours["request_sha256s"])
                     for name in ROWS[set_name]:
                         rec.context["side"] = name
                         start = len(rec.keys)
@@ -294,8 +296,8 @@ def main():
                             theirs = competitor(name, case)
                         except ValueError as exc:
                             theirs = {"prediction": None, "error": str(exc)}
-                        theirs["keys"] = rec.keys[start:]
-                        theirs["cost_usd"] = rec.cost(theirs["keys"])
+                        theirs["request_sha256s"] = rec.keys[start:]
+                        theirs["cost_usd"] = rec.cost(theirs["request_sha256s"])
                         output["rows"].append({"row": name, "set": set_name, "id": case["id"],
                                                "truth": case["truth"], "ours": ours, "theirs": theirs})
                         save()
