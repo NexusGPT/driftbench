@@ -170,6 +170,10 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
       const raw = JSON.stringify(payload);
       const candidate =
         isRecord(payload) && Array.isArray(payload.candidates) ? payload.candidates[0] : undefined;
+      const feedback = isRecord(payload) ? payload.promptFeedback : undefined;
+      if (!isRecord(candidate) && isRecord(feedback) && typeof feedback.blockReason === 'string') {
+        return { answer: inconclusive(`${model} declined: the prompt was blocked (${feedback.blockReason})`), raw };
+      }
       if (!isRecord(candidate)) {
         return { answer: inconclusive(`${model} answered without a candidate`), raw, unparsed: true };
       }
