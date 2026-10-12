@@ -677,3 +677,14 @@ Sources read:
 What others do: The template lists the keys a model may write; a key it does not list is dropped.
 
 What to try, and why: a rule records its polarity (level 1 is blocked on validator defects, so the level stays 0)
+
+## Iteration 58
+
+Question: packages/generate/src/extract/contract.ts: the answer template shows no when key on a value, so the cell a rule applies in is lost; contract:rule-when (styles, style-pairs, semantics) proves it.
+
+Sources read:
+* docs/generating.md section Planned: what a rule states (the cell it applies in)
+
+What others do: A model writes only the keys the template lists.
+
+What to try, and why: a rule records the cell it applies in (when; level 1 is blocked on validator defects, so the level stays 0)

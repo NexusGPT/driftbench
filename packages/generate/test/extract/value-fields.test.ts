@@ -39,4 +39,37 @@ describe('what a rule states', () => {
       'must_not',
     );
   });
+
+  it('the answer template shows when, and the model may scope a rule to a cell', () => {
+    expect(SYSTEM_PROMPT).toContain('"polarity": "<must or must_not, on a rule only>", "when"');
+    const target = { dimensions: [], constraints: [], phrases: [], relations: [] };
+    const answer = {
+      section: 'rules',
+      dimensions: [
+        {
+          id: 'rule',
+          title: 'Rules',
+          kind: 'behaviour',
+          values: [
+            {
+              id: 'R-02',
+              title: 'Be brief on sms',
+              polarity: 'must',
+              when: { channel: ['sms'] },
+              source: 'prompt.md',
+              quote: 'Never promise a delivery date.',
+            },
+          ],
+        },
+      ],
+      constraints: [],
+      phrases: [],
+      relations: [],
+    };
+    const result = acceptAnswer('rules', answer as never, target as never, quotes);
+    expect(result.refusals).toEqual([]);
+    expect((target.dimensions[0] as { values: Array<{ when?: unknown }> }).values[0]?.when).toEqual({
+      channel: ['sms'],
+    });
+  });
 });
