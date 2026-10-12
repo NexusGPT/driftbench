@@ -137,7 +137,8 @@ describe('session states on the fake command', () => {
       }),
     ]);
     const fresh = await run({});
-    expect((fresh.observed[0]?.raw as { markers: unknown[] }).markers).toEqual([]);
+    const freshRaw = fresh.observed[0]?.raw as { markers: unknown[] } | undefined;
+    expect(freshRaw?.markers).toEqual([]);
   });
 
   it('after restart: the session file is cut with a torn record and reopened', async () => {
