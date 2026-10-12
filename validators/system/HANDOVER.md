@@ -5,10 +5,12 @@
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 2 |
+| 1 | 7 |
 <!-- level-table:end -->
 
 Baseline on main a303a3f2 merged into codex/system-v3: bank version 5, 2384 items, 2355 passing, 29 failing, score 0.9878355704697986. Only seed 1 is complete. Do not extrapolate to other seeds. Older journals remain in journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl.
+
+Latest full measurement: source 0d1dda8f plus main 40aab095, bank version 5, seed 1 level 7, 2360 of 2384 passing (score 0.9899328859060402). Current-code coverage is 1 of 21 seeds. The earlier copy-only stage covers 5 of 21 at a different version and cannot be combined with this result.
 
 ## Floor
 
@@ -16,7 +18,7 @@ No system floor is set. A numeric floor requires the complete evidence for that 
 
 ## Open items
 
-The baseline has two real growth failures and 27 stale item expectations. The real failures are `scale/flow-blocks-teacher-forced/growth` (30.1 times) and `scale/flow-blocks-replayed/growth` (31.2 times), against the unchanged bound of 25. The free-running growth item passes the baseline but can fail on a new timing.
+The current seed-1 report has two real growth failures and 22 stale item expectations. Main includes the five estate-item rewrites from PR 114. The original baseline census is two real and 27 stale failures. The real failures are `scale/flow-blocks-teacher-forced/growth` (30.1 times) and `scale/flow-blocks-replayed/growth` (31.2 times), against the unchanged bound of 25. The free-running growth item passes the baseline but can fail on a new timing.
 
 Stale expectations cover the report's two rate intervals, four MDE assertions, extract proposal validation and map counts, select and holdout fixture counts, four mixed-suite golden comparisons, five estate output assertions and the pilot example totals. The executor does not edit any of them. The bank maintainer re-derives each assertion from current code or docs and retains its strength.
 
@@ -26,15 +28,15 @@ The current golden suite has nine conversations and one price-sheet task. Its do
 
 The function adapter copies every prior message body on each send, and teacher-forced sessions copy their entire canonical prefix on open. Red-first tests reproduce unread message access and teacher-forced growth, including an 80 times measurement and a seed-2 measurement of 58.1 times.
 
-The pending fix preserves mutable `Message[]` callbacks and `structuredClone`: marked runner-owned prefixes can be borrowed; callbacks receive plain arrays that copy each message on first access. A read-only proxy is an explicit helper, never the callback default. The copy-only five-seed sweep completes 5 of 21 seeds, with levels 2, 2, 7, 2, 2 and 2351 of 2384 items passing every completed seed (score 0.9861577181208053). All three growth paths still fail at least one seed. A later compatibility test run also fails teacher-forced seed 2 at 29.5 times. Do not claim the history work complete before measurement.
+The committed snapshot fix preserves mutable `Message[]` callbacks and `structuredClone`: marked runner-owned prefixes can be borrowed; callbacks receive plain arrays that copy each message on first access. A read-only proxy is an explicit helper, never the callback default. The copy-only five-seed sweep completes 5 of 21 seeds, with levels 2, 2, 7, 2, 2 and 2351 of 2384 items passing every completed seed (score 0.9861577181208053). All three growth paths still fail at least one seed. A later compatibility test run also fails teacher-forced seed 2 at 29.5 times. Do not claim the history work complete before measurement.
 
-Profiling the remaining free-running growth identifies repeated native hash updates over the whole prefix. The cache-key head changes per block, so the incremental digest cannot reuse that head. A new red-first test verifies the unchanged canonical digest but observes 802 native updates for 800 messages. The next distinct mechanism is bulk canonical-text hashing for a new head.
+Profiling the remaining free-running growth identifies repeated native hash updates over the whole prefix. The cache-key head changes per block, so the incremental digest cannot reuse that head. A new red-first test verifies the unchanged canonical digest but observes 802 native updates for 800 messages. Bulk canonical-text hashing is committed as 0d1dda8f. It passes the exact-digest and native-update tests, but the whole seed-1 report still fails teacher-forced and replay growth. The next distinct mechanism is repeated ledger regex construction: a red-first test observes 4004 constructions for 400 prior contact messages; a private precompiled-pattern probe returns identical contradictions.
 
 ## Next actions
 
-1. Check CI for the selection-allocation fix in PR 118, prioritized by the owner because the Node 24 failure blocks PR 74. Its allocation regression is red before and green after; all 36 selection tests pass and ten Node 24 probes have maximum growth 27.94 against 40. The five-seed prefix-copy sweep is journaled as iteration 1, a failed experiment. It loaded selection code before this fix. PR 130 carries the selection-only cherry-pick into main. After PR 131 merges, merge main into both branches and push new heads; never rerun the cancelled jobs.
-2. Fix the native hash-update growth with the existing red-first test; preserve exact canonical cache keys. Measure seed 1 and journal it separately.
-3. Estate and pilot docs are corrected with red-first tests. Recheck detached-child cleanup after merging main, then fix digit-only hash prefixes: staged seed 4 mistakes hash prefix 456042 for a version. Coordinate all stale expectations with the maintainer.
+1. Precompile the anchored ledger patterns with the existing red-first test, preserve phone/email verdicts, and measure the same seed. Journal this separately from bulk hashing.
+2. Fix unmatched digit-only hash prefixes in the store. The regression suite has two red cases and one passing version-number-priority case. Staged seed 4 demonstrates prefix 456042. Preserve ambiguity errors and existing numeric-version priority.
+3. PR 118 now targets main and stays draft until its current-head CI passes; then remove draft status for the auto-merger. PR 130 carries only the selection fix into main. PR 128 targets main for the remaining 22 stale items. Merge its approved bank changes at a measurement boundary; the executor never edits them. Run the final first five seeds, report N of 21, then remaining seeds only before 06:00 local.
 
 ## Pitfalls
 
@@ -44,7 +46,7 @@ Profiling the remaining free-running growth identifies repeated native hash upda
 * Nested stats measurements are cached by stats revision and seed only within one sweep. Dirty stats/bank code measures fresh. Disclose cache use and verify fresh/cached report equality.
 * The scale bank times CPU and keeps the minimum of repeated timings. One green micro-run is insufficient when another run fails the bound.
 * The owner skips the local estate-floor rerun: 616 seconds against 600 seconds at host load 150 is judged by CI. Do not raise the timeout.
-* PR 74 remains red on the Node 24 golden-cover growth test. PR 118 is this executor's draft into lane/v-system. PR 114 is the separate estate-item maintainer PR, with all checks green at the last check.
+* PR 74 and PR 114 are merged. Both executor branches include main 40aab095 after PR 131. New pushes create fresh CI; cancelled runs are not rerun. The public commit-attribution address has a scoped guard:allow marker; keep it when editing this handover.
 
 ## How to run
 
