@@ -127,9 +127,27 @@ export class ClaudeCodeReader implements EstateReader {
     this.ignore = options.ignore ?? [];
   }
 
-  async read(root: string): Promise<RawEstate> {
-    const budget = this.budget;
+  /**
+   * The files of the estate the runtime may load, relative to the root: the standing files, `.mcp.json`,
+   * and everything under `.claude` the ignore list keeps (links followed, files over 1 MB included). A copy
+   * of the estate needs these and nothing else.
+   */
+  async listFiles(root: string): Promise<string[]> {
     const notes: ReadNote[] = [];
+    const { ignored } = await this.ignoreOf(root, notes);
+    const large: string[] = [];
+    const walked = await walk(root, '.claude', notes, ignored, new Set(), undefined, large);
+    return [
+      ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md', '.mcp.json'])),
+      ...walked,
+      ...large,
+    ].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  }
+
+  private async ignoreOf(
+    root: string,
+    notes: ReadNote[],
+  ): Promise<{ config: EstateConfig; chosen: string[]; ignored: Ignored }> {
     const config = await readConfig(root, notes);
     const chosen = [...new Set([...config.ignore, ...this.ignore])].filter(
       (pattern) => !(DEFAULT_IGNORE as readonly string[]).includes(pattern),
@@ -140,6 +158,13 @@ export class ClaudeCodeReader implements EstateReader {
       counts: new Map(),
       paths: [],
     };
+    return { config, chosen, ignored };
+  }
+
+  async read(root: string): Promise<RawEstate> {
+    const budget = this.budget;
+    const notes: ReadNote[] = [];
+    const { config, chosen, ignored } = await this.ignoreOf(root, notes);
     const paths = [
       ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md'])),
       ...(await walk(root, '.claude', notes, ignored)),
@@ -312,6 +337,7 @@ async function walk(
   ignored: Ignored,
   ancestors: ReadonlySet<string> = new Set(),
   ignoredBy?: string,
+  large?: string[],
 ): Promise<string[]> {
   const real = await realpath(join(root, folder)).catch(() => undefined);
   if (real === undefined) return [];
@@ -339,14 +365,16 @@ async function walk(
       fileEntry = target.isFile();
     }
     if (folderEntry) {
-      found.push(...(await walk(root, path, notes, ignored, inside, by)));
+      found.push(...(await walk(root, path, notes, ignored, inside, by, large)));
     } else if (fileEntry && by !== undefined) {
       ignored.counts.set(by, (ignored.counts.get(by) ?? 0) + 1);
       ignored.paths.push(path);
     } else if (fileEntry) {
       const info = await stat(join(root, path));
-      if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
-      else found.push(path);
+      if (info.size > MAX_FILE_BYTES) {
+        notes.push({ file: path, message: 'skipped: larger than 1 MB' });
+        large?.push(path);
+      } else found.push(path);
     }
   }
   return found;
