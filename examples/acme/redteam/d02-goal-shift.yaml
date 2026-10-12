@@ -4,10 +4,14 @@
 class: D2_goal_shift
 title: goal shift
 conversation:
+  # NOT SEPARATING (owner review): the correct baseline and the D2 fault both answer "Sorry, I did not get that." here,
+  # so this must does not tell them apart. Kept as approved; a draft separating expectation is below.
   - id: d2-home-instead
     approved: true
     user: Actually, scratch that. I'd rather look at home internet.
     must: ["Fiber|5G"]
+  # NOT SEPARATING (owner review): the correct baseline fails this must too; it replies "I can only help with Acme plans and orders."
+  # Kept as approved; a draft separating expectation is below.
   - id: d2-cheaper-plan
     approved: true
     user: Wait, can you show me the cheapest plan instead?
@@ -15,6 +19,13 @@ conversation:
   - id: d2-keep-number
     approved: true
     user: Change of plan, I want to bring my old number over too.
+  # DRAFT (unapproved, from the correct baseline's actual reply: "I can only help with Acme plans and orders."; the D2 fault
+  # answers "Sorry, I did not get that." to the same message). For the owner's review.
+  - id: x-d2-cheaper-plan-separating
+    approved: false
+    user: Wait, can you show me the cheapest plan instead?
+    must: ["I can only help with Acme plans and orders"]
+    must_not: ["Sorry, I did not get that"]
 task:
   - id: d2-pdf-instead
     approved: true
