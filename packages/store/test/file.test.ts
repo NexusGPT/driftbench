@@ -121,6 +121,21 @@ describe('a corrupt row raises a clear error', () => {
     expect((await storeError(() => store.listRuns())).code).toBe('CORRUPT_ROW');
   });
 
+  it.each([
+    ['status', 'failed', { status: 'failed' }],
+    ['spec_id', 's-other', { specId: 's-other' }],
+    ['mode', 'T', { mode: 'T' }],
+  ])(
+    'for a run whose %s column was edited away from its record, so a filter never returns it',
+    async (column, value, filter) => {
+      const stored = await seed();
+      damage(`UPDATE runs SET ${column} = ? WHERE run_id = ?`, value, stored.runId);
+      const error = await storeError(() => store.listRuns(filter));
+      expect(error.code).toBe('CORRUPT_ROW');
+      expect(error.message).toContain(`the runs row ${ID}/${stored.runId}`);
+    },
+  );
+
   it('for a block whose observed JSON does not parse', async () => {
     const stored = await seed();
     damage('UPDATE blocks SET observed_json = ? WHERE "index" = 1', 'not json');

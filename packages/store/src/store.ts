@@ -128,9 +128,11 @@ function statements(db: DatabaseSync) {
          pass, json)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ),
-    selectRun: db.prepare('SELECT campaign_id, run_id, json FROM runs WHERE campaign_id = ? AND run_id = ?'),
+    selectRun: db.prepare(
+      'SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs WHERE campaign_id = ? AND run_id = ?',
+    ),
     selectRunsById: db.prepare(
-      'SELECT campaign_id, run_id, json FROM runs WHERE run_id = ? ORDER BY campaign_id',
+      'SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs WHERE run_id = ? ORDER BY campaign_id',
     ),
     selectBlocks: db.prepare(
       `SELECT "index", observed_json, verdicts_json, drift_json, json FROM blocks
@@ -277,7 +279,9 @@ export class SqliteStore implements Store {
     }
     const where = clauses.length === 0 ? '' : ` WHERE ${clauses.join(' AND ')}`;
     const rows = this.db
-      .prepare(`SELECT campaign_id, run_id, json FROM runs${where} ORDER BY started_at, campaign_id, run_id`)
+      .prepare(
+        `SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs${where} ORDER BY started_at, campaign_id, run_id`,
+      )
       .all(...params);
     return rows.map((row) => this.readRun(row));
   }
@@ -682,6 +686,16 @@ export class SqliteStore implements Store {
       throw corrupt(`${where} does not match the RunResult schema: ${describeIssues(parsed.error.issues)}`);
     }
     if (parsed.data.runId !== runId) throw corrupt(`${where} holds run ${parsed.data.runId}`);
+    // The columns a filter reads must agree with the record, or a filter returns a run it does not match.
+    for (const [column, held] of [
+      ['spec_id', parsed.data.specId],
+      ['mode', parsed.data.mode],
+      ['status', parsed.data.status],
+    ] as const) {
+      if (row[column] !== undefined && row[column] !== held) {
+        throw corrupt(`${where} has ${column} ${String(row[column])}, its record holds ${held}`);
+      }
+    }
     parsed.data.blocks.forEach((block, i) => {
       if (block.index !== blockRows[i]?.index) {
         throw corrupt(`${where} has block row ${String(blockRows[i]?.index)} holding block ${block.index}`);
