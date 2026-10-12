@@ -53,6 +53,7 @@ A block runs from one typed user message to the next. Tool results, injected mes
 | skills | Skill calls, by `input.skill` |
 | references | Read calls that succeeded, on a file inside a skill folder (a `skills/<name>/` segment in its path) or on a path a spec names in `expect.references`, relative to the session folder |
 | subagents | Agent and Task calls: the name from `input.subagent_type` (`general-purpose` when it has none) and the model from `input.model` |
+| offered | the `tools` of a `system` record with `subtype: init`: the tools the runtime offered, where a tool a setting denies is absent. The list holds for the block the record falls in and every later block, until the next init record. Before any init record the field is absent, never empty. |
 | guards | the hook decision log: each row is a guard (`check` as the name, `verdict`), in the block whose time window holds its `at` |
 | stages | the step feed, placed by time the same way |
 | executions | Bash calls: the command and the exit code, from the structured result when it has one, else `Exit code N` at the start of an error result, else 1 for an error and 0 for a success |
@@ -61,6 +62,8 @@ A block runs from one typed user message to the next. Tool results, injected mes
 | cost | the usage of each model message, counted once per message id |
 
 A block's time window runs from its user message to the next one; a row earlier than the first block goes to the first block. Read paths stay in the Read calls' input, so the ordered-pair check sees a read before a write. A compaction boundary is a marker in the block's `raw.markers`, with the number of tool calls before it. Every record not mapped (thinking, snapshots, helper records, unknown types, lines that are not JSON) is kept in `raw.kept` of its block, or in `meta.preamble` before the first turn, with its line and the reason.
+
+A saved transcript usually holds no init record, so its blocks carry no offered tools, and a `tools_offered` expectation is inconclusive on them: it neither passes nor fails. A capture of a headless run's stream (`--output-format stream-json`) starts with the init record, so a replay of it reports what was offered, and a deny rule that removes a tool shows as a failing `tools_offered` verdict.
 
 Without a decision log, `runtime.guards` is absent, and without a step feed, `runtime.stages` is absent. `runtime.references` and `runtime.subagents` are always present, empty when the block read no such file or dispatched no helper. The trees come from `readSession({ before, after })`, two folders whose files are hashed; a replay spec names them, see below. `readSession({ references })` takes the paths or globs a spec names.
 
