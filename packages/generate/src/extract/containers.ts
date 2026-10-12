@@ -223,6 +223,7 @@ type Language = { line: string[]; block: boolean; phpSingle?: boolean };
 const LANGUAGES: Array<[RegExp, Language]> = [
   [/\.(ts|tsx|js|jsx|mjs|cjs|json5|go|java|cs|kt|swift|rs)$/i, { line: ['//'], block: true }],
   [/\.php$/i, { line: ['//', '#'], block: true, phpSingle: true }],
+  [/\.py$/i, { line: ['#'], block: false }],
 ];
 
 const CODE_ESCAPES: Record<string, string> = {
@@ -329,11 +330,22 @@ function codeView(raw: string, language: Language): View | undefined {
       i = j + 1;
     } else i++;
   }
-  return tokens.some((token) =>
-    token.chars.some(([value, start, end]) => end - start !== 1 || raw[start] !== value),
-  )
-    ? inPlace(raw, tokens)
-    : undefined;
+  // Literals joined with + or only separated by white space are one string: `"a" +\n "b"` reads as `ab`.
+  const joined: Token[] = [];
+  for (const token of tokens) {
+    const last = joined[joined.length - 1];
+    if (last && /^\s*\+?\s*$/.test(raw.slice(last.end, token.start))) {
+      joined[joined.length - 1] = {
+        start: last.start,
+        end: token.end,
+        chars: [...last.chars, ...token.chars],
+      };
+    } else joined.push(token);
+  }
+  const changes = (token: Token) =>
+    token.chars.length !== token.end - token.start - 2 ||
+    token.chars.some(([value, start, end]) => end - start !== 1 || raw[start] !== value);
+  return joined.some(changes) ? inPlace(raw, joined) : undefined;
 }
 
 const VIEWS: Array<[RegExp, (raw: string) => View | undefined]> = [

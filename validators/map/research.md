@@ -537,3 +537,15 @@ Sources read:
 What others do: The string's value is the prompt; the language's escapes are not.
 
 What to try, and why: string literals in code are decoded
+
+## Iteration 46
+
+Question: packages/generate/src/extract/containers.ts: a rule cut across two string literals joined with + or implicit concatenation is sent as two pieces with code between them; prompt-containers.ts-concat and python-concat prove it.
+
+Sources read:
+* https://262.ecma-international.org/ (string concatenation)
+* https://docs.python.org/3/reference/lexical_analysis.html#string-literal-concatenation
+
+What others do: Adjacent literals are one string; a quote must still be one passage of the file.
+
+What to try, and why: string literals joined in code read as one string

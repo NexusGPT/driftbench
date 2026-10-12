@@ -88,3 +88,19 @@ describe('prompts kept in string literals of code', () => {
     expect(quote).toBe('t promise a date.');
   });
 });
+
+describe('a prompt cut across string literals', () => {
+  const parts = ['Keep answers short and clear.\n', 'Never promise a delivery date.\n'];
+  const ts = `export const PROMPT =\n${parts.map((part) => `  ${JSON.stringify(part)}`).join(' +\n')};\n`;
+  const py = `PROMPT = (\n${parts.map((part) => `    ${JSON.stringify(part)}`).join('\n')}\n)\n`;
+  it('reads literals joined with + or by implicit concatenation as one string', () => {
+    expect(promptView('prompt.ts', ts)?.text).toContain('Keep answers short and clear.\nNever promise');
+    expect(promptView('prompt.py', py)?.text).toContain('Keep answers short and clear.\nNever promise');
+  });
+  it('quotes a passage inside one literal', () => {
+    const sources = [{ kind: 'prompt' as const, path: 'prompt.ts', text: ts }];
+    const quote = rawQuote(sources, 'prompt.ts', 'Never promise a delivery date.');
+    expect(ts).toContain(quote);
+    expect(quote).toBe('Never promise a delivery date.');
+  });
+});
