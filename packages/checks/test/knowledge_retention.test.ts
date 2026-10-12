@@ -59,3 +59,28 @@ describe('knowledge_retention', () => {
     });
   });
 });
+
+describe('knowledge_retention: a judged criterion makes the ask check advisory', () => {
+  it('without a judge, a question that repeats the given value is a confirmation, not a re-ask', async () => {
+    const confirm = 'Just to confirm, is jo.okafor@example.com still the right email for the order?';
+    const ctx = context(loose, 3, observed(confirm), {
+      ledger,
+      expect: { knowledge_retention: [{ fact: 'email' }] },
+    });
+    expect(verdict(await run(knowledgeRetention, ctx), 'knowledge_retention.email.asked')).toMatchObject({
+      outcome: 'pass',
+    });
+  });
+
+  it('with the judged criterion on the block, a re-ask is advisory and does not gate', async () => {
+    const reask = 'Before I place it, what is your email address?';
+    const ctx = context(loose, 3, observed(reask), {
+      ledger,
+      expect: { knowledge_retention: [{ fact: 'email' }], criteria: ['knowledge_retention'] },
+    });
+    expect(verdict(await run(knowledgeRetention, ctx), 'knowledge_retention.email.asked')).toMatchObject({
+      outcome: 'fail',
+      gating: false,
+    });
+  });
+});
