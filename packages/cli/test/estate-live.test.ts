@@ -255,6 +255,35 @@ describe('driftbench estate run', () => {
     ]);
   });
 
+  it('sets variables for the runtime and passes denied tools, and refuses a variable that is no NAME=VALUE', async () => {
+    const dir = await folder();
+    const calls = join(dir, 'calls.jsonl');
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const result = await estateRun(
+      FIXTURE,
+      [spec],
+      '--set-env',
+      `FAKE_CALLS=${calls}`,
+      '--set-env',
+      'NEXUS_BASE_URL=http://127.0.0.1:9',
+      '--disallow',
+      'Read(~/.nexus-secrets/**)',
+      'WebFetch',
+    );
+    expect(result.code).toBe(0);
+    const [call] = (await readFile(calls, 'utf8'))
+      .trim()
+      .split('\n')
+      .map((text) => JSON.parse(text));
+    const argv = call.argv as string[];
+    const at = argv.indexOf('--disallowed-tools');
+    expect(argv.slice(at, at + 3)).toEqual(['--disallowed-tools', 'Read(~/.nexus-secrets/**)', 'WebFetch']);
+    expect(argv.indexOf('-p')).toBeGreaterThan(at);
+    const bad = await estateRun(FIXTURE, [spec], '--set-env', 'NOEQUALS');
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('--set-env');
+  });
+
   it('passes the model, turn and budget limits and the trusted tools to the command, in its own config folder on a stand-in', async () => {
     const calls = join(await folder(), 'calls.jsonl');
     process.env.FAKE_CALLS = calls;

@@ -123,6 +123,8 @@ export type ClaudeCodeLiveOptions = {
    * never trusted interactively ignores the estate's allow list (seen in the first real run); this restores it.
    */
   trustEstate?: boolean;
+  /** Tools the runtime must refuse, passed as `--disallowed-tools` (a secrets folder, a network tool). */
+  disallowedTools?: readonly string[];
 };
 
 /** The flags the runner adds after the headless shape. */
@@ -268,6 +270,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         options.command,
         ...(options.args ?? []),
         ...(allowed.length > 0 ? ['--allowed-tools', ...allowed] : []),
+        ...(options.disallowedTools?.length ? ['--disallowed-tools', ...options.disallowedTools] : []),
         '-p',
         ...(queued.length > 0 ? ['--input-format', 'stream-json'] : [ask]),
         '--output-format',
