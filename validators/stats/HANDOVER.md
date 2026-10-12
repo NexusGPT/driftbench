@@ -37,6 +37,10 @@ This branch does not hold the statistics fixes of the old pilot branch (exec/sta
 
 Fixed so far: mde at a baseline of 0 or 1; designEffect below its bound; zeroFailureBound at a tiny p; campaign plan uses stats.mde (new `--rho`); the report run pass interval (Wilson on effective runs, t quantile; coverage 0.97 and 0.95 on the two planted designs).
 
+## Floor
+
+See `validators/floors.json`; `pnpm driftbench validate floors` prints it. Ladder version 2 has no floor yet; the maintainer sets it.
+
 ## Open items
 
 1. The missing methods (55 items, 7 causes): `clusteredMeanInterval`, `designEffectFromData`, `iccOneWay`, `kishEffectiveSize`, `oneWayAnova`, `stratifiedMean`, `weightedMean`. Each item names its signature, definition and source; the cases are in `packages/validators/fixtures/stats/roadmap.json`.
