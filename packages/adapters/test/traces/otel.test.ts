@@ -47,6 +47,7 @@ describe('tracesFromOtel: the current GenAI semantic conventions', () => {
     expect(first?.observed.toolCalls).toEqual([
       {
         id: 'call_cov_1',
+        spanId: 'a100000000000003',
         label: 'coverage.check',
         input: { address: '3 Orchard Way, Acmeville' },
         output: { found: true, address_id: 'addr-102', fiber_mbps: 300, five_g: true },
@@ -155,7 +156,14 @@ describe('tracesFromOtel: edge cases', () => {
     );
     const [trace, other] = traces;
     expect(trace?.turns[0]?.observed.toolCalls).toEqual([
-      { label: 'lookup', input: {}, error: 'timeout', startedAt: '1970-01-01T00:00:10.500Z', latencyMs: 100 },
+      {
+        spanId: tool.spanId,
+        label: 'lookup',
+        input: {},
+        error: 'timeout',
+        startedAt: '1970-01-01T00:00:10.500Z',
+        latencyMs: 100,
+      },
     ]);
     expect(other).toBeUndefined();
     expect(trace?.issues).toEqual([]);

@@ -6,6 +6,7 @@ import {
   type RunEvent,
   type RunMode,
   type RunResult,
+  type Spec,
   type Verdict,
 } from '@driftbench/core';
 import { bootstrapCI } from '@driftbench/stats';
@@ -110,7 +111,38 @@ export type RunDetail = {
   blocks: BlockDetail[];
   /** The events the run reported, in order, when it recorded them. */
   events?: RunEvent[];
+  /**
+   * A run a verdict ended before the spec's last block: the verdict, the block it stopped after, and the spec
+   * blocks it skipped. Absent when every block ran.
+   */
+  stopped?: StoppedRun;
 };
+
+export type StoppedRun = {
+  verdict: 'success' | 'failure';
+  reason?: string;
+  /** The index of the last block that ran. */
+  after: number;
+  skipped: Array<{ index: number; id: string; stimulus?: string }>;
+};
+
+/** Where a verdict stopped a run and which spec blocks it skipped, read from the run and its spec. */
+function stoppedOf(run: RunResult, spec: Spec | undefined): StoppedRun | undefined {
+  if (run.endVerdict === undefined || spec === undefined) return undefined;
+  const skipped = spec.blocks.slice(run.blocks.length).map((block, offset) => {
+    const index = run.blocks.length + offset;
+    const stimulus = stimulusText(spec, index);
+    return { index, id: block.id ?? `b${index + 1}`, ...(stimulus === undefined ? {} : { stimulus }) };
+  });
+  if (skipped.length === 0) return undefined;
+  const reason = spec.end?.reason;
+  return {
+    verdict: run.endVerdict,
+    ...(reason === undefined ? {} : { reason }),
+    after: run.blocks.length - 1,
+    skipped,
+  };
+}
 
 export type ToolAccuracy = {
   /** Calls matched to an expected call (per label, the smaller of the two counts). */
@@ -255,6 +287,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     succession: run.succession,
     ...optional('recovery', run.recovery),
     ...optional('events', run.events),
+    ...optional('stopped', stoppedOf(run, spec)),
     blocks: blocksWithSpec(run, spec).map(({ result, specBlock }) => {
       const timelineEvents = timelineEventsOf(run, result.index);
       const injectedText =
@@ -307,7 +340,8 @@ function timelineEventsOf(run: RunResult, index: number): { id: string; label: s
           : event.type === 'block_end'
             ? `block end ${event.pass ? 'pass' : 'fail'}`
             : event.type;
-    return [{ id: `event:${position}`, label }];
+    // A call that carries its trace span id is anchored by that id, so the span anchor names the real span.
+    return [{ id: event.type === 'tool_call' && event.spanId ? event.spanId : `event:${position}`, label }];
   });
 }
 

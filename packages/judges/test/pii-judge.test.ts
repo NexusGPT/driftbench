@@ -21,4 +21,10 @@ describe('judgePersonalData: a judge reads one message for a person name or a pe
   it('a judge that gives no answer throws', async () => {
     await expect(judgePersonalData(new FakeJudge('j', [new Error('down')]), 'x')).rejects.toThrow(/down/);
   });
+
+  it('an inconclusive answer throws too: it is never read as no personal data', async () => {
+    await expect(
+      judgePersonalData(new FakeJudge('j', [{ outcome: 'inconclusive', reasoning: 'unparsed' }]), 'x'),
+    ).rejects.toThrow(/no answer/);
+  });
 });

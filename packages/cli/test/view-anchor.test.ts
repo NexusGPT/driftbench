@@ -143,6 +143,27 @@ describe('the anchor options offer tool-output fields and runtime events', () =>
   });
 });
 
+describe('a timeline event with a trace span id is anchored by the span id', () => {
+  it('offers span:<id> with the span id in the anchor, so the label names the real span', async () => {
+    const { anchorOptions } = await import('../src/view/server');
+    const block = {
+      index: 0,
+      injected: false,
+      pass: true,
+      latencyMs: 0,
+      retries: 0,
+      drift: [],
+      text: 'Yes.',
+      toolCalls: [],
+      verdicts: [],
+      timelineEvents: [{ id: 'a100000000000003', label: 'tool coverage.check' }],
+    } as never;
+    const option = anchorOptions(block).find((entry) => entry.value === 'span:a100000000000003');
+    expect(option?.label).toBe('tool coverage.check');
+    expect(option?.anchor).toEqual({ kind: 'span', span_id: 'a100000000000003' });
+  });
+});
+
 describe('a score typed with the label is kept on the queue vote', () => {
   it('stores the score of a queued item when the label completes it', async () => {
     const { emptyQueue, enqueue, readQueue, writeQueue } = await import('@driftbench/judges');

@@ -355,6 +355,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           type: 'tool_call',
           index: position,
           label: call.label,
+          ...(call.spanId === undefined ? {} : { spanId: call.spanId }),
           ...(call.error === undefined ? {} : { error: call.error }),
           at: new Date().toISOString(),
         });

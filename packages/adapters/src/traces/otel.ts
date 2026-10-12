@@ -525,7 +525,12 @@ function toolRecord(
   span: OtelSpan | undefined,
   id: string | undefined,
 ): ToolCall {
-  const record: ToolCall = { ...(id !== undefined ? { id } : {}), label: name, input };
+  const record: ToolCall = {
+    ...(id !== undefined ? { id } : {}),
+    ...(span === undefined ? {} : { spanId: span.spanId }),
+    label: name,
+    input,
+  };
   if (span === undefined) return record;
   if (span.status?.code === 2)
     record.error = span.status.message || stringOf(span.attributes['error.type']) || 'error';

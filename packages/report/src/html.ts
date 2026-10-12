@@ -5,7 +5,7 @@ import { count, esc, fixed, interval, json, pct, points, pValue, usd } from './f
 import type { PilotReport } from './pilot';
 import type { RecoverySummary, ReliabilityLine } from './reliability';
 import type { CriterionRepeat } from './repeats';
-import type { BlockDetail, RunDetail, Scorecard } from './scorecard';
+import type { BlockDetail, RunDetail, Scorecard, StoppedRun } from './scorecard';
 import type { CellSpread, Spread } from './spread';
 
 const DRIFT_NAMES: Record<DriftClass, string> = {
@@ -667,7 +667,25 @@ export function renderRun(run: RunDetail, blockExtra: (block: BlockDetail) => st
 ${header.replace('</details>', '')}
 ${timelineSection(run.events)}
 ${run.blocks.map((block) => blockDetail(block, blockExtra(block))).join('\n')}
+${stoppedSection(run.stopped)}
 </details>
+</section>`;
+}
+
+/** A verdict that stopped the run early: where it stopped, and the blocks it skipped. Empty when none did. */
+export function stoppedSection(stopped: StoppedRun | undefined): string {
+  if (stopped === undefined) return '';
+  const reason = stopped.reason === undefined ? '' : ` (${esc(stopped.reason)})`;
+  const rows = stopped.skipped
+    .map(
+      (block) =>
+        `<li><span class="mono">${esc(block.id)}</span>${block.stimulus === undefined ? '' : `: ${esc(block.stimulus)}`}</li>`,
+    )
+    .join('');
+  return `<section class="stopped">
+<h3>Stopped by verdict: ${esc(stopped.verdict)}${reason}</h3>
+<p>The run stopped after block ${stopped.after + 1}. These blocks were skipped by the verdict, so they did not run and do not count.</p>
+<ol start="${stopped.after + 2}">${rows}</ol>
 </section>`;
 }
 
