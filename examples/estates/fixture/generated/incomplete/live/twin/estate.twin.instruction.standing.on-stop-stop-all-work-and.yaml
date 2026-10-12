@@ -73,6 +73,8 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: stop-word
     phrase: 0
+    ask: bank
+    outcome: bank
     needs:
       - marker: needs-registered-check
         atom: instruction.standing.on-stop-stop-all-work-and

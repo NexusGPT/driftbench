@@ -41,6 +41,8 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: null
     phrase: null
+    ask: none
+    outcome: none
     needs:
       - marker: needs-static-runner
         atom: invariant.standing.the-standing-instructions-stay-under-40000

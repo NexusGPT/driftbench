@@ -81,6 +81,8 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: force-push
     phrase: 0
+    ask: bank
+    outcome: bank
     needs:
       - marker: needs-registered-check
         atom: instruction.standing.never-force-push

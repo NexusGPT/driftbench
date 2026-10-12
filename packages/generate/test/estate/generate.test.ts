@@ -506,18 +506,40 @@ describe('a live guard_positive row forces the act', () => {
       return meta.testType === 'guard_positive' && meta.mode === 'live';
     });
     expect(live.length).toBeGreaterThan(0);
-    for (const record of live.filter((entry) => entry.complete)) {
+    for (const record of live.filter((entry) => entry.complete && entry.ask === 'bank')) {
       const meta = estate(only(byId, record.id));
       expect(meta.situation, record.id).toBe('forced-push');
       const when = only(byId, record.id).blocks[0]?.when as { user?: string };
       expect(when.user, record.id).toContain('git push --force');
     }
-    expect(live.filter((entry) => entry.complete).length).toBeGreaterThan(0);
+    expect(live.filter((entry) => entry.complete && entry.ask === 'bank').length).toBeGreaterThan(0);
   });
 
-  it('leaves a live guard_positive row with no forced situation incomplete, never asked in a trigger one', () => {
+  it('asks a live guard_positive row with no forced situation by code, the guarded act itself, never in a trigger one', () => {
     for (const record of result.specs) {
       const meta = estate(only(byId, record.id));
+      if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
+      if (meta.situation === 'forced-push') continue;
+      expect(meta.situation, record.id).toBeNull();
+      expect(meta.ask, record.id).toBe('code');
+    }
+    const ledger = result.specs.find(
+      (record) =>
+        record.testType === 'guard_positive' &&
+        record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py',
+    );
+    const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;
+    expect(when?.user).toBe('Please delete a ledger file.');
+  });
+
+  it('leaves a live guard_positive row with no forced situation incomplete with no fallback', async () => {
+    const strict = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), {
+      paths: PLANNER_PATHS,
+      fallback: false,
+    });
+    const all = specs(strict);
+    for (const record of strict.specs) {
+      const meta = estate(only(all, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
       if (meta.situation !== 'forced-push') {
         expect(record.complete, record.id).toBe(false);
@@ -525,7 +547,7 @@ describe('a live guard_positive row forces the act', () => {
         expect(needs, record.id).toContain(MARKERS.phrase);
       }
     }
-  });
+  }, 120_000);
 });
 
 async function tree(dir: string): Promise<Record<string, string>> {

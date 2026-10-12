@@ -475,7 +475,7 @@ The suite of the Northwind plan. The plan must be approved first; the committed 
 $ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
 Map ../../../examples/estates/fixture/approved.yaml (claude-code), hash be2e7a0919cb: 125 atoms.
 Plan ../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1379 rows, 1379 approved, 0 waiting, 0 struck.
-Phrases ../../../examples/estates/fixture/phrases.yaml: 20 situations, 38 approved phrases.
+Phrases ../../../examples/estates/fixture/phrases.yaml: 21 situations, 40 approved phrases.
 Sessions ../../../examples/estates/fixture/sessions/index.yaml: 3.
 Seed 1; custom checks the runner registers: ordered.
 
@@ -509,8 +509,8 @@ invariant              4      4         0           4
 journey               10     10        10           0
 total                      1379       813         566
 
-Asks of the complete specs: 302 approved phrases, 511 written by code, 0 recorded sessions, 0 with no ask.
-Outcomes of the complete specs: 588 bank, 12 no-change:guard, 22 no-change:negative, 27 no-change:read-only, 164 no-delete.
+Asks of the complete specs: 298 approved phrases, 515 written by code, 0 recorded sessions, 0 with no ask.
+Outcomes of the complete specs: 575 bank, 23 no-change:guard, 22 no-change:negative, 27 no-change:read-only, 166 no-delete.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Gaps (what keeps a spec incomplete):
   needs-guard-message-check  6 specs

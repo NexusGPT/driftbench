@@ -80,6 +80,8 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: ledger-audit
     phrase: 1
+    ask: bank
+    outcome: bank
     needs:
       - marker: needs-some-call-check
         atom: gate.standing.write-a-helper-s-brief-before

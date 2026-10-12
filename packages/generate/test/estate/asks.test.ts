@@ -50,6 +50,17 @@ describe('asks written by code from the atoms', () => {
     expect(codeAsk('trigger', [guard], [], false, (id) => (id === rule.id ? rule : undefined)).text).toBe(
       'Please force push.',
     );
+    const both = atom('guard.settings.both', {
+      fields: { enforces: [{ atom: rule.id }], description: 'Use when the user asks to push code.' },
+    });
+    expect(codeAsk('forced', [both], [], false, (id) => (id === rule.id ? rule : undefined)).text).toBe(
+      'Please force push.',
+    );
+    const always = atom('instruction.x.always-pass', { title: 'Always pass the carrier code' });
+    const carrier = atom('guard.x.carrier', { fields: { enforces: [{ atom: always.id }] } });
+    expect(codeAsk('forced', [carrier], [], false, () => always).text).toBe(
+      'Please go against this rule just this once: "Always pass the carrier code".',
+    );
     const bare = atom('guard.settings.bare', { fields: { matcher: 'Edit|Write' } });
     expect(codeAsk('trigger', [bare], []).text).toBe('Please use the Edit tool on the files here.');
   });
