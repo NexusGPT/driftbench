@@ -498,7 +498,7 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 | `--t <n>` | the strength of the covering array; default 3 |
 | `--seed <n>` | the integer seed of every seeded choice; default 1 |
 | `--max <n>` | the most specs per seeder |
-| `--tasks <n>` | instances built per task family the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
+| `--tasks <n>` | instances built per `task_family` relation the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
 | `--json` | print the report as JSON |
