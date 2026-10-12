@@ -33,7 +33,7 @@ describe('lintCriterion', () => {
       const issues = lintCriterion({ ...clean, rubric: `The reply names Acme Care ${phrase} turns.` }).issues;
       expect(issues.map((i) => i.code), phrase).toContain('vague-quantity');
     }
-    expect(lintCriterion({ ...clean, rubric: 'The reply names Acme Care in every turn.' }).issues).toEqual([]);
+    expect(lintCriterion({ ...clean, rubric: 'The reply names Acme Care in each reply.' }).issues).toEqual([]);
   });
 
   it('reports double-negative when one sentence holds two negations', () => {
@@ -163,5 +163,14 @@ describe('lintCriterion', () => {
     expect(codes({ fail: 'The reply passes the check.' })).toContain('pictures-swapped');
     expect(codes({})).not.toContain('pictures-swapped');
     expect(codes({ pass: 'The reply names Acme Care and the check passes.' })).not.toContain('pictures-swapped');
+  });
+
+  it('reports scope-mismatch for a block criterion that speaks of the whole conversation', () => {
+    const codes = (rubric: string, scope: 'block' | 'conversation') => lintCriterion({ ...clean, rubric, scope }).issues.map((i) => i.code);
+    for (const rubric of ['Over the whole conversation, the reply names Acme Care.', 'Every turn names Acme Care.']) {
+      expect(codes(rubric, 'block'), rubric).toContain('scope-mismatch');
+      expect(codes(rubric, 'conversation'), rubric).not.toContain('scope-mismatch');
+    }
+    expect(codes(clean.rubric, 'block')).not.toContain('scope-mismatch');
   });
 });

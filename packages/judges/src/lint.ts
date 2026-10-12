@@ -40,7 +40,10 @@ const RULES: readonly Rule[] = [
     found: (c) => negationOnly(c.pass, c.fail) || negationOnly(c.fail, c.pass),
   },
   // A conversation criterion that judges one reply: the judge reads the whole conversation and the rubric points at a slice.
-  { code: 'scope-mismatch', found: (c) => c.scope === 'conversation' && /\b(the last|this|that) reply\b/i.test(c.rubric) },
+  { code: 'scope-mismatch', found: (c) =>
+      (c.scope === 'conversation' && /\b(the last|this|that) reply\b/i.test(c.rubric)) ||
+      (c.scope !== 'conversation' && /\b(the whole conversation|every turn)\b/i.test(c.rubric)),
+  },
   // A slot nobody filled: {plan}, {{price}} or <customer name>.
   { code: 'placeholder', found: (c) => /\{[^{}\n]+\}|<[^<>\n]+>/.test(c.rubric) },
   // A quote opened and not closed: where the quoted text ends is a guess.
