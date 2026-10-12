@@ -1,3 +1,5 @@
+import { benchFamily } from './bench';
+import { blindFamilies } from './blind/index';
 import { comboFamily, generatedFamily } from './combo';
 import type { Family } from './frame';
 import { decoysFamily, hostileFamily } from './hostile';
@@ -14,6 +16,8 @@ import { registryFamily } from './scan-registry';
 import { standingFamily } from './scan-standing';
 import { stepsFamily } from './scan-steps';
 
+export { benchFamily } from './bench';
+export { blindFamilies } from './blind/index';
 export * from './frame';
 
 /** The levels of the estate bank, in order of the cost of diagnosis, each with its families. */
@@ -37,6 +41,8 @@ export const BANK_LEVELS = [
       hostileFamily(),
       decoysFamily(),
       standingFamily(),
+      benchFamily(),
+      ...blindFamilies(),
     ],
   },
   { id: 'lint', name: 'lint', families: () => [lintDefectFamily(), lintCleanFamily()] },

@@ -645,7 +645,7 @@ const DECOYS: Case[] = [
   },
 ];
 
-async function judgeCase(seed: number, family: string, item: Case): Promise<ItemResult> {
+export async function judgeCase(seed: number, family: string, item: Case): Promise<ItemResult> {
   const estate = new PlantedEstate();
   const owner = `${family}.${item.key}`;
   item.plant(estate, seed, owner);
