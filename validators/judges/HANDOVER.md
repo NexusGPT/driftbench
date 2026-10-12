@@ -119,6 +119,7 @@ Iteration 104 (cause: seeds 2 to 9 showed narration after a pool label CONFIRM f
 Iteration 105 (cause: buildPairPrompt wrapped candidates by hand, unescaped. dataTag now takes first_data and second_data (GUARDED_TAGS holds them; DATA_TAGS and the prompt fingerprint unchanged). Test: pair-prompt.test.ts escapes a candidate that closes its own tag (red first).)
 Iteration 106 (cause: no labelConflicts. calibration.ts labelConflicts(blocks) groups ids per slice with both labels; criterion report carries labelConflicts when any. Test: label-conflicts.test.ts. Next: fixtureLeaks, few-labels warning, kappa undefined with one class.)
 Iteration 107 (cause: no fixtureLeaks. calibration.ts fixtureLeaks(criterion, blocks); report carries fixtureLeaks when any. Test: label-conflicts.test.ts fixtureLeaks.)
+Iteration 108 (cause: no few-labels warning. labelWarnings(blocks) in calibration.ts; criterion report carries warnings. Test: label-conflicts.test.ts labelWarnings.)
 
 ## Next actions
 
