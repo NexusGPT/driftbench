@@ -13,12 +13,10 @@ The stats validator is ladder version 2: 651 items in seven levels, each with th
 
 ## State (executor exec/stats-v3, PR 107): final report
 
-* Sweep of seeds 1 to 20 and the hidden seed at commit 34448e76: 647 of 651 items pass on every seed (0.9939). Level 3 on 17 of 21 seeds and level 1 on seeds 11, 14, 17 and 19, all from one item, `degenerate.bootstrapCI.equal`.
-* Iteration 41 (d0c14cbf) fixed that item. Seeds 11 to 19 re-run after it: level 3 on every one, 648 of 651 passing. Seeds 1 to 10, 20 and the hidden seed were not re-run after it; the fix touches only `bootstrapCI` on equal values.
-* The only failing items are the three `analytic.unseen.chao1-near.*` items (defect below). They hold every seed at level 3, because level 4 contains them.
-* Seed 1 went from 592 of 651 (iteration 30) to 648 in iterations 31 to 41. Causes fixed, one per iteration: varianceComponents names `observations`; cusum and pageHinkley name the option they refuse; non-finite and out-of-range scalars are named; special functions return the scipy limit at the domain edge; agreement, paired, ksTest, bootstrapCI and quantileSorted refusals name their argument; mean is exact on equal values and overflow safe; varianceComponents centres values before the sums of squares; hillNumber is continuous at q = 1; betaQuantile stops on relative width; neymanAllocation uses a heap; bootstrapCI is exact on equal values.
-* `bank-scores.jsonl` was not updated with the sweep.
-* PR 107 CI: the node 22 build fails at `pnpm lint` on `comparisons/deepeval/judge/render.mts`, which is on main and outside this lane.
+* Final sweep (seeds 1 to 20 and the hidden seed) at commit 4867887a: 647 of 651 items pass on every seed (0.9939), level 3 on all 21 seeds. The row is in `bank-scores.jsonl` (iteration 41).
+* The four failing items are all chaoCoverage richness: `analytic.unseen.chao1-near.s20-even.x1.5`, `s40-tail5.x1.5`, `s80-tail10.x1.5` on every seed, and `s20-even.x3` on the hidden seed only. A maintainer is fixing them in a separate PR into main.
+* Iteration 41 (d0c14cbf) fixed `degenerate.bootstrapCI.equal`, which failed on seeds 11, 14, 17 and 19 in the earlier sweep.
+* Seed 1 went from 592 of 651 (iteration 30) to 648 in iterations 31 to 41 (647 on every seed). Causes fixed, one per iteration: varianceComponents names `observations`; cusum and pageHinkley name the option they refuse; non-finite and out-of-range scalars are named; special functions return the scipy limit at the domain edge; agreement, paired, ksTest, bootstrapCI and quantileSorted refusals name their argument; mean is exact on equal values and overflow safe; varianceComponents centres values before the sums of squares; hillNumber is continuous at q = 1; betaQuantile stops on relative width; neymanAllocation uses a heap; bootstrapCI is exact on equal values.
 
 ## Validator item defects (for the maintainer)
 
