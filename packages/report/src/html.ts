@@ -697,7 +697,7 @@ th{color:var(--muted);font-weight:500;white-space:nowrap}
 td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 .ci{color:var(--muted);font-size:12px}
 .mono,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
-td.mono{overflow-wrap:anywhere;min-width:12ch}
+td.mono{overflow-wrap:anywhere;min-width:12ch}span.mono{overflow-wrap:anywhere}
 .evidence{white-space:pre-wrap;max-width:420px;word-break:break-word}
 .muted,.note{color:var(--muted)}.note{font-size:12px}
 .row-bad td{background:var(--bad-bg)}.row-warn td{background:var(--warn-bg)}.row-total td{font-weight:600}
