@@ -1453,6 +1453,308 @@ method('roadmap-agreement', 'brennanPrediger', 'packages/stats/src/agreement.ts'
        'Brennan and Prediger 1981; Byrt, Bishop and Carlin 1993',
        [dict(args=[[r[0] for r in rows], [r[1] for r in rows]], expect=pabak(rows)) for rows in RATINGS], tol=1e-12, tier=3)
 
+
+# --- batch 3 (2026-10-12): the design section 7 simulation areas, one cause per method -----------------------
+MC = [[0.01, 0.04, 0.03, 0.005, 0.2], [0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205], [0.5, 0.02, 0.9, 0.012]]
+
+
+def sidak(p, a=0.05):
+    adj = [1 - (1 - x) ** len(p) for x in p]
+    return dict(adjusted=adj, rejected=[x <= a for x in adj])
+
+
+def holm_sidak(p, a=0.05):
+    m = len(p)
+    order = sorted(range(m), key=lambda i: p[i])
+    adj = [0.0] * m
+    run = 0.0
+    for r, i in enumerate(order):
+        run = max(run, 1 - (1 - p[i]) ** (m - r))
+        adj[i] = min(1.0, run)
+    return dict(adjusted=adj, rejected=[x <= a for x in adj])
+
+
+def hochberg(p, a=0.05):
+    m = len(p)
+    order = sorted(range(m), key=lambda i: p[i], reverse=True)
+    adj = [0.0] * m
+    run = 1.0
+    for r, i in enumerate(order):
+        run = min(run, (r + 1) * p[i])
+        adj[i] = min(1.0, run)
+    return dict(adjusted=adj, rejected=[x <= a for x in adj])
+
+
+def hommel(p):
+    # Hommel adjusted p-values (Wright 1992 algorithm, as statsmodels).
+    m = len(p)
+    order = np.argsort(p)
+    ps = np.array(p)[order]
+    adj = ps.copy()
+    for k in range(m, 1, -1):
+        q = min(k * ps[m - k + j] / (j + 1) for j in range(k))
+        for i in range(m - k + 1):
+            adj[i] = max(adj[i], min(k * ps[i], q))
+        for i in range(m - k + 1, m):
+            adj[i] = max(adj[i], q)
+    out = np.empty(m)
+    out[order] = np.minimum(adj, 1)
+    return [float(x) for x in out]
+
+
+method('roadmap-multiplicity', 'sidak', 'packages/stats/src/multiple.ts',
+       'sidak(pvalues: readonly number[], alpha = 0.05): { adjusted: number[]; rejected: boolean[] }',
+       'Sidak single-step: adjusted 1 - (1 - p)^m; rejected when adjusted <= alpha',
+       'Sidak 1967', [dict(args=[p], expect=sidak(p)) for p in MC], tol=1e-12, tier=3)
+method('roadmap-multiplicity', 'holmSidak', 'packages/stats/src/multiple.ts',
+       'holmSidak(pvalues: readonly number[], alpha = 0.05): { adjusted: number[]; rejected: boolean[] }',
+       'Holm-Sidak step-down: sort ascending, adjusted p(i) = max over j <= i of 1 - (1 - p(j))^(m - j + 1), capped at 1, in input order',
+       'Holm 1979 with the Sidak step', [dict(args=[p], expect=holm_sidak(p)) for p in MC], tol=1e-12, tier=3)
+method('roadmap-multiplicity', 'hochberg', 'packages/stats/src/multiple.ts',
+       'hochberg(pvalues: readonly number[], alpha = 0.05): { adjusted: number[]; rejected: boolean[] }',
+       'Hochberg step-up: sort descending, adjusted p(i) = min over j >= i of (m - j + 1) p(j), capped at 1, in input order',
+       'Hochberg 1988', [dict(args=[p], expect=hochberg(p)) for p in MC], tol=1e-12, tier=3)
+method('roadmap-multiplicity', 'hommel', 'packages/stats/src/multiple.ts',
+       'hommel(pvalues: readonly number[]): number[]',
+       'Hommel adjusted p-values (the closed Simes procedure): for k from m down to 2, q_k = min over j of k p(m-k+j) / j; p(i) <- max(p(i), min(k p(i), q_k)) for i <= m - k + 1, and max(p(i), q_k) above; capped at 1, in input order',
+       'Hommel 1988; Wright 1992 (the statsmodels algorithm)', [dict(args=[p], expect=hommel(p)) for p in MC], tol=1e-12, tier=4)
+
+
+def storey(p, lam=0.5):
+    m = len(p)
+    pi0 = min(1.0, sum(1 for x in p if x > lam) / (m * (1 - lam)))
+    order = sorted(range(m), key=lambda i: p[i], reverse=True)
+    q = [0.0] * m
+    run = 1.0
+    for r, i in enumerate(order):
+        rank = m - r
+        run = min(run, pi0 * m * p[i] / rank)
+        q[i] = run
+    return dict(pi0=pi0, qvalues=q)
+
+
+ST3 = [[0.01, 0.04, 0.03, 0.005, 0.2, 0.7, 0.9, 0.55], [0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205, 0.6, 0.8], [0.5, 0.02, 0.9, 0.012, 0.66, 0.3]]
+method('roadmap-multiplicity', 'storeyQValues', 'packages/stats/src/multiple.ts',
+       'storeyQValues(pvalues: readonly number[], lambda = 0.5): { pi0: number; qvalues: number[] }',
+       'Storey q-values with a fixed lambda: pi0 = min(1, #(p > lambda) / (m (1 - lambda))); q(i) = min over j with p(j) >= p(i) of pi0 m p(j) / rank(j)',
+       'Storey 2002; Storey and Tibshirani 2003', [dict(args=[p], expect=storey(p)) for p in ST3], tol=1e-12, tier=4)
+method('roadmap-multiplicity', 'simesTest', 'packages/stats/src/multiple.ts',
+       'simesTest(pvalues: readonly number[]): number',
+       'The Simes global p-value: min over i of m p(i) / i, sorted ascending, capped at 1',
+       'Simes 1986', [dict(args=[p], expect=float(min(1, min(len(p) * x / (i + 1) for i, x in enumerate(sorted(p)))))) for p in MC], tol=1e-12, tier=3)
+method('roadmap-multiplicity', 'fisherCombination', 'packages/stats/src/multiple.ts',
+       "fisherCombination(pvalues: readonly number[]): { statistic: number; pValue: number }",
+       "Fisher's method: X = -2 sum ln p, chi-square with 2m df",
+       'scipy.stats.combine_pvalues(method="fisher")', [dict(args=[p], expect=dict(statistic=float(stats.combine_pvalues(p, method='fisher')[0]), pValue=float(stats.combine_pvalues(p, method='fisher')[1]))) for p in MC], tol=1e-9, tier=3)
+method('roadmap-multiplicity', 'stoufferCombination', 'packages/stats/src/multiple.ts',
+       "stoufferCombination(pvalues: readonly number[]): { statistic: number; pValue: number }",
+       "Stouffer's method, unweighted: Z = sum Phi^-1(1 - p) / sqrt(m), one-sided p = 1 - Phi(Z)",
+       'scipy.stats.combine_pvalues(method="stouffer")', [dict(args=[p], expect=dict(statistic=float(stats.combine_pvalues(p, method='stouffer')[0]), pValue=float(stats.combine_pvalues(p, method='stouffer')[1]))) for p in MC], tol=1e-9, tier=3)
+method('roadmap-multiplicity', 'harmonicMeanP', 'packages/stats/src/multiple.ts',
+       'harmonicMeanP(pvalues: readonly number[]): number',
+       'The harmonic mean p-value, unweighted and without the Landau correction: m / sum (1 / p)',
+       'Wilson 2019, PNAS', [dict(args=[p], expect=len(p) / sum(1 / x for x in p)) for p in MC], tol=1e-12, tier=3)
+method('roadmap-multiplicity', 'cauchyCombination', 'packages/stats/src/multiple.ts',
+       'cauchyCombination(pvalues: readonly number[]): number',
+       'The Cauchy combination test (ACAT), equal weights: T = mean tan((0.5 - p) pi), p = 0.5 - atan(T) / pi',
+       'Liu and Xie 2020, JASA', [dict(args=[p], expect=float(0.5 - math.atan(np.mean([math.tan((0.5 - x) * math.pi) for x in p])) / math.pi)) for p in MC], tol=1e-12, tier=4)
+
+# shrinkage
+JS = [([2.1, 3.4, 1.9, 5.6, 4.2, 3.0], 1.0), ([0.3, 0.5, 0.45, 0.7, 0.2, 0.55, 0.4, 0.6], 0.04), ([10, 12, 9, 11, 13, 10, 30], 4.0)]
+
+
+def james_stein(x, s2):
+    x = np.array(x, float)
+    m = x.mean()
+    k = len(x)
+    ss = ((x - m) ** 2).sum()
+    c = max(0.0, 1 - (k - 3) * s2 / ss)
+    return [float(v) for v in m + c * (x - m)]
+
+
+method('roadmap-shrinkage-clustering', 'jamesStein', 'packages/stats/src/variance.ts',
+       'jamesStein(estimates: readonly number[], variance: number): number[]',
+       'Positive-part James-Stein shrinkage toward the grand mean with a known common sampling variance: m + max(0, 1 - (k - 3) variance / sum (x - m)^2) (x - m)',
+       'Efron and Morris 1973', [dict(args=[x, v], expect=james_stein(x, v)) for x, v in JS], tol=1e-12, tier=4)
+KNR = [([3, 7, 1, 12, 5, 0, 9], [20, 25, 15, 30, 22, 18, 26]), ([45, 50, 38, 60], [100, 100, 100, 100]), ([2, 4, 3, 8, 6, 1, 5, 7], [10, 12, 9, 20, 15, 8, 14, 16])]
+
+
+def bb_mom(k, n):
+    k, n = np.array(k, float), np.array(n, float)
+    p = k / n
+    m = p.mean()
+    v = p.var(ddof=1)
+    common = m * (1 - m) / v - 1
+    return dict(alpha=float(m * common), beta=float((1 - m) * common))
+
+
+method('roadmap-shrinkage-clustering', 'betaBinomialMoments', 'packages/stats/src/variance.ts',
+       'betaBinomialMoments(successes: readonly number[], trials: readonly number[]): { alpha: number; beta: number }',
+       'Method-of-moments Beta prior from per-unit rates p_i = k_i / n_i: m the mean of the rates, v their n - 1 variance, c = m (1 - m) / v - 1, alpha = m c, beta = (1 - m) c',
+       'empirical Bayes rate shrinkage (Robbins; Efron 2010, chapter 1)', [dict(args=[k, n], expect=bb_mom(k, n)) for k, n in KNR], tol=1e-9, tier=4)
+method('roadmap-shrinkage-clustering', 'shrinkRates', 'packages/stats/src/variance.ts',
+       'shrinkRates(successes: readonly number[], trials: readonly number[], alpha: number, beta: number): number[]',
+       'Posterior mean rate of each unit under a Beta(alpha, beta) prior: (k + alpha) / (n + alpha + beta)',
+       'Beta-binomial conjugacy', [dict(args=[k, n, 2, 5], expect=[(a + 2) / (b + 7) for a, b in zip(k, n)]) for k, n in KNR], tol=1e-12, tier=3)
+method('roadmap-shrinkage-clustering', 'normalPosterior', 'packages/stats/src/variance.ts',
+       'normalPosterior(input: { priorMean: number; priorVariance: number; mean: number; variance: number; n: number }): { mean: number; variance: number }',
+       'Normal-normal posterior of a mean: precision 1 / priorVariance + n / variance; posterior mean (priorMean / priorVariance + n mean / variance) / precision; posterior variance 1 / precision',
+       'conjugate normal model', [dict(args=[dict(priorMean=a, priorVariance=b, mean=c, variance=d, n=e)], expect=dict(mean=(a / b + e * c / d) / (1 / b + e / d), variance=1 / (1 / b + e / d))) for a, b, c, d, e in [(0.5, 0.04, 0.7, 0.21, 30), (10, 4, 12, 9, 5), (0, 1, 1.5, 2, 100)]], tol=1e-12, tier=3)
+method('roadmap-shrinkage-clustering', 'moderatedVariance', 'packages/stats/src/variance.ts',
+       'moderatedVariance(input: { variance: number; df: number; priorVariance: number; priorDf: number }): number',
+       'Moderated variance: (priorDf priorVariance + df variance) / (priorDf + df)',
+       'Smyth 2004, limma', [dict(args=[dict(variance=a, df=b, priorVariance=c, priorDf=d)], expect=(d * c + b * a) / (d + b)) for a, b, c, d in [(0.3, 4, 0.1, 6), (2.5, 10, 1.0, 3), (0.01, 2, 0.05, 20)]], tol=1e-12, tier=3)
+
+
+def pooled_var(groups):
+    num = sum((len(g) - 1) * np.var(g, ddof=1) for g in groups)
+    den = sum(len(g) - 1 for g in groups)
+    return float(num / den)
+
+
+PG = [([1, 2, 3, 4], [2, 4, 6], [5, 5, 6, 7, 8]), ([0.2, 0.4, 0.3], [0.5, 0.9, 0.7, 0.6]), ([10, 12], [9, 11, 13], [8, 8, 9, 15])]
+method('roadmap-shrinkage-clustering', 'pooledVariance', 'packages/stats/src/variance.ts',
+       'pooledVariance(groups: readonly (readonly number[])[]): number',
+       'Pooled within-group variance: sum (n_g - 1) s_g^2 / sum (n_g - 1)',
+       'one-way ANOVA mean square within', [dict(args=[list(map(list, g))], expect=pooled_var(g)) for g in PG], tol=1e-12, tier=2)
+
+# clustering
+CLV = [([1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1], [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4]), ([0.2, 0.4, 0.9, 0.8, 0.1, 0.5, 0.7, 0.6], ['a', 'a', 'b', 'b', 'c', 'c', 'd', 'd']), ([3, 4, 5, 9, 8, 10, 2, 3, 1, 4], [1, 1, 1, 2, 2, 2, 3, 3, 4, 4])]
+
+
+def icc1(v, cl):
+    v = np.array(v, float)
+    groups = {}
+    for x, c in zip(v, cl):
+        groups.setdefault(c, []).append(x)
+    g = list(groups.values())
+    k = len(g)
+    N = len(v)
+    m = v.mean()
+    msb = sum(len(x) * (np.mean(x) - m) ** 2 for x in g) / (k - 1)
+    msw = sum(((np.array(x) - np.mean(x)) ** 2).sum() for x in g) / (N - k)
+    n0 = (N - sum(len(x) ** 2 for x in g) / N) / (k - 1)
+    return float((msb - msw) / (msb + (n0 - 1) * msw)), n0, k
+
+
+method('roadmap-shrinkage-clustering', 'iccOneWay', 'packages/stats/src/variance.ts',
+       'iccOneWay(values: readonly number[], clusters: readonly (string | number)[]): number',
+       'ICC(1) from the one-way ANOVA, unbalanced: (MSB - MSW) / (MSB + (n0 - 1) MSW), n0 = (N - sum n_g^2 / N) / (k - 1); not truncated',
+       'Shrout and Fleiss 1979; Donner 1986 (n0)', [dict(args=[v, c], expect=icc1(v, c)[0]) for v, c in CLV], tol=1e-12, tier=3)
+
+
+def deff_data(v, cl):
+    r, n0, k = icc1(v, cl)
+    mbar = len(v) / k
+    return float(1 + (mbar - 1) * r)
+
+
+method('roadmap-shrinkage-clustering', 'designEffectFromData', 'packages/stats/src/intervals.ts',
+       'designEffectFromData(values: readonly number[], clusters: readonly (string | number)[]): number',
+       'The design effect measured from the data: 1 + (mbar - 1) ICC(1), mbar the mean cluster size and ICC(1) as iccOneWay',
+       'Kish 1965; dossier section 3.1', [dict(args=[v, c], expect=deff_data(v, c)) for v, c in CLV], tol=1e-12, tier=3)
+method('roadmap-shrinkage-clustering', 'kishWeightDesignEffect', 'packages/stats/src/intervals.ts',
+       'kishWeightDesignEffect(weights: readonly number[]): number',
+       "Kish's design effect of unequal weights: n sum w^2 / (sum w)^2 (that is 1 + the squared coefficient of variation)",
+       'Kish 1992', [dict(args=[w], expect=len(w) * sum(x * x for x in w) / sum(w) ** 2) for w in W], tol=1e-12, tier=2)
+
+
+def cl_rate_iv(v, cl, a=0.05):
+    v = np.array(v, float)
+    m = v.mean()
+    n = len(v)
+    cs = sorted(set(cl), key=str)
+    se = math.sqrt(sum(sum(v[i] - m for i in range(n) if cl[i] == c) ** 2 for c in cs)) / n
+    t = stats.t.ppf(1 - a / 2, len(cs) - 1)
+    return dict(estimate=float(m), lower=float(m - t * se), upper=float(m + t * se))
+
+
+method('roadmap-shrinkage-clustering', 'clusteredMeanInterval', 'packages/stats/src/intervals.ts',
+       'clusteredMeanInterval(values: readonly number[], clusters: readonly (string | number)[], alpha = 0.05): Interval',
+       'Interval for a mean of clustered values: mean -/+ t(1 - alpha/2, G - 1) SE, SE = sqrt(sum over clusters of (sum of x - mean)^2) / n (the clusteredStandardError), G the clusters',
+       'dossier S22 (clustered standard errors with G - 1 degrees of freedom)', [dict(args=[v, c], expect=cl_rate_iv(v, c)) for v, c in CLV], tol=1e-9, tier=4)
+
+
+def cluster_means_iv(v, cl, a=0.05):
+    groups = {}
+    for x, c in zip(v, cl):
+        groups.setdefault(c, []).append(x)
+    means = [float(np.mean(g)) for g in groups.values()]
+    return tint(means, a)
+
+
+method('roadmap-shrinkage-clustering', 'clusterMeansInterval', 'packages/stats/src/intervals.ts',
+       'clusterMeansInterval(values: readonly number[], clusters: readonly (string | number)[], alpha = 0.05): Interval',
+       "The unweighted mean of the cluster means with Student's t interval over the cluster means (each conversation counts once)",
+       'cluster-level analysis (Donner and Klar 2000)', [dict(args=[v, c], expect=cluster_means_iv(v, c)) for v, c in CLV], tol=1e-9, tier=3)
+
+
+def ratio_est(y, x):
+    y, x = np.array(y, float), np.array(x, float)
+    r = y.sum() / x.sum()
+    n = len(y)
+    se = math.sqrt(((y - r * x) ** 2).sum() / (n - 1) / n) / x.mean()
+    return dict(estimate=float(r), standardError=float(se))
+
+
+RX = [([3, 5, 2, 8, 6], [10, 12, 8, 20, 15]), ([1, 0, 2, 3, 1, 1], [4, 3, 5, 6, 4, 4]), ([30, 25, 40, 35], [100, 90, 120, 110])]
+method('roadmap-shrinkage-clustering', 'ratioEstimate', 'packages/stats/src/intervals.ts',
+       'ratioEstimate(numerators: readonly number[], denominators: readonly number[]): { estimate: number; standardError: number }',
+       'Ratio estimator of a rate over clusters of unequal size (passes over blocks per conversation): r = sum y / sum x, linearised standard error sqrt(sum (y - r x)^2 / (n - 1) / n) / mean x',
+       'Cochran, Sampling Techniques, 6.4', [dict(args=[y, x], expect=ratio_est(y, x)) for y, x in RX], tol=1e-12, tier=4)
+
+# sequential and decision
+def prob_b_better(aa, ba, ab, bb):
+    # P(pB > pA), pA ~ Beta(aa, ba), pB ~ Beta(ab, bb); the exact sum for integer B parameters (Evan Miller).
+    from scipy.special import betaln
+    tot = 0.0
+    for i in range(int(ab)):
+        tot += math.exp(betaln(aa + i, ba + bb) - math.log(bb + i) - betaln(1 + i, bb) - betaln(aa, ba))
+    return float(tot)
+
+
+AB = [(41, 60, 52, 50), (5, 15, 9, 11), (100, 900, 120, 880)]
+method('roadmap-sequential', 'probabilityBetter', 'packages/stats/src/power.ts',
+       'probabilityBetter(input: { successesA: number; failuresA: number; successesB: number; failuresB: number }): number',
+       'The posterior probability that version B passes more often than A under Beta(1, 1) priors: P(pB > pA) with pA ~ Beta(1 + sA, 1 + fA), pB ~ Beta(1 + sB, 1 + fB), by the exact sum over i < 1 + sB of B(aA + i, bA + bB) / ((bB + i) B(1 + i, bB) B(aA, bA))',
+       'Evan Miller, Formulas for Bayesian A/B testing', [dict(args=[dict(successesA=a, failuresA=b, successesB=c, failuresB=d)], expect=prob_b_better(1 + a, 1 + b, 1 + c, 1 + d)) for a, b, c, d in AB], tol=1e-9, tier=4)
+
+
+def bf10(k, n, p0):
+    from scipy.special import betaln
+    return float(math.exp(betaln(k + 1, n - k + 1) - (k * math.log(p0) + (n - k) * math.log(1 - p0))))
+
+
+method('roadmap-sequential', 'bayesFactorRate', 'packages/stats/src/power.ts',
+       'bayesFactorRate(k: number, n: number, p0: number): number',
+       'Bayes factor BF10 of a uniform prior on the rate against the point null p0: B(k + 1, n - k + 1) / (p0^k (1 - p0)^(n - k))',
+       'Kass and Raftery 1995', [dict(args=[k, n, p], expect=bf10(k, n, p)) for k, n, p in [(7, 10, 0.5), (2, 50, 0.1), (60, 100, 0.5)]], tol=1e-9, tier=4)
+
+
+def asn(p0, p1, a, b):
+    A, B = math.log((1 - b) / a), math.log(b / (1 - a))
+    z1, z0 = math.log(p1 / p0), math.log((1 - p1) / (1 - p0))
+    e0 = p0 * z1 + (1 - p0) * z0
+    e1 = p1 * z1 + (1 - p1) * z0
+    return dict(underNull=float(((1 - a) * B + a * A) / e0), underAlternative=float((b * B + (1 - b) * A) / e1))
+
+
+method('roadmap-sequential', 'sprtExpectedSampleSize', 'packages/stats/src/drift.ts',
+       'sprtExpectedSampleSize(input: { p0: number; p1: number; alpha: number; beta: number }): { underNull: number; underAlternative: number }',
+       "Wald's approximations of the expected sample size of the Bernoulli SPRT (boundaries ln((1 - beta)/alpha) and ln(beta/(1 - alpha))): under H0 ((1 - alpha) lnB + alpha lnA) / E0[z], under H1 (beta lnB + (1 - beta) lnA) / E1[z], z the per-outcome log likelihood ratio",
+       'Wald 1947 (dossier S19)', [dict(args=[dict(p0=a, p1=b, alpha=c, beta=d)], expect=asn(a, b, c, d)) for a, b, c, d in [(0.05, 0.2, 0.05, 0.1), (0.1, 0.3, 0.05, 0.2), (0.5, 0.7, 0.01, 0.01)]], tol=1e-9, tier=4)
+
+
+def msprt(xbar, n, s2, tau2, th0=0.0):
+    lam = math.sqrt(s2 / (s2 + n * tau2)) * math.exp(n * n * tau2 * (xbar - th0) ** 2 / (2 * s2 * (s2 + n * tau2)))
+    return float(min(1.0, 1 / lam))
+
+
+method('roadmap-sequential', 'msprtPValue', 'packages/stats/src/drift.ts',
+       'msprtPValue(input: { mean: number; n: number; variance: number; mixingVariance: number; null?: number }): number',
+       'The always-valid p-value of the normal mixture SPRT: Lambda = sqrt(V / (V + n tau^2)) exp(n^2 tau^2 (xbar - theta0)^2 / (2 V (V + n tau^2))), p = min(1, 1 / Lambda) (the running minimum is the caller\'s)',
+       'Johari, Pekelis and Walsh, Always valid inference (dossier S6)', [dict(args=[dict(mean=a, n=b, variance=c, mixingVariance=d)], expect=msprt(a, b, c, d)) for a, b, c, d in [(0.1, 100, 1.0, 0.01), (0.02, 500, 0.25, 0.001), (0.5, 20, 2.0, 0.1)]], tol=1e-12, tier=5)
+
 Path(__file__).with_name('roadmap.json').write_text(json.dumps(dict(
     generatedBy='packages/validators/fixtures/stats/make_roadmap.py',
     scipy=__import__('scipy').__version__, numpy=np.__version__, methods=methods), indent=1) + '\n')

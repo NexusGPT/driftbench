@@ -3675,6 +3675,881 @@
           "expect": 0.5
         }
       ]
+    },
+    {
+      "family": "roadmap-multiplicity",
+      "name": "sidak",
+      "file": "packages/stats/src/multiple.ts",
+      "signature": "sidak(pvalues: readonly number[], alpha = 0.05): { adjusted: number[]; rejected: boolean[] }",
+      "definition": "Sidak single-step: adjusted 1 - (1 - p)^m; rejected when adjusted <= alpha",
+      "source": "Sidak 1967",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.005, 0.2]],
+          "expect": {
+            "adjusted": [
+              0.04900995010000009, 0.18462730240000014, 0.1412659743000001, 0.02475124687812502,
+              0.6723199999999999
+            ],
+            "rejected": [true, false, false, true, false]
+          }
+        },
+        {
+          "args": [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205]],
+          "expect": {
+            "adjusted": [
+              0.00797205593005601, 0.062236387107684754, 0.27257687825281496, 0.2846001292243867,
+              0.29054627613073536, 0.3904310614589187, 0.45938524658026636, 0.8404352231293204
+            ],
+            "rejected": [true, false, false, false, false, false, false, false]
+          }
+        },
+        {
+          "args": [[0.5, 0.02, 0.9, 0.012]],
+          "expect": {
+            "adjusted": [0.9375, 0.07763184000000012, 0.9999, 0.047142891264000064],
+            "rejected": [false, false, false, true]
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-multiplicity",
+      "name": "holmSidak",
+      "file": "packages/stats/src/multiple.ts",
+      "signature": "holmSidak(pvalues: readonly number[], alpha = 0.05): { adjusted: number[]; rejected: boolean[] }",
+      "definition": "Holm-Sidak step-down: sort ascending, adjusted p(i) = max over j <= i of 1 - (1 - p(j))^(m - j + 1), capped at 1, in input order",
+      "source": "Holm 1979 with the Sidak step",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.005, 0.2]],
+          "expect": {
+            "adjusted": [
+              0.039403990000000055, 0.08732700000000004, 0.08732700000000004, 0.02475124687812502,
+              0.19999999999999996
+            ],
+            "rejected": [true, false, false, true, false]
+          }
+        },
+        {
+          "args": [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205]],
+          "expect": {
+            "adjusted": [
+              0.00797205593005601, 0.05467377732629519, 0.2123372162114504, 0.2123372162114504,
+              0.2123372162114504, 0.2123372162114504, 0.2123372162114504, 0.2123372162114504
+            ],
+            "rejected": [true, false, false, false, false, false, false, false]
+          }
+        },
+        {
+          "args": [[0.5, 0.02, 0.9, 0.012]],
+          "expect": {
+            "adjusted": [0.75, 0.05880800000000008, 0.9, 0.047142891264000064],
+            "rejected": [false, false, false, true]
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-multiplicity",
+      "name": "hochberg",
+      "file": "packages/stats/src/multiple.ts",
+      "signature": "hochberg(pvalues: readonly number[], alpha = 0.05): { adjusted: number[]; rejected: boolean[] }",
+      "definition": "Hochberg step-up: sort descending, adjusted p(i) = min over j >= i of (m - j + 1) p(j), capped at 1, in input order",
+      "source": "Hochberg 1988",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.005, 0.2]],
+          "expect": {
+            "adjusted": [0.04, 0.08, 0.08, 0.025, 0.2],
+            "rejected": [true, false, false, true, false]
+          }
+        },
+        {
+          "args": [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205]],
+          "expect": {
+            "adjusted": [0.008, 0.056, 0.148, 0.148, 0.148, 0.148, 0.148, 0.205],
+            "rejected": [true, false, false, false, false, false, false, false]
+          }
+        },
+        {
+          "args": [[0.5, 0.02, 0.9, 0.012]],
+          "expect": {
+            "adjusted": [0.9, 0.06, 0.9, 0.048],
+            "rejected": [false, false, false, true]
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-multiplicity",
+      "name": "hommel",
+      "file": "packages/stats/src/multiple.ts",
+      "signature": "hommel(pvalues: readonly number[]): number[]",
+      "definition": "Hommel adjusted p-values (the closed Simes procedure): for k from m down to 2, q_k = min over j of k p(m-k+j) / j; p(i) <- max(p(i), min(k p(i), q_k)) for i <= m - k + 1, and max(p(i), q_k) above; capped at 1, in input order",
+      "source": "Hommel 1988; Wright 1992 (the statsmodels algorithm)",
+      "tol": 1e-12,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.005, 0.2]],
+          "expect": [0.04, 0.08, 0.06, 0.025, 0.2]
+        },
+        {
+          "args": [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205]],
+          "expect": [
+            0.008, 0.056, 0.11099999999999999, 0.11099999999999999, 0.11099999999999999, 0.12, 0.148, 0.205
+          ]
+        },
+        {
+          "args": [[0.5, 0.02, 0.9, 0.012]],
+          "expect": [0.9, 0.06, 0.9, 0.04]
+        }
+      ]
+    },
+    {
+      "family": "roadmap-multiplicity",
+      "name": "storeyQValues",
+      "file": "packages/stats/src/multiple.ts",
+      "signature": "storeyQValues(pvalues: readonly number[], lambda = 0.5): { pi0: number; qvalues: number[] }",
+      "definition": "Storey q-values with a fixed lambda: pi0 = min(1, #(p > lambda) / (m (1 - lambda))); q(i) = min over j with p(j) >= p(i) of pi0 m p(j) / rank(j)",
+      "source": "Storey 2002; Storey and Tibshirani 2003",
+      "tol": 1e-12,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.005, 0.2, 0.7, 0.9, 0.55]],
+          "expect": {
+            "pi0": 0.75,
+            "qvalues": [0.03, 0.06, 0.06, 0.03, 0.24000000000000005, 0.5999999999999999, 0.675, 0.55]
+          }
+        },
+        {
+          "args": [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205, 0.6, 0.8]],
+          "expect": {
+            "pi0": 0.4,
+            "qvalues": [
+              0.004, 0.016, 0.033600000000000005, 0.033600000000000005, 0.033600000000000005, 0.04,
+              0.04228571428571428, 0.1025, 0.26666666666666666, 0.32
+            ]
+          }
+        },
+        {
+          "args": [[0.5, 0.02, 0.9, 0.012, 0.66, 0.3]],
+          "expect": {
+            "pi0": 0.6666666666666666,
+            "qvalues": [0.5, 0.04, 0.6, 0.04, 0.528, 0.39999999999999997]
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-multiplicity",
+      "name": "simesTest",
+      "file": "packages/stats/src/multiple.ts",
+      "signature": "simesTest(pvalues: readonly number[]): number",
+      "definition": "The Simes global p-value: min over i of m p(i) / i, sorted ascending, capped at 1",
+      "source": "Simes 1986",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.005, 0.2]],
+          "expect": 0.025
+        },
+        {
+          "args": [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205]],
+          "expect": 0.008
+        },
+        {
+          "args": [[0.5, 0.02, 0.9, 0.012]],
+          "expect": 0.04
+        }
+      ]
+    },
+    {
+      "family": "roadmap-multiplicity",
+      "name": "fisherCombination",
+      "file": "packages/stats/src/multiple.ts",
+      "signature": "fisherCombination(pvalues: readonly number[]): { statistic: number; pValue: number }",
+      "definition": "Fisher's method: X = -2 sum ln p, chi-square with 2m df",
+      "source": "scipy.stats.combine_pvalues(method=\"fisher\")",
+      "tol": 1e-9,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.005, 0.2]],
+          "expect": {
+            "statistic": 36.47671837431682,
+            "pValue": 6.968415513964456e-5
+          }
+        },
+        {
+          "args": [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205]],
+          "expect": {
+            "statistic": 56.692755448990525,
+            "pValue": 1.8690024517979276e-6
+          }
+        },
+        {
+          "args": [[0.5, 0.02, 0.9, 0.012]],
+          "expect": {
+            "statistic": 18.266758661680107,
+            "pValue": 0.01931310020602467
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-multiplicity",
+      "name": "stoufferCombination",
+      "file": "packages/stats/src/multiple.ts",
+      "signature": "stoufferCombination(pvalues: readonly number[]): { statistic: number; pValue: number }",
+      "definition": "Stouffer's method, unweighted: Z = sum Phi^-1(1 - p) / sqrt(m), one-sided p = 1 - Phi(Z)",
+      "source": "scipy.stats.combine_pvalues(method=\"stouffer\")",
+      "tol": 1e-9,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.005, 0.2]],
+          "expect": {
+            "statistic": 4.192751823694034,
+            "pValue": 1.377954436596412e-5
+          }
+        },
+        {
+          "args": [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205]],
+          "expect": {
+            "statistic": 5.145612309498598,
+            "pValue": 1.3332480623812743e-7
+          }
+        },
+        {
+          "args": [[0.5, 0.02, 0.9, 0.012]],
+          "expect": {
+            "statistic": 1.514663294786724,
+            "pValue": 0.06492884713445402
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-multiplicity",
+      "name": "harmonicMeanP",
+      "file": "packages/stats/src/multiple.ts",
+      "signature": "harmonicMeanP(pvalues: readonly number[]): number",
+      "definition": "The harmonic mean p-value, unweighted and without the Landau correction: m / sum (1 / p)",
+      "source": "Wilson 2019, PNAS",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.005, 0.2]],
+          "expect": 0.013761467889908258
+        },
+        {
+          "args": [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205]],
+          "expect": 0.006483512714840619
+        },
+        {
+          "args": [[0.5, 0.02, 0.9, 0.012]],
+          "expect": 0.02931596091205212
+        }
+      ]
+    },
+    {
+      "family": "roadmap-multiplicity",
+      "name": "cauchyCombination",
+      "file": "packages/stats/src/multiple.ts",
+      "signature": "cauchyCombination(pvalues: readonly number[]): number",
+      "definition": "The Cauchy combination test (ACAT), equal weights: T = mean tan((0.5 - p) pi), p = 0.5 - atan(T) / pi",
+      "source": "Liu and Xie 2020, JASA",
+      "tol": 1e-12,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[0.01, 0.04, 0.03, 0.005, 0.2]],
+          "expect": 0.013789133063316139
+        },
+        {
+          "args": [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205]],
+          "expect": 0.006490859499252988
+        },
+        {
+          "args": [[0.5, 0.02, 0.9, 0.012]],
+          "expect": 0.03226221352733499
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "jamesStein",
+      "file": "packages/stats/src/variance.ts",
+      "signature": "jamesStein(estimates: readonly number[], variance: number): number[]",
+      "definition": "Positive-part James-Stein shrinkage toward the grand mean with a known common sampling variance: m + max(0, 1 - (k - 3) variance / sum (x - m)^2) (x - m)",
+      "source": "Efron and Morris 1973",
+      "tol": 1e-12,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[2.1, 3.4, 1.9, 5.6, 4.2, 3.0], 1.0],
+          "expect": [
+            2.4969359331476326, 3.3895543175487464, 2.3596100278551533, 4.9001392757660165,
+            3.9388579387186633, 3.114902506963788
+          ]
+        },
+        {
+          "args": [[0.3, 0.5, 0.45, 0.7, 0.2, 0.55, 0.4, 0.6], 0.04],
+          "expect": [0.4625, 0.4625, 0.4625, 0.4625, 0.4625, 0.4625, 0.4625, 0.4625]
+        },
+        {
+          "args": [[10, 12, 9, 11, 13, 10, 30], 4.0],
+          "expect": [
+            10.175438596491228, 12.07719298245614, 9.224561403508773, 11.126315789473685, 13.028070175438597,
+            10.175438596491228, 29.19298245614035
+          ]
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "betaBinomialMoments",
+      "file": "packages/stats/src/variance.ts",
+      "signature": "betaBinomialMoments(successes: readonly number[], trials: readonly number[]): { alpha: number; beta: number }",
+      "definition": "Method-of-moments Beta prior from per-unit rates p_i = k_i / n_i: m the mean of the rates, v their n - 1 variance, c = m (1 - m) / v - 1, alpha = m c, beta = (1 - m) c",
+      "source": "empirical Bayes rate shrinkage (Robbins; Efron 2010, chapter 1)",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[3, 7, 1, 12, 5, 0, 9], [20, 25, 15, 30, 22, 18, 26]],
+          "expect": {
+            "alpha": 1.4222158798107327,
+            "beta": 5.349811150286829
+          }
+        },
+        {
+          "args": [[45, 50, 38, 60], [100, 100, 100, 100]],
+          "expect": {
+            "alpha": 13.594684152872448,
+            "beta": 14.580827044790654
+          }
+        },
+        {
+          "args": [[2, 4, 3, 8, 6, 1, 5, 7], [10, 12, 9, 20, 15, 8, 14, 16]],
+          "expect": {
+            "alpha": 5.813162584631661,
+            "beta": 12.168173465414258
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "shrinkRates",
+      "file": "packages/stats/src/variance.ts",
+      "signature": "shrinkRates(successes: readonly number[], trials: readonly number[], alpha: number, beta: number): number[]",
+      "definition": "Posterior mean rate of each unit under a Beta(alpha, beta) prior: (k + alpha) / (n + alpha + beta)",
+      "source": "Beta-binomial conjugacy",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[3, 7, 1, 12, 5, 0, 9], [20, 25, 15, 30, 22, 18, 26], 2, 5],
+          "expect": [
+            0.18518518518518517, 0.28125, 0.13636363636363635, 0.3783783783783784, 0.2413793103448276, 0.08,
+            0.3333333333333333
+          ]
+        },
+        {
+          "args": [[45, 50, 38, 60], [100, 100, 100, 100], 2, 5],
+          "expect": [0.4392523364485981, 0.48598130841121495, 0.37383177570093457, 0.5794392523364486]
+        },
+        {
+          "args": [[2, 4, 3, 8, 6, 1, 5, 7], [10, 12, 9, 20, 15, 8, 14, 16], 2, 5],
+          "expect": [
+            0.23529411764705882, 0.3157894736842105, 0.3125, 0.37037037037037035, 0.36363636363636365, 0.2,
+            0.3333333333333333, 0.391304347826087
+          ]
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "normalPosterior",
+      "file": "packages/stats/src/variance.ts",
+      "signature": "normalPosterior(input: { priorMean: number; priorVariance: number; mean: number; variance: number; n: number }): { mean: number; variance: number }",
+      "definition": "Normal-normal posterior of a mean: precision 1 / priorVariance + n / variance; posterior mean (priorMean / priorVariance + n mean / variance) / precision; posterior variance 1 / precision",
+      "source": "conjugate normal model",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [
+            {
+              "priorMean": 0.5,
+              "priorVariance": 0.04,
+              "mean": 0.7,
+              "variance": 0.21,
+              "n": 30
+            }
+          ],
+          "expect": {
+            "mean": 0.6702127659574468,
+            "variance": 0.005957446808510639
+          }
+        },
+        {
+          "args": [
+            {
+              "priorMean": 10,
+              "priorVariance": 4,
+              "mean": 12,
+              "variance": 9,
+              "n": 5
+            }
+          ],
+          "expect": {
+            "mean": 11.379310344827587,
+            "variance": 1.2413793103448276
+          }
+        },
+        {
+          "args": [
+            {
+              "priorMean": 0,
+              "priorVariance": 1,
+              "mean": 1.5,
+              "variance": 2,
+              "n": 100
+            }
+          ],
+          "expect": {
+            "mean": 1.4705882352941178,
+            "variance": 0.0196078431372549
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "moderatedVariance",
+      "file": "packages/stats/src/variance.ts",
+      "signature": "moderatedVariance(input: { variance: number; df: number; priorVariance: number; priorDf: number }): number",
+      "definition": "Moderated variance: (priorDf priorVariance + df variance) / (priorDf + df)",
+      "source": "Smyth 2004, limma",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [
+            {
+              "variance": 0.3,
+              "df": 4,
+              "priorVariance": 0.1,
+              "priorDf": 6
+            }
+          ],
+          "expect": 0.18
+        },
+        {
+          "args": [
+            {
+              "variance": 2.5,
+              "df": 10,
+              "priorVariance": 1.0,
+              "priorDf": 3
+            }
+          ],
+          "expect": 2.1538461538461537
+        },
+        {
+          "args": [
+            {
+              "variance": 0.01,
+              "df": 2,
+              "priorVariance": 0.05,
+              "priorDf": 20
+            }
+          ],
+          "expect": 0.046363636363636364
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "pooledVariance",
+      "file": "packages/stats/src/variance.ts",
+      "signature": "pooledVariance(groups: readonly (readonly number[])[]): number",
+      "definition": "Pooled within-group variance: sum (n_g - 1) s_g^2 / sum (n_g - 1)",
+      "source": "one-way ANOVA mean square within",
+      "tol": 1e-12,
+      "tier": 2,
+      "cases": [
+        {
+          "args": [[[1, 2, 3, 4], [2, 4, 6], [5, 5, 6, 7, 8]]],
+          "expect": 2.2
+        },
+        {
+          "args": [[[0.2, 0.4, 0.3], [0.5, 0.9, 0.7, 0.6]]],
+          "expect": 0.021500000000000002
+        },
+        {
+          "args": [[[10, 12], [9, 11, 13], [8, 8, 9, 15]]],
+          "expect": 7.333333333333333
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "iccOneWay",
+      "file": "packages/stats/src/variance.ts",
+      "signature": "iccOneWay(values: readonly number[], clusters: readonly (string | number)[]): number",
+      "definition": "ICC(1) from the one-way ANOVA, unbalanced: (MSB - MSW) / (MSB + (n0 - 1) MSW), n0 = (N - sum n_g^2 / N) / (k - 1); not truncated",
+      "source": "Shrout and Fleiss 1979; Donner 1986 (n0)",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1], [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4]],
+          "expect": -0.03556485355648538
+        },
+        {
+          "args": [[0.2, 0.4, 0.9, 0.8, 0.1, 0.5, 0.7, 0.6], ["a", "a", "b", "b", "c", "c", "d", "d"]],
+          "expect": 0.6872037914691944
+        },
+        {
+          "args": [[3, 4, 5, 9, 8, 10, 2, 3, 1, 4], [1, 1, 1, 2, 2, 2, 3, 3, 4, 4]],
+          "expect": 0.8654545454545455
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "designEffectFromData",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "designEffectFromData(values: readonly number[], clusters: readonly (string | number)[]): number",
+      "definition": "The design effect measured from the data: 1 + (mbar - 1) ICC(1), mbar the mean cluster size and ICC(1) as iccOneWay",
+      "source": "Kish 1965; dossier section 3.1",
+      "tol": 1e-12,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1], [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4]],
+          "expect": 0.9377615062761506
+        },
+        {
+          "args": [[0.2, 0.4, 0.9, 0.8, 0.1, 0.5, 0.7, 0.6], ["a", "a", "b", "b", "c", "c", "d", "d"]],
+          "expect": 1.6872037914691944
+        },
+        {
+          "args": [[3, 4, 5, 9, 8, 10, 2, 3, 1, 4], [1, 1, 1, 2, 2, 2, 3, 3, 4, 4]],
+          "expect": 2.2981818181818183
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "kishWeightDesignEffect",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "kishWeightDesignEffect(weights: readonly number[]): number",
+      "definition": "Kish's design effect of unequal weights: n sum w^2 / (sum w)^2 (that is 1 + the squared coefficient of variation)",
+      "source": "Kish 1992",
+      "tol": 1e-12,
+      "tier": 2,
+      "cases": [
+        {
+          "args": [[1, 1, 1, 1]],
+          "expect": 1.0
+        },
+        {
+          "args": [[1, 2, 3, 4]],
+          "expect": 1.2
+        },
+        {
+          "args": [[10, 1, 1, 1, 1]],
+          "expect": 2.6530612244897958
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "clusteredMeanInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "clusteredMeanInterval(values: readonly number[], clusters: readonly (string | number)[], alpha = 0.05): Interval",
+      "definition": "Interval for a mean of clustered values: mean -/+ t(1 - alpha/2, G - 1) SE, SE = sqrt(sum over clusters of (sum of x - mean)^2) / n (the clusteredStandardError), G the clusters",
+      "source": "dossier S22 (clustered standard errors with G - 1 degrees of freedom)",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1], [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4]],
+          "expect": {
+            "estimate": 0.6363636363636364,
+            "lower": 0.21719133898111592,
+            "upper": 1.0555359337461567
+          }
+        },
+        {
+          "args": [[0.2, 0.4, 0.9, 0.8, 0.1, 0.5, 0.7, 0.6], ["a", "a", "b", "b", "c", "c", "d", "d"]],
+          "expect": {
+            "estimate": 0.525,
+            "lower": 0.14971077002712813,
+            "upper": 0.900289229972872
+          }
+        },
+        {
+          "args": [[3, 4, 5, 9, 8, 10, 2, 3, 1, 4], [1, 1, 1, 2, 2, 2, 3, 3, 4, 4]],
+          "expect": {
+            "estimate": 4.9,
+            "lower": 0.34721051254551316,
+            "upper": 9.452789487454488
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "clusterMeansInterval",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "clusterMeansInterval(values: readonly number[], clusters: readonly (string | number)[], alpha = 0.05): Interval",
+      "definition": "The unweighted mean of the cluster means with Student's t interval over the cluster means (each conversation counts once)",
+      "source": "cluster-level analysis (Donner and Klar 2000)",
+      "tol": 1e-9,
+      "tier": 3,
+      "cases": [
+        {
+          "args": [[1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1], [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4]],
+          "expect": {
+            "estimate": 0.625,
+            "lower": 0.17207818603399744,
+            "upper": 1.0779218139660025
+          }
+        },
+        {
+          "args": [[0.2, 0.4, 0.9, 0.8, 0.1, 0.5, 0.7, 0.6], ["a", "a", "b", "b", "c", "c", "d", "d"]],
+          "expect": {
+            "estimate": 0.525,
+            "lower": 0.09165332410239008,
+            "upper": 0.95834667589761
+          }
+        },
+        {
+          "args": [[3, 4, 5, 9, 8, 10, 2, 3, 1, 4], [1, 1, 1, 2, 2, 2, 3, 3, 4, 4]],
+          "expect": {
+            "estimate": 4.5,
+            "lower": -0.40447914199694246,
+            "upper": 9.404479141996942
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-shrinkage-clustering",
+      "name": "ratioEstimate",
+      "file": "packages/stats/src/intervals.ts",
+      "signature": "ratioEstimate(numerators: readonly number[], denominators: readonly number[]): { estimate: number; standardError: number }",
+      "definition": "Ratio estimator of a rate over clusters of unequal size (passes over blocks per conversation): r = sum y / sum x, linearised standard error sqrt(sum (y - r x)^2 / (n - 1) / n) / mean x",
+      "source": "Cochran, Sampling Techniques, 6.4",
+      "tol": 1e-12,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [[3, 5, 2, 8, 6], [10, 12, 8, 20, 15]],
+          "expect": {
+            "estimate": 0.36923076923076925,
+            "standardError": 0.02611338539422479
+          }
+        },
+        {
+          "args": [[1, 0, 2, 3, 1, 1], [4, 3, 5, 6, 4, 4]],
+          "expect": {
+            "estimate": 0.3076923076923077,
+            "standardError": 0.06736212767222584
+          }
+        },
+        {
+          "args": [[30, 25, 40, 35], [100, 90, 120, 110]],
+          "expect": {
+            "estimate": 0.30952380952380953,
+            "standardError": 0.011709700215290747
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-sequential",
+      "name": "probabilityBetter",
+      "file": "packages/stats/src/power.ts",
+      "signature": "probabilityBetter(input: { successesA: number; failuresA: number; successesB: number; failuresB: number }): number",
+      "definition": "The posterior probability that version B passes more often than A under Beta(1, 1) priors: P(pB > pA) with pA ~ Beta(1 + sA, 1 + fA), pB ~ Beta(1 + sB, 1 + fB), by the exact sum over i < 1 + sB of B(aA + i, bA + bB) / ((bB + i) B(1 + i, bB) B(aA, bA))",
+      "source": "Evan Miller, Formulas for Bayesian A/B testing",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [
+            {
+              "successesA": 41,
+              "failuresA": 60,
+              "successesB": 52,
+              "failuresB": 50
+            }
+          ],
+          "expect": 0.9303411618796589
+        },
+        {
+          "args": [
+            {
+              "successesA": 5,
+              "failuresA": 15,
+              "successesB": 9,
+              "failuresB": 11
+            }
+          ],
+          "expect": 0.9014458311916187
+        },
+        {
+          "args": [
+            {
+              "successesA": 100,
+              "failuresA": 900,
+              "successesB": 120,
+              "failuresB": 880
+            }
+          ],
+          "expect": 0.9231834389725483
+        }
+      ]
+    },
+    {
+      "family": "roadmap-sequential",
+      "name": "bayesFactorRate",
+      "file": "packages/stats/src/power.ts",
+      "signature": "bayesFactorRate(k: number, n: number, p0: number): number",
+      "definition": "Bayes factor BF10 of a uniform prior on the rate against the point null p0: B(k + 1, n - k + 1) / (p0^k (1 - p0)^(n - k))",
+      "source": "Kass and Raftery 1995",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [7, 10, 0.5],
+          "expect": 0.7757575757575751
+        },
+        {
+          "args": [2, 50, 0.1],
+          "expect": 0.2515667748957069
+        },
+        {
+          "args": [60, 100, 0.5],
+          "expect": 0.9130497784875761
+        }
+      ]
+    },
+    {
+      "family": "roadmap-sequential",
+      "name": "sprtExpectedSampleSize",
+      "file": "packages/stats/src/drift.ts",
+      "signature": "sprtExpectedSampleSize(input: { p0: number; p1: number; alpha: number; beta: number }): { underNull: number; underAlternative: number }",
+      "definition": "Wald's approximations of the expected sample size of the Bernoulli SPRT (boundaries ln((1 - beta)/alpha) and ln(beta/(1 - alpha))): under H0 ((1 - alpha) lnB + alpha lnA) / E0[z], under H1 (beta lnB + (1 - beta) lnA) / E1[z], z the per-outcome log likelihood ratio",
+      "source": "Wald 1947 (dossier S19)",
+      "tol": 1e-9,
+      "tier": 4,
+      "cases": [
+        {
+          "args": [
+            {
+              "p0": 0.05,
+              "p1": 0.2,
+              "alpha": 0.05,
+              "beta": 0.1
+            }
+          ],
+          "expect": {
+            "underNull": 21.227851658353575,
+            "underAlternative": 16.999771557706747
+          }
+        },
+        {
+          "args": [
+            {
+              "p0": 0.1,
+              "p1": 0.3,
+              "alpha": 0.05,
+              "beta": 0.2
+            }
+          ],
+          "expect": {
+            "underNull": 11.533594319823484,
+            "underAlternative": 12.406596083278385
+          }
+        },
+        {
+          "args": [
+            {
+              "p0": 0.5,
+              "p1": 0.7,
+              "alpha": 0.01,
+              "beta": 0.01
+            }
+          ],
+          "expect": {
+            "underNull": 51.656208426769105,
+            "underAlternative": 54.728487079549836
+          }
+        }
+      ]
+    },
+    {
+      "family": "roadmap-sequential",
+      "name": "msprtPValue",
+      "file": "packages/stats/src/drift.ts",
+      "signature": "msprtPValue(input: { mean: number; n: number; variance: number; mixingVariance: number; null?: number }): number",
+      "definition": "The always-valid p-value of the normal mixture SPRT: Lambda = sqrt(V / (V + n tau^2)) exp(n^2 tau^2 (xbar - theta0)^2 / (2 V (V + n tau^2))), p = min(1, 1 / Lambda) (the running minimum is the caller's)",
+      "source": "Johari, Pekelis and Walsh, Always valid inference (dossier S6)",
+      "tol": 1e-12,
+      "tier": 5,
+      "cases": [
+        {
+          "args": [
+            {
+              "mean": 0.1,
+              "n": 100,
+              "variance": 1.0,
+              "mixingVariance": 0.01
+            }
+          ],
+          "expect": 1.0
+        },
+        {
+          "args": [
+            {
+              "mean": 0.02,
+              "n": 500,
+              "variance": 0.25,
+              "mixingVariance": 0.001
+            }
+          ],
+          "expect": 1.0
+        },
+        {
+          "args": [
+            {
+              "mean": 0.5,
+              "n": 20,
+              "variance": 2.0,
+              "mixingVariance": 0.1
+            }
+          ],
+          "expect": 0.756973971626753
+        }
+      ]
     }
   ]
 }
