@@ -123,6 +123,22 @@ describe('the payloads of a guard unit test', () => {
   });
 });
 
+describe('a check from a catalogue', () => {
+  it('gets no unit test of its own: the dispatcher hook runs it, and that hook carries the unit tests', () => {
+    const check = guard({
+      name: 'ACCEPTMATCH',
+      command: 'ACCEPTMATCH',
+      event: 'PreToolUse (Bash)',
+      scope: 'catalogue',
+    });
+    for (const type of ['guard_positive', 'guard_negative', 'guard_hostile', 'guard_speed']) {
+      expect(unitTestOf(row(type), check, ATOMS, 'h', 'x')).toBe(
+        'guard.settings.g is a check that a dispatcher hook runs, not a command of its own; the unit tests of that hook cover it',
+      );
+    }
+  });
+});
+
 describe('minimal fixtures of a script with none declared', () => {
   it('runs the script bare, then as each command line of its quote writes it, placeholders as empty files', () => {
     expect(

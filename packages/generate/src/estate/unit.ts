@@ -190,6 +190,10 @@ export function unitTestOf(
     };
   }
   const fields = atom.fields ?? {};
+  // A catalogue check is run by a dispatcher hook; its name is no command a shell can run.
+  if (fields.scope === 'catalogue') {
+    return `${atom.id} is a check that a dispatcher hook runs, not a command of its own; the unit tests of that hook cover it`;
+  }
   const name = fields.name;
   const event = fields.event;
   const command = fields.command;
