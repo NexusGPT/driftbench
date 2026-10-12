@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto';
-import { describe, expect, it } from 'vitest';
+import { createHash, Hash } from 'node:crypto';
+import { describe, expect, it, vi } from 'vitest';
 import { blockCacheKey } from '../src/runner/cache';
 import { resolveGiven } from '../src/runner/given';
 import type { Message } from '../src/schema/common';
@@ -52,6 +52,22 @@ describe('the canonical text of a list read item by item', () => {
 });
 
 describe('the digest of a growing list', () => {
+  it('hashes a new cache-key head without one native update per earlier message', () => {
+    const items = Array.from({ length: 800 }, (_, at) => ({ role: 'user', content: `m${at}` }));
+    const head = '{"new-block-position":400,"prefix":';
+    const tail = '}';
+    const expected = createHash('sha256')
+      .update(`${head}${canonicalJson(items)}${tail}`)
+      .digest('hex');
+    const updates = vi.spyOn(Hash.prototype, 'update');
+    try {
+      expect(sha256WithList(head, items, tail)).toBe(expected);
+      expect(updates.mock.calls.length).toBeLessThanOrEqual(4);
+    } finally {
+      updates.mockRestore();
+    }
+  });
+
   it('equals the plain digest at every length, whether the list grew, was cut or changed', () => {
     const head = '{"a":1,"prefix":';
     const tail = ',"z":2}';

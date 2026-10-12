@@ -105,6 +105,7 @@ function itemText(item: unknown): string {
  * The SHA-256 (hex) of `head + [items] + tail`, where the items are written as `canonicalList` writes them.
  * The digest state after a list is kept, so the next call with the same head and the same items plus more
  * hashes only the new ones: a history that grows by a message per block costs one message per block.
+ * A new head hashes the cached canonical text in bulk, without a native call for every earlier item.
  */
 export function sha256WithList(head: string, items: readonly unknown[], tail: string): string {
   let from: Running | undefined;
@@ -126,8 +127,9 @@ export function sha256WithList(head: string, items: readonly unknown[], tail: st
     start = from.items.length;
   } else {
     state = createHash('sha256');
-    state.update(`${head}[`);
-    start = 0;
+    state.update(head);
+    state.update(canonicalList(items).slice(0, -1));
+    start = items.length;
   }
   for (let index = start; index < items.length; index += 1) {
     state.update(index === 0 ? itemText(items[index]) : `,${itemText(items[index])}`);

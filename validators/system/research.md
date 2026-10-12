@@ -57,3 +57,14 @@ Sources: packages/generate/src/select/cover.ts; packages/generate/test/select/co
 Finding: the no-evidence path creates an empty fault Set for every spec, membership creates a separate deduplication Set for every cell, and gain recomputation and heap swaps create temporary arrays and callbacks. A local CPU profile includes 574 milliseconds of garbage-collection samples across 100 large selections; that profile is corroboration, not the bank's CPU timing. Deterministic red-first tests observe empty Set allocations growing from 30 to 210 on 20 and 200 specs, and populated Set allocations growing from 22 to 202.
 
 Fix: omit absent evidence, deduplicate memberships by the last index already held, visit coverage without flattened temporary arrays, reuse gain vectors, and swap heap entries directly. The greedy heap, ranked tiers and pool-order tie break stay the same. All 36 selection tests pass, including the unchanged growth limit and exact full-scan reference comparisons with duplicate and out-of-pool inputs. Ten Node 24 CPU probes in one fresh process of the same 500-to-5000 shape measure a maximum ratio of 27.94. CI remains the acceptance check for PR 74.
+
+
+## 2026-10-13: candidate ledger allocation mechanism
+
+Question: which remaining growing-history cost can be removed without changing mutable callback semantics or canonical cache keys?
+
+Sources: packages/core/src/runner/ledger.ts (`kindOf`, `sameValue`, `saidValues`); packages/core/test/runner/drift.test.ts (phone, email, dates and replacement semantics); docs/concepts/drift.md (The ledger check); system-measurements/history-runtime.cpuprofile (private measurement artifact).
+
+Finding: the profile still includes lazy-array construction, but preserving plain mutable arrays and structuredClone requires their earlier slots. Ledger comparison also constructs anchored email and phone RegExp objects repeatedly for old facts. An isolated copy of the exact ledger module with only the two anchored patterns precompiled produces identical checked facts and contradictions. Across five 400-block growing-contact probes, the original module uses 176.926 to 193.233 CPU milliseconds and the candidate 57.377 to 80.618. These are subsystem probes, not bank scores.
+
+What to try after the hash iteration is measured: a red-first allocation test on the real ledger function, precompile only the non-global anchored patterns, retain all existing phone/email semantics, then measure the same bank growth items. This is a distinct allocation mechanism; it is not implemented in component source yet.
