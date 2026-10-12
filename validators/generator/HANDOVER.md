@@ -7,30 +7,30 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 4 |
-| 2 | 4 |
-| 3 | 4 |
-| 4 | 4 |
-| 5 | 4 |
-| 6 | 4 |
-| 7 | 4 |
-| 8 | 4 |
-| 9 | 4 |
-| 10 | 4 |
-| 11 | 4 |
-| 12 | 4 |
-| 13 | 4 |
-| 14 | 4 |
-| 15 | 4 |
-| 16 | 4 |
-| 17 | 4 |
-| 18 | 4 |
-| 19 | 4 |
-| 20 | 4 |
-| hidden | 4 |
+| 1 | 5 |
+| 2 | 5 |
+| 3 | 5 |
+| 4 | 5 |
+| 5 | 5 |
+| 6 | 5 |
+| 7 | 5 |
+| 8 | 5 |
+| 9 | 5 |
+| 10 | 5 |
+| 11 | 5 |
+| 12 | 5 |
+| 13 | 5 |
+| 14 | 5 |
+| 15 | 5 |
+| 16 | 5 |
+| 17 | 5 |
+| 18 | 5 |
+| 19 | 5 |
+| 20 | 5 |
+| hidden | 5 |
 <!-- level-table:end -->
 
-The bank holds 2033 items in 26 families, ordered in 22 levels; a level passes when every item of it passes on every seed. After iteration 12 every seed passes levels 1 to 4 and fails level 5 (cheater resistance). Bank: 1325 of 2033 pass on every seed.
+The bank holds 2033 items in 26 families, ordered in 22 levels; a level passes when every item of it passes on every seed. After iteration 13 every seed passes levels 1 to 5 and fails level 6 (the validity gate). Bank: 1286 of 2033 pass on every seed (it was 1332 one fix earlier: see the regression below).
 
 ## Floor
 
@@ -38,32 +38,38 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The l
 
 ## Open items
 
-Failing items per family: {'interaction-pair': 369, 'modes': 58, 'minimality': 53, 'report': 40, 'fault-code': 20, 'adequacy': 20, 'behaviours': 15, 'fault-drift': 14, 'boundary': 13, 'interaction-triple': 13, 'sequence': 11, 'scale': 10, 'allocation': 10, 'gate': 10, 'cheaters': 9, 'perturbation': 9, 'coverage': 9, 'stability': 8, 'phrases': 7, 'paths': 5, 'contrast': 3, 'fault-deviation': 2}.
+Failing items per family: {'interaction-pair': 410, 'modes': 59, 'minimality': 53, 'report': 40, 'adequacy': 21, 'fault-code': 20, 'fault-drift': 16, 'behaviours': 15, 'interaction-triple': 14, 'boundary': 13, 'coverage': 11, 'sequence': 11, 'scale': 10, 'allocation': 10, 'perturbation': 9, 'stability': 9, 'gate': 8, 'phrases': 7, 'paths': 5, 'fault-deviation': 3, 'contrast': 3}.
 
-First failing level, 5 cheaters, 9 items on seed 1:
-- `cheater.{constant,echo,copy-given}.{twise,deviation,metamorphic}`: probe blocks of the classes D5_language_switch, D6_instruction_in_data, D9_out_of_scope and D1_off_topic on the first turn are passed by a constant reply. They pass through `forbidden.*`, `lang.expected`, `stage.reached` and `must`/`must_not`, all of which a do-nothing agent that reports the start stage satisfies. Component: `packages/generate/src/seed/scenario.ts#buildScenario` (the probe block's Then) and `deviation.ts`. Lead: the first-turn probe of pilot 10 stays on the start stage, so `stage.reached` cannot fail; a Then that needs the agent to say a word of the map's recovery (`must` from the recovery relation, not an echo of the user turn) kills constant and echo.
-- Later levels: `kill.X1..X4.*` (fault classes the suite never kills), `adequacy.*`, `modes.*`, `minimality.*`, `report.*`, and `interaction-pair` (about 400 items sharing the kill causes). List all with `pnpm driftbench validate generator --seeds 1..20 --hidden --items`.
+First failing level, 6 gate, 8 items on seed 1:
+- `gate.shortcut.passed-by-first-tool` (8 boundary blocks, e.g. gen-boundary-010..012): a boundary block is rejected because the first-tool trivial agent passes it. Component `packages/generate/src/seed/seeders.ts#boundarySeeder` (the gate reads `renderDraft`).
+- `gate.contrast.then-ignores-edit` (275 blocks, e.g. gen-boundary-027#b3-check-to-recap): the Then of a transition block ignores an edit of the user turn. The gate edits the turn and expects the verdict to change.
+- `gate.accepted.{graph,twise,boundary,deviation,metamorphic}`: only 15/23, 319/527, 26/36, 38/44, 102/153 blocks pass the gate (need 0.9). They share the two causes above.
+- `gate.killers`: classes with no killer in the gated suite (X1.field-extra, X2.fact-flip, X2.fact-invent, X3.no-report, X4.no-question, X4.narrate @any/r1). These are the same `kill.*` causes as before: the suite has no block that fails an agent exhibiting them. Largest lever: about 400 `interaction-pair` items and 100 more items share them.
+
+Known regression to repair: iteration 13 removed the first-turn D9 probe, which was the only block killing `fault.D9.inside` (and `mode.F.D9_out_of_scope`, `cover.pair.channel.stage`, about 41 `pair.*+D9.inside` items). Find a later-stage D9 probe whose Then kills it (the recovery's `at` stages and the phrase context may exclude it), or a first-turn probe with a tool-count Then.
 
 ## Hypotheses tried
 
-Iterations 1 to 10 are the pilot (journal rows 1 to 10, branch `exec/generator-pilot`, merged into this branch): path fallback for rows without a path, strength 3 default, recovery ends the walk, side-effecting boundary values through a path, every other tool 0 times in a boundary block, tool-failure words, invariance families, concrete value on path boundaries, perturbation on clean walks, first-turn probes.
+Iterations 1 to 10 are the pilot (journal rows 1 to 10, branch `exec/generator-pilot`, merged into this branch).
 
-11. Commit `47a20773`-ancestor, bank 1209 to 1219 (before the pilot merge). The t-wise report counted tuples no possible cell holds (diff.twise.allowed: 156 reported, 125 by brute force). `packages/generate/src/seed/possible.ts` rules out pairs of a stage or a deviation with another axis that no path event can match; the covering array counts with them as extra constraints; `twise.unreachable` lists them. The Acme suite is regenerated at t 2 (207 complete specs). The merge with the pilot raised every seed to level 4 (bank 1323).
-12. Bank 1323 to 1325. A boundary block whose every tool count is 0 (an invalid tool input, a side-effecting tool asked alone) is passed by a constant, echo or copy-given reply. It has no machine Then, so it goes to incomplete/ with the reason. Test `packages/generate/test/seed/boundary.test.ts` (red run saved in `.exec/red12.txt`, untracked). The three boundary cheater items now pass; the twise, deviation and metamorphic ones remain.
+11. Bank 1209 to 1219. The t-wise report counted tuples no possible cell holds (diff.twise.allowed). `packages/generate/src/seed/possible.ts` leaves out pairs no path event reaches; `twise.unreachable` lists them. Merge with the pilot: level 4 on every seed.
+12. Bank 1323 to 1325. A boundary block whose every tool count is 0 is passed by a do-nothing reply, so it goes to incomplete/ (test `boundary.test.ts`, red run `.exec/red12.txt`).
+13. Level 4 to 5, bank 1332 to 1286. First-turn probes with a words-only Then are passed by constant, echo, copy-given. First attempt (accept a word the constant reply lacks) failed: the echo agent repeats every literal word of the must patterns, so no `must` can kill echo. Second attempt, kept: the first-turn probe goes in only when the recovery leaves the start stage or asks for a call (`discriminates` in `scenario.ts`; red runs `.exec/red13.txt`, `.exec/red14.txt`).
 
 ## Next actions
 
-1. Fix the cheaters on probe blocks: read one failing block (`pnpm driftbench generate --map packages/validators/fixtures/generator/seed-1/approved.yaml --out .exec/g --seed 1 --force`, then `.exec/g/specs/twise/gen-twise-021.yaml`), name which assertions a constant reply passes, and give the block a Then drawn from the map's recovery that a constant cannot satisfy.
-2. Then level 6 (the validity gate) and the `kill.*` causes.
-3. Every third iteration run the handover test: `pnpm driftbench validate generator --brief --fresh`.
+1. Repair the D9.inside regression (see Open items), then re-measure; the bank should pass 1332 again or better with level 5 kept.
+2. `gate.shortcut.passed-by-first-tool`: read gen-boundary-010 (`pnpm driftbench generate --map packages/validators/fixtures/generator/seed-1/approved.yaml --out .exec/g --seed 1 --force`) and give the block a count the first-tool agent breaks.
+3. `gate.contrast.then-ignores-edit`: read gen-boundary-027 block 3; make the Then depend on the user turn's content.
+4. Handover test on the next third iteration: `pnpm driftbench validate generator --brief --fresh`.
 
 ## Pitfalls
 
 * Never edit the validator or bank (`packages/validators/**`, the rest of `validators/`).
-* Acme items read `examples/acme`; regenerate with `pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out examples/acme/generated --baseline examples/acme/specs --t 2 --force` then `pnpm -s biome check --write examples`, and update the pinned counts in `packages/generate/test/enumerate/acme.test.ts` and `test/gate/acme-generated.test.ts`.
-* Memory is tight: vitest with `--maxWorkers=2`, bank-run with `--jobs 2`, one sweep at a time. A full sweep takes about 20 to 25 minutes.
+* An echo agent repeats every literal word of the spec's `must` patterns: words alone never kill it.
+* Acme items read `examples/acme`; regenerate with `pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out examples/acme/generated --baseline examples/acme/specs --t 2 --force` then `pnpm -s biome check --write examples`; pinned counts live in `packages/generate/test/enumerate/acme.test.ts` and `test/gate/acme-generated.test.ts`.
+* Memory is tight: vitest with `--maxWorkers=2`, bank-run with `--jobs 2`, one sweep at a time, about 25 minutes each.
 * Measurements live in `.exec/` (untracked, excluded in the git common dir).
-* Items sharing a cause count once.
 
 ## How to run
 
@@ -76,5 +82,5 @@ pnpm driftbench validate generator --journal .exec/row.json
 
 ## Fixtures
 
-* The hidden specification of each seed: `hiddenSpec(seed)` in `packages/validators/src/ladders/generator/hidden.ts`, rendered by `render.ts`; seed 1 is kept in `packages/validators/fixtures/generator/seed-1/`.
+* Hidden specification per seed: `hiddenSpec(seed)` in `packages/validators/src/ladders/generator/hidden.ts`, rendered by `render.ts`; seed 1 is kept in `packages/validators/fixtures/generator/seed-1/`.
 * Rule follower `follower.ts`, faults `faults.ts`, cheaters `cheaters.ts`, items `bank*.ts` and `acme.ts`.
