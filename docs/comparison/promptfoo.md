@@ -1,56 +1,54 @@
 # promptfoo: comparison
 
-promptfoo is an open-source framework for testing LLM applications, with assertions, red-team plugins and simulated users. This page reads its source at commit 8014282. Some rows are measured on the same inputs, and others on generated cases with a fixed seed.
+promptfoo is an LLM evaluation framework. It runs assertions on model replies and tool calls, red-team probes, and a simulated user for conversations. This page compares our checks with its source at commit 8014282. Some rows are measured on the same inputs, or on generated cases with a fixed seed.
 
 Results come from the comparison table. Limit means a row is not being worked, with its reason stated.
 
 | Capability | Result | Basis | Example | Reproduce |
 |---|---|---|---|---|
-| Word count (min and max) | ahead | compared against their docs or code | Word bounds take a minimum and a maximum, with one verdict per bound. "one\ntwo" counts 2 words. | Not reproducible from main yet: the test is awaiting merge. |
-| Character bounds | ahead | compared against their docs or code | No character bound exists in their assertion list. Ours counts code points: "é😀" passes a character minimum and maximum of 2, while counting UTF-16 units gives 3 and fails. | Not reproducible from main yet: the test is awaiting merge. |
-| Valid JSON, JSON schema, contains-json | ahead | measured head-to-head | On 15 fictional reply cases, ours passes every case theirs passes, and three more that theirs rejects: a whole array, a whole number, and an array inside prose. | Not reproducible from main yet: the test is awaiting merge. Not reproducible from the repository: the measurement is a local script outside it. |
-| JSON paths | ahead | compared against their docs or code | No example recorded in the evidence. | Not reproducible from main yet: the test is awaiting merge. |
-| Tool-call F1 | ahead | compared against their docs or code | Expected catalog.search with plan mobile, called with plan home. Their set check passes it. Ours fails it, because arguments are matched. | Not reproducible from main yet: the test is awaiting merge. |
-| Refusal | ahead | compared against their docs or code | "Je ne peux pas vous aider." is a refusal for us, in seven languages. For them it is one only if the provider says so. | Not reproducible from main yet: the test is awaiting merge. |
-| XML, HTML and SQL validity | ahead | measured head-to-head | On 2,000 generated cases with independent seeds: ours 1,755 right, promptfoo 1,667; ours-only 333, theirs-only 245; sign test p 0.0003. | Not reproducible from main yet: the test is awaiting merge. |
-| Regex | equal | measured head-to-head | On 120 cases both sides are right 120 of 120, with expect.regex case-sensitive by default. | Not reproducible from main yet: the test is awaiting merge. |
-| Contains, contains-all, contains-any | ahead | measured head-to-head | On 120 cases both sides are right 120 of 120, at ceiling. On diagnosis, 101 of 101 failing verdicts name the closest span and the difference. | Not reproducible from main yet: the test is awaiting merge. |
-| icontains, icontains-all, icontains-any | ahead | measured head-to-head | Promptfoo's failing reason for a missing "Fiber" is "Expected output to contain \"Fiber\"", with no span (88 of 88). Ours reads "/Fiber/ is missing; closest span \"fir\", differs by 2 characters". Accuracy is 120 of 120 on both sides. | Not reproducible from main yet: the test is awaiting merge. |
-| equals | equal | measured head-to-head | Strict mode (exact_strict): 120 of 120 on both sides. Default mode on loose truth: ours 120 of 120, promptfoo 53 of 120. Both modes are offered. | Not reproducible from main yet: the test is awaiting merge. |
-| starts-with | ahead | measured head-to-head | On 2,000 generated cases: ours 2,000 right, promptfoo 1,886; sign test p below 0.001. | Not reproducible from main yet: the test is awaiting merge. |
-| Levenshtein, similar (cosine, dot, euclidean) | ahead | measured head-to-head | On a fictional held-out set of 100 cases, ours is right 67 times and promptfoo 50 times. The set is built so character distance cannot separate a case change from a price change, so the result holds for this set only. | Not reproducible from main yet: the test is awaiting merge. |
+| Word count (min and max) | ahead | compared against their docs or code | The reply "one" and "two", on separate lines, counts as 2 words. | Not reproducible from main yet: the test is awaiting merge. |
+| Character bounds | ahead | compared against their docs or code | "é😀" passes a character minimum and maximum of 2. Counting UTF-16 units gives 3 and fails. | Not reproducible from main yet: the test is awaiting merge. |
+| Valid JSON, JSON schema, contains-json | ahead | measured head-to-head | 'Here you go: {"price": 35}' fails their is-json check and passes our embedded mode. Our default strict mode fails it, because the whole reply must be JSON. | Not reproducible from main yet: the test is awaiting merge. |
+| JSON paths | ahead | compared against their docs or code | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Tool-call F1 | ahead | compared against their docs or code | Expected catalog.search with plan mobile, called with plan home. Their set check passes it. Ours fails it. | Not reproducible from main yet: the test is awaiting merge. |
+| Refusal | ahead | compared against their docs or code | "Je ne peux pas vous aider." is a refusal for us. For them it is one only when the provider flags it. | Not reproducible from main yet: the test is awaiting merge. |
+| XML, HTML and SQL validity | ahead | measured head-to-head | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Regex | equal | measured head-to-head | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Contains, contains-all, contains-any | ahead | measured head-to-head | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| icontains, icontains-all, icontains-any | ahead | measured head-to-head | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Equals | equal | measured head-to-head | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Starts-with | ahead | measured head-to-head | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Levenshtein, similar (cosine, dot, euclidean) | ahead | measured head-to-head | No example recorded in the evidence. | Not reproducible from the repository yet. |
 | ROUGE, BLEU, METEOR, GLEU, n-grams | in progress | compared against their docs or code | No example recorded in the evidence. | Not reproducible from the repository yet. |
-| Perplexity | limit | compared against their docs or code. Needs token log probabilities, which our adapter contract does not carry. | No example recorded in the evidence. | Not reproducible from the repository yet. |
-| Cost and latency bounds | ahead | measured head-to-head | Accuracy is at ceiling, 120 of 120 on both sides. A failing budget verdict now reads "cost 0.0835 USD, at most 0.05, over by 0.0335 USD (67% above the limit)". Promptfoo's latency reason gives the value and the threshold only. | Not reproducible from main yet: the test is awaiting merge. |
-| Trace span count, duration, error spans | limit | compared against their docs or code. Theirs use OpenTelemetry spans, and our adapters report calls, not spans. | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Perplexity | limit | compared against their docs or code. Reason: needs token log probabilities, which our adapter contract does not carry. | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Cost and latency | ahead | measured head-to-head | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Trace span count, duration, error spans | limit | compared against their docs or code. Reason: theirs use OpenTelemetry spans, and our adapters report calls, not spans. | No example recorded in the evidence. | Not reproducible from the repository yet. |
 | LLM rubric, model-graded closed QA, G-Eval, agent rubric | ahead | compared against their docs or code | No example recorded in the evidence. | Not reproducible from the repository yet. |
-| Factuality, model-graded factuality | equal | measured head-to-head | On 100 fictional cases both sides are right 100 of 100. The cases are too easy to separate the two. | Not reproducible from main yet: the test is awaiting merge. |
-| Answer relevance, conversation relevance | limit | compared against their docs or code. Promptfoo generates three questions with a text provider before embedding them, and its local embedding route still needs a text model. | No example recorded in the evidence. | Not reproducible from the repository yet. |
-| Context faithfulness, recall, relevance (RAG) | limit | compared against their docs or code. Max has no retrieval step. | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Factuality, model-graded factuality | equal | measured head-to-head | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Answer relevance, conversation relevance | limit | compared against their docs or code. Reason: promptfoo generates three questions with a text provider before embedding them, so our local route still needs a text model. | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Context faithfulness, recall, relevance (RAG) | limit | compared against their docs or code. Reason: our Max has no retrieval step. | No example recorded in the evidence. | Not reproducible from the repository yet. |
 | Finish reason | equal | compared against their docs or code | No example recorded in the evidence. | Not reproducible from the repository yet. |
-| Classifier, moderation, safety, injection and webhook checks | limit | compared against their docs or code. Not built: theirs call external services, and our checks run locally. | No example recorded in the evidence. | Not reproducible from the repository yet. |
-| Custom code checks (JavaScript and Python assertions) | ahead | compared against their docs or code | On 100 fictional runs, a user check that never finishes is cut at 50 ms and fails, and 100 of 100 are correct within the limit. Promptfoo sets no limit, so a hanging check never returns. Stated limit: a synchronous infinite loop is not interrupted, because it runs in the same process. | Not reproducible from main yet: the test is awaiting merge. |
-| Skill used | ahead | measured against our earlier version | On 100 fictional traces with some failed loads, our count was right 65 of 100 before and 100 of 100 now. The rule matches promptfoo: failed loads are not counted. | Not reproducible from main yet: the test is awaiting merge. |
-| Function-call and tools-call validity | ahead | measured head-to-head | On 100 fictional calls, our schema check is right 100 of 100. Promptfoo's is-valid-function-call, with a provider that has no validator (its default here), fails all 50 valid calls, so it is right on 50 of 100. A provider with a validator was not run. | `npx tsx comparisons/promptfoo/function-call/measure.mts` |
-| Trajectory: tool used | ahead | compared against their docs or code | Verdicts are equal. Ours names the missing expected tool, the closest observed call and its position in 100 of 100 traces. Promptfoo names the missing tool and the actual list, and gives no closest call in 0 of 100. | Not reproducible from main yet: the test is awaiting merge. |
-| Trajectory: tool sequence | ahead | compared against their docs or code | Verdicts are equal. Ours names the first wrong call and its position in 100 of 100 traces. Promptfoo's exact-mode reason lists the expected and observed names but no position, in 0 of 100. | `npx tsx comparisons/promptfoo/trajectory/measure.mts` |
-| Trajectory: tool arguments | ahead | compared against their docs or code | No example recorded in the evidence. Our input assertions are exact, regex, contains, one_of, nonempty, absent and subset. Theirs are partial or exact, with ignore keys. | `pnpm -s vitest run packages/checks/test/tools.test.ts` |
-| Trajectory: step count | ahead | compared against their docs or code | Verdicts are equal. Ours lists each step in order with the count and the limit in 100 of 100 traces. Promptfoo reports the count alone, in 0 of 100. | Not reproducible from main yet: the test is awaiting merge. |
-| Trajectory: goal success | ahead | measured head-to-head | On 100 fictional sessions, our end-state check is right 100 of 100. Haiku and sonnet, judging the reply alone, are each right 63 of 100, because 37 claim success without the state. Promptfoo with the trace was not run. | `npx tsx comparisons/promptfoo/goal-success/compare.mts` |
-| Red-team plugins (PII, prompt extraction) | behind | measured head-to-head | Personal data in replies: ours 200 of 200, promptfoo 199 of 200. Prompt extraction has no check of ours, so it is not measured. The PII and prompt-extraction drafts are unapproved and not wired. | Not reproducible from main yet: the test is awaiting merge. |
-| Red-team strategies (encodings, multilingual, crescendo, GOAT, hydra) | equal | compared against their docs or code | A haiku agent with a planted fictional staff code had 0 breaches in 210 replies (30 requests x 7 variants). No variant breaches, so detection cannot differ. A multi-turn simulator on 10 attacks had 0 breaches. | Not reproducible from main yet: the test is awaiting merge. |
-| Simulated user: persona, turn limit, stop token | ahead | compared against their docs or code | Our simulated user holds a fact until the agent asks for it, and the run fails if the model gives a fact the agent did not ask for. No model is called by default. Promptfoo's docs send simulated-user messages to its hosted models unless remote generation is turned off. | `pnpm -s vitest run packages/users/test/simulated.test.ts -t "gives a fact only after"` |
-| Simulated user: initial messages | limit | compared against their docs or code. Not measured on a run. | No example recorded in the evidence. | Not reproducible from the repository yet. |
-| Simulated user: stateful (send only the latest message) | limit | compared against their docs or code. Not measured on a run. Adapters send the full history by design. | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Classifier, moderation, pi and webhook checks | limit | compared against their docs or code. Reason: theirs call external services, and our checks are local. | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Custom code checks (JavaScript and Python assertions) | ahead | compared against their docs or code | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Skill used | ahead | measured against our earlier version | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Function-call and tools-call validity | ahead | measured head-to-head | A valid call against its tool's JSON Schema fails promptfoo's check when the provider has no validator. Our schema check passes it. | Not reproducible from main yet: the test is awaiting merge. |
+| Trajectory: tool used | ahead | compared against their docs or code | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Trajectory: tool sequence | ahead | compared against their docs or code | Promptfoo's exact-mode reason lists the expected and actual tool names, with no call position. Ours names the first difference by call position. | Not reproducible from main yet: the test is awaiting merge. |
+| Trajectory: tool arguments | ahead | compared against their docs or code | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Trajectory: step count | ahead | compared against their docs or code | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Trajectory: goal success | ahead | compared against their docs or code | The reply says the mobile M order is on its way, while the end state holds the mobile S plan. Our end-state check fails it. A judge that reads the reply alone can pass it. | Not reproducible from main yet: the test is awaiting merge. |
+| Red-team plugins | behind | compared against their docs or code | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Red-team strategies (encodings, multilingual, multi-turn) | equal | compared against their docs or code | A base64 encoding of an attack, and a French instruction placed in the world notes. Neither changed the findings. | Not reproducible from the repository yet. |
+| Simulated user: persona, turn limit, stop token | ahead | compared against their docs or code | The persona's fact reaches the agent only after the agent asks for it. The run fails if the model gives a fact the agent did not ask for. | pnpm -s vitest run packages/users/test/simulated.test.ts -t "gives a fact only after" |
+| Simulated user: initial messages | limit | compared against their docs or code. Reason: not measured on a run. | No example recorded in the evidence. | Not reproducible from the repository yet. |
+| Simulated user: stateful (send only the latest message) | limit | compared against their docs or code. Reason: adapters send the full history by design. | No example recorded in the evidence. | Not reproducible from the repository yet. |
 
 ## Not compared
 
-- ROUGE, BLEU, METEOR, GLEU and n-grams: skipped here, and work on them continues elsewhere.
+- ROUGE, BLEU, METEOR, GLEU and n-grams: not compared on this page. The LangWatch comparison builds them.
 - Perplexity: needs token log probabilities, which our adapter contract does not carry.
-- Trace span checks: theirs use OpenTelemetry spans, and our adapters report calls.
-- RAG faithfulness, recall and relevance: Max has no retrieval step.
-- Classifier, moderation, safety, injection and webhook checks: not built.
-- Red-team prompt extraction: not measured.
-- Goal success with the trace: promptfoo's judge with the trace was not run.
-- Function-call validity with a provider that has a validator: not run.
-- Simulated user initial messages and stateful mode: not measured on a run.
+- Trace span count, duration and error spans: theirs use OpenTelemetry spans.
+- Context faithfulness, recall and relevance (RAG): our Max has no retrieval step.
+- Classifier, moderation, pi and webhook checks: theirs call external services, and ours are not built.
+- Red-team reply patterns on injected blocks, and the goal-shift case: promptfoo was not run against them. Its red-team grades each plugin, not each injected block.
+- Prompt-extraction half of the personal data check: not measured, and we have no check for it.
