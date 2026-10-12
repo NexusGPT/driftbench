@@ -288,4 +288,19 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       'find_account.in.urgent': ['true', 'false', 'absent'],
     });
   });
+
+  it('reads Vertex function_declarations in snake case, at the root or inside a tools list', () => {
+    const declaration = {
+      name: 'findAccount',
+      parameters: { type: 'object', required: ['flag'], properties: { flag: { type: 'boolean' } } },
+    };
+    for (const file of [
+      { function_declarations: [declaration] },
+      { tools: [{ function_declarations: [declaration] }] },
+    ]) {
+      const result = toolsPrepass(stringify(file), 'tools.yaml');
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      expect(result.tools).toEqual(['findAccount']);
+    }
+  });
 });

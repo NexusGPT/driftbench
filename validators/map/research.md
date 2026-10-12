@@ -243,3 +243,15 @@ Sources read:
 What others do: Cohere v1 lists parameters by name with a short Python type and a required flag instead of a JSON Schema.
 
 What to try, and why: the tool pre-pass reads Cohere parameter_definitions
+
+## Iteration 21
+
+Question: packages/generate/src/extract/tools.ts: locate and readTools know functionDeclarations in camel case only, so Vertex function_declarations gives no tool; tool-formats.vertex-snake-case proves it.
+
+Sources read:
+* https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling (REST field function_declarations)
+* packages/validators/src/ladders/map/bank/families/formats.ts (vertex-snake-case)
+
+What others do: Vertex REST uses snake case for the same structure Gemini SDKs write in camel case.
+
+What to try, and why: the tool pre-pass reads Vertex function_declarations

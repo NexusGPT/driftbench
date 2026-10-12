@@ -423,7 +423,7 @@ function typesOf(property: YAMLMap): string[] {
 function locate(root: unknown): { node: unknown; path: string } | undefined {
   if (isSeq(root)) return { node: root, path: '' };
   if (!isMap(root)) return undefined;
-  for (const key of ['tools', 'tool_schemas', 'functionDeclarations', 'functions']) {
+  for (const key of ['tools', 'tool_schemas', 'functionDeclarations', 'function_declarations', 'functions']) {
     const found = entry(root, key);
     if (found) return { node: found.value, path: key };
   }
@@ -440,7 +440,7 @@ function readTools(node: unknown, path: string): { tools: Tool[] } | { errors: T
   if (isSeq(node)) {
     node.items.forEach((item, index) => {
       // Gemini groups its tools as { functionDeclarations: [...] } inside the tools list.
-      const declarations = entry(item, 'functionDeclarations')?.value;
+      const declarations = (entry(item, 'functionDeclarations') ?? entry(item, 'function_declarations'))?.value;
       if (isSeq(declarations)) {
         declarations.items.forEach((declaration, inner) => {
           raw.push({
