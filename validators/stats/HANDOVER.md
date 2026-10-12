@@ -33,9 +33,13 @@ The stats validator is ladder version 2: 651 items in seven levels, each with th
 
 ## State (executor exec/stats-v2, branch of lane/v-stats)
 
-This branch does not hold the statistics fixes of the old pilot branch (exec/stats-pilot), so its starting point is iteration 0: 418 of 651 items (0.6421). After journal iterations 11 to 15 (one cause each, commits 661bc502, a3c406d1, da3879de, bdae2638, 100f64c5) the full sweep at 100f64c5 shows 435 of 651 (0.6682), 57 failing causes, level 1 on every seed. Journal rows 11 to 14 were measured on seed 1 only (one sweep at a time under load): their passing counts are not comparable to row 15.
+This branch does not hold the statistics fixes of the old pilot branch (exec/stats-pilot), so its starting point is iteration 0: 418 of 651 items (0.6421). After journal iterations 11 to 25 the full sweep at 92402e15 shows 496 of 651 (0.7619), 47 failing causes, level 1 on every seed. Iteration 15 (100f64c5) was 435 (0.6682). Journal rows 11 to 14 and 16 to 24 were measured on seed 1 only (one sweep at a time under load): their passing counts are not comparable to rows 15 and 25. `validators/stats/bank-scores.jsonl` holds iteration 25 (so `--hardness` shows this run).
 
-Fixed so far: mde at a baseline of 0 or 1; designEffect below its bound; zeroFailureBound at a tiny p; campaign plan uses stats.mde (new `--rho`); the report run pass interval (Wilson on effective runs, t quantile; coverage 0.97 and 0.95 on the two planted designs).
+Fixed so far, one cause per iteration: mde at a baseline of 0 or 1; designEffect below its bound; zeroFailureBound at a tiny p; campaign plan uses stats.mde (new `--rho`); the report run pass interval (Wilson on effective runs, t quantile); weightedMean; kishEffectiveSize; iccOneWay; designEffectFromData; clusteredMeanInterval; oneWayAnova; stratifiedMean; sessionRate in @driftbench/estate; runCampaign earlyStop (iteration 25 is the tip after a revert, no new cause).
+
+## For the maintainer
+
+* `neymanAllocation`: the reference fixture `packages/stats/test/reference/fixtures.json` (case sizes [500,200,50,250], sds [0.45,0.5,0.2,0.3], total 200) pins the largest-remainder answer [110,49,5,36], variance 840.55891. The bank items `analytic.allocation.neyman-optimal.*` want the best integer allocation, here [109,49,5,37], variance 840.55820, and four of them fail because largest remainder can leave a stratum with spread at 0 units (variance infinite). The two oracles disagree. A fix exists (one unit to each stratum with spread, then each unit to the largest drop in w^2 / (n (n + 1))) but needs the fixture and make_fixtures.py changed, which executor branches may not do (CI refuses it). It was tried and reverted.
 
 ## Floor
 
@@ -43,9 +47,9 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. Ladde
 
 ## Open items
 
-1. The missing methods (55 items, 7 causes): `clusteredMeanInterval`, `designEffectFromData`, `iccOneWay`, `kishEffectiveSize`, `oneWayAnova`, `stratifiedMean`, `weightedMean`. Each item names its signature, definition and source; the cases are in `packages/validators/fixtures/stats/roadmap.json`.
+1. The seven missing methods are built. The remaining failing items are degenerate inputs, neymanAllocation (maintainer), numerical stability and chaoCoverage.
 2. Degenerate inputs (about 130 items): per function, a RangeError that names the argument, the scipy limit at the edge of the special functions, exact answers on one or all-equal values. A shared finiteness helper fixes many at once (say so in the journal).
-3. Product: `sessionRate` in @driftbench/estate (4 items), the early stop (1 item), chaoCoverage just above the class count, neymanAllocation rounding (11 items).
+3. chaoCoverage just above the class count (3 items), neymanAllocation (11 items, maintainer), numerical stability (5 items).
 4. `simulation.newcombe.n30` fails on one seed of 21 (pairedRateDifference coverage); not touched yet.
 
 ## Hypotheses tried
@@ -56,7 +60,7 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. Ladde
 
 ## Next actions
 
-1. Add the missing methods one per iteration, test first (`packages/stats/test/`), export from `packages/stats/src/index.ts`.
+1. Degenerate inputs, a few functions per iteration, test first in `packages/stats/test/`. Each item names the function and the argument its RangeError must name.
 2. Run the sweep one at a time: `pnpm -s driftbench validate stats --seeds 1..20 --hidden --items --json > out.json` from a copy of the tree (a sweep takes 30 to 50 minutes at a load of 140).
 3. Build the journal row from the json (`bank` block) and append it with `pnpm -s driftbench validate stats --journal row.json`.
 
