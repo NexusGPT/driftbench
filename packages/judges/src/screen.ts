@@ -42,6 +42,11 @@ const OTHER_LANGUAGES: readonly { readonly judge: readonly string[]; readonly ve
     judge: ['Bewertungskriterien', 'Bewertung', 'Bewerter', 'Richter', 'Urteil', 'Kriterien', 'Rubrik'],
     verdict: ['bestanden', 'besteht', 'erfolgreich', 'erf[üu]llt', 'konform', 'durchgefallen', 'nicht bestanden'],
   },
+  {
+    // Italian
+    judge: ['griglia di valutazione', 'rubrica', 'valutatore', 'giudice', 'criteri di valutazione', 'verdetto'],
+    verdict: ['superato', 'superata', 'supera', 'approvato', 'approvata', 'successo', 'conforme', 'soddisfatto', 'fallito', 'non superato'],
+  },
 ];
 
 const VERDICT_WORDS = ['pass', 'passing', 'passed', 'passes', 'success', 'satisfied', 'compliant', 'met', 'fail', 'fails'];
