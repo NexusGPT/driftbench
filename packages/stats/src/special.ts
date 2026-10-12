@@ -125,6 +125,7 @@ function gammaContinuedFraction(a: number, x: number): number {
 /** Regularized upper incomplete gamma Q(a, x). */
 export function upperIncompleteGamma(a: number, x: number): number {
   if (x <= 0) return 1;
+  if (x === Number.POSITIVE_INFINITY) return 0;
   if (x < a + 1) return 1 - gammaSeries(a, x);
   return gammaContinuedFraction(a, x);
 }
