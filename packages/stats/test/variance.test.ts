@@ -147,3 +147,20 @@ describe('goodTuring, chaoCoverage and hillNumbers', () => {
     expect(abundances(['a', 'b', 'a', 'c', 'a']).sort()).toEqual([1, 1, 3]);
   });
 });
+
+describe('varianceComponents is stable under a common offset', () => {
+  it('adding 1e9 to every value leaves the estimates unchanged', () => {
+    let state = 12345;
+    const draw = (): number => {
+      state = (state * 1664525 + 1013904223) % 4294967296;
+      return state / 4294967296;
+    };
+    const obs = Array.from({ length: 120 }, (_, i) => ({
+      value: draw() + (i % 4),
+      path: [String(i % 4), String(i % 12), String(i % 2)],
+    }));
+    const a = varianceComponents(obs).components.map((c) => c.estimate);
+    const b = varianceComponents(obs.map((o) => ({ ...o, value: o.value + 1e9 }))).components.map((c) => c.estimate);
+    a.forEach((x, i) => expect(Math.abs((b[i] as number) - x)).toBeLessThan(1e-5 * Math.max(1, Math.abs(x))));
+  });
+});

@@ -77,16 +77,20 @@ export function varianceComponents(
   const L = levels.length;
   const N = observations.length;
   if (N === 0) throw new RangeError('varianceComponents: observations must not be empty');
-  const ys = observations.map((o) => (typeof o.value === 'boolean' ? (o.value ? 1 : 0) : o.value));
+  const raw = observations.map((o) => (typeof o.value === 'boolean' ? (o.value ? 1 : 0) : o.value));
   observations.forEach((o, i) => {
     if (o.path.length !== L) {
       throw new RangeError(
         `varianceComponents: observations[${i}].path has ${o.path.length} entries, expected ${L}`,
       );
     }
-    if (!Number.isFinite(ys[i] as number))
-      throw new RangeError(`varianceComponents: observations[${i}].value must be finite, got ${ys[i]}`);
+    if (!Number.isFinite(raw[i] as number))
+      throw new RangeError(`varianceComponents: observations[${i}].value must be finite, got ${raw[i]}`);
   });
+
+  // Center on the grand mean first: the sums of squares below lose their digits on values with a large offset.
+  const center = raw.reduce((t, y) => t + y, 0) / N;
+  const ys = raw.map((y) => y - center);
 
   // Group sizes and sums per level; level 0 is the grand group.
   const sizes: Map<string, number>[] = [];
@@ -201,7 +205,7 @@ export function varianceComponents(
     if (new Set(children.values()).size > 1) balanced = false;
   }
 
-  return { method: 'anova', balanced, n: N, mean: (sums[0]?.get('') as number) / N, components, total };
+  return { method: 'anova', balanced, n: N, mean: center + (sums[0]?.get('') as number) / N, components, total };
 }
 
 /**
