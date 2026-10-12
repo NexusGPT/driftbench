@@ -42,6 +42,8 @@ type Tool = {
   /** The text a schema was read from, when it is a JSON string inside the file (quotes come from it). */
   inputText?: string;
   outputText?: string;
+  /** Cohere: the input is a mapping of parameters, each with a short type and a required flag. */
+  cohere?: boolean;
 };
 type Partition = { id: string; title: string; quote: string };
 
@@ -96,7 +98,7 @@ export function toolsPrepass(text: string, source: string): ToolsPrepass {
       if (!schema) continue;
       const open: string[] = [];
       const own = direction === 'in' ? tool.inputText : tool.outputText;
-      walk({ text: own ?? text, source, tool, direction, dimensions, ids, open, root: schema }, schema, [], 0);
+      walk({ text: own ?? text, source, tool, direction, dimensions, ids, open, root: schema, cohere: direction === 'in' && tool.cohere === true }, schema, [], 0);
       if (open.length > 0) {
         const side = direction === 'in' ? 'input' : 'output';
         notes.push(`${tool.name} ${side}: no partition stated for ${open.join(', ')}`);
@@ -146,13 +148,21 @@ type Walk = {
   open: string[];
   /** The tool's input or output schema, where a local $ref points. */
   root: YAMLMap;
+  /** The schema is a Cohere parameter_definitions mapping. */
+  cohere: boolean;
 };
 
 function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void {
-  const properties = mapAt(schema, 'properties');
+  const properties = ctx.cohere ? schema : mapAt(schema, 'properties');
   if (!properties) return;
-  const requiredPair = entry(schema, 'required');
+  const requiredPair = ctx.cohere ? undefined : entry(schema, 'required');
   const required = new Set(stringItems(requiredPair?.value));
+  if (ctx.cohere) {
+    for (const pair of properties.items as Pair[]) {
+      const name = keyOf(pair);
+      if (name !== undefined && plain(entry(pair.value, 'required')?.value) === true) required.add(name);
+    }
+  }
   for (const pair of properties.items as Pair[]) {
     const name = keyOf(pair);
     const property = resolveRef(ctx.root, pair.value);
@@ -395,9 +405,11 @@ function quoter(text: string, pair: Pair, property: YAMLMap): (keyword?: string)
   };
 }
 
+const SHORT_TYPES: Record<string, string> = { str: 'string', int: 'integer', bool: 'boolean', float: 'number' };
+
 function typesOf(property: YAMLMap): string[] {
   const type = entry(property, 'type')?.value;
-  if (isScalar(type) && typeof type.value === 'string') return [type.value];
+  if (isScalar(type) && typeof type.value === 'string') return [SHORT_TYPES[type.value] ?? type.value];
   if (isSeq(type)) return stringItems(type);
   if (entry(property, 'properties')) return ['object'];
   // No type: the keywords say which type the schema constrains (JSON Schema validation, sections 6.2 to 6.4).
@@ -473,7 +485,8 @@ function readTools(node: unknown, path: string): { tools: Tool[] } | { errors: T
       continue;
     }
     names.add(candidate.name);
-    const input = schemaOf(candidate.map, ['input_schema', 'inputSchema', 'parameters']);
+    const cohere = mapAt(candidate.map, 'parameter_definitions');
+    const input = cohere ? { map: cohere, text: undefined } : schemaOf(candidate.map, ['input_schema', 'inputSchema', 'parameters']);
     const output = schemaOf(candidate.map, ['output_schema', 'outputSchema', 'returns']);
     tools.push({
       name: candidate.name,
@@ -482,6 +495,7 @@ function readTools(node: unknown, path: string): { tools: Tool[] } | { errors: T
       output: output?.map,
       inputText: input?.text,
       outputText: output?.text,
+      cohere: cohere ? true : undefined,
     });
   }
   return errors.length > 0 ? { errors } : { tools };

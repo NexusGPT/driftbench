@@ -231,3 +231,15 @@ Sources read:
 What others do: JSON Lines files hold one object per line; reading the lines as a list gives one tool each.
 
 What to try, and why: the tool pre-pass reads JSON lines
+
+## Iteration 20
+
+Question: packages/generate/src/extract/tools.ts: readTools finds no input schema under parameter_definitions and typesOf does not know str, int, bool; tool-formats.cohere-v1 proves it.
+
+Sources read:
+* https://docs.cohere.com/v1/docs/tool-use (parameter_definitions: type, description, required)
+* packages/validators/src/ladders/map/bank/families/formats.ts (cohere-v1)
+
+What others do: Cohere v1 lists parameters by name with a short Python type and a required flag instead of a JSON Schema.
+
+What to try, and why: the tool pre-pass reads Cohere parameter_definitions

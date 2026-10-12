@@ -266,4 +266,26 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     expect(result.tools).toEqual(['findAccount', 'placeOrder']);
     expect(text).toContain(result.dimensions[0]?.values[0]?.evidence.quote ?? '#');
   });
+
+  it('reads Cohere parameter_definitions with str, int and bool types and a required flag', () => {
+    const file = {
+      tools: [
+        {
+          name: 'findAccount',
+          parameter_definitions: {
+            status: { type: 'str', required: true },
+            urgent: { type: 'bool', required: false },
+            count: { type: 'int', required: true },
+          },
+        },
+      ],
+    };
+    const result = toolsPrepass(stringify(file), 'tools.yaml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    const out: Record<string, string[]> = {};
+    for (const dimension of result.dimensions) out[dimension.id] = dimension.values.map((v) => v.id.slice(dimension.id.length + 1));
+    expect(out).toEqual({
+      'find_account.in.urgent': ['true', 'false', 'absent'],
+    });
+  });
 });
