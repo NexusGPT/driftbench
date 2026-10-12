@@ -215,4 +215,49 @@ process.stdin.on('end', () => {
     expect(seen.filter((t) => t.includes('NOREF'))).toHaveLength(3);
     expect(report.contestants[0]?.summary.value.estimate).toBe(1);
   });
+  it('pools the judgements of both orders into one verdict for both games when asked', async () => {
+    // A judge biased to the first position in two of its three judgements of the swapped order.
+    const biased = `#!/usr/bin/env node
+let input = '';
+process.stdin.on('data', (c) => { input += c; });
+process.stdin.on('end', () => {
+  const first = input.split('SECOND')[0];
+  const swapped = input.startsWith('SWAPPED');
+  const later = input.includes('Independent judgement');
+  const result = swapped && later ? 'A' : first.includes('RIGHT') ? 'A' : 'B';
+  process.stdout.write(JSON.stringify({ type: 'result', subtype: 'success', is_error: false, result, total_cost_usd: 0.001 }));
+});
+`;
+    const cmd = join(dir, 'biased-claude.mjs');
+    await writeFile(cmd, biased);
+    await chmod(cmd, 0o755);
+    const make = (pooled: boolean) => ({
+      id: pooled ? 'pooled' : 'unpooled',
+      source: 'test',
+      samples: 3,
+      ...(pooled ? { pooled: true } : {}),
+      pair: ({ a, b }: { a: string; b: string }) => ({
+        system: '',
+        user: `${a.startsWith('RIGHT') ? '' : 'SWAPPED '}${a} SECOND ${b}`,
+      }),
+      parsePair: (text: string) => (text.trim() === 'A' ? ('A' as const) : ('B' as const)),
+    });
+    const item: PairItem = { kind: 'pair', id: 'x', question: 'q', a: 'RIGHT one', b: 'wrong one', label: 'A', group: 'g' };
+    const report = await runBenchmark({
+      bench: 'longjudge-wp',
+      model: 'fake',
+      contestants: [make(false), make(true)],
+      items: [item],
+      recordingsDir: join(dir, 'rec-pooled'),
+      command: cmd,
+      concurrency: 1,
+    });
+    const [unpooled, pooled] = report.contestants;
+    // Unpooled: the swapped order's majority is the biased A, so one game of two is right.
+    expect(unpooled?.summary.value.estimate).toBe(0.5);
+    // Pooled: four of six judgements name the right reply, and both games carry that verdict.
+    expect(pooled?.summary.value.estimate).toBe(1);
+    // The same prompts: the pooled contestant replays the unpooled one's answers.
+    expect(report.newCalls).toBe(6);
+  });
 });

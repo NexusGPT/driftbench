@@ -41,6 +41,11 @@ export type Contestant = {
   readonly route?: (question: string) => Prompt;
   /** How many independent judgements a prompt gets; the majority decides. Default 1. */
   readonly samples?: number;
+  /**
+   * Pairwise only: one verdict from the judgements of both orders together, given to both games. The
+   * position bias of one order is outvoted by the other, so the two games never disagree.
+   */
+  readonly pooled?: boolean;
   /** A contestant that first answers the question itself, once per item: the prompt that asks for it. */
   readonly reference?: (question: string) => Prompt;
   readonly pair?: (input: {
@@ -709,9 +714,19 @@ const driftbenchAdaptive: Contestant = {
   route: (question) => ({ system: '', user: `${ROUTE_PROMPT}\n\n<question>\n${question}\n</question>` }),
 };
 
+/** driftbench-adaptive with the judgements of both orders pooled into one verdict (tuned on dev). */
+const driftbenchPooled: Contestant = {
+  ...driftbenchAdaptive,
+  id: 'driftbench-pooled',
+  source:
+    'driftbench-adaptive, with the three judgements of each order pooled into one verdict for the pair (tuned on dev)',
+  pooled: true,
+};
+
 export const CANDIDATES: readonly Contestant[] = [
   driftbenchAdaptive,
   driftbenchChecked,
+  driftbenchPooled,
   driftbenchReference,
   driftbenchReference3,
   driftbenchStepwise,

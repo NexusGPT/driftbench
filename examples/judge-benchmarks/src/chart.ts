@@ -123,3 +123,21 @@ ${grid}${bars}
 </svg>
 `;
 }
+
+/** One results table in Markdown, rows ranked as in the chart, for the docs page. */
+export function renderTable(report: RunReport, labels: Readonly<Record<string, string>> = {}): string {
+  const rows = [...report.contestants]
+    .map((c) => ({ c, name: labels[c.contestant] ?? c.contestant }))
+    .sort((a, b) => b.c.summary.value.estimate - a.c.summary.value.estimate || a.name.localeCompare(b.name));
+  const pct = (v: number) => (100 * v).toFixed(1);
+  const head =
+    '| Rank | Contestant | Score (95% interval) | Position consistency | USD per 100 items | Missing answers |\n' +
+    '|---|---|---|---|---|---|';
+  const body = rows.map(({ c, name }, i) => {
+    const s = c.summary;
+    const pc = s.positionConsistency === undefined ? 'n/a' : pct(s.positionConsistency);
+    const cost = report.items === 0 ? 0 : (100 * c.costUsd) / report.items;
+    return `| ${i + 1} | ${name} | ${pct(s.value.estimate)} [${pct(s.value.lower)}, ${pct(s.value.upper)}] | ${pc} | ${cost.toFixed(2)} | ${s.missing} |`;
+  });
+  return [head, ...body].join('\n');
+}

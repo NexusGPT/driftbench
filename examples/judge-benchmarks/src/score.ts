@@ -12,6 +12,8 @@ import type { BenchmarkId, Item, PairItem, PointItem } from './data';
  *   for a tie. Both orders are run here and each pair scores the mean of its two games, the expected value
  *   of the random order. Accuracy per subset; the total is the unweighted mean of the five subsets.
  * - LongJudgeBench wp_bench: accuracy over games, both orders; a tie is wrong.
+ * - RubricBench: a binary preference against the human label, accuracy over all items; both orders are run
+ *   here and scored as games, a tie is wrong.
  * - LongJudgeBench verify_bench_hard: accuracy of the binary verdict against the human label; an answer that
  *   gives no verdict is wrong. Balanced accuracy is given beside it, since four in five responses are wrong.
  *
@@ -139,13 +141,15 @@ export function scorePairs(bench: BenchmarkId, results: readonly PairResult[]): 
       ...extra,
     };
   }
-  // wp_bench: accuracy over games, a tie is wrong.
+  // wp_bench and RubricBench: accuracy over games, a tie is wrong. RubricBench's overall accuracy is over
+  // all items (its overall row matches the item-weighted mean of its domains, not their plain mean).
   const games = results.flatMap((r) =>
     r.games.map((g) => ({ group: r.item.group, value: g === r.item.label ? 1 : 0 })),
   );
   const k = games.reduce((s, v) => s + v.value, 0);
   return {
-    metric: 'accuracy (LongJudgeBench, over games)',
+    metric:
+      bench === 'rubricbench' ? 'accuracy (RubricBench, over games)' : 'accuracy (LongJudgeBench, over games)',
     value: wilsonOf(k, games.length),
     n: results.length,
     byGroup: groupMeans(games),

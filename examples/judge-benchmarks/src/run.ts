@@ -250,7 +250,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
           const criterion = await criterionFor(item);
           const setup = await setupFor(criterion);
           const reference = await referenceFor(item);
-          const one = async (a: string, b: string, order: string): Promise<PairDecision | undefined> => {
+          const one = async (a: string, b: string, order: string): Promise<PairDecision[] | undefined> => {
             const prompt = contestant.pair?.({
               question: item.question,
               a,
@@ -261,14 +261,20 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
             });
             if (!prompt) return undefined;
             const texts = await sampled(prompt, item.id, order);
-            return texts.length === 0 ? undefined : majorityPair(texts.map(parse));
+            return texts.length === 0 ? undefined : texts.map(parse);
           };
           const [ordered, swapped] = await Promise.all([
             one(item.a, item.b, 'AB'),
             one(item.b, item.a, 'BA'),
           ]);
           const missing = (ordered === undefined ? 1 : 0) + (swapped === undefined ? 1 : 0);
-          return { item, games: pairGames(ordered ?? 'tie', swapped ?? 'tie'), missing };
+          if (contestant.pooled) {
+            // One verdict from every judgement of both orders, the swapped ones read back as A and B.
+            const verdict = majorityPair([...(ordered ?? []), ...(swapped ?? []).map(flipPair)]);
+            return { item, games: pairGames(verdict, flipPair(verdict)), missing };
+          }
+          const vote = (ds: PairDecision[] | undefined) => (ds === undefined ? 'tie' : majorityPair(ds));
+          return { item, games: pairGames(vote(ordered), vote(swapped)), missing };
         }
         const [a, b] = await Promise.all([point(item, item.a, 'A'), point(item, item.b, 'B')]);
         return { item, games: [pointGame(a.d, b.d)], missing: a.missing + b.missing };
@@ -369,6 +375,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
 }
 
 /** The majority of several pairwise decisions: the side with more votes, a tie when they are level. */
+const flipPair = (d: PairDecision): PairDecision => (d === 'A' ? 'B' : d === 'B' ? 'A' : 'tie');
+
 export function majorityPair(decisions: readonly PairDecision[]): PairDecision {
   const a = decisions.filter((d) => d === 'A').length;
   const b = decisions.filter((d) => d === 'B').length;

@@ -10,10 +10,11 @@ driftbench's judge prompt and five competitors' judge prompts, run on the same m
 | MM-Eval, five core subsets | arXiv 2410.17578 | 4,981 | pairwise, chosen against rejected, 18 languages | accuracy, 1 right, 0 wrong, 0.5 tie, per subset; the total is the mean of the subsets |
 | LongJudgeBench wp_bench | arXiv 2606.01629 | 263 | pairwise, long-form writing preference, English and Chinese | accuracy over games, both orders |
 | LongJudgeBench verify_bench_hard | arXiv 2606.01629 | 316 | pointwise, is the final answer correct | accuracy; balanced accuracy beside it |
+| RubricBench | arXiv 2603.01562 | 1,147 | pairwise, with expert-written atomic rubrics given to every contestant | accuracy over all items; here over games, both orders |
 
 RubricEval (arXiv 2603.25133) is not run: its data is not published.
 
-The data is downloaded from its published source on first use and cached outside the repository (`DRIFTBENCH_BENCH_CACHE`, by default a folder under the system temporary folder). It is not committed.
+The data is downloaded from its published source on first use and cached outside the repository (`DRIFTBENCH_BENCH_CACHE`, by default a folder under the system temporary folder). It is not committed. RubricBench's dataset card names no licence, so only results and recorded answers are committed, never its rows.
 
 ## Contestants
 
@@ -34,6 +35,10 @@ Three mechanisms differ from the competitor's own runtime, because every call go
 - Scenario and Langfuse ask for a tool call or structured output; here the same schema is asked for as a JSON object.
 - DeepEval's GEval weights its score by token probabilities when the provider gives them; the command does not, so the plain score is used.
 
+## The dev and test split, and driftbench's tuned judge
+
+Every item is in the dev or the test split, by a hash of the benchmark and the item id (about 30 percent dev), fixed before any run. driftbench's judge is tuned on dev only: each candidate in `CANDIDATES` (`src/contestants.ts`) is one change to the shipped prompt (reasoning rules, symmetric pairwise rules, a reference answer, three judgements with a majority, a route that asks first whether the question has a checkable answer, both orders pooled into one verdict). One candidate is chosen on dev results and runs unchanged on the test split. The charts and the docs tables show the test split only. The competitors' templates are never changed.
+
 ## Running
 
 ```sh
@@ -41,11 +46,19 @@ npx tsx examples/judge-benchmarks/src/run.ts --bench judgebench --model haiku [-
   [--contestants driftbench,deepeval] [--cap-usd 1] [--concurrency 8] [--replay-only] [--out report.json]
 ```
 
-`--bench` takes `judgebench`, `mmeval`, `longjudge-wp` or `longjudge-verify`. `--sample N` draws a stratified sample by the benchmark's group (source, subset or language), the same items for the same `--seed`.
+`--bench` takes `judgebench`, `mmeval`, `longjudge-wp`, `longjudge-verify` or `rubricbench`. `--split dev` or `--split test` keeps one split. `--sample N` draws a stratified sample by the benchmark's group (source, subset or language), the same items for the same `--seed`.
 
 Every answer is recorded in `recordings/<bench>/<model>.jsonl`, keyed by a hash of the model and the exact prompt, with its cost as the command reported it. A rerun of the same prompts reads the recordings and costs nothing. `--replay-only` refuses to call the model and reproduces the published numbers from the recordings alone. Any change to a prompt, a template or a criterion misses the recording.
 
 Calls go through the local `claude` command (`claude -p --output-format json`, no tool, no settings, no session), so they spend the account's subscription. `--cap-usd` stops new calls once the run has spent that much; the cap is checked before each call, so concurrent calls can pass it slightly.
+
+The charts and the docs tables come from the recordings alone, test split, with no model call:
+
+```sh
+npx tsx examples/judge-benchmarks/src/charts.ts --model haiku --ours driftbench-adaptive [--bench mmeval] [--sample 60] --doc
+```
+
+It writes `docs/comparison/benchmarks/<bench>-<model>.svg` and, with `--doc`, the ranked tables in `docs/judge-benchmarks.md`. MM-Eval runs on a stratified 1,500 of its 4,981 items unless `--sample` says otherwise. Before committing new recordings, `npx tsx examples/judge-benchmarks/src/guard-allow.ts` marks the lines where a number in a public benchmark item has the shape of a phone number, so the leak guard passes; a denylist finding is never marked.
 
 ## Tests
 
