@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 7 (check) passes since iteration 38. Level 8, rubric (12 items left); next code: same-pictures. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
+Level 7 (check) passes since iteration 38. Level 8, rubric (11 items left); next code: picture-contradicts-rubric. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
 
 ## Hypotheses tried
 
@@ -72,10 +72,11 @@ Iteration 43 (cause: no no-observable rule): row in RULES. Test: lint.test.ts (r
 Iteration 44 (cause: no too-long rule): rubric over 400 characters. Test: lint.test.ts (red proved). Bank 308 -> 309 (0.4843).
 Iteration 45 (cause: no no-fail-picture rule): missing or blank FAIL picture. Test: lint.test.ts (red proved). Bank 309 -> 310 (0.4859).
 Iteration 46 (cause: no no-pass-picture rule). Test: lint.test.ts (red proved). Bank 310 -> 311 (0.4875).
+Iteration 47 (cause: no same-pictures rule). Test: lint.test.ts (red proved). Bank 311 -> 312 (0.4890).
 
 ## Next actions
 
-1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"), next: same-pictures. The clean twin of every item must still give no issue.
+1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"), next: picture-contradicts-rubric. The clean twin of every item must still give no issue.
 2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`. PR 86 takes every push.
 
