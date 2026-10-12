@@ -80,6 +80,7 @@ export {
   type System1Options,
 } from './clients/system1';
 export { type TokenUsage, type UsageProvider, usageFromResponse } from './clients/usage';
+export { comparePair, type PairChoice, type PairJudge, type PairWinner } from './compare-pair';
 export {
   type Budget,
   CriterionText,
