@@ -136,8 +136,8 @@ Measured on the Acme example (2026-10-12):
 
 | Suite | Auto margin | Set by | Identity control | The nine faults |
 |---|---|---|---|---|
-| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning | the all-pass flag (27.75) | parity | red: 3 regressed, 6 not shown non-inferior |
-| `examples/acme/gated/specs`, 134 goldens | 6.5 points | `must` (6.02, 60 goldens); `cards` (11) and `guards` (26) underpowered | parity | 8 red as regressions; `x1-invents-price` reads parity, because no gated golden catches a price raised by 5 dollars |
+| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning | the all-pass flag (27.75) | parity | red: 4 regressed, 5 not shown non-inferior |
+| `examples/acme/gated/specs`, 179 goldens | 3 points | `end_state` (2.73); `cards` (14) and `guards` (27) underpowered | parity | all 9 red as regressions, `x1-invents-price` included: the offer turn states each catalog price |
 
 With `--strict` at 30 points the identity control on the 10-golden suite is not shown non-inferior, as before the minimum existed.
 

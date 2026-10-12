@@ -42,8 +42,8 @@ Measured 2026-10-12 with the defaults:
 
 | Suite | Auto margin | Identity control | Faults |
 |---|---|---|---|
-| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning that the suite cannot show parity under 15 points | `parity`, exit 0 | d2, d4, d6, d8, d9, x1, x3, x4, x5: exit 1 (d4, x3, x4 `regression`; the other six `not-shown-non-inferior`). x2 reads parity: the suite does not catch it |
-| `examples/acme/gated/specs`, 134 goldens | 6.5 points, set by `must`; `cards` and `guards` underpowered | `parity`, exit 0 | the same nine minus x1: `regression`, exit 1. x1 reads parity: no gated golden catches it |
+| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning that the suite cannot show parity under 15 points | `parity`, exit 0 | d2, d4, d6, d8, d9, x1, x3, x4, x5: exit 1 (d4, x1, x3, x4 `regression`; the other five `not-shown-non-inferior`). x2 reads parity: the suite does not catch it |
+| `examples/acme/gated/specs`, 179 goldens | 3 points, set by `end_state`; `cards` and `guards` underpowered | `parity`, exit 0 | all nine, x1 included: `regression`, exit 1. x2 reads parity |
 
 With `--strict --margin 30`, the identity control on the 10-golden suite reads `not-shown-non-inferior`, the rule before the minimum existed.
 

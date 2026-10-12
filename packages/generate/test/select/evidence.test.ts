@@ -55,10 +55,11 @@ describe('evidenceFromReport', () => {
       'x4-wrong-language',
       'x5-drops-coverage-check',
     ]);
-    expect(evidence.kills.size).toBe(168);
+    expect(evidence.kills.size).toBe(225);
     expect(evidence.kills.get('gen-twise-080')).toEqual([
       'd2-ignores-goal-shift',
       'd4-order-on-loose-yes',
+      'x1-invents-price',
       'x3-skips-recap',
       'x4-wrong-language',
     ]);
@@ -66,14 +67,15 @@ describe('evidenceFromReport', () => {
     for (const list of evidence.kills.values())
       for (const fault of list) perFault.set(fault, (perFault.get(fault) ?? 0) + 1);
     expect(Object.fromEntries(perFault)).toEqual({
-      'x4-wrong-language': 168,
-      'x3-skips-recap': 95,
-      'x5-drops-coverage-check': 71,
-      'd4-order-on-loose-yes': 29,
+      'x4-wrong-language': 225,
+      'x1-invents-price': 162,
+      'x3-skips-recap': 132,
+      'x5-drops-coverage-check': 106,
+      'd4-order-on-loose-yes': 30,
       'd8-hides-tool-failure': 18,
-      'd6-obeys-instruction': 13,
-      'd9-answers-out-of-scope': 13,
-      'd2-ignores-goal-shift': 8,
+      'd6-obeys-instruction': 15,
+      'd9-answers-out-of-scope': 14,
+      'd2-ignores-goal-shift': 13,
     });
   });
 
@@ -107,11 +109,11 @@ describe('the gate seal and its split', () => {
     if (typeof seal === 'string') throw new Error(seal);
     expect(seal.seed).toBe(1);
     expect(seal.share).toBe(0.2);
-    expect(seal.specs).toHaveLength(34);
+    expect(seal.specs).toHaveLength(46);
     expect(seal.specs[0]).toEqual({
       id: 'gen-boundary-058',
       path: 'holdout/boundary/gen-boundary-058.yaml',
-      hash: '94ab091e10fa',
+      hash: '9f084000b62d',
     });
   });
 

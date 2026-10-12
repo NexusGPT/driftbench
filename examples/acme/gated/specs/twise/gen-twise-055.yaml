@@ -2,9 +2,9 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-055
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
-title: "t-wise row 55 of 154: Path home-address-not-found of new-home: needs > address > address, D9_out_of_scope at address"
+title: "t-wise row 55 of 132: Path home-address-not-found of new-home: needs > address > address, D9_out_of_scope at address"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -53,7 +53,18 @@ blocks:
       criteria:
         - behaviour.B-005
         - flow.new-home
-  - id: b2-D9_out_of_scope
+  - id: b2-address-to-address
+    when:
+      user: The address is 21 Willow Court, Acmeville.
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 21 Willow Court, Acmeville
+      lang: EN
+  - id: b3-D9_out_of_scope
     when:
       injection:
         class: D9_out_of_scope
@@ -68,17 +79,6 @@ blocks:
       lang: EN
       criteria:
         - deviation.D9_out_of_scope
-  - id: b3-address-to-address
-    when:
-      user: The address is 21 Willow Court, Acmeville.
-    expect:
-      stage: address
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 21 Willow Court, Acmeville
-      lang: EN
 metadata:
   generated:
     by: driftbench generate
@@ -89,7 +89,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: home-address-not-found
     cell:
       behaviour: B-005
@@ -108,16 +108,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D9_out_of_scope
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: address
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope
-      - block: b3-address-to-address
+      - block: b2-address-to-address
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -127,6 +118,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-address
+      - block: b3-D9_out_of_scope
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: address
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -135,11 +135,11 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D9_out_of_scope
+      - block: b2-address-to-address
         status: accepted
         pass_k: 1
         pass_probability: 0.615
-      - block: b3-address-to-address
+      - block: b3-D9_out_of_scope
         status: accepted
         pass_k: 1
         pass_probability: 0.615

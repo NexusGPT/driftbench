@@ -2,9 +2,9 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-087
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
-title: "t-wise row 87 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D7_silence_or_burst at port_number"
+title: "t-wise row 87 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D7_silence_or_burst at details"
 channel: chat
 lang: EN
 tier: generated
@@ -57,26 +57,7 @@ blocks:
       criteria:
         - behaviour.B-008
         - flow.porting
-  - id: b2-D7_silence_or_burst
-    when:
-      injection:
-        class: D7_silence_or_burst
-        user: hello?
-    expect:
-      stage: port_number
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I'm here
-      lang: EN
-      criteria:
-        - deviation.D7_silence_or_burst
-  - id: b3-port_number-to-offer
+  - id: b2-port_number-to-offer
     when:
       user: My number is +1 202 555 0160.
     expect:
@@ -92,8 +73,12 @@ blocks:
             category: mobile
         - label: order.create
           count: 0
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
-  - id: b4-offer-to-details
+  - id: b3-offer-to-details
     when:
       user: Acme Mobile M, please.
     expect:
@@ -106,6 +91,25 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b4-D7_silence_or_burst
+    when:
+      injection:
+        class: D7_silence_or_burst
+        user: hello?
+    expect:
+      stage: details
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+      criteria:
+        - deviation.D7_silence_or_burst
   - id: b5-details-to-recap
     when:
       user: I'm Jo Okafor and my email is jo.okafor@example.com.
@@ -164,7 +168,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: porting-locked-number
     cell:
       behaviour: B-008
@@ -186,16 +190,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
-      - block: b2-D7_silence_or_burst
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: port_number
-        phrase:
-          dimension: deviation
-          value: D7_silence_or_burst
-      - block: b3-port_number-to-offer
+      - block: b2-port_number-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -205,7 +200,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
-      - block: b4-offer-to-details
+      - block: b3-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -214,6 +209,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
+      - block: b4-D7_silence_or_burst
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: details
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
       - block: b5-details-to-recap
         seeder: twise
         cell:
@@ -252,15 +256,15 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D7_silence_or_burst
+      - block: b2-port_number-to-offer
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b3-offer-to-details
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b3-port_number-to-offer
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b4-offer-to-details
+      - block: b4-D7_silence_or_burst
         status: accepted
         pass_k: 1
         pass_probability: 0.692

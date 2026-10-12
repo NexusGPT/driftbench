@@ -12,14 +12,16 @@ pnpm driftbench gate examples/acme/generated/specs \
   --date 2026-10-11 --out examples/acme/gated --force
 ```
 
-Every generated block passes the gate: 814 of 814, in 168 specs (134 in `specs/`, 34 sealed in `holdout/`). The generator now derives every Then from the map's relations (the path's next stage, the tool calls and their inputs, the end state, the recovery of a deviation class), so no block holds judged criteria alone and none is passed by a trivial agent. `gate-report.json` holds the funnel and the verdict of every stage for every block.
+Every generated block but nine passes the gate: 1092 of 1101, in 225 specs (179 in `specs/`, 46 sealed in `holdout/`). The nine rejected blocks are first-turn probes the echo agent passes: the recovery word the map gives D1 is in the user's own question. The generator derives every Then from the map's relations (the path's next stage, the tool calls and their inputs, what the reply states, the end state, the recovery of a deviation class), so no block holds judged criteria alone. `gate-report.json` holds the funnel and the verdict of every stage for every block.
+
+Resealed on 2026-10-12: the generator gained the cover seeder and the `states` relation, so this run seals a new holdout of 46 specs. The select, holdout and ci commands and the golden set read it; their examples were measured again on this run.
 
 What kills the planted faults, from the report:
 
-- Every block reads the reply language the map fixes (English), so the fault that answers in French is red on all 814.
-- 330 blocks are also red on another fault: skipping the recap (226), dropping the coverage check (71), ordering on a loose yes (64), ignoring a goal shift (22), hiding a tool failure (18), obeying an instruction in a message (13), answering a billing matter itself (13).
-- 484 blocks are red on the language fault only.
-- No block reads a price, so the fault that invents prices is never red: the X1 class scores 0 of 1. No generated conversation corrects an earlier email, and no complete spec runs on the ops agent, so those faults are equivalent here.
+- Every block reads the reply language the map fixes (English), so the fault that answers in French is red on all 1092.
+- 539 blocks are also red on another fault: skipping the recap (306), quoting prices five dollars above the catalog (162), dropping the coverage check (106), ordering on a loose yes (66), ignoring a goal shift (32), hiding a tool failure (18), obeying an instruction in a message (15), answering a billing matter itself (14).
+- 553 blocks are red on the language fault only.
+- The turn that enters the offer states each plan with its catalog price, so the fault that invents prices is red: the X1 class scores 1 of 1. No generated conversation corrects an earlier email, and the price-sheet flow has no conversation path, so no complete spec runs on the ops agent: those faults are equivalent here.
 
 ## The hand-written control (control-handwritten/)
 

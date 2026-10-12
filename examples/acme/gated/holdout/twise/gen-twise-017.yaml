@@ -2,9 +2,9 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-017
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
-title: "t-wise row 17 of 154: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D5_language_switch at offer"
+title: "t-wise row 17 of 132: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D5_language_switch at identify"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -55,7 +55,24 @@ blocks:
       criteria:
         - behaviour.B-002
         - flow.upgrade
-  - id: b2-identify-to-offer
+  - id: b2-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - deviation.D5_language_switch
+  - id: b3-identify-to-offer
     when:
       user: It's sam.rivera@example.com.
     expect:
@@ -68,24 +85,11 @@ blocks:
             customer_email: sam.rivera@example.com
         - label: order.create
           count: 0
-      lang: EN
-  - id: b3-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: offer
-      tools:
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
       must:
-        - I can only help
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
-      criteria:
-        - deviation.D5_language_switch
   - id: b4-offer-to-recap
     when:
       user: The unlimited one, please.
@@ -133,7 +137,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: upgrade-order
     cell:
       behaviour: B-002
@@ -154,7 +158,16 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-identify-to-offer
+      - block: b2-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: identify
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
+      - block: b3-identify-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -164,15 +177,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-offer
-      - block: b3-D5_language_switch
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: offer
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
       - block: b4-offer-to-recap
         seeder: twise
         cell:
@@ -209,14 +213,14 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-identify-to-offer
+      - block: b2-D5_language_switch
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b3-D5_language_switch
+      - block: b3-identify-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.692
+        pass_probability: 0.615
       - block: b4-offer-to-recap
         status: accepted
         pass_k: 1

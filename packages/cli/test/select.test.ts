@@ -71,18 +71,18 @@ describe('driftbench select', () => {
       expect(result.err).toBe('');
       // The only spec covering the price-sheet deviation cell is sealed, so a required cell stays empty.
       expect(result.code).toBe(1);
-      expect(result.out).toContain('Pool: 139 unsealed specs; 36 sealed specs left out');
+      expect(result.out).toContain('Pool: 184 unsealed specs; 48 sealed specs left out');
       expect(result.out).toContain('k = 10 is smaller than the cover');
       expect(result.out).toContain('Required cells: 9 of 10; the pool covers 9.');
       expect(result.out).toContain('✗ flow price-sheet · D6_instruction_in_data: no unsealed spec covers it');
-      expect(result.out).toMatch(/Cells covered: \d+ of 840 allowed pairs .*; the pool covers 592\./);
+      expect(result.out).toMatch(/Cells covered: \d+ of 664 allowed pairs .*; the pool covers 633\./);
       expect(result.out).toContain('Faults turned red: 9 of the 9 the pool turns red');
 
       const golden = await manifest(out);
       expect(golden.golden).toHaveLength(10);
-      expect(golden.coverage.allowed).toBe(840);
-      expect(golden.coverage.pool_covered).toBe(592);
-      expect(golden.pool).toMatchObject({ specs: 139, sealed_left_out: 36, faults_red: 9 });
+      expect(golden.coverage.allowed).toBe(664);
+      expect(golden.coverage.pool_covered).toBe(633);
+      expect(golden.pool).toMatchObject({ specs: 184, sealed_left_out: 48, faults_red: 9 });
       expect(golden.uncoverable_required).toEqual(['flow price-sheet · D6_instruction_in_data']);
       const faults = new Set(golden.golden.flatMap((pick) => pick.adds_faults));
       expect(faults.size).toBe(9);
@@ -124,7 +124,7 @@ describe('driftbench select', () => {
       expect(result.code).toBe(1);
       const cover = await manifest(whole);
       expect(cover.golden.map((pick) => pick.id)).toEqual(cover.cover);
-      expect(cover.coverage.covered).toBe(592);
+      expect(cover.coverage.covered).toBe(633);
       expect(result.out).not.toContain('is smaller than the cover');
     },
     SLOW,

@@ -2,9 +2,9 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-110
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
-title: "t-wise row 110 of 154: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D9_out_of_scope at address"
+title: "t-wise row 110 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D9_out_of_scope at callback"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -55,24 +55,7 @@ blocks:
       criteria:
         - behaviour.B-010
         - flow.new-home
-  - id: b2-D9_out_of_scope
-    when:
-      injection:
-        class: D9_out_of_scope
-        user: My last bill charged me twice, can you fix it?
-    expect:
-      stage: address
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: notify_sales
-          count: 0
-      must:
-        - Acme Care
-      lang: EN
-      criteria:
-        - deviation.D9_out_of_scope
-  - id: b3-address-to-callback
+  - id: b2-address-to-callback
     when:
       user: The address is 7 Quarry Lane, Acmeville.
     expect:
@@ -85,6 +68,23 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
+  - id: b3-D9_out_of_scope
+    when:
+      injection:
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+      criteria:
+        - deviation.D9_out_of_scope
   - id: b4-callback-to-handover
     when:
       user: You can reach me on +1 202 555 0131.
@@ -122,7 +122,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: home-no-coverage
     cell:
       behaviour: B-010
@@ -142,16 +142,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D9_out_of_scope
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: address
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope
-      - block: b3-address-to-callback
+      - block: b2-address-to-callback
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -161,6 +152,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-callback
+      - block: b3-D9_out_of_scope
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: callback
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
       - block: b4-callback-to-handover
         seeder: twise
         cell:
@@ -189,11 +189,11 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D9_out_of_scope
+      - block: b2-address-to-callback
         status: accepted
         pass_k: 1
         pass_probability: 0.615
-      - block: b3-address-to-callback
+      - block: b3-D9_out_of_scope
         status: accepted
         pass_k: 1
         pass_probability: 0.615

@@ -2,17 +2,17 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-boundary-065
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
 title: "Boundary value port_result=can-move: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
   - flow:porting
   - persona:new-customer
-  - data:not-in-map
-  - task:catalog-only
+  - data:no-service
+  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -62,6 +62,10 @@ blocks:
             category: mobile
         - label: order.create
           count: 0
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
   - id: b3-offer-to-details
     when:
@@ -110,6 +114,26 @@ blocks:
         - label: catalog.search
           count: 0
       lang: EN
+perturbations:
+  - id: p1-D7_silence_or_burst
+    class: D7_silence_or_burst
+    inject_at: 3
+    user: hello?
+    expect:
+      stage: details
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: details
 metadata:
   generated:
     by: driftbench generate
@@ -120,7 +144,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: porting-keep-number
     cell:
       port_result: can-move
@@ -128,9 +152,9 @@ metadata:
       user_type: new-customer
       plan_choice: names-one
       customer_details: name-and-email
-      channel: whatsapp
-      coverage_result: not-in-map
-      workspace_start: catalog-only
+      channel: chat
+      coverage_result: no-service
+      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-port_number
         seeder: boundary
@@ -192,7 +216,7 @@ metadata:
       - block: b2-port_number-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.692
+        pass_probability: 0.615
       - block: b3-offer-to-details
         status: accepted
         pass_k: 1

@@ -37,6 +37,10 @@ families:
               input:
                 category: mobile
                 customer_email: lee.jensen@example.com
+          must:
+            - Acme Mobile S, 10 GB for \$15 a month
+            - Acme Mobile M, 40 GB for \$25 a month
+            - Acme Mobile L, unlimited data for \$35 a month
           lang: EN
         label_correct: null
         note: null
@@ -58,15 +62,92 @@ families:
           lang: EN
         label_correct: null
         note: null
+  - family: cover
+    sample:
+      - block: gen-cover-004#b5-D2_goal_shift
+        path: cover/gen-cover-004.yaml
+        cell:
+          deviation: D2_goal_shift
+          stage: recap
+        when: Actually, make it Acme Fiber 300 instead.
+        expected:
+          stage: recap
+          tools:
+            - label: coverage.check
+              count: 0
+            - label: catalog.search
+              count: 0
+            - label: order.create
+              count: 0
+          must:
+            - Acme Fiber 300
+          lang: EN
+          criteria:
+            - deviation.D2_goal_shift
+        label_correct: null
+        note: null
+      - block: gen-cover-013#b5-recap-to-order_placed
+        path: cover/gen-cover-013.yaml
+        cell:
+          stage_transition: recap-to-order_placed
+          coverage_result: 5g-only
+          customer_details: name-and-email
+          stage: order_placed
+        when: CONFIRM
+        expected:
+          stage: order_placed
+          tools:
+            - label: order.create
+              count: 1
+              input:
+                type: new
+                plan_id: air-5g
+                address_id: addr-103
+                customer:
+                  subset:
+                    name: Jo Okafor
+                    email: jo.okafor@example.com
+            - label: coverage.check
+              count: 0
+            - label: catalog.search
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+      - block: gen-cover-029#b4-callback-to-handover
+        path: cover/gen-cover-029.yaml
+        cell:
+          stage_transition: callback-to-handover
+          callback_phone: given
+          coverage_result: fiber
+          plan_choice: asks-for-callback
+          stage: handover
+        when: You can reach me on +1 202 555 0131.
+        expected:
+          stage: handover
+          tools:
+            - label: notify_sales
+              count: 1
+              input:
+                reason: callback
+                customer:
+                  subset:
+                    phone: "+12025550131"
+            - label: coverage.check
+              count: 0
+            - label: catalog.search
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
   - family: deviation
     sample:
-      - block: gen-deviation-004#b4-details-to-recap
+      - block: gen-deviation-004#b5-D4_loose_confirmation
         path: deviation/gen-deviation-004.yaml
         cell:
-          stage_transition: details-to-recap
-          customer_details: name-and-email
+          deviation: D4_loose_confirmation
           stage: recap
-        when: Jo Okafor, jo.okafor@example.com
+        when: ok perfect
         expected:
           stage: recap
           tools:
@@ -77,40 +158,50 @@ families:
             - label: order.create
               count: 0
           lang: EN
+          criteria:
+            - deviation.D4_loose_confirmation
+          guards:
+            - name: explicit_confirmation
+              verdict: block
         label_correct: null
         note: null
-      - block: gen-deviation-005#b1-needs-to-address
+      - block: gen-deviation-005#b2-address-to-callback
         path: deviation/gen-deviation-005.yaml
+        cell:
+          stage_transition: address-to-callback
+          coverage_result: no-service
+          stage: callback
+        when: The address is 7 Quarry Lane, Acmeville.
+        expected:
+          stage: callback
+          tools:
+            - label: coverage.check
+              count: 1
+              input:
+                address: 7 Quarry Lane, Acmeville
+            - label: notify_sales
+              count: 0
+          lang: EN
+        label_correct: null
+        note: null
+      - block: gen-deviation-006#b1-needs-to-address
+        path: deviation/gen-deviation-006.yaml
         cell:
           stage_transition: needs-to-address
           stage: address
-        when: Hello, I'm looking for home internet.
+        when: Do you have home internet where I live?
         expected:
           stage: address
           tools:
             - label: coverage.check
+              count: 0
+            - label: catalog.search
               count: 0
             - label: notify_sales
               count: 0
           lang: EN
           criteria:
             - flow.new-home
-        label_correct: null
-        note: null
-      - block: gen-deviation-005#b5-handover-to-closing
-        path: deviation/gen-deviation-005.yaml
-        cell:
-          stage_transition: handover-to-closing
-          stage: closing
-        when: Great, thank you. Bye!
-        expected:
-          stage: closing
-          tools:
-            - label: coverage.check
-              count: 0
-            - label: notify_sales
-              count: 0
-          lang: EN
         label_correct: null
         note: null
   - family: graph
@@ -174,78 +265,74 @@ families:
                 address_id: addr-103
             - label: order.create
               count: 0
+          must:
+            - Acme Air 5G, up to 200 Mbps for \$35 a month
           lang: EN
         label_correct: null
         note: null
   - family: metamorphic
     sample:
-      - block: gen-metamorphic-003-1#b2-identify-to-offer
-        path: metamorphic/gen-metamorphic-003-1.yaml
+      - block: gen-metamorphic-007-2#b1-needs-to-identify
+        path: metamorphic/gen-metamorphic-007-2.yaml
         cell:
-          stage_transition: identify-to-offer
-          account_lookup: found
-          stage: offer
-        when: It's sam.rivera@example.com.
+          stage_transition: needs-to-identify
+          stage: identify
+        when: Hi, I already have an Acme plan and I need more data.
         expected:
-          stage: offer
+          stage: identify
           tools:
             - label: catalog.search
-              count: 1
-              input:
-                category: mobile
-                customer_email: sam.rivera@example.com
+              count: 0
             - label: order.create
               count: 0
           lang: EN
+          criteria:
+            - flow.upgrade
         label_correct: null
         note: null
-      - block: gen-metamorphic-005-2#b2-port_number-to-offer
-        path: metamorphic/gen-metamorphic-005-2.yaml
+      - block: gen-metamorphic-018-1#b2-address-to-offer
+        path: metamorphic/gen-metamorphic-018-1.yaml
         cell:
-          stage_transition: port_number-to-offer
-          port_result: can-move
+          stage_transition: address-to-offer
+          coverage_result: fiber
           stage: offer
-        when: My number is +1 202 555 0165.
+        when: The address is 14 Harbor Road, Acmeville.
         expected:
           stage: offer
           tools:
-            - label: port.check
+            - label: coverage.check
               count: 1
               input:
-                number: "+12025550165"
+                address: 14 Harbor Road, Acmeville
             - label: catalog.search
               count: 1
               input:
-                category: mobile
+                category: home
+                address_id: addr-101
             - label: order.create
               count: 0
+          must:
+            - Acme Fiber 300, 300 Mbps for \$40 a month
+            - Acme Fiber 1000, 1000 Mbps for \$60 a month
+            - Acme Air 5G, up to 200 Mbps for \$35 a month
           lang: EN
         label_correct: null
         note: null
-      - block: gen-metamorphic-005-2#b5-recap-to-order_placed
-        path: metamorphic/gen-metamorphic-005-2.yaml
+      - block: gen-metamorphic-018-1#b4-details-to-recap
+        path: metamorphic/gen-metamorphic-018-1.yaml
         cell:
-          stage_transition: recap-to-order_placed
-          port_result: can-move
+          stage_transition: details-to-recap
           customer_details: name-and-email
-          stage: order_placed
-        when: CONFIRM
+          stage: recap
+        when: I'm Jo Okafor and my email is jo.okafor@example.com.
         expected:
-          stage: order_placed
+          stage: recap
           tools:
-            - label: order.create
-              count: 1
-              input:
-                type: new
-                plan_id: mobile-m
-                port_number: "+12025550165"
-                customer:
-                  subset:
-                    name: Jo Okafor
-                    email: jo.okafor@example.com
-            - label: port.check
+            - label: coverage.check
               count: 0
             - label: catalog.search
+              count: 0
+            - label: order.create
               count: 0
           lang: EN
         label_correct: null
@@ -280,13 +367,39 @@ families:
           lang: EN
         label_correct: null
         note: null
-      - block: gen-twise-103#b5-details-to-recap
-        path: twise/gen-twise-103.yaml
+      - block: gen-twise-104#b2-address-to-offer
+        path: twise/gen-twise-104.yaml
+        cell:
+          stage_transition: address-to-offer
+          coverage_result: 5g-only
+          stage: offer
+        when: The address is 88 Summit Avenue, Acmeville.
+        expected:
+          stage: offer
+          tools:
+            - label: coverage.check
+              count: 1
+              input:
+                address: 88 Summit Avenue, Acmeville
+            - label: catalog.search
+              count: 1
+              input:
+                category: home
+                address_id: addr-103
+            - label: order.create
+              count: 0
+          must:
+            - Acme Air 5G, up to 200 Mbps for \$35 a month
+          lang: EN
+        label_correct: null
+        note: null
+      - block: gen-twise-114#b5-details-to-recap
+        path: twise/gen-twise-114.yaml
         cell:
           stage_transition: details-to-recap
           customer_details: name-and-email
           stage: recap
-        when: Jo Okafor, jo.okafor@example.com
+        when: I'm Jo Okafor and my email is jo.okafor@example.com.
         expected:
           stage: recap
           tools:
@@ -295,22 +408,6 @@ families:
             - label: catalog.search
               count: 0
             - label: order.create
-              count: 0
-          lang: EN
-        label_correct: null
-        note: null
-      - block: gen-twise-111#b4-handover-to-closing
-        path: twise/gen-twise-111.yaml
-        cell:
-          stage_transition: handover-to-closing
-          stage: closing
-        when: Great, thank you. Bye!
-        expected:
-          stage: closing
-          tools:
-            - label: coverage.check
-              count: 0
-            - label: notify_sales
               count: 0
           lang: EN
         label_correct: null

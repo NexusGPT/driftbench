@@ -277,7 +277,7 @@ describe('driftbench extract: the proposal', () => {
     );
     expect(code).toBe(0);
     expect(out).toMatch(
-      /^Wrote proposal\.yaml: 29 dimensions, 86 values, 3 constraints, 0 phrases, 7 relations, none approved\./,
+      /^Wrote proposal\.yaml: 29 dimensions, 86 values, 55 constraints, 0 phrases, 7 relations, none approved\./,
     );
     const loaded = await loadProposal(join(dir, 'proposal.yaml'));
     expect(loaded.ok && loaded.proposal.agent).toBe('acme');
@@ -427,7 +427,7 @@ describe('driftbench extract map', () => {
     expect(err).not.toContain('over the limit');
     expect(code).toBe(1);
     expect(out.split('\n')[0]).toBe(
-      'Map acme, version 1: 7 dimensions, 81312 cells, 28 constraints, prior uniform (no weight declared)',
+      'Map acme, version 1: 7 dimensions, 81312 cells, 161 constraints, prior uniform (no weight declared)',
     );
   });
 });

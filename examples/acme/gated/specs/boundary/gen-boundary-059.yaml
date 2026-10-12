@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-boundary-059
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
 title: "Boundary value account_lookup=not-found: Path upgrade-unknown-email of upgrade: needs > identify > identify"
 channel: chat
@@ -12,7 +12,7 @@ tags:
   - flow:upgrade
   - persona:existing-customer
   - data:no-service
-  - task:existing-workbook
+  - task:catalog-only
 stages:
   - needs
   - identify
@@ -54,6 +54,22 @@ blocks:
             category: mobile
             customer_email: pat.quinn@example.com
       lang: EN
+perturbations:
+  - id: p1-D5_language_switch
+    class: D5_language_switch
+    inject_at: 1
+    user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: identify
 metadata:
   generated:
     by: driftbench generate
@@ -64,7 +80,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: upgrade-unknown-email
     cell:
       account_lookup: not-found
@@ -72,7 +88,7 @@ metadata:
       user_type: existing-customer
       channel: chat
       coverage_result: no-service
-      workspace_start: existing-workbook
+      workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-identify
         seeder: boundary

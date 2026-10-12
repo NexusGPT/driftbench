@@ -493,7 +493,7 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 |---|---|
 | `--map <file>` | the approved map: a proposal whose every entry is approved; required |
 | `--out <dir>` | the folder to write the specs and `generate-report.json` into; required |
-| `--t <n>` | the strength of the covering array; default 2 |
+| `--t <n>` | the strength of the covering array; default 3 |
 | `--seed <n>` | the integer seed of every seeded choice; default 1 |
 | `--max <n>` | the most specs per seeder |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
@@ -506,22 +506,24 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 On the approved Acme map:
 
 ```
-$ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated
-Map acme (../../../../examples/acme/map/approved.yaml), hash badea3d3df7a: 46 dimensions, 176 values, 59 constraints, 51 approved phrases.
+$ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated --t 2
+Map acme (../../../../examples/acme/map/approved.yaml), hash a4a62586e053: 46 dimensions, 176 values, 301 constraints, 51 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           154     676       123          31
+twise           132     640       123           9
 boundary         80     113        13          67
 deviation        10      52        10           0
-metamorphic      12      52        10           2
+metamorphic      40     172        38           2
+cover            29     165        29           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
-t-wise: covering array of 154 rows over 6 dimensions, 444 of 444 allowed 2-tuples (100.0%).
-Constraints applied: 59.
-Deviation probes: 10 of 10 classes. Metamorphic families: 6.
-Coverage on the axis map at t = 2: complete specs 619 of 840 (73.7%), all specs 677 (80.6%).
+t-wise: covering array of 132 rows over 6 dimensions, 388 of 388 allowed 2-tuples (100.0%).
+Constraints applied: 301.
+Deviation probes: 10 of 10 classes. Metamorphic families: 20.
+Coverage on the axis map at t = 2: complete specs 664 of 664 (100.0%), all specs 664 (100.0%).
+Values no allowed pair holds, so no spec can cover them until the map gives them a path: behaviour=B-013, behaviour=B-014, user_type=sales-operations.
 
 Values with no approved phrase (67): their blocks are placeholders in incomplete/.
   catalog.search.in.category=catalog.search.in.category.mobile  1 block(s)
@@ -541,17 +543,18 @@ Values with no approved phrase (67): their blocks are placeholders in incomplete
   coverage.check.in.address=coverage.check.in.address.at-min-length  1 block(s)
   ... 52 more in generate-report.json
 
-Specs with a block the map supports no machine Then for (43), in incomplete/: gen-twise-025, gen-twise-026, gen-twise-036, gen-twise-047, gen-twise-048, gen-twise-098, gen-twise-102, gen-twise-105, gen-twise-113, gen-twise-133, ....
+Specs with a block the map supports no machine Then for (21), in incomplete/: gen-twise-025, gen-twise-026, gen-twise-036, gen-twise-047, gen-twise-048, gen-twise-098, gen-twise-102, gen-twise-105, gen-twise-113, gen-boundary-062, ....
   Most frequent reasons:
-    11  no approved path belongs to a flow of B-013 (price-sheet)
-    11  no approved path belongs to a flow of B-014 (price-sheet)
-     5  no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase
+     8  it needs user_type in existing-customer; the cell holds new-customer
+     6  the constraints allow no value of port_result it needs with this cell
      3  it needs coverage_result in fiber, 5g-only; the cell holds not-in-map
-     3  it needs coverage_result in no-service; the cell holds 5g-only
-     3  it needs coverage_result in no-service; the cell holds not-in-map
-     3  it needs coverage_result in not-in-map; the cell holds 5g-only
-     2  it needs coverage_result in 5g-only; the cell holds not-in-map
-Wrote 269 files to _captures/docs3/cli/generated.
+     3  no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase
+     3  the constraints allow no value of plan_choice it needs with this cell
+     2  it needs coverage_result in fiber, 5g-only; the cell holds no-service
+     2  it needs coverage_result in fiber; the cell holds 5g-only
+     2  it needs coverage_result in fiber; the cell holds not-in-map
+Wrote 304 files to _captures/docs3/cli/generated.
+exit 1
 ```
 
 | Exit code | When |
@@ -1352,7 +1355,7 @@ driftbench holdout score --sealed <dir> --target <adapter:agent> [--budget <quer
 
 ```
 $ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10
-Cells covered: 303 of 840 allowed pairs (36.1%); the pool covers 592.
+Cells covered: 310 of 664 allowed pairs (46.7%); the pool covers 633.
 Required cells: 9 of 10; the pool covers 9.
   ✗ flow price-sheet · D6_instruction_in_data: no unsealed spec covers it
 (exit 1)
@@ -1361,7 +1364,8 @@ Wrote <dir>/sealed.json. The sealed specs run only through driftbench holdout sc
 (exit 0)
 $ pnpm driftbench holdout score --sealed <dir> --target function:acme-sales --budget 3
   conversations  passed  pass rate  95% Wilson interval
-  35             35      100.0%     90.1% to 100.0%
+  47             47      100.0%     92.4% to 100.0%
+Not run, not counted: acme-price-sheet (names process:acme-ops).
 Budget: 1 of 3 queries used, 2 left. Which conversation passed is not shown: the holdout stays sealed.
 (exit 0)
 ```

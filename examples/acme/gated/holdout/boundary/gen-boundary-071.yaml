@@ -2,10 +2,10 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-boundary-071
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
 title: "Boundary value failing_tool=notify_sales: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D8_tool_failure of notify_sales at callback"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -96,7 +96,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: home-no-coverage
     cell:
       failing_tool: notify_sales
@@ -104,7 +104,7 @@ metadata:
       user_type: new-customer
       coverage_result: no-service
       callback_phone: given
-      channel: whatsapp
+      channel: chat
       workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-address

@@ -129,8 +129,8 @@ describe('driftbench ci on the Acme gated suite', () => {
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
       expect(summary.baseline.campaignId).toBe(baselineId);
-      expect(summary.pairs).toBe(134);
-      expect(summary.table).toEqual({ bothPass: 134, regressed: 0, improved: 0, bothFail: 0 });
+      expect(summary.pairs).toBe(179);
+      expect(summary.table).toEqual({ bothPass: 179, regressed: 0, improved: 0, bothFail: 0 });
       expect(summary.criteriaNotShown).toEqual([]);
       expect(summary.newFlags).toEqual([]);
       expect(summary.flags).toEqual([...DEFAULT_FLAGS]);
@@ -139,7 +139,7 @@ describe('driftbench ci on the Acme gated suite', () => {
   );
 
   it(
-    'exits 0 with the defaults: margin auto, set by must, with cards and guards underpowered',
+    'exits 0 with the defaults: margin auto, set by end_state, with cards and guards underpowered',
     async () => {
       const out = join(dir, 'defaults.json');
       const result = await ci(
@@ -150,27 +150,27 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(result.code).toBe(0);
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
-      expect(summary.marginPoints).toBe(6.5);
-      expect(summary.marginAuto).toEqual({ neededPoints: 6.02, limitedBy: 'must' });
+      expect(summary.marginPoints).toBe(3);
+      expect(summary.marginAuto).toEqual({ neededPoints: 2.73, limitedBy: 'end_state' });
       expect(summary.minGoldens).toBe(30);
       expect(summary.underpowered.map((entry) => entry.criterion)).toEqual(['cards', 'guards']);
-      expect(result.out).toContain('Margin auto: 6.5 points');
+      expect(result.out).toContain('Margin auto: 3 points');
       expect(result.out).not.toContain('Warning:');
       const top = result.out.split('\n').slice(0, 3).join('\n');
-      expect(top).toContain('Margin auto: 6.5 points');
+      expect(top).toContain('Margin auto: 3 points');
       expect(top).toContain(
-        'Underpowered, under 30 goldens, left out of the parity test: cards (11 goldens), guards (26 goldens).',
+        'Underpowered, under 30 goldens, left out of the parity test: cards (14 goldens), guards (27 goldens).',
       );
     },
     SLOW,
   );
 
   it(
-    'reads the same agent at a 5 point margin as not shown non-inferior, naming the criteria too thin for it, never as a regression',
+    'reads the same agent at a 2 point margin, below the smallest these pairs can show, as not shown non-inferior, naming the criteria too thin for it, never as a regression',
     async () => {
       const out = join(dir, 'tight.json');
       const result = await ci(
-        ['--target', 'function:acme-sales', '--store', join(dir, 'tight.db'), '--margin', '5'],
+        ['--target', 'function:acme-sales', '--store', join(dir, 'tight.db'), '--margin', '2'],
         out,
       );
       expect(result.code).toBe(1);
@@ -180,10 +180,18 @@ describe('driftbench ci on the Acme gated suite', () => {
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('not-shown-non-inferior');
       expect(summary.table.regressed).toBe(0);
-      expect(summary.criteriaNotShown.map((entry) => entry.criterion)).toEqual(['must']);
+      expect(summary.criteriaNotShown.map((entry) => entry.criterion)).toEqual([
+        'end_state',
+        'forbidden',
+        'lang',
+        'must',
+        'pii',
+        'stage',
+        'tools',
+      ]);
       expect(summary.underpowered).toEqual([
-        { criterion: 'cards', goldens: 11 },
-        { criterion: 'guards', goldens: 26 },
+        { criterion: 'cards', goldens: 14 },
+        { criterion: 'guards', goldens: 27 },
       ]);
     },
     SLOW,
@@ -211,11 +219,11 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(result.out).toContain('Verdict: REGRESSION. Exit 1.');
       expect(result.out).toContain('Goldens that changed:');
       expect(result.out).toMatch(/gen-boundary-065 · F +pass +fail +regressed +forbidden +block 3 forbidden/);
-      expect(result.out).toContain('and 55 more: every golden is in the summary file.');
+      expect(result.out).toContain('and 84 more: every golden is in the summary file.');
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('regression');
-      expect(summary.table).toEqual({ bothPass: 54, regressed: 80, improved: 0, bothFail: 0 });
-      expect(summary.regressed).toHaveLength(80);
+      expect(summary.table).toEqual({ bothPass: 70, regressed: 109, improved: 0, bothFail: 0 });
+      expect(summary.regressed).toHaveLength(109);
       expect(summary.newFlags).toContain('gen-boundary-065 · F forbidden');
       expect(summary.effectPoints.lower).toBeGreaterThan(5);
       expect(summary.rows.find((row) => row.name === 'gen-boundary-065 · F')?.candidate.failing[0]).toBe(
@@ -409,7 +417,6 @@ describe('driftbench ci on the Acme golden suite: one verdict rule with compare'
         'guards',
         'lang',
         'ledger',
-        'must',
         'must_not',
       ]);
       const loose = await ciThenCompare(
@@ -550,7 +557,7 @@ describe('driftbench ci baselines', () => {
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
       expect(summary.pairs).toBe(10);
-      expect(summary.unpaired).toHaveLength(124);
+      expect(summary.unpaired).toHaveLength(169);
       expect(summary.unpaired.every((entry) => entry.reason === 'baseline only')).toBe(true);
       expect(result.out).toContain('Not compared: ');
     },

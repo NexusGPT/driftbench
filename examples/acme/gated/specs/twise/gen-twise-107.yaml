@@ -2,9 +2,9 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-107
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
-title: "t-wise row 107 of 154: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D8_tool_failure of order.create at recap"
+title: "t-wise row 107 of 132: Path home-callback of new-home: needs > address > offer > callback > handover, D8_tool_failure of coverage.check at address"
 channel: chat
 lang: EN
 tier: generated
@@ -49,95 +49,27 @@ blocks:
       tools:
         - label: coverage.check
           count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
       lang: EN
       criteria:
         - behaviour.B-010
         - flow.new-home
-  - id: b2-address-to-offer
-    when:
-      user: The address is 88 Summit Avenue, Acmeville.
-    expect:
-      stage: offer
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 88 Summit Avenue, Acmeville
-        - label: catalog.search
-          count: 1
-          input:
-            category: home
-            address_id: addr-103
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b3-offer-to-details
-    when:
-      user: I'll take Acme Air 5G.
-    expect:
-      stage: details
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b4-details-to-recap
-    when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
-    expect:
-      stage: recap
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b5-D8_tool_failure
+  - id: b2-D8_tool_failure
     when:
       injection:
         class: D8_tool_failure
-        user: Confirm
+        user: The address is 88 Summit Avenue, Acmeville.
     given:
       world:
         tools:
-          order.create:
+          coverage.check:
             error: service unavailable (generated tool failure)
     expect:
-      stage: handover
+      stage: callback
       tools:
-        - label: order.create
-          count: 1
-          input:
-            type: new
-            plan_id: air-5g
-            address_id: addr-103
-            customer:
-              subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
-        - label: notify_sales
-          count: 1
-          input:
-            reason: order_failed
         - label: coverage.check
-          count: 0
+          count: 2
+          input:
+            address: 88 Summit Avenue, Acmeville
         - label: catalog.search
           count: 0
       lang: EN
@@ -153,8 +85,8 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: home-order
+      hash: a4a62586e053
+    path: home-callback
     cell:
       behaviour: B-010
       channel: chat
@@ -162,9 +94,9 @@ metadata:
       coverage_result: 5g-only
       workspace_start: existing-workbook
       flow: new-home
-      plan_choice: names-one
-      customer_details: name-and-email
-      failing_tool: order.create
+      plan_choice: asks-for-callback
+      callback_phone: given
+      failing_tool: coverage.check
     blocks:
       - block: b1-needs-to-address
         seeder: twise
@@ -175,47 +107,17 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-offer
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: address-to-offer
-          coverage_result: 5g-only
-          stage: offer
-        phrase:
-          dimension: stage_transition
-          value: address-to-offer
-      - block: b3-offer-to-details
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
-        phrase:
-          dimension: stage_transition
-          value: offer-to-details
-      - block: b4-details-to-recap
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
-          stage: recap
-        phrase:
-          dimension: stage_transition
-          value: details-to-recap
-      - block: b5-D8_tool_failure
+      - block: b2-D8_tool_failure
         seeder: twise
         cell:
           spec: metadata.generated.cell
           deviation: D8_tool_failure
-          stage_transition: recap-to-order_placed
+          stage_transition: address-to-offer
           coverage_result: 5g-only
-          customer_details: name-and-email
-          stage: handover
+          stage: callback
         phrase:
           dimension: stage_transition
-          value: recap-to-order_placed
+          value: address-to-offer
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -224,22 +126,13 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-address-to-offer
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.615
-      - block: b3-offer-to-details
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b4-details-to-recap
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.615
-      - block: b5-D8_tool_failure
+      - block: b2-D8_tool_failure
         status: accepted
         pass_k: 1
         pass_probability: 0.538
 rules:
   forbidden_tools:
+    - catalog.search
     - port.check
+    - order.create
+    - notify_sales

@@ -2,9 +2,9 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-118
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
-title: "t-wise row 118 of 154: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D8_tool_failure of notify_sales at callback"
+title: "t-wise row 118 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D8_tool_failure of notify_sales at callback"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -43,7 +43,7 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Hello, I'm looking for home internet.
+      user: Do you have home internet where I live?
     expect:
       stage: address
       tools:
@@ -103,7 +103,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: home-no-coverage
     cell:
       behaviour: B-011

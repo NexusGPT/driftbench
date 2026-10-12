@@ -2,9 +2,9 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-032
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
-title: "t-wise row 32 of 154: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D7_silence_or_burst at address"
+title: "t-wise row 32 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D7_silence_or_burst at closing"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -55,24 +55,7 @@ blocks:
       criteria:
         - behaviour.B-003
         - flow.new-home
-  - id: b2-D7_silence_or_burst
-    when:
-      injection:
-        class: D7_silence_or_burst
-        user: hello?
-    expect:
-      stage: address
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: notify_sales
-          count: 0
-      must:
-        - I'm here
-      lang: EN
-      criteria:
-        - deviation.D7_silence_or_burst
-  - id: b3-address-to-callback
+  - id: b2-address-to-callback
     when:
       user: The address is 7 Quarry Lane, Acmeville.
     expect:
@@ -85,7 +68,7 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
-  - id: b4-callback-to-handover
+  - id: b3-callback-to-handover
     when:
       user: You can reach me on +1 202 555 0131.
     expect:
@@ -101,7 +84,7 @@ blocks:
         - label: coverage.check
           count: 0
       lang: EN
-  - id: b5-handover-to-closing
+  - id: b4-handover-to-closing
     when:
       user: Great, thank you. Bye!
     expect:
@@ -112,6 +95,23 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
+  - id: b5-D7_silence_or_burst
+    when:
+      injection:
+        class: D7_silence_or_burst
+        user: hello?
+    expect:
+      stage: closing
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+      criteria:
+        - deviation.D7_silence_or_burst
 metadata:
   generated:
     by: driftbench generate
@@ -122,7 +122,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: home-no-coverage
     cell:
       behaviour: B-003
@@ -142,16 +142,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D7_silence_or_burst
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: address
-        phrase:
-          dimension: deviation
-          value: D7_silence_or_burst
-      - block: b3-address-to-callback
+      - block: b2-address-to-callback
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -161,7 +152,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-callback
-      - block: b4-callback-to-handover
+      - block: b3-callback-to-handover
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -172,7 +163,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: callback-to-handover
-      - block: b5-handover-to-closing
+      - block: b4-handover-to-closing
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -181,6 +172,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: handover-to-closing
+      - block: b5-D7_silence_or_burst
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: closing
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -189,19 +189,19 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D7_silence_or_burst
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b3-address-to-callback
+      - block: b2-address-to-callback
         status: accepted
         pass_k: 1
         pass_probability: 0.615
-      - block: b4-callback-to-handover
+      - block: b3-callback-to-handover
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b5-handover-to-closing
+      - block: b4-handover-to-closing
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b5-D7_silence_or_burst
         status: accepted
         pass_k: 1
         pass_probability: 0.692

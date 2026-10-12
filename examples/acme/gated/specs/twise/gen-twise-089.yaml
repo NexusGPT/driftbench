@@ -2,9 +2,9 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-089
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
-title: "t-wise row 89 of 154: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
+title: "t-wise row 89 of 132: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -70,6 +70,8 @@ blocks:
             address_id: addr-103
         - label: order.create
           count: 0
+      must:
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
   - id: b3-offer-to-details
     when:
@@ -86,7 +88,7 @@ blocks:
       lang: EN
   - id: b4-details-to-recap
     when:
-      user: Jo Okafor, jo.okafor@example.com
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
       stage: recap
       tools:
@@ -131,6 +133,26 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+perturbations:
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
+    inject_at: 5
+    user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: order_placed
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: order_placed
 metadata:
   generated:
     by: driftbench generate
@@ -141,7 +163,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: order-single-plan
     cell:
       behaviour: B-009
@@ -222,7 +244,7 @@ metadata:
       - block: b2-address-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.615
+        pass_probability: 0.538
       - block: b3-offer-to-details
         status: accepted
         pass_k: 1

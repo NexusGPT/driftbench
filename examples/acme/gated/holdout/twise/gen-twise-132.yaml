@@ -2,9 +2,9 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-132
-version: badea3d3df7a
+version: a4a62586e053
 kind: conversation
-title: "t-wise row 132 of 154: Path upgrade-most-data of upgrade: needs > identify > closing, D9_out_of_scope at identify"
+title: "t-wise row 132 of 132: Path upgrade-most-data of upgrade: needs > identify > closing, D9_out_of_scope at closing"
 channel: chat
 lang: EN
 tier: generated
@@ -43,7 +43,7 @@ criteria:
 blocks:
   - id: b1-needs-to-identify
     when:
-      user: Hi, I already have an Acme plan and I need more data.
+      user: I keep running out of data, can I get a bigger plan?
     expect:
       stage: identify
       tools:
@@ -53,22 +53,7 @@ blocks:
       criteria:
         - behaviour.B-012
         - flow.upgrade
-  - id: b2-D9_out_of_scope
-    when:
-      injection:
-        class: D9_out_of_scope
-        user: My last bill charged me twice, can you fix it?
-    expect:
-      stage: identify
-      tools:
-        - label: catalog.search
-          count: 0
-      must:
-        - Acme Care
-      lang: EN
-      criteria:
-        - deviation.D9_out_of_scope
-  - id: b3-identify-to-closing
+  - id: b2-identify-to-closing
     when:
       user: It's morgan.diaz@example.com.
     expect:
@@ -80,6 +65,21 @@ blocks:
             category: mobile
             customer_email: morgan.diaz@example.com
       lang: EN
+  - id: b3-D9_out_of_scope
+    when:
+      injection:
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: closing
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+      criteria:
+        - deviation.D9_out_of_scope
 metadata:
   generated:
     by: driftbench generate
@@ -90,7 +90,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: a4a62586e053
     path: upgrade-most-data
     cell:
       behaviour: B-012
@@ -110,16 +110,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-D9_out_of_scope
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: identify
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope
-      - block: b3-identify-to-closing
+      - block: b2-identify-to-closing
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -129,6 +120,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-closing
+      - block: b3-D9_out_of_scope
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: closing
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -137,14 +137,14 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D9_out_of_scope
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.615
-      - block: b3-identify-to-closing
+      - block: b2-identify-to-closing
         status: accepted
         pass_k: 1
         pass_probability: 0.692
+      - block: b3-D9_out_of_scope
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
 rules:
   forbidden_tools:
     - coverage.check
