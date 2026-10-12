@@ -4,6 +4,7 @@ import { type JudgeCheckOptions, judgeCheck } from './check';
 import type { JudgeClient } from './client';
 import type { Budget, JudgeClass, JudgeOutcome, JudgeRequest } from './contract';
 import { normalizeFamily, sameFamily } from './family';
+import { screenData } from './screen';
 
 /**
  * The judge council.
@@ -370,7 +371,13 @@ async function runRound(
     const vote = await castVote(request, cheap as JudgeClient, budget, counter);
     votes.push(vote);
     const bar = own[cheap?.id ?? ''] ?? threshold;
-    if (vote.outcome === 'pass' && vote.score !== undefined && vote.score >= bar) {
+    // A request that holds an instruction to the judge never stops at the cheapest judge.
+    if (
+      vote.outcome === 'pass' &&
+      vote.score !== undefined &&
+      vote.score >= bar &&
+      !screenData(request).flagged
+    ) {
       cascaded = true;
     } else {
       votes.push(...(await Promise.all(rest.map((judge) => castVote(request, judge, budget, counter)))));
