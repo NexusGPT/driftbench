@@ -7,27 +7,27 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 8 |
-| 2 | 8 |
-| 3 | 8 |
-| 4 | 8 |
-| 5 | 8 |
-| 6 | 8 |
-| 7 | 8 |
-| 8 | 8 |
-| 9 | 8 |
-| 10 | 8 |
-| 11 | 8 |
-| 12 | 8 |
-| 13 | 8 |
-| 14 | 8 |
-| 15 | 8 |
-| 16 | 8 |
-| 17 | 8 |
-| 18 | 8 |
-| 19 | 8 |
-| 20 | 8 |
-| hidden | 8 |
+| 1 | 9 |
+| 2 | 9 |
+| 3 | 9 |
+| 4 | 9 |
+| 5 | 9 |
+| 6 | 9 |
+| 7 | 9 |
+| 8 | 9 |
+| 9 | 9 |
+| 10 | 9 |
+| 11 | 9 |
+| 12 | 9 |
+| 13 | 9 |
+| 14 | 9 |
+| 15 | 9 |
+| 16 | 9 |
+| 17 | 9 |
+| 18 | 9 |
+| 19 | 9 |
+| 20 | 9 |
+| hidden | 9 |
 <!-- level-table:end -->
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 769 items; 111 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 638 deterministic items in 20 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails. Bank score after the ten-iteration pilot: 260 of 638 items pass on every seed (0.4075); iteration 0 was 249 (0.3903). Hardness: 1.1 items fixed per iteration, 378 remaining, forecast 343.6 iterations, 150 distinct failing causes. `validators/judges/GATE.md` lowers the score bar for judges to 0.41 (`Max score after the pilot: 0.41`, read by `--hardness`), which the pilot meets; the gate then waits only on `audit.md`. These rows are the pilot's package; on main's judges package the bank gives 258 of 638 (0.4044) and 153 causes, and the next executor starts there. The judges page's "Planned" section (docs/concepts/judges.md) is the roadmap most failing items point at. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Levels 1 to 8 pass. Level 9, render (3 items left): the reference answer (`render/reference-in-its-tag`, `reference-tag-guarded-in-reference`, `-in-transcript`: a `<reference_data>` tag in DATA_TAGS and in buildPrompt). Then budget (20 items: `budget/fits-unchanged` first), evidence, injection (102), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test last run at iteration 58 (reproduced level 8).
+Levels 1 to 9 pass since iteration 60. Level 10, budget (20 items, all failing): `budget/fits-unchanged` first. Then evidence, injection (102), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test last run at iteration 58 (reproduced level 8).
 
 ## Hypotheses tried
 
@@ -85,12 +85,13 @@ Iteration 56 (cause: no pictures-swapped rule). Test: lint.test.ts (red proved).
 Iteration 57 (cause: no block-side scope-mismatch rule): extended the scope-mismatch row. Test: lint.test.ts (red proved). Bank 322 -> 323 (0.5063). Level 7 -> 8.
 Iteration 58 (cause: line breaks forged transcript entries): `renderEntry` shows break characters as a visible marker. Test: prompt.test.ts (red proved). Bank 323 -> 333 (0.5219): ten forged-entry items from one change.
 Iteration 59 (cause: lookalike tags unescaped): escapeData folds NFKC and drops invisible characters before matching. Test: prompt.test.ts (red proved). Bank 333 -> 339 (0.5313).
+Iteration 60 (cause: reference answer not rendered): `reference_data` tag guarded (GUARDED_TAGS) and rendered after the transcript; the system prompt names it only when a reference exists, so DATA_TAGS and the prompt fingerprint stay unchanged (adding it to DATA_TAGS broke 16 cassette tests). Test: prompt.test.ts (red proved). Bank 339 -> 342 (0.5361). Level 8 -> 9.
 
 ## Next actions
 
-1. Add the reference answer to the prompt (prompt.ts): DATA_TAGS gains `reference_data`, buildPrompt renders request.reference in it after the transcript.
-2. Then level 10 budget, one cause per iteration.
-3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N`, `validate judges --journal row.json`. PR 86 takes every push. At the top level, raise the floor in its own commit.
+1. Level 10 budget: read the head comment of families/budget*.ts and the Fix lines; build the budget fitting in packages/judges, one cause per iteration.
+2. Then evidence (level 11), injection (level 12).
+3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N`, `validate judges --journal row.json`. PR 86 takes every push. Any change to DATA_TAGS, SYSTEM_PROMPT or the rubric template changes the prompt fingerprint and breaks cassettes; keep them stable. At the top level, raise the floor in its own commit.
 
 ## Pitfalls
 
