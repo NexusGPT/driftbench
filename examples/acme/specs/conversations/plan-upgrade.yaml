@@ -128,7 +128,7 @@ perturbations:
             summary: { nonempty: true }
       must: ['could not place the order', 'sales advisor']
       must_not: ['ORD-', 'is placed']
-    recovery: { within_blocks: 0 }
+    recovery: { within_blocks: 0, stage_after: handover }
 
   - id: loose-ok
     class: D4_loose_confirmation
