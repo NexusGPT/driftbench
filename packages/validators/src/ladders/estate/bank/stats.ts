@@ -127,6 +127,12 @@ export function statsFamily(): Family {
       title: `estate stats reports, for every ${kind} atom, the recorded sessions that reached its moment`,
       cause: 'report reach per atom from the recorded sessions',
     })),
+    ...DRIFT_GUARDS.map((guard) => ({
+      key: `drift-${guard}`,
+      tier: 3 as Tier,
+      title: `estate stats reports the decisions and the denies of ${guard} in the recorded sessions`,
+      cause: 'report the deny rate per guard from the decision logs',
+    })),
     {
       key: 'decay-runs',
       tier: 3 as Tier,
