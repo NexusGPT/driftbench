@@ -468,6 +468,10 @@ function createCouncil(config: Config) {
   return {
     mode: config.mode,
     agentFamily: config.agentFamily,
+    assignmentFor: (criterion: string) => {
+      const cls = config.mode === 'llm' ? 'system2' : 'system1';
+      return { criterion, cls, judges: cheapest(cls).map((j) => j.id), rejudge: [], source: 'default' };
+    },
     async judge(request: JudgeRequest): Promise<CouncilResult & { cost: number }> {
       const counter = { errors: 0, cost: 0 };
       const cls = config.mode === 'llm' ? 'system2' : 'system1';
@@ -589,6 +593,13 @@ async function loadCriteria(dir: string): Promise<CriteriaLoad> {
       });
       return false;
     }
+    if (c.def.rubric.length > 2000) {
+      issues.push({
+        path: c.path,
+        message: `the rubric is ${c.def.rubric.length} characters, over 2000: too long`,
+      });
+      return false;
+    }
     if (foldText(c.def.pass ?? '') === foldText(c.def.fail ?? '')) {
       issues.push({ path: c.path, message: 'the PASS and FAIL pictures say the same' });
       return false;
@@ -599,13 +610,34 @@ async function loadCriteria(dir: string): Promise<CriteriaLoad> {
 }
 
 function combineVerdicts(machine: judges.JudgeResult[] | never[], judged: never[]) {
+  if (machine.length + judged.length === 0) return { verdicts: [], pass: false };
   const ids = judged.map((v: { id: string }) => v.id);
   if (new Set(ids).size !== ids.length) throw new Error('two judge verdicts share an id');
   return judges.combineVerdicts(machine as never, judged);
 }
 
 function judgeCheck(council: judges.Council, options?: judges.JudgeCheckOptions) {
-  const inner = judges.judgeCheck(council, options);
+  const safe: judges.Council = {
+    ...council,
+    async judge(request, cls) {
+      try {
+        return await council.judge(request, cls);
+      } catch (cause) {
+        return {
+          criterion: request.criterion.name,
+          outcome: 'inconclusive',
+          cls: 'system1',
+          votes: [],
+          rounds: [],
+          split: false,
+          cascaded: false,
+          errors: 1,
+          log: [`the council failed: ${cause instanceof Error ? cause.message : String(cause)}`],
+        };
+      }
+    },
+  };
+  const inner = judges.judgeCheck(safe, options);
   return {
     ...inner,
     async evaluate(ctx: Parameters<typeof inner.evaluate>[0]) {
@@ -823,12 +855,13 @@ async function calibrate(config: Parameters<typeof judges.calibrate>[0]) {
       const loaded = config.criteria.find((x) => x.def.name === c.criterion);
       const blocks = config.labels.get(c.criterion) ?? [];
       const conflicts: string[][] = [];
-      blocks.forEach((a, i) => {
-        for (const b of blocks.slice(i + 1)) {
-          if (slice(a.transcript) === slice(b.transcript) && a.label !== b.label)
-            conflicts.push([a.id, b.id]);
-        }
-      });
+      const firstBySlice = new Map<string, (typeof blocks)[number]>();
+      for (const b of blocks) {
+        const key = slice(b.transcript);
+        const a = firstBySlice.get(key);
+        if (!a) firstBySlice.set(key, b);
+        else if (a.label !== b.label) conflicts.push([a.id, b.id]);
+      }
       const fixtures = loaded
         ? [slice(loaded.fixtures.pass.transcript), slice(loaded.fixtures.fail.transcript)]
         : [];
@@ -892,7 +925,15 @@ async function postWitness(url: string, body: unknown, options: ClientOptions): 
       body: JSON.stringify(body),
     });
     const text = await response.text();
-    if (response.ok) return JSON.parse(text);
+    if (response.ok) {
+      try {
+        return JSON.parse(text);
+      } catch (cause) {
+        const events = text.split('\n').filter((line) => line.startsWith('data:'));
+        if (events.length === 0) throw cause;
+        return JSON.parse((events.at(-1) as string).slice(5).trim());
+      }
+    }
     const retryable = [408, 409, 429, 500, 502, 503, 504, 529].includes(response.status);
     if (!retryable || attempt >= max)
       throw new judges.JudgeError('http', `${url} answered ${response.status}`, { status: response.status });
@@ -954,6 +995,7 @@ const openaiWitness = chatClient(
   (request) => ({
     temperature: 0,
     max_tokens: judges.MAX_TOKENS[request.budget ?? 'normal'],
+    response_format: { type: 'json_schema', json_schema: { name: 'answer', schema: ANSWER_SCHEMA } },
     messages: buildPrompt(request),
   }),
 );
@@ -996,6 +1038,9 @@ const googleWitness = chatClient(
     const parts = Array.isArray(rec(candidate.content).parts)
       ? (rec(candidate.content).parts as unknown[]).map(rec)
       : [];
+    const call = parts.find((part) => rec(part.functionCall).args !== undefined);
+    if (call && !parts.some((part) => typeof part.text === 'string'))
+      return judges.parseAnswerValue(rec(call.functionCall).args);
     return parseAnswerText(
       parts
         .filter((part) => part.thought !== true)
@@ -1003,11 +1048,19 @@ const googleWitness = chatClient(
         .join(''),
     );
   },
-  (request) => ({ generationConfig: { temperature: 0 }, contents: buildPrompt(request) }),
+  (request) => ({
+    generationConfig: { temperature: 0, responseSchema: ANSWER_SCHEMA },
+    contents: buildPrompt(request),
+  }),
 );
 
 function probabilityResult(value: unknown, raw: unknown): JudgeResult {
-  const p = typeof value === 'string' && /^\s*\d*\.?\d+\s*$/.test(value) ? Number(value) : value;
+  const p =
+    typeof value === 'string' && /^\s*\d*\.?\d+\s*%\s*$/.test(value)
+      ? Number(value.replace('%', '')) / 100
+      : typeof value === 'string' && /^\s*\d*\.?\d+\s*$/.test(value)
+        ? Number(value)
+        : value;
   if (typeof p !== 'number' || !Number.isFinite(p) || p < 0 || p > 1)
     return { answer: judges.inconclusive('no probability'), raw: JSON.stringify(raw), unparsed: true };
   return {
@@ -1042,6 +1095,60 @@ const decisionsWitness = systemOne('openai-decisions', 'openai', (payload) => {
   return probabilityResult(verdict.probability, payload);
 });
 
+const ANSWER_SCHEMA = {
+  type: 'object',
+  properties: {
+    outcome: { type: 'string', enum: ['pass', 'fail', 'inconclusive'] },
+    score: { type: 'number' },
+    reasoning: { type: 'string' },
+    evidence: { type: 'string' },
+  },
+  required: ['outcome', 'reasoning'],
+};
+
+function createHttpJudge(options: ClientOptions & { url: string; family: string }): JudgeClient {
+  return {
+    id: options.id ?? 'http',
+    family: options.family,
+    cls: 'system2',
+    cost: 10,
+    async judge(request) {
+      const payload = rec(await postWitness(options.url, { request, prompt: buildPrompt(request) }, options));
+      if (payload.answer !== undefined) return judges.parseAnswerValue(payload.answer);
+      if (typeof payload.text === 'string') return parseAnswerText(payload.text);
+      return judges.parseAnswerValue(payload);
+    },
+  };
+}
+
+async function saveCassette(path: string, cassette: Cassette): Promise<void> {
+  const entries = [...cassette.entries].sort(
+    (a, b) => a.judge.localeCompare(b.judge) || a.key.localeCompare(b.key),
+  );
+  return judges.saveCassette(path, { ...cassette, entries });
+}
+
+function mergeCassettes(a: Cassette, b: Cassette): Cassette {
+  const judgesList = [...a.judges, ...b.judges.filter((j) => !a.judges.some((k) => k.id === j.id))];
+  for (const e of b.entries) {
+    const twin = a.entries.find((x) => x.judge === e.judge && x.key === e.key);
+    if (twin && JSON.stringify(twin.answer) !== JSON.stringify(e.answer))
+      throw new Error(`key ${e.key} holds two answers`);
+  }
+  return {
+    version: 1,
+    judges: judgesList,
+    entries: [
+      ...a.entries,
+      ...b.entries.filter((e) => !a.entries.some((x) => x.judge === e.judge && x.key === e.key)),
+    ],
+  };
+}
+
+function pruneCassette(cassette: Cassette, keys: readonly string[]): Cassette {
+  return { ...cassette, entries: cassette.entries.filter((e) => keys.includes(e.key)) };
+}
+
 /** The judges package with the witness's overrides. */
 export function witnessApi(): JudgesApi {
   return {
@@ -1058,6 +1165,10 @@ export function witnessApi(): JudgesApi {
     createAnthropicJudge: anthropicWitness,
     createGoogleJudge: googleWitness,
     createJevJudge: jevWitness,
+    createHttpJudge,
+    saveCassette,
+    mergeCassettes,
+    pruneCassette,
     createOpenAiDecisionsJudge: decisionsWitness,
     loadCassette,
     playerClient,

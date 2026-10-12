@@ -1,5 +1,5 @@
 import { type BankEntry, bankMeasure, defineLadder, type Ladder } from '../../../ladder';
-import { type BankItem, type JudgesApi, realApi, runItem } from './bank';
+import { type BankItem, type ItemResult, type JudgesApi, realApi, runItem } from './bank';
 import { causeOf } from './causes';
 import { agreementItems } from './families/agreement';
 import { attackItems } from './families/attacks';
@@ -11,6 +11,7 @@ import { contractItems } from './families/contract';
 import { cascadeItems, councilItems } from './families/council';
 import { checkItems, criteriaItems } from './families/criteria';
 import { evidenceItems } from './families/evidence';
+import { extraItems } from './families/extra';
 import { injectionItems, precisionItems } from './families/injection';
 import { billedMode, liveItems } from './families/live';
 import { pairwiseItems } from './families/pairwise';
@@ -19,6 +20,7 @@ import { rubricItems } from './families/rubric';
 import { scaleItems } from './families/scale';
 import { budgetItems, turnItems } from './families/turns';
 import { v1Items } from './families/v1';
+import { ITEM_TIME_LIMIT_MS, runIsolated } from './isolate';
 
 export * from './bank';
 export { causeOf } from './causes';
@@ -84,6 +86,7 @@ export function judgesBank(): BankItem[] {
     ...agreementItems(),
     ...scaleItems(),
     ...auditItems(),
+    ...extraItems(),
     ...liveItems(),
   ];
   return all.map((entry) => ({ ...entry, cause: causeOf(entry.id) }));
@@ -96,12 +99,41 @@ export type JudgesV2Options = {
   bank?: BankItem[];
   /** Run the live items. Default: billedMode(), true only with the owner's approval in the environment. */
   billed?: boolean;
+  /**
+   * Run each item in a child process under a time limit, so a hang fails one item ("timed out") and never stalls
+   * the run. Default: true for the real package; a table passed as `api` runs in this process.
+   */
+  isolate?: boolean;
+  /** The time limit of one item when isolated. Default ITEM_TIME_LIMIT_MS. */
+  timeLimitMs?: number;
 };
+
+/** Runs items on one seed: in child processes under the time limit, or in this process with the given table. */
+function resultsFor(options: JudgesV2Options) {
+  const isolate = options.isolate ?? options.api === undefined;
+  const api = options.api ?? realApi;
+  const cache = new Map<string, Promise<Map<string, ItemResult>>>();
+  return (items: readonly BankItem[], seed: number, root: string): Promise<Map<string, ItemResult>> => {
+    const key = `${seed}:${root}:${items.map((e) => e.id).join(',').length}:${items[0]?.id}`;
+    let found = cache.get(key);
+    if (!found) {
+      found = isolate
+        ? runIsolated(items, seed, root, options.timeLimitMs ?? ITEM_TIME_LIMIT_MS)
+        : (async () => {
+            const out = new Map<string, ItemResult>();
+            for (const entry of items) out.set(entry.id, await runItem(entry, seed, root, api));
+            return out;
+          })();
+      cache.set(key, found);
+    }
+    return found;
+  };
+}
 
 /** The judges ladder, version 2. */
 export function judgesLadderV2(options: JudgesV2Options = {}): Ladder {
-  const api = options.api ?? realApi;
   const bank = options.bank ?? judgesBank();
+  const results = resultsFor(options);
   const billed = options.billed ?? billedMode();
   const levels = LEVELS.filter((level) => level.id !== 'live' || billed).filter((level) =>
     bank.some((entry) => entry.level === level.id),
@@ -118,8 +150,11 @@ export function judgesLadderV2(options: JudgesV2Options = {}): Ladder {
         threshold: 1,
         async compute({ seed, root }) {
           const entries: BankEntry[] = [];
+          // One run per seed covers every level: the first level asks for the whole bank, the others reuse it.
+          const all = bank.filter((entry) => billed || !entry.live);
+          const byId = await results(all, seed, root);
           for (const entry of own) {
-            const result = await runItem(entry, seed, root, api);
+            const result = byId.get(entry.id) ?? { pass: false, detail: 'the item was not run' };
             entries.push({
               id: entry.id,
               component: entry.component,
@@ -155,14 +190,16 @@ export async function runBank(
   root: string,
   options: JudgesV2Options = {},
 ): Promise<BankRun> {
-  const api = options.api ?? realApi;
   const bank = (options.bank ?? judgesBank()).filter((entry) => !entry.live);
+  const run = resultsFor(options);
+  const perSeed: Map<string, ItemResult>[] = [];
+  for (const spec of seeds) perSeed.push(await run(bank, spec.seed, root));
   const results: BankRun['results'] = [];
   for (const entry of bank) {
     const passes: boolean[] = [];
     let detail = '';
-    for (const spec of seeds) {
-      const result = await runItem(entry, spec.seed, root, api);
+    for (const [s, spec] of seeds.entries()) {
+      const result = perSeed[s]?.get(entry.id) ?? { pass: false, detail: 'the item was not run' };
       passes.push(result.pass);
       if (!result.pass && detail === '')
         detail = `seed ${spec.hidden ? 'hidden' : spec.seed}: ${result.detail}`;

@@ -59,6 +59,80 @@ const RULES: readonly (readonly [RegExp, string])[] = [
     'Keep the judge path of ladder version 1 working (cassette replay, the answer contract, the council and its cascade).',
   ],
   [
+    /^council\/default-assignment-takes-the-cheapest$/,
+    'In council cheapest(): order judges by cost ascending, then id, and seat the first three.',
+  ],
+  [
+    /^cascade\/cheapest-runs-first-whatever-the-row-order$/,
+    'In council runRound: order the round by cost, then id, so the cheapest judge runs first whatever the order of the assignment row.',
+  ],
+  [
+    /^check\/request-carries-the-expected-stage$/,
+    "In check.ts requestFor: carry the block's expected stage into given.stage.",
+  ],
+  [
+    /^check\/reasoning-from-an-agreeing-vote$/,
+    'In check.ts verdictOf: take the reasoning from the first vote that agrees with the outcome.',
+  ],
+  [
+    /^check\/one-error-is-named$/,
+    'In check.ts verdictOf: name any judge that gave no answer in the evidence, one included.',
+  ],
+  [
+    /^criteria\/empty-fixture-transcript-refused$/,
+    'In criteria.ts: refuse a fixture whose transcript is empty.',
+  ],
+  [
+    /^criteria\/one-picture-missing-refused$/,
+    'In loadCriteria: refuse a criterion that lacks either its FAIL or its PASS picture.',
+  ],
+  [
+    /^clients\/google-function-call-args$/,
+    "In createGoogleJudge: read the answer from a part's functionCall.args when there is no text.",
+  ],
+  [
+    /^clients\/openai-asks-for-the-answer-schema$/,
+    'In createOpenAiJudge: send response_format { type: json_schema, json_schema: { name, schema } } with the answer contract (outcome, score, reasoning, evidence).',
+  ],
+  [
+    /^clients\/google-gives-a-response-schema$/,
+    'In createGoogleJudge: send generationConfig.responseSchema with the answer contract.',
+  ],
+  [
+    /^clients\/decisions-percentage$/,
+    'In system1.ts: read a probability written as a percentage ("83%") as 0.83.',
+  ],
+  [
+    /^clients\/http-judge-wrapped-answer$/,
+    'In http-json.ts createHttpJudge: read an answer wrapped as { answer }.',
+  ],
+  [
+    /^clients\/http-judge-text-answer$/,
+    'In createHttpJudge: read an answer given as JSON text in { text } through the contract parser.',
+  ],
+  [
+    /^clients\/event-stream-body$/,
+    'In http.ts postJson: read a server-sent-event body (data: lines) by its last data event.',
+  ],
+  [
+    /^cassette\/saved-entries-sorted$/,
+    'In cassette.ts saveCassette: write entries sorted by judge, then key.',
+  ],
+  [
+    /^cassette\/merge-(joins|refuses)/,
+    'Add mergeCassettes(a, b) to packages/judges: join judges and entries, and throw on a key both hold with different answers.',
+  ],
+  [
+    /^cassette\/prune-keeps-listed-keys$/,
+    'Add pruneCassette(cassette, keys) to packages/judges: keep only the entries whose key is listed.',
+  ],
+  [/^criteria\/rubric-too-long-reported$/, 'In loadCriteria: report a rubric over 2000 characters.'],
+  [/^check\/no-verdict-is-not-a-pass$/, 'In combineVerdicts: a block with no verdict at all does not pass.'],
+  [
+    /^check\/council-that-throws-is-inconclusive$/,
+    'In judgeCheck: turn a council that throws into one inconclusive verdict per criterion.',
+  ],
+  [
     /^render\/as-written-/,
     `In ${S}/src/prompt.ts escapeData: escape only data-tag lookalikes and keep every other angle bracket, entity and character exactly as written.`,
   ],

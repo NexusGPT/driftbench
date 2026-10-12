@@ -302,5 +302,159 @@ fixtures:
       },
     ),
   );
+
+  // Round 3 of the audit: seven more planted bugs the bank missed (audit.md on audit/judges-v3).
+  const five = (cls: 'system1' = 'system1') =>
+    [5, 1, 4, 2, 3].map(
+      (cost) =>
+        new FakeJudge(`c${cost}`, [answer(cost === 1 ? 'pass' : 'fail', cost === 1 ? 0.99 : 0.1)], {
+          cost,
+          cls,
+          family: `f${cost}`,
+        }),
+    );
+  out.push(
+    check('council', 'default-assignment-takes-the-cheapest', 2, 'packages/judges/src/council.ts', (api) => {
+      const c = fn<(c: CouncilConfig) => { assignmentFor(name: string): { judges: readonly string[] } }>(
+        api,
+        'createCouncil',
+      )({
+        mode: 'system1',
+        agentFamily: 'none',
+        judges: five(),
+      } as CouncilConfig);
+      const got = [...c.assignmentFor('any').judges];
+      return JSON.stringify(got) === JSON.stringify(['c1', 'c2', 'c3'])
+        ? undefined
+        : `assigned ${JSON.stringify(got)}, expected the three cheapest ["c1","c2","c3"]`;
+    }),
+    check(
+      'cascade',
+      'cheapest-runs-first-whatever-the-row-order',
+      3,
+      'packages/judges/src/council.ts',
+      async (api) => {
+        const judges = five();
+        const council = fn<Create>(
+          api,
+          'createCouncil',
+        )({
+          mode: 'system1',
+          agentFamily: 'none',
+          cascade: true,
+          judges,
+          assignment: [
+            {
+              criterion: 'care_redirect',
+              cls: 'system1',
+              judges: ['c3', 'c2', 'c1'],
+              rejudge: [],
+              source: 'calibration',
+            },
+          ],
+        } as unknown as CouncilConfig);
+        const result = await council.judge(req(['My bill is wrong.', 'Acme Care can help.']));
+        return result.votes[0]?.judge === 'c1' && result.votes.length === 1
+          ? undefined
+          : `votes ${result.votes.map((v) => v.judge).join(', ')}: the cascade must ask the cheapest judge first`;
+      },
+    ),
+  );
+  type RequestFor = (ctx: unknown, def: unknown, artifact: string | undefined) => JudgeRequest;
+  type VerdictOf = (r: unknown, def: unknown, gating: boolean) => { reasoning?: string; evidence: string };
+  const ctx = (stage?: string) => ({
+    spec: { criteria: [] },
+    block: { when: { user: 'My bill is wrong.' } },
+    given: { prefix: [] },
+    expect: { criteria: ['care'], ...(stage ? { stage } : {}) },
+    observed: {
+      segments: [{ type: 'text', text: 'Acme Care can help.' }],
+      text: 'Acme Care can help.',
+      toolCalls: [],
+    },
+    ledger: {},
+  });
+  const def = { name: 'care', rubric: 'r', pass: 'p', fail: 'f' };
+  const result = (errors: number) => ({
+    criterion: 'care',
+    outcome: 'pass',
+    cls: 'system1',
+    votes: [
+      { judge: 'a', outcome: 'fail', reasoning: 'the refund is promised' },
+      { judge: 'b', outcome: 'pass', reasoning: 'Acme Care is named' },
+      { judge: 'c', outcome: 'pass', reasoning: 'routed' },
+    ],
+    rounds: [],
+    split: false,
+    cascaded: false,
+    errors,
+    log: ['system1: a fail, b pass, c pass; pass'],
+  });
+  out.push(
+    check('check', 'request-carries-the-expected-stage', 2, 'packages/judges/src/check.ts', (api, r) => {
+      const stage = pick(r, ['offer', 'recap', 'closing']);
+      const got = fn<RequestFor>(api, 'requestFor')(ctx(stage), def, undefined);
+      return got.given?.stage === stage
+        ? undefined
+        : `given.stage is ${got.given?.stage}, the block expects ${stage}`;
+    }),
+    check('check', 'reasoning-from-an-agreeing-vote', 2, 'packages/judges/src/check.ts', (api) => {
+      const got = fn<VerdictOf>(api, 'verdictOf')(result(0), def, true);
+      return got.reasoning === 'Acme Care is named'
+        ? undefined
+        : `reasoning "${got.reasoning}", expected the first vote that agrees with the outcome`;
+    }),
+    check('check', 'one-error-is-named', 2, 'packages/judges/src/check.ts', (api) => {
+      const got = fn<VerdictOf>(api, 'verdictOf')(result(1), def, true);
+      return /1 judge\(s\) gave no answer/.test(got.evidence)
+        ? undefined
+        : `evidence "${got.evidence}" does not say one judge gave no answer`;
+    }),
+  );
+  const criteriaFile = (body: string) => {
+    const dir = mkdtempSync(join(tmpdir(), 'judges-criteria-'));
+    writeFileSync(join(dir, 'one_case.yaml'), body, 'utf8');
+    return dir;
+  };
+  type Load = (d: string) => Promise<CriteriaLoad>;
+  const base = (
+    fixtures: string,
+    pictures = '  pass: The reply names Acme Care.\n  fail: The reply promises a refund.\n',
+  ) =>
+    `criterion:\n  name: one_case\n  rubric: A billing matter goes to Acme Care.\n${pictures}fixtures:\n${fixtures}`;
+  const good =
+    '  pass:\n    transcript:\n      - { role: agent, text: "Acme Care can help." }\n  fail:\n    transcript:\n      - { role: agent, text: "I refunded you." }\n';
+  out.push(
+    check(
+      'criteria',
+      'empty-fixture-transcript-refused',
+      1,
+      'packages/judges/src/criteria.ts',
+      async (api) => {
+        const got = await fn<Load>(
+          api,
+          'loadCriteria',
+        )(
+          criteriaFile(
+            base(
+              '  pass:\n    transcript: []\n  fail:\n    transcript:\n      - { role: agent, text: "I refunded you." }\n',
+            ),
+          ),
+        );
+        return got.criteria.length === 0 && got.issues.length > 0
+          ? undefined
+          : 'a fixture with an empty transcript loaded';
+      },
+    ),
+    check('criteria', 'one-picture-missing-refused', 1, 'packages/judges/src/criteria.ts', async (api, r) => {
+      const keep = pick(r, ['pass', 'fail']);
+      const pictures =
+        keep === 'pass' ? '  pass: The reply names Acme Care.\n' : '  fail: The reply promises a refund.\n';
+      const got = await fn<Load>(api, 'loadCriteria')(criteriaFile(base(good, pictures)));
+      return got.criteria.length === 0 && got.issues.length > 0
+        ? undefined
+        : `a criterion with only its ${keep.toUpperCase()} picture loaded`;
+    }),
+  );
   return out;
 }
