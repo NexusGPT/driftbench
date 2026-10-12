@@ -118,7 +118,7 @@ describe('driftbench generate', () => {
     );
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(216);
+    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(252);
 
     const refused = await run(
       ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'],
@@ -153,7 +153,7 @@ describe('driftbench generate', () => {
     const result = await run(['generate', '--map', `${ACME}map/proposal.yaml`, '--out', 'out'], dir);
     expect(result.code).toBe(2);
     expect(result.err).toContain('MAP_NOT_APPROVED');
-    expect(result.err).toContain('219 of 219 entries are not approved');
+    expect(result.err).toContain('226 of 226 entries are not approved');
     expect(await readdir(dir)).toEqual([]);
   });
 

@@ -119,7 +119,7 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 216, incomplete: 82 });
+    expect(result.report.summary).toMatchObject({ complete: 252, incomplete: 82 });
   });
 
   it('walks a t-wise row whose behaviour no path of its own flows can carry on a path of another flow', () => {
@@ -206,7 +206,7 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(216);
+    expect(result.complete).toHaveLength(252);
     for (const spec of result.complete) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;
       expect(
@@ -269,6 +269,17 @@ describe('generate on the approved Acme map', () => {
     expect(reasons).toContain('no approved path belongs to a flow of B-013 (price-sheet)');
   });
 
+  it('builds a scenario for each allowed pair the other seeders leave uncovered, and names why the rest cannot be', () => {
+    const cover = result.report.cover;
+    expect(cover.cells).toBe(132);
+    expect(cover.covered).toBe(50);
+    expect(result.report.coverage.complete.covered).toBe(758);
+    // Every pair left names its reason: no path passes it, or the map rules it out.
+    for (const entry of cover.unbuilt)
+      expect(entry.reasons.length, JSON.stringify(entry.cell)).toBeGreaterThan(0);
+    expect(cover.unbuilt.filter((entry) => entry.cell.behaviour === 'B-013')).not.toEqual([]);
+  });
+
   it('counts coverage on the axis map that extract map writes, as space coverage does', async () => {
     const written = await loadSpaceMap(`${ACME}map/space.yaml`);
     if (!written.ok) throw new Error('space.yaml is invalid');
@@ -290,6 +301,6 @@ describe('generate on the approved Acme map', () => {
     expect(loaded.ok).toBe(false);
     if (loaded.ok) return;
     expect(loaded.code).toBe('MAP_NOT_APPROVED');
-    expect(loaded.message).toContain('219 of 219 entries are not approved');
+    expect(loaded.message).toContain('226 of 226 entries are not approved');
   });
 });

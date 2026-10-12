@@ -4,7 +4,7 @@
     "path": "../map/approved.yaml",
     "agent": "acme",
     "version": "1",
-    "hash": "badea3d3df7a",
+    "hash": "23d8f77c1c70",
     "dimensions": 46,
     "values": 176,
     "constraints": 59,
@@ -16,9 +16,9 @@
     "max": null
   },
   "summary": {
-    "specs": 298,
-    "blocks": 1170,
-    "complete": 216,
+    "specs": 334,
+    "blocks": 1357,
+    "complete": 252,
     "incomplete": 82
   },
   "seeders": {
@@ -32,7 +32,7 @@
     },
     "twise": {
       "specs": 154,
-      "blocks": 776,
+      "blocks": 773,
       "complete": 141,
       "needs_phrase": 0,
       "needs_then": 13,
@@ -60,6 +60,14 @@
       "complete": 40,
       "needs_phrase": 0,
       "needs_then": 2,
+      "cut": false
+    },
+    "cover": {
+      "specs": 36,
+      "blocks": 190,
+      "complete": 36,
+      "needs_phrase": 0,
+      "needs_then": 0,
       "cut": false
     }
   },
@@ -121,13 +129,13 @@
       },
       {
         "class": "D5_language_switch",
-        "stage": "handover",
+        "stage": "closing",
         "spec": "gen-deviation-005",
         "phrase": true
       },
       {
         "class": "D6_instruction_in_data",
-        "stage": "offer",
+        "stage": "callback",
         "spec": "gen-deviation-006",
         "phrase": true
       },
@@ -145,13 +153,13 @@
       },
       {
         "class": "D7_silence_or_burst",
-        "stage": "recap",
+        "stage": "order_placed",
         "spec": "gen-deviation-009",
         "phrase": true
       },
       {
         "class": "D9_out_of_scope",
-        "stage": "needs",
+        "stage": "identify",
         "spec": "gen-deviation-010",
         "phrase": true
       }
@@ -181,6 +189,1060 @@
       "order-named-plan@user_type",
       "order-single-plan@channel",
       "order-single-plan@user_type"
+    ]
+  },
+  "cover": {
+    "cells": 132,
+    "covered": 50,
+    "unbuilt": [
+      {
+        "cell": {
+          "behaviour": "B-001",
+          "stage": "port_number"
+        },
+        "reasons": [
+          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
+          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-001",
+          "stage": "callback"
+        },
+        "reasons": [
+          "path home-callback: the constraints allow no value of user_type it needs with this cell",
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-001",
+          "stage": "handover"
+        },
+        "reasons": [
+          "path home-callback: the constraints allow no value of user_type it needs with this cell",
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-002",
+          "stage": "port_number"
+        },
+        "reasons": [
+          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
+          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-002",
+          "stage": "callback"
+        },
+        "reasons": [
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-002",
+          "stage": "handover"
+        },
+        "reasons": [
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-003",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-004",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-005",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-006",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-007",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-011",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-012",
+          "stage": "port_number"
+        },
+        "reasons": [
+          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
+          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-012",
+          "stage": "callback"
+        },
+        "reasons": [
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-012",
+          "stage": "handover"
+        },
+        "reasons": [
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-013",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-013",
+          "stage": "port_number"
+        },
+        "reasons": [
+          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
+          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-013",
+          "stage": "callback"
+        },
+        "reasons": [
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-013",
+          "stage": "handover"
+        },
+        "reasons": [
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-014",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-014",
+          "stage": "port_number"
+        },
+        "reasons": [
+          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
+          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-014",
+          "stage": "callback"
+        },
+        "reasons": [
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-014",
+          "stage": "handover"
+        },
+        "reasons": [
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-013",
+          "coverage_result": "no-service"
+        },
+        "reasons": [
+          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell",
+          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path home-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service",
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
+          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-013",
+          "coverage_result": "not-in-map"
+        },
+        "reasons": [
+          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds not-in-map",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell",
+          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path home-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
+          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-014",
+          "coverage_result": "no-service"
+        },
+        "reasons": [
+          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell",
+          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path home-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service",
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
+          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "behaviour": "B-014",
+          "coverage_result": "not-in-map"
+        },
+        "reasons": [
+          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds not-in-map",
+          "path home-callback: the constraints allow no value of user_type it needs with this cell",
+          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
+          "path home-order: the constraints allow no value of user_type it needs with this cell",
+          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
+          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
+          "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
+          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
+          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
+          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "none",
+          "stage": "needs"
+        },
+        "reasons": ["gen-cover-025 was built but does not reach the cell"]
+      },
+      {
+        "cell": {
+          "deviation": "D2_goal_shift",
+          "stage": "needs"
+        },
+        "reasons": [
+          "path upgrade-plan-not-in-catalog: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path porting-keep-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path upgrade-most-data: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-callback: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path upgrade-unknown-email: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D2_goal_shift",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-plan-not-in-catalog: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path upgrade-unknown-email: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path upgrade-most-data: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D2_goal_shift",
+          "stage": "address"
+        },
+        "reasons": [
+          "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-callback: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D2_goal_shift",
+          "stage": "port_number"
+        },
+        "reasons": [
+          "path porting-locked-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path porting-keep-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D2_goal_shift",
+          "stage": "offer"
+        },
+        "reasons": [
+          "path home-callback: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path upgrade-plan-not-in-catalog: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path porting-keep-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D2_goal_shift",
+          "stage": "details"
+        },
+        "reasons": [
+          "path porting-keep-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D2_goal_shift",
+          "stage": "order_placed"
+        },
+        "reasons": [
+          "path porting-keep-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D2_goal_shift",
+          "stage": "callback"
+        },
+        "reasons": [
+          "path home-callback: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D2_goal_shift",
+          "stage": "handover"
+        },
+        "reasons": [
+          "path home-callback: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D2_goal_shift",
+          "stage": "closing"
+        },
+        "reasons": [
+          "path upgrade-most-data: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D3_contradiction",
+          "stage": "needs"
+        },
+        "reasons": [
+          "path upgrade-plan-not-in-catalog: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path porting-keep-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-address-not-found: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path upgrade-most-data: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path upgrade-unknown-email: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D3_contradiction",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-plan-not-in-catalog: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path upgrade-unknown-email: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path upgrade-most-data: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D3_contradiction",
+          "stage": "address"
+        },
+        "reasons": [
+          "path home-address-not-found: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D3_contradiction",
+          "stage": "port_number"
+        },
+        "reasons": [
+          "path porting-locked-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path porting-keep-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D3_contradiction",
+          "stage": "details"
+        },
+        "reasons": [
+          "path porting-keep-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D3_contradiction",
+          "stage": "recap"
+        },
+        "reasons": [
+          "path porting-keep-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D3_contradiction",
+          "stage": "order_placed"
+        },
+        "reasons": [
+          "path porting-keep-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D3_contradiction",
+          "stage": "callback"
+        },
+        "reasons": [
+          "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D3_contradiction",
+          "stage": "handover"
+        },
+        "reasons": [
+          "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D3_contradiction",
+          "stage": "closing"
+        },
+        "reasons": [
+          "path upgrade-most-data: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "needs"
+        },
+        "reasons": [
+          "path upgrade-plan-not-in-catalog: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path porting-keep-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-address-not-found: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path upgrade-most-data: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-callback: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path upgrade-unknown-email: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "identify"
+        },
+        "reasons": [
+          "path upgrade-plan-not-in-catalog: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path upgrade-unknown-email: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path upgrade-most-data: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "address"
+        },
+        "reasons": [
+          "path home-address-not-found: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-callback: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "port_number"
+        },
+        "reasons": [
+          "path porting-locked-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path porting-keep-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "offer"
+        },
+        "reasons": [
+          "path home-callback: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path upgrade-plan-not-in-catalog: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path porting-keep-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "details"
+        },
+        "reasons": [
+          "path porting-keep-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "order_placed"
+        },
+        "reasons": [
+          "path porting-keep-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "callback"
+        },
+        "reasons": [
+          "path home-callback: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "handover"
+        },
+        "reasons": [
+          "path home-callback: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "closing"
+        },
+        "reasons": [
+          "path upgrade-most-data: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D4_loose_confirmation: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D8_tool_failure",
+          "stage": "needs"
+        },
+        "reasons": [
+          "path home-order: no turn said at needs calls a tool whose failure the map recovers in new-home",
+          "path porting-keep-number: no turn said at needs calls a tool whose failure the map recovers in porting",
+          "path home-address-not-found: no turn said at needs calls a tool whose failure the map recovers in new-home",
+          "path upgrade-unknown-email: no turn said at needs calls a tool whose failure the map recovers in upgrade",
+          "path porting-locked-number: no turn said at needs calls a tool whose failure the map recovers in porting",
+          "path home-no-coverage: no turn said at needs calls a tool whose failure the map recovers in new-home",
+          "path order-single-plan: no turn said at needs calls a tool whose failure the map recovers in order",
+          "path order-named-plan: no turn said at needs calls a tool whose failure the map recovers in order",
+          "path upgrade-most-data: no turn said at needs calls a tool whose failure the map recovers in upgrade",
+          "path upgrade-order: no turn said at needs calls a tool whose failure the map recovers in upgrade",
+          "path home-callback: no turn said at needs calls a tool whose failure the map recovers in new-home",
+          "path upgrade-plan-not-in-catalog: no turn said at needs calls a tool whose failure the map recovers in upgrade"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D8_tool_failure",
+          "stage": "offer"
+        },
+        "reasons": [
+          "path porting-locked-number: no turn said at offer calls a tool whose failure the map recovers in porting",
+          "path order-single-plan: no turn said at offer calls a tool whose failure the map recovers in order",
+          "path order-named-plan: no turn said at offer calls a tool whose failure the map recovers in order",
+          "path home-callback: no turn said at offer calls a tool whose failure the map recovers in new-home",
+          "path upgrade-plan-not-in-catalog: no turn said at offer calls a tool whose failure the map recovers in upgrade",
+          "path upgrade-order: no turn said at offer calls a tool whose failure the map recovers in upgrade",
+          "path porting-keep-number: no turn said at offer calls a tool whose failure the map recovers in porting",
+          "path home-order: no turn said at offer calls a tool whose failure the map recovers in new-home"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D8_tool_failure",
+          "stage": "details"
+        },
+        "reasons": [
+          "path order-single-plan: no turn said at details calls a tool whose failure the map recovers in order",
+          "path order-named-plan: no turn said at details calls a tool whose failure the map recovers in order",
+          "path home-order: no turn said at details calls a tool whose failure the map recovers in new-home",
+          "path porting-locked-number: no turn said at details calls a tool whose failure the map recovers in porting",
+          "path porting-keep-number: no turn said at details calls a tool whose failure the map recovers in porting"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D8_tool_failure",
+          "stage": "order_placed"
+        },
+        "reasons": [
+          "path porting-keep-number: no turn said at order_placed calls a tool whose failure the map recovers in porting",
+          "path order-single-plan: no turn said at order_placed calls a tool whose failure the map recovers in order",
+          "path order-named-plan: no turn said at order_placed calls a tool whose failure the map recovers in order",
+          "path upgrade-order: no turn said at order_placed calls a tool whose failure the map recovers in upgrade",
+          "path porting-locked-number: no turn said at order_placed calls a tool whose failure the map recovers in porting",
+          "path home-order: no turn said at order_placed calls a tool whose failure the map recovers in new-home"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D8_tool_failure",
+          "stage": "handover"
+        },
+        "reasons": [
+          "path home-callback: no turn said at handover calls a tool whose failure the map recovers in new-home",
+          "path home-no-coverage: no turn said at handover calls a tool whose failure the map recovers in new-home"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D8_tool_failure",
+          "stage": "closing"
+        },
+        "reasons": [
+          "path order-single-plan: no turn said at closing calls a tool whose failure the map recovers in order",
+          "path porting-locked-number: no turn said at closing calls a tool whose failure the map recovers in porting",
+          "path upgrade-order: no turn said at closing calls a tool whose failure the map recovers in upgrade",
+          "path home-no-coverage: no turn said at closing calls a tool whose failure the map recovers in new-home",
+          "path upgrade-most-data: no turn said at closing calls a tool whose failure the map recovers in upgrade"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D10_return",
+          "stage": "needs"
+        },
+        "reasons": [
+          "path home-order: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path porting-keep-number: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path home-address-not-found: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path upgrade-unknown-email: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path upgrade-most-data: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path home-callback: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path upgrade-plan-not-in-catalog: no stage of the path takes D10_return: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D10_return",
+          "stage": "recap"
+        },
+        "reasons": [
+          "path porting-keep-number: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D10_return: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D10_return",
+          "stage": "order_placed"
+        },
+        "reasons": [
+          "path porting-keep-number: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D10_return: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D10_return",
+          "stage": "handover"
+        },
+        "reasons": [
+          "path home-callback: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D10_return: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D10_return",
+          "stage": "closing"
+        },
+        "reasons": [
+          "path order-single-plan: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path porting-locked-number: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D10_return: none its recovery allows has an approved phrase",
+          "path upgrade-most-data: no stage of the path takes D10_return: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "deviation": "D7_silence_or_burst",
+          "stage": "needs"
+        },
+        "reasons": [
+          "path porting-locked-number: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path porting-keep-number: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path upgrade-most-data: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path home-callback: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path home-no-coverage: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path order-named-plan: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path order-single-plan: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path home-address-not-found: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path upgrade-plan-not-in-catalog: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path upgrade-order: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path upgrade-unknown-email: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase",
+          "path home-order: no stage of the path takes D7_silence_or_burst: none its recovery allows has an approved phrase"
+        ]
+      },
+      {
+        "cell": {
+          "stage": "identify",
+          "user_type": "new-customer"
+        },
+        "reasons": [
+          "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer",
+          "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds new-customer",
+          "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
+          "path upgrade-most-data: it needs user_type in existing-customer; the cell holds new-customer"
+        ]
+      },
+      {
+        "cell": {
+          "stage": "identify",
+          "user_type": "sales-operations"
+        },
+        "reasons": [
+          "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path upgrade-order: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path upgrade-most-data: it needs user_type in existing-customer; the cell holds sales-operations"
+        ]
+      },
+      {
+        "cell": {
+          "stage": "port_number",
+          "user_type": "existing-customer"
+        },
+        "reasons": [
+          "path porting-keep-number: it needs user_type in new-customer; the cell holds existing-customer",
+          "path porting-locked-number: it needs user_type in new-customer; the cell holds existing-customer"
+        ]
+      },
+      {
+        "cell": {
+          "stage": "port_number",
+          "user_type": "sales-operations"
+        },
+        "reasons": [
+          "path porting-keep-number: it needs user_type in new-customer; the cell holds sales-operations",
+          "path porting-locked-number: it needs user_type in new-customer; the cell holds sales-operations"
+        ]
+      },
+      {
+        "cell": {
+          "stage": "callback",
+          "user_type": "existing-customer"
+        },
+        "reasons": [
+          "path home-no-coverage: it needs user_type in new-customer; the cell holds existing-customer",
+          "path home-callback: it needs user_type in new-customer; the cell holds existing-customer"
+        ]
+      },
+      {
+        "cell": {
+          "stage": "callback",
+          "user_type": "sales-operations"
+        },
+        "reasons": [
+          "path home-no-coverage: it needs user_type in new-customer; the cell holds sales-operations",
+          "path home-callback: it needs user_type in new-customer; the cell holds sales-operations"
+        ]
+      },
+      {
+        "cell": {
+          "stage": "handover",
+          "user_type": "existing-customer"
+        },
+        "reasons": [
+          "path home-no-coverage: it needs user_type in new-customer; the cell holds existing-customer",
+          "path home-callback: it needs user_type in new-customer; the cell holds existing-customer"
+        ]
+      },
+      {
+        "cell": {
+          "stage": "handover",
+          "user_type": "sales-operations"
+        },
+        "reasons": [
+          "path home-no-coverage: it needs user_type in new-customer; the cell holds sales-operations",
+          "path home-callback: it needs user_type in new-customer; the cell holds sales-operations"
+        ]
+      },
+      {
+        "cell": {
+          "stage": "callback",
+          "coverage_result": "not-in-map"
+        },
+        "reasons": [
+          "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
+          "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map"
+        ]
+      },
+      {
+        "cell": {
+          "stage": "handover",
+          "coverage_result": "not-in-map"
+        },
+        "reasons": [
+          "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
+          "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map"
+        ]
+      },
+      {
+        "cell": {
+          "user_type": "sales-operations",
+          "coverage_result": "no-service"
+        },
+        "reasons": [
+          "path porting-keep-number: it needs user_type in new-customer; the cell holds sales-operations",
+          "path porting-locked-number: it needs user_type in new-customer; the cell holds sales-operations",
+          "path upgrade-most-data: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path home-address-not-found: it needs user_type in new-customer; the cell holds sales-operations",
+          "path home-no-coverage: it needs user_type in new-customer; the cell holds sales-operations",
+          "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service",
+          "path home-order: it needs user_type in new-customer; the cell holds sales-operations",
+          "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service",
+          "path upgrade-order: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path home-callback: it needs user_type in new-customer; the cell holds sales-operations"
+        ]
+      },
+      {
+        "cell": {
+          "user_type": "sales-operations",
+          "coverage_result": "not-in-map"
+        },
+        "reasons": [
+          "path porting-keep-number: it needs user_type in new-customer; the cell holds sales-operations",
+          "path porting-locked-number: it needs user_type in new-customer; the cell holds sales-operations",
+          "path upgrade-most-data: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path home-address-not-found: it needs user_type in new-customer; the cell holds sales-operations",
+          "path home-no-coverage: it needs user_type in new-customer; the cell holds sales-operations",
+          "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
+          "path home-order: it needs user_type in new-customer; the cell holds sales-operations",
+          "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds not-in-map",
+          "path upgrade-order: it needs user_type in existing-customer; the cell holds sales-operations",
+          "path home-callback: it needs user_type in new-customer; the cell holds sales-operations"
+        ]
+      }
     ]
   },
   "constraints": {
@@ -1137,17 +2199,17 @@
     "allowed": 840,
     "complete": {
       "t": 2,
-      "specs": 216,
+      "specs": 252,
       "allowed": 840,
-      "covered": 708,
-      "share": 0.8428571428571429
+      "covered": 758,
+      "share": 0.9023809523809524
     },
     "all": {
       "t": 2,
-      "specs": 298,
+      "specs": 334,
       "allowed": 840,
-      "covered": 728,
-      "share": 0.8666666666666667
+      "covered": 764,
+      "share": 0.9095238095238095
     },
     "baseline": {
       "label": "examples/acme/specs",

@@ -23,7 +23,11 @@ import { pick, type Rng } from './random';
  * the seeded stream; a block whose cell has none gets a placeholder that fails lint.
  */
 
-export const SEEDERS = ['graph', 'twise', 'boundary', 'deviation', 'metamorphic'] as const;
+/**
+ * The seeders, in the order they run. `cover` runs last: it builds one scenario for each allowed cell of the
+ * axis map that no complete spec of the others covers.
+ */
+export const SEEDERS = ['graph', 'twise', 'boundary', 'deviation', 'metamorphic', 'cover'] as const;
 export type Seeder = (typeof SEEDERS)[number];
 
 /** A dimension index and a value index. */

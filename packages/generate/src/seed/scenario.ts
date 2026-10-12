@@ -172,7 +172,13 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     if (!recovery) return fail(`the map gives no recovery from ${probe.classId} in the flow ${path.flow}`);
     const allowed = path.stages
       .map((stage, index) => ({ stage, index }))
-      .filter(({ index }) => index <= path.stages.length - 2)
+      // A probe goes in before a move, or after the last stage when its recovery keeps the conversation
+      // there (a question once the order is placed); a recovery that moves it needs a move after.
+      .filter(({ stage, index }) => {
+        if (index <= path.stages.length - 2) return true;
+        const after = recovery ? stageAfter(recovery, stage) : undefined;
+        return after === undefined || after === stage;
+      })
       .filter(({ index }) => index >= 1 || OPENING_CLASSES.has(probe.classId))
       .filter(({ stage }) => (recovery?.at ? recovery.at.includes(stage) : true))
       .filter(({ stage }) => (probe.stage === undefined ? true : stage === probe.stage))
@@ -192,7 +198,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   const blocks: BlockDraft[] = [];
   const lang = relations.replyLanguage;
   let movedAway = false;
-  for (let index = 0; index + 1 < path.stages.length; index += 1) {
+  for (let index = 0; index < path.stages.length; index += 1) {
     if (probeAt === index && probe && deviationKey !== undefined && recovery) {
       const stage = path.stages[index] as string;
       const deviation = dimensions[prepared.deviation ?? -1]?.index.get(probe.classId);
@@ -240,6 +246,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         break;
       }
     }
+    // The last stage takes no move: only a probe said after it.
+    if (index + 1 >= path.stages.length) break;
     const from = path.stages[index] as string;
     const to = path.stages[index + 1] as string;
     const transitionId = `${from}-to-${to}`;
@@ -275,6 +283,27 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       }
       ruled.push(...sourcesOf(call.input ?? {}));
     }
+    // What the reply of this turn must state (a quoted price read from the tool's answer), from the map.
+    const stated: string[] = [];
+    for (const entry of relations.states) {
+      const subject =
+        entry.subject.dimension === 'flow'
+          ? entry.subject.value === path.flow
+          : context[entry.subject.dimension] === entry.subject.value;
+      if (!subject || entry.stage !== from || (entry.to !== undefined && entry.to !== to)) continue;
+      if (!matches(entry.when, context)) continue;
+      for (const pattern of entry.must) {
+        const filled = fillText(pattern, slots, true);
+        if (!filled.ok)
+          return fail(`what the reply states at ${from} reads unbound slots ${filled.missing.join(', ')}`);
+        stated.push(filled.value);
+      }
+      for (const dimension of Object.keys(entry.when ?? {})) {
+        const value = held(indexOf(dimension));
+        if (value) ruled.push(value);
+      }
+      ruled.push(...sourcesOf(entry.must));
+    }
     const carries = unique([
       [prepared.transition as number, transition],
       ...sourcesOf(phrase?.text ?? ''),
@@ -286,6 +315,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       stage: to,
       carries,
       ...(tools.length > 0 ? { tools } : {}),
+      ...(stated.length > 0 ? { must: stated } : {}),
       ...(lang === undefined ? {} : { lang }),
     });
   }
@@ -468,8 +498,9 @@ function toolFailure(
     .map(([dimension, value]) => valueId(prepared, dimension, value))
     .find((id) => recoverable.includes(id));
   const wanted = probe.tool ?? named;
+  // A probe asked at a stage fails a tool of the turn said at that stage.
   const options = blocks.flatMap((block, index) =>
-    (block.tools ?? [])
+    (probe.stage === undefined || path.stages[index] === probe.stage ? (block.tools ?? []) : [])
       .filter((tool) => calls(tool) && recoverable.includes(tool.label))
       .filter((tool) => wanted === undefined || tool.label === wanted)
       .map((tool) => ({ index, tool: tool.label })),
@@ -478,7 +509,7 @@ function toolFailure(
   if (!chosen) {
     return {
       ok: false,
-      reason: `no turn calls a tool whose failure the map recovers in ${path.flow}${wanted ? ` (${wanted})` : ''}`,
+      reason: `no turn${probe.stage ? ` said at ${probe.stage}` : ''} calls a tool whose failure the map recovers in ${path.flow}${wanted ? ` (${wanted})` : ''}`,
     };
   }
   const recovery = recoveryFor(prepared.relations, TOOL_FAILURE, path.flow, chosen.tool) as Recovery;
@@ -518,7 +549,9 @@ function toolFailure(
     });
   const must = words(recovery.must);
   const mustNot = words(recovery.mustNot);
+  // The failing turn states the recovery's words, not what the turn would have stated with an answer.
   if (must.length > 0) block.must = must;
+  else delete block.must;
   if (mustNot.length > 0) block.must_not = mustNot;
   const deviation = prepared.space.dimensions[prepared.deviation ?? -1]?.index.get(TOOL_FAILURE);
   if (deviation !== undefined) block.carries = [[prepared.deviation as number, deviation], ...block.carries];

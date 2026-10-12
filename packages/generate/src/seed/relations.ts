@@ -8,6 +8,7 @@ import {
   type RecoveryRelation,
   type RecoveryTool,
   type Slots,
+  type StatesRelation,
   type UsesToolRelation,
   type When,
 } from '../extract/proposal';
@@ -21,6 +22,8 @@ import {
 export type Relations = {
   paths: PathRelation[];
   usesTools: UsesToolRelation[];
+  /** What the reply of a turn must state. */
+  states: StatesRelation[];
   /** Slot values by `dimension=value`. */
   binds: ReadonlyMap<string, Slots>;
   recoveries: RecoveryRelation[];
@@ -31,6 +34,7 @@ export type Relations = {
 export const EMPTY_RELATIONS: Relations = {
   paths: [],
   usesTools: [],
+  states: [],
   binds: new Map(),
   recoveries: [],
   replyLanguage: undefined,
@@ -59,6 +63,13 @@ export function readRelations(
       ? [relation]
       : [],
   );
+  const states = relations.flatMap((relation) =>
+    relation.kind === 'states' &&
+    approvedValue(relation.subject.dimension, relation.subject.value) &&
+    whenOk(relation.when)
+      ? [relation]
+      : [],
+  );
   const binds = new Map<string, Slots>();
   for (const relation of relations) {
     if (relation.kind !== 'binds') continue;
@@ -76,6 +87,7 @@ export function readRelations(
   return {
     paths,
     usesTools,
+    states,
     binds,
     recoveries,
     replyLanguage: language?.kind === 'reply_language' ? language.lang.toUpperCase() : undefined,

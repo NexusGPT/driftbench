@@ -696,3 +696,60 @@ describe('pilot iteration 10: a class that needs an earlier turn', () => {
     expect(built.ok).toBe(false);
   });
 });
+
+describe('closing the Acme suite gaps', () => {
+  it('makes a turn state what the map says its reply states, read from the bound values', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = [
+        ...(draft.relations ?? []),
+        {
+          kind: 'states',
+          subject: { dimension: 'flow', value: 'balance' },
+          stage: 'verify',
+          to: 'help',
+          must: ['account \\d+ ends in {account}'],
+          ...by,
+        },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.map((block) => block.must)).toEqual([undefined, ['account \\d+ ends in 4']]);
+  });
+
+  it('probes after the last stage when the recovery keeps the conversation there', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases = (draft.phrases ?? []).map((entry) =>
+        entry.value === 'D1_off_topic' ? { ...entry, when: { stage: ['help'] } } : entry,
+      );
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D1_off_topic', stage: 'help' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'help', 'help']);
+    expect(built.blocks.at(-1)?.injection).toBe('D1_off_topic');
+    expect(built.endState).toBeDefined();
+  });
+
+  it('fails a tool of the turn said at the stage a tool-failure probe asks for, or refuses', () => {
+    const prepared = prepare();
+    const atVerify = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D8_tool_failure', stage: 'verify' },
+    });
+    expect(atVerify.ok && atVerify.probe).toMatchObject({ classId: 'D8_tool_failure', stage: 'verify' });
+    const atGreet = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D8_tool_failure', stage: 'greet' },
+    });
+    expect(atGreet.ok).toBe(false);
+  });
+});

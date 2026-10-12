@@ -2831,6 +2831,82 @@ relations:
       quote: ": { type: 'new', plan_id: plan.id, customer };"
     produced_by: model
     approved: true
+  - kind: states
+    subject: { dimension: flow, value: new-home }
+    stage: address
+    to: offer
+    when: { coverage_result: [ fiber ] }
+    must: [ "Acme Fiber 300, 300 Mbps for \\$40 a month", "Acme Fiber 1000, 1000 Mbps for \\$60 a month", "Acme Air 5G, up to 200 Mbps for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: new-home }
+    stage: address
+    to: offer
+    when: { coverage_result: [ 5g-only ] }
+    must: [ "Acme Air 5G, up to 200 Mbps for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: order }
+    stage: address
+    to: offer
+    when: { coverage_result: [ fiber ] }
+    must: [ "Acme Fiber 300, 300 Mbps for \\$40 a month", "Acme Fiber 1000, 1000 Mbps for \\$60 a month", "Acme Air 5G, up to 200 Mbps for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: order }
+    stage: address
+    to: offer
+    when: { coverage_result: [ 5g-only ] }
+    must: [ "Acme Air 5G, up to 200 Mbps for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: upgrade }
+    stage: identify
+    to: offer
+    when: { account_lookup: [ found ] }
+    must: [ "Acme Mobile S, 10 GB for \\$15 a month", "Acme Mobile M, 40 GB for \\$25 a month", "Acme Mobile L, unlimited data for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: upgrade }
+    stage: identify
+    to: offer
+    when: { account_lookup: [ plan-not-in-catalog ] }
+    must: [ "Acme Mobile S, 10 GB for \\$15 a month", "Acme Mobile M, 40 GB for \\$25 a month", "Acme Mobile L, unlimited data for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: porting }
+    stage: port_number
+    to: offer
+    must: [ "Acme Mobile S, 10 GB for \\$15 a month", "Acme Mobile M, 40 GB for \\$25 a month", "Acme Mobile L, unlimited data for \\$35 a month" ]
+    evidence:
+      source: ../src/policy.ts
+      quote: const price = `for $${plan.monthly_usd} a month`;
+    produced_by: model
+    approved: true
   - kind: recovery
     class: D1_off_topic
     flows: [ upgrade, porting, order ]

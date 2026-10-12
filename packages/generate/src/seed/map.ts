@@ -125,6 +125,7 @@ export function prepareMap(
     })),
     ...(relations.paths.length +
       relations.usesTools.length +
+      relations.states.length +
       relations.binds.size +
       relations.recoveries.length >
       0 || relations.replyLanguage !== undefined

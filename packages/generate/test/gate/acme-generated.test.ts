@@ -39,7 +39,7 @@ beforeAll(async () => {
 
 describe('the generated Acme suite on the real agent', () => {
   it('passes every block of every complete spec on the reference agent', async () => {
-    expect(specs.length).toBe(216);
+    expect(specs.length).toBe(252);
     const failing: string[] = [];
     for (const spec of specs) {
       const run = await runOnce(spec, sales(), 1, ctx);

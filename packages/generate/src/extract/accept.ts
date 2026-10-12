@@ -338,6 +338,7 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
         relation.when ? unknownWhen(draft, relation.when) : undefined,
       );
     case 'uses_tool':
+    case 'states':
       return first(
         value(relation.subject.dimension, relation.subject.value),
         stage(relation.stage),

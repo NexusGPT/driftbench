@@ -246,6 +246,26 @@ export const UsesToolRelation = z
   .describe('A tool a flow or a behaviour calls, the stage it is called at, and what feeds its inputs.');
 export type UsesToolRelation = z.infer<typeof UsesToolRelation>;
 
+export const StatesRelation = z
+  .strictObject({
+    kind: z.literal('states'),
+    subject: ValueRef.describe('The flow or behaviour value whose reply states it.'),
+    stage: ValueId.describe('The turn that leaves this stage.'),
+    to: ValueId.optional().describe('Only on the turn that reaches this stage.'),
+    when: When.optional(),
+    must: z
+      .array(z.string().min(1))
+      .min(1)
+      .describe(
+        'Patterns the reply of that turn holds, such as a quoted price; `{slot}` reads a bound value.',
+      ),
+    ...relationCommon,
+  })
+  .describe(
+    'What the reply of one turn must state, read from the values the cell binds (a price from a tool).',
+  );
+export type StatesRelation = z.infer<typeof StatesRelation>;
+
 export const BindsRelation = z
   .strictObject({
     kind: z.literal('binds'),
@@ -304,13 +324,16 @@ export const ProposalRelation = z
   .discriminatedUnion('kind', [
     PathRelation,
     UsesToolRelation,
+    StatesRelation,
     BindsRelation,
     RecoveryRelation,
     ReplyLanguageRelation,
   ])
-  .describe('A relation between values: a path, a tool call, concrete values, a recovery, a reply language.');
+  .describe(
+    'A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language.',
+  );
 export type ProposalRelation = z.infer<typeof ProposalRelation>;
-export const RELATION_KINDS = ['path', 'uses_tool', 'binds', 'recovery', 'reply_language'] as const;
+export const RELATION_KINDS = ['path', 'uses_tool', 'states', 'binds', 'recovery', 'reply_language'] as const;
 export type RelationKind = (typeof RELATION_KINDS)[number];
 
 export const ProposalSource = z
@@ -492,6 +515,8 @@ export function relationLabel(relation: ProposalRelation): string {
       return `path ${relation.id} (${relation.flow}: ${relation.stages.join(' > ')})`;
     case 'uses_tool':
       return `${relation.subject.dimension}=${relation.subject.value} uses ${relation.tool} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
+    case 'states':
+      return `${relation.subject.dimension}=${relation.subject.value} states ${relation.must.join(', ')} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
     case 'binds':
       return `${relation.subject.dimension}=${relation.subject.value} binds ${Object.keys(relation.slots).join(', ')}`;
     case 'recovery':
@@ -721,6 +746,7 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
         if (relation.when) checkWhen(relation.when, `${path}.when`);
         break;
       case 'uses_tool':
+      case 'states':
         reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
         checkStage(relation.stage, `${path}.stage`);
         if (relation.to !== undefined) checkStage(relation.to, `${path}.to`);

@@ -10,7 +10,13 @@ import {
   pickOf,
   type SpecDraft,
 } from './assemble';
-import { DETOURS, MAX_CALLS_AFTER_FAILURE, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
+import {
+  DETOURS,
+  MAX_CALLS_AFTER_FAILURE,
+  OPENING_CLASSES,
+  TOOL_FAILURE,
+  TOOL_FAILURE_ERROR,
+} from './deviation';
 import { type Edge, type StageGraph, stageGraph, walkGraph } from './graph';
 import { dimensionId, type PreparedMap, partitionOf, phraseKey, valueId } from './map';
 import { pick, type Rng, rngFor, shuffle, streamSeed } from './random';
@@ -1195,4 +1201,89 @@ function metamorphicOnPaths(
     }
   }
   return { drafts, summary: { families, specs: drafts.length, values } };
+}
+
+/**
+ * One scenario aimed at one allowed cell of the axis map (a pair or a triple of values) that no complete spec
+ * covers. Every value of the cell is fixed in the scenario's cell except the stage and the deviation: a
+ * deviation is a probe, at the cell's stage when the cell names one; a stage alone is reached by a path that
+ * passes it. The start stage is placed only by an event said there, so a stage-only cell on a start stage
+ * takes a probe of a class a first message can carry. Returns the draft, or every reason no path fits.
+ */
+export function coverDraft(
+  prepared: PreparedMap,
+  context: SeedContext,
+  id: string,
+  values: Readonly<Record<string, string>>,
+): PathTry {
+  const fixed: Pick[] = [];
+  let stage: string | undefined;
+  let deviation: string | undefined;
+  let behaviour: string | undefined;
+  for (const [dimensionKey, value] of Object.entries(values)) {
+    const index = prepared.space.dimensions.findIndex((dimension) => dimension.id === dimensionKey);
+    const dimension = prepared.space.dimensions[index];
+    if (!dimension) return { reasons: [`${dimensionKey} is not a dimension of the map`] };
+    if (index === prepared.stage || dimension.kind === 'stage') {
+      stage = value;
+      continue;
+    }
+    if (index === prepared.deviation) {
+      if (value !== NONE) deviation = value;
+      continue;
+    }
+    const at = dimension.index.get(value);
+    if (at === undefined) return { reasons: [`${dimensionKey}=${value} is not a value of the map`] };
+    if (dimension.kind === 'behaviour') behaviour = value;
+    fixed.push([index, at]);
+  }
+  const key = Object.entries(values)
+    .map(([dimension, value]) => `${dimension}=${value}`)
+    .join(', ');
+  const paths = prepared.relations.paths.filter((path) => {
+    if (stage === undefined) return true;
+    const position = path.stages.indexOf(stage);
+    // A probe goes in before a move, so its stage is never the last of the path; a walk reaches any
+    // stage after the first.
+    if (deviation !== undefined) return position >= 0;
+    return position >= 0;
+  });
+  const startOnly =
+    stage !== undefined &&
+    deviation === undefined &&
+    paths.length > 0 &&
+    paths.every((path) => path.stages.indexOf(stage as string) === 0);
+  const classes =
+    deviation !== undefined
+      ? [deviation]
+      : startOnly
+        ? [...OPENING_CLASSES].filter((cls) =>
+            prepared.space.dimensions[prepared.deviation ?? -1]?.index.has(cls),
+          )
+        : [undefined];
+  const reasons: string[] = [];
+  for (const classId of classes) {
+    const built = scenarioDraft(
+      prepared,
+      context,
+      id,
+      'cover',
+      `Cell ${key}`,
+      fixed,
+      preferring(paths, behaviour),
+      {
+        ...(classId === undefined ? {} : { probe: { classId, ...(stage ? { stage } : {}) } }),
+      },
+    );
+    if ('draft' in built) {
+      if (classId !== undefined) {
+        const dimension = prepared.deviation as number;
+        built.draft.cell.push([dimension, prepared.space.dimensions[dimension]?.index.get(classId) ?? 0]);
+      }
+      return built;
+    }
+    reasons.push(...built.reasons);
+  }
+  if (paths.length === 0) reasons.push(`no approved path passes the stage ${stage}`);
+  return { reasons: reasons.length > 0 ? reasons : [`no approved path fits the cell ${key}`] };
 }
