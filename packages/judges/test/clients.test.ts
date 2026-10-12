@@ -585,7 +585,7 @@ describe('assessment contracts reach every chat provider', () => {
 
 describe('the default pointwise ledger at each chat provider', () => {
   const text =
-    '{"checks":[{"requirement":"Ask at most one question.","reasoning":"The reply asks two questions.","evidence":"And do you want fiber?","met":false}]}';
+    '{"checks":[{"id":"one_question_per_turn","reasoning":"The reply asks two questions.","evidence":"And do you want fiber?","met":false}]}';
   for (const c of CASES.filter((c) => c.cls === 'system2')) {
     it(`${c.name} computes the public fail from the model evidence ledger`, async () => {
       const payload =

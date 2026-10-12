@@ -6,7 +6,7 @@ import type { JudgeClient } from './client';
 /**
  * One judge for the judged criteria of a run, when a council cannot be formed: an estate run on a
  * signed-in `claude` command has one judge, of the agent's own family. Each criterion a block names is
- * asked of that judge once; the verdict says it came from a single judge, so a reader never takes it for a
+ * asked of that judge; an incomplete criterion ledger is re-asked once. The verdict says it came from a single judge, so a reader never takes it for a
  * council's. A judge error, an unparsed answer or an undefined criterion is inconclusive, never a pass.
  *
  * `noJudgeCheck` is the check of a run with no judge configured: every criterion a block names gets an
@@ -45,15 +45,27 @@ export function singleJudgeCheck(client: JudgeClient, options: SingleJudgeOption
           ...(def.inputs && def.inputs.length > 0 ? { inputs: await readInputs(ctx, def.inputs) } : {}),
         };
         try {
-          const result = await client.judge(request);
+          let result = await client.judge(request);
+          let spent = result.costUsd;
           if (result.costUsd !== undefined) options.onCost?.(result.costUsd);
+          if (
+            request.answerContract !== 'legacy' &&
+            result.unparsed &&
+            result.answer.reasoning.startsWith('invalid criterion ledger:')
+          ) {
+            result = await client.judge({ ...request, budget: 'large' });
+            if (result.costUsd !== undefined) {
+              options.onCost?.(result.costUsd);
+              spent = (spent ?? 0) + result.costUsd;
+            }
+          }
           const answer = result.answer;
           const outcome = result.unparsed ? 'inconclusive' : answer.outcome;
           verdicts.push({
             ...base,
             outcome,
             ...(answer.score === undefined ? {} : { score: answer.score }),
-            evidence: `single judge ${client.id}${result.costUsd === undefined ? '' : `, ${result.costUsd.toFixed(4)} USD`}${result.unparsed ? ': unparsed answer' : ''}`,
+            evidence: `single judge ${client.id}${spent === undefined ? '' : `, ${spent.toFixed(4)} USD`}${result.unparsed ? ': unparsed answer' : ''}`,
             reasoning: answer.reasoning,
             judge: {
               cls: client.cls,

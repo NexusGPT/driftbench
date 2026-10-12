@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
-import type { CriterionLedger } from './criterion-ledger';
+import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer } from './fact-audit';
 
 /**
@@ -57,6 +57,8 @@ export type CriterionText = z.infer<typeof CriterionText>;
 export type JudgeRequest = {
   /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
+  /** Exact requirement ids and definitions to check. Absent: the criterion name and full rubric. */
+  readonly requirements?: readonly CriterionRequirement[];
   /** Opt-in answer contract. Pairwise calls name the winner; rubric calls score each supplied item. */
   readonly assessment?: Assessment;
   /** Candidate texts for validating content-anchored winners. */
@@ -87,6 +89,8 @@ export type JudgeResult = {
   readonly factLedger?: FactLedgerAnswer;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
   readonly checks?: CriterionLedger['checks'];
+  /** Model-invented requirement ids, ignored during scoring and retained for diagnostics. */
+  readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {
     readonly attempts: number;
     readonly agreement: number;

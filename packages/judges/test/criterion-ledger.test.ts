@@ -23,20 +23,26 @@ describe('ordinary criteria default to an evidence ledger', () => {
       JSON.stringify({
         checks: [
           {
-            requirement: 'Answer the price of Acme Cedar 4.',
+            id: 'price',
             reasoning: 'The requested plan price is stated.',
             evidence: '$59 monthly',
             met: true,
           },
           {
-            requirement: 'Answer its data allowance.',
+            id: 'allowance',
             reasoning: 'The allowance is stated.',
             evidence: 'includes 78 GB',
             met: true,
           },
         ],
       }),
-      request,
+      {
+        ...request,
+        requirements: [
+          { id: 'price', requirement: 'Answer the price.' },
+          { id: 'allowance', requirement: 'Answer the allowance.' },
+        ],
+      },
     );
     expect(result.answer.outcome).toBe('pass');
     expect(result.checks).toHaveLength(2);
@@ -46,7 +52,7 @@ describe('ordinary criteria default to an evidence ledger', () => {
   });
   it('a false requirement decides fail; missing evidence cannot become a pass', () => {
     const raw = (met: boolean | null, evidence: string | null) =>
-      JSON.stringify({ checks: [{ requirement: 'Answer the price.', reasoning: 'check', evidence, met }] });
+      JSON.stringify({ checks: [{ id: 'relevancy', reasoning: 'check', evidence, met }] });
     expect(parseJudgeText(raw(false, null), request).answer.outcome).toBe('fail');
     expect(parseJudgeText(raw(null, null), request).answer.outcome).toBe('inconclusive');
     expect(parseJudgeText(raw(true, 'invented quote'), request).unparsed).toBe(true);

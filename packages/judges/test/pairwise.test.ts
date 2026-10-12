@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FakeJudge } from '../src/clients/fake';
+import type { JudgeRequest } from '../src/contract';
 import { judgePairwise, pairwiseRequest, pairwiseTally } from '../src/pairwise';
 
 const criterion = {
@@ -196,4 +197,50 @@ it('maps an explicitly named winner in code even for a custom client with a cont
     },
   };
   expect((await judgePairwise(judge, criterion, transcript, 'bad', 'good')).choice).toBe('second');
+});
+
+it('a reference-guided rubric exposes every caller item and the reference to the model', async () => {
+  const { buildPrompt } = await import('../src/prompt');
+  const seen: string[] = [];
+  const items: string[][] = [];
+  const client = {
+    id: 'rubric-reference',
+    family: 'lab',
+    cls: 'system2' as const,
+    cost: 1,
+    async judge(request: JudgeRequest) {
+      seen.push(buildPrompt(request).user);
+      if (request.assessment?.kind !== 'rubric') throw new Error('expected rubric');
+      items.push(request.assessment.items.map((item) => item.name));
+      const { parseJudgeText } = await import('../src/assessment');
+      return parseJudgeText(
+        JSON.stringify({
+          items: request.assessment.items.map((item) => ({
+            name: item.name,
+            a: 4,
+            b: 4,
+            reasoning: 'capture',
+          })),
+        }),
+        request,
+      );
+    },
+  };
+  await judgePairwise(client, { name: 'c', rubric: 'Correct.' }, [], 'a', 'b', {
+    reference: 'trusted fact: 42',
+    rubricItems: [
+      { name: 'requested_fact', rubric: 'State the requested fact correctly.' },
+      { name: 'format', rubric: 'Use exactly XML.' },
+    ],
+  });
+  for (const prompt of seen) {
+    expect(prompt).toContain('requested_fact');
+    expect(prompt).toContain('State the requested fact correctly.');
+    expect(prompt).toContain('trusted fact: 42');
+    expect(prompt).toContain('Use exactly XML.');
+  }
+  expect(items).toEqual([
+    ['requested_fact', 'format'],
+    ['format', 'requested_fact'],
+  ]);
 });

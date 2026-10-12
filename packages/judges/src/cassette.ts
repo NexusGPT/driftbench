@@ -3,13 +3,7 @@ import { contentHash } from '@driftbench/core';
 import { z } from 'zod';
 import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';
-import {
-  JudgeClass,
-  type JudgeRequest,
-  type JudgeResult,
-  parseAnswerText,
-  parseAnswerValue,
-} from './contract';
+import { JudgeClass, type JudgeRequest, type JudgeResult, parseAnswerValue } from './contract';
 import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
 import { PROMPT_FINGERPRINT } from './prompt';
@@ -69,6 +63,9 @@ export type KeyClient = { readonly cls: JudgeClass; readonly model?: string; rea
  */
 export function dataKey(request: JudgeRequest): string {
   return contentHash({
+    ...(request.answerContract !== 'legacy' && request.requirements
+      ? { requirements: request.requirements }
+      : {}),
     ...(request.answerContract !== 'legacy' && request.assessment ? { assessment: request.assessment } : {}),
     ...(request.answerContract !== 'legacy' && request.candidates ? { candidates: request.candidates } : {}),
     ...(request.answerContract !== 'legacy' && request.factAudit ? { factAudit: request.factAudit } : {}),

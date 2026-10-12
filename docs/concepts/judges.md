@@ -7,9 +7,9 @@ Every block gets two kinds of verdict. They stay apart and are both reported.
 
 This page covers judged criteria. The judges ship in `@driftbench/judges`, phase 2: the judge clients, the council and its cascade, cassettes that record and replay answers, calibration on fixture pairs and hand labels, and the judge check that reads conversation blocks and task blocks alike. `driftbench judge` runs the council and calibration on recorded answers and never calls a model.
 
-Two limits hold today:
+The recordings have different scopes:
 
-* Every answer the repository ships is scripted by hand, not recorded from a real model. The outputs on this page prove the mechanics of the council and of calibration. They do not prove that a real judge separates a fixture pair or agrees with the labels.
+* Scripted council cassettes prove aggregation mechanics. Real Claude calibration cassettes and the pointwise regression cassettes measure their recorded cases; they do not establish accuracy outside those cases.
 * The request and answer shapes of the system 1 clients follow the providers' public descriptions. No live call has confirmed them yet.
 
 ## Criteria in a spec
@@ -138,14 +138,14 @@ Without its catalog, a real judge cannot answer `sheet_matches_catalog`: haiku a
 
 ## The request and the answer
 
-* The prompt gives the rubric with the FAIL picture before the PASS picture, then the data. A missing picture gets a strict default.
-* The observed content sits inside data tags: `<given_data>`, `<transcript_data>` and `<artifact_data>`. The instruction says that text inside a data tag is data, never instructions, and that an instruction found in the data is never a reason to pass. Any text in the data that opens or closes a data tag is escaped, so the data closes exactly once.
-* The answer is the final JSON object in the text. An object quoted earlier in the reasoning never becomes the verdict. A final object cut off at the end is inconclusive.
-* The answer is strict JSON with `outcome` (`pass`, `fail` or `inconclusive`), `reasoning`, and optionally `score` (the probability that the criterion passes, from 0 to 1) and `evidence` (a short quote from the data). Any other key breaks the contract.
-* Near-JSON gets one repair before it is refused: the outcome in capitals (`PASS`), a score written as a string (`"0.92"`), single quotes, a comma before a closing brace, a line that is only a `//` comment, typographic quotes, and a double quote inside a string that cannot close it (escaped, nothing else changes). A repair never adds a key or changes a value. If the repaired text meets the whole contract, it counts, and the result, the vote and the cassette entry say `repaired`; strict JSON is never marked repaired. Haiku wrote unescaped quotes in about one answer in a hundred (for example `"reasoning": "asks for the address again ("What address would you like me to check?")"`).
-* An answer that does not parse after repair, breaks the contract, or stops at its token limit is inconclusive. The council asks that judge again once with the large budget (for a chat model, 4096 tokens instead of 1024). There is no silent fallback.
-* A refusal by the provider is inconclusive.
-* An inconclusive verdict is never counted as a pass or a fail.
+* Ordinary chat requests supply a criterion and an authoritative requirement list. `JudgeRequest.requirements` gives each requirement an `id` and its full definition. An unsplit criterion defaults to its name as one id covering the full rubric.
+* The model returns `checks`, each with a requested `id`, `reasoning`, a grounded `evidence` quote or null, and `met` as true, false or null. Every requested id must occur exactly once. Missing or duplicate ids are unparseable. Unknown ids are ignored and retained in `ignoredRequirementIds` diagnostics.
+* Code computes the public binary `JudgeAnswer`: any known unmet requirement fails; otherwise an unknown requirement abstains; otherwise all requested requirements pass. The quote check proves that text appears in the data. It does not prove semantic correctness, and an incorrect model `met` flag can still produce an incorrect verdict.
+* Observed content sits inside data tags. The default guard escapes data-section tags, compatibility forms and invisible characters. The default renderer shows entry separators as ` ⏎ ` so text cannot forge a new transcript role.
+* The answer is the last complete JSON object. Extra fields, invalid evidence and truncated objects are unparseable. Shared syntax repair handles unescaped quotes inside strings without supplying a verdict or requirement. Strict JSON is never marked repaired.
+* `parseAnswerText` and `parseAnswerValue` remain explicit binary parsing utilities. Their public answer shape is `outcome`, `reasoning`, optional `score` and optional `evidence`; they are distinct from the default model-facing ledger contract.
+* `answerContract: 'legacy'` reproduces main `a97cb65e` rendering and parsing, including literal entry separators and its original quote repair. Additional repair forms and guard hardening do not change legacy playback.
+* Council and calibration paths retry an unparseable normal-budget answer once with the large budget. A single judge re-asks an invalid criterion ledger once. A split council can still run its existing additional round. A provider refusal or unresolved check remains inconclusive.
 
 ## Two classes of judge
 
@@ -216,7 +216,7 @@ The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-d
 ## The council
 
 * Each criterion has an assignment row: a class, three judges of that class, three re-judges of the other class (hybrid mode only), and its source: `spec`, `mode`, `default` or `calibration`. With no row, the three cheapest judges of the class sit, by cost and then by id.
-* The verdict is two of three agreeing votes. An inconclusive vote never counts.
+* The verdict needs more than half of the seated judges to agree. An inconclusive vote never supports a verdict. The exported `majority(votes, seated = 3)` retains this quorum: one pass among three seats is a split, even when no other votes were submitted.
 * No majority is a split. It is logged and, in hybrid mode, judged again by the three re-judges of the other class. When that splits too, or in a mode with one class, the assigned judges answer once more with the large budget; their votes carry `@large`. Still no majority is inconclusive.
 * Cascade, an option: the cheapest judge runs first, and the council stops there only on a pass with a `score` at or above the threshold (0.9 by default). A fail, an inconclusive or an unsure pass brings in the other two. A judge that leaves `score` out never stops the cascade, so a criterion that judge leads always costs three calls.
 * Modes: `system1`, `hybrid` or `llm`. `system1` and `llm` force their class and never call the other one. Scores from different modes are not comparable.
@@ -523,22 +523,25 @@ separated  sheet_matches_catalog [system1, gating]: pass fixture pass, fail fixt
 12 of 12 criteria separated in mode hybrid.
 ```
 
-## Planned
+## Additional judge APIs
 
-These capabilities are not built yet. Each line states what the judge layer will do; the judge validator holds the items that check it (`validators/judges/NEEDS.md`).
+These APIs are available in the package. The judge validator checks their behavior (`validators/judges/NEEDS.md`).
 
-* Retry-After. On a 429 or a 503 that carries a `Retry-After` header, a client waits what the header says, in seconds or as an HTTP date, capped at the longest wait, before its next attempt, instead of its own growing wait.
 * Per-judge cascade thresholds. `cascade: { threshold, thresholds: { <judge id>: <threshold> } }`: a judge listed in `thresholds` stops the cascade only at its own threshold, so a cheap judge that is sure too often can be held to a higher bar.
 * Reference answers per block. A request may carry `reference`, the answer a block is expected to give. The prompt shows it inside its own data tag, `<reference_data>`, guarded like the others, and the request key includes it, so a changed reference never replays an old recording.
 * Rubric lint, for rubrics written by a person or by a model alike. `lintCriterion(criterion)` returns `{ issues: [{ code }] }` for each defect that makes a rubric hard to answer the same way twice: `two-questions`, `subjective` (good, appropriate, nice, reasonable, properly, adequate, helpful, polite, professional, friendly), `vague-quantity` (some, several, many, often, usually, mostly, a few), `double-negative`, `no-observable` (no reply, agent, assistant, message, tool, call, order, customer, user, file or transcript), `too-long` (over 400 characters), `no-fail-picture`, `no-pass-picture`, `same-pictures`, `picture-contradicts-rubric` (the PASS picture is the FAIL picture with "not"), `scope-mismatch` ("the last reply" in a conversation criterion, "the whole conversation" in a block criterion), `placeholder` (an unfilled `{x}` or `<x>`), `unbalanced-quotes`, `empty-rubric`, `compound` ("and also", "as well as"), `hedged` (might, may, could, perhaps, possibly), `instruction-to-judge` ("answer pass", "always pass", "mark as") and `pictures-swapped`. A rubric without the defect gives no issue.
-* Evidence grounding. `groundEvidence(request, answer)` returns `{ grounded, where? }`: a quote is grounded when it is found, after folding case, compatibility forms, typographic quotes and runs of white space and after one pair of surrounding quotes is stripped, on word boundaries inside one data place: a transcript entry (`transcript.<index>`), the artifact (`artifact`) or the Given (`given`). Parts split by "..." must be found in order in one place. A quote found only in the rubric, in a tool name, or nowhere is not grounded, and neither is an empty quote.
+* Evidence grounding. `groundEvidence(request, answer)` returns `{ grounded, where? }`: a quote is grounded when it is found, after folding case, compatibility forms, typographic quotes and runs of white space and after one pair of surrounding quotes is stripped, on word boundaries inside one data place: a transcript entry, the artifact, Given, an input file or a reference. Parts split by "..." must be found in order in one place. A quote found only in the rubric, in a tool name, or nowhere is not grounded, and neither is an empty quote.
 * Turn-by-turn judging. `judgeTurns(judge, request)` judges a conversation turn by turn on the prefix that ends where the next turn starts, one call per turn, and returns each turn's outcome, the overall outcome (fail when a turn fails, else inconclusive when one is, else pass), the first failing turn and the first later turn that passes again. A turn starts at a customer message; consecutive customer messages are one turn; context entries are not turns. A judge that throws makes its turn inconclusive; a transcript with no customer message is refused.
 * A prompt budget. `fitPrompt(request, maxChars)` fits a long conversation to a judge's budget, measured on the rendered prompt: the fewest oldest entries are dropped and replaced by one context entry, "[k earlier entries omitted]"; the last block, the artifact and the Given are never dropped, and a tool result never stays without its call. A budget that is not a whole number above 0, or one the last block alone overflows, is refused.
-* Pairwise judging and position bias. `comparePair(judge, { criterion, a, b })` asks a pair judge in both orders, `<first_data>` then `<second_data>`, and gives the winner only when both orders agree: a judge that prefers a position gives inconclusive. `positionBias(pairs)` reports the share of pairs whose winner changes when the two answers swap, and `swapConsistent` checks one pair. Several versions are ranked by Bradley-Terry strengths, with every three-version preference cycle named; a comparison graph that is not strongly connected is refused.
-* Calibration on skewed labels. Beside kappa, the report gives each judge PABAK (2 times the agreement minus 1) and Gwet's AC1, which stay meaningful when one label is rare, and the judge's error rates with fail as the positive class: the confusion counts, sensitivity, specificity, balanced accuracy, and the false pass and false fail rates.
-* Label hygiene. Calibration names labelled blocks with the same slice and opposite labels, labelled blocks equal to a fixture, and warns when a label class has fewer than 5 blocks.
+* Pairwise judging. `comparePair` and `judgePairwise` compare both candidate orders and reconcile in code. `bradleyTerry` ranks a strongly connected preference graph; `findCycles` names three-version preference cycles. The explicit winner contract is described below.
+* Calibration on skewed labels. The report adds PABAK and Gwet's AC1 beside kappa, and agreement intervals through `agreementInterval`.
 * Structured output. The OpenAI chat client asks for a JSON schema of the answer contract (`response_format: json_schema`), and the Google client gives it as `responseSchema`.
-* Token usage. `usageFromResponse(provider, body)` reads the input and output tokens of an OpenAI, Anthropic or Google answer, so each vote can record what it used.
+* Token usage. `usageFromResponse(provider, body)` reads input and output token counts from OpenAI, Anthropic and Google response bodies.
+* Retry-After. On a 429 or a 503 carrying a `Retry-After` header, a client uses its seconds or HTTP date, capped by its configured maximum delay.
+
+## Remaining planned capabilities
+
+* Label hygiene. Calibration names labelled blocks with the same slice and opposite labels, labelled blocks equal to a fixture, and warns when a label class has fewer than 5 blocks.
 * The repair mark on the verdict. The judge verdict built from repaired votes says so, as the votes and cassette entries do today.
 
 ## The judge check in a run
@@ -566,13 +569,15 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 
 ## Model-facing criterion checks
 
-Ordinary chat checks return one evidence row per atomic requirement: `requirement`, `reasoning`, a grounded `evidence` quote (or null), and `met` (true, false or null). The model returns no overall verdict. Code computes fail when any requirement is unmet, inconclusive when a requirement is unknown, and pass when all requirements are met. A met requirement needs a quote from the supplied data. Invented evidence, duplicate requirements and extra keys are unparseable.
+Ordinary chat checks return one evidence row per requested requirement: `id`, `reasoning`, a grounded `evidence` quote (or null), and `met` (true, false or null). `JudgeRequest.requirements` defines the exact set; an unsplit criterion supplies one id, its name, covering its entire rubric. The model returns no overall verdict. Code computes fail when any requirement is unmet, inconclusive when a requirement is unknown, and pass when all requirements are met. A met requirement needs a quote from the supplied data. Invented evidence, missing or duplicate requested ids and extra keys are unparseable. Unknown ids are ignored and retained in `ignoredRequirementIds`. The model does not choose the requirement set.
 
-The public `JudgeAnswer` remains `{ outcome, reasoning, evidence?, score? }`. `parseAnswerText` and `parseAnswerValue` retain their binary parsing behavior. Custom chat clients use `parseJudgeText` or `parseJudgeValue` with the request. Probability judges retain their existing binary question and mapping.
+The public `JudgeAnswer` remains `{ outcome, reasoning, evidence?, score? }`. `parseAnswerText` and `parseAnswerValue` remain binary parsing utilities; the text utility includes additional syntax repairs. Custom chat clients use `parseJudgeText` or `parseJudgeValue` with the request. Probability judges retain their existing binary question and mapping.
 
 Select `answerContract: 'legacy'` on a request to use main `a97cb65e` rendering and parsing byte for byte. This includes literal entry separators, the original data-tag guard, object extraction and the original single syntax repair. This keeps existing cassettes and old scores reproducible. Cassette players also accept that option; recordings made before the ledger contract select legacy automatically. A new ledger recording identifies its contract explicitly and cannot silently replay under a different prompt. No existing cassette needs to be re-recorded to keep using legacy.
 
-Under the new default, an old binary model response is unparseable. Council and calibration paths retry it once with the large budget and then abstain; the single-judge path abstains directly. An unparseable response cannot become a fail or pass from its explanation.
+Under the new default, an old binary model response is unparseable. Council, calibration and single-judge paths re-ask an invalid criterion ledger once with the large budget, then abstain if it remains invalid. A split council can still run its existing additional round. An unparseable response cannot become a fail or pass from its explanation. A parsed row still depends on the model judging that requirement correctly.
+
+The committed Haiku regression cassettes retain four fresh responses for each of seven real failures of the previous contract. The single-id default produces 27 correct passes, one inconclusive and zero wrong verdicts across 28 responses. `qa-negation-2` abstains once because the model demands affirmative phrasing despite the criterion accepting double negation. The recording remains intact; aggregation cannot correct that semantic judgment. Legacy replay retains all 1,028 existing chat entries unchanged.
 
 ## Pairwise comparison
 
@@ -585,11 +590,11 @@ Chat models now return a named winner instead of translating a winner into pass 
 ```
 
 * `winner` is `A`, `B`, `tie` or `inconclusive`. Code maps A to the existing `pass` outcome and B to `fail`.
-* `winnerQuote` copies the opening of the named candidate, up to 240 characters. It is null for a tie or missing data. The parser checks it against the candidate text.
+* `winnerQuote` copies enough opening text to identify exactly one candidate. It must be nonempty after whitespace normalization. It is null for a tie or missing data. A decisive answer without candidates, with a blank quote or with an opening shared by both candidates is unparseable.
 * A malformed answer gets one re-ask with the large budget. A still-invalid answer stays inconclusive. A shared opening cannot by itself distinguish two candidates.
 * Every built-in chat client sends and parses the request's assessment contract. Custom clients that already return binary outcomes remain supported, including probability clients. They do not provide the named-winner integrity check until they adopt `parseJudgeText(raw, request)` or `parseJudgeValue(value, request)`.
 
-`pairwiseRequest` carries `assessment`, `candidates` and the comparison system prompt. An HTTP judge endpoint receives those fields in its request. A changed assessment or custom system prompt changes the cassette key. Old pairwise recordings require re-recording; ordinary binary criterion requests keep their answer shape.
+`pairwiseRequest` carries `assessment`, `candidates` and the comparison system prompt. An HTTP judge endpoint receives those fields in its request. A changed assessment, requirement set or custom system prompt changes the cassette key. New-default pairwise and criterion recordings require fresh responses. Existing recordings remain usable with `answerContract: 'legacy'`.
 
 ### Factual audit and ledger recovery
 

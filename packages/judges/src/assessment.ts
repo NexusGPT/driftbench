@@ -5,7 +5,6 @@ import {
   inconclusive,
   type JudgeRequest,
   type JudgeResult,
-  parseAnswerValue,
   repairAnswerText,
 } from './contract';
 import { CriterionLedger, parseCriterionLedger } from './criterion-ledger';
@@ -37,7 +36,7 @@ export const PairwiseAnswer = z.strictObject({
   winner: z.enum(['A', 'B', 'tie', 'inconclusive']),
   reasoning: z.string(),
   evidence: z.string().optional(),
-  winnerQuote: z.string().min(1).max(240).nullable(),
+  winnerQuote: z.string().trim().min(1).nullable(),
 });
 export type PairwiseAnswer = z.infer<typeof PairwiseAnswer>;
 
@@ -157,10 +156,15 @@ export function parseJudgeValue(
     if (!parsed.success) return invalid(raw, parsed.error.issues[0]?.message ?? 'invalid winner');
     const { winner, winnerQuote, ...answer } = parsed.data;
     if (winner === 'A' || winner === 'B') {
-      const reply = request.candidates?.[winner];
       const fold = (text: string) => text.normalize('NFKC').replace(/\s+/g, ' ').trim();
-      if (winnerQuote === null || (reply !== undefined && !fold(reply).startsWith(fold(winnerQuote))))
-        return invalid(raw, 'winnerQuote must quote the opening of the named winner');
+      const matches =
+        winnerQuote === null || !fold(winnerQuote) || !request.candidates
+          ? []
+          : (['A', 'B'] as const).filter((side) =>
+              fold(request.candidates?.[side] ?? '').startsWith(fold(winnerQuote)),
+            );
+      if (matches.length !== 1 || matches[0] !== winner)
+        return invalid(raw, 'winnerQuote must uniquely quote the opening of the named winner');
     } else if (winnerQuote !== null) return invalid(raw, 'a tie or inconclusive has no winnerQuote');
     return {
       raw,

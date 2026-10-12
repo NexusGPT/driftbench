@@ -484,7 +484,7 @@ let input = '';
 process.stdin.on('data', (c) => { input += c; });
 process.stdin.on('end', () => {
   process.stdout.write(JSON.stringify({ type: 'result', subtype: 'success', is_error: false, total_cost_usd: 0.001,
-    result: JSON.stringify(${legacy ? "{ outcome: 'pass', reasoning: 'fake: always pass' }" : "{ checks: [{ requirement: 'Meet the criterion.', reasoning: 'fake: always pass', evidence: input.match(/\\[agent\\] ([^\\n]+)/)?.[1] ?? input.match(/\\[user\\] ([^\\n]+)/)?.[1] ?? null, met: true }] }"}) }));
+    result: JSON.stringify(${legacy ? "{ outcome: 'pass', reasoning: 'fake: always pass' }" : "{ checks: [{ id: input.match(/^CRITERION: ([^\\n]+)/)?.[1] ?? 'missing', reasoning: 'fake: always pass', evidence: input.match(/\\[agent\\] ([^\\n]+)/)?.[1] ?? input.match(/\\[user\\] ([^\\n]+)/)?.[1] ?? null, met: true }] }"}) }));
 });
 `,
     );

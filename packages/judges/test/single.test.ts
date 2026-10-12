@@ -109,3 +109,45 @@ describe('no judge configured', () => {
     expect(verdicts[0]?.evidence).toContain('no judge is configured');
   });
 });
+
+describe('missing criterion-ledger coverage', () => {
+  for (const repaired of [false, true]) {
+    it(`re-asks once and ${repaired ? 'uses complete coverage' : 'abstains on repeated omission'}`, async () => {
+      const { parseJudgeText } = await import('../src/assessment');
+      let calls = 0;
+      let cost = 0;
+      const budgets: unknown[] = [];
+      const client: JudgeClient = {
+        id: 'coverage',
+        family: 'test',
+        cls: 'system2',
+        cost: 1,
+        async judge(request) {
+          calls++;
+          budgets.push(request.budget);
+          const checks =
+            repaired && calls === 2
+              ? [
+                  {
+                    id: 'rule.holiday',
+                    reasoning: 'The plan avoids the holiday.',
+                    evidence: 'Thursday',
+                    met: true,
+                  },
+                ]
+              : [];
+          return { ...parseJudgeText(JSON.stringify({ checks }), request), costUsd: 0.001 };
+        },
+      };
+      const [verdict] = await singleJudgeCheck(client, {
+        onCost: (usd) => {
+          cost += usd;
+        },
+      }).evaluate(context(['rule.holiday']));
+      expect(calls).toBe(2);
+      expect(budgets[1]).toBe('large');
+      expect(cost).toBeCloseTo(0.002);
+      expect(verdict?.outcome).toBe(repaired ? 'pass' : 'inconclusive');
+    });
+  }
+});

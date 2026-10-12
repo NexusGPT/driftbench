@@ -130,3 +130,16 @@ describe('hard rubric items', () => {
     expect(result.answer.outcome).toBe('fail');
   });
 });
+
+it('rejects whitespace-only and ambiguous opening quotes', () => {
+  const request = {
+    ...pair,
+    candidates: { A: 'Shared opening, wrong answer.', B: 'Shared opening, correct answer.' },
+  };
+  for (const winnerQuote of [' ', '\t\n', 'Shared opening']) {
+    expect(
+      parseJudgeText(JSON.stringify({ reasoning: 'B is correct', winner: 'B', winnerQuote }), request)
+        .unparsed,
+    ).toBe(true);
+  }
+});

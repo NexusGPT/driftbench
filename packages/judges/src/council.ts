@@ -348,18 +348,26 @@ async function runRound(
   } else {
     votes.push(...(await Promise.all(ordered.map((judge) => castVote(request, judge, budget, counter)))));
   }
-  const outcome: RoundOutcome = cascaded ? 'pass' : majority(votes);
+  const outcome: RoundOutcome = cascaded ? 'pass' : majority(votes, judges.length);
   return { cls, budget, votes, outcome, cascaded };
 }
 
-/**
- * The outcome a majority agrees on: more than half of all votes cast, so two of three, or the one vote of a row
- * of one. An inconclusive vote counts in the total and never for an outcome; otherwise the round is split.
- */
+/** The default quorum remains main's three seated judges. Explicit weights retain their opt-in behavior. */
+export function majority(votes: readonly Vote[], seated?: number): RoundOutcome;
+export function majority(votes: readonly Vote[], options: { weights?: Record<string, number> }): RoundOutcome;
 export function majority(
   votes: readonly Vote[],
-  options: { weights?: Record<string, number> } = {},
+  seatedOrOptions: number | { weights?: Record<string, number> } = COUNCIL_SIZE,
 ): RoundOutcome {
+  if (typeof seatedOrOptions === 'number') {
+    const pass = votes.filter((vote) => vote.outcome === 'pass').length;
+    const fail = votes.filter((vote) => vote.outcome === 'fail').length;
+    const needed = Math.floor(seatedOrOptions / 2) + 1;
+    if (pass >= needed && pass > fail) return 'pass';
+    if (fail >= needed && fail > pass) return 'fail';
+    return 'split';
+  }
+  const options = seatedOrOptions;
   for (const weight of Object.values(options.weights ?? {})) {
     if (!Number.isFinite(weight) || weight < 0)
       throw new RangeError(`a weight must be a finite number, at least 0`);
