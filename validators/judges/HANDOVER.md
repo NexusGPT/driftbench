@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 7 (check) passes since iteration 38. Level 8, rubric (18 items): `rubric/vague-quantity`, `vague-quantity`, `double-negative`, `no-observable`; read the head comment of families/rubric*.ts for the capability. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
+Level 7 (check) passes since iteration 38. Level 8, rubric (17 items left); next code: double-negative.ts for the capability. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
 
 ## Hypotheses tried
 
@@ -66,10 +66,11 @@ The first commit of iteration 34 lacked the index export; a second commit added 
 Iteration 38 (cause: raw file names in diff summary): `oneLine` in artifacts.ts. Test: task.test.ts "a diff summary with a line break in a file name" (red proved by reverting the source). Bank 302 -> 303 (0.4749). Level 6 -> 7.
 Iteration 39 (cause: lintCriterion missing): packages/judges/src/lint.ts, a RULES table with `two-questions`, exported. Test: packages/judges/test/lint.test.ts (red proved by removing the export). Bank 303 -> 304 (0.4765). Add each next code as one row of RULES.
 Iteration 40 (cause: no subjective rule): row in RULES. Test: lint.test.ts (red proved by reverting the rule). Bank 304 -> 305 (0.4781). The 15 iterations of the second brief are done (26 to 40). Pitfall: a heredoc turns \u2028 in test text into the raw character; write such escapes with python and a doubled backslash.
+Iteration 41 (cause: no vague-quantity rule): row in RULES. Test: lint.test.ts (red proved by reverting the source). Bank 305 -> 306 (0.4796).
 
 ## Next actions
 
-1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"): vague-quantity, double-negative, no-observable, too-long, no-fail-picture, ... The clean twin of every item must still give no issue.
+1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"), next: double-negative. The clean twin of every item must still give no issue.
 2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`. PR 86 takes every push.
 
