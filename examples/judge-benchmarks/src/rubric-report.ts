@@ -3,6 +3,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { contestantById } from './contestants';
+import type { Execution } from './code-evidence';
 import { type ContestantReport, RECORDINGS, type RunReport } from './run';
 
 /** Rebuild the handover from completed full-dev runs, retaining partial attempts separately. */
@@ -17,7 +18,7 @@ async function main(): Promise<void> {
     const report = JSON.parse(await readFile(join(directory, file), 'utf8')) as Partial<RunReport>;
     if (!Array.isArray(report.contestants)) continue;
     for (const contestant of report.contestants) {
-      if (report.items === 357 && contestant.summary.missing === 0 && !report.stopped)
+      if (report.items === 357 && contestant.summary.missing === 0)
         completed.set(contestant.contestant, contestant);
     }
     if (report.stopped || report.items !== 357 || report.contestants.some((c) => c.summary.missing > 0))
@@ -59,6 +60,23 @@ async function main(): Promise<void> {
     .map((line) => JSON.parse(line) as { contestant?: string; costUsd: number })
     .filter((r) => r.contestant?.startsWith('driftbench-rb-') || r.contestant === 'driftbench-checklist');
   const spend = newRows.reduce((a, b) => a + b.costUsd, 0);
+  const coverage = JSON.parse(await readFile(join(directory, 'code-coverage.json'), 'utf8')) as {
+    rows: { domain: string; attempted: boolean; evidence?: { A: Execution[]; B: Execution[] } }[];
+  };
+  const executionRows = ['code', 'mbpp'].map((domain) => {
+    const items = coverage.rows.filter((row) => row.domain === domain);
+    const observations = items.flatMap((row) => [...(row.evidence?.A ?? []), ...(row.evidence?.B ?? [])]);
+    const tests = observations.flatMap((observation) =>
+      (observation.stdout ?? '').split('\n').flatMap((line) => {
+        try {
+          return (JSON.parse(line) as { tests?: { pass: boolean }[] }).tests ?? [];
+        } catch {
+          return [];
+        }
+      }),
+    );
+    return `| ${domain} | ${items.length} | ${items.filter((row) => row.attempted).length} | ${observations.filter((row) => ['ran', 'executed'].includes(row.status)).length} | ${tests.filter((test) => test.pass).length}/${tests.length} |`;
+  });
   const freeze = {
     contestant: best.contestant,
     model: 'haiku',
@@ -109,12 +127,21 @@ async function main(): Promise<void> {
     '- Independent repeats and the prompt ensemble test whether additional judgments resolve remaining errors. Competitor templates stay unchanged.',
     '- The pointwise engine classifies hard and soft items before seeing replies, validates exact positive quotes, permutes rubric order by sample, and enforces hard satisfaction before weighted soft counts.',
     '- Five-vote execution stops early only when every rubric has a mathematical majority that the remaining unseen votes cannot change. It never stops on confidence alone.',
-    '- Code and MBPP snippets run in worktree scratch folders. Python uses supplied examples, JavaScript runs in a VM, C/C++ run when an entry point exists, and SQL uses a scratch SQLite database. Missing Java runtime, unsupported languages and absent context remain visible unknowns.',
+    '- Code and MBPP snippets run in worktree scratch folders. Python uses supplied examples, JavaScript runs in a VM, C/C++ run when an entry point exists, and SQL uses a scratch SQLite database. A portable Java runtime is stored in the ignored worktree cache; unsupported languages and absent context remain visible unknowns.',
     '',
     `The selected configuration uses ${config.rubricEngine?.samples ?? config.samples ?? 1} judgment(s) per prompt and ${config.canonicalOrder ? 'canonical presentation' : 'the original presentation rules'}. Its measured score and domain rows above are the evidence for choosing it.`,
     '',
     'Canonical mapping gives the same choice in both input orders. The reported consistency metric still counts ties as inconsistent. Mapping is not evidence that the underlying model is immune to ordering. The two reported games reuse one judgment and are not independent observations.',
     'Cost counts unique recorded prompt keys within a contestant. The legacy costUsd field counts both game requests, including cache hits, and can therefore double-count canonical judgments. uniqueCostUsd is the reproduction cost used here.',
+    '',
+    '## Code execution coverage',
+    '',
+    '| Domain | Dev pairs inspected | Pairs with fenced snippets | Snippet groups that ran | Supplied example checks passed |',
+    '|---|---:|---:|---:|---:|',
+    ...executionRows,
+    '',
+    'Both replies pass all supplied MBPP example checks. Their preference decisions still require the formatting, preservation and explanation requirements in the rubric.',
+    'No snippets means no executable observation. Unsupported languages, missing libraries, absent context and timeouts remain unknowns. A process error is not automatically a candidate defect. Standard input and command arguments are not synthesized; SQLite does not validate every SQL dialect. Grouped alternative implementations can conflict when run together. The execution journal preserves these limits alongside the actual outputs.',
     '',
     '## Reproduce',
     '',
@@ -128,7 +155,7 @@ async function main(): Promise<void> {
     '',
     '## Partial attempts',
     '',
-    'Partial reports never select the best config. Their scores include missing answers and are not full-dev measurements.',
+    'Contestants with missing answers never select the best config. A completed contestant remains eligible if a later contestant in the same report stops.',
     '',
     '| Report | Requested items | Missing answers across variants | Stop |',
     '|---|---:|---:|---|',

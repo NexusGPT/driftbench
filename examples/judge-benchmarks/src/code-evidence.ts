@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { appendFile, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 /** Run public candidate snippets in isolated worktree folders, with host writes and networking denied. */
 export type CodeBlock = { language: string; code: string };
@@ -13,7 +13,7 @@ export type Execution = {
   stderr?: string;
   code?: number | null;
 };
-const VERSION = 'code-evidence-v5';
+const VERSION = 'code-evidence-v6';
 const LIMIT = 3000;
 
 export function codeBlocks(text: string): CodeBlock[] {
@@ -145,9 +145,19 @@ export async function executeBlock(block: CodeBlock, question: string, root: str
   const folder = await mkdtemp(join(root, 'snippet-'));
   const profile = join(folder, 'sandbox.sb');
   const quote = (value: string) => JSON.stringify(value);
+  let javaHome: string | undefined;
+  try {
+    const manifest = JSON.parse(await readFile(resolve('.cache/rb/jdk/manifest.json'), 'utf8')) as {
+      java: string;
+    };
+    const proposed = dirname(dirname(manifest.java));
+    if (proposed.startsWith(resolve('.cache/rb/jdk'))) javaHome = proposed;
+  } catch {
+    javaHome = undefined;
+  }
   await writeFile(
     profile,
-    `(version 1)\n(allow default)\n(deny network*)\n(deny file-write* (require-not (subpath ${quote(folder)})))\n(deny file-read-data (require-all (subpath ${quote(homedir())}) (require-not (subpath ${quote(folder)})) (require-not (subpath ${quote(join(homedir(), '.local/share/uv/python'))})) (require-not (subpath ${quote(join(homedir(), '.local/bin'))}))))\n`,
+    `(version 1)\n(allow default)\n(deny network*)\n(deny file-write* (require-not (subpath ${quote(folder)})))\n(deny file-read-data (subpath "/private/tmp"))\n(deny file-read-data (require-all (subpath ${quote(homedir())}) (require-not (subpath ${quote(folder)})) (require-not (subpath ${quote(join(homedir(), '.local/share/uv/python'))})) (require-not (subpath ${quote(join(homedir(), '.local/bin'))})) ${javaHome ? `(require-not (subpath ${quote(javaHome)}))` : ''}))\n`,
   );
   const run = (command: string, args: string[], input = '', timeout = 5000) =>
     execute('sandbox-exec', ['-f', profile, command, ...args], folder, input, timeout);
@@ -189,6 +199,23 @@ export async function executeBlock(block: CodeBlock, question: string, root: str
     const file = join(folder, 'answer.sh');
     await writeFile(file, block.code);
     result = await run('/bin/sh', [file]);
+  } else if (block.language === 'java' && javaHome) {
+    const className = block.code.match(/\b(?:public\s+)?class\s+([A-Za-z_$][\w$]*)/)?.[1];
+    if (!className) return { language: 'java', status: 'missing_class_context' };
+    const file = join(folder, `${className}.java`);
+    await writeFile(file, block.code);
+    result = await run(join(javaHome, 'bin', 'javac'), ['-J-Xmx128m', '-d', folder, file], '', 10_000);
+    if (result.code === 0) {
+      if (!/\bstatic\s+void\s+main\s*\(/.test(block.code))
+        return { language: 'java', status: 'compiled_no_entry_point' };
+      const packageName = block.code.match(/\bpackage\s+([\w.]+)\s*;/)?.[1];
+      result = await run(join(javaHome, 'bin', 'java'), [
+        '-Xmx128m',
+        '-cp',
+        folder,
+        packageName ? `${packageName}.${className}` : className,
+      ]);
+    }
   } else if (block.language === 'sql') {
     result = await run('sqlite3', [join(folder, 'scratch.db')], block.code);
   } else
@@ -227,10 +254,26 @@ export async function codeEvidence(input: {
     .update(JSON.stringify([VERSION, input.question, input.a, input.b]))
     .digest('hex');
   const cache = join(root, `${key}.json`);
-  let evidence: { key: string; a: Execution[]; b: Execution[] };
+  type PairEvidence = { key: string; a: Execution[]; b: Execution[] };
+  let evidence: PairEvidence | undefined;
   try {
-    evidence = JSON.parse(await readFile(cache, 'utf8')) as typeof evidence;
+    evidence = JSON.parse(await readFile(cache, 'utf8')) as PairEvidence;
   } catch {
+    // Committed execution observations make a frozen prompt reproducible without reinstalling
+    // every runtime. Their key binds the exact snippets, question and executor version.
+    try {
+      const journal = await readFile('examples/judge-benchmarks/experiments/rb/execution.jsonl', 'utf8');
+      const recorded = journal
+        .split('\n')
+        .filter(Boolean)
+        .map((line) => JSON.parse(line) as PairEvidence)
+        .find((row) => row.key === key);
+      if (recorded) evidence = recorded;
+    } catch {
+      /* No recording: execute the snippets below. */
+    }
+    if (evidence)
+      return `Execution observations for the exact candidate snippets. These are not a proof of full correctness. Missing dependencies, a restricted environment, separate snippet context or an absent entry point are unknowns, not evidence the answer is wrong. Adjacent Python, JavaScript and SQL blocks run in sequence; alternative implementations may need separate interpretation. Supplied example expectations may themselves be wrong.\n${JSON.stringify({ A: evidence.a, B: evidence.b })}`;
     const runAll = async (blocks: CodeBlock[]) => {
       const results: Execution[] = [];
       const grouped: CodeBlock[] = [];
