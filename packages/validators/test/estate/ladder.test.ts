@@ -12,7 +12,7 @@ import {
   planLevel,
   requiredRows,
   specLevel,
-  symlinkFamily,
+  standingFamily,
 } from '../../src/ladders/estate/index';
 
 /** The seed 1 run with one part replaced: a fault planted in the component a level watches. */
@@ -37,16 +37,16 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
 
   it('stops at the reader level on seed 1 today, naming reader items with their family, tier and file', async () => {
     const run = await runLadder(
-      estateLadder({ families: { reader: () => [symlinkFamily(), frontmatterFamily()] } }),
+      estateLadder({ families: { reader: () => [standingFamily(), frontmatterFamily()] } }),
       { seed: 1 },
     );
     expect(run.level).toBe(0);
     expect(run.failing?.id).toBe('reader');
     expect(run.rows[1]?.pass).toBeNull();
-    const item = run.failing?.items.find((candidate) => candidate.id === 'scan.symlink.skill-folder-inside');
-    expect(item?.component).toBe('packages/estate/src/scan/claude-code.ts');
+    const item = run.failing?.items.find((candidate) => candidate.id === 'scan.standing.plain-name');
+    expect(item?.component).toBe('packages/estate/src/scan/code.ts');
     expect(item?.detail).toMatch(
-      /^\[scan\.symlink, tier 2\] the reader follows a skill folder linked from a library/,
+      /^\[scan\.standing, tier 3\] the reader reads a routing cell naming the skill without backticks/,
     );
     expect(run.failing?.items.some((candidate) => candidate.id === 'scan.frontmatter.plain')).toBe(false);
   });

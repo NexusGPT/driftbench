@@ -23,7 +23,7 @@ const CODE = 'packages/estate/src/scan/code.ts';
 const EDGES = 'packages/estate/src/graph/edges.ts';
 const BUDGET_MS = 5000;
 
-type Case = {
+export type Case = {
   key: string;
   tier: Tier;
   title: string;
@@ -31,12 +31,12 @@ type Case = {
   plant(estate: PlantedEstate, seed: number, owner: string): void;
 };
 
-function noteNames(path: string): Check {
+export function noteNames(path: string): Check {
   return (scan) => (scan.notes.some((note) => note.startsWith(path)) ? undefined : `no note names ${path}`);
 }
 
 /** A helper file with its unit and description route planted. */
-function helperUnit(estate: PlantedEstate, owner: string, name: string): void {
+export function helperUnit(estate: PlantedEstate, owner: string, name: string): void {
   const path = helperFile(name);
   const writer = estate.file(path, owner);
   writer.line('---');
@@ -45,7 +45,7 @@ function helperUnit(estate: PlantedEstate, owner: string, name: string): void {
   writer.lines_(['tools: Read', '---', '', 'You read.']);
 }
 
-function standardSkill(estate: PlantedEstate, seed: number, owner: string, body: string[] = []) {
+export function standardSkill(estate: PlantedEstate, seed: number, owner: string, body: string[] = []) {
   const names = namesFor(seed, owner);
   plantSkill(estate, owner, names.skill, `${capital(names.title)} for the team.`, [
     rule(`${owner}:rule`, `Always name the ${names.noun} in the first line.`),
@@ -667,7 +667,7 @@ async function judgeCase(seed: number, family: string, item: Case): Promise<Item
   return result;
 }
 
-function caseFamily(family: string, component: string, cases: readonly Case[], verb: string): Family {
+export function caseFamily(family: string, component: string, cases: readonly Case[], verb: string): Family {
   const items = itemsOf(
     family,
     1,

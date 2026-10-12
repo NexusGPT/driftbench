@@ -11,6 +11,7 @@ import { catalogueFamily, dispatcherFamily } from './scan-guards';
 import { symlinkFamily } from './scan-links';
 import { referenceProseFamily } from './scan-refs';
 import { registryFamily } from './scan-registry';
+import { standingFamily } from './scan-standing';
 import { stepsFamily } from './scan-steps';
 
 export * from './frame';
@@ -35,6 +36,7 @@ export const BANK_LEVELS = [
       comboFamily(),
       hostileFamily(),
       decoysFamily(),
+      standingFamily(),
     ],
   },
   { id: 'lint', name: 'lint', families: () => [lintDefectFamily(), lintCleanFamily()] },
@@ -76,4 +78,5 @@ export { catalogueFamily, dispatcherFamily } from './scan-guards';
 export { symlinkFamily } from './scan-links';
 export { MAX_CHUNK, referenceProseFamily } from './scan-refs';
 export { registryFamily } from './scan-registry';
+export { standingFamily } from './scan-standing';
 export { stepsFamily } from './scan-steps';

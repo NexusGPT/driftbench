@@ -7,7 +7,6 @@ import {
   dispatcherFamily,
   estateBank,
   type Family,
-  frontmatterFamily,
   hardness,
   hostileFamily,
   itemsOf,
@@ -15,6 +14,7 @@ import {
   PlantedEstate,
   rowOf,
   scaleEstate,
+  standingFamily,
   truthPort,
 } from '../../src/ladders/estate/index';
 
@@ -61,7 +61,7 @@ describe('the estate bank', () => {
     ]);
   });
 
-  it('gives every item a unique id, a family, a tier from 1 to 5 and a component', () => {
+  it('gives every item a unique id, a family, a tier from 1 to 5, a component and a cause', () => {
     const items = estateBank().flatMap((family) =>
       family.items.map((item) => ({ ...item, owner: family.id })),
     );
@@ -72,6 +72,7 @@ describe('the estate bank', () => {
       expect(item.tier).toBeLessThanOrEqual(5);
       expect(item.component).toMatch(/^packages\//);
       expect(item.id.startsWith(`${item.family}.`)).toBe(true);
+      expect(item.cause.length).toBeGreaterThan(0);
     }
   });
 
@@ -97,7 +98,18 @@ describe('the estate bank', () => {
     const measure = await levelMeasure([fake('fake.level', () => [true, false])], 1);
     expect(measure.value).toBe(0.5);
     expect(measure.items).toEqual([
-      { id: 'fake.level.b', component: 'x', detail: '[fake.level, tier 2] b: seed 1' },
+      {
+        id: 'fake.level.b',
+        component: 'x',
+        family: 'fake.level',
+        tier: 2,
+        cause: 'fake.level.b: b',
+        detail: '[fake.level, tier 2] b: seed 1',
+      },
+    ]);
+    expect(measure.bank?.map((entry) => [entry.id, entry.pass])).toEqual([
+      ['fake.level.a', true],
+      ['fake.level.b', false],
     ]);
   });
 
@@ -134,7 +146,7 @@ describe('the estate bank', () => {
         passing: 1,
         score: 0.5,
         items: [
-          { id: 'f.a', family: 'f', tier: 1, level: 1, component: 'x', title: 'a', pass: true },
+          { id: 'f.a', family: 'f', tier: 1, level: 1, component: 'x', title: 'a', cause: 'c', pass: true },
           {
             id: 'f.b',
             family: 'f',
@@ -142,6 +154,7 @@ describe('the estate bank', () => {
             level: 1,
             component: 'x',
             title: 'b',
+            cause: 'c',
             pass: false,
             failedOn: '1',
             detail: 'no',
@@ -213,17 +226,28 @@ describe('planted estates', { timeout: 60_000 }, () => {
 });
 
 describe('families against the current components', { timeout: 120_000 }, () => {
-  it('reads plain frontmatter forms and names the colon form the reader refuses', async () => {
-    const results = await frontmatterFamily().evaluate(3);
-    expect(results.get('scan.frontmatter.plain')?.pass).toBe(true);
-    expect(results.get('scan.frontmatter.colon-in-value')?.pass).toBe(false);
-    expect(results.get('scan.frontmatter.colon-in-value')?.detail).toMatch(/missed route/);
+  it('reads a routing table in backticks and names the routing cell the reader refuses', async () => {
+    const results = await standingFamily().evaluate(3);
+    expect(results.get('scan.standing.plain-table')?.pass).toBe(true);
+    expect(results.get('scan.standing.plain-name')?.pass).toBe(false);
+    expect(results.get('scan.standing.plain-name')?.detail).toMatch(/missed route/);
   });
 
-  it('finds the script behind an anchor and names the prefix forms it cannot read', async () => {
+  it('finds the script behind an anchor and names the dispatcher forms it cannot read', async () => {
     const results = await dispatcherFamily().evaluate(3);
     expect(results.get('scan.dispatcher.interpreter-anchor')?.pass).toBe(true);
-    expect(results.get('scan.dispatcher.quiet-prefix')?.pass).toBe(false);
+    expect(results.get('scan.dispatcher.dispatcher')?.pass).toBe(false);
+  });
+
+  it('tags the items of one cause with one cause, so the gate counts it once', () => {
+    const items = estateBank().flatMap((family) => family.items);
+    const causeOfId = (id: string) => items.find((item) => item.id === id)?.cause;
+    expect(causeOfId('scan.standing.plain-name')).toBe(causeOfId('scan.standing.bold-name'));
+    expect(causeOfId('scan.paths.single-quoted')).toBe(causeOfId('scan.paths.double-quoted'));
+    expect(causeOfId('scan.standing.plain-name')).not.toBe(causeOfId('scan.standing.slash-command'));
+    expect(causeOfId('scan.hostile.frontmatter-only')).toBe(
+      'scan.hostile.frontmatter-only: the scan survives a definition with a frontmatter and no body',
+    );
   });
 
   it('turns a crash of the scan on an empty file into a failing item, not a failing family', async () => {

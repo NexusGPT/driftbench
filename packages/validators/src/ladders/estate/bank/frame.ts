@@ -1,4 +1,5 @@
-import type { Item, Measure } from '../../../ladder';
+import type { BankEntry, Item, Measure } from '../../../ladder';
+import { causeOf } from './causes';
 
 /**
  * The bank frame of the estate validator (docs/validators.md section 12). A bank is a list of items; an item
@@ -21,6 +22,8 @@ export type BankItem = {
   component: string;
   /** What the item asks of the component, in words. */
   title: string;
+  /** The one change that would make the item pass (section 12.4); items sharing a cause count once. */
+  cause: string;
 };
 
 export type ItemResult = { pass: boolean; detail: string };
@@ -49,7 +52,15 @@ export function itemsOf(
     const id = `${family}.${spec.key}`;
     if (seen.has(id)) throw new Error(`the bank repeats the item ${id}`);
     seen.add(id);
-    return { id, family, tier: spec.tier, level, component: spec.component ?? component, title: spec.title };
+    return {
+      id,
+      family,
+      tier: spec.tier,
+      level,
+      component: spec.component ?? component,
+      title: spec.title,
+      cause: causeOf(id, spec.title),
+    };
   });
 }
 
@@ -82,28 +93,32 @@ export function clearBankCache(): void {
   cache.clear();
 }
 
-/** The measure of a level on a seed: items passing over items, the failing ones named. */
+/**
+ * The measure of a level on a seed: items passing over items, the failing ones named with their family, tier
+ * and cause, and the whole bank, so the common frame can list it and count its causes.
+ */
 export async function levelMeasure(families: readonly Family[], seed: number): Promise<Measure> {
   const items: Item[] = [];
-  let total = 0;
-  let passed = 0;
+  const bank: BankEntry[] = [];
   for (const family of families) {
     const results = await familyResults(family, seed);
     for (const item of family.items) {
-      total += 1;
       const result = results.get(item.id);
-      if (result?.pass) {
-        passed += 1;
-        continue;
-      }
-      items.push({
+      const pass = result?.pass === true;
+      const detail = `[${item.family}, tier ${item.tier}] ${item.title}: ${result?.detail ?? 'no result'}`;
+      const named = {
         id: item.id,
         component: item.component,
-        detail: `[${item.family}, tier ${item.tier}] ${item.title}: ${result?.detail ?? 'no result'}`,
-      });
+        family: item.family,
+        tier: item.tier,
+        cause: item.cause,
+      };
+      bank.push({ ...named, pass, detail });
+      if (!pass) items.push({ ...named, detail });
     }
   }
-  return { value: total === 0 ? 0 : passed / total, items };
+  const passed = bank.filter((entry) => entry.pass).length;
+  return { value: bank.length === 0 ? 0 : passed / bank.length, items, bank };
 }
 
 export type BankScore = {

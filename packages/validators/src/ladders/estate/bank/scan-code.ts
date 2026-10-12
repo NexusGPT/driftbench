@@ -25,7 +25,7 @@ type Line = {
   tier: Tier;
   title: string;
   /** The body line, for the item's names and the reference file it may name. */
-  text(names: { noun: string; verb: string }, file: string): string;
+  text(names: { noun: string; verb: string; skill: string }, file: string): string;
   /** Files beside SKILL.md the line names, created. */
   files?: string[];
   atoms(owner: string, path: (relative: string) => string): Planted[];
@@ -288,6 +288,73 @@ const GATES: Line[] = [
     title: 'a decoy: a heading "Before:" with nothing to do',
     text: () => 'Before: read the list below.',
     atoms: () => [],
+  },
+  {
+    key: 'then-form',
+    tier: 3,
+    title: 'read Y first, then X',
+    text: (n, f) => `Read \`${f}\` first, then edit the ${n.noun}.`,
+    files: ['references/rules.md'],
+    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
+  },
+  {
+    key: 'without-form',
+    tier: 3,
+    title: 'never X without reading Y',
+    text: (n, f) => `Never edit a ${n.noun} without reading \`${f}\`.`,
+    files: ['references/rules.md'],
+    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
+  },
+  {
+    key: 'only-after-form',
+    tier: 3,
+    title: 'X only after reading Y',
+    text: (n, f) => `Edit a ${n.noun} only after reading \`${f}\`.`,
+    files: ['references/rules.md'],
+    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
+  },
+  {
+    key: 'two-files',
+    tier: 4,
+    title: 'a gate naming two files to read',
+    text: (n, f) => `Before editing a ${n.noun}: read \`${f}\` and \`references/terms.md\`.`,
+    files: ['references/rules.md', 'references/terms.md'],
+    atoms: (o, p) => [
+      gate(o),
+      reference(o, p('references/rules.md')),
+      reference(o, p('references/terms.md'), 'ref2'),
+    ],
+    checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
+  },
+  {
+    key: 'list-item',
+    tier: 1,
+    title: 'the colon form as a list item',
+    text: (n, f) => `- Before editing a ${n.noun}: read \`${f}\`.`,
+    files: ['references/rules.md'],
+    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
+  },
+  {
+    key: 'question-form',
+    tier: 4,
+    title: 'the act as a question: X? read Y first',
+    text: (n, f) => `Editing a ${n.noun}? Read \`${f}\` first.`,
+    files: ['references/rules.md'],
+    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
+  },
+  {
+    key: 'prior-to-form',
+    tier: 3,
+    title: 'prior to X, read Y',
+    text: (n, f) => `Prior to editing a ${n.noun}, read \`${f}\`.`,
+    files: ['references/rules.md'],
+    atoms: (o, p) => [gate(o), reference(o, p('references/rules.md'))],
+    checks: (o) => [gateCheck(o, { first: 'references/rules.md', before: 'Read', after: 'Edit' })],
   },
 ];
 
@@ -635,6 +702,70 @@ const PATHS: Line[] = [
     title: 'a decoy: a file name inside a command example',
     text: () => 'Example: `cat notes.md | wc -l` counts the lines.',
     atoms: () => [],
+  },
+  {
+    key: 'line-number',
+    tier: 3,
+    title: 'a path followed by a line number',
+    text: () => 'When unsure, open `references/guide.md:12`.',
+    files: ['references/guide.md'],
+    atoms: (o, p) => [reference(o, p('references/guide.md'))],
+  },
+  {
+    key: 'bare-path',
+    tier: 3,
+    title: 'a bare path with no markup',
+    text: () => 'When unsure, open references/guide.md first.',
+    files: ['references/guide.md'],
+    atoms: (o, p) => [reference(o, p('references/guide.md'))],
+  },
+  {
+    key: 'single-quoted',
+    tier: 3,
+    title: 'a path in single quotes',
+    text: () => "When unsure, open 'references/guide.md' first.",
+    files: ['references/guide.md'],
+    atoms: (o, p) => [reference(o, p('references/guide.md'))],
+  },
+  {
+    key: 'double-quoted',
+    tier: 3,
+    title: 'a path in double quotes',
+    text: () => 'When unsure, open "references/guide.md" first.',
+    files: ['references/guide.md'],
+    atoms: (o, p) => [reference(o, p('references/guide.md'))],
+  },
+  {
+    key: 'html-link',
+    tier: 4,
+    title: 'an HTML link',
+    text: () => 'When unsure, see <a href="references/guide.md">the guide</a>.',
+    files: ['references/guide.md'],
+    atoms: (o, p) => [reference(o, p('references/guide.md'))],
+  },
+  {
+    key: 'project-dir',
+    tier: 4,
+    title: 'a path from the project folder variable',
+    text: (n) => `When unsure, open \`$CLAUDE_PROJECT_DIR/${skillFile(n.skill, 'references/guide.md')}\`.`,
+    files: ['references/guide.md'],
+    atoms: (o, p) => [reference(o, p('references/guide.md'))],
+  },
+  {
+    key: 'angle-autolink',
+    tier: 3,
+    title: 'a path in angle brackets',
+    text: () => 'When unsure, open <references/guide.md> first.',
+    files: ['references/guide.md'],
+    atoms: (o, p) => [reference(o, p('references/guide.md'))],
+  },
+  {
+    key: 'wiki-link',
+    tier: 4,
+    title: 'a wiki link without its extension',
+    text: () => 'When unsure, see [[references/guide]].',
+    files: ['references/guide.md'],
+    atoms: (o, p) => [reference(o, p('references/guide.md'))],
   },
 ];
 
