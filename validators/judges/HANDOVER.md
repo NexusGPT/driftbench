@@ -30,9 +30,9 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 1 |
 <!-- level-table:end -->
 
-This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, 599 deterministic items in 20 levels, each level's threshold 1. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails on 3 items. Bank score after the ten-iteration pilot: 235 of 599 items pass on every seed (0.3923); iteration 0 was 221 (0.3689). Hardness: 1.4 items fixed per iteration, 364 remaining, forecast 260 iterations, 166 distinct failing causes. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10, each with the bank summary; `pnpm driftbench validate judges --hardness` prints the measurement and its gate (holds).
+This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, 635 deterministic items in 20 levels, each level's threshold 1. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails on 3 items. Bank score after the ten-iteration pilot: 251 of 635 items pass on every seed (0.3953); iteration 0 was 236 (0.3717). Hardness: 1.5 items fixed per iteration, 384 remaining, forecast 256 iterations, 186 distinct failing causes. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10, each with the bank summary; `pnpm driftbench validate judges --hardness` prints the measurement and its gate (holds).
 
-Every item carries a cause, the one change in packages/judges that makes it pass (`packages/validators/src/ladders/judges/v2/causes.ts`). After the pilot the 364 failing items hold 166 distinct causes. A failing item's detail ends with `Fix: <the change>`, so you can act on it without reading the validator's code: make that change in packages/judges, add its test, measure.
+Every item carries a cause, the one change in packages/judges that makes it pass (`packages/validators/src/ladders/judges/v2/causes.ts`). After the pilot the 384 failing items hold 186 distinct causes. A failing item's detail ends with `Fix: <the change>`, so you can act on it without reading the validator's code: make that change in packages/judges, add its test, measure.
 
 ## Floor
 
