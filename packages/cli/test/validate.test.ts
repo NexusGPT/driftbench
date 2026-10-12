@@ -123,6 +123,17 @@ describe('driftbench validate seeds', () => {
 });
 
 describe('driftbench validate floors', () => {
+  it('prints the one line that docs/reference/cli.md and docs/validators.md show', async () => {
+    const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+    const out: string[] = [];
+    const io: Io = { out: (text) => out.push(text), err: () => undefined, cwd: ROOT };
+    expect(await main(['validate', 'floors'], io)).toBe(0);
+    const line = out.join('').trim();
+    for (const page of ['docs/reference/cli.md', 'docs/validators.md']) {
+      expect(await readFile(join(ROOT, page), 'utf8'), page).toContain(line);
+    }
+  });
+
   async function withFloors(floors: Record<string, number>, failOn: number[] = []) {
     const d = await deps(failOn);
     await mkdir(join(d.root as string, 'validators'));
