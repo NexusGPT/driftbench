@@ -30,3 +30,5 @@ pnpm driftbench estate scan examples/estates/reader-cases --runtime claude-code 
 pnpm driftbench estate approve examples/estates/reader-cases/map.yaml --all \
   --to examples/estates/reader-cases/approved.yaml
 ```
+
+Timing the reader at the size of a real estate: `node examples/estates/reader-cases/tools/make-large.mjs <empty folder> [skills] [megabytes]` writes reader-cases plus many job skills (1,200 by default, about 6,700 atoms) and about 100 MB of files no runtime loads. The output is never committed.

@@ -49,7 +49,10 @@ for (let index = 0; index < skills; index++) {
       '',
     ].join('\n'),
   );
-  write(join(folder, `references/rules-${index}.md`), `# Rules ${index}\n\n- Keep job ${index} under ten minutes.\n`);
+  write(
+    join(folder, `references/rules-${index}.md`),
+    `# Rules ${index}\n\n- Keep job ${index} under ten minutes.\n`,
+  );
   write(join(folder, `scripts/run-${index}.py`), "print('ok')\n");
   rows.push(`| run job ${index} | \`${name}\` |`);
 }
@@ -59,10 +62,13 @@ write(
 );
 
 // Files no runtime loads: test runs with their node_modules under hooks, the bulk of a real estate's bytes.
-const chunk = 'x'.repeat(50 * 1024 - 1) + '\n';
+const chunk = `${'x'.repeat(50 * 1024 - 1)}\n`;
 const files = Math.round((megabytes * 1024) / 50);
 for (let index = 0; index < files; index++) {
   const run = `run-${String(Math.floor(index / 100)).padStart(3, '0')}`;
-  write(join(target, `.claude/hooks/tests/validation-bank/runs/${run}/node_modules/pkg-${index % 100}/index.js`), chunk);
+  write(
+    join(target, `.claude/hooks/tests/validation-bank/runs/${run}/node_modules/pkg-${index % 100}/index.js`),
+    chunk,
+  );
 }
 console.log(`Wrote ${target}: ${skills} job skills and ${files} ignored files of 50 KB.`);
