@@ -716,7 +716,7 @@ function readSubagent(file: EstateFile, estate: RawEstate, budget: number): void
 const COLUMNS = {
   id: /^(id|check id|code)$/i,
   guard: /^(guards?|scripts?|checks?|hooks?|adapters?|handlers?|runs?)$/i,
-  enforces: /^(enforces|rules?)$/i,
+  enforces: /^(enforces|enforced rules|rules?|rule ids|gates|covers)$/i,
   watches: /^(fires when|fires on|watches|watch|triggers?)$/i,
   event: /^events?$/i,
   verdict: /^(verdict|mode)$/i,
@@ -756,8 +756,9 @@ function readRegistry(file: EstateFile, estate: RawEstate): void {
   }
   const known = knownGuards(estate);
   for (const table of readTables(file.text)) {
+    // A header in bold or backticks names the same column.
     const column = (pattern: RegExp, from = 0) =>
-      table.header.findIndex((cell, index) => index >= from && pattern.test(cell));
+      table.header.findIndex((cell, index) => index >= from && pattern.test(strip(cell)));
     const firstIsId =
       COLUMNS.id.test(table.header[0] ?? '') ||
       (table.rows.length > 0 && table.rows.every((row) => ROW_ID.test(strip(row.cells[0] ?? ''))));
