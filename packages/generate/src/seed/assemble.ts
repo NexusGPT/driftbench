@@ -24,10 +24,11 @@ import { pick, type Rng } from './random';
  */
 
 /**
- * The seeders, in the order they run. `cover` runs last: it builds one scenario for each allowed cell of the
+ * The seeders, in the order they run. `task` writes nothing itself: it places the specs the map's task
+ * families built (`task_family`). `cover` runs last: it builds one scenario for each allowed cell of the
  * axis map that no complete spec of the others covers.
  */
-export const SEEDERS = ['graph', 'twise', 'boundary', 'deviation', 'metamorphic', 'cover'] as const;
+export const SEEDERS = ['graph', 'twise', 'boundary', 'deviation', 'metamorphic', 'task', 'cover'] as const;
 export type Seeder = (typeof SEEDERS)[number];
 
 /** A dimension index and a value index. */
@@ -194,8 +195,9 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     if (compiled.kind === 'behaviour' && prepared.inventory?.flows.some((flow) => flow.id === id)) {
       if (!tags.includes(flowTag)) tags.push(flowTag);
     }
-    // Only axis values are placed: a detail lives inside the cell, in the record and the Given.
-    if (!prepared.axes.has(dimension)) continue;
+    // Only axis values are placed: a detail lives inside the cell, in the record and the Given. A task
+    // setting is never placed on a conversation.
+    if (!prepared.axes.has(dimension) || compiled.kind === 'task') continue;
     if (compiled.kind === 'behaviour') {
       if (!covers.includes(id)) covers.push(id);
     } else if (compiled.kind === 'channel') channel = id;

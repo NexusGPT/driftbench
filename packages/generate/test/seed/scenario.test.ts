@@ -813,3 +813,76 @@ describe('a probe the constraints forbid', () => {
     expect(built.ok).toBe(false);
   });
 });
+
+describe('the task seeder and the task family relation', () => {
+  it('places a task spec by the values its family holds and declares a planted file as a perturbation', async () => {
+    const { taskSpecs } = await import('../../src/seed/tasks');
+    const prepared = prepare();
+    const relation = {
+      kind: 'task_family' as const,
+      flow: 'card',
+      family: '../families/x',
+      stages: ['lost'],
+      holds: { account_state: ['found'] },
+      deviations: ['D6_instruction_in_data' as const],
+      ...by,
+    };
+    const spec = {
+      id: 't-1',
+      kind: 'task',
+      tags: ['flow:card'],
+      workspace_seed: { files: { 'NOTES.txt': 'planted' } },
+      blocks: [{ id: 'b', user: 'do it', expect: { stage: 'lost' } }],
+    };
+    const [placed] = taskSpecs(prepared, [{ relation, variants: [{ spec, planted: true }] }], {
+      seed: 1,
+      mapPath: 'map.yaml',
+    });
+    expect(placed?.spec.tags).toEqual(['flow:card', 'data:found']);
+    expect(placed?.spec.perturbations).toEqual([
+      {
+        id: 'planted-instruction',
+        class: 'D6_instruction_in_data',
+        inject_at: 0,
+        world: { workspace: { files: { 'NOTES.txt': 'planted' } } },
+        expect: { stage: 'lost' },
+        recovery: { within_blocks: 0 },
+      },
+    ]);
+    expect((placed?.spec.metadata as { generated?: { seeder: string } } | undefined)?.generated?.seeder).toBe(
+      'task',
+    );
+  });
+
+  it('makes the stages and the classes of a task family possible, and keeps a task value off a conversation', async () => {
+    const { derivedConstraints } = await import('../../src/extract/derive');
+    const draft = proposal((change) => {
+      change.relations = [
+        ...(change.relations ?? []),
+        {
+          kind: 'task_family',
+          flow: 'card',
+          family: '../families/x',
+          stages: ['lost'],
+          deviations: ['D5_language_switch'],
+          ...by,
+        },
+      ];
+    });
+    for (const dimension of draft.dimensions) dimension.approved = true;
+    for (const constraint of draft.constraints) constraint.approved = true;
+    for (const phrase of draft.phrases ?? []) phrase.approved = true;
+    const prepared = prepareMap(draft, { tools: TOOLS });
+    const axes = prepared.axisMap.dimensions.map((dimension) => ({
+      id: dimension.id,
+      kind: dimension.kind,
+      values: dimension.values.map((value) => value.id),
+    }));
+    const forbids = derivedConstraints(draft, axes).map((entry) => entry.forbid);
+    const stage = axes.find((axis) => axis.kind === 'stage')?.id as string;
+    const deviation = axes.find((axis) => axis.kind === 'deviation')?.id as string;
+    // The card flow has no walkable path, but its task family places on lost, with and without its class.
+    expect(forbids).not.toContainEqual({ [deviation]: 'none', [stage]: 'lost' });
+    expect(forbids).not.toContainEqual({ [deviation]: 'D5_language_switch', [stage]: 'lost' });
+  });
+});

@@ -134,10 +134,10 @@ The function judges one criterion. `compareCampaigns` in `@driftbench/report` co
 
 Measured on the Acme example (2026-10-12):
 
-| Suite | Auto margin | Set by | Identity control | The nine faults |
+| Suite | Auto margin | Set by | Identity control | The faults |
 |---|---|---|---|---|
-| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning | the all-pass flag (27.75) | parity | red: 4 regressed, 5 not shown non-inferior |
-| `examples/acme/gated/specs`, 179 goldens | 3 points | `end_state` (2.73); `cards` (14) and `guards` (27) underpowered | parity | all 9 red as regressions, `x1-invents-price` included: the offer turn states each catalog price |
+| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning | the all-pass flag (27.75) | parity | of the 13 sales and ops faults the gate scores: 5 regressed, 7 not shown non-inferior; `ops-d6-deletes-readme` reads parity |
+| `examples/acme/gated/specs`, 193 goldens | 7.5 points | `guards` (7); `cards` (12) and the task-only criteria (24) underpowered | parity | all 13 red as regressions, the 4 ops faults included through `--route` |
 
 With `--strict` at 30 points the identity control on the 10-golden suite is not shown non-inferior, as before the minimum existed.
 

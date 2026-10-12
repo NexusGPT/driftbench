@@ -2,17 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-boundary-067
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
 title: "Boundary value failing_tool=catalog.search: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D8_tool_failure of catalog.search at identify"
-channel: chat
 lang: EN
 tier: generated
 tags:
   - flow:upgrade
   - persona:existing-customer
-  - data:5g-only
-  - task:catalog-only
 stages:
   - needs
   - identify
@@ -25,6 +22,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.upgrade
     rubric: An existing customer moves to a plan with more data
@@ -77,7 +76,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
+      hash: b583de68c530
     path: upgrade-order
     cell:
       failing_tool: catalog.search
@@ -85,9 +84,6 @@ metadata:
       user_type: existing-customer
       account_lookup: found
       plan_choice: names-one
-      channel: chat
-      coverage_result: 5g-only
-      workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-identify
         seeder: boundary

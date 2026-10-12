@@ -1,7 +1,13 @@
 import { NONE } from '@driftbench/space';
 import { OPENING_CLASSES, TOOL_FAILURE } from '../seed/deviation';
 import { type Relations, readRelations, recoveryFor, stageAfter } from '../seed/relations';
-import { FLOW_DIMENSION, type PathRelation, type Proposal, valueApproved } from './proposal';
+import {
+  FLOW_DIMENSION,
+  type PathRelation,
+  type Proposal,
+  type TaskFamilyRelation,
+  valueApproved,
+} from './proposal';
 
 /**
  * Constraints the map's own relations imply. The written constraints are pairwise and never tie a stage to
@@ -16,9 +22,10 @@ import { FLOW_DIMENSION, type PathRelation, type Proposal, valueApproved } from 
  *   an approved phrase fits the stage and the flow, the first turn takes only a class a first message can
  *   carry, a probe after the last stage only keeps the conversation there, a tool failure needs a call of a
  *   tool the map recovers from on the turn said at that stage);
- * - `none` with a stage: some path reaches the stage by a move.
- *
- * Every other pair is left to the written constraints. The derived ones say why in their reason. With no
+ * - `none` with a stage: some path reaches the stage by a move;
+ * - any other pair: one event (one path or task family) holds both values, a data or task value only where
+ *   the path's branch or the family states it, and `none` there otherwise.
+ * The derived ones say why in their reason. With no
  * approved path the map states no flow structure, and nothing is derived.
  */
 
@@ -33,7 +40,7 @@ export function derivedConstraints(proposal: Proposal, axes: readonly Axis[]): F
     return found !== undefined && entry !== undefined && valueApproved(found, entry);
   };
   const relations = readRelations(proposal, approvedValue);
-  if (relations.paths.length === 0) return [];
+  if (relations.paths.length === 0 && relations.taskFamilies.length === 0) return [];
   const stageAxis = axes.find((axis) => axis.kind === 'stage');
   const deviationAxis = axes.find((axis) => axis.kind === 'deviation');
   const written = proposal.constraints.filter((constraint) => constraint.approved);
@@ -116,7 +123,16 @@ export function derivedConstraints(proposal: Proposal, axes: readonly Axis[]): F
 
   const classes = (deviationAxis?.values ?? []).filter((value) => value !== NONE);
   /** Every (path, position) where an event can place: a move reaches it, or a class is said there. */
-  const events = relations.paths.flatMap((path) =>
+  type Event = {
+    path: PathRelation;
+    stage: string;
+    deviation: string;
+    need: Record<string, string[]>;
+    /** The task family the event comes from; a path of a conversation has none. */
+    task?: TaskFamilyRelation;
+  };
+  const kindOf = new Map(axes.map((axis) => [axis.id, axis.kind]));
+  const events: Event[] = relations.paths.flatMap((path) =>
     path.stages.flatMap((stage, index) => {
       const said = classes.flatMap((deviation) =>
         probe(relations, path, index, deviation).map((need) => ({ path, stage, deviation, need })),
@@ -124,6 +140,23 @@ export function derivedConstraints(proposal: Proposal, axes: readonly Axis[]): F
       return [...(index >= 1 ? [{ path, stage, deviation: NONE, need: {} }] : []), ...said];
     }),
   );
+  // A task family writes its flow's specs: each block of an instance places on its stage, and a variant that
+  // carries a class (an instruction planted in a file) places that class on the first block's stage.
+  for (const family of relations.taskFamilies) {
+    const path: PathRelation = {
+      kind: 'path',
+      id: `task:${family.flow}`,
+      flow: family.flow,
+      stages: family.stages,
+      ...(family.holds ? { when: family.holds } : {}),
+      evidence: family.evidence,
+      produced_by: family.produced_by,
+      approved: true,
+    };
+    for (const stage of family.stages) events.push({ path, stage, deviation: NONE, need: {}, task: family });
+    for (const deviation of family.deviations ?? [])
+      events.push({ path, stage: family.stages[0] as string, deviation, need: {}, task: family });
+  }
 
   const out: Forbid[] = [];
   const possible = (cell: Picks): boolean =>
@@ -131,6 +164,16 @@ export function derivedConstraints(proposal: Proposal, axes: readonly Axis[]): F
       if (stageAxis && cell[stageAxis.id] !== undefined && cell[stageAxis.id] !== event.stage) return false;
       if (deviationAxis && cell[deviationAxis.id] !== undefined && cell[deviationAxis.id] !== event.deviation)
         return false;
+      // A data or task value is held only where the path's branch or the family states that dimension;
+      // anywhere else the spec holds `none` there. A conversation holds no task setting.
+      for (const [dimension, value] of Object.entries(cell)) {
+        if (dimension === stageAxis?.id || dimension === deviationAxis?.id) continue;
+        const kind = kindOf.get(dimension);
+        if (kind !== 'data' && kind !== 'task') continue;
+        const stated = event.task ? event.task.holds?.[dimension] : event.path.when?.[dimension];
+        const held = kind === 'task' && event.task === undefined ? undefined : stated;
+        if (value === NONE ? held !== undefined : held === undefined || !held.includes(value)) return false;
+      }
       // The written constraints hold for the event's stage and class too.
       const picks: Picks = { ...cell };
       if (stageAxis) picks[stageAxis.id] = event.stage;
@@ -139,18 +182,10 @@ export function derivedConstraints(proposal: Proposal, axes: readonly Axis[]): F
     });
   for (const [a, first] of axes.entries()) {
     for (const second of axes.slice(a + 1)) {
-      const structural = (axis: Axis) => axis === stageAxis || axis === deviationAxis;
-      if (!structural(first) && !structural(second)) continue;
       for (const x of first.values) {
         for (const y of second.values) {
           const cell: Picks = { [first.id]: x, [second.id]: y };
           if (!allowed(cell)) continue;
-          // `none` with a value that is not a stage says nothing about structure.
-          if (
-            !(first === stageAxis || second === stageAxis) &&
-            (cell[deviationAxis?.id ?? ''] ?? '') === NONE
-          )
-            continue;
           if (!possible(cell))
             out.push({
               forbid: cell,

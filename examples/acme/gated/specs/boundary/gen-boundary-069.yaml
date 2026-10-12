@@ -2,17 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-boundary-069
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
 title: "Boundary value failing_tool=port.check: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D8_tool_failure of port.check at port_number"
-channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - flow:porting
   - persona:new-customer
-  - data:no-service
-  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -25,6 +22,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.porting
     rubric: A new customer switches to Acme and keeps their number
@@ -78,7 +77,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
+      hash: b583de68c530
     path: porting-keep-number
     cell:
       failing_tool: port.check
@@ -87,9 +86,6 @@ metadata:
       port_result: can-move
       plan_choice: names-one
       customer_details: name-and-email
-      channel: whatsapp
-      coverage_result: no-service
-      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-port_number
         seeder: boundary

@@ -103,7 +103,7 @@ describe('driftbench holdout seal', () => {
       expect(result.err).toBe('');
       expect(result.code).toBe(0);
       expect(result.out).toContain('the gate sealed its split at seed 1, share 0.2; that split is kept');
-      expect(result.out).toContain("Sealed 48 of 232 gated specs: the gate's split (seed 1, share 0.2)");
+      expect(result.out).toContain("Sealed 60 of 258 gated specs: the gate's split (seed 1, share 0.2)");
 
       const bundle = await json<Bundle>(join(out, 'sealed.json'));
       expect(bundle).toMatchObject({ split: 'gate', seed: 1, share: 0.2 });
@@ -281,7 +281,7 @@ describe('driftbench holdout score', () => {
       expect(scored.output.err).toBe('');
       expect(code).toBe(0);
       // Every gated block reads the reply language, so the fault that answers in French fails all 35.
-      expect(scored.output.out).toMatch(/\n\s+47\s+0\s+0\.0%\s+0\.0% to 7\.6%/);
+      expect(scored.output.out).toMatch(/\n\s+49\s+0\s+0\.0%\s+0\.0% to 7\.3%/);
     },
     SLOW,
   );

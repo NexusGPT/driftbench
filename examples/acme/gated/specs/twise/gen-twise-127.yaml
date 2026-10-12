@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-127
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
 title: "t-wise row 127 of 132: Path upgrade-unknown-email of upgrade: needs > identify > identify, D5_language_switch at needs"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:existing-customer
-  - data:5g-only
-  - task:catalog-only
   - flow:upgrade
 covers:
   - B-012
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-012
     rubric: Send billing and service matters to Acme Care, never to sales
@@ -89,14 +89,13 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
+      hash: b583de68c530
     path: upgrade-unknown-email
     cell:
       behaviour: B-012
-      channel: whatsapp
+      channel: chat
       user_type: existing-customer
-      coverage_result: 5g-only
-      workspace_start: catalog-only
+      coverage_result: none
       flow: upgrade
       account_lookup: not-found
     blocks:

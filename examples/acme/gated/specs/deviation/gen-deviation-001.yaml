@@ -2,17 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-deviation-001
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
 title: "Deviation probe D1_off_topic: Path home-callback of new-home: needs > address > offer > callback > handover, D1_off_topic at needs"
-channel: chat
 lang: EN
 tier: generated
 tags:
   - flow:new-home
   - persona:new-customer
   - data:fiber
-  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -25,6 +23,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.new-home
     rubric: A new customer asks for home internet at an address
@@ -120,7 +120,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
+      hash: b583de68c530
     path: home-callback
     cell:
       flow: new-home
@@ -128,8 +128,6 @@ metadata:
       coverage_result: fiber
       plan_choice: asks-for-callback
       callback_phone: given
-      channel: chat
-      workspace_start: existing-workbook
     blocks:
       - block: b1-D1_off_topic
         seeder: deviation

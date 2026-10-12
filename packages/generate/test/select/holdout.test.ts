@@ -128,7 +128,7 @@ describe('inHoldout', () => {
     for (const block of parsed.blocks) {
       if (block.status === 'accepted' && block.split) split.set(specOfKey(block.key), block.split);
     }
-    expect(split.size).toBe(225);
+    expect(split.size).toBe(251);
     for (const [id, side] of split) expect(inHoldout(id, 0.2, 1) ? 'holdout' : 'dev').toBe(side);
     expect([...split.keys()].filter((id) => inHoldout(id, 0.2, 2))).not.toEqual(
       [...split.keys()].filter((id) => inHoldout(id, 0.2, 1)),

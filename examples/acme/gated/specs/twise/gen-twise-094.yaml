@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-094
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
-title: "t-wise row 94 of 132: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D5_language_switch at needs"
+title: "t-wise row 94 of 132: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D5_language_switch at needs"
 channel: chat
 lang: EN
 tier: generated
 tags:
-  - persona:new-customer
-  - data:fiber
-  - task:catalog-only
+  - persona:existing-customer
+  - data:5g-only
   - flow:order
 covers:
   - B-009
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-009
     rubric: Treat a loose yes as no confirmation and ask for CONFIRM again
@@ -77,29 +78,27 @@ blocks:
       lang: EN
   - id: b3-address-to-offer
     when:
-      user: The address is 14 Harbor Road, Acmeville.
+      user: The address is 88 Summit Avenue, Acmeville.
     expect:
       stage: offer
       tools:
         - label: coverage.check
           count: 1
           input:
-            address: 14 Harbor Road, Acmeville
+            address: 88 Summit Avenue, Acmeville
         - label: catalog.search
           count: 1
           input:
             category: home
-            address_id: addr-101
+            address_id: addr-103
         - label: order.create
           count: 0
       must:
-        - Acme Fiber 300, 300 Mbps for \$40 a month
-        - Acme Fiber 1000, 1000 Mbps for \$60 a month
         - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
   - id: b4-offer-to-details
     when:
-      user: I'll take Acme Fiber 1000.
+      user: Yes, that one.
     expect:
       stage: details
       tools:
@@ -112,7 +111,7 @@ blocks:
       lang: EN
   - id: b5-details-to-recap
     when:
-      user: Jo Okafor, jo.okafor@example.com
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
       stage: recap
       tools:
@@ -133,8 +132,8 @@ blocks:
           count: 1
           input:
             type: new
-            plan_id: fiber-1000
-            address_id: addr-101
+            plan_id: air-5g
+            address_id: addr-103
             customer:
               subset:
                 name: Jo Okafor
@@ -142,6 +141,19 @@ blocks:
         - label: coverage.check
           count: 0
         - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b7-order_placed-to-closing
+    when:
+      user: No, that's all. Thanks!
+    expect:
+      stage: closing
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
           count: 0
       lang: EN
 metadata:
@@ -154,16 +166,15 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
-    path: order-named-plan
+      hash: b583de68c530
+    path: order-single-plan
     cell:
       behaviour: B-009
       channel: chat
-      user_type: new-customer
-      coverage_result: fiber
-      workspace_start: catalog-only
+      user_type: existing-customer
+      coverage_result: 5g-only
       flow: order
-      plan_choice: names-one
+      plan_choice: loose-yes-to-single-offer
       customer_details: name-and-email
     blocks:
       - block: b1-D5_language_switch
@@ -189,7 +200,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: address-to-offer
-          coverage_result: fiber
+          coverage_result: 5g-only
           stage: offer
         phrase:
           dimension: stage_transition
@@ -218,12 +229,21 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
-          coverage_result: fiber
+          coverage_result: 5g-only
           customer_details: name-and-email
           stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
+      - block: b7-order_placed-to-closing
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: order_placed-to-closing
+          stage: closing
+        phrase:
+          dimension: stage_transition
+          value: order_placed-to-closing
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -252,6 +272,10 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.615
+      - block: b7-order_placed-to-closing
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
 rules:
   forbidden_tools:
     - port.check
@@ -261,8 +285,8 @@ end_state:
   mode: subset
   expect:
     type: new
-    plan_id: fiber-1000
-    address_id: addr-101
+    plan_id: air-5g
+    address_id: addr-103
     customer:
       subset:
         name: Jo Okafor

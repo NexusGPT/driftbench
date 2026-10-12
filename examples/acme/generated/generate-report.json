@@ -4,10 +4,10 @@
     "path": "../map/approved.yaml",
     "agent": "acme",
     "version": "1",
-    "hash": "a4a62586e053",
+    "hash": "b583de68c530",
     "dimensions": 46,
-    "values": 176,
-    "constraints": 301,
+    "values": 180,
+    "constraints": 457,
     "phrases": 51
   },
   "options": {
@@ -16,10 +16,10 @@
     "max": null
   },
   "summary": {
-    "specs": 303,
-    "blocks": 1190,
-    "complete": 225,
-    "incomplete": 78
+    "specs": 321,
+    "blocks": 1178,
+    "complete": 251,
+    "incomplete": 70
   },
   "seeders": {
     "graph": {
@@ -32,10 +32,10 @@
     },
     "twise": {
       "specs": 132,
-      "blocks": 640,
-      "complete": 123,
+      "blocks": 675,
+      "complete": 131,
       "needs_phrase": 0,
-      "needs_then": 9,
+      "needs_then": 1,
       "cut": false
     },
     "boundary": {
@@ -62,17 +62,25 @@
       "needs_then": 2,
       "cut": false
     },
+    "task": {
+      "specs": 34,
+      "blocks": 47,
+      "complete": 34,
+      "needs_phrase": 0,
+      "needs_then": 0,
+      "cut": false
+    },
     "cover": {
-      "specs": 29,
-      "blocks": 165,
-      "complete": 29,
+      "specs": 13,
+      "blocks": 71,
+      "complete": 13,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false
     }
   },
   "graph": {
-    "stages": 11,
+    "stages": 13,
     "start": "needs",
     "edges": 23,
     "covered": 18,
@@ -89,10 +97,10 @@
   },
   "twise": {
     "t": 2,
-    "dimensions": ["behaviour", "deviation", "channel", "user_type", "coverage_result", "workspace_start"],
+    "dimensions": ["behaviour", "deviation", "channel", "user_type", "coverage_result"],
     "rows": 132,
-    "allowed": 388,
-    "covered": 388,
+    "allowed": 314,
+    "covered": 314,
     "share": 1
   },
   "boundary": {
@@ -192,26 +200,18 @@
     ]
   },
   "cover": {
-    "cells": 29,
-    "covered": 29,
+    "cells": 13,
+    "covered": 13,
     "unbuilt": [],
     "unreachable": [
       {
-        "dimension": "behaviour",
-        "value": "B-013"
-      },
-      {
-        "dimension": "behaviour",
-        "value": "B-014"
-      },
-      {
-        "dimension": "user_type",
-        "value": "sales-operations"
+        "dimension": "workspace_start",
+        "value": "existing-workbook"
       }
     ]
   },
   "constraints": {
-    "applied": 301,
+    "applied": 457,
     "list": [
       {
         "forbid": {
@@ -1028,13 +1028,6 @@
       {
         "forbid": {
           "behaviour": "B-013",
-          "deviation": "D6_instruction_in_data"
-        },
-        "reason": "derived from the relations: no approved path carries behaviour=B-013 with deviation=D6_instruction_in_data"
-      },
-      {
-        "forbid": {
-          "behaviour": "B-013",
           "deviation": "D8_tool_failure"
         },
         "reason": "derived from the relations: no approved path carries behaviour=B-013 with deviation=D8_tool_failure"
@@ -1094,13 +1087,6 @@
           "deviation": "D5_language_switch"
         },
         "reason": "derived from the relations: no approved path carries behaviour=B-014 with deviation=D5_language_switch"
-      },
-      {
-        "forbid": {
-          "behaviour": "B-014",
-          "deviation": "D6_instruction_in_data"
-        },
-        "reason": "derived from the relations: no approved path carries behaviour=B-014 with deviation=D6_instruction_in_data"
       },
       {
         "forbid": {
@@ -1167,6 +1153,20 @@
       },
       {
         "forbid": {
+          "behaviour": "B-001",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-001 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-001",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-001 with stage=add_summary"
+      },
+      {
+        "forbid": {
           "behaviour": "B-002",
           "stage": "address"
         },
@@ -1202,6 +1202,20 @@
       },
       {
         "forbid": {
+          "behaviour": "B-002",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-002 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-002",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-002 with stage=add_summary"
+      },
+      {
+        "forbid": {
           "behaviour": "B-003",
           "stage": "identify"
         },
@@ -1213,6 +1227,20 @@
           "stage": "port_number"
         },
         "reason": "derived from the relations: no approved path carries behaviour=B-003 with stage=port_number"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-003",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-003 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-003",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-003 with stage=add_summary"
       },
       {
         "forbid": {
@@ -1230,6 +1258,20 @@
       },
       {
         "forbid": {
+          "behaviour": "B-004",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-004 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-004",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-004 with stage=add_summary"
+      },
+      {
+        "forbid": {
           "behaviour": "B-005",
           "stage": "identify"
         },
@@ -1241,6 +1283,20 @@
           "stage": "port_number"
         },
         "reason": "derived from the relations: no approved path carries behaviour=B-005 with stage=port_number"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-005",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-005 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-005",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-005 with stage=add_summary"
       },
       {
         "forbid": {
@@ -1272,6 +1328,20 @@
       },
       {
         "forbid": {
+          "behaviour": "B-006",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-006 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-006",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-006 with stage=add_summary"
+      },
+      {
+        "forbid": {
           "behaviour": "B-007",
           "stage": "identify"
         },
@@ -1300,6 +1370,20 @@
       },
       {
         "forbid": {
+          "behaviour": "B-007",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-007 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-007",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-007 with stage=add_summary"
+      },
+      {
+        "forbid": {
           "behaviour": "B-008",
           "stage": "callback"
         },
@@ -1311,6 +1395,20 @@
           "stage": "handover"
         },
         "reason": "derived from the relations: no approved path carries behaviour=B-008 with stage=handover"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-008",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-008 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-008",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-008 with stage=add_summary"
       },
       {
         "forbid": {
@@ -1335,6 +1433,20 @@
       },
       {
         "forbid": {
+          "behaviour": "B-009",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-009 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-009",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-009 with stage=add_summary"
+      },
+      {
+        "forbid": {
           "behaviour": "B-010",
           "stage": "identify"
         },
@@ -1349,6 +1461,20 @@
       },
       {
         "forbid": {
+          "behaviour": "B-010",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-010 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-010",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-010 with stage=add_summary"
+      },
+      {
+        "forbid": {
           "behaviour": "B-011",
           "stage": "identify"
         },
@@ -1360,6 +1486,20 @@
           "stage": "port_number"
         },
         "reason": "derived from the relations: no approved path carries behaviour=B-011 with stage=port_number"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-011",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-011 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-011",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-011 with stage=add_summary"
       },
       {
         "forbid": {
@@ -1395,6 +1535,20 @@
           "stage": "handover"
         },
         "reason": "derived from the relations: no approved path carries behaviour=B-012 with stage=handover"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-012",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-012 with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-012",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-012 with stage=add_summary"
       },
       {
         "forbid": {
@@ -1552,248 +1706,458 @@
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "deviation": "D1_off_topic"
+          "behaviour": "B-001",
+          "coverage_result": "fiber"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with deviation=D1_off_topic"
+        "reason": "derived from the relations: no approved path carries behaviour=B-001 with coverage_result=fiber"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "deviation": "D2_goal_shift"
+          "behaviour": "B-001",
+          "coverage_result": "5g-only"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with deviation=D2_goal_shift"
+        "reason": "derived from the relations: no approved path carries behaviour=B-001 with coverage_result=5g-only"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "deviation": "D3_contradiction"
+          "behaviour": "B-001",
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with deviation=D3_contradiction"
+        "reason": "derived from the relations: no approved path carries behaviour=B-001 with coverage_result=no-service"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "deviation": "D4_loose_confirmation"
+          "behaviour": "B-001",
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with deviation=D4_loose_confirmation"
+        "reason": "derived from the relations: no approved path carries behaviour=B-001 with coverage_result=not-in-map"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "deviation": "D5_language_switch"
+          "behaviour": "B-002",
+          "coverage_result": "fiber"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with deviation=D5_language_switch"
+        "reason": "derived from the relations: no approved path carries behaviour=B-002 with coverage_result=fiber"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "deviation": "D6_instruction_in_data"
+          "behaviour": "B-002",
+          "coverage_result": "5g-only"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with deviation=D6_instruction_in_data"
+        "reason": "derived from the relations: no approved path carries behaviour=B-002 with coverage_result=5g-only"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "deviation": "D8_tool_failure"
+          "behaviour": "B-002",
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with deviation=D8_tool_failure"
+        "reason": "derived from the relations: no approved path carries behaviour=B-002 with coverage_result=no-service"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "deviation": "D10_return"
+          "behaviour": "B-002",
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with deviation=D10_return"
+        "reason": "derived from the relations: no approved path carries behaviour=B-002 with coverage_result=not-in-map"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "deviation": "D7_silence_or_burst"
+          "behaviour": "B-003",
+          "coverage_result": "none"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with deviation=D7_silence_or_burst"
+        "reason": "derived from the relations: no approved path carries behaviour=B-003 with coverage_result=none"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "deviation": "D9_out_of_scope"
+          "behaviour": "B-004",
+          "coverage_result": "none"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with deviation=D9_out_of_scope"
+        "reason": "derived from the relations: no approved path carries behaviour=B-004 with coverage_result=none"
       },
       {
         "forbid": {
-          "flow": "upgrade",
-          "stage": "address"
+          "behaviour": "B-005",
+          "coverage_result": "none"
         },
-        "reason": "derived from the relations: no approved path carries flow=upgrade with stage=address"
+        "reason": "derived from the relations: no approved path carries behaviour=B-005 with coverage_result=none"
       },
       {
         "forbid": {
-          "flow": "upgrade",
-          "stage": "port_number"
+          "behaviour": "B-006",
+          "coverage_result": "fiber"
         },
-        "reason": "derived from the relations: no approved path carries flow=upgrade with stage=port_number"
+        "reason": "derived from the relations: no approved path carries behaviour=B-006 with coverage_result=fiber"
       },
       {
         "forbid": {
-          "flow": "upgrade",
-          "stage": "callback"
+          "behaviour": "B-006",
+          "coverage_result": "5g-only"
         },
-        "reason": "derived from the relations: no approved path carries flow=upgrade with stage=callback"
+        "reason": "derived from the relations: no approved path carries behaviour=B-006 with coverage_result=5g-only"
       },
       {
         "forbid": {
-          "flow": "upgrade",
-          "stage": "handover"
+          "behaviour": "B-006",
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries flow=upgrade with stage=handover"
+        "reason": "derived from the relations: no approved path carries behaviour=B-006 with coverage_result=no-service"
       },
       {
         "forbid": {
-          "flow": "new-home",
-          "stage": "identify"
+          "behaviour": "B-006",
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries flow=new-home with stage=identify"
+        "reason": "derived from the relations: no approved path carries behaviour=B-006 with coverage_result=not-in-map"
       },
       {
         "forbid": {
-          "flow": "new-home",
-          "stage": "port_number"
+          "behaviour": "B-007",
+          "coverage_result": "fiber"
         },
-        "reason": "derived from the relations: no approved path carries flow=new-home with stage=port_number"
+        "reason": "derived from the relations: no approved path carries behaviour=B-007 with coverage_result=fiber"
       },
       {
         "forbid": {
-          "flow": "porting",
-          "stage": "identify"
+          "behaviour": "B-007",
+          "coverage_result": "5g-only"
         },
-        "reason": "derived from the relations: no approved path carries flow=porting with stage=identify"
+        "reason": "derived from the relations: no approved path carries behaviour=B-007 with coverage_result=5g-only"
       },
       {
         "forbid": {
-          "flow": "porting",
-          "stage": "address"
+          "behaviour": "B-007",
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries flow=porting with stage=address"
+        "reason": "derived from the relations: no approved path carries behaviour=B-007 with coverage_result=no-service"
       },
       {
         "forbid": {
-          "flow": "porting",
-          "stage": "callback"
+          "behaviour": "B-007",
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries flow=porting with stage=callback"
+        "reason": "derived from the relations: no approved path carries behaviour=B-007 with coverage_result=not-in-map"
       },
       {
         "forbid": {
-          "flow": "porting",
-          "stage": "handover"
+          "behaviour": "B-008",
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries flow=porting with stage=handover"
+        "reason": "derived from the relations: no approved path carries behaviour=B-008 with coverage_result=no-service"
       },
       {
         "forbid": {
-          "flow": "order",
-          "stage": "identify"
+          "behaviour": "B-008",
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries flow=order with stage=identify"
+        "reason": "derived from the relations: no approved path carries behaviour=B-008 with coverage_result=not-in-map"
       },
       {
         "forbid": {
-          "flow": "order",
-          "stage": "port_number"
+          "behaviour": "B-009",
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries flow=order with stage=port_number"
+        "reason": "derived from the relations: no approved path carries behaviour=B-009 with coverage_result=no-service"
       },
       {
         "forbid": {
-          "flow": "order",
-          "stage": "callback"
+          "behaviour": "B-009",
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries flow=order with stage=callback"
+        "reason": "derived from the relations: no approved path carries behaviour=B-009 with coverage_result=not-in-map"
       },
       {
         "forbid": {
-          "flow": "order",
-          "stage": "handover"
+          "behaviour": "B-010",
+          "coverage_result": "none"
         },
-        "reason": "derived from the relations: no approved path carries flow=order with stage=handover"
+        "reason": "derived from the relations: no approved path carries behaviour=B-010 with coverage_result=none"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "needs"
+          "behaviour": "B-011",
+          "coverage_result": "none"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=needs"
+        "reason": "derived from the relations: no approved path carries behaviour=B-011 with coverage_result=none"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "identify"
+          "behaviour": "B-012",
+          "coverage_result": "fiber"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=identify"
+        "reason": "derived from the relations: no approved path carries behaviour=B-012 with coverage_result=fiber"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "address"
+          "behaviour": "B-012",
+          "coverage_result": "5g-only"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=address"
+        "reason": "derived from the relations: no approved path carries behaviour=B-012 with coverage_result=5g-only"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "port_number"
+          "behaviour": "B-012",
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=port_number"
+        "reason": "derived from the relations: no approved path carries behaviour=B-012 with coverage_result=no-service"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "offer"
+          "behaviour": "B-012",
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=offer"
+        "reason": "derived from the relations: no approved path carries behaviour=B-012 with coverage_result=not-in-map"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "details"
+          "behaviour": "B-013",
+          "coverage_result": "fiber"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=details"
+        "reason": "derived from the relations: no approved path carries behaviour=B-013 with coverage_result=fiber"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "recap"
+          "behaviour": "B-013",
+          "coverage_result": "5g-only"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=recap"
+        "reason": "derived from the relations: no approved path carries behaviour=B-013 with coverage_result=5g-only"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "order_placed"
+          "behaviour": "B-013",
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=order_placed"
+        "reason": "derived from the relations: no approved path carries behaviour=B-013 with coverage_result=no-service"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "callback"
+          "behaviour": "B-013",
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=callback"
+        "reason": "derived from the relations: no approved path carries behaviour=B-013 with coverage_result=not-in-map"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "handover"
+          "behaviour": "B-014",
+          "coverage_result": "fiber"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=handover"
+        "reason": "derived from the relations: no approved path carries behaviour=B-014 with coverage_result=fiber"
       },
       {
         "forbid": {
-          "flow": "price-sheet",
-          "stage": "closing"
+          "behaviour": "B-014",
+          "coverage_result": "5g-only"
         },
-        "reason": "derived from the relations: no approved path carries flow=price-sheet with stage=closing"
+        "reason": "derived from the relations: no approved path carries behaviour=B-014 with coverage_result=5g-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-014",
+          "coverage_result": "no-service"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-014 with coverage_result=no-service"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-014",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-014 with coverage_result=not-in-map"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-001",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-001 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-001",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-001 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-002",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-002 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-002",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-002 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-003",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-003 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-003",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-003 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-004",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-004 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-004",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-004 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-005",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-005 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-005",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-005 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-006",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-006 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-006",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-006 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-007",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-007 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-007",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-007 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-008",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-008 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-008",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-008 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-009",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-009 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-009",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-009 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-010",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-010 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-010",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-010 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-011",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-011 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-011",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-011 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-012",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-012 with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-012",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-012 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-013",
+          "workspace_start": "none"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-013 with workspace_start=none"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-013",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-013 with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-014",
+          "workspace_start": "none"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-014 with workspace_start=none"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-014",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-014 with workspace_start=existing-workbook"
       },
       {
         "forbid": {
@@ -1801,6 +2165,20 @@
           "stage": "needs"
         },
         "reason": "derived from the relations: no approved path carries deviation=none with stage=needs"
+      },
+      {
+        "forbid": {
+          "deviation": "D1_off_topic",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D1_off_topic with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D1_off_topic",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D1_off_topic with stage=add_summary"
       },
       {
         "forbid": {
@@ -1874,6 +2252,20 @@
       },
       {
         "forbid": {
+          "deviation": "D2_goal_shift",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D2_goal_shift with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D2_goal_shift",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D2_goal_shift with stage=add_summary"
+      },
+      {
+        "forbid": {
           "deviation": "D3_contradiction",
           "stage": "needs"
         },
@@ -1941,6 +2333,20 @@
           "stage": "closing"
         },
         "reason": "derived from the relations: no approved path carries deviation=D3_contradiction with stage=closing"
+      },
+      {
+        "forbid": {
+          "deviation": "D3_contradiction",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D3_contradiction with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D3_contradiction",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D3_contradiction with stage=add_summary"
       },
       {
         "forbid": {
@@ -2014,6 +2420,41 @@
       },
       {
         "forbid": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D4_loose_confirmation",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=add_summary"
+      },
+      {
+        "forbid": {
+          "deviation": "D5_language_switch",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D5_language_switch with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D5_language_switch",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D5_language_switch with stage=add_summary"
+      },
+      {
+        "forbid": {
+          "deviation": "D6_instruction_in_data",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D6_instruction_in_data with stage=add_summary"
+      },
+      {
+        "forbid": {
           "deviation": "D8_tool_failure",
           "stage": "needs"
         },
@@ -2056,6 +2497,20 @@
       },
       {
         "forbid": {
+          "deviation": "D8_tool_failure",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D8_tool_failure with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D8_tool_failure",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D8_tool_failure with stage=add_summary"
+      },
+      {
+        "forbid": {
           "deviation": "D10_return",
           "stage": "needs"
         },
@@ -2091,6 +2546,20 @@
       },
       {
         "forbid": {
+          "deviation": "D10_return",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D10_return with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D10_return",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D10_return with stage=add_summary"
+      },
+      {
+        "forbid": {
           "deviation": "D7_silence_or_burst",
           "stage": "needs"
         },
@@ -2098,52 +2567,241 @@
       },
       {
         "forbid": {
-          "deviation": "D2_goal_shift",
-          "plan_choice": "names-several"
+          "deviation": "D7_silence_or_burst",
+          "stage": "build_sheet"
         },
-        "reason": "derived from the relations: no approved path carries deviation=D2_goal_shift with plan_choice=names-several"
+        "reason": "derived from the relations: no approved path carries deviation=D7_silence_or_burst with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D7_silence_or_burst",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D7_silence_or_burst with stage=add_summary"
+      },
+      {
+        "forbid": {
+          "deviation": "D9_out_of_scope",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D9_out_of_scope with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D9_out_of_scope",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D9_out_of_scope with stage=add_summary"
       },
       {
         "forbid": {
           "deviation": "D2_goal_shift",
-          "plan_choice": "loose-yes-to-single-offer"
+          "coverage_result": "5g-only"
         },
-        "reason": "derived from the relations: no approved path carries deviation=D2_goal_shift with plan_choice=loose-yes-to-single-offer"
+        "reason": "derived from the relations: no approved path carries deviation=D2_goal_shift with coverage_result=5g-only"
       },
       {
         "forbid": {
           "deviation": "D2_goal_shift",
-          "plan_choice": "asks-for-callback"
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries deviation=D2_goal_shift with plan_choice=asks-for-callback"
+        "reason": "derived from the relations: no approved path carries deviation=D2_goal_shift with coverage_result=no-service"
+      },
+      {
+        "forbid": {
+          "deviation": "D2_goal_shift",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D2_goal_shift with coverage_result=not-in-map"
+      },
+      {
+        "forbid": {
+          "deviation": "D3_contradiction",
+          "coverage_result": "5g-only"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D3_contradiction with coverage_result=5g-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D3_contradiction",
+          "coverage_result": "no-service"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D3_contradiction with coverage_result=no-service"
+      },
+      {
+        "forbid": {
+          "deviation": "D3_contradiction",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D3_contradiction with coverage_result=not-in-map"
       },
       {
         "forbid": {
           "deviation": "D4_loose_confirmation",
-          "plan_choice": "names-several"
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries deviation=D4_loose_confirmation with plan_choice=names-several"
+        "reason": "derived from the relations: no approved path carries deviation=D4_loose_confirmation with coverage_result=no-service"
       },
       {
         "forbid": {
           "deviation": "D4_loose_confirmation",
-          "plan_choice": "asks-for-callback"
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries deviation=D4_loose_confirmation with plan_choice=asks-for-callback"
+        "reason": "derived from the relations: no approved path carries deviation=D4_loose_confirmation with coverage_result=not-in-map"
       },
       {
         "forbid": {
-          "stage": "identify",
-          "stage_transition": "callback-to-offer"
+          "deviation": "none",
+          "workspace_start": "existing-workbook"
         },
-        "reason": "derived from the relations: no approved path carries stage=identify with stage_transition=callback-to-offer"
+        "reason": "derived from the relations: no approved path carries deviation=none with workspace_start=existing-workbook"
       },
       {
         "forbid": {
-          "stage": "port_number",
-          "stage_transition": "callback-to-offer"
+          "deviation": "D1_off_topic",
+          "workspace_start": "catalog-only"
         },
-        "reason": "derived from the relations: no approved path carries stage=port_number with stage_transition=callback-to-offer"
+        "reason": "derived from the relations: no approved path carries deviation=D1_off_topic with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D1_off_topic",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D1_off_topic with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "deviation": "D2_goal_shift",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D2_goal_shift with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D2_goal_shift",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D2_goal_shift with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "deviation": "D3_contradiction",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D3_contradiction with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D3_contradiction",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D3_contradiction with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "deviation": "D4_loose_confirmation",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D4_loose_confirmation with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D4_loose_confirmation",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D4_loose_confirmation with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "deviation": "D5_language_switch",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D5_language_switch with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D5_language_switch",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D5_language_switch with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "deviation": "D6_instruction_in_data",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D6_instruction_in_data with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "deviation": "D8_tool_failure",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D8_tool_failure with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D8_tool_failure",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D8_tool_failure with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "deviation": "D10_return",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D10_return with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D10_return",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D10_return with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "deviation": "D7_silence_or_burst",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D7_silence_or_burst with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D7_silence_or_burst",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D7_silence_or_burst with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "deviation": "D9_out_of_scope",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D9_out_of_scope with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D9_out_of_scope",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D9_out_of_scope with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "channel": "chat",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries channel=chat with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "channel": "whatsapp",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries channel=whatsapp with workspace_start=existing-workbook"
       },
       {
         "forbid": {
@@ -2203,66 +2861,157 @@
       },
       {
         "forbid": {
-          "stage": "port_number",
-          "plan_choice": "names-several"
+          "stage": "build_sheet",
+          "user_type": "existing-customer"
         },
-        "reason": "derived from the relations: no approved path carries stage=port_number with plan_choice=names-several"
+        "reason": "derived from the relations: no approved path carries stage=build_sheet with user_type=existing-customer"
+      },
+      {
+        "forbid": {
+          "stage": "build_sheet",
+          "user_type": "new-customer"
+        },
+        "reason": "derived from the relations: no approved path carries stage=build_sheet with user_type=new-customer"
+      },
+      {
+        "forbid": {
+          "stage": "add_summary",
+          "user_type": "existing-customer"
+        },
+        "reason": "derived from the relations: no approved path carries stage=add_summary with user_type=existing-customer"
+      },
+      {
+        "forbid": {
+          "stage": "add_summary",
+          "user_type": "new-customer"
+        },
+        "reason": "derived from the relations: no approved path carries stage=add_summary with user_type=new-customer"
+      },
+      {
+        "forbid": {
+          "stage": "identify",
+          "coverage_result": "fiber"
+        },
+        "reason": "derived from the relations: no approved path carries stage=identify with coverage_result=fiber"
+      },
+      {
+        "forbid": {
+          "stage": "identify",
+          "coverage_result": "5g-only"
+        },
+        "reason": "derived from the relations: no approved path carries stage=identify with coverage_result=5g-only"
+      },
+      {
+        "forbid": {
+          "stage": "identify",
+          "coverage_result": "no-service"
+        },
+        "reason": "derived from the relations: no approved path carries stage=identify with coverage_result=no-service"
+      },
+      {
+        "forbid": {
+          "stage": "identify",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries stage=identify with coverage_result=not-in-map"
+      },
+      {
+        "forbid": {
+          "stage": "address",
+          "coverage_result": "none"
+        },
+        "reason": "derived from the relations: no approved path carries stage=address with coverage_result=none"
       },
       {
         "forbid": {
           "stage": "port_number",
-          "plan_choice": "loose-yes-to-single-offer"
+          "coverage_result": "fiber"
         },
-        "reason": "derived from the relations: no approved path carries stage=port_number with plan_choice=loose-yes-to-single-offer"
+        "reason": "derived from the relations: no approved path carries stage=port_number with coverage_result=fiber"
       },
       {
         "forbid": {
           "stage": "port_number",
-          "plan_choice": "asks-for-callback"
+          "coverage_result": "5g-only"
         },
-        "reason": "derived from the relations: no approved path carries stage=port_number with plan_choice=asks-for-callback"
+        "reason": "derived from the relations: no approved path carries stage=port_number with coverage_result=5g-only"
+      },
+      {
+        "forbid": {
+          "stage": "port_number",
+          "coverage_result": "no-service"
+        },
+        "reason": "derived from the relations: no approved path carries stage=port_number with coverage_result=no-service"
+      },
+      {
+        "forbid": {
+          "stage": "port_number",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries stage=port_number with coverage_result=not-in-map"
+      },
+      {
+        "forbid": {
+          "stage": "offer",
+          "coverage_result": "no-service"
+        },
+        "reason": "derived from the relations: no approved path carries stage=offer with coverage_result=no-service"
+      },
+      {
+        "forbid": {
+          "stage": "offer",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries stage=offer with coverage_result=not-in-map"
       },
       {
         "forbid": {
           "stage": "details",
-          "plan_choice": "names-several"
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries stage=details with plan_choice=names-several"
+        "reason": "derived from the relations: no approved path carries stage=details with coverage_result=no-service"
       },
       {
         "forbid": {
           "stage": "details",
-          "plan_choice": "asks-for-callback"
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries stage=details with plan_choice=asks-for-callback"
+        "reason": "derived from the relations: no approved path carries stage=details with coverage_result=not-in-map"
       },
       {
         "forbid": {
           "stage": "recap",
-          "plan_choice": "names-several"
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries stage=recap with plan_choice=names-several"
+        "reason": "derived from the relations: no approved path carries stage=recap with coverage_result=no-service"
       },
       {
         "forbid": {
           "stage": "recap",
-          "plan_choice": "asks-for-callback"
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries stage=recap with plan_choice=asks-for-callback"
+        "reason": "derived from the relations: no approved path carries stage=recap with coverage_result=not-in-map"
       },
       {
         "forbid": {
           "stage": "order_placed",
-          "plan_choice": "names-several"
+          "coverage_result": "no-service"
         },
-        "reason": "derived from the relations: no approved path carries stage=order_placed with plan_choice=names-several"
+        "reason": "derived from the relations: no approved path carries stage=order_placed with coverage_result=no-service"
       },
       {
         "forbid": {
           "stage": "order_placed",
-          "plan_choice": "asks-for-callback"
+          "coverage_result": "not-in-map"
         },
-        "reason": "derived from the relations: no approved path carries stage=order_placed with plan_choice=asks-for-callback"
+        "reason": "derived from the relations: no approved path carries stage=order_placed with coverage_result=not-in-map"
+      },
+      {
+        "forbid": {
+          "stage": "callback",
+          "coverage_result": "none"
+        },
+        "reason": "derived from the relations: no approved path carries stage=callback with coverage_result=none"
       },
       {
         "forbid": {
@@ -2274,51 +3023,394 @@
       {
         "forbid": {
           "stage": "handover",
+          "coverage_result": "none"
+        },
+        "reason": "derived from the relations: no approved path carries stage=handover with coverage_result=none"
+      },
+      {
+        "forbid": {
+          "stage": "handover",
           "coverage_result": "not-in-map"
         },
         "reason": "derived from the relations: no approved path carries stage=handover with coverage_result=not-in-map"
       },
       {
         "forbid": {
-          "stage": "port_number",
-          "customer_details": "one-of-them"
+          "stage": "closing",
+          "coverage_result": "fiber"
         },
-        "reason": "derived from the relations: no approved path carries stage=port_number with customer_details=one-of-them"
+        "reason": "derived from the relations: no approved path carries stage=closing with coverage_result=fiber"
+      },
+      {
+        "forbid": {
+          "stage": "closing",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries stage=closing with coverage_result=not-in-map"
+      },
+      {
+        "forbid": {
+          "stage": "build_sheet",
+          "coverage_result": "fiber"
+        },
+        "reason": "derived from the relations: no approved path carries stage=build_sheet with coverage_result=fiber"
+      },
+      {
+        "forbid": {
+          "stage": "build_sheet",
+          "coverage_result": "5g-only"
+        },
+        "reason": "derived from the relations: no approved path carries stage=build_sheet with coverage_result=5g-only"
+      },
+      {
+        "forbid": {
+          "stage": "build_sheet",
+          "coverage_result": "no-service"
+        },
+        "reason": "derived from the relations: no approved path carries stage=build_sheet with coverage_result=no-service"
+      },
+      {
+        "forbid": {
+          "stage": "build_sheet",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries stage=build_sheet with coverage_result=not-in-map"
+      },
+      {
+        "forbid": {
+          "stage": "add_summary",
+          "coverage_result": "fiber"
+        },
+        "reason": "derived from the relations: no approved path carries stage=add_summary with coverage_result=fiber"
+      },
+      {
+        "forbid": {
+          "stage": "add_summary",
+          "coverage_result": "5g-only"
+        },
+        "reason": "derived from the relations: no approved path carries stage=add_summary with coverage_result=5g-only"
+      },
+      {
+        "forbid": {
+          "stage": "add_summary",
+          "coverage_result": "no-service"
+        },
+        "reason": "derived from the relations: no approved path carries stage=add_summary with coverage_result=no-service"
+      },
+      {
+        "forbid": {
+          "stage": "add_summary",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries stage=add_summary with coverage_result=not-in-map"
+      },
+      {
+        "forbid": {
+          "stage": "needs",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries stage=needs with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "stage": "needs",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=needs with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "stage": "identify",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries stage=identify with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "stage": "identify",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=identify with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "stage": "address",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries stage=address with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "stage": "address",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=address with workspace_start=existing-workbook"
       },
       {
         "forbid": {
           "stage": "port_number",
-          "customer_details": "neither"
+          "workspace_start": "catalog-only"
         },
-        "reason": "derived from the relations: no approved path carries stage=port_number with customer_details=neither"
+        "reason": "derived from the relations: no approved path carries stage=port_number with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "stage": "port_number",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=port_number with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "stage": "offer",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries stage=offer with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "stage": "offer",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=offer with workspace_start=existing-workbook"
       },
       {
         "forbid": {
           "stage": "details",
-          "customer_details": "one-of-them"
+          "workspace_start": "catalog-only"
         },
-        "reason": "derived from the relations: no approved path carries stage=details with customer_details=one-of-them"
+        "reason": "derived from the relations: no approved path carries stage=details with workspace_start=catalog-only"
       },
       {
         "forbid": {
           "stage": "details",
-          "customer_details": "neither"
+          "workspace_start": "existing-workbook"
         },
-        "reason": "derived from the relations: no approved path carries stage=details with customer_details=neither"
+        "reason": "derived from the relations: no approved path carries stage=details with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "stage": "recap",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries stage=recap with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "stage": "recap",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=recap with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "stage": "order_placed",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries stage=order_placed with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "stage": "order_placed",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=order_placed with workspace_start=existing-workbook"
       },
       {
         "forbid": {
           "stage": "callback",
-          "callback_phone": "not-given"
+          "workspace_start": "catalog-only"
         },
-        "reason": "derived from the relations: no approved path carries stage=callback with callback_phone=not-given"
+        "reason": "derived from the relations: no approved path carries stage=callback with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "stage": "callback",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=callback with workspace_start=existing-workbook"
       },
       {
         "forbid": {
           "stage": "handover",
-          "callback_phone": "not-given"
+          "workspace_start": "catalog-only"
         },
-        "reason": "derived from the relations: no approved path carries stage=handover with callback_phone=not-given"
+        "reason": "derived from the relations: no approved path carries stage=handover with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "stage": "handover",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=handover with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "stage": "closing",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries stage=closing with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "stage": "closing",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=closing with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "stage": "build_sheet",
+          "workspace_start": "none"
+        },
+        "reason": "derived from the relations: no approved path carries stage=build_sheet with workspace_start=none"
+      },
+      {
+        "forbid": {
+          "stage": "build_sheet",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=build_sheet with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "stage": "add_summary",
+          "workspace_start": "none"
+        },
+        "reason": "derived from the relations: no approved path carries stage=add_summary with workspace_start=none"
+      },
+      {
+        "forbid": {
+          "stage": "add_summary",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries stage=add_summary with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "user_type": "existing-customer",
+          "coverage_result": "no-service"
+        },
+        "reason": "derived from the relations: no approved path carries user_type=existing-customer with coverage_result=no-service"
+      },
+      {
+        "forbid": {
+          "user_type": "existing-customer",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries user_type=existing-customer with coverage_result=not-in-map"
+      },
+      {
+        "forbid": {
+          "user_type": "sales-operations",
+          "coverage_result": "no-service"
+        },
+        "reason": "derived from the relations: no approved path carries user_type=sales-operations with coverage_result=no-service"
+      },
+      {
+        "forbid": {
+          "user_type": "sales-operations",
+          "coverage_result": "not-in-map"
+        },
+        "reason": "derived from the relations: no approved path carries user_type=sales-operations with coverage_result=not-in-map"
+      },
+      {
+        "forbid": {
+          "user_type": "existing-customer",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries user_type=existing-customer with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "user_type": "existing-customer",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries user_type=existing-customer with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "user_type": "new-customer",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries user_type=new-customer with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "user_type": "new-customer",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries user_type=new-customer with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "user_type": "sales-operations",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries user_type=sales-operations with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "coverage_result": "none",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries coverage_result=none with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "coverage_result": "fiber",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries coverage_result=fiber with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "coverage_result": "fiber",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries coverage_result=fiber with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "coverage_result": "5g-only",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries coverage_result=5g-only with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "coverage_result": "5g-only",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries coverage_result=5g-only with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "coverage_result": "no-service",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries coverage_result=no-service with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "coverage_result": "no-service",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries coverage_result=no-service with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "coverage_result": "not-in-map",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries coverage_result=not-in-map with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "coverage_result": "not-in-map",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries coverage_result=not-in-map with workspace_start=existing-workbook"
       }
     ]
   },
@@ -2728,111 +3820,15 @@
   ],
   "no_then": [
     {
-      "spec": "gen-twise-025",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
+      "spec": "gen-twise-089",
+      "blocks": ["b1-open"],
       "reasons": [
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-no-coverage: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
-        "path upgrade-most-data: it needs user_type in existing-customer; the cell holds new-customer",
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service",
-        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service"
-      ]
-    },
-    {
-      "spec": "gen-twise-026",
-      "blocks": ["b1-open", "b2-D3_contradiction"],
-      "reasons": [
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path home-order: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
-        "path order-single-plan: the constraints allow no value of plan_choice it needs with this cell",
-        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
-        "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-036",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
         "path porting-keep-number: the constraints allow no value of port_result it needs with this cell",
-        "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
         "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds new-customer"
-      ]
-    },
-    {
-      "spec": "gen-twise-047",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
-        "path upgrade-most-data: it needs user_type in existing-customer; the cell holds new-customer",
-        "path porting-keep-number: the constraints allow no value of port_result it needs with this cell",
         "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer"
-      ]
-    },
-    {
-      "spec": "gen-twise-048",
-      "blocks": ["b1-open", "b2-D3_contradiction"],
-      "reasons": [
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path home-callback: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
-        "path porting-keep-number: the constraints allow no value of port_result it needs with this cell",
-        "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds new-customer",
-        "path order-single-plan: the constraints allow no value of plan_choice it needs with this cell",
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds 5g-only"
-      ]
-    },
-    {
-      "spec": "gen-twise-098",
-      "blocks": ["b1-open", "b2-D7_silence_or_burst"],
-      "reasons": [
-        "path porting-keep-number: the constraints allow no value of port_result it needs with this cell",
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service",
-        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-most-data: it needs user_type in existing-customer; the cell holds new-customer"
-      ]
-    },
-    {
-      "spec": "gen-twise-102",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
-        "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
-        "path porting-keep-number: the constraints allow no value of port_result it needs with this cell",
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map"
-      ]
-    },
-    {
-      "spec": "gen-twise-105",
-      "blocks": ["b1-open", "b2-D5_language_switch"],
-      "reasons": [
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
-        "path upgrade-plan-not-in-catalog: the constraints allow no value of account_lookup it needs with this cell",
-        "path upgrade-most-data: the constraints allow no value of account_lookup it needs with this cell",
-        "path upgrade-unknown-email: the constraints allow no value of account_lookup it needs with this cell",
-        "path home-callback: it needs user_type in new-customer; the cell holds existing-customer",
-        "path porting-keep-number: it needs user_type in new-customer; the cell holds existing-customer"
-      ]
-    },
-    {
-      "spec": "gen-twise-113",
-      "blocks": ["b1-open", "b2-D2_goal_shift"],
-      "reasons": [
         "path porting-locked-number: the constraints allow no value of port_result it needs with this cell",
-        "path order-single-plan: the constraints allow no value of plan_choice it needs with this cell",
-        "path home-callback: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase",
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds 5g-only",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
-        "path upgrade-most-data: it needs user_type in existing-customer; the cell holds new-customer"
+        "path home-no-coverage: it needs coverage_result in no-service; the cell holds none",
+        "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer"
       ]
     },
     {
@@ -2887,39 +3883,39 @@
     },
     {
       "spec": "gen-metamorphic-001-1",
-      "blocks": ["b1-open", "b2-D1_off_topic"],
+      "blocks": ["b1-open", "b2-D9_out_of_scope"],
       "reasons": ["no approved path says flow=upgrade"]
     },
     {
       "spec": "gen-metamorphic-001-2",
-      "blocks": ["b1-open", "b2-D1_off_topic"],
+      "blocks": ["b1-open", "b2-D9_out_of_scope"],
       "reasons": ["no approved path says flow=upgrade"]
     }
   ],
   "coverage": {
     "t": 2,
-    "allowed": 664,
+    "allowed": 637,
     "complete": {
       "t": 2,
-      "specs": 225,
-      "allowed": 664,
-      "covered": 664,
+      "specs": 251,
+      "allowed": 637,
+      "covered": 637,
       "share": 1
     },
     "all": {
       "t": 2,
-      "specs": 303,
-      "allowed": 664,
-      "covered": 664,
+      "specs": 321,
+      "allowed": 637,
+      "covered": 637,
       "share": 1
     },
     "baseline": {
       "label": "examples/acme/specs",
       "t": 2,
       "specs": 7,
-      "allowed": 664,
-      "covered": 158,
-      "share": 0.23795180722891565
+      "allowed": 637,
+      "covered": 234,
+      "share": 0.3673469387755102
     }
   },
   "invalid": [],

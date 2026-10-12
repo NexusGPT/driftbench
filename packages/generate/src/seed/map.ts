@@ -75,16 +75,31 @@ export function prepareMap(
   proposal: Proposal,
   extras: { tools?: ToolSchema[]; inventory?: Inventory } = {},
 ): PreparedMap {
-  // The cell space holds the details too: the same conversion with every dimension read as an axis.
-  const map = toSpaceMap(
+  // The cell space holds the details too: the same conversion with every dimension read as an axis. The
+  // pairs the relations rule out, and the `none` of a data or task axis, come from the axis map: the
+  // relations speak of the axes.
+  const axisMap = toSpaceMap(proposal, { approvedOnly: true });
+  const whole = toSpaceMap(
     {
       ...proposal,
       dimensions: proposal.dimensions.map((dimension) => ({ ...dimension, role: 'axis' as const })),
     },
-    { approvedOnly: true },
+    { approvedOnly: true, derive: false },
   );
+  const axisValues = new Map(axisMap.dimensions.map((dimension) => [dimension.id, dimension.values]));
+  const written = new Set(whole.constraints.map((constraint) => JSON.stringify(constraint.forbid)));
+  const map = {
+    ...whole,
+    dimensions: whole.dimensions.map((dimension) => ({
+      ...dimension,
+      values: axisValues.get(dimension.id) ?? dimension.values,
+    })),
+    constraints: [
+      ...whole.constraints,
+      ...axisMap.constraints.filter((constraint) => !written.has(JSON.stringify(constraint.forbid))),
+    ],
+  };
   const space = compileSpace(map);
-  const axisMap = toSpaceMap(proposal, { approvedOnly: true });
   const axisIds = new Set(axisMap.dimensions.map((dimension) => dimension.id));
   const axes = new Set(
     space.dimensions.flatMap((dimension, index) => (isAxis(axisIds, dimension.id) ? [index] : [])),
@@ -126,6 +141,7 @@ export function prepareMap(
     ...(relations.paths.length +
       relations.usesTools.length +
       relations.states.length +
+      relations.taskFamilies.length +
       relations.binds.size +
       relations.recoveries.length >
       0 || relations.replyLanguage !== undefined

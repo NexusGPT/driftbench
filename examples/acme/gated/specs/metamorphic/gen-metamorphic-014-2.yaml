@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-metamorphic-014-2
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
 title: "Metamorphic home-callback over channel, value 2 of 2: : Path home-callback of new-home: needs > address > offer > callback > handover"
 channel: whatsapp
@@ -12,7 +12,6 @@ tags:
   - persona:new-customer
   - data:fiber
   - flow:new-home
-  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -25,6 +24,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.new-home
     rubric: A new customer asks for home internet at an address
@@ -129,7 +130,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
+      hash: b583de68c530
     path: home-callback
     cell:
       user_type: new-customer
@@ -138,7 +139,6 @@ metadata:
       callback_phone: given
       channel: whatsapp
       flow: new-home
-      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-address
         seeder: metamorphic

@@ -2,19 +2,16 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-cover-006
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
-title: "Cell behaviour=B-009, deviation=D7_silence_or_burst: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D7_silence_or_burst at details"
-channel: whatsapp
+title: "Cell deviation=D1_off_topic, stage=handover: Path home-callback of new-home: needs > address > offer > callback > handover, D1_off_topic at handover"
+channel: chat
 lang: EN
 tier: generated
 tags:
-  - flow:order
-  - data:5g-only
+  - flow:new-home
   - persona:new-customer
-  - task:existing-workbook
-covers:
-  - B-009
+  - data:fiber
 stages:
   - needs
   - identify
@@ -27,23 +24,21 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
-  - name: behaviour.B-009
-    rubric: Treat a loose yes as no confirmation and ask for CONFIRM again
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
     gating: false
     scope: conversation
-  - name: flow.order
-    rubric: Recap, explicit confirmation and order placement
-    gating: false
-    scope: conversation
-  - name: deviation.D7_silence_or_burst
-    rubric: One reply, no double send.
+  - name: deviation.D1_off_topic
+    rubric: A short answer, then the agent resumes its pending stage in the same block.
     gating: false
     scope: block
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Hello, I'm looking for home internet.
+      user: Do you have home internet where I live?
     expect:
       stage: address
       tools:
@@ -51,111 +46,83 @@ blocks:
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-009
-        - flow.order
+        - flow.new-home
   - id: b2-address-to-offer
     when:
-      user: The address is 88 Summit Avenue, Acmeville.
+      user: The address is 14 Harbor Road, Acmeville.
     expect:
       stage: offer
       tools:
         - label: coverage.check
           count: 1
           input:
-            address: 88 Summit Avenue, Acmeville
+            address: 14 Harbor Road, Acmeville
         - label: catalog.search
           count: 1
           input:
             category: home
-            address_id: addr-103
-        - label: order.create
+            address_id: addr-101
+        - label: notify_sales
           count: 0
       must:
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
         - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
-  - id: b3-offer-to-details
+  - id: b3-offer-to-callback
     when:
-      user: Yes, that one.
+      user: Can someone just call me back?
     expect:
-      stage: details
+      stage: callback
       tools:
         - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
       lang: EN
-  - id: b4-D7_silence_or_burst
+  - id: b4-callback-to-handover
     when:
-      injection:
-        class: D7_silence_or_burst
-        user: hello?
+      user: You can reach me on +1 202 555 0131.
     expect:
-      stage: details
+      stage: handover
       tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I'm here
-      lang: EN
-      criteria:
-        - deviation.D7_silence_or_burst
-  - id: b5-details-to-recap
-    when:
-      user: Jo Okafor, jo.okafor@example.com
-    expect:
-      stage: recap
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b6-recap-to-order_placed
-    when:
-      user: CONFIRM
-    expect:
-      stage: order_placed
-      tools:
-        - label: order.create
+        - label: notify_sales
           count: 1
           input:
-            type: new
-            plan_id: air-5g
-            address_id: addr-103
+            reason: callback
             customer:
               subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
+                phone: "+12025550131"
         - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
       lang: EN
-  - id: b7-order_placed-to-closing
+  - id: b5-D1_off_topic
     when:
-      user: No, that's all. Thanks!
+      injection:
+        class: D1_off_topic
+        user: Are your stores open on Saturday?
     expect:
-      stage: closing
+      stage: handover
       tools:
         - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
+      must:
+        - Monday to Saturday
       lang: EN
+      criteria:
+        - deviation.D1_off_topic
 metadata:
   generated:
     by: driftbench generate
@@ -166,17 +133,15 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
-    path: order-single-plan
+      hash: b583de68c530
+    path: home-callback
     cell:
-      behaviour: B-009
-      flow: order
-      coverage_result: 5g-only
-      plan_choice: loose-yes-to-single-offer
-      customer_details: name-and-email
-      channel: whatsapp
+      flow: new-home
       user_type: new-customer
-      workspace_start: existing-workbook
+      coverage_result: fiber
+      plan_choice: asks-for-callback
+      callback_phone: given
+      channel: chat
     blocks:
       - block: b1-needs-to-address
         seeder: cover
@@ -192,59 +157,41 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: address-to-offer
-          coverage_result: 5g-only
+          coverage_result: fiber
           stage: offer
         phrase:
           dimension: stage_transition
           value: address-to-offer
-      - block: b3-offer-to-details
+      - block: b3-offer-to-callback
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
+          stage_transition: offer-to-callback
+          stage: callback
         phrase:
           dimension: stage_transition
-          value: offer-to-details
-      - block: b4-D7_silence_or_burst
+          value: offer-to-callback
+      - block: b4-callback-to-handover
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: details
+          stage_transition: callback-to-handover
+          callback_phone: given
+          coverage_result: fiber
+          plan_choice: asks-for-callback
+          stage: handover
+        phrase:
+          dimension: stage_transition
+          value: callback-to-handover
+      - block: b5-D1_off_topic
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: handover
         phrase:
           dimension: deviation
-          value: D7_silence_or_burst
-      - block: b5-details-to-recap
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
-          stage: recap
-        phrase:
-          dimension: stage_transition
-          value: details-to-recap
-      - block: b6-recap-to-order_placed
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: recap-to-order_placed
-          coverage_result: 5g-only
-          customer_details: name-and-email
-          stage: order_placed
-        phrase:
-          dimension: stage_transition
-          value: recap-to-order_placed
-      - block: b7-order_placed-to-closing
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: order_placed-to-closing
-          stage: closing
-        phrase:
-          dimension: stage_transition
-          value: order_placed-to-closing
+          value: D1_off_topic
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -257,39 +204,27 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.538
-      - block: b3-offer-to-details
+      - block: b3-offer-to-callback
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b4-D7_silence_or_burst
+      - block: b4-callback-to-handover
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b5-details-to-recap
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.615
-      - block: b6-recap-to-order_placed
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.615
-      - block: b7-order_placed-to-closing
+      - block: b5-D1_off_topic
         status: accepted
         pass_k: 1
         pass_probability: 0.692
 rules:
   forbidden_tools:
     - port.check
-    - notify_sales
-  one_message_per_turn: true
+    - order.create
 end_state:
-  source: tool:order.create
+  source: tool:notify_sales
   mode: subset
   expect:
-    type: new
-    plan_id: air-5g
-    address_id: addr-103
+    reason: callback
     customer:
       subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
+        phone: "+12025550131"

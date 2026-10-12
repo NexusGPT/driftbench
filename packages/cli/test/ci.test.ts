@@ -45,7 +45,19 @@ async function tempFolder(): Promise<string> {
 }
 
 /** Runs the CLI through `main`, or with the campaign deps a test gives. */
-async function cli(argv: string[], deps?: Partial<CampaignDeps>) {
+/**
+ * The Acme suites hold code-agent tasks for the ops agent beside the sales conversations: every `ci` and
+ * `campaign run` with a `--target` routes the price-sheet flow to the ops agent, as the gate does.
+ */
+const ROUTE = ['--route', 'flow:price-sheet=process:acme-ops'];
+
+function routed(argv: string[]): string[] {
+  const runs = argv[0] === 'ci' || (argv[0] === 'campaign' && argv[1] === 'run');
+  return runs && argv.includes('--target') && !argv.includes('--route') ? [...argv, ...ROUTE] : argv;
+}
+
+async function cli(given: string[], deps?: Partial<CampaignDeps>) {
+  const argv = routed(given);
   let out = '';
   let err = '';
   const io: Io = {
@@ -129,8 +141,8 @@ describe('driftbench ci on the Acme gated suite', () => {
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
       expect(summary.baseline.campaignId).toBe(baselineId);
-      expect(summary.pairs).toBe(179);
-      expect(summary.table).toEqual({ bothPass: 179, regressed: 0, improved: 0, bothFail: 0 });
+      expect(summary.pairs).toBe(193);
+      expect(summary.table).toEqual({ bothPass: 193, regressed: 0, improved: 0, bothFail: 0 });
       expect(summary.criteriaNotShown).toEqual([]);
       expect(summary.newFlags).toEqual([]);
       expect(summary.flags).toEqual([...DEFAULT_FLAGS]);
@@ -139,7 +151,7 @@ describe('driftbench ci on the Acme gated suite', () => {
   );
 
   it(
-    'exits 0 with the defaults: margin auto, set by end_state, with cards and guards underpowered',
+    'exits 0 with the defaults: margin auto, set by guards, with the task criteria and cards underpowered',
     async () => {
       const out = join(dir, 'defaults.json');
       const result = await ci(
@@ -150,16 +162,25 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(result.code).toBe(0);
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
-      expect(summary.marginPoints).toBe(3);
-      expect(summary.marginAuto).toEqual({ neededPoints: 2.73, limitedBy: 'end_state' });
+      expect(summary.marginPoints).toBe(7.5);
+      expect(summary.marginAuto).toEqual({ neededPoints: 7, limitedBy: 'guards' });
       expect(summary.minGoldens).toBe(30);
-      expect(summary.underpowered.map((entry) => entry.criterion)).toEqual(['cards', 'guards']);
-      expect(result.out).toContain('Margin auto: 3 points');
+      expect(summary.underpowered.map((entry) => entry.criterion)).toEqual([
+        'artifacts',
+        'budget',
+        'cards',
+        'execution',
+        'must_not',
+        'safety',
+        'skills',
+        'workspace',
+      ]);
+      expect(result.out).toContain('Margin auto: 7.5 points');
       expect(result.out).not.toContain('Warning:');
       const top = result.out.split('\n').slice(0, 3).join('\n');
-      expect(top).toContain('Margin auto: 3 points');
+      expect(top).toContain('Margin auto: 7.5 points');
       expect(top).toContain(
-        'Underpowered, under 30 goldens, left out of the parity test: cards (14 goldens), guards (27 goldens).',
+        'Underpowered, under 30 goldens, left out of the parity test: artifacts (24 goldens), budget (24 goldens), cards (12 goldens), execution (24 goldens), must_not (1 golden), safety (24 goldens), skills (24 goldens), workspace (24 goldens).',
       );
     },
     SLOW,
@@ -183,15 +204,20 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(summary.criteriaNotShown.map((entry) => entry.criterion)).toEqual([
         'end_state',
         'forbidden',
+        'guards',
         'lang',
         'must',
-        'pii',
-        'stage',
         'tools',
       ]);
       expect(summary.underpowered).toEqual([
-        { criterion: 'cards', goldens: 14 },
-        { criterion: 'guards', goldens: 27 },
+        { criterion: 'artifacts', goldens: 24 },
+        { criterion: 'budget', goldens: 24 },
+        { criterion: 'cards', goldens: 12 },
+        { criterion: 'execution', goldens: 24 },
+        { criterion: 'must_not', goldens: 1 },
+        { criterion: 'safety', goldens: 24 },
+        { criterion: 'skills', goldens: 24 },
+        { criterion: 'workspace', goldens: 24 },
       ]);
     },
     SLOW,
@@ -219,16 +245,43 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(result.out).toContain('Verdict: REGRESSION. Exit 1.');
       expect(result.out).toContain('Goldens that changed:');
       expect(result.out).toMatch(/gen-boundary-065 · F +pass +fail +regressed +forbidden +block 3 forbidden/);
-      expect(result.out).toContain('and 84 more: every golden is in the summary file.');
+      expect(result.out).toContain('and 77 more: every golden is in the summary file.');
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('regression');
-      expect(summary.table).toEqual({ bothPass: 70, regressed: 109, improved: 0, bothFail: 0 });
-      expect(summary.regressed).toHaveLength(109);
+      expect(summary.table).toEqual({ bothPass: 91, regressed: 102, improved: 0, bothFail: 0 });
+      expect(summary.regressed).toHaveLength(102);
       expect(summary.newFlags).toContain('gen-boundary-065 · F forbidden');
       expect(summary.effectPoints.lower).toBeGreaterThan(5);
       expect(summary.rows.find((row) => row.name === 'gen-boundary-065 · F')?.candidate.failing[0]).toBe(
         'block 3 forbidden.order.create',
       );
+    },
+    SLOW,
+  );
+
+  it(
+    'takes a code-agent fault through a route: the task specs regress, the conversations stay on the sales agent',
+    async () => {
+      const out = join(dir, 'routed-fault.json');
+      const result = await ci(
+        [
+          '--target',
+          'function:acme-sales',
+          '--route',
+          'flow:price-sheet=fault:ops-x1-wrong-price',
+          '--faults',
+          FAULTS,
+          '--store',
+          join(dir, 'routed-fault.db'),
+        ],
+        out,
+      );
+      expect(result.err).toBe('');
+      expect(result.code).toBe(1);
+      expect(result.out).toContain('Verdict: REGRESSION. Exit 1.');
+      const summary = await summaryAt(out);
+      expect(summary.table).toEqual({ bothPass: 171, regressed: 22, improved: 0, bothFail: 0 });
+      expect(summary.regressed.every((name) => name.startsWith('acme-price-sheet-'))).toBe(true);
     },
     SLOW,
   );
@@ -412,12 +465,19 @@ describe('driftbench ci on the Acme golden suite: one verdict rule with compare'
       expect(summary.verdict).toBe('not-shown-non-inferior');
       expect(compareVerdict).toBe('unproven');
       expect(summary.criteriaNotShown.map((entry) => entry.criterion).sort()).toEqual([
+        'artifacts',
         'budget',
         'cards',
+        'end_state',
+        'execution',
         'guards',
         'lang',
         'ledger',
+        'must',
         'must_not',
+        'safety',
+        'skills',
+        'workspace',
       ]);
       const loose = await ciThenCompare(
         ['--target', 'fault:control-sales-identity', '--faults', FAULTS],
@@ -557,7 +617,7 @@ describe('driftbench ci baselines', () => {
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
       expect(summary.pairs).toBe(10);
-      expect(summary.unpaired).toHaveLength(169);
+      expect(summary.unpaired).toHaveLength(183);
       expect(summary.unpaired.every((entry) => entry.reason === 'baseline only')).toBe(true);
       expect(result.out).toContain('Not compared: ');
     },
@@ -822,6 +882,7 @@ describe('the driftbench ci GitHub Action', () => {
             GITHUB_OUTPUT: output,
             INPUT_SPECS: GATED,
             INPUT_TARGET: 'function:acme-sales',
+            INPUT_ROUTE: 'flow:price-sheet=process:acme-ops',
             INPUT_BASELINE: base,
             INPUT_STORE: join(dir, 'cand.db'),
             INPUT_MARGIN: margin,

@@ -896,6 +896,18 @@ dimensions:
           source: ../src/policy.ts
           quote: s.stage = 'closing';
         produced_by: model
+      - id: build_sheet
+        title: The ops agent builds the price sheet workbook from the catalog
+        evidence:
+          source: ../README.md
+          quote: its stage, `build_sheet` or `add_summary`
+        produced_by: model
+      - id: add_summary
+        title: The ops agent adds the Summary sheet to the workbook
+        evidence:
+          source: ../README.md
+          quote: its stage, `build_sheet` or `add_summary`
+        produced_by: model
   - id: stage_transition
     title: A move from one stage to the next
     kind: behaviour
@@ -3193,6 +3205,22 @@ relations:
     evidence:
       source: ../src/policy.ts
       quote: ": { type: 'new', plan_id: plan.id, customer };"
+    produced_by: model
+    approved: true
+  - kind: task_family
+    flow: price-sheet
+    family: ../families/price-sheet
+    stages: [ build_sheet, add_summary ]
+    holds:
+      user_type:
+        - sales-operations
+      workspace_start:
+        - catalog-only
+    deviations:
+      - D6_instruction_in_data
+    evidence:
+      source: ../README.md
+      quote: its stage, `build_sheet` or `add_summary`
     produced_by: model
     approved: true
   - kind: states

@@ -39,6 +39,11 @@ export function proposeRole(
 export type SpaceMapOptions = {
   /** Keep only approved values (a dimension's flag or the value's own) and approved constraints. */
   approvedOnly?: boolean;
+  /**
+   * With approvedOnly, also forbid the pairs the relations rule out and give data and task axes `none`
+   * (derive.ts). Default true; the generator's map of every dimension takes them from the axis map instead.
+   */
+  derive?: boolean;
 };
 
 /**
@@ -49,6 +54,14 @@ export type SpaceMapOptions = {
  * prior is declared with no weight: every value of a dimension weighs the same until the owner says so.
  */
 export function toSpaceMap(proposal: Proposal, options: SpaceMapOptions = {}): SpaceMap {
+  // A map whose approved relations give it structure (paths, task families) says which specs hold which
+  // data and task values; a spec that holds none of a data or task axis places on its `none` value.
+  const structured =
+    options.approvedOnly === true &&
+    options.derive !== false &&
+    (proposal.relations ?? []).some(
+      (relation) => relation.approved && (relation.kind === 'path' || relation.kind === 'task_family'),
+    );
   const dimensions = proposal.dimensions
     .filter((dimension) => dimension.role === 'axis')
     .flatMap((dimension) => {
@@ -57,6 +70,14 @@ export function toSpaceMap(proposal: Proposal, options: SpaceMapOptions = {}): S
         .map((value) => ({ id: value.id, title: value.title }));
       if (values.length > 0 && dimension.kind === 'deviation' && !values.some((value) => value.id === NONE)) {
         values.unshift({ id: NONE, title: 'No deviation' });
+      }
+      if (
+        structured &&
+        values.length > 0 &&
+        (dimension.kind === 'data' || dimension.kind === 'task') &&
+        !values.some((value) => value.id === NONE)
+      ) {
+        values.unshift({ id: NONE, title: 'Not held by the spec' });
       }
       return values.length === 0
         ? []
@@ -72,7 +93,7 @@ export function toSpaceMap(proposal: Proposal, options: SpaceMapOptions = {}): S
     )
     .map((constraint) => ({ forbid: { ...constraint.forbid }, reason: constraint.reason }));
   // An approved map also forbids the pairs its own relations rule out (see derive.ts).
-  if (options.approvedOnly)
+  if (structured)
     constraints.push(
       ...derivedConstraints(
         proposal,

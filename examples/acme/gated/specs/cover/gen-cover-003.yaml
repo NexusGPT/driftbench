@@ -2,19 +2,17 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-cover-003
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
-title: "Cell behaviour=B-004, deviation=D2_goal_shift: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D2_goal_shift at recap"
+title: "Cell behaviour=B-008, stage=identify: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
 channel: chat
 lang: EN
 tier: generated
 tags:
-  - flow:new-home
-  - persona:new-customer
-  - data:fiber
-  - task:catalog-only
+  - flow:upgrade
+  - persona:existing-customer
 covers:
-  - B-004
+  - B-008
 stages:
   - needs
   - identify
@@ -27,124 +25,105 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
-  - name: behaviour.B-004
-    rubric: Offer only the home plans available at the checked address
+  - name: behaviour.B-008
+    rubric: Recap the order and place it only after an explicit CONFIRM
     gating: false
     scope: conversation
-  - name: flow.new-home
-    rubric: A new customer asks for home internet at an address
+  - name: flow.upgrade
+    rubric: An existing customer moves to a plan with more data
     gating: false
     scope: conversation
-  - name: deviation.D2_goal_shift
-    rubric: Back to the stage that owns the change, with no question about facts already known.
-    gating: false
-    scope: block
 blocks:
-  - id: b1-needs-to-address
+  - id: b1-needs-to-identify
     when:
-      user: Do you have home internet where I live?
+      user: Hi, I already have an Acme plan and I need more data.
     expect:
-      stage: address
+      stage: identify
       tools:
-        - label: coverage.check
-          count: 0
         - label: catalog.search
           count: 0
         - label: order.create
           count: 0
       lang: EN
       criteria:
-        - behaviour.B-004
-        - flow.new-home
-  - id: b2-address-to-offer
+        - behaviour.B-008
+        - flow.upgrade
+  - id: b2-identify-to-offer
     when:
-      user: The address is 14 Harbor Road, Acmeville.
+      user: It's sam.rivera@example.com.
     expect:
       stage: offer
       tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 14 Harbor Road, Acmeville
         - label: catalog.search
           count: 1
           input:
-            category: home
-            address_id: addr-101
+            category: mobile
+            customer_email: sam.rivera@example.com
         - label: order.create
           count: 0
       must:
-        - Acme Fiber 300, 300 Mbps for \$40 a month
-        - Acme Fiber 1000, 1000 Mbps for \$60 a month
-        - Acme Air 5G, up to 200 Mbps for \$35 a month
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
-  - id: b3-offer-to-details
+  - id: b3-offer-to-recap
     when:
-      user: I'll take Acme Fiber 1000.
-    expect:
-      stage: details
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b4-details-to-recap
-    when:
-      user: Jo Okafor, jo.okafor@example.com
+      user: The unlimited one, please.
     expect:
       stage: recap
       tools:
-        - label: coverage.check
-          count: 0
         - label: catalog.search
           count: 0
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-D2_goal_shift
+  - id: b4-recap-to-order_placed
     when:
-      injection:
-        class: D2_goal_shift
-        user: Actually, make it Acme Fiber 300 instead.
-    expect:
-      stage: recap
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Acme Fiber 300
-      lang: EN
-      criteria:
-        - deviation.D2_goal_shift
-  - id: b6-recap-to-order_placed
-    when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
         - label: order.create
           count: 1
           input:
-            type: new
-            plan_id: fiber-300
-            address_id: addr-101
-            customer:
-              subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
-        - label: coverage.check
-          count: 0
+            type: upgrade
+            customer_id: cust-001
+            plan_id: mobile-l
         - label: catalog.search
           count: 0
       lang: EN
+  - id: b5-order_placed-to-closing
+    when:
+      user: No, that's all. Thanks!
+    expect:
+      stage: closing
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+perturbations:
+  - id: p1-D1_off_topic
+    class: D1_off_topic
+    inject_at: 2
+    user: Are your stores open on Saturday?
+    expect:
+      stage: offer
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: offer
 metadata:
   generated:
     by: driftbench generate
@@ -155,116 +134,97 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
-    path: home-order
+      hash: b583de68c530
+    path: upgrade-order
     cell:
-      behaviour: B-004
-      flow: new-home
-      user_type: new-customer
-      coverage_result: fiber
+      behaviour: B-008
+      flow: upgrade
+      user_type: existing-customer
+      account_lookup: found
       plan_choice: names-one
-      customer_details: name-and-email
       channel: chat
-      workspace_start: catalog-only
+      coverage_result: none
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-needs-to-identify
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-address
-          stage: address
+          stage_transition: needs-to-identify
+          stage: identify
         phrase:
           dimension: stage_transition
-          value: needs-to-address
-      - block: b2-address-to-offer
+          value: needs-to-identify
+      - block: b2-identify-to-offer
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: address-to-offer
-          coverage_result: fiber
+          stage_transition: identify-to-offer
+          account_lookup: found
           stage: offer
         phrase:
           dimension: stage_transition
-          value: address-to-offer
-      - block: b3-offer-to-details
+          value: identify-to-offer
+      - block: b3-offer-to-recap
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
-        phrase:
-          dimension: stage_transition
-          value: offer-to-details
-      - block: b4-details-to-recap
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
+          stage_transition: offer-to-recap
           stage: recap
         phrase:
           dimension: stage_transition
-          value: details-to-recap
-      - block: b5-D2_goal_shift
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          deviation: D2_goal_shift
-          stage: recap
-        phrase:
-          dimension: deviation
-          value: D2_goal_shift
-      - block: b6-recap-to-order_placed
+          value: offer-to-recap
+      - block: b4-recap-to-order_placed
         seeder: cover
         cell:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
-          coverage_result: fiber
-          customer_details: name-and-email
+          account_lookup: found
           stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
+      - block: b5-order_placed-to-closing
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: order_placed-to-closing
+          stage: closing
+        phrase:
+          dimension: stage_transition
+          value: order_placed-to-closing
   gate:
     by: driftbench gate
     date: 2026-10-11
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-needs-to-identify
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-address-to-offer
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.538
-      - block: b3-offer-to-details
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b4-details-to-recap
+      - block: b2-identify-to-offer
         status: accepted
         pass_k: 1
         pass_probability: 0.615
-      - block: b5-D2_goal_shift
+      - block: b3-offer-to-recap
         status: accepted
         pass_k: 1
-        pass_probability: 0.538
-      - block: b6-recap-to-order_placed
+        pass_probability: 0.615
+      - block: b4-recap-to-order_placed
         status: accepted
         pass_k: 1
-        pass_probability: 0.538
+        pass_probability: 0.615
+      - block: b5-order_placed-to-closing
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
 rules:
   forbidden_tools:
+    - coverage.check
     - port.check
     - notify_sales
 end_state:
   source: tool:order.create
   mode: subset
   expect:
-    type: new
-    plan_id: fiber-300
-    address_id: addr-101
-    customer:
-      subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
+    type: upgrade
+    customer_id: cust-001
+    plan_id: mobile-l

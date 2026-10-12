@@ -63,6 +63,14 @@ answers:
             title: The conversation closes
             source: ../src/policy.ts
             quote: "s.stage = 'closing';"
+          - id: build_sheet
+            title: The ops agent builds the price sheet workbook from the catalog
+            source: ../README.md
+            quote: "its stage, `build_sheet` or `add_summary`"
+          - id: add_summary
+            title: The ops agent adds the Summary sheet to the workbook
+            source: ../README.md
+            quote: "its stage, `build_sheet` or `add_summary`"
       - id: stage_transition
         title: A move from one stage to the next
         kind: behaviour
@@ -1123,6 +1131,16 @@ answers:
           customer: { subset: { name: "{name}", email: "{email}" } }
         source: ../src/policy.ts
         quote: ": { type: 'new', plan_id: plan.id, customer };"
+
+      # The price-sheet flow is a code-agent task: a task family writes its specs, with an oracle in code.
+      - kind: task_family
+        flow: price-sheet
+        family: ../families/price-sheet
+        stages: [build_sheet, add_summary]
+        holds: { user_type: [sales-operations], workspace_start: [catalog-only] }
+        deviations: [D6_instruction_in_data]
+        source: ../README.md
+        quote: "its stage, `build_sheet` or `add_summary`"
 
       # What the reply that enters the offer states: each plan with its monthly price, as catalog.search returns it.
       - kind: states

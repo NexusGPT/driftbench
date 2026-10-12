@@ -89,7 +89,19 @@ function scenarioDraft(
       reasons.push(built.reason);
       continue;
     }
-    const cell = [...built.cell, ...contextAxes(prepared, built.cell, rng)];
+    // The context is drawn with every stage the walk reaches: a value the walk's stages rule out (a coverage
+    // result on a flow that checks no coverage) is never drawn.
+    const reached: Pick[] =
+      prepared.stage === undefined
+        ? []
+        : built.blocks.flatMap((block): Pick[] => {
+            const at =
+              block.stage === undefined
+                ? undefined
+                : prepared.space.dimensions[prepared.stage as number]?.index.get(block.stage);
+            return at === undefined ? [] : [[prepared.stage as number, at]];
+          });
+    const cell = [...built.cell, ...contextAxes(prepared, built.cell, rng, reached)];
     const behaviours = cell.filter(
       ([dimension]) =>
         prepared.space.dimensions[dimension]?.kind === 'behaviour' && dimension !== prepared.transition,
@@ -332,13 +344,16 @@ export type TwiseSummary = {
  * are chosen inside each row's cell, never crossed.
  */
 export function twiseDimensions(prepared: PreparedMap): number[] {
+  // A task setting (a task axis) belongs to a code-agent task, never to a conversation: its values come
+  // from the task families, not from the covering array.
   return [...prepared.axes]
     .sort((a, b) => a - b)
-    .filter((index) => index !== prepared.stage && index !== prepared.transition);
+    .filter((index) => index !== prepared.stage && index !== prepared.transition)
+    .filter((index) => prepared.space.dimensions[index]?.kind !== 'task');
 }
 
-/** Axis kinds that set the context of a conversation: who talks, on which channel, with which data and task. */
-const CONTEXT_KINDS: ReadonlySet<string> = new Set(['persona', 'channel', 'data', 'task']);
+/** Axis kinds that set the context of a conversation: who talks, on which channel, with which data. */
+const CONTEXT_KINDS: ReadonlySet<string> = new Set(['persona', 'channel', 'data']);
 
 /**
  * The context axes of a spec whose seeder fixes only some values (a graph path, a probe, a boundary value):
@@ -370,6 +385,13 @@ function contextAxes(
     !base.some(([at]) => at === prepared.deviation)
   ) {
     base.push([prepared.deviation, none]);
+  }
+  // A conversation holds no task setting: every task axis stays at its `none`, as the spec places it.
+  for (const index of prepared.axes) {
+    const dimension = prepared.space.dimensions[index];
+    const empty = dimension?.index.get(NONE);
+    if (dimension?.kind === 'task' && empty !== undefined && !base.some(([at]) => at === index))
+      base.push([index, empty]);
   }
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const full = prepared.feasibility.complete(base, rng);
@@ -410,14 +432,16 @@ export function twiseSeeder(
   const dimensions = twiseDimensions(prepared);
   const sizes = prepared.space.dimensions.map((dimension) => dimension.values.length);
   const t = Math.min(context.t, dimensions.length);
-  const array = coveringArray(
-    prepared.feasibility,
-    sizes,
-    dimensions,
-    t,
-    rngFor(context.seed, 'twise'),
-    context.max,
-  );
+  // A row is a conversation: it holds no task setting, so every task axis stays at its `none`.
+  const taskNones: Pick[] = [...prepared.axes].flatMap((index): Pick[] => {
+    const dimension = prepared.space.dimensions[index];
+    const empty = dimension?.index.get(NONE);
+    return dimension?.kind === 'task' && empty !== undefined ? [[index, empty]] : [];
+  });
+  const conversation = {
+    allowed: (picks: readonly Pick[]) => prepared.feasibility.allowed([...picks, ...taskNones]),
+  };
+  const array = coveringArray(conversation, sizes, dimensions, t, rngFor(context.seed, 'twise'), context.max);
   const drafts = array.rows.map((row, index) => {
     const id = `gen-twise-${pad(index + 1)}`;
     const cell: Pick[] = dimensions.map((dimension) => [dimension, row[dimension] ?? 0]);

@@ -12,16 +12,16 @@ pnpm driftbench gate examples/acme/generated/specs \
   --date 2026-10-11 --out examples/acme/gated --force
 ```
 
-Every generated block but nine passes the gate: 1092 of 1101, in 225 specs (179 in `specs/`, 46 sealed in `holdout/`). The nine rejected blocks are first-turn probes the echo agent passes: the recovery word the map gives D1 is in the user's own question. The generator derives every Then from the map's relations (the path's next stage, the tool calls and their inputs, what the reply states, the end state, the recovery of a deviation class), so no block holds judged criteria alone. `gate-report.json` holds the funnel and the verdict of every stage for every block.
+Every generated block but six passes the gate: 1100 of 1106, in 251 specs (193 in `specs/`, 58 sealed in `holdout/`). The six rejected blocks are first-turn probes the echo agent passes: the recovery word the map gives D1 is in the user's own question. The generator derives every Then from the map's relations (the path's next stage, the tool calls and their inputs, what the reply states, the end state, the recovery of a deviation class), and the price-sheet task specs take theirs from the family's oracle, so no block holds judged criteria alone. `gate-report.json` holds the funnel and the verdict of every stage for every block.
 
-Resealed on 2026-10-12: the generator gained the cover seeder and the `states` relation, so this run seals a new holdout of 46 specs. The select, holdout and ci commands and the golden set read it; their examples were measured again on this run.
+Resealed on 2026-10-12: the generator gained the task seeder, which builds the price-sheet task specs from the map's `task_family` relation, so this run seals a new holdout of 58 specs. The select, holdout and ci commands and the golden set read it; their examples were measured again on this run.
 
 What kills the planted faults, from the report:
 
-- Every block reads the reply language the map fixes (English), so the fault that answers in French is red on all 1092.
-- 539 blocks are also red on another fault: skipping the recap (306), quoting prices five dollars above the catalog (162), dropping the coverage check (106), ordering on a loose yes (66), ignoring a goal shift (32), hiding a tool failure (18), obeying an instruction in a message (15), answering a billing matter itself (14).
-- 553 blocks are red on the language fault only.
-- The turn that enters the offer states each plan with its catalog price, so the fault that invents prices is red: the X1 class scores 1 of 1. No generated conversation corrects an earlier email, and the price-sheet flow has no conversation path, so no complete spec runs on the ops agent: those faults are equivalent here.
+- 1053 accepted blocks are conversations on the sales agent. Every one reads the reply language the map fixes (English), so the fault that answers in French is red on all 1053.
+- 519 of them are also red on another fault: skipping the recap (292), quoting prices five dollars above the catalog (155), dropping the coverage check (115), ordering on a loose yes (61), ignoring a goal shift (31), hiding a tool failure (18), obeying an instruction in a message (15), answering a billing matter itself (13). 534 are red on the language fault only.
+- 47 accepted blocks are price-sheet task specs, run on the ops agent through the route. Narrating instead of writing the workbook and skipping the check are red on all 47, a wrong price in the workbook on 43, and deleting the README on 25, the planted variants among them.
+- No generated conversation corrects an earlier email, so `x2-keeps-first-email` is equivalent here. Every other fault is killed.
 
 ## The hand-written control (control-handwritten/)
 

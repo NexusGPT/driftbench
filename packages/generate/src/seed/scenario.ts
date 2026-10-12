@@ -107,6 +107,15 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     cell.push(chosen);
   }
   if (!prepared.feasibility.allowed(cell)) return fail('the constraints forbid its values with this cell');
+  // Every stage the walk reaches holds with the cell: a value the path states nothing about (a coverage
+  // result on a flow that checks no coverage) rules the path out.
+  if (prepared.stage !== undefined) {
+    for (const stage of path.stages.slice(1)) {
+      const at = dimensions[prepared.stage]?.index.get(stage);
+      if (at !== undefined && !prepared.feasibility.allowed([...cell, [prepared.stage, at]]))
+        return fail(`the constraints forbid the stage ${stage} with this cell`);
+    }
+  }
 
   const stageKey = prepared.stage === undefined ? 'stage' : dimensionId(prepared, prepared.stage);
   const transitionKey =

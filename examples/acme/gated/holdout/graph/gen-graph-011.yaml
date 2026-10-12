@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-graph-011
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
 title: "Stage path 11: Path order-named-plan of order: needs > address > offer > details > recap > order_placed"
 channel: chat
@@ -12,7 +12,6 @@ tags:
   - flow:order
   - data:fiber
   - persona:existing-customer
-  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -25,6 +24,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.order
     rubric: Recap, explicit confirmation and order placement
@@ -145,7 +146,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
+      hash: b583de68c530
     path: order-named-plan
     cell:
       flow: order
@@ -154,7 +155,6 @@ metadata:
       customer_details: name-and-email
       channel: chat
       user_type: existing-customer
-      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-address
         seeder: graph

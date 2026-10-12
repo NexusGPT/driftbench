@@ -14,6 +14,7 @@ import {
   Slots,
   type SourceKind,
   StatesRelation,
+  TaskFamilyRelation,
   UsesToolRelation,
   ValueId,
   When,
@@ -65,7 +66,7 @@ Rules:
     {"dimension": "<dimension id>", "value": "<value id>", "text": "<one user message>", "lang": "<language tag such as en>", "when": {"<dimension id>": ["<value id>"]}, "binds": {"<slot>": "<value the text states>"}, "source": "<path, only when the text is copied from a source>", "quote": "<the copied text, only with source>"}
   ],
   "relations": [
-    {"kind": "<path, uses_tool, states, binds, recovery or reply_language>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
+    {"kind": "<path, uses_tool, states, task_family, binds, recovery or reply_language>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
   ]
 }
 A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen. A phrase may hold {slot} where a value the cell binds goes, such as "It's {email}"; "when" and "binds" are optional. Relations come from the relations section only.`;
@@ -87,6 +88,7 @@ Dimensions of kind "data" for data cases and of kind "task" for task settings. T
 - "path": "id", "flow" (a value of the flow dimension), "stages" (the stages in the order the conversation passes them), optional "when" (the cell values the branch needs, per dimension, as lists), optional "behaviours", optional "end_state" ({"source": "tool:<label>", "mode": "subset" or "exact", "expect": {"<field>": <assertion>}}).
 - "uses_tool": "subject" ({"dimension", "value"}: the flow or behaviour), "tool", "stage" (the stage the call is made at), optional "to" (only on the turn that reaches it), optional "when", optional "count", optional "input" ({"<argument>": <assertion>}).
 - "states": "subject" ({"dimension", "value"}: the flow or behaviour), "stage" (the turn that leaves it), optional "to" (only on the turn that reaches it), optional "when", "must" (patterns the reply of that turn holds, such as each plan with the price the tool returned).
+- "task_family": "flow", "family" (the family file, relative to the proposal), "stages" (its blocks' stages in order), optional "holds" (the cell values every instance holds), optional "deviations" (the classes its variants carry).
 - "binds": "subject" (a data or persona value), "slots" ({"<slot>": "<concrete value>"}): the fictional values it stands for.
 - "recovery": "class" (a deviation class), "flows", optional "at" (the stages it is probed at), optional "tool" (the tool that fails, for D8_tool_failure), optional "stage_after" (a stage, or "pending" for the stage the conversation had reached), optional "must", "must_not" (patterns on the reply), "guards" ([{"name", "verdict"}]), "tools" ([{"tool", "count", "input"}]).
 - "reply_language": "subject" (the rule value), "lang" (the language tag every reply is in).
@@ -249,6 +251,7 @@ export const AnswerRelation = z.discriminatedUnion('kind', [
   PathRelation.omit(strip).extend(answerEvidence),
   UsesToolRelation.omit(strip).extend(answerEvidence),
   StatesRelation.omit(strip).extend(answerEvidence),
+  TaskFamilyRelation.omit(strip).extend(answerEvidence),
   BindsRelation.omit(strip).extend(answerEvidence),
   RecoveryRelation.omit(strip).extend(answerEvidence),
   ReplyLanguageRelation.omit(strip).extend(answerEvidence),

@@ -361,6 +361,19 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
           : stage(relation.stage_after),
       );
     }
+    case 'task_family': {
+      const deviation = draft.dimensions.find((dimension) => dimension.kind === 'deviation');
+      return first(
+        value(FLOW_DIMENSION, relation.flow),
+        ...relation.stages.map(stage),
+        relation.holds ? unknownWhen(draft, relation.holds) : undefined,
+        ...(relation.deviations ?? []).map((cls) =>
+          deviation?.values.some((entry) => entry.id === cls)
+            ? undefined
+            : `${cls} is not a proposed deviation class`,
+        ),
+      );
+    }
   }
 }
 

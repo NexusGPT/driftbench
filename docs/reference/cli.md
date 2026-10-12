@@ -260,8 +260,8 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 These commands run specs on a target. Each has its options, its output and its exit codes on the [running](../running.md) page.
 
 ```
-driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
 driftbench campaign export <campaignId> --store <file> --out <dir>
@@ -282,6 +282,7 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | Option | Effect |
 |---|---|
 | `--target <adapter[:agent]>` | run every spec on this target; repeat it for several. Without it, each spec runs on its own target |
+| `--route <tag=target>` | `plan` and `run`: a spec carrying the tag runs on this target instead of the `--target` list, such as `flow:price-sheet=process:acme-ops` for a suite that mixes conversations and code-agent tasks; repeat it; needs `--target` |
 | `--mode <modes>` | the run mode: `T` teacher-forced, `F` free-running (the default), `P` perturbed; several separated by commas, such as `T,F`. See [run modes](../concepts/run-modes.md) |
 | `--repeats <n>` | runs per spec, target and mode; default 1 |
 | `--budget-usd <usd>` | `plan`: compare the projected cost with this budget. `run`: no cell starts once the campaign has spent this much. `resume`: the same stop, by default the budget the campaign was run with |
@@ -453,8 +454,8 @@ Proposes the map of situations from an agent's prompt or policy, its inventory a
 
 ```
 $ pnpm -s driftbench extract approve examples/acme/map/proposal.yaml
-examples/acme/map/proposal.yaml: 219 of 219 decisions are open (46 dimensions, 59 constraints, 51 phrases, 63 relations).
-Axes: 7 of 46 dimensions, a full grid of 81312 cells (the space commands accept 250000).
+examples/acme/map/proposal.yaml: 279 of 279 decisions are open (46 dimensions, 111 constraints, 51 phrases, 71 relations).
+Axes: 7 of 46 dimensions, a full grid of 96096 cells (the space commands accept 250000).
   dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
   dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
   dimension   deviation  deviation axis, by code, 10 values: The deviation classes the flows must be perturbed with
@@ -467,7 +468,7 @@ The listing goes on with one line per open decision.
 
 ```
 $ pnpm -s driftbench extract map examples/acme/map/approved.yaml --to _captures/docs3/cli/space.yaml
-Wrote _captures/docs3/cli/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 28 constraints, a full grid of 81312 cells.
+Wrote _captures/docs3/cli/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 374 constraints, a full grid of 180180 cells.
 ```
 
 [`examples/acme/map`](../../examples/acme/map/README.md) holds the Acme proposal, its approved copy, its space map and the commands that made them.
@@ -483,11 +484,11 @@ A proposal that does not load reports `PROPOSAL_PARSE`, `PROPOSAL_NOT_OBJECT`, `
 ## `driftbench generate`
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--tasks <n>] [--baseline <path>]... [--force] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
-Generates specs from an approved map, by code: paths through the stage graph, the rows of a t-wise covering array, boundary values, one probe per deviation class, and metamorphic families. No model is called unless `--model` is given: the model port then proposes more specs, and each counts only once the gate accepts it (see [model proposals](../generating.md#model-proposals-generate---model)). Complete specs go to `specs/`, specs with a placeholder or a block the map supports no machine Then for go to `incomplete/`, and `generate-report.json` holds the counts. See [generating](../generating.md).
+Generates specs from an approved map, by code: paths through the stage graph, the rows of a t-wise covering array, boundary values, one probe per deviation class, metamorphic families, and the instances of every task family the map names in a `task_family` relation. No model is called unless `--model` is given: the model port then proposes more specs, and each counts only once the gate accepts it (see [model proposals](../generating.md#model-proposals-generate---model)). Complete specs go to `specs/`, specs with a placeholder or a block the map supports no machine Then for go to `incomplete/`, and `generate-report.json` holds the counts. See [generating](../generating.md).
 
 | Option | Effect |
 |---|---|
@@ -496,6 +497,7 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 | `--t <n>` | the strength of the covering array; default 3 |
 | `--seed <n>` | the integer seed of every seeded choice; default 1 |
 | `--max <n>` | the most specs per seeder |
+| `--tasks <n>` | instances built per task family the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
 | `--json` | print the report as JSON |
@@ -507,23 +509,24 @@ On the approved Acme map:
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated --t 2
-Map acme (../../../../examples/acme/map/approved.yaml), hash a4a62586e053: 46 dimensions, 176 values, 301 constraints, 51 approved phrases.
+Map acme (../../../../examples/acme/map/approved.yaml), hash b583de68c530: 46 dimensions, 180 values, 457 constraints, 51 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           132     640       123           9
+twise           132     675       131           1
 boundary         80     113        13          67
 deviation        10      52        10           0
 metamorphic      40     172        38           2
-cover            29     165        29           0
+task             34      47        34           0
+cover            13      71        13           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
-t-wise: covering array of 132 rows over 6 dimensions, 388 of 388 allowed 2-tuples (100.0%).
-Constraints applied: 301.
+t-wise: covering array of 132 rows over 5 dimensions, 314 of 314 allowed 2-tuples (100.0%).
+Constraints applied: 457.
 Deviation probes: 10 of 10 classes. Metamorphic families: 20.
-Coverage on the axis map at t = 2: complete specs 664 of 664 (100.0%), all specs 664 (100.0%).
-Values no allowed pair holds, so no spec can cover them until the map gives them a path: behaviour=B-013, behaviour=B-014, user_type=sales-operations.
+Coverage on the axis map at t = 2: complete specs 637 of 637 (100.0%), all specs 637 (100.0%).
+Values no allowed pair holds, so no spec can cover them until the map gives them a path: workspace_start=existing-workbook.
 
 Values with no approved phrase (67): their blocks are placeholders in incomplete/.
   catalog.search.in.category=catalog.search.in.category.mobile  1 block(s)
@@ -543,17 +546,17 @@ Values with no approved phrase (67): their blocks are placeholders in incomplete
   coverage.check.in.address=coverage.check.in.address.at-min-length  1 block(s)
   ... 52 more in generate-report.json
 
-Specs with a block the map supports no machine Then for (21), in incomplete/: gen-twise-025, gen-twise-026, gen-twise-036, gen-twise-047, gen-twise-048, gen-twise-098, gen-twise-102, gen-twise-105, gen-twise-113, gen-boundary-062, ....
+Specs with a block the map supports no machine Then for (13), in incomplete/: gen-twise-089, gen-boundary-062, gen-boundary-063, gen-boundary-064, gen-boundary-072, gen-boundary-073, gen-boundary-074, gen-boundary-075, gen-boundary-077, gen-boundary-078, ....
   Most frequent reasons:
-     8  it needs user_type in existing-customer; the cell holds new-customer
-     6  the constraints allow no value of port_result it needs with this cell
-     3  it needs coverage_result in fiber, 5g-only; the cell holds not-in-map
-     3  no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase
-     3  the constraints allow no value of plan_choice it needs with this cell
-     2  it needs coverage_result in fiber, 5g-only; the cell holds no-service
-     2  it needs coverage_result in fiber; the cell holds 5g-only
-     2  it needs coverage_result in fiber; the cell holds not-in-map
-Wrote 304 files to _captures/docs3/cli/generated.
+     2  no approved path says flow=upgrade
+     1  it needs coverage_result in no-service; the cell holds none
+     1  it needs user_type in existing-customer; the cell holds new-customer
+     1  no approved path needs callback_phone=not-given
+     1  no approved path needs customer_details=neither
+     1  no approved path needs customer_details=one-of-them
+     1  no approved path needs home_plans=no-plan
+     1  no approved path needs home_plans=one-plan
+Wrote 322 files to _captures/docs3/cli/generated.
 exit 1
 ```
 
@@ -1271,8 +1274,10 @@ New flags always gate, and so does an underpowered criterion whose regression Be
 ## `driftbench ci`
 
 ```
-driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
 ```
+
+`--route` sends the specs carrying a tag to another target, as in `campaign run`: with a fault candidate on a mixed suite, `--target fault:<id>` runs the conversations and `--route flow:price-sheet=process:acme-ops` keeps the task specs on the code agent.
 
 A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
 
@@ -1290,13 +1295,13 @@ Runs the specs on a candidate target, then compares the new campaign with a base
 Measured 2026-10-12 on the Acme golden suite (10 goldens) with the defaults:
 
 ```
-$ pnpm driftbench ci --specs examples/acme/golden/specs --target fault:control-sales-identity --faults examples/acme/faults --baseline baseline --store <db>
+$ pnpm driftbench ci --specs examples/acme/golden/specs --target fault:control-sales-identity --faults examples/acme/faults --route flow:price-sheet=process:acme-ops --baseline baseline --store <db>
 Margin auto: 28 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 27.75 points).
 Warning: this suite cannot show parity under 15 points (the all-pass flag needs 27.8 points); about 22 goldens would.
-Underpowered, under 30 goldens, left out of the parity test: budget (1 golden), cards (1 golden), end_state (9 goldens), forbidden (10 goldens), guards (3 goldens), lang (8 goldens), ledger (3 goldens), must (8 goldens), must_not (3 goldens), pii (10 goldens), stage (10 goldens), tools (10 goldens).
+Underpowered, under 30 goldens, left out of the parity test: artifacts (1 golden), budget (2 goldens), cards (1 golden), end_state (7 goldens), execution (1 golden), forbidden (9 goldens), guards (3 goldens), lang (8 goldens), ledger (2 goldens), must (8 goldens), must_not (3 goldens), pii (10 goldens), safety (1 golden), skills (1 golden), stage (10 goldens), tools (9 goldens), workspace (1 golden).
 (the verdict table)
 Verdict: PARITY. Exit 0.
-$ pnpm driftbench ci --specs examples/acme/golden/specs --target fault:x3-skips-recap --faults examples/acme/faults --baseline baseline --store <db>
+$ pnpm driftbench ci --specs examples/acme/golden/specs --target fault:x3-skips-recap --faults examples/acme/faults --route flow:price-sheet=process:acme-ops --baseline baseline --store <db>
 Verdict: REGRESSION. Exit 1.
 ```
 
@@ -1355,17 +1360,21 @@ driftbench holdout score --sealed <dir> --target <adapter:agent> [--budget <quer
 
 ```
 $ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10
-Cells covered: 310 of 664 allowed pairs (46.7%); the pool covers 633.
-Required cells: 9 of 10; the pool covers 9.
-  ✗ flow price-sheet · D6_instruction_in_data: no unsealed spec covers it
-(exit 1)
+Pool: 198 unsealed specs; 60 sealed specs left out; 4 gate files that are not specs skipped.
+Cover: 106 conversations cover every cell the pool covers (598 of 637).
+(the ranked table)
+Cells covered: 306 of 637 allowed pairs (48.0%); the pool covers 598.
+  t = 3: 794 of 3510 allowed (22.6%).
+Required cells: 10 of 10; the pool covers 10.
+Faults turned red: 12 of the 13 the pool turns red (13 counted faults in the gate report).
+(exit 0)
 $ pnpm driftbench holdout seal --specs examples/acme/gated --out <dir>
 Wrote <dir>/sealed.json. The sealed specs run only through driftbench holdout score; select leaves them out.
 (exit 0)
 $ pnpm driftbench holdout score --sealed <dir> --target function:acme-sales --budget 3
   conversations  passed  pass rate  95% Wilson interval
-  47             47      100.0%     92.4% to 100.0%
-Not run, not counted: acme-price-sheet (names process:acme-ops).
+  49             49      100.0%     92.7% to 100.0%
+Not run, not counted: acme-price-sheet (names process:acme-ops), acme-price-sheet-i01-base (names process:acme-ops), (the other 9 price-sheet task specs).
 Budget: 1 of 3 queries used, 2 left. Which conversation passed is not shown: the holdout stays sealed.
 (exit 0)
 ```

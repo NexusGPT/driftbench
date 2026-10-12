@@ -266,6 +266,32 @@ export const StatesRelation = z
   );
 export type StatesRelation = z.infer<typeof StatesRelation>;
 
+export const TaskFamilyRelation = z
+  .strictObject({
+    kind: z.literal('task_family'),
+    flow: ValueId.describe('The flow whose specs the family writes: a value of the flow dimension.'),
+    family: z
+      .string()
+      .min(1)
+      .describe('The family file or its folder, relative to the folder of the proposal.'),
+    stages: z
+      .array(ValueId)
+      .min(1)
+      .describe("The stages of the family's blocks, in order, as its specs declare them."),
+    holds: When.optional().describe('The cell values every instance of the family holds, per dimension.'),
+    deviations: z
+      .array(DeviationClass)
+      .optional()
+      .describe(
+        "The deviation classes the family's variants carry, such as an instruction planted in a file.",
+      ),
+    ...relationCommon,
+  })
+  .describe(
+    'A code-agent task family that writes the specs of a flow, with an oracle in code (docs/generating.md).',
+  );
+export type TaskFamilyRelation = z.infer<typeof TaskFamilyRelation>;
+
 export const BindsRelation = z
   .strictObject({
     kind: z.literal('binds'),
@@ -325,6 +351,7 @@ export const ProposalRelation = z
     PathRelation,
     UsesToolRelation,
     StatesRelation,
+    TaskFamilyRelation,
     BindsRelation,
     RecoveryRelation,
     ReplyLanguageRelation,
@@ -333,7 +360,15 @@ export const ProposalRelation = z
     'A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language.',
   );
 export type ProposalRelation = z.infer<typeof ProposalRelation>;
-export const RELATION_KINDS = ['path', 'uses_tool', 'states', 'binds', 'recovery', 'reply_language'] as const;
+export const RELATION_KINDS = [
+  'path',
+  'uses_tool',
+  'states',
+  'task_family',
+  'binds',
+  'recovery',
+  'reply_language',
+] as const;
 export type RelationKind = (typeof RELATION_KINDS)[number];
 
 export const ProposalSource = z
@@ -517,6 +552,8 @@ export function relationLabel(relation: ProposalRelation): string {
       return `${relation.subject.dimension}=${relation.subject.value} uses ${relation.tool} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
     case 'states':
       return `${relation.subject.dimension}=${relation.subject.value} states ${relation.must.join(', ')} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
+    case 'task_family':
+      return `task family ${relation.family} writes ${relation.flow} (${relation.stages.join(' > ')})`;
     case 'binds':
       return `${relation.subject.dimension}=${relation.subject.value} binds ${Object.keys(relation.slots).join(', ')}`;
     case 'recovery':
@@ -775,6 +812,23 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
         if (relation.stage_after !== undefined && relation.stage_after !== PENDING_STAGE) {
           checkStage(relation.stage_after, `${path}.stage_after`);
         }
+        break;
+      case 'task_family':
+        checkFlow(relation.flow, `${path}.flow`);
+        relation.stages.forEach((stage, index) => {
+          checkStage(stage, `${path}.stages.${index}`);
+        });
+        if (relation.holds) checkWhen(relation.holds, `${path}.holds`);
+        (relation.deviations ?? []).forEach((deviation, index) => {
+          if (!deviations.has(deviation))
+            issues.push(
+              issue(
+                'PROPOSAL_UNKNOWN_VALUE',
+                `${path}.deviations.${index}`,
+                `"${deviation}" is not a value of the deviation dimension`,
+              ),
+            );
+        });
         break;
     }
   });

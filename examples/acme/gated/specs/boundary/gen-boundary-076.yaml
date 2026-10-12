@@ -2,17 +2,16 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-boundary-076
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
 title: "Boundary value customer_details=name-and-email: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - flow:order
   - data:5g-only
   - persona:new-customer
-  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -25,6 +24,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.order
     rubric: Recap, explicit confirmation and order placement
@@ -156,16 +157,15 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
+      hash: b583de68c530
     path: order-single-plan
     cell:
       customer_details: name-and-email
       flow: order
       coverage_result: 5g-only
       plan_choice: loose-yes-to-single-offer
-      channel: chat
+      channel: whatsapp
       user_type: new-customer
-      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-address
         seeder: boundary

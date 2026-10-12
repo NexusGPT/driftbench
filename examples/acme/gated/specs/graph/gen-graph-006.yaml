@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-graph-006
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
 title: "Stage path 6: Path home-no-coverage of new-home: needs > address > callback > handover > closing"
 channel: whatsapp
@@ -12,7 +12,6 @@ tags:
   - flow:new-home
   - persona:new-customer
   - data:no-service
-  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -25,6 +24,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.new-home
     rubric: A new customer asks for home internet at an address
@@ -113,7 +114,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
+      hash: b583de68c530
     path: home-no-coverage
     cell:
       flow: new-home
@@ -121,7 +122,6 @@ metadata:
       coverage_result: no-service
       callback_phone: given
       channel: whatsapp
-      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-address
         seeder: graph

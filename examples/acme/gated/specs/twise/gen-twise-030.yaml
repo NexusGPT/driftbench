@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-030
-version: a4a62586e053
+version: b583de68c530
 kind: conversation
-title: "t-wise row 30 of 132: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D8_tool_failure of coverage.check at address"
+title: "t-wise row 30 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D8_tool_failure of coverage.check at address"
 channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:fiber
-  - task:existing-workbook
+  - data:no-service
   - flow:new-home
 covers:
   - B-003
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-003
     rubric: Check coverage at the street address before offering home internet
@@ -43,7 +44,7 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Hello, I'm looking for home internet.
+      user: Do you have home internet where I live?
     expect:
       stage: address
       tools:
@@ -57,7 +58,7 @@ blocks:
     when:
       injection:
         class: D8_tool_failure
-        user: The address is 14 Harbor Road, Acmeville.
+        user: The address is 7 Quarry Lane, Acmeville.
     given:
       world:
         tools:
@@ -69,9 +70,7 @@ blocks:
         - label: coverage.check
           count: 2
           input:
-            address: 14 Harbor Road, Acmeville
-        - label: catalog.search
-          count: 0
+            address: 7 Quarry Lane, Acmeville
       lang: EN
       criteria:
         - deviation.D8_tool_failure
@@ -85,17 +84,15 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: a4a62586e053
-    path: home-order
+      hash: b583de68c530
+    path: home-no-coverage
     cell:
       behaviour: B-003
       channel: chat
       user_type: new-customer
-      coverage_result: fiber
-      workspace_start: existing-workbook
+      coverage_result: no-service
       flow: new-home
-      plan_choice: names-one
-      customer_details: name-and-email
+      callback_phone: given
       failing_tool: coverage.check
     blocks:
       - block: b1-needs-to-address
@@ -112,12 +109,12 @@ metadata:
         cell:
           spec: metadata.generated.cell
           deviation: D8_tool_failure
-          stage_transition: address-to-offer
-          coverage_result: fiber
+          stage_transition: address-to-callback
+          coverage_result: no-service
           stage: callback
         phrase:
           dimension: stage_transition
-          value: address-to-offer
+          value: address-to-callback
   gate:
     by: driftbench gate
     date: 2026-10-11
