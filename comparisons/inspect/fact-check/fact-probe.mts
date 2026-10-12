@@ -65,15 +65,72 @@ const hard: Array<{ id: string; reply: string; label: 'pass' | 'fail' }> = [
     label: 'fail',
   },
 ];
-const SET = process.env.FACT_SET === 'hard' ? hard : easy;
-const items = SET;
 
-const CRITERION = {
-  name: 'expert_fact',
-  rubric: `Does the reply state that fiber at 300 Mbps is available at 3 Orchard Way? Answer pass when it does, in any wording.`,
-  pass: 'the reply says fiber at 300 Mbps is available at 3 Orchard Way now',
-  fail: 'the reply says the service is not available, gives another speed or another address, or gives no answer',
+// Multi-part set: the criterion needs two facts, and each reply is labelled by construction.
+const multiItems: Array<{ id: string; reply: string; label: 'pass' | 'fail' }> = [
+  {
+    id: 'm1',
+    reply: 'Fiber at 300 Mbps is available at 3 Orchard Way, and the installation fee is 0 USD.',
+    label: 'pass',
+  },
+  {
+    id: 'm2',
+    reply: 'Good news: 3 Orchard Way has our 300 Mbps fiber, installed free of charge.',
+    label: 'pass',
+  },
+  { id: 'm3', reply: '300 Mbps fiber reaches 3 Orchard Way. Installation costs nothing.', label: 'pass' },
+  {
+    id: 'm4',
+    reply: 'Fiber at 300 Mbps is available at 3 Orchard Way. The installation fee is 50 USD.',
+    label: 'fail',
+  },
+  {
+    id: 'm5',
+    reply: 'Fiber at 300 Mbps is available at 3 Orchard Way. Installation is quoted at your visit.',
+    label: 'fail',
+  },
+  { id: 'm6', reply: 'The installation fee is 0 USD. Fiber is not offered at 3 Orchard Way.', label: 'fail' },
+  {
+    id: 'm7',
+    reply:
+      'Fiber at 300 Mbps is at 3 Orchard Way, installation 0 USD. Correction: the 300 Mbps plan is not available there.',
+    label: 'fail',
+  },
+  {
+    id: 'm8',
+    reply: 'Installation is free at 3 Orchard Way, and 300 Mbps fiber is available there.',
+    label: 'pass',
+  },
+  {
+    id: 'm9',
+    reply:
+      'Fiber at 300 Mbps is at 3 Orchard Way. The installation fee is 0 USD; a 50 USD fee applies on Sundays.',
+    label: 'fail',
+  },
+  {
+    id: 'm10',
+    reply: 'At 3 Orchard Way, 300 Mbps fiber is on offer with zero installation cost.',
+    label: 'pass',
+  },
+];
+const multiCriterion = {
+  name: 'expert_fact_multi',
+  rubric:
+    'Does the reply state both that fiber at 300 Mbps is available at 3 Orchard Way and that the installation fee is 0 USD? Answer fail when either part is missing, wrong, or contradicted later in the reply.',
+  pass: 'the reply states both facts, with no contrary statement',
+  fail: 'the reply misses either fact, states a different fee or availability, or contradicts itself',
 };
+const SET = process.env.FACT_SET === 'hard' ? hard : process.env.FACT_SET === 'multi' ? multiItems : easy;
+const items = SET;
+const CRITERION =
+  process.env.FACT_SET === 'multi'
+    ? multiCriterion
+    : {
+        name: 'expert_fact',
+        rubric: `Does the reply state that fiber at 300 Mbps is available at 3 Orchard Way? Answer pass when it does, in any wording.`,
+        pass: 'the reply says fiber at 300 Mbps is available at 3 Orchard Way now',
+        fail: 'the reply says the service is not available, gives another speed or another address, or gives no answer',
+      };
 
 function theirPrompt(reply: string): { system: string; user: string } {
   // The competitor's default QA template and instructions, copied as text (the owner allows pasting).

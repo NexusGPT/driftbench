@@ -42,9 +42,10 @@ for (const [name, blocks] of labels.labels) {
 }
 
 const names = [...new Set(items.map((i) => i.criterion))].sort();
-const train = new Set(names.slice(0, Math.ceil(names.length / 2)));
+// SPLIT=all fits and scores on the same twelve criteria (weights are then in-sample); the default holds out the second half.
+const train = new Set(process.env.SPLIT === 'all' ? names : names.slice(0, Math.ceil(names.length / 2)));
 const trainItems = items.filter((i) => train.has(i.criterion));
-const testItems = items.filter((i) => !train.has(i.criterion));
+const testItems = process.env.SPLIT === 'all' ? items : items.filter((i) => !train.has(i.criterion));
 
 const kappa: Record<string, number> = {};
 for (const id of ids) {

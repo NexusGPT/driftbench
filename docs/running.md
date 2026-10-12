@@ -479,6 +479,12 @@ Each entry is one `name:op threshold` string, the same syntax as `--aggregate`. 
 
 To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.yml](../action/action.yml) takes the specs, the target, the baseline and the `aggregate` input, and fails the job unless the verdict is parity. A workflow that uses it is in [examples/acme/ci/driftbench-ci.yml](../examples/acme/ci/driftbench-ci.yml).
 
+## Run events
+
+The runner reports each run as it happens through the `onEvent` option: a block starting, each tool call the adapter recorded, each retry a block took, a block ending with its verdict, and the run ending. `eventLogSink(path)` appends each event to a JSON-lines file synchronously, so a run killed mid-way keeps every event written before the kill; `readEventLog(path)` reads them back and skips a line cut short by the kill.
+
+A run does not yet resume from its last finished block. A run whose blocks are all in the cache replays from it; a partly cached run starts again from its first block.
+
 ## Exit codes
 
 | Command | 0 | 1 | 2 |

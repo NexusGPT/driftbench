@@ -53,3 +53,39 @@ describe('sandbox folders are removed when the process ends without destroy', ()
     expect(await childLeaving('sigterm')).toEqual([]);
   }, 60_000);
 });
+
+describe('a command the sandbox started does not outlive its process', () => {
+  it('a sandbox command still running when the process is terminated is killed with it', async () => {
+    const dir = await mkdtemp(join(parent, 'cmd-'));
+    const marker = 'sleep 61.4729';
+    const file = join(dir, 'parent.mts');
+    await writeFile(
+      file,
+      `import { localProvider } from '${SRC}';
+const box = await localProvider({ dir: '${dir}' }).create();
+console.log('ready');
+await box.exec('${marker}', { timeoutMs: 120000 });
+`,
+    );
+    const child = spawn('npx', ['tsx', file], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
+    await new Promise<void>((ready) => {
+      child.stdout.on('data', (chunk) => {
+        if (String(chunk).includes('ready')) ready();
+      });
+    });
+    await new Promise((wait) => setTimeout(wait, 2500));
+    child.kill('SIGTERM');
+    await new Promise((wait) => setTimeout(wait, 1500));
+    let survivors = 0;
+    try {
+      survivors = execFileSync('pgrep', ['-f', marker], { encoding: 'utf8' })
+        .trim()
+        .split('\n')
+        .filter(Boolean).length;
+    } catch {
+      survivors = 0;
+    }
+    if (survivors > 0) execFileSync('pkill', ['-f', marker]);
+    expect(survivors).toBe(0);
+  }, 60_000);
+});

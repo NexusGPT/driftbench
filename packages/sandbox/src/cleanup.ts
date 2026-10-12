@@ -6,9 +6,19 @@ import { rmSync } from 'node:fs';
  * exit hook removes them, and the signal hook does the same and then ends the process with the same signal.
  */
 const open = new Set<string>();
+/** The process groups of commands still running: a command is killed with the process that started it. */
+const groups = new Set<number>();
 let hooked = false;
 
 function sweep(): void {
+  for (const group of groups) {
+    try {
+      process.kill(-group, 'SIGKILL');
+    } catch {
+      // The group already ended.
+    }
+  }
+  groups.clear();
   for (const folder of open) {
     try {
       rmSync(folder, { recursive: true, force: true });
@@ -37,6 +47,17 @@ function hook(): void {
 export function trackFolder(folder: string): void {
   open.add(folder);
   hook();
+}
+
+/** Records a command's process group (its pid, as it runs detached). It is killed at exit unless untracked first. */
+export function trackGroup(pid: number): void {
+  groups.add(pid);
+  hook();
+}
+
+/** Forgets a command that has ended. */
+export function untrackGroup(pid: number): void {
+  groups.delete(pid);
 }
 
 /** Forgets a folder that is removed, or kept on purpose. */
