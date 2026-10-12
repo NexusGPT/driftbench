@@ -79,6 +79,8 @@ The scanner has one interface, the estate reader: it returns the files with thei
 
 Code reads skills, helpers, guards (settings and skill frontmatter), permissions, settings (environment keys only, never a value), the check registry, the step list, references with their "read when" line, scripts, routing table rows, gates in four fixed forms ("Before X: Read Y", "Before X, read Y", "Read Y before X", "Do not X until you have read Y"), passages that name a runtime hazard, and the four invariants. Code atoms are approved as read.
 
+Names that fit several files (planned). A body often names a file by its bare name, `guide.md`, and an estate can hold several files of that name. A user needs the reference to land on the file the author meant, or to be told that it is ambiguous, never bound to one at random. The rule: a name is looked up in the naming file's folder, then in the folders below it, then from the estate root. The first place that holds the file wins. When a bare name fits no file there and several files elsewhere, the reference atom keeps every candidate in `fields.candidates`, sorted, and `estate lint` reports `AMBIGUOUS_REFERENCE`. Files under the ignored folders (`node_modules`, test folders of the guards, `.trash`, `skills/synced`, `__pycache__`) are never candidates. A name that holds a folder (`references/guide.md`) is resolved from the naming file's folder and is never ambiguous.
+
 The model only splits prose chunks (the standing file, memory files, skill and helper bodies) into instruction, gate and register atoms, one call per chunk, with a strict JSON answer. Every quote is located in its file, inside its chunk, and checked at its span; an atom whose quote cannot be placed is refused and listed with its reason. A model atom that repeats an atom code already read is skipped and listed. An unreadable answer gets one retry. Model atoms wait for a person.
 
 The scan of the Northwind estate, with the recorded answers:
@@ -261,6 +263,7 @@ The graph answers what code can walk:
 | `REGISTRY_ROW` | a guard has no row in the check registry |
 | `REGISTRY_GUARD` | a registry row names a guard the estate does not run |
 | `QUOTE_DRIFT` | an atom's quote is no longer at its span: scan again |
+| `AMBIGUOUS_REFERENCE` | a bare file name fits several files and none in the naming file's own folder (planned rule above) |
 
 The lint of the Northwind map finds every planted defect:
 
@@ -427,7 +430,7 @@ How a row becomes a spec:
 
 * Given: `vars.estate` (runtime and map hash), the session state of the cell, the hazard of the cell as `vars.event`, and the workspace seed of the situation, inlined as `world.workspace.files`.
 * When: the situation the test type needs, found by the row's first atom (the situation holding most of the row's atoms wins; pinned cell values must agree); its approved phrases shuffled by the seed; the twin takes the second phrase. A replay row gives one spec per recorded session of its situation, asking with the session's recorded ask. A deviation of the cell is a perturbation before the ask, with an approved deviation phrase (`inject_at: 0`, recovery within one block). `stop_resume` adds a resume block.
-* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), the name of another skill (misroute), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off.
+* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), the name of another skill (misroute), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off. A code-written ask names a task: a verb of acting and its object, as a user would ask for work (planned). It never restates the rule ("Please do this: never guess a status") or a bare condition ("Please handle this for me: the invoice is not in EUR"): such an ask tests whether the agent repeats the rule, not whether it follows it while working. The rule's situation becomes the task ("Where is shipment NW-55012?"). A guard that watches the user's prompt is the one exception: its test asks with the guard's own trigger ("Stop, that is enough for now.").
 * Then, from the evidence predicates of the row's atoms:
 
 | Predicate | Check |
@@ -459,7 +462,7 @@ How a row becomes a spec:
 * `--focus <file>` (atom ids, one per line) orders `run-order.txt`, the list of complete specs: rows naming a focus atom first, then rows naming a guard, a gate or an invariant, then the rest. The report counts the complete specs per focus atom and names the gaps of the ones with none.
 
 * Negative controls (`outside_trigger`, `route_near_miss`, `guard_negative`): skills count 0, guard count 0, tool count 0, required words moved to `must_not`.
-* Every spec records `metadata.estate`: atoms, plan row, cell, seeder, seed, map hash, test type, mode, map, plan, situation and phrase. Replay specs add the session and the planned outcome, and `metadata.replay` (session, first block). The same map, plan, bank and seed give the same specs.
+* Every spec records `metadata.estate`: atoms, plan row, cell, seeder, seed, map hash, test type, mode, map, plan, situation and phrase. Replay specs add the session and the planned outcome, and `metadata.replay` (session, first block). The same map, plan, bank and seed give the same specs. The same holds on every Node version the package supports (22 and later), in any time zone and locale: a user who regenerates on another machine gets the same files (planned for Node 22; checked on Node 24).
 * What no existing check can say is a named gap, and the spec goes to `incomplete/`: it is valid, and `spec lint --strict` fails it by name. A `tool_called` with input assertions is never mapped onto `expect.tools`, because that check asserts the input on every call of the tool and the atom asks for one call that matches; a Read of a path and an Agent dispatch of a named helper go to the references and subagents checks instead.
 
 | Gap marker | What is missing |
@@ -727,6 +730,10 @@ Limits of replay today:
 ### Unit, live and estate mutants
 
 * Unit (offline). Guards replayed with synthetic events; scripts on fixtures; a subagent alone, run headless with its agent file as the system prompt, in a sandbox. Not built yet: the plan marks these rows `unit`, and the generator writes their specs.
+
+  The command (contract, not built yet): `driftbench estate unit <specs...> --estate <root> --json` runs the unit-mode specs against the estate root and prints `{ "runs": [{ "spec": "<id>", "pass": true, "failing": ["<check>"] }], "guards": [{ "guard": "<name>", "event": "<event>", "decision": "allow" | "deny" | "ask", "message": "<text>", "ms": 0 }], "scripts": [{ "script": "<path>", "exit": 0, "stdout": "<text>" }] }`. Exit 0 when every spec passes, 1 when a spec fails, 2 on a usage or input error.
+
+  Guard messages and timing (planned). A guard that blocks without saying why leaves the agent guessing, and a guard that runs past its `timeout` is skipped by the runtime, so it enforces nothing. A user needs both seen. In `guards`, `message` is what the guard told the runtime (its standard error, or the reason of its JSON answer), and `ms` its running time. A unit spec of a guard that names a message fails when the message differs, and a guard over its declared `timeout` fails its spec.
 * Live (online, blind), `driftbench estate run`. The agent runs headless in a sandboxed copy of the estate pinned by hash, on a seeded workspace, from the ask alone: no test word in the prompt or the dispatch description. Teacher-forced resumes from a recorded prefix cut at block k; free running; perturbed injects an estate deviation at block k (a compaction marker, a mid-turn message, a planted file, a dead helper). Repeats give the variance; cost per run is measured. Built: `driftbench estate run`, with session states and hazards planted from the state library `--states`.
 * Estate mutants, `driftbench estate mutate`. Delete or invert one atom in a copy of the estate. The tests derived from that atom must go red in live mode, and the replay suite must flag the corpus as now violating. The mutation score per atom kind is the stop rule. Built: `driftbench estate mutate`. The fixture's proof (`packages/cli/test/estate-live.test.ts`) runs 14 live specs on the stand-in and two mutants, each turning its atom's specs red.
 
@@ -741,6 +748,36 @@ Not built yet:
 * Reach before compliance: did the rule reach the moment (the skill loaded, the reference read, the guard fired), then was it followed, reported apart.
 * Decay over length: the pass rate per block index in long sessions, before and after a compaction.
 * A sealed holdout for estate changes, and drift over time: deny rates per guard from the decision logs, pass rate per atom per estate version.
+
+### The coverage command: `estate stats` (contract, not built yet)
+
+```
+driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json
+```
+
+`--map` is the approved map, `--plan` the plan made from it, `--specs` the folder `estate generate` wrote (its `specs/`, `static/` and `incomplete/` folders), `--sessions` a folder of recorded sessions. It prints one JSON object:
+
+```json
+{
+  "coverage": {
+    "kinds": { "<kind>": { "atoms": 0, "tested": 0, "enforced": 0 } },
+    "cells": { "covered": 0, "total": 0 },
+    "edges": { "covered": 0, "total": 0 }
+  },
+  "reach": [{ "atom": "<id>", "reached": 0, "followed": 0 }],
+  "decay": [{ "block": 0, "runs": 0, "passRate": 0 }],
+  "drift": { "guards": [{ "guard": "<name>", "decisions": 0, "denies": 0, "denyRate": 0 }] }
+}
+```
+
+* `kinds`: one entry per atom kind of the map. `atoms` counts the approved atoms of the kind. `tested` counts those named by at least one complete spec (a spec under `specs/`, or a static test under `static/`). `enforced` counts those whose enforcement lists at least one guard.
+* `cells` and `edges`: the plan's cells and the graph's route, reference, dispatch and next edges, covered when a complete spec covers them.
+* `reach` and `decay` come from `--sessions`; without it, both are empty lists. `reached` is the number of sessions that reached the atom's moment (its skill loaded, its file read, its guard decided, its helper dispatched); `runs` is the number of sessions that hold the block index.
+* `drift.guards` comes from the guard decision logs of `--sessions`: per guard, the decisions logged, the denies among them and their share. A user watches it over time: a guard that starts denying more, or stops firing, is the first sign that the estate or the agent changed.
+
+Finding (audit style, 2026-10-12, the estate validator lane): section 7 promises drift ("deny rates per guard from the decision logs"), and the frozen contract had no field for it. The contract gains `drift.guards`; nothing else changes. The pass rate per atom per estate version needs a store of past runs, and waits for its own finding.
+
+Exit codes: 0 when the report is printed; 2 on a usage or input error (a map, plan or folder that does not load, or a plan made from another map), and nothing is printed.
 
 ## 8. Maintenance: keeping the tests true when the estate changes
 
