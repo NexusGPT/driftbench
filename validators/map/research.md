@@ -721,3 +721,14 @@ Sources read:
 What others do: A model writes only the keys the template lists.
 
 What to try, and why: a rule records a time limit
+
+## Iteration 62
+
+Question: packages/generate/src/extract/contract.ts: the answer template shows no priority key on a value; contract:rule-priority proves it.
+
+Sources read:
+* docs/generating.md section Planned: what a rule states (that it comes first)
+
+What others do: A model writes only the keys the template lists.
+
+What to try, and why: a rule records that it comes first

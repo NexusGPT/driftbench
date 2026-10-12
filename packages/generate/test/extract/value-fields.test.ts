@@ -169,4 +169,37 @@ describe('what a rule states', () => {
       minutes: 5,
     });
   });
+
+  it('the answer template shows priority, and the model may state it on a rule', () => {
+    expect(SYSTEM_PROMPT).toContain('"priority": "first"');
+    const target = { dimensions: [], constraints: [], phrases: [], relations: [] };
+    const answer = {
+      section: 'rules',
+      dimensions: [
+        {
+          id: 'rule',
+          title: 'Rules',
+          kind: 'behaviour',
+          values: [
+            {
+              id: 'R-03',
+              title: 'A rule',
+              polarity: 'must',
+              priority: 'first',
+              source: 'prompt.md',
+              quote: 'Never promise a delivery date.',
+            },
+          ],
+        },
+      ],
+      constraints: [],
+      phrases: [],
+      relations: [],
+    };
+    const result = acceptAnswer('rules', answer as never, target as never, quotes);
+    expect(result.refusals).toEqual([]);
+    expect((target.dimensions[0] as { values: Array<Record<string, unknown>> }).values[0]?.priority).toEqual(
+      'first',
+    );
+  });
 });
