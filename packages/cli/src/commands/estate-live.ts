@@ -11,6 +11,7 @@ import {
   type MutantResult,
   mutateEstate,
   quoteDrift,
+  readerFor,
   renderEstateMap,
 } from '@driftbench/estate';
 import { localProvider } from '@driftbench/sandbox';
@@ -178,6 +179,7 @@ export async function estateRunCommand(
 
   const notes: string[] = [];
   let pins: string[] = [];
+  let mapIgnore: readonly string[] = [];
   if (options.map !== undefined) {
     const loaded = await loadEstateMap(resolve(io.cwd, options.map));
     if (!loaded.ok) {
@@ -193,6 +195,16 @@ export async function estateRunCommand(
       return 2;
     }
     pins = [loaded.map.hash];
+    mapIgnore = loaded.map.ignore ?? [];
+    // A mutant folder with its own map: the specs were generated from the original, so its hash stays a
+    // pin beside the mutant's (as without --map); a spec of any other map still fails.
+    const mutant = await readMutant(root);
+    if (mutant !== undefined && mutant.mapHash === loaded.map.hash) {
+      pins = [mutant.originalMapHash, mutant.mapHash];
+      notes.push(
+        `mutant of ${mutant.atom} (${mutant.op}): specs of the map ${mutant.originalMapHash.slice(0, 12)} run on it`,
+      );
+    }
   } else {
     const mutant = await readMutant(root);
     if (mutant !== undefined) {
@@ -265,10 +277,15 @@ export async function estateRunCommand(
     };
     await store.putCampaign(campaign);
     const checks = replayChecks();
+    // The files a run copies, listed once for every spec: what the runtime may load, never an ignored folder
+    // (node_modules, test runs), which made each spec's copy as large as the whole estate folder.
+    const lister = readerFor(options.runtime, { ignore: mapIgnore });
+    const estateFiles = lister?.listFiles ? await lister.listFiles(root) : undefined;
     for (const entry of specs) {
       const adapter = claudeCodeLiveAdapter({
         command: commandPath,
         estateRoot: root,
+        ...(estateFiles === undefined ? {} : { estateFiles }),
         provider: localProvider(),
         pins,
         ...(library === undefined ? {} : { library }),

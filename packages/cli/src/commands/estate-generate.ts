@@ -1,5 +1,5 @@
 import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadEstateMap, Plan } from '@driftbench/estate';
 import {
   ESTATE_COMPLETE_DIR,
@@ -96,7 +96,23 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
     return 2;
   }
   const plan = await readYaml(planPath, Plan, 'plan', io);
-  const bank = await readYaml(phrasesPath, PhraseBank, 'phrase bank', io);
+  // No bank beside the map (and none named): generate with an empty one, so a model-free run still gets
+  // the gap report; every live row then names the approved phrase it needs. A bank named and missing is
+  // an input error.
+  const noBank = options.phrases === undefined && !(await exists(phrasesPath));
+  const bank = noBank
+    ? PhraseBank.parse({
+        version: 1,
+        estate: basename(dirname(mapPath)),
+        mapHash: loaded.map.hash,
+        situations: [],
+      })
+    : await readYaml(phrasesPath, PhraseBank, 'phrase bank', io);
+  if (noBank) {
+    io.out(
+      `No phrase bank at ${display(phrasesPath, io)}: generating with an empty one; each live row names the phrase it needs.\n`,
+    );
+  }
   const sessions =
     sessionsPath === undefined ? undefined : await readYaml(sessionsPath, SessionIndex, 'session index', io);
   if (!plan || !bank || (sessionsPath !== undefined && !sessions)) return 2;
