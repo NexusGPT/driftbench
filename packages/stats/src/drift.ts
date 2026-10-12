@@ -42,9 +42,14 @@ export function cusum(series: readonly number[], options: CusumOptions = {}): Cu
   const head = series.slice(0, warmup);
   const target = options.target ?? mean(head);
   const sd = options.sd ?? Math.sqrt(sampleVariance(head));
-  if (!(sd > 0)) throw new RangeError('cusum: the standard deviation is 0; pass options.sd');
+  if (!(sd > 0) || !Number.isFinite(sd)) {
+    throw new RangeError(`cusum: the standard deviation must be positive and finite, got ${sd}; pass options.sd`);
+  }
+  if (!Number.isFinite(target)) throw new RangeError(`cusum: target must be finite, got ${target}`);
   const k = options.k ?? 0.5;
   const h = options.h ?? 5;
+  if (!Number.isFinite(k) || k < 0) throw new RangeError(`cusum: k must be finite and >= 0, got ${k}`);
+  if (!Number.isFinite(h) || h <= 0) throw new RangeError(`cusum: h must be finite and > 0, got ${h}`);
   const reset = options.reset ?? true;
   const upper: number[] = [];
   const lower: number[] = [];
