@@ -78,4 +78,12 @@ describe('lintCriterion', () => {
     expect(lintCriterion({ ...clean, pass: '' }).issues.map((i) => i.code)).toContain('no-pass-picture');
     expect(lintCriterion(clean).issues.map((i) => i.code)).not.toContain('no-pass-picture');
   });
+
+  it('reports same-pictures when both pictures are one text after folding case and spaces', () => {
+    const same = lintCriterion({ ...clean, pass: 'The reply does what the rubric asks.', fail: '  THE REPLY DOES   WHAT the rubric asks. ' });
+    expect(same.issues.map((i) => i.code)).toContain('same-pictures');
+    expect(lintCriterion(clean).issues.map((i) => i.code)).not.toContain('same-pictures');
+    const blank = lintCriterion({ ...clean, pass: '', fail: '' }).issues.map((i) => i.code);
+    expect(blank).not.toContain('same-pictures');
+  });
 });

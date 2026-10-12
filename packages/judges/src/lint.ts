@@ -29,7 +29,14 @@ const RULES: readonly Rule[] = [
   { code: 'no-fail-picture', found: (c) => (c.fail ?? '').trim() === '' },
   // No PASS picture: the judge has nothing to hold the answer against.
   { code: 'no-pass-picture', found: (c) => (c.pass ?? '').trim() === '' },
+  // The two pictures are one text, so they separate nothing.
+  {
+    code: 'same-pictures',
+    found: (c) => foldText(c.pass) !== '' && foldText(c.pass) === foldText(c.fail),
+  },
 ];
+
+const foldText = (text: string | undefined): string => (text ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
 
 const NEGATION = /\b(not|no|never|cannot|without|fails? to|failing to)\b|n't\b/gi;
 const negations = (sentence: string): number => (sentence.match(NEGATION) ?? []).length;
