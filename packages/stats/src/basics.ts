@@ -67,7 +67,12 @@ export function assertFiniteValues(fn: string, arg: string, values: readonly num
 export function mean(values: readonly number[]): number {
   if (values.length === 0) throw new RangeError('mean: values must not be empty');
   assertFiniteValues('mean', 'values', values);
-  return sum(values) / values.length;
+  const first = values[0] as number;
+  // All-equal values have that value as mean exactly, with no rounding from the sum.
+  if (values.every((v) => v === first)) return first;
+  const m = sum(values) / values.length;
+  // A sum that overflows is replaced by the sum of the values divided by n.
+  return Number.isFinite(m) ? m : sum(values.map((v) => v / values.length));
 }
 
 /**

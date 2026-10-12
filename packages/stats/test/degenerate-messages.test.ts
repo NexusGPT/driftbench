@@ -310,3 +310,15 @@ describe('agreement, paired, drift and cluster refusals name their argument', ()
     expect(() => quantileSorted([3, 1, 2], 0.5)).toThrow(/^quantileSorted: sorted/);
   });
 });
+
+describe('mean is exact on equal values and does not overflow', () => {
+  it('ten copies of 0.7 give 0.7', () => {
+    expect(mean(Array.from({ length: 10 }, () => 0.7))).toBe(0.7);
+  });
+  it('three copies of 1e308 give 1e308', () => {
+    expect(mean([1e308, 1e308, 1e308])).toBe(1e308);
+  });
+  it('unequal values near the largest double stay finite', () => {
+    expect(mean([1.5e308, 1e308])).toBeCloseTo(1.25e308, -300);
+  });
+});
