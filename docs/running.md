@@ -97,7 +97,7 @@ The projected cost of an adapter is its blocks times the latest cost per block m
 ## `driftbench campaign run`
 
 ```
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>]... [--target <adapter[:agent]>] [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>]... [--target <adapter[:agent]>] [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--json]
 ```
 
 Creates a campaign over the specs, runs every cell and prints one line per cell, in cell order.
@@ -153,7 +153,8 @@ The process target runs each cell in a sandbox, a temporary folder under one fol
 | `--no-cache` | neither replay runs from the cache nor write to it |
 | `--concurrency <n>` | cells that run at the same time, at least 1. Default 4. |
 | `--budget-usd <usd>` | a hard stop on the campaign's spend. See [the budget](#the-budget). |
-| `--json` | print one JSON document: `campaignId`, `stored`, `checks`, `cells` (each with its state, its failing list and its run id) and `summary` |
+| `--process-command <command>` | the command that runs the agent of any `process:<name>` target other than `process:acme-ops`, through the [process adapter](adapters/process.md) in a local sandbox: a JSON list of strings such as `["python3", "agent.py"]`, or words split on spaces, with no quoting. The [Python package](python.md) passes it for a Python function agent. |
+| `--json` | print one JSON document: `campaignId`, `stored`, `checks`, `cells` and `summary`. Each cell holds its state, its failing list, its run id, its end state when the spec has one, and `blocks`: each block's `index`, `blockId`, `pass`, observed `stage`, and its `verdicts`, each with `id`, `outcome`, `gating` and `evidence` |
 
 The store needs Node.js 22.13 or newer, for `node:sqlite`.
 
@@ -410,10 +411,12 @@ The deterministic Acme agent passes every block in every mode, so its compoundin
 ## `driftbench campaign resume`
 
 ```
-driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
+driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--json]
 ```
 
 Runs the cells of a stored campaign that have no completed run, and reuses the others. The specs come from the store, at the hashes the campaign pins, and each cell runs on the target the campaign pinned for it. A failed or stopped cell runs again, and its new run replaces the old one under the same run id.
+
+A campaign keeps its targets, not the commands behind them: a campaign run with `--process-command` is resumed with the same `--process-command`.
 
 ```
 $ pnpm -s driftbench campaign resume c-3e6aff180724 --store acme.db

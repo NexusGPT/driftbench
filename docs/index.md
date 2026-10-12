@@ -22,6 +22,8 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Generating tests](generating.md): the map of situations and its relations, `extract` and its approval, `generate`, the validity gate and its funnel, task families, the variance pilot and intake.
 * [Testing an estate](estate.md): how driftbench tests a code-interpreter agent as a whole estate (instructions, skills, subagents, guards, tools, settings): atoms, the estate graph, the plan, generated tests, replay over recorded sessions, maintenance.
 * [Datasets and prompts](datasets.md): `import` specs from a CSV file or a spreadsheet through a mapping, and the registry of immutable dataset and prompt versions (`dataset`, `prompt`) that a campaign records.
+* [Python](python.md): run specs from Python, typed results, a pytest plugin (`pytest --driftbench specs/`), and a Python function as the agent.
+* [vitest](vitest.md): `describeSpec(path, target)`, one vitest test per block.
 * [Validators](validators.md): code that proves driftbench works: six ladders (map, generator, judges, system, estate, statistics) and the executor loop that drives each to 100 percent.
 
 ## Reference
