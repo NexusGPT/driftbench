@@ -224,14 +224,13 @@ type Language = {
   block: boolean;
   phpSingle?: boolean;
   templates?: boolean;
+  swift?: boolean;
   /** SQL: a string is '...' and a doubled quote stands for one. */
   sql?: boolean;
 };
 const LANGUAGES: Array<[RegExp, Language]> = [
-  [
-    /\.(ts|tsx|js|jsx|mjs|cjs|json5|go|java|cs|kt|swift|rs)$/i,
-    { line: ['//'], block: true, templates: true },
-  ],
+  [/\.swift$/i, { line: ['//'], block: true, swift: true }],
+  [/\.(ts|tsx|js|jsx|mjs|cjs|json5|go|java|cs|kt|rs)$/i, { line: ['//'], block: true, templates: true }],
   [/\.php$/i, { line: ['//', '#'], block: true, phpSingle: true }],
   [/\.py$/i, { line: ['#'], block: false, templates: true }],
   [/(\.toml|\.env|(^|\/)\.env\.[\w.]+)$/i, { line: ['#'], block: false }],
@@ -273,15 +272,16 @@ function template(
   raw: string,
   from: number,
   to: number,
-  style: 'js' | 'py',
+  style: 'js' | 'py' | 'swift',
   constants: Map<string, string>,
 ): Array<[string, number, number]> {
   const out: Array<[string, number, number]> = [];
-  const open = style === 'js' ? '${' : '{';
+  const open = style === 'js' ? '${' : style === 'swift' ? '\\(' : '{';
+  const closer = style === 'swift' ? ')' : '}';
   let i = from;
   while (i < to) {
     const c = raw[i] as string;
-    if (c === '\\') {
+    if (c === '\\' && !(style === 'swift' && raw.startsWith(open, i))) {
       const e = raw[i + 1] ?? '';
       out.push([(CODE_ESCAPES[e] ?? e) as string, i, i + 2]);
       i += 2;
@@ -289,7 +289,7 @@ function template(
       out.push([c, i, i + 2]);
       i += 2;
     } else if (raw.startsWith(open, i)) {
-      const close = raw.indexOf('}', i);
+      const close = raw.indexOf(closer, i);
       const name = close < 0 ? '' : raw.slice(i + open.length, close).trim();
       const value = constants.get(name);
       if (close < 0 || value === undefined) {
@@ -337,6 +337,8 @@ function codeView(raw: string, language: Language): View | undefined {
       const end = raw.indexOf(c.repeat(3), i + 3);
       if (language.templates && /[fF]$/.test(raw.slice(Math.max(0, i - 1), i)) && end > 0)
         tokens.push({ start: i, end: end + 3, chars: template(raw, i + 3, end, 'py', constantsOf(raw)) });
+      else if (language.swift && c === '"' && end > 0)
+        tokens.push({ start: i, end: end + 3, chars: template(raw, i + 3, end, 'swift', constantsOf(raw)) });
       i = end < 0 ? raw.length : end + 3;
       continue;
     }

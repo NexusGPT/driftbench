@@ -619,3 +619,14 @@ Sources read:
 What others do: Inside a quoted field, a double quote is written twice.
 
 What to try, and why: doubled quotes in CSV cells are one quote
+
+## Iteration 53
+
+Question: packages/generate/src/extract/containers.ts: a Swift multi-line string is sent with \(NAME) as written; prompt-containers.swift-interpolation proves it.
+
+Sources read:
+* https://docs.swift.org/swift-book/documentation/the-swift-programming-language/stringsandcharacters/ (multiline strings, string interpolation)
+
+What others do: The interpolated constant has its value in the string the program builds.
+
+What to try, and why: Swift multi-line strings with an interpolated constant are decoded

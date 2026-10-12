@@ -192,3 +192,11 @@ describe('a prompt in a CSV of rules', () => {
     expect(csv).toContain(rawQuote(sources, 'rules.csv', 'Never say "refund" early.'));
   });
 });
+
+describe('a Swift multi-line string with a constant', () => {
+  const swift =
+    'let MAX_SLOTS = 3\nlet prompt = """\nKeep it short.\nNever offer more than \\(MAX_SLOTS) visit slots at once.\n"""\n';
+  it('puts the value of the constant in the text', () => {
+    expect(promptView('Prompt.swift', swift)?.text).toContain('Never offer more than 3 visit slots at once.');
+  });
+});
