@@ -50,6 +50,7 @@ import {
   readCampaignBundle,
   restoreFiles,
   type SqliteStore,
+  StoreError,
 } from '@driftbench/store';
 import { createPerturbingDriver, createScriptedDriver, type UserModelPort } from '@driftbench/users';
 import type { Command } from 'commander';
@@ -593,7 +594,18 @@ export async function campaignRunCommand(
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
       };
-      await store.putCampaign(campaign);
+      try {
+        await store.putCampaign(campaign);
+      } catch (cause) {
+        // Another process stored this id between the check above and this write: the same bad input.
+        if (cause instanceof StoreError && cause.code === 'CAMPAIGN_CONFLICT') {
+          io.err(
+            `Campaign ${campaignId} already exists. Resume it with: driftbench campaign resume ${campaignId}\n`,
+          );
+          return 2;
+        }
+        throw cause;
+      }
       return await executeCampaign(campaign, loaded, adapters, store, deps, io, {
         cache: options.cache,
         json: options.json === true,
@@ -800,6 +812,7 @@ async function executeCampaign(
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
     cells: plan.cells,
+    recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
     driver: (cell, spec) => deps.driver(cell, spec),

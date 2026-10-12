@@ -73,6 +73,7 @@ metadata:
     atoms:
       - skill.supplier-email.skill-supplier-email
     planRow: pairwise.0459
+    focusVariant: 458
     cell:
       ask_class: compose
       ask_shape: concrete

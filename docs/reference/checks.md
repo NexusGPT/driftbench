@@ -231,7 +231,7 @@ expect:
 ```
 
 * `markup` checks that the reply is well-formed XML or HTML by its tags: each close matches the open element, and HTML void elements need no close. It checks structure only, not a schema or attributes. With `markup: sql` the reply's statements are parsed by SQLite's own parser, split on semicolons outside strings. Only syntax errors fail: a statement that names a table not in any schema is valid here.
-* `must` and `must_not` take `expect.ignore_case: true` to match without regard to case. `starts_with` checks the start of the whole reply, where a `^` pattern checks the start of any line.
+* `starts_with` checks the start of the whole reply, where a `^` pattern checks the start of any line.
 * `finish_reason` reads `observed.runtime.finishReason`, the reason the model stopped. An expected `stop` fails a reply cut at a `length` limit. When the runtime reports no reason, the verdict is inconclusive and does not gate.
 * `json` reads the customer-visible text as JSON. A reply that is one Markdown code fence of JSON is read as that JSON. `expect.json.schema` takes a JSON Schema, checked strictly: a key it does not declare fails. `expect.json.paths` takes a list of `{ path, assert }`. A path is dotted, and a number indexes an array. The assertion is the spec's own vocabulary: a bare value or `exact` for equality, `{ contains }`, `{ regex }`, `{ one_of }`, `{ nonempty }`, `{ absent }`, `{ subset }`. A reply that is not JSON fails `json.valid`, and every path after it fails with the reason. With `expect.json.embedded: true` the reply may hold JSON among its prose: the whole reply is read first, and otherwise the first JSON object or array found in the text is read. The default is off, so a reply with prose around its JSON fails `json.valid`.
 * `refusal` is `refuses` or `answers`. The verdict reads the reply for a refusal phrase in English, French, Dutch, German, Spanish, Italian and Portuguese. It names the phrase and its language. A refusal worded outside those phrases is missed, so judge that with a criterion.
@@ -478,6 +478,8 @@ A verdict from the Acme campaign run with a council that replays the campaign ca
 * The latency is `observed.latencyMs`.
 
 ## Rules for the whole spec
+
+The match_case rule sets how must and must_not read the reply. By default (false) a pattern ignores the case of the reply, and a trailing punctuation mark does not count: a pattern ending in Mbps$ matches "fiber at 300 Mbps.". With match_case true both count. Word boundaries work in both modes: a pattern with a word boundary before and after 300 does not match "3000".
 
 | Field | What it checks | Check |
 |---|---|---|

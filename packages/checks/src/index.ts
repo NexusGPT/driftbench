@@ -21,11 +21,14 @@ export {
   draftOf,
   ESTATE_CHECKS,
   groundedValues,
+  guardFinished,
+  guardMessage,
   hazardRecovery,
   maxWords,
   noDeleteUnder,
   permission,
   someCall,
+  stageSeen,
 } from './checks/estate';
 export { exact, normaliseExact } from './checks/exact';
 export { execution } from './checks/execution';

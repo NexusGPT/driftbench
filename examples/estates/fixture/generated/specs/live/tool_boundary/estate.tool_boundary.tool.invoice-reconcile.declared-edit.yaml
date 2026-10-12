@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please do this: declared Edit."
+      user: Please use the Edit tool on the files here.
     expect:
       workspace:
         deleted: []
@@ -50,5 +50,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: tool.invoice-reconcile.declared-edit (title)
+    askFrom: tool.invoice-reconcile.declared-edit (tool rule)
     outcome: no-delete

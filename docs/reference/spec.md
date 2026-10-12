@@ -289,7 +289,6 @@ The expected output and state delta of a block. Every field is optional.
 | `json` | [JsonExpect](#jsonexpect) | no |  | The reply is valid JSON, optionally with a schema and paths. |
 | `tool_f1` | [Expect tool_f1](#expect-tool_f1) | no |  | Precision, recall and F1 of the tool calls against the expected ones. |
 | `refusal` | `refuses` or `answers` | no |  | Whether the reply must be a refusal, read from refusal phrases in seven languages. |
-| `ignore_case` | boolean | no |  | Match must and must_not without regard to case. |
 | `markup` | one of `xml`, `html`, `sql` | no |  | The reply is well-formed XML, HTML or SQL (syntax only). |
 | `starts_with` | string, not empty | no |  | The reply, without leading space, starts with this text. |
 | `finish_reason` | string, not empty | no |  | The reason the model stopped, as the runtime reports it. |
@@ -540,6 +539,7 @@ Rules that hold for the whole conversation.
 | `forbidden_tools` | list of strings, each not empty | no |  | Tools that must never be called. |
 | `lang_stable` | boolean | no |  | True when the reply language must stay the same across blocks. |
 | `one_message_per_turn` | boolean | no |  | True when each block may send one message only. |
+| `match_case` | boolean | no |  | True makes must and must_not patterns case-sensitive and the trailing punctuation count. Default false: a pattern ignores the case of the reply and a trailing punctuation mark. |
 | `custom` | map of string to any value | no |  | Maps a registered custom check name to its options; the checks package runs it. |
 
 ## EndState

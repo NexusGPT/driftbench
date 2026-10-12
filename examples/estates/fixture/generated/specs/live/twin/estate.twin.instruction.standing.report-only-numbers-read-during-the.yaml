@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Could you do this: report only numbers read during the session? Thanks."
+      user: Could you report only numbers read during the session? Thanks.
     expect:
       workspace:
         deleted: []

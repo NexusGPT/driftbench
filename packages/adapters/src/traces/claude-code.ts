@@ -44,7 +44,18 @@ export async function traceFromClaudeCode(
           ? stimulus.burst.join('\n')
           : '';
     const at = session.meta.blocks[index]?.at;
-    return { user, ...(at ? { startedAt: at } : {}), observed: block.observed };
+    const startLine = session.meta.blocks[index]?.startLine;
+    const opening = startLine === undefined ? undefined : transcript[startLine - 1];
+    const observationId =
+      opening?.ok && isRecord(opening.value) && typeof opening.value.uuid === 'string'
+        ? opening.value.uuid
+        : undefined;
+    return {
+      user,
+      ...(at ? { startedAt: at } : {}),
+      ...(observationId ? { observationId } : {}),
+      observed: block.observed,
+    };
   });
   return {
     id: session.meta.sessionId ?? path,

@@ -466,3 +466,69 @@ describe('the Northwind proof: 14 live specs on the fake command, and three esta
     ]);
   }, 120_000);
 });
+
+const FAKE_JUDGE = join(FIXTURE, 'live/fake/judge.cjs');
+const HOLIDAY = join(
+  LIVE,
+  'obligation/estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public.yaml',
+);
+const OTHER = join(LIVE, 'obligation/estate.pairwise.0515.yaml');
+
+type JudgedJson = Omit<RunJson, 'runs'> & {
+  judge: string;
+  judgeCostUsd: number;
+  runs: Array<
+    RunJson['runs'][number] & { judgeCostUsd: number; judged: Array<{ criterion: string; outcome: string }> }
+  >;
+};
+
+describe('judged criteria in estate run', () => {
+  it('asks the judge for each judged criterion, adds its cost to the run, and fails a criterion it fails', async () => {
+    const result = await estateRun(
+      FIXTURE,
+      [HOLIDAY, OTHER],
+      '--judge',
+      'claude:haiku',
+      '--judge-command',
+      FAKE_JUDGE,
+    );
+    expect(result.err).toBe('');
+    const json = result.json as JudgedJson;
+    expect(json.judge).toBe('claude:haiku');
+    const [holiday, other] = json.runs;
+    expect(holiday?.judged).toEqual([
+      { criterion: 'instruction.route-planner.no-delivery-planned-on-a-public', outcome: 'fail' },
+    ]);
+    expect(holiday?.pass).toBe(false);
+    expect(holiday?.failing.some((entry) => entry.includes('judge.instruction.route-planner'))).toBe(true);
+    expect(other?.judged.length).toBeGreaterThan(0);
+    expect(other?.judged.every((verdict) => verdict.outcome === 'pass')).toBe(true);
+    for (const line of json.runs) {
+      expect(line.judgeCostUsd).toBeCloseTo(0.0015 * line.judged.length);
+      expect(line.costUsd ?? 0).toBeGreaterThanOrEqual(line.judgeCostUsd);
+    }
+    const judgedCount = json.runs.reduce((sum, line) => sum + line.judged.length, 0);
+    expect(json.judgeCostUsd).toBeCloseTo(0.0015 * judgedCount);
+  }, 120_000);
+
+  it('without a judge, a judged criterion is inconclusive and the spec cannot pass', async () => {
+    const result = await estateRun(FIXTURE, [OTHER]);
+    const json = result.json as JudgedJson;
+    expect(json.judge).toBe('none');
+    expect(json.judgeCostUsd).toBe(0);
+    expect(json.runs[0]?.judged.every((verdict) => verdict.outcome === 'inconclusive')).toBe(true);
+    expect(json.runs[0]?.pass).toBe(false);
+    expect(json.notes.some((note) => note.includes('no judge'))).toBe(true);
+  }, 120_000);
+
+  it('refuses a billed judge with no budget, and a judge that is not claude:<model>', async () => {
+    const billed = await estateRun(FIXTURE, [OTHER], '--judge', 'claude:haiku');
+    expect(billed.code).toBe(2);
+    expect(billed.err).toContain('--judge-budget');
+    const other = await estateRun(FIXTURE, [OTHER], '--judge', 'gpt:4');
+    expect(other.code).toBe(2);
+    expect(other.err).toContain('claude:<model>');
+    const stray = await estateRun(FIXTURE, [OTHER], '--judge-budget', '1');
+    expect(stray.code).toBe(2);
+  }, 60_000);
+});

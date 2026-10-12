@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-plan-the-delivery
     planRow: pairwise.0217
+    focusVariant: 216
     cell:
       ask_class: operate
       ask_shape: concrete

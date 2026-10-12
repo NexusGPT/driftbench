@@ -106,6 +106,7 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
       throw new HttpError(405, 'Only GET, and POST to /labels and /queue/assign.');
     if (parts.length === 0) return send(response, await indexPage(store));
     if (parts[0] === 'compare' && parts.length === 1) return send(response, await comparePage(store, url));
+    if (parts[0] === 'keys' && parts.length === 1) return send(response, keysPage());
     if (parts[0] === 'queue' && parts.length === 1)
       return send(
         response,
@@ -131,7 +132,12 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
       const data = await campaignData(store, parts[1] as string);
       const run = data.runs.find((entry) => entry.runId === parts[3]);
       if (!run) throw new HttpError(404, `No run ${parts[3]} in campaign ${parts[1]}.`);
-      return send(response, await runPage(data, run, options.labels, url.searchParams.get('saved')));
+      return send(
+        response,
+        await runPage(data, run, options.labels, url.searchParams.get('saved')),
+        200,
+        scriptHashOf(LABEL_KEYS_SCRIPT),
+      );
     }
     throw new HttpError(404, `Nothing at ${url.pathname}.`);
   };
@@ -175,11 +181,14 @@ export const QUEUE_KEYS_SCRIPT = `(function () {
   };
   document.addEventListener('keydown', function (event) {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
-    if (event.key !== 'j' && event.key !== 'k') return;
+    if (event.key === '?') { window.location.href = '/keys'; event.preventDefault(); return; }
+    var down = event.key === 'j' || event.key === 'ArrowDown';
+    var up = event.key === 'k' || event.key === 'ArrowUp';
+    if (!down && !up) return;
     var list = items();
     if (list.length === 0) return;
     var at = list.indexOf(document.activeElement);
-    var next = event.key === 'j' ? Math.min(list.length - 1, at + 1) : Math.max(0, at - 1);
+    var next = down ? Math.min(list.length - 1, at + 1) : Math.max(0, at - 1);
     list[next].focus();
     event.preventDefault();
   });
@@ -234,7 +243,7 @@ function runPath(campaignId: string, runId: string): string {
 }
 
 function nav(extra = ''): string {
-  return `<nav class="top"><strong>driftbench view</strong><a href="/">Campaigns</a><a href="/compare">Compare</a><a href="/queue">Queue</a>${extra}</nav>`;
+  return `<nav class="top"><strong>driftbench view</strong><a href="/">Campaigns</a><a href="/compare">Compare</a><a href="/queue">Queue</a><a href="/keys">Keys</a>${extra}</nav>`;
 }
 
 function errorPage(status: number, message: string): string {
@@ -254,6 +263,65 @@ async function campaignData(store: Store, campaignId: string): Promise<CampaignD
 }
 
 /** The review queue: each item with its state, who holds it, and the action the viewer reviewer can take. */
+/**
+ * The label form's keys, progressive enhancement only: 1 checks pass, 2 checks fail (not while typing in the
+ * note), Cmd or Ctrl+Enter submits the form. Every control works without it.
+ */
+export const LABEL_KEYS_SCRIPT = `(function () {
+  var typing = function (target) {
+    return target && (target.tagName === 'TEXTAREA' || (target.tagName === 'INPUT' && target.type !== 'radio'));
+  };
+  var blocks = function () {
+    return Array.prototype.slice.call(document.querySelectorAll('div.block'));
+  };
+  document.addEventListener('keydown', function (event) {
+    var target = event.target;
+    var form = target && target.closest ? target.closest('div.labels form') : null;
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && form) {
+      event.preventDefault();
+      if (form.requestSubmit) form.requestSubmit(); else form.submit();
+      return;
+    }
+    if (event.altKey || event.ctrlKey || event.metaKey || typing(target)) return;
+    if (event.key === '?') {
+      window.location.href = '/keys';
+      event.preventDefault();
+      return;
+    }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      if (target && target.tagName === 'SELECT') return;
+      var list = blocks();
+      if (list.length === 0) return;
+      var at = -1;
+      for (var i = 0; i < list.length; i += 1) if (list[i].contains(target)) at = i;
+      var step = event.key === 'ArrowDown' ? 1 : -1;
+      var nextAt = at < 0 ? (step > 0 ? 0 : list.length - 1) : Math.min(list.length - 1, Math.max(0, at + step));
+      var shown = Array.prototype.slice.call(list[nextAt].querySelectorAll('select, input, a, button')).filter(function (el) { return el.offsetParent !== null; });
+      var control = shown[0] || list[nextAt];
+      if (control === list[nextAt] && !control.hasAttribute('tabindex')) control.setAttribute('tabindex', '-1');
+      control.focus();
+      list[nextAt].scrollIntoView({ block: 'nearest' });
+      event.preventDefault();
+      return;
+    }
+    if (!form) return;
+    if (event.key !== '1' && event.key !== '2') return;
+    var radio = form.querySelector('input[name=label][value=' + (event.key === '1' ? 'pass' : 'fail') + ']');
+    if (!radio) return;
+    radio.checked = true;
+    radio.focus();
+    event.preventDefault();
+  });
+})();`;
+
+/** The keyboard cheatsheet: plain HTML, no script, linked from every page. */
+function keysPage(): string {
+  return renderPage('driftbench view: keys', [
+    nav(),
+    `<section id="keys"><h2>Keyboard</h2><p>These keys work when the page runs its script. Every button and link also works without them.</p><table><caption>Keys</caption><thead><tr><th scope="col">key</th><th scope="col">where</th><th scope="col">does</th></tr></thead><tbody><tr><td class="mono">j, ArrowDown</td><td>queue</td><td>next item</td></tr><tr><td class="mono">k, ArrowUp</td><td>queue</td><td>previous item</td></tr><tr><td class="mono">Enter</td><td>queue</td><td>open or take the focused item</td></tr><tr><td class="mono">ArrowDown, ArrowUp</td><td>block page</td><td>next or previous block</td></tr><tr><td class="mono">1</td><td>block page</td><td>check pass</td></tr><tr><td class="mono">2</td><td>block page</td><td>check fail</td></tr><tr><td class="mono">Cmd or Ctrl+Enter</td><td>block page</td><td>save the label</td></tr><tr><td class="mono">?</td><td>every page</td><td>open this page</td></tr></tbody></table><p class="muted">Keys are ignored while you type in the note.</p></section>`,
+  ]);
+}
+
 function scriptHashOf(text: string): string {
   return createHash('sha256').update(text).digest('base64');
 }
@@ -415,6 +483,7 @@ async function runPage(
 <input type="hidden" name="campaign" value="${esc(campaignId)}"><input type="hidden" name="run" value="${esc(run.runId)}"><input type="hidden" name="block" value="${block.index}">
 ${criterionField}
 <label><input type="radio" name="label" value="pass" required> pass</label><label><input type="radio" name="label" value="fail"> fail</label>
+<p class="muted">With script on: 1 marks pass, 2 marks fail, Cmd or Ctrl+Enter saves. Without it the buttons work the same.</p>
 <input name="note" aria-label="Note" placeholder="note: why">
 <button type="submit">Save label</button></form></div>`;
   };
@@ -440,6 +509,7 @@ ${criterionField}
     nav(`<a href="/campaign/${encodeURIComponent(campaignId)}">${esc(campaignId)}</a>`),
     `<section id="labelling"><h2>Labelling</h2>${banner}<p>Mark each block pass or fail on a criterion, with a note. Labels go to <span class="mono">${esc(labelsDir)}</span>, one file per criterion, the folder <span class="mono">driftbench judge calibrate --labels</span> reads. Labelling a block again on the same criterion replaces its label.</p>${summary}</section>`,
     renderRun(detail, form),
+    `<script>${LABEL_KEYS_SCRIPT}</script>`,
   ]);
 }
 
