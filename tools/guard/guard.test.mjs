@@ -88,6 +88,21 @@ describe('Belgian national register number', () => {
     expect(isValidNationalNumber(`85${'13'}${digits.slice(4)}`)).toBe(false);
     expect(kinds(`ts ${digits}123`)).toEqual([]);
   });
+
+  it('ignores valid checksummed digits embedded in hexadecimal runs', () => {
+    const digits = nineties.replace(/\D/g, '');
+    for (const hex of '0123456789abcdefABCDEF') {
+      expect(kinds(`${hex}${digits}`)).toEqual([]);
+      expect(kinds(`${digits}${hex}`)).toEqual([]);
+    }
+  });
+
+  it('still finds national numbers next to punctuation, quotes and non-hex letters', () => {
+    for (const number of [nineties, nineties.replace(/\D/g, '')]) {
+      expect(kinds(`("${number}");`)).toEqual(['national-number']);
+      expect(kinds(`g${number}z`)).toEqual(['national-number']);
+    }
+  });
 });
 
 describe('phones', () => {
@@ -96,6 +111,44 @@ describe('phones', () => {
     expect(kinds(['call', join2('+', '33'), '6 12 34 56 78'].join(' '))).toEqual(['phone']);
     expect(kinds(['call', join2('04', '70'), '12 34 56'].join(' '))).toEqual(['phone']);
     expect(kinds(['call', join2('0032', ' 470'), '12 34 56'].join(' '))).toEqual(['phone']);
+  });
+
+  it('ignores the request digest without changing its data', () => {
+    const digest = '278fe0bdcd32343034f35dd9484c0487253533e0cf92bf0b20485aed28baf54f';
+    expect(kinds(digest)).toEqual([]);
+    expect(kinds(JSON.stringify({ requestSha256: digest }))).toEqual([]);
+  });
+
+  it('ignores numeric phone candidates next to hexadecimal letters or digits', () => {
+    const mobile = join2('04', '70', '12', '34', '56');
+    // Use the maximum valid international length so an extra digit is not another valid phone.
+    const international = join2('+', '32', mobile.slice(1), '1234');
+    const abroad = join2('0032', mobile.slice(1));
+    for (const phone of [mobile, international, abroad]) {
+      for (const hex of '0123456789abcdefABCDEF') {
+        expect(kinds(`${hex}${phone}`)).toEqual([]);
+        expect(kinds(`${phone}${hex}`)).toEqual([]);
+      }
+    }
+  });
+
+  it('keeps supported phone formats detectable, including punctuation and quotes', () => {
+    for (const separator of ['', ' ', '.', '/', '-']) {
+      const mobile = [join2('04', '70'), '12', '34', '56'].join(separator);
+      const abroad = [join2('0032', '470'), '12', '34', '56'].join(separator);
+      for (const phone of [mobile, abroad]) {
+        expect(kinds(phone)).toEqual(['phone']);
+        expect(kinds(`("${phone}");`)).toEqual(['phone']);
+      }
+    }
+    for (const separator of ['', ' ', '.', '-']) {
+      const phone = [join2('+', '32'), '470', '12', '34', '56'].join(separator);
+      expect(kinds(phone)).toEqual(['phone']);
+      expect(kinds(`("${phone}");`)).toEqual(['phone']);
+    }
+    expect(kinds([join2('00', '32'), '470', '12', '34', '56'].join(' '))).toEqual(['phone']);
+    expect(kinds(join2('+', '33 (6) ', '12-34-56-78'))).toEqual(['phone']);
+    expect(kinds(`g${join2('04', '70123456')}z`)).toEqual(['phone']);
   });
 
   it('lets the reserved fictional NANP range through', () => {
