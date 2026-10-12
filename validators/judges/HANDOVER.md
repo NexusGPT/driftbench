@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 6 passes since iteration 34 (clients and criteria green). Level 7, check: `check/verdict-ids-unique-across-names`, `diff-summary-one-line`. Then level 8 rubric (20 items, `rubric/two-questions` first), render, budget, evidence, injection (102 items) and later. Handover test (`--brief --fresh`) last run at iteration 25 and reproduced the level.
+Level 6 passes since iteration 34 (clients and criteria green). Level 7, check: `check/diff-summary-one-line` (1 item left in the family). Then level 8 rubric (20 items, `rubric/two-questions` first), render, budget, evidence, injection (102 items) and later. Handover test (`--brief --fresh`) last run at iteration 25 and reproduced the level.
 
 ## Hypotheses tried
 
@@ -61,11 +61,12 @@ Iteration 32 (cause: OpenAI schema): `ANSWER_SCHEMA` and response_format json_sc
 Iteration 33 (cause: Google schema): `GOOGLE_ANSWER_SCHEMA`. Test: "the Google client gives a response schema" (red first). Bank 295 -> 296 (0.4639). PR 86 stays open and takes every push; a second PR from the same branch is not possible. PR 86 holds iterations 11 to 25.
 Iteration 34 (cause: usageFromResponse missing): packages/judges/src/clients/usage.ts, exported. Test: packages/judges/test/usage.test.ts (red first). Bank 296 -> 299 (0.4687). Level 4 -> 6. Iteration 35 (cause: empty verdict list passed): `combineVerdicts` needs at least one verdict. Test: check.test.ts "a block with no verdict at all" (red first). Bank 299 -> 300 (0.4702).
 Iteration 36 (cause: duplicate judge ids): `combineVerdicts` refuses two judge verdicts with one id. Test: check.test.ts "two judge verdicts with one id" (red first). Bank 300 -> 301 (0.4718).
+Iteration 37 (cause: safe-id collision): `uniqueIds` in judgeCheck (suffix -2, -3). Test: check.test.ts "two criterion names that map to one safe id" (red first). Bank 301 -> 302 (0.4734).
 The first commit of iteration 34 lacked the index export; a second commit added it and the row is of that second commit.
 
 ## Next actions
 
-1. Level 7 check family, one cause per iteration, first `check/verdict-ids-unique-across-names` (packages/judges/src/check.ts judgeCheck).
+1. Level 7 check family, one cause per iteration, first `check/diff-summary-one-line` (packages/judges/src/artifacts.ts summarizeDiff).
 2. Then level 8 rubric (`rubric/two-questions`) and onward: `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`. PR 86 takes every push.
 
