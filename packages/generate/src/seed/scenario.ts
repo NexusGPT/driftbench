@@ -189,11 +189,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         return after === undefined || after === stage;
       })
       .filter(({ index }) => index >= 1 || OPENING_CLASSES.has(probe.classId))
-      // A stage the caller asked for is a deliberate cell; only a stage left to the walk must discriminate.
-      .filter(
-        ({ stage, index }) =>
-          index >= 1 || probe.stage !== undefined || discriminates(recovery as Recovery, stage, path.stages[0]),
-      )
+      .filter(({ stage, index }) => index >= 1 || discriminates(recovery as Recovery, stage, path.stages[0]))
       .filter(({ stage }) => (recovery?.at ? recovery.at.includes(stage) : true))
       .filter(({ stage }) => (probe.stage === undefined ? true : stage === probe.stage))
       // The map's constraints hold for the probe too: a class the map forbids at a stage is never said there.
