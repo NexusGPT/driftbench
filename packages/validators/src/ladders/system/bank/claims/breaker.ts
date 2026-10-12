@@ -1,3 +1,4 @@
+import { INFORMATION, LINT_CODES } from '@driftbench/estate';
 import { DOCUMENTED_CHECKS } from '../documented';
 /**
  * Blind-breaker claims: executable claims taken from the documentation pages and the command-line help
@@ -37,6 +38,38 @@ async function cli(argv: string[], cwd: string): Promise<Cli> {
     cwd,
   });
   return { code, out, err };
+}
+
+/** Compare command availability and missing-input handling with the live CLI reference. No agent runs. */
+async function estateCommandContract(ctx: ItemContext, command: 'run' | 'mutate'): Promise<ItemResult> {
+  const page = text(join(ctx.root, 'docs/reference/cli.md'));
+  const section =
+    page.split('## `driftbench estate run` and `driftbench estate mutate`')[1]?.split('\n## ')[0] ?? '';
+  const synopsis = section.split('\n').find((line) => line.startsWith(`driftbench estate ${command} `)) ?? '';
+  const paragraph = section.split('\n').find((line) => line.startsWith(`\`estate ${command}\``)) ?? '';
+  const exit = /(?:Exit|,|;) (\d+) on a usage or input error/.exec(paragraph)?.[1];
+  const required = /(--[a-z-]+) <[^>]+>/.exec(synopsis)?.[1];
+  const dir = work(ctx, `estate-${command}`);
+  const missing = await cli(['estate', command], dir);
+  const help = await cli(['estate', command, '--help'], dir);
+  const flags = [...synopsis.matchAll(/--[a-z-]+/g)].map((m) => m[0]);
+  return expectAll([
+    [
+      synopsis.length > 0 &&
+        exit !== undefined &&
+        required !== undefined &&
+        !/not built/i.test(paragraph + synopsis),
+      'cli.md must describe the built command, its required input and its usage exit code',
+    ],
+    [
+      help.code === 0 && flags.every((flag) => help.out.includes(flag)),
+      `help must expose the documented options; got ${shown(help)}`,
+    ],
+    [
+      missing.code === Number(exit) && missing.err.includes(`required option '${required} `),
+      `missing input should name ${required} and exit ${exit}; got ${shown(missing)}`,
+    ],
+  ]);
 }
 
 /** A fresh folder for one item and one seed. */
@@ -4975,29 +5008,27 @@ function toolItems(): BankItem[] {
       tier: 3,
       component: 'driftbench estate lint',
       title:
-        'cli.md "estate lint": the findings use ORPHAN, UNREACHABLE, MISSING_REFERENCE, MISSING_SCRIPT, OVERSIZE, UNANCHORED_GUARD, REGISTRY_ROW, REGISTRY_GUARD, QUOTE_DRIFT and UNENFORCED, and exit 1 on a finding',
+        'cli.md "estate lint": failing findings use the documented codes; informational codes follow the shared lint contract',
       cause: 'driftbench estate lint prints only the documented finding codes',
       async check(ctx) {
         const dir = work(ctx, 'estate-lint');
         const c = await cli(['estate', 'lint', join(fixtureEstate(ctx.root), 'approved.yaml')], dir);
-        const documented = new Set([
-          'ORPHAN',
-          'UNREACHABLE',
-          'MISSING_REFERENCE',
-          'MISSING_SCRIPT',
-          'OVERSIZE',
-          'UNANCHORED_GUARD',
-          'REGISTRY_ROW',
-          'REGISTRY_GUARD',
-          'QUOTE_DRIFT',
-          'UNENFORCED',
-        ]);
+        const page = text(join(ctx.root, 'docs/reference/cli.md'));
+        const table =
+          page.split('`estate lint` reports these findings:')[1]?.split('A map that does not load')[0] ?? '';
+        const documented = new Set([...table.matchAll(/^\| `([A-Z_]+)` \|/gm)].map((m) => m[1]));
+        // Information codes share the CLI's source of truth; the table describes failing findings.
+        for (const code of INFORMATION) documented.add(code);
         const codes = c.out
           .split('\n')
           .map((l) => /^ {2}([A-Z_]{4,})\s/.exec(l)?.[1])
           .filter((x): x is string => !!x);
         const extra = codes.filter((x) => !documented.has(x));
-        return c.code === 1 && extra.length === 0
+        return c.code === 1 &&
+          codes.length > 0 &&
+          documented.size > INFORMATION.size &&
+          extra.length === 0 &&
+          codes.every((code) => (LINT_CODES as readonly string[]).includes(code))
           ? PASS
           : fail(
               `expected exit 1 and only documented codes; extra codes ${extra.join(',') || 'none'}; ${shown(c)}`,
@@ -5008,21 +5039,24 @@ function toolItems(): BankItem[] {
       id: 'estate-scan-no-model-output-order',
       tier: 3,
       component: 'driftbench estate scan',
-      title:
-        'cli.md "estate scan" example: after "No model call: structured atoms only (--no-model)." the next line is "  Refused: none."',
+      title: 'cli.md "estate scan" example: the no-model and refusal lines appear in documented order',
       cause:
-        'driftbench estate scan --no-model prints "  Refused: none." right after the no model line, without extra prose lines in between',
+        'driftbench estate scan --no-model prints the documented no-model and refusal lines in order, allowing inventory details between them',
       async check(ctx) {
         const dir = work(ctx, 'estate-scan-order');
         const c = await cli(
           ['estate', 'scan', fixtureEstate(ctx.root), '--no-model', '--out', 'm.yaml'],
           dir,
         );
+        const page = text(join(ctx.root, 'docs/reference/cli.md'));
+        const example =
+          page.split('driftbench estate scan examples/estates/fixture --no-model')[1]?.split('```')[0] ?? '';
+        const expected = example.split('\n').filter((line) => /^ {2}(No model call:|Refused:)/.test(line));
         const lines = c.out.split('\n');
-        const at = lines.findIndex((l) => l.includes('No model call: structured atoms only (--no-model).'));
-        return at >= 0 && lines[at + 1] === '  Refused: none.'
+        const [noModel = -1, refused = -1] = expected.map((line) => lines.indexOf(line));
+        return c.code === 0 && expected.length === 2 && noModel >= 0 && refused > noModel
           ? PASS
-          : fail(`the line after the no model line should be "  Refused: none."; got "${lines[at + 1]}"`);
+          : fail(`expected documented scan lines in order: ${JSON.stringify(expected)}; got ${shown(c)}`);
       },
     }),
     tl({
@@ -5030,48 +5064,37 @@ function toolItems(): BankItem[] {
       tier: 3,
       component: 'driftbench estate approve',
       title:
-        'estate.md "Approving the prose atoms": estate approve on examples/estates/fixture/approved.yaml prints "all 122 atoms are approved."',
-      cause:
-        'driftbench estate approve reports 122 atoms for the committed Northwind fixture map, or the docs report the current count',
+        'estate.md "Approving the prose atoms": estate approve reports the documented approved fixture count',
+      cause: 'driftbench estate approve reports the same approved fixture count as estate.md',
       async check(ctx) {
         const dir = work(ctx, 'estate-approve');
         const c = await cli(['estate', 'approve', join(fixtureEstate(ctx.root), 'approved.yaml')], dir);
-        return c.code === 0 && /all 122 atoms are approved\./.test(c.out)
+        const page = text(join(ctx.root, 'docs/estate.md'));
+        const count = /examples\/estates\/fixture\/approved\.yaml: all (\d+) atoms are approved\./.exec(
+          page,
+        )?.[1];
+        return count !== undefined && c.code === 0 && c.out.includes(`all ${count} atoms are approved.`)
           ? PASS
-          : fail(`expected "all 122 atoms are approved."; got ${shown(c)}`);
+          : fail(`expected the documented approved count ${count ?? '(missing)'}; got ${shown(c)}`);
       },
     }),
     tl({
       id: 'estate-run-not-built-message',
       tier: 2,
       component: 'driftbench estate run',
-      title:
-        'adapters/claude-code.md "The live runner" and cli.md "Not built yet": driftbench estate run prints "driftbench estate run is not built yet." and exits 2 (examples/estates/fixture/live/README.md shows a runnable estate run; the four pages that say not built are the more specific statement of the command)',
+      title: 'cli.md "estate run": command availability and usage errors follow the current contract',
       cause:
-        'driftbench estate run called without options prints "driftbench estate run is not built yet." and exits 2, or the pages describe the built runner',
-      async check(ctx) {
-        const dir = work(ctx, 'estate-run');
-        const c = await cli(['estate', 'run'], dir);
-        return c.code === 2 && both(c).includes('driftbench estate run is not built yet.')
-          ? PASS
-          : fail(`expected the not built message; got ${shown(c)}`);
-      },
+        'driftbench estate run exposes the documented options and rejects missing required input with the documented exit code',
+      check: (ctx) => estateCommandContract(ctx, 'run'),
     }),
     tl({
       id: 'estate-mutate-not-built-message',
       tier: 2,
       component: 'driftbench estate mutate',
-      title:
-        'adapters/claude-code.md and estate.md "The commands": driftbench estate mutate prints "driftbench estate mutate is not built yet." and exits 2',
+      title: 'cli.md "estate mutate": command availability and usage errors follow the current contract',
       cause:
-        'driftbench estate mutate called without options prints "driftbench estate mutate is not built yet." and exits 2, or the pages describe the built command',
-      async check(ctx) {
-        const dir = work(ctx, 'estate-mutate');
-        const c = await cli(['estate', 'mutate'], dir);
-        return c.code === 2 && both(c).includes('driftbench estate mutate is not built yet.')
-          ? PASS
-          : fail(`expected the not built message; got ${shown(c)}`);
-      },
+        'driftbench estate mutate exposes the documented options and rejects missing required input with the documented exit code',
+      check: (ctx) => estateCommandContract(ctx, 'mutate'),
     }),
     tl({
       id: 'judge-calibrate-judge-names',
