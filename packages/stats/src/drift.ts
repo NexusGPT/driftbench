@@ -1,6 +1,6 @@
 /** Change detection over time (CUSUM, Page-Hinkley) and the two-sample Kolmogorov-Smirnov test. */
 
-import { mean, sampleVariance } from './basics';
+import { assertFiniteValues, mean, sampleVariance } from './basics';
 
 export interface Alarm {
   readonly index: number;
@@ -93,8 +93,14 @@ export interface PageHinkleyResult {
  * state resets after an alarm.
  */
 export function pageHinkley(series: readonly number[], options: PageHinkleyOptions = {}): PageHinkleyResult {
+  if (series.length === 0) throw new RangeError('pageHinkley: empty series');
+  assertFiniteValues('pageHinkley', series);
   const delta = options.delta ?? 0.005;
   const threshold = options.threshold ?? 50;
+  if (!Number.isFinite(delta) || delta < 0) throw new RangeError(`pageHinkley: delta must be finite and >= 0, got ${delta}`);
+  if (!Number.isFinite(threshold) || threshold < 0) {
+    throw new RangeError(`pageHinkley: threshold must be finite and >= 0, got ${threshold}`);
+  }
   const minInstances = options.minInstances ?? 30;
   const up: number[] = [];
   const down: number[] = [];
