@@ -181,13 +181,24 @@ export function rawQuote(sources: readonly Source[], source: string, quote: stri
     at = map[found] as number;
     length = (map[found + needle.length - 1] as number) - at + 1;
   }
-  let first = at;
-  let last = at + length - 1;
-  while (first <= last && (view.starts[first] ?? -1) < 0) first++;
-  while (last >= first && (view.ends[last] ?? -1) < 0) last--;
-  if (first > last) return quote;
-  const raw = file.text.slice(view.starts[first] as number, view.ends[last] as number);
-  return raw.length > 1000 ? raw.slice(0, 1000).trimEnd() : raw;
+  // An entry's quote must be in the file as written and in the prompt as decoded: the longest passage of the
+  // quote whose characters the file writes as they are (no escape, no gap).
+  let best = '';
+  let run = '';
+  const flush = () => {
+    if (run.trim().length > best.trim().length) best = run;
+    run = '';
+  };
+  for (let i = at; i < at + length; i++) {
+    const start = view.starts[i] ?? -1;
+    const plain = start >= 0 && (view.ends[i] ?? -1) - start === 1 && file.text[start] === view.text[i];
+    if (plain) run += view.text[i];
+    else flush();
+  }
+  flush();
+  const passage = best.trim();
+  if (passage === '') return quote;
+  return passage.length > 1000 ? passage.slice(0, 1000).trimEnd() : passage;
 }
 
 /** Every `quote` of an answer, beside a `source` or inside an `evidence`, mapped back to the file. */

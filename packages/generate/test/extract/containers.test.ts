@@ -27,17 +27,17 @@ describe('prompts kept inside JSON files', () => {
     expect(request.user).not.toContain('\\"refund\\"');
   });
 
-  it('maps a decoded quote back to the passage of the file', () => {
+  it('keeps of a decoded quote the longest passage the file writes as it is', () => {
     const sources = [
       { kind: 'prompt' as const, path: 'prompt.json', text: chat },
       { kind: 'prompt' as const, path: 'accents.json', text: accents },
       { kind: 'prompt' as const, path: 'prompt.jsonl', text: lines },
     ];
     const first = rawQuote(sources, 'prompt.json', 'Never say "refund" before the order is checked.');
-    expect(first).toBe('Never say \\"refund\\" before the order is checked.');
+    expect(first).toBe('before the order is checked.');
     expect(chat).toContain(first);
-    const accent = rawQuote(sources, 'accents.json', 'Réponds en français.');
-    expect(accents).toContain(accent);
+    expect(rule).toContain(first);
+    expect(rawQuote(sources, 'accents.json', 'Réponds en français.')).toBe('français.');
     expect(rawQuote(sources, 'prompt.jsonl', 'Ask for the order id.')).toBe('Ask for the order id.');
     expect(rawQuote(sources, 'other.md', 'x')).toBe('x');
     const answer = {

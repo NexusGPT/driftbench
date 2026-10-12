@@ -501,3 +501,15 @@ Sources read:
 What others do: A model reads the decoded prompt; the proposal must quote the file, so each quote is mapped through a character table back to the file passage.
 
 What to try, and why: a quote from a decoded JSON prompt is mapped back to the file
+
+## Iteration 43
+
+Question: packages/generate/src/extract/containers.ts: a quote mapped to the raw file keeps escapes the prompt does not hold, so it leaves the rule's text; prompt-containers.json-messages, json-ascii, json-prompt-key and jsonl prove it.
+
+Sources read:
+* packages/validators/src/ladders/map/bank/facts.ts (a quote lies inside the rule and inside the file)
+* https://www.rfc-editor.org/rfc/rfc8259 section 7
+
+What others do: A quote must be a passage of the file and of the prompt; the passage without escapes is both.
+
+What to try, and why: a decoded quote keeps the longest passage the file writes as it is
