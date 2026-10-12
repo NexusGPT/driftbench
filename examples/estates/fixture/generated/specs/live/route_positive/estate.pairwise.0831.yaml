@@ -72,6 +72,7 @@ metadata:
     atoms:
       - skill.supplier-email.skill-supplier-email
     planRow: pairwise.0831
+    focusVariant: 830
     cell:
       ask_class: change_estate
       ask_shape: problem

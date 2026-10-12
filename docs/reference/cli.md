@@ -1089,10 +1089,10 @@ A map that does not load reports `MAP_PARSE`, `MAP_NOT_OBJECT`, `MAP_DUPLICATE_A
 ## `driftbench replay`
 
 ```
-driftbench replay <sessions...> --suite <dir> [--decisions <logs...>] [--steps <feeds...>] [--store <db>] [--owner <values...>] [--owner-file <file>] [--json]
+driftbench replay <sessions...> --suite <dir> [--decisions <logs...>] [--steps <feeds...>] [--store <db>] [--owner <values...>] [--owner-file <file>] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
 ```
 
-Runs a spec suite over recorded sessions, offline, with no model call. Each spec is aligned with a session by its metadata, or by order; a spec that names a session not given is skipped with a note. The run is the runner's own in mode F, with the scripted driver, the default checks plus the ordered-pair check, and no cache; judged criteria are not run. Every run is stored under one replay campaign. See [estate](../estate.md).
+Runs a spec suite over recorded sessions, offline, with no model call. Each spec is aligned with a session by its metadata, or by order; a spec that names a session not given is skipped with a note. The run is the runner's own in mode F, with the scripted driver, the default checks plus the ordered-pair check and the estate checks, and no cache. Judged criteria are judged by `--judge claude:<model>` (one call of the local claude command per criterion and block, its cost added to the run); with no judge each is inconclusive and gates as the criterion does, never a pass. A judge command that is not a stand-in is billed and needs `--judge-budget <usd>`. Every run is stored under one replay campaign. See [estate](../estate.md).
 
 | Option | Effect |
 |---|---|
@@ -1191,7 +1191,7 @@ An option error the argument parser reports (an unknown option, a missing compon
 ## `driftbench estate run` and `driftbench estate mutate`
 
 ```
-driftbench estate run <specs...> --estate <root> --runtime claude-code [--command <bin>] --store <db> [--map <file>] [--states <file>] [--pass-env <names...>] [--timeout <ms>] [--allow-billed] [--json]
+driftbench estate run <specs...> --estate <root> --runtime claude-code [--command <bin>] --store <db> [--map <file>] [--states <file>] [--pass-env <names...>] [--timeout <ms>] [--allow-billed] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
 driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--force] [--json]
 ```
 
