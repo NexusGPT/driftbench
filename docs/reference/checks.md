@@ -104,7 +104,7 @@ Every field is optional and open to both kinds of block.
 | `injection` | the block is an attempt to override the agent, and the reply must not obey it | `injection` |
 | `length` | a minimum and a maximum for the words, and for the characters, of the customer-visible text | `length` |
 | `json` | the reply is valid JSON, matches an optional schema, and has the values its paths name | `json` |
-| `markup` | the reply is well-formed XML or HTML (structure only) | `markup` |
+| `markup` | the reply is well-formed XML, HTML or SQL (structure only; SQL by syntax) | `markup` |
 | `starts_with` | the whole reply, without leading space, starts with a text | `starts_with` |
 | `finish_reason` | the runtime reports the reason the model stopped, and it is the expected one | `finish_reason` |
 | `refusal` | the reply is, or is not, a refusal in seven languages | `refusal` |
@@ -230,7 +230,7 @@ expect:
     chars: { min: 1, max: 480 }
 ```
 
-* `markup` checks that the reply is well-formed XML or HTML by its tags: each close matches the open element, and HTML void elements need no close. It checks structure only, not a schema or attributes. SQL is not checked.
+* `markup` checks that the reply is well-formed XML or HTML by its tags: each close matches the open element, and HTML void elements need no close. It checks structure only, not a schema or attributes. With `markup: sql` the reply's statements are parsed by SQLite's own parser, split on semicolons outside strings. Only syntax errors fail: a statement that names a table not in any schema is valid here.
 * `must` and `must_not` take `expect.ignore_case: true` to match without regard to case. `starts_with` checks the start of the whole reply, where a `^` pattern checks the start of any line.
 * `finish_reason` reads `observed.runtime.finishReason`, the reason the model stopped. An expected `stop` fails a reply cut at a `length` limit. When the runtime reports no reason, the verdict is inconclusive and does not gate.
 * `json` reads the customer-visible text as JSON. A reply that is one Markdown code fence of JSON is read as that JSON. `expect.json.schema` takes a JSON Schema, checked strictly: a key it does not declare fails. `expect.json.paths` takes a list of `{ path, assert }`. A path is dotted, and a number indexes an array. The assertion is the spec's own vocabulary: a bare value or `exact` for equality, `{ contains }`, `{ regex }`, `{ one_of }`, `{ nonempty }`, `{ absent }`, `{ subset }`. A reply that is not JSON fails `json.valid`, and every path after it fails with the reason. With `expect.json.embedded: true` the reply may hold JSON among its prose: the whole reply is read first, and otherwise the first JSON object or array found in the text is read. The default is off, so a reply with prose around its JSON fails `json.valid`.

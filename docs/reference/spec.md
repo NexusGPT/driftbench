@@ -290,7 +290,7 @@ The expected output and state delta of a block. Every field is optional.
 | `tool_f1` | [Expect tool_f1](#expect-tool_f1) | no |  | Precision, recall and F1 of the tool calls against the expected ones. |
 | `refusal` | `refuses` or `answers` | no |  | Whether the reply must be a refusal, read from refusal phrases in seven languages. |
 | `ignore_case` | boolean | no |  | Match must and must_not without regard to case. |
-| `markup` | `xml` or `html` | no |  | The reply is well-formed XML or HTML. |
+| `markup` | one of `xml`, `html`, `sql` | no |  | The reply is well-formed XML, HTML or SQL (syntax only). |
 | `starts_with` | string, not empty | no |  | The reply, without leading space, starts with this text. |
 | `finish_reason` | string, not empty | no |  | The reason the model stopped, as the runtime reports it. |
 | `length` | [Expect length](#expect-length) | no |  | Word and character bounds on the customer-visible text of the block. |

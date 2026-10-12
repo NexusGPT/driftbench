@@ -20,6 +20,8 @@ export type ChatMessage = {
 export type ChatReply = {
   message: { content: string; toolCalls: { id?: string; name: string; arguments: unknown }[] };
   usage?: { inputTokens?: number; outputTokens?: number };
+  /** Why the model stopped, as the endpoint reports it on the first choice. */
+  finishReason?: string;
 };
 
 /**
@@ -72,7 +74,10 @@ export function readCompletion(body: unknown): ChatReply | undefined {
     const id = typeof call.id === 'string' ? { id: call.id } : {};
     return [{ ...id, name, arguments: parseArguments(call.function.arguments) }];
   });
-  const reply: ChatReply = { message: { content: contentText(message.content), toolCalls } };
+  const reply: ChatReply = {
+    message: { content: contentText(message.content), toolCalls },
+    ...(typeof choice.finish_reason === 'string' ? { finishReason: choice.finish_reason } : {}),
+  };
   const usage = body.usage;
   if (isPlainObject(usage)) {
     const counts: { inputTokens?: number; outputTokens?: number } = {};

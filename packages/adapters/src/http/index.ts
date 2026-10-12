@@ -157,6 +157,7 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
     const usage = { inputTokens: 0, outputTokens: 0, seen: false };
     const messages = [...request.messages];
     let latencyMs = 0;
+    let finishReason: string | undefined;
     let reply = first;
     for (let round = 0; ; round++) {
       const completion = readCompletion(judge(reply, options.url));
@@ -164,6 +165,7 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
         throw new AgentFailure(`POST ${options.url} answered a chat completion with no choices[0].message`);
       }
       latencyMs += reply.latencyMs;
+      finishReason = completion.finishReason;
       if (completion.usage) {
         usage.seen = true;
         usage.inputTokens += completion.usage.inputTokens ?? 0;
@@ -248,6 +250,7 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
         toolCalls,
         cost: usage.seen ? { inputTokens: usage.inputTokens, outputTokens: usage.outputTokens } : {},
         latencyMs,
+        ...(finishReason === undefined ? {} : { runtime: { finishReason } }),
       },
       `POST ${options.url}`,
     );

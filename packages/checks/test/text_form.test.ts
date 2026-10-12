@@ -39,6 +39,23 @@ describe('markup (xml and html validity)', () => {
   });
 });
 
+describe('markup sql (syntax check against SQLite)', () => {
+  it('passes a statement whose syntax is valid, even with no schema loaded', async () => {
+    const verdicts = await run(markup, block('SELECT name FROM plans WHERE id = 1;', { markup: 'sql' }));
+    expect(outcomes(verdicts)).toEqual({ 'markup.valid': 'pass' });
+    expect(verdict(verdicts, 'markup.valid').evidence).toBe('the reply is well-formed SQL (syntax only)');
+  });
+  it('fails a misspelled keyword and quotes the SQLite syntax error', async () => {
+    const verdicts = await run(markup, block('SELEC name FROM plans;', { markup: 'sql' }));
+    expect(failing(verdicts)).toEqual(['markup.valid']);
+    expect(verdict(verdicts, 'markup.valid').evidence).toMatch(/syntax error/);
+  });
+  it('splits statements on a semicolon outside a string literal', async () => {
+    const verdicts = await run(markup, block("SELECT 'a;b' FROM plans; SELECT 2;", { markup: 'sql' }));
+    expect(outcomes(verdicts)).toEqual({ 'markup.valid': 'pass' });
+  });
+});
+
 describe('ignore_case on must and must_not', () => {
   it('matches "fiber" in a reply that says "Fiber" when ignore_case is set', async () => {
     const ctx = block('Fiber is available here.', { must: ['fiber'], ignore_case: true } as never);

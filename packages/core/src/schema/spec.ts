@@ -343,7 +343,10 @@ export const Expect = z
       .optional()
       .describe('Whether the reply must be a refusal, read from refusal phrases in seven languages.'),
     ignore_case: z.boolean().optional().describe('Match must and must_not without regard to case.'),
-    markup: z.enum(['xml', 'html']).optional().describe('The reply is well-formed XML or HTML.'),
+    markup: z
+      .enum(['xml', 'html', 'sql'])
+      .optional()
+      .describe('The reply is well-formed XML, HTML or SQL (syntax only).'),
     starts_with: z
       .string()
       .min(1)

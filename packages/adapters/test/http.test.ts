@@ -120,6 +120,31 @@ describe('http adapter', () => {
     expect(observed.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
+  it('reports the finish reason of the last chat completion on the observed runtime', async () => {
+    const fetchFn = async () =>
+      new Response(
+        JSON.stringify({
+          choices: [
+            { finish_reason: 'length', message: { role: 'assistant', content: 'The plan includes' } },
+          ],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    const adapter = httpAdapter({ url: 'http://agent.test/chat', fetch: fetchFn });
+    const observed = await adapter.send(await adapter.open(given), userTurn(0, 'hi', given));
+    expect(observed.runtime?.finishReason).toBe('length');
+  });
+
+  it('leaves the finish reason out when the endpoint reports none', async () => {
+    const fetchFn = async () =>
+      new Response(JSON.stringify({ choices: [{ message: { role: 'assistant', content: 'ok' } }] }), {
+        status: 200,
+      });
+    const adapter = httpAdapter({ url: 'http://agent.test/chat', fetch: fetchFn });
+    const observed = await adapter.send(await adapter.open(given), userTurn(0, 'hi', given));
+    expect(observed.runtime?.finishReason).toBeUndefined();
+  });
+
   it('maps a chat completion with no tool call to one text segment, with its tokens', async () => {
     server.queueCompletion({
       choices: [{ index: 0, message: { role: 'assistant', content: 'Hello from a chat endpoint.' } }],

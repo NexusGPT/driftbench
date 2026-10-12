@@ -1,3 +1,4 @@
+import { DatabaseSync } from 'node:sqlite';
 import { type Check, machineVerdict, type Verdict } from '@driftbench/core';
 import { visibleText } from '../support/text';
 
@@ -23,6 +24,53 @@ const VOID = new Set([
   'track',
   'wbr',
 ]);
+
+/** Splits SQL text on semicolons that sit outside a string, quoted identifier or comment. */
+export function sqlStatements(text: string): string[] {
+  const out: string[] = [];
+  let current = '';
+  let quote: string | undefined;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i] as string;
+    if (quote) {
+      current += char;
+      if (char === quote) quote = undefined;
+      continue;
+    }
+    if (char === "'" || char === '"' || char === '`') {
+      quote = char;
+      current += char;
+    } else if (char === ';') {
+      if (current.trim()) out.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  if (current.trim()) out.push(current.trim());
+  return out;
+}
+
+/**
+ * The first SQL syntax error, as SQLite reports it, or undefined. A statement that names a table or a column that
+ * is not in a schema is valid syntax here: the check reads syntax only, with no database.
+ */
+export function sqlProblem(text: string): string | undefined {
+  const db = new DatabaseSync(':memory:');
+  try {
+    for (const statement of sqlStatements(text)) {
+      try {
+        db.prepare(statement);
+      } catch (cause) {
+        const message = cause instanceof Error ? cause.message : String(cause);
+        if (/syntax error/i.test(message)) return message;
+      }
+    }
+    return undefined;
+  } finally {
+    db.close();
+  }
+}
 
 export function markupProblem(text: string, kind: 'xml' | 'html'): string | undefined {
   const stack: string[] = [];
@@ -51,6 +99,14 @@ export const markup: Check = {
     const kind = ctx.expect.markup;
     if (!kind) return [];
     const text = visibleText(ctx.observed);
+    if (kind === 'sql') {
+      const problem = sqlProblem(text);
+      return [
+        problem === undefined
+          ? machineVerdict('markup', 'valid', 'pass', 'the reply is well-formed SQL (syntax only)')
+          : machineVerdict('markup', 'valid', 'fail', `the reply is not well-formed SQL: ${problem}`),
+      ];
+    }
     const problem = markupProblem(text, kind);
     const verdicts: Verdict[] = [
       problem === undefined
