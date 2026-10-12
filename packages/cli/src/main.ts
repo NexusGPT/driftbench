@@ -8,7 +8,7 @@ import { registerFamilyCommand } from './commands/family';
 import { registerGateCommand } from './commands/gate';
 import { registerGenerateCommand } from './commands/generate';
 import { registerHoldoutCommand } from './commands/holdout';
-import { registerImportCommand } from './commands/import';
+import { registerTraceImportCommands } from './commands/import-traces';
 import { registerIntakeCommand } from './commands/intake';
 import { registerJudgeCommand } from './commands/judge';
 import { registerMonitorCommand } from './commands/monitor';
@@ -57,7 +57,7 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerMonitorCommand(program, io, setExit);
   registerSelectCommand(program, io, setExit);
   registerHoldoutCommand(program, io, setExit);
-  registerImportCommand(program, io, setExit);
+  registerTraceImportCommands(program, io, setExit);
 
   try {
     await program.parseAsync(argv, { from: 'user' });

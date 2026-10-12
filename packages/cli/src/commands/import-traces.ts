@@ -29,10 +29,13 @@ export type ImportDeps = {
 /**
  * `driftbench import traces` drafts specs from production traces: OpenTelemetry (GenAI semantic
  * conventions), a Nexus trace export, or a recorded Claude Code session. `driftbench import approve` lists
- * or approves the drafts.
+ * or approves the drafts. Both join the `import` command when another module registered it (the table
+ * import), else they register it.
  */
-export function registerImportCommand(program: Command, io: Io, setExit: (code: number) => void): void {
-  const command = program.command('import').description('Draft specs from production traces');
+export function registerTraceImportCommands(program: Command, io: Io, setExit: (code: number) => void): void {
+  const command =
+    program.commands.find((existing) => existing.name() === 'import') ??
+    program.command('import').description('Turn tables or production traces into spec files');
   command
     .command('traces')
     .description(
