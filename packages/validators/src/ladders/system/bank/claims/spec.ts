@@ -2842,8 +2842,11 @@ function moreRules(out: BankItem[]): void {
     'globMatches reads ? as exactly one character.',
     async ({ seed }) =>
       expectAll([
-        [globMatches('r?.txt', `r${seed}.txt`), `r?.txt should match r${seed}.txt`],
-        [!globMatches('r?.txt', `r${seed}${seed}.txt`), `r?.txt should not match r${seed}${seed}.txt`],
+        [globMatches('r?.txt', `r${seed % 10}.txt`), `r?.txt should match r${seed % 10}.txt`],
+        [
+          !globMatches('r?.txt', `r${seed % 10}${seed % 10}.txt`),
+          `r?.txt should not match r${seed % 10}${seed % 10}.txt`,
+        ],
         [!globMatches('r?.txt', 'r.txt'), 'r?.txt should not match r.txt'],
       ]),
   );
