@@ -56,10 +56,9 @@ Iteration 15 (cause: comment line): `dropCommentLines`. Test: "near-JSON: a line
 
 ## Next actions
 
-1. Near-JSON repair, one kind per iteration, same place (`parseAnswerText` repair loop): typographic quotes (curly double and single quotes read as straight). Each marks `repaired: true`.
-2. `outcomeFromProbability`: inconclusive outside 0 to 1 or not finite; RangeError when failAt is not under passAt.
-2. `judgeRepeated(client, request, k)` and temperature 0 in the three chat clients.
-4. Every fix: one cause, its test in packages/judges/test, then `measure.ts --iteration N` (run from the repo root with `pnpm exec tsx`) and `validate judges --journal row.json`.
+1. `loadCassette` (packages/judges/src/cassette.ts), one refusal per iteration: entry of an unlisted judge; entry holding both answer and error; entry with no answer, raw or error; recorded answer breaking the contract; key not 12-character hex.
+2. Then levels 5 onward (clients, check, rubric, render, budget, ...): `validate judges --seeds 1..20 --hidden --items` names each Fix.
+3. Every fix: one cause, its test, commit, then `measure.ts --iteration N` (repo root, `pnpm exec tsx`) and `validate judges --journal row.json`.
 
 ## Pitfalls
 
