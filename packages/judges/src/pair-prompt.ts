@@ -1,6 +1,11 @@
 import type { CriterionText, TranscriptEntry } from './contract';
 import { COMPARE_SYSTEM_PROMPT } from './pairwise';
-import { renderRubric, renderTranscript } from './prompt';
+import { escapeData, renderRubric, renderTranscript } from './prompt';
+
+/** A candidate tag written inside a candidate is escaped, so a reply can never close or open a data tag. */
+function guard(text: string): string {
+  return escapeData(text).replace(/<(\/?)(first_data|second_data)>/g, '&lt;$1$2>');
+}
 
 /**
  * The prompt of a pair judge: each candidate reply sits in its own data tag, `<first_data>` and `<second_data>`,
@@ -19,11 +24,11 @@ export function buildPairPrompt({
     renderRubric(criterion),
     '',
     '<first_data>',
-    renderTranscript(first),
+    guard(renderTranscript(first)),
     '</first_data>',
     '',
     '<second_data>',
-    renderTranscript(second),
+    guard(renderTranscript(second)),
     '</second_data>',
   ].join('\n');
   return { system: COMPARE_SYSTEM_PROMPT, user };
