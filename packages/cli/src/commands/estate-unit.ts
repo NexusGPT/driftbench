@@ -11,6 +11,8 @@ export type EstateUnitOptions = {
   record?: boolean;
   /** False with --no-sandbox. */
   sandbox?: boolean;
+  /** How many tests run at once, from --jobs (1 by default). */
+  jobs?: string;
   json?: boolean;
 };
 
@@ -35,6 +37,7 @@ export function registerEstateUnitCommand(estate: Command, io: Io, setExit: (cod
       '--no-sandbox',
       'run without the sandbox (no network, no credential folders) even where one exists',
     )
+    .option('--jobs <n>', 'how many tests run at once; the results keep their order', '1')
     .option('--json', 'print the results as JSON')
     .action(async (paths: string[], options: EstateUnitOptions) => {
       setExit(await estateUnitCommand(paths, options, io));
@@ -95,9 +98,14 @@ export async function estateUnitCommand(
     io.err('No unit test found.\n');
     return 2;
   }
+  const jobs = Number(options.jobs ?? '1');
+  if (!Number.isInteger(jobs) || jobs < 1) {
+    io.err(`--jobs takes a whole number of 1 or more, not ${options.jobs}\n`);
+    return 2;
+  }
   const run = await runUnitTests(
     tests.map((entry) => entry.test),
-    { root, reader, record: options.record === true, noSandbox: options.sandbox === false },
+    { root, reader, record: options.record === true, noSandbox: options.sandbox === false, jobs },
   );
   if (options.record) {
     for (const [index, result] of run.results.entries()) {

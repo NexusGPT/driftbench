@@ -123,6 +123,32 @@ describe('the payloads of a guard unit test', () => {
   });
 });
 
+describe('the speed test of a guard', () => {
+  it('times a spread of at most five positive payloads, not every one', () => {
+    const quote = Array.from({ length: 12 }, (_, index) => `\`cmd-${index + 1}\``).join(' ');
+    const many = new Map([['r1', rule('r1', `Never run ${quote}.`)]]);
+    const atom = guard({ event: 'PreToolUse', matcher: 'Bash' });
+    const positive = unitTestOf(row('guard_positive'), atom, many, 'h', 'p');
+    const speed = unitTestOf(row('guard_speed'), atom, many, 'h', 's');
+    if (typeof positive === 'string' || typeof speed === 'string') throw new Error('no test');
+    expect(positive.cases).toHaveLength(12);
+    expect(speed.cases.map((entry) => entry.material)).toEqual([
+      'cmd-1',
+      'cmd-4',
+      'cmd-7',
+      'cmd-9',
+      'cmd-12',
+    ]);
+    expect(speed.cases.map((entry) => entry.id)).toEqual([
+      'case-01',
+      'case-02',
+      'case-03',
+      'case-04',
+      'case-05',
+    ]);
+  });
+});
+
 describe('a check from a catalogue', () => {
   it('gets no unit test of its own: the dispatcher hook runs it, and that hook carries the unit tests', () => {
     const check = guard({

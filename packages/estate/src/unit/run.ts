@@ -62,6 +62,8 @@ export type UnitRunOptions = {
   record?: boolean;
   /** Run without the sandbox even where one exists. */
   noSandbox?: boolean;
+  /** How many tests run at once (1 by default). The results keep the order of the tests. */
+  jobs?: number;
 };
 
 export type UnitRun = { results: UnitResult[]; sandbox: 'sandbox-exec' | 'none'; notes: string[] };
@@ -98,12 +100,21 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
       notes.push('no sandbox: the guards and scripts ran with the network and the home folder open');
     const runner = { work, copy, sandbox, counter: 0 };
     const config = await readConfig(options.root);
-    const results: UnitResult[] = [];
-    for (const test of tests) {
-      if (test.target.kind === 'script')
-        results.push(await runScriptTest(test, config, runner, options.record === true));
-      else results.push(await runGuardTest(test, raw.guards, options.record === true, runner));
-    }
+    const results: UnitResult[] = new Array(tests.length);
+    const runOne = (test: UnitTest) =>
+      test.target.kind === 'script'
+        ? runScriptTest(test, config, runner, options.record === true)
+        : runGuardTest(test, raw.guards, options.record === true, runner);
+    let next = 0;
+    const lanes = Math.max(1, Math.min(Math.floor(options.jobs ?? 1), tests.length));
+    await Promise.all(
+      Array.from({ length: lanes }, async () => {
+        while (next < tests.length) {
+          const index = next++;
+          results[index] = await runOne(tests[index] as UnitTest);
+        }
+      }),
+    );
     return { results, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
   } finally {
     await rm(work, { recursive: true, force: true });
@@ -302,7 +313,8 @@ async function runGuard(
   timeoutMs: number,
 ): Promise<Exec> {
   runner.counter += 1;
-  const folder = join(runner.work, `case-${runner.counter}`);
+  const number = runner.counter;
+  const folder = join(runner.work, `case-${number}`);
   await mkdir(folder, { recursive: true });
   const transcript = join(folder, 'transcript.jsonl');
   const reply = typeof unitCase.payload.last_reply === 'string' ? unitCase.payload.last_reply : '';
@@ -323,7 +335,7 @@ async function runGuard(
     cwd: runner.copy,
     hook_event_name: guard.event,
     permission_mode: 'default',
-    ...(unitCase.payload.tool_name !== undefined ? { tool_use_id: `toolu_unit_${runner.counter}` } : {}),
+    ...(unitCase.payload.tool_name !== undefined ? { tool_use_id: `toolu_unit_${number}` } : {}),
     ...unitCase.payload,
   };
   return execute(['/bin/sh', '-c', guard.command], `${JSON.stringify(payload)}\n`, runner, folder, timeoutMs);

@@ -134,6 +134,17 @@ describe('the estate unit runner on a guard', () => {
       ['guard_hostile', 'pass'],
     ]);
 
+    const parallel = await runUnitTests(tests, { root, reader: new ClaudeCodeReader(), jobs: 3 });
+    expect(parallel.results).toEqual(
+      again.results.map((result) => ({
+        ...result,
+        cases: result.cases.map((entry, index) => ({
+          ...entry,
+          ms: parallel.results[again.results.indexOf(result)]?.cases[index]?.ms,
+        })),
+      })),
+    );
+
     const dropped = await estate({ ...files, '.claude/settings.json': SETTINGS({}) });
     const mutant = await runUnitTests(tests, { root: dropped, reader: new ClaudeCodeReader() });
     expect(status(mutant.results)).toEqual([

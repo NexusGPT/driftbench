@@ -17,7 +17,7 @@ import type { EstateAtom, EstatePlanRow } from './inputs';
  * - guard_negative: neutral payloads. The guard lets them through on the original.
  * - guard_hostile: the forbidden material in forms that slip past a naive match (spacing, case, quoting,
  *   a chained command). Recorded allowed, a case is a weakness of the guard, reported.
- * - guard_speed: the positive payloads, timed against the guard's declared timeout (60 s by default).
+ * - guard_speed: a spread of at most five positive payloads, timed against the guard's declared timeout (60 s by default).
  * - script_fixture: the fixtures the estate declares for the script, run as declared; with none declared,
  *   minimal fixtures from how the estate says to run the script (no argument, then its documented command
  *   lines), their outcomes recorded like a guard's.
@@ -158,6 +158,19 @@ export function payloadOf(
   return { stop_hook_active: false, last_reply: material };
 }
 
+/** A speed test times this many positive payloads: latency needs a spread, not every payload. */
+export const SPEED_CASES = 5;
+
+/** At most `count` cases, evenly spread from the first to the last, numbered again from case-01. */
+function spreadOf(cases: GuardCase[], count: number): GuardCase[] {
+  if (cases.length <= count) return cases;
+  const picked = Array.from(
+    { length: count },
+    (_, index) => cases[Math.round((index * (cases.length - 1)) / (count - 1))] as GuardCase,
+  );
+  return picked.map((entry, index) => ({ ...entry, id: `case-${String(index + 1).padStart(2, '0')}` }));
+}
+
 /** Hostile forms of forbidden material: spacing, case, quoting and a chained command. */
 export function hostileForms(material: string): string[] {
   const forms = [
@@ -246,7 +259,7 @@ export function unitTestOf(
   return {
     ...base,
     target,
-    cases,
+    cases: testType === 'guard_speed' ? spreadOf(cases, SPEED_CASES) : cases,
     ...(testType === 'guard_speed' ? { budgetMs: Math.round((timeout ?? 60) * 1000) } : {}),
   };
 }
