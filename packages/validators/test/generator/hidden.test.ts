@@ -149,13 +149,20 @@ describe('the rendered map', () => {
     }
   });
 
-  it('builds the hidden cells as a valid space map with the same constraints', () => {
+  it('builds the hidden cells as a valid space map: the written constraints and the pairs no path reaches', () => {
     for (const seed of SEEDS) {
       const spec = hiddenSpec(seed);
       const map = hiddenSpaceMap(spec);
       const result = validateSpaceMap(map);
       expect(result.ok ? 'ok' : JSON.stringify(result.errors)).toBe('ok');
-      expect(map.constraints).toHaveLength(spec.constraints.length);
+      expect(map.constraints.slice(0, spec.constraints.length).map((entry) => entry.forbid)).toEqual(
+        spec.constraints.map((entry) => entry.forbid),
+      );
+      // No deviation at the start stage: nothing is said there without a class.
+      expect(map.constraints).toContainEqual({
+        forbid: { deviation: 'none', stage: spec.start },
+        reason: expect.stringContaining('no path of the hidden map'),
+      });
     }
   });
 });

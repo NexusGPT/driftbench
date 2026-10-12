@@ -3,6 +3,7 @@ import { type Proposal, type ProposalDimension, renderProposal } from '@driftben
 import { NONE, type SpaceMap } from '@driftbench/space';
 import type { HiddenProperty, HiddenSpec } from './hidden';
 import { DEVIATION_RULES } from './hidden';
+import { impossiblePairs } from './possible';
 
 /**
  * The hidden specification rendered as the artefacts a real agent has, and as the approved map the
@@ -417,10 +418,25 @@ export function hiddenSpaceMap(spec: HiddenSpec): SpaceMap {
         values: spec.personas.map((persona) => ({ id: persona.id, title: persona.title })),
       },
     ],
-    constraints: spec.constraints.map((constraint) => ({
-      forbid: { ...constraint.forbid },
-      reason: constraint.reason,
-    })),
+    // The written constraints, and the pairs no path of the map can reach (possible.ts): a cell the agent's
+    // own map rules out is not allowed, so no coverage item asks for it.
+    constraints: [
+      ...spec.constraints.map((constraint) => ({
+        forbid: { ...constraint.forbid },
+        reason: constraint.reason,
+      })),
+      ...impossible(spec),
+    ],
     prior: { kind: 'declared' },
   };
+}
+
+const impossibleMemo = new WeakMap<HiddenSpec, Array<{ forbid: Record<string, string>; reason: string }>>();
+
+function impossible(spec: HiddenSpec): Array<{ forbid: Record<string, string>; reason: string }> {
+  const known = impossibleMemo.get(spec);
+  if (known) return known;
+  const pairs = impossiblePairs(spec);
+  impossibleMemo.set(spec, pairs);
+  return pairs;
 }
