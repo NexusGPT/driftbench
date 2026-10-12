@@ -56,7 +56,14 @@ export function registerCheck(name: string, check: CustomCheckFunction): void {
  * verdicts with ids under `custom.<name>`. A name nobody registered, a check that throws, or a return
  * value that is not a verdict is a failed verdict that says so.
  */
-export function createCustomCheck(registry: CheckRegistry = defaultRegistry): Check {
+/** A user check that runs longer than this fails, so one check cannot stall the run. */
+const DEFAULT_TIMEOUT_MS = 5000;
+
+export function createCustomCheck(
+  registry: CheckRegistry = defaultRegistry,
+  options: { timeoutMs?: number } = {},
+): Check {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   return {
     name: NAME,
     applies: (ctx) => Object.keys(ctx.spec.rules?.custom ?? {}).length > 0,
@@ -78,7 +85,11 @@ export function createCustomCheck(registry: CheckRegistry = defaultRegistry): Ch
         }
         let result: Verdict | Verdict[];
         try {
-          result = await check(ctx, options);
+          result = await withTimeout(
+            Promise.resolve().then(() => check(ctx, options)),
+            timeoutMs,
+            name,
+          );
         } catch (cause) {
           out.push(
             machineVerdict(
@@ -141,4 +152,13 @@ function frames(cause: unknown): string {
     .map((line) => line.trim())
     .filter(Boolean);
   return lines.length === 0 ? '' : `; at ${lines.join(' | ')}`;
+}
+
+/** The result of the call, or a timeout error when it has not settled within the limit. */
+function withTimeout<T>(work: Promise<T>, ms: number, name: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const limit = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`the custom check ${name} timed out after ${ms} ms`)), ms);
+  });
+  return Promise.race([work, limit]).finally(() => clearTimeout(timer));
 }

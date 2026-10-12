@@ -95,3 +95,21 @@ describe('a custom check that throws reports where it threw', () => {
     expect(v.evidence).toMatch(/\bat .+\.(ts|js):\d+/);
   });
 });
+
+describe('a user check has a time limit', () => {
+  it('a check that never finishes fails within the limit and the others still run', async () => {
+    const registered = new CheckRegistry()
+      .register('hangs', () => new Promise(() => {}) as never)
+      .register('quick', () => machineVerdict('quick', 'quick', 'pass', 'fine') as never);
+    const spec = acme('acme-new-customer-coverage');
+    const started = Date.now();
+    const verdicts = await run(
+      createCustomCheck(registered, { timeoutMs: 50 }),
+      context({ ...spec, rules: { custom: { hangs: {}, quick: {} } } } as never, 1, observed('hi')),
+    );
+    expect(Date.now() - started).toBeLessThan(2000);
+    expect(verdict(verdicts, 'custom.hangs').outcome).toBe('fail');
+    expect(verdict(verdicts, 'custom.hangs').evidence).toContain('timed out after 50 ms');
+    expect(verdict(verdicts, 'custom.quick.quick').outcome).toBe('pass');
+  });
+});
