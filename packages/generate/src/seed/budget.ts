@@ -87,7 +87,6 @@ export function selectBudget(
 
   const covered = new Uint8Array(pairSpace);
   const counts = sizes.map((size) => Array.from({ length: size }, () => 0));
-  const fair = allowedValues.map((count) => (count === 0 ? 0 : budget / count));
   const taken = new Uint8Array(pool.length);
   const order = shuffle(rng, range(pool.length));
   const picked: number[] = [];
@@ -106,8 +105,10 @@ export function selectBudget(
         for (let j = i + 1; j < width; j += 1)
           if (!covered[pairIndex(i, row[i] ?? 0, j, row[j] ?? 0)]) gain += 1;
       let balance = 0;
+      // Every row has one value per dimension, so the sum of fair shares is constant. Cancel it
+      // to compare integer deficits exactly: rounding must not override the seeded tie-break.
       for (let dimension = 0; dimension < width; dimension += 1)
-        balance += (fair[dimension] ?? 0) - (counts[dimension]?.[row[dimension] ?? 0] ?? 0);
+        balance -= counts[dimension]?.[row[dimension] ?? 0] ?? 0;
       if (gain > bestGain || (gain === bestGain && balance > bestBalance)) {
         best = index;
         bestGain = gain;

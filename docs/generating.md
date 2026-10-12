@@ -409,6 +409,39 @@ The output is identical to the committed `examples/acme/generated`. Exit 1 is th
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
+## Budget mode
+
+`driftbench generate --budget N` selects up to N distinct conversation cells from the allowed pool, in place of the t-wise rows. Use it to spend a fixed number of selections on coverage and balance. It covers pairs regardless of `--t`.
+
+Each pick follows these rules, in order:
+
+1. Pick the cell that adds the most uncovered allowed pairs.
+2. Break a tie by moving value counts toward their fair share: N divided by the number of allowed values in each dimension.
+3. Break any remaining tie by a seeded shuffle.
+
+Once all allowed pairs are covered, balance alone decides, followed by the seeded tie-break. The same map, seed and budget give the same suite. Constraints still apply. If N exceeds the allowed pool, every cell is selected once and the report sets `capped: true`. Constraints and pair coverage can prevent equal counts, so balance is a preference, not a guarantee.
+
+The budget controls only the replacement rows, which keep the `twise` seeder name and folder. Graph paths, boundary probes, deviation probes, metamorphic families, task instances and coverage completion still run. The whole suite can exceed N and can cover pairs that the budget rows miss. When both flags are given, `--max` still applies to the other seeders that use its limit. Task families keep their own `--tasks` count.
+
+The report adds a `budget` block:
+
+| Field | Meaning |
+|---|---|
+| `budget`, `seed` | requested selections and their seed |
+| `dimensions`, `pool` | dimensions crossed and allowed cells available |
+| `picked`, `capped` | selected cells and whether N exceeds the pool |
+| `pairs` | allowed and covered pairs, with their covered share |
+| `values` | each allowed value's count, fair share and signed deviation |
+| `maxDeviation` | largest absolute difference between a count and its fair share |
+
+Partial pair coverage does not set the seeder's cut flag. A complete map exits 0 even below the pair-cover size and prints `pairs covered X of Y`. Incomplete specs, generator defects and cuts in other seeders keep their usual exit codes. The Acme run at budget 20 has 69 incomplete specs and exits 1 for those specs, not for the budget.
+
+### Planned numeric support
+
+The space map has no numeric dimension kind yet. Numeric budget selection is planned: use a sliced Latin hypercube within each category combination. The exported `slicedLhs` helper is tested: it divides a range into equal bands, draws one value per band and shuffles their order with the seed. It has no generator call site yet. The boundary seeder continues to choose its own values.
+
+See the [measured budget comparison](../comparisons/budget/README.md) for selected-row coverage and balance beside whole-suite fault scores.
+
 ## The gate
 
 `driftbench gate <specs> --reference <adapter:agent> --faults <set> --out <dir>` passes every candidate block through nine stages, in order. A block enters the gated suite only through them. Each stage rejects or marks with a named reason, and the funnel counts each block once, at the first stage that rejects it.

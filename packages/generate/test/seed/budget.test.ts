@@ -65,9 +65,8 @@ describe('enumerateCells', () => {
 });
 
 describe('selectBudget: pair coverage', () => {
-  it('chooses maximum new coverage, then maximum balance, then seeded order at every step', () => {
+  it.each([14, 15])('chooses coverage, balance and seeded order at every step for budget %i', (budget) => {
     const { pool } = setup();
-    const budget = 15;
     const selection = selectBudget(pool, SIZES, budget, rngFor(9, 'budget'));
     const order = shuffle(rngFor(9, 'budget'), range(pool.length));
     const taken = new Set<number>();
