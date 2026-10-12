@@ -19,92 +19,69 @@
       "payload": {
         "tool_name": "Edit",
         "tool_input": {
-          "file_path": "notes.md",
+          "file_path": ".CLAUDE/SKILLS/INVOICE-RECONCILE/REFERENCES/MATCHING-RULES.MD",
           "old_string": "a",
-          "new_string": "Read  a  file  before  you  edit  it."
+          "new_string": "b"
         }
       },
-      "material": "Read  a  file  before  you  edit  it."
+      "material": ".CLAUDE/SKILLS/INVOICE-RECONCILE/REFERENCES/MATCHING-RULES.MD"
     },
     {
       "id": "case-02",
       "payload": {
         "tool_name": "Edit",
         "tool_input": {
-          "file_path": "notes.md",
+          "file_path": ".claude/skills/invoice-reconcile/references/matching-rules.md ",
           "old_string": "a",
-          "new_string": "READ A FILE BEFORE YOU EDIT IT."
+          "new_string": "b"
         }
       },
-      "material": "READ A FILE BEFORE YOU EDIT IT."
+      "material": ".claude/skills/invoice-reconcile/references/matching-rules.md "
     },
     {
       "id": "case-03",
       "payload": {
         "tool_name": "Edit",
         "tool_input": {
-          "file_path": "notes.md",
+          "file_path": "echo ok && .claude/skills/invoice-reconcile/references/matching-rules.md",
           "old_string": "a",
-          "new_string": "Read '' a file before you edit it."
+          "new_string": "b"
         }
       },
-      "material": "Read '' a file before you edit it."
+      "material": "echo ok && .claude/skills/invoice-reconcile/references/matching-rules.md"
     },
     {
       "id": "case-04",
       "payload": {
-        "tool_name": "Edit",
+        "tool_name": "Write",
         "tool_input": {
-          "file_path": "notes.md",
-          "old_string": "a",
-          "new_string": "echo ok && Read a file before you edit it."
+          "file_path": ".CLAUDE/SKILLS/INVOICE-RECONCILE/REFERENCES/MATCHING-RULES.MD",
+          "content": "x"
         }
       },
-      "material": "echo ok && Read a file before you edit it."
+      "material": ".CLAUDE/SKILLS/INVOICE-RECONCILE/REFERENCES/MATCHING-RULES.MD"
     },
     {
       "id": "case-05",
       "payload": {
         "tool_name": "Write",
         "tool_input": {
-          "file_path": "notes.md",
-          "content": "Read  a  file  before  you  edit  it."
+          "file_path": ".claude/skills/invoice-reconcile/references/matching-rules.md ",
+          "content": "x"
         }
       },
-      "material": "Read  a  file  before  you  edit  it."
+      "material": ".claude/skills/invoice-reconcile/references/matching-rules.md "
     },
     {
       "id": "case-06",
       "payload": {
         "tool_name": "Write",
         "tool_input": {
-          "file_path": "notes.md",
-          "content": "READ A FILE BEFORE YOU EDIT IT."
+          "file_path": "echo ok && .claude/skills/invoice-reconcile/references/matching-rules.md",
+          "content": "x"
         }
       },
-      "material": "READ A FILE BEFORE YOU EDIT IT."
-    },
-    {
-      "id": "case-07",
-      "payload": {
-        "tool_name": "Write",
-        "tool_input": {
-          "file_path": "notes.md",
-          "content": "Read '' a file before you edit it."
-        }
-      },
-      "material": "Read '' a file before you edit it."
-    },
-    {
-      "id": "case-08",
-      "payload": {
-        "tool_name": "Write",
-        "tool_input": {
-          "file_path": "notes.md",
-          "content": "echo ok && Read a file before you edit it."
-        }
-      },
-      "material": "echo ok && Read a file before you edit it."
+      "material": "echo ok && .claude/skills/invoice-reconcile/references/matching-rules.md"
     }
   ]
 }

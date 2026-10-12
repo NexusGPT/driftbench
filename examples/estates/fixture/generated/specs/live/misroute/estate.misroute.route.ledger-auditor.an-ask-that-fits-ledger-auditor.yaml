@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Use the invoice-reconcile skill to audit the ledger for duplicate payments and invoices paid twice.
+      user: Please audit the ledger for duplicate payments and invoices paid twice.
     expect:
       subagents:
         - name: ledger-auditor

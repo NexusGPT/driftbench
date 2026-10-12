@@ -5,6 +5,7 @@
  * commands with bounded output and a timeout, read files with a bound, and remove the folder at the end.
  */
 export const packageName = '@driftbench/sandbox';
+export { trackFolder, trackGroup, untrackFolder, untrackGroup } from './cleanup';
 export { DOCKER_WORKSPACE, type DockerProviderOptions, DockerSandbox, dockerProvider } from './docker';
 export {
   DEFAULT_EXEC_TIMEOUT_MS,
@@ -29,4 +30,5 @@ export {
   SandboxApprovalError,
   withApprovalPolicy,
 } from './policy';
+export { REAP_GRACE_MS, reapFolder, reapFolderSync, runProcessesIn } from './reap';
 export { diffSnapshots } from './walk';

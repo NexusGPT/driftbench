@@ -116,7 +116,9 @@ export const RetrySettings = z
       .optional()
       .describe("Wait at least what the server's Retry-After header asks. Default true."),
   })
-  .describe('How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.');
+  .describe(
+    'How model calls are retried. Only a 408, a 429, a 5xx (529 included) or a network error is retried.',
+  );
 export type RetrySettings = z.infer<typeof RetrySettings>;
 
 /** Which agent a spec runs against. The adapter decides what the other fields mean. */
