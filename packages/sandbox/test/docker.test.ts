@@ -160,20 +160,24 @@ describe('the docker sandbox, on the fake docker command line', () => {
       dir: fake.workspaces,
     }).create()) as DockerSandbox;
     try {
+      // The command outlives the restart by a wide margin: each fake docker call starts a Node process,
+      // which takes over a second on a loaded host, and a command that ends before the restart lands
+      // writes late.txt whatever the sandbox does. The check waits past the command's own end.
+      const late = 4000;
       const started = Date.now();
-      const record = await box.exec('sleep 1; echo late > late.txt', { timeoutMs: 300 });
-      expect(Date.now() - started).toBeLessThan(5000);
+      const record = await box.exec(`sleep ${late / 1000}; echo late > late.txt`, { timeoutMs: 300 });
+      expect(Date.now() - started).toBeLessThan(late);
       expect(record.exitCode).toBe(TIMEOUT_EXIT_CODE);
       expect(record.stderr).toContain('timed out after 300 ms');
       expect(await fake.calls()).toContainEqual(['restart', '-t', '0', box.container]);
       expect((await fake.state(box.container)).restarts).toBe(1);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, late + 500 - (Date.now() - started)));
       expect(existsSync(join(box.folder, 'late.txt'))).toBe(false);
       expect((await box.exec('echo again')).stdout).toBe('again\n');
     } finally {
       await box.destroy();
     }
-  });
+  }, 20_000);
 
   it('removes the container and the folder, keeps the folder with keep, and is safe to call twice', async () => {
     const fake = await fakeDocker('destroy');
