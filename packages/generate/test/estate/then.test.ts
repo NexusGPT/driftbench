@@ -592,3 +592,30 @@ describe('a control with no machine inverse', () => {
     expect(plain.gaps.map((entry) => entry.marker)).toEqual([MARKERS.negation, MARKERS.negation]);
   });
 });
+
+describe('a read of a file the estate does not hold', () => {
+  const files: ThenContext = {
+    ...ctx,
+    files: new Set(['.claude/skills/a/references/rules.md', 'CLAUDE.md']),
+  };
+  const reads = (path: string) =>
+    atom('reference.x', [{ type: 'tool_called', label: 'Read', input: { file_path: { contains: path } } }]);
+
+  it('expects a read only of a file the estate holds, matched on the end of its path', () => {
+    const held = thenOf([reads('references/rules.md')], 'positive', files);
+    expect(held.references).toEqual([{ path: '**/references/rules.md', count: { min: 1 } }]);
+    expect(held.gaps).toEqual([]);
+  });
+
+  it('leaves the row incomplete when the file is not in the estate, never expecting it', () => {
+    const missing = thenOf([reads('references/kpi-definitions.md')], 'positive', files);
+    expect(missing.references).toEqual([]);
+    expect(missing.gaps).toEqual([
+      {
+        marker: MARKERS.existingFile,
+        atom: 'reference.x',
+        detail: 'references/kpi-definitions.md is no file of the estate',
+      },
+    ]);
+  });
+});

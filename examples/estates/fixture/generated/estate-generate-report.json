@@ -41,24 +41,24 @@
   "summary": {
     "specs": 1383,
     "blocks": 1378,
-    "complete": 1351,
-    "incomplete": 32,
+    "complete": 1349,
+    "incomplete": 34,
     "judged": 399
   },
   "sources": {
     "asks": {
-      "bank": 372,
-      "code": 971,
+      "bank": 371,
+      "code": 970,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 735,
+      "bank": 734,
       "no-change:denied": 2,
       "no-change:guard": 23,
       "no-change:negative": 58,
       "no-change:read-only": 38,
-      "no-delete": 487,
+      "no-delete": 486,
       "static": 8
     },
     "judged": 255
@@ -116,8 +116,8 @@
     "read_when": {
       "rows": 9,
       "specs": 9,
-      "complete": 9,
-      "incomplete": 0
+      "complete": 8,
+      "incomplete": 1
     },
     "script_fixture": {
       "rows": 2,
@@ -230,8 +230,8 @@
     "journey": {
       "rows": 10,
       "specs": 10,
-      "complete": 10,
-      "incomplete": 0
+      "complete": 9,
+      "incomplete": 1
     }
   },
   "perMode": {
@@ -250,11 +250,17 @@
     "live": {
       "rows": 1340,
       "specs": 1340,
-      "complete": 1326,
-      "incomplete": 14
+      "complete": 1324,
+      "incomplete": 16
     }
   },
   "gaps": [
+    {
+      "marker": "needs-existing-file",
+      "specs": 2,
+      "atoms": ["reference.weekly-report.read-references-kpi-definitions-md"],
+      "details": [".claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate"]
+    },
     {
       "marker": "needs-guard-message-check",
       "specs": 6,

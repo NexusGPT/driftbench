@@ -61,6 +61,8 @@ export const MARKERS = {
   guardMessage: 'needs-guard-message-check',
   deviation: 'needs-deviation-phrase',
   noThen: 'needs-derivable-then',
+  askable: 'needs-askable-act',
+  existingFile: 'needs-existing-file',
 } as const;
 export type Marker = (typeof MARKERS)[keyof typeof MARKERS];
 export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS));
@@ -131,6 +133,8 @@ export type ThenContext = {
   customChecks: ReadonlySet<string>;
   /** True when a judge runs the judged criteria: a domain predicate no code checks becomes one. */
   judge?: boolean;
+  /** The files of the estate, relative to its root: a read is expected only of one of them. */
+  files?: ReadonlySet<string>;
 };
 
 export type Polarity = 'positive' | 'negative';
@@ -190,6 +194,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
+        if (missingRead(then, atom, evidence.label, evidence.input, ctx)) return;
         if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
         if (ctx.customChecks.has('some_call')) {
           addSomeCall(then, {
@@ -264,7 +269,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
         then.custom.hazard_recovery = {
           ...(evidence.options ?? {}),
-          ...(pathsOf(atom).length > 0 ? { reread: pathsOf(atom) } : {}),
+          ...(heldPaths(atom, ctx).length > 0 ? { reread: heldPaths(atom, ctx) } : {}),
           block: 0,
         };
         return;
@@ -567,6 +572,17 @@ function addSomeCall(then: ThenParts, call: SomeCall): void {
   if (!then.someCalls.some((known) => same(known, call))) then.someCalls.push(call);
 }
 
+/** The paths an atom's passage names that the estate holds (all of them when no file list is known). */
+function heldPaths(atom: EstateAtom, ctx: ThenContext): string[] {
+  const files = ctx.files;
+  if (!files) return pathsOf(atom);
+  return pathsOf(atom).filter((path) => {
+    const clean = path.replace(/^\.?\/+/, '');
+    for (const file of files) if (file === clean || file.endsWith(`/${clean}`)) return true;
+    return false;
+  });
+}
+
 /** Paths an atom's passage names: in backticks, or a word with a slash or a file extension. */
 export function pathsOf(atom: EstateAtom): string[] {
   const quote = atom.provenance?.quote ?? '';
@@ -629,6 +645,29 @@ function addTool(then: ThenParts, tool: ToolExpect): void {
 
 function addUnique(list: string[], item: string): void {
   if (!list.includes(item)) list.push(item);
+}
+
+/**
+ * A Read of a file the estate does not hold: never expected (a run on a copy of the estate could not make
+ * it); the row gets a needs-existing-file gap. True when it is such a read. A path matches a file of the
+ * estate when one ends with the other.
+ */
+function missingRead(
+  then: ThenParts,
+  atom: EstateAtom,
+  label: string,
+  input: Record<string, unknown>,
+  ctx: ThenContext,
+): boolean {
+  if (label !== 'Read' || !ctx.files) return false;
+  const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
+  if (value === undefined) return false;
+  const path = value.replace(/^\.?\/+/, '');
+  for (const file of ctx.files) {
+    if (file === path || file.endsWith(`/${path}`) || path.endsWith(`/${file}`)) return false;
+  }
+  gap(then, MARKERS.existingFile, atom, `${path} is no file of the estate`);
+  return true;
 }
 
 /**

@@ -73,6 +73,21 @@ export const WRITING_TOOLS: ReadonlySet<string> = new Set([
   'NotebookEdit',
   'Bash',
 ]);
+/** The complete specs a focus atom gets at least, when its rows allow. */
+export const FOCUS_MIN = 5;
+/**
+ * The situations of the focus variants, one per variant, over the row's own cell: a long session, a push
+ * to go faster, a resumed session, a limit word, a switch of language, an off-topic aside.
+ */
+export const FOCUS_VARIANTS: ReadonlyArray<Record<string, string>> = [
+  { session_state: 'long' },
+  { owner_signal: 'keep_going' },
+  { session_state: 'resumed' },
+  { owner_signal: 'limit_word' },
+  { deviation: 'D5_language_switch' },
+  { deviation: 'D1_off_topic' },
+];
+
 /** Kinds whose complete specs come right after the focus atoms in the run order. */
 export const PRIORITY_KINDS: readonly string[] = ['guard', 'gate', 'invariant'];
 export const ESTATE_COMPLETE_DIR = 'specs';
@@ -163,6 +178,12 @@ export type EstateGenerateOptions = {
    * written from the atom's own words, the spec tagged `judged`. Default true; false leaves it a gap.
    */
   judge?: boolean;
+  /**
+   * The files of the estate, relative to its root, as the runtime's reader lists them (what a run copies).
+   * A read is expected only of one of them. Default: the files the map knows (atom files, references and
+   * scripts that exist).
+   */
+  files?: readonly string[];
 };
 
 export type Totals = { rows: number; specs: number; complete: number; incomplete: number };
@@ -307,6 +328,7 @@ export function generateEstateSuite(
     paths: options.paths,
     fallback: options.fallback ?? true,
     judge: options.judge ?? true,
+    files: new Set(options.files ?? mapFiles(input.map)),
     units: [
       ...new Set(
         input.map.atoms
@@ -338,6 +360,56 @@ export function generateEstateSuite(
   const used = new Set<string>();
   let blocks = 0;
   let judged = 0;
+
+  /** Writes one built spec: its file, its record, the totals of its row's test type and mode, its gaps. */
+  const emit = (built: Built, row: EstatePlanRow, totalsType: Totals, totalsMode: Totals): void => {
+    const markers = [...new Set(built.gaps.map((entry) => entry.marker))].sort() as Marker[];
+    const complete = markers.length === 0;
+    const text = specText(built, row, ctx, markers);
+    const loaded = parseSpecText(text, 'yaml', built.id);
+    if (!loaded.ok) {
+      invalid.push({ id: built.id, errors: loaded.errors });
+      return;
+    }
+    const unexpected = loaded.warnings.filter((warning) => !explained(warning, markers));
+    if (unexpected.length > 0) lint.push({ id: built.id, warnings: unexpected });
+    const folder = complete ? ESTATE_COMPLETE_DIR : ESTATE_INCOMPLETE_DIR;
+    // By mode first, so a replay run takes `specs/replay` and nothing else.
+    const path = `${folder}/${row.mode}/${row.testType}/${built.id}.yaml`;
+    files.push({ path, text });
+    records.push({
+      id: built.id,
+      path,
+      row: row.variantOf ?? row.id,
+      testType: row.testType,
+      mode: row.mode,
+      complete,
+      markers,
+      atoms: row.atomIds,
+      ask: built.ask,
+      outcome: built.outcome,
+      judged: built.judgedAtoms,
+      ...(built.session ? { session: built.session.name } : {}),
+      ...(built.expect ? { expect: built.expect } : {}),
+    });
+    if (built.session && built.expect && complete) {
+      replay.push({ spec: built.id, session: built.session.name, planRow: row.id, expect: built.expect });
+    }
+    for (const totals of [totalsType, totalsMode]) {
+      totals.specs += 1;
+      if (complete) totals.complete += 1;
+      else totals.incomplete += 1;
+    }
+    blocks += built.blocks;
+    if (complete && built.judged > 0) judged += 1;
+    for (const entry of built.gaps) {
+      const known = gaps.get(entry.marker) ?? { specs: new Set(), atoms: new Set(), details: new Set() };
+      known.specs.add(built.id);
+      known.atoms.add(entry.atom);
+      known.details.add(entry.detail);
+      gaps.set(entry.marker, known);
+    }
+  };
 
   for (const row of input.plan.rows) {
     if (row.status === 'struck') {
@@ -387,52 +459,37 @@ export function generateEstateSuite(
       }
       continue;
     }
-    for (const built of buildRow(row, ctx, used)) {
-      const markers = [...new Set(built.gaps.map((entry) => entry.marker))].sort() as Marker[];
-      const complete = markers.length === 0;
-      const text = specText(built, row, ctx, markers);
-      const loaded = parseSpecText(text, 'yaml', built.id);
-      if (!loaded.ok) {
-        invalid.push({ id: built.id, errors: loaded.errors });
-        continue;
-      }
-      const unexpected = loaded.warnings.filter((warning) => !explained(warning, markers));
-      if (unexpected.length > 0) lint.push({ id: built.id, warnings: unexpected });
-      const folder = complete ? ESTATE_COMPLETE_DIR : ESTATE_INCOMPLETE_DIR;
-      // By mode first, so a replay run takes `specs/replay` and nothing else.
-      const path = `${folder}/${row.mode}/${row.testType}/${built.id}.yaml`;
-      files.push({ path, text });
-      records.push({
-        id: built.id,
-        path,
-        row: row.id,
-        testType: row.testType,
-        mode: row.mode,
-        complete,
-        markers,
-        atoms: row.atomIds,
-        ask: built.ask,
-        outcome: built.outcome,
-        judged: built.judgedAtoms,
-        ...(built.session ? { session: built.session.name } : {}),
-        ...(built.expect ? { expect: built.expect } : {}),
-      });
-      if (built.session && built.expect && complete) {
-        replay.push({ spec: built.id, session: built.session.name, planRow: row.id, expect: built.expect });
-      }
-      for (const totals of [totalsType, totalsMode]) {
-        totals.specs += 1;
-        if (complete) totals.complete += 1;
-        else totals.incomplete += 1;
-      }
-      blocks += built.blocks;
-      if (complete && built.judged > 0) judged += 1;
-      for (const entry of built.gaps) {
-        const known = gaps.get(entry.marker) ?? { specs: new Set(), atoms: new Set(), details: new Set() };
-        known.specs.add(built.id);
-        known.atoms.add(entry.atom);
-        known.details.add(entry.detail);
-        gaps.set(entry.marker, known);
+    for (const built of buildRow(row, ctx, used)) emit(built, row, totalsType, totalsMode);
+  }
+
+  // Focus atoms: variants of their rows, another ask and another situation each, until FOCUS_MIN complete
+  // specs name the atom (a mutant of it then has several chances to turn one red).
+  for (const atom of options.focus ? [...new Set(options.focus)] : []) {
+    const doneOf = () => records.filter((record) => record.complete && record.atoms.includes(atom)).length;
+    if (doneOf() >= FOCUS_MIN) continue;
+    const rows = input.plan.rows.filter(
+      (row) =>
+        row.status === 'approved' &&
+        row.atomIds.includes(atom) &&
+        row.mode !== 'replay' &&
+        !STATIC_TEST_TYPES.has(row.testType),
+    );
+    const completeRows = new Set(records.filter((record) => record.complete).map((record) => record.row));
+    rows.sort((a, b) => Number(completeRows.has(b.id)) - Number(completeRows.has(a.id)));
+    for (let variant = 1; variant <= FOCUS_VARIANTS.length && doneOf() < FOCUS_MIN; variant += 1) {
+      for (const row of rows) {
+        if (doneOf() >= FOCUS_MIN) break;
+        const varied: EstatePlanRow = {
+          ...row,
+          id: `${row.id}.v${variant}`,
+          cell: { ...row.cell, ...(FOCUS_VARIANTS[variant - 1] ?? {}) },
+          variantOf: row.id,
+        };
+        const atoms = varied.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
+        const use = useOf(varied);
+        const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, varied);
+        const built = build(varied, atoms, ctx, used, situation, undefined, false, variant);
+        emit(built, varied, totalsFor(perTestType, row.testType), totalsFor(perMode, row.mode));
       }
     }
   }
@@ -536,7 +593,10 @@ function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): Built[] 
   const atoms = row.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
   const use = useOf(row);
   const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, row);
-  if (row.mode !== 'replay') return [build(row, atoms, ctx, used, situation)];
+  // The k positive asks of a route (`route_positive.<route>.<n>`) each take their own phrasing.
+  const nth = row.testType === 'route_positive' ? /\.(\d+)$/.exec(row.id)?.[1] : undefined;
+  const variant = nth !== undefined && Number(nth) > 1 ? Number(nth) - 1 : undefined;
+  if (row.mode !== 'replay') return [build(row, atoms, ctx, used, situation, undefined, false, variant)];
   const sessions = situation
     ? (ctx.sessions?.sessions ?? []).filter((session) => session.situation === situation.id)
     : [];
@@ -552,6 +612,7 @@ function build(
   situation: Situation | undefined,
   session?: SessionEntry,
   noSession = false,
+  variant?: number,
 ): Built {
   const use = useOf(row);
   const polarity = NEGATIVE_TESTS.has(row.testType) ? 'negative' : 'positive';
@@ -598,7 +659,10 @@ function build(
         rngFor(ctx.seed, `estate:${situation.id}`),
         situation.phrases.filter((entry) => entry.approved),
       );
-      phrase = order[row.testType === 'twin' ? 1 : 0];
+      phrase =
+        variant !== undefined && order.length > 0
+          ? order[variant % order.length]
+          : order[row.testType === 'twin' ? 1 : 0];
       if (!phrase) {
         missing = {
           marker: row.testType === 'twin' ? MARKERS.secondPhrase : MARKERS.phrase,
@@ -607,11 +671,23 @@ function build(
       } else phraseIndex = situation.phrases.indexOf(phrase);
     }
     if (missing && ctx.fallback) {
-      const written = codeAsk(use, atoms, ctx.units, row.testType === 'twin', (id) => ctx.atoms.get(id));
-      phrase = { text: written.text, lang: written.lang, approved: false };
-      phraseIndex = undefined;
-      ask = 'code';
-      askFrom = written.source;
+      const written = codeAsk(
+        use,
+        atoms,
+        ctx.units,
+        row.testType === 'twin',
+        (id) => ctx.atoms.get(id),
+        variant,
+      );
+      if (written.text === undefined) {
+        // Never a nonsense ask: the row waits for an approved phrase, under its own gap.
+        gap(then, MARKERS.askable, first, written.refused ?? 'the atom gives no task');
+      } else {
+        phrase = { text: written.text, lang: written.lang, approved: false };
+        phraseIndex = undefined;
+        ask = 'code';
+        askFrom = written.source;
+      }
     } else if (missing) gap(then, missing.marker, first, missing.detail);
   }
 
@@ -762,7 +838,8 @@ function build(
     metadata: {
       estate: {
         atoms: row.atomIds,
-        planRow: row.id,
+        planRow: row.variantOf ?? row.id,
+        ...(variant !== undefined ? { focusVariant: variant } : {}),
         cell: row.cell,
         seeder: ESTATE_SEEDER,
         seed: ctx.seed,
@@ -974,6 +1051,23 @@ function runOrder(
 
 function sortedKeys(table: Record<string, number>): Record<string, number> {
   return Object.fromEntries(Object.entries(table).sort(([a], [b]) => a.localeCompare(b)));
+}
+
+/** The files a map knows: those its atoms are read from, and the references and scripts that exist. */
+export function mapFiles(map: EstateMapInput): string[] {
+  const files = new Set<string>();
+  for (const atom of map.atoms) {
+    if (atom.provenance?.file) files.add(atom.provenance.file);
+    const path = atom.fields?.path;
+    if (
+      (atom.kind === 'reference' || atom.kind === 'script') &&
+      typeof path === 'string' &&
+      atom.fields?.exists !== false
+    ) {
+      files.add(path);
+    }
+  }
+  return [...files].sort();
 }
 
 /** A spec id from a plan row id: the characters a spec id allows, a session name after a dot. */

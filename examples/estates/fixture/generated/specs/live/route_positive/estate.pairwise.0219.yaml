@@ -64,6 +64,7 @@ metadata:
     atoms:
       - skill.supplier-email.skill-supplier-email
     planRow: pairwise.0219
+    focusVariant: 218
     cell:
       ask_class: operate
       ask_shape: correction
