@@ -1,6 +1,7 @@
+import { createHash } from 'node:crypto';
 import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { parseSpecText } from '@driftbench/core';
+import { canonicalJson, parseSpecText } from '@driftbench/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { openMemoryStore, type RegistryFile, readCampaignBundle, type SqliteStore } from '../src/index';
 import { sha256, versionHash } from '../src/registry';
@@ -129,6 +130,11 @@ describe('a campaign bundle carries its specs and its registry sources', () => {
       source.kind === 'dataset' ? { ...source, hash } : source,
     );
     await writeFile(join(folder, 'campaign.json'), JSON.stringify(record));
+    // A crafted bundle: its author records the hash of the campaign they wrote, so only the path guard stops it.
+    const manifestPath = join(folder, 'manifest.json');
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+    manifest.hashes['campaign.json'] = createHash('sha256').update(canonicalJson(record)).digest('hex');
+    await writeFile(manifestPath, JSON.stringify(manifest));
     const other = openMemoryStore();
     try {
       const error = await storeError(() => other.importCampaign(folder));
