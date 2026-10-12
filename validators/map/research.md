@@ -573,3 +573,15 @@ Sources read:
 What others do: In both, a doubled quote inside the literal stands for one.
 
 What to try, and why: doubled quotes in C# verbatim and SQL strings are one quote
+
+## Iteration 49
+
+Question: packages/generate/src/extract/containers.ts: HTML and XML prompts are sent with entities (&amp; &quot; &#10; &#8217;), inline tags and <br> as written; prompt-containers.html-entities, html-inline-tags, html-line-breaks, xml-escaped and xml-attribute prove it.
+
+Sources read:
+* https://html.spec.whatwg.org/multipage/syntax.html#character-references
+* https://www.w3.org/TR/xml/#sec-predefined-ent
+
+What others do: A reader of a page sees its text: entities decoded, tags gone, a break where a <br> sits.
+
+What to try, and why: markup entities and tags are decoded

@@ -430,11 +430,62 @@ function codeView(raw: string, language: Language): View | undefined {
   return joined.some(changes) ? inPlace(raw, joined) : undefined;
 }
 
+const ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: '\u00a0',
+  lsquo: '\u2018',
+  rsquo: '\u2019',
+  ldquo: '\u201c',
+  rdquo: '\u201d',
+  hellip: '\u2026',
+  ndash: '\u2013',
+  mdash: '\u2014',
+};
+
+/** HTML or XML: entities decoded, and for HTML the tags dropped (a `<br>` is a line break). */
+function markupView(raw: string, html: boolean): View | undefined {
+  const tokens: Token[] = [];
+  if (html) {
+    for (const match of raw.matchAll(
+      /<!--[\s\S]*?-->|<(script|style)\b[\s\S]*?<\/\1>|<\/?[A-Za-z][^<>]*>|<!doctype[^>]*>/gi,
+    )) {
+      const start = match.index as number;
+      const end = start + match[0].length;
+      const isBreak = /^<br\b/i.test(match[0]);
+      tokens.push({ start, end, chars: isBreak ? [['\n', start, end]] : [] });
+    }
+  }
+  for (const match of raw.matchAll(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi)) {
+    const start = match.index as number;
+    if (tokens.some((token) => start >= token.start && start < token.end)) continue;
+    const body = match[1] as string;
+    let value: string | undefined;
+    if (body.startsWith('#x') || body.startsWith('#X'))
+      value = String.fromCodePoint(Number.parseInt(body.slice(2), 16));
+    else if (body.startsWith('#')) value = String.fromCodePoint(Number.parseInt(body.slice(1), 10));
+    else value = ENTITIES[body];
+    if (value === undefined) continue;
+    const end = start + match[0].length;
+    tokens.push({
+      start,
+      end,
+      chars: [...value].flatMap((unit) => [...unit].map((u) => [u, start, end] as [string, number, number])),
+    });
+  }
+  return tokens.length === 0 ? undefined : inPlace(raw, tokens);
+}
+
 const VIEWS: Array<[RegExp, (raw: string) => View | undefined]> = [
   [/\.jsonl$/i, jsonLinesView],
   [/\.json$/i, jsonView],
   [/\.ya?ml$/i, yamlView],
 ];
+
+VIEWS.push([/\.html?$/i, (raw) => markupView(raw, true)], [/\.(xml|svg)$/i, (raw) => markupView(raw, false)]);
 
 for (const [pattern, language] of LANGUAGES) VIEWS.push([pattern, (raw) => codeView(raw, language)]);
 

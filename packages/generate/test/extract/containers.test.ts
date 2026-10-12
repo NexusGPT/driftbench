@@ -138,3 +138,24 @@ describe('a prompt in a string with doubled quotes', () => {
     expect(sql).toContain(quote);
   });
 });
+
+describe('a prompt in HTML or XML', () => {
+  const html =
+    '<!doctype html>\n<html><body>\n<p>- Keep <b>answers</b> short &amp; clear.</p>\n<p>Say it&#39;s fine.<br>Then stop.</p>\n</body></html>\n';
+  const xml = '<agent name="desk" prompt="Never say &quot;refund&quot; early.&#10;Ask for the id."/>\n';
+  it('drops tags, turns <br> into a line break and decodes entities in HTML', () => {
+    const text = promptView('prompt.html', html)?.text ?? '';
+    expect(text).toContain('- Keep answers short & clear.');
+    expect(text).toContain("Say it's fine.\nThen stop.");
+  });
+  it('decodes entities in XML and keeps its tags', () => {
+    const text = promptView('agent.xml', xml)?.text ?? '';
+    expect(text).toContain('Never say "refund" early.\nAsk for the id.');
+    expect(text).toContain('<agent name="desk"');
+  });
+  it('quotes a passage of the file', () => {
+    const sources = [{ kind: 'prompt' as const, path: 'prompt.html', text: html }];
+    const quote = rawQuote(sources, 'prompt.html', '- Keep answers short & clear.');
+    expect(html).toContain(quote);
+  });
+});
