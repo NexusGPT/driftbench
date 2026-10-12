@@ -724,7 +724,7 @@ const POPS: Pop[] = [
   { key: 's80-tail10', probs: population(80, 10) },
   { key: 's150-tail3', probs: population(150, 3) },
 ];
-const CHAO1_FORMULA_POPS = new Set(['s20-even', 's40-tail5', 's80-tail10']);
+const CHAO1_FORMULA_DESIGNS = new Set(['s20-even.x1.5', 's40-tail5.x1.5', 's80-tail10.x1.5', 's20-even.x3']);
 
 function sample(rng: () => number, probs: number[], n: number): number[] {
   const cum: number[] = [];
@@ -809,8 +809,8 @@ function unseenItems(): BankItem[] {
             const n = Math.round(multiple * S);
             let err = 0;
             const draws = 100;
-            if (multiple === 1.5 && CHAO1_FORMULA_POPS.has(pop.key)) {
-              // These three items used an unsupported 10%-from-truth demand on a lower bound.
+            if (CHAO1_FORMULA_DESIGNS.has(`${pop.key}.x${multiple}`)) {
+              // These four items used an unsupported 10%-from-truth demand on a lower bound.
               // Preserve their seeded low-sample inputs, but assert the promised estimator itself.
               for (let d = 0; d < draws; d += 1) {
                 const counts = sample(rng, pop.probs, n);
@@ -833,10 +833,9 @@ function unseenItems(): BankItem[] {
                 );
           },
         ),
-        cause:
-          multiple === 1.5 && CHAO1_FORMULA_POPS.has(pop.key)
-            ? 'chaoCoverage.chao1 differs from the classic finite-sample reference formula on low-sample counts'
-            : 'chaoCoverage gives a richness estimate more than 10 percent off when the sample sits just above the class count',
+        cause: CHAO1_FORMULA_DESIGNS.has(`${pop.key}.x${multiple}`)
+          ? 'chaoCoverage.chao1 differs from the classic finite-sample reference formula on low-sample counts'
+          : 'chaoCoverage gives a richness estimate more than 10 percent off when the sample sits just above the class count',
       })),
       item(`analytic.unseen.chao1-large.${pop.key}`, 'unseen-known', 3, FILES.coverage, ({ s, rng }) => {
         const counts = sample(rng, pop.probs, 20 * S);

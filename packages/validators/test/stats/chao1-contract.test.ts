@@ -5,11 +5,15 @@ import { describe, expect, it } from 'vitest';
 import { analyticItems } from '../../src/ladders/stats/bank/analytic';
 import { runItem } from '../../src/ladders/stats/bank/index';
 import { referenceItems } from '../../src/ladders/stats/bank/reference';
+import { hiddenSeed } from '../../src/seeds';
 import { ROOT } from './support';
 
-const ids = ['s20-even', 's40-tail5', 's80-tail10'].map(
-  (population) => `analytic.unseen.chao1-near.${population}.x1.5`,
-);
+const ids = [
+  ...['s20-even', 's40-tail5', 's80-tail10'].map(
+    (population) => `analytic.unseen.chao1-near.${population}.x1.5`,
+  ),
+  'analytic.unseen.chao1-near.s20-even.x3',
+];
 const items = analyticItems().filter((item) => ids.includes(item.id));
 
 // The statistics page binds functions to the pinned Python fixtures. Those select the
@@ -28,8 +32,8 @@ const classicImplementation = {
 };
 
 describe('classic Chao1 is one contract for the reference and analytic bank', () => {
-  it('retains precisely the three item identities', () => {
-    expect(items.map((item) => item.id)).toEqual(ids);
+  it('retains precisely the four item identities', () => {
+    expect(items.map((item) => item.id).sort()).toEqual([...ids].sort());
   });
 
   it('the pinned fixtures select the classic finite-sample formula and zero-doubleton fallback', () => {
@@ -63,10 +67,24 @@ describe('classic Chao1 is one contract for the reference and analytic bank', ()
     expect((await runItem(item, 1, ROOT, wrong)).pass).toBe(false);
   });
 
+  it('holds on the executor sweep hidden seed for s20-even x3', async () => {
+    const item = items.find((item) => item.id === 'analytic.unseen.chao1-near.s20-even.x3');
+    if (!item) throw new Error('missing s20-even x3 item');
+    // Read-only exec/stats-v3 HANDOVER.md records the failing sweep at this commit.
+    const seed = hiddenSeed(ROOT, () => '4867887a1d6f14ac2741a9535b078f246cbdb1a3').seed;
+    expect(await runItem(item, seed, ROOT, classicImplementation)).toMatchObject({ pass: true });
+  });
+
   for (const item of items) {
     it(`holds on the pinned estimator: ${item.id}`, async () => {
       for (let seed = 1; seed <= 20; seed += 1)
         expect(await runItem(item, seed, ROOT, classicImplementation)).toMatchObject({ pass: true });
+    });
+
+    it(`holds on the current commit hidden seed: ${item.id}`, async () => {
+      expect(await runItem(item, hiddenSeed(ROOT).seed, ROOT, classicImplementation)).toMatchObject({
+        pass: true,
+      });
     });
 
     it(`rejects an oracle returning the planted true class count: ${item.id}`, async () => {
