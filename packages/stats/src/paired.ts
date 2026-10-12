@@ -3,7 +3,7 @@
  * test, the paired difference of two pass rates with its interval, and the parity verdict.
  */
 
-import { assertCount, assertProbability, assertSameLength } from './basics';
+import { assertCount, assertFiniteValues, assertProbability, assertSameLength } from './basics';
 import { wilson } from './intervals';
 import { binomialCdf, chiSquareSf, normalQuantile, normalSf } from './special';
 
@@ -126,6 +126,8 @@ export function wilcoxonSignedRank(
   options: WilcoxonOptions = {},
 ): WilcoxonResult {
   assertSameLength(x, y, 'wilcoxonSignedRank');
+  assertFiniteValues('wilcoxonSignedRank', x);
+  assertFiniteValues('wilcoxonSignedRank', y);
   const total = x.length;
   if (total === 0) throw new RangeError('wilcoxonSignedRank: no pairs');
   const diffs = x.map((v, i) => v - (y[i] as number));
