@@ -195,3 +195,15 @@ Sources read:
 What others do: Exports that keep a schema as a string parse it as JSON, which YAML reads as well; quotes then come from the string, which the file holds verbatim.
 
 What to try, and why: the tool pre-pass reads parameters given as a JSON string
+
+## Iteration 17
+
+Question: packages/generate/src/extract/tools.ts: toolsPrepass parses one document, so a stream with --- between tools fails to parse; tool-formats.multi-document proves it.
+
+Sources read:
+* https://yaml.org/spec/1.2.2/ section 9.1 (a stream holds several documents)
+* packages/validators/src/ladders/map/bank/families/formats.ts (multi-document)
+
+What others do: A YAML stream is read document by document; one mapping per document is one tool, as in a list.
+
+What to try, and why: the tool pre-pass reads a YAML stream with one tool per document

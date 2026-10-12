@@ -1,4 +1,4 @@
-import { isMap, isScalar, isSeq, type Pair, parseDocument, type YAMLMap } from 'yaml';
+import { isMap, isScalar, isSeq, type Pair, parseAllDocuments, parseDocument, YAMLSeq, type YAMLMap } from 'yaml';
 import { entry, keyOf, mapAt, pairText, plain, stringItems } from './nodes';
 import type { ProposalDimension, ProposalValue } from './proposal';
 import { foldQuote } from './quote';
@@ -46,11 +46,14 @@ type Tool = {
 type Partition = { id: string; title: string; quote: string };
 
 export function toolsPrepass(text: string, source: string): ToolsPrepass {
-  const doc = parseDocument(text, { uniqueKeys: true, prettyErrors: true });
-  const first = doc.errors[0];
+  // A stream of documents (`---` between them) holds one tool per document: read as a list of tools.
+  const docs = parseAllDocuments(text, { uniqueKeys: true, prettyErrors: true });
+  const first = docs.flatMap((doc) => doc.errors)[0];
   if (first)
     return fail('TOOLS_PARSE', '', first.message.split('\n')[0] ?? 'the file is not valid YAML or JSON');
-  const located = locate(doc.contents);
+  const stream = docs.length > 1 ? new YAMLSeq() : undefined;
+  if (stream) for (const doc of docs) if (doc.contents) stream.items.push(doc.contents);
+  const located = locate(stream ?? docs[0]?.contents);
   if (!located) {
     return fail(
       'TOOLS_NOT_FOUND',
