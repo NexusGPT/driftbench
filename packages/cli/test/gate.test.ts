@@ -140,7 +140,7 @@ describe('driftbench gate', () => {
       // Two specs no path could build: their blocks hold judged criteria only, so stage 1 rejects them.
       const specs = await folder([
         join(INCOMPLETE, 'gen-twise-089.yaml'),
-        join(INCOMPLETE, '../boundary/gen-boundary-062.yaml'),
+        join(INCOMPLETE, '../boundary/gen-boundary-008.yaml'),
       ]);
       const out = join(await temp(), 'gated');
       const result = await run(['gate', specs, ...BASE, '--out', out]);

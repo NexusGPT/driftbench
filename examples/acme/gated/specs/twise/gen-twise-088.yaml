@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-088
-version: b583de68c530
+version: 6d29ed7a7539
 kind: conversation
 title: "t-wise row 88 of 132: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D9_out_of_scope at closing"
 channel: chat
@@ -167,7 +167,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: b583de68c530
+      hash: 6d29ed7a7539
     path: order-single-plan
     cell:
       behaviour: B-008

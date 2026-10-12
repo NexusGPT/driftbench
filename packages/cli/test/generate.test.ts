@@ -151,7 +151,7 @@ describe('driftbench generate', () => {
     const result = await run(['generate', '--map', `${ACME}map/proposal.yaml`, '--out', 'out'], dir);
     expect(result.code).toBe(2);
     expect(result.err).toContain('MAP_NOT_APPROVED');
-    expect(result.err).toContain('279 of 279 entries are not approved');
+    expect(result.err).toContain('284 of 284 entries are not approved');
     expect(await readdir(dir)).toEqual([]);
   });
 

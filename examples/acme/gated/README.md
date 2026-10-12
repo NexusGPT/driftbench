@@ -12,7 +12,7 @@ pnpm driftbench gate examples/acme/generated/specs \
   --date 2026-10-11 --out examples/acme/gated --force
 ```
 
-Every generated block but six passes the gate: 1100 of 1106, in 251 specs (193 in `specs/`, 58 sealed in `holdout/`). The six rejected blocks are first-turn probes the echo agent passes: the recovery word the map gives D1 is in the user's own question. The generator derives every Then from the map's relations (the path's next stage, the tool calls and their inputs, what the reply states, the end state, the recovery of a deviation class), and the price-sheet task specs take theirs from the family's oracle, so no block holds judged criteria alone. `gate-report.json` holds the funnel and the verdict of every stage for every block.
+Every generated block but six passes the gate: 1101 of 1107, in 251 specs (195 in `specs/`, 56 sealed in `holdout/`). The six rejected blocks are first-turn probes the echo agent passes: the recovery word the map gives D1 is in the user's own question. The generator derives every Then from the map's relations (the path's next stage, the tool calls and their inputs, what the reply states, the end state, the recovery of a deviation class), and the price-sheet task specs take theirs from the family's oracle, so no block holds judged criteria alone. `gate-report.json` holds the funnel and the verdict of every stage for every block.
 
 Resealed on 2026-10-12: the generator gained the task seeder, which builds the price-sheet task specs from the map's `task_family` relation, so this run seals a new holdout of 58 specs. The select, holdout and ci commands and the golden set read it; their examples were measured again on this run.
 

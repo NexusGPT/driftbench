@@ -1005,7 +1005,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: b583de68c530
+      hash: 6d29ed7a7539
     family: ../families/price-sheet
   gate:
     by: driftbench gate
