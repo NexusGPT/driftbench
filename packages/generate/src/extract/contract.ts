@@ -14,6 +14,7 @@ import {
   Slots,
   type SourceKind,
   UsesToolRelation,
+  ValueFields,
   ValueId,
   When,
 } from './proposal';
@@ -55,7 +56,7 @@ Rules:
   "section": "<the section you were asked for>",
   "dimensions": [
     {"id": "<dimension id>", "title": "<what it varies>", "kind": "<kind>",
-     "values": [{"id": "<value id>", "title": "<what the value means>", "source": "<path>", "quote": "<verbatim text>"}]}
+     "values": [{"id": "<value id>", "title": "<what the value means>", "polarity": "<must or must_not, on a rule only>", "source": "<path>", "quote": "<verbatim text>"}]}
   ],
   "constraints": [
     {"forbid": {"<dimension id>": "<value id>", "<other dimension id>": "<value id>"}, "reason": "<why these values never occur together>", "source": "<path>", "quote": "<verbatim text>"}
@@ -67,7 +68,7 @@ Rules:
     {"kind": "<path, uses_tool, binds, recovery or reply_language>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
   ]
 }
-A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen. A phrase may hold {slot} where a value the cell binds goes, such as "It's {email}"; "when" and "binds" are optional. Relations come from the relations section only.`;
+On a rule, "polarity" says whether the agent must do it or must not do it; leave it out on every other value. A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen. A phrase may hold {slot} where a value the cell binds goes, such as "It's {email}"; "when" and "binds" are optional. Relations come from the relations section only.`;
 
 const TASKS: Record<Section, string> = {
   stages: `List the stages the agent moves through, and the moves between them that the sources specify.
@@ -209,6 +210,7 @@ export const AnswerValue = z.strictObject({
   title: z.string({ error: 'the title is missing' }).min(1),
   source: z.string({ error: SOURCE_REQUIRED }).min(1, { error: SOURCE_REQUIRED }),
   quote: z.string({ error: QUOTE_REQUIRED }),
+  ...ValueFields,
 });
 
 export const AnswerDimension = z.strictObject({

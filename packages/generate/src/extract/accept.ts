@@ -131,8 +131,9 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
         refuse(valueLabel, found);
         continue;
       }
+      const { source: _source, quote: _quote, ...rest } = value.data;
       known.add(value.data.id);
-      values.push({ id: value.data.id, title: value.data.title, evidence: found, produced_by: 'model' });
+      values.push({ ...rest, evidence: found, produced_by: 'model' });
     }
     if (values.length === 0) continue;
     result.accepted += values.length;

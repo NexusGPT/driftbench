@@ -665,3 +665,15 @@ Sources read:
 What others do: In reST a backslash escapes the next character; in LaTeX a command with one braced argument displays the argument.
 
 What to try, and why: reStructuredText escapes and LaTeX commands are decoded (level 1 is blocked on validator defects, so the level stays 0)
+
+## Iteration 57
+
+Question: packages/generate/src/extract/contract.ts: the answer template shows no polarity key and the proposal keeps none, so the polarity of every rule is lost; contract:rule-polarity (styles, style-pairs, semantics) proves it.
+
+Sources read:
+* docs/generating.md section Planned: what a rule states (must or must not)
+* packages/validators/src/ladders/map/bank/perfect.ts (a model writes only keys the template shows)
+
+What others do: The template lists the keys a model may write; a key it does not list is dropped.
+
+What to try, and why: a rule records its polarity (level 1 is blocked on validator defects, so the level stays 0)

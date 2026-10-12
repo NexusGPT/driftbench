@@ -93,11 +93,40 @@ export const Role = z
   );
 export type Role = z.infer<typeof Role>;
 
+export const When = z
+  .record(DimensionId, z.array(ValueId).min(1))
+  .describe('The values the entry applies to, per dimension: { coverage_result: [fiber, 5g-only] }.');
+export type When = z.infer<typeof When>;
+
+/** What a rule or a value states beyond its text; every key is optional. */
+export const ValueFields = {
+  polarity: z
+    .enum(['must', 'must_not'])
+    .optional()
+    .describe('Whether the agent must or must not do what a rule says.'),
+  when: When.optional().describe('The cell a rule applies in.'),
+  unless: When.optional().describe('The cell a rule does not hold in.'),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('The most times the action may happen in a conversation.'),
+  within: z
+    .strictObject({ minutes: z.number().positive() })
+    .optional()
+    .describe('The time within which the action happens.'),
+  priority: z.literal('first').optional().describe('The rule comes first when rules collide.'),
+  weight: z.number().min(0).max(1).optional().describe('The share of users the value stands for.'),
+  required: z.boolean().optional().describe('Whether a test plan must include the value.'),
+};
+
 export const ProposalValue = z
   .strictObject({
     id: ValueId,
     title: z.string().min(1).describe('What the value means, in a few words.'),
     evidence: Evidence,
+    ...ValueFields,
     produced_by: Origin,
     approved: Approved.optional().describe(
       "Overrides the dimension's flag for this value. Absent: the value inherits it.",
@@ -150,10 +179,6 @@ export type Slots = z.infer<typeof Slots>;
  * The cell values an entry applies to: per dimension, the values it holds for. Every dimension named must
  * hold one of its listed values; a dimension not named is free.
  */
-export const When = z
-  .record(DimensionId, z.array(ValueId).min(1))
-  .describe('The values the entry applies to, per dimension: { coverage_result: [fiber, 5g-only] }.');
-export type When = z.infer<typeof When>;
 
 export const ProposalPhrase = z
   .strictObject({
