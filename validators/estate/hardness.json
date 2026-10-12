@@ -30,9 +30,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 717,
-      "score": 0.6442048517520216,
+      "score": 0.6379003558718861,
       "change": "Iteration 0: the bank with the unit, kill, generation-quality and fixture-maintenance families",
       "failing": [
         "bench.defects.long-routing-table",
@@ -48,6 +48,7 @@
         "blind.gates.skill-compactions-plural",
         "blind.links.ref-link-with-title",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -62,6 +63,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -423,6 +428,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -558,11 +569,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {
@@ -615,9 +626,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 736,
-      "score": 0.6612758310871518,
+      "score": 0.6548042704626335,
       "change": "Estate pilot 1: the reader reads a catalogue of checks",
       "failing": [
         "bench.defects.long-routing-table",
@@ -633,6 +644,7 @@
         "blind.gates.skill-compactions-plural",
         "blind.links.ref-link-with-title",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -647,6 +659,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -989,6 +1005,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -1124,11 +1146,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {
@@ -1181,9 +1203,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 756,
-      "score": 0.6792452830188679,
+      "score": 0.6725978647686833,
       "change": "Estate pilot 2: a named path with an anchor, a query or a title names its file",
       "failing": [
         "bench.defects.long-routing-table",
@@ -1198,6 +1220,7 @@
         "blind.gates.decoy-tilde-fence",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -1212,6 +1235,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -1535,6 +1562,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -1670,11 +1703,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {
@@ -1727,9 +1760,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 765,
-      "score": 0.6873315363881402,
+      "score": 0.6806049822064056,
       "change": "Estate pilot 3: the adjective compact is no compaction",
       "failing": [
         "bench.defects.long-routing-table",
@@ -1744,6 +1777,7 @@
         "blind.gates.decoy-tilde-fence",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -1758,6 +1792,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -2072,6 +2110,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -2207,11 +2251,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {
@@ -2264,9 +2308,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 775,
-      "score": 0.6963162623539982,
+      "score": 0.6895017793594306,
       "change": "Estate pilot 4: a gate's act and first file lose their markup",
       "failing": [
         "bench.defects.long-routing-table",
@@ -2281,6 +2325,7 @@
         "blind.gates.decoy-tilde-fence",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -2295,6 +2340,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -2599,6 +2648,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -2734,11 +2789,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {
@@ -2791,9 +2846,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 783,
-      "score": 0.7035040431266847,
+      "score": 0.6966192170818505,
       "change": "Estate pilot 5: code read from prose skips fenced examples",
       "failing": [
         "bench.defects.long-routing-table",
@@ -2807,6 +2862,7 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -2821,6 +2877,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -3118,6 +3178,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -3253,11 +3319,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {
@@ -3310,9 +3376,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 787,
-      "score": 0.7070979335130279,
+      "score": 0.7001779359430605,
       "change": "Estate pilot 6: the registry reader knows more rule column names",
       "failing": [
         "bench.defects.long-routing-table",
@@ -3326,6 +3392,7 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -3340,6 +3407,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -3633,6 +3704,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -3768,11 +3845,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {
@@ -3825,9 +3902,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 791,
-      "score": 0.710691823899371,
+      "score": 0.7037366548042705,
       "change": "Estate pilot 7: a dispatcher's target may be a bare script name",
       "failing": [
         "bench.defects.long-routing-table",
@@ -3841,6 +3918,7 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -3855,6 +3933,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -4144,6 +4226,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -4279,11 +4367,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {
@@ -4336,9 +4424,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 795,
-      "score": 0.7142857142857143,
+      "score": 0.7072953736654805,
       "change": "Estate pilot 8: registries, catalogues and step lists may be YAML",
       "failing": [
         "bench.defects.long-routing-table",
@@ -4352,6 +4440,7 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -4366,6 +4455,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -4651,6 +4744,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -4786,11 +4885,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {
@@ -4843,9 +4942,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 798,
-      "score": 0.7169811320754716,
+      "score": 0.7099644128113879,
       "change": "Estate pilot 9: a guard command behind exec, timeout or uv run finds its script",
       "failing": [
         "bench.defects.long-routing-table",
@@ -4859,6 +4958,7 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -4873,6 +4973,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -5155,6 +5259,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -5290,11 +5400,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {
@@ -5347,9 +5457,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1113,
+      "size": 1124,
       "passing": 803,
-      "score": 0.7214734950584007,
+      "score": 0.7144128113879004,
       "change": "Estate pilot 10: a gate comes only before an act of the agent",
       "failing": [
         "bench.defects.long-routing-table",
@@ -5363,6 +5473,7 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.decay-runs",
         "estate.stats.enforced-gate",
         "estate.stats.enforced-guard",
         "estate.stats.enforced-hazard",
@@ -5377,6 +5488,10 @@
         "estate.stats.enforced-stage",
         "estate.stats.enforced-subagent",
         "estate.stats.enforced-tool",
+        "estate.stats.reach-guard",
+        "estate.stats.reach-reference",
+        "estate.stats.reach-skill",
+        "estate.stats.reach-subagent",
         "estate.stats.tested-gate",
         "estate.stats.tested-guard",
         "estate.stats.tested-hazard",
@@ -5654,6 +5769,12 @@
         "unit.runner.green-read-before-edit.py",
         "unit.runner.green-reply-length.py",
         "unit.runner.green-stop-word.sh",
+        "unit.runner.helper-broken-inbox-triager",
+        "unit.runner.helper-broken-ledger-auditor",
+        "unit.runner.helper-broken-route-planner",
+        "unit.runner.helper-green-inbox-triager",
+        "unit.runner.helper-green-ledger-auditor",
+        "unit.runner.helper-green-route-planner",
         "unit.runner.message-block-force-push.sh",
         "unit.runner.message-ledger-guard.py",
         "unit.runner.message-reply-length.py",
@@ -5789,11 +5910,11 @@
           "passing": 12
         },
         "unit.runner": {
-          "size": 26,
+          "size": 32,
           "passing": 0
         },
         "estate.stats": {
-          "size": 28,
+          "size": 33,
           "passing": 0
         },
         "mutant.agent": {

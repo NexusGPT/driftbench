@@ -40,6 +40,8 @@ const GUARDS: Guard[] = [
   },
   { script: '.claude/skills/shipment-tracker/scripts/check-carrier.sh', event: 'PreToolUse' },
 ];
+/** The helpers a subagent-alone unit spec runs with its agent file as the system prompt (docs/estate.md 6). */
+const HELPERS = ['inbox-triager', 'ledger-auditor', 'route-planner'];
 const SCRIPTS = [
   '.claude/skills/invoice-reconcile/scripts/reconcile.py',
   '.claude/skills/shipment-tracker/scripts/track.sh',
@@ -50,7 +52,16 @@ const BLOCK_ALL = '#!/bin/sh\ncat > /dev/null\necho "blocked by a broken guard" 
 const SLOW = '#!/bin/sh\ncat > /dev/null\nsleep 7\nexit 0\n';
 const FAILING = '#!/bin/sh\necho "the script broke" >&2\nexit 1\n';
 
-type Variant = 'green' | 'allow-all' | 'block-all' | 'message' | 'timeout' | 'script-green' | 'script-broken';
+type Variant =
+  | 'green'
+  | 'allow-all'
+  | 'block-all'
+  | 'message'
+  | 'timeout'
+  | 'script-green'
+  | 'script-broken'
+  | 'helper-green'
+  | 'helper-broken';
 type Cell = { key: string; tier: Tier; title: string; cause: string; target: string; variant: Variant };
 
 const base = (path: string) => path.split('/').pop() as string;
@@ -104,6 +115,24 @@ const CELLS: Cell[] = [
       variant: 'timeout',
     }),
   ),
+  ...HELPERS.flatMap((helper): Cell[] => [
+    {
+      key: `helper-green-${helper}`,
+      tier: 3,
+      title: `the subagent-alone specs of ${helper} pass on the fixture`,
+      cause: 'run a subagent alone with its agent file as the system prompt',
+      target: `.claude/agents/${helper}.md`,
+      variant: 'helper-green',
+    },
+    {
+      key: `helper-broken-${helper}`,
+      tier: 4,
+      title: `a subagent-alone spec of ${helper} turns red when its agent file loses its body`,
+      cause: 'run a subagent alone with its agent file as the system prompt',
+      target: `.claude/agents/${helper}.md`,
+      variant: 'helper-broken',
+    },
+  ]),
   ...SCRIPTS.flatMap((script): Cell[] => [
     {
       key: `script-green-${base(script)}`,
@@ -156,6 +185,10 @@ async function variantOf(work: string, cell: Cell, guard: Guard | undefined): Pr
   if (cell.variant === 'block-all') await write(BLOCK_ALL);
   if (cell.variant === 'timeout') await write(SLOW);
   if (cell.variant === 'script-broken') await write(FAILING);
+  if (cell.variant === 'helper-broken') {
+    const name = base(cell.target).replace(/\.md$/, '');
+    await writeFile(path, `---\nname: ${name}\ndescription: A helper.\n---\n`);
+  }
   if (cell.variant === 'message' && guard?.message) {
     await write(`#!/bin/sh\ninput=$(cat)\necho "a different message" >&2\nexit 2\n`);
   }
@@ -188,8 +221,10 @@ export function unitFamily(): Family {
             ? map.map.atoms
                 .filter(
                   (atom) =>
-                    (atom.kind === 'guard' || atom.kind === 'script') &&
-                    String(atom.fields?.script ?? atom.fields?.path ?? '').endsWith(base(cell.target)),
+                    ((atom.kind === 'guard' || atom.kind === 'script') &&
+                      String(atom.fields?.script ?? atom.fields?.path ?? '').endsWith(base(cell.target))) ||
+                    (atom.kind === 'subagent' &&
+                      `${String(atom.fields?.name ?? '')}.md` === base(cell.target)),
                 )
                 .map((atom) => atom.id)
             : [];
@@ -211,7 +246,8 @@ export function unitFamily(): Family {
           }
           const green = specs.every((spec) => verdicts.get(spec.id) === true);
           const red = specs.some((spec) => verdicts.get(spec.id) === false);
-          const wantsGreen = cell.variant === 'green' || cell.variant === 'script-green';
+          const wantsGreen =
+            cell.variant === 'green' || cell.variant === 'script-green' || cell.variant === 'helper-green';
           out.set(
             `${family}.${cell.key}`,
             wantsGreen

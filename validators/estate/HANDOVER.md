@@ -34,10 +34,10 @@ The ladder is a bank (docs/validators.md section 12): seven levels, each a sub-b
 
 | Row | Commit | Items passing on every seed | Score |
 |---|---|---|---|
-| iteration 0 | f1e6ec9 (lane/v-estate) | 717 of 1113 | 0.644 |
-| pilot 1 to 10 | exec/v-estate-pilot2 | 736, 756, 765, 775, 783, 787, 791, 795, 798, 803 | 0.721 after pilot 10 |
+| iteration 0 | f1e6ec9 (lane/v-estate) | 717 of 1124 | 0.638 |
+| pilot 1 to 10 | exec/v-estate-pilot2 | 736, 756, 765, 775, 783, 787, 791, 795, 798, 803 | 0.714 after pilot 10 |
 
-Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none broken. Failing after the pilot: 310 items, 137 distinct causes. Forecast: 36.0 iterations. validators/estate/NEEDS.md cites the need of every family; gen.task is quarantined. The gate does not hold on the forecast and the score; the cause term holds. No audit.md yet.
+Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none broken. Failing after the pilot: 321 items, 140 distinct causes. Forecast: 37.3 iterations. GATE.md holds the honest numbers for the owner. validators/estate/NEEDS.md cites the need of every family; gen.task is quarantined. The gate does not hold on the forecast and the score; the cause term holds. No audit.md yet.
 
 ## The estate stats contract (in docs/estate.md section 7 and docs/reference/cli.md, frozen)
 
