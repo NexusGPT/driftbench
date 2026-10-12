@@ -437,6 +437,74 @@ const RULES: readonly (readonly [RegExp, string])[] = [
     `Add comparePair(judge, { criterion, a, b }) to ${S}: ask the pair judge in both orders and return { winner }: the agreed winner, tie when both say tie, else inconclusive.`,
   ],
   [
+    /^calibration\/metric-confusion$/,
+    'In calibrate: report labels.metrics.tp, fp, tn, fn per judge: the confusion counts tp, fp, tn, fn (fail is the positive class; an inconclusive verdict counts as wrong).',
+  ],
+  [
+    /^calibration\/metric-sensitivity$/,
+    'In calibrate: report labels.metrics.sensitivity per judge: sensitivity tp/(tp+fn).',
+  ],
+  [
+    /^calibration\/metric-specificity$/,
+    'In calibrate: report labels.metrics.specificity per judge: specificity tn/(tn+fp).',
+  ],
+  [
+    /^calibration\/metric-balancedAccuracy$/,
+    'In calibrate: report labels.metrics.balancedAccuracy per judge: balancedAccuracy, the mean of sensitivity and specificity.',
+  ],
+  [/^calibration\/metric-ppv$/, 'In calibrate: report labels.metrics.ppv per judge: ppv tp/(tp+fp).'],
+  [/^calibration\/metric-npv$/, 'In calibrate: report labels.metrics.npv per judge: npv tn/(tn+fn).'],
+  [/^calibration\/metric-f1$/, 'In calibrate: report labels.metrics.f1 per judge: f1 2tp/(2tp+fp+fn).'],
+  [
+    /^calibration\/metric-mcc$/,
+    'In calibrate: report labels.metrics.mcc per judge: mcc, the Matthews correlation.',
+  ],
+  [
+    /^calibration\/metric-youden$/,
+    'In calibrate: report labels.metrics.youden per judge: youden, sensitivity + specificity - 1.',
+  ],
+  [
+    /^calibration\/metric-scottPi$/,
+    'In calibrate: report labels.metrics.scottPi per judge: scottPi, the Scott pi.',
+  ],
+  [
+    /^calibration\/metric-prevalenceIndex$/,
+    'In calibrate: report labels.metrics.prevalenceIndex per judge: prevalenceIndex |tp-tn|/n.',
+  ],
+  [
+    /^calibration\/metric-biasIndex$/,
+    'In calibrate: report labels.metrics.biasIndex per judge: biasIndex |fp-fn|/n.',
+  ],
+  [/^calibration\/metric-accuracy$/, 'In calibrate: report labels.metrics.accuracy per judge: (tp+tn)/n.'],
+  [
+    /^calibration\/metric-falsePositiveRate$/,
+    'In calibrate: report labels.metrics.falsePositiveRate per judge: fp/(fp+tn).',
+  ],
+  [
+    /^calibration\/metric-falseNegativeRate$/,
+    'In calibrate: report labels.metrics.falseNegativeRate per judge: fn/(fn+tp).',
+  ],
+  [
+    /^calibration\/fleiss-kappa-across-judges$/,
+    "In calibrate: report each criterion's fleissKappa across every judge's verdicts on the labelled blocks (pass, fail, inconclusive).",
+  ],
+  [
+    /^calibration\/labels-conflicting-duplicates$/,
+    'In calibrate: name blocks with the same slice and opposite labels in labelConflicts.',
+  ],
+  [
+    /^calibration\/labels-fixture-leak$/,
+    'In calibrate: name labelled blocks equal to a fixture in fixtureLeaks.',
+  ],
+  [
+    /^calibration\/labels-for-an-unknown-criterion$/,
+    'In calibrate: list labels of criteria it does not run in unknownLabels.',
+  ],
+  [
+    /^calibration\/labels-few-in-a-class$/,
+    'In calibrate: warn few-labels when a class has fewer than 5 labelled blocks.',
+  ],
+  [
     /^calibration\/coverage-n(5|20|100)-p0\.97-/,
     'In agreementInterval: use an interval that keeps 95 percent coverage near agreement 1 at small n (Clopper-Pearson or Jeffreys, not Wilson).',
   ],

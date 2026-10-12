@@ -1,6 +1,7 @@
 import { type BankEntry, bankMeasure, defineLadder, type Ladder } from '../../../ladder';
 import { type BankItem, type JudgesApi, realApi, runItem } from './bank';
 import { causeOf } from './causes';
+import { agreementItems } from './families/agreement';
 import { attackItems } from './families/attacks';
 import { auditItems } from './families/audit';
 import { calibrationItems } from './families/calibration';
@@ -80,6 +81,7 @@ export function judgesBank(): BankItem[] {
     ...turnItems(),
     ...pairwiseItems(),
     ...calibrationItems(),
+    ...agreementItems(),
     ...scaleItems(),
     ...auditItems(),
     ...liveItems(),

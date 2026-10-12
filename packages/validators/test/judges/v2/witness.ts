@@ -14,6 +14,7 @@ import type {
 import * as judges from '@driftbench/judges';
 import { clopperPearson } from '@driftbench/stats';
 import { type JudgesApi, realApi } from '../../../src/ladders/judges/v2/bank';
+import { fleissOf, metricsOf } from '../../../src/ladders/judges/v2/families/agreement';
 import { bankMajority } from '../../../src/ladders/judges/v2/families/council';
 import { firstPlace } from '../../../src/ladders/judges/v2/families/evidence';
 import { LANGUAGES } from '../../../src/ladders/judges/v2/families/injection';
@@ -813,34 +814,68 @@ function agreementInterval(agree: number, n: number) {
 
 async function calibrate(config: Parameters<typeof judges.calibrate>[0]) {
   const report = await judges.calibrate(config);
+  const run = new Set(config.criteria.map((c) => c.def.name));
+  const slice = (t: unknown) => JSON.stringify(t);
   return {
     ...report,
-    criteria: report.criteria.map((c) => ({
-      ...c,
-      judges: c.judges.map((j) => {
-        const { n, agree, blocks } = j.labels;
-        const classes = new Set(blocks.map((b) => b.label));
-        const po = n === 0 ? 0 : agree / n;
-        const pi =
-          n === 0
-            ? 0
-            : (blocks.filter((b) => b.label === 'pass').length +
-                blocks.filter((b) => b.judged === 'pass').length) /
-              (2 * n);
-        const pe = 2 * pi * (1 - pi);
-        const { kappa, ...rest } = j.labels;
-        return {
-          ...j,
-          labels: {
-            ...rest,
-            ...(classes.size < 2 ? {} : kappa === undefined ? {} : { kappa }),
-            agreement: n === 0 ? j.labels.agreement : { estimate: po, ...agreementInterval(agree, n) },
-            pabak: 2 * po - 1,
-            ac1: (po - pe) / (1 - pe),
-          },
-        };
-      }),
-    })),
+    unknownLabels: [...config.labels.keys()].filter((name) => !run.has(name)),
+    criteria: report.criteria.map((c) => {
+      const loaded = config.criteria.find((x) => x.def.name === c.criterion);
+      const blocks = config.labels.get(c.criterion) ?? [];
+      const conflicts: string[][] = [];
+      blocks.forEach((a, i) => {
+        for (const b of blocks.slice(i + 1)) {
+          if (slice(a.transcript) === slice(b.transcript) && a.label !== b.label)
+            conflicts.push([a.id, b.id]);
+        }
+      });
+      const fixtures = loaded
+        ? [slice(loaded.fixtures.pass.transcript), slice(loaded.fixtures.fail.transcript)]
+        : [];
+      const leaks = blocks.filter((b) => fixtures.includes(slice(b.transcript))).map((b) => b.id);
+      const few = ['pass', 'fail'].some((label) => blocks.filter((b) => b.label === label).length < 5);
+      const verdicts = c.judges.map((j) =>
+        j.labels.blocks.map((b) => b.judged as 'pass' | 'fail' | 'inconclusive'),
+      );
+      return {
+        ...c,
+        ...(verdicts.length > 1 && blocks.length > 0 ? { fleissKappa: fleissOf(verdicts) } : {}),
+        labelConflicts: conflicts,
+        fixtureLeaks: leaks,
+        warnings: blocks.length > 0 && few ? ['few-labels'] : [],
+        judges: c.judges.map((j) => {
+          const { n, agree, blocks: judged } = j.labels;
+          const classes = new Set(judged.map((b) => b.label));
+          const po = n === 0 ? 0 : agree / n;
+          const pi =
+            n === 0
+              ? 0
+              : (judged.filter((b) => b.label === 'pass').length +
+                  judged.filter((b) => b.judged === 'pass').length) /
+                (2 * n);
+          const pe = 2 * pi * (1 - pi);
+          const { kappa, ...rest } = j.labels;
+          return {
+            ...j,
+            labels: {
+              ...rest,
+              ...(classes.size < 2 ? {} : kappa === undefined ? {} : { kappa }),
+              agreement: n === 0 ? j.labels.agreement : { estimate: po, ...agreementInterval(agree, n) },
+              pabak: 2 * po - 1,
+              ac1: (po - pe) / (1 - pe),
+              ...(n === 0
+                ? {}
+                : {
+                    metrics: metricsOf(
+                      judged.map((b) => b.label),
+                      judged.map((b) => b.judged as 'pass' | 'fail' | 'inconclusive'),
+                    ),
+                  }),
+            },
+          };
+        }),
+      };
+    }),
   };
 }
 
