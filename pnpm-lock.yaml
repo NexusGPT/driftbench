@@ -163,6 +163,9 @@ importers:
       '@driftbench/space':
         specifier: workspace:*
         version: link:../space
+      '@driftbench/stats':
+        specifier: workspace:*
+        version: link:../stats
       yaml:
         specifier: ^2.9.1
         version: 2.9.1
