@@ -125,3 +125,15 @@ describe('registry columns (executor pilot)', () => {
     }
   });
 });
+
+describe('dispatchers (executor pilot)', () => {
+  it('finds the script a dispatcher runs from a bare target name', async () => {
+    const { scriptOf } = await import('../../src/scan/claude-code');
+    const paths = new Set(['.claude/hooks/lib/run.py', '.claude/hooks/block-push.py']);
+    expect(scriptOf('python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lib/run.py block-push', paths)).toEqual({
+      script: '.claude/hooks/block-push.py',
+      anchored: true,
+      dispatcher: '.claude/hooks/lib/run.py',
+    });
+  });
+});

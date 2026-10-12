@@ -51,6 +51,7 @@ const INTERPRETERS = new Set([
   'ruby',
 ]);
 const SCRIPT_EXTENSION = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/;
+const DISPATCH_EXTENSIONS = ['.py', '.sh', '.bash', '.js', '.mjs', '.cjs', '.ts', '.rb', '.pl'];
 const ANCHORS = [/^\$\{?CLAUDE_PROJECT_DIR\}?\//, /^\$\{?CLAUDE_PLUGIN_ROOT\}?\//];
 
 /** The most characters one prose chunk holds; a longer passage is cut into several chunks. */
@@ -984,9 +985,13 @@ function scriptIn(command: string, from: string, paths: ReadonlySet<string>): st
   for (const raw of tokens(command)) {
     const token = stripAnchor(raw.replace(/["']/g, ''));
     if (token === '' || token.startsWith('-') || /^[A-Za-z_][A-Za-z0-9_]*=/.test(token)) continue;
-    if (!token.includes('/') && !SCRIPT_EXTENSION.test(token)) continue;
+    const named = token.includes('/') || SCRIPT_EXTENSION.test(token);
+    // After a dispatcher, a bare word may name its target script without the extension.
+    const bare = !named && found !== undefined && /^[\w.-]+$/.test(token);
+    if (!named && !bare) continue;
+    const names = bare ? DISPATCH_EXTENSIONS.map((extension) => `${token}${extension}`) : [token];
     const hit = bases
-      .map((base) => posix.normalize(posix.join(base, token)))
+      .flatMap((base) => names.map((name) => posix.normalize(posix.join(base, name))))
       .find((candidate) => paths.has(candidate));
     if (hit === undefined) continue;
     found = hit;
