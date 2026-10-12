@@ -14,6 +14,18 @@ These pages compare driftbench with five evaluation tools, one page per tool. Ev
 
 The counts come from each tool's comparison table in the repository's evidence record. Each page follows its table row for row.
 
+## Public judge benchmarks
+
+Each benchmark has a slot on its own page. A slot shows "run in progress" until its chart is committed, and "data not public" where the benchmark's data is not published.
+
+| Benchmark | Status | Page |
+|---|---|---|
+| JudgeBench | run in progress | [JudgeBench](benchmarks/index.md#judgebench) |
+| LongJudgeBench | run in progress | [LongJudgeBench](benchmarks/index.md#longjudgebench) |
+| MM-Eval | run in progress | [MM-Eval](benchmarks/index.md#mm-eval) |
+| RubricBench | run in progress | [RubricBench](benchmarks/index.md#rubricbench) |
+| RubricEval | data not public | [RubricEval](benchmarks/index.md#rubriceval) |
+
 ## How each row was checked
 
 A row has one of these bases:
