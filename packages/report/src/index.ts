@@ -44,6 +44,7 @@ export {
   type SuccessionSummary,
   successionOf,
 } from './reliability';
+export { type CriterionRepeat, criterionRepeats, runOutcome } from './repeats';
 export {
   type BlockDetail,
   buildScorecard,
