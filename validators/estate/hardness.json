@@ -31,8 +31,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 736,
-      "score": 0.629059829059829,
+      "passing": 737,
+      "score": 0.6299145299145299,
       "change": "Iteration 0: the bank with the unit, kill, generation-quality and fixture-maintenance families",
       "failing": [
         "bench.defects.long-routing-table",
@@ -146,12 +146,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -589,7 +588,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,
@@ -658,8 +657,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 755,
-      "score": 0.6452991452991453,
+      "passing": 756,
+      "score": 0.6461538461538462,
       "change": "Estate pilot 1: the reader reads a catalogue of checks",
       "failing": [
         "bench.defects.long-routing-table",
@@ -773,12 +772,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -1197,7 +1195,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,
@@ -1266,8 +1264,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 775,
-      "score": 0.6623931623931624,
+      "passing": 776,
+      "score": 0.6632478632478632,
       "change": "Estate pilot 2: a named path with an anchor, a query or a title names its file",
       "failing": [
         "bench.defects.long-routing-table",
@@ -1380,12 +1378,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -1785,7 +1782,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,
@@ -1854,8 +1851,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 784,
-      "score": 0.67008547008547,
+      "passing": 785,
+      "score": 0.6709401709401709,
       "change": "Estate pilot 3: the adjective compact is no compaction",
       "failing": [
         "bench.defects.long-routing-table",
@@ -1968,12 +1965,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -2364,7 +2360,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,
@@ -2433,8 +2429,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 794,
-      "score": 0.6786324786324787,
+      "passing": 795,
+      "score": 0.6794871794871795,
       "change": "Estate pilot 4: a gate's act and first file lose their markup",
       "failing": [
         "bench.defects.long-routing-table",
@@ -2547,12 +2543,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -2933,7 +2928,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,
@@ -3002,8 +2997,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 802,
-      "score": 0.6854700854700855,
+      "passing": 803,
+      "score": 0.6863247863247863,
       "change": "Estate pilot 5: code read from prose skips fenced examples",
       "failing": [
         "bench.defects.long-routing-table",
@@ -3115,12 +3110,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -3494,7 +3488,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,
@@ -3563,8 +3557,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 806,
-      "score": 0.6888888888888889,
+      "passing": 807,
+      "score": 0.6897435897435897,
       "change": "Estate pilot 6: the registry reader knows more rule column names",
       "failing": [
         "bench.defects.long-routing-table",
@@ -3676,12 +3670,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -4051,7 +4044,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,
@@ -4120,8 +4113,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 810,
-      "score": 0.6923076923076923,
+      "passing": 811,
+      "score": 0.6931623931623931,
       "change": "Estate pilot 7: a dispatcher's target may be a bare script name",
       "failing": [
         "bench.defects.long-routing-table",
@@ -4233,12 +4226,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -4604,7 +4596,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,
@@ -4673,8 +4665,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 814,
-      "score": 0.6957264957264957,
+      "passing": 815,
+      "score": 0.6965811965811965,
       "change": "Estate pilot 8: registries, catalogues and step lists may be YAML",
       "failing": [
         "bench.defects.long-routing-table",
@@ -4786,12 +4778,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -5153,7 +5144,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,
@@ -5222,8 +5213,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 817,
-      "score": 0.6982905982905983,
+      "passing": 818,
+      "score": 0.6991452991452991,
       "change": "Estate pilot 9: a guard command behind exec, timeout or uv run finds its script",
       "failing": [
         "bench.defects.long-routing-table",
@@ -5335,12 +5326,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -5699,7 +5689,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,
@@ -5768,8 +5758,8 @@
       ],
       "hiddenSeed": 523931547,
       "size": 1170,
-      "passing": 822,
-      "score": 0.7025641025641025,
+      "passing": 823,
+      "score": 0.7034188034188035,
       "change": "Estate pilot 10: a gate comes only before an act of the agent",
       "failing": [
         "bench.defects.long-routing-table",
@@ -5881,12 +5871,11 @@
         "gen.task.guard_positive",
         "gen.task.hazard_recovery",
         "gen.task.obligation",
+        "gen.task.ordered_pair",
         "gen.task.read_when",
-        "gen.task.register_sample",
+        "gen.task.route_positive",
         "gen.task.skip_pressure",
-        "gen.task.stage_skip",
         "gen.task.tool_boundary",
-        "gen.task.tool_denied",
         "gen.task.twin",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
@@ -6240,7 +6229,7 @@
         },
         "gen.task": {
           "size": 23,
-          "passing": 12
+          "passing": 13
         },
         "gen.reads": {
           "size": 23,

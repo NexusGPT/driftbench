@@ -178,10 +178,23 @@ export function taskFamily(): Family {
       tier: 2 as Tier,
       title: `every first ask of a complete ${type} spec holds a task: a verb and its object`,
       cause: 'write every ask as a task, never as a restated rule or a bare condition',
-      judge(suite) {
+      async judge(suite) {
         const specs = ofType(suite, type);
         if (specs.length === 0) return { pass: false, detail: `no complete ${type} spec` };
-        const bad = specs.filter((spec) => !holdsTask(firstAsk(spec) ?? ''));
+        // A guard that watches the user's prompt is set off by its own trigger (a stop word): that ask is legitimate.
+        const map = await loadEstateMap(suite.map);
+        const promptGuards = new Set(
+          map.ok
+            ? map.map.atoms
+                .filter((atom) => atom.kind === 'guard' && atom.fields?.event === 'UserPromptSubmit')
+                .map((atom) => atom.id)
+            : [],
+        );
+        const bad = specs.filter(
+          (spec) =>
+            !(type.startsWith('guard_') && spec.atoms.some((atom) => promptGuards.has(atom))) &&
+            !holdsTask(firstAsk(spec) ?? ''),
+        );
         return bad.length === 0
           ? { pass: true, detail: `holds (${specs.length})` }
           : {

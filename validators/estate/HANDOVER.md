@@ -34,10 +34,10 @@ The ladder is a bank (docs/validators.md section 12): seven levels, each a sub-b
 
 | Row | Commit | Items passing on every seed | Score |
 |---|---|---|---|
-| iteration 0 | f1e6ec9 (lane/v-estate) | 736 of 1170 | 0.629 |
-| pilot 1 to 10 | exec/v-estate-pilot2 | 755, 775, 784, 794, 802, 806, 810, 814, 817, 822 | 0.703 after pilot 10 |
+| iteration 0 | f1e6ec9 (lane/v-estate) | 737 of 1170 | 0.630 |
+| pilot 1 to 10 | exec/v-estate-pilot2 | 756, 776, 785, 795, 803, 807, 811, 815, 818, 823 | 0.703 after pilot 10 |
 
-Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none broken. Failing after the pilot: 348 items, 145 distinct causes. Forecast: 40.5 iterations. GATE.md holds the honest numbers for the owner. validators/estate/NEEDS.md cites the need of every family; none is quarantined. GATE.md proposes the lowered bar. The gate does not hold on the forecast and the score; the cause term holds. No audit.md yet.
+Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none broken. Failing after the pilot: 347 items, 145 distinct causes. Forecast: 40.3 iterations. GATE.md holds the honest numbers for the owner. validators/estate/NEEDS.md cites the need of every family; none is quarantined. GATE.md records the accepted estate bar (forecast at least 30, score at most 0.75, causes at least 100), which holds. The section 12.4 gate does not hold on the forecast and the score. No audit: the owner ended validator work.
 
 ## The estate stats contract (in docs/estate.md section 7 and docs/reference/cli.md, frozen)
 
