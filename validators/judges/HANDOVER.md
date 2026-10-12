@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Levels 1 to 11 pass since iteration 62. Level 12, injection (102 items), precision (20), attacks (22) all hang on `screenData(request)` (base screen first; see the Fix line). Then council, cascade, turns, pairwise, calibration, scale. Handover test last run after 61 (reproduced level 10).
+Levels 1 to 11 pass. Level 12 (injection) first failing: `injection/language-*` (instructions in other languages, `screenData` word lists per language), then the encodings. Failing by family after 63: {"attacks": 0, "budget": 0, "calibration": 33, "cascade": 9, "cassette": 0, "check": 0, "clients": 0, "consistency": 0, "contract": 0, "council": 23, "criteria": 0, "evidence": 0, "injection": 47, "pairwise": 22, "precision": 19, "render": 0, "rubric": 0, "scale": 1, "turns": 20, "v1": 0}. Handover test last run after 61.
 
 ## Hypotheses tried
 
@@ -88,11 +88,12 @@ Iteration 59 (cause: lookalike tags unescaped): escapeData folds NFKC and drops 
 Iteration 60 (cause: reference answer not rendered): `reference_data` tag guarded (GUARDED_TAGS) and rendered after the transcript; the system prompt names it only when a reference exists, so DATA_TAGS and the prompt fingerprint stay unchanged (adding it to DATA_TAGS broke 16 cassette tests). Test: prompt.test.ts (red proved). Bank 339 -> 342 (0.5361). Level 8 -> 9.
 Iteration 61 (cause: fitPrompt missing): packages/judges/src/budget.ts, exported. Test: budget.test.ts (red proved: 4 failed). Bank 342 -> 362 (0.5674): 20 budget items from one capability. Level 9 -> 10.
 Iteration 62 (cause: groundEvidence missing): packages/judges/src/evidence.ts, exported. Test: evidence.test.ts (red proved: 5 failed). Bank 362 -> 383 (0.6003). Level 10 -> 11.
+Iteration 63 (cause: screenData missing): packages/judges/src/screen.ts, exported. Test: screen.test.ts (red proved: 4 failed). Bank 383 -> 464 (0.7273): 81 items from one capability.
 
 ## Next actions
 
-1. Base screen: `screenData(request)` in a new packages/judges/src/screen.ts, exported from the index, exactly as the Fix line of injection/english-1 says; it flips injection, precision and attacks items together.
-2. Then each remaining injection/precision/attacks item by its Fix line, then council (level 15).
+1. Remaining `injection/language-*` items: extend screenData's judge and verdict word lists per language (the Fix line of each item names the language).
+2. Then `injection/encoding-*`, then precision and attacks leftovers, council (15), cascade (16), turns (17), pairwise (18), calibration (19), scale (20).
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N`, `validate judges --journal row.json`. PR 86 takes every push. Keep the prompt fingerprint stable. At the top level, raise the floor in its own commit.
 
 ## Pitfalls
