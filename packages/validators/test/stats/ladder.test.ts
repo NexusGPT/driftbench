@@ -30,7 +30,7 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
     const anova = new Set(
       bank.filter((item) => item.id.split('.')[1] === 'oneWayAnova').map((item) => item.cause),
     );
-    expect([...anova]).toEqual(['add oneWayAnova']);
+    expect([...anova]).toEqual(['oneWayAnova is missing from @driftbench/stats']);
   });
 
   it('gives a stub method nothing: its generated items wait for one correct case', async () => {
@@ -77,7 +77,7 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
     expect(run.failing?.id).toBe('reference');
     expect(run.failing?.items.map((item) => item.id)).toEqual(['reference.special.logGamma']);
     expect(run.failing?.items[0]?.detail).toMatch(
-      /^\[reference, tier 1, cause: match the reference values of special\.logGamma\] 1 of \d+ cases differ/,
+      /^\[reference, tier 1, cause: special\.logGamma differs from the scipy and numpy reference values\] 1 of \d+ cases differ/,
     );
     expect(run.rows.slice(1).every((row) => row.pass === null)).toBe(true);
   });
@@ -93,14 +93,14 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
 
   it('stops an item that does not finish and goes on with the next one', async () => {
     const items = bank.filter(
-      (item) => item.id === 'degenerate.ksTest.nan-in-data' || item.id === 'degenerate.mean.empty',
+      (item) => item.id === 'degenerate.ksTest.nan-in-data' || item.id === 'degenerate.mean.single',
     );
     const run = await runIsolated(items, 1, ROOT, () => 3_000, 1);
     expect(run.get('degenerate.ksTest.nan-in-data')).toMatchObject({ pass: false });
     expect(run.get('degenerate.ksTest.nan-in-data')?.detail).toMatch(
       /^did not finish within 3000 ms on seed 1/,
     );
-    expect(run.get('degenerate.mean.empty')).toMatchObject({ pass: true });
+    expect(run.get('degenerate.mean.single')).toMatchObject({ pass: true });
   });
 
   it('runs the registered bank on seed 1 and stops at the degenerate level', async () => {

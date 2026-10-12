@@ -267,3 +267,23 @@ Bank minimum at merge (12.1): holds.
 ```
 
 Batch 5 adds 9 distinct failing causes, each a real gap: the plan's own MDE formula, the missing measured rho in the plan and its CLI flag, the estate session as the unit, the early stop, the report's run pass interval at few specs, `designEffect` below its bound, `mde` at a baseline of 0 or 1, and `zeroFailureBound` at a tiny p. The bank minimum now holds: 644 items, no family under 20, tiers 1 to 5. The hardness gate does not: on needs alone the product has about 37 causes of failure, not 100.
+
+## Batch 6: the stats-v2 audit findings
+
+The audit of the old bank (validators/stats/audit.md on audit/stats-v2, 2faeb603) failed all four checks. Three findings still applied to this bank and are fixed here.
+
+* Cheater, attempt 1: one wrapper that throws a RangeError on any non-finite argument passed 45 degenerate items. Rule 1 of the degenerate level now asks the RangeError to name the function and the argument to fix: the message begins `<function>: <argument>` or names the entry `<argument>[<index>]`. The argument is the parameter of the exported signature, or the option or field inside it. The need: a caller of `driftbench report`, `compare` or `ci` reads the library's error and must know which input to fix. Proof: the same wrapper, run on the levels reference to analytic on seed 1, gains 1 item and breaks 7 (a net loss of 6 items), where it gained 45 before.
+* Planted bugs missed: each of the five now turns its own item red, measured by planting it in a copy of the package (`DRIFTBENCH_STATS_IMPL` points the bank's child process at the copy):
+
+| Bug | Item that catches it | Need |
+|---|---|---|
+| `multiple.ts`: `p <= k q / m` made `<` | `edge.rule.benjamini-hochberg-equality` | `driftbench compare`; the pilot's wording test |
+| `power.ts`: default power 0.8 made 0.9 | `edge.rule.mde-defaults`, and 3 `edge.mde.*` cases | `campaign plan` prints the effect |
+| `repeat-reducers.ts`: `at_least:[1-9][0-9]*` made `[0-9]+` | `edge.rule.at-least-spelling` | docs/reference/spec.md, `repeat_reducer` |
+| `repeat-reducers.ts`: mode tie `>` made `>=` | `edge.rule.mode-tie` | docs/concepts/judges.md, "Repeat reducers" |
+| `repeat-reducers.ts`: median `> 0.5` made `>=` | `edge.rule.median-half` | docs/concepts/judges.md, "Repeat reducers" |
+
+  Two more documented reducer rules got an item each: mode with half the repeats unscored, and an `at_least` that an inconclusive repeat could still reach.
+* Cause review, 0.20: a cause now names the failure a reader sees, not the fix. "add weightedMean" becomes "weightedMean is missing from @driftbench/stats", and those items carry the family `missing-method`. "mde: input validation" becomes "mde accepts a degenerate input without a RangeError naming the argument". Every batch 5 cause names its observable failure the same way.
+
+One contradiction inside the bank is resolved: a degenerate item asked `mde` with a baseline of 1 to throw, where the edge item asks for the documented equation's answer. The degenerate item now uses a baseline of 1.2, which is out of range.

@@ -802,7 +802,8 @@ function unseenItems(): BankItem[] {
                 );
           },
         ),
-        cause: 'chaoCoverage: a richness estimate within 10 percent just above the class count',
+        cause:
+          'chaoCoverage gives a richness estimate more than 10 percent off when the sample sits just above the class count',
       })),
       item(`analytic.unseen.chao1-large.${pop.key}`, 'unseen-known', 3, FILES.coverage, ({ s, rng }) => {
         const counts = sample(rng, pop.probs, 20 * S);

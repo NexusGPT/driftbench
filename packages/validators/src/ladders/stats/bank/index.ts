@@ -3,7 +3,7 @@ import { bankMeasure, type Item, type Measure } from '../../../ladder';
 import type { StatsImpl } from '../reference';
 import { analyticItems } from './analytic';
 import { degenerateItems } from './degenerate';
-import { designBoundItems, edgeItems } from './edges';
+import { designBoundItems, edgeItems, ruleItems } from './edges';
 import { attempt, BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, itemRng } from './item';
 import { productItems } from './product';
 import { rateItems } from './rates';
@@ -24,16 +24,17 @@ export type BankOptions = { s?: StatsImpl; extra?: BankItem[] };
 export function causeOf(item: BankItem): string {
   if (item.cause) return item.cause;
   const [head, fn = '', name = ''] = item.id.split('.');
-  if (head === 'reference') return `match the reference values of ${fn}.${name}`;
+  if (head === 'reference') return `${fn}.${name} differs from the scipy and numpy reference values`;
   if (head === 'degenerate') {
-    if (item.family === 'degenerate-single-equal') return `${fn}: exact answer on one or all-equal values`;
+    if (item.family === 'degenerate-single-equal')
+      return `${fn} gives a wrong answer on one value or all-equal values`;
     if (
       name.startsWith('domain-') &&
       /special\.ts|drift\.ts$/.test(item.component) &&
       !/must throw/.test(name)
     )
-      return `${fn}: domain limits`;
-    return `${fn}: input validation`;
+      return `${fn} does not return the scipy limit at the edge of its domain`;
+    return `${fn} accepts a degenerate input without a RangeError naming the argument`;
   }
   if (
     head === 'roadmap' ||
@@ -42,11 +43,11 @@ export function causeOf(item: BankItem): string {
     head === 'roadmap-coverage' ||
     head === 'roadmap-purity'
   )
-    return `add ${fn}`;
+    return `${fn} is missing from @driftbench/stats`;
   if (head === 'analytic' && fn === 'allocation' && name.startsWith('neyman-optimal'))
-    return 'neymanAllocation: optimal integer allocation';
+    return 'neymanAllocation rounds to an allocation whose variance is above the best integer allocation';
   if (head === 'stability' && fn.startsWith('components-shift'))
-    return 'varianceComponents: centre the values before the sums';
+    return 'varianceComponents loses precision on values with a large common offset';
   return item.id;
 }
 
@@ -59,6 +60,7 @@ export function statsBank(root: string): BankItem[] {
     ...analyticItems(),
     ...edgeItems(root),
     ...designBoundItems(),
+    ...ruleItems(),
     ...productItems(),
     ...simulationItems(),
     ...rateItems(),
@@ -74,7 +76,7 @@ export function statsBank(root: string): BankItem[] {
       .map((item) => ({
         ...item,
         cause: causeOf(item),
-        ...(item.level === 'roadmap' && item.id.startsWith('roadmap') ? { family: 'roadmap' } : {}),
+        ...(item.level === 'roadmap' && item.id.startsWith('roadmap') ? { family: 'missing-method' } : {}),
       }))
       .sort((a, b) => (order.get(a.level) as number) - (order.get(b.level) as number))
   );

@@ -5,7 +5,11 @@ import { attempt, type BankItem, fail, near, ok, show, type Tier } from './item'
 /**
  * Level `degenerate`: inputs a careless caller sends. The contract, one rule per kind of input:
  * 1. A statistical procedure refuses input it cannot answer for (no data, NaN, an infinite value, a count or a
- *    probability out of range) by throwing a RangeError. It never returns a number built from that input.
+ *    probability out of range) by throwing a RangeError that names itself and the argument to fix: the message
+ *    begins `<function>: <argument>`, or names the entry `<argument>[<index>]` after `<function>: `. The argument
+ *    is the parameter of the exported signature, or the option or field inside it. It never returns a number built
+ *    from that input. A blanket guard that throws on any non-finite argument cannot name the argument, so it does
+ *    not pass these items (validators/stats/audit.md, cheater attempt 1).
  * 2. A special function (packages/stats/src/special.ts) given NaN returns NaN or throws a RangeError; it never
  *    returns a finite number. At the edge of its domain it returns the limit scipy returns.
  * 3. On a valid degenerate input (one value, all values equal) a function returns the defined answer, never NaN.
@@ -55,7 +59,7 @@ const FILE: Record<string, string> = {
 };
 
 type Expect =
-  | { kind: 'throws' }
+  | { kind: 'throws'; param?: string | readonly string[] }
   | { kind: 'nan-or-throws' }
   | { kind: 'value'; want: string; test(value: unknown): boolean };
 
@@ -151,6 +155,130 @@ const COUNT_CALLS: Array<{ fn: string; text(v: string): string; run(s: StatsImpl
     run: (s, v) => s.neymanAllocation({ sizes: v, sds: v.map(() => 0.5), total: 10 }),
   },
 ];
+
+/** The parameter that holds the data of each array or count function, as its exported signature names it. */
+const DATA_PARAM: Record<string, string | readonly string[]> = {
+  mean: 'values',
+  quantile: 'values',
+  quantileSorted: 'sorted',
+  sampleVariance: 'values',
+  unreliability: 'samples',
+  bootstrapCI: 'values',
+  wilcoxonSignedRank: ['x', 'y'],
+  ksTest: ['a', 'b'],
+  cusum: 'series',
+  pageHinkley: 'series',
+  benjaminiHochberg: 'pvalues',
+  varianceComponents: 'observations',
+  hillNumbers: 'counts',
+  hillNumber: 'counts',
+  chaoCoverage: 'counts',
+  goodTuring: 'counts',
+  neymanAllocation: 'sizes',
+};
+
+/**
+ * The argument each scalar or option case gets wrong, by the call's text: the parameter, option or field the
+ * RangeError must name.
+ */
+const CALL_PARAM: Record<string, string | readonly string[]> = {
+  'cohenKappa([], [])': ['a', 'b'],
+  'krippendorffAlpha([[], []])': 'matrix',
+  'krippendorffAlpha([])': 'matrix',
+  'nonInferiority({ baseline: [], candidate: [], margin: 0.05 })': ['baseline', 'candidate'],
+  'pairedRateDifference({ bothPass: 0, regressed: 0, improved: 0, bothFail: 0 })': 'table',
+  'wilson(NaN, 10)': 'k',
+  'wilson(3, 10, NaN)': 'z',
+  'clopperPearson(3, 10, NaN)': 'alpha',
+  'zeroFailureBound(NaN)': 'p',
+  'designEffect(4, NaN)': 'rho',
+  'effectiveSampleSize(NaN, 4, 0.1)': 'n',
+  'zFor(NaN)': 'alpha',
+  'passK(NaN, 10, 2)': 'c',
+  'mcnemar(NaN, 3)': 'b',
+  'pairedRateDifference({ bothPass: NaN, regressed: 1, improved: 2, bothFail: 3 })': 'bothPass',
+  'mde({ n: 50, baselineRate: NaN })': 'baselineRate',
+  'mde({ n: NaN, baselineRate: 0.8 })': 'n',
+  'mde({ n: 50, baselineRate: 0.8, rho: NaN })': 'rho',
+  'repeatsForFloor({ variance: NaN, floor: 0.05 })': 'variance',
+  'repeatsForFloor({ variance: 0.2, floor: NaN })': 'floor',
+  'neymanAllocation({ sizes: [10, 20], sds: [NaN, 0.5], total: 10 })': 'sds',
+  'hillNumber([3, 2, 1], NaN)': 'q',
+  'benjaminiHochberg([0.01, 0.2], NaN)': 'q',
+  'cusum([1, 2, 3, 2, 1], { sd: NaN })': 'sd',
+  'cusum([1, 2, 3, 2, 1], { sd: 1, h: NaN })': 'h',
+  'quantile([1, 2, 3], NaN)': 'p',
+  'wilson(3, Infinity)': 'n',
+  'clopperPearson(3, Infinity)': 'n',
+  'designEffect(Infinity, 0.1)': 'm',
+  'effectiveSampleSize(Infinity, 4, 0.1)': 'n',
+  'mde({ n: Infinity, baselineRate: 0.8 })': 'n',
+  'mde({ n: 50, repeats: Infinity, baselineRate: 0.8 })': 'repeats',
+  'repeatsForFloor({ variance: Infinity, floor: 0.05 })': 'variance',
+  'repeatsForFloor({ variance: 0.2, floor: 0.05, blocks: Infinity })': 'blocks',
+  'neymanAllocation({ sizes: [10, Infinity], sds: [1, 1], total: 10 })': 'sizes',
+  'cusum([1, 2, 3], { sd: Infinity })': 'sd',
+  'cusum([1, 2, 3], { sd: -1 })': 'sd',
+  'cusum([1, 2, 3], { sd: 1, k: -0.5 })': 'k',
+  'cusum([1, 2, 3], { sd: 1, warmup: 0 })': 'warmup',
+  'pageHinkley([1, 2, 3], { threshold: -1 })': 'threshold',
+  'pageHinkley([1, 2, 3], { delta: NaN })': 'delta',
+  'quantileSorted([3, 1, 2], 0.5) (not sorted)': 'sorted',
+  'wilcoxonSignedRank([1, 2, 3], [1, 2])': ['x', 'y'],
+  'nonInferiority({ baseline: [true, false], candidate: [true], margin: 0.05 })': ['baseline', 'candidate'],
+  'nonInferiority({ baseline: [true, false], candidate: [true, true], margin: -0.05 })': 'margin',
+  'neymanAllocation({ sizes: [10, 20, 30], sds: [1, 1], total: 10 })': ['sizes', 'sds'],
+  'hillNumbers([3, 1.5, 2])': 'counts',
+  'goodTuring([3, -2, 2])': 'counts',
+  'varianceComponents(rows with paths of different lengths)': 'observations',
+  'varianceComponents(rows with value NaN)': 'observations',
+  'bootstrapCI([1, 2, 3], { clusters: [1, 2] })': 'clusters',
+  'bootstrapCI([1, 2, 3], { iterations: 2.5 })': 'iterations',
+  'benjaminiHochberg([0.01, 0.2], 1.5)': 'q',
+  "krippendorffAlpha([[1, 2], [1, 2]], { level: 'cubic' as never })": 'level',
+  "cohenKappa(['a'], ['a'], { weights: 'cubic' as never })": 'weights',
+  "ksTest([1, 2], [3, 4], { method: 'magic' as never })": 'method',
+  'wilson(5, 3)': 'k',
+  'wilson(1.5, 3)': 'k',
+  'wilson(2, 10, -1.96)': 'z',
+  'clopperPearson(2, 10, 0)': 'alpha',
+  'clopperPearson(11, 10)': 'k',
+  'zeroFailureBound(1)': 'p',
+  'designEffect(0.5, 0.1)': 'm',
+  'designEffect(4, 1.5)': 'rho',
+  'passK(5, 3, 1)': 'c',
+  'passAtK(2, 5, 6)': 'k',
+  'mcnemar(-1, 3)': 'b',
+  'mcnemar(1.5, 3)': 'b',
+  'pairedRateDifference({ bothPass: -2, regressed: 1, improved: 2, bothFail: 3 })': 'bothPass',
+  'pairedRateDifference(table, alpha 1.2)': 'alpha',
+  'mde({ n: 50, baselineRate: 1.2 })': 'baselineRate',
+  'mde({ n: 50, baselineRate: 0.8, rho: 2 })': 'rho',
+  'benjaminiHochberg([0.01, 1.5])': 'pvalues',
+  'benjaminiHochberg([0.01, -0.2])': 'pvalues',
+  'benjaminiHochberg([0.01, 0.2], 0)': 'q',
+  'quantile([1, 2, 3], 1.5)': 'p',
+  'bootstrapCI([1, 2, 3], { alpha: 0 })': 'alpha',
+  'bootstrapCI([1, 2, 3], { iterations: 0 })': 'iterations',
+  'neymanAllocation({ sizes: [10, -1], sds: [1, 1], total: 10 })': 'sizes',
+  'neymanAllocation({ sizes: [10, 5], sds: [1, 1], total: 2.5 })': 'total',
+  'chaoCoverage([3, -1, 2])': 'counts',
+  'cohenKappa([a, b], [a])': ['a', 'b'],
+  'repeatsForFloor({ flipRate: 1.5, floor: 0.05 })': 'flipRate',
+  'zFor(1)': 'alpha',
+};
+
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** Whether a RangeError message names the function and one of the arguments, as rule 1 asks. */
+export function namesArgument(fn: string, params: string | readonly string[], message: string): boolean {
+  const prefix = `${fn}: `;
+  if (!message.startsWith(prefix)) return false;
+  const rest = message.slice(prefix.length);
+  return (typeof params === 'string' ? [params] : params).some(
+    (p) => new RegExp(`^${escapeRegExp(p)}\\b`).test(rest) || rest.includes(`${p}[`),
+  );
+}
 
 const finiteDeep = (value: unknown): boolean => {
   if (typeof value === 'number') return Number.isFinite(value);
@@ -541,7 +669,12 @@ function cases(): Case[] {
       (s) => s.pairedRateDifference({ bothPass: 5, regressed: 1, improved: 2, bothFail: 3 }, 1.2),
       { kind: 'throws' },
     ],
-    ['mde', 'mde({ n: 50, baselineRate: 1 })', (s) => s.mde({ n: 50, baselineRate: 1 }), { kind: 'throws' }],
+    [
+      'mde',
+      'mde({ n: 50, baselineRate: 1.2 })',
+      (s) => s.mde({ n: 50, baselineRate: 1.2 }),
+      { kind: 'throws' },
+    ],
     [
       'mde',
       'mde({ n: 50, baselineRate: 0.8, rho: 2 })',
@@ -1125,9 +1258,15 @@ export function degenerateItems(): BankItem[] {
           ? { kind: 'value', want: built.want, test: built.test }
           : c.expect;
       if (expect.kind === 'throws') {
-        if (got.error instanceof RangeError) return ok();
+        const param = CALL_PARAM[built.text] ?? DATA_PARAM[c.fn];
+        if (param === undefined)
+          return fail(`the validator names no argument for ${built.text}; fix degenerate.ts`);
+        const names = (typeof param === 'string' ? [param] : param).join(' or ');
+        if (got.error instanceof RangeError && namesArgument(c.fn, param, got.error.message)) return ok();
         return fail(
-          `${built.text} must throw a RangeError (degenerate-input contract, rule 1); ${happened}. Add the check to ${where}.`,
+          got.error instanceof RangeError
+            ? `${built.text} threw RangeError "${got.error.message}", which does not name the argument to fix: the message must begin "${c.fn}: ${names}" or name the entry as ${names}[<index>] (degenerate-input contract, rule 1). Write the check in ${where}, per argument.`
+            : `${built.text} must throw a RangeError beginning "${c.fn}: ${names}" (degenerate-input contract, rule 1); ${happened}. Add the check to ${where}.`,
         );
       }
       if (expect.kind === 'nan-or-throws') {

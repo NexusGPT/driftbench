@@ -150,8 +150,8 @@ type PlanFn = (
   options: Record<string, unknown>,
 ) => { mde: Array<Record<string, unknown>> };
 
-const MDE_CAUSE = 'campaign plan: the minimum detectable effect from stats.mde';
-const RHO_CAUSE = 'campaign plan: a measured rho';
+const MDE_CAUSE = 'campaign plan prints a minimum detectable effect that differs from stats.mde';
+const RHO_CAUSE = 'campaign plan has no input for a measured rho';
 const STATISTICS_NEED =
   'docs/concepts/statistics.md, "Before a campaign": "campaign plan uses the runner\'s own formula today, with runs counted as independent; using mde with a measured rho there is planned"';
 
@@ -270,7 +270,7 @@ type SessionRate = (
   options: { rho: number },
 ) => Record<string, number>;
 
-const SESSION_CAUSE = 'estate: the session as the unit (sessionRate)';
+const SESSION_CAUSE = '@driftbench/estate has no sessionRate (the session as the unit)';
 const SESSION_NEED =
   'docs/estate.md, section 7, "Not built yet": "The session as the unit (one cluster), with the design effect from the measured correlation of the variance pilot"';
 const SESSION_CONTRACT =
@@ -345,7 +345,8 @@ const sessionRange: BankItem['check'] = async ({ root }) => {
 // ---------------------------------------------------------------------------------------------------------
 // Planned: the early stop.
 
-const EARLY_CAUSE = 'runner: the planned early stop (earlyStop)';
+const EARLY_CAUSE =
+  'the runner runs every repeat of a spec whose first two free-running repeats failed (no early stop)';
 const EARLY_NEED =
   'docs/concepts/run-modes.md, "Around the modes": "Stopping a spec early when its first two free-running repeats both fail a gating machine check is planned"';
 const EARLY_CONTRACT =
@@ -483,20 +484,23 @@ const passKBounds: BankItem['check'] = async ({ s, root }) => {
     const c = line.passRate.k;
     const w = s.wilson(c, line.runs);
     for (let k = 1; k <= line.runs; k += 1) {
-      const pk = line.passK[k - 1];
-      const pak = line.passAtK[k - 1];
+      const rowK = line.passK[k - 1];
+      const rowAtK = line.passAtK[k - 1];
+      // The raised Wilson bounds, widened to contain the exact value (the exact pass^k sits below p^k).
+      const pk = s.passK(c, line.runs, k);
+      const pak = s.passAtK(c, line.runs, k);
       const want = {
-        passK: [s.passK(c, line.runs, k), w.lower ** k, w.upper ** k],
-        passAtK: [s.passAtK(c, line.runs, k), 1 - (1 - w.lower) ** k, 1 - (1 - w.upper) ** k],
+        passK: [pk, Math.min(w.lower ** k, pk), Math.max(w.upper ** k, pk)],
+        passAtK: [pak, Math.min(1 - (1 - w.lower) ** k, pak), Math.max(1 - (1 - w.upper) ** k, pak)],
       };
       for (const [name, got] of [
-        ['passK', pk],
-        ['passAtK', pak],
+        ['passK', rowK],
+        ['passAtK', rowAtK],
       ] as const) {
         const triple = [got?.value, got?.lower, got?.upper];
         if (!triple.every((v, i) => typeof v === 'number' && near(v, want[name][i] as number, 1e-12)))
           return fail(
-            `report reliability, a line of ${c} passes in ${line.runs} repeats, ${name} at k ${k}: ${show(got)}; want value ${want[name][0]} (stats.${name}) and bounds ${want[name][1]} to ${want[name][2]} (the Wilson bounds of the per-run rate raised the same way). Need: driftbench report prints pass^k and pass@k with their interval (docs/concepts/statistics.md).`,
+            `report reliability, a line of ${c} passes in ${line.runs} repeats, ${name} at k ${k}: ${show(got)}; want value ${want[name][0]} (stats.${name}) and bounds ${want[name][1]} to ${want[name][2]} (the Wilson bounds of the per-run rate raised the same way, widened to contain the value). Need: driftbench report prints pass^k and pass@k with their interval (docs/concepts/statistics.md).`,
           );
       }
     }
@@ -609,7 +613,7 @@ export function productItems(): BankItem[] {
       'roadmap',
       5,
       CLI_CAMPAIGN,
-      'campaign plan CLI: --rho',
+      'campaign plan has no --rho flag',
       cliCheck(
         ['--rho', '0.3'],
         0.3,
@@ -644,7 +648,7 @@ export function productItems(): BankItem[] {
       'analytic',
       4,
       RELIABILITY,
-      'report: pass^k and pass@k agree with the library',
+      "the report's pass^k or pass@k differs from the library",
       passKBounds,
     ),
     item(
@@ -652,7 +656,7 @@ export function productItems(): BankItem[] {
       'analytic',
       4,
       'packages/report/src/estimate.ts',
-      'report: an all-pass rate counts each spec once',
+      "the report's interval on an all-pass rate does not count each spec once",
       allPassClusters,
     ),
     item(
@@ -660,7 +664,7 @@ export function productItems(): BankItem[] {
       'analytic',
       4,
       SPREAD,
-      'report: the noise floor agrees with repeatsForFloor',
+      "the report's noise floor differs from repeatsForFloor",
       noiseFloor,
     ),
   );

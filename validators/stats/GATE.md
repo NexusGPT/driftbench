@@ -4,44 +4,39 @@ Status, 2026-10-12: the bank stays at its honest size until the owner decides. T
 
 ## The numbers
 
-From `driftbench validate stats --hardness`, at lane/v-stats 37040b62:
+From `driftbench validate stats --hardness`, after the stats-v2 audit findings (batch 6, see [NEEDS.md](NEEDS.md)):
 
 | Measure | Value | Gate (docs/validators.md section 12) |
 |---|---|---|
-| Bank | 644 items, 22 families, tiers 1 to 5 | 300 items, no family under 20, every tier: holds |
-| Score at iteration 0 | 0.7516 (484 of 644) | |
-| Score after the pilot | 0.8214 (529 of 644) | at most 0.4: not met |
-| Items fixed per iteration | 4.5 | |
-| Forecast | 25.56 iterations (115 failing / 4.5) | at least 100: not met |
-| Distinct failing causes | 37 | at least 100: not met |
-| Audit | `audit.md` absent | required |
+| Bank | 651 items, tiers 1 to 5 | 300 items, no family under 20, every tier: holds |
+| Score at iteration 0 | 0.6421 (418 of 651) | |
+| Score after the pilot | 0.6851 (446 of 651) | at most 0.4: not met |
+| Items fixed per iteration | 2.8 | |
+| Forecast | 73.21 iterations (205 failing / 2.8) | at least 100: not met |
+| Distinct failing causes | 62 | at least 100: not met |
+| Audit | `audit.md` absent on this branch (the stats-v2 audit judged the old bank: all four checks fail) | required |
 
-## The 37 failing causes, by family
+Batch 6 moved the numbers: a degenerate item now asks the RangeError to name the argument, so a function whose message does not name it is one more cause. Every pilot row was remeasured against the statistics package of its own commit.
 
-Each line gives the cause, then its failing items in brackets.
+What the audit findings now measure:
 
-* product (6, tier 5):
-  * campaign plan: the minimum detectable effect from stats.mde [5]
-  * campaign plan: a measured rho [3]
-  * campaign plan CLI: --rho [1]
-  * estate: the session as the unit (sessionRate) [4]
-  * report: the run pass interval holds 95 percent with few specs [2]
-  * runner: the planned early stop (earlyStop) [1]
-* roadmap (7): add clusteredMeanInterval, designEffectFromData, iccOneWay, kishEffectiveSize, oneWayAnova, stratifiedMean, weightedMean [7 or 8 each].
-* edge-accuracy (3, tier 4):
-  * designEffect: reject rho below -1 / (m - 1) [3]
-  * mde: edge inputs [2]
-  * zeroFailureBound: edge inputs [1]
-* numerical-stability (4, tier 4):
-  * varianceComponents: centre the values before the sums [2]
-  * mean without overflow [1]
-  * betaQuantile on a U-shaped beta [1]
-  * Hill number near order 1 [1]
-* degenerate-domain (10, tier 2): input validation or domain limits of chiSquareSf, cohenKappa, designEffect, incompleteBeta, krippendorffAlpha, logGamma, mde, neymanAllocation, normalCdf, repeatsForFloor.
-* degenerate-single-equal (4, tier 2): exact answers on one or all-equal values from bootstrapCI, mean, sampleVariance, varianceComponents.
-* degenerate-nonfinite (1, tier 2): betaQuantile input validation.
-* allocation-bruteforce (1, tier 4): neymanAllocation optimal integer allocation [11].
-* unseen-known (1, tier 4): chaoCoverage richness within 10 percent just above the class count [3].
+* Cheater attempt 1, the blanket non-finite guard: a net loss of 6 items (1 gained, 7 broken), where it gained 45.
+* Planted bugs: the five the audit missed each turn their own item red.
+* Causes: each names the failure a reader sees.
+
+## The 62 failing causes, by family
+
+| Family | Causes | Failing items | What they are |
+|---|---|---|---|
+| degenerate (domain, empty, nonfinite, single-equal) | 40 | 109 | per function, a RangeError that does not name the argument; special functions without the scipy limit; four wrong answers on one or all-equal values |
+| missing-method | 7 | 55 | clusteredMeanInterval, designEffectFromData, iccOneWay, kishEffectiveSize, oneWayAnova, stratifiedMean, weightedMean are missing |
+| product | 6 | 16 | campaign plan MDE and rho (3 causes), estate sessionRate, early stop, report run pass interval coverage |
+| numerical-stability | 4 | 5 | |
+| edge-accuracy | 3 | 6 | designEffect below its bound, mde at a baseline of 0 or 1, zeroFailureBound at a tiny p |
+| allocation-bruteforce | 1 | 11 | neymanAllocation rounding |
+| unseen-known | 1 | 3 | chaoCoverage just above the class count |
+
+A cause can appear in more than one degenerate family, so the degenerate row counts distinct causes over the four.
 
 ## Real product defects: the executor picks these first
 

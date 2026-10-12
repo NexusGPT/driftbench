@@ -215,7 +215,7 @@ export function rateItems(): BankItem[] {
         'coverage-simulation',
         4,
         PAIRED,
-        'pairedRateDifference: coverage at the documented level',
+        "pairedRateDifference's interval covers less than 95 percent",
         newcombe(n, 2000),
       ),
     );
@@ -226,7 +226,7 @@ export function rateItems(): BankItem[] {
       'coverage-simulation',
       4,
       PAIRED,
-      'nonInferiority: error at the margin',
+      'nonInferiority declares non-inferiority too often at the margin',
       nonInferiorSize(100, 0.05, 2000),
     ),
   );
@@ -236,7 +236,7 @@ export function rateItems(): BankItem[] {
       'coverage-simulation',
       4,
       PAIRED,
-      'mcnemar: size at the level',
+      'mcnemar rejects a true null more often than its level',
       size(
         'mcnemar on 25 to 80 discordant pairs (chi-square)',
         4000,
@@ -258,7 +258,7 @@ export function rateItems(): BankItem[] {
       'coverage-simulation',
       4,
       PAIRED,
-      'wilcoxonSignedRank: size at the level',
+      'wilcoxonSignedRank rejects a true null more often than its level',
       size(
         'wilcoxonSignedRank on 15 continuous pairs',
         3000,
@@ -276,7 +276,7 @@ export function rateItems(): BankItem[] {
       'coverage-simulation',
       4,
       PAIRED,
-      'wilcoxonSignedRank: size at the level',
+      'wilcoxonSignedRank rejects a true null more often than its level',
       size(
         'wilcoxonSignedRank on 80 pairs of drift counts (ties and zeros)',
         3000,
@@ -297,7 +297,7 @@ export function rateItems(): BankItem[] {
       'coverage-simulation',
       4,
       DRIFT,
-      'ksTest: size at the level',
+      'ksTest rejects a true null more often than its level',
       size(
         'ksTest on 30 against 40 continuous values',
         3000,
@@ -315,7 +315,7 @@ export function rateItems(): BankItem[] {
       'coverage-simulation',
       4,
       DRIFT,
-      'ksTest: size at the level',
+      'ksTest rejects a true null more often than its level',
       size(
         'ksTest on 40 against 40 latencies rounded to whole seconds (ties)',
         3000,
@@ -335,7 +335,7 @@ export function rateItems(): BankItem[] {
       'coverage-simulation',
       4,
       MULTIPLE,
-      'benjaminiHochberg: false discovery rate at q',
+      'benjaminiHochberg lets the false discovery rate exceed q',
       ({ s, rng }) => {
         const draws = 3000;
         let fdr = 0;
@@ -363,7 +363,7 @@ export function rateItems(): BankItem[] {
       },
     ),
   );
-  const runPassCause = 'report: the run pass interval holds 95 percent with few specs';
+  const runPassCause = "the report's run pass interval covers less than 95 percent with few specs";
   // Draws: enough that the bar sits several standard errors from where a correct 95 percent interval lands.
   for (const [specs, repeats, rho, draws] of [
     [6, 5, 0.3, 1000],
