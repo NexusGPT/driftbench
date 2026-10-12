@@ -20,6 +20,8 @@ pnpm install
 | Row | Command | Paid calls |
 |---|---|---|
 | 7, 8, 9, 10, 11, 12, 16 | `npx tsx comparisons/promptfoo/measure-deterministic.mts` | none |
+| 13 | `npx tsx comparisons/promptfoo/measure-similarity.mts` | none |
+| 32 (personal data) | `npx tsx comparisons/promptfoo/measure-pii.mts` | yes: 200 haiku calls, 0.0355 USD measured, capped at 1.5 USD |
 | 19 | `npx tsx comparisons/promptfoo/measure-factuality.mts` | yes: 200 haiku calls, 0.0185 USD measured, capped at 1.5 USD |
 
 Output lands in `comparisons/promptfoo/out/`, which is git-ignored. The factuality script needs the `claude` command on
@@ -40,10 +42,18 @@ the path, or `CLAUDE_BIN` set to its location.
 
 Not in these scripts:
 
-- **13 levenshtein and similar:** ours has no edit-distance check, and similarity needs an embedding endpoint.
 - **35 initial messages:** served by a block's `given.prefix`, which replays the earlier history without asking the agent to answer it again. `packages/core/test/runner/run.test.ts` checks that the prefix is the replayed history. Not scored, because it is the same behaviour, not a competing one.
 - **36 stateful simulated user (send only the latest message):** a limit, not built. Every adapter sends the full history on each block, which keeps each block independent of server-side state. A stateful mode would make a block's result depend on what earlier blocks left on the server.
-- **32 PII and prompt-extraction red-team classes:** the classes are drafts. They need approved phrasings and model calls.
+- **32 prompt extraction:** not measured. Ours has no check for it; the D12 phrasings are unapproved drafts.
+- **13 promptfoo similar (embedding cosine):** not measured. It needs an embedding API.
+- **32 IBAN and national register numbers:** not measured. Our check validates them by checksum, so a fair test needs valid numbers built outside our validator.
+
+## Row results added
+
+| Row | Cases | Result |
+|---|---|---|
+| 13 levenshtein against similarity | 100 held-out (100 dev chose thresholds) | ahead: ours 67 of 100, promptfoo 50 of 100; sign test p below 0.001. Set is fictional and built so character distance cannot separate a case change from a price change, so this is a result on this set, not a general claim |
+| 32 personal data in replies | 200 | equal: ours 200 of 200, promptfoo 199 of 200; sign test p = 1 |
 
 ## Reading the numbers
 
