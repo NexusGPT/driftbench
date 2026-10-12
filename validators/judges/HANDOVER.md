@@ -7,27 +7,27 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 4 |
-| 2 | 4 |
-| 3 | 4 |
-| 4 | 4 |
-| 5 | 4 |
-| 6 | 4 |
-| 7 | 4 |
-| 8 | 4 |
-| 9 | 4 |
-| 10 | 4 |
-| 11 | 4 |
-| 12 | 4 |
-| 13 | 4 |
-| 14 | 4 |
-| 15 | 4 |
-| 16 | 4 |
-| 17 | 4 |
-| 18 | 4 |
-| 19 | 4 |
-| 20 | 4 |
-| hidden | 4 |
+| 1 | 6 |
+| 2 | 6 |
+| 3 | 6 |
+| 4 | 6 |
+| 5 | 6 |
+| 6 | 6 |
+| 7 | 6 |
+| 8 | 6 |
+| 9 | 6 |
+| 10 | 6 |
+| 11 | 6 |
+| 12 | 6 |
+| 13 | 6 |
+| 14 | 6 |
+| 15 | 6 |
+| 16 | 6 |
+| 17 | 6 |
+| 18 | 6 |
+| 19 | 6 |
+| 20 | 6 |
+| hidden | 6 |
 <!-- level-table:end -->
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 769 items; 111 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 638 deterministic items in 20 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails. Bank score after the ten-iteration pilot: 260 of 638 items pass on every seed (0.4075); iteration 0 was 249 (0.3903). Hardness: 1.1 items fixed per iteration, 378 remaining, forecast 343.6 iterations, 150 distinct failing causes. `validators/judges/GATE.md` lowers the score bar for judges to 0.41 (`Max score after the pilot: 0.41`, read by `--hardness`), which the pilot meets; the gate then waits only on `audit.md`. These rows are the pilot's package; on main's judges package the bank gives 258 of 638 (0.4044) and 153 causes, and the next executor starts there. The judges page's "Planned" section (docs/concepts/judges.md) is the roadmap most failing items point at. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 4 (cassette) passes since iteration 26. Level 5, clients (3 items): `clients/usage-from-openai`, `usage-from-anthropic`, `usage-from-google` (one function, `usageFromResponse`), then level 6 onward (check family: `check/two-judge-verdicts-same-id-refused`), `google-recitation`, `openai-asks-for-the-answer-schema`, and others; the Fix line of each names the change in packages/judges/src/clients. Then check, rubric, render, budget, evidence, injection and later families. Handover test (`--brief --fresh`) run at iteration 25: reproduced level 3 and named the two open cassette items.
+Level 6 passes since iteration 34 (clients and criteria green). Level 7, check: `check/two-judge-verdicts-same-id-refused`, `verdict-ids-unique-across-names`, `diff-summary-one-line`, `no-verdict-is-not-a-pass`. Then level 8 rubric (20 items, `rubric/two-questions` first), render, budget, evidence, injection (102 items) and later. Handover test (`--brief --fresh`) last run at iteration 25 and reproduced the level.
 
 ## Hypotheses tried
 
@@ -59,12 +59,13 @@ Iteration 30 (cause: RECITATION): added to the Google decline branch. Test: "a G
 Iteration 31 (cause: short echoed header): `scrub` threshold in http.ts lowered from 8 to 1. Test: "an error body that echoes a short header value" (red first). Bank 293 -> 294 (0.4608).
 Iteration 32 (cause: OpenAI schema): `ANSWER_SCHEMA` and response_format json_schema (strict false) in clients/chat.ts. Test: "the OpenAI client asks for the answer schema" (red first). Bank 294 -> 295 (0.4624).
 Iteration 33 (cause: Google schema): `GOOGLE_ANSWER_SCHEMA`. Test: "the Google client gives a response schema" (red first). Bank 295 -> 296 (0.4639). PR 86 stays open and takes every push; a second PR from the same branch is not possible. PR 86 holds iterations 11 to 25.
+Iteration 34 (cause: usageFromResponse missing): packages/judges/src/clients/usage.ts, exported. Test: packages/judges/test/usage.test.ts (red first). Bank 296 -> 299 (0.4687). Level 4 -> 6. The first commit of the iteration lacked the index export; a second commit added it and the row is of that second commit.
 
 ## Next actions
 
-1. Level 5 clients, one cause per iteration, starting with `usageFromResponse(provider, body)` in packages/judges (page: reads input and output tokens of an OpenAI, Anthropic or Google answer) (packages/judges/src/clients/chat.ts).
-2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
-3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, then `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`; a PR to main every 3 iterations.
+1. Level 7 check family, one cause per iteration, first `check/two-judge-verdicts-same-id-refused` (packages/judges/src/check.ts, see its Fix line).
+2. Then level 8 rubric (`rubric/two-questions`) and onward: `validate judges --seeds 1..20 --hidden --items`.
+3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`. PR 86 takes every push.
 
 ## Pitfalls
 
