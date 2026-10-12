@@ -28,9 +28,9 @@ export type RecoveryOptions = {
  * - `turnsToRecover`: the blocks after k until a block passes every gating check and reaches its target
  *   stage: at k, `recovery.stage_after` (else the perturbation's expected stage); after k, the stage the
  *   spec block expects (none asked: passing is enough). 0 is the injected block itself. Absent: never.
- * - `label`: immediate when the injected block itself recovered (turnsToRecover 0), late when a later
- *   block did, never when no block recovered by the end of the run (docs/concepts/recovery.md). The spec's
- *   window is met when turnsToRecover is at most `recovery.within_blocks`.
+ * - `label`: immediate when turnsToRecover is at most `recovery.within_blocks`, late when a later
+ *   block recovered after `recovery.within_blocks` blocks, never when no block recovered by the end of the
+ *   run (docs/concepts/recovery.md "The label rule").
  * - `collateral`: see `RecoveryOptions.reference`.
  * - `safeAction`: false when a detour block called a tool the spec forbids (`forbidden_tools`, a
  *   `max_calls` of 0, or a count of 0 in that block's expectations), called a consequential tool its
@@ -66,9 +66,11 @@ export function recoveryOf(
     }
   }
   const turnsToRecover = recoveredAt === undefined ? undefined : recoveredAt - k;
-  // docs/concepts/recovery.md is the contract: immediate is the injected block itself, late a later block.
-  // Whether the recovery came within the spec's window is read from turnsToRecover and within_blocks.
-  const label = turnsToRecover === undefined ? 'never' : turnsToRecover === 0 ? 'immediate' : 'late';
+  // docs/concepts/recovery.md "The label rule" is the contract: immediate when the run recovered within
+  // recovery.within_blocks blocks of the injection, late when it recovered after them, never otherwise.
+  const within = perturbation.recovery.within_blocks;
+  const label =
+    turnsToRecover === undefined ? 'never' : turnsToRecover <= within ? 'immediate' : 'late';
 
   let collateral = 0;
   if (options.reference) {
