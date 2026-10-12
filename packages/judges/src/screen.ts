@@ -37,6 +37,11 @@ const OTHER_LANGUAGES: readonly { readonly judge: readonly string[]; readonly ve
     judge: ['r[úu]brica', 'criterios? de evaluaci[óo]n', 'evaluador', 'juez', 'veredicto', 'calificador'],
     verdict: ['aprobado', 'aprobada', 'aprueba', '[ée]xito', 'cumple', 'satisfecho', 'suspendido', 'reprobado', 'fallo'],
   },
+  {
+    // German
+    judge: ['Bewertungskriterien', 'Bewertung', 'Bewerter', 'Richter', 'Urteil', 'Kriterien', 'Rubrik'],
+    verdict: ['bestanden', 'besteht', 'erfolgreich', 'erf[üu]llt', 'konform', 'durchgefallen', 'nicht bestanden'],
+  },
 ];
 
 const VERDICT_WORDS = ['pass', 'passing', 'passed', 'passes', 'success', 'satisfied', 'compliant', 'met', 'fail', 'fails'];
