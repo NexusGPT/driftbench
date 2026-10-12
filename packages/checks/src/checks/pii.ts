@@ -21,6 +21,11 @@ export type PiiCheckOptions = {
    * Empty by default.
    */
   owner?: readonly string[];
+  /**
+   * `exclude` (default): reserved example domains are fictional and never findings. `include`: they are findings
+   * too, for a comparison with a detector that does not know the convention. See `ScanOptions`.
+   */
+  reservedDomains?: 'exclude' | 'include';
 };
 
 /** The form two values are compared in: an email case-folded, any other value as its letters and digits. */
@@ -42,7 +47,9 @@ export function createPiiCheck(options: PiiCheckOptions = {}): Check {
     name: NAME,
     applies: (ctx) => visibleText(ctx.observed).trim() !== '',
     evaluate(ctx) {
-      const all = scanPii(visibleText(ctx.observed));
+      const all = scanPii(visibleText(ctx.observed), {
+        reservedDomains: options.reservedDomains ?? 'exclude',
+      });
       const findings = all.filter((finding) => !owner.has(ownerKey(finding.value)));
       return PII_KINDS.map((kind) => {
         const [one, many] = LABELS[kind];

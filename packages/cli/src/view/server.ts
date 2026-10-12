@@ -52,6 +52,8 @@ export type ViewerOptions = {
   port: number;
   /** Who labels, written as `labelled_by` in a new labels file. */
   labelledBy?: string;
+  /** The score scale per criterion, from the config; a criterion without one scores 0 to 1. */
+  scales?: Record<string, { min: number; max: number }>;
 };
 
 export type Viewer = {
@@ -85,7 +87,7 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
       .map(decodeURIComponent);
     if (request.method === 'POST' && url.pathname === '/labels') {
       const fields = new URLSearchParams(await readBody(request));
-      const location = await saveFromForm(store, options.labels, labelledBy, fields);
+      const location = await saveFromForm(store, options.labels, labelledBy, fields, options.scales ?? {});
       response.writeHead(303, { location });
       response.end();
       return;
@@ -577,6 +579,13 @@ export function anchorOptions(
       });
     }
   }
+  for (const event of block.timelineEvents ?? []) {
+    options.push({
+      value: `span:${event.id}`,
+      label: event.label,
+      anchor: { kind: 'span', span_id: event.id },
+    });
+  }
   for (const event of block.runtimeEvents ?? []) {
     const spanId = `${event.kind}:${event.name}`;
     options.push({
@@ -603,6 +612,7 @@ async function saveFromForm(
   labelsDir: string,
   labelledBy: string,
   fields: URLSearchParams,
+  scales: Record<string, { min: number; max: number }>,
 ): Promise<string> {
   const campaignId = fields.get('campaign') ?? '';
   const runId = fields.get('run') ?? '';
@@ -639,6 +649,10 @@ async function saveFromForm(
   }
   const scoreText = (fields.get('score') ?? '').trim();
   const score = scoreText === '' ? undefined : Number(scoreText);
+  const scale = scales[criterion] ?? { min: 0, max: 1 };
+  if (score !== undefined && !(Number.isFinite(score) && score >= scale.min && score <= scale.max)) {
+    throw new HttpError(400, `score ${scoreText} is outside the scale ${scale.min} to ${scale.max}.`);
+  }
   const labelled: LabelledBlock = {
     id: blockId(run.runId, index),
     label,
@@ -651,7 +665,7 @@ async function saveFromForm(
   if (entry && entry.state === 'assigned' && entry.assignee === labelledBy) {
     await writeQueue(
       labelsDir,
-      await completeItem(labelsDir, queue, criterion, entry.id, labelledBy, labelled, score),
+      await completeItem(labelsDir, queue, criterion, entry.id, labelledBy, labelled, score, scale),
     );
   } else {
     await saveLabel(labelsDir, criterion, labelled, labelledBy);

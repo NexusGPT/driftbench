@@ -1175,6 +1175,22 @@ describe('the cache', () => {
     expect(result.status).toBe('completed');
   });
 
+  it('each block of a cached run records the key it was stored under', async () => {
+    const cache = memoryCache();
+    const first = await runSpec(spec(), {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache,
+    });
+    for (const block of first.blocks) {
+      expect(block.cacheKey).toMatch(/^block:[0-9a-f]{64}$/);
+      expect(await cache.cacheGet(block.cacheKey as string)).toEqual(block.observed);
+    }
+  });
+
   it('a run in another suite does not replay the cache of the first suite', async () => {
     const cache = memoryCache();
     await runSpec(spec(), {

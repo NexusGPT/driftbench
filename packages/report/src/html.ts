@@ -576,6 +576,7 @@ function blockDetail(block: BlockDetail, extra = ''): string {
 <p class="block-head"><span class="badge ${block.pass ? 'ok' : 'bad'}">${block.pass ? 'pass' : 'fail'}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
 ${block.stimulus === undefined ? '' : `<p class="label">User</p><pre class="msg">${esc(block.stimulus)}</pre>`}
 <p class="label">Agent</p><pre class="msg">${esc(block.text || '(no text)')}</pre>
+<p class="label">Cache key</p><pre class="mono">${esc(block.cacheKey ?? 'not cached')}</pre>
 <p class="label">Tool calls</p>${tools}
 ${shown.length > 0 ? table('Verdicts with evidence: every one that did not pass, every judged one', verdictHead, shown.map(verdictRow)) : ''}
 ${passed.length > 0 ? `<p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">${esc(passed.map((v) => v.id).join(', '))}</span></p>` : ''}${extra === '' ? '' : `\n${extra}`}

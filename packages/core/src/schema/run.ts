@@ -210,6 +210,8 @@ export const BlockResult = z.strictObject({
   blockId: z.string().optional(),
   injected: z.boolean().optional(),
   givenHash: z.string().min(1),
+  /** The key the block's observed record is cached under: what a replay looked up. */
+  cacheKey: z.string().min(1).optional(),
   observed: Observed,
   verdicts: z.array(Verdict),
   stageObserved: z.string().optional(),

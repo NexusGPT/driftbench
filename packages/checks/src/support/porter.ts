@@ -37,17 +37,6 @@ const endsCvc = (w: string) => {
   return !'wxy'.includes(w[n - 1] ?? '');
 };
 
-function replaceSuffix(
-  word: string,
-  suffix: string,
-  replacement: string,
-  minMeasure: number,
-): string | undefined {
-  if (!word.endsWith(suffix)) return undefined;
-  const stem = word.slice(0, word.length - suffix.length);
-  return measure(stem) > minMeasure - 1 ? stem + replacement : word;
-}
-
 function step1a(w: string): string {
   if (w.endsWith('sses')) return w.slice(0, -2);
   if (w.endsWith('ies')) return w.slice(0, -2);

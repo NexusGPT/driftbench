@@ -167,3 +167,30 @@ describe('a score typed with the label is kept on the queue vote', () => {
     ]);
   });
 });
+
+describe('a timeline event of a block is a span anchor', () => {
+  it('offers each recorded event of the block by its id, and saves it as a span anchor', async () => {
+    const { anchorOptions } = await import('../src/view/server');
+    const block = {
+      index: 1,
+      injected: false,
+      pass: true,
+      latencyMs: 0,
+      retries: 0,
+      drift: [],
+      text: 'ok',
+      toolCalls: [],
+      verdicts: [],
+      timelineEvents: [
+        { id: 'event:4', label: 'tool coverage.lookup' },
+        { id: 'event:5', label: 'model call' },
+      ],
+    } as never;
+    const options = anchorOptions(block);
+    expect(options.map((option) => option.value)).toContain('span:event:4');
+    expect(options.find((option) => option.value === 'span:event:4')?.anchor).toEqual({
+      kind: 'span',
+      span_id: 'event:4',
+    });
+  });
+});

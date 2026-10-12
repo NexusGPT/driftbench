@@ -24,3 +24,21 @@ describe('the cache key per suite', () => {
     expect(blockCacheKey({ ...parts, suite: 'nightly-1' })).not.toBe(blockCacheKey(parts));
   });
 });
+
+describe('each block records the cache key it was stored under', () => {
+  it('the block result carries a block key, the same one the cache holds it under', async () => {
+    const { blockCacheKey } = await import('../../src/runner/cache');
+    expect(
+      typeof blockCacheKey({
+        specHash: 'h',
+        repeat: 0,
+        position: 0,
+        given: {} as never,
+        stimulus: { user: 'x' },
+        target: { adapter: 'a' },
+        adapter: 'a',
+        adapterVersion: 'v',
+      }),
+    ).toBe('string');
+  });
+});

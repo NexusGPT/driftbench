@@ -78,6 +78,10 @@ export type BlockDetail = {
   text: string;
   toolCalls: ToolCall[];
   /** The runtime events the block recorded: a guard that ran and a skill that was loaded, by name. */
+  /** The key the block's record was cached under, when the run had a cache. */
+  cacheKey?: string;
+  /** The recorded timeline events of the block, each with the id a label can anchor to. */
+  timelineEvents?: { id: string; label: string }[];
   runtimeEvents?: { kind: 'guard' | 'skill'; name: string; verdict?: string }[];
   verdicts: Verdict[];
 };
@@ -252,6 +256,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     ...optional('recovery', run.recovery),
     ...optional('events', run.events),
     blocks: blocksWithSpec(run, spec).map(({ result, specBlock }) => {
+      const timelineEvents = timelineEventsOf(run, result.index);
       const injectedText =
         specBlock === undefined && perturbation
           ? `[${perturbation.class}] ${perturbation.user ?? perturbation.burst?.join('\n') ?? '(world change)'}`
@@ -281,10 +286,29 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         ...(runtimeEventsOf(result.observed.runtime).length > 0
           ? { runtimeEvents: runtimeEventsOf(result.observed.runtime) }
           : {}),
+        ...optional('cacheKey', result.cacheKey),
+        ...(timelineEvents.length > 0 ? { timelineEvents } : {}),
         verdicts: result.verdicts,
       };
     }),
   };
+}
+
+/** The recorded events of a block. An event's id is its position in the run's events, which a label can name. */
+function timelineEventsOf(run: RunResult, index: number): { id: string; label: string }[] {
+  const events = run.events ?? [];
+  return events.flatMap((event, position) => {
+    if (!('index' in event) || event.index !== index) return [];
+    const label =
+      event.type === 'tool_call'
+        ? `tool ${event.label}`
+        : event.type === 'model_call'
+          ? 'model call'
+          : event.type === 'block_end'
+            ? `block end ${event.pass ? 'pass' : 'fail'}`
+            : event.type;
+    return [{ id: `event:${position}`, label }];
+  });
 }
 
 /** The guards and skills a block's runtime trace recorded, in the order they ran. */

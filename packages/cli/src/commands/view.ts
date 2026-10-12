@@ -1,10 +1,17 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Command } from 'commander';
+import { DEFAULT_CONFIG, readScaleConfig } from '../aggregate-config';
 import type { Io } from '../io';
 import { startViewer, type Viewer } from '../view/server';
 
-type ViewCommandOptions = { store: string; port: string; labels: string; labelledBy?: string };
+type ViewCommandOptions = {
+  store: string;
+  port: string;
+  labels: string;
+  labelledBy?: string;
+  config?: string;
+};
 
 /** Registers `driftbench view`: the local web viewer of a store, with block labelling. */
 export function registerViewCommand(program: Command, io: Io, setExit: (code: number) => void): void {
@@ -21,6 +28,10 @@ export function registerViewCommand(program: Command, io: Io, setExit: (code: nu
       'labels',
     )
     .option('--labelled-by <name>', 'who labels, written into a new labels file')
+    .option(
+      '--config <file>',
+      'the config whose scales bound each criterion score; defaults to driftbench.yaml when it exists',
+    )
     .action(async (options: ViewCommandOptions) => {
       setExit(await viewCommand(options, io));
     });
@@ -42,12 +53,24 @@ export async function viewCommand(
     return 2;
   }
   const labels = resolve(io.cwd, options.labels);
+  const configPath = resolve(io.cwd, options.config ?? DEFAULT_CONFIG);
+  const useConfig = options.config !== undefined || existsSync(configPath);
+  let scales: Record<string, { min: number; max: number }> = {};
+  if (useConfig) {
+    const loaded = await readScaleConfig(configPath);
+    if (!loaded.ok) {
+      io.err(`${loaded.message}\n`);
+      return 2;
+    }
+    scales = loaded.scales;
+  }
   let viewer: Viewer;
   try {
     viewer = await startViewer({
       store,
       labels,
       port,
+      scales,
       ...(options.labelledBy === undefined ? {} : { labelledBy: options.labelledBy }),
     });
   } catch (cause) {
