@@ -550,6 +550,28 @@ function field(
   else if (!types.includes('object')) ctx.open.push(path.join('.'));
   if (types.includes('object') && depth + 1 <= MAX_DEPTH) walkVia(ctx, property, path, depth + 1, via);
   if (types.includes('array')) arrayItems(ctx, name, property, quote, path, depth);
+  variantChildren(ctx, property, path, depth);
+}
+
+/** The properties of the object branches of a oneOf or anyOf: `<property>.<variant>.<child>`. */
+function variantChildren(ctx: Walk, property: YAMLMap, path: string[], depth: number): void {
+  if (depth + 1 > MAX_DEPTH) return;
+  for (const keyword of ['oneOf', 'anyOf']) {
+    const list = entry(property, keyword)?.value;
+    if (!isSeq(list)) continue;
+    list.items.forEach((raw, index) => {
+      const node = resolveRef(ctx.root, raw);
+      if (!isMap(node) || !typesOf(node).includes('object')) return;
+      const title = plain(entry(node, 'title')?.value);
+      walkVia(
+        ctx,
+        node,
+        [...path, typeof title === 'string' ? title : String(index + 1)],
+        depth + 1,
+        refOf(raw),
+      );
+    });
+  }
 }
 
 /**

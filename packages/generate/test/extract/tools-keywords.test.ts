@@ -811,4 +811,28 @@ type = "boolean"
       ['a', 'b'],
     );
   });
+
+  it('oneOf of objects gives the variants and each variant property as <prop>.<variant>.<child>', () => {
+    const property = {
+      oneOf: [
+        {
+          title: 'card',
+          type: 'object',
+          required: ['last_four'],
+          properties: { last_four: { type: 'string', pattern: '^[0-9]{4}$' } },
+        },
+        {
+          title: 'transfer',
+          type: 'object',
+          required: ['urgent'],
+          properties: { urgent: { type: 'boolean' } },
+        },
+      ],
+    };
+    expect(partitions(property)).toEqual({
+      't.x.in.p': ['variant-card', 'variant-transfer'],
+      't.x.in.p.card.last_four': ['well-formed', 'malformed'],
+      't.x.in.p.transfer.urgent': ['true', 'false'],
+    });
+  });
 });

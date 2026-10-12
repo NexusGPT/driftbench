@@ -466,3 +466,14 @@ Sources read:
 What others do: In 2020-12 a $ref is an applicator beside the other keywords, and an anchor names a subschema.
 
 What to try, and why: the tool pre-pass reads keywords beside a $ref and a $ref to an $anchor
+
+## Iteration 40
+
+Question: packages/generate/src/extract/tools.ts: field reads the branches of a oneOf only as variants, never their properties; schema-keywords.one-of-object-children proves it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-core section 10.2.1.3 (oneOf)
+
+What others do: Each branch is an object of its own; its properties are cases under the variant.
+
+What to try, and why: the tool pre-pass follows the properties of oneOf object branches
