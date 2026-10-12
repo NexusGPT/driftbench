@@ -44,6 +44,10 @@ import {
  *   session never saw the path before, and changes it otherwise. With a before and after tree the last
  *   block's diff is the diff of the trees, which also sees deletions.
  * - A compaction boundary is a marker in the block's `raw.markers`, with the number of tool calls before it.
+ * - A `system` record with `subtype: init` names the tools the runtime offered (`tools`). They become
+ *   `runtime.offered` of the block it falls in and of every later block, until the next init record. A block
+ *   before any init record has no `offered` at all, never an empty list, so a check of offered tools is
+ *   inconclusive there.
  * - Every record the mapping does not use (thinking, snapshots, helper records, unknown types, lines that
  *   are not JSON) is kept in `raw.kept` of its block, or in `meta.preamble` before the first turn.
  */
@@ -192,6 +196,8 @@ const OUTPUT_LIMIT = 4000;
 type PendingCall = { call: ToolCall; at?: string; line: number };
 
 class BlockBuilder {
+  /** The tools the runtime offered in this block, from the last init record; undefined when none was seen. */
+  offered?: string[];
   readonly segments: Segment[] = [];
   readonly texts: string[] = [];
   readonly toolCalls: ToolCall[] = [];
@@ -251,6 +257,8 @@ export function mapSession(input: SessionInput): ReplaySession {
   /** Paths the session has seen exist: read, edited or written. */
   const known = new Set<string>();
   let anonymous = 0;
+  /** The tools offered from the last init record on; undefined until one is seen. */
+  let offered: string[] | undefined;
 
   const current = () => builders.at(-1);
   const keep = (line: number, reason: string, record: unknown) => {
@@ -295,7 +303,15 @@ export function mapSession(input: SessionInput): ReplaySession {
     }
     if (type === 'system') {
       const block = current();
-      if (stringField(record, 'subtype') === 'compact_boundary') {
+      if (stringField(record, 'subtype') === 'init' && Array.isArray(record.tools)) {
+        // The runtime's init record names the tools it offered: a tool a setting denies is not offered.
+        offered = record.tools.filter((tool): tool is string => typeof tool === 'string');
+        if (block) {
+          block.offered = offered;
+          block.touch(line, at);
+        }
+        keep(line, 'the init record (its tools are the offered tools)', record);
+      } else if (stringField(record, 'subtype') === 'compact_boundary') {
         const data = isRecord(record.compactMetadata) ? record.compactMetadata : {};
         const marker: Marker = {
           kind: 'compaction',
@@ -362,6 +378,7 @@ export function mapSession(input: SessionInput): ReplaySession {
         continue;
       }
       const block = new BlockBuilder(builders.length, { user: text }, line, at);
+      if (offered !== undefined) block.offered = offered;
       if (Array.isArray(content)) {
         for (const part of content) {
           if (!isRecord(part) || part.type !== 'text') {
@@ -549,6 +566,8 @@ export function mapSession(input: SessionInput): ReplaySession {
       subagents: block.subagents,
       ...(meta.decisions ? { guards: block.guards } : {}),
       ...(meta.steps ? { stages: block.stages } : {}),
+      // Absent, never empty, when no init record named the offered tools: the check is then inconclusive.
+      ...(block.offered === undefined ? {} : { offered: [...block.offered] }),
     };
     const diff =
       treeDiff && index === builders.length - 1
