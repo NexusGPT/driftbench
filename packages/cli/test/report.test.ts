@@ -77,7 +77,7 @@ describe('driftbench report', () => {
     ]);
     expect(err).toBe('');
     expect(code).toBe(0);
-    expect(out).toContain('Campaign c-x3: 32 runs');
+    expect(out).toContain('Campaign c-x3: 34 runs');
     expect(out).toContain('Wrote out/card.html and out/junit.xml.');
     const html = readFileSync(join(dir, 'out/card.html'), 'utf8');
     expect(html).toContain('<title>Scorecard c-x3</title>');
@@ -190,7 +190,7 @@ describe('driftbench report', () => {
     };
     expect(json.campaign.campaignId).toBe('c-x3');
     expect(json.spread.mode).toBe('P');
-    expect(json.lines.length).toBe(16);
+    expect(json.lines.length).toBe(17);
     expect(existsSync(join(dir, 'latest.html'))).toBe(true);
   });
 

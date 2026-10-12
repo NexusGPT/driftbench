@@ -337,7 +337,7 @@ describe('compare on stored Acme campaigns', () => {
     const baseline = await loadCampaign(store, 'c-acme');
     const candidate = await loadCampaign(store, 'c-x3');
     const result = compareCampaigns(baseline, candidate, { margin: 0.15 });
-    expect(result.pairs).toHaveLength(16);
+    expect(result.pairs).toHaveLength(17);
     expect(result.allPass.table.regressed).toBeGreaterThan(0);
     expect(result.allPass.table.improved).toBe(0);
     expect(result.verdict).toBe('regressed');

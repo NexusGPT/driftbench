@@ -76,7 +76,7 @@ describe('driftbench compare', () => {
     ]);
     expect(err).toBe('');
     expect(code).toBe(1);
-    expect(out).toContain('Paired: 16 goldens');
+    expect(out).toContain('Paired: 17 goldens');
     expect(out).toMatch(/Both pass \d+, regressed [1-9]\d*, improved 0/);
     expect(out).toContain('Verdict: REGRESSED.');
     expect(out).toContain('all-pass dropped: McNemar exact p =');
