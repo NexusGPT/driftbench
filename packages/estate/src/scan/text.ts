@@ -119,6 +119,25 @@ export function slug(text: string, words = 6): string {
   return joined === '' ? 'x' : joined;
 }
 
+/**
+ * The text with every line inside a fenced code block (the fence lines included) left empty, so the line
+ * numbers stay. Code read from prose never reads an example quoted in a fence.
+ */
+export function blankFences(text: string): string {
+  let inside = false;
+  return text
+    .split('\n')
+    .map((line) => {
+      const fence = /^\s*(```|~~~)/.test(line);
+      if (fence) {
+        inside = !inside;
+        return '';
+      }
+      return inside ? '' : line;
+    })
+    .join('\n');
+}
+
 /** The line (1-based) and the trimmed text of every line of a text. */
 export function linesOf(text: string): Array<{ line: number; text: string; raw: string }> {
   return text.split('\n').map((raw, index) => ({ line: index + 1, text: raw.trim(), raw }));
@@ -227,7 +246,7 @@ export type Table = { header: string[]; headerLine: number; rows: TableRow[] };
 
 /** Every markdown table of a text, between `fromLine` and `toLine`: header cells and data rows. */
 export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_INFINITY): Table[] {
-  const lines = linesOf(text);
+  const lines = linesOf(blankFences(text));
   const tables: Table[] = [];
   for (let index = 0; index < lines.length; index++) {
     const head = lines[index];
