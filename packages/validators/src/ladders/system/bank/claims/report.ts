@@ -121,8 +121,8 @@ function specDefs(seed: number): SpecDef[] {
       def.perturbation = withPerturbation(flow, holder, 2);
       // A window of 0 blocks: a recovery at the injected block is immediate, one a block later late
       // (docs/concepts/recovery.md "The label rule"), so the fixture plants all three labels.
-      const recovery = flow.spec.perturbations?.[0]?.recovery;
-      if (recovery) recovery.within_blocks = 0;
+      const [entry] = flow.spec.perturbations as Array<{ recovery: { within_blocks: number } }>;
+      if (entry) entry.recovery.within_blocks = 0;
       def.injectionText = [...holder.keys()][0];
     }
     defs.push(def);
@@ -1229,8 +1229,9 @@ function recoveryItems(): BankItem[] {
           const turns = at === undefined ? undefined : at - k;
           // docs/concepts/recovery.md "The label rule": immediate within recovery.within_blocks, late after.
           const within =
-            def.flow.spec.perturbations?.find((entry) => entry.id === run.perturbationId)?.recovery
-              ?.within_blocks ?? 0;
+            (def.flow.spec.perturbations as Array<{ id: string; recovery?: { within_blocks: number } }>).find(
+              (entry) => entry.id === run.perturbationId,
+            )?.recovery?.within_blocks ?? 0;
           const label = turns === undefined ? 'never' : turns <= within ? 'immediate' : 'late';
           if (run.recovery?.label !== label || run.recovery.turnsToRecover !== turns)
             return `run ${run.specId} P ${run.repeat}: label ${run.recovery?.label} turns ${run.recovery?.turnsToRecover}, expected ${label} ${turns}`;
