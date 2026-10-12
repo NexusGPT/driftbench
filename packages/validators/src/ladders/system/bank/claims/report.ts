@@ -119,6 +119,10 @@ function specDefs(seed: number): SpecDef[] {
     if (index < 3) {
       const holder = new Map<string, Behaviour>();
       def.perturbation = withPerturbation(flow, holder, 2);
+      // A window of 0 blocks: a recovery at the injected block is immediate, one a block later late
+      // (docs/concepts/recovery.md "The label rule"), so the fixture plants all three labels.
+      const recovery = flow.spec.perturbations?.[0]?.recovery;
+      if (recovery) recovery.within_blocks = 0;
       def.injectionText = [...holder.keys()][0];
     }
     defs.push(def);
@@ -1203,7 +1207,7 @@ function recoveryItems(): BankItem[] {
       'report-brute-force',
       3,
       RECOVERY,
-      'each stored recovery label and turns to recover match the blocks: the first block from the injection that passes at its target stage',
+      'each stored recovery label and turns to recover match the blocks: the first block from the injection that passes at its target stage, labelled against within_blocks',
       'recoveryOf labels a perturbed run by the first block from the injected one that passes and reaches its target stage.',
       (fx) => {
         for (const run of perturbed(fx)) {
@@ -1223,7 +1227,11 @@ function recoveryItems(): BankItem[] {
             }
           }
           const turns = at === undefined ? undefined : at - k;
-          const label = turns === undefined ? 'never' : turns === 0 ? 'immediate' : 'late';
+          // docs/concepts/recovery.md "The label rule": immediate within recovery.within_blocks, late after.
+          const within =
+            def.flow.spec.perturbations?.find((entry) => entry.id === run.perturbationId)?.recovery
+              ?.within_blocks ?? 0;
+          const label = turns === undefined ? 'never' : turns <= within ? 'immediate' : 'late';
           if (run.recovery?.label !== label || run.recovery.turnsToRecover !== turns)
             return `run ${run.specId} P ${run.repeat}: label ${run.recovery?.label} turns ${run.recovery?.turnsToRecover}, expected ${label} ${turns}`;
         }
