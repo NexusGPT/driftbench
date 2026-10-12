@@ -19,6 +19,8 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Running
 
 * [Running](running.md): `runSpec`, campaigns in modes T, F and P (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), the determinism smoke test, the cache, the budget and the run record.
+* [Simulated user](simulated-user.md): a persona played through the model port or a recording, `driftbench simulate` and `campaign run --driver simulated`.
+* [Adaptive attacker](attack.md): red-team attacks picked from the agent's last replies, scored by the recovery record, `driftbench attack`.
 * [Generating tests](generating.md): the map of situations and its relations, `extract` and its approval, `generate`, the validity gate and its funnel, task families, the variance pilot and intake.
 * [Testing an estate](estate.md): how driftbench tests a code-interpreter agent as a whole estate (instructions, skills, subagents, guards, tools, settings): atoms, the estate graph, the plan, generated tests, replay over recorded sessions, maintenance.
 * [Datasets and prompts](datasets.md): `import` specs from a CSV file or a spreadsheet through a mapping, and the registry of immutable dataset and prompt versions (`dataset`, `prompt`) that a campaign records.
@@ -61,7 +63,7 @@ Phases 0, 1 and 2 are built, and most of phases 3 and G, with parts of phase 4 a
 * The spec format: zod schemas in `packages/core/src/schema`, with the TypeScript types inferred from them.
 * The loader: YAML and JSON files, authoring shorthand, schema errors with their path, semantic checks, and lint advice.
 * `driftbench spec validate`, `driftbench spec lint`, and `driftbench spec coverage` with the behaviour inventory it reads. See [CLI](reference/cli.md).
-* The runner in modes T, F and P, with the scripted driver and the perturbing driver, campaigns, a worker pool, a budget stop, the cache, resume, and the determinism smoke test, from code and from the command line. See [running](running.md) and [run modes](concepts/run-modes.md).
+* The runner in modes T, F and P, with the scripted, perturbing and simulated drivers and the adaptive attacker, campaigns, a worker pool, a budget stop, the cache, resume, and the determinism smoke test, from code and from the command line. See [running](running.md) and [run modes](concepts/run-modes.md).
 * Drift and recovery: the five drift classes, the ledger check, the stage classifier, the compounding index, and the recovery metrics of every perturbed run. See [drift](concepts/drift.md) and [recovery](concepts/recovery.md).
 * The 23 machine checks, with their verdict ids, the judge check behind a council, and the artifact readers for workbooks, documents, decks, PDFs, CSV, JSON, text and code. See [checks](reference/checks.md).
 * Judges in `@driftbench/judges`: the judge clients, the council and its cascade, cassettes, calibration on fixture pairs and hand labels, and `driftbench judge`. See [judges](concepts/judges.md).
@@ -77,7 +79,7 @@ Phases 0, 1 and 2 are built, and most of phases 3 and G, with parts of phase 4 a
 
 The command line reaches the Acme example agents (`function:acme-sales`, `process:acme-ops`, and the pilot's control agent `function:acme-random`) and recorded sessions; the other adapters are used from code.
 
-Every command `driftbench --help` lists is built. Not built yet: a command that drives the simulated user (it is built as a library), the runtime battery, and the other items the [CLI reference](reference/cli.md#not-built-yet) lists.
+Every command `driftbench --help` lists is built. Not built yet: the runtime battery, and the other items the [CLI reference](reference/cli.md#not-built-yet) lists.
 
 ## Roadmap
 

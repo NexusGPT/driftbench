@@ -261,7 +261,7 @@ These commands run specs on a target. Each has its options, its output and its e
 
 ```
 driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>]... [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>]... [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
 driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
@@ -290,6 +290,11 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | `--concurrency <n>` | cells run at the same time; default 4 |
 | `--detail` | `status` only: also print the compounding index, the succession and the recovery tables |
 | `--runs <n>` | `smoke` only: how many runs to compare, at least 2; default 3 |
+| `--driver <driver>` | `run` only: who writes the user turns, `scripted` (the spec's own, the default) or `simulated` (a persona, see [simulated user](../simulated-user.md)) |
+| `--persona <file>` | `run --driver simulated`: a persona, which plays the spec its file names; one per spec, repeat it |
+| `--recording <file>` | `run --driver simulated`: replay a recording of the user's answers; repeat it |
+| `--model` | `run --driver simulated`: the user speaks through the model port (a paid call per turn) |
+| `--agent-family <family>`, `--judge-family <family>` | `run --driver simulated`: the families the user's model must differ from; the Acme agents are `none` |
 | `--json` | print one JSON document |
 
 | Exit code | When |
@@ -472,9 +477,10 @@ A proposal that does not load reports `PROPOSAL_PARSE`, `PROPOSAL_NOT_OBJECT`, `
 
 ```
 driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--baseline <path>]... [--force] [--json]
+                    [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
-Generates specs from an approved map, by code: paths through the stage graph, the rows of a t-wise covering array, boundary values, one probe per deviation class, and metamorphic families. No model is called. Complete specs go to `specs/`, specs with a placeholder or a block the map supports no machine Then for go to `incomplete/`, and `generate-report.json` holds the counts. See [generating](../generating.md).
+Generates specs from an approved map, by code: paths through the stage graph, the rows of a t-wise covering array, boundary values, one probe per deviation class, and metamorphic families. No model is called unless `--model` is given: the model port then proposes more specs, and each counts only once the gate accepts it (see [model proposals](../generating.md#model-proposals-generate---model)). Complete specs go to `specs/`, specs with a placeholder or a block the map supports no machine Then for go to `incomplete/`, and `generate-report.json` holds the counts. See [generating](../generating.md).
 
 | Option | Effect |
 |---|---|
@@ -486,6 +492,9 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
 | `--json` | print the report as JSON |
+| `--model` | also ask the model port for specs, gated before they count; needs `--reference` and `--faults` |
+| `--proposals <n>` | with `--model`: how many specs to ask for; default 3 |
+| `--reference <adapter:agent>`, `--faults <set>`, `--k <n>` | with `--model`: the gate's reference agents, fault set and repeats |
 
 On the approved Acme map:
 
@@ -543,6 +552,30 @@ Wrote 269 files to _captures/docs3/cli/generated.
 | 0 | the suite is written, and every block has an approved phrase and a Then |
 | 1 | the suite is written with incomplete specs, a seeder cut by `--max`, or a generator defect, each listed |
 | 2 | usage or input error, nothing written: an invalid or unapproved map, a bad number, an invalid baseline spec, an earlier output without `--force` |
+
+## `driftbench perturb`
+
+```
+driftbench perturb <spec> (--class <D> --at <n> | --perturbation <id>) [--target <adapter[:agent]>] [--seed <n>] [--pack <dir>] [--drafts] [--json]
+```
+
+Runs one spec in mode P with one deviation injected, the spec's own or one drawn from the red-team pack, and prints each block and the runner's recovery record. Exit 0 when the agent comes back within the spec's window, 1 when not, 2 on bad input. See [recovery](../concepts/recovery.md).
+
+## `driftbench simulate`
+
+```
+driftbench simulate <spec> --persona <file> (--model | --recording <file>) [--target <adapter[:agent]>] [--turns <n>] [--agent-family <family>] [--judge-family <family>]... [--json]
+```
+
+A simulated user plays the persona on the spec, through the model port or a recording. Options, output and exit codes on the [simulated user](../simulated-user.md) page.
+
+## `driftbench attack`
+
+```
+driftbench attack <spec> [--target <adapter[:agent]>] [--rounds <n>] [--seed <n>] [--pack <dir>] [--drafts] [--record <file>] [--replay <file>] [--model] [--json]
+```
+
+The adaptive attacker: each deviation picked from the agent's last replies and scored by the runner's recovery record. Options, output and exit codes on the [adaptive attacker](../attack.md) page.
 
 ## `driftbench gate`
 
@@ -1307,7 +1340,6 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 
 | Command | Does | Phase |
 |---|---|---|
-| the simulated user from the command line | the simulated user is built in `@driftbench/users` (`createSimulatedUser`) and is used from code; `campaign run` drives modes T and F with the scripted driver and mode P with the perturbing driver | no phase assigned |
 | `stats` | statistics on a stored campaign from the command line | 4 |
 | `battery run` | the runtime battery on agent traces | 4 |
 | a rerun of one stored cell | run one cell of a stored campaign again | no phase assigned |

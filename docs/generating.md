@@ -497,6 +497,31 @@ exit 0
 
 The output folder holds `specs/`, `holdout/` (with `seal.json`), `gate-report.json` (the funnel, the mutation score, and every stage's verdict for every block), `review.yaml` and `label-audit.yaml`. The last two sit beside `specs/` and are not specs: point a campaign at `specs/`. `gate` exits 0 with at least one accepted block, 1 with none, 2 on a usage or input error (nothing written).
 
+## Model proposals: `generate --model`
+
+Code enumerates what the map allows; a model can propose what code does not think of. `driftbench generate --model` asks the model port for more specs from the approved map, and no proposal counts until the [gate](#the-gate) accepts it.
+
+* The model gets a digest of the approved map (the agent, each approved dimension and its approved values, without evidence or anything unapproved), one complete spec the code wrote, as the format, and the number of specs to propose.
+* Each YAML document of the answer is one proposal. One that is not a valid spec is rejected at stage `spec`, with the first schema error. A proposal's `target` is dropped, so the gate runs it on the first `--reference`.
+* The valid proposals go through the nine stages of the gate on `--reference` with the fault set `--faults`. A proposal counts when the gate accepts at least one of its blocks; every other one is reported with the stage and the reason that refused it, and the block.
+* Everything lands under `<out>/proposed/`: the candidates, the gate's output in `gated/`, and `proposals.json` with the model, the count asked and one row per proposal.
+
+```
+driftbench generate --map <file> --out <dir> --model --reference <adapter:agent> --faults <set> [--proposals <n>] [--k <n>]
+```
+
+On the Acme map, with a fake port that answers three proposals written by hand (the tool-failure golden under a new id, a spec whose Then reads only the agent's words, and a spec with no blocks):
+
+```
+Model proposals: 3 written by mistral fake-mistral, each through the gate.
+  model-coverage-down  counted   3 of 3 blocks accepted
+  model-words-only     rejected  0 of 1 blocks accepted  observed: words-only (block 0)
+  model-broken         rejected  not a spec              spec: blocks SCHEMA_INVALID_TYPE Invalid input: expected array, missing
+Counted 1 of 3 proposals. Candidates and the gate's output in _captures/gap-users/demo/generated/proposed.
+```
+
+`--model` is a paid call with a real port (`ANTHROPIC_API_KEY`, or `OPENAI_API_KEY` with `OPENAI_MODEL`); without `--model`, `generate` calls no model. The exit code is the one code generation gives, or 1 when the model call fails.
+
 ## Task families
 
 A task family is one code-agent task written once with knobs, so code builds as many instances of it as a campaign needs. The expected outcome of every instance comes from the family's oracle, which is code, and is written into the spec before any agent runs.

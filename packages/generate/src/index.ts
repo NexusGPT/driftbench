@@ -12,4 +12,5 @@ export * from './gate';
 export * from './intake';
 export * from './model';
 export * from './pilot';
+export * from './propose';
 export * from './select';
