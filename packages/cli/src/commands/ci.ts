@@ -540,6 +540,11 @@ export function verdictText(summary: CiSummary, outPath: string): string {
     );
     if (summary.marginAuto.warning) lines.push(`Warning: ${summary.marginAuto.warning}.`);
   }
+  if (summary.underpowered.length > 0) {
+    lines.push(
+      `Underpowered, under ${summary.minGoldens} goldens${summary.strict ? ', gating anyway (--strict)' : ', left out of the parity test'}: ${summary.underpowered.map((entry) => `${entry.criterion} (${count(entry.goldens, 'golden')})`).join(', ')}.`,
+    );
+  }
   lines.push(
     ...table([
       ['measure', 'value'],

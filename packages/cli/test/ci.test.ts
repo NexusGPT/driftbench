@@ -156,6 +156,11 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(summary.underpowered.map((entry) => entry.criterion)).toEqual(['cards', 'guards']);
       expect(result.out).toContain('Margin auto: 6.5 points');
       expect(result.out).not.toContain('Warning:');
+      const top = result.out.split('\n').slice(0, 3).join('\n');
+      expect(top).toContain('Margin auto: 6.5 points');
+      expect(top).toContain(
+        'Underpowered, under 30 goldens, left out of the parity test: cards (11 goldens), guards (26 goldens).',
+      );
     },
     SLOW,
   );
