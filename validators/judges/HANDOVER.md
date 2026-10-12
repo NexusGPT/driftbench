@@ -56,7 +56,7 @@ Iteration 15 (cause: comment line): `dropCommentLines`. Test: "near-JSON: a line
 
 ## Next actions
 
-1. `loadCassette` (packages/judges/src/cassette.ts), one refusal per iteration: entry with no answer, raw or error; recorded answer breaking the contract; key not 12-character hex.
+1. `loadCassette` (packages/judges/src/cassette.ts), one refusal per iteration: recorded answer breaking the contract; key not 12-character hex.
 2. Then levels 5 onward (clients, check, rubric, render, budget, ...): `validate judges --seeds 1..20 --hidden --items` names each Fix.
 3. Every fix: one cause, its test, commit, then `measure.ts --iteration N` (repo root, `pnpm exec tsx`) and `validate judges --journal row.json`.
 
