@@ -186,6 +186,7 @@ function recaseOutcome(value: unknown): unknown {
 /**
  * Repairs unescaped quotes inside JSON strings. An object value ends before a comma only when the
  * next token is a property name followed by a colon. A quoted word in a prose list cannot end it.
+ * Invalid JSON backslash escapes inside a string are retained as literal backslashes.
  * No key, verdict or value outside a string is added, removed or renamed.
  */
 export function repairAnswerText(text: string): string {
@@ -215,8 +216,12 @@ export function repairAnswerText(text: string): string {
       continue;
     }
     if (ch === '\\') {
-      escaped = true;
-      out += ch;
+      const next = text[i + 1];
+      const valid =
+        next !== undefined &&
+        (/["\\/bfnrt]/.test(next) || (next === 'u' && /^[0-9a-fA-F]{4}/.test(text.slice(i + 2))));
+      escaped = valid;
+      out += valid ? ch : '\\\\';
       continue;
     }
     if (ch === '"') {

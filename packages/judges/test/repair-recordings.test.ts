@@ -4,6 +4,15 @@ import { parseAnswerText, repairAnswerText } from '../src/contract';
 import fixtures from './fixtures/mm-near-json.json';
 
 describe('MM-Eval near-JSON recordings', () => {
+  it('preserves valid JSON escapes and repairs only literal invalid escapes inside strings', () => {
+    const strict = JSON.stringify({ outcome: 'pass', reasoning: 'quote " slash \\ newline\n' });
+    expect(repairAnswerText(strict)).toBe(strict);
+    const raw = String.raw`{"outcome":"pass","reasoning":"LaTeX \(x\), literal \q and invalid unicode \uXYZ1"}`;
+    expect(parseAnswerText(raw).answer.reasoning).toBe(
+      String.raw`LaTeX \(x\), literal \q and invalid unicode \uXYZ1`,
+    );
+    expect(parseAnswerText(String.raw`{"outcome":\pass,"reasoning":"bad"}`).unparsed).toBe(true);
+  });
   it('uses the shared quote repair for the explicit-winner contract', () => {
     const result = parseJudgeText(
       '{"reasoning":"The facts include "four", "three".","winnerQuote":"4","winner":"B"}',
