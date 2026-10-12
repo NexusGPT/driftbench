@@ -1262,14 +1262,37 @@ export function coverDraft(
           )
         : [undefined];
   const reasons: string[] = [];
-  for (const classId of classes) {
+  /** The cell values a phrase of the class needs (its `when`, the stage and the flow left out), one set each. */
+  const needs = (classId: string | undefined): Pick[][] => {
+    if (classId === undefined || prepared.deviation === undefined) return [[]];
+    const phraseOf = phraseKey(dimensionId(prepared, prepared.deviation), classId);
+    const sets: Pick[][] = [[]];
+    for (const phrase of prepared.phrasesOf.get(phraseOf) ?? []) {
+      let options: Pick[][] = [[]];
+      for (const [dimensionKey, values] of Object.entries(phrase.when ?? {})) {
+        if (dimensionKey === 'stage' || dimensionKey === 'flow') continue;
+        const index = prepared.space.dimensions.findIndex((dimension) => dimension.id === dimensionKey);
+        if (index < 0 || fixed.some(([at]) => at === index)) continue;
+        options = options.flatMap((set) =>
+          values.flatMap((value) => {
+            const at = prepared.space.dimensions[index]?.index.get(value);
+            return at === undefined ? [] : [[...set, [index, at] as Pick]];
+          }),
+        );
+      }
+      for (const set of options) if (set.length > 0) sets.push(set);
+    }
+    return sets;
+  };
+  const attempts = classes.flatMap((classId) => needs(classId).map((extra) => ({ classId, extra })));
+  for (const { classId, extra } of attempts) {
     const built = scenarioDraft(
       prepared,
       context,
       id,
       'cover',
       `Cell ${key}`,
-      fixed,
+      [...fixed, ...extra],
       preferring(paths, behaviour),
       {
         ...(classId === undefined ? {} : { probe: { classId, ...(stage ? { stage } : {}) } }),

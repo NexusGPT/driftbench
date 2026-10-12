@@ -753,3 +753,39 @@ describe('closing the Acme suite gaps', () => {
     expect(atGreet.ok).toBe(false);
   });
 });
+
+describe('the pairs the relations rule out', () => {
+  it('forbids a stage no path of a flow passes with that flow, and a class at a stage its recovery rules out', async () => {
+    const { derivedConstraints } = await import('../../src/extract/derive');
+    const draft = proposal((change) => {
+      change.relations = [
+        ...(change.relations ?? []),
+        {
+          kind: 'recovery',
+          class: 'D5_language_switch',
+          flows: ['balance'],
+          at: ['verify'],
+          stage_after: 'pending',
+          ...by,
+        },
+      ];
+    });
+    for (const dimension of draft.dimensions) dimension.approved = true;
+    for (const constraint of draft.constraints) constraint.approved = true;
+    for (const phrase of draft.phrases ?? []) phrase.approved = true;
+    const prepared = prepareMap(draft, { tools: TOOLS });
+    const axes = prepared.axisMap.dimensions.map((dimension) => ({
+      id: dimension.id,
+      kind: dimension.kind,
+      values: dimension.values.map((value) => value.id),
+    }));
+    const forbids = derivedConstraints(draft, axes).map((entry) => entry.forbid);
+    const stage = axes.find((axis) => axis.kind === 'stage')?.id as string;
+    const deviation = axes.find((axis) => axis.kind === 'deviation')?.id as string;
+    // D5 may be said only at verify, so D5 at help (after every move of the paths) is ruled out.
+    expect(forbids).toContainEqual({ [deviation]: 'D5_language_switch', [stage]: 'help' });
+    expect(forbids).not.toContainEqual({ [deviation]: 'D5_language_switch', [stage]: 'verify' });
+    // No path of the card flow is walkable here, so "lost" is never reached with no deviation.
+    expect(forbids).toContainEqual({ [deviation]: 'none', [stage]: 'greet' });
+  });
+});

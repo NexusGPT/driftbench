@@ -122,6 +122,11 @@ export type CoverSummary = {
   covered: number;
   /** Cells still uncovered, each with the reasons no scenario could be built for it. */
   unbuilt: Array<{ cell: Record<string, string>; reasons: string[] }>;
+  /**
+   * Axis values no allowed cell holds: the map's relations rule out every pair with them (a flow with no
+   * approved path, for one). No spec can cover them until the map gives them a path.
+   */
+  unreachable: Array<{ dimension: string; value: string }>;
 };
 
 export type GenerateResult = {
@@ -257,10 +262,20 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
         reasons: [`${id} was built but ${made.length === 0 ? 'is incomplete' : 'does not reach the cell'}`],
       });
   }
+  const held = new Set(
+    cellsOf(prepared, [], t).flatMap((cell) =>
+      Object.entries(cell.values).map(([dimension, value]) => `${dimension}=${value}`),
+    ),
+  );
   const coverSummary: CoverSummary = {
     cells: uncovered.length,
     covered: uncovered.filter((cell) => reached.has(cellKey(cell.values))).length,
     unbuilt,
+    unreachable: prepared.axisMap.dimensions.flatMap((dimension) =>
+      dimension.values
+        .filter((value) => !held.has(`${dimension.id}=${value.id}`))
+        .map((value) => ({ dimension: dimension.id, value: value.id })),
+    ),
   };
 
   const measure = (specs: Spec[]) => measured(prepared, specs, t);
@@ -404,6 +419,14 @@ export function renderSummary(report: GenerateReport): string {
     `Deviation probes: ${report.deviation.probes.length} of ${report.deviation.classes} classes. Metamorphic families: ${report.metamorphic.families}.`,
     `Coverage on the axis map at t = ${report.coverage.t}: complete specs ${report.coverage.complete.covered} of ${report.coverage.allowed} (${percent(report.coverage.complete.share)}), all specs ${report.coverage.all.covered} (${percent(report.coverage.all.share)})${report.coverage.baseline ? `, ${report.coverage.baseline.label} ${report.coverage.baseline.covered} (${percent(report.coverage.baseline.share)})` : ''}.`,
   );
+  if (report.cover.unbuilt.length > 0)
+    lines.push(
+      `Allowed pairs no spec could be built for: ${report.cover.unbuilt.length} (see cover.unbuilt).`,
+    );
+  if (report.cover.unreachable.length > 0)
+    lines.push(
+      `Values no allowed pair holds, so no spec can cover them until the map gives them a path: ${report.cover.unreachable.map((entry) => `${entry.dimension}=${entry.value}`).join(', ')}.`,
+    );
   if (report.no_phrase.length > 0) {
     lines.push(
       '',

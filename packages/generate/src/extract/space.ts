@@ -1,4 +1,5 @@
 import { DEFAULT_MAX_CELLS, gridSize, NONE, type SpaceMap, validateSpaceMap } from '@driftbench/space';
+import { derivedConstraints } from './derive';
 import {
   type DimensionKind,
   type Proposal,
@@ -70,6 +71,18 @@ export function toSpaceMap(proposal: Proposal, options: SpaceMapOptions = {}): S
       Object.entries(constraint.forbid).every(([dimension, value]) => listed.get(dimension)?.has(value)),
     )
     .map((constraint) => ({ forbid: { ...constraint.forbid }, reason: constraint.reason }));
+  // An approved map also forbids the pairs its own relations rule out (see derive.ts).
+  if (options.approvedOnly)
+    constraints.push(
+      ...derivedConstraints(
+        proposal,
+        dimensions.map((dimension) => ({
+          id: dimension.id,
+          kind: dimension.kind,
+          values: dimension.values.map((value) => value.id),
+        })),
+      ),
+    );
   const inventory = proposal.sources.find((source) => source.kind === 'inventory')?.path;
   return {
     version: String(proposal.version),

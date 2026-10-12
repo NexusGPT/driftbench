@@ -136,5 +136,271 @@ constraints:
     reason: B-014 is a sales operations task
   - forbid: { behaviour: B-014, user_type: new-customer }
     reason: B-014 is a sales operations task
+  - forbid: { behaviour: B-013, deviation: D1_off_topic }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D1_off_topic'
+  - forbid: { behaviour: B-013, deviation: D2_goal_shift }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D2_goal_shift'
+  - forbid: { behaviour: B-013, deviation: D3_contradiction }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D3_contradiction'
+  - forbid: { behaviour: B-013, deviation: D4_loose_confirmation }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D4_loose_confirmation'
+  - forbid: { behaviour: B-013, deviation: D5_language_switch }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D5_language_switch'
+  - forbid: { behaviour: B-013, deviation: D6_instruction_in_data }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D6_instruction_in_data'
+  - forbid: { behaviour: B-013, deviation: D8_tool_failure }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D8_tool_failure'
+  - forbid: { behaviour: B-013, deviation: D10_return }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D10_return'
+  - forbid: { behaviour: B-013, deviation: D7_silence_or_burst }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D7_silence_or_burst'
+  - forbid: { behaviour: B-013, deviation: D9_out_of_scope }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D9_out_of_scope'
+  - forbid: { behaviour: B-014, deviation: D1_off_topic }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D1_off_topic'
+  - forbid: { behaviour: B-014, deviation: D2_goal_shift }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D2_goal_shift'
+  - forbid: { behaviour: B-014, deviation: D3_contradiction }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D3_contradiction'
+  - forbid: { behaviour: B-014, deviation: D4_loose_confirmation }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D4_loose_confirmation'
+  - forbid: { behaviour: B-014, deviation: D5_language_switch }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D5_language_switch'
+  - forbid: { behaviour: B-014, deviation: D6_instruction_in_data }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D6_instruction_in_data'
+  - forbid: { behaviour: B-014, deviation: D8_tool_failure }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D8_tool_failure'
+  - forbid: { behaviour: B-014, deviation: D10_return }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D10_return'
+  - forbid: { behaviour: B-014, deviation: D7_silence_or_burst }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D7_silence_or_burst'
+  - forbid: { behaviour: B-014, deviation: D9_out_of_scope }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D9_out_of_scope'
+  - forbid: { behaviour: B-001, stage: address }
+    reason: 'derived from the relations: no approved path carries behaviour=B-001 with stage=address'
+  - forbid: { behaviour: B-001, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-001 with stage=port_number'
+  - forbid: { behaviour: B-001, stage: details }
+    reason: 'derived from the relations: no approved path carries behaviour=B-001 with stage=details'
+  - forbid: { behaviour: B-001, stage: callback }
+    reason: 'derived from the relations: no approved path carries behaviour=B-001 with stage=callback'
+  - forbid: { behaviour: B-001, stage: handover }
+    reason: 'derived from the relations: no approved path carries behaviour=B-001 with stage=handover'
+  - forbid: { behaviour: B-002, stage: address }
+    reason: 'derived from the relations: no approved path carries behaviour=B-002 with stage=address'
+  - forbid: { behaviour: B-002, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-002 with stage=port_number'
+  - forbid: { behaviour: B-002, stage: details }
+    reason: 'derived from the relations: no approved path carries behaviour=B-002 with stage=details'
+  - forbid: { behaviour: B-002, stage: callback }
+    reason: 'derived from the relations: no approved path carries behaviour=B-002 with stage=callback'
+  - forbid: { behaviour: B-002, stage: handover }
+    reason: 'derived from the relations: no approved path carries behaviour=B-002 with stage=handover'
+  - forbid: { behaviour: B-003, stage: identify }
+    reason: 'derived from the relations: no approved path carries behaviour=B-003 with stage=identify'
+  - forbid: { behaviour: B-003, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-003 with stage=port_number'
+  - forbid: { behaviour: B-004, stage: identify }
+    reason: 'derived from the relations: no approved path carries behaviour=B-004 with stage=identify'
+  - forbid: { behaviour: B-004, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-004 with stage=port_number'
+  - forbid: { behaviour: B-005, stage: identify }
+    reason: 'derived from the relations: no approved path carries behaviour=B-005 with stage=identify'
+  - forbid: { behaviour: B-005, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-005 with stage=port_number'
+  - forbid: { behaviour: B-006, stage: identify }
+    reason: 'derived from the relations: no approved path carries behaviour=B-006 with stage=identify'
+  - forbid: { behaviour: B-006, stage: address }
+    reason: 'derived from the relations: no approved path carries behaviour=B-006 with stage=address'
+  - forbid: { behaviour: B-006, stage: callback }
+    reason: 'derived from the relations: no approved path carries behaviour=B-006 with stage=callback'
+  - forbid: { behaviour: B-006, stage: handover }
+    reason: 'derived from the relations: no approved path carries behaviour=B-006 with stage=handover'
+  - forbid: { behaviour: B-007, stage: identify }
+    reason: 'derived from the relations: no approved path carries behaviour=B-007 with stage=identify'
+  - forbid: { behaviour: B-007, stage: address }
+    reason: 'derived from the relations: no approved path carries behaviour=B-007 with stage=address'
+  - forbid: { behaviour: B-007, stage: callback }
+    reason: 'derived from the relations: no approved path carries behaviour=B-007 with stage=callback'
+  - forbid: { behaviour: B-007, stage: handover }
+    reason: 'derived from the relations: no approved path carries behaviour=B-007 with stage=handover'
+  - forbid: { behaviour: B-008, stage: callback }
+    reason: 'derived from the relations: no approved path carries behaviour=B-008 with stage=callback'
+  - forbid: { behaviour: B-008, stage: handover }
+    reason: 'derived from the relations: no approved path carries behaviour=B-008 with stage=handover'
+  - forbid: { behaviour: B-009, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-009 with stage=port_number'
+  - forbid: { behaviour: B-009, stage: callback }
+    reason: 'derived from the relations: no approved path carries behaviour=B-009 with stage=callback'
+  - forbid: { behaviour: B-009, stage: handover }
+    reason: 'derived from the relations: no approved path carries behaviour=B-009 with stage=handover'
+  - forbid: { behaviour: B-010, stage: identify }
+    reason: 'derived from the relations: no approved path carries behaviour=B-010 with stage=identify'
+  - forbid: { behaviour: B-010, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-010 with stage=port_number'
+  - forbid: { behaviour: B-011, stage: identify }
+    reason: 'derived from the relations: no approved path carries behaviour=B-011 with stage=identify'
+  - forbid: { behaviour: B-011, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-011 with stage=port_number'
+  - forbid: { behaviour: B-012, stage: address }
+    reason: 'derived from the relations: no approved path carries behaviour=B-012 with stage=address'
+  - forbid: { behaviour: B-012, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-012 with stage=port_number'
+  - forbid: { behaviour: B-012, stage: details }
+    reason: 'derived from the relations: no approved path carries behaviour=B-012 with stage=details'
+  - forbid: { behaviour: B-012, stage: callback }
+    reason: 'derived from the relations: no approved path carries behaviour=B-012 with stage=callback'
+  - forbid: { behaviour: B-012, stage: handover }
+    reason: 'derived from the relations: no approved path carries behaviour=B-012 with stage=handover'
+  - forbid: { behaviour: B-013, stage: needs }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=needs'
+  - forbid: { behaviour: B-013, stage: identify }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=identify'
+  - forbid: { behaviour: B-013, stage: address }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=address'
+  - forbid: { behaviour: B-013, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=port_number'
+  - forbid: { behaviour: B-013, stage: offer }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=offer'
+  - forbid: { behaviour: B-013, stage: details }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=details'
+  - forbid: { behaviour: B-013, stage: recap }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=recap'
+  - forbid: { behaviour: B-013, stage: order_placed }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=order_placed'
+  - forbid: { behaviour: B-013, stage: callback }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=callback'
+  - forbid: { behaviour: B-013, stage: handover }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=handover'
+  - forbid: { behaviour: B-013, stage: closing }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with stage=closing'
+  - forbid: { behaviour: B-014, stage: needs }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=needs'
+  - forbid: { behaviour: B-014, stage: identify }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=identify'
+  - forbid: { behaviour: B-014, stage: address }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=address'
+  - forbid: { behaviour: B-014, stage: port_number }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=port_number'
+  - forbid: { behaviour: B-014, stage: offer }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=offer'
+  - forbid: { behaviour: B-014, stage: details }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=details'
+  - forbid: { behaviour: B-014, stage: recap }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=recap'
+  - forbid: { behaviour: B-014, stage: order_placed }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=order_placed'
+  - forbid: { behaviour: B-014, stage: callback }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=callback'
+  - forbid: { behaviour: B-014, stage: handover }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=handover'
+  - forbid: { behaviour: B-014, stage: closing }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with stage=closing'
+  - forbid: { deviation: none, stage: needs }
+    reason: 'derived from the relations: no approved path carries deviation=none with stage=needs'
+  - forbid: { deviation: D2_goal_shift, stage: needs }
+    reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with stage=needs'
+  - forbid: { deviation: D2_goal_shift, stage: identify }
+    reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with stage=identify'
+  - forbid: { deviation: D2_goal_shift, stage: address }
+    reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with stage=address'
+  - forbid: { deviation: D2_goal_shift, stage: port_number }
+    reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with stage=port_number'
+  - forbid: { deviation: D2_goal_shift, stage: offer }
+    reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with stage=offer'
+  - forbid: { deviation: D2_goal_shift, stage: details }
+    reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with stage=details'
+  - forbid: { deviation: D2_goal_shift, stage: order_placed }
+    reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with stage=order_placed'
+  - forbid: { deviation: D2_goal_shift, stage: callback }
+    reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with stage=callback'
+  - forbid: { deviation: D2_goal_shift, stage: handover }
+    reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with stage=handover'
+  - forbid: { deviation: D2_goal_shift, stage: closing }
+    reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with stage=closing'
+  - forbid: { deviation: D3_contradiction, stage: needs }
+    reason: 'derived from the relations: no approved path carries deviation=D3_contradiction with stage=needs'
+  - forbid: { deviation: D3_contradiction, stage: identify }
+    reason: 'derived from the relations: no approved path carries deviation=D3_contradiction with stage=identify'
+  - forbid: { deviation: D3_contradiction, stage: address }
+    reason: 'derived from the relations: no approved path carries deviation=D3_contradiction with stage=address'
+  - forbid: { deviation: D3_contradiction, stage: port_number }
+    reason: 'derived from the relations: no approved path carries deviation=D3_contradiction with stage=port_number'
+  - forbid: { deviation: D3_contradiction, stage: details }
+    reason: 'derived from the relations: no approved path carries deviation=D3_contradiction with stage=details'
+  - forbid: { deviation: D3_contradiction, stage: recap }
+    reason: 'derived from the relations: no approved path carries deviation=D3_contradiction with stage=recap'
+  - forbid: { deviation: D3_contradiction, stage: order_placed }
+    reason: 'derived from the relations: no approved path carries deviation=D3_contradiction with stage=order_placed'
+  - forbid: { deviation: D3_contradiction, stage: callback }
+    reason: 'derived from the relations: no approved path carries deviation=D3_contradiction with stage=callback'
+  - forbid: { deviation: D3_contradiction, stage: handover }
+    reason: 'derived from the relations: no approved path carries deviation=D3_contradiction with stage=handover'
+  - forbid: { deviation: D3_contradiction, stage: closing }
+    reason: 'derived from the relations: no approved path carries deviation=D3_contradiction with stage=closing'
+  - forbid: { deviation: D4_loose_confirmation, stage: needs }
+    reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=needs'
+  - forbid: { deviation: D4_loose_confirmation, stage: identify }
+    reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=identify'
+  - forbid: { deviation: D4_loose_confirmation, stage: address }
+    reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=address'
+  - forbid: { deviation: D4_loose_confirmation, stage: port_number }
+    reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=port_number'
+  - forbid: { deviation: D4_loose_confirmation, stage: offer }
+    reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=offer'
+  - forbid: { deviation: D4_loose_confirmation, stage: details }
+    reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=details'
+  - forbid: { deviation: D4_loose_confirmation, stage: order_placed }
+    reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=order_placed'
+  - forbid: { deviation: D4_loose_confirmation, stage: callback }
+    reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=callback'
+  - forbid: { deviation: D4_loose_confirmation, stage: handover }
+    reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=handover'
+  - forbid: { deviation: D4_loose_confirmation, stage: closing }
+    reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with stage=closing'
+  - forbid: { deviation: D8_tool_failure, stage: needs }
+    reason: 'derived from the relations: no approved path carries deviation=D8_tool_failure with stage=needs'
+  - forbid: { deviation: D8_tool_failure, stage: offer }
+    reason: 'derived from the relations: no approved path carries deviation=D8_tool_failure with stage=offer'
+  - forbid: { deviation: D8_tool_failure, stage: details }
+    reason: 'derived from the relations: no approved path carries deviation=D8_tool_failure with stage=details'
+  - forbid: { deviation: D8_tool_failure, stage: order_placed }
+    reason: 'derived from the relations: no approved path carries deviation=D8_tool_failure with stage=order_placed'
+  - forbid: { deviation: D8_tool_failure, stage: handover }
+    reason: 'derived from the relations: no approved path carries deviation=D8_tool_failure with stage=handover'
+  - forbid: { deviation: D8_tool_failure, stage: closing }
+    reason: 'derived from the relations: no approved path carries deviation=D8_tool_failure with stage=closing'
+  - forbid: { deviation: D10_return, stage: needs }
+    reason: 'derived from the relations: no approved path carries deviation=D10_return with stage=needs'
+  - forbid: { deviation: D10_return, stage: recap }
+    reason: 'derived from the relations: no approved path carries deviation=D10_return with stage=recap'
+  - forbid: { deviation: D10_return, stage: order_placed }
+    reason: 'derived from the relations: no approved path carries deviation=D10_return with stage=order_placed'
+  - forbid: { deviation: D10_return, stage: handover }
+    reason: 'derived from the relations: no approved path carries deviation=D10_return with stage=handover'
+  - forbid: { deviation: D10_return, stage: closing }
+    reason: 'derived from the relations: no approved path carries deviation=D10_return with stage=closing'
+  - forbid: { deviation: D7_silence_or_burst, stage: needs }
+    reason: 'derived from the relations: no approved path carries deviation=D7_silence_or_burst with stage=needs'
+  - forbid: { stage: identify, user_type: new-customer }
+    reason: 'derived from the relations: no approved path carries stage=identify with user_type=new-customer'
+  - forbid: { stage: identify, user_type: sales-operations }
+    reason: 'derived from the relations: no approved path carries stage=identify with user_type=sales-operations'
+  - forbid: { stage: port_number, user_type: existing-customer }
+    reason: 'derived from the relations: no approved path carries stage=port_number with user_type=existing-customer'
+  - forbid: { stage: port_number, user_type: sales-operations }
+    reason: 'derived from the relations: no approved path carries stage=port_number with user_type=sales-operations'
+  - forbid: { stage: callback, user_type: existing-customer }
+    reason: 'derived from the relations: no approved path carries stage=callback with user_type=existing-customer'
+  - forbid: { stage: callback, user_type: sales-operations }
+    reason: 'derived from the relations: no approved path carries stage=callback with user_type=sales-operations'
+  - forbid: { stage: handover, user_type: existing-customer }
+    reason: 'derived from the relations: no approved path carries stage=handover with user_type=existing-customer'
+  - forbid: { stage: handover, user_type: sales-operations }
+    reason: 'derived from the relations: no approved path carries stage=handover with user_type=sales-operations'
+  - forbid: { stage: callback, coverage_result: not-in-map }
+    reason: 'derived from the relations: no approved path carries stage=callback with coverage_result=not-in-map'
+  - forbid: { stage: handover, coverage_result: not-in-map }
+    reason: 'derived from the relations: no approved path carries stage=handover with coverage_result=not-in-map'
 prior:
   kind: declared
