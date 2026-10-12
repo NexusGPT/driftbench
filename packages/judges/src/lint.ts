@@ -14,6 +14,8 @@ const RULES: readonly Rule[] = [
   { code: 'two-questions', found: (c) => (c.rubric.match(/\?/g) ?? []).length > 1 },
   // A taste word: two judges read it two ways.
   { code: 'subjective', found: (c) => /\b(good|appropriate|nice|reasonable|properly|adequate|helpful|polite|professional|friendly)\b/i.test(c.rubric) },
+  // A quantity word that hides the count.
+  { code: 'vague-quantity', found: (c) => /\b(some|several|many|often|usually|mostly|a few|most of the time)\b/i.test(c.rubric) },
 ];
 
 /** Lists the defects of a criterion's rubric and pictures. A criterion without defects gives an empty list. */

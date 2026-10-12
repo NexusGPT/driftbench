@@ -27,4 +27,12 @@ describe('lintCriterion', () => {
     }
     expect(lintCriterion({ ...clean, rubric: 'The reply names Acme Care and its goodwill credit.' }).issues).toEqual([]);
   });
+
+  it('reports vague-quantity for a word that hides how many', () => {
+    for (const phrase of ['some', 'several', 'many', 'often', 'usually', 'mostly', 'a few', 'Most of the time']) {
+      const issues = lintCriterion({ ...clean, rubric: `The reply names Acme Care ${phrase} turns.` }).issues;
+      expect(issues.map((i) => i.code), phrase).toContain('vague-quantity');
+    }
+    expect(lintCriterion({ ...clean, rubric: 'The reply names Acme Care in every turn.' }).issues).toEqual([]);
+  });
 });
