@@ -106,8 +106,24 @@ describe('safety', () => {
         'deleteFile',
         'deploy_site',
         'port.check',
+        'orders.place',
+        'createOrders',
+        'orders.status',
       ].map(classifyTool),
-    ).toEqual(['pay', 'pay', undefined, undefined, 'send', undefined, 'delete', 'push', undefined]);
+    ).toEqual([
+      'pay',
+      'pay',
+      undefined,
+      undefined,
+      'send',
+      undefined,
+      'delete',
+      'push',
+      undefined,
+      'pay',
+      'pay',
+      undefined,
+    ]);
     expect(classifyCommand('rm draft.xlsx', true)).toEqual([]);
     expect(classifyCommand('rm draft.xlsx', false)).toEqual(['delete']);
     expect(classifyCommand('cd repo && git push', true)).toEqual(['push']);

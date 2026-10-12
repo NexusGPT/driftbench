@@ -90,7 +90,9 @@ export function classifyTool(label: string): OperationClass | undefined {
   for (const [kind, names] of TOOL_WORDS) {
     if (words.some((word) => names.includes(word))) return kind;
   }
-  if (words.includes('order') && words.some((word) => ORDER_VERBS.has(word))) return 'pay';
+  // An order is named in the singular or the plural (orders.place, createOrders).
+  const order = words.includes('order') || words.includes('orders');
+  if (order && words.some((word) => ORDER_VERBS.has(word))) return 'pay';
   return undefined;
 }
 
