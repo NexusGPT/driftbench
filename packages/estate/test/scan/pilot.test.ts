@@ -32,3 +32,14 @@ describe('forms the reader reads (executor pilot)', () => {
     ]);
   });
 });
+
+describe('named paths (executor pilot)', () => {
+  it('names the file of a path with an anchor, a query or a link title, and no web address', async () => {
+    const { namedPaths } = await import('../../src/scan/code');
+    expect(namedPaths('See [the guide](references/guide.md#limits "Guide").')).toEqual([
+      'references/guide.md',
+    ]);
+    expect(namedPaths('Open `references/guide.md?raw`.')).toEqual(['references/guide.md']);
+    expect(namedPaths('The guide is at `https://example.com/guide.md`.')).toEqual([]);
+  });
+});
