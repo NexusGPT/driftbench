@@ -83,11 +83,17 @@ async function build(): Promise<FixtureSuite> {
     }
   }
   // Static checks (invariants, settings) are JSON records of one atom, run by the static runner: complete.
-  const statics = (await readdir(join(out, 'static'), { withFileTypes: true, recursive: true }).catch(() => []))
+  const statics = (
+    await readdir(join(out, 'static'), { withFileTypes: true, recursive: true }).catch(() => [])
+  )
     .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
     .map((entry) => join(entry.parentPath, entry.name));
   for (const path of statics) {
-    const record = JSON.parse(await readFile(path, 'utf8')) as { id: string; atom?: string; testType?: string };
+    const record = JSON.parse(await readFile(path, 'utf8')) as {
+      id: string;
+      atom?: string;
+      testType?: string;
+    };
     specs.push({
       path,
       id: record.id,
