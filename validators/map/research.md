@@ -710,3 +710,14 @@ Sources read:
 What others do: A model writes only the keys the template lists.
 
 What to try, and why: a rule records a count limit
+
+## Iteration 61
+
+Question: packages/generate/src/extract/contract.ts: the answer template shows no within key on a value; contract:rule-within proves it.
+
+Sources read:
+* docs/generating.md section Planned: what a rule states (a time limit)
+
+What others do: A model writes only the keys the template lists.
+
+What to try, and why: a rule records a time limit
