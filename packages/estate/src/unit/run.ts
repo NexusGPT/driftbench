@@ -339,6 +339,11 @@ async function runGuard(
     ...(unitCase.payload.tool_name !== undefined ? { tool_use_id: `toolu_unit_${number}` } : {}),
     ...unitCase.payload,
   };
+  // The runtime hands a Stop guard the last reply as last_assistant_message; the test file names it last_reply.
+  if ('last_reply' in payload) {
+    payload.last_assistant_message = reply || 'ok';
+    delete payload.last_reply;
+  }
   return execute(['/bin/sh', '-c', guard.command], `${JSON.stringify(payload)}\n`, runner, folder, timeoutMs);
 }
 

@@ -199,7 +199,7 @@ describe('the estate unit runner on a guard', () => {
     expect(run.results[0]?.status).toBe('inert');
   });
 
-  it('sends the payload in the runtime shape: the session fields, a transcript holding the last reply', async () => {
+  it('sends the payload in the runtime shape: the session fields, the last reply as last_assistant_message and in the transcript', async () => {
     const root = await estate({
       'CLAUDE.md': RULES,
       '.claude/settings.json': SETTINGS({
@@ -212,16 +212,17 @@ describe('the estate unit runner on a guard', () => {
         'event = json.load(sys.stdin)',
         'lines = open(event["transcript_path"]).read()',
         'keys = sorted(k for k in event if k != "transcript_path" and k != "cwd" and k != "session_id")',
-        'print(json.dumps({"keys": keys, "event": event["hook_event_name"], "obviously": "obviously" in lines}))',
+        'print(json.dumps({"keys": keys, "event": event["hook_event_name"], "obviously": "obviously" in lines, "last": "obviously" in event.get("last_assistant_message", "")}))',
         '',
       ].join('\n'),
     });
     const [test] = await record(root, await unitTests(root, ['guard_positive']));
     const output = JSON.parse(test?.cases[0]?.expected?.output ?? '{}');
     expect(output).toEqual({
-      keys: ['hook_event_name', 'last_reply', 'permission_mode', 'stop_hook_active'],
+      keys: ['hook_event_name', 'last_assistant_message', 'permission_mode', 'stop_hook_active'],
       event: 'Stop',
       obviously: true,
+      last: true,
     });
   });
 });
