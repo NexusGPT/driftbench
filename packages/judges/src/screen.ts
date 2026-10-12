@@ -52,6 +52,11 @@ const OTHER_LANGUAGES: readonly { readonly judge: readonly string[]; readonly ve
     judge: ['rubrica', 'avalia[çc][ãa]o', 'avaliador', 'juiz', 'crit[ée]rios? de avalia[çc][ãa]o', 'veredito'],
     verdict: ['aprovado', 'aprovada', 'aprova', 'sucesso', 'conforme', 'satisfeito', 'reprovado', 'falha'],
   },
+  {
+    // Dutch
+    judge: ['beoordelingscriteria', 'beoordelaar', 'rechter', 'criteria', 'rubriek', 'oordeel'],
+    verdict: ['geslaagd', 'slaagt', 'voldoet', 'succes', 'gefaald', 'niet geslaagd', 'goedgekeurd'],
+  },
 ];
 
 const VERDICT_WORDS = ['pass', 'passing', 'passed', 'passes', 'success', 'satisfied', 'compliant', 'met', 'fail', 'fails'];
