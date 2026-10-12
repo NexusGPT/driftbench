@@ -35,7 +35,13 @@ A session is up to three files. `packages/adapters/src/claude-code/format.ts` do
 
 `at` is an ISO 8601 time. In a decision row, `event` is the runtime event that fired the hook, `check` the guard's name and `verdict` its decision; `session` is optional, and rows of another session are left out and counted in the session's issues.
 
-`readSession({ transcript, decisions?, steps?, before?, after?, references? })` reads the files, and the pure `mapSession(input)` maps parsed lines. Both return `{ blocks: [{ stimulus, observed }], meta }`. Seven fictional sessions with their logs and feeds sit in `examples/estates/sessions/`: clean-build, skill-skipped, forbidden-act, gate-violated, compaction-mid-task, subagent-dispatch and price-sheet-build. The last one also keeps the workspace before and after the session, in `price-sheet-build/before` and `price-sheet-build/after`.
+`readSession({ transcript, decisions?, steps?, before?, after?, references? })` reads the files, and the pure `mapSession(input)` maps parsed lines. A file with no record of type `user` or `assistant` is not a transcript: both throw a `NotATranscriptError` that names the file and what its first line holds, so a corpus in another shape never reads as empty sessions.
+
+```text
+conv.jsonl is not a Claude Code transcript: no record has type user or assistant (line 1 has the keys id, turns)
+```
+
+An empty file gives `... is not a Claude Code transcript: it holds no record`, and a file whose first line is not JSON names that line. Both return `{ blocks: [{ stimulus, observed }], meta }`. Seven fictional sessions with their logs and feeds sit in `examples/estates/sessions/`: clean-build, skill-skipped, forbidden-act, gate-violated, compaction-mid-task, subagent-dispatch and price-sheet-build. The last one also keeps the workspace before and after the session, in `price-sheet-build/before` and `price-sheet-build/after`.
 
 ## The trace of a session
 
@@ -80,10 +86,12 @@ The spec's block k reads the session's block `fromBlock + k`. The stimulus the s
 An estate gate says "before X, do Y". `orderedCheck` is a custom check for it, registered as `rules.custom.ordered` by `driftbench replay`. The pair `{ before: Y, after: X }` holds in a block when every X of the block has a Y before it, in this block or an earlier one of the run.
 
 * A name matches a tool call by its label (`Read`), a skill load by `skill:<name>` and a stage by `stage:<name>`.
+* `before` is one name or a list, such as `before: [Read, Grep]`. Any one of the names before the X holds the pair.
+* A Write that succeeded counts as a Read of the file it wrote: the agent then holds the file's content, and the runtime accepts an Edit of it. So `before: Read` with `key: file_path` holds for an Edit after a Write of the same file. A Write that failed counts as nothing.
 * With `key`, the two must carry the same value in that input field: with `key: file_path`, the same file was read before it was edited.
 * With `reset: compaction`, a Y before the last compaction preceding the X does not count: what the agent read before a compaction is gone from its context.
 
-Its options are one pair, or `{ pairs: [...] }`. It gives one verdict per pair, filed as `custom.ordered.<before>.<after>`, and none for a pair whose X does not occur in the block. Characters outside letters, digits, `_` and `-` in a name become `_`: the pair `skill:shop-build` before `Edit` is `custom.ordered.skill_shop-build.Edit`.
+Its options are one pair, or `{ pairs: [...] }`. It gives one verdict per pair, filed as `custom.ordered.<before>.<after>` (a list of names joined by `_or_`, as in `custom.ordered.Read_or_Grep.Edit`), and none for a pair whose X does not occur in the block. Characters outside letters, digits, `_` and `-` in a name become `_`: the pair `skill:shop-build` before `Edit` is `custom.ordered.skill_shop-build.Edit`.
 
 ## `driftbench replay`
 
@@ -144,6 +152,17 @@ pnpm -s driftbench replay $S/clean-build.jsonl $S/compaction-mid-task.jsonl $S/f
 ```
 
 It exits 1, since four specs fail. The negative control runs on the faulty gate-violated session and checks only what that session did right, so it stays green. When a spec expects guards and its session has no decision log, the command prints a note, and a `count: 0` guard expectation then passes.
+
+A session that is not a transcript stops the command before any spec runs, with exit 2 and the `NotATranscriptError` message after `Cannot read the session <name>:`.
+
+The default `pii` check flags any personal data in the visible text, so a replay of the owner's own sessions fails on the address they typed. `--owner` gives the owner's own values, and `--owner-file` a file of them, one per line, where a line starting with `#` is a comment:
+
+```sh
+pnpm -s driftbench replay sessions/*.jsonl --suite specs --owner-file owner.txt
+pnpm -s driftbench replay sessions/one.jsonl --suite specs --owner owner@example.org
+```
+
+Only findings equal to an owner value are left out; a third party in the same session is still flagged. The rules are on the [checks page](../reference/checks.md#personal-data).
 
 ## The live runner
 

@@ -227,7 +227,22 @@ A failing `similarity` or `relevancy` verdict gives drift class X1; a failing `k
 
 The `pii` check is always on in `defaultChecks()` and gates. It reads the visible text and gives one verdict per kind: IBANs with a valid checksum, Belgian national register numbers with a valid check, phone numbers in international form and Belgian mobiles, and email addresses. Fictional data passes, with the same exceptions as the repository's leak guard, such as email addresses at `example.com`, `example.org`, `example.net` and `localhost` or under `.example`, `.test`, `.invalid` and `.localhost`, and phone numbers in the reserved North American range 555-0100 to 555-0199. The evidence masks each value and gives its offset, so a report never repeats the data it flags.
 
-A spec cannot configure the check yet. Checking that the agent does not echo a field it must not repeat is not built.
+A spec cannot configure the check. A caller can give it the owner's own values, so a replay of the owner's own sessions does not flag the address they typed or read:
+
+```ts
+import { createPiiCheck, defaultChecks } from '@driftbench/checks';
+
+const checks = defaultChecks({ piiOwner: ['owner@example.org', '+1 202 555 0123'] });
+const pii = createPiiCheck({ owner: ['owner@example.org'] });
+```
+
+* The list is empty by default, so every finding counts.
+* A finding is left out only when it equals an owner value. An email address is compared with case folded; any other value is compared as its letters and digits, with spaces and punctuation dropped.
+* A domain, a pattern or a part of a value never matches. A third party at the owner's domain is still flagged.
+* Each form of a value is its own entry: a phone number written in national form and in international form needs both.
+* The evidence counts the owner values it left out, as `1 owner email address left out`, and never prints them.
+
+`driftbench replay` takes the list with `--owner` and `--owner-file`; see the [CLI page](cli.md#driftbench-replay). Checking that the agent does not echo a field it must not repeat is not built.
 
 ## Cards
 
@@ -343,6 +358,22 @@ rules:
 ```
 
 `registerCheck` adds to the default registry; `defaultChecks({ registry })` takes another `CheckRegistry`. A name takes letters, digits, dots, underscores and hyphens, and is registered once. Every verdict is filed under `custom.<name>`: the check above gives `custom.reply_length.words`. A name nobody registered, a check that throws, or a value that is not a verdict gives a failed verdict that says so.
+
+### The ordered pair
+
+`driftbench replay` registers one more custom check, `ordered`, from the Claude Code adapter. A gate says "before X, do Y"; the pair `{ before: Y, after: X }` holds in a block when every X has a Y before it, in this block or an earlier one of the run. The full rules are on the [Claude Code page](../adapters/claude-code.md#the-ordered-pair-check).
+
+```yaml
+rules:
+  custom:
+    ordered:
+      pairs:
+        - { before: Read, after: Edit, key: file_path, reset: compaction }
+        - { before: [Read, Grep], after: Edit, key: file_path }
+```
+
+* `before` is one name or a list. With a list, any one of its names before the X holds the pair. The verdict id joins the list with `_or_`: the second pair above is `custom.ordered.Read_or_Grep.Edit`.
+* A Write that succeeded counts as a Read of the file it wrote, since the agent then holds its content. So `before: Read` with `key: file_path` holds for an Edit that follows a Write of the same file. A Write that failed counts as nothing.
 
 ## Judged criteria
 
