@@ -355,7 +355,25 @@ The one criterion under the bar is `explicit_confirmation`, on the block `explic
 
 `judge calibrate --claude haiku --claude sonnet --claude opus --mode llm` calibrates a council of one family, usable for an agent of any other family. Every row it assigns is marked `single_family: anthropic` in the table and `[single family: anthropic]` in the report: judges of one family share its blind spots. Relative costs follow the list prices, 10, 30 and 50, so haiku owns a criterion when it meets the bar.
 
-The recording (`claude-council.cassette.json`, 197 calls, 0.81 USD) stopped at its spend cap after the first 7 criteria in name order. Of those 7, 6 are assigned to `claude-haiku` with sonnet and opus: `care_redirect`, `checks_before_promising`, `coverage_before_offer`, `holds_instructions`, `honest_failure` and `ledger_intact`. `explicit_confirmation` stays unassigned: sonnet and opus meet the bar, haiku reaches kappa 0.40. A sonnet or opus call costs about 20 times a haiku call here.
+The recording, `examples/acme/criteria/calibration/claude-council.cassette.json`, holds 336 answers of the three models on all 12 criteria, 1.39 USD in all. It was recorded in three runs: haiku, sonnet and opus on the first 7 criteria; haiku alone on the other 5 (from its own recording); then sonnet and opus on those 5. The spend cap stopped the last run before opus answered 2 of the 3 labelled `sheet_matches_catalog` blocks.
+
+| Criterion | haiku | sonnet | opus |
+|---|---|---|---|
+| care_redirect | 1.00 | 1.00 | 1.00 |
+| checks_before_promising | 1.00 | 1.00 | 1.00 |
+| coverage_before_offer | 1.00 | 1.00 | 1.00 |
+| explicit_confirmation | 0.40 | 1.00 | 1.00 |
+| holds_instructions | 1.00 | 1.00 | 1.00 |
+| honest_failure | 1.00 | 1.00 | 1.00 |
+| ledger_intact | 1.00 | 1.00 | 1.00 |
+| no_invented_data | 1.00 | 1.00 | 1.00 |
+| one_question_per_turn | 1.00 | 1.00 | 1.00 |
+| plain_language | 1.00 | 1.00 | 1.00 |
+| resumes_pending_step | 1.00 | 1.00 | 1.00 |
+| sheet_matches_catalog | 1.00 | 1.00 | 0.14 (2 calls missing) |
+| Kappa over 40 labels | 0.95 (39/40) | 1.00 (40/40) | 0.90 (38/40) |
+
+Kappa per judge and criterion against the hand labels. Every judge separates every fixture pair 3 of 3. The council assigns 10 of 12 criteria to haiku with sonnet and opus, each marked single-family. `explicit_confirmation` stays unassigned because haiku is under the bar, and `sheet_matches_catalog` because of the two missing opus calls, not because of an opus answer. A sonnet or opus call costs about 20 to 30 times a haiku call here.
 
 ### A cascade: the costly judges only where the cheap one is unsure
 
@@ -363,7 +381,7 @@ The recording (`claude-council.cassette.json`, 197 calls, 0.81 USD) stopped at i
 
 Escalating on disagreement uses the label, which a run does not have: it measures whether the costly judges fix the cheap judge's errors. The report also gives `unsureOnly`, from the same answers, which escalates only the unsure items, as a deployed cascade could.
 
-On the 5 criteria the council recording did not reach, with haiku replayed from its recording and sonnet and opus live:
+On the 5 criteria the first council run did not reach, with haiku replayed from its recording and sonnet and opus live:
 
 ```text
 $ pnpm -s driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-haiku.cassette.json --claude sonnet --claude opus --cascade --only no_invented_data --only one_question_per_turn --only plain_language --only resumes_pending_step --only sheet_matches_catalog --out examples/acme/criteria/calibration/claude-cascade.json

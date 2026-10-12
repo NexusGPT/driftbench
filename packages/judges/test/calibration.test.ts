@@ -392,34 +392,28 @@ describe('the recorded haiku calibration (a real judge on the claude command, ma
 });
 
 describe('the recorded Claude council (haiku, sonnet, opus; 2026-10-12)', () => {
-  it('assigns 6 of the 7 criteria it covers, each marked single-family; haiku misses explicit_confirmation', async () => {
+  it('covers all 12 criteria; assigns 10, each single-family; 2 opus calls are missing', async () => {
     const { criteria, labels } = await acme();
     const cassette = await loadCassette(join(CRITERIA, 'calibration/claude-council.cassette.json'));
-    // The spend cap stopped the recording after the first 7 criteria in name order.
-    const covered = criteria.slice(0, 7);
-    expect(covered.map((c) => c.def.name).at(-1)).toBe('ledger_intact');
-    const report = await calibrate({
-      judges: cassettePlayers(cassette),
-      criteria: covered,
-      labels,
-      mode: 'llm',
-    });
-    expect(report.errors).toBe(0);
-    const assigned = report.criteria.filter((c) => c.assignment.status === 'assigned');
-    expect(assigned.map((c) => c.criterion)).toEqual([
-      'care_redirect',
-      'checks_before_promising',
-      'coverage_before_offer',
-      'holds_instructions',
-      'honest_failure',
-      'ledger_intact',
-    ]);
-    for (const c of assigned) {
+    const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels, mode: 'llm' });
+    // The spend cap stopped the run before opus answered 2 labelled sheet_matches_catalog blocks.
+    expect(report.errors).toBe(2);
+    expect(row(report, 'sheet_matches_catalog', 'claude-opus').errors).toBe(2);
+    const assigned = report.criteria
+      .filter((c) => c.assignment.status === 'assigned')
+      .map((c) => c.criterion);
+    expect(assigned).toHaveLength(10);
+    expect(assigned).not.toContain('explicit_confirmation');
+    expect(assigned).not.toContain('sheet_matches_catalog');
+    for (const c of report.criteria.filter((x) => x.assignment.status === 'assigned')) {
       expect(c.assignment).toMatchObject({ owner: 'claude-haiku', singleFamily: 'anthropic' });
     }
     expect(row(report, 'explicit_confirmation', 'claude-haiku').labels.kappa).toBeCloseTo(0.4, 10);
-    expect(row(report, 'explicit_confirmation', 'claude-sonnet').meetsBar).toBe(true);
-    expect(row(report, 'explicit_confirmation', 'claude-opus').meetsBar).toBe(true);
+    for (const c of report.criteria) {
+      for (const j of c.judges) expect(j.separation.separated, `${c.criterion} ${j.judge}`).toBe(3);
+    }
+    const pooled = Object.fromEntries(report.pooled.map((p) => [p.judge, `${p.agree}/${p.n}`]));
+    expect(pooled).toEqual({ 'claude-haiku': '39/40', 'claude-sonnet': '40/40', 'claude-opus': '38/40' });
   });
 });
 
