@@ -595,7 +595,7 @@ With `mode: 'T'`, it prints:
 | `store`, `campaignId` | where the finished run is filed. A store needs a campaign id, and the campaign must be in the store. |
 | `cache`, `cacheTtlMs` | where observed blocks and end-state reads are kept, and for how long. Without a cache, every block reaches the adapter. |
 | `artifacts` | the readers the artifact checks use, such as `defaultReaders()` of `@driftbench/artifacts` |
-| `retry` | `retries` (default 3) and `baseDelayMs` (default 200) for transport errors |
+| `retry` | the run's [retry settings](retries.md), over the spec target's `retry`: `maxAttempts` (or `retries`, attempts minus one), `baseDelayMs`, `maxDelayMs`, `jitter`, `retryAfter`, and `sleep` and `random` for tests. Defaults: 4 attempts, 500 ms, 30000 ms, jitter on, Retry-After honoured. |
 | `now` | the clock |
 | `runId` | default: the cell id |
 | `maxSteps` | a guard against a driver that never stops. Default 4 steps per spec block, at least 16. |
@@ -655,7 +655,7 @@ The runner gives every block its drift classes from the gating verdicts it fails
 
 A run ends `completed`, `failed` or `stopped`.
 
-* An `AdapterTransportError` is retried 3 times, after 200, 400 and 800 ms. Past the retries, the run fails.
+* An `AdapterTransportError` with a 429, a 5xx or no status (a network failure) is retried under the [shared retry policy](retries.md): 4 attempts by default, a backoff from 500 ms with full jitter, at least the server's Retry-After. Each retry is recorded in the block's Observed as `retries`. Past the attempts, or on one marked `exhausted` by the adapter, the run fails.
 * An `AgentFailure`, an Observed that does not match the schema as JSON, or any other error fails the run at once.
 * A driver that does not stop within `maxSteps` steps stops the run.
 

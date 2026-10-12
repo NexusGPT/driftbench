@@ -21,6 +21,7 @@ The loader rewrites these forms before it validates a spec.
 
 * [Spec](#spec)
 * [TargetRef](#targetref)
+* [RetrySettings](#retrysettings)
 * [GivenDefaults](#givendefaults)
 * [WorldState](#worldstate)
 * [ToolOverride](#tooloverride)
@@ -94,6 +95,19 @@ Which agent a spec runs against. The adapter decides what the other fields mean.
 | `variant` | string, not empty | no |  | A variant of the agent, such as a prompt version. |
 | `deployment` | string, not empty | no |  | A deployment of the agent, as the adapter names it. |
 | `options` | map of string to any value | no |  | Adapter settings. Each adapter defines their names. |
+| `retry` | [RetrySettings](#retrysettings) | no |  | How the model calls of this target are retried. |
+
+## RetrySettings
+
+How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `max_attempts` | integer, 1 to 20 | no |  | Attempts per model call, the first included. Default 4. |
+| `base_delay_ms` | integer, at least 0 | no |  | The wait before the first retry; each later retry doubles it. Default 500. |
+| `max_delay_ms` | integer, at least 0 | no |  | The longest wait between two attempts. Default 30000. |
+| `jitter` | boolean | no |  | Draw each wait at random below the backoff (full jitter). Default true. |
+| `retry_after` | boolean | no |  | Wait at least what the server's Retry-After header asks. Default true. |
 
 ## GivenDefaults
 

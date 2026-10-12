@@ -260,8 +260,8 @@ These commands run specs on a target. Each has its options, its output and its e
 
 ```
 driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
-driftbench campaign run <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
-driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--json]
+driftbench campaign run <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json]
+driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
 driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 ```
@@ -285,6 +285,9 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | `--store <file>` | `plan`: read the measured unit costs from this store. The others: the store that keeps the campaign, its runs and the cache; required by `resume` and `status` |
 | `--no-cache` | neither replay runs from the cache nor write to it |
 | `--concurrency <n>` | cells run at the same time; default 4 |
+| `--retry-attempts <n>` | `run` and `resume`: attempts per model call, the first included, over the spec target's `retry`; default 4. See [retries](../retries.md) |
+| `--retry-base-ms <ms>` | `run` and `resume`: the wait before the first retry, doubled for each later one; default 500 |
+| `--retry-max-ms <ms>` | `run` and `resume`: the longest wait between two attempts; default 30000 |
 | `--detail` | `status` only: also print the compounding index, the succession and the recovery tables |
 | `--runs <n>` | `smoke` only: how many runs to compare, at least 2; default 3 |
 | `--json` | print one JSON document |

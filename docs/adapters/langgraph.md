@@ -71,7 +71,7 @@ In a checkpointed session, the thread, not the runner's history, is what the age
 
 | Error | Becomes |
 |---|---|
-| a 408, 409, 429 or any 5xx status, or a connection, timeout or abort error, in the error or its causes | `AdapterTransportError` |
+| a 429 or any 5xx status, or a network error (refused, reset, timed out, `fetch failed`), in the error or its causes | `AdapterTransportError`: the runner retries the block under the [shared policy](../retries.md) |
 | `GraphRecursionError`, any other error | `AgentFailure` |
 | a state with no `messages` list | `AgentFailure` |
 
