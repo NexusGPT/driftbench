@@ -70,6 +70,11 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
     );
     return folded === text ? undefined : folded;
   },
+  // Letters spaced one by one (i g n o r e): the single spaces between letters are dropped.
+  (text) => {
+    const joined = text.replace(/(?<=\p{L}) (?=\p{L}(?: |$|[^\p{L}]))/gu, '');
+    return joined === text ? undefined : joined;
+  },
   // Compatibility forms: fullwidth letters and the like read as plain letters.
   (text) => {
     const folded = text.normalize('NFKC');
