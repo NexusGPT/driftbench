@@ -57,6 +57,8 @@ Both forms are computed as products, so they never overflow. pass^k falls as k g
 
 ## Intervals on pass^k and pass@k
 
+Runs that did not complete count as failing in the value. Their outcome is unknown, so the interval also covers both ends: all of them failing and all of them passing. A line with incomplete runs is flagged "incomplete" in the scorecard. `--withhold-incomplete` on `driftbench report` drops the value for such a line and keeps only its count, so the scorecard reports nothing it cannot support.
+
 Each pass^k and pass@k value comes with an interval for every k. The interval is the Wilson bounds of the per-run rate, raised to k, widened where needed so that it contains the value. In a seeded simulation over 36 cells of run rate, run count and k, the interval covered the true value in at least 91% of draws, and the value always lay inside its interval.
 
 ## Repeat reducers per criterion

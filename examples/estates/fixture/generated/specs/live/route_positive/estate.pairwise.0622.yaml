@@ -75,6 +75,7 @@ metadata:
     atoms:
       - skill.weekly-report.skill-weekly-report
     planRow: pairwise.0622
+    focusVariant: 621
     cell:
       ask_class: chat
       ask_shape: correction

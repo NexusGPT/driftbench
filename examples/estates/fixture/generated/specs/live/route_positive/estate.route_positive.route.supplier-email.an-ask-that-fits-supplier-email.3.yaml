@@ -65,6 +65,7 @@ metadata:
       - route.supplier-email.an-ask-that-fits-supplier-email
       - skill.supplier-email.skill-supplier-email
     planRow: route_positive.route.supplier-email.an-ask-that-fits-supplier-email.3
+    focusVariant: 2
     cell:
       atoms.route: route.supplier-email.an-ask-that-fits-supplier-email
     seeder: estate

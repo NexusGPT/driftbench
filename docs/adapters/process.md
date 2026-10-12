@@ -110,6 +110,8 @@ This is how a code-agent harness reports its runtime: its hooks as guards, its s
 | `localProvider()` | weak | a fresh temporary folder on this machine. Commands run there through `/bin/sh` as the current user: the folder bounds what the run records, not what the agent can reach. |
 | `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. The container has no network unless `network: 'bridge'` is given. |
 
+A sandbox folder that a run leaves open is removed when the process exits, including on SIGINT and SIGTERM, so an interrupted run leaves no workspace behind. A kept sandbox is not removed. A command still running at that point is killed with its process group. Only SIGKILL, which no process can catch, leaves them behind.
+
 Each provider reports whether it can run on this machine (`available()`); the adapter does not fall back from one to the other. The sandbox's isolation is on every Observed.
 
 An approval policy is opt-in. Wrap a provider with `withApprovalPolicy(provider, policy)` and each sandbox it makes checks its commands and reads against the policy. Without it, the sandbox runs as before and its records carry no approval field.

@@ -51,7 +51,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Plan the delivery routes for tomorrow.
+      user: Which van goes where tomorrow? Plan the routes.
     expect:
       subagents:
         - name: route-planner
@@ -71,6 +71,7 @@ metadata:
     atoms:
       - route.route-planner.an-ask-that-fits-route-planner
     planRow: pairwise.0530
+    focusVariant: 529
     cell:
       ask_class: change_estate
       ask_shape: concrete
@@ -87,6 +88,6 @@ metadata:
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: route-planning
-    phrase: 0
+    phrase: 1
     ask: bank
     outcome: bank

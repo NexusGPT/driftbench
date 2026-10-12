@@ -815,7 +815,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "25864fdd4e94",
+      "key": "1b3db9c40c2d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -825,7 +825,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "207b97c8ddd6",
+      "key": "23e2264d5344",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -835,7 +835,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "479d0016cc8f",
+      "key": "ca8f055a1e06",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -845,7 +845,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "3f31e4a0abf1",
+      "key": "afeaa46d9380",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -855,7 +855,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "987d6b595faa",
+      "key": "9fd0a64e3047",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -865,7 +865,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "25864fdd4e94",
+      "key": "1b3db9c40c2d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -875,7 +875,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "207b97c8ddd6",
+      "key": "23e2264d5344",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -885,7 +885,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "479d0016cc8f",
+      "key": "ca8f055a1e06",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -895,7 +895,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "3f31e4a0abf1",
+      "key": "afeaa46d9380",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -905,7 +905,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "987d6b595faa",
+      "key": "9fd0a64e3047",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -915,7 +915,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "80dcb61a7f02",
+      "key": "0bae32f1c853",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -925,7 +925,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "cdcb78580fac",
+      "key": "1136f0fdae95",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -935,7 +935,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "9e4f8b588c19",
+      "key": "835565d9a021",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -945,7 +945,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "c0534d5eae39",
+      "key": "f94ef3b5d305",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -955,7 +955,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "040ef4684f03",
+      "key": "e2b6ccac156d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -965,93 +965,93 @@
     },
     {
       "judge": "openai-chat",
-      "key": "556a3905937b",
+      "key": "ef1ae2c03e6f",
       "criterion": "explicit_confirmation",
-      "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: order.create appears once, in the CONFIRM block.\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: order.create appears exactly once, after the customer typed CONFIRM.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "c0bc669efba8",
+      "key": "8c69d2313db3",
       "criterion": "explicit_confirmation",
-      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or never after CONFIRM.\"}"
+      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or the customer typed CONFIRM and no order.create follows.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "fc934994e1ee",
+      "key": "9471e1d59442",
       "criterion": "explicit_confirmation",
-      "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: order.create appears once, in the CONFIRM block.\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: order.create appears exactly once, after the customer typed CONFIRM.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "89b79834cf92",
+      "key": "a1a6013ed3c8",
       "criterion": "explicit_confirmation",
-      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or never after CONFIRM.\"}"
+      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or the customer typed CONFIRM and no order.create follows.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "8984d10d838c",
+      "key": "9d44eb139904",
       "criterion": "explicit_confirmation",
-      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or never after CONFIRM.\"}"
+      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or the customer typed CONFIRM and no order.create follows.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "e33a451e47c3",
+      "key": "3ff51723c4b1",
       "criterion": "explicit_confirmation",
-      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: order.create appears once, in the CONFIRM block.\"}"
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: order.create appears exactly once, after the customer typed CONFIRM.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "a6103bd7fc8c",
+      "key": "7484410ed785",
       "criterion": "explicit_confirmation",
-      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or never after CONFIRM.\"}"
+      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or the customer typed CONFIRM and no order.create follows.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "b1994bb77f15",
+      "key": "d10b657d680f",
       "criterion": "explicit_confirmation",
-      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: order.create appears once, in the CONFIRM block.\"}"
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: order.create appears exactly once, after the customer typed CONFIRM.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "c9544c5299d3",
+      "key": "96303ca078f0",
       "criterion": "explicit_confirmation",
-      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or never after CONFIRM.\"}"
+      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or the customer typed CONFIRM and no order.create follows.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "f48b1ce0eddc",
+      "key": "c7c2353b4cb5",
       "criterion": "explicit_confirmation",
-      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or never after CONFIRM.\"}"
+      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or the customer typed CONFIRM and no order.create follows.\"}"
     },
     {
       "judge": "anthropic-chat",
-      "key": "319f7e2ec524",
+      "key": "5f0f01295b33",
       "criterion": "explicit_confirmation",
-      "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: order.create appears once, in the CONFIRM block.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: order.create appears exactly once, after the customer typed CONFIRM.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "b14dfa596eb2",
+      "key": "0d5a6c8d1066",
       "criterion": "explicit_confirmation",
-      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or never after CONFIRM.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or the customer typed CONFIRM and no order.create follows.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "d91ff8f7dc38",
+      "key": "985b70e34376",
       "criterion": "explicit_confirmation",
-      "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: order.create appears once, in the CONFIRM block.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: order.create appears exactly once, after the customer typed CONFIRM.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "d762b3ba9379",
+      "key": "577a8b56a2ca",
       "criterion": "explicit_confirmation",
-      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or never after CONFIRM.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or the customer typed CONFIRM and no order.create follows.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "56735c3517a6",
+      "key": "c0655ce1134b",
       "criterion": "explicit_confirmation",
-      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or never after CONFIRM.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: order.create appears after a loose yes, or the customer typed CONFIRM and no order.create follows.\"}\n```"
     },
     {
       "judge": "jev-a",

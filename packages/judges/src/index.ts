@@ -58,6 +58,7 @@ export {
   judgeCheck,
   readInputs,
   requestFor,
+  safeId,
   verdictOf,
 } from './check';
 export type { ClientOptions, JudgeClient } from './client';
@@ -166,3 +167,4 @@ export {
   readQueue,
   writeQueue,
 } from './queue';
+export { noJudgeCheck, type SingleJudgeOptions, singleJudgeCheck } from './single';

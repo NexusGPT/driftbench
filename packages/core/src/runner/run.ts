@@ -28,7 +28,32 @@ import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } 
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
 import { succession } from './succession';
 
+/**
+ * What the runner reports as it runs, in order: a block starting, each tool call the adapter recorded, each retry a block took,
+ * a block ending with its verdict, and the run ending. An observer writes these as they arrive, so an interrupted run keeps the
+ * events up to the interruption.
+ */
+export type RunEvent =
+  | { type: 'block_start'; index: number; at: string }
+  | {
+      type: 'model_call';
+      index: number;
+      inputTokens?: number;
+      outputTokens?: number;
+      usd?: number;
+      latencyMs?: number;
+      /** When the call began: the reply time less its latency. */
+      startedAt: string;
+      at: string;
+    }
+  | { type: 'tool_call'; index: number; label: string; error?: string; at: string }
+  | { type: 'retry'; index: number; at: string }
+  | { type: 'block_end'; index: number; pass: boolean; at: string }
+  | { type: 'run_end'; status: RunResult['status']; at: string };
+
 export type RunOptions = {
+  /** Receives each event as it happens. Absent: no events are reported. */
+  onEvent?: (event: RunEvent) => void;
   adapter: AgentAdapter;
   /** Decides each block's stimulus. The scripted driver of `@driftbench/users` replays the spec's blocks. */
   driver: UserDriver;
@@ -113,6 +138,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     driver: options.driver,
     checks: options.checks,
     toolPolicy: options.toolPolicy,
+    onEvent: options.onEvent,
     cache,
     cacheTtlMs: options.cacheTtlMs,
     artifacts: options.artifacts,
@@ -141,8 +167,13 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   };
 
   const replayed = cache ? await execute(run, replayChannel(cache, run.toolPolicy)) : undefined;
-  const result = replayed ?? (await execute(run, liveChannel(run)));
+  // A run the cache holds only in part resumes: each block it finished is read back, and the first block it did not
+  // finish goes to the adapter, which opens its session from the history the run has built so far.
+  const result =
+    replayed ??
+    (await execute(run, cache ? resumeChannel(cache, liveChannel(run), run.toolPolicy) : liveChannel(run)));
   if (!result) throw new Error('runSpec: a live run always gives a result');
+  options.onEvent?.({ type: 'run_end', status: result.status, at: new Date().toISOString() });
   // The run as the store keeps it: written as JSON and read back, so what is returned is what is stored.
   const parsed = RunResult.parse(JSON.parse(JSON.stringify(result)));
   if (options.store && options.campaignId !== undefined)
@@ -161,6 +192,7 @@ type RunContext = {
   capabilities: AdapterCapabilities;
   driver: UserDriver;
   toolPolicy: readonly ToolRule[] | undefined;
+  onEvent?: (event: RunEvent) => void;
   checks: CheckSet;
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
@@ -286,8 +318,36 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         adapter: run.adapter.id,
         adapterVersion: run.adapter.version,
       });
+      run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
       const observed = await channel.observe(turn, user, key);
       if (!observed) return undefined;
+      // A model call the adapter reported on a segment: its tokens, cost and latency. The time is when the reply came back;
+      // the call began latencyMs earlier.
+      for (const segment of observed.segments) {
+        if (segment.cost === undefined && segment.latencyMs === undefined) continue;
+        run.onEvent?.({
+          type: 'model_call',
+          index: position,
+          ...(segment.cost?.inputTokens === undefined ? {} : { inputTokens: segment.cost.inputTokens }),
+          ...(segment.cost?.outputTokens === undefined ? {} : { outputTokens: segment.cost.outputTokens }),
+          ...(segment.cost?.usd === undefined ? {} : { usd: segment.cost.usd }),
+          ...(segment.latencyMs === undefined ? {} : { latencyMs: segment.latencyMs }),
+          startedAt: new Date(Date.now() - (segment.latencyMs ?? 0)).toISOString(),
+          at: new Date().toISOString(),
+        });
+      }
+      for (const call of observed.toolCalls) {
+        run.onEvent?.({
+          type: 'tool_call',
+          index: position,
+          label: call.label,
+          ...(call.error === undefined ? {} : { error: call.error }),
+          at: new Date().toISOString(),
+        });
+      }
+      for (let r = 0; r < (observed.retries?.length ?? 0); r += 1) {
+        run.onEvent?.({ type: 'retry', index: position, at: new Date().toISOString() });
+      }
       history = [...history, ...user, assistantMessage(observed)];
       lastKey = key;
 
@@ -339,7 +399,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const ledger = ledgerVerdicts(facts.ledger, observed, userMessages);
       const all = [...verdicts, ...flow, ...ledger.verdicts];
       const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
-      blocks.push({
+      const block = {
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
@@ -350,7 +410,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ledgerCheck: { ok: contradictions.length === 0, contradictions },
         drift: driftOf(all),
         pass: all.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
-      });
+      };
+      blocks.push(block);
+      run.onEvent?.({ type: 'block_end', index: position, pass: block.pass, at: new Date().toISOString() });
     }
   } catch (cause) {
     if (channel.replay) return undefined;
@@ -661,6 +723,45 @@ function asJson(value: unknown, block: number): unknown {
 function gateObserved(observed: Observed, toolPolicy: readonly ToolRule[] | undefined): Observed {
   if (!toolPolicy || toolPolicy.length === 0) return observed;
   return { ...observed, toolCalls: gateToolCalls(observed.toolCalls, toolPolicy) };
+}
+
+/**
+ * A run that is partly in the cache: a block the cache holds is read back, and a block it does not hold goes to the live
+ * channel. Once a block goes live, every later block does too, since the live session carries the history.
+ */
+function resumeChannel(
+  cache: ObservedCache,
+  live: Channel,
+  toolPolicy: readonly ToolRule[] | undefined,
+): Channel {
+  // Set at the first block the cache does not hold. From then on the live session carries the run, so no later cached
+  // block is read back: its recorded reply came from a session that no longer exists.
+  let wentLive = false;
+  return {
+    replay: false,
+    restart: () => live.restart(),
+    reseat: (prefix) => live.reseat(prefix),
+    async observe(turn, user, key) {
+      if (!wentLive) {
+        const hit = Observed.safeParse(await cache.cacheGet(key));
+        if (hit.success) return gateObserved(hit.data, toolPolicy);
+        wentLive = true;
+      }
+      return live.observe(turn, user, key);
+    },
+    async endState(sources, key) {
+      if (wentLive) return live.endState(sources, key);
+      const states: unknown[] = [];
+      for (const source of sources) {
+        const hit = await cache.cacheGet(endStateCacheKey(key, source));
+        if (!hit) return live.endState(sources, key);
+        states.push(unwrapEndState(hit));
+      }
+      return { kind: 'read', states };
+    },
+    readArtifact: live.readArtifact,
+    close: () => live.close(),
+  };
 }
 
 function replayChannel(cache: ObservedCache, toolPolicy: readonly ToolRule[] | undefined): Channel {

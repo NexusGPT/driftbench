@@ -75,6 +75,7 @@ metadata:
     atoms:
       - skill.weekly-report.skill-weekly-report
     planRow: pairwise.0460
+    focusVariant: 459
     cell:
       ask_class: compose
       ask_shape: correction

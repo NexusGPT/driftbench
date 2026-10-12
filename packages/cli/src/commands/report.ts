@@ -38,6 +38,7 @@ type ReportCommandOptions = {
   by?: string;
   spreadMode?: string;
   maxRuns: string;
+  withholdIncomplete?: boolean;
   json?: boolean;
   aggregate?: string[];
   config?: string;
@@ -75,6 +76,10 @@ export function registerReportCommand(
     .option('--by <dimensions>', 'the generated-cell dimensions that name a spread cell, separated by commas')
     .option('--spread-mode <mode>', 'the mode the spread view reads; default F when the campaign ran it')
     .option('--max-runs <n>', 'runs in the drilldown, failing runs first', '200')
+    .option(
+      '--withhold-incomplete',
+      'withhold the pass^k and pass@k value of a line with incomplete runs, instead of reporting it with the range of its missing outcomes',
+    )
     .option('--json', 'also print the scorecard as one JSON document')
     .option(
       '--config <file>',
@@ -164,6 +169,7 @@ export async function reportCommand(
       minGoldens: gate.minGoldens,
       strict: gate.strict,
       maxRuns,
+      incompletePolicy: options.withholdIncomplete ? 'withhold' : 'interval',
       ...(criteria.length > 0 ? { aggregates: criteria } : {}),
       ...(baseline ? { baseline } : {}),
       ...(pilot ? { pilot } : {}),

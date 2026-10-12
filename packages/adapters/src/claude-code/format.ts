@@ -57,7 +57,17 @@ export function parseJsonl(text: string): JsonlLine[] {
 }
 
 /** One row of a guard decision log. */
-export type DecisionRow = { at: string; event?: string; check: string; verdict: string; session?: string };
+export type DecisionRow = {
+  at: string;
+  event?: string;
+  check: string;
+  verdict: string;
+  session?: string;
+  stdout?: string;
+  stderr?: string;
+  exitCode?: number;
+  outcome?: string;
+};
 
 /** One row of a step feed. */
 export type StepRow = { at: string; step: string };
@@ -82,12 +92,21 @@ export function decisionRow(value: unknown): DecisionRow | string {
   if (verdict === undefined || verdict === '') return 'the row has no verdict';
   const event = stringField(value, 'event');
   const session = stringField(value, 'session');
+  const stdout = stringField(value, 'stdout');
+  const stderr = stringField(value, 'stderr');
+  const outcome = stringField(value, 'outcome');
   return {
     at,
     check,
     verdict,
     ...(event === undefined ? {} : { event }),
     ...(session === undefined ? {} : { session }),
+    ...(stdout === undefined ? {} : { stdout }),
+    ...(stderr === undefined ? {} : { stderr }),
+    ...(typeof value.exitCode === 'number' && Number.isInteger(value.exitCode)
+      ? { exitCode: value.exitCode }
+      : {}),
+    ...(outcome === undefined ? {} : { outcome }),
   };
 }
 
