@@ -1,5 +1,5 @@
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadEstateMap, Plan } from '@driftbench/estate';
 import {
   ESTATE_COMPLETE_DIR,
@@ -109,11 +109,25 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
     return 2;
   }
   const plan = await readYaml(planPath, Plan, 'plan', io);
-  // No bank yet: every ask is written by code, unless --no-fallback asks for approved phrases only.
-  const noBank = !options.phrases && options.fallback !== false && !(await exists(phrasesPath));
+  // No bank beside the map (and none named): generate with an empty one, so a model-free run still gets
+  // the gap report. With the fallback on, code writes every ask; with --no-fallback, each live row names
+  // the approved phrase it needs. A bank named and missing is an input error.
+  const noBank = options.phrases === undefined && !(await exists(phrasesPath));
   const bank = noBank
-    ? PhraseBank.parse({ version: 1, estate: 'estate', mapHash: loaded.map.hash, situations: [] })
+    ? PhraseBank.parse({
+        version: 1,
+        estate: basename(dirname(mapPath)),
+        mapHash: loaded.map.hash,
+        situations: [],
+      })
     : await readYaml(phrasesPath, PhraseBank, 'phrase bank', io);
+  if (noBank && !options.json) {
+    io.out(
+      options.fallback === false
+        ? `No phrase bank at ${display(phrasesPath, io)}: generating with an empty one; each live row names the phrase it needs.\n`
+        : `No phrase bank at ${display(phrasesPath, io)}: code writes every ask from the atoms.\n`,
+    );
+  }
   let focus: string[] | undefined;
   if (options.focus !== undefined) {
     const focusPath = resolve(io.cwd, options.focus);

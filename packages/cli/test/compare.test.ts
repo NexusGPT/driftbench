@@ -205,6 +205,6 @@ describe('driftbench compare', () => {
     });
     expect(code).toBe(0);
     expect(out).toContain('--baseline <campaign>');
-    expect(out).toContain('--margin <points>');
+    expect(out).toContain('--margin <points|auto>');
   });
 });

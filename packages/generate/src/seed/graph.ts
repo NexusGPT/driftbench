@@ -53,10 +53,24 @@ export function stageGraph(prepared: PreparedMap): StageGraph | undefined {
   const unparsed: string[] = [];
   const transition = prepared.transition;
   const values = transition === undefined ? [] : (prepared.space.dimensions[transition]?.values ?? []);
+  // A transition id is `<from>-to-<to>`. Stage ids may hold `-to-` themselves, so every split is tried;
+  // the pair kept is the first in stage order (from, then to), read through an index instead of crossing
+  // every stage with every stage for each transition.
+  const order = new Map(stages.map((stage, index) => [stage, index]));
   values.forEach((value, index) => {
-    const pair = stages.flatMap((from) =>
-      stages.filter((to) => `${from}-to-${to}` === value.id).map((to) => ({ from, to })),
-    )[0];
+    let pair: { from: string; to: string } | undefined;
+    let rank: [number, number] | undefined;
+    for (let at = value.id.indexOf('-to-'); at >= 0; at = value.id.indexOf('-to-', at + 1)) {
+      const from = value.id.slice(0, at);
+      const to = value.id.slice(at + 4);
+      const a = order.get(from);
+      const b = order.get(to);
+      if (a === undefined || b === undefined) continue;
+      if (rank === undefined || a < rank[0] || (a === rank[0] && b < rank[1])) {
+        pair = { from, to };
+        rank = [a, b];
+      }
+    }
     if (pair) edges.push({ id: value.id, from: pair.from, to: pair.to, value: index });
     else unparsed.push(value.id);
   });

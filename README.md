@@ -154,7 +154,7 @@ Four areas. Each bullet names the phase that delivers it.
 2. **Run one golden three ways** on the same agent. Teacher forced against free running gives the compounding index. <sub>Phases&nbsp;1&nbsp;and&nbsp;3&nbsp;·&nbsp;built</sub>
 3. **Inject a goal shift at block 4**, or a language switch, or an instruction hidden in data, and count the blocks the agent needs to come back. <sub>Phase&nbsp;3&nbsp;·&nbsp;built</sub>
 4. **Let a cheap judge own a criterion** once it matches your hand labels as well as a chat model does. <sub>Phase&nbsp;2&nbsp;·&nbsp;built</sub>
-5. **Gate a prompt change in CI**: noninferiority against the baseline, with a margin you set. <sub>Phase&nbsp;4&nbsp;·&nbsp;built</sub>
+5. **Gate a prompt change in CI**: `driftbench ci` compares the candidate with the baseline as `driftbench compare` does. The margin defaults to the smallest one the suite can show. <sub>Phase&nbsp;4&nbsp;·&nbsp;built</sub>
 6. **Check a code interpreter agent on what it leaves behind**: the cells of a spreadsheet, the slides of a deck, the files it touched. <sub>Phase&nbsp;1&nbsp;·&nbsp;built</sub>
 7. **Let a person approve a map of what varies**, then count how much of it the specs cover. <sub>Phase&nbsp;G&nbsp;·&nbsp;built</sub>
 
@@ -334,7 +334,7 @@ One run proves nothing. driftbench treats evaluation as a statistics problem.
 - **Repeats.** `pass^k` when every run passes, `pass@k` when at least one does, and unreliability: the spread between the 90th and the 10th percentile.
 - **Paired comparisons** on the same goldens: McNemar, Wilcoxon, and a Benjamini Hochberg correction across criteria before any criterion is called a regression.
 - **Power first.** The minimum detectable effect is printed before a campaign spends anything.
-- **A verdict CI can gate on.** The candidate is noninferior when the upper bound of every gating regression stays under your margin.
+- **A verdict CI can gate on.** The candidate is noninferior when the upper bound of every gating regression stays under the margin. A criterion decided on fewer than 30 goldens is reported as underpowered and does not block parity. New flags always block. The margin defaults to the smallest one the suite can show for the agent compared with itself. Too few goldens reads "not shown non-inferior", never a regression.
 - **Where results vary.** The variance pilot (`driftbench pilot`) splits the spread by source (the agent's own run to run randomness, the wording, the persona, the conversation and the judge) with a share for each. The run to run spread sets a noise floor, and a difference between two versions smaller than the floor is read as noise.
 
 In the docs: [Statistics](docs/concepts/statistics.md)

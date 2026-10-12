@@ -19,13 +19,15 @@ args=(
   --target "$INPUT_TARGET"
   --baseline "$INPUT_BASELINE"
   --store "$store"
-  --margin "${INPUT_MARGIN:-2}"
+  --margin "${INPUT_MARGIN:-auto}"
+  --min-goldens "${INPUT_MIN_GOLDENS:-30}"
   --repeats "${INPUT_REPEATS:-1}"
   --mode "${INPUT_MODE:-F}"
   --out "$report"
 )
 if [ -n "${INPUT_BUDGET_USD:-}" ]; then args+=(--budget-usd "$INPUT_BUDGET_USD"); fi
 if [ -n "${INPUT_FAULTS:-}" ]; then args+=(--faults "$INPUT_FAULTS"); fi
+if [ "${INPUT_STRICT:-false}" = "true" ]; then args+=(--strict); fi
 
 code=0
 "${cli[@]}" "${args[@]}" || code=$?

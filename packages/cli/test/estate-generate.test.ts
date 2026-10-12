@@ -217,9 +217,11 @@ describe('driftbench estate generate', () => {
     expect(report.sources.asks.code).toBeGreaterThan(20);
     expect(report.invalid).toEqual([]);
     expect(report.lint).toEqual([]);
-    const strict = await run([...args, '--out', join(dir, 'strict'), '--no-fallback']);
-    expect(strict.code).toBe(2);
-    expect(strict.err).toMatch(/the phrase bank cannot be read or is invalid/);
+    const strict = await run([...args, '--out', join(dir, 'strict'), '--no-fallback', '--json']);
+    expect(strict.code).toBe(1);
+    const waiting = JSON.parse(strict.out);
+    expect(waiting.sources.asks.code).toBe(0);
+    expect(waiting.gaps.map((entry: { marker: string }) => entry.marker)).toContain('needs-approved-phrase');
   });
 
   it('puts the specs of the focus atoms first in the run order, then guards, gates and invariants', async () => {
@@ -250,4 +252,73 @@ describe('driftbench estate generate', () => {
     expect(bad.code).toBe(2);
     expect(bad.err).toContain('no.such.atom');
   });
+});
+
+describe('estate generate with no phrase bank (bench defect D7)', () => {
+  const CASES = join(ROOT, 'examples/estates/reader-cases');
+
+  it('generates with an empty bank when none sits beside the map, and refuses a named one that is missing', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-nobank-'));
+    await copyFile(join(CASES, 'approved.yaml'), join(dir, 'approved.yaml'));
+    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], dir)).code).toBe(0);
+    expect((await run(['estate', 'plan', 'approve', 'plan.yaml', '--all'], dir)).code).toBe(0);
+    const coded = await run(
+      ['estate', 'generate', '--map', 'approved.yaml', '--plan', 'plan.yaml', '--out', 'coded'],
+      dir,
+    );
+    expect(coded.err).toBe('');
+    expect(coded.out).toContain('No phrase bank at phrases.yaml: code writes every ask from the atoms.');
+    const result = await run(
+      [
+        'estate',
+        'generate',
+        '--map',
+        'approved.yaml',
+        '--plan',
+        'plan.yaml',
+        '--out',
+        'gen',
+        '--no-fallback',
+      ],
+      dir,
+    );
+    expect(result.err).toBe('');
+    expect(result.code).toBe(1);
+    expect(result.out).toContain(
+      'No phrase bank at phrases.yaml: generating with an empty one; each live row names the phrase it needs.',
+    );
+    expect(result.out).toMatch(/needs-approved-phrase\s+\d+ specs/);
+    const report = JSON.parse(await readFile(join(dir, 'gen', 'estate-generate-report.json'), 'utf8'));
+    expect(report.summary.specs).toBeGreaterThan(0);
+
+    const hash = /^hash: (\S+)$/m.exec(await readFile(join(dir, 'approved.yaml'), 'utf8'))?.[1];
+    await writeFile(
+      join(dir, 'phrases.yaml'),
+      `version: 1\nestate: reader-cases\nmapHash: ${hash}\nworkspaces: []\nsituations: []\n`,
+    );
+    const empty = await run(
+      ['estate', 'generate', '--map', 'approved.yaml', '--plan', 'plan.yaml', '--out', 'gen', '--force'],
+      dir,
+    );
+    expect(empty.err).toBe('');
+    expect(empty.code).toBe(1);
+
+    const named = await run(
+      [
+        'estate',
+        'generate',
+        '--map',
+        'approved.yaml',
+        '--plan',
+        'plan.yaml',
+        '--out',
+        'g2',
+        '--phrases',
+        'none.yaml',
+      ],
+      dir,
+    );
+    expect(named.code).toBe(2);
+    expect(named.err).toContain('the phrase bank cannot be read or is invalid');
+  }, 120_000);
 });
