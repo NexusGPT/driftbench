@@ -1,6 +1,6 @@
 # vitest
 
-`@driftbench/vitest` runs a spec inside a vitest suite, one test per block. It is a package of this repository, not on npm yet.
+`@driftbench/vitest` runs a spec inside a vitest suite, one test per block. It is not on npm yet: version 0.1.0 is prepared (see [Releasing](releasing.md)).
 
 ```ts
 import { functionAdapter } from '@driftbench/adapters';

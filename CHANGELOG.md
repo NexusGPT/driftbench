@@ -8,7 +8,7 @@ The first public release. driftbench evaluates AI agents block by block: a block
 
 ### Packages
 
-`@driftbench/cli` (the `driftbench` command), `@driftbench/core`, `@driftbench/checks`, `@driftbench/judges`, `@driftbench/users`, `@driftbench/adapters`, `@driftbench/sandbox`, `@driftbench/artifacts`, `@driftbench/stats`, `@driftbench/store`, `@driftbench/report`, `@driftbench/space`, `@driftbench/generate`, `@driftbench/estate` and `@driftbench/validators`. `@driftbench/battery` stays private until it holds code.
+`@driftbench/cli` (the `driftbench` command), `@driftbench/core`, `@driftbench/checks`, `@driftbench/judges`, `@driftbench/users`, `@driftbench/adapters`, `@driftbench/sandbox`, `@driftbench/artifacts`, `@driftbench/stats`, `@driftbench/store`, `@driftbench/report`, `@driftbench/space`, `@driftbench/generate`, `@driftbench/estate`, `@driftbench/validators` and `@driftbench/vitest`, and `driftbench` on PyPI. `@driftbench/battery` stays private until it holds code.
 
 ### Added
 
@@ -25,6 +25,14 @@ The first public release. driftbench evaluates AI agents block by block: a block
 * Similarity with a local character n-gram TF-IDF embedder and a pluggable embedder port, relevancy with a machine floor and a judged criterion, and knowledge retention from the ledger (#15).
 * Relevancy key terms with light stemming in English, French, Spanish, Dutch, German, Italian and Portuguese, with no network call (#17).
 * `driftbench import` from CSV and spreadsheets through a mapping file; a content-addressed registry for datasets and prompts with push, list, diff and restore; `campaign run --dataset` and `--prompt` record their sources (#18).
+* Python package `driftbench` (PyPI): runs specs through the CLI, typed results, a pytest plugin (`pytest --driftbench specs/`), and a Python function as the agent; `campaign run --process-command`; `--json` cells carry the end state and per-block verdicts. `@driftbench/vitest`: `describeSpec(path, target)`, one vitest test per block (wave 3).
+* `driftbench view`: a local web viewer of a store, with hand labels per block and criterion for judge calibration, and a browser journey in CI (wave 3).
+* `driftbench simulate` and `campaign run --driver simulated`: a persona through the model port or a recording; `driftbench attack`, an adaptive attacker scored by the recovery record; `generate --model` (wave 3).
+* `driftbench import traces` drafts specs from OpenTelemetry GenAI spans, Nexus traces or Claude Code sessions; `driftbench monitor --source traces` watches production traces for drift (wave 3).
+* `campaign run --prompt` hands the prompt version to the agent; bundles carry their sources (wave 3).
+* CrewAI, Vercel AI SDK, Pydantic AI and LiteLLM adapters, and one retry policy for every model call (`retry` on the target, `--retry-attempts`, `--retry-base-ms`, `--retry-max-ms`) (wave 3).
+* The `tools_offered` check; mutants and the live runner never write through a symbolic link; hook rows match the settings matcher that covers a tool (wave 3).
+* Validator frame: `--all-levels`, a blind auditor view, and blind journal rows leave the handover file alone (wave 3).
 
 ### Release
 

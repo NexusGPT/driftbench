@@ -1,6 +1,6 @@
 # Releasing
 
-driftbench ships as fifteen npm packages under the `@driftbench` scope and one Python package. They share one version. Version 0.1.0 is prepared and not published.
+driftbench ships as sixteen npm packages under the `@driftbench` scope and one Python package. They share one version. Version 0.1.0 is prepared and not published.
 
 | Package | What it holds |
 | --- | --- |
@@ -10,7 +10,8 @@ driftbench ships as fifteen npm packages under the `@driftbench` scope and one P
 | `@driftbench/users`, `@driftbench/adapters`, `@driftbench/sandbox` | user drivers, agent adapters and the code-agent workspace |
 | `@driftbench/artifacts`, `@driftbench/stats`, `@driftbench/store`, `@driftbench/report` | file readers, statistics, the result store and scorecards |
 | `@driftbench/space`, `@driftbench/generate`, `@driftbench/estate`, `@driftbench/validators` | the map of situations, generation, estates and validators |
-| `driftbench` on PyPI | the Python runner and pytest plugin in `python/driftbench`, once it is on main |
+| `@driftbench/vitest` | `describeSpec`, one vitest test per block |
+| `driftbench` on PyPI | the Python runner and pytest plugin in `python/driftbench` |
 
 `@driftbench/battery` stays private until it holds code. Each package has its own `README.md`, and its tarball holds only `dist`, the README and `package.json`.
 
@@ -32,11 +33,11 @@ It checks four things and exits 1 with one line per problem:
 On 0.1.0 it prints, for example:
 
 ```text
-driftbench release check: version 0.1.0, 15 packages, no Python project
+driftbench release check: version 0.1.0, 16 packages, python/driftbench 0.1.0
 private, not published: @driftbench/battery
-@driftbench/adapters        4 files     54.4 kB packed    212.4 kB unpacked
-@driftbench/cli            10 files     92.0 kB packed    367.8 kB unpacked
-@driftbench/core            4 files     63.1 kB packed    300.2 kB unpacked
+@driftbench/adapters        4 files     76.3 kB packed    300.7 kB unpacked
+@driftbench/cli            10 files    108.8 kB packed    433.7 kB unpacked
+@driftbench/core            4 files     69.8 kB packed    328.0 kB unpacked
 ...
 clean
 ```

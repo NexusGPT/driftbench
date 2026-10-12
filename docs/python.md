@@ -1,6 +1,6 @@
 # Python
 
-The Python package `driftbench`, in [`python/driftbench`](../python/driftbench/README.md), runs specs from Python and from pytest. It calls the driftbench command line as a subprocess (`campaign run --json`) and reads its report into typed dataclasses. It needs Python 3.11 or newer and nothing beyond the standard library; pytest is needed only for the plugin. The package is not on PyPI yet: install it from a clone.
+The Python package `driftbench`, in [`python/driftbench`](../python/driftbench/README.md), runs specs from Python and from pytest. It calls the driftbench command line as a subprocess (`campaign run --json`) and reads its report into typed dataclasses. It needs Python 3.11 or newer and nothing beyond the standard library; pytest is needed only for the plugin. The package is not on PyPI yet: version 0.1.0 is prepared (see [Releasing](releasing.md)). Until then, install it from a clone.
 
 ```sh
 pip install ./python/driftbench
