@@ -13,7 +13,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import type * as Sqlite from 'node:sqlite';
 import { functionAdapter, httpAdapter, processAdapter } from '@driftbench/adapters';
 import {
   AdapterTransportError,
@@ -36,6 +36,10 @@ import { localProvider } from '@driftbench/sandbox';
 import { BLOCK_METRIC, openStore, type SqliteStore, StoreError } from '@driftbench/store';
 import { type BankItem, expectAll, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../types';
 import { behavioursFor, plantedFlow, runScenario } from '../world';
+
+// Loaded at call time from the running Node.js: a bundler would turn a static import of node:sqlite into a
+// package named sqlite, which does not exist.
+const { DatabaseSync } = process.getBuiltinModule('node:sqlite') as typeof Sqlite;
 
 /**
  * Executable claims on two subjects.
