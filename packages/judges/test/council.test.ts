@@ -57,6 +57,18 @@ describe('majority of any size: an outcome needs more than half of all votes cas
   });
 });
 
+describe('majority with weights: a vote weighs its judge weight', () => {
+  it('weighs a vote by its judge weight, default 1, and refuses a weight that is not a finite number of at least 0', () => {
+    const v = (judge: string, outcome: 'pass' | 'fail') => ({ judge, outcome });
+    const votes = [v('j1', 'pass'), v('j2', 'fail'), v('j3', 'fail')];
+    expect(majority(votes)).toBe('fail');
+    expect(majority(votes, { weights: { j1: 2 } })).toBe('split');
+    expect(majority(votes, { weights: { j1: 3 } })).toBe('pass');
+    expect(() => majority(votes, { weights: { j1: -1 } })).toThrow(RangeError);
+    expect(() => majority(votes, { weights: { j1: Number.NaN } })).toThrow(RangeError);
+  });
+});
+
 describe('the council', () => {
   it('records the retries each judge took in its own vote, and none in a vote that took none', async () => {
     /** A judge whose provider answers 503 once, then passes: the client retries under the shared policy. */

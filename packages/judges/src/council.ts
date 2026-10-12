@@ -328,11 +328,20 @@ async function runRound(
  * The outcome a majority agrees on: more than half of all votes cast, so two of three, or the one vote of a row
  * of one. An inconclusive vote counts in the total and never for an outcome; otherwise the round is split.
  */
-export function majority(votes: readonly Vote[]): RoundOutcome {
-  const pass = votes.filter((vote) => vote.outcome === 'pass').length;
-  const fail = votes.filter((vote) => vote.outcome === 'fail').length;
-  if (pass * 2 > votes.length) return 'pass';
-  if (fail * 2 > votes.length) return 'fail';
+export function majority(
+  votes: readonly Vote[],
+  options: { weights?: Record<string, number> } = {},
+): RoundOutcome {
+  for (const weight of Object.values(options.weights ?? {})) {
+    if (!Number.isFinite(weight) || weight < 0)
+      throw new RangeError(`a weight must be a finite number, at least 0`);
+  }
+  const weigh = (vote: Vote) => options.weights?.[vote.judge] ?? 1;
+  const total = votes.reduce((sum, vote) => sum + weigh(vote), 0);
+  const of = (outcome: RoundOutcome) =>
+    votes.filter((vote) => vote.outcome === outcome).reduce((sum, vote) => sum + weigh(vote), 0);
+  if (of('pass') * 2 > total) return 'pass';
+  if (of('fail') * 2 > total) return 'fail';
   return 'split';
 }
 
