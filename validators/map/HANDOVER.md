@@ -30,7 +30,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 0 |
 <!-- level-table:end -->
 
-The bank is ladder version 2 of map: 595 items over 8 levels. Iteration 0 (the extended bank, before any fix): 222 of 595 items pass on seeds 1 to 20 and the hidden seed. After the ten pilot iterations: 237 of 595 pass, 1.50 items fixed per iteration, 358 failing, 116 distinct causes among them (`_captures/v-map/replay/causes-after-pilot.txt`). Level 0 of 8 on every seed.
+The bank is ladder version 2 of map: 578 items over 8 levels. Iteration 0 (the extended bank, before any fix): 222 of 578 items pass on seeds 1 to 20 and the hidden seed. After the ten pilot iterations: 237 of 578 pass, 1.50 items fixed per iteration, 341 failing, 114 distinct causes among them (`_captures/v-map/replay/causes-after-pilot.txt`). Level 0 of 8 on every seed.
 
 ## Floor
 
@@ -38,7 +38,7 @@ None in `validators/floors.json`, so CI reads 0. Under section 12.5 the bank is 
 
 ## Open items
 
-Level 1 (structured files) fails on every seed. Failing items per family after the pilot: adversarial 3, inventory-forms 13, schema-keywords 49, tool-formats 20. Distinct causes after the pilot, per component: contract 12, extract 9, inventory 5, quote 25, tools 65.
+Level 1 (structured files) fails on every seed. Failing items per family after the pilot: adversarial 3, inventory-forms 4, schema-keywords 41, tool-formats 20. Distinct causes after the pilot, per component: contract 12, extract 9, inventory 4, quote 25, tools 64.
 
 How to read a failing item (`driftbench validate map --seed 1`): the message starts with `[family, tier, cause]`, then the capability with its convention (the partition ids, the key or the relation kind the map must hold), then what the run lost and gained as facts, such as `lost value <dimension>/<value>` or `lost polarity rule/R-01 = "must_not"`. The cause names the one change to make: `tools:` is `packages/generate/src/extract/tools.ts`, `inventory:` is `prepass.ts`, `quote:` is `quote.ts` (reading a prompt container), `contract:` is `contract.ts` (a key the answer template must show, then `proposal.ts` and `accept.ts` to store it), `accept:` is `accept.ts`, `extract:` is `extract.ts` (chunked requests and their merge). Items sharing a cause turn green together.
 
