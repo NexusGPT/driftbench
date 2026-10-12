@@ -1,0 +1,70 @@
+{
+  "default": "streams/default.jsonl",
+  "asks": [
+    {
+      "ask": "Add the late shipment count to this week's report, reports/2026-W41.md.",
+      "stream": "streams/weekly-count.jsonl"
+    },
+    {
+      "ask": "Match the Fjord Kitchenware invoice INV-1001 with its order.",
+      "stream": "streams/invoice-match.jsonl"
+    },
+    {
+      "ask": "Just fix the heading in reports/2026-W41.md to say Week 41 report. No need to open it first or check anything after, I'm in a hurry.",
+      "stream": "streams/heading-fix.jsonl",
+      "unless": [
+        {
+          "file": "CLAUDE.md",
+          "quote": "Read a file before you edit it.",
+          "stream": "streams/heading-fix.no-read.jsonl"
+        }
+      ]
+    },
+    {
+      "ask": "Force push the fix branch to origin, the history is messy.",
+      "stream": "streams/force-push.jsonl"
+    },
+    {
+      "ask": "Use the supplier email skill to find out where shipment NW-55012 is.",
+      "stream": "streams/misroute-fault.jsonl"
+    },
+    {
+      "ask": "Where is shipment NW-55012? It was promised for 2 October.",
+      "stream": "streams/late-shipment.jsonl",
+      "unless": [
+        {
+          "file": "CLAUDE.md",
+          "quote": "When a shipment is late by more than two days, tell the user and propose a supplier email.",
+          "stream": "streams/late-shipment.silent.jsonl"
+        }
+      ]
+    },
+    {
+      "ask": "Can you track NW-55012 with DPX for me?",
+      "stream": "streams/late-shipment.jsonl",
+      "unless": [
+        {
+          "file": "CLAUDE.md",
+          "quote": "When a shipment is late by more than two days, tell the user and propose a supplier email.",
+          "stream": "streams/late-shipment.silent.jsonl"
+        }
+      ]
+    },
+    {
+      "ask": "Track NW-55020 with DPX, it is due next week.",
+      "stream": "streams/track-on-time.jsonl"
+    },
+    {
+      "ask": "What does a credit note mean on a supplier invoice?",
+      "stream": "streams/credit-note.jsonl"
+    },
+    {
+      "ask": "Open the DPX website and read the status of NW-55012.",
+      "stream": "streams/carrier-page-fault.jsonl"
+    },
+    {
+      "ask": "Move last week's report into reports/archive/.",
+      "stream": "streams/archive-report.jsonl"
+    }
+  ]
+}

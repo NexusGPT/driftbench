@@ -1,0 +1,119 @@
+# The model's part of the reader-cases map, written by hand by the reader lane under the answer contract a
+# model gets (PROSE_SYSTEM_PROMPT in packages/estate/src/scan/prose.ts): one answer per prose chunk, keyed by
+# the chunk id, every atom quoted from the chunk. No model ran; the family is `lane`. Replayed by:
+#   pnpm driftbench estate scan examples/estates/reader-cases --runtime claude-code \
+#     --replay examples/estates/reader-cases/answers.yaml --out examples/estates/reader-cases/map.yaml
+family: lane
+model: claude-opus-5-5 as the reader lane, by hand
+answers:
+  CLAUDE.md:
+    chunk: CLAUDE.md
+    atoms:
+      - kind: instruction
+        title: Never force-push
+        quote: "Never run `git push --force` on any branch."
+        polarity: prohibition
+        evidence: [{ type: custom, name: no_force_push }]
+      - kind: register
+        title: At most one question per reply
+        quote: Ask at most one question per reply.
+        evidence: [{ type: custom, name: one_question }]
+      - kind: instruction
+        title: Report only numbers read during the session
+        quote: Report a number only when you read it in a file or a tool result during this session.
+        polarity: obligation
+        evidence: [{ type: custom, name: grounded_values }]
+  .claude/memory/MEMORY.md:
+    chunk: .claude/memory/MEMORY.md
+    atoms:
+      - kind: instruction
+        title: No delivery on a public holiday
+        quote: Never schedule a delivery on a public holiday in the receiving country.
+        polarity: prohibition
+        evidence: [{ type: custom, name: holiday_check }]
+  .claude/memory/supplier-languages.md:
+    chunk: .claude/memory/supplier-languages.md
+    atoms:
+      - kind: instruction
+        title: Write to each supplier in its language
+        quote: Write to each supplier in the language it reads.
+        polarity: obligation
+        evidence: [{ type: custom, name: supplier_language }]
+      - kind: instruction
+        title: An unlisted supplier gets English and a note to the user
+        quote: When a supplier is not in this table, write in English and tell the user.
+        polarity: obligation
+        situation: The supplier is not in the language table
+        evidence: [{ type: text, lang: en }]
+  .claude/skills/parcel-claims/SKILL.md:
+    chunk: .claude/skills/parcel-claims/SKILL.md
+    atoms:
+      - kind: gate
+        title: Run the tracking script before filing a claim
+        quote: "Run `./scripts/track.sh <carrier> <number>` first; a claim needs the delivery scan it prints."
+        evidence: [{ type: tool_called, label: Bash, input: { command: { contains: track.sh } } }]
+      - kind: instruction
+        title: Write the claim in the supplier's language
+        quote: Write the claim in the supplier's language
+        polarity: obligation
+        evidence: [{ type: custom, name: supplier_language }]
+      - kind: instruction
+        title: Never promise a refund date
+        quote: Never promise the user a refund date; the carrier sets it.
+        polarity: prohibition
+        evidence: [{ type: text, mustNot: [refund date] }]
+  .claude/skills/parcel-claims/references/claim-rules.md:
+    chunk: .claude/skills/parcel-claims/references/claim-rules.md
+    atoms:
+      - kind: instruction
+        title: A claim names the order, the parcel count and the tracking number
+        quote: A claim names the order number, the parcel count and the carrier's tracking number.
+        polarity: obligation
+        evidence: [{ type: custom, name: claim_fields }]
+      - kind: instruction
+        title: One photo of each damaged parcel
+        quote: Attach one photo of each damaged parcel
+        polarity: obligation
+        evidence: [{ type: custom, name: claim_photos }]
+      - kind: instruction
+        title: File a damage claim within 7 days
+        quote: File a damage claim within 7 days of the delivery scan.
+        polarity: obligation
+        evidence: [{ type: custom, name: claim_deadline, options: { days: 7 } }]
+      - kind: instruction
+        title: Claim a missing parcel only after 10 days
+        quote: A missing parcel is claimed only after 10 days without a delivery scan.
+        polarity: obligation
+        evidence: [{ type: custom, name: missing_wait, options: { days: 10 } }]
+  .claude/skills/parcel-claims/references/supplier-languages.md:
+    chunk: .claude/skills/parcel-claims/references/supplier-languages.md
+    atoms:
+      - kind: instruction
+        title: Write to each supplier in its language
+        quote: Write to each supplier in the language it reads.
+        polarity: obligation
+        evidence: [{ type: custom, name: supplier_language }]
+  .claude/skills/shipment-tracker/SKILL.md:
+    chunk: .claude/skills/shipment-tracker/SKILL.md
+    atoms:
+      - kind: instruction
+        title: Always pass the carrier code to the tracking script
+        quote: "Always pass the carrier code to track.sh, as in `./scripts/track.sh NWX 123`."
+        polarity: obligation
+        evidence: [{ type: tool_called, label: Bash, input: { command: { regex: "track\\.sh [A-Z]{3} " } } }]
+      - kind: instruction
+        title: Never guess a shipment status
+        quote: never guess a status.
+        polarity: prohibition
+        evidence: [{ type: custom, name: grounded_values }]
+  .claude/skills/parcel-claims/references/notes.md:
+    chunk: .claude/skills/parcel-claims/references/notes.md
+    atoms:
+      - kind: instruction
+        title: A claim opens with the order number and the scan date
+        quote: A claim opens with the order number and the date of the delivery scan.
+        polarity: obligation
+        evidence: [{ type: custom, name: claim_opening }]
+  .claude/skills/shipment-tracker/references/notes.md:
+    chunk: .claude/skills/shipment-tracker/references/notes.md
+    atoms: []

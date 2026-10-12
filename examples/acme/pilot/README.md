@@ -12,23 +12,27 @@ is called and nothing is billed. Fictional data only.
 
 ## The design
 
-Per cell of the approved map (`--by behaviour`, the map's first axis: 14 behaviours, plus `-` for the
-deviation and metamorphic specs that name no behaviour), the first 10 conversations of the generated suite
-by id, each through up to 3 approved wordings, each wording run 5 times. A conversation is one generated
-spec. A wording is one choice of approved phrase for every block that carries a phrase; wording 0 is the
-spec as generated. Every variant is stored as a spec with its factors under `metadata.pilot` (cell,
-conversation, wording), and the runner keeps the repeat, so every stored run names all four factors.
+Per cell of the approved map (`--by behaviour`, the map's first axis: 12 behaviours the suite fills, plus
+`-` for the specs that name no behaviour), the first 10 conversations of the generated suite by id, each
+through up to 3 approved wordings, each wording run 5 times. A conversation is one generated spec.
 
-The approved phrase bank holds one phrase for most values, so most conversations have one wording:
+A wording is one choice of approved phrase for every block that carries a phrase; wording 0 is the spec as
+generated. Another wording is the approved phrase said as the generator would say it:
+
+* its `when` holds in the cell and at the stage the block is said at;
+* it states the same `binds` as the generator's own phrase, so the later turns still expect the same plan;
+* every `{slot}` is filled from the values the cell binds and the binds said before it.
+
+Every variant is stored as a spec with its factors under `metadata.pilot` (cell, conversation, wording),
+and the runner keeps the repeat, so every stored run names all four factors.
 
 | Wordings available | Conversations |
 |---|---|
-| 1 | 120 |
-| 2 | 29 |
-| 3 | 1 |
+| 1 | 2 |
+| 2 | 53 |
+| 3 | 72 |
 
-The wording level is identified by the 30 conversations with two or more (31 degrees of freedom). More
-approved phrases per value would sharpen it.
+The wording level rests on 125 conversations with two or more (197 degrees of freedom).
 
 ## How it was made
 
@@ -41,7 +45,7 @@ pnpm driftbench pilot run --map examples/acme/map/approved.yaml --suite examples
 pnpm driftbench pilot analyse --store <db>     # the same analysis again, from the store alone
 ```
 
-Both runs: 905 runs over 15 cells, 150 conversations and 181 wordings, none failed to complete.
+Both runs: 1620 runs over 13 cells, 127 conversations and 324 wordings, none failed to complete.
 
 ## What it shows
 
@@ -50,23 +54,28 @@ interval over 500 draws of the cells, then conversations inside each):
 
 | Level | Acme, deterministic | Control, `acme-random` |
 |---|---|---|
-| cell | 0.0% (0.0% to 21.6%) | 4.1% (1.3% to 13.8%) |
-| conversation | 100.0% (0.0% to 100.0%) | 5.3% (0.0% to 19.0%) |
-| wording | 0.0% (0.0% to 0.0%) | 21.9% (4.1% to 39.0%) |
-| repeat | 0.0% (0.0% to 0.0%) | 68.7% (54.4% to 78.0%) |
+| cell | 0.0% | 0.4% (0.0% to 6.8%) |
+| conversation | 0.0% | 13.0% (3.5% to 18.7%) |
+| wording | 0.0% | 4.2% (0.0% to 12.0%) |
+| repeat | 0.0% | 82.4% (74.9% to 90.1%) |
 
-* **The Acme agent has no run-to-run variance.** 0 of 319 blocks flip between repeats, so one repeat per
-  block reaches any noise floor. Its only spread is two conversations that fail every run on the
-  `lang.expected` check, one in B-002 and one in B-009, whatever the wording. The Neyman allocation of a
-  100-conversation estimation pool therefore goes to those two cells, 50 each.
-* **The design effect is measured, not assumed.** Two runs of one Acme conversation always agree (within
-  cell correlation 1.0), so 6.03 runs per conversation count as one: design effect 6.03, 150 effective
-  runs out of 905. On the control the correlation is 0.056 and the design effect 1.28.
-* **On the control the repeat is the main source.** Its run-to-run variance is 0.168, so a difference
-  between two versions of one block reads against a 5% floor only after 517 repeats per block, or 52 per
-  block for a cell figure over 10 conversations. 183 of 319 blocks flip; the mean flip rate is 0.285.
-  Four cells are flagged wording-sensitive (a range above 20% and the cell's wording F test holding at a
-  false discovery rate of 0.05): B-002, B-005, B-006 and B-010.
+* **The Acme agent passes every run and has no spread at any level.** Its pass rate is 100.0% over 1620
+  runs, and 0 of 1682 blocks flip between repeats. One repeat per block reaches any noise floor. With no
+  spread anywhere, the allocation of a 100-conversation pool falls back to proportional.
+* **On the control the repeat is the main source.** Its run-to-run variance is 0.1105. A difference between
+  two versions of one block reads against a 5% floor after 340 repeats per block, or 34 per block for a
+  cell figure over 10 conversations. 1030 of 1682 blocks flip; the mean flip rate is 0.316.
+* **The design effect is measured, not assumed.** On the control, two runs of one conversation correlate at
+  0.131 inside a cell, so 12.8 runs per conversation give a design effect of 2.54.
+* **No cell is wording-sensitive** on either agent (a range above 20% with the cell's wording F test
+  holding at a false discovery rate of 0.05).
+
+## The fix of 2026-10-11
+
+An earlier pilot swapped in another approved phrase's raw text. A `{slot}` stayed unfilled, and the
+phrase's `when` and `binds` were ignored, so a turn could name another plan than the later turns expect.
+The deterministic Acme agent then passed 60.2% of 1895 runs, and the wording level carried 96.5% of its
+spread. That was the defect, not a finding about the agent.
 
 ## The control
 
@@ -76,11 +85,10 @@ chance 0.05, drawn fresh each run. A failed block carries a marker the pilot's c
 every block states its chance on its raw output, so the pilot computes the planted variance for the exact
 design it ran. A run the Acme agent itself fails counts as a certain failure.
 
-On this seed the planted shares are cell 0.7%, conversation 10.3%, wording 18.1% and repeat 71.0%. Three
-lie inside their intervals; the cell share does not (0.7% against 1.3% to 13.8%). A 95% interval misses
-about one level in twenty by chance. Across the seeds 1 to 8 (`function:acme-random-1` to `-8`, same
-design and options), every planted share lies inside its interval: 32 of 32 level checks, 35 of 36 with
-this seed. The test suite runs those eight seeds.
+On this seed the planted shares are cell 0.9%, conversation 9.1%, wording 7.1% and repeat 82.9%, each
+inside its interval.
+Across the seeds 1 to 8 (`function:acme-random-1` to `-8`, same design and options), every planted share
+lies inside its interval too: 32 of 32 level checks. The test suite runs those eight seeds.
 
 The control hands out its run draws in the order sessions open, so its report is reproducible only with
 `--concurrency 1`.

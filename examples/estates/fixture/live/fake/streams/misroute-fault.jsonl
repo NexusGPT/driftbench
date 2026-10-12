@@ -1,0 +1,3 @@
+{"type":"assistant","message":{"id":"msg_mf_1","type":"message","role":"assistant","model":"fake-model","content":[{"type":"tool_use","id":"toolu_mf_01","name":"Skill","input":{"skill":"supplier-email"}}],"usage":{"input_tokens":140,"output_tokens":20}},"parent_tool_use_id":null}
+{"type":"user","message":{"role":"user","content":[{"tool_use_id":"toolu_mf_01","type":"tool_result","content":"Launching skill: supplier-email"}]},"parent_tool_use_id":null}
+{"type":"assistant","message":{"id":"msg_mf_2","type":"message","role":"assistant","model":"fake-model","content":[{"type":"text","text":"I can draft an email to DPX asking where NW-55012 is. Shall I show you the draft?"}],"usage":{"input_tokens":160,"output_tokens":30}},"parent_tool_use_id":null}

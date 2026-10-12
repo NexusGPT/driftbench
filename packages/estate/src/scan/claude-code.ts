@@ -1,6 +1,9 @@
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { basename, join, posix } from 'node:path';
+import { parse as parseYaml } from 'yaml';
+import { guardName } from './code';
 import type {
+  CheckDecl,
   EstateFile,
   EstateReader,
   FileKind,
@@ -23,13 +26,17 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
  * `.claude/CLAUDE.md`, `CLAUDE.local.md`), memory files under `.claude/memory/`, skills under
  * `.claude/skills/<name>/SKILL.md` with the files beside them, helper agents under `.claude/agents/`,
  * `.claude/settings.json` (model, permissions, environment keys, hooks), the hooks a skill declares in its
- * frontmatter, a check registry (a file whose name holds "registry"), and step lists (a JSON file with a
- * `steps` list). Claude Code calls a guard a hook; the scanner gets them as guards.
+ * frontmatter, a check registry (a file whose name holds "registry", every table keyed by check id), a
+ * catalogue of checks (a JSON file of entries with kind, event, watches, work, step and status), and step
+ * lists (a JSON file with a `steps` list or a `processes` map of them). Symbolic links are followed. A hook
+ * command behind a prefix or a dispatcher resolves to the script it runs. A frontmatter the YAML parser
+ * refuses is read field by field. Prose (standing files, memory, skill bodies, the markdown files beside a
+ * skill, helper bodies) is cut into chunks within a size budget. Claude Code calls a guard a hook; the
+ * scanner gets them as guards.
  */
 
 const STANDING = new Set(['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']);
 const SETTINGS = new Set(['.claude/settings.json', '.claude/settings.local.json']);
-const SKIP_DIRS = new Set(['node_modules', '.git']);
 const MAX_FILE_BYTES = 1024 * 1024;
 const INTERPRETERS = new Set([
   'python',
@@ -46,14 +53,96 @@ const INTERPRETERS = new Set([
 const SCRIPT_EXTENSION = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/;
 const ANCHORS = [/^\$\{?CLAUDE_PROJECT_DIR\}?\//, /^\$\{?CLAUDE_PLUGIN_ROOT\}?\//];
 
+/** The most characters one prose chunk holds; a longer passage is cut into several chunks. */
+export const DEFAULT_CHUNK_CHARACTERS = 20_000;
+
+/**
+ * Paths no runtime loads, skipped by default. Each is matched like a `.gitignore` line: without a leading
+ * slash at any depth, `**` across folders, and a folder it matches is skipped whole.
+ */
+export const DEFAULT_IGNORE = [
+  '.git',
+  'node_modules',
+  '__pycache__',
+  '*.log',
+  'tests/fixtures',
+  'hooks/**/tests',
+  'hooks/**/test',
+  '.trash',
+  'skills/synced',
+] as const;
+
+/** The estate's own configuration file, at its root: `ignore:` lists more globs to skip. */
+export const ESTATE_CONFIG = 'driftbench.estate.yaml';
+
+export type ClaudeCodeReaderOptions = {
+  /** The size budget of one prose chunk, in characters. Default `DEFAULT_CHUNK_CHARACTERS`. */
+  chunkCharacters?: number;
+  /** More globs to skip, beside the defaults and the estate configuration's `ignore:` list. */
+  ignore?: readonly string[];
+};
+
+/** A glob of the ignore list and its test on a path relative to the root. */
+type IgnoreRule = { pattern: string; test: (path: string) => boolean };
+
+type Ignored = { rules: IgnoreRule[]; counts: Map<string, number>; paths: string[] };
+
+/** The estate configuration: more globs to skip, and path aliases (`REF` to one or more folders). */
+type EstateConfig = { ignore: string[]; aliases: Record<string, string[]>; externals?: string[] };
+
+/**
+ * Folders a named path may point into that lie outside the estate: the project an agent works on, a shared
+ * workspace. A path under one of them that the estate does not hold is external, not missing.
+ */
+export const DEFAULT_EXTERNALS = ['docs/', '_meta/'] as const;
+
+/** A `.gitignore`-like glob as a test on a relative path: the path or one of its folders matches. */
+export function ignoreRule(pattern: string): IgnoreRule {
+  const anchored = pattern.startsWith('/');
+  const body = pattern.replace(/^\/+/, '').replace(/\/+$/, '');
+  let source = '';
+  for (let index = 0; index < body.length; index++) {
+    const char = body[index] ?? '';
+    if (body.startsWith('**/', index)) {
+      source += '(?:[^/]+/)*';
+      index += 2;
+    } else if (body.startsWith('**', index)) {
+      source += '.*';
+      index += 1;
+    } else if (char === '*') source += '[^/]*';
+    else if (char === '?') source += '[^/]';
+    else source += char.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+  }
+  const regex = new RegExp(`${anchored ? '^' : '(?:^|/)'}${source}(?:/|$)`);
+  return { pattern, test: (path) => regex.test(path) };
+}
+
 export class ClaudeCodeReader implements EstateReader {
   readonly runtime = 'claude-code';
+  private readonly budget: number;
+  private readonly ignore: readonly string[];
+
+  constructor(options: ClaudeCodeReaderOptions = {}) {
+    this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
+    this.ignore = options.ignore ?? [];
+  }
 
   async read(root: string): Promise<RawEstate> {
+    const budget = this.budget;
     const notes: ReadNote[] = [];
+    const config = await readConfig(root, notes);
+    const chosen = [...new Set([...config.ignore, ...this.ignore])].filter(
+      (pattern) => !(DEFAULT_IGNORE as readonly string[]).includes(pattern),
+    );
+    const patterns = [...DEFAULT_IGNORE, ...chosen];
+    const ignored: Ignored = {
+      rules: [...new Set(patterns)].map(ignoreRule),
+      counts: new Map(),
+      paths: [],
+    };
     const paths = [
       ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md'])),
-      ...(await walk(root, '.claude', notes)),
+      ...(await walk(root, '.claude', notes, ignored)),
     ];
     const files: EstateFile[] = [];
     for (const path of paths) {
@@ -74,17 +163,37 @@ export class ClaudeCodeReader implements EstateReader {
       steps: [],
       prose: [],
       notes,
+      bases: ['.claude', '.claude/skills'],
+      ignored: {
+        patterns: ignored.rules.map((rule) => ({
+          pattern: rule.pattern,
+          files: ignored.counts.get(rule.pattern) ?? 0,
+        })),
+        paths: ignored.paths,
+        chosen,
+      },
+      aliases: { ...aliasTables(files, notes), ...config.aliases },
+      externals: config.externals ?? [...DEFAULT_EXTERNALS],
     };
     for (const file of files) {
       if (file.kind === 'settings') readSettings(file, estate);
-      if (file.kind === 'skill') readSkill(file, estate);
-      if (file.kind === 'subagent') readSubagent(file, estate);
-      if (file.kind === 'registry') readRegistry(file, estate);
+      if (file.kind === 'skill') readSkill(file, estate, budget);
+      if (file.kind === 'subagent') readSubagent(file, estate, budget);
       if (file.kind === 'step_list') readSteps(file, estate);
-      if (file.kind === 'standing' || file.kind === 'memory') {
-        const count = file.text.replace(/\n+$/, '').split('\n').length;
-        addProse(estate, file, 1, count);
+      if (file.kind === 'standing' || file.kind === 'memory')
+        addProse(estate, file, 1, lastLine(file.text), budget);
+      // A markdown file beside a skill (a reference, a template) is prose the skill loads on demand.
+      if (file.kind === 'skill_file' && /\.(md|markdown)$/i.test(file.path)) {
+        const frontmatter = readFrontmatter(file.text);
+        addProse(estate, file, frontmatter.bodyLine, lastLine(file.text), budget);
       }
+    }
+    // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
+    // so every guard is known before a row is matched to one.
+    const catalogues = files.filter((file) => file.kind === 'registry' && catalogueEntries(file.text));
+    for (const file of catalogues) readCatalogue(file, estate);
+    for (const file of files) {
+      if (file.kind === 'registry' && !catalogues.includes(file)) readRegistry(file, estate);
     }
     const scripts = new Set(estate.guards.flatMap((guard) => (guard.script ? [guard.script] : [])));
     for (const file of files) if (scripts.has(file.path)) file.kind = 'guard_script';
@@ -101,14 +210,140 @@ async function present(root: string, names: readonly string[]): Promise<string[]
   return found;
 }
 
-async function walk(root: string, folder: string, notes: ReadNote[]): Promise<string[]> {
+/**
+ * The estate configuration file, when it has one: `ignore:`, a list of globs; `aliases:`, a map from an
+ * alias (`REF`) to the folder or folders it stands for, relative to the root; and `externals:`, the folders
+ * outside the estate a path may name (they replace the defaults, `docs/` and `_meta/`).
+ */
+async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig> {
+  const config: EstateConfig = { ignore: [], aliases: {} };
+  const text = await readFile(join(root, ESTATE_CONFIG), 'utf8').catch(() => undefined);
+  if (text === undefined) return config;
+  let parsed: unknown;
+  try {
+    parsed = parseYaml(text);
+  } catch (cause) {
+    const message = cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
+    notes.push({ file: ESTATE_CONFIG, message: `not YAML: ${message}` });
+    return config;
+  }
+  if (!isRecord(parsed)) return config;
+  const list = parsed.ignore;
+  if (list !== undefined) {
+    if (Array.isArray(list) && list.every((item) => typeof item === 'string' && item.trim() !== '')) {
+      config.ignore = list.map((item: string) => item.trim());
+    } else notes.push({ file: ESTATE_CONFIG, message: 'ignore: must be a list of globs' });
+  }
+  const externals = parsed.externals;
+  if (externals !== undefined) {
+    if (
+      Array.isArray(externals) &&
+      externals.every((item) => typeof item === 'string' && item.trim() !== '')
+    ) {
+      config.externals = externals.map((item: string) => `${cleanFolder(item)}/`);
+    } else notes.push({ file: ESTATE_CONFIG, message: 'externals: must be a list of folders' });
+  }
+  const aliases = parsed.aliases;
+  if (aliases !== undefined) {
+    const entries = isRecord(aliases) ? Object.entries(aliases) : [];
+    const read = entries.map(([alias, target]) => [alias, typeof target === 'string' ? [target] : target]);
+    if (
+      entries.length > 0 &&
+      read.every(
+        ([, targets]) =>
+          Array.isArray(targets) && targets.length > 0 && targets.every((item) => typeof item === 'string'),
+      )
+    ) {
+      for (const [alias, targets] of read)
+        config.aliases[alias as string] = (targets as string[]).map(cleanFolder);
+    } else
+      notes.push({
+        file: ESTATE_CONFIG,
+        message: 'aliases: must map each alias to a folder or a list of folders',
+      });
+  }
+  return config;
+}
+
+/** A folder written in a table or the config, relative to the root, without `./` or a trailing slash. */
+function cleanFolder(folder: string): string {
+  return posix.normalize(folder.trim().replace(/^`|`$/g, '').replace(/^\.\//, '')).replace(/\/+$/, '');
+}
+
+/**
+ * Alias tables: a markdown file of the estate whose name holds "alias", with a table of an alias column
+ * (`Alias`, `Prefix`) and a folder column (`Path`, `Folder`, `Target`). `REF/a/b.md` then reads as
+ * `<folder>/a/b.md`.
+ */
+function aliasTables(files: readonly EstateFile[], notes: ReadNote[]): Record<string, string[]> {
+  const aliases: Record<string, string[]> = {};
+  for (const file of files) {
+    if (!/alias/i.test(basename(file.path)) || !/\.(md|markdown)$/i.test(file.path)) continue;
+    for (const table of readTables(file.text)) {
+      const alias = table.header.findIndex((cell) => /^(alias|prefix)(es)?$/i.test(strip(cell)));
+      const folder = table.header.findIndex((cell) =>
+        /^(path|folder|target|resolves to)s?$/i.test(strip(cell)),
+      );
+      if (alias < 0 || folder < 0) continue;
+      for (const row of table.rows) {
+        const name = strip(row.cells[alias] ?? '').replace(/\/+$/, '');
+        const target = strip(row.cells[folder] ?? '');
+        if (name === '' || target === '') {
+          notes.push({ file: file.path, message: `alias row at line ${row.line} has no alias or no folder` });
+          continue;
+        }
+        aliases[name] = [...(aliases[name] ?? []), cleanFolder(target)];
+      }
+    }
+  }
+  return aliases;
+}
+
+/**
+ * Every file under a folder, sorted by name. A symbolic link is followed to what it points at, a file or a
+ * folder, and read under the link's own path (the path the runtime loads it by). A link back to a folder
+ * the walk is already inside is a cycle: it is skipped with a note, as is a link that points at nothing.
+ * A path the ignore list matches is not read: its files are counted under the first glob that matched.
+ */
+async function walk(
+  root: string,
+  folder: string,
+  notes: ReadNote[],
+  ignored: Ignored,
+  ancestors: ReadonlySet<string> = new Set(),
+  ignoredBy?: string,
+): Promise<string[]> {
+  const real = await realpath(join(root, folder)).catch(() => undefined);
+  if (real === undefined) return [];
+  if (ancestors.has(real)) {
+    if (ignoredBy === undefined) {
+      notes.push({ file: folder, message: 'skipped: a link back to a folder the walk is already inside' });
+    }
+    return [];
+  }
+  const inside = new Set(ancestors).add(real);
   const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
   const found: string[] = [];
   for (const entry of [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
     const path = posix.join(folder, entry.name);
-    if (entry.isDirectory()) {
-      if (!SKIP_DIRS.has(entry.name)) found.push(...(await walk(root, path, notes)));
-    } else if (entry.isFile()) {
+    const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
+    let folderEntry = entry.isDirectory();
+    let fileEntry = entry.isFile();
+    if (entry.isSymbolicLink()) {
+      const target = await stat(join(root, path)).catch(() => undefined);
+      if (!target) {
+        if (by === undefined) notes.push({ file: path, message: 'skipped: a link that points at nothing' });
+        continue;
+      }
+      folderEntry = target.isDirectory();
+      fileEntry = target.isFile();
+    }
+    if (folderEntry) {
+      found.push(...(await walk(root, path, notes, ignored, inside, by)));
+    } else if (fileEntry && by !== undefined) {
+      ignored.counts.set(by, (ignored.counts.get(by) ?? 0) + 1);
+      ignored.paths.push(path);
+    } else if (fileEntry) {
       const info = await stat(join(root, path));
       if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
       else found.push(path);
@@ -131,13 +366,58 @@ function classify(path: string, text: string): { kind: FileKind; owner?: string 
   if (parts[1] === 'agents' && parts.length === 3 && path.endsWith('.md')) return { kind: 'subagent' };
   if (/registry/i.test(basename(path)) && /\.(md|json)$/.test(path)) return { kind: 'registry' };
   if (path.endsWith('.json') && isStepList(text)) return { kind: 'step_list' };
+  if (path.endsWith('.json') && catalogueEntries(text) !== undefined) return { kind: 'registry' };
   return { kind: 'other' };
 }
 
+/** The keys a catalogue entry is known by. An entry holds at least two of them. */
+const CATALOGUE_KEYS = ['kind', 'event', 'watches', 'work', 'step', 'status'] as const;
+/** Enforcement states under which a catalogue check enforces nothing. */
+const OFF_STATES = /^(off|disabled|retired|removed|dead)$/i;
+
+type CatalogueEntry = { key?: string; entry: Record<string, unknown> };
+
+/**
+ * The entries of a catalogue: a JSON array of entries, an object holding such an array under any key, or
+ * an object mapping ids to entries. Undefined when the text is not a catalogue: fewer than half of its
+ * entries hold two of the catalogue keys.
+ */
+function catalogueEntries(text: string): CatalogueEntry[] | undefined {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+  const fromList = (list: unknown[]): CatalogueEntry[] => list.filter(isRecord).map((entry) => ({ entry }));
+  let entries: CatalogueEntry[] = [];
+  if (Array.isArray(parsed)) entries = fromList(parsed);
+  else if (isRecord(parsed)) {
+    const list = Object.values(parsed).find(
+      (value): value is unknown[] => Array.isArray(value) && value.some(isCatalogueEntry),
+    );
+    entries = list
+      ? fromList(list)
+      : Object.entries(parsed).flatMap(([key, entry]) => (isRecord(entry) ? [{ key, entry }] : []));
+  }
+  const fitting = entries.filter((candidate) => isCatalogueEntry(candidate.entry)).length;
+  return fitting > 0 && fitting * 2 >= entries.length ? entries : undefined;
+}
+
+function isCatalogueEntry(value: unknown): boolean {
+  return isRecord(value) && CATALOGUE_KEYS.filter((key) => key in value).length >= 2;
+}
+
+/** A step list: a top-level `steps` list, or a `processes` map whose entries each hold a `steps` list. */
 function isStepList(text: string): boolean {
   try {
     const parsed: unknown = JSON.parse(text);
-    return isRecord(parsed) && Array.isArray(parsed.steps);
+    if (!isRecord(parsed)) return false;
+    if (Array.isArray(parsed.steps)) return true;
+    return (
+      isRecord(parsed.processes) &&
+      Object.values(parsed.processes).some((process) => isRecord(process) && Array.isArray(process.steps))
+    );
   } catch {
     return false;
   }
@@ -259,7 +539,7 @@ function readGuards(
           command: hook.command,
           scope,
           at: found,
-          ...scriptOf(hook.command),
+          ...scriptOf(hook.command, new Set(estate.files.map((entry) => entry.path))),
         };
         if (matcher !== undefined) guard.matcher = matcher;
         if (typeof hook.timeout === 'number') guard.timeout = hook.timeout;
@@ -269,24 +549,81 @@ function readGuards(
   }
 }
 
-/** The script a command runs, relative to the root, and whether it is found from an anchor. */
-export function scriptOf(command: string): { script?: string; anchored: boolean } {
-  for (const raw of command.split(/\s+/)) {
-    const token = raw.replace(/["']/g, '');
-    if (token === '' || token.startsWith('-') || INTERPRETERS.has(token)) continue;
-    if (!token.includes('/') && !SCRIPT_EXTENSION.test(token)) return { anchored: false };
-    for (const anchor of ANCHORS) {
-      if (anchor.test(token)) return { script: posix.normalize(token.replace(anchor, '')), anchored: true };
-    }
-    if (token.startsWith('/') || token.startsWith('~')) return { script: token, anchored: true };
-    return { script: posix.normalize(token), anchored: false };
+const ENV_ASSIGNMENT = /^[A-Za-z_][A-Za-z0-9_]*=/;
+const OPERATORS = new Set(['||', '&&', ';', '|', '&']);
+
+/**
+ * The script a command runs, relative to the root, and whether the shell finds it from an anchor. The
+ * command is cut at `||`, `&&`, `;` and `|`; in each part, environment assignments (`ENV=1`) and an `env`
+ * wrapper are passed over and an interpreter (`python3`) runs the path after its flags. A part whose program
+ * is not a path (a shell test such as `[ "$X" = 1 ]`, `echo`) runs no script. The first part that runs a
+ * path gives the script. With the estate's files, a dispatcher is seen through: among that part's path
+ * arguments, the last one that exists is the script (tried from the root, then from the folder of each
+ * earlier path and the folders above it), and the path the shell runs is kept as the dispatcher.
+ */
+export function scriptOf(
+  command: string,
+  paths?: ReadonlySet<string>,
+): { script?: string; anchored: boolean; dispatcher?: string } {
+  for (const segment of segments(command)) {
+    const runs = runPath(segment);
+    if (runs === undefined) continue;
+    const first = anchorOf(runs);
+    if (!paths) return first;
+    const last = scriptIn(segment.join(' '), '', paths);
+    if (last === undefined || last === first.script) return first;
+    return {
+      script: last,
+      anchored: first.anchored,
+      ...(first.script !== undefined && paths.has(first.script) ? { dispatcher: first.script } : {}),
+    };
   }
   return { anchored: false };
 }
 
-function readSkill(file: EstateFile, estate: RawEstate): void {
+/** A command line cut into its parts at the shell's list and pipe operators. */
+function segments(command: string): string[][] {
+  const parts: string[][] = [[]];
+  for (const token of tokens(command)) {
+    if (OPERATORS.has(token)) parts.push([]);
+    else parts[parts.length - 1]?.push(token);
+  }
+  return parts.filter((part) => part.length > 0);
+}
+
+/** The path a part of a command runs, as written: after assignments, `env` and an interpreter's flags. */
+function runPath(segment: readonly string[]): string | undefined {
+  const words = segment.map((token) => token.replace(/["']/g, ''));
+  let index = 0;
+  const skip = (test: (word: string) => boolean) => {
+    while (index < words.length && test(words[index] ?? '')) index++;
+  };
+  skip((word) => ENV_ASSIGNMENT.test(word));
+  if (words[index] === 'env') {
+    index++;
+    skip((word) => ENV_ASSIGNMENT.test(word) || word.startsWith('-'));
+  }
+  const head = words[index] ?? '';
+  if (INTERPRETERS.has(basename(head))) {
+    index++;
+    skip((word) => word.startsWith('-'));
+  }
+  const word = words[index] ?? '';
+  return word.includes('/') || SCRIPT_EXTENSION.test(word) ? word : undefined;
+}
+
+/** A path as the shell finds it: from an anchor (the project folder, the home folder), else the working folder. */
+function anchorOf(token: string): { script: string; anchored: boolean } {
+  for (const anchor of ANCHORS) {
+    if (anchor.test(token)) return { script: posix.normalize(token.replace(anchor, '')), anchored: true };
+  }
+  if (token.startsWith('/') || token.startsWith('~')) return { script: token, anchored: true };
+  return { script: posix.normalize(token), anchored: false };
+}
+
+function readSkill(file: EstateFile, estate: RawEstate, budget: number): void {
   const frontmatter = readFrontmatter(file.text);
-  if (frontmatter.error) estate.notes.push({ file: file.path, message: `frontmatter: ${frontmatter.error}` });
+  noteFrontmatter(file, frontmatter, estate);
   const fields = frontmatter.fields;
   const name = typeof fields.name === 'string' ? fields.name : (file.owner ?? basename(file.path));
   const skill: SkillDecl = {
@@ -314,12 +651,12 @@ function readSkill(file: EstateFile, estate: RawEstate): void {
       file,
     );
   }
-  addProse(estate, file, skill.body.startLine, skill.body.endLine);
+  addProse(estate, file, skill.body.startLine, skill.body.endLine, budget);
 }
 
-function readSubagent(file: EstateFile, estate: RawEstate): void {
+function readSubagent(file: EstateFile, estate: RawEstate, budget: number): void {
   const frontmatter = readFrontmatter(file.text);
-  if (frontmatter.error) estate.notes.push({ file: file.path, message: `frontmatter: ${frontmatter.error}` });
+  noteFrontmatter(file, frontmatter, estate);
   const fields = frontmatter.fields;
   const name = typeof fields.name === 'string' ? fields.name : basename(file.path, '.md');
   const subagent: SubagentDecl = {
@@ -338,7 +675,44 @@ function readSubagent(file: EstateFile, estate: RawEstate): void {
   const effort = valueAt(file, frontmatter, 'effort', fields.effort);
   if (effort) subagent.effort = effort;
   estate.subagents.push(subagent);
-  addProse(estate, file, subagent.body.startLine, subagent.body.endLine);
+  addProse(estate, file, subagent.body.startLine, subagent.body.endLine, budget);
+}
+
+/** Header cells that name a registry table's columns. A table is a registry table by its first column. */
+const COLUMNS = {
+  id: /^(id|check id|code)$/i,
+  guard: /^(guards?|scripts?|checks?|hooks?|adapters?|handlers?|runs?)$/i,
+  enforces: /^(enforces|rules?)$/i,
+  watches: /^(fires when|fires on|watches|watch|triggers?)$/i,
+  event: /^events?$/i,
+  verdict: /^(verdict|mode)$/i,
+  state: /^(rollout|status|state)$/i,
+} as const;
+
+/** A row id: one token with a digit in it, such as `G6`, `AW4` or `check-12`. */
+const ROW_ID = /^[A-Za-z][\w.#-]*\d[\w.#-]*$/;
+
+/**
+ * Reads every table of a markdown check registry whose first column holds ids: a header `Id`, or a first
+ * cell that is one token with a digit in every row. The other columns are free text. A row names its guard
+ * by (in this order) a guard the estate runs, named in a cell outside the rule columns (the guard column
+ * first); a catalogue check with the row's id; a guard script whose source holds the row's id; else the
+ * guard column as written; else the id. The rules it enforces come from an `Enforces` column (ids and
+ * quoted passages) and from a `Fires when` or `Watches` column (quoted passages and ids).
+ */
+/** A frontmatter the reader could not read, or read only with the tolerant pass, leaves a note. */
+function noteFrontmatter(
+  file: EstateFile,
+  frontmatter: ReturnType<typeof readFrontmatter>,
+  estate: RawEstate,
+): void {
+  if (frontmatter.error) estate.notes.push({ file: file.path, message: `frontmatter: ${frontmatter.error}` });
+  if (frontmatter.tolerated) {
+    estate.notes.push({
+      file: file.path,
+      message: `frontmatter read field by field (the YAML parser said: ${frontmatter.tolerated})`,
+    });
+  }
 }
 
 function readRegistry(file: EstateFile, estate: RawEstate): void {
@@ -346,28 +720,235 @@ function readRegistry(file: EstateFile, estate: RawEstate): void {
     readJsonRegistry(file, estate);
     return;
   }
+  const known = knownGuards(estate);
   for (const table of readTables(file.text)) {
-    const column = (pattern: RegExp) => table.header.findIndex((cell) => pattern.test(cell));
-    const id = column(/^id$/i);
-    const guard = column(/^(guard|script|check|hook)s?$/i);
-    const enforces = column(/^(enforces|rules?)$/i);
-    if (guard < 0 || enforces < 0) continue;
-    const event = column(/^event$/i);
-    const verdict = column(/^(verdict|mode)$/i);
+    const column = (pattern: RegExp, from = 0) =>
+      table.header.findIndex((cell, index) => index >= from && pattern.test(cell));
+    const firstIsId =
+      COLUMNS.id.test(table.header[0] ?? '') ||
+      (table.rows.length > 0 && table.rows.every((row) => ROW_ID.test(strip(row.cells[0] ?? ''))));
+    const legacyGuard = column(COLUMNS.guard);
+    const legacyEnforces = column(COLUMNS.enforces);
+    if (!firstIsId && (legacyGuard < 0 || legacyEnforces < 0)) continue;
+    const id = firstIsId ? 0 : column(COLUMNS.id);
+    const guard = column(COLUMNS.guard, firstIsId ? 1 : 0);
+    const enforces = column(COLUMNS.enforces);
+    const watches = column(COLUMNS.watches);
+    const event = column(COLUMNS.event);
+    const verdict = column(COLUMNS.verdict);
+    const state = column(COLUMNS.state);
     for (const row of table.rows) {
-      const name = strip(row.cells[guard] ?? '');
-      if (name === '') continue;
-      const entry: RegistryRow = {
-        id: strip(row.cells[id] ?? '') || name,
-        guard: name,
-        enforces: parseEnforces(row.cells[enforces] ?? ''),
-        at: { file: file.path, startLine: row.line, endLine: row.line, quote: row.text },
-      };
-      if (event >= 0 && row.cells[event]) entry.event = strip(row.cells[event] ?? '');
-      if (verdict >= 0 && row.cells[verdict]) entry.verdict = strip(row.cells[verdict] ?? '');
-      estate.registry.push(entry);
+      const cell = (index: number) => (index >= 0 ? strip(row.cells[index] ?? '') : '');
+      const ids = idsOf(row.cells[id] ?? '');
+      const rowIds = ids.length > 0 ? ids : [cell(guard)].filter((value) => value !== '');
+      // The rule columns name rules, not guards: a guard is looked for in the other cells only.
+      const others = row.cells.filter((_, index) => ![id, guard, enforces, watches].includes(index));
+      const named = guardNamedIn(guard >= 0 ? [row.cells[guard] ?? '', ...others] : others, known);
+      for (const rowId of rowIds) {
+        const links = [
+          ...(enforces >= 0 ? parseEnforces(row.cells[enforces] ?? '') : []),
+          ...(watches >= 0 ? parseWatches(row.cells[watches] ?? '', rowId) : []),
+        ];
+        const entry: RegistryRow = {
+          id: rowId,
+          guard:
+            named ??
+            checkGuard(rowId, estate) ??
+            scriptHolding(rowId, estate, known) ??
+            (cell(guard) || rowId),
+          enforces: links,
+          at: { file: file.path, startLine: row.line, endLine: row.line, quote: row.text },
+        };
+        if (cell(event) !== '') entry.event = cell(event);
+        if (cell(verdict) !== '') entry.verdict = cell(verdict);
+        if (cell(state) !== '') entry.state = cell(state);
+        estate.registry.push(entry);
+      }
     }
   }
+}
+
+/** One id token: a letter or digit first, then letters, digits and `_ . # -`. */
+const ID_TOKEN = /^[A-Za-z0-9][\w.#-]*$/;
+
+/**
+ * The ids an id cell holds. A cell such as `` `G2` `G3` `G9` `` or `` HANDBACK` / `STOP-WAKE `` names several
+ * checks: it is split on white space, commas, slashes and backticks, and each part is an id when every part
+ * looks like one (an id token with a digit, or in capitals). Any other cell is one id, as written.
+ */
+function idsOf(raw: string): string[] {
+  const whole = strip(raw);
+  if (whole === '') return [];
+  const parts = raw
+    .split(/[\s,/|`]+/)
+    .map((part) => strip(part))
+    .filter((part) => part !== '');
+  const several =
+    parts.length > 1 &&
+    parts.every((part) => ID_TOKEN.test(part) && (/\d/.test(part) || part === part.toUpperCase()));
+  return several ? [...new Set(parts)] : [whole];
+}
+
+/** The names the estate's guards go by: a script's file name, a check id. */
+function knownGuards(estate: RawEstate): Set<string> {
+  return new Set(estate.guards.map((guard) => guardName(guard)));
+}
+
+/** A known guard named in one of the cells: as a whole cell, a backticked token or a word of the cell. */
+function guardNamedIn(cells: readonly string[], known: ReadonlySet<string>): string | undefined {
+  for (const raw of cells) {
+    const cell = strip(raw);
+    const tokens = [cell, ...cell.split(/[\s,;|()]+/)].map((token) => strip(token)).filter(Boolean);
+    for (const token of tokens) {
+      if (known.has(token)) return token;
+      const base = basename(token);
+      if (base !== token && known.has(base)) return base;
+    }
+  }
+  return undefined;
+}
+
+/** The catalogue check of the same id, when the estate has one. */
+function checkGuard(id: string, estate: RawEstate): string | undefined {
+  return estate.guards.find((guard) => guard.check?.id === id)?.check?.id;
+}
+
+/** The guard whose script source holds the id as a word: a check that lives inside a guard script. */
+function scriptHolding(id: string, estate: RawEstate, known: ReadonlySet<string>): string | undefined {
+  const word = new RegExp(`(^|[^\\w])${escapeRegex(id)}([^\\w]|$)`);
+  for (const guard of estate.guards) {
+    if (!guard.script) continue;
+    const text = estate.files.find((file) => file.path === guard.script)?.text;
+    const name = guardName(guard);
+    if (text !== undefined && known.has(name) && word.test(text)) return name;
+  }
+  return undefined;
+}
+
+/** Free text that says when a check fires: the quoted passages it repeats, and rule ids other than its own. */
+function parseWatches(cell: string, own: string): RegistryRow['enforces'] {
+  const found: RegistryRow['enforces'] = [];
+  for (const match of cell.matchAll(/"([^"]+)"|\u201c([^\u201d]+)\u201d|\b([A-Z]{1,3}\d{1,3})\b/g)) {
+    const quote = match[1] ?? match[2];
+    if (quote !== undefined) found.push({ quote });
+    else if (match[3] !== undefined && match[3] !== own) found.push({ id: match[3] });
+  }
+  return found;
+}
+
+/**
+ * Reads a catalogue: each entry is a guard atom of its own, named by its id (`id`, `name` or its key in the
+ * map), with the event it runs on, its enforcement state (`status`), its own kind, what it runs (`work`;
+ * the script, when that names a file of the estate), the steps it belongs to (`step`) and the rules it
+ * watches (`watches`: rule ids, quoted passages, or a passage as the whole string). A check whose state is
+ * off enforces nothing. The links go to the graph as a registry row of the catalogue's own.
+ */
+function readCatalogue(file: EstateFile, estate: RawEstate): void {
+  const entries = catalogueEntries(file.text) ?? [];
+  const paths = new Set(estate.files.map((candidate) => candidate.path));
+  const cursor = { at: 0 };
+  for (const { key, entry } of entries) {
+    const named = [entry.id, entry.name].find((value) => typeof value === 'string' && value !== '');
+    const id = typeof named === 'string' ? named : key;
+    if (id === undefined) {
+      estate.notes.push({ file: file.path, message: 'a catalogue entry has no id, name or key' });
+      continue;
+    }
+    const pattern =
+      key !== undefined
+        ? new RegExp(`${escapeRegex(JSON.stringify(key))}\\s*:`)
+        : new RegExp(`"(id|name)"\\s*:\\s*${escapeRegex(JSON.stringify(id))}`);
+    const found = seekPattern(file, pattern, cursor);
+    if (!found) {
+      estate.notes.push({ file: file.path, message: `cannot find the catalogue entry ${id} in the file` });
+      continue;
+    }
+    const line = linesOf(file.text)[found.startLine - 1]?.text ?? found.quote;
+    const at: Located = { ...found, endLine: found.startLine, quote: line };
+    const text = (value: unknown) => (typeof value === 'string' && value !== '' ? value : undefined);
+    const list = (value: unknown) =>
+      (Array.isArray(value) ? value : [value]).filter(
+        (item): item is string => typeof item === 'string' && item !== '',
+      );
+    const work = text(entry.work);
+    const state = text(entry.status);
+    const check: CheckDecl = { id, steps: list(entry.step ?? entry.steps) };
+    const kind = text(entry.kind);
+    if (kind !== undefined) check.kind = kind;
+    if (state !== undefined) check.state = state;
+    if (work !== undefined) check.work = work;
+    const script = work !== undefined ? scriptIn(work, posix.dirname(file.path), paths) : undefined;
+    const guard: GuardDecl = {
+      event: text(entry.event) ?? 'any',
+      command: work ?? id,
+      scope: 'catalogue',
+      anchored: true,
+      at,
+      check,
+      ...(script !== undefined ? { script } : {}),
+    };
+    const matcher = text(entry.matcher);
+    if (matcher !== undefined) guard.matcher = matcher;
+    estate.guards.push(guard);
+    const row: RegistryRow = {
+      id,
+      guard: id,
+      enforces: state !== undefined && OFF_STATES.test(state) ? [] : parseWatchList(list(entry.watches), id),
+      at,
+      origin: 'catalogue',
+    };
+    if (text(entry.event) !== undefined) row.event = guard.event;
+    const verdict = text(entry.verdict);
+    if (verdict !== undefined) row.verdict = verdict;
+    if (state !== undefined) row.state = state;
+    estate.registry.push(row);
+  }
+}
+
+/** Each watched item: a rule id, the quoted passages and ids it holds, or the whole item as a passage. */
+function parseWatchList(items: readonly string[], own: string): RegistryRow['enforces'] {
+  return items.flatMap((item) => {
+    const trimmed = item.trim();
+    if (/^[A-Za-z]{1,3}\d{1,3}$/.test(trimmed)) return trimmed === own ? [] : [{ id: trimmed }];
+    const inner = parseWatches(trimmed, own);
+    return inner.length > 0 ? inner : [{ quote: trimmed }];
+  });
+}
+
+/**
+ * The script a command line runs, among the files of the estate: every token that looks like a path is
+ * tried from the root, from the folder the command is written in, and from the folder of each earlier path
+ * and the folders above it (a dispatcher names its target from where it sits). The last one that exists wins.
+ */
+function scriptIn(command: string, from: string, paths: ReadonlySet<string>): string | undefined {
+  let found: string | undefined;
+  const bases = [''];
+  if (from !== '.' && from !== '') bases.push(from);
+  for (const raw of tokens(command)) {
+    const token = stripAnchor(raw.replace(/["']/g, ''));
+    if (token === '' || token.startsWith('-') || /^[A-Za-z_][A-Za-z0-9_]*=/.test(token)) continue;
+    if (!token.includes('/') && !SCRIPT_EXTENSION.test(token)) continue;
+    const hit = bases
+      .map((base) => posix.normalize(posix.join(base, token)))
+      .find((candidate) => paths.has(candidate));
+    if (hit === undefined) continue;
+    found = hit;
+    for (let folder = posix.dirname(hit); folder !== '.' && folder !== ''; folder = posix.dirname(folder)) {
+      if (!bases.includes(folder)) bases.push(folder);
+    }
+  }
+  return found;
+}
+
+/** A command line split on white space, quotes kept inside their token. */
+function tokens(command: string): string[] {
+  return command.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) ?? [];
+}
+
+/** A path with its project anchor (`$CLAUDE_PROJECT_DIR/`) taken off, relative to the root. */
+function stripAnchor(token: string): string {
+  for (const anchor of ANCHORS) if (anchor.test(token)) return token.replace(anchor, '');
+  return token;
 }
 
 function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
@@ -418,35 +999,133 @@ function parseEnforces(cell: string): RegistryRow['enforces'] {
   return found;
 }
 
+/**
+ * Reads a step list: the top-level `steps` list, then each process of a `processes` map as a stage
+ * catalogue of its own. A process step goes by `<process>/<id>`, so two processes may share a step name.
+ * A step is an object with an `id` (or a `name`), a `title`, a `next` list and `anytime`, or a plain
+ * string. When no step of a process says what comes next, the steps follow the order of the list.
+ */
 function readSteps(file: EstateFile, estate: RawEstate): void {
-  const json: unknown = JSON.parse(file.text);
-  if (!isRecord(json) || !Array.isArray(json.steps)) return;
-  const cursor = { at: 0 };
-  for (const step of json.steps) {
-    if (!isRecord(step) || typeof step.id !== 'string') continue;
-    const found = seekPattern(
-      file,
-      new RegExp(`"id"\\s*:\\s*${escapeRegex(JSON.stringify(step.id))}`),
-      cursor,
-    );
-    if (!found) continue;
-    const line = linesOf(file.text)[found.startLine - 1]?.text ?? found.quote;
-    const decl: StepDecl = {
-      id: step.id,
-      next: Array.isArray(step.next) ? step.next.filter((next) => typeof next === 'string') : [],
-      anytime: step.anytime === true,
-      at: { ...found, endLine: found.startLine, quote: line },
-    };
-    if (typeof step.title === 'string') decl.title = step.title;
-    estate.steps.push(decl);
+  let json: unknown;
+  try {
+    json = JSON.parse(file.text);
+  } catch (cause) {
+    estate.notes.push({ file: file.path, message: `not JSON: ${String(cause)}` });
+    return;
+  }
+  if (!isRecord(json)) return;
+  if (Array.isArray(json.steps)) readStepList(file, json.steps, undefined, { at: 0 }, estate);
+  if (!isRecord(json.processes)) return;
+  const start = file.text.search(/"processes"\s*:/);
+  for (const [name, process] of Object.entries(json.processes)) {
+    if (!isRecord(process) || !Array.isArray(process.steps)) continue;
+    const cursor = { at: Math.max(0, start) };
+    const key = seek(file, JSON.stringify(name), cursor);
+    if (!key) continue;
+    readStepList(file, process.steps, name, cursor, estate);
   }
 }
 
-function addProse(estate: RawEstate, file: EstateFile, startLine: number, endLine: number): void {
+function readStepList(
+  file: EstateFile,
+  steps: readonly unknown[],
+  process: string | undefined,
+  cursor: { at: number },
+  estate: RawEstate,
+): void {
+  const qualify = (id: string) => (process === undefined ? id : `${process}/${id}`);
+  const read: StepDecl[] = [];
+  let declaresNext = false;
+  for (const step of steps) {
+    const record = isRecord(step) ? step : {};
+    const key = typeof record.id === 'string' ? 'id' : 'name';
+    const id = typeof step === 'string' ? step : record[key];
+    if (typeof id !== 'string' || id === '') continue;
+    const found =
+      typeof step === 'string'
+        ? seek(file, JSON.stringify(step), cursor)
+        : seekPattern(file, new RegExp(`"${key}"\\s*:\\s*${escapeRegex(JSON.stringify(id))}`), cursor);
+    if (!found) continue;
+    const line = linesOf(file.text)[found.startLine - 1]?.text ?? found.quote;
+    if (Array.isArray(record.next)) declaresNext = true;
+    const decl: StepDecl = {
+      id: qualify(id),
+      next: Array.isArray(record.next)
+        ? record.next.filter((next): next is string => typeof next === 'string').map(qualify)
+        : [],
+      anytime: record.anytime === true,
+      at: { ...found, endLine: found.startLine, quote: line },
+    };
+    if (typeof record.title === 'string') decl.title = record.title;
+    if (process !== undefined) decl.process = process;
+    read.push(decl);
+  }
+  if (process !== undefined && !declaresNext) {
+    const ordered = read.filter((step) => !step.anytime);
+    ordered.forEach((step, index) => {
+      const following = ordered[index + 1];
+      if (following) step.next = [following.id];
+    });
+  }
+  estate.steps.push(...read);
+}
+
+/**
+ * Adds the prose of a file's lines as chunks of at most `budget` characters. A passage within the budget is
+ * one chunk whose id is the file path; a longer one is cut at line ends (before a heading when the second
+ * half of the chunk holds one, else after a blank line, else where the budget runs out) into chunks
+ * `<path>#1`, `<path>#2`, ... A single line longer than the budget is a chunk of its own.
+ */
+function addProse(
+  estate: RawEstate,
+  file: EstateFile,
+  startLine: number,
+  endLine: number,
+  budget: number,
+): void {
   const lines = file.text.split('\n').slice(startLine - 1, endLine);
   if (lines.every((line) => line.trim() === '')) return;
-  const chunk: ProseChunk = { id: file.path, file: file.path, startLine, endLine, text: lines.join('\n') };
-  estate.prose.push(chunk);
+  const parts = cutLines(lines, budget).filter(({ from, to }) =>
+    lines.slice(from, to).some((line) => line.trim() !== ''),
+  );
+  parts.forEach(({ from, to }, index) => {
+    const chunk: ProseChunk = {
+      id: parts.length === 1 ? file.path : `${file.path}#${index + 1}`,
+      file: file.path,
+      startLine: startLine + from,
+      endLine: startLine + to - 1,
+      text: lines.slice(from, to).join('\n'),
+    };
+    estate.prose.push(chunk);
+  });
+}
+
+/** Line ranges (`from` inclusive, `to` exclusive) of at most `budget` characters each, newlines counted. */
+export function cutLines(lines: readonly string[], budget: number): Array<{ from: number; to: number }> {
+  const parts: Array<{ from: number; to: number }> = [];
+  let from = 0;
+  while (from < lines.length) {
+    let size = 0;
+    let to = from;
+    while (to < lines.length && (to === from || size + (lines[to]?.length ?? 0) + 1 <= budget)) {
+      size += (lines[to]?.length ?? 0) + 1;
+      to++;
+    }
+    if (to < lines.length) {
+      const half = from + Math.ceil((to - from) / 2);
+      let cut = -1;
+      for (let index = to - 1; index >= half && cut < 0; index--) {
+        if (/^#{1,6}\s/.test(lines[index] ?? '')) cut = index;
+      }
+      for (let index = to - 1; index >= half && cut < 0; index--) {
+        if ((lines[index] ?? '').trim() === '') cut = index + 1;
+      }
+      if (cut > from) to = cut;
+    }
+    parts.push({ from, to });
+    from = to;
+  }
+  return parts;
 }
 
 function nameAt(file: EstateFile, frontmatter: ReturnType<typeof readFrontmatter>, name: string): Located {

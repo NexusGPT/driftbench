@@ -95,7 +95,7 @@ describe('approval', () => {
     if (!parsed.ok) throw new Error('invalid');
     const pending = parsed.map.atoms.filter((atom) => !atom.approved);
     expect(new Set(pending.map((atom) => atom.kind))).toEqual(new Set(['instruction', 'gate']));
-    expect(pending).toHaveLength(44);
+    expect(pending).toHaveLength(47);
   });
 
   it('approves named atoms, or all, and counts what was already approved', async () => {
@@ -103,7 +103,7 @@ describe('approval', () => {
     const one = approveAtoms(text, { ids: ['gate.standing.read-a-file-before-editing-it'] });
     expect(one.ok ? one.approved : []).toEqual(['gate.standing.read-a-file-before-editing-it']);
     const all = approveAtoms(one.ok ? one.text : text, { all: true });
-    expect(all.ok ? [all.approved.length, all.already] : []).toEqual([53, 69]);
+    expect(all.ok ? [all.approved.length, all.already] : []).toEqual([56, 69]);
   });
 
   it('refuses an unknown kind or atom, and approves nothing', async () => {
@@ -150,7 +150,7 @@ describe('the space map of an estate', () => {
       all.dimensions.slice(ESTATE_AXES.length).map((d) => [d.id, d.values.length]),
     );
     expect(sizes).toEqual({
-      'atoms.instruction': 40,
+      'atoms.instruction': 43,
       'atoms.gate': 8,
       'atoms.route': 13,
       'atoms.skill': 4,

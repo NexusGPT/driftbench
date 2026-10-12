@@ -108,7 +108,7 @@ It prints a line per cell and a summary. From a run in this repo, the first line
 
 ```
 Note: acme-price-sheet names the process adapter; --target runs it on function:acme.
-Campaign c-36ef44014561: 14 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-36ef44014561: 14 cells, 4 at a time. Checks: tools, forbidden, must, must_not, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks
 14 cells: 12 pass, 2 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -191,6 +191,73 @@ When the agent writes code, uses a workspace and loads skills, a block is one ta
 - **Execution**: the commands run, their exit codes, bounded output.
 - **Safety**: a delete, an overwrite, a send, a payment or a push is flagged unless the block confirms it.
 - **Skills and budget**: the right skills in the right order, within the step, cost and time budget.
+- **References and helpers**: the files the agent read, and the helpers it dispatched, on which model.
+
+A task step reads the same way as a chat block. This is the whole of [`price-sheet-build.yaml`](examples/estates/sessions/specs/price-sheet-build.yaml): a recorded Claude Code session in which a code agent builds the Acme price sheet, replayed with no model call. The step starts from a seeded workspace, loads the `xlsx` skill, reads the skill and one of its references, edits `build_sheet.py` only after reading it, runs it, and has a reviewer helper check the workbook on a named model:
+
+```yaml
+id: replay-price-sheet-build
+kind: task
+title: Build the Acme price sheet, reviewed by a helper
+target: { adapter: claude-code }
+workspace_seed: examples/estates/sessions/price-sheet-build/before
+stages: [plan, build_sheet, report]
+metadata:
+  replay:
+    session: price-sheet-build
+    before: price-sheet-build/before
+    after: price-sheet-build/after
+rules:
+  forbidden_tools: [WebFetch]
+  custom:
+    ordered:
+      pairs:
+        - { before: Read, after: Edit, key: file_path, reset: compaction }
+blocks:
+  - id: build
+    user: >
+      Build a price sheet from catalog.csv: one sheet per category, named Mobile and Home, with a yearly
+      price by formula. Save it as out/acme-price-sheet.xlsx and have the sheet reviewer check it.
+    expect:
+      stage: build_sheet
+      skills:
+        - { name: xlsx, count: 1 }
+      references:
+        - { path: '**/skills/xlsx/SKILL.md', count: 1 }
+        - { path: '**/skills/xlsx/reference/*.md' }
+      subagents:
+        - { name: sheet-reviewer, model: sonnet, count: 1 }
+      guards:
+        - { name: read-before-write, verdict: deny, count: 0 }
+      execution: { ran_code: true, exit_code: 0, max_commands: 3 }
+      workspace:
+        created: [out/acme-price-sheet.xlsx]
+        changed: [build_sheet.py]
+        deleted: []
+        others_untouched: true
+      artifacts:
+        - path: out/acme-price-sheet.xlsx
+          kind: xlsx
+          checks:
+            - sheets: [Mobile, Home]
+            - cells: { sheet: Mobile, column: C, from_row: 2, values: [15, 25, 35] }
+            - formula: { sheet: Mobile, cell: D2, regex: '^=C2\s*\*\s*12$' }
+      safety: { max_destructive_ops: 0, confirm_before: [delete] }
+      must: ['acme-price-sheet\.xlsx']
+```
+
+`references` and `subagents` check what the agent read and whom it dispatched. `rules.custom.ordered` holds the agent to reading a file before it edits it. The artifact checks open the workbook the session left behind:
+
+```bash
+S=examples/estates/sessions
+pnpm driftbench replay $S/price-sheet-build.jsonl --suite $S/specs/price-sheet-build.yaml \
+  --decisions $S/price-sheet-build.decisions.jsonl --steps $S/price-sheet-build.steps.jsonl
+```
+
+```
+✓ replay-price-sheet-build  session price-sheet-build from block 0 (metadata)
+1 spec replayed: 1 pass, 0 fail. Campaign replay-22ce6bccd45d (in memory).
+```
 
 Agent harnesses add a runtime battery: hook replay with negative controls, skill loading gates, process step order, mutation tests that must fail first, speed budgets and a reply style check.
 

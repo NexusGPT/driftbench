@@ -59,6 +59,13 @@ export function targetOf(atom: Atom): string | undefined {
   return undefined;
 }
 
+/** Every path an atom names: its target, and the dispatcher a guard's command runs its script through. */
+function pathsOf(atom: Atom): string[] {
+  const target = targetOf(atom);
+  const via = atom.kind === 'guard' ? atom.fields?.dispatcher : undefined;
+  return [...(target ? [target] : []), ...(typeof via === 'string' ? [via] : [])];
+}
+
 export function analyzeGraph(
   atoms: readonly Atom[],
   edges: readonly Edge[],
@@ -90,16 +97,14 @@ export function analyzeGraph(
     if (!atom) continue;
     reachableAtoms.add(id);
     reachFile(atom.provenance.file);
-    const target = targetOf(atom);
-    if (target) reachFile(target);
+    for (const path of pathsOf(atom)) reachFile(path);
     for (const next of out.get(id) ?? []) queue.push(next);
   }
 
   const namedFiles = new Set<string>();
   for (const file of files) if (LOADED_BY_PLACE.has(file.kind)) namedFiles.add(file.path);
   for (const atom of atoms) {
-    const target = targetOf(atom);
-    if (target && kinds.has(target)) namedFiles.add(target);
+    for (const path of pathsOf(atom)) if (kinds.has(path)) namedFiles.add(path);
   }
 
   const orphans = files.filter((file) => !namedFiles.has(file.path)).map((file) => file.path);

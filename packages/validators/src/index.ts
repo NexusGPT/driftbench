@@ -4,21 +4,36 @@
  */
 export const packageName = '@driftbench/validators';
 
+export {
+  type BankRow,
+  type BankSummary,
+  type BankVerdict,
+  bankSummary,
+  causeKey,
+  formatItems,
+  LEVEL_FAMILY,
+  NO_FAMILY,
+  NO_TIER,
+} from './bank';
 export { type BriefInput, composeBrief, EXECUTOR_FILE } from './brief';
 export {
   checkFloors,
+  emptyFloors,
   FLOORS_FILE,
   type FloorCheck,
   type FloorEvidence,
+  type FloorHistoryEntry,
   type FloorsFile,
   FloorsFileSchema,
+  floorNote,
   floorOf,
+  migrateFloors,
   type RaiseRequest,
   raiseFloor,
   readFloors,
   writeFloors,
 } from './floors';
-export { type FormatOptions, formatLadder, showNumber } from './format';
+export { type FormatOptions, formatLadder, itemLines, showNumber } from './format';
 export {
   checkHandover,
   HANDOVER_SECTIONS,
@@ -34,15 +49,36 @@ export {
   writeHandover,
 } from './handover';
 export {
+  AUDIT_CHECKS,
+  type AuditVerdict,
+  BANK_MIN_FAMILY,
+  BANK_MIN_SIZE,
+  BLIND_SLOWDOWN,
+  formatHardness,
+  HARDNESS_MAX_SCORE,
+  HARDNESS_MIN_CAUSES,
+  HARDNESS_MIN_FORECAST,
+  type Hardness,
+  measureHardness,
+  type PilotMeasure,
+  parseAudit,
+} from './hardness';
+export {
   appendJournal,
+  type Executor,
+  executorOf,
   type JournalRow,
   JournalRowSchema,
   journalFile,
   loopFolder,
+  nextIterations,
+  PILOT_ITERATIONS,
   readJournal,
   validateRow,
 } from './journal';
 export {
+  type BankEntry,
+  bankMeasure,
   type Direction,
   defineLadder,
   type Item,
@@ -51,6 +87,7 @@ export {
   type LadderReport,
   type LevelDef,
   type LevelRow,
+  ladderVersion,
   type Measure,
   passes,
   RESERVED_COMPONENTS,
@@ -60,6 +97,7 @@ export {
   type SeedRun,
   type SeedSpec,
   seedLabel,
+  type Tier,
 } from './ladder';
 export { registeredLadders } from './ladders/index';
 export {

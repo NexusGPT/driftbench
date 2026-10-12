@@ -246,8 +246,8 @@ export type CampaignRunOptions = {
   /** The spec of a cell, by id and hash. */
   specFor(cell: PlannedCell): Spec;
   adapterFor(target: TargetRef): AgentAdapter;
-  /** A fresh driver for each run. */
-  driver(cell: PlannedCell): UserDriver;
+  /** A fresh driver for each run, given the cell and the spec the cell runs (a perturbing driver needs it). */
+  driver(cell: PlannedCell, spec: Spec): UserDriver;
   checks: CheckSet;
   /** Readers for the artifact checks, passed to every run. */
   artifacts?: ArtifactReaderRegistry;
@@ -318,9 +318,10 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       return { cell, reused: false, state: 'stopped', failing: [], budgetStop: { budgetUsd, spentUsd } };
     }
     const reference = cell.mode === 'P' ? await referenceFor(cell) : undefined;
-    const run = await runSpec(options.specFor(cell), {
+    const spec = options.specFor(cell);
+    const run = await runSpec(spec, {
       adapter: options.adapterFor(cell.target),
-      driver: options.driver(cell),
+      driver: options.driver(cell, spec),
       checks: options.checks,
       ...(options.artifacts ? { artifacts: options.artifacts } : {}),
       mode: cell.mode,

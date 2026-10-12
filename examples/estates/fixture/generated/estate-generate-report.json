@@ -3,13 +3,13 @@
   "map": {
     "path": "../approved.yaml",
     "runtime": "claude-code",
-    "hash": "ab256ba636f4b315e09b13501fb64dcf47cad30b4bdc7006fabe7b1ba4c75102",
-    "atoms": 122
+    "hash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10",
+    "atoms": 125
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1338,
-    "approved": 1338,
+    "rows": 1379,
+    "approved": 1379,
     "proposed": 0,
     "struck": 0
   },
@@ -28,30 +28,30 @@
     "checks": ["ordered"]
   },
   "summary": {
-    "specs": 1338,
-    "blocks": 1341,
-    "complete": 235,
-    "incomplete": 1103,
+    "specs": 1379,
+    "blocks": 1382,
+    "complete": 234,
+    "incomplete": 1145,
     "judged": 70
   },
   "perTestType": {
     "obligation": {
-      "rows": 480,
-      "specs": 480,
+      "rows": 516,
+      "specs": 516,
       "complete": 14,
-      "incomplete": 466
+      "incomplete": 502
     },
     "outside_trigger": {
-      "rows": 40,
-      "specs": 40,
+      "rows": 43,
+      "specs": 43,
       "complete": 1,
-      "incomplete": 39
+      "incomplete": 42
     },
     "twin": {
-      "rows": 40,
-      "specs": 40,
+      "rows": 43,
+      "specs": 43,
       "complete": 2,
-      "incomplete": 38
+      "incomplete": 41
     },
     "ordered_pair": {
       "rows": 96,
@@ -66,9 +66,9 @@
       "incomplete": 7
     },
     "route_positive": {
-      "rows": 227,
-      "specs": 227,
-      "complete": 73,
+      "rows": 226,
+      "specs": 226,
+      "complete": 72,
       "incomplete": 154
     },
     "route_near_miss": {
@@ -212,16 +212,16 @@
       "incomplete": 27
     },
     "live": {
-      "rows": 1299,
-      "specs": 1299,
-      "complete": 229,
-      "incomplete": 1070
+      "rows": 1340,
+      "specs": 1340,
+      "complete": 228,
+      "incomplete": 1112
     }
   },
   "gaps": [
     {
       "marker": "needs-approved-phrase",
-      "specs": 566,
+      "specs": 607,
       "atoms": [
         "gate.invoice-reconcile.read-references-matching-rules-md-before",
         "gate.standing.never-report-done-before-verify-passed",
@@ -239,10 +239,13 @@
         "hazard.standing.recover-from-a-new-session",
         "instruction.inbox-triager.a-message-that-fits-no-folder",
         "instruction.inbox-triager.the-triager-never-answers-or-deletes",
+        "instruction.invoice-reconcile.a-line-matches-on-article-code",
+        "instruction.invoice-reconcile.an-invoice-line-with-no-order",
         "instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with",
         "instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50",
         "instruction.invoice-reconcile.never-change-an-invoice-amount-report",
         "instruction.invoice-reconcile.run-the-reconcile-script-and-show",
+        "instruction.invoice-reconcile.under-0-05-eur-per-unit",
         "instruction.ledger-auditor.a-brief-missing-a-number-gets",
         "instruction.ledger-auditor.look-for-double-payments-and-unapplied",
         "instruction.ledger-auditor.the-auditor-never-edits-a-file",
@@ -343,10 +346,13 @@
         "a outside situation for guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
         "a outside situation for instruction.inbox-triager.a-message-that-fits-no-folder",
         "a outside situation for instruction.inbox-triager.the-triager-never-answers-or-deletes",
+        "a outside situation for instruction.invoice-reconcile.a-line-matches-on-article-code",
+        "a outside situation for instruction.invoice-reconcile.an-invoice-line-with-no-order",
         "a outside situation for instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with",
         "a outside situation for instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50",
         "a outside situation for instruction.invoice-reconcile.never-change-an-invoice-amount-report",
         "a outside situation for instruction.invoice-reconcile.run-the-reconcile-script-and-show",
+        "a outside situation for instruction.invoice-reconcile.under-0-05-eur-per-unit",
         "a outside situation for instruction.ledger-auditor.a-brief-missing-a-number-gets",
         "a outside situation for instruction.ledger-auditor.look-for-double-payments-and-unapplied",
         "a outside situation for instruction.ledger-auditor.the-auditor-never-edits-a-file",
@@ -401,9 +407,12 @@
         "a trigger situation for hazard.standing.recover-from-a-new-session",
         "a trigger situation for instruction.inbox-triager.a-message-that-fits-no-folder",
         "a trigger situation for instruction.inbox-triager.the-triager-never-answers-or-deletes",
+        "a trigger situation for instruction.invoice-reconcile.a-line-matches-on-article-code",
+        "a trigger situation for instruction.invoice-reconcile.an-invoice-line-with-no-order",
         "a trigger situation for instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with",
         "a trigger situation for instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50",
         "a trigger situation for instruction.invoice-reconcile.never-change-an-invoice-amount-report",
+        "a trigger situation for instruction.invoice-reconcile.under-0-05-eur-per-unit",
         "a trigger situation for instruction.ledger-auditor.a-brief-missing-a-number-gets",
         "a trigger situation for instruction.memory-memory.no-delivery-on-a-public-holiday",
         "a trigger situation for instruction.memory-memory.the-weekly-report-is-due-monday",
@@ -451,7 +460,7 @@
     },
     {
       "marker": "needs-deviation-phrase",
-      "specs": 623,
+      "specs": 644,
       "atoms": [
         "gate.invoice-reconcile.read-references-matching-rules-md-before",
         "gate.standing.never-report-done-before-verify-passed",
@@ -469,10 +478,13 @@
         "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
         "instruction.inbox-triager.a-message-that-fits-no-folder",
         "instruction.inbox-triager.the-triager-never-answers-or-deletes",
+        "instruction.invoice-reconcile.a-line-matches-on-article-code",
+        "instruction.invoice-reconcile.an-invoice-line-with-no-order",
         "instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with",
         "instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50",
         "instruction.invoice-reconcile.never-change-an-invoice-amount-report",
         "instruction.invoice-reconcile.run-the-reconcile-script-and-show",
+        "instruction.invoice-reconcile.under-0-05-eur-per-unit",
         "instruction.ledger-auditor.a-brief-missing-a-number-gets",
         "instruction.ledger-auditor.look-for-double-payments-and-unapplied",
         "instruction.ledger-auditor.the-auditor-never-edits-a-file",
@@ -625,14 +637,17 @@
     },
     {
       "marker": "needs-registered-check",
-      "specs": 418,
+      "specs": 460,
       "atoms": [
         "gate.supplier-email.show-the-draft-and-get-an",
         "hazard.standing.recover-from-a-compaction-of-the",
         "hazard.standing.recover-from-a-new-session",
         "instruction.inbox-triager.a-message-that-fits-no-folder",
         "instruction.inbox-triager.the-triager-never-answers-or-deletes",
+        "instruction.invoice-reconcile.a-line-matches-on-article-code",
+        "instruction.invoice-reconcile.an-invoice-line-with-no-order",
         "instruction.invoice-reconcile.never-change-an-invoice-amount-report",
+        "instruction.invoice-reconcile.under-0-05-eur-per-unit",
         "instruction.ledger-auditor.look-for-double-payments-and-unapplied",
         "instruction.memory-memory.no-delivery-on-a-public-holiday",
         "instruction.memory-memory.the-weekly-report-is-due-monday",
@@ -677,11 +692,13 @@
         "command_not_run",
         "confirmed_before_send",
         "draft_shape",
+        "extra_charges_listed",
         "folder_other",
         "grounded_values",
         "hazard_recovery",
         "invoice_amounts_untouched",
         "late_definition",
+        "line_match",
         "max_words",
         "no_delete_under",
         "no_holiday_delivery",
@@ -690,6 +707,7 @@
         "permission",
         "report_deadline",
         "reports_carrier_error",
+        "rounding_tolerance",
         "section_order",
         "stopped_and_confirmed",
         "stops_after_failures",
@@ -793,7 +811,7 @@
     },
     {
       "marker": "needs-workspace-outcome",
-      "specs": 565,
+      "specs": 606,
       "atoms": [
         "gate.invoice-reconcile.read-references-matching-rules-md-before",
         "gate.standing.never-report-done-before-verify-passed",
@@ -811,10 +829,13 @@
         "hazard.standing.recover-from-a-new-session",
         "instruction.inbox-triager.a-message-that-fits-no-folder",
         "instruction.inbox-triager.the-triager-never-answers-or-deletes",
+        "instruction.invoice-reconcile.a-line-matches-on-article-code",
+        "instruction.invoice-reconcile.an-invoice-line-with-no-order",
         "instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with",
         "instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50",
         "instruction.invoice-reconcile.never-change-an-invoice-amount-report",
         "instruction.invoice-reconcile.run-the-reconcile-script-and-show",
+        "instruction.invoice-reconcile.under-0-05-eur-per-unit",
         "instruction.ledger-auditor.a-brief-missing-a-number-gets",
         "instruction.ledger-auditor.look-for-double-payments-and-unapplied",
         "instruction.ledger-auditor.the-auditor-never-edits-a-file",

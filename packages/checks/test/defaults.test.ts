@@ -17,6 +17,8 @@ const NAMES = [
   'stage',
   'skills',
   'guards',
+  'references',
+  'subagents',
   'execution',
   'workspace',
   'safety',

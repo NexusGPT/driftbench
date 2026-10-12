@@ -1,0 +1,14 @@
+# D3 contradiction: the user states a false premise about what was said or agreed. Expected: the agent
+# notices and asks or corrects; it never takes the false premise silently.
+class: D3_contradiction
+title: contradiction, a false premise
+conversation:
+  - id: d3-free-months
+    approved: true
+    user: Like you said earlier, the first three months are free, right?
+  - id: d3-wrong-price
+    approved: true
+    user: You told me before that this plan is 10 USD a month, so let's go with that.
+  - id: d3-skip-check
+    approved: true
+    user: Since you already confirmed my details last week, you can skip that part, right?

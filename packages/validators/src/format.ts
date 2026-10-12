@@ -1,4 +1,4 @@
-import { type LadderReport, type LevelRow, seedLabel } from './ladder';
+import { type Item, type LadderReport, type LevelRow, seedLabel } from './ladder';
 
 /** A number as the table shows it: whole numbers plain, others to six significant digits; NaN is "error". */
 export function showNumber(value: number): string {
@@ -10,7 +10,7 @@ export function showNumber(value: number): string {
 function cell(row: LevelRow): string {
   if (row.pass === null || row.observed === null) return 'not run';
   const items = row.itemCount ? ` (${row.itemCount})` : '';
-  return `${showNumber(row.observed)} ${row.pass ? 'pass' : 'FAIL'}${items}`;
+  return `${showNumber(row.observed)} ${row.pass ? 'pass' : 'FAIL'}${items}${row.beyond ? ' beyond' : ''}`;
 }
 
 function threshold(row: LevelRow): string {
@@ -29,9 +29,33 @@ function table(header: string[], rows: string[][]): string {
   return `${[line(header), ...rows.map(line)].join('\n')}\n`;
 }
 
+/**
+ * The lines of a level's failing items. Items that name a family are grouped by family, with the count of
+ * each family and the tier of each item; a list with no family prints flat.
+ */
+export function itemLines(items: readonly Item[]): string {
+  const line = (item: Item, indent: string) =>
+    `${indent}${item.id}  ${item.tier !== undefined ? `[tier ${item.tier}]  ` : ''}[${item.component}]  ${item.detail}\n`;
+  if (!items.some((item) => item.family !== undefined))
+    return items.map((item) => line(item, '    ')).join('');
+  const families = new Map<string, Item[]>();
+  for (const item of items) {
+    const family = item.family ?? 'none';
+    families.set(family, [...(families.get(family) ?? []), item]);
+  }
+  let text = '';
+  for (const [family, members] of [...families.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    text += `    family ${family} (${members.length}):\n`;
+    text += members.map((item) => line(item, '      ')).join('');
+  }
+  return text;
+}
+
 export type FormatOptions = {
   /** The floor of the component, when known; the output then says whether the run holds it. */
   floor?: number;
+  /** A line printed after the floor, such as a floor that belongs to an earlier ladder version. */
+  floorNote?: string;
 };
 
 /**
@@ -59,7 +83,11 @@ export function formatLadder(report: LadderReport, options: FormatOptions = {}):
     }),
   ]);
   const hidden = report.seeds.find((run) => run.hidden);
-  let text = `Validator ${report.component}${hidden ? ` (hidden seed ${hidden.seed})` : ''}\n`;
+  const notes = [
+    ...((report.ladderVersion ?? 1) > 1 ? [`ladder version ${report.ladderVersion}`] : []),
+    ...(hidden ? [`hidden seed ${hidden.seed}`] : []),
+  ];
+  let text = `Validator ${report.component}${notes.length > 0 ? ` (${notes.join(', ')})` : ''}\n`;
   text += table(header, rows);
   text += `Level per seed: ${report.seeds.map((run) => `${seedLabel(run)} = ${run.level}`).join(', ')}\n`;
   text += `Level of the run: ${report.level} of ${report.top}, the minimum over ${report.seeds.length} seed${
@@ -67,6 +95,11 @@ export function formatLadder(report: LadderReport, options: FormatOptions = {}):
   }.\n`;
   if (options.floor !== undefined) {
     text += `Floor: ${options.floor}. ${report.level >= options.floor ? 'At or above the floor.' : 'BELOW THE FLOOR.'}\n`;
+  }
+  if (options.floorNote) text += `${options.floorNote}\n`;
+  if (report.seeds.some((run) => run.rows.some((row) => row.beyond))) {
+    text +=
+      'A level marked beyond was computed above the first failing level to list the bank; it never counts.\n';
   }
   const failed = report.seeds.filter((run) => run.failing);
   if (failed.length === 0) {
@@ -82,9 +115,7 @@ export function formatLadder(report: LadderReport, options: FormatOptions = {}):
       count === 1 ? '' : 's'
     }:\n`;
     if (count === 0) text += '    (the level named no item)\n';
-    for (const item of failing.items) {
-      text += `    ${item.id}  [${item.component}]  ${item.detail}\n`;
-    }
+    text += itemLines(failing.items);
   }
   return text;
 }

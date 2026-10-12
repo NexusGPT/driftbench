@@ -1,4 +1,5 @@
 export {
+  INFORMATION,
   LINT_CODES,
   type LintCode,
   type LintFinding,

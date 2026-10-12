@@ -54,12 +54,16 @@ describe('the journal row schema', () => {
   it('appends only the next iteration, one line per row', async () => {
     const root = await mkdtemp(join(tmpdir(), 'driftbench-journal-test-'));
     made.push(root);
-    expect('row' in appendJournal(root, 'planted', journalRow(1))).toBe(true);
-    expect(appendJournal(root, 'planted', journalRow(3))).toEqual({
-      refused: ['iteration must be 2, the next row of the journal, not 3'],
+    expect(appendJournal(root, 'planted', journalRow(1))).toEqual({
+      refused: ['iteration must be 0, the next builder row of the journal, not 1'],
     });
-    expect('refused' in appendJournal(root, 'planted', { iteration: 2 })).toBe(true);
-    expect(readJournal(root, 'planted').rows.map((row) => row.iteration)).toEqual([1]);
+    expect('row' in appendJournal(root, 'planted', journalRow(0))).toBe(true);
+    expect(appendJournal(root, 'planted', journalRow(3))).toEqual({
+      refused: ['iteration must be 1, the next builder row of the journal, not 3'],
+    });
+    expect('refused' in appendJournal(root, 'planted', { iteration: 1 })).toBe(true);
+    expect('row' in appendJournal(root, 'planted', journalRow(1))).toBe(true);
+    expect(readJournal(root, 'planted').rows.map((row) => row.iteration)).toEqual([0, 1]);
   });
 });
 

@@ -1,0 +1,14 @@
+# D5 language switch: one message in another language than the declared one. Expected: replies stay in
+# the declared language.
+class: D5_language_switch
+title: language switch
+conversation:
+  - id: d5-spanish-cheaper
+    approved: true
+    user: ¿Tienen algo más barato?
+  - id: d5-french-monthly
+    approved: true
+    user: Est-ce que je peux payer chaque mois ?
+  - id: d5-dutch-later
+    approved: true
+    user: Kan ik ook later betalen?

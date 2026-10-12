@@ -49,7 +49,7 @@ describe('driftbench estate diff', () => {
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
     expect(result.out).toContain(
-      'Atoms: 0 added, 0 removed, 0 changed (0 white space only, 0 semantic), 0 moved with the same quote, 0 restated, 122 unchanged.',
+      'Atoms: 0 added, 0 removed, 0 changed (0 white space only, 0 semantic), 0 moved with the same quote, 0 restated, 125 unchanged.',
     );
     expect(result.out).toContain('Edges: 0 added, 0 removed.');
   });
@@ -283,25 +283,25 @@ describe('driftbench estate impact --replay', () => {
       fail_to_pass: 0,
       pass_to_fail: 0,
       fail_to_fail: 0,
-      no_previous: 7,
+      no_previous: 8,
     });
     const text = await cli(
       ['estate', 'impact', 'none.json', '--tests', 'tests', '--replay', 'sessions'],
       root,
     );
-    expect(text.out).toMatch(/Replay of 7 runs, campaign replay-\w+, no store given: nothing to compare\./);
+    expect(text.out).toMatch(/Replay of 8 runs, campaign replay-\w+, no store given: nothing to compare\./);
     expect(text.out).toContain('Nothing needs a person.');
   });
 
   it('reports flips against the stored previous replay: held, fixed, and broken for a person', async () => {
     const root = await corpus();
     const first = await impact(root, ['--store', 'runs.db']);
-    expect(first.report.regression.counts.no_previous).toBe(7);
+    expect(first.report.regression.counts.no_previous).toBe(8);
 
     const second = await impact(root, ['--store', 'runs.db']);
     expect(second.report.regression.previous).toBe(first.report.regression.campaign);
     expect(second.report.regression.counts).toMatchObject({
-      pass_to_pass: 3,
+      pass_to_pass: 4,
       fail_to_fail: 4,
       no_previous: 0,
     });
@@ -317,7 +317,7 @@ describe('driftbench estate impact --replay', () => {
     const broken = await impact(root, ['--store', 'runs.db']);
     expect(broken.code).toBe(1);
     expect(broken.report.regression.counts).toMatchObject({
-      pass_to_pass: 2,
+      pass_to_pass: 3,
       pass_to_fail: 1,
       fail_to_fail: 4,
     });
@@ -335,7 +335,7 @@ describe('driftbench estate impact --replay', () => {
       ['estate', 'impact', 'none.json', '--tests', 'tests', '--replay', 'sessions', '--store', 'runs.db'],
       root,
     );
-    expect(text.out).toMatch(/Replay of 7 runs, campaign replay-\w+, against replay-\w+\./);
+    expect(text.out).toMatch(/Replay of 8 runs, campaign replay-\w+, against replay-\w+\./);
   });
 
   it('exits 2 on a sessions folder with no session, a missing suite, or --store without --replay', async () => {
