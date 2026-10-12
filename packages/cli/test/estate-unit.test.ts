@@ -113,7 +113,35 @@ describe('driftbench estate unit on the Northwind suite', () => {
       `unit.guard_positive.${atom}`,
       `unit.guard_speed.${atom}`,
     ]);
-  }, 120_000);
+
+    // A script mutant takes the script file with its mention, so the script's own unit test goes red.
+    const script = 'script.invoice-reconcile.script-scripts-reconcile-py';
+    const scriptMutant = join(dir, 'mutant-script');
+    expect(
+      (
+        await run([
+          'estate',
+          'mutate',
+          join(FIXTURE, 'approved.yaml'),
+          '--atom',
+          script,
+          '--delete',
+          '--to',
+          scriptMutant,
+        ])
+      ).code,
+    ).toBe(0);
+    const scriptKilled = await run(['estate', 'unit', tests, '--estate', scriptMutant, '--json']);
+    expect(scriptKilled.code).toBe(1);
+    const red = JSON.parse(scriptKilled.out).runs.filter((entry: { pass: boolean }) => !entry.pass);
+    expect(red).toEqual([
+      {
+        spec: `unit.script_fixture.${script}`,
+        pass: false,
+        failing: ['the estate no longer holds .claude/skills/invoice-reconcile/scripts/reconcile.py'],
+      },
+    ]);
+  }, 180_000);
 
   it('exits 2 on a missing estate, a missing path and a file that is no unit test', async () => {
     expect((await run(['estate', 'unit', UNIT])).code).toBe(2);
