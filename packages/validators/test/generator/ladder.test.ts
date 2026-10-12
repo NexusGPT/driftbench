@@ -51,7 +51,8 @@ describe('the generator bank', () => {
   it('holds a fault family of at least 60 classes and their pairwise and three-way interactions', () => {
     const items = bankItems();
     expect(items.filter((item) => item.family.startsWith('fault-')).length).toBeGreaterThanOrEqual(60);
-    expect(items.filter((item) => item.family === 'interaction-pair').length).toBeGreaterThanOrEqual(20);
+    // Every pair of the 28 drift and 22 deviation classes.
+    expect(items.filter((item) => item.family === 'interaction-pair').length).toBe((50 * 49) / 2);
     expect(items.filter((item) => item.family === 'interaction-triple').length).toBeGreaterThanOrEqual(20);
     for (const mode of ['F', 'P', 'T'])
       expect(items.some((item) => item.id.startsWith(`mode.${mode}.`))).toBe(true);

@@ -2011,7 +2011,15 @@ export const INTERACTIONS: readonly (readonly string[])[] = (() => {
   while (out.length < 40) add([pickOne(drift), pickOne(deviation)]);
   while (out.length < 60) add([pickOne(drift), pickOne(drift)]);
   while (out.length < 90) add([pickOne(drift), pickOne(deviation), pickOne(drift)]);
-  return out;
+  // Every pair of the drift and deviation classes (docs/validators.md section 12.6: the fault family with its
+  // pairwise interactions), generated in family order; the sampled pairs above only advance the stream so
+  // the 30 triples stay the ones drawn before.
+  const classes = [...drift, ...deviation];
+  const pairs: string[][] = [];
+  classes.forEach((first, index) => {
+    for (const second of classes.slice(index + 1)) pairs.push([first, second]);
+  });
+  return [...pairs, ...out.filter((ids) => ids.length === 3)];
 })();
 
 function interactionItems(): BankItem[] {
