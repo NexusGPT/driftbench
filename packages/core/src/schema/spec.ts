@@ -122,6 +122,12 @@ export type GuardExpect = z.infer<typeof GuardExpect>;
 /** The reply is JSON: an optional JSON Schema (strict) and paths with an assertion each. */
 export const JsonExpect = z
   .strictObject({
+    embedded: z
+      .boolean()
+      .optional()
+      .describe(
+        'When true, the reply may hold JSON among its prose: the first JSON value found is read. Off by default.',
+      ),
     schema: z
       .record(z.string(), z.json())
       .optional()

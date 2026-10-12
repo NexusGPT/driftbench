@@ -363,6 +363,7 @@ The reply is JSON, optionally with a schema and paths.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
+| `embedded` | boolean | no |  | When true, the reply may hold JSON among its prose: the first JSON value found is read. Off by default. |
 | `schema` | map of string to JSON value | no |  | A JSON Schema the reply must match; an undeclared key fails. |
 | `paths` | list of [JsonExpect paths](#jsonexpect-paths) | no |  | Paths of the reply, each with its assertion. |
 

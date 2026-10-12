@@ -59,6 +59,19 @@ describe('json', () => {
     expect(outcomes(verdicts)['json.path.0']).toBe('pass');
   });
 
+  it('checks the strict schema on the JSON value found in prose', async () => {
+    const schema = {
+      type: 'object',
+      required: ['plan'],
+      properties: { plan: { type: 'string' } },
+      additionalProperties: false,
+    };
+    const pass = await run(replyJson, reply('Here: {"plan":"mobile"}', { embedded: true, schema }));
+    const fail = await run(replyJson, reply('Here: {"plan":"mobile","extra":1}', { embedded: true, schema }));
+    expect(outcomes(pass)).toEqual({ 'json.valid': 'pass', 'json.schema': 'pass' });
+    expect(outcomes(fail)).toEqual({ 'json.valid': 'pass', 'json.schema': 'fail' });
+  });
+
   it('gives no verdict when the block declares no json', async () => {
     expect(await run(replyJson, context(coverage, 1, observed('{}')))).toEqual([]);
   });
@@ -68,5 +81,68 @@ describe('json', () => {
     const failed = await run(replyJson, reply('{"price":36}', { paths: [{ path: 'price', assert: 35 }] }));
     expect(outcomes(passing)['json.path.0']).toBe('pass');
     expect(failing(failed)).toEqual(['json.path.0']);
+  });
+});
+
+describe('json embedded mode', () => {
+  const embedded = (text: string, json: Record<string, unknown> = {}) =>
+    reply(text, { embedded: true, ...json });
+
+  it('finds a JSON object inside prose and reads its path', async () => {
+    const verdicts = await run(
+      replyJson,
+      embedded('Here you go: {"plan":"mobile","price":35}. Thanks.', {
+        paths: [{ path: 'price', assert: 35 }],
+      }),
+    );
+    expect(outcomes(verdicts)).toEqual({ 'json.valid': 'pass', 'json.path.0': 'pass' });
+    expect(verdict(verdicts, 'json.valid').evidence).toBe('a JSON value was found in the reply');
+  });
+
+  it('is strict by default: the same prose is not JSON', async () => {
+    const verdicts = await run(replyJson, reply('Here you go: {"plan":"mobile"}. Thanks.', {}));
+    expect(outcomes(verdicts)).toEqual({ 'json.valid': 'fail' });
+  });
+
+  it('reads the first JSON value when there are two, and both are found', async () => {
+    const verdicts = await run(
+      replyJson,
+      embedded('{"a":1} and then {"b":2}', { paths: [{ path: 'a', assert: 1 }] }),
+    );
+    expect(outcomes(verdicts)).toEqual({ 'json.valid': 'pass', 'json.path.0': 'pass' });
+  });
+
+  it('finds a top-level array inside prose', async () => {
+    const verdicts = await run(
+      replyJson,
+      embedded('Values: [1,2,3] done', { paths: [{ path: '2', assert: 3 }] }),
+    );
+    expect(outcomes(verdicts)).toEqual({ 'json.valid': 'pass', 'json.path.0': 'pass' });
+  });
+
+  it('reads a nested value through objects and arrays', async () => {
+    const verdicts = await run(
+      replyJson,
+      embedded('Result: {"nested":{"x":[1,{"y":2}]}}', { paths: [{ path: 'nested.x.1.y', assert: 2 }] }),
+    );
+    expect(outcomes(verdicts)['json.path.0']).toBe('pass');
+  });
+
+  it('keeps the strict reading: a reply that is a bare number is JSON in embedded mode too', async () => {
+    const verdicts = await run(replyJson, embedded('42', {}));
+    expect(outcomes(verdicts)).toEqual({ 'json.valid': 'pass' });
+  });
+
+  it('does not read braces that are not JSON as JSON', async () => {
+    const verdicts = await run(replyJson, embedded('The price is {35} euros.', {}));
+    expect(outcomes(verdicts)).toEqual({ 'json.valid': 'fail' });
+    expect(verdict(verdicts, 'json.valid').evidence).toBe('the reply has no JSON value');
+  });
+
+  it('mutation: embedded mode off fails the object that embedded mode finds', async () => {
+    const on = await run(replyJson, embedded('Here: {"x":1}', {}));
+    const off = await run(replyJson, reply('Here: {"x":1}', {}));
+    expect(outcomes(on)).toEqual({ 'json.valid': 'pass' });
+    expect(outcomes(off)).toEqual({ 'json.valid': 'fail' });
   });
 });

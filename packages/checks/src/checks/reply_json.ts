@@ -26,6 +26,56 @@ function parseReply(text: string): { ok: true; value: unknown } | { ok: false; r
   }
 }
 
+/**
+ * Every JSON object or array that starts in the text and parses, in order, without overlap. A bracket
+ * opens a candidate; the matching close is found by counting brackets outside strings; a candidate that
+ * does not parse is skipped, and the scan goes on from the next bracket.
+ */
+export function embeddedValues(text: string): unknown[] {
+  const found: unknown[] = [];
+  let i = 0;
+  while (i < text.length) {
+    const open = text[i];
+    if (open !== '{' && open !== '[') {
+      i += 1;
+      continue;
+    }
+    const end = closeOf(text, i);
+    if (end > i) {
+      try {
+        found.push(JSON.parse(text.slice(i, end + 1)));
+        i = end + 1;
+        continue;
+      } catch {
+        // not JSON: keep scanning from the next character
+      }
+    }
+    i += 1;
+  }
+  return found;
+}
+
+/** The index of the bracket that closes the one at `start`, or -1. Brackets inside strings do not count. */
+function closeOf(text: string, start: number): number {
+  const stack: string[] = [];
+  let inString = false;
+  for (let i = start; i < text.length; i++) {
+    const char = text[i] as string;
+    if (inString) {
+      if (char === '\\') i += 1;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') inString = true;
+    else if (char === '{' || char === '[') stack.push(char === '{' ? '}' : ']');
+    else if (char === '}' || char === ']') {
+      if (stack.pop() !== char) return -1;
+      if (stack.length === 0) return i;
+    }
+  }
+  return -1;
+}
+
 function readPath(value: unknown, path: string): { found: true; value: unknown } | { found: false } {
   let current: unknown = value;
   for (const part of path.split('.')) {
@@ -42,18 +92,39 @@ function readPath(value: unknown, path: string): { found: true; value: unknown }
   return { found: true, value: current };
 }
 
+function parseEmbedded(text: string): { ok: true; value: unknown } | { ok: false; reason: string } {
+  // The strict reading comes first, so embedded mode accepts every reply strict mode accepts.
+  const whole = parseReply(text);
+  if (whole.ok) return whole;
+  const [first] = embeddedValues(text);
+  return first === undefined ? { ok: false, reason: 'no JSON value' } : { ok: true, value: first };
+}
+
 export const replyJson: Check = {
   name: 'json',
   applies: (ctx) => ctx.expect.json !== undefined,
   evaluate(ctx) {
     const declared = ctx.expect.json;
     if (!declared) return [];
-    const parsed = parseReply(visibleText(ctx.observed));
+    const text = visibleText(ctx.observed);
+    const parsed = declared.embedded ? parseEmbedded(text) : parseReply(text);
     const verdicts: Verdict[] = [];
     verdicts.push(
       parsed.ok
-        ? machineVerdict('json', 'valid', 'pass', 'the reply is valid JSON')
-        : machineVerdict('json', 'valid', 'fail', `the reply is not valid JSON: ${parsed.reason}`),
+        ? machineVerdict(
+            'json',
+            'valid',
+            'pass',
+            declared.embedded ? 'a JSON value was found in the reply' : 'the reply is valid JSON',
+          )
+        : machineVerdict(
+            'json',
+            'valid',
+            'fail',
+            declared.embedded
+              ? 'the reply has no JSON value'
+              : `the reply is not valid JSON: ${parsed.reason}`,
+          ),
     );
     if (declared.schema !== undefined) {
       if (!parsed.ok) {
