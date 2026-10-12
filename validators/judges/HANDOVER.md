@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 7 (check) passes since iteration 38. Level 8, rubric (16 items left); next code: no-observable. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
+Level 7 (check) passes since iteration 38. Level 8, rubric (15 items left); next code: too-long. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
 
 ## Hypotheses tried
 
@@ -68,6 +68,7 @@ Iteration 39 (cause: lintCriterion missing): packages/judges/src/lint.ts, a RULE
 Iteration 40 (cause: no subjective rule): row in RULES. Test: lint.test.ts (red proved by reverting the rule). Bank 304 -> 305 (0.4781). The 15 iterations of the second brief are done (26 to 40). Pitfall: a heredoc turns \u2028 in test text into the raw character; write such escapes with python and a doubled backslash.
 Iteration 41 (cause: no vague-quantity rule): row in RULES. Test: lint.test.ts (red proved by reverting the source). Bank 305 -> 306 (0.4796).
 Iteration 42 (cause: no double-negative rule): row in RULES counting not, no, never, cannot, without, fail to, n't per sentence. Test: lint.test.ts (red proved by reverting the source). Bank 306 -> 307 (0.4812).
+Iteration 43 (cause: no no-observable rule): row in RULES. Test: lint.test.ts (red proved). Bank 307 -> 308 (0.4828).
 
 ## Next actions
 
