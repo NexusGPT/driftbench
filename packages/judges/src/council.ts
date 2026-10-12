@@ -377,3 +377,18 @@ function describeRound(round: CouncilRound): string {
   const end = round.cascaded ? 'pass, the cheapest judge was sure' : round.outcome;
   return `${head}: ${tally}; ${end}`;
 }
+
+/** What `judgeRepeated` returns: the k outcomes in order, and whether they agree. */
+export type RepeatedJudging = { readonly outcomes: JudgeOutcome[]; readonly consistent: boolean };
+
+/**
+ * Asks one client the same request k times, one after the other. The result is consistent when all k outcomes are
+ * equal and decisive: a run of inconclusive answers is not consistent. k must be a whole number from 1.
+ */
+export async function judgeRepeated(client: JudgeClient, request: JudgeRequest, k: number): Promise<RepeatedJudging> {
+  if (!Number.isInteger(k) || k < 1) throw new RangeError(`k must be a whole number from 1, got ${k}`);
+  const outcomes: JudgeOutcome[] = [];
+  for (let i = 0; i < k; i += 1) outcomes.push((await client.judge(request)).answer.outcome);
+  const first = outcomes[0] as JudgeOutcome;
+  return { outcomes, consistent: first !== 'inconclusive' && outcomes.every((o) => o === first) };
+}

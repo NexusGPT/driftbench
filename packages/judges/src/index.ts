@@ -108,6 +108,8 @@ export {
   type RoundOutcome,
   type UnassignedCriterion,
   type Vote,
+  judgeRepeated,
+  type RepeatedJudging,
 } from './council';
 export {
   type CriteriaIssue,
