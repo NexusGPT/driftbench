@@ -11,6 +11,7 @@ import {
 import { approveDrafts, draftSpec, pendingDrafts } from '@driftbench/generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { pushCommand } from './registry';
 
 export type ImportTracesOptions = {
   from?: string;
@@ -18,6 +19,9 @@ export type ImportTracesOptions = {
   prices?: string;
   redact?: boolean;
   force?: boolean;
+  select?: string;
+  dataset?: string;
+  store?: string;
 };
 
 export type ImportDeps = {
@@ -50,6 +54,9 @@ export function registerTraceImportCommands(program: Command, io: Io, setExit: (
     )
     .option('--no-redact', 'keep personal data; by default the intake privacy rules redact it')
     .option('--force', 'replace drafts that already exist')
+    .option('--select <ids>', 'draft only these traces: comma-separated trace ids')
+    .option('--dataset <name>', 'after drafting, push the drafts as the next version of this dataset')
+    .option('--store <file>', 'the store that keeps the dataset version (with --dataset)')
     .action(async (path: string, options: ImportTracesOptions) => {
       setExit(await importTracesCommand(path, options, io));
     });
@@ -76,6 +83,10 @@ export async function importTracesCommand(
   }
   if (!options.out) {
     io.err("error: required option '--out <dir>' not specified\n");
+    return 2;
+  }
+  if (options.dataset && !options.store) {
+    io.err('error: --dataset needs --store <file>\n');
     return 2;
   }
   const from = options.from as TraceSource;
@@ -113,6 +124,18 @@ export async function importTracesCommand(
   if (traces.length === 0) {
     io.err(`No trace found in ${path}${issues.length > 0 ? `: ${issues.join('; ')}` : ''}.\n`);
     return 2;
+  }
+  if (options.select !== undefined) {
+    const ids = options.select
+      .split(',')
+      .map((id) => id.trim())
+      .filter((id) => id !== '');
+    const unknown = ids.filter((id) => !traces.some((trace) => trace.id === id));
+    if (unknown.length > 0) {
+      io.err(`error: no trace named ${unknown.join(', ')} in ${where}: nothing written\n`);
+      return 2;
+    }
+    traces = traces.filter((trace) => ids.includes(trace.id));
   }
 
   const out = resolve(io.cwd, options.out);
@@ -155,6 +178,9 @@ export async function importTracesCommand(
     `Next: write each block's expect from the agent spec, then driftbench import approve ${show(out, io)} --all.`,
   ];
   io.out(`${lines.join('\n')}\n`);
+  if (options.dataset) {
+    return pushCommand('dataset', options.dataset, out, { store: options.store as string }, io);
+  }
   return 0;
 }
 

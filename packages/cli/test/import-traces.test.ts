@@ -133,3 +133,59 @@ describe('driftbench import approve', () => {
     expect((await run(['import', 'approve', 'd/plain.yaml'], dir)).code).toBe(1);
   });
 });
+
+describe('driftbench import traces --select and --dataset', () => {
+  it('drafts only the traces named by --select', async () => {
+    const dir = await scratch();
+    const result = await run(
+      ['import', 'traces', TRACES, '--from', 'otel', '--out', 'drafts', '--select', 'sess-port-0042'],
+      dir,
+    );
+    expect(result.code).toBe(0);
+    expect(await readdir(join(dir, 'drafts'))).toEqual(['draft-otel-sess-port-0042.yaml']);
+  });
+
+  it('refuses a --select id that names no trace, and writes nothing', async () => {
+    const dir = await scratch();
+    const result = await run(
+      ['import', 'traces', TRACES, '--from', 'otel', '--out', 'drafts', '--select', 'no-such-trace'],
+      dir,
+    );
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('no-such-trace');
+    await expect(readdir(join(dir, 'drafts'))).rejects.toThrow();
+  });
+
+  it('pushes the drafts as the next dataset version', async () => {
+    const dir = await scratch();
+    const args = [
+      'import',
+      'traces',
+      TRACES,
+      '--from',
+      'otel',
+      '--out',
+      'drafts',
+      '--select',
+      'conv-acme-0001,sess-port-0042',
+      '--dataset',
+      'prod-sample',
+      '--store',
+      'store.db',
+    ];
+    const first = await run(args, dir);
+    expect(first.code).toBe(0);
+    expect(first.out).toContain('Pushed dataset');
+    expect(first.out).toContain('prod-sample');
+  });
+
+  it('refuses --dataset without --store', async () => {
+    const dir = await scratch();
+    const result = await run(
+      ['import', 'traces', TRACES, '--from', 'otel', '--out', 'drafts', '--dataset', 'x'],
+      dir,
+    );
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('--store');
+  });
+});
