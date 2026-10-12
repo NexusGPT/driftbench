@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { weightedMean } from '../src/index';
+import { kishEffectiveSize, weightedMean } from '../src/index';
 
 describe('weightedMean', () => {
   it('matches numpy.average', () => {
@@ -21,5 +21,20 @@ describe('weightedMean', () => {
     weightedMean(v, w);
     expect(v).toEqual([3, 1, 2]);
     expect(w).toEqual([1, 2, 3]);
+  });
+});
+
+describe('kishEffectiveSize', () => {
+  it('is (sum w)^2 / sum w^2', () => {
+    expect(kishEffectiveSize([1, 1, 1, 1])).toBe(4);
+    expect(kishEffectiveSize([1, 2, 3, 4])).toBeCloseTo(3.3333333333333335, 14);
+    expect(kishEffectiveSize([10, 1, 1, 1, 1])).toBeCloseTo(1.8846153846153846, 14);
+  });
+  it('throws a RangeError on input it cannot answer for', () => {
+    expect(() => kishEffectiveSize([])).toThrow(RangeError);
+    expect(() => kishEffectiveSize([1, Number.NaN])).toThrow(RangeError);
+    expect(() => kishEffectiveSize([Number.POSITIVE_INFINITY, 1])).toThrow(RangeError);
+    expect(() => kishEffectiveSize([1, -1])).toThrow(/weights\[1\]/);
+    expect(() => kishEffectiveSize([0, 0])).toThrow(RangeError);
   });
 });

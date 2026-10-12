@@ -71,6 +71,27 @@ export function effectiveSampleSize(n: number, m: number, rho: number): number {
   return n / designEffect(m, rho);
 }
 
+/**
+ * Kish's effective sample size of weighted units, (sum w)^2 / sum w^2 (Owen, Monte Carlo theory, equation
+ * 9.13). Equal weights give n; unequal weights give less. Throws a RangeError on no weights, a weight that is
+ * not finite or is negative, or weights that sum to zero.
+ */
+export function kishEffectiveSize(weights: readonly number[]): number {
+  if (weights.length === 0) throw new RangeError('kishEffectiveSize of no weights');
+  let sum = 0;
+  let sumSquares = 0;
+  for (let i = 0; i < weights.length; i += 1) {
+    const w = weights[i] as number;
+    if (!Number.isFinite(w) || w < 0) {
+      throw new RangeError(`kishEffectiveSize: weights[${i}] must be finite and not negative, got ${w}`);
+    }
+    sum += w;
+    sumSquares += w * w;
+  }
+  if (!(sum > 0)) throw new RangeError('kishEffectiveSize: the weights must not sum to zero');
+  return (sum * sum) / sumSquares;
+}
+
 export interface BootstrapOptions {
   /** Cluster key per value, same length as values. Without it every value is its own cluster. */
   readonly clusters?: readonly (string | number)[];

@@ -41,6 +41,7 @@ export {
   designEffect,
   effectiveSampleSize,
   type Interval,
+  kishEffectiveSize,
   wilson,
   Z95,
   zeroFailureBound,
