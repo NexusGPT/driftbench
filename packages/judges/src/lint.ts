@@ -54,6 +54,8 @@ const RULES: readonly Rule[] = [
   { code: 'empty-rubric', found: (c) => c.rubric.trim() === '' },
   // Two checks in one rubric: a pass on one and a fail on the other has no single answer.
   { code: 'compound', found: (c) => /\b(and also|as well as)\b/i.test(c.rubric) },
+  // A hedge in the rubric or the PASS picture: the bar moves with the reader.
+  { code: 'hedged', found: (c) => /\b(might|may|could|perhaps|possibly)\b/i.test(`${c.rubric}\n${c.pass ?? ''}`) },
 ];
 
 const countNot = (text: string): number => (text.match(/\bnot\b/gi) ?? []).length;

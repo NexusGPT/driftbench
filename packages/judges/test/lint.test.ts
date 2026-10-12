@@ -136,4 +136,14 @@ describe('lintCriterion', () => {
     expect(codes('The reply names Acme Care as well as its phone line.')).toContain('compound');
     expect(codes('The reply names Acme Care and its phone line.')).not.toContain('compound');
   });
+
+  it('reports hedged for might, may, could, perhaps, possibly in the rubric or the PASS picture', () => {
+    const codes = (c: Partial<CriterionText>) => lintCriterion({ ...clean, ...c }).issues.map((i) => i.code);
+    for (const word of ['might', 'may', 'could', 'Perhaps', 'possibly']) {
+      expect(codes({ rubric: `The reply ${word} name Acme Care.` }), word).toContain('hedged');
+    }
+    expect(codes({ pass: 'The reply possibly names Acme Care.' })).toContain('hedged');
+    expect(codes({ fail: 'The reply may leave out Acme Care.' })).not.toContain('hedged');
+    expect(codes({ rubric: 'The reply names the May invoice.' })).toContain('hedged');
+  });
 });
