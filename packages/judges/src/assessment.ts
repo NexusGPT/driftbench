@@ -7,6 +7,8 @@ import {
   type JudgeResult,
   parseAnswerText,
   parseAnswerValue,
+  parseLegacyAnswerText,
+  repairAnswerText,
 } from './contract';
 import { CriterionLedger, parseCriterionLedger } from './criterion-ledger';
 import { FactLedgerAnswer, parseFactLedger } from './fact-audit';
@@ -122,12 +124,18 @@ export function responseSchema(request: JudgeRequest): Record<string, unknown> &
 
 /** Parse only the final complete object. No binary fallback can reverse an explicit winner. */
 export function parseJudgeText(raw: string, request: JudgeRequest): JudgeResult {
-  if (request.answerContract === 'legacy') return parseAnswerText(raw);
+  if (request.answerContract === 'legacy') return parseLegacyAnswerText(raw);
   const text = extractObject(raw);
   if (text === undefined) return invalid(raw, 'no final complete JSON object');
   try {
     return parseJudgeValue(JSON.parse(text), request, raw);
   } catch {
+    try {
+      const repaired = parseJudgeValue(JSON.parse(repairAnswerText(text)), request, raw);
+      if (!repaired.unparsed) return { ...repaired, repaired: true };
+    } catch {
+      // A syntax repair never supplies a winner or a missing requirement.
+    }
     return invalid(raw, 'invalid JSON');
   }
 }

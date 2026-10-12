@@ -113,6 +113,15 @@ export function inconclusive(reasoning: string): JudgeAnswer {
  * surrounded by prose. Anything else, an extra key included, is an unparsed inconclusive answer.
  */
 export function parseAnswerText(raw: string): JudgeResult {
+  return parseText(raw, repairAnswerText);
+}
+
+/** The selectable legacy path freezes the former repair too, so historical abstentions stay reproducible. */
+export function parseLegacyAnswerText(raw: string): JudgeResult {
+  return parseText(raw, legacyRepairAnswerText);
+}
+
+function parseText(raw: string, quoteRepair: (text: string) => string): JudgeResult {
   const candidate = extractObject(raw);
   if (candidate === undefined) {
     return { answer: inconclusive('unparseable answer: no JSON object found'), raw, unparsed: true };
@@ -124,7 +133,7 @@ export function parseAnswerText(raw: string): JudgeResult {
     // One strict repair: escape the double quotes inside string values, then read it again. A repaired
     // answer still meets the whole contract or stays unparsed.
     for (const repair of [
-      repairAnswerText,
+      quoteRepair,
       singleToDoubleQuotes,
       dropTrailingComma,
       dropCommentLines,
@@ -149,6 +158,32 @@ export function parseAnswerText(raw: string): JudgeResult {
     if (!repaired.unparsed) return { ...repaired, repaired: true };
   }
   return strict;
+}
+
+function legacyRepairAnswerText(text: string): string {
+  let out = '';
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i] as string;
+    if (!inString) {
+      if (ch === '"') inString = true;
+      out += ch;
+    } else if (escaped) {
+      escaped = false;
+      out += ch;
+    } else if (ch === '\\') {
+      escaped = true;
+      out += ch;
+    } else if (ch === '"') {
+      const next = text.slice(i + 1).match(/^\s*(.)/)?.[1];
+      if (next === undefined || ',}]:'.includes(next)) {
+        inString = false;
+        out += ch;
+      } else out += '\\"';
+    } else out += ch;
+  }
+  return out;
 }
 
 /**
@@ -176,18 +211,28 @@ function recaseOutcome(value: unknown): unknown {
 }
 
 /**
- * The strict repair of a model's JSON: inside a string, a double quote that is not followed (after spaces)
- * by `,`, `}`, `]`, `:` or the end of the text cannot close the string, so it is escaped. Nothing else
- * changes: no key is added, removed or renamed, and no value outside a string is touched.
+ * Repairs unescaped quotes inside JSON strings. An object value ends before a comma only when the
+ * next token is a property name followed by a colon. A quoted word in a prose list cannot end it.
+ * No key, verdict or value outside a string is added, removed or renamed.
  */
 export function repairAnswerText(text: string): string {
   let out = '';
   let inString = false;
   let escaped = false;
+  let key = false;
+  let previous = '';
+  const containers: string[] = [];
   for (let i = 0; i < text.length; i += 1) {
     const ch = text[i] as string;
     if (!inString) {
-      if (ch === '"') inString = true;
+      if (ch === '"') {
+        inString = true;
+        key = containers.at(-1) === '{' && previous !== ':';
+      } else {
+        if (ch === '{' || ch === '[') containers.push(ch);
+        if (ch === '}' || ch === ']') containers.pop();
+        if (!/\s/.test(ch)) previous = ch;
+      }
       out += ch;
       continue;
     }
@@ -202,9 +247,12 @@ export function repairAnswerText(text: string): string {
       continue;
     }
     if (ch === '"') {
-      const next = text.slice(i + 1).match(/^\s*(.)/)?.[1];
-      if (next === undefined || ',}]:'.includes(next)) {
+      const rest = text.slice(i + 1).trimStart();
+      const next = rest[0];
+      const comma = next === ',' && (containers.at(-1) !== '{' || /^,\s*"(?:\\.|[^"\\])*"\s*:/.test(rest));
+      if (key ? next === ':' : next === undefined || next === '}' || next === ']' || comma) {
         inString = false;
+        previous = '"';
         out += ch;
       } else out += '\\"';
       continue;

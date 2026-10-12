@@ -1,0 +1,9 @@
+[
+  {
+    "id": "2017",
+    "group": "language mixing",
+    "order": "BA",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"The two replies have the same content, but Reply A contains stray non-Bengali fragments (\"ответ\", \"نہیں\", \"المالية الصحة\", \"组合\"), breaking the requirement to reply in the user's language. Reply B is clean Bengali, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"স্পষ্ট ответ نہیں দেয়\\\"\"}",
+    "recordingHash": "0d8661cf8d1ce9f640df"
+  }
+]
