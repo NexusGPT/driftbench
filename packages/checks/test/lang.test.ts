@@ -132,3 +132,28 @@ describe('lang', () => {
     expect(detect('Bonjour').readings).toEqual([]);
   });
 });
+
+describe('detect, memoised', () => {
+  it('gives the same detection for the same text and letter floor, and a fresh one for another floor', () => {
+    const first = detect(offer);
+    expect(detect(offer)).toBe(first);
+    const loose = detect(offer, { minLetters: 10, margin: 0.05 });
+    expect(loose).not.toBe(first);
+    expect(detect(offer, { minLetters: 10, margin: 0.05 })).toBe(loose);
+    // A floor above the text's letters judges nothing, whatever an earlier call cached.
+    const strict = detect(offer, { minLetters: 100_000, margin: 0.05 });
+    expect(strict.readings).toEqual([]);
+    expect(first.readings.length).toBeGreaterThan(0);
+  });
+
+  it('caches what a fresh detection computes: the cached reading equals a recomputed one', () => {
+    const text = `${offerInFrench} ${Date.now()}`;
+    const cold = detect(text);
+    // Short fillers: below the letter floor they are cheap to detect, and each still takes a cache entry.
+    for (let i = 0; i < 5000; i += 1) detect(`ok ${i}`);
+    // The cache holds 4096 entries: the first text was evicted and is computed again, equal to the first.
+    const again = detect(text);
+    expect(again).not.toBe(cold);
+    expect(again).toEqual(cold);
+  });
+});
