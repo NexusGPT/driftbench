@@ -25,6 +25,15 @@ const JUDGE_WORDS = [
   'rate this',
   'outcome',
 ];
+/** Judge and verdict words of other languages, one row per language. A sentence is an instruction when it holds a judge word and a verdict word of the same list. */
+const OTHER_LANGUAGES: readonly { readonly judge: readonly string[]; readonly verdict: readonly string[] }[] = [
+  {
+    // French
+    judge: ["grille d'[ée]valuation", '[ée]valuateur', 'juge', 'crit[èe]res?', 'rubrique', 'verdict', 'r[ée]sultat'],
+    verdict: ['r[ée]ussi[et]?', 'r[ée]ussite', 'valid[ée]e?', 'conforme', 'satisfait', '[ée]chec', '[ée]chou[ée]e?'],
+  },
+];
+
 const VERDICT_WORDS = ['pass', 'passing', 'passed', 'passes', 'success', 'satisfied', 'compliant', 'met', 'fail', 'fails'];
 
 // A word starts and ends at a character that is not a letter, so _ / - % . and digits separate words.
@@ -32,10 +41,13 @@ const phrase = (words: readonly string[]) =>
   new RegExp(`(?<!\\p{L})(?:${words.map((word) => word.replace(/ /g, '\\s+')).join('|')})(?!\\p{L})`, 'iu');
 const JUDGE = phrase(JUDGE_WORDS);
 const VERDICT = phrase(VERDICT_WORDS);
+const OTHER = OTHER_LANGUAGES.map((row) => ({ judge: phrase(row.judge), verdict: phrase(row.verdict) }));
 const SCORE = /(?<![\d.])(?:1\.0|0\.99)(?!\d)/;
 
 const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?;])\s+|[\r\n\u2028\u2029]+/);
-const instructs = (sentence: string): boolean => JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence));
+const instructs = (sentence: string): boolean =>
+  (JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence))) ||
+  OTHER.some((row) => row.judge.test(sentence) && (row.verdict.test(sentence) || VERDICT.test(sentence) || SCORE.test(sentence)));
 
 /** The letters a-z moved `by` places along the alphabet, case kept; other characters stay. */
 const shift = (text: string, by: number): string =>
