@@ -1,0 +1,4509 @@
+{
+  "model": "sonnet",
+  "cost_usd": 6.084992900000001,
+  "calls": 479,
+  "fails": 0,
+  "seconds": 280,
+  "rows": [
+    {
+      "set": "relevancy",
+      "id": "A049",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A022",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A042",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A054",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A048",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A097",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A090",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A005",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A027",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A039",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A078",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A025",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A038",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A045",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A099",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A091",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A079",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A072",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A067",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A019",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A018",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A082",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A009",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A060",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A080",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A071",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A096",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A050",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A056",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A006",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A015",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A066",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A007",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A075",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A068",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A030",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A053",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A076",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A033",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A061",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A069",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A087",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A047",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A034",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A084",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A003",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A046",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A001",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A035",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A062",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A081",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A026",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A065",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A098",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A013",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A028",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A093",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A088",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A037",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A023",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A070",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A094",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A063",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A044",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A008",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A000",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A092",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A031",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A083",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A011",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A017",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A032",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A024",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A010",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A036",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A089",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A077",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A029",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A059",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A064",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A014",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A021",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A012",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A055",
+      "label": "irrelevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A016",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A043",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A085",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A002",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A004",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A074",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A040",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A086",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A058",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A057",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "role",
+      "id": "B013",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "relevancy",
+      "id": "A052",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A041",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A020",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy",
+      "id": "A073",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A051",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy",
+      "id": "A095",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "role",
+      "id": "B022",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B065",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B024",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B052",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B018",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B097",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B046",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B007",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B031",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B054",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B051",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B058",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B074",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B098",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B094",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B080",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B015",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B003",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B059",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B093",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B021",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B077",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B081",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B039",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B041",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B012",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B095",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B038",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B061",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B011",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B099",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B087",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B083",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B089",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B056",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B016",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B075",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B086",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B000",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B010",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B009",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B082",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B078",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B063",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B048",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B091",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B073",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B055",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B019",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B047",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B070",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B008",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B066",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B064",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B040",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B088",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B042",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B005",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B062",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B032",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B023",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B067",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B045",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B085",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B025",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B076",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B060",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B029",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B001",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B002",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B043",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B084",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B049",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B026",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B014",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B050",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B027",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B020",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B069",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B057",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B028",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B035",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B044",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B096",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B030",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B053",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B037",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B068",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B034",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B033",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B071",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B092",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B004",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B017",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B036",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "in"
+    },
+    {
+      "set": "role",
+      "id": "B079",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B090",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B006",
+      "label": "in",
+      "ours": "pass",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "role",
+      "id": "B072",
+      "label": "out",
+      "ours": "fail",
+      "deepeval_role": "out"
+    },
+    {
+      "set": "completeness",
+      "id": "C013",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C023",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C072",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C095",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C034",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C003",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C056",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C091",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C024",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C026",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C077",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C051",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C066",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C004",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C070",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C005",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C096",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C025",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C059",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C069",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C021",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C064",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C063",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C045",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C022",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C058",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C067",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C088",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C099",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C057",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C048",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C017",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C060",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C049",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C047",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C011",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C027",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C035",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C007",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C044",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C039",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C079",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C078",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C084",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C043",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C080",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C001",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C015",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C009",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C065",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C074",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C041",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C037",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C092",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C097",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C014",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C073",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C071",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C038",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C050",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C016",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C031",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C019",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C052",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C000",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C068",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C029",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C030",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C083",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C010",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C040",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C094",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C075",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C081",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C085",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C046",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C076",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C090",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C006",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C008",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C053",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C020",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C087",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C028",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C042",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C033",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C002",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C098",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C054",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C086",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C032",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C061",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C012",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C082",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C018",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C062",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D035",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D002",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D047",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "completeness",
+      "id": "C055",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C089",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C093",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "task",
+      "id": "D019",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D038",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D075",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D054",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D093",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D065",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D063",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D042",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D010",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D043",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D064",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "complete"
+    },
+    {
+      "set": "completeness",
+      "id": "C036",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_cc": "complete"
+    },
+    {
+      "set": "task",
+      "id": "D087",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D086",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D062",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D061",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D031",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D097",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D022",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D051",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D084",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "complete"
+    },
+    {
+      "set": "task",
+      "id": "D034",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D044",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D052",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "complete"
+    },
+    {
+      "set": "task",
+      "id": "D014",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D058",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D026",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D089",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D007",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D088",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D046",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D085",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D066",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D017",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D040",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D024",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D008",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D006",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D013",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D039",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D092",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D076",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "complete"
+    },
+    {
+      "set": "task",
+      "id": "D011",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D068",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "complete"
+    },
+    {
+      "set": "task",
+      "id": "D023",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D018",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D077",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D036",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D015",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D030",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D073",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D059",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D078",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D033",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D070",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D057",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D016",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D027",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D028",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D032",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D037",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D079",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D025",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D012",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D048",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D091",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D001",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D045",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D074",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D060",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "complete"
+    },
+    {
+      "set": "task",
+      "id": "D004",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D081",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D041",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D072",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D021",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D090",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D098",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D053",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D082",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D056",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "complete"
+    },
+    {
+      "set": "task",
+      "id": "D080",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "complete"
+    },
+    {
+      "set": "task",
+      "id": "D095",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D071",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D009",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D094",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D083",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D050",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D069",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D005",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D067",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D000",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D020",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D055",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D099",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D049",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D096",
+      "label": "incomplete",
+      "ours": "fail",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "task",
+      "id": "D029",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "hallucination",
+      "id": "E007",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "task",
+      "id": "D003",
+      "label": "complete",
+      "ours": "pass",
+      "deepeval_task": "incomplete"
+    },
+    {
+      "set": "hallucination",
+      "id": "E063",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E083",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E065",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E042",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E002",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E026",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E036",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E025",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E030",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E096",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E059",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E009",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E032",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E008",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E071",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E086",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E013",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E053",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E039",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E052",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E098",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E094",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E095",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E005",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E034",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E055",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E037",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E074",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E028",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E070",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E031",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E049",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E018",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E056",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E012",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E058",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E050",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E035",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E067",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E084",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E092",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E046",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E080",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E081",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E001",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E048",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E029",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E000",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E089",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E085",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E051",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E068",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E022",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E076",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E064",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E093",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E057",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E038",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E043",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E019",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E062",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E033",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E024",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.8,
+      "deepeval_hal": "invented",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E016",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E066",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E010",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E087",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E047",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E088",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E060",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E075",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E011",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E082",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E072",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E054",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E091",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E021",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E079",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E006",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E077",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E020",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E041",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E015",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E040",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E097",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E014",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E003",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E099",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E027",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E004",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E045",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E023",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E017",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E078",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E044",
+      "label": "grounded",
+      "ours": "pass",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "knowledge",
+      "id": "G069",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "hallucination",
+      "id": "E061",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "knowledge",
+      "id": "G018",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G005",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G000",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "hallucination",
+      "id": "E069",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "knowledge",
+      "id": "G050",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "hallucination",
+      "id": "E090",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.0,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "hallucination",
+      "id": "E073",
+      "label": "invented",
+      "ours": "fail",
+      "deepeval_hal_score": 0.2,
+      "deepeval_hal": "grounded",
+      "deepeval_faith": "grounded"
+    },
+    {
+      "set": "knowledge",
+      "id": "G092",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G067",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G056",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G073",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G087",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G051",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G016",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G096",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G086",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G024",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G014",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G098",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G031",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G071",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G039",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G011",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G085",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G015",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G047",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G023",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G097",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G029",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G074",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G061",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G004",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G054",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G083",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G017",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G037",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G053",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G009",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G068",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G033",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G035",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G063",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G020",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G010",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G006",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G021",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G060",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G025",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G007",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G066",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G059",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G048",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G095",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G044",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G038",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G049",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G064",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G062",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G022",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G075",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G089",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G012",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G088",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G045",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G042",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G028",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G055",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G090",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G043",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G072",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G001",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G002",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G032",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G082",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G057",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G052",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G070",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G078",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G036",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G091",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G094",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G019",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G081",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G077",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G030",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G013",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G027",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G076",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G093",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G040",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G080",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G084",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G065",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G003",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G026",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G058",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G079",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G046",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G034",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G099",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge",
+      "id": "G041",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge",
+      "id": "G008",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    }
+  ]
+}
