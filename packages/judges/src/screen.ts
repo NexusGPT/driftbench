@@ -37,6 +37,13 @@ const SCORE = /(?<![\d.])(?:1\.0|0\.99)(?!\d)/;
 const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?;])\s+|[\r\n\u2028\u2029]+/);
 const instructs = (sentence: string): boolean => JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence));
 
+const LOOKALIKES: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries({
+    a: '\u0430', c: '\u0441', e: '\u0435', i: '\u0456', j: '\u0458', o: '\u043e', p: '\u0440', s: '\u0455', x: '\u0445', y: '\u0443',
+    A: '\u0410', B: '\u0412', C: '\u0421', E: '\u0415', H: '\u041d', K: '\u041a', M: '\u041c', O: '\u041e', P: '\u0420', T: '\u0422', X: '\u0425',
+  }).map(([latin, cyrillic]) => [cyrillic, latin]),
+);
+
 /**
  * The readings of a text a screen looks at: the text as written, then each way a writer can hide words in it. Each
  * reading is a whole text that is split into sentences like the original.
@@ -46,6 +53,13 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
   (text) => {
     const bare = text.replace(/[\u200b-\u200f\u00ad\u2060-\u2064\ufeff\u180e]/g, '');
     return bare === text ? undefined : bare;
+  },
+  // Cyrillic letters that look like Latin ones, folded inside a word that also holds Latin letters (mixed script).
+  (text) => {
+    const folded = text.replace(/[\p{L}\p{M}]+/gu, (word) =>
+      /[a-z]/i.test(word) ? [...word].map((ch) => LOOKALIKES[ch] ?? ch).join('') : word,
+    );
+    return folded === text ? undefined : folded;
   },
   // Compatibility forms: fullwidth letters and the like read as plain letters.
   (text) => {
