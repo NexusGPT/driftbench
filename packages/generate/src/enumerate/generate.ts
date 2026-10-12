@@ -187,6 +187,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const noThen: GenerateReport['no_then'] = [];
   const seeders = {} as Record<Seeder, SeederTotals>;
   const completeBy: Partial<Record<Seeder, Spec[]>> = {};
+  const keep = (seeder: Seeder, spec: Spec): void => {
+    completeBy[seeder] = [...(completeBy[seeder] ?? []), spec];
+  };
 
   /** Renders drafts of one seeder, adds them to the suite and the seeder's totals; returns the complete ones. */
   const renderSeeder = (seeder: Seeder, list: readonly SpecDraft[]): Spec[] => {
@@ -239,7 +242,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
         totals.complete += 1;
         complete.push(loaded.spec);
         own.push(loaded.spec);
-        (completeBy[seeder] ??= []).push(loaded.spec);
+        keep(seeder, loaded.spec);
       }
       const folder = needsPhrase || needsThen ? INCOMPLETE_DIR : COMPLETE_DIR;
       files.push({ path: `${folder}/${seeder}/${rendered.id}.yaml`, text });
@@ -269,7 +272,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     totals.complete += 1;
     all.push(loaded.spec);
     complete.push(loaded.spec);
-    (completeBy.task ??= []).push(loaded.spec);
+    keep('task', loaded.spec);
     files.push({ path: `${COMPLETE_DIR}/task/${id}.yaml`, text });
   }
 
