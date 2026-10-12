@@ -79,7 +79,14 @@ export function killFamily(): Family {
         for (const cell of CELLS) {
           out.set(
             `${family}.${keyOf(cell)}`,
-            await judge(cell, map.map.atoms, suite.specs, join(FIXTURE, 'approved.yaml'), work, originalVerdict),
+            await judge(
+              cell,
+              map.map.atoms,
+              suite.specs,
+              join(FIXTURE, 'approved.yaml'),
+              work,
+              originalVerdict,
+            ),
           );
         }
       } finally {

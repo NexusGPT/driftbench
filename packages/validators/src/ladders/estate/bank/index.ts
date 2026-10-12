@@ -76,9 +76,17 @@ export const BANK_LEVELS = [
   { id: 'scale', name: 'scale', families: () => [scaleFamily()] },
 ] as const satisfies ReadonlyArray<{ id: string; name: string; families: () => Family[] }>;
 
-/** Every family of the bank, level by level. */
+/**
+ * Families no product page needs (validators/estate/NEEDS.md): kept as code, left out of the bank until a
+ * docs page, design section or command needs them.
+ */
+export const QUARANTINED: readonly string[] = ['gen.task'];
+
+/** Every family of the bank, level by level, without the quarantined ones. */
 export function estateBank(): Family[] {
-  return BANK_LEVELS.flatMap((level) => level.families());
+  return BANK_LEVELS.flatMap((level) => level.families()).filter(
+    (family) => !QUARANTINED.includes(family.id),
+  );
 }
 export { comboFamily, FORMS as COMBINATION_FORMS, generatedFamily } from './combo';
 export * from './hardness';

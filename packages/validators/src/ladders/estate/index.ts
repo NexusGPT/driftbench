@@ -1,5 +1,5 @@
 import { defineLadder, type Ladder } from '../../ladder';
-import { BANK_LEVELS, type Family, levelMeasure } from './bank/index';
+import { BANK_LEVELS, type Family, levelMeasure, QUARANTINED } from './bank/index';
 
 /**
  * The estate validator (docs/validators.md sections 6 and 12): does the estate loop close on estates nobody
@@ -52,7 +52,9 @@ export function estateLadder(options: EstateLadderOptions = {}): Ladder {
   return defineLadder({
     component: 'estate',
     levels: BANK_LEVELS.map((level) => {
-      const families = options.families?.[level.id] ?? level.families;
+      const families =
+        options.families?.[level.id] ??
+        (() => level.families().filter((family) => !QUARANTINED.includes(family.id)));
       const count = families().reduce((sum, family) => sum + family.items.length, 0);
       return {
         id: level.id,

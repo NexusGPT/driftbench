@@ -30,9 +30,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 704,
-      "score": 0.6470588235294118,
+      "size": 1065,
+      "passing": 697,
+      "score": 0.6544600938967137,
       "change": "Iteration 0: the bank with the unit, kill, generation-quality and fixture-maintenance families",
       "failing": [
         "bench.defects.long-routing-table",
@@ -89,14 +89,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -107,17 +99,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -533,17 +517,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,
@@ -599,9 +579,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 723,
-      "score": 0.6645220588235294,
+      "size": 1065,
+      "passing": 716,
+      "score": 0.672300469483568,
       "change": "Estate pilot 1: the reader reads a catalogue of checks",
       "failing": [
         "bench.defects.long-routing-table",
@@ -658,14 +638,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -676,17 +648,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -1083,17 +1047,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,
@@ -1149,9 +1109,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 743,
-      "score": 0.6829044117647058,
+      "size": 1065,
+      "passing": 736,
+      "score": 0.6910798122065728,
       "change": "Estate pilot 2: a named path with an anchor, a query or a title names its file",
       "failing": [
         "bench.defects.long-routing-table",
@@ -1207,14 +1167,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -1225,17 +1177,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -1613,17 +1557,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,
@@ -1679,9 +1619,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 752,
-      "score": 0.6911764705882353,
+      "size": 1065,
+      "passing": 745,
+      "score": 0.6995305164319249,
       "change": "Estate pilot 3: the adjective compact is no compaction",
       "failing": [
         "bench.defects.long-routing-table",
@@ -1737,14 +1677,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -1755,17 +1687,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -2134,17 +2058,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,
@@ -2200,9 +2120,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 762,
-      "score": 0.7003676470588235,
+      "size": 1065,
+      "passing": 755,
+      "score": 0.7089201877934272,
       "change": "Estate pilot 4: a gate's act and first file lose their markup",
       "failing": [
         "bench.defects.long-routing-table",
@@ -2258,14 +2178,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -2276,17 +2188,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -2645,17 +2549,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,
@@ -2711,9 +2611,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 770,
-      "score": 0.7077205882352942,
+      "size": 1065,
+      "passing": 763,
+      "score": 0.7164319248826291,
       "change": "Estate pilot 5: code read from prose skips fenced examples",
       "failing": [
         "bench.defects.long-routing-table",
@@ -2768,14 +2668,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -2786,17 +2678,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -3148,17 +3032,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,
@@ -3214,9 +3094,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 774,
-      "score": 0.7113970588235294,
+      "size": 1065,
+      "passing": 767,
+      "score": 0.72018779342723,
       "change": "Estate pilot 6: the registry reader knows more rule column names",
       "failing": [
         "bench.defects.long-routing-table",
@@ -3271,14 +3151,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -3289,17 +3161,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -3647,17 +3511,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,
@@ -3713,9 +3573,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 778,
-      "score": 0.7150735294117647,
+      "size": 1065,
+      "passing": 771,
+      "score": 0.723943661971831,
       "change": "Estate pilot 7: a dispatcher's target may be a bare script name",
       "failing": [
         "bench.defects.long-routing-table",
@@ -3770,14 +3630,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -3788,17 +3640,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -4142,17 +3986,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,
@@ -4208,9 +4048,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 782,
-      "score": 0.71875,
+      "size": 1065,
+      "passing": 775,
+      "score": 0.7276995305164319,
       "change": "Estate pilot 8: registries, catalogues and step lists may be YAML",
       "failing": [
         "bench.defects.long-routing-table",
@@ -4265,14 +4105,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -4283,17 +4115,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -4633,17 +4457,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,
@@ -4699,9 +4519,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 785,
-      "score": 0.7215073529411765,
+      "size": 1065,
+      "passing": 778,
+      "score": 0.7305164319248826,
       "change": "Estate pilot 9: a guard command behind exec, timeout or uv run finds its script",
       "failing": [
         "bench.defects.long-routing-table",
@@ -4756,14 +4576,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -4774,17 +4586,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -5121,17 +4925,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,
@@ -5187,9 +4987,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1088,
-      "passing": 790,
-      "score": 0.7261029411764706,
+      "size": 1065,
+      "passing": 783,
+      "score": 0.7352112676056338,
       "change": "Estate pilot 10: a gate comes only before an act of the agent",
       "failing": [
         "bench.defects.long-routing-table",
@@ -5244,14 +5044,6 @@
         "gen.complete.tool_denied-tool-deny",
         "gen.complete.twin-instruction-grounded-values",
         "gen.complete.twin-instruction-script",
-        "gen.coverage.five-per-gate",
-        "gen.coverage.five-per-hazard",
-        "gen.coverage.five-per-invariant",
-        "gen.coverage.five-per-reference",
-        "gen.coverage.five-per-script",
-        "gen.coverage.five-per-setting",
-        "gen.coverage.five-per-stage",
-        "gen.coverage.five-per-tool",
         "gen.coverage.judged-shipment-tracker",
         "gen.coverage.judged-standing",
         "gen.coverage.judged-supplier-email",
@@ -5262,17 +5054,9 @@
         "gen.coverage.needs-ordered-anchor",
         "gen.coverage.needs-recorded-session",
         "gen.coverage.needs-stage-reach-check",
-        "gen.task.guard_hostile",
-        "gen.task.guard_positive",
-        "gen.task.hazard_recovery",
-        "gen.task.obligation",
-        "gen.task.read_when",
-        "gen.task.register_sample",
-        "gen.task.skip_pressure",
-        "gen.task.stage_skip",
-        "gen.task.tool_boundary",
-        "gen.task.tool_denied",
-        "gen.task.twin",
+        "gen.coverage.one-per-gate",
+        "gen.coverage.one-per-stage",
+        "gen.coverage.one-per-tool",
         "kill.fake.delete-gate-1",
         "kill.fake.delete-gate-2",
         "kill.fake.delete-guard-1",
@@ -5604,17 +5388,13 @@
           "size": 24,
           "passing": 16
         },
-        "gen.task": {
-          "size": 23,
-          "passing": 12
-        },
         "gen.reads": {
           "size": 23,
           "passing": 23
         },
         "gen.coverage": {
           "size": 25,
-          "passing": 7
+          "passing": 12
         },
         "unit.runner": {
           "size": 26,

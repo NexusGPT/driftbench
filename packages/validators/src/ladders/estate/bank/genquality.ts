@@ -13,7 +13,7 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
  *
  * gen.reads: no complete spec expects a Read of a file the estate lacks. One item per test type.
  *
- * gen.coverage: at least 5 complete specs name every atom of a kind (one item per atom kind); every domain
+ * gen.coverage: at least one complete spec names every atom of a kind (one item per atom kind); every domain
  * rule of a skill has a judged criterion in a complete spec (one item per skill and the standing rules); no
  * spec carries the gap markers the bench run left (one item per marker).
  */
@@ -236,7 +236,8 @@ const FOCUS_KINDS: Array<[string, Tier]> = [
   ['setting', 4],
   ['invariant', 4],
 ];
-const AT_LEAST = 5;
+/** docs/estate.md section 5 (--focus): the report names the atoms with no complete spec. */
+const AT_LEAST = 1;
 const SKILLS = ['invoice-reconcile', 'shipment-tracker', 'supplier-email', 'weekly-report', 'standing'];
 /** The gap markers and their fix; a fix the generated estates' items already name keeps that cause. */
 const MARKERS: Array<[string, string]> = [
@@ -251,10 +252,10 @@ const MARKERS: Array<[string, string]> = [
 export function coverageFamily(): Family {
   return seedFreeFamily('gen.coverage', 4, GENERATE, [
     ...FOCUS_KINDS.map(([kind, tier]) => ({
-      key: `five-per-${kind}`,
+      key: `one-per-${kind}`,
       tier,
-      title: `every ${kind} atom is named by at least ${AT_LEAST} complete specs`,
-      cause: `generate at least ${AT_LEAST} complete specs for every ${kind} atom`,
+      title: `every ${kind} atom is named by at least ${AT_LEAST} complete spec`,
+      cause: `generate a complete spec for every ${kind} atom`,
       async judge(suite: FixtureSuite): Promise<ItemResult> {
         const map = await loadEstateMap(suite.map);
         if (!map.ok) return { pass: false, detail: 'the map does not load' };
