@@ -95,6 +95,21 @@ describe('the council seats the size it is given', () => {
   });
 });
 
+describe('the cascade threshold is a score above one half and at most one', () => {
+  it('refuses a threshold outside (0.5, 1] when the council is built', () => {
+    const judges = [s1('a', [PASS(0.99)]), s1('b', [PASS(0.99)]), s1('c', [PASS(0.99)])];
+    expect(() =>
+      createCouncil({ mode: 'system1', agentFamily: 'none', cascade: { threshold: 1.5 }, judges }),
+    ).toThrow(CouncilConfigError);
+    expect(() =>
+      createCouncil({ mode: 'system1', agentFamily: 'none', cascade: { threshold: 0.3 }, judges }),
+    ).toThrow(CouncilConfigError);
+    expect(() =>
+      createCouncil({ mode: 'system1', agentFamily: 'none', cascade: { threshold: 0.9 }, judges }),
+    ).not.toThrow();
+  });
+});
+
 describe('the council reports its cost', () => {
   it('sums the cost of every judge called, cheap and full rounds alike', async () => {
     const cheap = createCouncil({

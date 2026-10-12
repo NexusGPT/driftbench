@@ -153,6 +153,9 @@ export function createCouncil(config: CouncilConfig): Council {
       : config.cascade
         ? (config.cascade.threshold ?? DEFAULT_THRESHOLD)
         : undefined;
+  if (threshold !== undefined && !(threshold > 0.5 && threshold <= 1)) {
+    throw new CouncilConfigError(`the cascade threshold must be above 0.5 and at most 1, got ${threshold}`);
+  }
 
   const assignmentFor = (criterion: string, judgeClass?: 'system1' | 'system2' | 'auto'): AssignmentRow => {
     const row = explicit.get(criterion);
