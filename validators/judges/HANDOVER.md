@@ -42,20 +42,20 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 2, contract: `contract/probability-above-one`, `contract/probability-below-zero` (outcomeFromProbability reads a probability outside 0 to 1 as a verdict), `contract/probability-crossed-bounds` (bounds with failAt over passAt are accepted). Then the repair mark (`contract/repaired-marked-*`: set `repaired: true` on a result read only through a repair) and `contract/unescaped-quotes`. Then level 3, consistency: `judgeRepeated` does not exist (6 items) and chat clients send no temperature (3 items). `pnpm driftbench validate judges --seeds 1..20 --hidden --items` lists the whole bank with a verdict per seed.
+Executor exec/judges-v2 (from lane/v-judges2). Finding at start: the handover described the pilot's package (260 of 638), but this branch carries main's judges package, so the baseline was 258 of 638 (0.4044), 153 causes, level 1; iteration 11 is the first fix here.
 
-The maintainer's queue (NEEDS.md, "Items beyond the pages"): items that ask for more than a page states, or for another behaviour (lenient JSON against "strict JSON", an exact interval against "a Wilson 95% interval"). The bank stays below the gate until the bank grows on needs (section 12.2) or the pages state more needs.
+Level 2, contract (13 items): near-JSON the page asks to repair and mark repaired: score as a string, single quotes, trailing comma, line comment, typographic quotes (each with its `repaired-marked-*` twin), then `contract/probability-above-one`, `-below-zero`, `-crossed-bounds`, then `contract/unescaped-quotes` if still red. Then level 3, consistency (`judgeRepeated`, chat client temperature). `pnpm driftbench validate judges --seeds 1..20 --hidden --items` lists everything.
 
 ## Hypotheses tried
 
-Iterations 1 to 10 each fixed one cause in `packages/judges/src/contract.ts`, each with its test in `packages/judges/test/contract.test.ts`: the first object that meets the contract (5 items: two contract items and three scale items that time a parse after many brace pairs), the outcome without case, a score in quotes, single quotes, a trailing comma, a comment line, typographic quotes, a score that contradicts the outcome, two answers that disagree, a key given twice (1 item each). None was rejected.
+Iteration 11 (cause: outcome with capitals): `recaseOutcome` in packages/judges/src/contract.ts reads "Pass", "FAIL", " Inconclusive " after the strict parse fails, and sets `repaired: true`. Test: packages/judges/test/contract.test.ts "near-JSON: the outcome written with capitals". Bank 258 -> 260, causes 153 -> 152. Nothing rejected.
 
 ## Next actions
 
-1. Make `outcomeFromProbability` read a probability that is not finite or outside 0 to 1 as inconclusive, and refuse bounds whose failAt is not under passAt with a RangeError; run the measurement and record iteration 11.
-2. Add `judgeRepeated(client, request, k)` to packages/judges (the spec is in the comment of `families/consistency.ts`), then pin temperature 0 in the three chat clients.
-3. The Planned capabilities of docs/concepts/judges.md, one cause at a time: the failing item's Fix line says which change.
-4. Every fix: one cause, its test in packages/judges/test, then `measure.ts --iteration N ...` and `validate judges --journal row.json` (see How to run).
+1. Near-JSON repair, one kind per iteration, same place (`parseAnswerText`): a score written as a number in quotes; then single quotes; trailing comma; `//` comment line; typographic quotes. Each marks `repaired: true`.
+2. `outcomeFromProbability`: inconclusive outside 0 to 1 or not finite; RangeError when failAt is not under passAt.
+3. `judgeRepeated(client, request, k)` and temperature 0 in the three chat clients.
+4. Every fix: one cause, its test in packages/judges/test, then `measure.ts --iteration N` (run from the repo root with `pnpm exec tsx`) and `validate judges --journal row.json`.
 
 ## Pitfalls
 
