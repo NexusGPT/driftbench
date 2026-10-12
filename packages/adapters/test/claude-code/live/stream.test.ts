@@ -309,7 +309,7 @@ describe('the real stream shapes', () => {
     expect(rows.map(({ check, verdict, event }) => ({ check, verdict, event }))).toEqual([
       { check: 'block-force-push.sh', verdict: 'deny', event: 'PreToolUse' },
       { check: 'permission:WebFetch', verdict: 'deny', event: 'PermissionRequest' },
-      { check: 'Stop', verdict: 'allow', event: 'Stop' },
+      { check: 'reply-length.py', verdict: 'allow', event: 'Stop' },
       { check: 'read-before-edit.py', verdict: 'deny', event: 'PreToolUse' },
     ]);
     expect(rows.every((row) => row.at === '2026-10-12T10:00:00.000Z')).toBe(true);
@@ -333,7 +333,34 @@ describe('the real stream shapes', () => {
     expect(rows.map((row) => `${row.check}:${row.verdict}`)).toEqual(['read-before-edit.py:allow']);
   });
 
-  it('names a hook by its event and matcher when the settings hold none or several commands for it', () => {
+  it('names the responses of a matcher holding several commands by those commands, in turn', () => {
+    // Seen on the Cue estate: PostToolUse:Bash holds three commands and the response names none of them.
+    const response = (id: string, code: number) =>
+      line({
+        type: 'system',
+        subtype: 'hook_response',
+        hook_id: id,
+        hook_name: 'Stop',
+        hook_event: 'Stop',
+        stdout: '',
+        stderr: '',
+        exit_code: code,
+        outcome: code === 0 ? 'success' : 'blocking',
+        session_id: sid,
+      });
+    const rows = hookDecisions(
+      parseStream([response('s1', 0), response('s2', 2), response('s3', 0)].join('\n')),
+      settings,
+      '2026-10-12T10:00:00.000Z',
+    );
+    expect(rows.map((row) => `${row.check}:${row.verdict}`)).toEqual([
+      'reply-length.py:allow',
+      'other.sh:deny',
+      'reply-length.py:allow',
+    ]);
+  });
+
+  it('names a hook by its event and matcher when no settings name its commands', () => {
     const rows = hookDecisions(stream(), undefined, '2026-10-12T10:00:00.000Z');
     expect(rows.map((row) => row.check)).toEqual([
       'PreToolUse:Bash',
