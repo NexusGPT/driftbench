@@ -101,3 +101,21 @@ describe('near-JSON: an object written with single quotes', () => {
   });
 });
 
+describe('near-JSON: a comma before a closing brace', () => {
+  it('reads the object and marks the result repaired', () => {
+    const result = parseAnswerText('{"outcome":"pass","score":0.73,"reasoning":"ok",}');
+    expect(result.answer).toEqual({ outcome: 'pass', score: 0.73, reasoning: 'ok' });
+    expect(result.repaired).toBe(true);
+  });
+
+  it('drops the comma outside strings only', () => {
+    const result = parseAnswerText('{"outcome":"pass","reasoning":"a,} stays", }');
+    expect(result.answer.reasoning).toBe('a,} stays');
+    expect(result.repaired).toBe(true);
+  });
+
+  it('leaves two commas unparsed', () => {
+    expect(parseAnswerText('{"outcome":"pass","reasoning":"r",,}').unparsed).toBe(true);
+  });
+});
+

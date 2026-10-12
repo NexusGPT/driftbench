@@ -97,7 +97,7 @@ export function parseAnswerText(raw: string): JudgeResult {
   } catch (cause) {
     // One strict repair: escape the double quotes inside string values, then read it again. A repaired
     // answer still meets the whole contract or stays unparsed.
-    for (const repair of [repairAnswerText, singleToDoubleQuotes]) {
+    for (const repair of [repairAnswerText, singleToDoubleQuotes, dropTrailingComma]) {
       try {
         const repaired = parseAnswerValue(JSON.parse(repair(candidate)), raw);
         if (!repaired.unparsed) return { ...repaired, repaired: true };
@@ -209,6 +209,27 @@ export function singleToDoubleQuotes(text: string): string {
       quote = undefined;
       out += '"';
     } else out += quote === "'" && ch === '"' ? '\\"' : ch;
+  }
+  return out;
+}
+
+/** Near-JSON with one comma before the closing brace: the comma outside strings is dropped. */
+export function dropTrailingComma(text: string): string {
+  let out = '';
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i] as string;
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === '\\') escaped = true;
+      else if (ch === '"') inString = false;
+      out += ch;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    if (ch === ',' && /^\s*[}\]]/.test(text.slice(i + 1))) continue;
+    out += ch;
   }
   return out;
 }
