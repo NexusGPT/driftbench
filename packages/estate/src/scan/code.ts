@@ -582,7 +582,7 @@ function gateAtoms(
       // Markup around the words (bold, backticks) is not part of the act or of what is read.
       const first = (match[read] ?? '').replace(/[`*]/g, '').trim();
       const trigger = (match[act] ?? '').replace(/[`*]/g, '').trim();
-      if (first === '' || trigger === '') continue;
+      if (first === '' || trigger === '' || !isAct(trigger)) continue;
       const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
       const path = isFile
         ? resolveNamed(first, chunk.file, files, raw.bases, new Set(raw.ignored?.paths ?? []))
@@ -606,6 +606,56 @@ function gateAtoms(
       break;
     }
   }
+}
+
+/** Verbs of the acts a gate can come before, with their -ing forms. */
+const ACT_VERBS = new Set(
+  [
+    ['edit', 'editing'],
+    ['write', 'writing'],
+    ['change', 'changing'],
+    ['modify', 'modifying'],
+    ['save', 'saving'],
+    ['create', 'creating'],
+    ['commit', 'committing'],
+    ['push', 'pushing'],
+    ['run', 'running'],
+    ['deploy', 'deploying'],
+    ['dispatch', 'dispatching'],
+    ['delegate', 'delegating'],
+    ['update', 'updating'],
+    ['rename', 'renaming'],
+    ['delete', 'deleting'],
+    ['remove', 'removing'],
+    ['merge', 'merging'],
+    ['send', 'sending'],
+    ['publish', 'publishing'],
+    ['release', 'releasing'],
+    ['reply', 'replying'],
+    ['answer', 'answering'],
+    ['call', 'calling'],
+    ['move', 'moving'],
+    ['copy', 'copying'],
+    ['install', 'installing'],
+    ['open', 'opening'],
+    ['close', 'closing'],
+  ].flat(),
+);
+
+/**
+ * An act the agent performs: its first word, after a subject (you, we, the agent), is a verb of acting. A
+ * time ("9 in the morning"), a meal or a past event ("the audit last year") is no act, nor is a feeling.
+ */
+function isAct(trigger: string): boolean {
+  const words = trigger
+    .toLowerCase()
+    .replace(/^(you|we|i|the agent|the assistant)\s+/, '')
+    .split(/\s+/);
+  const first = words[0] ?? '';
+  // An -ing form names an act in a gate (matching a line, posting a reply); else a verb of the list.
+  if (ACT_VERBS.has(first) || (first.length > 5 && first.endsWith('ing'))) return true;
+  // "every ticket edit", "each change": an act named as a noun after a quantifier.
+  return ['every', 'each', 'any'].includes(first) && words.slice(1).some((word) => ACT_VERBS.has(word));
 }
 
 /** The tool an act names: editing is an edit, committing or running is a shell call; else the act itself. */
