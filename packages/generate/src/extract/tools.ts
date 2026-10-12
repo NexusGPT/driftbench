@@ -59,6 +59,15 @@ export function toolsPrepass(text: string, source: string): ToolsPrepass {
       }
     }
   }
+  if (docs.some((doc) => doc.errors.length > 0)) {
+    // JSON lines: every line is one JSON object; read the lines as one list.
+    const lines = text.split('\n').filter((line) => line.trim() !== '');
+    const alone = lines.map((line) => parseDocument(line, { uniqueKeys: true }));
+    if (lines.length > 1 && alone.every((doc) => doc.errors.length === 0 && isMap(doc.contents))) {
+      text = `[${lines.join(',\n')}]`;
+      docs = parseAllDocuments(text, { uniqueKeys: true, prettyErrors: true });
+    }
+  }
   const first = docs.flatMap((doc) => doc.errors)[0];
   if (first)
     return fail('TOOLS_PARSE', '', first.message.split('\n')[0] ?? 'the file is not valid YAML or JSON');

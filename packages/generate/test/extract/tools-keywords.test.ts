@@ -253,4 +253,17 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     const url = toolsPrepass('{"tools":[{"name":"a","input_schema":{"type":"object","properties":{"u":{"type":"string","pattern":"^http://x"}}}}]}', 'tools.json');
     expect(url.ok).toBe(true);
   });
+
+  it('reads JSON lines, one tool per line', () => {
+    const line = (name: string) =>
+      JSON.stringify({
+        name,
+        input_schema: { type: 'object', required: ['flag'], properties: { flag: { type: 'boolean' } } },
+      });
+    const text = `${line('findAccount')}\n${line('placeOrder')}\n`;
+    const result = toolsPrepass(text, 'tools.jsonl');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.tools).toEqual(['findAccount', 'placeOrder']);
+    expect(text).toContain(result.dimensions[0]?.values[0]?.evidence.quote ?? '#');
+  });
 });

@@ -219,3 +219,15 @@ Sources read:
 What others do: JSONC readers drop comments outside strings and parse the rest; blanking them keeps every position.
 
 What to try, and why: the tool pre-pass reads JSON with comments
+
+## Iteration 19
+
+Question: packages/generate/src/extract/tools.ts: toolsPrepass parses the file as one document, so one JSON object per line fails to parse; tool-formats.jsonl proves it.
+
+Sources read:
+* https://jsonlines.org/ (one JSON value per line)
+* packages/validators/src/ladders/map/bank/families/formats.ts (jsonl)
+
+What others do: JSON Lines files hold one object per line; reading the lines as a list gives one tool each.
+
+What to try, and why: the tool pre-pass reads JSON lines
