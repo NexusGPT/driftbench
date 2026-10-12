@@ -6,7 +6,8 @@
  */
 
 /** Families no page, design section or command needs. */
-export const QUARANTINED_FAMILIES: readonly string[] = ['rubric', 'budget', 'evidence', 'turns', 'pairwise'];
+// Round 3: docs/concepts/judges.md, "Planned", states the needs of rubric, budget, evidence, turns and pairwise.
+export const QUARANTINED_FAMILIES: readonly string[] = [];
 
 /** Items of needed families that ask for an export no page, design section or command needs. */
 export const QUARANTINED_ITEMS: readonly string[] = [
@@ -25,9 +26,6 @@ export const QUARANTINED_ITEMS: readonly string[] = [
   'cassette/jsonl-round-trip',
   // clients: no page reads token usage or masks request headers.
   'clients/mask-headers',
-  'clients/usage-from-openai',
-  'clients/usage-from-anthropic',
-  'clients/usage-from-google',
   // criteria: `judge check` lists its reports; none of these is one of them.
   'criteria/name-problem',
   'criteria/duplicate-names',
@@ -42,20 +40,6 @@ export const QUARANTINED_ITEMS: readonly string[] = [
   'council/trimmed-mean',
   'council/cost',
   // calibration: the page reports kappa, the agreement interval and alpha; nothing else.
-  'calibration/pabak-prevalence-0.5',
-  'calibration/pabak-prevalence-0.9',
-  'calibration/pabak-prevalence-0.95',
-  'calibration/pabak-prevalence-0.98',
-  'calibration/pabak-prevalence-0.995',
-  'calibration/ac1-prevalence-0.5',
-  'calibration/ac1-prevalence-0.9',
-  'calibration/ac1-prevalence-0.95',
-  'calibration/ac1-prevalence-0.98',
-  'calibration/ac1-prevalence-0.995',
-  'calibration/metric-confusion',
-  'calibration/metric-sensitivity',
-  'calibration/metric-specificity',
-  'calibration/metric-balancedAccuracy',
   'calibration/metric-ppv',
   'calibration/metric-npv',
   'calibration/metric-f1',
@@ -65,13 +49,8 @@ export const QUARANTINED_ITEMS: readonly string[] = [
   'calibration/metric-prevalenceIndex',
   'calibration/metric-biasIndex',
   'calibration/metric-accuracy',
-  'calibration/metric-falsePositiveRate',
-  'calibration/metric-falseNegativeRate',
   'calibration/fleiss-kappa-across-judges',
-  'calibration/labels-conflicting-duplicates',
-  'calibration/labels-fixture-leak',
   'calibration/labels-for-an-unknown-criterion',
-  'calibration/labels-few-in-a-class',
   'calibration/cohen-kappa',
   'calibration/cohen-kappa-length-mismatch',
   'calibration/fleiss-kappa',
@@ -90,7 +69,6 @@ export const QUARANTINED_ITEMS: readonly string[] = [
   'calibration/mcnemar',
   'calibration/agreement-with-gold',
   'calibration/threshold-sweep',
-  'calibration/position-bias',
   'calibration/majority-label',
   'calibration/stability-rate',
   'calibration/flaky-criteria',
@@ -111,6 +89,29 @@ export const QUARANTINED_ITEMS: readonly string[] = [
   'render/sentences',
   // scale: chunking is not a judges operation any page names.
   'scale/chunk-transcript',
+  // Helpers of the families round 3 brought back that no Planned line names.
+  'budget/cost-of-usage',
+  'budget/total-cost',
+  'budget/guard',
+  'budget/estimate-tokens',
+  'budget/retry-delays',
+  'budget/retry-after',
+  'evidence/quote-span',
+  'evidence/loose-quote',
+  'evidence/highlight',
+  'evidence/levenshtein',
+  'evidence/jaccard',
+  'turns/pairs',
+  'turns/last-agent',
+  'turns/first-match',
+  'turns/recovery-rate',
+  'pairwise/elo-win',
+  'pairwise/elo-draw',
+  'pairwise/elo-k-factor',
+  'pairwise/win-rate',
+  'pairwise/win-matrix',
+  'pairwise/copeland',
+  'pairwise/borda',
   // Behaviours of documented functions that no page states (NEEDS.md, "Items beyond the pages", round 2).
   'contract/score-contradicts-outcome',
   'contract/score-contradicts-near-the-middle',
@@ -120,14 +121,10 @@ export const QUARANTINED_ITEMS: readonly string[] = [
   'clients/anthropic-tool-use-input',
   'clients/google-function-call-args',
   'clients/openai-legacy-text',
-  'clients/openai-asks-for-the-answer-schema',
-  'clients/google-gives-a-response-schema',
   'clients/decisions-percentage',
   'clients/decisions-answers-by-name',
   'clients/jev-probability-in-quotes',
   'clients/event-stream-body',
-  'clients/retry-after-seconds',
-  'clients/retry-after-date',
   'cassette/saved-entries-sorted',
   'criteria/rubric-too-long-reported',
   'criteria/fixtures-differ-only-in-spacing',
@@ -135,8 +132,6 @@ export const QUARANTINED_ITEMS: readonly string[] = [
   'criteria/same-pictures',
   'criteria/pictures-same-but-spacing',
   'check/council-that-throws-is-inconclusive',
-  'cascade/per-judge-threshold',
-  'cascade/per-judge-threshold-restores-agreement',
 ];
 
 const ITEMS = new Set(QUARANTINED_ITEMS);

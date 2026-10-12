@@ -158,6 +158,18 @@ const RULES: readonly (readonly [RegExp, string])[] = [
     'In createHttpJudge: refuse a body given as { text }: the body is the answer contract.',
   ],
   [
+    /^render\/reference-in-its-tag$/,
+    'In prompt.ts buildPrompt: render request.reference inside a <reference_data> tag after the transcript.',
+  ],
+  [
+    /^render\/reference-tag-guarded-/,
+    'In prompt.ts escapeData: escape reference_data tags as it escapes the other data tags.',
+  ],
+  [
+    /^consistency\/key-separates-reference$/,
+    'In cassette.ts requestKey: hash request.reference with the rest of the request.',
+  ],
+  [
     /^clients\/echoed-short-header-redacted$/,
     'In http.ts scrub: replace every echoed header value with [redacted], whatever its length.',
   ],
@@ -228,30 +240,21 @@ const RULES: readonly (readonly [RegExp, string])[] = [
     /^contract\/(brace-pair-before|example-object-before)$/,
     'In parseAnswerText: read the first object that meets the contract, past brace pairs and example objects.',
   ],
+  [/^contract\/outcome-capitals$/, 'In the contract: read the outcome without case.'],
+  [/^contract\/score-as-string$/, 'In the contract: read a score written as a number in quotes.'],
+  [/^contract\/single-quotes$/, 'In the contract: read an object written with single quotes.'],
+  [/^contract\/trailing-comma$/, 'In the contract: drop a comma before a closing brace.'],
+  [/^contract\/line-comment$/, 'In the contract: drop a line that is only a // comment.'],
+  [/^contract\/typographic-quotes$/, 'In the contract: read typographic quotes as straight quotes.'],
   [
-    /^contract\/outcome-capitals$/,
-    'In the contract: refuse an outcome not written pass, fail or inconclusive (no case folding).',
+    /^contract\/unescaped-quotes$/,
+    'In the contract: repair a double quote left unescaped inside a string value (one that no comma, colon or closing brace follows).',
   ],
   [
-    /^contract\/score-as-string$/,
-    'In the contract: refuse a score written as a string (no conversion to a number).',
+    /^contract\/repaired-marked-/,
+    'In the contract: set repaired: true on a result that was read only through a near-JSON repair.',
   ],
-  [
-    /^contract\/single-quotes$/,
-    'In the contract: refuse an object written with single quotes (no quote rewriting).',
-  ],
-  [
-    /^contract\/trailing-comma$/,
-    'In the contract: refuse a comma before a closing brace (no comma dropping).',
-  ],
-  [
-    /^contract\/line-comment$/,
-    'In the contract: refuse an object holding a // comment line (no comment dropping).',
-  ],
-  [
-    /^contract\/typographic-quotes$/,
-    'In the contract: refuse an object written with typographic quotes (no quote rewriting).',
-  ],
+  [/^contract\/strict-not-marked-repaired$/, 'Keep repaired off a result read as strict JSON.'],
   [
     /^contract\/score-contradicts-outcome$/,
     'In the contract: refuse a pass scored under 0.5 or a fail scored over 0.5.',

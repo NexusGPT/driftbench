@@ -7,11 +7,11 @@ import { type BankItem, between, filler, fn, item, type Tier } from '../bank';
  * answer or refuse it as inconclusive:
  * - read: the answer object alone, fenced, in prose, pretty printed, with a BOM, in an XML tag, inside an array,
  *   after prose that holds a brace pair or an example object;
+ * - read through a repair (docs/concepts/judges.md, "The request and the answer": near-JSON is repaired and the
+ *   result says `repaired: true`): the outcome in capitals, the score as a string, single quotes, a trailing
+ *   comma, a line comment, typographic quotes, a double quote left unescaped inside a string;
  * - refuse: no object, an extra key, a score out of range, a score that contradicts the outcome, two answers
- *   that disagree, a key given twice with two values, a truncated object, a missing reasoning, a null outcome;
- *   and, because the answer is strict JSON (docs/concepts/judges.md, "The request and the answer"), an object
- *   that is not: the outcome in capitals, the score as a string, single quotes, a trailing comma, a line
- *   comment, typographic quotes.
+ *   that disagree, a key given twice with two values, a truncated object, a missing reasoning, a null outcome.
  */
 
 type Answer = { outcome: 'pass' | 'fail'; score?: number; reasoning: string; evidence?: string };
@@ -73,24 +73,30 @@ const SHAPES: readonly Shape[] = [
   {
     id: 'outcome-capitals',
     tier: 3,
-    read: false,
+    read: true,
     wrap: (a) => json(a).replace(`"${a.outcome}"`, `"${a.outcome.toUpperCase()}"`),
   },
   {
     id: 'score-as-string',
     tier: 3,
-    read: false,
+    read: true,
     wrap: (a) => json(a).replace(`"score":${a.score}`, `"score":"${a.score}"`),
   },
-  { id: 'single-quotes', tier: 4, read: false, wrap: (a) => json(a).replace(/"/g, "'") },
-  { id: 'trailing-comma', tier: 4, read: false, wrap: (a) => json(a).replace(/}$/, ',}') },
+  { id: 'single-quotes', tier: 4, read: true, wrap: (a) => json(a).replace(/"/g, "'") },
+  { id: 'trailing-comma', tier: 4, read: true, wrap: (a) => json(a).replace(/}$/, ',}') },
   {
     id: 'line-comment',
     tier: 5,
-    read: false,
+    read: true,
     wrap: (a) => pretty(a).replace('{\n', '{\n  // the verdict follows\n'),
   },
-  { id: 'typographic-quotes', tier: 5, read: false, wrap: (a) => json(a).replace(/"([^"]*)"/g, '“$1”') },
+  { id: 'typographic-quotes', tier: 5, read: true, wrap: (a) => json(a).replace(/"([^"]*)"/g, '“$1”') },
+  {
+    id: 'unescaped-quotes',
+    tier: 5,
+    read: true,
+    wrap: (a) => json(a).replace(/"reasoning":"/, '"reasoning":"the reply said "yes" here. '),
+  },
   {
     id: 'two-agreeing-answers',
     tier: 2,
@@ -190,6 +196,40 @@ export function contractItems(): BankItem[] {
         (expected.score === undefined || expected.score === observed.score),
     }),
   );
+  // A repaired answer says so (docs/concepts/judges.md): `repaired: true` on the result, and never on strict JSON.
+  const REPAIRED = [
+    'outcome-capitals',
+    'score-as-string',
+    'single-quotes',
+    'trailing-comma',
+    'line-comment',
+    'typographic-quotes',
+  ];
+  for (const shape of SHAPES.filter((s) => REPAIRED.includes(s.id) || s.id === 'bare-object')) {
+    const strict = shape.id === 'bare-object';
+    out.push(
+      item<Input, boolean>({
+        id: strict ? 'contract/strict-not-marked-repaired' : `contract/repaired-marked-${shape.id}`,
+        family: 'contract',
+        tier: strict ? 2 : 3,
+        level: 'contract',
+        component: COMPONENT,
+        generate: (random) => {
+          const answer = base(random);
+          return { base: answer, raw: shape.wrap(answer, random) };
+        },
+        oracle: () => !strict,
+        observe: (api, { raw }) => {
+          const result = fn<(raw: string) => JudgeResult & { repaired?: boolean }>(
+            api,
+            'parseAnswerText',
+          )(raw);
+          return result.unparsed !== true && result.repaired === true;
+        },
+        show: (marked) => (marked ? 'read and marked repaired' : 'not marked repaired (or not read)'),
+      }),
+    );
+  }
   // The probability mapping of system 1 judges.
   const probability = (
     id: string,

@@ -51,7 +51,7 @@ describe('the judges bank, ladder version 2', () => {
     const kept = judgesBank();
     expect(kept.some(isQuarantined)).toBe(false);
     expect(kept.length + all.filter(isQuarantined).length).toBe(all.length);
-    expect(judgesLadderV2({ api: witnessApi() }).levels.map((level) => level.id)).not.toContain('rubric');
+    expect(kept.some((entry) => QUARANTINED_ITEMS.includes(entry.id))).toBe(false);
   });
 
   it('keeps the witness and the bank where an executor branch cannot change them', () => {

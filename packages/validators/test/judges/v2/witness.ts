@@ -73,14 +73,44 @@ function duplicateTopKeys(text: string): boolean {
   return new Set(keys).size !== keys.length;
 }
 
-function lenient(candidate: string): unknown {
+/** Escapes a double quote inside a string value: one the next non-space character does not end. */
+function escapeInnerQuotes(text: string): string {
+  let out = '';
+  let inString = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i] as string;
+    if (ch === '\\' && inString) {
+      out += ch + (text[i + 1] ?? '');
+      i += 1;
+    } else if (ch === '"') {
+      if (!inString) inString = true;
+      else if (/^\s*[,:}\]]/.test(text.slice(i + 1)) || i === text.length - 1) inString = false;
+      else {
+        out += '\\"';
+        continue;
+      }
+      out += ch;
+    } else out += ch;
+  }
+  return out;
+}
+
+/** Strict JSON first; near-JSON repaired (docs/concepts/judges.md), and the repair said. */
+function lenient(candidate: string): { value: unknown; repaired: boolean } | undefined {
   if (!/[:]/.test(candidate)) return undefined;
-  // The answer is strict JSON (docs/concepts/judges.md): no quote, comma or comment rewriting.
-  const attempts = [candidate];
-  for (const attempt of attempts) {
+  let text = candidate
+    .replace(/[“”]/g, '"')
+    .replace(/^\s*\/\/.*$/gm, '')
+    .replace(/,\s*([}\]])/g, '$1');
+  if (!text.includes('"')) text = text.replace(/'/g, '"');
+  for (const [attempt, repaired] of [
+    [candidate, false],
+    [text, true],
+    [escapeInnerQuotes(text), true],
+  ] as const) {
     try {
       if (duplicateTopKeys(attempt)) return undefined;
-      return JSON.parse(attempt);
+      return { value: JSON.parse(attempt), repaired };
     } catch {
       // the next attempt
     }
@@ -88,9 +118,12 @@ function lenient(candidate: string): unknown {
   return undefined;
 }
 
-function contractOf(value: unknown): JudgeAnswer | undefined {
+function contractOf(read: { value: unknown; repaired: boolean } | undefined): JudgeAnswer | undefined {
+  const value = read?.value;
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined;
   const v = { ...(value as Record<string, unknown>) };
+  if (typeof v.outcome === 'string') v.outcome = v.outcome.toLowerCase();
+  if (typeof v.score === 'string' && /^\s*\d*\.?\d+\s*$/.test(v.score)) v.score = Number(v.score);
   const parsed = judges.JudgeAnswer.safeParse(v);
   if (!parsed.success) return undefined;
   const a = parsed.data;
@@ -103,16 +136,23 @@ function contractOf(value: unknown): JudgeAnswer | undefined {
 }
 
 export function parseAnswerText(raw: string): JudgeResult {
-  const answers: JudgeAnswer[] = [];
+  const answers: { answer: JudgeAnswer; repaired: boolean }[] = [];
   for (const candidate of topLevelObjects(raw)) {
-    const answer = contractOf(lenient(candidate));
-    if (answer) answers.push(answer);
+    const read = lenient(candidate);
+    const answer = contractOf(read);
+    if (!answer || !read) continue;
+    const repaired =
+      read.repaired ||
+      (read.value as Record<string, unknown>).outcome !== answer.outcome ||
+      typeof (read.value as Record<string, unknown>).score === 'string';
+    answers.push({ answer, repaired });
   }
   if (answers.length === 0) return { answer: judges.inconclusive('unparseable answer'), raw, unparsed: true };
-  if (new Set(answers.map((a) => a.outcome)).size > 1) {
+  if (new Set(answers.map((a) => a.answer.outcome)).size > 1) {
     return { answer: judges.inconclusive('two answers that disagree'), raw, unparsed: true };
   }
-  return { answer: answers[0] as JudgeAnswer, raw };
+  const first = answers[0] as { answer: JudgeAnswer; repaired: boolean };
+  return { answer: first.answer, raw, ...(first.repaired ? { repaired: true } : {}) } as JudgeResult;
 }
 
 function outcomeFromProbability(p: number, bounds: { passAt?: number; failAt?: number } = {}) {
@@ -145,7 +185,7 @@ function escapeData(text: string): string {
     }
   });
   const hit = new Set<number>();
-  for (const m of seen.matchAll(/<\s*\/?\s*(?:transcript_data|artifact_data|given_data)\b/gi))
+  for (const m of seen.matchAll(/<\s*\/?\s*(?:transcript_data|artifact_data|given_data|reference_data)\b/gi))
     hit.add(origin[m.index ?? 0] as number);
   return chars.map((ch, i) => (hit.has(i) ? '&lt;' : ch)).join('');
 }
@@ -173,6 +213,8 @@ function buildPrompt(request: JudgeRequest): { system: string; user: string } {
   const lines = request.transcript.map(renderEntry);
   parts.push(`<transcript_data>\n${lines.map(escapeData).join('\n')}\n</transcript_data>`, '');
   if (request.artifact !== undefined) parts.push(tag('artifact_data', request.artifact), '');
+  const reference = (request as JudgeRequest & { reference?: string }).reference;
+  if (reference !== undefined) parts.push(tag('reference_data', reference), '');
   parts.push('Answer the QUESTION for the data above, as the JSON object.');
   return { system: judges.SYSTEM_PROMPT, user: parts.join('\n') };
 }
@@ -1143,6 +1185,14 @@ function pruneCassette(cassette: Cassette, keys: readonly string[]): Cassette {
   return { ...cassette, entries: cassette.entries.filter((e) => keys.includes(e.key)) };
 }
 
+/** The request key, with the reference answer hashed too. */
+function requestKey(request: JudgeRequest): string {
+  const reference = (request as JudgeRequest & { reference?: string }).reference;
+  return reference === undefined
+    ? judges.requestKey(request)
+    : judges.requestKey({ ...request, artifact: `${request.artifact ?? ''}\n[reference] ${reference}` });
+}
+
 /** postJson with every echoed header value redacted, whatever its length. */
 async function postJson(
   url: string,
@@ -1186,6 +1236,7 @@ export function witnessApi(): JudgesApi {
     createJevJudge: jevWitness,
     createHttpJudge,
     postJson,
+    requestKey,
     saveCassette,
     mergeCassettes,
     pruneCassette,
