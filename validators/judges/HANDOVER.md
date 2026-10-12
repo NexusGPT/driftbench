@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 4 (cassette) passes since iteration 26. Level 5, clients (7 items): `clients/google-recitation`, `google-recitation`, `openai-asks-for-the-answer-schema`, and others; the Fix line of each names the change in packages/judges/src/clients. Then check, rubric, render, budget, evidence, injection and later families. Handover test (`--brief --fresh`) run at iteration 25: reproduced level 3 and named the two open cassette items.
+Level 4 (cassette) passes since iteration 26. Level 5, clients (6 items): `clients/openai-asks-for-the-answer-schema`, `google-recitation`, `openai-asks-for-the-answer-schema`, and others; the Fix line of each names the change in packages/judges/src/clients. Then check, rubric, render, budget, evidence, injection and later families. Handover test (`--brief --fresh`) run at iteration 25: reproduced level 3 and named the two open cassette items.
 
 ## Hypotheses tried
 
@@ -54,11 +54,12 @@ Iteration 15 (cause: comment line): `dropCommentLines`. Test: "near-JSON: a line
 Iteration 26 (cause: key not hex): check in `loadCassette`. Test: "loading a cassette with a key that is not a request hash" (red before, green after). Bank 287 -> 289 (0.4530): the answer-breaking-contract item turned green too, so its failing state came from the same validation path (not separately fixed). Level 3 -> 4.
 Iteration 27 (cause: content parts): `contentText` in clients/chat.ts. Test: clients.test.ts "an OpenAI answer whose content is a list of parts" (red first). Bank 289 -> 290 (0.4545).
 Iteration 28 (cause: content_filter stop): decline branch in clients/chat.ts. Test: "an OpenAI answer stopped by the content filter" (red first). Bank 290 -> 291 (0.4561).
-Iteration 29 (cause: blocked prompt): branch in the Google client. Test: "a Google answer whose prompt was blocked" (red first). Bank 291 -> 292 (0.4577). PR 86 holds iterations 11 to 25.
+Iteration 29 (cause: blocked prompt): branch in the Google client. Test: "a Google answer whose prompt was blocked" (red first). Bank 291 -> 292 (0.4577).
+Iteration 30 (cause: RECITATION): added to the Google decline branch. Test: "a Google answer stopped for recitation" (red first). Bank 292 -> 293 (0.4592). PR 86 stays open and takes every push; a second PR from the same branch is not possible. PR 86 holds iterations 11 to 25.
 
 ## Next actions
 
-1. Level 5 clients, one cause per iteration, starting with `clients/google-recitation` (packages/judges/src/clients/chat.ts).
+1. Level 5 clients, one cause per iteration, starting with `clients/openai-asks-for-the-answer-schema` (packages/judges/src/clients/chat.ts).
 2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, then `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`; a PR to main every 3 iterations.
 
