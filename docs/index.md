@@ -19,7 +19,7 @@ Every page says what exists today and what is not built yet, with the phase that
 
 ## Running
 
-* [Retries](retries.md): the one retry policy of every model call (429, 5xx and network errors, backoff with jitter, Retry-After), how to set it in a spec and on the command line, and where each retry is recorded.
+* [Retries](retries.md): the one retry policy of every model call (408, 429, 5xx and network errors, backoff with jitter, Retry-After), how to set it in a spec and on the command line, and where each retry is recorded.
 * [Running](running.md): `runSpec`, campaigns in modes T, F and P (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), the determinism smoke test, the cache, the budget and the run record.
 * [Simulated user](simulated-user.md): a persona played through the model port or a recording, `driftbench simulate` and `campaign run --driver simulated`.
 * [Adaptive attacker](attack.md): red-team attacks picked from the agent's last replies, scored by the recovery record, `driftbench attack`.
@@ -64,6 +64,7 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Comparison
 
 * [Comparison](comparison.md): driftbench beside seven evaluation tools and six code-agent benchmarks, with a source and a read date for every cell.
+* [Comparison pages](comparison/index.md): one page per evaluation tool, with the result, the basis and a reproduce line for every row.
 
 ## What exists today
 

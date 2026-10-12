@@ -21,7 +21,7 @@ export type QueueEntry = {
   state: QueueState;
   assignee?: string;
   /** Each reviewer's label on the block, in the order they voted. Two votes make an agreement figure. */
-  votes?: Array<{ reviewer: string; label: 'pass' | 'fail' }>;
+  votes?: Array<{ reviewer: string; label: 'pass' | 'fail'; score?: number }>;
 };
 
 export type ReviewQueue = { version: 1; entries: QueueEntry[] };
@@ -48,6 +48,13 @@ export function enqueue(
     entries.push({ ...item, state: 'open' });
   }
   return { version: 1, entries };
+}
+
+/** A score, when given, is a number from 0 to 1: the reviewer's confidence that the block passes. */
+function checkScore(score: number | undefined): void {
+  if (score !== undefined && !(Number.isFinite(score) && score >= 0 && score <= 1)) {
+    throw new Error(`score must be from 0 to 1, not ${score}`);
+  }
 }
 
 function entryOf(queue: ReviewQueue, criterion: string, id: string): QueueEntry {
@@ -86,7 +93,9 @@ export async function completeItem(
   id: string,
   reviewer: string,
   block: LabelledBlock,
+  score?: number,
 ): Promise<ReviewQueue> {
+  checkScore(score);
   const entry = entryOf(queue, criterion, id);
   if (entry.state === 'done') throw new Error(`${id} is already done`);
   if (entry.state === 'open') throw new Error(`${id} is not assigned: assign it first`);
@@ -95,7 +104,10 @@ export async function completeItem(
   return replaceEntry(queue, {
     ...entry,
     state: 'done',
-    votes: [...(entry.votes ?? []), { reviewer, label: block.label }],
+    votes: [
+      ...(entry.votes ?? []),
+      { reviewer, label: block.label, ...(score === undefined ? {} : { score }) },
+    ],
   });
 }
 

@@ -21,6 +21,8 @@ export type BlockKeyParts = {
   target: TargetRef;
   adapter: string;
   adapterVersion: string;
+  /** The suite the run belongs to, when it names one. Absent keeps the key every earlier cache used. */
+  suite?: string;
 };
 
 /**

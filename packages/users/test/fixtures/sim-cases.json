@@ -1,0 +1,50 @@
+[
+  {
+    "id": "asks-email",
+    "reply": "Happy to help with the upgrade. What e-mail address is on the account?"
+  },
+  {
+    "id": "asks-plan",
+    "reply": "Happy to help. Which plan would you like to move to?"
+  },
+  {
+    "id": "greets",
+    "reply": "Hello! How can I help you today?"
+  },
+  {
+    "id": "confirms",
+    "reply": "Your plan is now the unlimited one. Anything else I can do?"
+  },
+  {
+    "id": "asks-name",
+    "reply": "Could I have your full name for the order?"
+  },
+  {
+    "id": "offers-plans",
+    "reply": "We have Acme Mobile S at 15 USD, M at 25 USD and L at 35 USD, unlimited data."
+  },
+  {
+    "id": "refuses-off-topic",
+    "reply": "I can only help with Acme plans and orders. Is there anything about your plan I can help with?"
+  },
+  {
+    "id": "asks-address",
+    "reply": "Which address should we use for the delivery of the SIM card?"
+  },
+  {
+    "id": "confirms-order",
+    "reply": "Your order for Acme Mobile L is placed. You will get a confirmation e-mail shortly."
+  },
+  {
+    "id": "asks-data-usage",
+    "reply": "How much data do you use in a typical month, roughly?"
+  },
+  {
+    "id": "apologises",
+    "reply": "Sorry, I did not catch that. Could you repeat your plan choice?"
+  },
+  {
+    "id": "closes",
+    "reply": "Thanks for choosing Acme. Have a great day!"
+  }
+]

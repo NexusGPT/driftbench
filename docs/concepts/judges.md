@@ -568,6 +568,8 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 
 A pairwise call judges two candidate replies to the same block on one criterion: which reply better meets it. `pairwiseRequest` shows both replies as labelled lines, Reply A and Reply B, under the block's transcript, and asks the judge for one of the two. `judgePairwise` runs the question twice, once with each reply in position A, and reads a choice only when both orders name the same reply. A judge that always answers pass, whatever the reply, is recorded as a position bias and its call is a tie.
 
+`judgePairwise` takes an optional reference answer. With one, the question is which reply matches the reference better, and the reference is shown to the judge in every call. `driftbench compare --pairwise-reference <file>` gives the reference text.
+
 `driftbench compare --pairwise` applies it to every block two campaigns both ran. The flags and the printed line are in the [CLI](../reference/cli.md#driftbench-report-and-driftbench-compare) reference.
 
 ## Repeat reducers

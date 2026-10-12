@@ -22,11 +22,11 @@ function apiError(status: number, headers: Record<string, string> = {}, name = '
 const noJitter = retryPolicy({ jitter: false, baseDelayMs: 100, maxDelayMs: 1_000 });
 
 describe('retry decision', () => {
-  it('retries 429, 529 and every 5xx, and never another status', () => {
-    for (const status of [429, 500, 502, 503, 504, 529]) {
+  it('retries 408, 429, 529 and every 5xx, and never another status', () => {
+    for (const status of [408, 429, 500, 502, 503, 504, 529]) {
       expect(retryDecision(apiError(status)).retry, `status ${status}`).toBe(true);
     }
-    for (const status of [400, 401, 403, 404, 408, 409, 422]) {
+    for (const status of [400, 401, 403, 404, 409, 422]) {
       expect(retryDecision(apiError(status)).retry, `status ${status}`).toBe(false);
     }
   });

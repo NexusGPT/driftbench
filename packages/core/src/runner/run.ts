@@ -73,6 +73,8 @@ export type RunOptions = {
    *  whose capabilities say `sandbox` never uses it: a replay has no workspace to read files from. */
   cache?: ObservedCache;
   cacheTtlMs?: number;
+  /** Names the suite a run belongs to. Its cache keys differ from another suite's, so a new name starts from an empty cache. */
+  suite?: string;
   /** Readers for the artifact checks, passed to every CheckContext. */
   artifacts?: ArtifactReaderRegistry;
   retry?: RetryOptions;
@@ -149,6 +151,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     onEvent: reportEvent,
     cache,
     cacheTtlMs: options.cacheTtlMs,
+    suite: options.suite,
     artifacts: options.artifacts,
     retry: options.retry,
     // The spec target's retry settings, the run's own (the command line) over them.
@@ -208,6 +211,7 @@ type RunContext = {
   checks: CheckSet;
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
+  suite: string | undefined;
   artifacts: ArtifactReaderRegistry | undefined;
   retry: RetryOptions | undefined;
   policy: RetryPolicy;
@@ -272,6 +276,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   /** In mode T, the end state composed before the open session opened. */
   let sessionBase: unknown[] | undefined;
   let status: RunResult['status'] = 'completed';
+  let endVerdict: 'success' | 'failure' | undefined;
   let error: string | undefined;
 
   try {
@@ -282,7 +287,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         break;
       }
       const step = await nextStep(run, nextBlock, blocks);
-      if (step.kind === 'stop') break;
+      if (step.kind === 'stop') {
+        endVerdict = step.verdict;
+        break;
+      }
       const planned = planStep(spec, step);
       if (step.kind === 'block') nextBlock = step.blockIndex + 1;
 
@@ -329,6 +337,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         target: run.target,
         adapter: run.adapter.id,
         adapterVersion: run.adapter.version,
+        ...(run.suite === undefined ? {} : { suite: run.suite }),
       });
       run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
       const observed = await channel.observe(turn, user, key);
@@ -481,6 +490,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     repeat: run.repeat,
     ...(run.perturbationId !== undefined ? { perturbationId: run.perturbationId } : {}),
     status,
+    ...(endVerdict ? { endVerdict } : {}),
     ...(message ? { error: message } : {}),
     blocks,
     succession: succession(blocks),

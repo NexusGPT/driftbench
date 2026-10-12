@@ -76,7 +76,7 @@ Each adapter page says where the payloads come from.
 
 | Error | Means | The runner |
 |---|---|---|
-| `AdapterTransportError` | the transport failed: a 429, a 5xx, or a network error | retries the call under the [shared retry policy](../retries.md) (4 attempts, backoff from 500 ms with jitter, Retry-After honoured), records each retry in the block, then fails the run; one marked `exhausted` (the adapter already retried it) is not retried again |
+| `AdapterTransportError` | the transport failed: a 408, a 429, a 5xx, or a network error | retries the call under the [shared retry policy](../retries.md) (4 attempts, backoff from 500 ms with jitter, Retry-After honoured), records each retry in the block, then fails the run; one marked `exhausted` (the adapter already retried it) is not retried again |
 | `AgentFailure` | the agent itself failed: an error it threw, an answer that is not an Observed, a failing status | fails the run at once, with no retry |
 
 Any other error fails the run at once too. A failed run is recorded with status `failed` and the error; it is never skipped. See [running](../running.md).
