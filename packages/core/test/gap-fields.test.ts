@@ -71,4 +71,22 @@ describe('similarity, relevancy and knowledge_retention in the spec', () => {
       'RETENTION_FACT_UNKNOWN perturbations.0.expect.knowledge_retention.0.fact',
     ]);
   });
+
+  it('refuses a world-only perturbation with no block to carry it', () => {
+    const base = { id: 'world-end', blocks: [{ user: 'hi' }, { user: 'bye' }] };
+    const world = { tools: { 'records.lookup': { error: 'timeout' } } };
+    const at = (inject_at: number, extra: object) =>
+      validateSpec({
+        ...base,
+        perturbations: [{ id: 'p1', class: 'D1_off_topic', inject_at, ...extra }],
+      });
+    const refused = at(2, { world });
+    expect(refused.ok).toBe(false);
+    if (refused.ok) return;
+    expect(refused.errors.map((issue) => `${issue.code} ${issue.path}`)).toEqual([
+      'PERTURBATION_OUT_OF_RANGE perturbations.0.inject_at',
+    ]);
+    expect(at(1, { world }).ok).toBe(true);
+    expect(at(2, { user: 'hey', world }).ok).toBe(true);
+  });
 });

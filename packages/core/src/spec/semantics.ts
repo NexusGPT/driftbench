@@ -89,6 +89,20 @@ export function checkSemantics(spec: Spec): Issue[] {
       );
     }
     if (
+      perturbation.world !== undefined &&
+      perturbation.user === undefined &&
+      perturbation.burst === undefined &&
+      perturbation.inject_at === spec.blocks.length
+    ) {
+      issues.push(
+        error(
+          'PERTURBATION_OUT_OF_RANGE',
+          `${path}.inject_at`,
+          `a perturbation with a world alone runs under block inject_at, and inject_at ${perturbation.inject_at} has no block (${spec.blocks.length} blocks, counting from 0)`,
+        ),
+      );
+    }
+    if (
       perturbation.user === undefined &&
       perturbation.burst === undefined &&
       perturbation.world === undefined
