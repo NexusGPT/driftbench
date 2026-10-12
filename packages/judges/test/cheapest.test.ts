@@ -30,35 +30,51 @@ async function council() {
 }
 
 describe('the cheapest-judge rule', () => {
-  it('assigns 12 of 12: haiku where it meets the bar, sonnet on explicit_confirmation', async () => {
+  it('assigns 12 of 12 to haiku, each alone: with the rewritten rubric it meets the bar everywhere', async () => {
     const report = await council();
-    const owners = Object.fromEntries(
-      report.criteria.map((c) => [
-        c.criterion,
-        c.assignment.status === 'assigned' ? c.assignment.owner : 'none',
-      ]),
+    const owners = report.criteria.map((c) =>
+      c.assignment.status === 'assigned' ? c.assignment.owner : 'none',
     );
-    expect(Object.values(owners).filter((o) => o === 'none')).toEqual([]);
-    expect(owners.explicit_confirmation).toBe('claude-sonnet');
-    expect(Object.entries(owners).filter(([, o]) => o === 'claude-haiku')).toHaveLength(11);
+    expect(owners).toEqual(Array(12).fill('claude-haiku'));
     for (const c of report.criteria) {
-      expect(c.assignment, c.criterion).toMatchObject({ judges: [expect.any(String)], rejudge: [] });
+      expect(c.assignment, c.criterion).toMatchObject({ judges: ['claude-haiku'], rejudge: [] });
     }
   });
 
   it('gives the measured cost per call of each owner on its criterion', async () => {
     const report = await council();
     const explicit = report.criteria.find((c) => c.criterion === 'explicit_confirmation');
-    const sonnet = explicit?.judges.find((j) => j.judge === 'claude-sonnet');
-    expect(sonnet?.calls).toBe(9);
-    expect(sonnet?.spentUsd).toBeGreaterThan(0);
+    const haiku = explicit?.judges.find((j) => j.judge === 'claude-haiku');
+    expect(haiku?.calls).toBe(9);
+    expect(haiku?.spentUsd).toBeGreaterThan(0);
     const table = assignmentTable(report);
     const entry = table.criteria.find((c) => c.criterion === 'explicit_confirmation');
-    expect(entry).toMatchObject({ owner: 'claude-sonnet', judges: ['claude-sonnet'] });
+    expect(entry).toMatchObject({ owner: 'claude-haiku', judges: ['claude-haiku'] });
     expect(entry && 'cost_per_call_usd' in entry ? entry.cost_per_call_usd : 0).toBeCloseTo(
-      (sonnet?.spentUsd ?? 0) / 9,
+      (haiku?.spentUsd ?? 0) / 9,
       6,
     );
+  });
+
+  it('gives a criterion to the next cheapest judge when the cheapest misses the bar', async () => {
+    const { criteria } = await loadCriteria(CRITERIA);
+    const { labels } = await loadLabels(join(ROOT, 'examples/acme/labels'));
+    const cassette = await loadCassette(join(CRITERIA, 'calibration/claude-council.cassette.json'));
+    // Turn haiku's three explicit_confirmation label answers into passes: kappa drops, haiku misses the bar.
+    for (const e of cassette.entries) {
+      if (e.judge === 'claude-haiku' && e.criterion === 'explicit_confirmation' && e.answer) {
+        e.answer = { ...(e.answer as object), outcome: 'pass' };
+      }
+    }
+    const report = await calibrate({
+      judges: cassettePlayers(cassette),
+      criteria,
+      labels,
+      mode: 'llm',
+      rule: 'cheapest',
+    });
+    const a = report.criteria.find((c) => c.criterion === 'explicit_confirmation')?.assignment;
+    expect(a).toMatchObject({ status: 'assigned', owner: 'claude-sonnet', judges: ['claude-sonnet'] });
   });
 
   it('keeps the council rule as the default', async () => {
@@ -115,6 +131,6 @@ describe('a council row of one judge', () => {
     const report = await council();
     const earned = councilAssignment(assignmentTable(report));
     const row = earned.assignment.find((r) => r.criterion === 'explicit_confirmation');
-    expect(row).toMatchObject({ judges: ['claude-sonnet'], rejudge: [], source: 'calibration' });
+    expect(row).toMatchObject({ judges: ['claude-haiku'], rejudge: [], source: 'calibration' });
   });
 });

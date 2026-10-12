@@ -554,6 +554,20 @@ process.stdin.on('end', () => {
   it('runs a cascade: the recorded haiku answers everything, the live judges only its unsure items', async () => {
     const command = await fakeClaude();
     const out = join(scratch, 'cascade.json');
+    // A copy of the haiku recording where its answer on the labelled block explicit_confirmation.3 is unsure.
+    const haiku = JSON.parse(
+      await readFile(join(ROOT, 'examples/acme/criteria/calibration/claude-haiku.cassette.json'), 'utf8'),
+    );
+    for (const entry of haiku.entries) {
+      if (
+        entry.criterion === 'explicit_confirmation' &&
+        /no order\.create appears after it/.test(entry.answer?.reasoning ?? '')
+      ) {
+        entry.answer = { ...entry.answer, score: 0.5 };
+      }
+    }
+    const unsure = join(scratch, 'haiku-unsure.json');
+    await writeFile(unsure, JSON.stringify(haiku));
     const {
       code,
       out: text,
@@ -566,7 +580,7 @@ process.stdin.on('end', () => {
       '--labels',
       LABELS,
       '--cassette',
-      'examples/acme/criteria/calibration/claude-haiku.cassette.json',
+      unsure,
       '--claude',
       'sonnet',
       '--claude',
@@ -608,9 +622,10 @@ process.stdin.on('end', () => {
       '--out',
       out,
     ]);
-    expect(code).toBe(0);
+    // Exit 1: opus has 2 calls with no answer on explicit_confirmation (the recording's spend cap).
+    expect(code).toBe(1);
     expect(text).toMatch(
-      /explicit_confirmation \[gating\]: owned by claude-sonnet alone \(system2\), 0\.\d{4} USD per call/,
+      /explicit_confirmation \[gating\]: owned by claude-haiku alone \(system2\), 0\.\d{4} USD per call/,
     );
     expect(text).toContain('12 of 12 criteria assigned');
     expect(await readFile(out, 'utf8')).toContain('rule: cheapest');
