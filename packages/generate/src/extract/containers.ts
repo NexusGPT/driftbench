@@ -219,11 +219,14 @@ function yamlView(raw: string): View | undefined {
   return tokens.length === 0 ? undefined : inPlace(raw, tokens);
 }
 
-type Language = { line: string[]; block: boolean; phpSingle?: boolean };
+type Language = { line: string[]; block: boolean; phpSingle?: boolean; templates?: boolean };
 const LANGUAGES: Array<[RegExp, Language]> = [
-  [/\.(ts|tsx|js|jsx|mjs|cjs|json5|go|java|cs|kt|swift|rs)$/i, { line: ['//'], block: true }],
+  [
+    /\.(ts|tsx|js|jsx|mjs|cjs|json5|go|java|cs|kt|swift|rs)$/i,
+    { line: ['//'], block: true, templates: true },
+  ],
   [/\.php$/i, { line: ['//', '#'], block: true, phpSingle: true }],
-  [/\.py$/i, { line: ['#'], block: false }],
+  [/\.py$/i, { line: ['#'], block: false, templates: true }],
 ];
 
 const CODE_ESCAPES: Record<string, string> = {
@@ -240,6 +243,60 @@ const CODE_ESCAPES: Record<string, string> = {
   '`': '`',
   '/': '/',
 };
+
+/** The numbers and strings a file assigns to a name (`const MAX = 3;`, `MAX = 3`). */
+function constantsOf(raw: string): Map<string, string> {
+  const out = new Map<string, string>();
+  const pattern =
+    /^\s*(?:export\s+)?(?:const|let|var)?\s*([A-Za-z_]\w*)\s*(?::[^=\n]+)?=\s*(\d+(?:\.\d+)?|"[^"\n]*"|'[^'\n]*')\s*;?\s*$/gm;
+  for (const match of raw.matchAll(pattern)) {
+    const value = match[2] as string;
+    out.set(match[1] as string, /^["']/.test(value) ? value.slice(1, -1) : value);
+  }
+  return out;
+}
+
+/**
+ * The content of a template literal (`${NAME}`) or a Python f-string (`{NAME}`) from `from` to `to`: escapes
+ * decoded, and a name the file assigns a number or a string replaced by its value.
+ */
+function template(
+  raw: string,
+  from: number,
+  to: number,
+  style: 'js' | 'py',
+  constants: Map<string, string>,
+): Array<[string, number, number]> {
+  const out: Array<[string, number, number]> = [];
+  const open = style === 'js' ? '${' : '{';
+  let i = from;
+  while (i < to) {
+    const c = raw[i] as string;
+    if (c === '\\') {
+      const e = raw[i + 1] ?? '';
+      out.push([(CODE_ESCAPES[e] ?? e) as string, i, i + 2]);
+      i += 2;
+    } else if (style === 'py' && (raw.startsWith('{{', i) || raw.startsWith('}}', i))) {
+      out.push([c, i, i + 2]);
+      i += 2;
+    } else if (raw.startsWith(open, i)) {
+      const close = raw.indexOf('}', i);
+      const name = close < 0 ? '' : raw.slice(i + open.length, close).trim();
+      const value = constants.get(name);
+      if (close < 0 || value === undefined) {
+        out.push([c, i, i + 1]);
+        i++;
+      } else {
+        for (const unit of value) out.push([unit, i, close + 1]);
+        i = close + 1;
+      }
+    } else {
+      out.push([c, i, i + 1]);
+      i++;
+    }
+  }
+  return out;
+}
 
 /** A string literal in code, `'...'` or `"..."`, with backslash escapes decoded; comments and raw strings are skipped. */
 function codeView(raw: string, language: Language): View | undefined {
@@ -262,11 +319,15 @@ function codeView(raw: string, language: Language): View | undefined {
     if (c === '`') {
       let j = i + 1;
       while (j < raw.length && raw[j] !== '`') j += raw[j] === '\\' ? 2 : 1;
+      if (language.templates && j < raw.length)
+        tokens.push({ start: i, end: j + 1, chars: template(raw, i + 1, j, 'js', constantsOf(raw)) });
       i = j + 1;
       continue;
     }
     if ((c === '"' || c === "'") && raw.startsWith(c.repeat(3), i)) {
       const end = raw.indexOf(c.repeat(3), i + 3);
+      if (language.templates && /[fF]$/.test(raw.slice(Math.max(0, i - 1), i)) && end > 0)
+        tokens.push({ start: i, end: end + 3, chars: template(raw, i + 3, end, 'py', constantsOf(raw)) });
       i = end < 0 ? raw.length : end + 3;
       continue;
     }

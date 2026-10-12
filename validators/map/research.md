@@ -549,3 +549,15 @@ Sources read:
 What others do: Adjacent literals are one string; a quote must still be one passage of the file.
 
 What to try, and why: string literals joined in code read as one string
+
+## Iteration 47
+
+Question: packages/generate/src/extract/containers.ts: a rule with ${NAME} or {NAME} in a template literal or f-string is sent with the name, so the text the model reads lacks the rule as the prompt states it; prompt-containers.ts-template and python-fstring prove it.
+
+Sources read:
+* https://262.ecma-international.org/ section 13.2.8 (template literals)
+* https://docs.python.org/3/reference/lexical_analysis.html#f-strings
+
+What others do: A template's value has the constant in place; the model reads that.
+
+What to try, and why: constants interpolated in a template are replaced by their value

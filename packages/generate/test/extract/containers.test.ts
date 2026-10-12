@@ -104,3 +104,20 @@ describe('a prompt cut across string literals', () => {
     expect(quote).toBe('Never promise a delivery date.');
   });
 });
+
+describe('a prompt with a constant interpolated', () => {
+  const rule = 'Never offer more than ${MAX_SLOTS} visit slots at once.';
+  const ts = `export const MAX_SLOTS = 3;\n\nexport const PROMPT = \`Keep it short.\n${rule}\`;\n`;
+  const py =
+    'MAX_SLOTS = 3\n\nPROMPT = f"""\nKeep it short.\nNever offer more than {MAX_SLOTS} visit slots at once.\n"""\n';
+  it('puts the value of the constant in the text the model reads', () => {
+    expect(promptView('prompt.ts', ts)?.text).toContain('Never offer more than 3 visit slots at once.');
+    expect(promptView('prompt.py', py)?.text).toContain('Never offer more than 3 visit slots at once.');
+  });
+  it('quotes a passage of the file', () => {
+    const sources = [{ kind: 'prompt' as const, path: 'prompt.ts', text: ts }];
+    const quote = rawQuote(sources, 'prompt.ts', 'Never offer more than 3 visit slots at once.');
+    expect(ts).toContain(quote);
+    expect(quote).toBe('Never offer more than');
+  });
+});
