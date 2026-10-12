@@ -42,7 +42,8 @@
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*"
+    "@driftbench/core": "workspace:*",
+    "@driftbench/sandbox": "workspace:*"
   },
   "peerDependencies": {
     "@anthropic-ai/sdk": ">=0.133.0",
