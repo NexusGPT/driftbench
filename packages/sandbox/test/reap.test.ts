@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { mkdtemp, realpath, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { localProvider, reapFolder } from '@driftbench/sandbox';
@@ -57,18 +57,27 @@ afterAll(async () => {
 });
 
 describe('processes a run leaves behind', () => {
-  it('reapFolder ends what a sandbox command left running, even a process that left its process group', async () => {
+  it('reapFolder ends what was left running in a sandbox folder, even a process that left its process group', async () => {
     const parent = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-reap-test-')));
     parents.push(parent);
     const box = await localProvider({ dir: parent }).create({});
     const byPath = `reap-path-${randomUUID()}`;
     const byPlace = `reap-cwd-${randomUUID()}`;
     await writeFile(join(box.root, 'daemon.py'), DAEMON);
-    // One names the folder in its command line; the other only runs inside it.
-    const started = await box.exec(
-      `set -e; python3 "$PWD/daemon.py" ${byPath}; mkdir -p sub; cd sub; python3 -c "exec(open('../daemon.py').read())" ${byPlace}`,
-      { timeoutMs: 10_000 },
-    );
+    // One names the folder in its command line; the other only runs inside it. Started as a guard script
+    // starts them, straight from the folder: on Linux CI a daemon started through the sandbox's own command
+    // ends with that command (SIGKILL, cause not isolated), so the leak shows on macOS only that way; the
+    // unit runner and estate run tests cover that path.
+    await mkdir(join(box.root, 'sub'), { recursive: true });
+    const first = spawnSync('python3', [join(box.root, 'daemon.py'), byPath], {
+      cwd: box.root,
+      stdio: 'ignore',
+    });
+    const second = spawnSync('python3', ['-c', "exec(open('../daemon.py').read())", byPlace], {
+      cwd: join(box.root, 'sub'),
+      stdio: 'ignore',
+    });
+    const started = { exitCode: first.status === 0 && second.status === 0 ? 0 : 1, stdout: '', stderr: '' };
     // What a failure needs to be read: the command's output and every python process the system lists.
     const context = () =>
       `exit ${started.exitCode}; stdout ${started.stdout}; stderr ${started.stderr}; python: ${(
