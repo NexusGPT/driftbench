@@ -129,6 +129,7 @@ export {
 } from './criteria';
 export { type Grounding, groundEvidence } from './evidence';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
+export { findCycles } from './find-cycles';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
 export { ATTACK_CRITERION, type AttackVerdict, judgeAttack } from './injection-judge';
 export { labelFilePath, readLabelFile, saveLabel } from './labels';
