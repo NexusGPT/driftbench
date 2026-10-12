@@ -43,9 +43,9 @@ One label is one block of the criterion's labels file, `<labels>/<criterion>.yam
 * The transcript holds the user turn, each tool call and its result, and the reply.
 * Labelling the same block on the same criterion again replaces its label. Every other block, and the file's `labelled_by`, stay as they were.
 
-A label saved from a run of the Acme campaign with the fault that skips the recap:
+A label saved from a run of the Acme campaign with the fault that skips the recap, as the file holds it:
 
-```yaml
+```text
 criterion: checks_before_promising
 labelled_by: a reviewer
 blocks:
