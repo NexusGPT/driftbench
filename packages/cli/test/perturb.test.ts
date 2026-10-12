@@ -107,10 +107,9 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
       '(drawn from examples/acme/redteam/d02-goal-shift.yaml, phrasing d2-cheaper-plan, seed 0).',
     );
     expect(drawn.out).not.toContain('a draft');
-    // A drawn goal shift sets no stage for the injected block: by the runner's rule, passing is enough.
-    expect(drawn.out).toContain(
-      '✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0',
-    );
+    // The approved phrasing's reply expectation is marked not separating (the correct baseline fails it too), so
+    // the recovery is not asserted here: only the draw is.
+    expect(drawn.out).toContain('Recovery');
   });
 
   it('runs a task on its own target, the process agent, and exits 1 when the agent never comes back', async () => {

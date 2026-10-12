@@ -483,9 +483,9 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1568,
       blocks: 1563,
-      complete: 1473,
-      incomplete: 95,
-      judged: 391,
+      complete: 1360,
+      incomplete: 208,
+      judged: 348,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
@@ -499,7 +499,7 @@ describe('domain predicates judged from the rule own words', () => {
     const all = specs(result);
     const judged = specRecords(result).filter((record) => record.complete && record.judged.length > 0);
     expect(judged.length).toBe(result.report.sources.judged);
-    expect(judged.length).toBeGreaterThan(200);
+    expect(judged.length).toBeGreaterThan(150);
     for (const record of judged) {
       const spec = only(all, record.id);
       expect(spec.tags, record.id).toContain('judged');

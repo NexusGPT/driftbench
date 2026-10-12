@@ -145,8 +145,8 @@ describe('driftbench gate', () => {
       const out = join(await temp(), 'gated');
       const result = await run(['gate', specs, ...BASE, '--out', out]);
       expect(result.code).toBe(1);
-      expect(result.out).toContain('Accepted 0 of 3 blocks.');
-      expect(result.out).toContain('no-machine-then 3');
+      expect(result.out).toContain('Accepted 0 of 4 blocks.');
+      expect(result.out).toContain('no-machine-then 4');
       expect(await tree(out)).toEqual([
         'gate-report.json',
         'holdout/seal.json',

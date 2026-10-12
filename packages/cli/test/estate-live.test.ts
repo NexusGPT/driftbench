@@ -5,6 +5,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEstateMap } from '@driftbench/estate';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { lineOf } from '../src/commands/estate-live';
 import { type Io, main } from '../src/index';
 
 // Each test starts sandboxes and processes; under a full parallel suite that takes more than the default.
@@ -171,9 +172,17 @@ type RunJson = {
   standIn: boolean;
   pins: string[];
   notes: string[];
-  runs: Array<{ spec: string; status: string; pass: boolean; failing: string[]; costUsd: number | null }>;
+  runs: Array<{
+    spec: string;
+    status: string;
+    pass: boolean;
+    undecided?: boolean;
+    failing: string[];
+    costUsd: number | null;
+  }>;
   passed: number;
   failed: number;
+  undecided: number;
 };
 
 async function estateRun(estateRoot: string, specs: string[], ...extra: string[]) {
@@ -431,6 +440,8 @@ describe('the Northwind proof: 14 live specs on the fake command, and three esta
     expect(result.code).toBe(1);
     clean = outcomes(result.json);
     expect(Object.keys(clean)).toHaveLength(14);
+    // A spec that fails on a check is never undecided.
+    expect(result.json?.undecided).toBe(0);
     const failing = Object.entries(clean)
       .filter(([, outcome]) => outcome !== 'pass')
       .map(([spec]) => spec)
@@ -540,6 +551,9 @@ describe('judged criteria in estate run', () => {
     expect(json.judgeCostUsd).toBe(0);
     expect(json.runs[0]?.judged.every((verdict) => verdict.outcome === 'inconclusive')).toBe(true);
     expect(json.runs[0]?.pass).toBe(false);
+    // The fake answers it without the report it asks for: a failed check, so it is not undecided.
+    expect(json.runs[0]?.undecided).toBe(false);
+    expect(json.undecided).toBe(0);
     expect(json.notes.some((note) => note.includes('no judge'))).toBe(true);
   }, 120_000);
 
@@ -553,4 +567,36 @@ describe('judged criteria in estate run', () => {
     const stray = await estateRun(FIXTURE, [OTHER], '--judge-budget', '1');
     expect(stray.code).toBe(2);
   }, 60_000);
+});
+
+describe('an undecided spec', () => {
+  const verdict = (outcome: string) => ({
+    id: `custom.stage_seen`,
+    name: 'stage_seen',
+    kind: 'machine',
+    gating: true,
+    outcome,
+  });
+  const runOf = (outcomes: string[], status = 'completed') =>
+    ({
+      specId: 'estate.x',
+      runId: 'r',
+      status,
+      blocks: [
+        {
+          index: 0,
+          pass: outcomes.every((outcome) => outcome === 'pass'),
+          verdicts: outcomes.map(verdict),
+          observed: { cost: {} },
+        },
+      ],
+    }) as unknown as Parameters<typeof lineOf>[0];
+
+  it('is one that only inconclusive checks keep from passing: no stage feed, no judge', () => {
+    expect(lineOf(runOf(['inconclusive']), 0)).toMatchObject({ pass: false, undecided: true });
+    expect(lineOf(runOf(['pass', 'inconclusive']), 0)).toMatchObject({ pass: false, undecided: true });
+    expect(lineOf(runOf(['fail', 'inconclusive']), 0)).toMatchObject({ pass: false, undecided: false });
+    expect(lineOf(runOf(['pass']), 0)).toMatchObject({ pass: true, undecided: false });
+    expect(lineOf(runOf(['inconclusive'], 'error'), 0)).toMatchObject({ pass: false, undecided: false });
+  });
 });

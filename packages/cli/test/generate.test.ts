@@ -111,14 +111,13 @@ describe('driftbench generate', () => {
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
     expect(first.out).toContain('Stage graph: 18 of 23 edges covered in 12 paths from needs.');
-    expect(first.out).toContain('t-wise: covering array of 154 rows over 6 dimensions');
+    expect(first.out).toMatch(/twise\s+182\s+711\s+115\s+67/);
     expect(first.out).toContain('Constraints applied: 59.');
-    expect(first.out).toContain(
-      '  Most frequent reasons:\n    11  no approved path belongs to a flow of B-013',
-    );
+    expect(first.out).toContain('  Most frequent reasons:');
+    expect(first.out).toContain('13  no approved path belongs to a flow of B-013 (price-sheet)');
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(168);
+    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(160);
 
     const refused = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a'], dir);
     expect(refused.code).toBe(2);
