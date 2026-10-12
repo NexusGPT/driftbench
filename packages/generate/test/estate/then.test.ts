@@ -98,22 +98,50 @@ describe('each evidence predicate as an existing check', () => {
     expect(then.artifacts).toEqual([{ path: 'reports/w.md', kind: 'text' }, { path: 'reports/w.bin' }]);
   });
 
-  it('leaves a tool call with input assertions as a gap: the tools check would assert every call', () => {
+  it('says a Read of a path through the references check and an Agent dispatch through the subagents check', () => {
     const then = thenOf(
       [
         atom('reference.x', [
           { type: 'tool_called', label: 'Read', input: { file_path: { contains: 'templates/report.md' } } },
+          { type: 'tool_called', label: 'Agent', input: { subagent_type: 'route-planner' } },
+          { type: 'tool_called', label: 'Read', input: { file_path: './notes/a.md' }, min: 2 },
         ]),
       ],
       'positive',
       ctx,
     );
     expect(then.tools).toEqual([]);
+    expect(then.references).toEqual([
+      { path: '**/templates/report.md', count: { min: 1 } },
+      { path: '**/notes/a.md', count: { min: 2 } },
+    ]);
+    expect(then.subagents).toEqual([{ name: 'route-planner', count: { min: 1 } }]);
+    expect(then.gaps).toEqual([]);
+  });
+
+  it('leaves any other tool call with input assertions as a gap: the tools check would assert every call', () => {
+    const then = thenOf(
+      [
+        atom('script.x', [
+          { type: 'tool_called', label: 'Bash', input: { command: { contains: 'reconcile.py' } } },
+          { type: 'tool_called', label: 'Read', input: { file_path: { regex: 'a.*b' } } },
+        ]),
+      ],
+      'positive',
+      ctx,
+    );
+    expect(then.tools).toEqual([]);
+    expect(then.references).toEqual([]);
     expect(then.gaps).toEqual([
       {
         marker: MARKERS.someCall,
-        atom: 'reference.x',
-        detail: 'one Read call with {"file_path":{"contains":"templates/report.md"}}',
+        atom: 'script.x',
+        detail: 'one Bash call with {"command":{"contains":"reconcile.py"}}',
+      },
+      {
+        marker: MARKERS.someCall,
+        atom: 'script.x',
+        detail: 'one Read call with {"file_path":{"regex":"a.*b"}}',
       },
     ]);
   });
@@ -249,6 +277,7 @@ describe('the negative control', () => {
       [
         atom('route.x', [
           { type: 'tool_called', label: 'Agent', input: { subagent_type: 'route-planner' } },
+          { type: 'tool_called', label: 'Bash', input: { command: { contains: 'track.sh' } } },
           { type: 'ordered', before: 'Read', after: 'Edit' },
           { type: 'custom', name: 'grounded_values' },
         ]),
@@ -257,6 +286,7 @@ describe('the negative control', () => {
       ctx,
     );
     expect(then.tools).toEqual([]);
+    expect(then.subagents).toEqual([{ name: 'route-planner', count: 0 }]);
     expect(then.gaps.map((entry) => entry.marker)).toEqual([
       MARKERS.someCall,
       MARKERS.negation,

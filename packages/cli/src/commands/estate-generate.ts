@@ -1,9 +1,10 @@
-import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadEstateMap, Plan } from '@driftbench/estate';
 import {
   ESTATE_COMPLETE_DIR,
   ESTATE_INCOMPLETE_DIR,
+  ESTATE_ORDER_FILE,
   ESTATE_REPORT_FILE,
   type EstateGenerateResult,
   EstateInputError,
@@ -27,6 +28,9 @@ export type EstateGenerateOptions = {
   sessions?: string;
   force?: boolean;
   json?: boolean;
+  /** False with --no-fallback: no code-written ask, no outcome read from the atoms. */
+  fallback?: boolean;
+  focus?: string;
 };
 
 /** The phrase bank and the session index the command looks for beside the map when none is named. */
@@ -53,6 +57,14 @@ export function registerEstateGenerateCommand(
     .option(
       '--sessions <file>',
       `the index of recorded sessions for replay rows (default ${DEFAULT_SESSIONS} beside the map, when present)`,
+    )
+    .option(
+      '--no-fallback',
+      'write no ask by code and read no outcome from the atoms: a row the bank does not cover stays incomplete',
+    )
+    .option(
+      '--focus <file>',
+      `atom ids, one per line, whose complete specs come first in ${ESTATE_ORDER_FILE} (then guards, gates, invariants)`,
     )
     .option('--force', 'replace the output of an earlier run in the folder')
     .option('--json', 'print the report as JSON')
@@ -96,7 +108,34 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
     return 2;
   }
   const plan = await readYaml(planPath, Plan, 'plan', io);
-  const bank = await readYaml(phrasesPath, PhraseBank, 'phrase bank', io);
+  // No bank yet: every ask is written by code, unless --no-fallback asks for approved phrases only.
+  const noBank = !options.phrases && options.fallback !== false && !(await exists(phrasesPath));
+  const bank = noBank
+    ? PhraseBank.parse({ version: 1, estate: 'estate', mapHash: loaded.map.hash, situations: [] })
+    : await readYaml(phrasesPath, PhraseBank, 'phrase bank', io);
+  let focus: string[] | undefined;
+  if (options.focus !== undefined) {
+    const focusPath = resolve(io.cwd, options.focus);
+    try {
+      focus = (await readFile(focusPath, 'utf8'))
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line !== '' && !line.startsWith('#'));
+    } catch (cause) {
+      io.err(
+        `✗ ${display(focusPath, io)}  the focus list cannot be read: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+      );
+      return 2;
+    }
+    const known = new Set(loaded.map.atoms.map((atom) => atom.id));
+    const unknown = focus.filter((id) => !known.has(id));
+    if (unknown.length > 0) {
+      io.err(
+        `✗ ${display(focusPath, io)}  ${unknown.length} focus id${unknown.length === 1 ? ' is' : 's are'} no atom of the map: ${unknown.join(', ')}\n`,
+      );
+      return 2;
+    }
+  }
   const sessions =
     sessionsPath === undefined ? undefined : await readYaml(sessionsPath, SessionIndex, 'session index', io);
   if (!plan || !bank || (sessionsPath !== undefined && !sessions)) return 2;
@@ -108,10 +147,12 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
       { map: loaded.map, plan, bank, ...(sessions ? { sessions } : {}) },
       {
         ...(seed === undefined ? {} : { seed }),
+        ...(options.fallback === false ? { fallback: false } : {}),
+        ...(focus ? { focus } : {}),
         paths: {
           map: portable(relative(outPath, mapPath)),
           plan: portable(relative(outPath, planPath)),
-          phrases: portable(relative(outPath, phrasesPath)),
+          phrases: noBank ? '(none)' : portable(relative(outPath, phrasesPath)),
           ...(sessionsPath === undefined ? {} : { sessions: portable(relative(outPath, sessionsPath)) }),
         },
       },
@@ -133,7 +174,7 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
       );
       return 2;
     }
-    for (const entry of [ESTATE_COMPLETE_DIR, ESTATE_INCOMPLETE_DIR, ESTATE_REPORT_FILE]) {
+    for (const entry of [ESTATE_COMPLETE_DIR, ESTATE_INCOMPLETE_DIR, ESTATE_REPORT_FILE, ESTATE_ORDER_FILE]) {
       await rm(join(outPath, entry), { recursive: true, force: true });
     }
   }

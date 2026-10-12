@@ -4,6 +4,7 @@ import type { GeneratedFile } from '../enumerate/generate';
 import { formatJson } from '../enumerate/json';
 import { DEVIATION_EXPECTED } from '../seed/deviation';
 import { rngFor, shuffle } from '../seed/random';
+import { codeAsk, DEVIATION_ASKS } from './asks';
 import {
   type BankPhrase,
   checkBank,
@@ -46,10 +47,33 @@ import {
  *   the situation declares: the paths it may touch, every other path untouched.
  *
  * A row that the bank, the sessions or the checks cannot fill is written to `incomplete/` with named
- * markers; nothing is guessed. Same inputs and seed give the same files, byte for byte.
+ * markers. Same inputs and seed give the same files, byte for byte.
+ *
+ * Fallbacks (on by default, off with `fallback: false`), so a row is never blocked by a missing phrase or
+ * an undeclared outcome alone. Each is marked on the spec, and a reviewed input always wins:
+ * - the ask: with no approved phrase for the row, an ask written by code from the atoms (`asks.ts`), tag
+ *   `ask:code`; the same for a deviation message and a resume message;
+ * - the outcome: with no paths declared by the situation and none the atoms name, the effect read from the
+ *   atoms: nothing changes for a negative control, a denied tool, a guard that denies or blocks, or a row
+ *   whose skills and helpers may use no writing tool; otherwise nothing is deleted. Recorded in
+ *   `metadata.estate.outcome`.
+ *
+ * `focus` lists atoms to put first: the run order (`run-order.txt`) lists the complete specs of rows naming
+ * a focus atom, then those of guards, gates and invariants, then the rest.
  */
 
 export const ESTATE_REPORT_FILE = 'estate-generate-report.json';
+export const ESTATE_ORDER_FILE = 'run-order.txt';
+/** Tools that can change a workspace; a unit allowed none of them leaves the workspace as it was. */
+export const WRITING_TOOLS: ReadonlySet<string> = new Set([
+  'Edit',
+  'Write',
+  'MultiEdit',
+  'NotebookEdit',
+  'Bash',
+]);
+/** Kinds whose complete specs come right after the focus atoms in the run order. */
+export const PRIORITY_KINDS: readonly string[] = ['guard', 'gate', 'invariant'];
 export const ESTATE_COMPLETE_DIR = 'specs';
 export const ESTATE_INCOMPLETE_DIR = 'incomplete';
 export const ESTATE_SEEDER = 'estate';
@@ -119,6 +143,10 @@ export type EstateGenerateOptions = {
   paths: { map: string; plan: string; phrases: string; sessions?: string };
   /** Custom checks the runner registers; default the replay runner's. */
   customChecks?: readonly string[];
+  /** Code-written asks and outcomes read from the atoms where the bank has none. Default true. */
+  fallback?: boolean;
+  /** Atom ids whose complete specs come first in the run order. */
+  focus?: readonly string[];
 };
 
 export type Totals = { rows: number; specs: number; complete: number; incomplete: number };
@@ -129,8 +157,19 @@ export type EstateReport = {
   plan: { path: string; rows: number; approved: number; proposed: number; struck: number };
   phrases: { path: string; situations: number; phrases: number; workspaces: number };
   sessions: { path: string; sessions: number } | null;
-  options: { seed: number; checks: string[] };
+  options: { seed: number; checks: string[]; fallback: boolean };
   summary: { specs: number; blocks: number; complete: number; incomplete: number; judged: number };
+  /** Where the asks and outcomes of the complete specs come from. */
+  sources: {
+    asks: { bank: number; code: number; session: number; none: number };
+    outcomes: Record<string, number>;
+  };
+  /** The focus atoms: how many complete specs name each; those with none are listed apart. */
+  focus: {
+    atoms: number;
+    complete: number;
+    perAtom: Array<{ atom: string; complete: number; incomplete: number; markers: string[] }>;
+  } | null;
   perTestType: Record<string, Totals>;
   perMode: Record<string, Totals>;
   gaps: Array<{ marker: string; specs: number; atoms: string[]; details: string[] }>;
@@ -149,9 +188,15 @@ export type EstateSpecRecord = {
   mode: string;
   complete: boolean;
   markers: Marker[];
+  atoms: string[];
+  ask: AskSource;
+  outcome: string;
   session?: string;
   expect?: 'pass' | 'fail';
 };
+
+/** Where a spec's ask comes from: an approved phrase, code, a recorded session, or no ask (static). */
+export type AskSource = 'bank' | 'code' | 'session' | 'none';
 
 export type EstateGenerateResult = {
   files: GeneratedFile[];
@@ -166,6 +211,9 @@ type Context = ThenContext & {
   sessions?: SessionIndex;
   seed: number;
   paths: EstateGenerateOptions['paths'];
+  fallback: boolean;
+  /** Skill names, for a misroute ask that names the wrong skill. */
+  units: string[];
 };
 
 type Built = {
@@ -174,6 +222,8 @@ type Built = {
   gaps: Gap[];
   blocks: number;
   judged: number;
+  ask: AskSource;
+  outcome: string;
   session?: SessionEntry;
   expect?: 'pass' | 'fail';
 };
@@ -234,6 +284,15 @@ export function generateEstateSuite(
     ...(input.sessions ? { sessions: input.sessions } : {}),
     seed,
     paths: options.paths,
+    fallback: options.fallback ?? true,
+    units: [
+      ...new Set(
+        input.map.atoms
+          .filter((atom) => atom.kind === 'skill')
+          .map((atom) => atom.fields?.name)
+          .filter((name): name is string => typeof name === 'string'),
+      ),
+    ].sort(),
     stages: stageModel(input.map.atoms),
     skills: new Set(
       input.map.atoms
@@ -294,6 +353,9 @@ export function generateEstateSuite(
         mode: row.mode,
         complete,
         markers,
+        atoms: row.atomIds,
+        ask: built.ask,
+        outcome: built.outcome,
         ...(built.session ? { session: built.session.name } : {}),
         ...(built.expect ? { expect: built.expect } : {}),
       });
@@ -318,6 +380,16 @@ export function generateEstateSuite(
   }
 
   const complete = records.filter((record) => record.complete).length;
+  const done = records.filter((record) => record.complete);
+  const asks = { bank: 0, code: 0, session: 0, none: 0 };
+  const outcomes: Record<string, number> = {};
+  for (const record of done) {
+    asks[record.ask] += 1;
+    outcomes[record.outcome] = (outcomes[record.outcome] ?? 0) + 1;
+  }
+  const focus = options.focus ? [...new Set(options.focus)] : undefined;
+  const order = runOrder(records, ctx.atoms, focus ?? []);
+  files.push({ path: ESTATE_ORDER_FILE, text: order.length === 0 ? '' : `${order.join('\n')}\n` });
   const report: EstateReport = {
     generator: 'driftbench estate generate',
     map: {
@@ -346,8 +418,26 @@ export function generateEstateSuite(
       input.sessions && options.paths.sessions
         ? { path: options.paths.sessions, sessions: input.sessions.sessions.length }
         : null,
-    options: { seed, checks },
+    options: { seed, checks, fallback: ctx.fallback },
     summary: { specs: records.length, blocks, complete, incomplete: records.length - complete, judged },
+    sources: { asks, outcomes: sortedKeys(outcomes) },
+    focus: focus
+      ? {
+          atoms: focus.length,
+          complete: done.filter((record) => record.atoms.some((atom) => focus.includes(atom))).length,
+          perAtom: focus.map((atom) => {
+            const own = records.filter((record) => record.atoms.includes(atom));
+            return {
+              atom,
+              complete: own.filter((record) => record.complete).length,
+              incomplete: own.filter((record) => !record.complete).length,
+              markers: [
+                ...new Set(own.filter((record) => !record.complete).flatMap((record) => record.markers)),
+              ].sort(),
+            };
+          }),
+        }
+      : null,
     perTestType: ordered(perTestType, Object.keys(SITUATION_OF)),
     perMode: ordered(perMode, ['replay', 'unit', 'live']),
     gaps: [...gaps.entries()]
@@ -428,15 +518,19 @@ function build(
     gap(then, MARKERS.registered, first, 'ordered');
   }
 
-  // When: the phrase.
+  // When: the phrase, else an ask written by code from the atoms.
   let phrase: BankPhrase | undefined;
   let phraseIndex: number | undefined;
+  let ask: AskSource = use === 'none' ? 'none' : 'bank';
+  let askFrom: string | undefined;
   if (use !== 'none') {
+    let missing: { marker: Marker; detail: string } | undefined;
     if (!situation) {
-      gap(then, MARKERS.phrase, first, `a ${use} situation for ${first.id}`);
+      missing = { marker: MARKERS.phrase, detail: `a ${use} situation for ${first.id}` };
     } else if (session) {
       phraseIndex = situation.phrases.findIndex((entry) => entry.text === session.ask);
       phrase = situation.phrases[phraseIndex];
+      ask = 'session';
     } else {
       const order = shuffle(
         rngFor(ctx.seed, `estate:${situation.id}`),
@@ -444,22 +538,34 @@ function build(
       );
       phrase = order[row.testType === 'twin' ? 1 : 0];
       if (!phrase) {
-        gap(
-          then,
-          row.testType === 'twin' ? MARKERS.secondPhrase : MARKERS.phrase,
-          first,
-          `${situation.id} has ${order.length} approved phrase${order.length === 1 ? '' : 's'}`,
-        );
+        missing = {
+          marker: row.testType === 'twin' ? MARKERS.secondPhrase : MARKERS.phrase,
+          detail: `${situation.id} has ${order.length} approved phrase${order.length === 1 ? '' : 's'}`,
+        };
       } else phraseIndex = situation.phrases.indexOf(phrase);
     }
+    if (missing && ctx.fallback) {
+      const written = codeAsk(use, atoms, ctx.units, row.testType === 'twin', (id) => ctx.atoms.get(id));
+      phrase = { text: written.text, lang: written.lang, approved: false };
+      phraseIndex = undefined;
+      ask = 'code';
+      askFrom = written.source;
+    } else if (missing) gap(then, missing.marker, first, missing.detail);
   }
 
-  // The outcome the situation declares.
+  // The outcome the situation declares, else the one the atoms name, else the one read from the atoms.
+  let outcome = 'none';
   if (situation?.touches) {
     addWorkspace(then, { ...situation.touches, othersUntouched: true });
+    outcome = 'bank';
   }
   // A static test runs no ask: its static marker says what it waits for, nothing else is owed.
   const asks = use !== 'none';
+  const named = then.workspace !== undefined || then.ranCode || then.artifacts.length > 0;
+  if (outcome === 'none' && named) outcome = 'atoms';
+  if (asks && !named && ctx.fallback) {
+    outcome = derivedOutcome(row, atoms, then);
+  }
   if (asks && !then.workspace && !then.ranCode && then.artifacts.length === 0) {
     gap(
       then,
@@ -484,7 +590,11 @@ function build(
           resume.phrases.filter((entry) => entry.approved),
         )
       : [];
-    const text = order[0]?.text;
+    let text = order[0]?.text;
+    if (text === undefined && ctx.fallback) {
+      text = codeAsk('resume', atoms, ctx.units).text;
+      ask = ask === 'bank' ? 'code' : ask;
+    }
     if (text === undefined) gap(then, MARKERS.phrase, first, `a resume situation for ${first.id}`);
     blocks.push({
       id: 'resume',
@@ -494,9 +604,9 @@ function build(
     });
   }
   // A block left empty by other gaps is already named by them; an empty block with none is its own gap.
-  const named = then.gaps.length > 0;
+  const gapped = then.gaps.length > 0;
   for (const block of blocks) {
-    if (asks && !named && Object.keys(block.expect as object).length === 0) {
+    if (asks && !gapped && Object.keys(block.expect as object).length === 0) {
       gap(then, MARKERS.noThen, first, `block ${String(block.id)} checks nothing`);
     }
   }
@@ -512,7 +622,11 @@ function build(
           entry.phrases.filter((item) => item.approved),
         )
       : [];
-    const text = order[0]?.text;
+    let text = order[0]?.text;
+    if (text === undefined && ctx.fallback) {
+      text = DEVIATION_ASKS[deviation];
+      if (text !== undefined && ask === 'bank') ask = 'code';
+    }
     if (text === undefined) gap(then, MARKERS.deviation, first, deviation);
     if (!(deviation in DEVIATION_EXPECTED)) {
       gap(then, MARKERS.deviation, first, `${deviation} is no deviation class of the spec format`);
@@ -565,7 +679,13 @@ function build(
     title: `${row.testType}: ${first.title}${session ? ` (session ${session.name})` : ''}`,
     ...(phrase ? { lang: phrase.lang.toUpperCase() } : {}),
     tier: 'generated',
-    tags: ['estate', `test:${row.testType}`, `mode:${row.mode}`, ...kinds],
+    tags: [
+      'estate',
+      `test:${row.testType}`,
+      `mode:${row.mode}`,
+      ...kinds,
+      ...(ask === 'code' ? ['ask:code'] : []),
+    ],
     target: { adapter: ctx.map.runtime },
     given: { vars, ...(seed ? { world: { workspace: { files: seed.files } } } : {}) },
     ...(usesStages ? { stages: ctx.stages.ids } : {}),
@@ -587,6 +707,9 @@ function build(
         plan: ctx.paths.plan,
         situation: situation?.id ?? null,
         phrase: phraseIndex ?? null,
+        ask,
+        ...(askFrom ? { askFrom } : {}),
+        outcome,
         ...(session ? { session: session.name, expect: expectRun } : {}),
         ...(complete
           ? {}
@@ -607,6 +730,8 @@ function build(
     gaps: then.gaps,
     blocks: blocks.length,
     judged: complete ? then.criteria.length : 0,
+    ask,
+    outcome,
     ...(session ? { session } : {}),
     ...(expectRun ? { expect: expectRun } : {}),
   };
@@ -620,17 +745,19 @@ function expectOf(then: ThenParts, first: boolean): Record<string, unknown> {
   if (then.guards.length > 0) expect.guards = then.guards.map((guard) => ({ ...guard }));
   if (then.tools.length > 0) expect.tools = then.tools.map((tool) => ({ ...tool }));
   if (then.offeredExclude.length > 0) expect.tools_offered = { exclude: [...then.offeredExclude] };
+  if (then.references.length > 0) expect.references = then.references.map((item) => ({ ...item }));
+  if (then.subagents.length > 0) expect.subagents = then.subagents.map((item) => ({ ...item }));
   if (first && then.must.length > 0) expect.must = [...then.must];
   if (first && then.mustNot.length > 0) expect.must_not = [...then.mustNot];
   if (first && then.lang !== undefined) expect.lang = then.lang;
   if (first && then.ranCode) expect.execution = { ran_code: true };
   if (first && then.artifacts.length > 0) expect.artifacts = then.artifacts.map((item) => ({ ...item }));
   if (first && then.workspace) {
-    const { created, changed, deleted, othersUntouched } = then.workspace;
+    const { created, changed, deleted, othersUntouched, noDeletes } = then.workspace;
     expect.workspace = {
       ...(created.length > 0 ? { created: [...created] } : {}),
       ...(changed.length > 0 ? { changed: [...changed] } : {}),
-      ...(deleted.length > 0 ? { deleted: [...deleted] } : {}),
+      ...(deleted.length > 0 ? { deleted: [...deleted] } : noDeletes ? { deleted: [] } : {}),
       ...(othersUntouched ? { others_untouched: true } : {}),
     };
   }
@@ -679,7 +806,9 @@ export function findSituation(
 function specText(built: Built, row: EstatePlanRow, ctx: Context, markers: readonly Marker[]): string {
   const header = [
     `# Generated by driftbench estate generate (plan row ${row.id}, seed ${ctx.seed}) from ${ctx.paths.plan} and ${ctx.paths.map}, map hash ${ctx.map.hash.slice(0, 12)}.`,
-    '# Code wrote it: the ask is an approved phrase of the bank, the Then comes from the atoms of the row.',
+    built.ask === 'code'
+      ? '# Code wrote it: no approved phrase yet, so code wrote the ask from the atoms (tag ask:code); the Then comes from the atoms of the row.'
+      : '# Code wrote it: the ask is an approved phrase of the bank, the Then comes from the atoms of the row.',
     '# Do not edit it by hand: change the estate, the plan or the bank and generate again. Fictional data only.',
   ];
   if (markers.length > 0) {
@@ -699,6 +828,67 @@ function explained(warning: Issue, markers: readonly Marker[]): boolean {
     return markers.includes(MARKERS.outcome) || markers.includes(MARKERS.static);
   }
   return false;
+}
+
+/**
+ * The outcome of a row whose situation and atoms name no path, read from the atoms. Nothing may change
+ * when the row is a negative control, a denied tool, a guard that denies or blocks, or when every skill and
+ * helper of the row is allowed only tools that cannot write. Otherwise nothing may be deleted: no task of a
+ * row asks for a deletion it does not name. Returns the source recorded on the spec.
+ */
+function derivedOutcome(row: EstatePlanRow, atoms: readonly EstateAtom[], then: ThenParts): string {
+  const blocked =
+    atoms.some((atom) => atom.kind === 'guard' && atom.evidence.some(denies)) &&
+    (row.testType === 'guard_positive' || row.testType === 'guard_hostile');
+  const units = atoms.filter(
+    (atom) => (atom.kind === 'skill' || atom.kind === 'subagent') && Array.isArray(atom.fields?.tools),
+  );
+  const readOnly =
+    units.length > 0 &&
+    units.every((unit) =>
+      ((unit.fields?.tools ?? []) as unknown[]).every(
+        (tool) => typeof tool === 'string' && !WRITING_TOOLS.has(tool.replace(/\(.*$/, '').trim()),
+      ),
+    );
+  if (NEGATIVE_TESTS.has(row.testType) || row.testType === 'tool_denied' || blocked || readOnly) {
+    addWorkspace(then, { created: [], changed: [], deleted: [], othersUntouched: true });
+    if (NEGATIVE_TESTS.has(row.testType)) return 'no-change:negative';
+    if (row.testType === 'tool_denied') return 'no-change:denied';
+    return blocked ? 'no-change:guard' : 'no-change:read-only';
+  }
+  addWorkspace(then, { created: [], changed: [], deleted: [], othersUntouched: false, noDeletes: true });
+  return 'no-delete';
+}
+
+function denies(evidence: EstateAtom['evidence'][number]): boolean {
+  return evidence.type === 'guard' && /^(deny|block|blocked|denied)$/i.test(evidence.verdict ?? '');
+}
+
+/**
+ * The complete specs in the order to run them: rows naming a focus atom (in the order of the focus list),
+ * then rows naming a guard, a gate or an invariant, then the rest, each group in generation order.
+ */
+function runOrder(
+  records: readonly EstateSpecRecord[],
+  atoms: ReadonlyMap<string, EstateAtom>,
+  focus: readonly string[],
+): string[] {
+  const done = records.filter((record) => record.complete);
+  const rank = (record: EstateSpecRecord): number => {
+    const hit = focus.findIndex((atom) => record.atoms.includes(atom));
+    if (hit >= 0) return hit;
+    const kinds = record.atoms.map((id) => atoms.get(id)?.kind ?? '');
+    const kind = PRIORITY_KINDS.findIndex((candidate) => kinds.includes(candidate));
+    return kind >= 0 ? focus.length + kind : focus.length + PRIORITY_KINDS.length;
+  };
+  return done
+    .map((record, index) => ({ record, index, rank: rank(record) }))
+    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .map(({ record }) => record.path);
+}
+
+function sortedKeys(table: Record<string, number>): Record<string, number> {
+  return Object.fromEntries(Object.entries(table).sort(([a], [b]) => a.localeCompare(b)));
 }
 
 /** A spec id from a plan row id: the characters a spec id allows, a session name after a dot. */
@@ -747,6 +937,29 @@ export function renderEstateSummary(report: EstateReport): string {
   lines.push(
     `${'total'.padEnd(18)}${''.padStart(6)}${String(report.summary.specs).padStart(7)}${String(report.summary.complete).padStart(10)}${String(report.summary.incomplete).padStart(12)}`,
     '',
+  );
+  const { asks, outcomes } = report.sources;
+  lines.push(
+    `Asks of the complete specs: ${asks.bank} approved phrases, ${asks.code} written by code, ${asks.session} recorded sessions, ${asks.none} with no ask.`,
+    `Outcomes of the complete specs: ${
+      Object.entries(outcomes)
+        .map(([source, count]) => `${count} ${source}`)
+        .join(', ') || 'none'
+    }.`,
+  );
+  if (report.focus) {
+    const empty = report.focus.perAtom.filter((entry) => entry.complete === 0);
+    lines.push(
+      `Focus: ${report.focus.complete} complete specs name one of the ${report.focus.atoms} focus atoms; ${empty.length} focus atom${empty.length === 1 ? ' has' : 's have'} none.`,
+    );
+    for (const entry of empty) {
+      lines.push(
+        `  ${entry.atom}: ${entry.incomplete === 0 ? 'no plan row' : `${entry.incomplete} incomplete (${entry.markers.join(', ')})`}`,
+      );
+    }
+  }
+  lines.push(
+    `Run order: ${ESTATE_ORDER_FILE} lists the complete specs, focus atoms first, then guards, gates and invariants.`,
   );
   if (report.gaps.length > 0) {
     lines.push('Gaps (what keeps a spec incomplete):');

@@ -1,4 +1,12 @@
-import type { ArtifactExpect, CriterionDef, GuardExpect, SkillExpect, ToolExpect } from '@driftbench/core';
+import type {
+  ArtifactExpect,
+  CriterionDef,
+  GuardExpect,
+  ReferenceExpect,
+  SkillExpect,
+  SubagentExpect,
+  ToolExpect,
+} from '@driftbench/core';
 import type { EstateAtom, EstateEvidence } from './inputs';
 
 /**
@@ -10,6 +18,8 @@ import type { EstateAtom, EstateEvidence } from './inputs';
  * | guard | `expect.guards` (name, verdict, count) |
  * | tool_called without input, tool_not_called | `expect.tools` with a count (0 forbids the tool) |
  * | tool_not_called on a setting that denies the whole tool | also `expect.tools_offered.exclude` |
+ * | tool_called Read with a path (equal or contained) | `expect.references`, a glob ending in the path |
+ * | tool_called Agent with a helper name | `expect.subagents` with a count |
  * | ordered | the ordered-pair custom check, `rules.custom.ordered` |
  * | stage_reached | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last |
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
@@ -18,8 +28,8 @@ import type { EstateAtom, EstateEvidence } from './inputs';
  *
  * What no existing check can say without changing its meaning is a gap, named by a marker, and the spec
  * that holds it is incomplete:
- * - a tool call with input assertions: the tools check asserts the input on every call of the tool, the
- *   atom asks for one call that matches (`needs-some-call-check`);
+ * - a tool call with other input assertions: the tools check asserts the input on every call of the tool,
+ *   the atom asks for one call that matches (`needs-some-call-check`);
  * - a custom predicate no registered check runs (`needs-registered-check`);
  * - an ordered pair whose ends are not a tool label, a skill or a stage, or are the same label
  *   (`needs-ordered-anchor`);
@@ -57,6 +67,8 @@ export type WorkspaceParts = {
   changed: string[];
   deleted: string[];
   othersUntouched: boolean;
+  /** True when nothing may be deleted: `deleted: []`, the change no task of the row asks for. */
+  noDeletes?: boolean;
 };
 
 export type ThenParts = {
@@ -69,6 +81,8 @@ export type ThenParts = {
   mustNot: string[];
   lang?: string;
   artifacts: ArtifactExpect[];
+  references: ReferenceExpect[];
+  subagents: SubagentExpect[];
   workspace?: WorkspaceParts;
   stage?: string;
   ranCode: boolean;
@@ -110,6 +124,8 @@ export function emptyThen(): ThenParts {
     must: [],
     mustNot: [],
     artifacts: [],
+    references: [],
+    subagents: [],
     ranCode: false,
     ordered: [],
     criteria: [],
@@ -147,6 +163,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
+        if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
         gap(then, MARKERS.someCall, atom, `one ${evidence.label} call with ${show(evidence.input)}`);
         return;
       }
@@ -229,6 +246,7 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence): 
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
+        if (someCall(then, evidence.label, evidence.input, 0)) return;
         gap(then, MARKERS.someCall, atom, `no ${evidence.label} call with ${show(evidence.input)}`);
         return;
       }
@@ -375,6 +393,7 @@ export function addWorkspace(then: ThenParts, parts: WorkspaceParts): void {
   for (const path of parts.changed) addUnique(into.changed, path);
   for (const path of parts.deleted) addUnique(into.deleted, path);
   into.othersUntouched = into.othersUntouched || parts.othersUntouched;
+  if (parts.noDeletes === true) into.noDeletes = true;
   then.workspace = into;
 }
 
@@ -410,6 +429,44 @@ function addTool(then: ThenParts, tool: ToolExpect): void {
 
 function addUnique(list: string[], item: string): void {
   if (!list.includes(item)) list.push(item);
+}
+
+/**
+ * A tool call with input that an existing check can say for one matching call: a Read of a path (the
+ * references check counts reads of a file matching a glob) or an Agent dispatch of a named helper (the
+ * subagents check counts dispatches by name). False when the input is anything else.
+ */
+function someCall(then: ThenParts, label: string, input: Record<string, unknown>, min: number): boolean {
+  const keys = Object.keys(input);
+  if (keys.length !== 1) return false;
+  const key = keys[0] as string;
+  const value = textOf(input[key]);
+  if (value === undefined || value.trim() === '') return false;
+  const count = min === 0 ? 0 : { min };
+  if (label === 'Read' && (key === 'file_path' || key === 'path' || key === 'notebook_path')) {
+    const path = `**/${value.replace(/^\.?\/+/, '')}`;
+    if (!then.references.some((known) => known.path === path && same(known.count, count))) {
+      then.references.push({ path, count });
+    }
+    return true;
+  }
+  if (label === 'Agent' && (key === 'subagent_type' || key === 'name')) {
+    if (!then.subagents.some((known) => known.name === value && same(known.count, count))) {
+      then.subagents.push({ name: value, count });
+    }
+    return true;
+  }
+  return false;
+}
+
+/** The text an input assertion pins: a plain string, `{ equals }` or `{ contains }`. */
+function textOf(assertion: unknown): string | undefined {
+  if (typeof assertion === 'string') return assertion;
+  if (typeof assertion !== 'object' || assertion === null) return undefined;
+  const entries = Object.entries(assertion as Record<string, unknown>);
+  if (entries.length !== 1) return undefined;
+  const [kind, value] = entries[0] as [string, unknown];
+  return (kind === 'equals' || kind === 'contains') && typeof value === 'string' ? value : undefined;
 }
 
 function hasInput(input: Record<string, unknown> | undefined): input is Record<string, unknown> {

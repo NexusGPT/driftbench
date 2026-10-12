@@ -201,7 +201,8 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
       }
     }
     const markers = Object.fromEntries(result.specs.map((spec) => [spec.row, spec.markers]));
-    expect(markers.p08).toEqual([MARKERS.someCall]);
+    expect(markers.p08).toEqual([]);
+    expect(markers.p15).toEqual([MARKERS.someCall]);
     expect(markers.p12).toEqual([MARKERS.registered]);
     expect(markers.p22).toEqual([MARKERS.guardTiming]);
     expect(markers.p23).toEqual([MARKERS.guardMessage]);
@@ -259,7 +260,7 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     expect(sum('specs')).toBe(summary.specs);
     expect(sum('complete')).toBe(summary.complete);
     expect(perMode.replay).toEqual({ rows: 4, specs: 12, complete: 12, incomplete: 0 });
-    expect(perTestType.journey).toEqual({ rows: 2, specs: 2, complete: 1, incomplete: 1 });
+    expect(perTestType.journey).toEqual({ rows: 2, specs: 2, complete: 2, incomplete: 0 });
   });
 });
 
@@ -319,14 +320,59 @@ describe('estate generate on inputs that do not fit together', () => {
     ]);
   });
 
-  it('never asks with an unapproved phrase', () => {
+  it('never asks with an unapproved phrase: code writes the ask, or, with no fallback, the row waits', () => {
     const copy = structuredClone(input);
     const situation = copy.bank.situations.find((entry) => entry.id === 'invoice-reconcile');
     for (const phrase of situation?.phrases ?? []) phrase.approved = false;
+    const unapproved = (situation?.phrases ?? []).map((phrase) => phrase.text);
+
+    const strict = generateEstateSuite(copy, { paths: HAND_PATHS, fallback: false });
+    const waiting = strict.specs.find((spec) => spec.row === 'p05');
+    expect(waiting?.complete).toBe(false);
+    expect(waiting?.markers).toEqual([MARKERS.phrase]);
+
     const result = generateEstateSuite(copy, { paths: HAND_PATHS });
     const record = result.specs.find((spec) => spec.row === 'p05');
-    expect(record?.complete).toBe(false);
-    expect(record?.markers).toEqual([MARKERS.phrase]);
+    expect(record).toMatchObject({ complete: true, ask: 'code', outcome: 'bank' });
+    const spec = only(specs(result), 'estate.p05');
+    const when = spec.blocks[0]?.when;
+    const user = when && 'user' in when ? when.user : undefined;
+    expect(unapproved).not.toContain(user);
+    expect(user).toBe('Please reconcile an invoice against a purchase order.');
+    expect(spec.tags).toContain('ask:code');
+    expect(estate(spec)).toMatchObject({ ask: 'code', phrase: null, situation: 'invoice-reconcile' });
+    expect(result.files.find((file) => file.path === record?.path)?.text).toContain('code wrote the ask');
+  });
+
+  it('reads the outcome from the atoms when no situation declares one: no change, or nothing deleted', () => {
+    const copy = structuredClone(input);
+    for (const situation of copy.bank.situations) delete situation.touches;
+    const result = generateEstateSuite(copy, { paths: HAND_PATHS });
+    const byRow = new Map(result.specs.map((record) => [record.row, record]));
+    const all = specs(result);
+    const workspaceOf = (row: string) => {
+      const record = byRow.get(row);
+      return record ? only(all, record.id).blocks[0]?.expect?.workspace : undefined;
+    };
+    expect(byRow.get('p10')).toMatchObject({ testType: 'outside_trigger', outcome: 'no-change:negative' });
+    expect(workspaceOf('p10')).toEqual({ others_untouched: true });
+    expect(byRow.get('p19')).toMatchObject({ testType: 'guard_positive', outcome: 'no-change:guard' });
+    expect(byRow.get('p17')).toMatchObject({ testType: 'contract_alone' });
+    const sources = new Set(result.specs.map((record) => record.outcome));
+    expect(sources).toContain('no-delete');
+    for (const record of result.specs.filter((entry) => entry.outcome === 'no-delete')) {
+      expect(only(all, record.id).blocks[0]?.expect?.workspace, record.id).toEqual({ deleted: [] });
+    }
+    for (const record of result.specs.filter((entry) => entry.outcome.startsWith('no-change'))) {
+      expect(only(all, record.id).blocks[0]?.expect?.workspace, record.id).toEqual({
+        others_untouched: true,
+      });
+    }
+    expect(result.specs.some((record) => record.markers.includes(MARKERS.outcome))).toBe(false);
+    const strict = generateEstateSuite(copy, { paths: HAND_PATHS, fallback: false });
+    expect(strict.specs.filter((record) => record.markers.includes(MARKERS.outcome)).length).toBeGreaterThan(
+      10,
+    );
   });
 
   it('names a block that checks nothing when no other gap explains it', () => {
@@ -436,9 +482,9 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1379,
       blocks: 1382,
-      complete: 230,
-      incomplete: 1149,
-      judged: 70,
+      complete: 813,
+      incomplete: 566,
+      judged: 144,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
