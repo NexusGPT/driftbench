@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Use the invoice-reconcile skill to sort the shared operations inbox into invoices, shipment questions and supplier mail.
+      user: Please sort the shared operations inbox into invoices, shipment questions and supplier mail.
     expect:
       subagents:
         - name: inbox-triager

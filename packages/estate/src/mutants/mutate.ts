@@ -11,7 +11,7 @@ import {
   stat,
   writeFile,
 } from 'node:fs/promises';
-import { dirname, join, relative, sep } from 'node:path';
+import { basename, dirname, join, relative, sep } from 'node:path';
 import { mapHash } from '../map/build';
 import { quoteDrift } from '../map/file';
 import { readerFor } from '../scan/index';
@@ -118,6 +118,11 @@ export async function mutateEstate(
   const id = 'delete' in op ? op.delete : op.invert;
   const atom = copy.map.atoms.find((candidate) => candidate.id === id);
   if (!atom) throw new MutantError(`atom ${id} is not in the map`);
+  if (kind === 'delete' && isEquivalentDelete(atom)) {
+    throw new MutantError(
+      `${id} is an equivalent mutant: its name line repeats the skill's folder, and the runtime names a skill by its folder, so deleting the line changes nothing; no mutant is written`,
+    );
+  }
   const { file, startLine, endLine, quote } = atom.provenance;
   const path = await insideCopy(copy.root, file);
   const text = await readFile(path, 'utf8').catch(() => {
@@ -218,6 +223,17 @@ export async function mutateEstate(
     collateral,
     removed: removedFiles,
   };
+}
+
+/**
+ * A skill's `name:` line whose value is the skill's folder name. The runtime names a skill by its folder, so
+ * deleting the line changes nothing the agent sees: the mutant is equivalent, and it is not made.
+ */
+function isEquivalentDelete(atom: Atom): boolean {
+  if (atom.kind !== 'skill') return false;
+  const folder = atom.fields?.folder;
+  const value = /^name:\s*['"]?([^'"\s]+)['"]?\s*$/.exec(atom.provenance.quote)?.[1];
+  return typeof folder === 'string' && value !== undefined && value === basename(folder);
 }
 
 function withProvenance(atom: Atom, change: Partial<Atom['provenance']>): Atom {

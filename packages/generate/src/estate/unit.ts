@@ -257,14 +257,28 @@ export function unitTestOf(
     : [];
   const strong = links.filter((link) => link.by === 'registry' || link.by === 'id');
   const enforced = (strong.length > 0 ? strong : links).map((link) => link.atom);
+  // A rule the guard cites (registry or id) gives every concrete span of its source lines; a rule linked by
+  // a repeated quote gives only the spans its words forbid. A rule with no span gives its sentence, which
+  // only a text event (a prompt, a reply) can carry: a tool never gets a sentence as its input.
+  const cites = strong.length > 0;
+  const textEvent = !TOOL_EVENTS.has(event);
   const material = [
     ...new Set(
       enforced.flatMap((ruleId) => {
         const rule = atoms.get(ruleId);
-        return rule?.provenance?.quote ? materialOf(rule.provenance.quote) : [];
+        const quote = rule?.provenance?.quote ?? '';
+        const lineSpans = Array.isArray(rule?.fields?.spans)
+          ? (rule.fields.spans as unknown[]).filter((item): item is string => typeof item === 'string')
+          : [];
+        const quoteSpans = [...quote.matchAll(/`([^`]+)`/g)].map((match) => match[1] ?? '');
+        const spans = cites
+          ? [...lineSpans, ...quoteSpans]
+          : materialOf(quote).filter((item) => item !== quote.trim());
+        if (spans.length > 0) return spans;
+        return textEvent && quote.trim() !== '' ? materialOf(quote) : [];
       }),
     ),
-  ];
+  ].filter((item) => item.trim() !== '');
   const cases: GuardCase[] = [];
   const add = (tool: string | undefined, text: string) => {
     cases.push({

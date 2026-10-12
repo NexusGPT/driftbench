@@ -1204,13 +1204,15 @@ An option error the argument parser reports (an unknown option, a missing compon
 ## `driftbench estate run` and `driftbench estate mutate`
 
 ```
-driftbench estate run <specs...> --estate <root> --runtime claude-code [--command <bin>] --store <db> [--map <file>] [--states <file>] [--pass-env <names...>] [--timeout <ms>] [--allow-billed] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
+driftbench estate run <specs...> --estate <root> --runtime claude-code [--command <bin>] --store <db> [--map <file>] [--states <file>] [--pass-env <names...>] [--timeout <ms>] [--allow-billed] [--progress <file>] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
 driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--force] [--json]
 ```
 
 `estate run` runs live estate specs through the runtime's headless command, in a sandbox holding a copy of the estate, pinned to the map's hash with `--map`. A command is billed unless its first lines carry the stand-in marker: without `--allow-billed`, only a stand-in runs. Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs).
 
-`estate mutate` copies the estate and deletes the quoted span of one atom (`--delete`) or replaces it by its negation from a fixed table (`--invert`), and writes the copy, `map.yaml` and `mutant.json` to `--to`. The tests derived from that atom must then go red. Exit 0 when the mutant is written, 2 on a usage or input error (nothing is written).
+With `--progress <file>`, each finished spec appends one compact JSON run line to the file as it finishes, so a stopped batch keeps the lines it finished. Stdout is unchanged: with `--json` it is the one summary document, which has `runs`, `passed`, `failed`, `undecided`, `notApplicable` and `costUsd`. A spec whose only non-passing checks are not applicable (a stage check on a run with no stage record) is counted as `notApplicable`, not as a failure, and the summary line names the count.
+
+`estate mutate` copies the estate and deletes the quoted span of one atom (`--delete`) or replaces it by its negation from a fixed table (`--invert`), and writes the copy, `map.yaml` and `mutant.json` to `--to`. The tests derived from that atom must then go red. Exit 0 when the mutant is written, 2 on a usage or input error (nothing is written). A `--delete` of a skill's `name:` line whose value equals the skill's folder name is an equivalent mutant: it is refused with exit 2 and nothing is written.
 
 On the Northwind fixture, with the stand-in command of `examples/estates/fixture/live/fake` (no model call):
 

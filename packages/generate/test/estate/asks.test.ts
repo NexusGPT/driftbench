@@ -88,14 +88,14 @@ describe('asks written by code from the atoms', () => {
     );
   });
 
-  it('names another skill of the estate for a misroute, never the row own', () => {
+  it('describes the task for a misroute and never names a skill, the wrong one included', () => {
     const route = atom('route.standing.r', {
       situation: 'An ask to reconcile an invoice',
       fields: { target: 'invoice-reconcile' },
     });
-    expect(codeAsk('misroute', [route, skill], ['invoice-reconcile', 'weekly-report']).text).toBe(
-      'Use the weekly-report skill to reconcile an invoice.',
-    );
+    const ask = codeAsk('misroute', [route, skill], ['invoice-reconcile', 'weekly-report']).text;
+    expect(ask).toBe('Please reconcile an invoice.');
+    expect(ask).not.toMatch(/skill|weekly-report|invoice-reconcile/);
   });
 
   it('falls back on a verb-led title or the tool rule, refuses a bare title, and strips markup, labels and list numbers', () => {
