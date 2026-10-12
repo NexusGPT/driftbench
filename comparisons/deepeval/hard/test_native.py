@@ -50,6 +50,18 @@ class NativeTests(unittest.TestCase):
         self.assertTrue(result["prediction"])
         self.assertAlmostEqual(result["score"],2/3)
 
+    def test_task_receipt_enters_actual_native_tool_call_prompt(self):
+        from receipts import augment
+        case = augment({"turns":[{"role":"user","content":"Place order PLACE_SENTINEL."},
+                                 {"role":"assistant","content":"PLACE_SENTINEL placed, reference REF_SENTINEL."}]})
+        rec = StubRecorder([{"task":"Place order", "outcome":"Order placed, REF_SENTINEL"},
+                            {"verdict":1,"reason":"receipt confirms result"}])
+        result = metrics(rec)("task completion",case)
+        self.assertTrue(result["prediction"])
+        self.assertEqual(len(rec.inputs),2)
+        self.assertIn("acme.task_receipt",rec.inputs[0][1])
+        self.assertIn("PLACE_SENTINEL placed, reference REF_SENTINEL",rec.inputs[0][1])
+
 
 if __name__ == "__main__":
     unittest.main()

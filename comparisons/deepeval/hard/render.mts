@@ -23,10 +23,13 @@ type Case = {
   turns: { role: 'user' | 'assistant'; content: string }[];
   contexts?: string[];
   role?: string;
+  tool_receipts?: { name: string; input_parameters: Record<string, unknown>; output: Record<string, unknown> }[];
 };
 const corpus = process.argv[2] ?? 'v2';
 if (!['v1', 'v2', 'heldout'].includes(corpus)) throw new Error(`Unknown corpus: ${corpus}`);
-const suffix = corpus === 'v2' ? '' : `-${corpus}`;
+const receipt = process.argv[3] === 'receipt';
+if (receipt && corpus === 'v1') throw new Error('Receipts use corrected hard or heldout corpus');
+const suffix = `${receipt ? '-receipts' : ''}${corpus === 'v2' ? '' : `-${corpus}`}`;
 const sets = JSON.parse(readFileSync(resolve(here, `sets${suffix}.json`), 'utf8')) as Record<string, Case[]>;
 const prompts: Record<string, { system: string; user: string }> = {};
 for (const [name, rows] of Object.entries(sets)) {
@@ -44,6 +47,11 @@ for (const [name, rows] of Object.entries(sets)) {
         tool: 'catalog.search',
         text: row.contexts.join('\n'),
       });
+    }
+    for (const receipt of row.tool_receipts ?? []) {
+      transcript.splice(transcript.length - 1, 0,
+        { role: 'tool_call', tool: receipt.name, text: JSON.stringify(receipt.input_parameters) },
+        { role: 'tool_result', tool: receipt.name, text: JSON.stringify(receipt.output) });
     }
     // Both sides receive the same explicit role, in addition to the shipped rubric.
     const inputs = row.role ? [{ path: 'role.txt', text: row.role }] : undefined;

@@ -5,7 +5,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-FILES = ["audit.py", "sets.json", "sets-heldout.json", "audit-v2.json"]
+FILES = ["audit.py", "sets.json", "sets-heldout.json", "audit-v2.json",
+         "sets-receipts.json", "sets-receipts-heldout.json"]
 
 
 def hashes(root):

@@ -181,6 +181,19 @@ class HardTests(unittest.TestCase):
         (root/"audit.py").write_text("new candidate")
         with self.assertRaises(ValueError): verify(root)
 
+    def test_receipt_matches_conversation_without_reading_label(self):
+        from receipts import augment
+        for suffix in ["", "-heldout"]:
+            original = json.loads((ROOT/f"sets{suffix}.json").read_text())["task"]
+            extended = json.loads((ROOT/f"sets-receipts{suffix}.json").read_text())["task"]
+            for old,new in zip(original,extended):
+                self.assertEqual(augment(old),new)
+                for key,value in old.items(): self.assertEqual(new[key],value)
+                changed = {**old,"truth":not old["truth"],"id":"LABEL_SENTINEL"}
+                self.assertEqual(augment(changed)["tool_receipts"],new["tool_receipts"])
+                self.assertEqual(new["tool_receipts"][0]["output"]["result"],old["turns"][-1]["content"])
+                self.assertNotIn("LABEL_SENTINEL",prompt("task",augment(changed))[1])
+
     def test_freeze_rejects_selection_after_heldout_or_stale_selection(self):
         from freeze import FILES, freeze, hashes
         root = Path(self.temp.name)

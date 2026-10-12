@@ -149,7 +149,7 @@ def metrics(recorder):
                                  TaskCompletionMetric, HallucinationMetric, FaithfulnessMetric,
                                  KnowledgeRetentionMetric, GEval, DAGMetric)
     from deepeval.metrics.dag import DeepAcyclicGraph, BinaryJudgementNode, VerdictNode
-    from deepeval.test_case import LLMTestCase, ConversationalTestCase, Turn, SingleTurnParams
+    from deepeval.test_case import LLMTestCase, ConversationalTestCase, Turn, SingleTurnParams, ToolCall
 
     class Model(DeepEvalBaseLLM):
         def __init__(self):
@@ -175,7 +175,8 @@ def metrics(recorder):
         conv = ConversationalTestCase(turns=[Turn(**m) for m in case["turns"]], chatbot_role=case.get("role"))
         single = LLMTestCase(input="\n".join(m["content"] for m in case["turns"] if m["role"] == "user"),
                              actual_output=case["turns"][-1]["content"],
-                             context=case.get("contexts"), retrieval_context=case.get("contexts"))
+                             context=case.get("contexts"), retrieval_context=case.get("contexts"),
+                             tools_called=[ToolCall(**r) for r in case["tool_receipts"]] if case.get("tool_receipts") else None)
         if name == "turn relevancy": metric, tc = TurnRelevancyMetric(**common), conv
         elif name == "role adherence": metric, tc = RoleAdherenceMetric(**common), conv
         elif name == "conversation completeness": metric, tc = ConversationCompletenessMetric(**common), conv
@@ -222,6 +223,7 @@ def main():
     ap.add_argument("--variant", choices=["baseline", "audit"], default="baseline")
     ap.add_argument("--tag", default="baseline")
     ap.add_argument("--corpus", choices=["v1", "v2", "heldout"], default="v2")
+    ap.add_argument("--evidence", choices=["conversation", "receipt"], default="conversation")
     ap.add_argument("--record", action="store_true")
     ap.add_argument("--cap-usd", type=float, default=0)
     ap.add_argument("--ledger", type=Path)
@@ -240,6 +242,10 @@ def main():
         if deadline <= now: deadline += timedelta(days=1)
         deadline_file.write_text(deadline.isoformat()+"\n")
     suffix = "" if args.corpus == "v2" else "-"+args.corpus
+    if args.evidence == "receipt":
+        if args.corpus == "v1" or args.sets != "task":
+            raise ValueError("Receipt variant uses --sets task with corrected hard or heldout corpus")
+        suffix = "-receipts"+suffix
     sets_file = ROOT / f"sets{suffix}.json"
     prompts_file = ROOT / f"baseline-prompts{suffix}.json"
     sets = json.loads(sets_file.read_text())
@@ -254,6 +260,7 @@ def main():
         competitor = metrics(rec)
         output = {"variant": args.variant, "model": "haiku", "package": "deepeval==4.2.8",
                   "corpus": args.corpus, "sets_sha256": hashlib.sha256(sets_file.read_bytes()).hexdigest(),
+                  "evidence": args.evidence,
                   "expected_cases": {s: len(rows) for s, rows in sets.items()},
                   "procedure_sha256": hashlib.sha256((ROOT / "audit.py").read_bytes()).hexdigest() if args.variant == "audit" else None,
                   "deadline": deadline.isoformat(), "rows": []}

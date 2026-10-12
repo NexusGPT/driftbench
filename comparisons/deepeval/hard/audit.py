@@ -89,7 +89,7 @@ introduction does not excuse a re-ask or contradiction later in the same reply.
 
 def prompt(set_name, case):
     payload = {"turns": case["turns"]}
-    for field in ["role", "contexts"]:
+    for field in ["role", "contexts", "tool_receipts"]:
         if field in case:
             payload[field] = case[field]
     return COMMON + "\n" + RULES[set_name], json.dumps(payload, ensure_ascii=False, indent=2)

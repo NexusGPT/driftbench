@@ -85,6 +85,21 @@ meet its rule. The measured default-policy comparison is not a pure prompt-quali
 comparison. `score.py` also reports a free threshold-1 sensitivity count from the
 same native scores, without changing any answers or running another model.
 
+Task truth checks the reported result in the conversation, without real action
+receipts. The native extraction can state that no tools were called, and its
+verdict can reject a reported completed action for lacking tool proof. These
+cases measure different evidence policies; they do not prove better real action
+verification on our side.
+
+The equal-evidence task variant preserves every conversation and label, adding
+one matching fictional `acme.task_receipt` result to each case. `receipts.py`
+copies the conversation's reported result without reading its truth label.
+Incomplete and queued results remain incomplete and queued in their receipts.
+The shipped judge sees the tool call and result, the candidate sees the same
+receipt object, and the native metric receives it through `tools_called`.
+Both the 120-case hard variant and 72-case held-out variant are frozen before
+their calls. These are constructed receipts, not real action executions.
+
 ## Record, then replay
 
 From the repository root:
@@ -96,11 +111,18 @@ python3 comparisons/deepeval/hard/generate.py
 pnpm exec tsx comparisons/deepeval/hard/render.mts
 python3 comparisons/deepeval/hard/generate.py --seed 20261019 --pairs-per-family 3 --output sets-heldout.json
 pnpm exec tsx comparisons/deepeval/hard/render.mts heldout
+python3 comparisons/deepeval/hard/receipts.py
+pnpm exec tsx comparisons/deepeval/hard/render.mts v2 receipt
+pnpm exec tsx comparisons/deepeval/hard/render.mts heldout receipt
 .venv/bin/python comparisons/deepeval/hard/run.py --tag baseline-v2 --record --cap-usd 4
 .venv/bin/python comparisons/deepeval/hard/run.py --variant audit --tag audit-v2 --record --cap-usd 4
+.venv/bin/python comparisons/deepeval/hard/run.py --sets task --evidence receipt --tag baseline-task-receipts --record --cap-usd 4
+.venv/bin/python comparisons/deepeval/hard/run.py --sets task --evidence receipt --variant audit --tag audit-task-receipts --record --cap-usd 4
 python3 comparisons/deepeval/hard/freeze.py
 .venv/bin/python comparisons/deepeval/hard/run.py --corpus heldout --tag baseline-heldout --record --cap-usd 4
 .venv/bin/python comparisons/deepeval/hard/run.py --corpus heldout --variant audit --tag audit-heldout --record --cap-usd 4
+.venv/bin/python comparisons/deepeval/hard/run.py --corpus heldout --sets task --evidence receipt --tag baseline-task-receipts-heldout --record --cap-usd 4
+.venv/bin/python comparisons/deepeval/hard/run.py --corpus heldout --sets task --evidence receipt --variant audit --tag audit-task-receipts-heldout --record --cap-usd 4
 ```
 
 The recorder permits one call at a time. It locks the entire run and reserves
