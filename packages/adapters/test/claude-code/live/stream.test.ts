@@ -94,6 +94,32 @@ describe('parseStream', () => {
 });
 
 describe('isOverloaded', () => {
+  it('reads a subscription session limit as transient, not as the agent answer', () => {
+    // Seen on the Cue bench: subtype success, the text the limit notice, no tool call after it.
+    const limited = parseStream(
+      result({
+        subtype: 'success',
+        is_error: false,
+        result: "You've hit your session limit \u00b7 resets 11:10am (Europe/Brussels)",
+      }),
+    );
+    expect(isOverloaded(limited, 0, '')).toBe(true);
+  });
+
+  it('reads an API the runtime could not reach as transient, even when the result says success', () => {
+    // Seen on the Cue bench during a network outage: subtype success, the text an API error, no tool call.
+    const unreachable = parseStream(
+      result({
+        subtype: 'success',
+        is_error: false,
+        result: "API Error: Can't reach the API server \u2014 check your internet or DNS (ENOTFOUND)",
+      }),
+    );
+    expect(isOverloaded(unreachable, 0, '')).toBe(true);
+    const answer = parseStream(result({ result: 'The API Error page explains what ENOTFOUND means.' }));
+    expect(isOverloaded(answer, 0, '')).toBe(false);
+  });
+
   it('reads an overloaded or rate-limited error result, and an error output with no result', () => {
     const overloaded = parseStream(
       result({ subtype: 'error_during_execution', is_error: true, result: 'API Error: 529 Overloaded' }),
@@ -295,7 +321,7 @@ describe('the real stream shapes', () => {
     expect(rows.map(({ check, verdict, event }) => ({ check, verdict, event }))).toEqual([
       { check: 'block-force-push.sh', verdict: 'deny', event: 'PreToolUse' },
       { check: 'permission:WebFetch', verdict: 'deny', event: 'PermissionRequest' },
-      { check: 'Stop', verdict: 'allow', event: 'Stop' },
+      { check: 'reply-length.py', verdict: 'allow', event: 'Stop' },
       { check: 'read-before-edit.py', verdict: 'deny', event: 'PreToolUse' },
     ]);
     expect(rows.every((row) => row.at === '2026-10-12T10:00:00.000Z')).toBe(true);
@@ -319,7 +345,34 @@ describe('the real stream shapes', () => {
     expect(rows.map((row) => `${row.check}:${row.verdict}`)).toEqual(['read-before-edit.py:allow']);
   });
 
-  it('names a hook by its event and matcher when the settings hold none or several commands for it', () => {
+  it('names the responses of a matcher holding several commands by those commands, in turn', () => {
+    // Seen on the Cue estate: PostToolUse:Bash holds three commands and the response names none of them.
+    const response = (id: string, code: number) =>
+      line({
+        type: 'system',
+        subtype: 'hook_response',
+        hook_id: id,
+        hook_name: 'Stop',
+        hook_event: 'Stop',
+        stdout: '',
+        stderr: '',
+        exit_code: code,
+        outcome: code === 0 ? 'success' : 'blocking',
+        session_id: sid,
+      });
+    const rows = hookDecisions(
+      parseStream([response('s1', 0), response('s2', 2), response('s3', 0)].join('\n')),
+      settings,
+      '2026-10-12T10:00:00.000Z',
+    );
+    expect(rows.map((row) => `${row.check}:${row.verdict}`)).toEqual([
+      'reply-length.py:allow',
+      'other.sh:deny',
+      'reply-length.py:allow',
+    ]);
+  });
+
+  it('names a hook by its event and matcher when no settings name its commands', () => {
     const rows = hookDecisions(stream(), undefined, '2026-10-12T10:00:00.000Z');
     expect(rows.map((row) => row.check)).toEqual([
       'PreToolUse:Bash',

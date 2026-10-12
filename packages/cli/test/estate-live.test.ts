@@ -255,6 +255,53 @@ describe('driftbench estate run', () => {
     ]);
   });
 
+  it('sets variables for the runtime and passes denied tools, and refuses a variable that is no NAME=VALUE', async () => {
+    const dir = await folder();
+    const calls = join(dir, 'calls.jsonl');
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const result = await estateRun(
+      FIXTURE,
+      [spec],
+      '--set-env',
+      `FAKE_CALLS=${calls}`,
+      '--set-env',
+      'NEXUS_BASE_URL=http://127.0.0.1:9',
+      '--disallow',
+      'Read(~/.nexus-secrets/**)',
+      'WebFetch',
+    );
+    expect(result.code).toBe(0);
+    const [call] = (await readFile(calls, 'utf8'))
+      .trim()
+      .split('\n')
+      .map((text) => JSON.parse(text));
+    const argv = call.argv as string[];
+    const at = argv.indexOf('--disallowed-tools');
+    expect(argv.slice(at, at + 3)).toEqual(['--disallowed-tools', 'Read(~/.nexus-secrets/**)', 'WebFetch']);
+    expect(argv.indexOf('-p')).toBeGreaterThan(at);
+    const bad = await estateRun(FIXTURE, [spec], '--set-env', 'NOEQUALS');
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('--set-env');
+  });
+
+  it.runIf(process.platform === 'darwin')(
+    'runs the command under the lock, with the paths --lock-deny names refused',
+    async () => {
+      const spec = join(LIVE, PROOF.route_positive ?? '');
+      const secret = join(await folder(), 'secrets');
+      const result = await estateRun(FIXTURE, [spec], '--lock-deny', secret);
+      expect(result.code).toBe(0);
+      const { openStore } = await import('@driftbench/store');
+      const store = await openStore(result.store);
+      const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
+      await store.close();
+      const agent = stored?.blocks[0]?.observed.executions?.find((record) => record.role === 'agent');
+      expect(agent?.command).toContain('/usr/bin/sandbox-exec -p');
+      expect(agent?.command).toContain('secrets');
+      expect(agent?.command).toContain('.claude/settings.json');
+    },
+  );
+
   it('passes the model, turn and budget limits and the trusted tools to the command, in its own config folder on a stand-in', async () => {
     const calls = join(await folder(), 'calls.jsonl');
     process.env.FAKE_CALLS = calls;
