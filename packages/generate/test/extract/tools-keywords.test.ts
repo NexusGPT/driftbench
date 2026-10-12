@@ -681,4 +681,30 @@ type = "boolean"
       'at-min-contains',
     ]);
   });
+
+  it('unevaluatedProperties false, additionalProperties with a schema and patternProperties add a case each', () => {
+    const base = { type: 'object', required: ['p'], properties: { p: { type: 'boolean' } } };
+    const read = (
+      extra: Record<string, unknown>,
+      side: 'input_schema' | 'output_schema' = 'input_schema',
+    ) => {
+      const result = toolsPrepass(
+        stringify({ tools: [{ name: 't.x', [side]: { ...base, ...extra } }] }),
+        'tools.yaml',
+      );
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      return result.dimensions.slice(1).map((d) => [d.id, d.values.map((v) => v.id.slice(d.id.length + 1))]);
+    };
+    expect(read({ unevaluatedProperties: false })).toEqual([['t.x.in.unknown-key', ['sent']]]);
+    expect(read({ unevaluatedProperties: false }, 'output_schema')).toEqual([
+      ['t.x.out.unknown-key', ['sent']],
+    ]);
+    expect(read({ additionalProperties: { type: 'integer' } })).toEqual([
+      ['t.x.in.extra-key', ['typed', 'mistyped']],
+    ]);
+    expect(read({ patternProperties: { '^x_': { type: 'integer' } } })).toEqual([
+      ['t.x.in.pattern-key', ['matching', 'mistyped']],
+    ]);
+    expect(read({ additionalProperties: true })).toEqual([]);
+  });
 });

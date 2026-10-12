@@ -399,3 +399,14 @@ Sources read:
 What others do: Each keyword states an input class a generator tests on its own.
 
 What to try, and why: the tool pre-pass reads object consts, contains, not, propertyNames, contentMediaType, int32 and x-nullable
+
+## Iteration 34
+
+Question: packages/generate/src/extract/tools.ts: walk reads named properties only, so the keys an object accepts beyond them give no case; unevaluated-properties, additional-properties-schema and pattern-properties prove it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-core sections 10.3.2 (additionalProperties, patternProperties) and 11.3 (unevaluatedProperties)
+
+What others do: A generator sends one extra key the schema forbids, and a typed and a mistyped extra key where a schema is given.
+
+What to try, and why: the tool pre-pass reads unevaluatedProperties, additionalProperties schemas and patternProperties

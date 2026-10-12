@@ -367,6 +367,47 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
     if (entered(ctx, via) >= 2 || entered(ctx, refOf(items)) >= 2) continue;
     field(ctx, name, pair, property, required.has(name), requiredPair, prefix, depth, via);
   }
+  objectCases(ctx, schema, prefix);
+}
+
+/** What an object accepts beyond its named properties: a key it does not allow, a typed extra key, a pattern key. */
+function objectCases(ctx: Walk, schema: YAMLMap, prefix: string[]): void {
+  const cases: Array<[string, string, Array<[string, string]>]> = [];
+  if (plain(entry(schema, 'unevaluatedProperties')?.value) === false) {
+    cases.push([
+      'unevaluatedProperties',
+      'unknown-key',
+      [['sent', 'a key the schema does not evaluate is sent']],
+    ]);
+  }
+  if (isMap(entry(schema, 'additionalProperties')?.value)) {
+    cases.push([
+      'additionalProperties',
+      'extra-key',
+      [
+        ['typed', 'an extra key holds a value of the schema it states'],
+        ['mistyped', 'an extra key holds a value of another type'],
+      ],
+    ]);
+  }
+  if (isMap(entry(schema, 'patternProperties')?.value)) {
+    cases.push([
+      'patternProperties',
+      'pattern-key',
+      [
+        ['matching', 'a key matching the pattern holds a value of its schema'],
+        ['mistyped', 'a key matching the pattern holds a value of another type'],
+      ],
+    ]);
+  }
+  for (const [keyword, id, values] of cases) {
+    const quote = pairText(ctx.text, entry(schema, keyword)) ?? '';
+    addDimension(
+      ctx,
+      [...prefix, id],
+      values.map(([partition, title]) => ({ id: partition, title, quote })),
+    );
+  }
 }
 
 function refOf(node: unknown): string | undefined {
