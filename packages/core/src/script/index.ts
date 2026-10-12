@@ -11,8 +11,9 @@ import { type LoadResult, validateSpec } from '../spec/load';
  * - `agent(expect)` adds expectations to the reply of the last block. It needs a block before it.
  * - `judge(criteria)` names judged criteria on the last block. A final verdict without criteria has no spec
  *   form, so `judge()` with no names throws.
- * - `proceed()` and `succeed()` / `fail()` have no spec form yet: `proceed` needs the simulated user, which no
- *   command runs, and the spec has no early-stop step. Each throws.
+ * - `proceed(n, { hint, expect })` reserves n turns for the simulated user: n blocks whose stimulus is the hint,
+ *   listed in the spec metadata. The simulated driver plays them at run time.
+ * - `succeed()` and `fail()` have no spec form: the spec has no early-stop step. Each throws.
  */
 
 /** A ScriptError: a step the script API cannot compile, or one used out of order. */
@@ -36,7 +37,8 @@ export type Turn =
       readonly expect: Expectations;
     }
   | { readonly kind: 'agent'; readonly expect: Expectations }
-  | { readonly kind: 'judge'; readonly criteria: readonly string[] };
+  | { readonly kind: 'judge'; readonly criteria: readonly string[] }
+  | { readonly kind: 'proceed'; readonly turns: number; readonly hint: string; readonly expect: Expectations };
 
 /** The options of the spec a script compiles to. Every field is optional and passes through unchanged. */
 export type ConversationOptions = {
@@ -78,11 +80,24 @@ export function judge(criteria: readonly string[]): Turn {
   return { kind: 'judge', criteria: [...criteria] };
 }
 
-/** `proceed()` runs the simulated user. No command runs one yet, so the step has no spec form. */
-export function proceed(): never {
-  throw new ScriptError(
-    'proceed() needs the simulated user, which no command runs yet: write the user turns out',
-  );
+/** The hint a reserved turn gives the simulated user when the script does not name one. */
+export const DEFAULT_PROCEED_HINT = 'Continue the conversation toward your goal.';
+
+/**
+ * Reserves `turns` user turns for the simulated user. The spec holds one block per turn: its stimulus is the
+ * hint, which the simulated driver reads as what the person means to say, and its expectations are `expect`.
+ * The block positions, counted from 0, are listed in the spec's metadata, `simulated_blocks`, so a reader sees which turns the
+ * simulated user plays. A run with a scripted driver sends the hint word for word.
+ */
+export function proceed(turns: number, options: { hint?: string; expect?: Expectations } = {}): Turn {
+  if (typeof turns !== 'number') {
+    throw new ScriptError('proceed() needs how many turns the simulated user plays');
+  }
+  if (!Number.isInteger(turns)) throw new ScriptError('proceed() needs a whole number of turns');
+  if (turns < 1) throw new ScriptError('proceed() needs at least one turn');
+  const hint = options.hint ?? DEFAULT_PROCEED_HINT;
+  if (hint.trim() === '') throw new ScriptError('proceed() needs a hint that is not empty');
+  return { kind: 'proceed', turns, hint, expect: options.expect ?? {} };
 }
 
 /** `succeed()` ends the run early. The spec has no early-stop step. */
@@ -111,7 +126,17 @@ export function conversation(
 ): ConversationResult {
   const blocks: Record<string, unknown>[] = [];
   const expects: Expectations[] = [];
+  const simulated: number[] = [];
   for (const turn of turns) {
+    if (turn.kind === 'proceed') {
+      for (let n = 0; n < turn.turns; n += 1) {
+        const number = blocks.length + 1;
+        blocks.push({ id: `b${number}`, when: { user: turn.hint } });
+        expects.push({ ...turn.expect });
+        simulated.push(blocks.length - 1);
+      }
+      continue;
+    }
     if (turn.kind === 'user' || turn.kind === 'injection') {
       const number = blocks.length + 1;
       const block: Record<string, unknown> = {
@@ -148,6 +173,7 @@ export function conversation(
   if (options.stages !== undefined) spec.stages = [...options.stages];
   if (options.criteria !== undefined) spec.criteria = [...options.criteria];
   spec.blocks = compiled;
+  if (simulated.length > 0) spec.metadata = { simulated_blocks: simulated };
   return { spec, load: validateSpec(spec, `script:${id}`) };
 }
 

@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { RunMode, RunResult, Stimulus, Store } from '@driftbench/core';
 import {
@@ -55,6 +56,7 @@ type CompareCommandOptions = {
   json?: boolean;
   pairwise?: string;
   pairwiseJudge?: string;
+  pairwiseReference?: string;
 };
 
 /** Registers `driftbench compare`. */
@@ -94,6 +96,10 @@ export function registerCompareCommand(
       '--pairwise-judge <kind>',
       'the judge of the pairwise calls: openai, anthropic or google',
       'openai',
+    )
+    .option(
+      '--pairwise-reference <file>',
+      'judge which reply matches this reference answer better, instead of which reply is better; the file holds the text',
     )
     .action(async (options: CompareCommandOptions) => {
       setExit(await compareCommand(options, io, deps));
@@ -172,8 +178,12 @@ async function runPairwise(
 ): Promise<PairwiseLine | undefined> {
   let criterion: Awaited<ReturnType<typeof readPairwiseCriterion>>;
   let judge: JudgeClient;
+  let reference: string | undefined;
   try {
     criterion = await readPairwiseCriterion(resolve(io.cwd, options.pairwise ?? ''));
+    if (options.pairwiseReference !== undefined) {
+      reference = (await readFile(resolve(io.cwd, options.pairwiseReference), 'utf8')).trim();
+    }
     judge = (deps.pairwiseClient ?? defaultPairwiseClient)(options.pairwiseJudge ?? 'openai');
   } catch (cause) {
     io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
@@ -192,6 +202,7 @@ async function runPairwise(
         pair.stimulus === '' ? [] : [{ role: 'user', text: pair.stimulus }],
         pair.first,
         pair.second,
+        reference === undefined ? {} : { reference },
       ),
     );
     const { tally } = report;

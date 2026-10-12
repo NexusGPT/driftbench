@@ -43,11 +43,16 @@ export function pairwiseRequest(
   transcript: readonly TranscriptEntry[],
   replyA: string,
   replyB: string,
+  reference?: string,
 ): JudgeRequest {
+  const question =
+    reference === undefined
+      ? `Which of the two replies, A or B, satisfies this better? ${criterion.rubric}`
+      : `Which of the two replies, A or B, matches the reference answer better, on this criterion? ${criterion.rubric}`;
   return {
     criterion: {
       name: criterion.name,
-      rubric: `Which of the two replies, A or B, satisfies this better? ${criterion.rubric}`,
+      rubric: question,
       pass: 'Reply A satisfies it better than reply B.',
       fail: 'Reply B satisfies it better than reply A.',
       scope: 'block',
@@ -56,6 +61,7 @@ export function pairwiseRequest(
       ...transcript,
       { role: 'context', text: `Reply A: ${replyA}` },
       { role: 'context', text: `Reply B: ${replyB}` },
+      ...(reference === undefined ? [] : [{ role: 'context' as const, text: `Reference answer: ${reference}` }]),
     ],
   };
 }
@@ -77,9 +83,13 @@ export async function judgePairwise(
   transcript: readonly TranscriptEntry[],
   first: string,
   second: string,
+  options: { reference?: string } = {},
 ): Promise<PairwiseVerdict> {
-  const ordered = (await client.judge(pairwiseRequest(criterion, transcript, first, second))).answer.outcome;
-  const swapped = (await client.judge(pairwiseRequest(criterion, transcript, second, first))).answer.outcome;
+  const { reference } = options;
+  const ordered = (await client.judge(pairwiseRequest(criterion, transcript, first, second, reference))).answer
+    .outcome;
+  const swapped = (await client.judge(pairwiseRequest(criterion, transcript, second, first, reference))).answer
+    .outcome;
   const byOrdered = naming(ordered, true);
   const bySwapped = naming(swapped, false);
   const consistent = byOrdered === bySwapped;

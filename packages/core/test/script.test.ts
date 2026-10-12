@@ -77,7 +77,9 @@ describe('the script API compiles to a spec', () => {
   });
 
   it('refuses the steps the spec cannot express, with the reason', () => {
-    expect(() => proceed()).toThrow(/simulated user/);
+    expect(() => proceed(0)).toThrow(/at least one turn/);
+    expect(() => proceed(1.5)).toThrow(/whole number/);
+    expect(() => (proceed as unknown as () => unknown)()).toThrow(/how many turns/);
     expect(() => succeed()).toThrow(/no early-stop step/);
   });
 
@@ -92,5 +94,34 @@ describe('the script API compiles to a spec', () => {
     const back = parseSpecText(text, 'yaml');
     expect(back.ok).toBe(true);
     if (back.ok) expect(back.spec.blocks).toHaveLength(1);
+  });
+});
+
+describe('proceed reserves turns for the simulated user', () => {
+  it('compiles n blocks that carry the hint, and names them in the metadata', () => {
+    const result = conversation('reserved', [
+      user('I need help with my order.'),
+      proceed(2, { hint: 'Ask about the delivery date.', expect: { must_not: ['refund'] } }),
+      user('Thanks, bye.'),
+    ]);
+    expect(result.load.ok).toBe(true);
+    const blocks = result.spec.blocks as Array<Record<string, unknown>>;
+    expect(blocks).toHaveLength(4);
+    expect(blocks[1]).toEqual({
+      id: 'b2',
+      when: { user: 'Ask about the delivery date.' },
+      expect: { must_not: ['refund'] },
+    });
+    expect(blocks[2]?.when).toEqual({ user: 'Ask about the delivery date.' });
+    expect(result.spec.metadata).toEqual({ simulated_blocks: [1, 2] });
+  });
+
+  it('uses a default hint when none is given, and leaves metadata out when nothing is reserved', () => {
+    const reserved = conversation('default-hint', [proceed(1)]);
+    expect((reserved.spec.blocks as Array<Record<string, unknown>>)[0]?.when).toEqual({
+      user: 'Continue the conversation toward your goal.',
+    });
+    const plain = conversation('plain', [user('hi')]);
+    expect(plain.spec.metadata).toBeUndefined();
   });
 });
