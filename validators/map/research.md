@@ -608,3 +608,14 @@ Sources read:
 What others do: A backslash at the end of a line continues the value; the next line's leading white space is dropped.
 
 What to try, and why: Java properties escapes and continuations are decoded
+
+## Iteration 52
+
+Question: packages/generate/src/extract/containers.ts: a quoted CSV cell is sent with its doubled quotes; prompt-containers.csv proves it.
+
+Sources read:
+* https://www.rfc-editor.org/rfc/rfc4180 section 2 rule 7
+
+What others do: Inside a quoted field, a double quote is written twice.
+
+What to try, and why: doubled quotes in CSV cells are one quote

@@ -517,6 +517,40 @@ function propertiesView(raw: string): View | undefined {
   return changed ? inPlace(raw, tokens) : undefined;
 }
 
+/** A CSV file: a quoted cell is read with its doubled quotes as one quote. */
+function csvView(raw: string): View | undefined {
+  const tokens: Token[] = [];
+  let i = 0;
+  while (i < raw.length) {
+    const atCell = i === 0 || raw[i - 1] === ',' || raw[i - 1] === '\n';
+    if (raw[i] !== '"' || !atCell) {
+      i++;
+      continue;
+    }
+    const chars: Array<[string, number, number]> = [];
+    let j = i + 1;
+    while (j < raw.length) {
+      if (raw[j] === '"' && raw[j + 1] === '"') {
+        chars.push(['"', j, j + 2]);
+        j += 2;
+      } else if (raw[j] === '"') break;
+      else {
+        chars.push([raw[j] as string, j, j + 1]);
+        j++;
+      }
+    }
+    if (j >= raw.length) break;
+    tokens.push({ start: i, end: j + 1, chars });
+    i = j + 1;
+  }
+  return tokens.some(
+    (token) =>
+      token.chars.length !== token.end - token.start - 2 || token.chars.some(([, a, b]) => b - a !== 1),
+  )
+    ? inPlace(raw, tokens)
+    : undefined;
+}
+
 const VIEWS: Array<[RegExp, (raw: string) => View | undefined]> = [
   [/\.jsonl$/i, jsonLinesView],
   [/\.json$/i, jsonView],
@@ -525,6 +559,7 @@ const VIEWS: Array<[RegExp, (raw: string) => View | undefined]> = [
 
 VIEWS.push(
   [/\.properties$/i, propertiesView],
+  [/\.csv$/i, csvView],
   [/\.html?$/i, (raw) => markupView(raw, true)],
   [/\.(xml|svg)$/i, (raw) => markupView(raw, false)],
 );

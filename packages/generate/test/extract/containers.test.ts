@@ -181,3 +181,14 @@ describe('a prompt in a Java properties file', () => {
     expect(props).toContain(rawQuote(sources, 'agent.properties', 'Never promise a date.'));
   });
 });
+
+describe('a prompt in a CSV of rules', () => {
+  const csv = 'id,text\nR1,"Never say ""refund"" early."\nR2,"Ask for the id."\n';
+  it('reads a doubled quote in a quoted cell as one quote', () => {
+    expect(promptView('rules.csv', csv)?.text).toContain('R1,Never say "refund" early.');
+  });
+  it('quotes a passage of the file', () => {
+    const sources = [{ kind: 'prompt' as const, path: 'rules.csv', text: csv }];
+    expect(csv).toContain(rawQuote(sources, 'rules.csv', 'Never say "refund" early.'));
+  });
+});
