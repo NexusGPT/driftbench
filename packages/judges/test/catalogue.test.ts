@@ -69,6 +69,7 @@ describe('the relevancy criterion judges a reply in other words', () => {
     expect(relevant.def.rubric).toContain('in any words');
     expect(relevant.def.pass).toContain('even when it does not repeat the question words');
     expect(relevant.def.fail).toContain('answers a different question');
+    expect(relevant.def.rubric).toContain('asks them to confirm it answers an order request');
   });
 });
 
