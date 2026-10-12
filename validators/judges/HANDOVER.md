@@ -101,6 +101,7 @@ Iteration 72 (cause: no French words): OTHER_LANGUAGES row in screen.ts; each la
 Iteration 73 (cause: no Spanish words): row. Test red proved. Bank 474 -> 476.
 Iteration 74 (cause: no German words): row. Test red proved. Bank 476 -> 478.
 Iteration 75 (cause: no Italian words): row. Test red proved. Bank 478 -> 480.
+Iteration 76 (cause: no Portuguese words): row. Test red proved. Bank 480 -> 481.
 
 ## Next actions
 
