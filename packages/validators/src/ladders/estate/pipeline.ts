@@ -2,14 +2,8 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { mapSession, orderedCheck, parseJsonl, replayAdapter } from '@agent-nexus/driftbench-adapters';
-import { CheckRegistry, defaultChecks, defaultRegistry } from '@agent-nexus/driftbench-checks';
-import {
-  type CheckSet,
-  type LoadedSpec,
-  parseSpecText,
-  type RunResult,
-  runSpec,
-} from '@agent-nexus/driftbench-core';
+import { CheckRegistry, defaultChecks, defaultRegistry, ESTATE_CHECKS } from '@agent-nexus/driftbench-checks';
+import { type CheckSet, type LoadedSpec, parseSpecText, type RunResult, runSpec } from '@agent-nexus/driftbench-core';
 import {
   type Atom,
   buildPlan,
@@ -251,7 +245,7 @@ export function estateRun(seed: number, profile: Profile = 'visible'): Promise<E
   return run;
 }
 
-/** The checks of a replay: every default check, with the ordered-pair check registered. */
+/** The checks of a replay: the configured defaults, ordered pairs and the production estate checks. */
 export function replayChecks(): CheckSet {
   const registry = new CheckRegistry();
   for (const name of defaultRegistry.names()) {
@@ -259,6 +253,9 @@ export function replayChecks(): CheckSet {
     if (check) registry.register(name, check);
   }
   if (!registry.get('ordered')) registry.register('ordered', orderedCheck);
+  for (const [name, check] of Object.entries(ESTATE_CHECKS)) {
+    if (!registry.get(name)) registry.register(name, check);
+  }
   return defaultChecks({ registry });
 }
 
