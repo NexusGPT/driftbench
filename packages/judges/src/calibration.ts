@@ -312,6 +312,8 @@ export type CriterionCalibration = {
   readonly alpha?: number;
   /** Groups of labelled blocks that hold the same slice under both labels; absent when there are none. */
   readonly labelConflicts?: readonly (readonly string[])[];
+  /** Ids of labelled blocks equal to a fixture of the criterion, which inflates agreement; absent when none. */
+  readonly fixtureLeaks?: readonly string[];
   readonly assignment: CriterionAssignment;
 };
 
@@ -404,12 +406,14 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     }
     const alpha = alphaOf(matrix);
     const conflicts = labelConflicts(blocks);
+    const leaks = fixtureLeaks(criterion, blocks);
     criteria.push({
       criterion: criterion.def.name,
       gating: criterion.def.gating === true,
       judges: rows,
       ...(alpha === undefined ? {} : { alpha }),
       ...(conflicts.length === 0 ? {} : { labelConflicts: conflicts }),
+      ...(leaks.length === 0 ? {} : { fixtureLeaks: leaks }),
       assignment:
         config.rule === 'cheapest' ? assignCheapest(rows, judges, mode) : assign(rows, judges, mode),
     });
@@ -442,6 +446,14 @@ export function labelConflicts(blocks: readonly LabelledBlock[]): string[][] {
   return [...bySlice.values()]
     .filter((group) => new Set(group.map((block) => block.label)).size > 1)
     .map((group) => group.map((block) => block.id));
+}
+
+/** The ids of the labelled blocks whose transcript, artifact and given equal those of a fixture of the criterion. */
+export function fixtureLeaks(criterion: LoadedCriterion, blocks: readonly LabelledBlock[]): string[] {
+  const slice = (x: { transcript: unknown; artifact?: unknown; given?: unknown }) =>
+    JSON.stringify([x.transcript, x.artifact ?? null, x.given ?? null]);
+  const fixtures = new Set([slice(criterion.fixtures.pass), slice(criterion.fixtures.fail)]);
+  return blocks.filter((block) => fixtures.has(slice(block))).map((block) => block.id);
 }
 
 /** One answer as a council vote would get it: an unparsed answer is asked again with the large budget. */
