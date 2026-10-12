@@ -17,6 +17,7 @@ import {
 } from '@driftbench/generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { mapCacheOptions } from './map-cache';
 
 export type EstateGenerateOptions = {
   map: string;
@@ -88,7 +89,7 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
     if (await exists(beside)) sessionsPath = beside;
   }
 
-  const loaded = await loadEstateMap(mapPath);
+  const loaded = await loadEstateMap(mapPath, mapCacheOptions());
   if (!loaded.ok) {
     io.err(`✗ ${display(mapPath, io)}  the estate map is refused\n`);
     for (const issue of loaded.errors)
