@@ -922,6 +922,12 @@ function readCatalogue(file: EstateFile, estate: RawEstate): void {
   const entries = catalogueEntries(file.text) ?? [];
   const paths = new Set(estate.files.map((candidate) => candidate.path));
   const cursor = { at: 0 };
+  // A later catalogue file that repeats a check (tags, overrides) annotates it; the check is read once.
+  const held = new Set(
+    estate.guards.flatMap((guard) => (guard.scope === 'catalogue' && guard.check ? [guard.check.id] : [])),
+  );
+  let repeats = 0;
+  const hosts = hostWords(estate);
   for (const { key, entry } of entries) {
     const named = [entry.id, entry.name].find((value) => typeof value === 'string' && value !== '');
     const id = typeof named === 'string' ? named : key;
@@ -929,6 +935,11 @@ function readCatalogue(file: EstateFile, estate: RawEstate): void {
       estate.notes.push({ file: file.path, message: 'a catalogue entry has no id, name or key' });
       continue;
     }
+    if (held.has(id)) {
+      repeats += 1;
+      continue;
+    }
+    held.add(id);
     const pattern =
       key !== undefined
         ? new RegExp(`${escapeRegex(JSON.stringify(key))}\\s*:`)
@@ -947,7 +958,18 @@ function readCatalogue(file: EstateFile, estate: RawEstate): void {
       );
     const work = text(entry.work);
     const state = text(entry.status);
-    const check: CheckDecl = { id, steps: list(entry.step ?? entry.steps) };
+    const trigger = [
+      ...new Set(
+        [
+          ...list(entry.watches)
+            .join(' ')
+            .matchAll(/`([^`]+)`/g),
+        ].map((match) => match[1] ?? ''),
+      ),
+    ].filter((span) => span.trim() !== '');
+    const host = hosts.find((candidate) => candidate.words.has(id))?.script;
+    const check: CheckDecl = { id, steps: list(entry.step ?? entry.steps), trigger };
+    if (host !== undefined) check.host = host;
     const kind = text(entry.kind);
     if (kind !== undefined) check.kind = kind;
     if (state !== undefined) check.state = state;
@@ -978,6 +1000,26 @@ function readCatalogue(file: EstateFile, estate: RawEstate): void {
     if (state !== undefined) row.state = state;
     estate.registry.push(row);
   }
+  if (repeats > 0) {
+    estate.notes.push({
+      file: file.path,
+      message: `a later catalogue repeats ${repeats} check${repeats === 1 ? '' : 's'} an earlier one holds; it is read once`,
+    });
+  }
+}
+
+/** The words of each configured guard's script (not a catalogue check's), to find the hook that runs a check. */
+function hostWords(estate: RawEstate): Array<{ script: string; words: Set<string> }> {
+  const texts = new Map(estate.files.map((file) => [file.path, file.text]));
+  const scripts = [
+    ...new Set(
+      estate.guards.flatMap((guard) => (guard.scope !== 'catalogue' && guard.script ? [guard.script] : [])),
+    ),
+  ];
+  return scripts.map((script) => ({
+    script,
+    words: new Set((texts.get(script) ?? '').match(/[\w-]+/g) ?? []),
+  }));
 }
 
 /** Each watched item: a rule id, the quoted passages and ids it holds, or the whole item as a passage. */

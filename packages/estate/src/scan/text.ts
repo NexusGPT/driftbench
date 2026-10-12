@@ -265,6 +265,6 @@ export function plain(text: string): string {
 
 /** A rule label at the start of a line, such as `- **R5.**` or `R5.`: the label, else undefined. */
 export function labelOfLine(line: string): string | undefined {
-  const match = /^\s*(?:[-*]\s+)?(?:\*\*)?([A-Z]{1,3}\d{1,3})\.?(?:\*\*)?[.:]?\s/.exec(line);
-  return match?.[1];
+  const match = /^\s*(?:[-*]\s+)?(?:\*\*)?([A-Z]{1,3})#?(\d{1,3})\.?(?:\*\*)?[.:]?\s/.exec(line);
+  return match ? `${match[1]}${match[2]}` : undefined;
 }

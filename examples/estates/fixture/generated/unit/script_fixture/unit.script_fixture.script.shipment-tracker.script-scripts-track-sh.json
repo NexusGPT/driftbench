@@ -10,5 +10,20 @@
     "path": ".claude/skills/shipment-tracker/scripts/track.sh",
     "skill": "shipment-tracker"
   },
-  "cases": []
+  "cases": [
+    {
+      "id": "case-01",
+      "payload": {
+        "args": []
+      },
+      "material": "no argument"
+    },
+    {
+      "id": "case-02",
+      "payload": {
+        "args": ["NWX", "123"]
+      },
+      "material": "NWX 123"
+    }
+  ]
 }
