@@ -29,8 +29,18 @@ beforeAll(async () => {
     scales: { no_invented_data: { min: 1, max: 5 } },
   });
   const page = await (await fetch(`${viewer.url}/campaign/c-x3`)).text();
-  const link = [...page.matchAll(/href="(\/campaign\/[^/"]+\/run\/[^"#]+)"/g)][0]?.[1] as string;
-  const runPage = await (await fetch(`${viewer.url}${link}`)).text();
+  // A label goes only on a criterion the block offers: the run must be one whose form offers no_invented_data.
+  const links = [...page.matchAll(/href="(\/campaign\/[^/"]+\/run\/[^"#]+)"/g)].map(
+    (match) => match[1] as string,
+  );
+  let runPage = '';
+  for (const link of links) {
+    const text = await (await fetch(`${viewer.url}${link}`)).text();
+    if (text.includes('<option value="no_invented_data">')) {
+      runPage = text;
+      break;
+    }
+  }
   runId = runPage.match(/name="run" value="([^"]+)"/)?.[1] ?? '';
   await writeQueue(
     labels,
