@@ -8,7 +8,8 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
  * that grows with the size (a few milliseconds per atom), in a child process killed at the budget. The oracle
  * is the stage's own result as well as its time: the scan finds every planted atom, the lint gives no
  * defect finding on a clean estate, the plan and the suite are produced, and maintenance retires exactly
- * the one test whose atom left. Correct and slow is a failing item.
+ * the one test whose atom left. Correct and slow is a failing item. Run the family on a quiet machine: its
+ * times are wall-clock times.
  */
 
 const COMPONENTS: Record<string, string> = {
@@ -50,8 +51,10 @@ function runWorker(
 ): Promise<{ ok: true; value: Record<string, unknown>; wallMs: number } | { ok: false; reason: string }> {
   const worker = fileURLToPath(new URL('./scale-worker.ts', import.meta.url));
   const root = findRoot(fileURLToPath(new URL('.', import.meta.url)));
-  // The scan of the scale estate and the process start are outside the stage's own time; the kill leaves room for them.
-  const limit = budget + 30_000;
+  // The item judges the stage's own time, which the worker measures. The scan of the scale estate and the
+  // process start are outside it, and a loaded machine slows them: the kill only stops a stage far over its
+  // budget, never one the worker could still time.
+  const limit = Math.max(3 * budget, budget + 60_000);
   return new Promise((resolve) => {
     const started = Date.now();
     const child = spawn(process.execPath, ['--import', 'tsx', worker, stage, String(size), String(seed)], {
