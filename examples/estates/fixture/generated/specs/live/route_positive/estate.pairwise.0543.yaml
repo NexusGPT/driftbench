@@ -65,6 +65,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-audit-the-ledger
     planRow: pairwise.0543
+    focusVariant: 542
     cell:
       ask_class: change_estate
       ask_shape: problem

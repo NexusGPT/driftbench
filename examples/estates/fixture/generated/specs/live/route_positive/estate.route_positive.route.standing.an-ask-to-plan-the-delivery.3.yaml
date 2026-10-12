@@ -65,6 +65,7 @@ metadata:
       - route.standing.an-ask-to-plan-the-delivery
       - subagent.route-planner.helper-route-planner
     planRow: route_positive.route.standing.an-ask-to-plan-the-delivery.3
+    focusVariant: 2
     cell:
       atoms.route: route.standing.an-ask-to-plan-the-delivery
     seeder: estate

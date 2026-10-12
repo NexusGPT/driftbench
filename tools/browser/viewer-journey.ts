@@ -143,9 +143,47 @@ try {
     await page.waitForSelector(`#block-${queueIndex} form`);
     const queueForm = page.locator(`#block-${queueIndex} form`);
     await queueForm.locator('select[name=criterion]').selectOption(queuedCriterion);
-    await queueForm.locator('input[value=pass]').check();
-    await queueForm.locator('button[type=submit]').click();
+    await queueForm.locator('select[name=criterion]').focus();
+    await page.keyboard.press('1');
+    const passChecked = await queueForm.locator('input[value=pass]').isChecked();
+    expect(passChecked, `${width} px: key 1 did not check pass`);
+    await page.keyboard.press('ControlOrMeta+Enter');
     await page.waitForSelector('.saved');
+    await check('label-by-keys');
+    const blockBefore = await page.evaluate(
+      "document.activeElement && document.activeElement.closest('div.block') ? document.activeElement.closest('div.block').id : ''",
+    );
+    await page.keyboard.press('ArrowDown');
+    const blockAfter = await page.evaluate(
+      "document.activeElement && document.activeElement.closest('div.block') ? document.activeElement.closest('div.block').id : ''",
+    );
+    record.push({ width, arrows: { blockBefore, blockAfter } });
+    expect(
+      blockAfter !== '' && blockAfter !== blockBefore,
+      `${width} px: ArrowDown did not move focus to the next block (${blockBefore} to ${blockAfter})`,
+    );
+    await page.keyboard.press('?');
+    await page.waitForURL('**/keys');
+    const cheatsheet = await page.locator('#keys').count();
+    record.push({ width, cheatsheet });
+    expect(cheatsheet === 1, `${width} px: the ? key did not open the cheatsheet`);
+    record.push({ width, keyLabelling: { passChecked } });
+
+    const plain = await browser.newContext({ viewport: { width, height: 900 }, javaScriptEnabled: false });
+    const plainPage = await plain.newPage();
+    await plainPage.goto(`${viewer.url}${labelHref}`);
+    const plainForm = plainPage.locator(`#block-${queueIndex} form`);
+    await plainForm.locator('select[name=criterion]').selectOption(queuedCriterion);
+    await plainForm.locator('input[value=fail]').check();
+    await plainForm.locator('button[type=submit]').click();
+    await plainPage.waitForSelector('.saved');
+    const plainBanner = await plainPage.locator('.saved').innerText();
+    record.push({ width, scriptOff: { banner: plainBanner } });
+    expect(
+      plainBanner.startsWith('Label saved'),
+      `${width} px: the script-off form did not save: "${plainBanner}"`,
+    );
+    await plain.close();
     await page.goto(`${viewer.url}/queue`);
     await page.waitForSelector('#queue tbody tr:has-text("done")');
     await check('queue-done');

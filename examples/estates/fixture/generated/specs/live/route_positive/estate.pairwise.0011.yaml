@@ -72,6 +72,7 @@ metadata:
     atoms:
       - route.route-planner.an-ask-that-fits-route-planner
     planRow: pairwise.0011
+    focusVariant: 10
     cell:
       ask_class: operate
       ask_shape: multi_part

@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.route-planner.an-ask-that-fits-route-planner
     planRow: pairwise.0025
+    focusVariant: 24
     cell:
       ask_class: compose
       ask_shape: concrete

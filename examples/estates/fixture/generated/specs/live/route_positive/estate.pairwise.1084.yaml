@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-know-where-a
     planRow: pairwise.1084
+    focusVariant: 1083
     cell:
       ask_class: operate
       ask_shape: ambiguous

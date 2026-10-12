@@ -71,6 +71,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-plan-the-delivery
     planRow: pairwise.0723
+    focusVariant: 722
     cell:
       ask_class: debug
       ask_shape: correction

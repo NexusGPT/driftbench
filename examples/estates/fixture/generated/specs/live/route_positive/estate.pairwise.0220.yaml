@@ -52,7 +52,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Did we pay any invoice twice in week 41? Check the ledger.
+      user: Audit the ledger for duplicate payments this week.
     expect:
       subagents:
         - name: ledger-auditor
@@ -72,6 +72,7 @@ metadata:
     atoms:
       - route.ledger-auditor.an-ask-that-fits-ledger-auditor
     planRow: pairwise.0220
+    focusVariant: 219
     cell:
       ask_class: operate
       ask_shape: ambiguous
@@ -88,6 +89,6 @@ metadata:
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: ledger-audit
-    phrase: 1
+    phrase: 0
     ask: bank
     outcome: bank

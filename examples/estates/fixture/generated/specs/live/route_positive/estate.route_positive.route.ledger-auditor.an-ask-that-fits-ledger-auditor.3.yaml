@@ -65,6 +65,7 @@ metadata:
       - route.ledger-auditor.an-ask-that-fits-ledger-auditor
       - subagent.ledger-auditor.helper-ledger-auditor
     planRow: route_positive.route.ledger-auditor.an-ask-that-fits-ledger-auditor.3
+    focusVariant: 2
     cell:
       atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor
     seeder: estate

@@ -73,6 +73,7 @@ metadata:
     atoms:
       - skill.invoice-reconcile.skill-invoice-reconcile
     planRow: pairwise.0226
+    focusVariant: 225
     cell:
       ask_class: operate
       ask_shape: multi_part

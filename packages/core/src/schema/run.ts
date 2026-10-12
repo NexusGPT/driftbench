@@ -121,7 +121,19 @@ export type ExecutionRecord = z.infer<typeof ExecutionRecord>;
 export const RuntimeTrace = z.strictObject({
   skills: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
   guards: z
-    .array(z.strictObject({ name: z.string(), verdict: z.string(), at: z.string().optional() }))
+    .array(
+      z.strictObject({
+        name: z.string(),
+        verdict: z.string(),
+        at: z.string().optional(),
+        /** What the guard printed and how it ended, when the runtime reports its output. */
+        stdout: z.string().optional(),
+        stderr: z.string().optional(),
+        exitCode: z.number().int().optional(),
+        /** The runtime's own word for how the run ended: success, blocking, cancelled, no_response. */
+        outcome: z.string().optional(),
+      }),
+    )
     .optional(),
   stages: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
   /** Files the agent read during the block, by path. Absent when the runtime does not report them. */

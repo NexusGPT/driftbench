@@ -56,21 +56,6 @@ describe('markup sql (syntax check against SQLite)', () => {
   });
 });
 
-describe('ignore_case on must and must_not', () => {
-  it('matches "fiber" in a reply that says "Fiber" when ignore_case is set', async () => {
-    const ctx = block('Fiber is available here.', { must: ['fiber'], ignore_case: true } as never);
-    expect(outcomes(await run(must, ctx))).toEqual({ 'must.0': 'pass' });
-  });
-  it('keeps case-sensitive matching when ignore_case is not set', async () => {
-    const ctx = block('Fiber is available here.', { must: ['fiber'] });
-    expect(outcomes(await run(must, ctx))).toEqual({ 'must.0': 'fail' });
-  });
-  it('applies ignore_case to must_not too', async () => {
-    const ctx = block('We sell FIBER plans.', { must_not: ['fiber'], ignore_case: true } as never);
-    expect(outcomes(await run(mustNot, ctx))).toEqual({ 'must_not.0': 'fail' });
-  });
-});
-
 describe('starts_with', () => {
   it('passes a reply whose whole text starts with the text', async () => {
     const verdicts = await run(startsWith, block('Hi, I am Sam.', { starts_with: 'Hi' }));

@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please sort the shared operations inbox into invoices.
+      user: I need you to sort the shared operations inbox into invoices today.
     expect:
       subagents:
         - name: inbox-triager
@@ -45,6 +45,7 @@ metadata:
     atoms:
       - route.inbox-triager.an-ask-that-fits-inbox-triager
     planRow: pairwise.0536
+    focusVariant: 535
     cell:
       ask_class: change_estate
       ask_shape: correction

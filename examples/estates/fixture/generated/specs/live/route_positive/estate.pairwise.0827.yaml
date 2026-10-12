@@ -72,6 +72,7 @@ metadata:
     atoms:
       - route.route-planner.an-ask-that-fits-route-planner
     planRow: pairwise.0827
+    focusVariant: 826
     cell:
       ask_class: change_estate
       ask_shape: correction

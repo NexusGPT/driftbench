@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
     planRow: pairwise.0964
+    focusVariant: 963
     cell:
       ask_class: change_estate
       ask_shape: concrete

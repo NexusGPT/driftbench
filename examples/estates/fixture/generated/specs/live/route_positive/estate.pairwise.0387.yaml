@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-audit-the-ledger
     planRow: pairwise.0387
+    focusVariant: 386
     cell:
       ask_class: research
       ask_shape: multi_part

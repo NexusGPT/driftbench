@@ -67,6 +67,7 @@ metadata:
     atoms:
       - skill.weekly-report.skill-weekly-report
     planRow: pairwise.0391
+    focusVariant: 390
     cell:
       ask_class: research
       ask_shape: correction

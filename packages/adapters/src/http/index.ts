@@ -5,12 +5,15 @@ import {
   type AgentAdapter,
   AgentFailure,
   contentHash,
+  decideToolRule,
+  deniesCall,
   isPlainObject,
   type Observed,
   retryableStatus,
   Segment,
   type Session,
   type ToolCall,
+  type ToolRule,
   type Turn,
 } from '@driftbench/core';
 import {
@@ -59,6 +62,9 @@ export type HttpAdapterOptions = {
   timeoutMs?: number;
   /** The most rounds of tool calls a chat completion may ask for in one block. Default 8. */
   maxToolRounds?: number;
+  /** A tool policy applied to every tool a chat completion asks for, before the harness answers it. A denied call
+   *  is answered with an error, and its stub is never read. Absent: every requested tool is answered from world.tools. */
+  toolPolicy?: readonly ToolRule[];
   /** The fetch to use. Default the global fetch. */
   fetch?: FetchLike;
 };
@@ -201,6 +207,25 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
         })),
       });
       for (const call of calls) {
+        const rule = options.toolPolicy ? decideToolRule(options.toolPolicy, call.name) : undefined;
+        if (deniesCall(rule)) {
+          // Refused before the harness answers: the stub is never read, and the model gets the refusal as the result.
+          const why =
+            rule?.action === 'ask'
+              ? `tool policy rule ${rule.pattern} asks, and no approver answers, so the call is denied`
+              : `denied by tool policy rule ${rule?.pattern ?? ''}`;
+          segments.push({
+            type: 'tool_call',
+            id: call.id,
+            label: call.name,
+            input: call.arguments,
+            ...take(),
+          });
+          segments.push({ type: 'tool_result', id: call.id, label: call.name, output: null, error: why });
+          toolCalls.push({ id: call.id, label: call.name, input: call.arguments, error: why });
+          messages.push({ role: 'tool', tool_call_id: call.id, content: JSON.stringify({ error: why }) });
+          continue;
+        }
         const stub = turn.given.world.tools?.[call.name];
         if (!stub || (stub.error === undefined && !('result' in stub))) {
           throw new AgentFailure(

@@ -486,9 +486,9 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1568,
       blocks: 1563,
-      complete: 1488,
-      incomplete: 80,
-      judged: 432,
+      complete: 1544,
+      incomplete: 24,
+      judged: 449,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);

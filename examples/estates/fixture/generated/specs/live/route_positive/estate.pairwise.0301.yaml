@@ -71,6 +71,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-reconcile-an-invoice
     planRow: pairwise.0301
+    focusVariant: 300
     cell:
       ask_class: debug
       ask_shape: problem

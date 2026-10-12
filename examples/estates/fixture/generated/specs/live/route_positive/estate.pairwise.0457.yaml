@@ -72,6 +72,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-know-where-a
     planRow: pairwise.0457
+    focusVariant: 456
     cell:
       ask_class: compose
       ask_shape: concrete

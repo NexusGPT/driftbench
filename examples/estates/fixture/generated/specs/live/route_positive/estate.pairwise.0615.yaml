@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.route-planner.an-ask-that-fits-route-planner
     planRow: pairwise.0615
+    focusVariant: 614
     cell:
       ask_class: chat
       ask_shape: problem

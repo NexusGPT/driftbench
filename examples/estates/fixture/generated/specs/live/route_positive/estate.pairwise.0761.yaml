@@ -67,6 +67,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-prepare-the-weekly
     planRow: pairwise.0761
+    focusVariant: 760
     cell:
       ask_class: operate
       ask_shape: correction

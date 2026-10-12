@@ -51,7 +51,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Did we pay any invoice twice in week 41? Check the ledger.
+      user: Audit the ledger for duplicate payments this week.
     expect:
       subagents:
         - name: ledger-auditor
@@ -71,6 +71,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-audit-the-ledger
     planRow: pairwise.0898
+    focusVariant: 897
     cell:
       ask_class: change_estate
       ask_shape: multi_part
@@ -87,6 +88,6 @@ metadata:
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: ledger-audit
-    phrase: 1
+    phrase: 0
     ask: bank
     outcome: bank

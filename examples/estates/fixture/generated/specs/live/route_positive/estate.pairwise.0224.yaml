@@ -52,7 +52,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Write up last week in the usual weekly report.
+      user: Prepare the weekly report for week 42.
     expect:
       skills:
         - name: weekly-report
@@ -74,6 +74,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-prepare-the-weekly
     planRow: pairwise.0224
+    focusVariant: 223
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -90,6 +91,6 @@ metadata:
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: weekly-report-new
-    phrase: 1
+    phrase: 0
     ask: bank
     outcome: bank

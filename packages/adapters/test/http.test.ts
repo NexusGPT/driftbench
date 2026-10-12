@@ -233,6 +233,60 @@ describe('http adapter', () => {
     expect(third[4]).toEqual({ role: 'tool', tool_call_id: 'b', content: '{"error":"catalog offline"}' });
   });
 
+  it('refuses a tool the policy denies before answering it: the stub result never reaches the model', async () => {
+    server.queueCompletion(
+      {
+        choices: [
+          {
+            message: {
+              role: 'assistant',
+              content: 'Let me check.',
+              tool_calls: [
+                {
+                  id: 'a',
+                  type: 'function',
+                  function: { name: 'coverage.check', arguments: '{"address":"x"}' },
+                },
+                { id: 'b', type: 'function', function: { name: 'catalog.search', arguments: '' } },
+              ],
+            },
+          },
+        ],
+      },
+      { choices: [{ message: { role: 'assistant', content: 'Noted.' } }] },
+    );
+    const world = {
+      tools: {
+        'coverage.check': { result: { found: true } },
+        'catalog.search': { result: { items: 2 } },
+      },
+    };
+    const start = acmeGiven(target, world);
+    const adapter = httpAdapter({
+      url: `${server.base}/chat`,
+      capabilities: { toolStubs: true },
+      toolPolicy: [{ pattern: 'coverage.check', action: 'deny' }],
+    });
+    const observed = await sendUser(adapter, await adapter.open(start), 'hi', 0, start);
+    expect(observed.toolCalls[0]).toEqual({
+      id: 'a',
+      label: 'coverage.check',
+      input: { address: 'x' },
+      error: 'denied by tool policy rule coverage.check',
+    });
+    expect(observed.toolCalls[1]).toMatchObject({ label: 'catalog.search', output: { items: 2 } });
+    const second = server.requests.at(-1)?.body.messages as {
+      role: string;
+      content: string | null;
+      tool_call_id?: string;
+    }[];
+    expect(second.find((message) => message.tool_call_id === 'a')).toEqual({
+      role: 'tool',
+      tool_call_id: 'a',
+      content: '{"error":"denied by tool policy rule coverage.check"}',
+    });
+  });
+
   it('fails the block when a chat completion asks for a tool that world.tools does not answer', async () => {
     server.queueCompletion({
       choices: [

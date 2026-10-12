@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-write-to-or
     planRow: pairwise.0541
+    focusVariant: 540
     cell:
       ask_class: change_estate
       ask_shape: correction

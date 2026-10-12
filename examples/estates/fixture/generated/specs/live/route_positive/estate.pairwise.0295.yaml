@@ -65,6 +65,7 @@ metadata:
     atoms:
       - route.shipment-tracker.an-ask-that-fits-shipment-tracker
     planRow: pairwise.0295
+    focusVariant: 294
     cell:
       ask_class: debug
       ask_shape: prescribed

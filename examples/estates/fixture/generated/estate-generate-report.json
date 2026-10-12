@@ -15,9 +15,9 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 21,
-    "phrases": 40,
-    "workspaces": 1
+    "situations": 25,
+    "phrases": 48,
+    "workspaces": 4
   },
   "sessions": {
     "path": "../sessions/index.yaml",
@@ -27,12 +27,15 @@
     "seed": 1,
     "checks": [
       "grounded_values",
+      "guard_finished",
+      "guard_message",
       "hazard_recovery",
       "max_words",
       "no_delete_under",
       "ordered",
       "permission",
-      "some_call"
+      "some_call",
+      "stage_seen"
     ],
     "fallback": true,
     "judge": true
@@ -40,9 +43,9 @@
   "summary": {
     "specs": 1568,
     "blocks": 1563,
-    "complete": 1488,
-    "incomplete": 80,
-    "judged": 432
+    "complete": 1544,
+    "incomplete": 24,
+    "judged": 449
   },
   "unit": {
     "tests": 26,
@@ -53,21 +56,21 @@
   },
   "sources": {
     "asks": {
-      "bank": 369,
-      "code": 1111,
+      "bank": 427,
+      "code": 1109,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 827,
+      "bank": 967,
       "no-change:denied": 2,
       "no-change:guard": 27,
-      "no-change:negative": 41,
-      "no-change:read-only": 40,
-      "no-delete": 543,
+      "no-change:negative": 58,
+      "no-change:read-only": 18,
+      "no-delete": 464,
       "static": 8
     },
-    "judged": 272
+    "judged": 289
   },
   "focus": null,
   "perTestType": {
@@ -80,8 +83,8 @@
     "outside_trigger": {
       "rows": 43,
       "specs": 43,
-      "complete": 26,
-      "incomplete": 17
+      "complete": 43,
+      "incomplete": 0
     },
     "twin": {
       "rows": 43,
@@ -92,14 +95,14 @@
     "ordered_pair": {
       "rows": 112,
       "specs": 112,
-      "complete": 84,
-      "incomplete": 28
+      "complete": 98,
+      "incomplete": 14
     },
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 6,
-      "incomplete": 2
+      "complete": 7,
+      "incomplete": 1
     },
     "route_positive": {
       "rows": 260,
@@ -122,8 +125,8 @@
     "read_when": {
       "rows": 9,
       "specs": 9,
-      "complete": 9,
-      "incomplete": 0
+      "complete": 8,
+      "incomplete": 1
     },
     "script_fixture": {
       "rows": 2,
@@ -170,14 +173,14 @@
     "guard_speed": {
       "rows": 6,
       "specs": 6,
-      "complete": 0,
-      "incomplete": 6
+      "complete": 6,
+      "incomplete": 0
     },
     "guard_register": {
       "rows": 6,
       "specs": 6,
-      "complete": 0,
-      "incomplete": 6
+      "complete": 6,
+      "incomplete": 0
     },
     "tool_boundary": {
       "rows": 9,
@@ -194,8 +197,8 @@
     "stage_order": {
       "rows": 69,
       "specs": 69,
-      "complete": 56,
-      "incomplete": 13
+      "complete": 69,
+      "incomplete": 0
     },
     "stage_skip": {
       "rows": 4,
@@ -206,8 +209,8 @@
     "stage_anytime": {
       "rows": 1,
       "specs": 1,
-      "complete": 0,
-      "incomplete": 1
+      "complete": 1,
+      "incomplete": 0
     },
     "register_sample": {
       "rows": 200,
@@ -236,8 +239,8 @@
     "journey": {
       "rows": 10,
       "specs": 10,
-      "complete": 10,
-      "incomplete": 0
+      "complete": 9,
+      "incomplete": 1
     }
   },
   "perMode": {
@@ -250,91 +253,28 @@
     "unit": {
       "rows": 37,
       "specs": 37,
-      "complete": 25,
-      "incomplete": 12
+      "complete": 37,
+      "incomplete": 0
     },
     "live": {
       "rows": 1525,
       "specs": 1525,
-      "complete": 1463,
-      "incomplete": 62
+      "complete": 1507,
+      "incomplete": 18
     }
   },
   "gaps": [
     {
-      "marker": "needs-guard-message-check",
-      "specs": 6,
-      "atoms": [
-        "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-        "guard.settings.pretooluse-bash-guard-block-force-push",
-        "guard.settings.pretooluse-edit-write-guard-read-before",
-        "guard.settings.stop-guard-reply-length-py",
-        "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh"
-      ],
-      "details": ["the trace records no guard message text"]
-    },
-    {
-      "marker": "needs-guard-timing",
-      "specs": 6,
-      "atoms": [
-        "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-        "guard.settings.pretooluse-bash-guard-block-force-push",
-        "guard.settings.pretooluse-edit-write-guard-read-before",
-        "guard.settings.stop-guard-reply-length-py",
-        "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh"
-      ],
-      "details": ["the trace records no time per guard run"]
-    },
-    {
-      "marker": "needs-negation",
-      "specs": 17,
-      "atoms": [
-        "instruction.ledger-auditor.the-auditor-never-edits-a-file",
-        "instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and",
-        "instruction.shipment-tracker.ask-for-the-tracking-number-when",
-        "instruction.shipment-tracker.never-guess-a-shipment-status",
-        "instruction.standing.keep-an-unconfirmed-draft-unsent",
-        "instruction.standing.never-delete-a-ledger-file-archive",
-        "instruction.standing.never-force-push",
-        "instruction.standing.never-invent-order-numbers-prices-or",
-        "instruction.standing.never-paste-a-credential-into-a",
-        "instruction.standing.never-send-a-supplier-email-without",
-        "instruction.standing.on-stop-stop-all-work-and",
-        "instruction.standing.report-only-numbers-read-during-the",
-        "instruction.supplier-email.a-draft-stays-under-120-words",
-        "instruction.supplier-email.a-loose-yes-is-not-a",
-        "instruction.supplier-email.no-price-or-date-in-a",
-        "instruction.weekly-report.count-only-the-last-seven-days",
-        "instruction.weekly-report.save-the-report-by-week-and"
-      ],
-      "details": [
-        "a text predicate with no required words",
-        "asks_again_on_loose_yes has no negative control",
-        "asks_for has no negative control",
-        "command_not_run has no negative control",
-        "confirmed_before_send has no negative control",
-        "grounded_values has no negative control",
-        "max_words has no negative control",
-        "no_delete_under has no negative control",
-        "no_secret_in_reply has no negative control",
-        "stopped_and_confirmed has no negative control",
-        "tool_not_called has no negative control",
-        "workspace has no negative control"
-      ]
+      "marker": "needs-existing-file",
+      "specs": 2,
+      "atoms": ["reference.weekly-report.read-references-kpi-definitions-md"],
+      "details": [".claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate"]
     },
     {
       "marker": "needs-ordered-anchor",
-      "specs": 30,
-      "atoms": [
-        "gate.invoice-reconcile.read-references-matching-rules-md-before",
-        "gate.standing.read-git-status-before-commit-to"
-      ],
-      "details": [
-        "Bash before Bash: both ends are Bash, so the pair cannot tell the two acts apart",
-        "Read before matching any line: \"matching any line\" is no tool label, skill or stage"
-      ]
+      "specs": 15,
+      "atoms": ["gate.invoice-reconcile.read-references-matching-rules-md-before"],
+      "details": ["Read before matching any line: \"matching any line\" is no tool label, skill or stage"]
     },
     {
       "marker": "needs-recorded-session",
@@ -359,12 +299,6 @@
       "specs": 1,
       "atoms": ["tool.settings.ask-bash-git-commit"],
       "details": ["permission ask: the trace does not show the prompt"]
-    },
-    {
-      "marker": "needs-stage-reach-check",
-      "specs": 14,
-      "atoms": ["stage.steps.stage-note-write-a-tracker-note"],
-      "details": ["note may come at any step, so no order shows it was reached"]
     }
   ],
   "replay": [],

@@ -72,6 +72,7 @@ metadata:
     atoms:
       - route.supplier-email.an-ask-that-fits-supplier-email
     planRow: pairwise.0787
+    focusVariant: 786
     cell:
       ask_class: debug
       ask_shape: ambiguous

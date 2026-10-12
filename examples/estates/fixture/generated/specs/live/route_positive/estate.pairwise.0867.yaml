@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.ledger-auditor.an-ask-that-fits-ledger-auditor
     planRow: pairwise.0867
+    focusVariant: 866
     cell:
       ask_class: compose
       ask_shape: ambiguous

@@ -2,7 +2,14 @@ import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
 import { Campaign, type LoadedSpec, RunResult, validateSpec } from '@driftbench/core';
 import { describeCause, describeIssues, StoreError } from './errors';
-import { isVersionRecord, type RegistryFile, type RegistryVersion, sha256, versionHash } from './registry';
+import {
+  isVersionPath,
+  isVersionRecord,
+  type RegistryFile,
+  type RegistryVersion,
+  sha256,
+  versionHash,
+} from './registry';
 import { SCHEMA_VERSION } from './schema';
 
 /** The `format` every campaign bundle manifest carries. */
@@ -182,6 +189,14 @@ async function readSources(folder: string): Promise<BundleSource[]> {
         throw invalid(folder, `${where}/${VERSION} is not a version record that matches its hash`);
       }
       const files: RegistryFile[] = [];
+      // Checked before any read: a path with .. or a leading / would read, and store, a file outside it.
+      const escaping = version.files.find((entry) => !isVersionPath(entry.path));
+      if (escaping) {
+        throw invalid(
+          folder,
+          `${where}/${VERSION} names the file path "${escaping.path}", which leaves the version`,
+        );
+      }
       for (const entry of version.files) {
         const bytes = new Uint8Array(
           await readFile(join(home, FILES, ...entry.path.split('/'))).catch((cause: unknown) => {

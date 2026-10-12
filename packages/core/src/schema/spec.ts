@@ -342,7 +342,6 @@ export const Expect = z
       .enum(['refuses', 'answers'])
       .optional()
       .describe('Whether the reply must be a refusal, read from refusal phrases in seven languages.'),
-    ignore_case: z.boolean().optional().describe('Match must and must_not without regard to case.'),
     markup: z
       .enum(['xml', 'html', 'sql'])
       .optional()
@@ -462,6 +461,12 @@ export const Rules = z
       .optional()
       .describe('True when the reply language must stay the same across blocks.'),
     one_message_per_turn: z.boolean().optional().describe('True when each block may send one message only.'),
+    match_case: z
+      .boolean()
+      .optional()
+      .describe(
+        'True makes must and must_not patterns case-sensitive and the trailing punctuation count. Default false: a pattern ignores the case of the reply and a trailing punctuation mark.',
+      ),
     custom: z
       .record(z.string(), z.unknown())
       .optional()

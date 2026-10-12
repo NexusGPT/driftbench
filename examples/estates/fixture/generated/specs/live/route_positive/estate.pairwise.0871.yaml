@@ -73,6 +73,7 @@ metadata:
     atoms:
       - skill.shipment-tracker.skill-shipment-tracker
     planRow: pairwise.0871
+    focusVariant: 870
     cell:
       ask_class: debug
       ask_shape: prescribed

@@ -74,6 +74,7 @@ metadata:
     atoms:
       - route.weekly-report.an-ask-that-fits-weekly-report
     planRow: pairwise.0895
+    focusVariant: 894
     cell:
       ask_class: chat
       ask_shape: ambiguous

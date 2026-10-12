@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.standing.an-ask-to-write-to-or
     planRow: pairwise.0023
+    focusVariant: 22
     cell:
       ask_class: research
       ask_shape: multi_part
