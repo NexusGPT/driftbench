@@ -30,7 +30,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 0 |
 <!-- level-table:end -->
 
-The bank is ladder version 2 of map: 578 items over 8 levels. After the ten pilot fixes and 30 executor iterations (11 to 40): 300 of 578 pass (score 0.5190), 51 distinct causes among the failing. Level 0 of 8 on every seed.
+The bank is ladder version 2 of map: 578 items over 8 levels. After the ten pilot fixes and 45 executor iterations (11 to 55): 328 of 578 pass (score 0.5675), 31 distinct causes among the failing. Level 0 of 8 on every seed.
 
 ## Floor
 
@@ -38,7 +38,7 @@ None in `validators/floors.json`, so CI reads 0. Under section 12.5 the bank is 
 
 ## Open items
 
-Level 1 (structured files) still fails on every seed. Failing items per family: adversarial 1, hostile-inputs 5, prompt-containers 30, roles 29, scale 36, schema-keywords 4, semantics 55, style-pairs 91, styles 21, transforms 6. All level 1 items that a pre-pass fix can pass now pass, except the four below, which are validator contradictions (see the section on iterations 26 to 40). Level 2 is next: prompt-containers (30 failing) then the later levels; run `pnpm driftbench validate map --seed 1 --all-levels` to list them.
+Level 1 (structured files) still fails on every seed, only because of the contradictions listed below. Failing items per family: adversarial 1, hostile-inputs 5, prompt-containers 2, roles 29, scale 36, schema-keywords 4, semantics 55, style-pairs 91, styles 21, transforms 6. Level 2 (prompt containers) has two items left (restructured-text, latex). The next bulk is level 3: style-pairs (89 on seed 1) and styles, then level 7 semantics and roles, level 8 scale. Run `pnpm driftbench validate map --seed 1 --all-levels` to list every failing item with its cause.
 
 How to read a failing item (`driftbench validate map --seed 1`): the message starts with `[family, tier, cause]`, then the capability with its convention (the partition ids, the key or the relation kind the map must hold), then what the run lost and gained as facts, such as `lost value <dimension>/<value>` or `lost polarity rule/R-01 = "must_not"`. The cause names the one change to make: `tools:` is `packages/generate/src/extract/tools.ts`, `inventory:` is `prepass.ts`, `quote:` is `quote.ts` (reading a prompt container), `contract:` is `contract.ts` (a key the answer template must show, then `proposal.ts` and `accept.ts` to store it), `accept:` is `accept.ts`, `extract:` is `extract.ts` (chunked requests and their merge). Items sharing a cause turn green together.
 
@@ -113,3 +113,13 @@ Each iteration has a red test first in packages/generate/test/extract (the test 
 * schema-keywords.dependencies fails on seed 12 only: the drawn property name is `reason`, which collides with the item's own second property `reason` (one key overwrites the other).
 
 Handover test at iterations 30 and 40: `driftbench validate map --brief --fresh` prints the live ladder, the items of the first failing level and this file's static instruction; the level (0, 1 structured at 0.9 or more) is reproducible from it without the hypotheses.
+
+## Iterations 41 to 55 (executor, branch exec/map-v2): prompt containers
+
+A prompt kept inside another file is sent to the model decoded, and each quote the model gives is mapped back to a passage of the file (packages/generate/src/extract/containers.ts, used by extract.ts). The bank checks two things at once: a quote must be inside the file as written and inside the planted rule as decoded, so a mapped quote is the longest run of characters the file writes as they are, contiguous in the file. `viewSources` builds the text the request shows, `rawizeAnswer` rewrites the quotes of an answer before it is accepted.
+
+41 and 42 were the first tries (decoded view alone, then a quote mapping); 43 gave JSON, JSON lines, agent exports (4 items); 44 quoted YAML scalars; 45 quoted strings in TS, PHP, JSON5, Go; 46 literals joined with + or implicitly; 47 template and f-string constants; 48 C# verbatim and SQL doubled quotes; 49 HTML and XML entities and tags (5 items); 50 TOML basic strings and .env; 51 properties files; 52 CSV; 53 Swift interpolation; 54 JSON text parts; 55 Word XML runs.
+
+Two level 2 items remain: restructured-text (a backslash before an inline-markup character) and latex (`\textbf{word}` around a word). Each needs one decoder in containers.ts: a `.rst` view that drops the backslash of an escaped character, and a `.tex` view that drops the command and braces.
+
+The Acme test `is exactly what the extractor writes...` in packages/generate/test/extract/acme.test.ts passes alone but times out at its 5 s limit when the machine load is high (load average above 100 during this run); it is not a regression of these changes.
