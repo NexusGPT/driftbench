@@ -23,7 +23,13 @@ function markdownText(text: string): string {
     .replace(/(`+)([\s\S]*?)\1/g, '$2');
 }
 
-const substantive = (text: string): boolean => /[\p{L}\p{N}]/u.test(text);
+/** Role tokens are metadata even when repeated inside a quoted body. */
+const withoutRoles = (text: string): string =>
+  text.replace(
+    /\[(?:user|agent|assistant|system|context|card|tool(?:_call|_result)?)(?:\s+[^\]]*)?\]/giu,
+    ' ',
+  );
+const substantive = (text: string): boolean => /[\p{L}\p{N}]/u.test(withoutRoles(text));
 
 const isWordChar = (ch: string | undefined): boolean => ch !== undefined && /[\p{L}\p{N}]/u.test(ch);
 
@@ -71,6 +77,20 @@ export function groundEvidence(request: JudgeRequest, answer: JudgeAnswer): Grou
 
 function containsParts(text: string, parts: readonly string[]): boolean {
   const hay = fold(text);
+  if (!substantive(hay)) return false;
+  return (
+    orderedParts(hay, parts) &&
+    orderedParts(
+      withoutRoles(hay),
+      parts
+        .map(withoutRoles)
+        .map((part) => part.trim())
+        .filter(Boolean),
+    )
+  );
+}
+
+function orderedParts(hay: string, parts: readonly string[]): boolean {
   let from = 0;
   for (const part of parts) {
     const at = findOnWords(hay, part, from);

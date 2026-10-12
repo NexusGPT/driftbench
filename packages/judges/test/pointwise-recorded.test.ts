@@ -1,24 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import { Cassette, playerClient } from '../src/cassette';
+import { parseJudgeText } from '../src/assessment';
+import { Cassette } from '../src/cassette';
 import { CLAUDE_SETTINGS } from '../src/clients/claude-cli';
 import type { JudgeRequest } from '../src/contract';
-import { PROMPT_FINGERPRINT } from '../src/prompt';
 import requests from './fixtures/pointwise-regression-requests.json';
 import recorded from './fixtures/pointwise-regressions.cassette.json';
 
 const cassette = Cassette.parse(recorded);
-const player = playerClient(cassette, 'claude-haiku');
 
-describe('real Haiku evidence-ledger regression recordings', () => {
+describe('historical real Haiku evidence-ledger recordings, before the JSON role frame', () => {
   it('retains all 28 model responses under the exact recorded settings and prompt', () => {
     expect(cassette.entries).toHaveLength(28);
     expect(requests.settings).toBe(CLAUDE_SETTINGS);
-    expect(requests.promptFingerprint).toBe(PROMPT_FINGERPRINT);
+    expect(requests.promptFingerprint).toBe('480f7ca01462');
   });
   for (const row of requests.cases) {
-    it(`${row.case_id} replays all four actual model responses, including the recorded abstention`, async () => {
+    it(`${row.case_id} parses all four historical raw model responses, including the recorded abstention`, () => {
       for (let repeat = 0; repeat < 4; repeat++) {
-        const result = await player.judge(row.request as JudgeRequest);
+        const entry = cassette.entries.find(
+          (entry) => entry.note === (repeat === 0 ? row.case_id : `${row.case_id} repeat ${repeat}`),
+        );
+        expect(entry).toBeDefined();
+        const result = parseJudgeText(entry!.raw!, row.request as JudgeRequest);
         expect(result.unparsed).toBeUndefined();
         expect(result.checks).toHaveLength(1);
         // Keep the semantic failure visible. This response demands affirmative phrasing despite

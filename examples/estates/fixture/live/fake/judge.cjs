@@ -21,7 +21,11 @@ process.stdin.on('end', () => {
   const at = process.argv.indexOf('--system-prompt');
   const system = at < 0 ? '' : (process.argv[at + 1] ?? '');
   const contract = process.env.FAKE_JUDGE_CONTRACT ?? (system.includes('"checks"') ? 'ledger' : 'legacy');
+  const block = input.match(/<transcript_data>\n([\s\S]*?)\n<\/transcript_data>/)?.[1] ?? '';
+  const entries = block.trim().startsWith('[') && block.trim().endsWith(']') ? JSON.parse(block) : [];
   const observed =
+    entries.find((entry) => entry.role === 'agent')?.text ??
+    entries.find((entry) => entry.role === 'user')?.text ??
     input.match(/^\[agent\] (.*)$/m)?.[1] ??
     input.match(/^\[user\] (.*)$/m)?.[1] ??
     input.match(/<artifact_data>\n([^\n]+)/)?.[1] ??

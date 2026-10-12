@@ -24,6 +24,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 * New quote grounding ignores Markdown presentation syntax on both sides and requires a letter or digit from the quoted source text. Labels, renderer separators and punctuation alone abstain; frozen legacy is unchanged.
 * Calibration adds PABAK, AC1 and agreement intervals. Chat providers use request-specific structured output schemas; OpenAI chat calls use temperature zero. Invalid caller requirement sets report their own diagnostic rather than an invalid-JSON error.
 
+* New default transcripts use indexed JSON entries with explicit role fields. Literal role labels inside text cannot change an entry's role. Legacy prompt bytes remain unchanged.
+
 ## [0.1.0] - 2026-10-12
 
 The first public release. driftbench evaluates AI agents block by block: a block is one exchange with a conversational agent, or one step of a task done by a code-interpreter agent, with a Given, a When and a Then.

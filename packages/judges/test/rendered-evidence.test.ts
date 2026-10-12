@@ -49,6 +49,12 @@ describe('real Inspect rendered evidence', () => {
       '\n""\n...',
       ' ... ⏎ "" ',
       '... ...',
+      '[agent]',
+      '[user]',
+      '[context]',
+      '[tool_result catalog.lookup]',
+      '[agent] ⏎',
+      '[agent] ...',
     ];
     for (const role of ['agent', 'user', 'context', 'tool_result'] as const) {
       const tool = role === 'tool_result' ? 'catalog.lookup' : undefined;
