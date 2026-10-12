@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please handle this for me: the total difference is above 50.00 EUR."
+      user: Please dispatch the ledger auditor above 50.00 EUR of difference.
     expect:
       subagents:
         - name: ledger-auditor
@@ -56,5 +56,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 (situation)
+    askFrom: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 (title)
     outcome: no-delete

@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { longTable } from '../../src/ladders/estate/bank/bench';
+import { judgeCase } from '../../src/ladders/estate/bank/hostile';
 import {
   allowedTuples,
   BANK_LEVELS,
@@ -267,5 +269,13 @@ describe('families against the current components', { timeout: 120_000 }, () => 
     expect(a.atoms).toBeLessThan(250 + 7);
     expect(scaleEstate(250, 4)).toEqual(a);
     expect(scaleEstate(250, 5).files).not.toEqual(a.files);
+  });
+});
+
+describe('the long routing table plant', { timeout: 120_000 }, () => {
+  it('declares the skill and the description route of every skill it plants, so only missed rows can fail it', async () => {
+    const result = await judgeCase(1, 'bench.defects', longTable('long-routing-table', 3, 12, true));
+    expect(result.detail).not.toMatch(/found (skill|route) .* at \.claude\/skills\/.*never planted/);
+    expect(result).toMatchObject({ pass: true });
   });
 });
