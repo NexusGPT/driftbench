@@ -49,7 +49,7 @@ A campaign runs each spec several times in each mode (`--repeats`). With c passi
 
 | Function | Computes |
 |---|---|
-| `passK(c, n, k)` | pass^k, the probability that k runs drawn from the n all pass: `C(c, k) / C(n, k)`, the estimator of [arXiv 2406.12045](https://arxiv.org/pdf/2406.12045), as the `pass_k` reducer of inspect_ai uses it |
+| `passK(c, n, k)` | pass^k, the probability that k runs drawn from the n all pass: `C(c, k) / C(n, k)`, the estimator of [arXiv 2406.12045](https://arxiv.org/pdf/2406.12045) |
 | `passAtK(c, n, k)` | pass@k, the probability that at least one of k runs passes: `1 - C(n - c, k) / C(n, k)`, the estimator of [arXiv 2107.03374](https://arxiv.org/pdf/2107.03374) |
 | `unreliability(samples)` | the 90th percentile minus the 10th of the scores across repeats |
 
