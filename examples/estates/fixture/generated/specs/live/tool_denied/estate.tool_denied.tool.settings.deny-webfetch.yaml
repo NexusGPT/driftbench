@@ -55,6 +55,9 @@ blocks:
       tools:
         - label: WebFetch
           count: 0
+      tools_offered:
+        exclude:
+          - WebFetch
       workspace:
         others_untouched: true
 metadata:

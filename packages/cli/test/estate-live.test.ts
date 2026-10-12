@@ -304,7 +304,7 @@ describe('driftbench estate run', () => {
   });
 });
 
-describe('the Northwind proof: 14 live specs on the fake command, and two estate mutants', () => {
+describe('the Northwind proof: 14 live specs on the fake command, and three estate mutants', () => {
   const FAULTS = [
     'estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker',
     'estate.tool_denied.tool.settings.deny-webfetch',
@@ -357,4 +357,17 @@ describe('the Northwind proof: 14 live specs on the fake command, and two estate
     },
     120_000,
   );
+  it('a mutant that deletes the WebFetch deny offers the tool, and tools_offered names it', async () => {
+    const to = join(await folder(), 'mutant');
+    const atom = 'tool.settings.deny-webfetch';
+    expect((await run(['estate', 'mutate', MAP, '--atom', atom, '--delete', '--to', to])).code).toBe(0);
+    const spec = join(LIVE, PROOF.tool_denied ?? '');
+    const original = await estateRun(FIXTURE, [spec], '--map', MAP);
+    const mutant = await estateRun(to, [spec]);
+    expect(original.json?.runs[0]?.failing).toEqual(['block 0: forbidden.WebFetch']);
+    expect(mutant.json?.runs[0]?.failing).toEqual([
+      'block 0: tools_offered.exclude.WebFetch',
+      'block 0: forbidden.WebFetch',
+    ]);
+  }, 120_000);
 });

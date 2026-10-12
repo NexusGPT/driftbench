@@ -30,6 +30,7 @@ export { skills } from './checks/skills';
 export { stage } from './checks/stage';
 export { subagents } from './checks/subagents';
 export { tools } from './checks/tools';
+export { toolsOffered } from './checks/tools_offered';
 export { workspace } from './checks/workspace';
 export { type DefaultChecksOptions, defaultChecks, type JudgeCheckSource } from './defaults';
 export { type AssertionResult, checkAssertion } from './support/assert';

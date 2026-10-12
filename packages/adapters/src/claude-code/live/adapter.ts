@@ -351,8 +351,11 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       };
       const tokens = block.observed.cost;
       const result = parsed.result;
+      const runtime = block.observed.runtime ?? {};
       const observed: Observed = {
         ...block.observed,
+        // What the runtime offered the agent, from the init record: a denied tool is absent.
+        ...(parsed.tools === undefined ? {} : { runtime: { ...runtime, offered: parsed.tools } }),
         artifacts,
         workspaceDiff,
         executions: [...(block.observed.executions ?? []), agentRecord],

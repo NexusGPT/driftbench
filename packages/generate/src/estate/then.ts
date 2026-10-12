@@ -9,6 +9,7 @@ import type { EstateAtom, EstateEvidence } from './inputs';
  * | skill_loaded, skill_not_loaded | `expect.skills` with a count |
  * | guard | `expect.guards` (name, verdict, count) |
  * | tool_called without input, tool_not_called | `expect.tools` with a count (0 forbids the tool) |
+ * | tool_not_called on a setting that denies the whole tool | also `expect.tools_offered.exclude` |
  * | ordered | the ordered-pair custom check, `rules.custom.ordered` |
  * | stage_reached | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last |
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
@@ -62,6 +63,8 @@ export type ThenParts = {
   skills: SkillExpect[];
   guards: GuardExpect[];
   tools: ToolExpect[];
+  /** Tools a setting denies whole: the runtime must not offer them. */
+  offeredExclude: string[];
   must: string[];
   mustNot: string[];
   lang?: string;
@@ -103,6 +106,7 @@ export function emptyThen(): ThenParts {
     skills: [],
     guards: [],
     tools: [],
+    offeredExclude: [],
     must: [],
     mustNot: [],
     artifacts: [],
@@ -150,6 +154,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'tool_not_called':
       addTool(then, { label: evidence.label, count: 0 });
+      // A setting that denies the whole tool takes it off the offered list: the deny shows without a call.
+      if (atom.kind === 'tool' && atom.fields?.effect === 'deny' && atom.fields.rule === evidence.label) {
+        addUnique(then.offeredExclude, evidence.label);
+      }
       return;
     case 'ordered': {
       const pair = anchorPair(evidence.before, evidence.after, ctx);

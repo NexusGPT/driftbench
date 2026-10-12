@@ -119,6 +119,18 @@ export const GuardExpect = z
   );
 export type GuardExpect = z.infer<typeof GuardExpect>;
 
+/** Which tools the runtime must offer the agent, and which it must not: a denied tool is not offered. */
+export const ToolsOfferedExpect = z
+  .strictObject({
+    include: z.array(z.string().min(1)).optional().describe('Tools the runtime must offer.'),
+    exclude: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('Tools the runtime must not offer, such as a tool a setting denies.'),
+  })
+  .describe('The tools the runtime offers the agent, read from the runtime trace; calls do not count.');
+export type ToolsOfferedExpect = z.infer<typeof ToolsOfferedExpect>;
+
 /** A file the agent must have read during the block: a skill file, a reference, a source. */
 export const ReferenceExpect = z
   .strictObject({
@@ -210,6 +222,9 @@ export const Expect = z
       .optional()
       .describe('Facts the block establishes. They join the ledger.'),
     tools: z.array(ToolExpect).optional().describe('The tool calls expected in the block.'),
+    tools_offered: ToolsOfferedExpect.optional().describe(
+      'The tools the runtime must offer and must not offer, whether or not the agent calls them.',
+    ),
     tool_order: z
       .enum(['exact', 'in_order', 'any_order'])
       .optional()
