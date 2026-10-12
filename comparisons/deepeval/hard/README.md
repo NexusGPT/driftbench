@@ -85,6 +85,11 @@ meet its rule. The measured default-policy comparison is not a pure prompt-quali
 comparison. `score.py` also reports a free threshold-1 sensitivity count from the
 same native scores, without changing any answers or running another model.
 
+The native role judge can also reject an in-role disclaimer because it does not
+help the user choose a plan. Our role criterion permits plain in-role statements
+and tests permission boundaries separately from task helpfulness. The corrected
+refusal contexts remove the missing-request defect, but not this policy difference.
+
 Task truth checks the reported result in the conversation, without real action
 receipts. The native extraction can state that no tools were called, and its
 verdict can reject a reported completed action for lacking tool proof. These
