@@ -63,3 +63,67 @@ It writes `docs/comparison/benchmarks/<bench>-<model>.svg` and, with `--doc`, th
 ## Tests
 
 `pnpm -s vitest run examples/judge-benchmarks` checks the metrics, the parsers, the loaders on rows in each source's format, the stratified sample, and the runner on a fake command, recordings and replay included. No model is called.
+
+## Writing preference development study
+
+The writing study uses the fixed LongJudge wp DEV split and Haiku through the existing caller.
+Competitor templates and the shipped judge remain unchanged. The study never tunes on TEST.
+All calls, including independent readings and disagreement resolution, run serially.
+Labels, author models, item ids, and language metadata never enter judging prompts.
+
+`src/wp-anchor-study.ts` compares holistic quality anchors adapted from
+[WritingPreferenceBench Appendix C.1](https://arxiv.org/html/2510.14616v2#A3.SS1).
+The four levels are Creative, Competent, Formulaic, and Elementary. The judge considers how fully
+an actual piece develops the requested writing experience. It does not generate a creative-writing
+rubric or checklist, and it uses no answer-size rule.
+
+| Variant | Presentation and decision |
+|---|---|
+| `anchor` | Both complete drafts, editorial assessments and holistic levels before the choice |
+| `reader` | The same whole-piece anchors, with the requested audience's experience as the final perspective |
+| `interleaved` | Lossless paragraph groups shown as A1, B1, A2, B2, A3, B3 before comparison |
+| `notes` | Each draft read alone using an identical review template; compare the resulting readings in both orders |
+| `pointwise` | Compare independent anchor levels in code; use the symmetric readings comparison only when levels match |
+
+Each report includes four decision views: the stated winner, the higher holistic level with winner
+fallback, the source of a unique exact winning excerpt with winner fallback, and confidence
+reconciliation. Reconciliation keeps agreeing orders. On disagreement it chooses the more confident
+judgment; equally confident disagreement triggers a separate source-checking decision. That decision
+receives both complete drafts and the original opinions, with their presentation labels explained.
+The initial anchor trial predates that label-map fix; `--legacy-resolver` reproduces its original
+resolver if needed.
+
+```sh
+node --import tsx examples/judge-benchmarks/src/wp-anchor-study.ts --variant anchor --split dev \
+  --concurrency 1 --cap-usd 1.3 --out examples/judge-benchmarks/census/wp-holistic-anchor-dev.json
+node --import tsx examples/judge-benchmarks/src/wp-anchor-study.ts --variant pointwise --split dev \
+  --concurrency 1 --cap-usd 1.3 --out examples/judge-benchmarks/census/wp-holistic-pointwise-dev.json
+```
+
+Add `--replay-only` to reproduce recorded prompts without spending. Add `--ledger PATH` to append
+actual new spend as one table row. Set `TMPDIR` and `DRIFTBENCH_BENCH_CACHE` inside your permitted
+worktree when write scope requires it. The runner rejects other splits and concurrency values.
+Caps apply per run, so callers must also account for earlier task spend. One full per-call budget
+is reserved below each run's cap. Cost per 100 items includes the complete recipe's required calls,
+even when this experiment reused cached recordings. Raw decision costs exclude optional resolution;
+reconciled decision costs include it. The pointwise recipe pays for comparison only on tied levels.
+
+`src/wp-holistic-analysis.ts --out PATH` compares full DEV reports and two fixed, equal-view
+compositions without new calls. It reports order-specific accuracy and a bootstrap interval that
+resamples instruction-id clusters, keeping related pairs and both presentation orders together.
+The standard metric remains accuracy over both games, with a tie or missing decision counted wrong.
+Repeated dataset ids are matched by a hash of the actual request and both replies.
+
+The earlier `src/wp-study.ts` trial is retained for reproduction. Its measured `criteria` variant
+extracts a request-only brief, records evidence and five criterion votes, and compares the overall
+choice, equal votes with choice fallback, and strict ties. Other variants in that file are unmeasured
+prototypes. Their generated checklists are not the recommended creative-writing route.
+
+```sh
+node --import tsx examples/judge-benchmarks/src/wp-study.ts --variant criteria --split dev \
+  --concurrency 1 --cap-usd 1.3 --replay-only --out examples/judge-benchmarks/census/wp-criteria-dev.json
+```
+
+`src/wp-analysis.ts --out PATH` reconstructs the adaptive baseline and compares the earlier trial.
+`src/wp-progress.ts` reports partial criterion progress; its partial score is not a full DEV result.
+A separate owner must freeze the selected configuration and evaluate it once on TEST.
