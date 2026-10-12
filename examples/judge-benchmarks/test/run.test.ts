@@ -56,6 +56,80 @@ const pairs: PairItem[] = [1, 2, 3, 4].map((i) => ({
 }));
 
 describe('runBenchmark', () => {
+  it('starts no model calls after the explicit deadline', async () => {
+    const report = await runBenchmark({
+      bench: 'rubricbench',
+      model: 'fake',
+      command,
+      concurrency: 1,
+      deadlineMs: 0,
+      contestants: [contestantById('promptfoo')],
+      items: pairs,
+      recordingsDir: join(dir, 'deadline'),
+    });
+    expect(report.newCalls).toBe(0);
+    expect(report.stopped).toBe('model call deadline reached');
+    expect(report.contestants[0]?.summary.missing).toBe(8);
+  });
+  it('maps content-hash presentation back to both caller orders and replays the shared call', async () => {
+    const contestant = { ...contestantById('promptfoo'), id: 'canonical-test', canonicalOrder: true };
+    const report = await runBenchmark({
+      bench: 'rubricbench',
+      model: 'fake',
+      command,
+      concurrency: 1,
+      items: pairs,
+      recordingsDir: join(dir, 'rec-canonical'),
+      contestants: [contestant],
+    });
+    expect(report.newCalls).toBe(4);
+    expect(report.replayed).toBe(4);
+    expect(report.contestants[0]?.summary.value.estimate).toBe(1);
+    expect(report.contestants[0]?.summary.positionConsistency).toBe(1);
+    expect(report.contestants[0]?.uniqueCalls).toBe(4);
+    expect(report.contestants[0]?.uniqueCostUsd).toBeCloseTo(0.004);
+  });
+  it('serializes nested orders and samples when concurrency is one', async () => {
+    const cmd = join(dir, 'serial-claude.mjs');
+    await writeFile(
+      cmd,
+      `#!/usr/bin/env node
+import { writeFileSync, unlinkSync } from 'node:fs';
+const lock = ${JSON.stringify(join(dir, 'call.lock'))};
+let concurrent = false;
+try { writeFileSync(lock, '', { flag: 'wx' }); } catch { concurrent = true; }
+process.stdin.resume();
+process.stdin.on('end', () => setTimeout(() => {
+  if (!concurrent) unlinkSync(lock);
+  process.stdout.write(JSON.stringify({ result: concurrent ? 'OVERLAP' : 'A', total_cost_usd: 0.001 }));
+}, 30));
+`,
+    );
+    await chmod(cmd, 0o755);
+    const observed: string[] = [];
+    await runBenchmark({
+      bench: 'rubricbench',
+      model: 'fake',
+      command: cmd,
+      concurrency: 1,
+      items: pairs.slice(0, 2),
+      recordingsDir: join(dir, 'rec-serial'),
+      contestants: [
+        {
+          id: 'serial',
+          source: 'test',
+          samples: 3,
+          pair: ({ a, b }) => ({ system: '', user: `${a}\n${b}` }),
+          parsePair: (value) => {
+            observed.push(value);
+            return value === 'A' ? 'A' : 'tie';
+          },
+        },
+      ],
+    });
+    expect(observed).toHaveLength(12);
+    expect(observed).not.toContain('OVERLAP');
+  });
   it('scores pairwise contestants in both orders and a pointwise one by single game, and records every answer', async () => {
     const recordingsDir = join(dir, 'rec1');
     const options = {
@@ -242,7 +316,15 @@ process.stdin.on('end', () => {
       }),
       parsePair: (text: string) => (text.trim() === 'A' ? ('A' as const) : ('B' as const)),
     });
-    const item: PairItem = { kind: 'pair', id: 'x', question: 'q', a: 'RIGHT one', b: 'wrong one', label: 'A', group: 'g' };
+    const item: PairItem = {
+      kind: 'pair',
+      id: 'x',
+      question: 'q',
+      a: 'RIGHT one',
+      b: 'wrong one',
+      label: 'A',
+      group: 'g',
+    };
     const report = await runBenchmark({
       bench: 'longjudge-wp',
       model: 'fake',

@@ -88,7 +88,7 @@ export class CallFailed extends Error {}
 export function createCaller(
   recordings: Recordings,
   options: CallOptions,
-  limits: { capUsd?: number; replayOnly?: boolean | 'lenient' } = {},
+  limits: { capUsd?: number; replayOnly?: boolean | 'lenient'; deadlineMs?: number } = {},
 ): Caller {
   let spent = 0;
   let calls = 0;
@@ -112,6 +112,8 @@ export function createCaller(
       }
       if (limits.capUsd !== undefined && spent >= limits.capUsd)
         throw new SpendCapReached(`spend cap ${limits.capUsd} USD reached`);
+      if (limits.deadlineMs !== undefined && Date.now() >= limits.deadlineMs)
+        throw new SpendCapReached('model call deadline reached');
       folder ??= await mkdtemp(join(tmpdir(), 'driftbench-bench-'));
       const result = await runClaude(prompt, options, folder);
       spent += result.costUsd;

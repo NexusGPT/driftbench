@@ -1,8 +1,8 @@
+import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type Caller, CallFailed, createCaller, Recordings, SpendCapReached } from './call';
-import { extractPython, majoritySolve, pythonOutput } from './extras';
+import { type Caller, CallFailed, createCaller, promptKey, Recordings, SpendCapReached } from './call';
 import {
   CONTESTANTS,
   type Contestant,
@@ -20,6 +20,7 @@ import {
   splitOf,
   stratifiedSample,
 } from './data';
+import { extractPython, majoritySolve, pythonOutput } from './extras';
 import {
   type PairResult,
   type PointResult,
@@ -53,6 +54,9 @@ export type RunOptions = {
   /** dev, test or all (default all). Our judge is tuned on dev; charts show test. */
   readonly split?: 'dev' | 'test' | 'all';
   readonly capUsd?: number;
+  /** No new model call starts at or after this Unix timestamp in milliseconds. */
+  readonly deadlineMs?: number;
+  readonly onProgress?: (progress: { calls: number; spentUsd: number; item: string }) => void;
   readonly concurrency?: number;
   /** Never call the model: true stops at a missing recording; lenient counts its answer as missing. */
   readonly replayOnly?: boolean | 'lenient';
@@ -73,6 +77,9 @@ export type ContestantReport = {
   /** What the calls cost as the command reported it, recorded or new. */
   readonly costUsd: number;
   readonly calls: number;
+  /** Unique prompt keys within this contestant, so order-invariant replay is not billed twice. */
+  readonly uniqueCostUsd?: number;
+  readonly uniqueCalls?: number;
 };
 
 export type RunReport = {
@@ -121,7 +128,9 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
     ? { id: options.bench, criterion: options.criterion ?? 'The response is correct.', items: options.items }
     : await loadBenchmark(options.bench);
   const inSplit = (xs: readonly Item[]) =>
-    xs.filter((item) => (options.split ?? 'all') === 'all' || splitOf(options.bench, item.id) === options.split);
+    xs.filter(
+      (item) => (options.split ?? 'all') === 'all' || splitOf(options.bench, item.id) === options.split,
+    );
   const items =
     options.sample && options.sampleBeforeSplit
       ? inSplit(stratifiedSample(bench.items, options.sample, options.seed))
@@ -136,13 +145,15 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
     { model: options.model, ...(options.command ? { command: options.command } : {}) },
     {
       ...(options.capUsd === undefined ? {} : { capUsd: options.capUsd }),
+      ...(options.deadlineMs === undefined ? {} : { deadlineMs: options.deadlineMs }),
       ...(options.replayOnly ? { replayOnly: options.replayOnly } : {}),
     },
   );
   let stopped: string | undefined;
   let failedCalls = 0;
   const costs = new Map<string, { usd: number; calls: number }>();
-  const ask: Ask = async (contestant, prompt, item, order) => {
+  const uniqueCosts = new Map<string, Map<string, number>>();
+  const askNow: Ask = async (contestant, prompt, item, order) => {
     if (stopped) return undefined;
     try {
       const r = await caller.call(prompt, { bench: options.bench, contestant: contestant.id, item, order });
@@ -150,6 +161,10 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       c.usd += r.costUsd;
       c.calls += 1;
       costs.set(contestant.id, c);
+      const unique = uniqueCosts.get(contestant.id) ?? new Map<string, number>();
+      unique.set(promptKey(options.model, prompt), r.costUsd);
+      uniqueCosts.set(contestant.id, unique);
+      options.onProgress?.({ calls: caller.calls(), spentUsd: caller.spent(), item });
       return r;
     } catch (cause) {
       if (cause instanceof CallFailed) {
@@ -164,6 +179,15 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
             : String(cause);
       return undefined;
     }
+  };
+  // Pair orders, samples and checklist replies also fan out within an item. A single worker
+  // must therefore serialize calls here, not only in the item pool.
+  let serial: Promise<unknown> = Promise.resolve();
+  const ask: Ask = (contestant, prompt, item, order) => {
+    if (options.concurrency !== 1) return askNow(contestant, prompt, item, order);
+    const pending = serial.then(() => askNow(contestant, prompt, item, order));
+    serial = pending.catch(() => undefined);
+    return pending;
   };
 
   const reports: ContestantReport[] = [];
@@ -233,7 +257,8 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       if (!chunked || response.length <= chunked.threshold) return undefined;
       const criterion = item.criterion ?? bench.criterion;
       const parts: string[] = [];
-      for (let at = 0; at < response.length; at += chunked.size) parts.push(response.slice(at, at + chunked.size));
+      for (let at = 0; at < response.length; at += chunked.size)
+        parts.push(response.slice(at, at + chunked.size));
       const notes = await Promise.all(
         parts.map((part, i) =>
           ask(
@@ -244,7 +269,9 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
           ),
         ),
       );
-      const lines = notes.map((r, i) => (r ? `Part ${i + 1} of ${parts.length}: ${r.text.trim()}` : undefined));
+      const lines = notes.map((r, i) =>
+        r ? `Part ${i + 1} of ${parts.length}: ${r.text.trim()}` : undefined,
+      );
       return lines.some((l) => l !== undefined)
         ? `Notes from reading the reply in ${parts.length} parts, each part alone (they may be wrong):\n${lines
             .filter((l) => l !== undefined)
@@ -257,7 +284,9 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       const r = await ask(contestant, contestant.codeCheck.write(item.question), item.id, 'program');
       const code = r ? extractPython(r.text) : undefined;
       const out = code === undefined ? undefined : await pythonOutput(code);
-      return out === undefined ? undefined : `Output of a program that works the question out (it may be wrong): ${out}`;
+      return out === undefined
+        ? undefined
+        : `Output of a program that works the question out (it may be wrong): ${out}`;
     };
     // Everything the judge is given as reference for an item. With no extra step, exactly the solve, as before.
     const referenceFor = async (item: Item, response?: string): Promise<string | undefined> => {
@@ -305,16 +334,30 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
         if (contestant.checklist) {
           // Each reply is checked against every rubric alone; the reply with more satisfied rubrics wins.
           const checklist = contestant.checklist;
-          const rubrics = (await criterionFor(item)).split('\n').slice(1).map((r) => r.trim()).filter(Boolean);
+          const rubrics = (await criterionFor(item))
+            .split('\n')
+            .slice(1)
+            .map((r) => r.trim())
+            .filter(Boolean);
           const count = async (reply: string): Promise<number | undefined> => {
-            const r = await ask(contestant, checklist.reply({ question: item.question, reply, rubrics }), item.id, 'checklist');
+            const r = await ask(
+              contestant,
+              checklist.reply({ question: item.question, reply, rubrics }),
+              item.id,
+              'checklist',
+            );
             const checks = r ? checklist.parse(r.text, rubrics.length) : undefined;
             return checks === undefined ? undefined : checks.filter(Boolean).length;
           };
           const [a, b] = await Promise.all([count(item.a), count(item.b)]);
-          const decision: PairDecision = a === undefined || b === undefined || a === b ? 'tie' : a > b ? 'A' : 'B';
+          const decision: PairDecision =
+            a === undefined || b === undefined || a === b ? 'tie' : a > b ? 'A' : 'B';
           // One decision for both games: no reply is seen in a position, so the two games cannot disagree.
-          return { item, games: [decision, decision], missing: (a === undefined ? 1 : 0) + (b === undefined ? 1 : 0) };
+          return {
+            item,
+            games: [decision, decision],
+            missing: (a === undefined ? 1 : 0) + (b === undefined ? 1 : 0),
+          };
         }
         if (usePair && contestant.pair && contestant.parsePair) {
           const parse = contestant.parsePair;
@@ -322,17 +365,27 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
           const setup = await setupFor(criterion);
           const reference = await referenceFor(item);
           const one = async (a: string, b: string, order: string): Promise<PairDecision[] | undefined> => {
-            const prompt = contestant.pair?.({
+            // Content determines presentation, never labels or dataset metadata. Both caller orders
+            // go through this path and map the shared recorded judgement back to their own positions.
+            const hash = (reply: string) => createHash('sha256').update(reply).digest('hex');
+            const reversed = contestant.canonicalOrder === true && hash(a) > hash(b);
+            const input = {
               question: item.question,
-              a,
-              b,
+              a: reversed ? b : a,
+              b: reversed ? a : b,
               criterion,
               ...(setup === undefined ? {} : { setup }),
               ...(reference === undefined ? {} : { reference }),
-            });
+            };
+            const prompt = contestant.pair?.(input);
             if (!prompt) return undefined;
-            const texts = await sampled(prompt, item.id, order);
-            return texts.length === 0 ? undefined : texts.map(parse);
+            const texts: string[] = [];
+            for (const alternative of contestant.pairAlternatives?.(input) ?? [prompt]) {
+              texts.push(...(await sampled(alternative, item.id, order)));
+            }
+            return texts.length === 0
+              ? undefined
+              : texts.map((text) => (reversed ? flipPair(parse(text)) : parse(text)));
           };
           const [ordered, swapped] = await Promise.all([
             one(item.a, item.b, 'AB'),
@@ -370,6 +423,8 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       summary,
       costUsd: c.usd,
       calls: c.calls,
+      uniqueCostUsd: [...(uniqueCosts.get(contestant.id)?.values() ?? [])].reduce((a, b) => a + b, 0),
+      uniqueCalls: uniqueCosts.get(contestant.id)?.size ?? 0,
     });
   }
   return {

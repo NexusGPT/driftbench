@@ -1,4 +1,14 @@
 import { buildPrompt, type JudgeRequest, pairwiseRequest, parseAnswerText } from '@driftbench/judges';
+import { jsonObjects } from './json';
+import {
+  CONTRACT_CONTESTANT,
+  CONTRAST_CONTESTANTS,
+  LITERAL_CONTESTANT,
+  RUBRIC_ATOMIC,
+  RUBRIC_ENSEMBLE,
+} from './rubric-atomic';
+
+export { jsonObjects } from './json';
 
 /**
  * The contestants: one judge prompt each, run on the same model. driftbench's prompt comes from
@@ -46,6 +56,8 @@ export type Contestant = {
    * position bias of one order is outvoted by the other, so the two games never disagree.
    */
   readonly pooled?: boolean;
+  /** Present each pair in content-hash order, then map the verdict back to the caller's order. */
+  readonly canonicalOrder?: boolean;
   /** A contestant that first answers the question itself, once per item: the prompt that asks for it. */
   readonly reference?: (question: string) => Prompt;
   readonly pair?: (input: {
@@ -56,6 +68,14 @@ export type Contestant = {
     setup?: string;
     reference?: string;
   }) => Prompt;
+  /** Several distinct rubric prompts, voted together; each exact prompt keeps its own recording. */
+  readonly pairAlternatives?: (input: {
+    question: string;
+    a: string;
+    b: string;
+    criterion: string;
+    reference?: string;
+  }) => readonly Prompt[];
   readonly parsePair?: (text: string) => PairDecision;
   readonly point?: (input: {
     question: string;
@@ -74,7 +94,13 @@ export type Contestant = {
   readonly chunkedReading?: {
     readonly threshold: number;
     readonly size: number;
-    readonly read: (input: { question: string; part: string; criterion: string; index: number; total: number }) => Prompt;
+    readonly read: (input: {
+      question: string;
+      part: string;
+      criterion: string;
+      index: number;
+      total: number;
+    }) => Prompt;
   };
   /** A Python program the model writes for the question; its printed output is given to the judge as a reference. */
   readonly codeCheck?: { readonly write: (question: string) => Prompt };
@@ -87,41 +113,6 @@ export type Contestant = {
     readonly parse: (text: string, count: number) => boolean[] | undefined;
   };
 };
-
-/** Every balanced JSON object in a text that parses, in order of where it starts. */
-export function jsonObjects(text: string): Record<string, unknown>[] {
-  const found: Record<string, unknown>[] = [];
-  for (let start = text.indexOf('{'); start >= 0; start = text.indexOf('{', start + 1)) {
-    let depth = 0;
-    let inString = false;
-    let escaped = false;
-    for (let i = start; i < text.length; i += 1) {
-      const ch = text[i];
-      if (inString) {
-        if (escaped) escaped = false;
-        else if (ch === '\\') escaped = true;
-        else if (ch === '"') inString = false;
-        continue;
-      }
-      if (ch === '"') inString = true;
-      else if (ch === '{') depth += 1;
-      else if (ch === '}') {
-        depth -= 1;
-        if (depth === 0) {
-          try {
-            const value = JSON.parse(text.slice(start, i + 1)) as unknown;
-            if (value && typeof value === 'object' && !Array.isArray(value))
-              found.push(value as Record<string, unknown>);
-          } catch {
-            // Braces that are not JSON, such as LaTeX: try the next opening brace.
-          }
-          break;
-        }
-      }
-    }
-  }
-  return found;
-}
 
 /** The last JSON object of a text that holds the key, or the last object when no key is asked for. */
 function lastJson(text: string, key?: string): Record<string, unknown> | undefined {
@@ -748,7 +739,8 @@ const driftbenchPooled: Contestant = {
 const driftbenchMajRef: Contestant = {
   ...driftbenchAdaptive,
   id: 'driftbench-majref',
-  source: 'driftbench-adaptive with the reference taken from the majority of five independent solves (tuning candidate)',
+  source:
+    'driftbench-adaptive with the reference taken from the majority of five independent solves (tuning candidate)',
   referenceSamples: 5,
 };
 
@@ -756,7 +748,8 @@ const driftbenchMajRef: Contestant = {
 const driftbenchChunked: Contestant = {
   ...driftbenchAdaptive,
   id: 'driftbench-chunked',
-  source: 'driftbench-adaptive with long replies read in parts, and the readings given as reference notes (tuning candidate)',
+  source:
+    'driftbench-adaptive with long replies read in parts, and the readings given as reference notes (tuning candidate)',
   chunkedReading: {
     threshold: 10000,
     size: 4000,
@@ -771,7 +764,8 @@ const driftbenchChunked: Contestant = {
 const driftbenchCodeCheck: Contestant = {
   ...driftbenchAdaptive,
   id: 'driftbench-codecheck',
-  source: 'driftbench-adaptive with the printed output of a program the model writes as a reference (tuning candidate)',
+  source:
+    'driftbench-adaptive with the printed output of a program the model writes as a reference (tuning candidate)',
   codeCheck: {
     write: (question) => ({
       system: '',
@@ -784,14 +778,18 @@ const driftbenchCodeCheck: Contestant = {
 const driftbenchChecklist: Contestant = {
   ...driftbench,
   id: 'driftbench-checklist',
-  source: 'the rubrics answered one by one for each reply, the reply with more satisfied rubrics wins (tuning candidate)',
+  source:
+    'the rubrics answered one by one for each reply, the reply with more satisfied rubrics wins (tuning candidate)',
   checklist: {
     reply: ({ question, reply, rubrics }) => ({
-      system: 'You check a reply against a list of requirements, one at a time. Judge only what the reply itself says.',
+      system:
+        'You check a reply against a list of requirements, one at a time. Judge only what the reply itself says.',
       user: `Question:\n${question}\n\nReply:\n${reply}\n\nRequirements:\n${rubrics.map((r, i) => `${i + 1}. ${r}`).join('\n')}\n\nFor each requirement, decide whether the reply satisfies it. Answer with one JSON object and nothing else: {"checks": [true or false for each requirement, in order]}`,
     }),
     parse: (text, count) => {
-      const checks = jsonObjects(text).filter((o) => Array.isArray(o.checks)).at(-1)?.checks as unknown[] | undefined;
+      const checks = jsonObjects(text)
+        .filter((o) => Array.isArray(o.checks))
+        .at(-1)?.checks as unknown[] | undefined;
       if (!checks || checks.length !== count) return undefined;
       const out: boolean[] = [];
       for (const c of checks) {
@@ -805,6 +803,11 @@ const driftbenchChecklist: Contestant = {
 };
 
 export const CANDIDATES: readonly Contestant[] = [
+  ...RUBRIC_ATOMIC,
+  LITERAL_CONTESTANT,
+  ...CONTRAST_CONTESTANTS,
+  RUBRIC_ENSEMBLE,
+  CONTRACT_CONTESTANT,
   driftbenchAdaptive,
   driftbenchChecked,
   driftbenchChecklist,
@@ -822,6 +825,19 @@ export const CANDIDATES: readonly Contestant[] = [
 
 export function contestantById(id: string): Contestant {
   const all = [...CONTESTANTS, ...CANDIDATES];
+  const sampled = id.match(/^(driftbench-rb-.+)-sampled(\d+)$/);
+  if (sampled) {
+    const base = all.find((c) => c.id === `${sampled[1]}-canonical`) ?? all.find((c) => c.id === sampled[1]);
+    const count = Number(sampled[2]);
+    if (base && Number.isSafeInteger(count) && count >= 3 && count % 2 === 1) {
+      return {
+        ...base,
+        id,
+        samples: count,
+        source: `${base.source}; ${count} independent judgments per prompt`,
+      };
+    }
+  }
   const found = all.find((c) => c.id === id);
   if (!found) throw new Error(`no contestant ${id}; known: ${all.map((c) => c.id).join(', ')}`);
   return found;
