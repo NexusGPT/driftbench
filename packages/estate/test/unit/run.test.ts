@@ -5,7 +5,15 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type UnitTest, unitTestOf } from '@driftbench/generate';
 import { describe, expect, it } from 'vitest';
-import { ClaudeCodeReader, outcomeOf, runUnitTests, scanEstate, type UnitResult } from '../../src/index';
+import {
+  ClaudeCodeReader,
+  casesFromSource,
+  neutral,
+  outcomeOf,
+  runUnitTests,
+  scanEstate,
+  type UnitResult,
+} from '../../src/index';
 import { NOW, estate as written } from '../support';
 
 /** A test estate whose hook scripts are executable, as an estate's own are. */
@@ -288,11 +296,14 @@ describe('a script with declared fixtures', () => {
     );
     const broken = await runUnitTests([test], { root, reader: new ClaudeCodeReader() });
     expect(broken.results[0]?.detail).toBe('fixture-1: another stdout');
-    const none = await runUnitTests([{ ...test, target: { kind: 'script', path: '.claude/x.py' } }], {
+    const gone = await runUnitTests([{ ...test, target: { kind: 'script', path: '.claude/x.py' } }], {
       root,
       reader: new ClaudeCodeReader(),
     });
-    expect(none.results[0]?.status).toBe('inert');
+    expect(gone.results[0]).toMatchObject({
+      status: 'fail',
+      detail: 'the estate no longer holds .claude/x.py',
+    });
     expect(await readFile(join(root, 'driftbench.estate.yaml'), 'utf8')).toContain('sum.py');
   });
 });
@@ -318,6 +329,65 @@ describe('the reader-cases script fixtures', () => {
     const broken = await runUnitTests([test], { root: copy, reader: new ClaudeCodeReader() });
     expect(broken.results[0]?.detail).toBe(
       'fixture-1: exit 0 where 2 is declared | fixture-2: exit 0 where 1 is declared',
+    );
+  });
+});
+
+describe('minimal fixtures of a script with none declared', () => {
+  it('reads how many arguments a script takes from its own parsing', () => {
+    expect(casesFromSource('import sys\nprint(sys.argv[1], sys.argv[2])\n')[1]?.payload.args).toEqual([
+      'arg-1',
+      'arg-2',
+    ]);
+    expect(casesFromSource('if len(argv) != 3:\n    exit(2)\n')[1]?.payload.args).toEqual(['arg-1', 'arg-2']);
+    expect(casesFromSource('if [ "$#" -ne 2 ]; then exit 2; fi\necho "$1"\n')[1]?.payload.args).toEqual([
+      'arg-1',
+      'arg-2',
+    ]);
+    expect(casesFromSource('echo hello\n')).toEqual([
+      { id: 'case-01', payload: { args: [] }, material: 'no argument' },
+    ]);
+  });
+
+  it('records the minimal fixtures on the original, passes on it, and fails when the script changes or goes', async () => {
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/skills/sum/SKILL.md': '---\nname: sum\n---\n\nRun the sum.\n',
+      '.claude/skills/sum/scripts/sum.py':
+        'import sys\nif len(sys.argv) != 3:\n    sys.exit("usage: sum.py <a> <b>")\nprint(open(sys.argv[1]).read() == "")\n',
+    });
+    const test: UnitTest = {
+      id: 'unit.script_fixture.sum',
+      planRow: 'row',
+      testType: 'script_fixture',
+      atom: 'script.sum.sum',
+      title: 'sum',
+      mapHash: 'x',
+      target: { kind: 'script', path: '.claude/skills/sum/scripts/sum.py' },
+      cases: [],
+    };
+    const unrecorded = await runUnitTests([test], { root, reader: new ClaudeCodeReader() });
+    expect(unrecorded.results[0]?.status).toBe('inert');
+    const record = await runUnitTests([test], { root, reader: new ClaudeCodeReader(), record: true });
+    const recorded = record.results[0]?.recorded as UnitTest;
+    expect(recorded.cases.map((entry) => [entry.payload.args, entry.expected])).toEqual([
+      [[], { decision: 'error', exitCode: 1, message: 'usage: sum.py <a> <b>' }],
+      [['arg-1', 'arg-2'], { decision: 'allow', exitCode: 0, output: 'True' }],
+    ]);
+    expect(
+      (await runUnitTests([recorded], { root, reader: new ClaudeCodeReader() })).results[0]?.status,
+    ).toBe('pass');
+    await writeFile(join(root, '.claude/skills/sum/scripts/sum.py'), 'print("changed")\n');
+    const changed = await runUnitTests([recorded], { root, reader: new ClaudeCodeReader() });
+    expect(changed.results[0]?.detail).toBe(
+      'case-01: allow where error was recorded; exit 0 where 1 was recorded; another message | case-02: another output',
+    );
+  });
+
+  it('names the run folders the same way on every run', () => {
+    const work = '/var/folders/x/T/driftbench-unit-ab12';
+    expect(neutral(`grep: /private${work}/estate/a.txt: none, at ${work}/case-17/x`, work)).toBe(
+      'grep: $RUN/estate/a.txt: none, at $RUN/case/x',
     );
   });
 });

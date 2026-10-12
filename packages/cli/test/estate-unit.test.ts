@@ -32,7 +32,7 @@ describe('driftbench estate unit on the Northwind suite', () => {
 
     const unrecorded = await run(['estate', 'unit', tests, '--estate', FIXTURE]);
     expect(unrecorded.code).toBe(2);
-    expect(unrecorded.out).toContain('0 of 26 unit tests pass, 0 fail, 2 inert, 24 unrecorded');
+    expect(unrecorded.out).toContain('0 of 26 unit tests pass, 0 fail, 0 inert, 26 unrecorded');
 
     const recorded = await run(['estate', 'unit', tests, '--estate', FIXTURE, '--record']);
     expect(recorded.err).toBe('');
@@ -72,7 +72,18 @@ describe('driftbench estate unit on the Northwind suite', () => {
       message: 'Never run git push --force on any branch.',
       ms: expect.any(Number),
     });
-    expect(contract.scripts).toEqual([]);
+    // The two scripts declare no fixture: each runs its two minimal fixtures, recorded on the original.
+    expect(
+      contract.scripts.map((entry: { script: string; exit: number }) => [
+        entry.script.split('/').pop(),
+        entry.exit,
+      ]),
+    ).toEqual([
+      ['reconcile.py', 2],
+      ['reconcile.py', 0],
+      ['track.sh', 2],
+      ['track.sh', 1],
+    ]);
 
     const mutant = join(dir, 'mutant');
     const atom = 'guard.settings.pretooluse-bash-guard-block-force-push';

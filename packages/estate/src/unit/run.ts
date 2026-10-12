@@ -100,7 +100,8 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
     const config = await readConfig(options.root);
     const results: UnitResult[] = [];
     for (const test of tests) {
-      if (test.target.kind === 'script') results.push(await runScriptTest(test, config, runner));
+      if (test.target.kind === 'script')
+        results.push(await runScriptTest(test, config, runner, options.record === true));
       else results.push(await runGuardTest(test, raw.guards, options.record === true, runner));
     }
     return { results, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
@@ -332,23 +333,17 @@ async function runScriptTest(
   test: UnitTest,
   config: Record<string, unknown>,
   runner: Runner,
+  record: boolean,
 ): Promise<UnitResult> {
   const base = { id: test.id, testType: test.testType, atom: test.atom };
   if (test.target.kind !== 'script') throw new Error('not a script test');
   const path = test.target.path;
-  const scripts = config.scripts as Record<string, unknown> | undefined;
-  const declared = scripts?.[path];
-  if (!Array.isArray(declared) || declared.length === 0) {
-    return {
-      ...base,
-      status: 'inert',
-      detail: `${ESTATE_CONFIG_FILE} declares no fixture for ${path}`,
-      cases: [],
-    };
-  }
   if (!existsSync(join(runner.copy, path))) {
     return { ...base, status: 'fail', detail: `the estate no longer holds ${path}`, cases: [] };
   }
+  const scripts = config.scripts as Record<string, unknown> | undefined;
+  const declared = scripts?.[path];
+  if (!Array.isArray(declared) || declared.length === 0) return runRecordedScript(test, path, runner, record);
   const cases: UnitCaseResult[] = [];
   for (const [index, fixture] of declared.entries()) {
     const entry = (fixture ?? {}) as Record<string, unknown>;
@@ -400,6 +395,162 @@ async function runScriptTest(
         : failed.map((entry) => `${entry.case}: ${entry.detail}`).join(' | '),
     cases,
   };
+}
+
+/**
+ * A script with no declared fixture runs its minimal fixtures (from the generator, else from its own
+ * argument parsing): recorded on the original like a guard's cases, compared on a copy.
+ */
+async function runRecordedScript(
+  test: UnitTest,
+  path: string,
+  runner: Runner,
+  record: boolean,
+): Promise<UnitResult> {
+  const base = { id: test.id, testType: test.testType, atom: test.atom };
+  let fixtures = test.cases;
+  if (fixtures.length === 0) {
+    if (!record) {
+      return {
+        ...base,
+        status: 'inert',
+        detail: `${ESTATE_CONFIG_FILE} declares no fixture for ${path}`,
+        cases: [],
+      };
+    }
+    fixtures = casesFromSource(await readFile(join(runner.copy, path), 'utf8'));
+  }
+  if (!record && test.recordedOn === undefined) {
+    return {
+      ...base,
+      status: 'unrecorded',
+      detail: 'no outcome recorded: run --record on the original first',
+      cases: [],
+    };
+  }
+  const cases: UnitCaseResult[] = [];
+  const recorded: GuardCase[] = [];
+  for (const fixture of fixtures) {
+    const runs: Exec[] = [];
+    for (let index = 0; index < (record ? 2 : 1); index++) runs.push(await runScript(path, fixture, runner));
+    const outcomes = runs.map(scriptOutcome);
+    const first = outcomes[0] as UnitOutcome;
+    const ms = Math.max(...runs.map((run) => run.ms));
+    if (record) {
+      const stable: UnitOutcome = {
+        decision: first.decision,
+        exitCode: first.exitCode,
+        ...(first.message !== undefined && outcomes.every((other) => other.message === first.message)
+          ? { message: first.message }
+          : {}),
+        ...(first.output !== undefined && outcomes.every((other) => other.output === first.output)
+          ? { output: first.output }
+          : {}),
+      };
+      recorded.push({ ...fixture, expected: stable });
+      cases.push({
+        case: fixture.id,
+        material: fixture.material,
+        outcome: stable,
+        pass: true,
+        ms,
+        detail: 'recorded',
+      });
+      continue;
+    }
+    const expected = fixture.expected;
+    if (expected === undefined) {
+      cases.push({
+        case: fixture.id,
+        material: fixture.material,
+        outcome: first,
+        inert: true,
+        pass: true,
+        ms,
+        detail: 'inert',
+      });
+      continue;
+    }
+    const differences = differ(expected, first);
+    cases.push({
+      case: fixture.id,
+      material: fixture.material,
+      outcome: first,
+      expected,
+      pass: differences.length === 0,
+      ms,
+      detail: differences.length === 0 ? `exit ${first.exitCode} as recorded` : differences.join('; '),
+    });
+  }
+  if (record) {
+    return {
+      ...base,
+      status: 'pass',
+      detail: `recorded ${recorded.length} minimal fixtures`,
+      cases,
+      recorded: { ...test, cases: recorded, recordedOn: test.mapHash },
+    };
+  }
+  const failed = cases.filter((entry) => !entry.pass);
+  return {
+    ...base,
+    status: failed.length === 0 ? 'pass' : 'fail',
+    detail:
+      failed.length === 0
+        ? `${cases.length} of ${cases.length} fixtures as recorded`
+        : failed.map((entry) => `${entry.case}: ${entry.detail}`).join(' | '),
+    cases,
+  };
+}
+
+/** A script's outcome: allow on exit 0, error otherwise; stderr the message, stdout the output. */
+function scriptOutcome(run: Exec): UnitOutcome {
+  const stdout = run.stdout.trim();
+  const stderr = run.stderr.trim();
+  return {
+    decision: run.exitCode === 0 && !run.timedOut ? 'allow' : 'error',
+    exitCode: run.exitCode,
+    ...(stderr ? { message: stderr } : {}),
+    ...(stdout ? { output: stdout } : {}),
+  };
+}
+
+async function runScript(path: string, fixture: GuardCase, runner: Runner): Promise<Exec> {
+  runner.counter += 1;
+  const folder = join(runner.work, `case-${runner.counter}`);
+  await mkdir(folder, { recursive: true });
+  const files = (fixture.payload.files ?? {}) as Record<string, unknown>;
+  for (const [name, text] of Object.entries(files)) {
+    await mkdir(dirname(join(folder, name)), { recursive: true });
+    await writeFile(join(folder, name), String(text));
+  }
+  const args = Array.isArray(fixture.payload.args) ? fixture.payload.args.map(String) : [];
+  return execute([...interpreterOf(path), join(runner.copy, path), ...args], '', runner, folder, 60_000);
+}
+
+/**
+ * Minimal fixtures from a script's own argument parsing: no argument, then as many as the script reads
+ * (the highest `sys.argv[n]`, `argv[n]` or `$n` it names, or the count a `len(argv) != n` or `"$#" -ne n`
+ * check demands), each an empty file in the working folder.
+ */
+export function casesFromSource(source: string): GuardCase[] {
+  const indexes = [
+    ...[...source.matchAll(/\bargv\[(\d+)\]/g)].map((match) => Number(match[1])),
+    ...[...source.matchAll(/\$\{?([1-9])\}?/g)].map((match) => Number(match[1])),
+    ...[...source.matchAll(/len\([\w.]*argv\)\s*[!=<>]=?\s*(\d+)/g)].map((match) => Number(match[1]) - 1),
+    ...[...source.matchAll(/"\$#"\s*-(?:ne|lt|eq)\s*(\d+)/g)].map((match) => Number(match[1])),
+  ];
+  const count = Math.max(0, ...indexes);
+  const cases: GuardCase[] = [{ id: 'case-01', payload: { args: [] }, material: 'no argument' }];
+  if (count > 0) {
+    const args = Array.from({ length: count }, (_, index) => `arg-${index + 1}`);
+    cases.push({
+      id: 'case-02',
+      payload: { args, files: Object.fromEntries(args.map((arg) => [arg, ''])) },
+      material: args.join(' '),
+    });
+  }
+  return cases;
 }
 
 function interpreterOf(path: string): string[] {
@@ -485,9 +636,30 @@ async function execute(
     });
     child.on('close', (code) => {
       clearTimeout(timer);
-      resolve({ exitCode: code ?? 1, stdout, stderr, ms: Math.round(performance.now() - started), timedOut });
+      resolve({
+        exitCode: code ?? 1,
+        stdout: neutral(stdout, runner.work),
+        stderr: neutral(stderr, runner.work),
+        ms: Math.round(performance.now() - started),
+        timedOut,
+      });
     });
   });
+}
+
+/**
+ * Output with the run's own folders named the same way on every run: the temporary folder (with or without
+ * the /private prefix macOS adds) becomes `$RUN`, a case folder `case`. A message that holds the path of the
+ * copy is then the same on the original and on a mutant.
+ */
+export function neutral(text: string, work: string): string {
+  const bare = work.replace(/^\/private(?=\/)/, '');
+  return text
+    .split(`/private${bare}`)
+    .join('$RUN')
+    .split(bare)
+    .join('$RUN')
+    .replace(/\$RUN\/case-\d+/g, '$RUN/case');
 }
 
 /** The estate configuration, when the estate has one. */

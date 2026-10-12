@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { EstateAtom } from '../../src/estate/inputs';
-import { hostileForms, matcherTools, materialOf, payloadOf, unitTestOf } from '../../src/estate/unit';
+import {
+  hostileForms,
+  matcherTools,
+  materialOf,
+  payloadOf,
+  scriptCases,
+  unitTestOf,
+} from '../../src/estate/unit';
 
 const rule = (id: string, quote: string): EstateAtom => ({
   id,
@@ -111,7 +118,32 @@ describe('the payloads of a guard unit test', () => {
     };
     expect(unitTestOf(row('script_fixture'), script, ATOMS, 'h', 'unit.script_fixture.s')).toMatchObject({
       target: { kind: 'script', path: '.claude/skills/a/s.py', skill: 'a' },
-      cases: [],
+      cases: [{ id: 'case-01', payload: { args: [] }, material: 'no argument' }],
     });
+  });
+});
+
+describe('minimal fixtures of a script with none declared', () => {
+  it('runs the script bare, then as each command line of its quote writes it, placeholders as empty files', () => {
+    expect(
+      scriptCases(
+        '3. Run `python3 scripts/reconcile.py <invoice> <order>` and show the summary.',
+        '.claude/skills/a/scripts/reconcile.py',
+      ),
+    ).toEqual([
+      { id: 'case-01', payload: { args: [] }, material: 'no argument' },
+      {
+        id: 'case-02',
+        payload: { args: ['invoice', 'order'], files: { invoice: '', order: '' } },
+        material: 'invoice order',
+      },
+    ]);
+    expect(
+      scriptCases('as in `./scripts/track.sh NWX 123`, never `track.sh NWX 123` twice', 'x/scripts/track.sh'),
+    ).toEqual([
+      { id: 'case-01', payload: { args: [] }, material: 'no argument' },
+      { id: 'case-02', payload: { args: ['NWX', '123'] }, material: 'NWX 123' },
+    ]);
+    expect(scriptCases('Run the tracker.', 'x/track.sh')).toHaveLength(1);
   });
 });

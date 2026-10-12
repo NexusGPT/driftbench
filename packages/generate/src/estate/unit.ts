@@ -18,7 +18,9 @@ import type { EstateAtom, EstatePlanRow } from './inputs';
  * - guard_hostile: the forbidden material in forms that slip past a naive match (spacing, case, quoting,
  *   a chained command). Recorded allowed, a case is a weakness of the guard, reported.
  * - guard_speed: the positive payloads, timed against the guard's declared timeout (60 s by default).
- * - script_fixture: the fixtures the estate declares for the script, run as declared.
+ * - script_fixture: the fixtures the estate declares for the script, run as declared; with none declared,
+ *   minimal fixtures from how the estate says to run the script (no argument, then its documented command
+ *   lines), their outcomes recorded like a guard's.
  */
 
 export const UNIT_DIR = 'unit';
@@ -184,7 +186,7 @@ export function unitTestOf(
     return {
       ...base,
       target: { kind: 'script', path, ...(typeof skill === 'string' ? { skill } : {}) },
-      cases: [],
+      cases: scriptCases(atom.provenance?.quote ?? '', path),
     };
   }
   const fields = atom.fields ?? {};
@@ -243,4 +245,38 @@ export function unitTestOf(
     cases,
     ...(testType === 'guard_speed' ? { budgetMs: Math.round((timeout ?? 60) * 1000) } : {}),
   };
+}
+
+/**
+ * The minimal fixtures of a script with none declared, from how the estate says to run it: the script with
+ * no argument (its usage path), then each command line the atom's quote writes for it, a `<placeholder>`
+ * argument becoming an empty file of that name in the working folder. The outcomes are recorded on the
+ * original by `estate unit --record`, like a guard's.
+ */
+export function scriptCases(quote: string, path: string): GuardCase[] {
+  const name = path.split('/').pop() ?? path;
+  const cases: GuardCase[] = [{ id: 'case-01', payload: { args: [] }, material: 'no argument' }];
+  const seen = new Set<string>(['']);
+  for (const match of quote.matchAll(/`([^`]+)`/g)) {
+    const tokens = (match[1] ?? '').trim().split(/\s+/);
+    const at = tokens.findIndex((token) => token.endsWith(name));
+    if (at < 0) continue;
+    const files: Record<string, string> = {};
+    const args = tokens.slice(at + 1).map((token) => {
+      const placeholder = /^<([^>]+)>$/.exec(token)?.[1];
+      if (placeholder === undefined) return token;
+      const file = placeholder.replace(/[^\w.-]+/g, '-');
+      files[file] = '';
+      return file;
+    });
+    const key = args.join(' ');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cases.push({
+      id: `case-${String(cases.length + 1).padStart(2, '0')}`,
+      payload: { args, ...(Object.keys(files).length > 0 ? { files } : {}) },
+      material: key,
+    });
+  }
+  return cases;
 }
