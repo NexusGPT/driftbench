@@ -743,3 +743,14 @@ Sources read:
 What others do: A model writes only the keys the template lists.
 
 What to try, and why: a value records the share of users it stands for
+
+## Iteration 64
+
+Question: packages/generate/src/extract/contract.ts: the answer template shows no required key on a value; contract:value-required proves it.
+
+Sources read:
+* docs/generating.md section Planned: what a value states (that a test plan must include it)
+
+What others do: A model writes only the keys the template lists.
+
+What to try, and why: a value records that a test plan must include it

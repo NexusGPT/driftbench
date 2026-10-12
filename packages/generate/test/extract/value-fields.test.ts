@@ -235,4 +235,37 @@ describe('what a rule states', () => {
       0.4,
     );
   });
+
+  it('the answer template shows required, and the model may state it on a rule', () => {
+    expect(SYSTEM_PROMPT).toContain('"required": <true when a test plan must include the value>');
+    const target = { dimensions: [], constraints: [], phrases: [], relations: [] };
+    const answer = {
+      section: 'rules',
+      dimensions: [
+        {
+          id: 'rule',
+          title: 'Rules',
+          kind: 'behaviour',
+          values: [
+            {
+              id: 'R-03',
+              title: 'A rule',
+              polarity: 'must',
+              required: true,
+              source: 'prompt.md',
+              quote: 'Never promise a delivery date.',
+            },
+          ],
+        },
+      ],
+      constraints: [],
+      phrases: [],
+      relations: [],
+    };
+    const result = acceptAnswer('rules', answer as never, target as never, quotes);
+    expect(result.refusals).toEqual([]);
+    expect((target.dimensions[0] as { values: Array<Record<string, unknown>> }).values[0]?.required).toEqual(
+      true,
+    );
+  });
 });
