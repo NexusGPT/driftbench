@@ -55,11 +55,13 @@ How to read a failing item (`driftbench validate map --seed 1`): the message sta
 * Iteration 9: packages/generate/src/extract/tools.ts: partitionsOf gives an object no partition from its key count, so schema-keywords.min-max-properties loses its four edges. It held: the item passes on every seed (commit a3e43ca on exec/map-pilot).
 * Iteration 10: packages/generate/src/extract/tools.ts: locate and readTools know tools and tool_schemas only, so a Gemini file ({ functionDeclarations } at the root or inside the tools list) gives no tool; tool-formats.gemini and gemini-nested prove it. It held: the item passes on every seed (commit a6f767c on exec/map-pilot).
 
-None was rejected.
+* Iteration 11: packages/generate/src/extract/tools.ts: an optional property with a default gives no at-default partition; schema-keywords.default proves it. It held (commit below in the journal row). Bank 238 of 578 (0.4118).
+
+Rejected, not a pre-pass fault: schema-keywords.closed-object (additionalProperties false on an input gives <tool>.in.unknown-key.sent). Reading it makes styles.v1-precision fail on every seed, because the first-ladder fixtures (render.ts `objectSchema(..., closed=true)`) close every input and plant no unknown-key, so precision calls the value invented. The two items contradict; no honest pre-pass passes both. Fix belongs to the validator lane (plant the value in the v1 truth, or quarantine one item). The change was reverted.
 
 ## Next actions
 
-1. Run `pnpm driftbench validate map --seed 1` and take the first failing item of level 1; read its cause and its title.
+1. Take the next failing level 1 item (tool-formats.legacy-functions, tier 2, then the schema-keywords tier 3 items such as any-of, one-of, all-of); never closed-object (see above).
 2. Write the test that reproduces it in `packages/generate/test/extract/` (on exec/map-pilot the pilot's file `tools-keywords.test.ts` shows the pattern: one property, its expected partitions), see it red, make the one change the cause names.
 3. Run `pnpm driftbench validate map --seeds 1..20 --hidden --items --json`, write the journal row with bankSize, passing, failingByFamily and bankByFamilyTier, append it with `--journal`, and rewrite this file.
 
@@ -69,6 +71,10 @@ None was rejected.
 * It misreads an entry whose context a request leaves out (a scope heading, a table header, a deprecated marker, the update that replaces a rule): the `extract:` chunk items fail until a chunk carries that context.
 * An item passes only when it passes on all 21 seeds. The level stays 0 until all items of level 1 pass, so progress shows in the level 1 value and in `--items`.
 * A full `--items` run on 21 seeds takes several minutes on a loaded machine.
+
+## Local state
+
+The worktree carries an UNCOMMITTED edit to packages/validators/src/ladders/index.ts (`map: mapLadder()`), a waiver from the lead so the CLI runs. Never stage it; discard it once the registration PR is on main and merge main.
 
 ## How to run
 
