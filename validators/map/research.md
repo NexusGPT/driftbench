@@ -410,3 +410,15 @@ Sources read:
 What others do: A generator sends one extra key the schema forbids, and a typed and a mistyped extra key where a schema is given.
 
 What to try, and why: the tool pre-pass reads unevaluatedProperties, additionalProperties schemas and patternProperties
+
+## Iteration 35
+
+Question: packages/generate/src/extract/tools.ts: walk reads no dependency keyword, so a property that needs another gives no present-without case; schema-keywords.dependent-required, dependencies and dependent-schemas prove it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-validation section 6.5.4 (dependentRequired)
+* https://json-schema.org/draft/2020-12/json-schema-core section 10.2.2.4 (dependentSchemas)
+
+What others do: A dependency is a rule a test breaks by giving the property without the one it needs.
+
+What to try, and why: the tool pre-pass reads property dependencies

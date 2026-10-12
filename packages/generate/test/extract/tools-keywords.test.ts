@@ -707,4 +707,27 @@ type = "boolean"
     ]);
     expect(read({ additionalProperties: true })).toEqual([]);
   });
+
+  it('dependentRequired, dependencies and dependentSchemas give present-without-<other>', () => {
+    const properties = { p: { type: 'string', format: 'email' }, confirm: { type: 'boolean' } };
+    for (const extra of [
+      { dependentRequired: { p: ['confirm'] } },
+      { dependencies: { p: ['confirm'] } },
+      { dependentSchemas: { p: { required: ['confirm'] } } },
+    ]) {
+      const schema = { type: 'object', required: [], properties, ...extra };
+      const result = toolsPrepass(
+        stringify({ tools: [{ name: 't.x', input_schema: schema }] }),
+        'tools.yaml',
+      );
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      expect(result.dimensions[0]?.values.map((v) => v.id.slice('t.x.in.p.'.length))).toEqual([
+        'well-formed',
+        'malformed',
+        'absent',
+        'present-without-confirm',
+      ]);
+      expect(result.dimensions[1]?.values.length).toBe(3);
+    }
+  });
 });

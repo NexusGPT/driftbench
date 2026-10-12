@@ -357,6 +357,22 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
       if (name !== undefined && plain(entry(pair.value, 'required')?.value) === true) required.add(name);
     }
   }
+  // dependentRequired, draft-07 dependencies (array form) and dependentSchemas with a required list.
+  const needs = new Map<string, Array<{ other: string; quote: string }>>();
+  for (const keyword of ['dependentRequired', 'dependencies', 'dependentSchemas']) {
+    const dependency = entry(schema, keyword);
+    for (const pair of (isMap(dependency?.value) ? dependency.value.items : []) as Pair[]) {
+      const name = keyOf(pair);
+      const others = isMap(pair.value)
+        ? stringItems(entry(pair.value, 'required')?.value)
+        : stringItems(pair.value);
+      if (name === undefined) continue;
+      needs.set(name, [
+        ...(needs.get(name) ?? []),
+        ...others.map((other) => ({ other, quote: pairText(ctx.text, dependency) ?? '' })),
+      ]);
+    }
+  }
   for (const pair of properties.items as Pair[]) {
     const name = keyOf(pair);
     const property = resolveRef(ctx.root, pair.value);
@@ -365,7 +381,7 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
     const items = entry(property, 'items')?.value;
     // A $ref already entered once is read a second time for its plain properties, never a third time.
     if (entered(ctx, via) >= 2 || entered(ctx, refOf(items)) >= 2) continue;
-    field(ctx, name, pair, property, required.has(name), requiredPair, prefix, depth, via);
+    field(ctx, name, pair, property, required.has(name), requiredPair, prefix, depth, via, needs.get(name));
   }
   objectCases(ctx, schema, prefix);
 }
@@ -471,6 +487,7 @@ function field(
   prefix: string[],
   depth: number,
   via?: string,
+  needs: Array<{ other: string; quote: string }> = [],
 ): void {
   const path = [...prefix, name];
   const quote = quoter(ctx.text, pair, property);
@@ -488,6 +505,13 @@ function field(
       id: 'absent',
       title: `${name} is left out (not required)`,
       quote: pairText(ctx.text, requiredPair) ?? quote(),
+    });
+  }
+  for (const { other, quote: why } of needs) {
+    partitions.push({
+      id: `present-without-${other}`,
+      title: `${name} is given without ${other}`,
+      quote: why,
     });
   }
   if (partitions.length > 0) addDimension(ctx, path, partitions);
