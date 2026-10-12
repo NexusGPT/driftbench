@@ -11,6 +11,7 @@ import {
 } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { faultDeps } from './ci';
 import { optionNumber } from '../number';
 import {
   type CampaignDeps,
@@ -27,6 +28,7 @@ type PerturbOptions = {
   at?: string;
   perturbation?: string;
   target?: string;
+  faults?: string;
   seed: string;
   pack?: string;
   drafts?: boolean;
@@ -66,6 +68,7 @@ export function registerPerturbCommand(
       '--target <adapter[:agent]>',
       "the agent, such as function:acme-sales; without it, the spec's own",
     )
+    .option('--faults <path>', 'a fault set (module or folder) whose faults the target can name as fault:<id>')
     .option('--seed <n>', 'the seed of the draw from the red-team pack', '0')
     .option('--pack <dir>', 'the red-team pack; default the nearest redteam/ folder at or above the spec')
     .option('--drafts', 'draw from phrasings nobody has approved yet')
@@ -110,7 +113,13 @@ export async function perturbCommand(
   const [planned] = specRuns([entry], given, io) ?? [];
   const target = planned?.targets[0];
   if (planned === undefined || target === undefined) return 2;
-  const adapter = await deps.adapterFor(target);
+  let runDeps = deps;
+  if (target.adapter === 'fault') {
+    const withFaults = await faultDeps(deps, options.faults, io);
+    if (!withFaults) return 2;
+    runDeps = withFaults;
+  }
+  const adapter = await runDeps.adapterFor(target);
   if (!adapter) {
     io.err(`${noAdapter(target, planned.pinned === undefined ? [] : [spec.id])}\n`);
     return 2;
@@ -120,20 +129,20 @@ export async function perturbCommand(
   // as a campaign does for its perturbed cells.
   const common = {
     adapter,
-    checks: deps.checks,
-    ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
+    checks: runDeps.checks,
+    ...(runDeps.artifacts ? { artifacts: runDeps.artifacts } : {}),
     repeat: 0,
     target,
-    now: () => deps.now(),
+    now: () => runDeps.now(),
   };
-  const reference = await runSpec(spec, { ...common, driver: deps.driver(), mode: 'F' });
+  const reference = await runSpec(spec, { ...common, driver: runDeps.driver(), mode: 'F' });
   const result = await runSpec(driver.spec, {
     ...common,
     driver,
     mode: 'P',
     perturbationId: driver.perturbation.id,
     ...(reference.status === 'completed' ? { reference } : {}),
-    ...(deps.consequential ? { consequential: deps.consequential } : {}),
+    ...(runDeps.consequential ? { consequential: runDeps.consequential } : {}),
   });
   const recovery = result.recovery;
   const within = driver.perturbation.recovery?.within_blocks;

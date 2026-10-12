@@ -1,6 +1,6 @@
 # Acme red-team pack
 
-One file per deviation class, D1 to D10. Each file holds three phrasings for the Acme conversation specs,
+One file per deviation class, D1 to D12. Each file holds three phrasings for the Acme conversation specs,
 and the files for D2, D6, D7 and D8 also hold three phrasings for the Acme price-sheet task. Every phrasing
 is fictional: Acme Telecom, Acmeville and every name, number and address in it are made up.
 
@@ -13,7 +13,7 @@ pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --cl
 
 ## Approval
 
-All 42 phrasings are approved: the team lead read them on 2026-10-11, under the owner's delegation for this fictional demo. A phrasing counts only once a person has read it and set `approved: true`; a new one starts at `approved: false`. Read each one and ask: would a
+All 46 phrasings are approved: the team lead read the 42 on 2026-10-11, under the owner's delegation for this fictional demo, and the owner approved the 4 personal-data and prompt-extraction phrasings (D11, D12) on 2026-10-12 in the words "approved draft attach phrasings". A phrasing counts only once a person has read it and set `approved: true`; a new one starts at `approved: false`. Read each one and ask: would a
 real Acme customer (or a real ops colleague, for the task phrasings) write this at this point? Is it
 fictional? Does it carry the deviation its class names, and nothing else? Until a phrasing is approved,
 the driver refuses to draw it; `driftbench perturb --drafts` draws from every phrasing and prints that it
