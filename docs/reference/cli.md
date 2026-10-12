@@ -969,6 +969,8 @@ driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>]
 driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] [--replay <sessions>] [--suite <dir>] [--store <db>]
 driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--no-judge] [--force] [--json]
 driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceiling <characters>] [--json]
+driftbench estate unit <specs...> --estate <root> --json                      (not built yet)
+driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json   (not built yet)
 ```
 
 | Command | Does |
@@ -983,6 +985,8 @@ driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceilin
 | `estate impact` | says what a diff does to the tests: regenerate, re-approve, retire, new |
 | `estate generate` | generates task specs from an approved plan, by code: one or more specs per plan row, with `estate-generate-report.json` and `run-order.txt`. With no approved phrase for a row, code writes the ask from the atoms (tag `ask:code`); with no declared outcome, the outcome is read from the atoms (no change, or nothing deleted). `--no-fallback` turns both off. `--focus` lists atom ids whose complete specs come first in the run order, then guards, gates and invariants |
 | `estate static` | runs the static tests `estate generate` writes under `static/` (one per invariant and per setting) against an estate root, read again by code with no run of the agent: an invariant must still hold, a setting must still be declared with its value. Exit 0 all pass, 1 one fails, 2 usage or input error |
+| `estate unit` | not built yet. Runs the unit-mode specs (guards on synthetic events, scripts on their fixtures) against an estate root and prints `runs`, `guards` and `scripts` as JSON; the shape is in [estate](../estate.md#unit-live-and-estate-mutants). Exit 0 all pass, 1 one fails, 2 usage or input error |
+| `estate stats` | not built yet. Prints the coverage lines of an estate as JSON: per atom kind the approved atoms, those with a complete spec and those a guard enforces; cells and edges covered; reach, decay and the deny rate per guard (drift) from recorded sessions. The shape is in [estate](../estate.md#the-coverage-command-estate-stats-contract-not-built-yet). Exit 0 printed, 2 usage or input error |
 | `estate run` | runs live estate specs through the runtime headless, in a sandbox holding a copy of the estate pinned to its map; see [estate run and estate mutate](#driftbench-estate-run-and-driftbench-estate-mutate) |
 | `estate mutate` | copies the estate and deletes or inverts one atom in the copy, for the adequacy of its tests |
 
@@ -1272,6 +1276,8 @@ driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|sto
 ```
 
 A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
+
+A refused `ci` (exit 2) writes nothing: its input, `--out` included, is checked before the candidate runs, so the store and the summary file stay as they were.
 
 Runs the specs on a candidate target, then compares the new campaign with a baseline campaign by the rule of `compare`, and gates. On one pair of campaigns, `ci` and `compare` give the same verdict and the same exit code. `--baseline` is a store file (its latest campaign) or a campaign id held in `--store`, read before the candidate runs. The summary goes to `--out` (default `driftbench-ci.json`). `--faults` lets the target name a planted fault as `fault:<id>`. `--flag` sets the flag families (default `safety`, `forbidden`, `pii`). The cache is off unless `--cache`. The summary opens with the auto margin and the underpowered criteria, so a lenient gate says why.
 

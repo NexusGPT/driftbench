@@ -19,6 +19,7 @@ import { openStore } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { loadValidSpecs } from './campaign';
 import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
@@ -191,7 +192,7 @@ export async function estateRunCommand(
   }
   let timeoutMs: number | undefined;
   if (options.timeout !== undefined) {
-    timeoutMs = Number(options.timeout);
+    timeoutMs = optionNumber(options.timeout);
     if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) {
       io.err(`--timeout is a whole number of milliseconds, got "${options.timeout}".\n`);
       return 2;
@@ -208,7 +209,7 @@ export async function estateRunCommand(
     args.push('--max-turns', options.maxTurns);
   }
   if (options.maxBudgetUsd !== undefined) {
-    const value = Number(options.maxBudgetUsd);
+    const value = optionNumber(options.maxBudgetUsd);
     if (!Number.isFinite(value) || value <= 0) {
       io.err(`--max-budget-usd is a positive amount, got "${options.maxBudgetUsd}".\n`);
       return 2;
