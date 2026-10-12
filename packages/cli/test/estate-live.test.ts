@@ -599,4 +599,36 @@ describe('an undecided spec', () => {
     expect(lineOf(runOf(['pass']), 0)).toMatchObject({ pass: true, undecided: false });
     expect(lineOf(runOf(['inconclusive'], 'error'), 0)).toMatchObject({ pass: false, undecided: false });
   });
+
+  it('is not applicable when only not-applicable checks keep it from passing: no stage record', () => {
+    expect(lineOf(runOf(['not_applicable']), 0)).toMatchObject({
+      pass: false,
+      undecided: false,
+      notApplicable: true,
+    });
+    expect(lineOf(runOf(['pass', 'not_applicable']), 0)).toMatchObject({ notApplicable: true });
+    expect(lineOf(runOf(['fail', 'not_applicable']), 0)).toMatchObject({
+      pass: false,
+      notApplicable: false,
+    });
+    expect(lineOf(runOf(['inconclusive', 'not_applicable']), 0)).toMatchObject({
+      undecided: false,
+      notApplicable: false,
+    });
+    expect(lineOf(runOf(['pass']), 0)).toMatchObject({ notApplicable: false });
+  });
+});
+
+describe('estate run --progress appends a line per finished spec', () => {
+  it('appends each run line as its spec finishes, and leaves stdout as the one summary document', async () => {
+    const progress = join(await folder(), 'progress.jsonl');
+    const specs = [PROOF.route_positive, PROOF.tool_denied].map((path) => join(LIVE, path ?? ''));
+    const result = await estateRun(FIXTURE, specs, '--map', MAP, '--progress', progress);
+    expect(result.err).toBe('');
+    const lines = (await readFile(progress, 'utf8')).split('\n').filter((line) => line !== '');
+    expect(lines).toHaveLength(2);
+    const ids = lines.map((line) => (JSON.parse(line) as RunJson['runs'][number]).spec);
+    expect(ids.sort()).toEqual(Object.keys(outcomes(result.json)).sort());
+    expect(result.json?.runs).toHaveLength(2);
+  }, 120_000);
 });
