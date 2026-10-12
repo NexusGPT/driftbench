@@ -3,6 +3,7 @@ import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import { type CheckContext, type CheckSet, machineVerdict } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
 import type { Store } from '../contracts/store';
+import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
 import { type BlockResult, Observed, type RetryEvent, type RunMode, RunResult, Verdict } from '../schema/run';
@@ -42,6 +43,9 @@ export type RunOptions = {
   target?: TargetRef;
   /** The perturbation the run injects, recorded on the result. */
   perturbationId?: string;
+  /** A tool policy over the calls each block records. The denied calls are marked before the checks read them; the
+   *  cache keeps the calls as the adapter reported them, and every read gates them again. Absent: no gate. */
+  toolPolicy?: readonly ToolRule[];
   /** With `campaignId`, the finished run is written here. */
   store?: Store;
   campaignId?: string;
@@ -108,6 +112,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     capabilities,
     driver: options.driver,
     checks: options.checks,
+    toolPolicy: options.toolPolicy,
     cache,
     cacheTtlMs: options.cacheTtlMs,
     artifacts: options.artifacts,
@@ -135,7 +140,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     },
   };
 
-  const replayed = cache ? await execute(run, replayChannel(cache)) : undefined;
+  const replayed = cache ? await execute(run, replayChannel(cache, run.toolPolicy)) : undefined;
   const result = replayed ?? (await execute(run, liveChannel(run)));
   if (!result) throw new Error('runSpec: a live run always gives a result');
   // The run as the store keeps it: written as JSON and read back, so what is returned is what is stored.
@@ -155,6 +160,7 @@ type RunContext = {
   adapter: AgentAdapter;
   capabilities: AdapterCapabilities;
   driver: UserDriver;
+  toolPolicy: readonly ToolRule[] | undefined;
   checks: CheckSet;
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
@@ -612,7 +618,7 @@ function liveChannel(run: RunContext): Channel {
       // The cache keeps the block without its retries: a replay retries nothing.
       const { retries: _spent, ...kept } = parsed.data;
       await remember(key, kept);
-      return parsed.data;
+      return gateObserved(parsed.data, run.toolPolicy);
     },
     async endState(sources, key) {
       const read = adapter.endState;
@@ -651,14 +657,20 @@ function asJson(value: unknown, block: number): unknown {
   }
 }
 
-function replayChannel(cache: ObservedCache): Channel {
+/** The block with its tool calls gated by the policy. Without a policy, the block as it is. */
+function gateObserved(observed: Observed, toolPolicy: readonly ToolRule[] | undefined): Observed {
+  if (!toolPolicy || toolPolicy.length === 0) return observed;
+  return { ...observed, toolCalls: gateToolCalls(observed.toolCalls, toolPolicy) };
+}
+
+function replayChannel(cache: ObservedCache, toolPolicy: readonly ToolRule[] | undefined): Channel {
   return {
     replay: true,
     async restart() {},
     reseat: () => false,
     async observe(_turn, _user, key) {
       const parsed = Observed.safeParse(await cache.cacheGet(key));
-      return parsed.success ? parsed.data : undefined;
+      return parsed.success ? gateObserved(parsed.data, toolPolicy) : undefined;
     },
     async endState(sources, key) {
       const states: unknown[] = [];

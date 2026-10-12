@@ -1,0 +1,115 @@
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { type AggregateCriterion, aggregateFromFlag } from '@driftbench/report';
+import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
+
+/**
+ * The project config file: `driftbench.yaml` at the root, or --config. It declares campaign-level criteria
+ * under `aggregates:`, one `name:op threshold` string each, the same syntax as --aggregate. Nothing else is
+ * defined, so any other key is refused. A bad entry is refused with its file and line.
+ */
+
+export type ConfigLoad = { ok: true; specs: string[] } | { ok: false; message: string };
+
+const KEYS = new Set(['aggregates']);
+
+function lineOf(text: string, offset: number): number {
+  return text.slice(0, offset).split('\n').length;
+}
+
+/** Reads the aggregate specs of a config file. A missing file is an error here; the caller decides. */
+export async function readAggregateConfig(path: string): Promise<ConfigLoad> {
+  const text = await readFile(path, 'utf8');
+  const doc = parseDocument(text);
+  if (doc.errors.length > 0) {
+    const first = doc.errors[0];
+    return {
+      ok: false,
+      message: `${path}:${lineOf(text, first?.pos?.[0] ?? 0)}: not YAML: ${first?.message ?? ''}`,
+    };
+  }
+  const root = doc.contents;
+  if (root === null || root === undefined) return { ok: true, specs: [] };
+  if (!isMap(root))
+    return { ok: false, message: `${path}:1: the config must be a map with an aggregates list` };
+  for (const pair of root.items) {
+    const key = isScalar(pair.key) ? String(pair.key.value) : '';
+    if (!KEYS.has(key)) {
+      const at = pair.key && 'range' in pair.key && pair.key.range ? pair.key.range[0] : 0;
+      return {
+        ok: false,
+        message: `${path}:${lineOf(text, at)}: unknown key ${key}; the config defines aggregates only`,
+      };
+    }
+  }
+  const list = root.get('aggregates');
+  if (list === undefined || list === null) return { ok: true, specs: [] };
+  if (!isSeq(list)) {
+    return { ok: false, message: `${path}:${lineOf(text, list.range?.[0] ?? 0)}: aggregates must be a list` };
+  }
+  const specs: string[] = [];
+  for (const item of list.items) {
+    const line = lineOf(text, item.range?.[0] ?? 0);
+    const value = isScalar(item) ? String(item.value) : '';
+    try {
+      aggregateFromFlag(value);
+    } catch (cause) {
+      return {
+        ok: false,
+        message: `${path}:${line}: ${cause instanceof Error ? cause.message : String(cause)}`,
+      };
+    }
+    specs.push(value);
+  }
+  return { ok: true, specs };
+}
+
+/** The file's specs with the flags applied: a flag with the same name replaces the file's entry in place. */
+export function mergeAggregates(fromFile: readonly string[], fromFlags: readonly string[]): string[] {
+  const nameOf = (spec: string) => spec.split(':')[0] ?? spec;
+  const merged = [...fromFile];
+  for (const flag of fromFlags) {
+    const at = merged.findIndex((spec) => nameOf(spec) === nameOf(flag));
+    if (at >= 0) merged[at] = flag;
+    else merged.push(flag);
+  }
+  return merged;
+}
+
+/**
+ * The criteria a command scores: the config file's aggregates with the --aggregate flags applied. Without
+ * --config the file is `driftbench.yaml` in the working folder, and it is optional. A --config that cannot be
+ * read is an error.
+ */
+export async function criteriaFromConfig(
+  options: { config?: string; aggregate?: readonly string[] },
+  cwd: string,
+): Promise<{ ok: true; criteria: AggregateCriterion[] } | { ok: false; message: string }> {
+  const explicit = options.config !== undefined;
+  const path = resolve(cwd, explicit ? (options.config as string) : DEFAULT_CONFIG);
+  let fromFile: string[] = [];
+  if (explicit || existsSync(path)) {
+    let loaded: ConfigLoad;
+    try {
+      loaded = await readAggregateConfig(path);
+    } catch (cause) {
+      return {
+        ok: false,
+        message: `Cannot read the config ${path}: ${cause instanceof Error ? cause.message : String(cause)}`,
+      };
+    }
+    if (!loaded.ok) return { ok: false, message: loaded.message };
+    fromFile = loaded.specs;
+  }
+  try {
+    return {
+      ok: true,
+      criteria: mergeAggregates(fromFile, options.aggregate ?? []).map((spec) => aggregateFromFlag(spec)),
+    };
+  } catch (cause) {
+    return { ok: false, message: cause instanceof Error ? cause.message : String(cause) };
+  }
+}
+
+export const DEFAULT_CONFIG = 'driftbench.yaml';

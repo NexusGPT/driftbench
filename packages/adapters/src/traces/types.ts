@@ -26,8 +26,28 @@ export type Trace = {
   /** The model that answered, as the source names it, when it names one. */
   model?: string;
   turns: TraceTurn[];
+  /** The spans as the source wrote them, with their parent links, when the source has a tree (OpenTelemetry). */
+  observations?: TraceObservation[];
   /** What the reader noticed and could not map: a span with no turn, a call with no result. */
   issues: string[];
+};
+
+/**
+ * One span or transcript line of a traced conversation, with the one it is nested in. Times are ISO 8601.
+ * `usage` and `usd` are set on chat observations whose source gives tokens (and a price or a cost).
+ * `subagent` marks a line a subagent wrote, nested under the line that started it.
+ */
+export type TraceObservation = {
+  id: string;
+  parentId?: string;
+  kind: 'chat' | 'tool' | 'other';
+  name: string;
+  start: string;
+  end: string;
+  level: 'default' | 'error';
+  subagent?: boolean;
+  usage?: { inputTokens?: number; outputTokens?: number };
+  usd?: number;
 };
 
 /** Prices per million tokens, by model, for sources that report tokens but no cost. */

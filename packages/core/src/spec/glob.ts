@@ -25,3 +25,15 @@ function globRegExp(pattern: string): RegExp {
   }
   return new RegExp(`^${source}$`);
 }
+
+/**
+ * A glob over any text, such as a command, a path or a tool name: `*` matches any run of characters, slashes
+ * and spaces included, and every other character matches itself. The whole subject must match.
+ */
+export function anyGlobMatches(pattern: string, subject: string): boolean {
+  const body = pattern
+    .split('*')
+    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('.*');
+  return new RegExp(`^${body}$`, 's').test(subject);
+}

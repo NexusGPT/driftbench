@@ -465,6 +465,20 @@ A transcript holds what the agent did in each block: the segments, the tool call
 | `--runs <n>` | how many runs to compare, at least 2. Default 3. |
 | `--json` | print one JSON document: `specId`, `target`, `runs`, `deterministicClaim`, `identical`, `hashes` and `firstDifference` when they differ |
 
+## Project config and the pull-request gate
+
+`driftbench.yaml` in the working folder, or the file `--config <file>` names, declares the campaign-level criteria that `report` and `ci` score:
+
+```text
+aggregates:
+  - pass-rate:>=0.8
+  - broken-share:<=0.2
+```
+
+Each entry is one `name:op threshold` string, the same syntax as `--aggregate`. A flag with the same name replaces the file's entry, and a flag with a new name adds to it. The file has one key, `aggregates`; any other key, or a bad entry, exits 2 and names the line. The file is optional: without it, only the flags count. See [campaign-level criteria](aggregates.md).
+
+To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.yml](../action/action.yml) takes the specs, the target, the baseline and the `aggregate` input, and fails the job unless the verdict is parity. A workflow that uses it is in [examples/acme/ci/driftbench-ci.yml](../examples/acme/ci/driftbench-ci.yml).
+
 ## Exit codes
 
 | Command | 0 | 1 | 2 |
