@@ -371,6 +371,16 @@ export const ReplyLanguageRelation = z
   .describe('The language every reply is in, whatever the user writes.');
 export type ReplyLanguageRelation = z.infer<typeof ReplyLanguageRelation>;
 
+export const ToolOrderRelation = z
+  .strictObject({
+    kind: z.literal('tool_order'),
+    before: z.string().min(1).describe('The tool called first.'),
+    after: z.string().min(1).describe('The tool called after it.'),
+    ...relationCommon,
+  })
+  .describe('Two tools called in a stated order.');
+export type ToolOrderRelation = z.infer<typeof ToolOrderRelation>;
+
 export const ProposalRelation = z
   .discriminatedUnion('kind', [
     PathRelation,
@@ -380,6 +390,7 @@ export const ProposalRelation = z
     BindsRelation,
     RecoveryRelation,
     ReplyLanguageRelation,
+    ToolOrderRelation,
   ])
   .describe(
     'A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language.',
@@ -393,6 +404,7 @@ export const RELATION_KINDS = [
   'binds',
   'recovery',
   'reply_language',
+  'tool_order',
 ] as const;
 export type RelationKind = (typeof RELATION_KINDS)[number];
 
@@ -585,6 +597,8 @@ export function relationLabel(relation: ProposalRelation): string {
       return `recovery ${relation.class}${relation.tool ? ` of ${relation.tool}` : ''} in ${relation.flows.join(', ')}`;
     case 'reply_language':
       return `${relation.subject.dimension}=${relation.subject.value} sets the reply language ${relation.lang}`;
+    case 'tool_order':
+      return `${relation.before} is called before ${relation.after}`;
   }
 }
 
@@ -817,6 +831,8 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
       case 'binds':
       case 'reply_language':
         reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
+        break;
+      case 'tool_order':
         break;
       case 'recovery':
         if (!deviations.has(relation.class)) {

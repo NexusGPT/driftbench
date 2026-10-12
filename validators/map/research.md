@@ -798,3 +798,14 @@ Sources read:
 What others do: A model writes only the keys the template lists.
 
 What to try, and why: a dimension records the role a source declares
+
+## Iteration 69
+
+Question: packages/generate/src/extract/proposal.ts: no relation kind states the order of two tools, so a stated order is lost; contract:relation-tool-order (semantics.tool-order) proves it.
+
+Sources read:
+* docs/generating.md section Planned: more relations (the order two tools are called in)
+
+What others do: A relation kind not in the proposal schema is refused.
+
+What to try, and why: the relation kind tool_order
