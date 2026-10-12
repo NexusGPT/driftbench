@@ -34,7 +34,26 @@ export const QUARANTINED_CAUSES: Readonly<Record<string, string>> = {
     'no page needs a quote over 1000 characters: docs/generating.md asks for quotes of 4 to 400 characters, and the proposal format caps one at 1000 (MAX_QUOTE_LENGTH)',
 };
 
-const quarantined = (item: BankItem) => item.cause in QUARANTINED_CAUSES;
+/** Items quarantined by id, with the reason (validators/map/NEEDS.md). */
+export const QUARANTINED_ITEMS: Readonly<Record<string, string>> = {};
+
+/** The roles family: the product page has the first dimension of each kind as the axis, not declared roles. */
+const ROLES_REASON =
+  'docs/generating.md, the product page, has code propose the first dimension of each kind as the axis and a person flip any role; no page has extract read declared roles';
+
+const quarantined = (item: BankItem) =>
+  item.cause in QUARANTINED_CAUSES ||
+  item.id in QUARANTINED_ITEMS ||
+  item.family === 'roles' ||
+  item.id === 'transforms.v1-metamorphic';
+
+/** Why an item is quarantined, or undefined when it counts. */
+export function quarantineReason(item: BankItem): string | undefined {
+  if (item.cause in QUARANTINED_CAUSES) return QUARANTINED_CAUSES[item.cause];
+  if (item.id in QUARANTINED_ITEMS) return QUARANTINED_ITEMS[item.id];
+  if (item.family === 'roles' || item.id === 'transforms.v1-metamorphic') return ROLES_REASON;
+  return undefined;
+}
 
 /** Every item of the map bank that a product page needs, in level order. */
 export function mapBank(): BankItem[] {

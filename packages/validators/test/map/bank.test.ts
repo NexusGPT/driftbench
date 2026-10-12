@@ -4,7 +4,13 @@ import { BANK_MIN_FAMILY as MIN_FAMILY, measureHardness } from '../../src/hardne
 import { readJournal } from '../../src/journal';
 import { runLadder } from '../../src/ladder';
 import { expectedFacts, proposalFacts } from '../../src/ladders/map/bank/facts';
-import { bankByFamilyTier, bankShape, distinctCauses, mapBank } from '../../src/ladders/map/bank/index';
+import {
+  bankByFamilyTier,
+  bankShape,
+  distinctCauses,
+  mapBank,
+  mapQuarantine,
+} from '../../src/ladders/map/bank/index';
 import {
   answerFor,
   asModelWrites,
@@ -21,8 +27,10 @@ import { mapLadder } from '../../src/ladders/map/index';
 import { ROOT } from './support';
 
 const bank = mapBank();
+/** Quarantined items still run in the tests: they count toward no score, but they must stay correct. */
+const written = [...bank, ...mapQuarantine()];
 const item = (id: string) => {
-  const found = bank.find((candidate) => candidate.id === id);
+  const found = written.find((candidate) => candidate.id === id);
   if (!found) throw new Error(`no item ${id}`);
   return found;
 };
@@ -59,8 +67,8 @@ describe('the map bank under section 12', () => {
     const pairs = bank.filter((one) => one.family === 'style-pairs');
     expect(pairs).toHaveLength((STYLES.length * (STYLES.length - 1)) / 2);
     expect(bank.filter((one) => /^scale\.100k\.[a-z-]+$/.test(one.id))).toHaveLength(STYLES.length);
-    expect(bank.filter((one) => one.id.includes('.v1-'))).toHaveLength(7);
-    expect(new Set(bank.map((one) => one.family))).toEqual(
+    expect(written.filter((one) => one.id.includes('.v1-'))).toHaveLength(7);
+    expect(new Set(written.map((one) => one.family))).toEqual(
       new Set([
         'inventory-forms',
         'tool-formats',
@@ -295,7 +303,7 @@ describe('items and their oracles', () => {
 
 describe('round 2 of the map audit', () => {
   it('runs every roles item on both sort orders of the two persona ids', () => {
-    for (const one of bank.filter((candidate) => candidate.family === 'roles' && !candidate.run)) {
+    for (const one of written.filter((candidate) => candidate.family === 'roles' && !candidate.run)) {
       for (const seed of [1, 2, 3]) {
         const cases = one.generate(seed);
         expect(cases.map((c) => c.label.split('.').at(-1))).toEqual(['tone-first', 'type-first']);
