@@ -7,30 +7,30 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 4 |
-| 2 | 4 |
-| 3 | 4 |
-| 4 | 4 |
-| 5 | 4 |
-| 6 | 4 |
-| 7 | 4 |
-| 8 | 4 |
-| 9 | 4 |
-| 10 | 4 |
-| 11 | 4 |
-| 12 | 4 |
-| 13 | 4 |
-| 14 | 4 |
-| 15 | 4 |
-| 16 | 4 |
-| 17 | 4 |
-| 18 | 4 |
-| 19 | 4 |
-| 20 | 4 |
-| hidden | 4 |
+| 1 | 1 |
+| 2 | 1 |
+| 3 | 1 |
+| 4 | 1 |
+| 5 | 1 |
+| 6 | 1 |
+| 7 | 1 |
+| 8 | 1 |
+| 9 | 1 |
+| 10 | 1 |
+| 11 | 1 |
+| 12 | 1 |
+| 13 | 1 |
+| 14 | 1 |
+| 15 | 1 |
+| 16 | 1 |
+| 17 | 1 |
+| 18 | 1 |
+| 19 | 1 |
+| 20 | 1 |
+| hidden | 1 |
 <!-- level-table:end -->
 
-The bank holds 2033 items in 26 families, ordered in 22 levels; a level passes when every item of it passes on every seed. After pilot 10 every seed stops at level 4 (green on the rule follower).
+The bank holds 2033 items in 26 families, ordered in 22 levels; a level passes when every item of it passes on every seed. After pilot 10 every seed stops at level 1: the differential level fails on diff.twise.allowed (the t-wise report counts tuples no possible full cell holds).
 
 ## Floor
 
@@ -38,7 +38,7 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The l
 
 ## Open items
 
-295 distinct causes among 688 failing items, largest first. Each line: the cause, how many items it holds, the component to change, and what the first item says.
+296 distinct causes among 689 failing items, largest first. Each line: the cause, how many items it holds, the component to change, and what the first item says.
 
 - `kill.X1.field-extra`: 54 items, `packages/generate/src/seed/relations.ts#toolExpect`. fault.X1.field-extra: 0 of 5 scored instances killed; survivors: X1.field-extra@any/r1 (changed 279 specs), X1.field-extra@list_options/r1 (changed 90 specs), X1.field-extra@any/r2 (changed 167 specs), X1.field-extra@lookup_record/r1 (changed 268 specs), X1.field-extra@any/r3 (c...
 - `kill.X2.fact-flip`: 53 items, `packages/generate/src/seed/relations.ts#recoveryFor`. fault.X2.fact-flip: 0 of 5 scored instances killed; survivors: X2.fact-flip@any/r1 (changed 261 specs), X2.fact-flip@list_options/r1 (changed 90 specs), X2.fact-flip@any/r2 (changed 166 specs), X2.fact-flip@submit_request/r1 (changed 94 specs), X2.fact-flip@any/r3 (changed 44 ...
@@ -81,22 +81,22 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The l
 - `boundary.list.in.above-maximum`: 1 items, `packages/generate/src/seed/seeders.ts#boundarySeeder`. boundary.list.in.above-maximum: 1 of 1 values have no discriminating block: list_options.in.limit.above-maximum (1 blocks hold it, none green on the follower and failed by every cheater)
 - `boundary.list.in.below-minimum`: 1 items, `packages/generate/src/seed/seeders.ts#boundarySeeder`. boundary.list.in.below-minimum: 1 of 1 values have no discriminating block: list_options.in.limit.below-minimum (1 blocks hold it, none green on the follower and failed by every cheater)
 
-The other 255 causes hold one or two items each; list them with `pnpm driftbench validate generator --seeds 1..20 --hidden --items`.
+The other 256 causes hold one or two items each; list them with `pnpm driftbench validate generator --seeds 1..20 --hidden --items`.
 
 ## Hypotheses tried
 
 The ten pilot iterations, each one fix to `packages/generate` with a test that fails first. Their journal rows are `validators/generator/journal.jsonl` rows 1 to 10.
 
-1. Pilot 1, commit `1485a88` on `exec/generator-pilot`, bank 1209 to 1237 of 2033. A t-wise row whose behaviour no own path carries walks another flow's path. The generator validator's first failing level (differential, diff.twise.pairs) named allowed pairs no complete t-wise spec held: rows whose behaviour belongs to no flow with a path, or whose flows recover none of the row's deviation, ended incomplete. The row now tries the paths of other flows after its own. On the Acme map 186 specs are complete (168 before); the real Acme agent passes all of them.
-2. Pilot 2, commit `350b805` on `exec/generator-pilot`, bank 1237 to 1247 of 2033. The covering array's default strength is 3. The validator's first failing level named diff.twise.triples: complete t-wise specs held no allowed triple of the axes beyond what pairs give by chance. The default strength of the covering array is now 3 (--t 2 keeps the old suite; the committed Acme suite and its tests stay at 2).
-3. Pilot 3, commit `7ede370` on `exec/generator-pilot`, bank 1247 to 1254 of 2033. A recovery that moves the conversation ends the walk. The validator's reference level named blocks the rule follower fails after a goal shift: the probe's recovery sends the conversation back to the goal stage, and the scenario then played the path's next turn from the stage the conversation had left. A recovery whose stage after differs from the stage reached now ends the walk after the probe, with no end state, as a tool failure does.
-4. Pilot 4, commit `e4ce16a` on `exec/generator-pilot`, bank 1254 to 1253 of 2033. Boundary values of a side-effecting tool go through a path, or forbid the call. The validator's reference level named boundary blocks the rule follower fails: a single turn asked for the side-effecting tool directly and expected the call, while the map calls that tool only on a move of a flow (it is a path's end-state source). Such a value now walks a path that reads it; a value no path reads expects the tool not to run on a request alone. The committed Acme suite is regenerated at strength 2 (it also carries pilot 3's ended walks).
-5. Pilot 5, commit `b7f486f` on `exec/generator-pilot`, bank 1253 to 1263 of 2033. A boundary block expects every other tool 0 times. The validator's cheater level named boundary blocks the every-tool and replay cheaters pass: a block on one tool's value expected that tool and said nothing of the others, so an agent calling every tool passed it. The block now expects every other tool of the map 0 times, as a scenario block does.
-6. Pilot 6, commit `3f5d3ce` on `exec/generator-pilot`, bank 1263 to 1265 of 2033. A tool failure carries the words of its recovery. The validator's perturbation level named perturbation.recovery.D8_tool_failure: the probe of a tool failure expected the recovery's stage and calls but dropped its must and must_not, so an agent that hid the failure behind a cheerful reply passed. The probe now expects the recovery's words, filled as literal patterns.
-7. Pilot 7, commit `dd21aea` on `exec/generator-pilot`, bank 1265 to 1275 of 2033. Invariance families over the persona and channel axes. The validator's contrast level named invariance items: no two complete specs walked a path with the same values under different personas or channels, so nothing checked that an irrelevant change keeps the expectation (CheckList's invariance). The metamorphic seeder now walks each path with its data values fixed under every allowed value of each persona and channel axis, a family whose relation is the same observed outcome. On Acme 216 specs are complete; the real agent passes all of them.
-8. Pilot 8, commit `5831234` on `exec/generator-pilot`, bank 1275 to 1276 of 2033. A boundary value carried by a path records its concrete value. Pilot 4 sent the boundary values of a side-effecting tool through a path, and those specs lost the record of the concrete value every boundary spec keeps; the validator's differential level named diff.boundary.in.enum. The path-carried spec now records it.
-9. Pilot 9, commit `8a1dc7d` on `exec/generator-pilot`, bank 1276 to 1296 of 2033. A clean path walk declares a perturbation for mode P. The validator's modes level found no complete spec declaring a perturbation, so no perturbed run could apply a deviation. A walk with no probe now declares one: a deviation class whose map recovery keeps the conversation on the stage it reached, said before the turn that leaves that stage, with the recovery as its Then and a window of 0 blocks. The Acme suite is regenerated at t 2; the gate test points at an incomplete spec that still exists.
-10. Pilot 10, commit `37cbb94` on `exec/generator-pilot`, bank 1296 to 1345 of 2033. A deviation can arrive on the first turn. The validator's coverage and allocation levels found that no complete spec places a block on the start stage: every probe went in after the first move. A probe now goes in at the start stage too, for the classes a first message can carry (an off-topic question, a language switch, an instruction in data, an out-of-scope request); a silence, a burst, a contradiction, a loose confirmation, a goal shift and a return need an earlier turn. The Acme suite is regenerated at t 2 and stays green on the real agent.
+1. Pilot 1, commit `1485a88` on `exec/generator-pilot`, bank 1209 to 1236 of 2033. A t-wise row whose behaviour no own path carries walks another flow's path. The generator validator's first failing level (differential, diff.twise.pairs) named allowed pairs no complete t-wise spec held: rows whose behaviour belongs to no flow with a path, or whose flows recover none of the row's deviation, ended incomplete. The row now tries the paths of other flows after its own. On the Acme map 186 specs are complete (168 before); the real Acme agent passes all of them.
+2. Pilot 2, commit `350b805` on `exec/generator-pilot`, bank 1236 to 1246 of 2033. The covering array's default strength is 3. The validator's first failing level named diff.twise.triples: complete t-wise specs held no allowed triple of the axes beyond what pairs give by chance. The default strength of the covering array is now 3 (--t 2 keeps the old suite; the committed Acme suite and its tests stay at 2).
+3. Pilot 3, commit `7ede370` on `exec/generator-pilot`, bank 1246 to 1253 of 2033. A recovery that moves the conversation ends the walk. The validator's reference level named blocks the rule follower fails after a goal shift: the probe's recovery sends the conversation back to the goal stage, and the scenario then played the path's next turn from the stage the conversation had left. A recovery whose stage after differs from the stage reached now ends the walk after the probe, with no end state, as a tool failure does.
+4. Pilot 4, commit `e4ce16a` on `exec/generator-pilot`, bank 1253 to 1252 of 2033. Boundary values of a side-effecting tool go through a path, or forbid the call. The validator's reference level named boundary blocks the rule follower fails: a single turn asked for the side-effecting tool directly and expected the call, while the map calls that tool only on a move of a flow (it is a path's end-state source). Such a value now walks a path that reads it; a value no path reads expects the tool not to run on a request alone. The committed Acme suite is regenerated at strength 2 (it also carries pilot 3's ended walks).
+5. Pilot 5, commit `b7f486f` on `exec/generator-pilot`, bank 1252 to 1262 of 2033. A boundary block expects every other tool 0 times. The validator's cheater level named boundary blocks the every-tool and replay cheaters pass: a block on one tool's value expected that tool and said nothing of the others, so an agent calling every tool passed it. The block now expects every other tool of the map 0 times, as a scenario block does.
+6. Pilot 6, commit `3f5d3ce` on `exec/generator-pilot`, bank 1262 to 1264 of 2033. A tool failure carries the words of its recovery. The validator's perturbation level named perturbation.recovery.D8_tool_failure: the probe of a tool failure expected the recovery's stage and calls but dropped its must and must_not, so an agent that hid the failure behind a cheerful reply passed. The probe now expects the recovery's words, filled as literal patterns.
+7. Pilot 7, commit `dd21aea` on `exec/generator-pilot`, bank 1264 to 1274 of 2033. Invariance families over the persona and channel axes. The validator's contrast level named invariance items: no two complete specs walked a path with the same values under different personas or channels, so nothing checked that an irrelevant change keeps the expectation (CheckList's invariance). The metamorphic seeder now walks each path with its data values fixed under every allowed value of each persona and channel axis, a family whose relation is the same observed outcome. On Acme 216 specs are complete; the real agent passes all of them.
+8. Pilot 8, commit `5831234` on `exec/generator-pilot`, bank 1274 to 1275 of 2033. A boundary value carried by a path records its concrete value. Pilot 4 sent the boundary values of a side-effecting tool through a path, and those specs lost the record of the concrete value every boundary spec keeps; the validator's differential level named diff.boundary.in.enum. The path-carried spec now records it.
+9. Pilot 9, commit `8a1dc7d` on `exec/generator-pilot`, bank 1275 to 1295 of 2033. A clean path walk declares a perturbation for mode P. The validator's modes level found no complete spec declaring a perturbation, so no perturbed run could apply a deviation. A walk with no probe now declares one: a deviation class whose map recovery keeps the conversation on the stage it reached, said before the turn that leaves that stage, with the recovery as its Then and a window of 0 blocks. The Acme suite is regenerated at t 2; the gate test points at an incomplete spec that still exists.
+10. Pilot 10, commit `37cbb94` on `exec/generator-pilot`, bank 1295 to 1344 of 2033. A deviation can arrive on the first turn. The validator's coverage and allocation levels found that no complete spec places a block on the start stage: every probe went in after the first move. A probe now goes in at the start stage too, for the classes a first message can carry (an off-topic question, a language switch, an instruction in data, an out-of-scope request); a silence, a burst, a contradiction, a loose confirmation, a goal shift and a return need an earlier turn. The Acme suite is regenerated at t 2 and stays green on the real agent.
 
 ## Next actions
 
