@@ -130,5 +130,14 @@ criteria:
     separation: 3 of 3
     kappa: 1
   - criterion: sheet_matches_catalog
-    status: unassigned
-    reason: "no class has 3 judges at the bar (system2 has 2 of 3 judges at the bar): claude-opus kappa 0.14 is under 0.8 and 2 call(s) gave no answer"
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
