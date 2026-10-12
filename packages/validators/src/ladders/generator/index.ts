@@ -3,12 +3,14 @@ import { BANK_LEVELS, type BankItem, bankItems, SeedData, type Tier, type Verdic
 import type { GeneratorParts } from './measure';
 import { type ScaleReport, scaleReport } from './scale';
 
+export { acmeItems, acmeRun } from './acme';
 export {
   BANK_COMPONENTS,
   BANK_LEVELS,
   type BankItem,
   bankItems,
   bankShape,
+  causeOf,
   INTERACTIONS,
   SeedData,
   type Tier,

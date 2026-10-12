@@ -10,6 +10,7 @@ import {
   type BankItem,
   bankItems,
   bankShape,
+  causeOf,
   evaluate,
   FAULT_CLASSES,
   faultFamily,
@@ -153,5 +154,45 @@ describe('the hardness forecast', () => {
     expect(result.iterations).toBeCloseTo(77.5);
     expect(result.gate).toBe(false);
     expect(forecast(1000, [0.3, 0.3]).iterations).toBe(Number.POSITIVE_INFINITY);
+  });
+});
+
+describe('the cause of a failing item', () => {
+  const item = (id: string) => bankItems().find((entry) => entry.id === id) as BankItem;
+
+  it('counts every class-keyed item of a class never killed under that class kill', () => {
+    expect(
+      causeOf(item('fault.X2.fact-flip'), { pass: false, detail: '0 of 5 scored instances killed' }),
+    ).toBe('kill.X2.fact-flip');
+    expect(
+      causeOf(item('adequacy.X2.fact-flip'), {
+        pass: false,
+        detail: 'X2.fact-flip never changes what the agent does in a complete spec',
+      }),
+    ).toBe('kill.X2.fact-flip');
+    expect(
+      causeOf(item('stable.X2.fact-flip'), {
+        pass: false,
+        detail: 'killed under generator seeds 2: no, 103: no, 204: no',
+      }),
+    ).toBe('kill.X2.fact-flip');
+  });
+
+  it('keeps an item its own cause when the class is killed but the item still fails', () => {
+    expect(
+      causeOf(item('stable.X2.fact-flip'), {
+        pass: false,
+        detail: 'killed under generator seeds 2: yes, 103: no, 204: yes',
+      }),
+    ).toBe('stable.X2.fact-flip');
+    expect(causeOf(item('acme.fault.x1-invents-price'), { pass: false, detail: 'not killed' })).toBe(
+      'acme.price-slot',
+    );
+  });
+
+  it('takes the cause a verdict states, as an interaction does for a member never killed alone', () => {
+    const pair = bankItems().find((entry) => entry.family === 'interaction-pair') as BankItem;
+    expect(causeOf(pair, { pass: false, detail: 'lost', cause: 'kill.X1.case' })).toBe('kill.X1.case');
+    expect(causeOf(pair, { pass: false, detail: 'each is killed alone' })).toBe(pair.id);
   });
 });

@@ -1,6 +1,7 @@
 import type { Spec } from '@driftbench/core';
 import { type Proposal, renderProposal, rngFor } from '@driftbench/generate';
 import { coverage, type SpaceCoverage } from '@driftbench/space';
+import { acmeItems } from './acme';
 import { researchItems } from './bank2';
 import { moreItems } from './bank3';
 import { gateFamilyItems } from './bank4';
@@ -41,7 +42,11 @@ import { type ScaleReport, scaleReport } from './scale';
 
 export type Tier = 1 | 2 | 3 | 4 | 5;
 
-export type Verdict = { pass: boolean; detail: string };
+/**
+ * An item's verdict. `cause` names the one change that would make the item pass (docs/validators.md section
+ * 12.4: items sharing a cause count once); a verdict that knows a deeper cause than its item's own states it.
+ */
+export type Verdict = { pass: boolean; detail: string; cause?: string };
 
 export type BankItem = {
   id: string;
@@ -49,6 +54,10 @@ export type BankItem = {
   tier: Tier;
   level: string;
   component: string;
+  /** The one change that would make the item pass; the item id when the item is its own cause. */
+  cause?: string;
+  /** True for an item that reads no seed (the Acme example): it runs once per bank run, in the parent. */
+  global?: boolean;
   check(data: SeedData): Promise<Verdict>;
 };
 
@@ -2042,10 +2051,14 @@ function interactionItems(): BankItem[] {
               combined?.get(block.key) === 'fail',
           );
         });
-        return verdict(
-          lost.length === 0,
-          `in the combination, ${lost.length} of ${ids.length} faults are seen by no block that fails on it alone: ${lost.join(', ')}`,
-        );
+        // A member no block kills alone is that member's cause; a member killed alone but hidden by the
+        // combination is the combination's own cause.
+        const unkilled = lost.find((id) => killers(runs, `${id}@any/r1`).length === 0);
+        return {
+          pass: lost.length === 0,
+          detail: `in the combination, ${lost.length} of ${ids.length} faults are seen by no block that fails on it alone: ${lost.join(', ')}${unkilled ? `; ${unkilled} is killed by no block even alone, so fix fault.${unkilled} first` : '; each is killed alone, so the combination hides it'}`,
+          ...(unkilled ? { cause: `kill.${unkilled}` } : {}),
+        };
       },
     }),
   );
@@ -2130,6 +2143,24 @@ function scaleItems(): BankItem[] {
 }
 
 /** The whole bank, in level order. */
+/**
+ * The cause of a failing verdict: the verdict's own when it states one, else the class kill a class-keyed
+ * item depends on when its detail says the class is never killed or never set up, else the item's cause.
+ */
+export function causeOf(item: BankItem, verdict: Verdict): string {
+  if (verdict.cause) return verdict.cause;
+  const cls = /^(?:fault|adequacy|minimal|stable)\.(.+)$/.exec(item.id)?.[1];
+  if (item.id.startsWith('fault.') && cls) return `kill.${cls}`;
+  if (cls && /never changes|no block kills|no instance ever changed/.test(verdict.detail))
+    return `kill.${cls}`;
+  if (item.id.startsWith('stable.') && cls && !/: yes/.test(verdict.detail)) return `kill.${cls}`;
+  const alive = /survive: (\S+?)(?:,|$)/.exec(verdict.detail)?.[1];
+  if (item.id.startsWith('mode.F.') && alive) return `kill.${alive}`;
+  const mode = /^mode\.([PT])\./.exec(item.id)?.[1];
+  if (mode && !/survives every|killed in mode/.test(verdict.detail)) return `mode.${mode}.setup`;
+  return item.cause ?? item.id;
+}
+
 export function bankItems(): BankItem[] {
   return [
     ...generateItems(),
@@ -2148,6 +2179,7 @@ export function bankItems(): BankItem[] {
     ...researchItems(),
     ...moreItems(),
     ...gateFamilyItems(),
+    ...acmeItems(),
   ];
 }
 

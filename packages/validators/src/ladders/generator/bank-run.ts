@@ -13,14 +13,21 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { findRoot } from '../../root';
 import { hiddenSeed } from '../../seeds';
-import { BANK_LEVELS, bankItems, bankShape, SeedData } from './bank';
+import { BANK_LEVELS, bankItems, bankShape, causeOf, SeedData } from './bank';
 import { evaluate } from './index';
 import { type ScaleReport, scaleReport } from './scale';
 
-type SeedResult = { seed: number; results: Array<{ id: string; pass: boolean; detail: string }> };
+type SeedResult = {
+  seed: number;
+  results: Array<{ id: string; pass: boolean; detail: string; cause: string }>;
+};
+
+/** Items computed once in the parent: the scale runs and the items that read no seed. */
+const inParent = (item: { family: string; global?: boolean }) =>
+  item.family === 'scale' || item.global === true;
 
 async function child(seed: number, out: string): Promise<void> {
-  const items = bankItems().filter((item) => item.family !== 'scale');
+  const items = bankItems().filter((item) => !inParent(item));
   const data = new SeedData(seed, {}, async () => ({ error: 'scale runs in the parent' }) as ScaleReport);
   const results = await evaluate(items, data);
   const payload: SeedResult = {
@@ -29,6 +36,7 @@ async function child(seed: number, out: string): Promise<void> {
       id: item.id,
       pass: verdict.pass,
       detail: verdict.detail,
+      cause: causeOf(item, verdict),
     })),
   };
   writeFileSync(out, JSON.stringify(payload));
@@ -79,12 +87,9 @@ async function parent(args: string[]): Promise<void> {
     {},
     async (factor) => scales.find((report) => report.factor === factor) as ScaleReport,
   );
-  const scaleResults = await evaluate(
-    items.filter((item) => item.family === 'scale'),
-    scaleData,
-  );
+  const scaleResults = await evaluate(items.filter(inParent), scaleData);
   const summary = items.map((item) => {
-    if (item.family === 'scale') {
+    if (inParent(item)) {
       const found = scaleResults.find((result) => result.item.id === item.id);
       return {
         id: item.id,
@@ -95,11 +100,14 @@ async function parent(args: string[]): Promise<void> {
         pass: found?.verdict.pass ?? false,
         failedOn: found?.verdict.pass ? [] : [String(seeds[0])],
         detail: found?.verdict.detail ?? '',
+        causes: found && !found.verdict.pass ? [causeOf(item, found.verdict)] : [],
       };
     }
     const failed = perSeed.flatMap((entry, index) => {
       const result = entry.results.find((candidate) => candidate.id === item.id);
-      return result && !result.pass ? [{ seed: labels[index] as string, detail: result.detail }] : [];
+      return result && !result.pass
+        ? [{ seed: labels[index] as string, detail: result.detail, cause: result.cause }]
+        : [];
     });
     return {
       id: item.id,
@@ -110,12 +118,15 @@ async function parent(args: string[]): Promise<void> {
       pass: failed.length === 0,
       failedOn: failed.map((entry) => entry.seed),
       detail: failed[0]?.detail ?? 'passes on every seed',
+      causes: [...new Set(failed.map((entry) => entry.cause))],
     };
   });
   const passing = summary.filter((entry) => entry.pass).length;
   // The ladder level per seed: the leading levels whose every item passes on that seed.
   const scaleFailing = new Set(
-    summary.filter((entry) => entry.family === 'scale' && !entry.pass).map((entry) => entry.id),
+    summary
+      .filter((entry) => items.some((item) => item.id === entry.id && inParent(item)) && !entry.pass)
+      .map((entry) => entry.id),
   );
   const failsOn = (id: string, index: number) =>
     scaleFailing.has(id) || perSeed[index]?.results.find((result) => result.id === id)?.pass === false;
@@ -137,12 +148,14 @@ async function parent(args: string[]): Promise<void> {
     }
     return { seed: label, level };
   });
+  // Items sharing a cause count once (docs/validators.md section 12.4).
+  const causes = [...new Set(summary.flatMap((entry) => (entry.pass ? [] : entry.causes)))];
   writeFileSync(
     out,
-    `${JSON.stringify({ seeds: labels, size: summary.length, passing, score: passing / summary.length, shape: bankShape(items), levels, perSeedLevels, items: summary }, null, 2)}\n`,
+    `${JSON.stringify({ seeds: labels, size: summary.length, passing, score: passing / summary.length, failingCauses: causes.length, shape: bankShape(items), levels, perSeedLevels, items: summary }, null, 2)}\n`,
   );
   process.stdout.write(
-    `bank ${summary.length} items, ${passing} pass on every seed (score ${(passing / summary.length).toFixed(3)}) over ${labels.join(', ')}\n`,
+    `bank ${summary.length} items, ${passing} pass on every seed (score ${(passing / summary.length).toFixed(3)}), ${causes.length} distinct causes among the failing items, over ${labels.join(', ')}\n`,
   );
 }
 
