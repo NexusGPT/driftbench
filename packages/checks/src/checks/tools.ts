@@ -144,12 +144,29 @@ function orderVerdict(mode: Mode, expected: ToolExpect[], calls: ToolCall[]): Ve
     ok = includesAll(expansion(expected), labels);
     rule = 'these calls in any order';
   }
+  const where =
+    mode === 'exact' && !ok ? `; first difference: ${firstDifference(expansion(expected), labels)}` : '';
   return machineVerdict(
     NAME,
     'order',
     ok ? 'pass' : 'fail',
-    `${mode}: expected ${rule}: ${listed(wanted)}; saw ${saw}`,
+    `${mode}: expected ${rule}: ${listed(wanted)}; saw ${saw}${where}`,
   );
+}
+
+/** The first call where the observed calls leave the expected ones: a difference, an extra call or a missing call. */
+function firstDifference(wanted: string[], labels: string[]): string {
+  const length = Math.max(wanted.length, labels.length);
+  for (let index = 0; index < length; index++) {
+    const want = wanted[index];
+    const got = labels[index];
+    if (want === got) continue;
+    const at = `call ${index + 1}`;
+    if (got === undefined) return `${at} is missing: expected ${want}`;
+    if (want === undefined) return `${at} is extra: saw ${got}`;
+    return `${at} differs: expected ${want}, saw ${got}`;
+  }
+  return 'none';
 }
 
 /** The expected calls one by one: each tool as many times as its count requires at the least. */

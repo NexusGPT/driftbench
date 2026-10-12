@@ -45,6 +45,7 @@ describe('the shared criteria catalogue: relevancy and knowledge_retention', () 
       'knowledge_retention',
       'relevancy',
       'role',
+      'task_completion',
     ]);
   });
 
@@ -95,5 +96,17 @@ describe('the shared criteria catalogue: role', () => {
     expect(role.def.fail).toContain('promises something outside the role');
     expect(role.fixtures?.pass?.transcript.length).toBeGreaterThan(0);
     expect(role.fixtures?.fail?.transcript.length).toBeGreaterThan(0);
+  });
+});
+
+describe('the shared criteria catalogue: task_completion', () => {
+  it('has a passing and a failing transcript, and the failing one leaves the task undone', async () => {
+    const { criteria } = await loadCriteria(DIR);
+    const task = criteria.find((criterion) => criterion.def.name === 'task_completion');
+    if (!task) throw new Error('the task_completion criterion is missing');
+    expect(task.def.scope).toBe('conversation');
+    expect(task.def.fail).toContain('no result by the end');
+    expect(task.fixtures?.pass?.transcript.length).toBeGreaterThan(0);
+    expect(task.fixtures?.fail?.transcript.length).toBeGreaterThan(0);
   });
 });

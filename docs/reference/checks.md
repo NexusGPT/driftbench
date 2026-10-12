@@ -123,7 +123,7 @@ A tool expectation names the tool by `label`. `count` is an exact number, or `{ 
 
 `tool_order` uses the three match types of the Google ADK trajectory evaluator ([google/adk-python](https://github.com/google/adk-python), read 2026-10-11):
 
-* `exact`: the observed calls split into consecutive runs, one per expected tool in order, each as long as its count allows, with no call left over.
+* `exact`: the observed calls split into consecutive runs, one per expected tool in order, each as long as its count allows, with no call left over. A failing `exact` verdict names the first call where the observed calls leave the expected ones: a call that differs (expected and seen), an extra call, or a missing call, by its position.
 * `in_order`: the expected calls appear in this order; other calls may sit between them.
 * `any_order`: the expected calls appear, in any order.
 
