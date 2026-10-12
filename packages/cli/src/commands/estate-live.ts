@@ -53,6 +53,13 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     .option('--map <file>', "the estate's approved map: pins the copy to its hash and checks its quotes")
     .option('--states <file>', 'the state library: operations by session state and event')
     .option(
+      '--set-env <pair>',
+      'a variable the runtime and its hooks receive, NAME=VALUE; repeatable (a path, a proxy, a dead URL)',
+      (value: string, previous: string[]) => [...previous, value],
+      [] as string[],
+    )
+    .option('--disallow <rules...>', 'tools the runtime must refuse, passed as --disallowed-tools')
+    .option(
       '--pass-env <names...>',
       "names of the evaluator's variables the runtime receives (its credentials)",
     )
@@ -88,6 +95,8 @@ export type EstateRunOptions = {
   map?: string;
   states?: string;
   passEnv?: string[];
+  setEnv?: string[];
+  disallow?: string[];
   timeout?: string;
   allowBilled?: boolean;
   model?: string;
@@ -225,6 +234,14 @@ export async function estateRunCommand(
     }
   }
   const env: Record<string, string> = {};
+  for (const pair of options.setEnv ?? []) {
+    const at = pair.indexOf('=');
+    if (at <= 0 || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(pair.slice(0, at))) {
+      io.err(`--set-env takes NAME=VALUE, got "${pair.split('=')[0]}".\n`);
+      return 2;
+    }
+    env[pair.slice(0, at)] = pair.slice(at + 1);
+  }
   for (const name of options.passEnv ?? []) {
     const value = process.env[name];
     if (value === undefined) notes.push(`${name} is not set; the runtime runs without it`);
@@ -293,6 +310,7 @@ export async function estateRunCommand(
         args,
         config,
         ...(options.trustEstate ? { trustEstate: true } : {}),
+        ...(options.disallow?.length ? { disallowedTools: options.disallow } : {}),
         ...(timeoutMs === undefined ? {} : { timeoutMs }),
         ...(standIn ? { retries: { backoffMs: 0 } } : {}),
       });
