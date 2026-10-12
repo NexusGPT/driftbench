@@ -730,4 +730,21 @@ type = "boolean"
       expect(result.dimensions[1]?.values.length).toBe(3);
     }
   });
+
+  it('leaves out a readOnly property of an input, a writeOnly property of an output and a deprecated property', () => {
+    const properties = {
+      p: { type: 'boolean' },
+      made: { type: 'string', format: 'date-time', readOnly: true },
+      secret: { type: 'string', pattern: '^[0-9]{4}$', writeOnly: true },
+      old: { type: 'boolean', deprecated: true },
+    };
+    const read = (side: 'input_schema' | 'output_schema') => {
+      const schema = { type: 'object', required: ['p'], properties };
+      const result = toolsPrepass(stringify({ tools: [{ name: 't.x', [side]: schema }] }), 'tools.yaml');
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      return result.dimensions.map((d) => d.id);
+    };
+    expect(read('input_schema')).toEqual(['t.x.in.p', 't.x.in.secret']);
+    expect(read('output_schema')).toEqual(['t.x.out.p', 't.x.out.made']);
+  });
 });

@@ -377,6 +377,14 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
     const name = keyOf(pair);
     const property = resolveRef(ctx.root, pair.value);
     if (name === undefined || !isMap(property)) continue;
+    // A caller never sends a readOnly property, a tool never returns a writeOnly one, and a deprecated one is not exercised.
+    const flag = (key: string) => plain(entry(property, key)?.value) === true;
+    if (
+      flag('deprecated') ||
+      (flag('readOnly') && ctx.direction === 'in') ||
+      (flag('writeOnly') && ctx.direction === 'out')
+    )
+      continue;
     const via = refOf(pair.value);
     const items = entry(property, 'items')?.value;
     // A $ref already entered once is read a second time for its plain properties, never a third time.

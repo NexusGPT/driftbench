@@ -422,3 +422,14 @@ Sources read:
 What others do: A dependency is a rule a test breaks by giving the property without the one it needs.
 
 What to try, and why: the tool pre-pass reads property dependencies
+
+## Iteration 36
+
+Question: packages/generate/src/extract/tools.ts: walk gives a dimension to every property, so a readOnly input, a writeOnly output and a deprecated property gain cases nobody exercises; schema-keywords.read-only-input, write-only-output and deprecated-property prove it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-validation section 9.4 (readOnly, writeOnly, deprecated)
+
+What others do: A readOnly property is set by the server, a writeOnly one is never returned, a deprecated one is retired.
+
+What to try, and why: the tool pre-pass leaves out readOnly inputs, writeOnly outputs and deprecated properties
