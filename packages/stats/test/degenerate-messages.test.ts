@@ -26,4 +26,24 @@ describe('RangeError names the function and the argument', () => {
   it('quantileSorted of an empty sample names sorted', () => {
     expect(() => quantileSorted([], 0.5)).toThrow(/^quantileSorted: sorted/);
   });
+
+  it('mean of a NaN value names values and its index', () => {
+    expect(() => mean([1, Number.NaN])).toThrow(/^mean: values\[1\]/);
+  });
+
+  it('mean of an infinite value names values and its index', () => {
+    expect(() => mean([1, Number.POSITIVE_INFINITY])).toThrow(/^mean: values\[1\]/);
+  });
+
+  it('sampleVariance of an infinite value names values and its index', () => {
+    expect(() => sampleVariance([1, Number.NEGATIVE_INFINITY, 2])).toThrow(/^sampleVariance: values\[1\]/);
+  });
+
+  it('quantile of a NaN value names values and its index', () => {
+    expect(() => quantile([1, Number.NaN], 0.5)).toThrow(/^quantile: values\[1\]/);
+  });
+
+  it('quantileSorted of an infinite value names sorted and its index', () => {
+    expect(() => quantileSorted([1, Number.POSITIVE_INFINITY], 0.5)).toThrow(/^quantileSorted: sorted\[1\]/);
+  });
 });

@@ -22,6 +22,7 @@ export function mulberry32(seed: number): () => number {
 export function quantileSorted(sorted: readonly number[], p: number): number {
   const n = sorted.length;
   if (n === 0) throw new RangeError('quantileSorted: sorted must not be empty');
+  assertFiniteValues('quantileSorted', 'sorted', sorted);
   if (p < 0 || p > 1) throw new RangeError(`quantileSorted: p must lie in [0, 1], got ${p}`);
   const h = (n - 1) * p;
   const lo = Math.floor(h);
@@ -35,6 +36,7 @@ export function quantileSorted(sorted: readonly number[], p: number): number {
 export function quantile(values: readonly number[], p: number): number {
   if (values.length === 0) throw new RangeError('quantile: values must not be empty');
   if (p < 0 || p > 1) throw new RangeError(`quantile: p must lie in [0, 1], got ${p}`);
+  assertFiniteValues('quantile', 'values', values);
   return quantileSorted(
     [...values].sort((x, y) => x - y),
     p,
@@ -47,8 +49,19 @@ export function sum(values: readonly number[]): number {
   return s;
 }
 
+/**
+ * Rule 1 of the degenerate-input contract for a data array: the first value that is not finite is named by its
+ * function, argument and index, so the caller can find it.
+ */
+export function assertFiniteValues(fn: string, arg: string, values: readonly number[]): void {
+  values.forEach((v, i) => {
+    if (!Number.isFinite(v)) throw new RangeError(`${fn}: ${arg}[${i}] must be finite, got ${v}`);
+  });
+}
+
 export function mean(values: readonly number[]): number {
   if (values.length === 0) throw new RangeError('mean: values must not be empty');
+  assertFiniteValues('mean', 'values', values);
   return sum(values) / values.length;
 }
 
@@ -83,6 +96,7 @@ export function weightedMean(values: readonly number[], weights: readonly number
 export function sampleVariance(values: readonly number[]): number {
   const n = values.length;
   if (n < 2) throw new RangeError('sampleVariance: values needs at least two values');
+  assertFiniteValues('sampleVariance', 'values', values);
   const m = mean(values);
   let ss = 0;
   for (const v of values) ss += (v - m) * (v - m);
