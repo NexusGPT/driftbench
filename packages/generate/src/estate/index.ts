@@ -4,12 +4,14 @@ export {
   actOf,
   askedTo,
   type CodeAsk,
+  clauseOf,
   codeAsk,
   DEVIATION_ASKS,
   imperative,
   OUTSIDE_ASK,
   plain,
   RESUME_ASK,
+  situationProblem,
 } from './asks';
 export { type ReadYaml, readEstateYaml, type YamlSchema } from './files';
 export {
@@ -76,11 +78,14 @@ export {
   thenOf,
 } from './then';
 export {
+  CHECK_GAP,
+  checkEvents,
   GuardCase,
   hostileForms,
   matcherTools,
   materialOf,
   payloadOf,
+  scriptCases,
   toolInput,
   UNIT_DIR,
   UNIT_TEST_TYPES,

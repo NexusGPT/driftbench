@@ -160,6 +160,18 @@ exit 0
 
 The proposal is the committed `examples/acme/map/proposal.yaml`, byte for byte but for the time in `produced_by.at`. A recording with no answer left for a section fails that section, as a failed model call does. No option saves a real model's answers for a later replay yet. `extract` exits 0 when the proposal is written and complete, 1 when it is written with a failed section or a refused entry, 2 on a usage or input error (nothing written).
 
+### Planned: what extract does not read yet
+
+These are capabilities users need from `extract` that the code lacks today. The map validator holds the items that check each one (`validators/map/NEEDS.md`). They fail until the capability ships.
+
+* **Declared roles.** A prompt may say which dimension makes a different kind of conversation ("Each of these makes a different kind of conversation") and which can show up inside any conversation. That dimension becomes the axis, whatever order the dimensions are read in. Without such a sentence, the first dimension of each kind stays the axis, as above. The purpose: the prompt's author already said which differences make a different conversation, so the space map crosses those and leaves the rest as details, and no person has to flip the roles the prompt already states.
+* **What a rule states.** Each rule records whether the agent must or must not do it, the cell it applies in (`when`), the case it excludes (`unless`), a count limit, a time limit (`within`), and whether it comes first when rules collide.
+* **What a value states.** A persona or data value records the share of users it stands for (`weight`) and whether a test plan must include it (`required`).
+* **More relations.** The order two tools are called in, the route a request takes to a flow, and the exact reply text a rule fixes.
+* **Every prompt style.** Rules are read in lists, numbered rules, prose, tables, nested sections, a second language, negations, conditions, tool references, examples that contradict a rule, deprecated sections, duplicated rules with precedence, rules hidden inside examples, and rules phrased as questions. Any two of these styles can be mixed in one prompt.
+* **Long prompts.** A prompt of 100k characters and more is read in chunks cut at line boundaries, within a time budget. A wrapped sentence, a table with its header, a section with its heading path, a question with its answer and a deprecation marker with the text it covers stay together. Constraints are proposed once the whole map is known, and a replacement in one chunk retires the rule it replaces in another.
+* **A map that depends only on what the prompt says.** The map does not change when sections are reordered, a rule is split into two sentences, a word is replaced by a synonym, or a sentence that specifies nothing is added. Two halves of a prompt give the two halves of the map, and a prompt with one more constraint gives exactly one more constraint. Most of this holds today; reordering sections can still change which dimension is the axis, until declared roles ship.
+
 ## Approve
 
 A dimension has one `approved` flag, which its values inherit; a value may set its own flag to override it. Each constraint, phrase and relation has its own flag. `extract approve` with no option lists the open decisions and the grid the axes give:

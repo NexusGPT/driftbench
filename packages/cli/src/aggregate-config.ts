@@ -104,14 +104,25 @@ export async function readAggregateConfig(path: string): Promise<ConfigLoad> {
   return { ok: true, specs };
 }
 
-/** The file's specs with the flags applied: a flag with the same name replaces the file's entry in place. */
+/**
+ * The file's specs with the flags applied: the first flag of a name replaces the file's entry of that name in
+ * place. Flags never replace each other: two flags of one name are two criteria, both scored.
+ */
 export function mergeAggregates(fromFile: readonly string[], fromFlags: readonly string[]): string[] {
   const nameOf = (spec: string) => spec.split(':')[0] ?? spec;
   const merged = [...fromFile];
+  const fileEntry = new Map<string, number>();
+  fromFile.forEach((spec, index) => {
+    if (!fileEntry.has(nameOf(spec))) fileEntry.set(nameOf(spec), index);
+  });
   for (const flag of fromFlags) {
-    const at = merged.findIndex((spec) => nameOf(spec) === nameOf(flag));
-    if (at >= 0) merged[at] = flag;
-    else merged.push(flag);
+    const at = fileEntry.get(nameOf(flag));
+    if (at !== undefined) {
+      merged[at] = flag;
+      fileEntry.delete(nameOf(flag));
+    } else {
+      merged.push(flag);
+    }
   }
   return merged;
 }

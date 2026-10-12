@@ -596,6 +596,43 @@ describe('driftbench ci baselines', () => {
   );
 });
 
+describe('driftbench ci with a budget that stops every candidate cell', () => {
+  it(
+    'is incomplete, exit 1, not bad input, when no golden of the candidate ran',
+    async () => {
+      const dir = await tempFolder();
+      const base = join(dir, 'base.db');
+      await baselineCampaign(CONVERSATIONS, base);
+      const out = join(dir, 'none-ran.json');
+      const result = await cli(
+        [
+          'ci',
+          '--specs',
+          CONVERSATIONS,
+          '--target',
+          'function:acme-sales',
+          '--baseline',
+          base,
+          '--store',
+          join(dir, 'cand.db'),
+          '--budget-usd',
+          '0',
+          '--out',
+          out,
+        ],
+        { adapterFor: async () => pricedAcmeAdapter() },
+      );
+      expect(result.err).not.toContain('cannot be compared');
+      expect(result.code).toBe(1);
+      expect(result.out).toContain('Verdict: INCOMPLETE.');
+      const summary = await summaryAt(out);
+      expect(summary.verdict).toBe('incomplete');
+      expect(summary.pairs).toBe(0);
+    },
+    SLOW,
+  );
+});
+
 describe('driftbench ci input', () => {
   let dir: string;
   let base: string;

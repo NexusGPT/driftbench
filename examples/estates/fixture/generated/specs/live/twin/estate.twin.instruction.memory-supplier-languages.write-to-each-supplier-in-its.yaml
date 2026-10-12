@@ -31,7 +31,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: "Could you do this: write to each supplier in its language? Thanks."
+      user: Could you write to each supplier in its language? Thanks.
     expect:
       workspace:
         deleted: []

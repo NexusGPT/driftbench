@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import type { Command } from 'commander';
 import { DEFAULT_CONFIG, readScaleConfig } from '../aggregate-config';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { startViewer, type Viewer } from '../view/server';
 
 type ViewCommandOptions = {
@@ -47,7 +48,7 @@ export async function viewCommand(
     io.err(`No store at ${store}. Give one with --store <file>.\n`);
     return 2;
   }
-  const port = Number(options.port);
+  const port = optionNumber(options.port);
   if (!Number.isInteger(port) || port < 0 || port > 65535) {
     io.err(`--port takes a whole number from 0 to 65535, not "${options.port}".\n`);
     return 2;

@@ -622,6 +622,7 @@ describe('driftbench campaign status and resume', () => {
 
   it('takes the latest campaign of the store, by its creation time, when status or resume names none', async () => {
     const path = await storePath();
+    await openStore(path).close();
     const empty = await cli(['campaign', 'status', '--store', path]);
     expect(empty.code).toBe(2);
     expect(empty.err).toContain(`The store at ${path} holds no campaign.`);
@@ -666,6 +667,7 @@ describe('driftbench campaign status and resume', () => {
 
   it('exits 2 for a campaign the store does not hold, and needs --store', async () => {
     const path = await storePath();
+    await openStore(path).close();
     const unknown = await cli(['campaign', 'status', 'c-none', '--store', path]);
     expect(unknown.code).toBe(2);
     expect(unknown.err).toContain(`No campaign c-none in ${path}.`);

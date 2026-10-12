@@ -51,6 +51,19 @@ async function firstRun(campaign: string, failing = false): Promise<string> {
   return failing ? (links[0] as string) : (links[links.length - 1] as string);
 }
 
+/** The first run of a campaign, of the given spec, whose label form offers the criterion. */
+async function runOffering(campaign: string, criterion: string, spec: string): Promise<string> {
+  const page = await get(`/campaign/${campaign}`);
+  const links = [...page.text.matchAll(/href="(\/campaign\/[^/"]+\/run\/[^"#]+)"/g)].map(
+    (match) => match[1] as string,
+  );
+  for (const link of links) {
+    const text = (await get(link)).text;
+    if (text.includes(`<option value="${criterion}">`) && text.includes(spec)) return link;
+  }
+  throw new Error(`no run of ${campaign} offers ${criterion}`);
+}
+
 describe('driftbench view', () => {
   it('listens on the loopback address only', () => {
     expect(viewer.url).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
@@ -108,7 +121,8 @@ describe('driftbench view', () => {
   });
 
   it('saves a label, reads it back on the page, and writes the file judge calibrate reads', async () => {
-    const run = await firstRun('c-x3', true);
+    // A run whose form offers no_invented_data: a label goes only on a criterion the block offers.
+    const run = await runOffering('c-x3', 'no_invented_data', 'acme-plan-upgrade');
     const runId = decodeURIComponent(run.split('/').pop() as string);
     const save = (label: string, block: string, note: string) =>
       fetch(`${viewer.url}/labels`, {
@@ -174,6 +188,9 @@ describe('driftbench view', () => {
         })
       ).status;
     expect(await bad({ criterion: '../escape' })).toBe(400);
+    // A criterion the block's form does not offer: the spec's judged criteria and those that voted on it.
+    expect(await bad({ criterion: 'not_a_criterion' })).toBe(400);
+    expect(existsSync(join(labels, 'not_a_criterion.yaml'))).toBe(false);
     expect(await bad({ label: 'maybe' })).toBe(400);
     expect(await bad({ block: '99' })).toBe(400);
     expect(await bad({ run: 'no-such-run' })).toBe(400);
