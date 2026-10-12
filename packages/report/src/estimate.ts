@@ -76,7 +76,7 @@ export function clustered(
       };
     }
     if (g >= 2 && values.every((v) => v === 0 || v === 1)) {
-      const p = values.reduce((a, b) => a + b, 0) / values.length;
+      const p = values.reduce<number>((a, b) => a + b, 0) / values.length;
       return designEffectWilson(values, clusters, p, g);
     }
   }

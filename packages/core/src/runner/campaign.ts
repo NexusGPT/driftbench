@@ -230,6 +230,8 @@ export type CellOutcome = {
   failing: string[];
   /** Set when the budget stopped the cell before it started: the budget, and what the campaign had spent. */
   budgetStop?: { budgetUsd: number; spentUsd: number };
+  /** Set when `earlyStop` stopped the cell: repeats 0 and 1 of its spec had both failed a gating machine check. */
+  earlyStop?: { after: number };
 };
 
 /** The outcome of a cell from its run: pass when the run completed, every block passed and the end state matched. */
@@ -293,6 +295,13 @@ export type CampaignRunOptions = {
    * replayed from the cache do not. Once it is reached no new cell starts; the cells in flight finish.
    */
   budgetUsd?: number;
+  /**
+   * Stop a spec early. Once repeats 0 and 1 of a spec in mode F (same target) both fail a gating machine check,
+   * its later F repeats are not run: they come back with state `stopped` and `earlyStop { after: 2 }`, and no
+   * run is stored for them. A spec that passes repeat 0 or 1 runs every repeat. Repeat 2 and later wait for
+   * repeats 0 and 1 to finish, so the spec's first two repeats run free of the stop.
+   */
+  earlyStop?: boolean;
   /** Called once per cell in cell order, as soon as the cell and every cell before it have an outcome. */
   onCell?(outcome: CellOutcome): void;
   /** Mode P: more tools whose call is a consequential act, for the recovery metrics. */
@@ -342,9 +351,40 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
     return undefined;
   };
 
+  // Early stop: the outcome of every cell, awaitable, so repeat 2 and later can read repeats 0 and 1.
+  const settled = new Map<
+    string,
+    { promise: Promise<CellOutcome | undefined>; settle(o?: CellOutcome): void }
+  >();
+  if (options.earlyStop) {
+    for (const cell of cells) {
+      let settle: (o?: CellOutcome) => void = () => {};
+      const promise = new Promise<CellOutcome | undefined>((resolve) => {
+        settle = resolve;
+      });
+      settled.set(cell.cellId, { promise, settle });
+    }
+  }
+  const earlyStopped = async (cell: PlannedCell): Promise<boolean> => {
+    if (!options.earlyStop || cell.mode !== 'F' || cell.repeat < 2 || cell.perturbationId !== undefined) {
+      return false;
+    }
+    const firstTwo = [0, 1].map((repeat) =>
+      settled.get(cellId({ specHash: cell.specHash, target: cell.target, mode: 'F', repeat })),
+    );
+    if (firstTwo.some((entry) => entry === undefined)) return false;
+    const outcomes = await Promise.all(firstTwo.map((entry) => entry?.promise));
+    return outcomes.every(
+      (o) => o?.state === 'fail' && o.failing.some((entry) => entry.startsWith('block ')),
+    );
+  };
+
   const start = async (cell: PlannedCell): Promise<CellOutcome> => {
     const previous = done.get(cell.cellId);
     if (previous?.status === 'completed') return outcomeOf(cell, previous, true);
+    if (await earlyStopped(cell)) {
+      return { cell, reused: false, state: 'stopped', failing: [], earlyStop: { after: 2 } };
+    }
     if (budgetUsd !== undefined && spentUsd >= budgetUsd) {
       return { cell, reused: false, state: 'stopped', failing: [], budgetStop: { budgetUsd, spentUsd } };
     }
@@ -392,6 +432,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
         return;
       } finally {
         fRuns.get(cell.cellId)?.settle(outcomes[index]?.run);
+        settled.get(cell.cellId)?.settle(outcomes[index]);
       }
       hear();
     }
@@ -400,6 +441,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   const workers = Math.max(1, Math.min(Math.floor(options.concurrency ?? 4), cells.length));
   await Promise.all(Array.from({ length: workers }, () => worker()));
   for (const planned of fRuns.values()) planned.settle();
+  for (const entry of settled.values()) entry.settle();
   if (failure) throw failure.cause;
   return outcomes.filter((outcome): outcome is CellOutcome => outcome !== undefined);
 }
