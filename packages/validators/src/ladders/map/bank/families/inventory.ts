@@ -1,5 +1,5 @@
 import { stringify } from 'yaml';
-import { BANK_COMPONENTS, drawFor, inventoryCode, type MiniInventory, miniInventory } from '../common';
+import { BANK_COMPONENTS, blockOf, drawFor, inventoryCode, type MiniInventory, miniInventory } from '../common';
 import type { CodeEntry } from '../facts';
 import { mapItem } from '../run';
 import type { BankItem, Tier } from '../types';
@@ -163,7 +163,8 @@ export const FORMS: readonly Form[] = [
   {
     slug: 'long-item',
     tier: 3,
-    title: 'a behaviour item longer than a quote may be is quoted by its title line',
+    title: 'a behaviour item over 1000 characters is quoted whole, as written, and the proposal stays valid',
+    code: (inventory) => withQuote(inventoryCode(inventory), 'behaviour', 'B-003', stringify(inventory.behaviours[2], { lineWidth: 0 })),
     shape: (inventory) => ({
       ...inventory,
       behaviours: inventory.behaviours.map((b, i) =>
@@ -336,8 +337,8 @@ export const FORMS: readonly Form[] = [
   {
     slug: 'long-flow-title',
     tier: 3,
-    title:
-      'a flow item longer than a quote may be is quoted by a passage within the limit, and the proposal stays valid',
+    title: 'a flow item over 1000 characters is quoted whole, as written, and the proposal stays valid',
+    code: (inventory) => withQuote(inventoryCode(inventory), 'flow', 'service', stringify(inventory.flows[0], { lineWidth: 0 })),
     shape: (inventory) => ({
       ...inventory,
       flows: inventory.flows.map((f, i) =>
@@ -350,7 +351,41 @@ export const FORMS: readonly Form[] = [
       ),
     }),
   },
+  {
+    slug: 'exact-nested-item',
+    tier: 2,
+    title:
+      'a behaviour item with a nested channel list is quoted exactly as written, its later lines losing only the indentation of its first',
+    code: (inventory) =>
+      inventoryCode(inventory).map((entry) =>
+        entry.type === 'value' && entry.dimension === 'behaviour' && entry.value === 'B-001'
+          ? { ...entry, quote: stringify(inventory.behaviours[0], { lineWidth: 0 }).trimEnd(), exact: true }
+          : entry,
+      ),
+  },
+  {
+    slug: 'pair-quotes',
+    tier: 2,
+    title:
+      'each channel value quotes the whole channels list (key and members) and each deviation value its flow\'s whole deviations list',
+    code: (inventory) => {
+      const text = yaml(inventory);
+      const channels = blockOf(text, 'channels');
+      const deviations = blockOf(text, 'deviations');
+      return inventoryCode(inventory).map((entry) => {
+        if (entry.type !== 'value') return entry;
+        if (entry.dimension === 'channel') return { ...entry, quote: channels };
+        if (entry.dimension === 'deviation' && entry.value === 'D1_off_topic') return { ...entry, quote: deviations };
+        return entry;
+      });
+    },
+  },
 ];
+
+/** The code entries with one value's whole quote required. */
+function withQuote(code: CodeEntry[], dimension: string, value: string, quote: string): CodeEntry[] {
+  return code.map((entry) => (entry.type === 'value' && entry.dimension === dimension && entry.value === value ? { ...entry, quote } : entry));
+}
 
 export function inventoryItems(): BankItem[] {
   return [

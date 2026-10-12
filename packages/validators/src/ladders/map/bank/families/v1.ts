@@ -16,6 +16,8 @@ const FIRST: ReadonlyArray<{
   tier: Tier;
   component: string;
   cause: string;
+  /** Other first-version levels the item also requires. */
+  alsoLevels?: number[];
 }> = [
   {
     index: 0,
@@ -56,6 +58,7 @@ const FIRST: ReadonlyArray<{
     tier: 3,
     component: BANK_COMPONENTS.roles,
     cause: 'contract:dimension-role',
+    alsoLevels: [6],
   },
   {
     index: 5,
@@ -86,23 +89,28 @@ export function firstVersionItems(): BankItem[] {
       level: levelOf(first.level),
       component: first.component,
       cause: first.cause,
-      title: `the first map ladder's level ${first.index + 1} (${definition.name}): ${definition.metric}, at least ${definition.threshold}`,
+      title: `the first map ladder's level ${first.index + 1} (${definition.name}): ${definition.metric}, at least ${definition.threshold}${(first.alsoLevels ?? []).map((index) => `, with level ${index + 1} at its threshold too`).join('')}`,
       generate: () => [],
       check: () => ({ pass: false, detail: 'runs through run()' }),
       run: async (seed, deps) => {
-        const level = firstVersion(deps.extract ? { extract: deps.extract } : {}).levels[first.index];
-        if (!level) return { pass: false, detail: 'no level' };
-        const measure = await level.compute({ seed, hidden: false, root: process.cwd() });
-        const ok = passes(measure.value, level.threshold, level.direction ?? 'atLeast');
-        return {
-          pass: ok,
-          detail: ok
-            ? `${measure.value}`
-            : `${measure.value} under ${level.threshold}; ${measure.items
+        const ladder = firstVersion(deps.extract ? { extract: deps.extract } : {});
+        // The metamorphic level holds only with the declared roles: equal maps from roles read off a fixed
+        // order of ids also fail the roles level, so it runs too.
+        for (const index of [first.index, ...(first.alsoLevels ?? [])]) {
+          const level = ladder.levels[index];
+          if (!level) return { pass: false, detail: 'no level' };
+          const measure = await level.compute({ seed, hidden: false, root: process.cwd() });
+          if (!passes(measure.value, level.threshold, level.direction ?? 'atLeast')) {
+            return {
+              pass: false,
+              detail: `level ${index + 1}: ${measure.value} under ${level.threshold}; ${measure.items
                 .slice(0, 2)
                 .map((item) => `${item.id}: ${item.detail}`)
                 .join(' | ')}`,
-        };
+            };
+          }
+        }
+        return { pass: true, detail: 'every level at its threshold' };
       },
     };
   });

@@ -9,6 +9,7 @@ import {
   proposalFacts,
   quotesOffAnchor,
 } from './facts';
+import { fold } from '../truth';
 import { perfectPort } from './perfect';
 import type { BankDeps, BankItem, Case, CaseRun, Outcome, Tier } from './types';
 
@@ -93,6 +94,30 @@ export function proposalProblem(run: CaseRun): string | undefined {
     : undefined;
 }
 
+/** Code values whose quote or title is not the one the item planted. */
+function codeQuoteProblems(run: CaseRun, code: readonly CodeEntry[]): string[] {
+  if (!run.result.ok) return [];
+  const out: string[] = [];
+  for (const entry of code) {
+    if (entry.type !== 'value' || (entry.quote === undefined && entry.titleIncludes === undefined)) continue;
+    const value = run.result.proposal.dimensions
+      .find((dimension) => dimension.id === entry.dimension)
+      ?.values.find((candidate) => candidate.id === entry.value);
+    if (!value) {
+      out.push(`${entry.dimension}/${entry.value} is missing, so its quote and title cannot be checked`);
+      continue;
+    }
+    const quote = value.evidence.quote;
+    if (entry.quote !== undefined && (entry.exact ? quote !== entry.quote : fold(quote) !== fold(entry.quote))) {
+      out.push(`${entry.dimension}/${entry.value} quotes ${JSON.stringify(quote.slice(0, 60))}${quote.length > 60 ? '...' : ''} (${quote.length} characters), not the ${entry.quote.length} the item holds`);
+    }
+    if (entry.titleIncludes !== undefined && !value.title.includes(entry.titleIncludes)) {
+      out.push(`${entry.dimension}/${entry.value} is titled "${value.title}", which lacks "${entry.titleIncludes}"`);
+    }
+  }
+  return out;
+}
+
 /** The sections that failed in a run, for an item detail. */
 export function failedSections(run: CaseRun): string {
   if (!run.result.ok) return '';
@@ -115,7 +140,10 @@ export function checkMap(run: CaseRun, code: readonly CodeEntry[], parts: Parts)
   const expected = expectedFacts(run.case.planted, code, parts);
   const actual = proposalFacts(run.result.proposal, parts);
   const { lost, gained } = compareFacts(expected, actual);
-  const off = parts.values ? quotesOffAnchor(run.result.proposal, run.case.planted) : [];
+  const off = [
+    ...(parts.values ? quotesOffAnchor(run.result.proposal, run.case.planted) : []),
+    ...codeQuoteProblems(run, code),
+  ];
   const late = run.case.budgetMs !== undefined && run.ms > run.case.budgetMs;
   if (lost.length === 0 && gained.length === 0 && off.length === 0 && !late) {
     return { pass: true, detail: `${run.case.label}: ${expected.size} facts held in ${run.ms} ms` };

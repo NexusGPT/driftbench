@@ -205,7 +205,18 @@ export type Extras = {
   priorities?: boolean;
   /** Declared roles for a second persona dimension (tone), for the roles family. */
   roles?: 'tone-axis' | 'type-axis';
+  /**
+   * With roles: which persona dimension id sorts first. The ids are drawn from pools so that either order
+   * occurs, and a role read from the id order instead of the prompt fails one of the two orders.
+   */
+  order?: 'tone-first' | 'type-first';
 };
+
+/** The ids the two persona dimensions of a roles prompt take. */
+const TYPE_IDS = ['customer_type', 'audience', 'segment', 'kind'] as const;
+const TONE_IDS = ['tone', 'register', 'voice', 'manner'] as const;
+/** Every id a persona dimension of a roles prompt can take. */
+export const PERSONA_IDS: ReadonlySet<string> = new Set([...TYPE_IDS, ...TONE_IDS]);
 
 export type StyledSpec = {
   /** The seed and salt the specification was drawn from; the wording draws from them too. */
@@ -217,7 +228,10 @@ export type StyledSpec = {
   stages: Array<{ id: string; title: Text }>;
   types: Array<{ id: string; title: Text; weight?: number; required?: boolean }>;
   tones?: Array<{ id: string; title: Text }>;
-  roles?: { customer_type: Role; tone: Role };
+  /** The dimension ids of the kind of customer and of the tone: customer_type and tone unless roles are drawn. */
+  typeDimension: string;
+  toneDimension: string;
+  roles?: { type: Role; tone: Role };
   rules: StyledRule[];
   contradicting: number;
   constraints: Array<{ id: string; forbid: Record<string, string>; kind: 'type-channel' | 'stage-channel' }>;
@@ -267,6 +281,16 @@ export function styledSpec(options: StyledOptions): StyledSpec {
     STAGES.at(-1),
   ] as StyledSpec['stages'];
   const types: StyledSpec['types'] = draw.subset(TYPES, draw.int(2, 3)).map((type) => ({ ...type }));
+  let typeDimension = 'customer_type';
+  let toneDimension = 'tone';
+  if (extras.roles) {
+    const pairs = TYPE_IDS.flatMap((type) => TONE_IDS.map((tone) => ({ type, tone }))).filter(({ type, tone }) =>
+      (extras.order ?? (draw.chance(0.5) ? 'tone-first' : 'type-first')) === 'tone-first' ? tone < type : type < tone,
+    );
+    const pair = draw.pick(pairs);
+    typeDimension = pair.type;
+    toneDimension = pair.tone;
+  }
   if (extras.weights) {
     const shares = types.length === 2 ? [70, 30] : [50, 30, 20];
     types.forEach((type, index) => {
@@ -452,8 +476,8 @@ export function styledSpec(options: StyledOptions): StyledSpec {
     const pairs = types.flatMap((type) => inventory.channels.map((channel) => ({ type: type.id, channel })));
     for (const { type, channel } of draw.subset(pairs, 2)) {
       constraints.push({
-        id: `customer_type=${type},channel=${channel}`,
-        forbid: { customer_type: type, channel },
+        id: `${typeDimension}=${type},channel=${channel}`,
+        forbid: { [typeDimension]: type, channel },
         kind: 'type-channel',
       });
     }
@@ -485,13 +509,15 @@ export function styledSpec(options: StyledOptions): StyledSpec {
     inventory,
     stages,
     types,
+    typeDimension,
+    toneDimension,
     ...(tones ? { tones } : {}),
     ...(extras.roles
       ? {
           roles:
             extras.roles === 'tone-axis'
-              ? { customer_type: 'detail' as Role, tone: 'axis' as Role }
-              : { customer_type: 'axis' as Role, tone: 'detail' as Role },
+              ? { type: 'detail' as Role, tone: 'axis' as Role }
+              : { type: 'axis' as Role, tone: 'detail' as Role },
         }
       : {}),
     rules,
@@ -791,7 +817,13 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
   const ruleDimension = { id: 'rule', title: 'The rules the assistant follows', kind: 'behaviour' };
   const fieldsOf = (rule: StyledRule): Record<string, unknown> => ({
     polarity: rule.polarity,
-    ...(rule.when ? { when: { [rule.when.dimension]: [rule.when.value] } } : {}),
+    ...(rule.when
+      ? {
+          when: {
+            [rule.when.dimension === 'customer_type' ? spec.typeDimension : rule.when.dimension]: [rule.when.value],
+          },
+        }
+      : {}),
     ...(rule.unless ? { unless: { channel: [rule.unless] } } : {}),
     ...(rule.limit ? { limit: rule.limit } : {}),
     ...(rule.within ? { within: { minutes: rule.within } } : {}),
@@ -898,8 +930,8 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
       });
     } else if (key === 'types' || key === 'tones') {
       const list = key === 'types' ? spec.types : (spec.tones ?? []);
-      const dimension = key === 'types' ? 'customer_type' : 'tone';
-      const role = spec.roles?.[dimension as 'customer_type' | 'tone'];
+      const dimension = key === 'types' ? spec.typeDimension : spec.toneDimension;
+      const role = spec.roles?.[key === 'types' ? 'type' : 'tone'];
       if (role) {
         out.push(
           `${role === 'axis' ? en('Each of these makes a different kind of conversation.') : en('Any of these can show up inside any conversation.')}\n\n`,
@@ -943,7 +975,7 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
             out.push(`${text}\n\n`);
             const entry = planted.find(
               (p): p is PlantedValue =>
-                p.type === 'value' && p.dimension.id === 'customer_type' && p.value.id === type.id,
+                p.type === 'value' && p.dimension.id === spec.typeDimension && p.value.id === type.id,
             );
             if (entry) {
               entry.quote = text;
@@ -1038,7 +1070,7 @@ export function renderStyled(spec: StyledSpec, options: RenderStyled = {}): Styl
         const text =
           constraint.kind === 'type-channel'
             ? en(
-                `A ${constraint.forbid.customer_type} customer never reaches us on ${constraint.forbid.channel}.`,
+                `A ${constraint.forbid[spec.typeDimension]} customer never reaches us on ${constraint.forbid.channel}.`,
               )
             : en(`The ${constraint.forbid.stage} stage never happens on ${constraint.forbid.channel}.`);
         out.push(`${text}\n\n`);

@@ -1,8 +1,9 @@
 import { BANK_COMPONENTS } from '../common';
 import { compareFacts, listFacts, type Parts, proposalFacts } from '../facts';
-import { checkMap, failedSections, mapItem, runProblem } from '../run';
+import { allOf, checkMap, failedSections, mapItem, runProblem } from '../run';
 import {
   type Extras,
+  PERSONA_IDS,
   type RenderStyled,
   renderStyled,
   STRUCTURES,
@@ -373,24 +374,39 @@ export function semanticsItems(): BankItem[] {
   );
 }
 
-/** Roles: two persona dimensions, one declared axis, in every style and with either one declared. */
+/**
+ * Roles: two persona dimensions, one declared axis, in every style and with either one declared. Each seed
+ * runs two prompts: one where the tone's id sorts before the customer kind's id, one where it sorts after.
+ * A role read from the order of the ids, not from the prompt, fails one of the two on every seed.
+ */
 export function roleItems(): BankItem[] {
   const out: BankItem[] = [];
+  const ORDERS = ['tone-first', 'type-first'] as const;
+  const parts: Parts = { roles: true, dimension: (id) => PERSONA_IDS.has(id) };
   for (const style of STYLES) {
     for (const roles of ['tone-axis', 'type-axis'] as const) {
-      out.push(
-        styledItem({
-          id: `roles.${style}.${roles}`,
-          family: 'roles',
-          tier: STYLE_TIER[style] >= 3 ? 4 : 3,
-          level: levelOf('semantics'),
-          component: BANK_COMPONENTS.roles,
-          title: `each dimension carries the role the prompt declares (${roles === 'tone-axis' ? 'tone is the axis' : 'the kind of customer is the axis'}), in ${STYLE_TITLE[style]}`,
-          styles: [style],
-          extras: { roles },
-          parts: { roles: true, dimension: (id) => id === 'customer_type' || id === 'tone' },
-        }),
-      );
+      const id = `roles.${style}.${roles}`;
+      const build = (seed: number) =>
+        ORDERS.map((order) => styledCase(`${id}.${order}`, { styles: [style], seed, salt: id, extras: { roles, order } }));
+      out.push({
+        id,
+        family: 'roles',
+        tier: STYLE_TIER[style] >= 3 ? 4 : 3,
+        level: levelOf('semantics'),
+        component: BANK_COMPONENTS.roles,
+        cause: styleCause([style], { roles }),
+        title: `each dimension carries the role the prompt declares (${roles === 'tone-axis' ? 'tone is the axis' : 'the kind of customer is the axis'}), in ${STYLE_TITLE[style]}, whichever of the two dimension ids sorts first`,
+        generate: (seed) => build(seed).map((built) => built.item),
+        check: (runs, seed) =>
+          allOf(
+            build(seed).map((built, index) => {
+              const run = runs[index];
+              if (!run) return { pass: false, detail: 'no run' };
+              const outcome = checkMap(run, built.code, parts);
+              return { ...outcome, detail: `${ORDERS[index]} ids: ${outcome.detail}` };
+            }),
+          ),
+      });
     }
   }
   return out;
@@ -458,42 +474,69 @@ export function transformItems(): BankItem[] {
         level: levelOf('metamorphic'),
         component: BANK_COMPONENTS.extract,
         title: `${transform.title} leaves the map of a ${structure} prompt unchanged up to quotes`,
-        generate: (seed) => {
-          const spec = styledSpec({
-            styles: [structure, 'conditional'],
-            seed,
-            salt: id,
-            extras: { constraints: true, roles: 'tone-axis' },
-          });
-          const base = renderStyled(spec);
-          const variant = renderStyled(spec, transform.render);
-          return [
-            { label: 'base', sources: base.sources, planted: base.planted },
-            { label: transform.slug, sources: variant.sources, planted: variant.planted },
-          ];
-        },
-        check: (runs) => {
-          const [base, variant] = runs;
-          if (!base || !variant) return { pass: false, detail: 'missing runs' };
-          const problem = runProblem(base) ?? runProblem(variant);
-          if (problem) return { pass: false, detail: problem };
-          if (!base.result.ok || !variant.result.ok) return { pass: false, detail: 'no proposal' };
-          const parts: Parts = { ...MAP, roles: true };
-          const { lost, gained } = compareFacts(
-            proposalFacts(base.result.proposal, parts),
-            proposalFacts(variant.result.proposal, parts),
-          );
-          return lost.length === 0 && gained.length === 0
-            ? { pass: true, detail: 'equal maps' }
-            : {
-                pass: false,
-                detail: `the ${transform.slug} transform lost ${listFacts(lost)}; gained ${listFacts(gained)}${failedSections(variant)}`,
-              };
-        },
+        // Both orders of the persona ids run on every seed, and the base map must carry the declared roles:
+        // roles taken from the sorted ids, not the prompt, give equal maps on one order only.
+        generate: (seed) =>
+          TRANSFORM_ORDERS.flatMap((order) => {
+            const { base, variant } = transformPair(id, seed, order, transform.render);
+            return [
+              { label: `base.${order}`, sources: base.sources, planted: base.planted },
+              { label: `${transform.slug}.${order}`, sources: variant.sources, planted: variant.planted },
+            ];
+          }),
+        check: (runs, seed) =>
+          allOf(
+            TRANSFORM_ORDERS.map((order, index) => {
+              const base = runs[index * 2];
+              const variant = runs[index * 2 + 1];
+              if (!base || !variant) return { pass: false, detail: 'missing runs' };
+              const problem = runProblem(base) ?? runProblem(variant);
+              if (problem) return { pass: false, detail: `${order} ids: ${problem}` };
+              if (!base.result.ok || !variant.result.ok) return { pass: false, detail: 'no proposal' };
+              if (transform.slug === 'permute') {
+                const declared = checkMap(base, transformPair(id, seed, order, transform.render).base.code, {
+                  roles: true,
+                  dimension: (dimension) => PERSONA_IDS.has(dimension),
+                });
+                if (!declared.pass) {
+                  return { pass: false, detail: `${order} ids, the base map's roles are not the declared ones: ${declared.detail}` };
+                }
+              }
+              const parts: Parts = { ...MAP, roles: true };
+              const { lost, gained } = compareFacts(
+                proposalFacts(base.result.proposal, parts),
+                proposalFacts(variant.result.proposal, parts),
+              );
+              return lost.length === 0 && gained.length === 0
+                ? { pass: true, detail: `${order} ids: equal maps` }
+                : {
+                    pass: false,
+                    detail: `${order} ids: the ${transform.slug} transform lost ${listFacts(lost)}; gained ${listFacts(gained)}${failedSections(variant)}`,
+                  };
+            }),
+          ),
       });
     }
   }
   return out;
+}
+
+const TRANSFORM_ORDERS = ['tone-first', 'type-first'] as const;
+
+/** The base prompt of a transforms item and its transformed variant, for one order of the persona ids. */
+function transformPair(id: string, seed: number, order: (typeof TRANSFORM_ORDERS)[number], render: RenderStyled) {
+  const spec = styledSpec({
+    styles: [structureOf(id), 'conditional'],
+    seed,
+    salt: id,
+    extras: { constraints: true, roles: 'tone-axis', order },
+  });
+  return { base: renderStyled(spec), variant: renderStyled(spec, render) };
+}
+
+/** The structure a transforms item id ends with. */
+function structureOf(id: string): Style {
+  return id.split('.').at(-1) as Style;
 }
 
 /** Additivity and unit response on styled prompts. */
