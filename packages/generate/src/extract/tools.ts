@@ -42,7 +42,7 @@ type Tool = {
   /** The text a schema was read from, when it is a JSON string inside the file (quotes come from it). */
   inputText?: string;
   outputText?: string;
-  /** Cohere: the input is a mapping of parameters, each with a short type and a required flag. */
+  /** Cohere parameter_definitions or LangChain args: the input is a mapping of parameters, each with its type. */
   cohere?: boolean;
 };
 type Partition = { id: string; title: string; quote: string };
@@ -485,7 +485,7 @@ function readTools(node: unknown, path: string): { tools: Tool[] } | { errors: T
       continue;
     }
     names.add(candidate.name);
-    const cohere = mapAt(candidate.map, 'parameter_definitions');
+    const cohere = mapAt(candidate.map, 'parameter_definitions') ?? mapAt(candidate.map, 'args');
     const input = cohere ? { map: cohere, text: undefined } : schemaOf(candidate.map, ['input_schema', 'inputSchema', 'parameters']);
     const output = schemaOf(candidate.map, ['output_schema', 'outputSchema', 'returns']);
     tools.push({

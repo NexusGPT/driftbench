@@ -303,4 +303,13 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       expect(result.tools).toEqual(['findAccount']);
     }
   });
+
+  it('reads an args mapping of properties with no required list: every argument is optional', () => {
+    const file = { tools: [{ name: 'findAccount', args: { urgent: { type: 'boolean' } } }] };
+    const result = toolsPrepass(stringify(file), 'tools.yaml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.dimensions.map((d) => [d.id, d.values.map((v) => v.id.slice(d.id.length + 1))])).toEqual([
+      ['find_account.in.urgent', ['true', 'false', 'absent']],
+    ]);
+  });
 });

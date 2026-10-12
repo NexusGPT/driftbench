@@ -255,3 +255,15 @@ Sources read:
 What others do: Vertex REST uses snake case for the same structure Gemini SDKs write in camel case.
 
 What to try, and why: the tool pre-pass reads Vertex function_declarations
+
+## Iteration 22
+
+Question: packages/generate/src/extract/tools.ts: readTools finds no input schema under args, so a tool with an args mapping of properties gives none; tool-formats.langchain-args proves it.
+
+Sources read:
+* https://python.langchain.com/docs/how_to/custom_tools/ (a tool's args schema maps argument names to their schema)
+* packages/validators/src/ladders/map/bank/families/formats.ts (langchain-args)
+
+What others do: LangChain tools expose args as a mapping from argument name to schema, with no required list, so each argument is optional.
+
+What to try, and why: the tool pre-pass reads a LangChain args mapping
