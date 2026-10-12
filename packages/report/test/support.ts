@@ -45,6 +45,8 @@ export type StoredCampaignOptions = {
   campaignId: string;
   /** A sales fault of examples/acme/faults to run instead of the real Acme sales assistant. */
   fault?: string;
+  /** The agent reports a token count, a cost and a latency on each reply, as a model would: its model calls show on the timeline. */
+  reportsUsage?: boolean;
   modes?: RunMode[];
   repeats?: number;
   specs?: readonly LoadedSpec[];
@@ -56,6 +58,24 @@ export type StoredCampaignOptions = {
  * Runs the Acme conversation specs on the deterministic Acme sales assistant (or a fault wrapping it) through
  * the real runner and checks, with the CLI's drivers, and stores the campaign. The clock is fixed.
  */
+/** The adapter with a usage report on the first segment of each reply: tokens, a cost and a latency. */
+function withUsage(inner: AgentAdapter): AgentAdapter {
+  return {
+    ...inner,
+    async send(session, turn) {
+      const observed = await inner.send(session, turn);
+      return {
+        ...observed,
+        segments: observed.segments.map((segment, i) =>
+          i === 0
+            ? { ...segment, cost: { inputTokens: 120, outputTokens: 40, usd: 0.0021 }, latencyMs: 640 }
+            : segment,
+        ),
+      };
+    },
+  } as AgentAdapter;
+}
+
 export async function storeAcmeCampaign(store: Store, options: StoredCampaignOptions): Promise<Campaign> {
   const specs = options.specs ?? (await loadAcme());
   const modes = options.modes ?? ['T', 'F', 'P'];
@@ -65,9 +85,10 @@ export async function storeAcmeCampaign(store: Store, options: StoredCampaignOpt
   const target: TargetRef = fault
     ? { adapter: 'function', agent: 'acme-sales', variant: `fault-${fault.id}` }
     : { adapter: 'function', agent: 'acme-sales' };
-  const adapter: AgentAdapter = fault
+  const plain: AgentAdapter = fault
     ? faultAdapter(fault, () => localProvider())
     : await acmeFunctionAdapter();
+  const adapter: AgentAdapter = options.reportsUsage ? withUsage(plain) : plain;
   for (const entry of specs) await store.putSpec(entry);
   const counts = { T: 0, F: 0, P: 0 };
   for (const mode of modes) counts[mode] = repeats;
@@ -86,6 +107,7 @@ export async function storeAcmeCampaign(store: Store, options: StoredCampaignOpt
   await runCampaign({
     campaignId: campaign.campaignId,
     cells: planCampaign(specs, [target], modes, repeats).cells,
+    recordEvents: true,
     specFor: (cell) => bySpec.get(`${cell.specId}@${cell.specHash}`) as Spec,
     adapterFor: () => adapter,
     driver: (cell) =>
