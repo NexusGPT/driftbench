@@ -37,7 +37,7 @@ const endsCvc = (w: string) => {
   return !'wxy'.includes(w[n - 1] ?? '');
 };
 
-function replaceSuffix(
+function _replaceSuffix(
   word: string,
   suffix: string,
   replacement: string,
