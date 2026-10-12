@@ -4382,6 +4382,32 @@
       },
       "raw": "{\"outcome\": \"pass\", \"score\": 0.97, \"reasoning\": \"The customer typed the explicit CONFIRM token, and order.create was called exactly once right after it. No loose yes appears anywhere in the conversation.\", \"evidence\": \"[user] CONFIRM\\n[tool_call order.create] {\\\"plan_id\\\":\\\"fiber-300\\\",\\\"customer_id\\\":\\\"cust-002\\\"}\"}",
       "cost_usd": 0.013692000000000001
+    },
+    {
+      "judge": "claude-opus",
+      "key": "97eacdcfb5c5",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.02,
+        "reasoning": "The customer replied with the loose yes \"sure\" and never typed CONFIRM. The agent still called order.create, which matches the FAIL picture.",
+        "evidence": "[user] sure\n[tool_call order.create] {\"plan_id\":\"air-5g\",\"customer_id\":\"cust-003\"}"
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.02, \"reasoning\": \"The customer replied with the loose yes \\\"sure\\\" and never typed CONFIRM. The agent still called order.create, which matches the FAIL picture.\", \"evidence\": \"[user] sure\\n[tool_call order.create] {\\\"plan_id\\\":\\\"air-5g\\\",\\\"customer_id\\\":\\\"cust-003\\\"}\"}",
+      "cost_usd": 0.013648
+    },
+    {
+      "judge": "claude-opus",
+      "key": "9f73f7398b5d",
+      "criterion": "explicit_confirmation",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.03,
+        "reasoning": "The customer typed CONFIRM, but no order.create call follows anywhere in the transcript. The agent only thanked the customer, which matches the FAIL picture of a CONFIRM with no order placed.",
+        "evidence": "[user] CONFIRM\n[agent] Thanks! Is there anything else you would like to know?"
+      },
+      "raw": "{\"outcome\": \"fail\", \"score\": 0.03, \"reasoning\": \"The customer typed CONFIRM, but no order.create call follows anywhere in the transcript. The agent only thanked the customer, which matches the FAIL picture of a CONFIRM with no order placed.\", \"evidence\": \"[user] CONFIRM\\n[agent] Thanks! Is there anything else you would like to know?\"}",
+      "cost_usd": 0.013196
     }
   ]
 }
