@@ -263,7 +263,9 @@ export function compareCampaigns(
   );
   // An underpowered criterion that still regresses significantly gates: too few goldens to show parity
   // is no licence to pass a drop the false discovery rate control keeps.
-  const thin = criteria.filter((entry) => entry.underpowered && !entry.significantRegression);
+  const thin = criteria.filter(
+    (entry) => entry.underpowered && !entry.significantRegression && entry.nonInferior === false,
+  );
   const allPassDrop = allPass.mcnemar.pValue < alpha && table.regressed > table.improved;
   if (allPassDrop) {
     reasons.push(
