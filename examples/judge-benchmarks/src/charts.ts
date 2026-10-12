@@ -72,6 +72,8 @@ async function main(): Promise<void> {
       split: 'test',
       replayOnly: 'lenient',
       concurrency: 16,
+      // The same sample the runs recorded: drawn from all items, then its test part.
+      sampleBeforeSplit: true,
       ...(sample ? { sample } : {}),
     });
     if (report.stopped) throw new Error(`${bench} on ${model}: ${report.stopped}`);

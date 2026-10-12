@@ -65,6 +65,27 @@ export type Contestant = {
     reference?: string;
   }) => Prompt;
   readonly parsePoint?: (text: string) => PointDecision;
+  /** Independent solves per item; the reference is the solve whose final answer is the majority. Default 1. */
+  readonly referenceSamples?: number;
+  /**
+   * Long pointwise replies only: each part is read on its own, and the readings are given to the judge as
+   * reference notes. A reply longer than `threshold` characters is cut into parts of `size` characters.
+   */
+  readonly chunkedReading?: {
+    readonly threshold: number;
+    readonly size: number;
+    readonly read: (input: { question: string; part: string; criterion: string; index: number; total: number }) => Prompt;
+  };
+  /** A Python program the model writes for the question; its printed output is given to the judge as a reference. */
+  readonly codeCheck?: { readonly write: (question: string) => Prompt };
+  /**
+   * Pairwise rubric benchmarks: each reply gets one call that answers every rubric yes or no, and the reply with
+   * more satisfied rubrics wins. Neither reply is judged against the other, so no order is involved.
+   */
+  readonly checklist?: {
+    readonly reply: (input: { question: string; reply: string; rubrics: readonly string[] }) => Prompt;
+    readonly parse: (text: string, count: number) => boolean[] | undefined;
+  };
 };
 
 /** Every balanced JSON object in a text that parses, in order of where it starts. */
@@ -723,9 +744,73 @@ const driftbenchPooled: Contestant = {
   pooled: true,
 };
 
+/** Reference from the majority of five solves: the first solve is the one adaptive already records. */
+const driftbenchMajRef: Contestant = {
+  ...driftbenchAdaptive,
+  id: 'driftbench-majref',
+  source: 'driftbench-adaptive with the reference taken from the majority of five independent solves (tuning candidate)',
+  referenceSamples: 5,
+};
+
+/** Long replies read in parts before the verdict (tuning candidate). */
+const driftbenchChunked: Contestant = {
+  ...driftbenchAdaptive,
+  id: 'driftbench-chunked',
+  source: 'driftbench-adaptive with long replies read in parts, and the readings given as reference notes (tuning candidate)',
+  chunkedReading: {
+    threshold: 10000,
+    size: 4000,
+    read: ({ question, part, criterion, index, total }) => ({
+      system: '',
+      user: `You are reading part ${index} of ${total} of a longer reply to a question. Judge the criterion only from what the question asks.\n\nCriterion: ${criterion}\n\n<question>\n${question}\n</question>\n\n<part>\n${part}\n</part>\n\nIn at most five lines: state any step, calculation or claim in this part that is wrong, and the final answer this part gives if it gives one. If this part has no errors, say so.`,
+    }),
+  },
+};
+
+/** A program the model writes is run, and its output is a reference (tuning candidate). */
+const driftbenchCodeCheck: Contestant = {
+  ...driftbenchAdaptive,
+  id: 'driftbench-codecheck',
+  source: 'driftbench-adaptive with the printed output of a program the model writes as a reference (tuning candidate)',
+  codeCheck: {
+    write: (question) => ({
+      system: '',
+      user: `Write a short Python 3 program, standard library only, that works out the answer to the question below independently and prints only the final answer on one line. Output only the program, in one python code block.\n\n<question>\n${question}\n</question>`,
+    }),
+  },
+};
+
+/** Rubric checklist: one call per reply, every rubric answered yes or no (tuning candidate). */
+const driftbenchChecklist: Contestant = {
+  ...driftbench,
+  id: 'driftbench-checklist',
+  source: 'the rubrics answered one by one for each reply, the reply with more satisfied rubrics wins (tuning candidate)',
+  checklist: {
+    reply: ({ question, reply, rubrics }) => ({
+      system: 'You check a reply against a list of requirements, one at a time. Judge only what the reply itself says.',
+      user: `Question:\n${question}\n\nReply:\n${reply}\n\nRequirements:\n${rubrics.map((r, i) => `${i + 1}. ${r}`).join('\n')}\n\nFor each requirement, decide whether the reply satisfies it. Answer with one JSON object and nothing else: {"checks": [true or false for each requirement, in order]}`,
+    }),
+    parse: (text, count) => {
+      const checks = jsonObjects(text).filter((o) => Array.isArray(o.checks)).at(-1)?.checks as unknown[] | undefined;
+      if (!checks || checks.length !== count) return undefined;
+      const out: boolean[] = [];
+      for (const c of checks) {
+        if (c === true || c === 'true' || c === 'yes') out.push(true);
+        else if (c === false || c === 'false' || c === 'no') out.push(false);
+        else return undefined;
+      }
+      return out;
+    },
+  },
+};
+
 export const CANDIDATES: readonly Contestant[] = [
   driftbenchAdaptive,
   driftbenchChecked,
+  driftbenchChecklist,
+  driftbenchChunked,
+  driftbenchCodeCheck,
+  driftbenchMajRef,
   driftbenchPooled,
   driftbenchReference,
   driftbenchReference3,
