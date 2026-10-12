@@ -1,0 +1,31 @@
+id	proposed_fix
+roadmap-degenerate.stratifiedMean.infinity	In packages/stats/src (stratified estimators), make stratifiedMean reject or propagate a non-finite stratum value explicitly (throw a RangeError or return NaN) instead of returning a finite or wrong mean.
+roadmap-degenerate.clusteredStandardError.nan	In packages/stats/src (clustered standard error), add a finite-input guard so NaN in the data throws a clear error or returns NaN rather than a number.
+roadmap-purity.gTest	In packages/stats/src (tests module), make gTest a pure function: remove hidden state or input mutation and add the missing export or purity contract the roadmap item expects.
+roadmap.goelOkumotoFit.1	In packages/stats/src (reliability growth), implement or fix goelOkumotoFit so the weighted fit matches the roadmap reference case 1.
+degenerate.quantile.nan-quantile-1-2-3-nan	In packages/stats/src (descriptive quantile), reject NaN in the sample: throw or return NaN instead of sorting NaN into the order statistics.
+roadmap-coverage.betaPosteriorInterval.n10	In packages/stats/src (intervals), fix betaPosteriorInterval so its credible interval reaches nominal coverage at n=10 (correct quantile call or prior parameters).
+roadmap.tInterval.2	In packages/stats/src (intervals), correct tInterval for roadmap case 2: use the Student t critical value with n-1 degrees of freedom.
+roadmap.autocorrelation.2	In packages/stats/src (time series), fix autocorrelation at lag 2: demean by the full-sample mean and divide by the lag-0 sum of squares.
+roadmap-degenerate.aceEstimator.infinity	In packages/stats/src (richness estimators), guard aceEstimator against non-finite counts: throw or return NaN, not a finite estimate.
+roadmap-purity.benjaminiYekutieli	In packages/stats/src (multiple testing), make benjaminiYekutieli pure: copy the input p-value array before sorting so the caller's array is not mutated.
+roadmap.classificationReport.2	In packages/stats/src (calibration and classification), fix classificationReport for case 2: correct the precision, recall or F1 averaging and its zero-division handling.
+degenerate.unreliability.infinity-in-data	In packages/stats/src (reliability), make unreliability reject Infinity in the data with an explicit error instead of producing a finite result.
+roadmap-scale.sprtBernoulli	In packages/stats/src (sequential tests), make sprtBernoulli scale: use log-likelihood sums and avoid overflow or O(n^2) work at large n.
+roadmap-degenerate.icc21.infinity	In packages/stats/src (agreement), guard icc21 against non-finite ratings: throw or return NaN instead of a finite ICC.
+degenerate.normalCdf.domain-normalcdf-infinity	In packages/stats/src (special functions), make normalCdf return exactly 1 for +Infinity and 0 for -Infinity instead of NaN.
+roadmap-coverage.wilsonContinuity.n10	In packages/stats/src (intervals), fix wilsonContinuity: apply the continuity-corrected Wilson formula so coverage holds at n=10.
+roadmap-purity.powerTwoProportions	In packages/stats/src (power), make powerTwoProportions pure: no mutation of its options object and no hidden defaults shared between calls.
+roadmap-purity.mcnemarSampleSize	In packages/stats/src (power), make mcnemarSampleSize pure: no mutation of its inputs and no module-level state.
+roadmap-coverage.agrestiCoull.n5	In packages/stats/src (intervals), fix agrestiCoull at n=5: use the adjusted n+z^2 and p-tilde, and clamp the bounds to [0,1].
+roadmap-degenerate.ljungBox.nan	In packages/stats/src (time series), add a NaN guard to ljungBox so a NaN series throws or returns NaN rather than a finite statistic.
+roadmap-coverage.wilsonContinuity.n5	In packages/stats/src (intervals), fix wilsonContinuity at n=5: correct the continuity-correction terms and clamp bounds to [0,1].
+roadmap.bonferroni.1	In packages/stats/src (multiple testing), fix bonferroni case 1: multiply each p by m and cap at 1, or compare against alpha/m.
+roadmap-purity.oddsRatioInterval	In packages/stats/src (intervals), make oddsRatioInterval pure: no mutation of the 2x2 table input and no shared state.
+degenerate.unreliability.minus-infinity-in-data	In packages/stats/src (reliability), make unreliability reject -Infinity in the data with an explicit error, same guard as the +Infinity case.
+roadmap.tostEquivalence.4	In packages/stats/src (power and equivalence), fix tostEquivalence case 4: take the larger of the two one-sided p-values and use the right degrees of freedom.
+roadmap.brierScore.4	In packages/stats/src (calibration), fix brierScore case 4: average squared error over all samples and validate that probabilities lie in [0,1].
+roadmap-degenerate.brennanPrediger.infinity	In packages/stats/src (agreement), guard brennanPrediger against non-finite input: throw or return NaN.
+roadmap-degenerate.jackknifeRichness.infinity	In packages/stats/src (richness estimators), guard jackknifeRichness against non-finite counts: throw or return NaN.
+roadmap.expectedCalibrationError.4	In packages/stats/src (calibration), fix expectedCalibrationError case 4: use the correct bin edges and weight each bin by its sample share.
+roadmap.expectedCalibrationError.1	In packages/stats/src (calibration), fix expectedCalibrationError case 1: handle the bin edge of probability 1.0 and empty bins.
