@@ -11,6 +11,9 @@ const LANCZOS = [
 
 /** Natural log of the gamma function, Lanczos approximation (g = 7, n = 9). */
 export function logGamma(x: number): number {
+  if (Number.isNaN(x)) return Number.NaN;
+  // Poles at 0, -1, -2, ...: scipy gammaln gives +Infinity.
+  if (x <= 0 && Number.isInteger(x)) return Number.POSITIVE_INFINITY;
   if (x < 0.5) {
     // Reflection formula.
     return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * x))) - logGamma(1 - x);
@@ -65,6 +68,8 @@ function betaContinuedFraction(a: number, b: number, x: number): number {
 
 /** Regularized incomplete beta function I_x(a, b). */
 export function incompleteBeta(x: number, a: number, b: number): number {
+  if (!(x >= 0 && x <= 1)) throw new RangeError(`incompleteBeta: x must lie in [0, 1], got ${x}`);
+  if (!(a > 0) || !(b > 0)) throw new RangeError(`incompleteBeta: a and b must be positive, got ${a} and ${b}`);
   if (x <= 0) return 0;
   if (x >= 1) return 1;
   const front = Math.exp(logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
@@ -74,6 +79,7 @@ export function incompleteBeta(x: number, a: number, b: number): number {
 
 /** Quantile of the Beta(a, b) distribution, by bisection on the regularized incomplete beta. */
 export function betaQuantile(p: number, a: number, b: number): number {
+  if (!(p >= 0 && p <= 1)) throw new RangeError(`betaQuantile: p must lie in [0, 1], got ${p}`);
   if (p <= 0) return 0;
   if (p >= 1) return 1;
   let lo = 0;
@@ -196,6 +202,8 @@ export function normalQuantile(p: number): number {
 
 /** Survival function of the chi-square distribution with df degrees of freedom. */
 export function chiSquareSf(x: number, df: number): number {
+  if (!(df > 0)) throw new RangeError(`chiSquareSf: df must be positive, got ${df}`);
+  if (Number.isNaN(x)) return Number.NaN;
   if (x <= 0) return 1;
   return upperIncompleteGamma(df / 2, x / 2);
 }
