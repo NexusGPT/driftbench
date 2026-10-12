@@ -74,7 +74,7 @@ Phases 0, 1 and 2 are built, and most of phases 3 and G, with parts of phase 4 a
 
 The command line reaches the Acme example agents (`function:acme-sales`, `process:acme-ops`, and the pilot's control agent `function:acme-random`) and recorded sessions; the other adapters are used from code.
 
-Not built yet: the simulated user and the perturbing driver, the live estate runner (`estate run`, `estate mutate`), and the commands `report`, `compare`, `ci`, `monitor`, `select` and `holdout`, which print that they are not built yet. See [CLI](reference/cli.md#not-built-yet).
+Not built yet: the simulated user and the perturbing driver, the live estate runner (`estate run`, `estate mutate`), and the commands `select` and `holdout`, which print that they are not built yet. `compare`, `ci` and `monitor` are built: see [CLI](reference/cli.md#driftbench-compare-driftbench-ci-and-driftbench-monitor). See [CLI](reference/cli.md#not-built-yet).
 
 ## Roadmap
 
@@ -84,7 +84,7 @@ Not built yet: the simulated user and the perturbing driver, the live estate run
 | 1, runner | runner in free-running mode with a scripted user; machine checks for text, language, personal data, tools, skills, guards, cards, end state, budget, execution, artifacts, workspace and safety; store, cache and resume; cost and latency per segment; sandbox workspace; artifact readers; function, http, nexus and process adapters | built |
 | 2, judges | judge clients, the council and its cascade, calibration on fixture pairs and hand labels, judges for task artifacts | built |
 | 3, perturbation, drift and recovery | simulated user, perturbing driver with the ten deviation classes, stage classifier and ledger check, drift classes, recovery metrics, teacher-forced mode; the same deviations on code-agent tasks | in progress: teacher-forced mode, perturbed runs with the injecting driver, the stage classifier, the ledger check, the five drift classes and the recovery metrics are built; the simulated user and the perturbing driver are planned |
-| 4, statistics and gates | statistics functions with reference fixtures, the parity verdict, scorecard, run diff, JUnit output, CI gate, runtime battery | in progress: the statistics functions and the parity verdict function are built; `report`, `compare` and `ci` are registered and not built |
+| 4, statistics and gates | statistics functions with reference fixtures, the parity verdict, scorecard, run diff, JUnit output, CI gate, runtime battery | in progress: the statistics functions, the campaign verdict (`compare`), the CI gate (`ci`, a GitHub Action) and `monitor` are built |
 | G, the space of situations | the map of situations, its coverage and completeness, the map extractor, generation, the gate, task families, the variance pilot and intake | in progress: `space`, `extract`, `generate`, `gate`, `family`, `pilot` and `intake` are built; `select` and `holdout` are registered and not built |
 | E, estates | estate scan, lint, approval and map; the plan; test generation; replay; maintenance; the live runner and estate mutants | in progress: everything but the live runner and the mutants is built |
 | V, validators | the validator frame and six ladders | in progress: the frame, the judge ladder and the statistics ladder are built |

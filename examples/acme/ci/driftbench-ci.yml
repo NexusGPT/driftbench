@@ -54,7 +54,6 @@ jobs:
           target: function:acme-sales
           baseline: ${{ runner.temp }}/baseline.db
           store: ${{ runner.temp }}/candidate.db
-          margin: '30'
           report-path: driftbench-ci.json
 
       - name: Keep the summary

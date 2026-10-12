@@ -1162,6 +1162,51 @@ driftbench dataset restore <ref> --store <file> [--out <path>] [--force] [--json
 | 1 | `push`: an invalid spec. `diff`: they differ. `restore`: a file differs and `--force` was not given |
 | 2 | bad input: an unknown name or version, a path that cannot be read, a store that cannot be opened |
 
+## `driftbench compare`, `driftbench ci` and `driftbench monitor`
+
+```
+driftbench compare --baseline <campaign> --candidate <campaign> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <store file|campaign> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--flag <family>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
+driftbench monitor --store <file> --metric pass_rate|cost|latency [--window <n>] [--series] [--json]
+```
+
+| Command | Does |
+|---|---|
+| `compare` | compares a candidate campaign with a baseline campaign of the same store, golden by golden, and prints the verdict with its reasons |
+| `ci` | runs the specs on a candidate target, then compares the new campaign with the baseline by the same rule as `compare`, writes a JSON summary and exits on the verdict |
+| `monitor` | watches one metric across the campaigns of a store, oldest first, with CUSUM, Page-Hinkley and a sliding KS test |
+
+`compare` and `ci` give one verdict on one pair of campaigns. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page.
+
+| Verdict of `compare` | Verdict of `ci` | Exit | Means |
+|---|---|---|---|
+| `non-inferior` | `parity` | 0 | the all-pass flag and every gating criterion that is not underpowered have an upper bound below the margin, and no flag family is new on the candidate |
+| `regressed` | `regression` | 1 | evidence of a drop: a new flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved |
+| `unproven` | `not-shown-non-inferior` | 1 | no evidence of a drop, but an interval is wider than the margin; this means too few goldens, never a regression |
+| none | `incomplete` | 1 | a candidate cell did not run (stopped by the budget, or pending) |
+
+| Option | Effect |
+|---|---|
+| `--margin <points\|auto>` | the largest drop in pass rate tolerated, in percentage points. Default `auto`: the smallest half point at which the baseline compared with itself is non-inferior, printed with what sets it, and with a warning when it is above 15 points |
+| `--min-goldens <n>` | a gating criterion decided on fewer goldens is underpowered: reported, and left out of the parity test; default 30 |
+| `--strict` | underpowered criteria gate too, as before the minimum existed |
+| `--flag <family>` | `ci`: a verdict family whose failure is a gating flag; repeat for several; default `safety`, `forbidden`, `pii`, as in `compare` |
+| `--baseline` | `compare`: a campaign id. `ci`: a store file (its latest campaign) or a campaign id held in `--store`, read before the candidate runs |
+| `--out <file>` | `ci`: the JSON summary; default `driftbench-ci.json` |
+| `--cache` | `ci`: replay runs from the cache; off by default, so every cell runs the agent |
+| `--faults <path>` | `ci`: a fault set whose faults `--target fault:<id>` can name |
+| `--window <n>` | `monitor`: the campaigns that set the in-control level and the length of each KS segment; default 20 |
+
+`compare` prints, per criterion and for the all-pass flag, three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs.
+
+`monitor` exits 1 when two of its three detectors alarm, 0 otherwise. Measured rates and the example are in [examples/acme/ci](https://github.com/achammah/driftbench/tree/main/examples/acme/ci).
+
+| Exit code | `compare` and `ci` | `monitor` |
+|---|---|---|
+| 0 | parity | no shift |
+| 1 | regression, not shown non-inferior, or incomplete | a shift: two of three detectors alarmed |
+| 2 | bad input: a margin outside (0, 100), a bad `--min-goldens`, an unknown baseline or campaign, a fault target without `--faults`, no golden in common | bad input: an unknown metric, a window under 2, fewer than twice the window of campaigns |
+
 ## Not built yet
 
 These commands are registered and print that they are not built yet, with exit code 2:
@@ -1170,10 +1215,7 @@ These commands are registered and print that they are not built yet, with exit c
 |---|---|---|
 | `estate run`, `estate mutate` | run an estate test live on its runtime; estate mutants that delete or invert one atom (see [estate](../estate.md)) | not built yet |
 | `report` | the scorecard page, a run diff, JUnit XML | 4 |
-| `compare` | the parity verdict of a candidate against a baseline | 4 |
-| `ci` | exit 0 or 1 on the parity verdict and the gating failures | 4 |
 | `select`, `holdout` | selection and the holdout of the generated suite | G |
-| `monitor` | a placeholder; nothing is built behind it | not built yet |
 
 These do not exist as commands yet:
 
