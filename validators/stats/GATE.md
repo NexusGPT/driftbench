@@ -1,6 +1,10 @@
 # Stats validator: where the gate stands
 
-Status, 2026-10-12: the bank stays at its honest size until the owner decides. The owner will choose between lowering the stats forecast bar to what real needs support and widening the documented scope. No item is added to reach 100 causes. Every item names its need in [NEEDS.md](NEEDS.md).
+Status, 2026-10-12: the owner closed the validator design ("we've done enough work on validator honestly, let's just start building and iterating"). The stats validator merges with the honest numbers below as its recorded bar. It does not meet the section 12 contract (forecast 100, score after the pilot 0.4, 100 distinct causes), and no item was added to reach it. Every item names its need in [NEEDS.md](NEEDS.md).
+
+## The recorded bar
+
+The bar for the stats validator is the bank as measured: 651 items, a forecast of 73.21 iterations, a score after the pilot of 0.6851, and 62 distinct failing causes. A later bank change is judged against these numbers. It must not lower the forecast or the cause count without a reason written here.
 
 ## The numbers
 
