@@ -30,9 +30,9 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 1 |
 <!-- level-table:end -->
 
-This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, 574 deterministic items in 19 levels, each level's threshold 1. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails on 3 items. Bank score after the ten-iteration pilot: 222 of 574 items pass on every seed (0.3868); iteration 0 was 208 (0.3624). Hardness: 1.4 items fixed per iteration, 352 remaining, forecast 251 iterations. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10, each with the bank summary; `pnpm driftbench validate judges --hardness` prints the measurement and its gate (holds).
+This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, 599 deterministic items in 20 levels, each level's threshold 1. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails on 3 items. Bank score after the ten-iteration pilot: 235 of 599 items pass on every seed (0.3923); iteration 0 was 221 (0.3689). Hardness: 1.4 items fixed per iteration, 364 remaining, forecast 260 iterations, 166 distinct failing causes. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10, each with the bank summary; `pnpm driftbench validate judges --hardness` prints the measurement and its gate (holds).
 
-Every item carries a cause, the one change in packages/judges that makes it pass (`packages/validators/src/ladders/judges/v2/causes.ts`). After the pilot the 352 failing items hold 155 distinct causes. A failing item's detail ends with `Fix: <the change>`, so you can act on it without reading the validator's code: make that change in packages/judges, add its test, measure.
+Every item carries a cause, the one change in packages/judges that makes it pass (`packages/validators/src/ladders/judges/v2/causes.ts`). After the pilot the 364 failing items hold 166 distinct causes. A failing item's detail ends with `Fix: <the change>`, so you can act on it without reading the validator's code: make that change in packages/judges, add its test, measure.
 
 ## Floor
 
@@ -55,7 +55,7 @@ Iterations 1 to 10 each fixed one cause in `packages/judges/src/contract.ts`, ea
 ## Pitfalls
 
 * Never edit the bank (`packages/validators/src/ladders/judges/**`): a wrong item goes to the maintainer with the oracle's answer and a counter-example.
-* Do not read `packages/validators/test/judges/v2/witness.ts`. It proves every item can pass and holds an implementation of most of the roadmap; copying it would empty the ladder without building anything.
+* Do not read `packages/validators/test/judges/v2/witness.ts` (an exec/ branch cannot change it: packages/validators/test/ is protected). It proves every item can pass and holds an implementation of most of the roadmap; copying it would empty the ladder without building anything.
 * Scale items run under time budgets on the whole seed set; a laptop under load can push one over. Re-measure before you treat a scale failure as real.
 * One capability can flip a family at once (the screen flips injection, precision and attacks together; `agreementInterval` flips 15 calibration items). The pilot forecast comes from contract fixes of one or two items each; expect larger steps later and re-measure the forecast every ten iterations.
 * The ladder v1 cassettes are keyed by request hash: a change to the Acme agent or criteria needs `pnpm exec tsx packages/validators/test/judges/record.ts`.
