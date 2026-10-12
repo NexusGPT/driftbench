@@ -214,3 +214,19 @@ describe('loading a cassette with an entry of an unlisted judge', () => {
     }
   });
 });
+
+describe('loading a cassette with an entry holding an answer and an error', () => {
+  it('refuses it', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'judges-cassette-'));
+    try {
+      const path = join(dir, 'c.json');
+      const cassette = emptyCassette();
+      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(REQUEST);
+      const [entry] = cassette.entries as [Cassette['entries'][number]];
+      await saveCassette(path, { ...cassette, entries: [{ ...entry, error: 'boom' }] });
+      await expect(loadCassette(path)).rejects.toThrow(/answer and an error/);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+});

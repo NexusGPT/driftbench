@@ -220,6 +220,8 @@ export async function loadCassette(path: string): Promise<Cassette> {
   }
   for (const entry of parsed.data.entries) {
     if (!seen.has(entry.judge)) throw new JudgeError('config', `${path}: an entry names judge ${entry.judge}, which the cassette does not list`);
+    if (entry.error !== undefined && entry.answer !== undefined)
+      throw new JudgeError('config', `${path}: an entry holds both an answer and an error`);
   }
   return parsed.data;
 }
