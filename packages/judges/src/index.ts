@@ -124,6 +124,7 @@ export {
   parseCriterionFile,
 } from './criteria';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
+export { type LintIssue, lintCriterion } from './lint';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
 export { labelFilePath, readLabelFile, saveLabel } from './labels';
 export {
