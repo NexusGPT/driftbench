@@ -23,6 +23,15 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
     for (const item of bank) expect(item.component).toMatch(/^packages\/[a-z]+\/src/);
   });
 
+  it('tags every item with a cause, and the bank holds well over 100 distinct causes', () => {
+    expect(bank.every((item) => typeof item.cause === 'string' && item.cause.length > 0)).toBe(true);
+    expect(new Set(bank.map((item) => item.cause)).size).toBeGreaterThan(100);
+    const jeffreys = new Set(
+      bank.filter((item) => item.id.split('.')[1] === 'jeffreys').map((item) => item.cause),
+    );
+    expect([...jeffreys]).toEqual(['add jeffreys']);
+  });
+
   it('keeps version 1 as its first items: the reference groups and the simulated designs', () => {
     const ids = bank.map((item) => item.id);
     expect(ids).toContain('reference.special.logGamma');
@@ -49,7 +58,9 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
     expect(run.level).toBe(0);
     expect(run.failing?.id).toBe('reference');
     expect(run.failing?.items.map((item) => item.id)).toEqual(['reference.special.logGamma']);
-    expect(run.failing?.items[0]?.detail).toMatch(/^\[reference, tier 1\] 1 of \d+ cases differ/);
+    expect(run.failing?.items[0]?.detail).toMatch(
+      /^\[reference, tier 1, cause: match the reference values of special\.logGamma\] 1 of \d+ cases differ/,
+    );
     expect(run.rows.slice(1).every((row) => row.pass === null)).toBe(true);
   });
 
@@ -57,7 +68,9 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
     const ladder = statsLadder({ inProcess: true, filter: (item) => item.level === 'reference' });
     const run = await runLadder(ladder, { seed: 2, root: ROOT });
     expect(run.rows[0]?.observed).toBe(1);
-    expect(run.level).toBe(BANK_LEVELS.length);
+    expect(run.rows[0]?.bank?.every((entry) => entry.pass && entry.family === 'reference')).toBe(true);
+    // The other levels hold no item under this filter, and an empty bank measures 0.
+    expect(run.level).toBe(1);
   });
 
   it('stops an item that does not finish and goes on with the next one', async () => {
