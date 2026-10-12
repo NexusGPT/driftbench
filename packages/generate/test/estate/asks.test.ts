@@ -8,6 +8,7 @@ import {
   imperative,
   OUTSIDE_ASK,
   plain,
+  situationProblem,
 } from '../../src/estate/asks';
 import type { EstateAtom } from '../../src/estate/inputs';
 
@@ -167,13 +168,78 @@ describe('the quality floor of a code-written ask', () => {
         description: 'Schema changes, their reversal paths, and data backfills for app builds. Nothing else.',
       },
     });
-    expect(codeAsk('trigger', [migrations], []).text).toBe(
-      'Please help me with schema changes, their reversal paths.',
-    );
+    expect(codeAsk('trigger', [migrations], []).refused).toMatch(/describes the unit/);
     const lister = atom('skill.x.lister', {
       fields: { description: 'Builds, deploys, and operates hosted apps.' },
     });
     expect(codeAsk('trigger', [lister], []).text).toBe('Please build, deploy, and operate hosted apps.');
+  });
+
+  it("never asks for help with a unit's own description: it must name a task the user wants done", () => {
+    // The shapes a bench check found: a helper or skill described by what it is, not by a task.
+    const described = [
+      'Read-only audit lane for ledger checks: runs the checks, writes the verdicts, edits nothing.',
+      'The PERSISTENT route executor for delivery plans — ONE instance per week, re-awoken each day.',
+      'Schema changes, their reversal paths, and data backfills for the ledger. Nothing else.',
+      'Holds long-running, multi-step work on a delivery board (stops, vans, notes) so a session, compaction, or restart can resume it.',
+      'Northwind dispatches this to RECHECK an existing supplier draft before it is sent.',
+    ];
+    for (const description of described) {
+      const helper = atom('subagent.x.helper', { fields: { name: 'helper', description } });
+      const ask = codeAsk('trigger', [helper], []);
+      expect(ask.text, description).toBeUndefined();
+      expect(ask.refused, description).toMatch(/describes the unit/);
+      for (let variant = 1; variant <= 6; variant++) {
+        expect(codeAsk('trigger', [helper], [], false, undefined, variant).text, description).toBeUndefined();
+      }
+      expect(codeAsk('near_miss', [helper], []).text).toBeUndefined();
+      expect(codeAsk('misroute', [helper], ['other']).text).toBeUndefined();
+    }
+    const route = atom('route.x.hosted', {
+      situation: 'a hosted app/service w/ its own URL/runtime (custom UI · API)',
+    });
+    expect(codeAsk('trigger', [route], []).refused).toMatch(/describes the unit/);
+  });
+
+  it('refuses a phrase cut mid-sentence, and a situation that names a file or holds code', () => {
+    expect(askable('check the invoice against the')).toMatch(/cut mid-sentence/);
+    expect(askable('send the weekly report to')).toMatch(/cut mid-sentence/);
+    expect(askable('reconcile the invoice, e.g')).toMatch(/cut mid-sentence/);
+    expect(askable('send the weekly report to the carrier')).toBeUndefined();
+    expect(askable('handle this for me: install, login: npm i -g @northwind/cli')).toMatch(/holds code/);
+    expect(askable('run git push --force in the shell here')).toBeUndefined();
+    expect(situationProblem('the carrier needs carrier lookup --format json')).toMatch(/holds code/);
+    const reporter = atom('skill.x.reporter', {
+      fields: {
+        name: 'reporter',
+        description: 'Reports late vans, requests credit notes, and tracks claims for the depot.',
+      },
+    });
+    expect(codeAsk('trigger', [reporter], []).text).toBe('Please report late vans, request credit notes.');
+    expect(askable('handle this for me: every task follows the steps in .claude/steps.json')).toMatch(
+      /names the file/,
+    );
+    // A list in a description is kept whole, never cut at ", or" into "so a session, compaction".
+    const keeper = atom('skill.x.keeper', {
+      fields: {
+        name: 'keeper',
+        description: 'Keep the delivery board current so a session, compaction, or restart can resume it.',
+      },
+    });
+    expect(codeAsk('trigger', [keeper], []).text).toBe(
+      'Please keep the delivery board current so a session, compaction, or restart can resume it.',
+    );
+    const reads = [
+      'Comes back the wrong size: Read references/sizes.md. The fit rules, the size traps.',
+      'Look the carrier up with carrier lookup <trackingId> --format json.',
+    ];
+    for (const readWhen of reads) {
+      const reference = atom('reference.x.sizes', { fields: { readWhen } });
+      const skill = atom('skill.x.tracker', {
+        fields: { name: 'tracker', description: 'Track a shipment and report its status.' },
+      });
+      expect(codeAsk('trigger', [reference, skill], []).refused, readWhen).toMatch(/situation/);
+    }
   });
 
   it('refuses an act that names a code or is cut inside brackets', () => {

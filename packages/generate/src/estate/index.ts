@@ -11,6 +11,7 @@ export {
   OUTSIDE_ASK,
   plain,
   RESUME_ASK,
+  situationProblem,
 } from './asks';
 export { type ReadYaml, readEstateYaml, type YamlSchema } from './files';
 export {

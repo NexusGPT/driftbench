@@ -43,8 +43,8 @@
   "summary": {
     "specs": 1383,
     "blocks": 1378,
-    "complete": 1300,
-    "incomplete": 83,
+    "complete": 1293,
+    "incomplete": 90,
     "judged": 349
   },
   "unit": {
@@ -57,7 +57,7 @@
   "sources": {
     "asks": {
       "bank": 431,
-      "code": 861,
+      "code": 854,
       "session": 0,
       "none": 8
     },
@@ -66,8 +66,8 @@
       "no-change:denied": 2,
       "no-change:guard": 23,
       "no-change:negative": 58,
-      "no-change:read-only": 18,
-      "no-delete": 333,
+      "no-change:read-only": 17,
+      "no-delete": 327,
       "static": 8
     },
     "judged": 216
@@ -125,8 +125,8 @@
     "read_when": {
       "rows": 9,
       "specs": 9,
-      "complete": 8,
-      "incomplete": 1
+      "complete": 1,
+      "incomplete": 8
     },
     "script_fixture": {
       "rows": 2,
@@ -259,19 +259,27 @@
     "live": {
       "rows": 1340,
       "specs": 1340,
-      "complete": 1263,
-      "incomplete": 77
+      "complete": 1256,
+      "incomplete": 84
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 61,
+      "specs": 69,
       "atoms": [
         "instruction.invoice-reconcile.a-line-matches-on-article-code",
         "instruction.invoice-reconcile.an-invoice-line-with-no-order",
         "instruction.memory-memory.no-delivery-on-a-public-holiday",
         "instruction.supplier-email.no-price-or-date-in-a",
+        "reference.invoice-reconcile.read-references-currency-table-md",
+        "reference.invoice-reconcile.read-references-matching-rules-md",
+        "reference.memory-memory.read-supplier-languages-md",
+        "reference.standing.read-claude-memory-memory-md",
+        "reference.standing.read-claude-skills-invoice-reconcile-references",
+        "reference.standing.read-claude-steps-json",
+        "reference.supplier-email.read-claude-memory-supplier-languages-md",
+        "reference.weekly-report.read-references-kpi-definitions-md",
         "register.route-planner.the-plan-is-a-table-of"
       ],
       "details": [
@@ -279,7 +287,15 @@
         "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.memory-memory.no-delivery-on-a-public-holiday (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.supplier-email.no-price-or-date-in-a (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (register.route-planner.the-plan-is-a-table-of (title)): the act does not start with a verb: \"\""
+        "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (situation)): the act names the file languages](supplier-languages.md):: \"handle this for me: [Supplier languages](supplier-languages.md): which language each supplier reads\"",
+        "no task in the atom's words (reference.standing.read-claude-memory-memory-md (situation)): the act names the file .claude/memory/MEMORY.md: \"handle this for me: read .claude/memory/MEMORY.md at the start of every session\"",
+        "no task in the atom's words (reference.standing.read-claude-skills-invoice-reconcile-references (situation)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"handle this for me: before editing any invoice file: Read .claude/skills/invoice-reconcile/references/matching-rules.md\"",
+        "no task in the atom's words (reference.standing.read-claude-steps-json (situation)): the act names the file .claude/steps.json:: \"handle this for me: every task follows the step list in .claude/steps.json: plan, do, verify, report\"",
+        "no task in the atom's words (register.route-planner.the-plan-is-a-table-of (title)): the act does not start with a verb: \"\"",
+        "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/currency-table.md: \"When the invoice is not in EUR, read references/currency-table.md to convert every amount\"",
+        "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/matching-rules.md: \"Read references/matching-rules.md before matching any line\"",
+        "no usable situation (skill.supplier-email.skill-supplier-email (asks it names)): the situation names the file .claude/memory/supplier-languages.md: \"Write in the supplier's language, as listed in .claude/memory/supplier-languages.md\"",
+        "no usable situation (skill.weekly-report.skill-weekly-report (asks it names)): the situation names the file References/kpi-definitions.md: \"References/kpi-definitions.md when a number needs a definition\""
       ]
     },
     {
