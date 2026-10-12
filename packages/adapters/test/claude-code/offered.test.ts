@@ -56,9 +56,9 @@ describe('offered tools from the init record', () => {
       ['Read', 'WebFetch'],
       ['Read'],
     ]);
-    expect((session.blocks[1]?.observed.raw as ReplayRaw).kept.map((entry) => entry.reason)).toEqual([
-      'the init record (its tools are the offered tools)',
-    ]);
+    expect(
+      (session.blocks[1]?.observed.raw as ReplayRaw | undefined)?.kept.map((entry) => entry.reason),
+    ).toEqual(['the init record (its tools are the offered tools)']);
   });
 
   it('without an init record the field is absent, never empty', () => {
