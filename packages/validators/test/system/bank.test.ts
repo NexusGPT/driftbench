@@ -24,7 +24,7 @@ const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const manifest = JSON.parse(
   readFileSync(new URL('../../fixtures/system/bank-manifest.json', import.meta.url), 'utf8'),
 ) as {
-  items: Array<Pick<BankItem, 'id' | 'family' | 'tier' | 'level' | 'source' | 'component'>>;
+  items: Array<Pick<BankItem, 'id' | 'family' | 'tier' | 'level' | 'source' | 'component' | 'cause'>>;
 };
 
 describe('the system bank (docs/validators.md section 12)', () => {
@@ -40,13 +40,14 @@ describe('the system bank (docs/validators.md section 12)', () => {
 
   it('matches its manifest, so a change to the bank shows in a diff', () => {
     expect(
-      bank.map(({ id, family, tier, level, source, component }) => ({
+      bank.map(({ id, family, tier, level, source, component, cause }) => ({
         id,
         family,
         tier,
         level,
         source,
         component,
+        cause,
       })),
     ).toEqual(manifest.items);
   });
@@ -76,6 +77,7 @@ describe('a level of the bank', () => {
     component: 'a.ts',
     source: 'contract',
     title: 'passes',
+    cause: 'probe a',
     check: async () => PASS,
   };
   const failing: BankItem = {
@@ -86,6 +88,7 @@ describe('a level of the bank', () => {
     component: 'b.ts',
     source: 'contract',
     title: 'fails',
+    cause: 'probe b',
     check: async () => fail('planted reason'),
   };
   const throwing: BankItem = {
@@ -96,6 +99,7 @@ describe('a level of the bank', () => {
     component: 'c.ts',
     source: 'contract',
     title: 'throws',
+    cause: 'probe c',
     check: async () => {
       throw new Error('planted throw');
     },
@@ -110,6 +114,7 @@ describe('a level of the bank', () => {
         component: 'b.ts',
         family: 'probe',
         tier: 3,
+        cause: 'probe b',
         detail: 'asks: fails. found: planted reason',
       },
       {
@@ -117,6 +122,7 @@ describe('a level of the bank', () => {
         component: 'c.ts',
         family: 'probe',
         tier: 2,
+        cause: 'probe c',
         detail: 'asks: throws. found: the item threw: planted throw',
       },
     ]);
@@ -170,7 +176,7 @@ describe('items of every family on the current code', () => {
   const bank = systemBank();
   const scratch = scratchFolder();
   afterAll(() => scratch.remove());
-  // One item per family that holds on main at the bank's measurement, and the roadmap items that cannot.
+  // One item per family that holds on main at the bank's measurement.
   const holds = [
     'store/round-trip/plain',
     'resume/half/c1',
@@ -184,6 +190,7 @@ describe('items of every family on the current code', () => {
     'class/x4-format/T',
     'fields/succession/alternate',
     'recovery/d1/immediate',
+    'version/compare/x1-local/first',
     'variance/icc/10x3/seeded',
     'version/paired/x1-local/last/4',
     'replay/one-fault/P/http-flaky',
@@ -191,23 +198,11 @@ describe('items of every family on the current code', () => {
     'cli/run/failing-list',
     'scale/tool-calls/x10',
   ];
-  const roadmap = ['scorecard/junit/tests', 'compare/summary/table', 'compare/cell/x1/first'];
   for (const id of holds) {
     it(`holds: ${id}`, async () => {
       const item = bank.find((each) => each.id === id) as BankItem;
       expect(item, id).toBeDefined();
       await expect(item.check({ seed: 5, root: ROOT, scratch: scratch.path })).resolves.toEqual(PASS);
     }, 60_000);
-  }
-  for (const id of roadmap) {
-    it(`says how to build it while it fails: ${id}`, async () => {
-      const item = bank.find((each) => each.id === id) as BankItem;
-      const result = await item.check({ seed: 5, root: ROOT, scratch: scratch.path });
-      // Once the report package builds the capability the item passes; until then it names the contract.
-      if (!result.pass)
-        expect(result.detail).toMatch(
-          /is not built: add it to packages\/report\/src\/index\.ts with the contract in packages\/validators\/src\/ladders\/system\/bank\/report\.ts/,
-        );
-    });
   }
 });

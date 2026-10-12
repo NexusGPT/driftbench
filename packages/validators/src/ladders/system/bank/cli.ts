@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse, stringify } from 'yaml';
 import { between, rngFor } from '../random';
-import { type BankItem, expectAll, fail, PASS, type Tier } from './types';
+import { type BankItem, type Draft, expectAll, fail, PASS, type Tier, withCauses } from './types';
 
 /**
  * Level 10: the command line. Exit codes and JSON fields of `campaign plan`, `run`, `status`, `resume`,
@@ -945,7 +945,7 @@ jsonCase(
     ]),
 );
 
-function itemsOf(cases: Case[], family: string): BankItem[] {
+function itemsOf(cases: Case[], family: string): Draft[] {
   return cases.map((each) => ({
     id: `cli/${each.id}`,
     family,
@@ -968,5 +968,5 @@ function itemsOf(cases: Case[], family: string): BankItem[] {
 }
 
 export function cliItems(): BankItem[] {
-  return [...itemsOf(exitCases, 'cli-exit-codes'), ...itemsOf(jsonCases, 'cli-json-fields')];
+  return withCauses([...itemsOf(exitCases, 'cli-exit-codes'), ...itemsOf(jsonCases, 'cli-json-fields')]);
 }

@@ -42,6 +42,12 @@ export type BankItem = {
   source: ItemSource;
   /** What capability the item asks for, in one sentence. */
   title: string;
+  /**
+   * The one change that would make the item pass (docs/validators.md section 12.4), as a short sentence
+   * naming the component and the behaviour. Items that one change would turn green share a cause, word for
+   * word, and count once.
+   */
+  cause: string;
   check(ctx: ItemContext): Promise<ItemResult>;
 };
 
@@ -71,3 +77,14 @@ export const BANK_LEVELS = [
   { level: 10, id: 'command-line', name: 'command-line exit codes and output fields' },
   { level: 11, id: 'scale', name: 'scale: the same answers at ten and a hundred times the size' },
 ] as const;
+
+/** An item before its cause is set: a module states shared causes where one change fixes many items. */
+export type Draft = Omit<BankItem, 'cause'> & { cause?: string };
+
+/** The items with their causes: a stated cause, else the rule given, else the title (one item, one cause). */
+export function withCauses(
+  items: readonly Draft[],
+  rule: (item: Draft) => string | undefined = () => undefined,
+): BankItem[] {
+  return items.map((item) => ({ ...item, cause: item.cause ?? rule(item) ?? item.title }));
+}

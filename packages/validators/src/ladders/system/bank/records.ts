@@ -378,6 +378,7 @@ function storeRoundTrip(): BankItem[] {
   const out: BankItem[] = VARIANTS.map((variant) => ({
     id: `store/round-trip/${variant.name}`,
     family: 'store-roundtrip',
+    cause: `the store writes the ${variant.name} part of a run record and reads it back unchanged after a reopen`,
     tier: variant.tier,
     level: 1,
     component: STORE,
@@ -407,7 +408,9 @@ function storeRoundTrip(): BankItem[] {
     },
   }));
 
-  const extra: Array<Omit<BankItem, 'family' | 'level' | 'component' | 'source'> & { component?: string }> = [
+  const extra: Array<
+    Omit<BankItem, 'family' | 'level' | 'component' | 'source' | 'cause'> & { component?: string }
+  > = [
     {
       id: 'store/filters',
       tier: 2,
@@ -718,6 +721,7 @@ function storeRoundTrip(): BankItem[] {
     out.push({
       id: each.id,
       family: 'store-roundtrip',
+      cause: `store: ${each.title}`,
       tier: each.tier,
       level: 1,
       component: each.component ?? STORE,
@@ -824,8 +828,25 @@ async function memoryCampaign(
 
 function resumeBudget(): BankItem[] {
   const out: BankItem[] = [];
-  const add = (id: string, tier: Tier, component: string, title: string, check: BankItem['check']) =>
-    out.push({ id, family: 'resume-budget', tier, level: 1, component, source: 'contract', title, check });
+  const add = (
+    id: string,
+    tier: Tier,
+    component: string,
+    title: string,
+    check: BankItem['check'],
+    cause = `campaign runner: ${title}`,
+  ) =>
+    out.push({
+      id,
+      family: 'resume-budget',
+      tier,
+      level: 1,
+      component,
+      source: 'contract',
+      title,
+      cause,
+      check,
+    });
 
   for (const concurrency of [1, 4]) {
     for (const cut of ['none', 'one', 'half', 'all-but-one'] as const) {
@@ -883,6 +904,7 @@ function resumeBudget(): BankItem[] {
             ],
           ]);
         },
+        'runCampaign reuses the completed cells of a campaign on resume and runs only the others, once each',
       );
     }
   }
@@ -960,6 +982,7 @@ function resumeBudget(): BankItem[] {
           [stopped === cells.length - expected, `${stopped} cells carry a budget stop`],
         ]);
       },
+      'runCampaign stops a cell before it starts once the campaign spend has reached the budget',
     );
   }
 

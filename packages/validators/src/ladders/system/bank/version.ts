@@ -1,44 +1,19 @@
-import { canonicalJson, compareTranscripts, type RunResult } from '@driftbench/core';
-import * as report from '@driftbench/report';
+import { canonicalJson, compareTranscripts, type LoadedSpec, type RunResult } from '@driftbench/core';
+import { type CampaignData, compareCampaigns } from '@driftbench/report';
 import * as stats from '@driftbench/stats';
 import { SYSTEM_COMPONENTS } from '../components';
 import { between, rngFor } from '../random';
-import { type BankItem, expectAll, fail, type Tier } from './types';
+import { type BankItem, type Draft, expectAll, fail, type Tier, withCauses } from './types';
 import { behavioursFor, type Faults, plantedFlow, runScenario } from './world';
 
 /**
- * Level 8: drift between two versions is reported at the right cell, and the scorecard reports every field.
- *
- * Part of this level asks for capabilities driftbench has (the paired verdict names the regressed spec; the
- * transcript comparison names the first block that differs). The rest is the roadmap of section 12.2, item 1:
- * the report package of phase 4 (docs/reference/cli.md, "Planned commands": report scorecard, report diff,
- * report junit, compare). Its items are written against the contract below, proposed by this bank and to be
- * confirmed by the report lane; an item fails with "not built" until the function exists.
- *
- *   report.scorecard(runs) -> {
- *     overall: { runs, passing, passRate, interval: { lower, upper } }         // Wilson on runs that passed
- *     cells: [{ specId, mode, perturbationId?, runs, passing, passRate,
- *               passAtK: number[], passHatK: number[] }]                       // k = 1 .. runs, stats.passAtK / passK
- *     drift: { X1_local, X2_contradiction, X3_flow, X4_format, X5_tool }       // failing blocks carrying each class
- *     firstDriftBlock: { min: number | null }
- *     recovery: { measured, safeActionRate: number | null, labels: { immediate, late, never } }
- *     cost: { usd }
- *   }
- *   report.diff(baseline: RunResult, candidate: RunResult) -> {
- *     firstBlock: number | null, changes: [{ block, verdict, from, to }] }    // gating verdicts whose outcome moved
- *   report.compare(baseline: RunResult[], candidate: RunResult[], { margin }) -> {
- *     nonInferior, regressed: [{ specId, block, verdict }] }                  // the first failing block of each regressed spec
- *   report.junit(runs) -> string                                              // <testsuite tests failures>, one testcase per run
+ * Level 8: drift between two versions is reported at the right cell: the paired verdict names the regressed
+ * spec, the transcript comparison names the first block that differs, and the report package's
+ * compareCampaigns counts exactly that unit as regressed (docs/comparison.md). The report's own numbers are
+ * checked against a brute-force recomputation in claims/report.ts.
  */
 
-const REPORT = 'packages/report/src/index.ts';
-
-type Fn = (...args: unknown[]) => unknown;
-
-function reportFn(name: string): Fn | undefined {
-  const value = (report as Record<string, unknown>)[name];
-  return typeof value === 'function' ? (value as Fn) : undefined;
-}
+const REPORT = 'packages/report/src/compare.ts';
 
 /** Two versions of S specs: the candidate fails spec `bad` at block `at` with the operator `cls`. */
 async function twoVersions(seed: number, tag: string, specs: number, cls: string, where: 'first' | 'last') {
@@ -67,8 +42,8 @@ async function twoVersions(seed: number, tag: string, specs: number, cls: string
 
 const allPass = (run: RunResult) => run.status === 'completed' && run.blocks.every((block) => block.pass);
 
-function versionDrift(): BankItem[] {
-  const out: BankItem[] = [];
+function versionDrift(): Draft[] {
+  const out: Draft[] = [];
   const classes = ['X1_local', 'X5_tool', 'X3_flow'] as const;
   for (const cls of classes) {
     for (const where of ['first', 'last'] as const) {
@@ -118,43 +93,66 @@ function versionDrift(): BankItem[] {
   for (const cls of [...classes, 'X4_format', 'D6_instruction_in_data', 'D4_loose_confirmation'] as const) {
     for (const where of ['first', 'last'] as const) {
       out.push({
-        id: `version/diff/${cls.toLowerCase().replace('_', '-')}/${where}`,
+        id: `version/compare/${cls.toLowerCase().replace('_', '-')}/${where}`,
         family: 'version-drift',
         tier: 3,
         level: 8,
         component: REPORT,
-        source: 'parity',
-        title: `report.diff of two runs differing by ${cls} at the ${where} block names that block and the verdicts that moved from pass to fail`,
+        source: 'contract',
+        title: `compareCampaigns pairs two versions spec by spec and counts exactly the spec the candidate broke with ${cls} at its ${where} block as regressed (docs/comparison.md)`,
+        cause:
+          'compareCampaigns pairs units by spec and mode and counts a unit regressed when the baseline passes every repeat and the candidate does not',
         async check({ seed }) {
-          const diff = reportFn('diff');
-          if (!diff)
-            return fail(
-              'report.diff is not built: add it to packages/report/src/index.ts with the contract in packages/validators/src/ladders/system/bank/version.ts',
-            );
-          const { baseline, candidate, bad, at } = await twoVersions(
+          const { baseline, candidate, bad } = await twoVersions(
             seed,
-            `diff-${cls}-${where}`,
-            3,
+            `compare-${cls}-${where}`,
+            4,
             cls,
             where,
           );
-          const result = diff(baseline[bad], candidate[bad]) as {
-            firstBlock?: number;
-            changes?: Array<{ block: number; verdict: string; from: string; to: string }>;
+          const data = (runs: RunResult[], campaignId: string) => {
+            const specs = new Map<string, LoadedSpec>();
+            for (const run of runs)
+              specs.set(`${run.specId}@${run.specHash}`, {
+                ok: true,
+                path: 'bank',
+                spec: { id: run.specId } as never,
+                hash: run.specHash,
+                warnings: [],
+              } as never);
+            return {
+              campaign: {
+                campaignId,
+                specs: runs.map((run) => ({ id: run.specId, hash: run.specHash })),
+                targets: [runs[0]?.target ?? { adapter: 'function' }],
+                modes: ['F'],
+                repeats: { T: 0, F: 1, P: 0 },
+                budgetUsd: 0,
+                judge: { mode: 'system1', judges: [] },
+                createdAt: '2026-10-11T00:00:00.000Z',
+              },
+              specs,
+              runs,
+            } as unknown as CampaignData;
           };
-          const moved = (candidate[bad]?.blocks[at]?.verdicts ?? [])
-            .filter((verdict) => verdict.gating && verdict.outcome === 'fail')
-            .map((verdict) => verdict.id)
-            .sort();
-          const reported = (result.changes ?? [])
-            .filter((change) => change.block === at && change.from === 'pass' && change.to === 'fail')
-            .map((change) => change.verdict)
-            .sort();
+          const result = compareCampaigns(data(baseline, 'c-base'), data(candidate, 'c-cand'), {
+            margin: 0.1,
+          });
+          const regressed = result.pairs
+            .filter((pair) => pair.baseline.allPass && !pair.candidate.allPass)
+            .map((pair) => pair.specId);
           return expectAll([
-            [result.firstBlock === at, `firstBlock ${result.firstBlock}, planted ${at}`],
             [
-              canonicalJson(reported) === canonicalJson(moved),
-              `changes ${canonicalJson(reported)}, expected ${canonicalJson(moved)}`,
+              result.pairs.length === baseline.length,
+              `${result.pairs.length} pairs, ${baseline.length} specs`,
+            ],
+            [
+              canonicalJson(regressed) === canonicalJson([baseline[bad]?.specId]),
+              `regressed units ${canonicalJson(regressed)}, planted ${baseline[bad]?.specId}`,
+            ],
+            [
+              result.allPass.table.regressed === 1 && result.allPass.table.improved === 0,
+              `table ${canonicalJson(result.allPass.table)}`,
             ],
           ]);
         },
@@ -165,5 +163,9 @@ function versionDrift(): BankItem[] {
 }
 
 export function versionItems(): BankItem[] {
-  return versionDrift();
+  return withCauses(versionDrift(), (item) =>
+    item.id.startsWith('version/paired/')
+      ? 'the paired verdict names the regressed spec and the transcript comparison names its first differing block'
+      : undefined,
+  );
 }

@@ -2,13 +2,18 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type BankEntry, bankMeasure, type Measure } from '../../../ladder';
+import { adaptersItems } from './claims/adapters';
+import { checksItems } from './claims/checks';
+import { cliItems as cliClaimItems } from './claims/cli';
+import { conceptsItems } from './claims/concepts';
+import { reportItems } from './claims/report';
+import { specItems } from './claims/spec';
 import { cliItems } from './cli';
 import { fieldItems } from './fields';
 import { precisionItems } from './precision';
 import { reachItems } from './reach';
 import { recordItems } from './records';
 import { replayItems } from './replay';
-import { reportRoadmapItems } from './report';
 import { scaleItems } from './scale';
 import { BANK_LEVELS, type BankItem, type ItemResult } from './types';
 import { varianceItems } from './variance';
@@ -29,7 +34,12 @@ export function systemBank(): BankItem[] {
     ...fieldItems(),
     ...varianceItems(),
     ...versionItems(),
-    ...reportRoadmapItems(),
+    ...reportItems(),
+    ...checksItems(),
+    ...specItems(),
+    ...conceptsItems(),
+    ...cliClaimItems(),
+    ...adaptersItems(),
     ...replayItems(),
     ...cliItems(),
     ...scaleItems(),
@@ -49,6 +59,7 @@ export function bankProblems(items: readonly BankItem[]): string[] {
   for (const [family, count] of countBy(items, (item) => item.family)) {
     if (count < MIN_FAMILY) problems.push(`the family ${family} holds ${count} items, under ${MIN_FAMILY}`);
   }
+  for (const item of items) if (item.cause.trim() === '') problems.push(`the item ${item.id} names no cause`);
   for (const tier of [1, 2, 3, 4, 5])
     if (!items.some((item) => item.tier === tier)) problems.push(`no item of tier ${tier}`);
   for (const level of BANK_LEVELS)
@@ -103,6 +114,7 @@ export async function levelMeasure(items: readonly BankItem[], seed: number, roo
         component: item.component,
         family: item.family,
         tier: item.tier,
+        cause: item.cause,
         pass: result.pass,
         ...(result.pass ? {} : { detail: `asks: ${item.title}. found: ${result.detail}` }),
       });

@@ -10,7 +10,16 @@ import { GUARD, LOOKUP, withForbiddenCall } from '../family';
 import { type Behaviour, DETOUR, type Flow, followerReply, type RawSpec } from '../plant';
 import { between, rngFor } from '../random';
 import { DOC_CLASS } from './reach';
-import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from './types';
+import {
+  type BankItem,
+  type Draft,
+  expectAll,
+  fail,
+  type ItemResult,
+  PASS,
+  type Tier,
+  withCauses,
+} from './types';
 import { behavioursFor, failingList, loadRaw, plantedFlow, runScenario } from './world';
 
 /**
@@ -22,12 +31,12 @@ import { behavioursFor, failingList, loadRaw, plantedFlow, runScenario } from '.
 const RUNNER = SYSTEM_COMPONENTS.runner;
 
 function add(
-  out: BankItem[],
+  out: Draft[],
   id: string,
   tier: Tier,
   component: string,
   title: string,
-  check: BankItem['check'],
+  check: Draft['check'],
   level = 5,
   family = 'run-fields',
 ): void {
@@ -65,8 +74,8 @@ const PATTERNS: Array<[string, number[]]> = [
   ['back-half', [4, 5, 6, 7]],
 ];
 
-function runFields(): BankItem[] {
-  const out: BankItem[] = [];
+function runFields(): Draft[] {
+  const out: Draft[] = [];
   for (const [name, positions] of PATTERNS) {
     add(
       out,
@@ -599,7 +608,8 @@ export function documentedRecovery(plan: RecoveryPlan): Record<string, unknown> 
   return {
     injectedAt: plan.k,
     turnsToRecover: plan.turns ?? null,
-    label: plan.turns === undefined ? 'never' : plan.turns === 0 ? 'immediate' : 'late',
+    // docs/concepts/recovery.md, "The label rule": immediate when turnsToRecover is at most within_blocks.
+    label: plan.turns === undefined ? 'never' : plan.turns <= plan.within ? 'immediate' : 'late',
     collateral: plan.turns === undefined ? 0 : plan.collateral,
     ...(SAFE_CLASSES.has(plan.cls) ? { safeAction: !plan.unsafe } : {}),
     ...(plan.cls === 'D3_contradiction' ? { clarified: plan.clarify } : {}),
@@ -633,8 +643,8 @@ const RECOVERY_SHAPES: Array<{
   { name: 'never', turns: undefined, within: 1, collateral: 0, tier: 2 },
 ];
 
-function recoveryItems(): BankItem[] {
-  const out: BankItem[] = [];
+function recoveryItems(): Draft[] {
+  const out: Draft[] = [];
   RECOVERY_CLASSES.forEach((cls, index) => {
     for (const shape of RECOVERY_SHAPES) {
       const unsafe = SAFE_CLASSES.has(cls) && shape.turns !== 0 && index % 2 === 0;
@@ -687,5 +697,11 @@ function recoveryItems(): BankItem[] {
 }
 
 export function fieldItems(): BankItem[] {
-  return [...runFields(), ...recoveryItems()];
+  return withCauses([...runFields(), ...recoveryItems()], (item) => {
+    if (item.id.startsWith('fields/succession/'))
+      return 'succession computes firstDriftBlock, driftCount, driftRate, longestClean and minOverBlocks from the failing blocks';
+    if (item.family === 'recovery')
+      return `recoveryOf: the ${item.id.split('/')[2]} shape gives the record docs/concepts/recovery.md defines`;
+    return undefined;
+  });
 }

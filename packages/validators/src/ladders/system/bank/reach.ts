@@ -197,7 +197,7 @@ function item(
   check: BankItem['check'],
   source: BankItem['source'] = 'combination',
 ): BankItem {
-  return { id, family, tier, level, component, title, check, source };
+  return { id, family, tier, level, component, title, check, source, cause: '' };
 }
 
 /** fault-position-mode: each operator at the first, a middle and the last block, in modes F and T. */
@@ -406,6 +406,39 @@ function classes(): BankItem[] {
   return out;
 }
 
+/** The operator class of an id slug, such as x1-local for X1_local. */
+function classOfSlug(text: string): string {
+  return OPERATOR_ORDER.find((cls) => slug(cls) === text) ?? text;
+}
+
+/**
+ * The cause of each generated item (docs/validators.md section 12.4): items that one change would fix share
+ * it. A fault reaches its block through the check that reads what the operator broke, so the cause is the
+ * check in that mode or through that adapter, not the operator and position.
+ */
+function causeOf(item: BankItem): string {
+  const parts = item.id.split('/');
+  const check = (cls: string) => OPERATORS[classOfSlug(cls)]?.check ?? cls;
+  switch (item.family) {
+    case 'fault-position-mode':
+      return `the ${check(parts[1] as string)} check fails the block whose reply breaks it, in mode ${parts[3]}`;
+    case 'fault-adapter':
+      return `the ${parts[2]} adapter carries what the ${check(parts[1] as string)} check reads, in mode ${parts[3]}`;
+    case 'fault-multi':
+      return 'the runner keeps each failing verdict on the block that produced it';
+    case 'fault-perturbed':
+      return `in mode P the ${check(parts[1] as string)} verdict lands on the run position one past an injected block`;
+    case 'drift-class':
+      if (parts[0] === 'class-pair')
+        return 'a block carries the drift classes of all its failing check families';
+      return `the drift class of a failing ${check(parts[1] as string)} verdict is ${docClass(check(parts[1] as string))}, and ${classOfSlug(parts[1] as string)} adds its own class`;
+    default:
+      return item.title;
+  }
+}
+
 export function reachItems(): BankItem[] {
-  return [...positionMode(), ...adapterInteractions(), ...multi(), ...perturbed(), ...classes()];
+  return [...positionMode(), ...adapterInteractions(), ...multi(), ...perturbed(), ...classes()].map(
+    (item) => ({ ...item, cause: causeOf(item) }),
+  );
 }

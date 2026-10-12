@@ -12,7 +12,16 @@ import { openMemoryStore } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import { SYSTEM_COMPONENTS } from '../components';
 import { type Behaviour, followerReply } from '../plant';
-import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from './types';
+import {
+  type BankItem,
+  type Draft,
+  expectAll,
+  fail,
+  type ItemResult,
+  PASS,
+  type Tier,
+  withCauses,
+} from './types';
 import {
   adapterFor,
   behavioursFor,
@@ -255,7 +264,7 @@ function measure(seed: number, subject: Subject) {
 }
 
 export function scaleItems(): BankItem[] {
-  const out: BankItem[] = [];
+  const out: Draft[] = [];
   for (const subject of SUBJECTS) {
     ([1, 10, 100] as const).forEach((factor, index) => {
       out.push({
@@ -298,5 +307,8 @@ export function scaleItems(): BankItem[] {
       },
     });
   }
-  return out;
+  return withCauses(
+    out,
+    (item) => `${item.id.split('/')[1]}: the per-block cost does not grow with the size of the run`,
+  );
 }

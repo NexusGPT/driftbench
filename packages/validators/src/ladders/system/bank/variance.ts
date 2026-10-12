@@ -14,7 +14,7 @@ import { SYSTEM_COMPONENTS } from '../components';
 import { CLUSTER_RHO, CLUSTER_SIZE, calibrationLevel, DEFF_ALPHA, parityLevel, runEffect } from '../effect';
 import type { Behaviour, RawSpec } from '../plant';
 import { between, rngFor } from '../random';
-import { type BankItem, expectAll, fail, PASS, type Tier } from './types';
+import { type BankItem, type Draft, expectAll, fail, PASS, type Tier, withCauses } from './types';
 import { adapterFor, FAST_RETRY } from './world';
 
 /**
@@ -145,7 +145,7 @@ function observationsOf(flags: boolean[][]) {
 }
 
 export function varianceItems(): BankItem[] {
-  const out: BankItem[] = [];
+  const out: Draft[] = [];
   for (const design of DESIGNS) {
     for (const pattern of PATTERNS) {
       const id = `variance/icc/${design.clusters}x${design.size}/${pattern}`;
@@ -302,7 +302,15 @@ export function varianceItems(): BankItem[] {
           );
     },
   });
-  return out;
+  return withCauses(out, (item) =>
+    item.id.startsWith('variance/icc/')
+      ? 'the correlation of stored runs by spec equals one-way ANOVA'
+      : item.id.startsWith('variance/design-effect/')
+        ? 'the design effect is 1 + (m - 1) rho with rho from the stored runs'
+        : item.id.startsWith('variance/clustered-wider/')
+          ? 'the clustered bootstrap interval holds the stored rate and is wider than Wilson on polarized specs'
+          : undefined,
+  );
 }
 
 /** The planted effect of the last seed asked for: three items share it, and seeds run one after another. */

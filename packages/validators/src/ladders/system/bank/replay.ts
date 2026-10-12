@@ -3,7 +3,7 @@ import type { RunResult } from '@driftbench/core';
 import { lastUserText } from '../agent';
 import type { Behaviour } from '../plant';
 import { withPerturbation } from './reach';
-import { type BankItem, expectAll, fail, PASS, type Tier } from './types';
+import { type BankItem, type Draft, expectAll, fail, PASS, type Tier, withCauses } from './types';
 import {
   type AdapterKind,
   behavioursFor,
@@ -35,7 +35,7 @@ function replayEqual(live: RunResult, replay: RunResult) {
 }
 
 export function replayItems(): BankItem[] {
-  const out: BankItem[] = [];
+  const out: Draft[] = [];
   const shapes: Array<{ name: string; faults: Array<[number, string[]]>; tier: Tier }> = [
     { name: 'clean', faults: [], tier: 1 },
     { name: 'one-fault', faults: [[2, ['X1_local']]], tier: 2 },
@@ -233,5 +233,9 @@ export function replayItems(): BankItem[] {
         : fail(`cacheHit ${second.cacheHit}, ${second.blocks.length} blocks`);
     },
   });
-  return out;
+  return withCauses(out, (item) =>
+    item.id.startsWith('replay/key/')
+      ? undefined
+      : `replay from the cache in mode ${item.id.split('/')[2]} through ${item.id.split('/')[3]} gives the live verdicts`,
+  );
 }

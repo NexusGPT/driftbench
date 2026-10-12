@@ -12,7 +12,16 @@ import { CHECK_COMPONENTS, SYSTEM_COMPONENTS } from '../components';
 import { type BlockTruth, LOOKUP } from '../family';
 import type { Behaviour, Flow, RawSpec } from '../plant';
 import { followerReply } from '../plant';
-import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from './types';
+import {
+  type BankItem,
+  type Draft,
+  expectAll,
+  fail,
+  type ItemResult,
+  PASS,
+  type Tier,
+  withCauses,
+} from './types';
 import { behavioursFor, failingFamilies, failingList, plantedFlow, runScenario } from './world';
 
 /**
@@ -451,8 +460,8 @@ function cleanOracle(run: RunResult): ItemResult {
   ]);
 }
 
-function cleanShapes(): BankItem[] {
-  const out: BankItem[] = [];
+function cleanShapes(): Draft[] {
+  const out: Draft[] = [];
   for (const feature of FEATURES) {
     for (const mode of feature.modes) {
       const id = `clean/${feature.name}/${mode}`;
@@ -725,7 +734,7 @@ const HOSTILE: Hostile[] = [
   },
 ];
 
-function hostileInputs(): BankItem[] {
+function hostileInputs(): Draft[] {
   return HOSTILE.map((hostile) => ({
     id: `hostile/${hostile.name}`,
     family: 'hostile-inputs',
@@ -767,9 +776,9 @@ function hostileInputs(): BankItem[] {
 }
 
 /** A failure scenario: an agent, an adapter, a check or a driver that goes wrong in a documented way. */
-function failureHandling(): BankItem[] {
-  const out: BankItem[] = [];
-  const add = (id: string, tier: Tier, component: string, title: string, check: BankItem['check']) =>
+function failureHandling(): Draft[] {
+  const out: Draft[] = [];
+  const add = (id: string, tier: Tier, component: string, title: string, check: Draft['check']) =>
     out.push({
       id: `failure/${id}`,
       family: 'failure-handling',
@@ -1213,5 +1222,9 @@ function failureHandling(): BankItem[] {
 }
 
 export function precisionItems(): BankItem[] {
-  return [...cleanShapes(), ...hostileInputs(), ...failureHandling()];
+  return withCauses([...cleanShapes(), ...hostileInputs(), ...failureHandling()], (item) =>
+    item.family === 'clean-shapes'
+      ? `${item.component}: a clean reply meets ${item.id.split('/')[1]} in every mode`
+      : undefined,
+  );
 }
