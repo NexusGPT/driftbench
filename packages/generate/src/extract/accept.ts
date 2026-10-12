@@ -46,6 +46,8 @@ export type Accepted = {
   refusals: Refusal[];
   /** Entries already in the draft, skipped. */
   duplicates: string[];
+  /** Constraints refused only because a value they name is not proposed yet; a later chunk may propose it. */
+  deferred: Array<{ raw: unknown; entry: string }>;
 };
 
 /**
@@ -55,7 +57,7 @@ export type Accepted = {
  * exist.
  */
 export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quotes: QuoteIndex): Accepted {
-  const result: Accepted = { accepted: 0, refusals: [], duplicates: [] };
+  const result: Accepted = { accepted: 0, refusals: [], duplicates: [], deferred: [] };
   const refuse = (entry: string, reason: string): void => {
     result.refusals.push({ section, entry, reason });
   };
@@ -173,6 +175,7 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
     const unknown = pairs.find(([dimension, value]) => !hasValue(draft, dimension, value));
     if (unknown) {
       refuse(named, `${unknown[0]}=${unknown[1]} is not a proposed value`);
+      result.deferred.push({ raw, entry: named });
       continue;
     }
     const key = combinationKey(constraint.forbid);

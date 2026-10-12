@@ -76,6 +76,56 @@ describe('extractMap on a long prompt', () => {
     expect(result.proposal.dimensions.find((d) => d.id === 'rule')?.values.length).toBe(rules?.calls);
   });
 
+  it('keeps a constraint stated in a chunk before the chunk that proposes its values', async () => {
+    const prompt = Array.from({ length: 2000 }, (_, i) => `Rule number ${i} must be kept.`).join('\n');
+    const inventory =
+      'behaviours:\n  - id: B-001\n    title: A thing\nflows:\n  - id: f1\n    title: A flow\n    behaviours: [B-001]\n';
+    const quote = 'Rule number 5 must be kept.';
+    const seen = new Map<string, number>();
+    const port: ModelPort = {
+      family: 'test',
+      async complete(request) {
+        const section = /^SECTION: (\w+)/.exec(request.user)?.[1] ?? '';
+        const call = (seen.get(section) ?? 0) + 1;
+        seen.set(section, call);
+        const value = (id: string) => ({ id, title: id, source: 'prompt.md', quote });
+        const dimensions =
+          section === 'personas' && call === 2
+            ? [
+                { id: 'customer', title: 'Customer', kind: 'persona', values: [value('guest')] },
+                { id: 'visit', title: 'Visit', kind: 'persona', values: [value('night')] },
+              ]
+            : [];
+        const constraints =
+          section === 'personas' && call === 1
+            ? [
+                {
+                  forbid: { customer: 'guest', visit: 'night' },
+                  reason: 'a guest never visits at night',
+                  source: 'prompt.md',
+                  quote,
+                },
+              ]
+            : [];
+        return JSON.stringify({ section, dimensions, constraints, phrases: [], relations: [] });
+      },
+    };
+    const result = await extractMap({
+      agent: 'x',
+      sources: [
+        { kind: 'inventory', path: 'inventory.yaml', text: inventory },
+        { kind: 'prompt', path: 'prompt.md', text: prompt },
+      ],
+      port,
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.proposal.constraints.map((constraint) => constraint.forbid)).toContainEqual({
+      customer: 'guest',
+      visit: 'night',
+    });
+    expect(result.refusals.filter((refusal) => /constraint/.test(refusal.entry))).toEqual([]);
+  });
+
   describe('chunk context', () => {
     const rows = (from: number, to: number) =>
       Array.from({ length: to - from }, (_, i) => `| ${from + i} | Rule ${from + i} | all |`);

@@ -116,12 +116,30 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
   const sections: SectionRun[] = [];
   const refusals: Refusal[] = [];
   const duplicates: string[] = [];
+  const deferred: Array<{ section: Section; raw: unknown; entry: string }> = [];
   if (input.port) {
     for (const section of SECTIONS) {
       const run = await runSection(section, input.port, seen, draft, quotes, input.maxTokens, input.sources);
       sections.push(run.run);
       refusals.push(...run.refusals);
       duplicates.push(...run.duplicates);
+      deferred.push(...run.deferred.map((entry) => ({ section, ...entry })));
+    }
+    // A constraint can be stated in a chunk before the chunk that names its values: it waits for the whole map.
+    for (const entry of deferred) {
+      const again = acceptAnswer(
+        entry.section,
+        { section: entry.section, dimensions: [], constraints: [entry.raw], phrases: [], relations: [] },
+        draft,
+        quotes,
+      );
+      if (again.accepted === 0) continue;
+      const index = refusals.findIndex(
+        (refusal) => refusal.section === entry.section && refusal.entry === entry.entry,
+      );
+      if (index >= 0) refusals.splice(index, 1);
+      const run = sections.find((one) => one.section === entry.section);
+      if (run) run.accepted += again.accepted;
     }
   }
 
@@ -160,6 +178,13 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
   };
 }
 
+type SectionOutcome = {
+  run: SectionRun;
+  refusals: Refusal[];
+  duplicates: string[];
+  deferred: Array<{ raw: unknown; entry: string }>;
+};
+
 async function runSection(
   section: Section,
   port: ModelPort,
@@ -168,13 +193,14 @@ async function runSection(
   quotes: QuoteIndex,
   maxTokens: number | undefined,
   files: readonly SourceText[],
-): Promise<{ run: SectionRun; refusals: Refusal[]; duplicates: string[] }> {
+): Promise<SectionOutcome> {
   // A long prompt is read in chunks, one request each; the short sources go in every request.
   const rounds = chunkSources(sources);
-  const total: { run: SectionRun; refusals: Refusal[]; duplicates: string[] } = {
+  const total: SectionOutcome = {
     run: { section, calls: 0, status: 'done', accepted: 0 },
     refusals: [],
     duplicates: [],
+    deferred: [],
   };
   for (const chunk of rounds) {
     const one = await runRequest(section, port, chunk, draft, quotes, maxTokens, files);
@@ -187,6 +213,7 @@ async function runSection(
     }
     total.refusals.push(...one.refusals);
     total.duplicates.push(...one.duplicates);
+    total.deferred.push(...one.deferred);
   }
   return total;
 }
@@ -199,7 +226,7 @@ async function runRequest(
   quotes: QuoteIndex,
   maxTokens: number | undefined,
   files: readonly SourceText[],
-): Promise<{ run: SectionRun; refusals: Refusal[]; duplicates: string[] }> {
+): Promise<SectionOutcome> {
   const request = sectionRequest(section, sources, draft, maxTokens);
   let reason = '';
   let excerpt = '';
@@ -220,6 +247,7 @@ async function runRequest(
         },
         refusals: [],
         duplicates: [],
+        deferred: [],
       };
     }
     const parsed = parseAnswer(section, text);
@@ -229,6 +257,7 @@ async function runRequest(
         run: { section, calls: attempt, status: 'done', accepted: accepted.accepted },
         refusals: accepted.refusals,
         duplicates: accepted.duplicates,
+        deferred: accepted.deferred,
       };
     }
     reason = parsed.reason;
@@ -245,6 +274,7 @@ async function runRequest(
     },
     refusals: [],
     duplicates: [],
+    deferred: [],
   };
 }
 
