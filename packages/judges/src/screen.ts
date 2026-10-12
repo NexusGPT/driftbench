@@ -80,6 +80,8 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
     const joined = text.replace(/(?<=\p{L})\.(?=\p{L})/gu, '');
     return joined === text ? undefined : joined;
   },
+  // The text read backwards, line by line is not needed: instructions are written on one line.
+  (text) => [...text].reverse().join(''),
   // Compatibility forms: fullwidth letters and the like read as plain letters.
   (text) => {
     const folded = text.normalize('NFKC');
