@@ -189,3 +189,9 @@ describe('a judge never overrides a machine fail', () => {
     );
   });
 });
+
+describe('a block with no verdict at all', () => {
+  it('does not pass', () => {
+    expect(combineVerdicts([], []).pass).toBe(false);
+  });
+});

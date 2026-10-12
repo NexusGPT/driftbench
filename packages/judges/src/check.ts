@@ -150,7 +150,10 @@ export function combineVerdicts(
   }
   const verdicts = [...machine, ...judged];
   const machineFail = machine.some((verdict) => verdict.gating && verdict.outcome === 'fail');
-  const pass = !machineFail && verdicts.every((verdict) => !verdict.gating || verdict.outcome === 'pass');
+  const pass =
+    verdicts.length > 0 &&
+    !machineFail &&
+    verdicts.every((verdict) => !verdict.gating || verdict.outcome === 'pass');
   return { verdicts, pass };
 }
 
