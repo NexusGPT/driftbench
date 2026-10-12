@@ -58,6 +58,7 @@ blocks:
     when:
       user: Give me a short status of invoices, shipments and supplier emails.
     expect:
+      lang: EN
       workspace:
         others_untouched: true
       criteria:

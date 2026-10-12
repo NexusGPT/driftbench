@@ -14,6 +14,7 @@ import {
   readEstateYaml,
   renderEstateSummary,
   SessionIndex,
+  STATIC_DIR,
   type YamlSchema,
 } from '@driftbench/generate';
 import type { Command } from 'commander';
@@ -174,7 +175,13 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
       );
       return 2;
     }
-    for (const entry of [ESTATE_COMPLETE_DIR, ESTATE_INCOMPLETE_DIR, ESTATE_REPORT_FILE, ESTATE_ORDER_FILE]) {
+    for (const entry of [
+      ESTATE_COMPLETE_DIR,
+      ESTATE_INCOMPLETE_DIR,
+      ESTATE_REPORT_FILE,
+      ESTATE_ORDER_FILE,
+      STATIC_DIR,
+    ]) {
       await rm(join(outPath, entry), { recursive: true, force: true });
     }
   }

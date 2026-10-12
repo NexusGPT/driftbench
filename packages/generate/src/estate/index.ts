@@ -55,6 +55,14 @@ export {
   Touches,
   WorkspaceSeed,
 } from './inputs';
+export { COMPILED_PREDICATES, type Compiled, compilePredicate } from './predicates';
+export {
+  STATIC_DIR,
+  STATIC_TEST_TYPES,
+  StaticCheck,
+  StaticTest,
+  staticCheckOf,
+} from './static';
 export {
   anchorPair,
   type Gap,

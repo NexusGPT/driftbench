@@ -28,6 +28,7 @@ import { registerEstateGenerateCommand } from './estate-generate';
 import { registerEstateLiveCommands } from './estate-live';
 import { registerEstateMaintainCommands } from './estate-maintain';
 import { registerEstatePlanCommands } from './estate-plan';
+import { registerEstateStaticCommand } from './estate-static';
 
 export type EstateScanOptions = {
   /** More globs to skip, beside the defaults and the estate configuration. Repeatable. */
@@ -115,6 +116,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
   registerEstateMaintainCommands(estate, io, setExit);
   registerEstateGenerateCommand(estate, io, setExit);
   registerEstateLiveCommands(estate, io, setExit);
+  registerEstateStaticCommand(estate, io, setExit);
 }
 
 /**

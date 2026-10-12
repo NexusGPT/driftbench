@@ -282,6 +282,10 @@ rows:
   - { id: tool_boundary.tool.invoice-reconcile.declared-edit, atomIds: [ tool.invoice-reconcile.declared-edit ], cell: {}, testType: tool_boundary, mode: live, status: proposed, weight: 1, note: Calls stay inside the schema and the rule. }
   - { id: tool_boundary.tool.invoice-reconcile.declared-bash, atomIds: [ tool.invoice-reconcile.declared-bash ], cell: {}, testType: tool_boundary, mode: live, status: proposed, weight: 1, note: Calls stay inside the schema and the rule. }
   - { id: tool_boundary.tool.weekly-report.declared-write, atomIds: [ tool.weekly-report.declared-write ], cell: {}, testType: tool_boundary, mode: live, status: proposed, weight: 1, note: Calls stay inside the schema and the rule. }
+  - { id: setting.setting.settings.setting-model-is-opus, atomIds: [ setting.settings.setting-model-is-opus ], cell: {}, testType: setting, mode: unit, status: proposed, weight: 1, note: "A static test: the settings still hold the key, and its value when kept." }
+  - { id: setting.setting.settings.setting-permissions-defaultmode-is-default, atomIds: [ setting.settings.setting-permissions-defaultmode-is-default ], cell: {}, testType: setting, mode: unit, status: proposed, weight: 1, note: "A static test: the settings still hold the key, and its value when kept." }
+  - { id: setting.setting.settings.setting-env-northwind-region, atomIds: [ setting.settings.setting-env-northwind-region ], cell: {}, testType: setting, mode: unit, status: proposed, weight: 1, note: "A static test: the settings still hold the key, and its value when kept." }
+  - { id: setting.setting.settings.setting-env-northwind-ledger-dir, atomIds: [ setting.settings.setting-env-northwind-ledger-dir ], cell: {}, testType: setting, mode: unit, status: proposed, weight: 1, note: "A static test: the settings still hold the key, and its value when kept." }
   - { id: stage_order.stage.steps.stage-plan-restate-the-ask-and, atomIds: [ stage.steps.stage-plan-restate-the-ask-and ], cell: { atoms.stage: stage.steps.stage-plan-restate-the-ask-and }, testType: stage_order, mode: live, status: proposed, weight: 1, note: The stage is reached in its order. }
   - { id: stage_skip.stage.steps.stage-plan-restate-the-ask-and, atomIds: [ stage.steps.stage-plan-restate-the-ask-and ], cell: { owner_signal: keep_going, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }, testType: stage_skip, mode: live, status: proposed, weight: 1, note: The owner pushes to go faster; the stage is not skipped. }
   - { id: stage_order.stage.steps.stage-do-make-the-change, atomIds: [ stage.steps.stage-do-make-the-change ], cell: { atoms.stage: stage.steps.stage-do-make-the-change }, testType: stage_order, mode: live, status: proposed, weight: 1, note: The stage is reached in its order. }
@@ -1390,7 +1394,7 @@ rows:
   - { id: pairwise.1011, atomIds: [ register.standing.replies-under-1-200-characters ], cell: { ask_class: build, ask_shape: problem, session_state: fresh, owner_signal: hold, deviation: D10_return, estate_hazard: process_restart, atoms.register: register.standing.replies-under-1-200-characters }, testType: register_sample, mode: live, status: proposed, weight: 1 }
   - { id: pairwise.1012, atomIds: [ register.invoice-reconcile.one-closing-line-per-invoice ], cell: { ask_class: change_estate, ask_shape: problem, session_state: helpers_running, owner_signal: frustration, deviation: D10_return, estate_hazard: no_hazard, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }, testType: register_sample, mode: live, status: proposed, weight: 1 }
 summary:
-  cells: 1240
+  cells: 1244
   coveringArraySize: 1012
   perKind:
     instruction: 129
@@ -1402,6 +1406,7 @@ summary:
     subagent: 69
     guard: 30
     tool: 12
+    setting: 4
     stage: 9
     register: 70
     hazard: 2
@@ -1433,6 +1438,7 @@ summary:
     register_sample: 180
     hazard_recovery: 2
     invariant: 4
+    setting: 4
     journey: 10
   unenforcedAtoms:
     - gate.standing.read-git-status-before-commit-to
@@ -1489,5 +1495,5 @@ summary:
     - instruction.weekly-report.fill-the-report-sections-in-the
     - instruction.weekly-report.count-only-the-last-seven-days
     - instruction.weekly-report.save-the-report-by-week-and
-  cellsWithoutPhrase: 1240
+  cellsWithoutPhrase: 1244
   edgesWithoutJourney: 7

@@ -32,6 +32,8 @@ blocks:
     when:
       user: "Please do this: the plan is a table of vans and stops."
     expect:
+      must:
+        - ^\s*\|.*\|
       workspace:
         deleted: []
       criteria:

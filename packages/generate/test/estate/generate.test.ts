@@ -31,6 +31,11 @@ function specs(result: EstateGenerateResult): Map<string, Spec> {
   return out;
 }
 
+/** The records written as spec files: static tests are JSON, run by `estate static`. */
+function specRecords(result: EstateGenerateResult): EstateGenerateResult['specs'] {
+  return result.specs.filter((record) => record.path.endsWith('.yaml'));
+}
+
 function only(map: Map<string, Spec>, id: string): Spec {
   const spec = map.get(id);
   if (!spec) throw new Error(`no spec ${id}`);
@@ -61,7 +66,7 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     expect(result.specs.some((spec) => spec.row === 'p37')).toBe(false);
     expect(result.report.struck).toEqual(['p37']);
     expect(result.report.summary.specs).toBe(result.specs.length);
-    expect(byId.size).toBe(result.specs.length);
+    expect(byId.size).toBe(specRecords(result).length);
   });
 
   it('writes every spec as a task of the estate adapter, with the Given of the row', () => {
@@ -90,7 +95,7 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
         situation.phrases.filter((phrase) => phrase.approved).map((phrase) => phrase.text),
       ),
     );
-    for (const record of result.specs.filter((spec) => spec.complete)) {
+    for (const record of specRecords(result).filter((spec) => spec.complete)) {
       const spec = only(byId, record.id);
       for (const block of spec.blocks) {
         const when = block.when as { user?: string };
@@ -190,7 +195,7 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
   });
 
   it('keeps every gap out of the complete suite, with its marker in the spec and the report', () => {
-    for (const record of result.specs) {
+    for (const record of specRecords(result)) {
       const spec = only(byId, record.id);
       const needs = (estate(spec).needs ?? []) as Array<{ marker: string }>;
       expect(record.path.startsWith(record.complete ? 'specs/' : 'incomplete/'), record.id).toBe(true);
@@ -202,19 +207,17 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     }
     const markers = Object.fromEntries(result.specs.map((spec) => [spec.row, spec.markers]));
     expect(markers.p08).toEqual([]);
-    expect(markers.p15).toEqual([MARKERS.someCall]);
-    expect(markers.p12).toEqual([MARKERS.registered]);
+    // The script's command, the compiled confirmation, the hazard and the permission now have checks.
+    for (const row of ['p12', 'p15', 'p25', 'p26', 'p31']) expect(markers[row], row).toEqual([]);
     expect(markers.p22).toEqual([MARKERS.guardTiming]);
     expect(markers.p23).toEqual([MARKERS.guardMessage]);
     expect(markers.p28).toEqual([MARKERS.stageReach]);
-    expect(markers.p32).toEqual([MARKERS.static]);
+    expect(markers.p32).toEqual([]);
+    expect(result.specs.find((spec) => spec.row === 'p32')?.path).toBe('static/invariant/estate.p32.json');
     expect(result.report.gaps.map((entry) => entry.marker)).toEqual([
       MARKERS.guardMessage,
       MARKERS.guardTiming,
-      MARKERS.registered,
-      MARKERS.someCall,
       MARKERS.stageReach,
-      MARKERS.static,
     ]);
   });
 
@@ -244,7 +247,7 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
   it('validates every spec, and the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    for (const record of result.specs.filter((spec) => spec.complete)) {
+    for (const record of specRecords(result).filter((spec) => spec.complete)) {
       const file = result.files.find((entry) => entry.path === record.path);
       const loaded = parseSpecText(file?.text ?? '', 'yaml', record.id);
       expect(loaded.ok && loaded.warnings, record.id).toEqual([]);
@@ -253,7 +256,8 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
 
   it('counts rows, specs, complete and incomplete per test type and per mode', () => {
     const { perTestType, perMode, summary } = result.report;
-    expect(Object.keys(perTestType)).toEqual(Object.keys(SITUATION_OF));
+    expect(Object.keys(perTestType)).toEqual(Object.keys(SITUATION_OF).filter((type) => type in perTestType));
+    expect(Object.keys(perTestType)).toHaveLength(Object.keys(SITUATION_OF).length - 1);
     const sum = (key: 'rows' | 'specs' | 'complete' | 'incomplete') =>
       Object.values(perTestType).reduce((total, entry) => total + entry[key], 0);
     expect(sum('rows')).toBe(36);
@@ -468,7 +472,7 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1379);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1383);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
@@ -480,10 +484,10 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1379,
-      blocks: 1382,
-      complete: 813,
-      incomplete: 566,
+      specs: 1383,
+      blocks: 1378,
+      complete: 980,
+      incomplete: 403,
       judged: 144,
     });
     expect(result.report.invalid).toEqual([]);
@@ -501,7 +505,7 @@ describe('a live guard_positive row forces the act', () => {
 
   it('asks in a forced situation, whose phrase instructs the guarded act itself', () => {
     expect(SITUATION_OF.guard_positive).toBe('trigger');
-    const live = result.specs.filter((record) => {
+    const live = specRecords(result).filter((record) => {
       const meta = estate(only(byId, record.id));
       return meta.testType === 'guard_positive' && meta.mode === 'live';
     });
@@ -516,7 +520,7 @@ describe('a live guard_positive row forces the act', () => {
   });
 
   it('asks a live guard_positive row with no forced situation by code, the guarded act itself, never in a trigger one', () => {
-    for (const record of result.specs) {
+    for (const record of specRecords(result)) {
       const meta = estate(only(byId, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
       if (meta.situation === 'forced-push') continue;
@@ -538,7 +542,7 @@ describe('a live guard_positive row forces the act', () => {
       fallback: false,
     });
     const all = specs(strict);
-    for (const record of strict.specs) {
+    for (const record of specRecords(strict)) {
       const meta = estate(only(all, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
       if (meta.situation !== 'forced-push') {

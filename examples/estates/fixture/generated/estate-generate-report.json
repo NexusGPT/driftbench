@@ -8,8 +8,8 @@
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1379,
-    "approved": 1379,
+    "rows": 1383,
+    "approved": 1383,
     "proposed": 0,
     "struck": 0
   },
@@ -25,29 +25,31 @@
   },
   "options": {
     "seed": 1,
-    "checks": ["ordered"],
+    "checks": ["hazard_recovery", "ordered", "permission", "some_call"],
     "fallback": true
   },
   "summary": {
-    "specs": 1379,
-    "blocks": 1382,
-    "complete": 813,
-    "incomplete": 566,
+    "specs": 1383,
+    "blocks": 1378,
+    "complete": 980,
+    "incomplete": 403,
     "judged": 144
   },
   "sources": {
     "asks": {
-      "bank": 298,
-      "code": 515,
+      "bank": 344,
+      "code": 628,
       "session": 0,
-      "none": 0
+      "none": 8
     },
     "outcomes": {
-      "bank": 575,
+      "bank": 671,
+      "no-change:denied": 2,
       "no-change:guard": 23,
-      "no-change:negative": 22,
-      "no-change:read-only": 27,
-      "no-delete": 166
+      "no-change:negative": 24,
+      "no-change:read-only": 30,
+      "no-delete": 222,
+      "static": 8
     }
   },
   "focus": null,
@@ -55,32 +57,32 @@
     "obligation": {
       "rows": 516,
       "specs": 516,
-      "complete": 120,
-      "incomplete": 396
+      "complete": 228,
+      "incomplete": 288
     },
     "outside_trigger": {
       "rows": 43,
       "specs": 43,
-      "complete": 7,
-      "incomplete": 36
+      "complete": 9,
+      "incomplete": 34
     },
     "twin": {
       "rows": 43,
       "specs": 43,
-      "complete": 10,
-      "incomplete": 33
+      "complete": 19,
+      "incomplete": 24
     },
     "ordered_pair": {
       "rows": 96,
       "specs": 96,
-      "complete": 48,
-      "incomplete": 48
+      "complete": 72,
+      "incomplete": 24
     },
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 4,
-      "incomplete": 4
+      "complete": 6,
+      "incomplete": 2
     },
     "route_positive": {
       "rows": 226,
@@ -109,8 +111,8 @@
     "script_fixture": {
       "rows": 2,
       "specs": 2,
-      "complete": 0,
-      "incomplete": 2
+      "complete": 2,
+      "incomplete": 0
     },
     "dispatch": {
       "rows": 36,
@@ -163,14 +165,14 @@
     "tool_boundary": {
       "rows": 9,
       "specs": 9,
-      "complete": 0,
-      "incomplete": 9
+      "complete": 8,
+      "incomplete": 1
     },
     "tool_denied": {
       "rows": 3,
       "specs": 3,
-      "complete": 1,
-      "incomplete": 2
+      "complete": 3,
+      "incomplete": 0
     },
     "stage_order": {
       "rows": 59,
@@ -199,14 +201,20 @@
     "hazard_recovery": {
       "rows": 2,
       "specs": 2,
-      "complete": 0,
-      "incomplete": 2
+      "complete": 2,
+      "incomplete": 0
     },
     "invariant": {
       "rows": 4,
       "specs": 4,
-      "complete": 0,
-      "incomplete": 4
+      "complete": 4,
+      "incomplete": 0
+    },
+    "setting": {
+      "rows": 4,
+      "specs": 4,
+      "complete": 4,
+      "incomplete": 0
     },
     "journey": {
       "rows": 10,
@@ -223,16 +231,16 @@
       "incomplete": 6
     },
     "unit": {
-      "rows": 33,
-      "specs": 33,
-      "complete": 15,
-      "incomplete": 18
+      "rows": 37,
+      "specs": 37,
+      "complete": 25,
+      "incomplete": 12
     },
     "live": {
       "rows": 1340,
       "specs": 1340,
-      "complete": 798,
-      "incomplete": 542
+      "complete": 955,
+      "incomplete": 385
     }
   },
   "gaps": [
@@ -264,14 +272,27 @@
     },
     {
       "marker": "needs-negation",
-      "specs": 3,
+      "specs": 10,
       "atoms": [
         "instruction.ledger-auditor.the-auditor-never-edits-a-file",
         "instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and",
+        "instruction.shipment-tracker.ask-for-the-tracking-number-when",
+        "instruction.standing.keep-an-unconfirmed-draft-unsent",
+        "instruction.standing.never-force-push",
+        "instruction.standing.never-paste-a-credential-into-a",
+        "instruction.standing.never-send-a-supplier-email-without",
+        "instruction.standing.on-stop-stop-all-work-and",
+        "instruction.supplier-email.a-loose-yes-is-not-a",
         "instruction.weekly-report.save-the-report-by-week-and"
       ],
       "details": [
         "a text predicate with no required words",
+        "asks_again_on_loose_yes has no negative control",
+        "asks_for has no negative control",
+        "command_not_run has no negative control",
+        "confirmed_before_send has no negative control",
+        "no_secret_in_reply has no negative control",
+        "stopped_and_confirmed has no negative control",
         "tool_not_called has no negative control",
         "workspace has no negative control"
       ]
@@ -308,11 +329,8 @@
     },
     {
       "marker": "needs-registered-check",
-      "specs": 460,
+      "specs": 337,
       "atoms": [
-        "gate.supplier-email.show-the-draft-and-get-an",
-        "hazard.standing.recover-from-a-compaction-of-the",
-        "hazard.standing.recover-from-a-new-session",
         "instruction.inbox-triager.a-message-that-fits-no-folder",
         "instruction.inbox-triager.the-triager-never-answers-or-deletes",
         "instruction.invoice-reconcile.a-line-matches-on-article-code",
@@ -325,48 +343,26 @@
         "instruction.memory-supplier-languages.write-to-each-supplier-in-its",
         "instruction.route-planner.never-load-a-route-over-the",
         "instruction.route-planner.no-delivery-planned-on-a-public",
-        "instruction.shipment-tracker.ask-for-the-tracking-number-when",
         "instruction.shipment-tracker.late-means-past-the-promised-date",
         "instruction.shipment-tracker.never-guess-a-shipment-status",
         "instruction.shipment-tracker.on-a-carrier-error-say-so",
         "instruction.standing.after-two-failures-of-a-tool",
-        "instruction.standing.keep-an-unconfirmed-draft-unsent",
         "instruction.standing.never-delete-a-ledger-file-archive",
-        "instruction.standing.never-force-push",
         "instruction.standing.never-invent-order-numbers-prices-or",
-        "instruction.standing.never-paste-a-credential-into-a",
-        "instruction.standing.never-send-a-supplier-email-without",
-        "instruction.standing.on-stop-stop-all-work-and",
         "instruction.standing.report-only-numbers-read-during-the",
         "instruction.supplier-email.a-draft-has-a-subject-a",
         "instruction.supplier-email.a-draft-stays-under-120-words",
-        "instruction.supplier-email.a-loose-yes-is-not-a",
         "instruction.supplier-email.no-price-or-date-in-a",
         "instruction.weekly-report.count-only-the-last-seven-days",
         "instruction.weekly-report.fill-the-report-sections-in-the",
-        "tool.invoice-reconcile.declared-bash",
-        "tool.invoice-reconcile.declared-edit",
-        "tool.settings.allow-bash-git-status",
-        "tool.settings.allow-bash-python3",
-        "tool.settings.allow-glob",
-        "tool.settings.allow-grep",
-        "tool.settings.allow-read",
-        "tool.settings.ask-bash-git-commit",
-        "tool.settings.deny-bash-git-push-force",
-        "tool.settings.deny-bash-rm-rf",
-        "tool.weekly-report.declared-write"
+        "tool.settings.ask-bash-git-commit"
       ],
       "details": [
-        "asks_again_on_loose_yes",
-        "asks_for",
         "audit_checks",
-        "command_not_run",
-        "confirmed_before_send",
         "draft_shape",
         "extra_charges_listed",
         "folder_other",
         "grounded_values",
-        "hazard_recovery",
         "invoice_amounts_untouched",
         "late_definition",
         "line_match",
@@ -374,37 +370,14 @@
         "no_delete_under",
         "no_holiday_delivery",
         "no_reply_no_delete",
-        "no_secret_in_reply",
-        "permission",
+        "permission ask: the trace does not show the prompt",
         "report_deadline",
         "reports_carrier_error",
         "rounding_tolerance",
         "section_order",
-        "stopped_and_confirmed",
         "stops_after_failures",
         "supplier_language",
         "within_capacity"
-      ]
-    },
-    {
-      "marker": "needs-some-call-check",
-      "specs": 56,
-      "atoms": [
-        "gate.standing.read-git-status-before-commit-to",
-        "gate.standing.write-a-helper-s-brief-before",
-        "instruction.invoice-reconcile.run-the-reconcile-script-and-show",
-        "instruction.shipment-tracker.always-pass-the-carrier-code-to",
-        "script.invoice-reconcile.script-scripts-reconcile-py",
-        "script.shipment-tracker.script-scripts-track-sh"
-      ],
-      "details": [
-        "no Bash call with {\"command\":{\"contains\":\"reconcile.py\"}}",
-        "no Bash call with {\"command\":{\"regex\":\"track\\\\.sh [A-Z]{3} \"}}",
-        "one Agent call with {\"prompt\":{\"nonempty\":true}}",
-        "one Bash call with {\"command\":{\"contains\":\"git status\"}}",
-        "one Bash call with {\"command\":{\"contains\":\"reconcile.py\"}}",
-        "one Bash call with {\"command\":{\"contains\":\"track.sh\"}}",
-        "one Bash call with {\"command\":{\"regex\":\"track\\\\.sh [A-Z]{3} \"}}"
       ]
     },
     {
@@ -412,17 +385,6 @@
       "specs": 12,
       "atoms": ["stage.steps.stage-note-write-a-tracker-note"],
       "details": ["note may come at any step, so no order shows it was reached"]
-    },
-    {
-      "marker": "needs-static-runner",
-      "specs": 4,
-      "atoms": [
-        "invariant.registry.the-check-registry-lists-every-guard",
-        "invariant.settings.every-guard-finds-its-script-from",
-        "invariant.standing.no-file-of-the-estate-is",
-        "invariant.standing.the-standing-instructions-stay-under-40000"
-      ],
-      "details": ["guard_paths_anchored", "no_orphans", "registry_complete", "standing_size"]
     }
   ],
   "replay": [],

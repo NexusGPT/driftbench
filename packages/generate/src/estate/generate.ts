@@ -20,6 +20,7 @@ import {
   type Situation,
   type SituationUse,
 } from './inputs';
+import { STATIC_DIR, STATIC_TEST_TYPES, type StaticTest, staticCheckOf } from './static';
 import {
   addPair,
   addWorkspace,
@@ -115,6 +116,7 @@ export const SITUATION_OF: Readonly<Record<string, SituationUse | 'none'>> = {
   register_sample: 'trigger',
   hazard_recovery: 'trigger',
   invariant: 'none',
+  setting: 'none',
   journey: 'trigger',
 };
 
@@ -335,6 +337,40 @@ export function generateEstateSuite(
     const totalsMode = totalsFor(perMode, row.mode);
     totalsType.rows += 1;
     totalsMode.rows += 1;
+    // A static row with a check the static runner knows is a static test, not a spec.
+    const head = ctx.atoms.get(row.atomIds[0] ?? '');
+    const check = head && STATIC_TEST_TYPES.has(row.testType) ? staticCheckOf(row, head) : undefined;
+    if (head && check !== undefined && typeof check !== 'string') {
+      const id = uniqueId(specId(row.id), used);
+      const test: StaticTest = {
+        id,
+        planRow: row.id,
+        testType: row.testType as StaticTest['testType'],
+        atom: head.id,
+        title: head.title,
+        check,
+        mapHash: ctx.map.hash,
+      };
+      const path = `${STATIC_DIR}/${row.testType}/${id}.json`;
+      files.push({ path, text: formatJson(test) });
+      records.push({
+        id,
+        path,
+        row: row.id,
+        testType: row.testType,
+        mode: row.mode,
+        complete: true,
+        markers: [],
+        atoms: row.atomIds,
+        ask: 'none',
+        outcome: 'static',
+      });
+      for (const totals of [totalsType, totalsMode]) {
+        totals.specs += 1;
+        totals.complete += 1;
+      }
+      continue;
+    }
     for (const built of buildRow(row, ctx, used)) {
       const markers = [...new Set(built.gaps.map((entry) => entry.marker))].sort() as Marker[];
       const complete = markers.length === 0;
@@ -898,7 +934,7 @@ function runOrder(
   atoms: ReadonlyMap<string, EstateAtom>,
   focus: readonly string[],
 ): string[] {
-  const done = records.filter((record) => record.complete);
+  const done = records.filter((record) => record.complete && !record.path.startsWith(`${STATIC_DIR}/`));
   const rank = (record: EstateSpecRecord): number => {
     const hit = focus.findIndex((atom) => record.atoms.includes(atom));
     if (hit >= 0) return hit;
@@ -986,6 +1022,12 @@ export function renderEstateSummary(report: EstateReport): string {
   lines.push(
     `Run order: ${ESTATE_ORDER_FILE} lists the complete specs, focus atoms first, then guards, gates and invariants.`,
   );
+  const statics = (report.perTestType.invariant?.complete ?? 0) + (report.perTestType.setting?.complete ?? 0);
+  if (statics > 0) {
+    lines.push(
+      `Static tests: ${statics} in ${STATIC_DIR}/ (invariants and settings), run by driftbench estate static on an estate root.`,
+    );
+  }
   if (report.gaps.length > 0) {
     lines.push('Gaps (what keeps a spec incomplete):');
     for (const entry of report.gaps) {

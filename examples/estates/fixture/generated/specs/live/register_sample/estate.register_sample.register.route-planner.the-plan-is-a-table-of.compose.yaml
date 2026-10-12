@@ -35,6 +35,8 @@ blocks:
         - name: route-planner
           count:
             min: 1
+      must:
+        - ^\s*\|.*\|
       workspace:
         deleted: []
       criteria:

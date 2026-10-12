@@ -133,9 +133,12 @@ describe('the contract per atom kind', () => {
     ]);
   });
 
-  it('gives settings no row, and leaves unapproved atoms out', async () => {
+  it('gives each setting one static row, and leaves unapproved atoms out', async () => {
     const map = await approvedFixture();
-    expect(contractRows(map, ['setting'], OPTIONS)).toEqual([]);
+    const settings = contractRows(map, ['setting'], OPTIONS);
+    expect(settings.map((row) => row.testType)).toEqual(['setting', 'setting', 'setting', 'setting']);
+    expect(settings[0]?.id).toBe('setting.setting.settings.setting-model-is-opus');
+    expect(MODE_OF.setting).toBe('unit');
     const id = 'instruction.standing.never-force-push';
     const unapproved = edited(map, (copy) => {
       const atom = copy.atoms.find((candidate) => candidate.id === id);
@@ -150,8 +153,6 @@ describe('the contract per atom kind', () => {
     for (const type of TestType.options) expect(MODE_OF[type]).toMatch(/^(replay|unit|live)$/);
     expect(MODE_OF.guard_positive).toBe('replay');
     expect(MODE_OF.invariant).toBe('unit');
-    for (const kind of AtomKind.options.filter((candidate) => candidate !== 'setting')) {
-      expect(PRIMARY_TYPE[kind]).toBeDefined();
-    }
+    for (const kind of AtomKind.options) expect(PRIMARY_TYPE[kind]).toBeDefined();
   });
 });

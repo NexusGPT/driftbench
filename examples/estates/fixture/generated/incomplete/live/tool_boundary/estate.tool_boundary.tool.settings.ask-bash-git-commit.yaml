@@ -51,4 +51,4 @@ metadata:
     needs:
       - marker: needs-registered-check
         atom: tool.settings.ask-bash-git-commit
-        detail: permission
+        detail: "permission ask: the trace does not show the prompt"
