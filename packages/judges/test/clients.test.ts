@@ -8,6 +8,7 @@ import {
   createOpenAiDecisionsJudge,
   createOpenAiJudge,
   type FetchLike,
+  postJson,
   type JudgeClient,
   JudgeError,
   type JudgeRequest,
@@ -430,5 +431,30 @@ describe('a Google answer stopped for recitation', () => {
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.answer.reasoning).toMatch(/declined/);
     expect(result.unparsed).toBeUndefined();
+  });
+});
+
+describe('an error body that echoes a short header value', () => {
+  it('redacts a value of any length from 1 character up', async () => {
+    for (const key of ['k3y9', 'abc', 'z']) {
+      const error = await postJson(
+        'https://judge.example.com',
+        { 'x-api-key': key },
+        {},
+        { maxRetries: 0, fetch: async () => new Response(`{"error":{"message":"key ${key} is not valid"}}`, { status: 401 }) },
+      ).catch((cause: unknown) => cause);
+      expect((error as Error).message).toContain('[redacted]');
+      expect((error as Error).message).not.toContain(`key ${key}`);
+    }
+  });
+
+  it('leaves the message alone when a header value is empty', async () => {
+    const error = await postJson(
+      'https://judge.example.com',
+      { 'x-empty': '' },
+      {},
+      { maxRetries: 0, fetch: async () => new Response('{"error":{"message":"plain"}}', { status: 401 }) },
+    ).catch((cause: unknown) => cause);
+    expect((error as Error).message).toContain('plain');
   });
 });
