@@ -46,6 +46,7 @@ export {
   judgeCheck,
   readInputs,
   requestFor,
+  safeId,
   verdictOf,
 } from './check';
 export type { ClientOptions, JudgeClient } from './client';
@@ -119,3 +120,4 @@ export {
   renderUser,
   SYSTEM_PROMPT,
 } from './prompt';
+export { noJudgeCheck, type SingleJudgeOptions, singleJudgeCheck } from './single';
