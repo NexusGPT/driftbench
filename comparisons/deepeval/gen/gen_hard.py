@@ -3,11 +3,13 @@
 Label rule, fixed before any judge run: a reply is relevant only if it answers EVERY part of the ask (a paraphrase
 counts; extra content does not change the label). A reply that answers one part, answers a part with a fact about
 another topic, or only says it will look into the question is irrelevant.
-Usage: python gen/gen_hard.py   (writes datasets/relevancy-hard.json, seed 20261014)
+Usage: python gen/gen_hard.py [SEED NAME]   (default: 20261014 relevancy-hard; held-out: 20261015 relevancy-hard2)
 """
-import json, os, random
-HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(HERE, "..", "datasets", "relevancy-hard.json")
-R = random.Random(20261014)
+import json, os, random, sys
+HERE = os.path.dirname(os.path.abspath(__file__)); SEED = int(sys.argv[1]) if len(sys.argv) > 1 else 20261014
+NAME = sys.argv[2] if len(sys.argv) > 2 else "relevancy-hard"
+OUT = os.path.join(HERE, "..", "datasets", NAME + ".json")
+R = random.Random(SEED)
 PARTS = {
  "plan": {"ask": "which plan gives more data", "ans": "Acme Mobile L gives unlimited data for $35 a month", "para": "the Mobile L is our unlimited tier, thirty-five dollars monthly", "wrong": "our store on the high street sells phone cases"},
  "cover": {"ask": "whether my street is covered for fibre", "ans": "fibre is live on your street from $60 a month", "para": "your street is inside the fibre rollout area", "wrong": "you can pay your bill by card in the Acme app"},
