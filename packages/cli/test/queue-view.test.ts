@@ -7,7 +7,7 @@ import { openStore } from '@driftbench/store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
 import { type Io, main } from '../src/index';
-import { QUEUE_KEYS_SCRIPT, startViewer, type Viewer } from '../src/view/server';
+import { LABEL_KEYS_SCRIPT, QUEUE_KEYS_SCRIPT, startViewer, type Viewer } from '../src/view/server';
 
 const made: string[] = [];
 let dir = '';
@@ -82,5 +82,21 @@ describe('the viewer queue page: keyboard script under a hash, agreement shown',
     expect(html).toMatch(/agreement/i);
     const campaign = await fetch(`${viewer.url}/`);
     expect(campaign.headers.get('content-security-policy')).not.toContain('script-src');
+  });
+});
+
+describe('the label form: number keys and Cmd/Ctrl+Enter, script by hash, plain form without script', () => {
+  it('serves the label script under its hash on the run page, and keeps the form plain', async () => {
+    const queue = await readQueue(labels);
+    const first = queue.entries[0];
+    if (!first) throw new Error('the queue is empty');
+    const page = await fetch(`${viewer.url}/campaign/${first.campaign}/run/${first.runId}`);
+    const hash = createHash('sha256').update(LABEL_KEYS_SCRIPT).digest('base64');
+    expect(page.headers.get('content-security-policy')).toContain(`script-src 'sha256-${hash}'`);
+    const html = await page.text();
+    expect(html).toContain(`<script>${LABEL_KEYS_SCRIPT}</script>`);
+    expect(html).toContain('<form method="post" action="/labels">');
+    expect(html).toContain('name="label" value="pass"');
+    expect(html).toContain('name="label" value="fail"');
   });
 });

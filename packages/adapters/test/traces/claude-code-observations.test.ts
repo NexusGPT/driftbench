@@ -34,3 +34,10 @@ describe('traceFromClaudeCode keeps the transcript tree as observations', () => 
     expect(trace.turns.length).toBe(1);
   });
 });
+
+describe('traceFromClaudeCode turns start from the transcript line they came from', () => {
+  it('gives each turn the uuid of the user line it starts from', async () => {
+    const trace = await traceFromClaudeCode(SESSION);
+    expect(trace.turns.map((turn) => turn.observationId)).toEqual(['sub-u1']);
+  });
+});

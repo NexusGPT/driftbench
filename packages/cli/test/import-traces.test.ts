@@ -220,3 +220,22 @@ describe('driftbench import traces is deterministic', () => {
     }
   });
 });
+
+describe('driftbench import traces keeps each block linked to its source observation', () => {
+  it('records the chat span each observed turn started from, in the draft', async () => {
+    const dir = await scratch();
+    await run(
+      ['import', 'traces', TRACES, '--from', 'otel', '--out', 'd', '--select', 'conv-acme-0001'],
+      dir,
+    );
+    const loaded = await loadSpecFile(join(dir, 'd', 'draft-otel-conv-acme-0001.yaml'));
+    if (!loaded.ok) throw new Error('invalid draft');
+    const observed = loaded.spec.metadata?.imported as {
+      observed: Array<{ observation_id?: string }>;
+    };
+    expect(observed.observed.map((entry) => entry.observation_id)).toEqual([
+      'a100000000000002',
+      'a200000000000002',
+    ]);
+  });
+});
