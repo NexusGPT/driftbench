@@ -190,3 +190,21 @@ describe('gate events (executor pilot)', () => {
     ]);
   });
 });
+
+describe('empty files (executor iteration 11)', () => {
+  it('survives an empty skill definition and an empty standing file: noted, no atom', async () => {
+    const root = await estate({
+      'CLAUDE.md': '',
+      '.claude/skills/menu-plan/SKILL.md': '',
+      '.claude/skills/menu-plan/references/guide.md': '# Guide\n\nAbout menus.\n',
+    });
+    const raw = await new ClaudeCodeReader().read(root);
+    expect(raw.notes.map((note) => note.file)).toEqual(
+      expect.arrayContaining(['CLAUDE.md', '.claude/skills/menu-plan/SKILL.md']),
+    );
+    const scan = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const files = scan.map.atoms.map((atom) => atom.provenance.file);
+    expect(files).not.toContain('CLAUDE.md');
+    expect(files).not.toContain('.claude/skills/menu-plan/SKILL.md');
+  });
+});

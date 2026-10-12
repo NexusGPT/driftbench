@@ -179,7 +179,11 @@ export class ClaudeCodeReader implements EstateReader {
     const files: EstateFile[] = [];
     for (const path of paths) {
       const text = await readFile(join(root, path), 'utf8');
-      files.push({ path, text, ...classify(path, text) });
+      // An empty file holds no line to quote: it is kept as a file, read as no kind, and noted.
+      if (text.trim() === '') {
+        notes.push({ file: path, message: 'empty file: nothing to read' });
+        files.push({ path, text, kind: 'other' });
+      } else files.push({ path, text, ...classify(path, text) });
     }
 
     const estate: RawEstate = {
