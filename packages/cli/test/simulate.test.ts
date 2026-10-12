@@ -216,6 +216,27 @@ describe('driftbench campaign run --driver simulated', { timeout: 60_000 }, () =
       played.out.match(/✓ acme-plan-upgrade · function:acme-sales · F · repeat \d {2}pass {2}5 blocks/g),
     ).toHaveLength(2);
 
+    // A recording whose second answer leaves the script: the cells fail, so the user's words, not the
+    // spec's, reached the agent.
+    const offScript = join(dir, 'off-script.yaml');
+    await writeFile(
+      offScript,
+      'family: hand-written\nmodel: test\npersona: sam-upgrader\nanswers:\n  - Hi, I am already an Acme customer and run out of data.\n  - I would rather not say.\n  - The unlimited one.\n  - Confirm\n  - Bye\n',
+    );
+    const off = await cli(register, [
+      'campaign',
+      'run',
+      UPGRADE,
+      '--driver',
+      'simulated',
+      '--persona',
+      SAM,
+      '--recording',
+      offScript,
+    ]);
+    expect(off.code).toBe(1);
+    expect(off.out).toMatch(/✗ acme-plan-upgrade · function:acme-sales · F · repeat 0 {2}fail/);
+
     const unplayed = await cli(register, [
       'campaign',
       'run',

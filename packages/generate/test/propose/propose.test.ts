@@ -26,6 +26,11 @@ describe('model proposals from the approved map', () => {
     expect(digest).toContain('B-001: Identify an existing customer by the email on the account');
     expect(digest).not.toContain('evidence');
     expect(() => mapDigest('version: 1\n')).toThrow('the map holds no dimensions');
+    const partly = mapDigest(
+      'agent: a\ndimensions:\n  - { id: kept, kind: k, title: K, approved: true, values: [{ id: yes, title: Y }, { id: no, title: N, approved: false }] }\n  - { id: dropped, kind: k, title: D, approved: false, values: [] }\n',
+    );
+    expect(partly).toContain('  - yes: Y');
+    expect(partly).not.toMatch(/no: N|dropped/);
   });
 
   it('asks the port once, with the digest, an example spec and the count, and reads every proposal back', async () => {

@@ -1,10 +1,18 @@
 import { defaultChecks } from '@driftbench/checks';
-import type { AgentAdapter } from '@driftbench/core';
+import { type AgentAdapter, runSpec } from '@driftbench/core';
 import { FakeModelPort, faultAdapter } from '@driftbench/generate';
 import { localProvider } from '@driftbench/sandbox';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { salesFaults } from '../../../examples/acme/faults/sales';
-import { AttackError, type AttackResult, loadRedteamPack, type RedteamPack, runAttack } from '../src/index';
+import {
+  AttackError,
+  type AttackResult,
+  createScriptedDriver,
+  cuesOf,
+  loadRedteamPack,
+  type RedteamPack,
+  runAttack,
+} from '../src/index';
 import { acmeSales, acmeSpec, PACK_DIR } from './support';
 
 let pack: RedteamPack;
@@ -40,6 +48,20 @@ describe('the adaptive attacker', { timeout: 60_000 }, () => {
     expect(result.rounds).toHaveLength(10);
     // Every round is scored by the runner's own recovery record.
     for (const round of result.rounds) expect(round.recovery?.injectedAt).toBeTypeOf('number');
+  });
+
+  it('reads a request for the next move as a question: "I need your full name and email address"', async () => {
+    const spec = await acmeSpec('conversations/order-loose-confirmation.yaml');
+    const reference = await runSpec(spec, {
+      adapter: acmeSales(),
+      driver: createScriptedDriver(),
+      checks: defaultChecks(),
+      mode: 'F',
+      repeat: 0,
+    });
+    expect(reference.blocks[0]?.observed.text).not.toContain('?');
+    const first = cuesOf(spec, reference, 'reference').filter((cue) => cue.cue.block === 0);
+    expect(first.map((cue) => cue.cls)).toEqual(expect.arrayContaining(['D3_contradiction', 'D1_off_topic']));
   });
 
   it('reads each next cue from the last run, so the attacks follow the conversation it has seen', async () => {
@@ -115,6 +137,7 @@ describe('the adaptive attacker', { timeout: 60_000 }, () => {
     });
     const d8 = result.rounds.find((round) => round.class === 'D8_tool_failure');
     expect(d8?.phrasing.source).toBe('pack');
+    expect(d8?.phrasing.tool).toBe(d8?.cue.tool);
     expect(Object.keys(d8?.perturbation.world?.tools ?? {})).toEqual([d8?.cue.tool]);
   });
 

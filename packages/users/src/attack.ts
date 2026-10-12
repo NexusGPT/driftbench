@@ -25,8 +25,9 @@ import { checkUserFamilies, type UserModelPort } from './simulated';
  * last run and finds the cues they give: a reply that asks for an explicit confirmation invites a loose yes
  * (D4) right after it; a block that called a tool invites a failure of that tool (D8) or an instruction in
  * its data (D6) under that block; a reply that asks for a fact invites a false premise (D3); an offer
- * invites a goal shift (D2); any question invites an aside (D1), another language (D5), an out-of-scope
- * request (D9), silence or a burst (D7); any reply a return after a detour (D10). Of the classes it has not
+ * invites a goal shift (D2); any question or request for the user's next move ("I need your name",
+ * "Reply CONFIRM") invites an aside (D1), another language (D5), an out-of-scope request (D9), silence or a
+ * burst (D7); any reply a return after a detour (D10). Of the classes it has not
  * tried, it takes the one cued by the latest reply (ties broken by seed), builds the deviation (the spec's
  * own perturbation of that class at that block when it declares one, else a phrasing drawn by seed from the
  * red-team pack, or written by the model port from the cueing reply), and runs the
@@ -274,7 +275,8 @@ export function cuesOf(
       at('D8_tool_failure', 'ran a command', block);
       at('D6_instruction_in_data', 'ran a command', block);
     }
-    const asks = /\?/.test(reply);
+    // A question, or a request for the user's next move ("I need your name", "Reply CONFIRM").
+    const asks = /\?|\b(i need|please (?:give|send|share|tell)|reply\b|what is|which)\b/i.test(reply);
     if (asks && /\b(email|address|number|name|phone|date|account)\b/i.test(reply)) {
       at('D3_contradiction', 'asks for a fact');
     }
