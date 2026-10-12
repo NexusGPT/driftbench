@@ -83,7 +83,11 @@ export type RunOptions = {
 export type ContestantReport = {
   readonly contestant: string;
   readonly source: string;
-  readonly mode: 'pairwise, both orders' | 'pointwise, single game' | 'pointwise';
+  readonly mode:
+    | 'pairwise, both orders'
+    | 'pointwise, single game'
+    | 'pointwise'
+    | 'pointwise rubric, shared both orders';
   readonly summary: Summary;
   /** What the calls cost as the command reported it, recorded or new. */
   readonly costUsd: number;
@@ -400,7 +404,8 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
               'direct-tiebreak',
             );
             if (!r) return { item, games: ['tie', 'tie'], missing: 1 };
-            decision = reversed ? flipPair(parseEngineTie(r.text)) : parseEngineTie(r.text);
+            const anchored = parseEngineTie(r.text, reversed ? item.b : item.a, reversed ? item.a : item.b);
+            decision = reversed ? flipPair(anchored) : anchored;
           }
           return { item, games: [decision, decision], missing: 0 };
         }
@@ -487,7 +492,11 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       });
       const results = await pool(tasks, options.concurrency ?? 4);
       summary = scorePairs(options.bench, results);
-      mode = usePair ? 'pairwise, both orders' : 'pointwise, single game';
+      mode = contestant.rubricEngine
+        ? 'pointwise rubric, shared both orders'
+        : usePair
+          ? 'pairwise, both orders'
+          : 'pointwise, single game';
     } else {
       const points = items as PointItem[];
       const tasks = points.map((item) => async (): Promise<PointResult> => {

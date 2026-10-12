@@ -2,12 +2,23 @@ import { describe, expect, it } from 'vitest';
 import {
   fixedMajority,
   hardDecision,
+  parseEngineTie,
   parseRubricPlan,
   parseRubricReply,
   rubricOrder,
 } from '../src/rubric-engine';
 
 describe('pointwise rubric engine', () => {
+  it('resolves a winner letter contradicted by its unique content anchor', () => {
+    expect(
+      parseEngineTie(
+        '{"winner":"B","winner_quote":"unique good answer"}',
+        'The unique good answer.',
+        'other answer',
+      ),
+    ).toBe('A');
+    expect(parseEngineTie('{"winner":"B","winner_quote":"shared"}', 'shared A', 'shared B')).toBe('B');
+  });
   it('enforces hard items before soft counts', () => {
     const rules = [
       { id: 1, hard: true, weight: 1 },

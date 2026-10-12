@@ -157,13 +157,27 @@ export const ENGINE_CONTESTANTS: readonly Contestant[] = [
 export function engineTie(input: { question: string; a: string; b: string; criterion: string }): Prompt {
   return {
     ...atomicPrompt(input),
-    system: `The pointwise rubric checks tie. Compare the replies only against the supplied rubric, with the same standard for both. Explain their decisive differences using actual quotes, then name the better response directly. Never convert pass or fail into a winner. Return JSON {"reason":"specific rubric difference, or equal merits","winner":"A", "B" or "tie"}.`,
+    system: `The pointwise rubric checks tie. Compare the replies only against the supplied rubric, with the same standard for both. Explain their decisive differences using actual quotes, then name the better response directly. Never convert pass or fail into a winner. Copy a short exact passage uniquely identifying the winning reply into winner_quote. The quote and winner must identify the same response. If no unique passage exists, use an empty quote. Return JSON with reason, winner_quote and winner (A, B or tie).`,
   };
 }
 
-export function parseEngineTie(text: string): PairDecision {
-  const winner = jsonObjects(text)
+export function parseEngineTie(text: string, a?: string, b?: string): PairDecision {
+  const object = jsonObjects(text)
     .filter((object) => 'winner' in object)
-    .at(-1)?.winner;
+    .at(-1);
+  const winner = object?.winner;
+  const quote = object?.winner_quote;
+  if (
+    (winner === 'A' || winner === 'B') &&
+    typeof quote === 'string' &&
+    quote.trim() &&
+    a !== undefined &&
+    b !== undefined
+  ) {
+    const normalize = (value: string) => value.replace(/\s+/g, ' ').trim();
+    const inA = normalize(a).includes(normalize(quote));
+    const inB = normalize(b).includes(normalize(quote));
+    if (inA !== inB) return inA ? 'A' : 'B';
+  }
   return winner === 'A' || winner === 'B' ? winner : 'tie';
 }

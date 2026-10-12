@@ -70,6 +70,7 @@ export type CallOptions = {
   readonly timeoutMs?: number;
   /** Passed as --max-budget-usd on every call. */
   readonly maxCallUsd?: number;
+  readonly deadlineMs?: number;
 };
 
 export type Caller = {
@@ -115,7 +116,11 @@ export function createCaller(
       if (limits.deadlineMs !== undefined && Date.now() >= limits.deadlineMs)
         throw new SpendCapReached('model call deadline reached');
       folder ??= await mkdtemp(join(tmpdir(), 'driftbench-bench-'));
-      const result = await runClaude(prompt, options, folder);
+      const result = await runClaude(
+        prompt,
+        { ...options, ...(limits.deadlineMs === undefined ? {} : { deadlineMs: limits.deadlineMs }) },
+        folder,
+      );
       spent += result.costUsd;
       calls += 1;
       const entry: Recorded = {
@@ -155,6 +160,8 @@ async function runClaude(
     ...(options.maxCallUsd === undefined ? [] : ['--max-budget-usd', String(options.maxCallUsd)]),
   ];
   for (let attempt = 1; ; attempt += 1) {
+    const remaining = options.deadlineMs === undefined ? Infinity : options.deadlineMs - Date.now();
+    if (remaining <= 0) throw new SpendCapReached('model call deadline reached');
     let ran: { stdout: string; stderr: string };
     try {
       ran = await spawnOnce(
@@ -162,9 +169,11 @@ async function runClaude(
         args,
         prompt.user,
         cwd,
-        options.timeoutMs ?? 300_000,
+        Math.min(options.timeoutMs ?? 300_000, remaining),
       );
     } catch (cause) {
+      if (options.deadlineMs !== undefined && Date.now() >= options.deadlineMs)
+        throw new SpendCapReached('model call deadline reached');
       // A call past its timeout is tried once more, then its answer is missing and the run goes on.
       if (attempt >= 2) throw new CallFailed(cause instanceof Error ? cause.message : String(cause));
       continue;

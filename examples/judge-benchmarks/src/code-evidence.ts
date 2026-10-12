@@ -13,7 +13,7 @@ export type Execution = {
   stderr?: string;
   code?: number | null;
 };
-const VERSION = 'code-evidence-v4';
+const VERSION = 'code-evidence-v5';
 const LIMIT = 3000;
 
 export function codeBlocks(text: string): CodeBlock[] {
@@ -196,9 +196,18 @@ export async function executeBlock(block: CodeBlock, question: string, root: str
       language: block.language || 'unlabelled',
       status: block.language === 'java' ? 'runtime_unavailable_no_jdk' : 'unsupported_language',
     };
+  let status = result.timedOut ? 'timeout' : result.code === 0 ? 'ran' : 'process_error';
+  if (['python', 'javascript'].includes(block.language) && result.code === 0) {
+    try {
+      const last = JSON.parse(result.stdout.split('\n').at(-1) ?? '') as { status?: string };
+      if (typeof last.status === 'string') status = last.status;
+    } catch {
+      status = 'runner_output_unparsed';
+    }
+  }
   return {
     language: block.language,
-    status: result.timedOut ? 'timeout' : result.code === 0 ? 'ran' : 'process_error',
+    status,
     stdout: result.stdout,
     stderr: result.stderr,
     code: result.code,
