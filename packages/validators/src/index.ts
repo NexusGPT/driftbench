@@ -5,6 +5,13 @@
 export const packageName = '@driftbench/validators';
 
 export {
+  allFailingItems,
+  blindReport,
+  type FailingItem,
+  formatAllFailing,
+  stripHint,
+} from './audit';
+export {
   type BankRow,
   type BankSummary,
   type BankVerdict,
