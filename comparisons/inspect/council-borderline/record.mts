@@ -4,17 +4,20 @@
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { buildPrompt } from '../../../packages/judges/src/prompt';
-import { loadCriteria } from '../../../packages/judges/src/criteria';
 import { loadLabels } from '../../../packages/judges/src/calibration';
-import { parseAnswerText, type JudgeRequest } from '../../../packages/judges/src/contract';
+import { type JudgeRequest, parseAnswerText } from '../../../packages/judges/src/contract';
+import { loadCriteria } from '../../../packages/judges/src/criteria';
+import { buildPrompt } from '../../../packages/judges/src/prompt';
 
 const model = process.argv[2];
-if (!model || !['haiku', 'sonnet', 'opus'].includes(model)) throw new Error('model must be haiku, sonnet or opus');
+if (!model || !['haiku', 'sonnet', 'opus'].includes(model))
+  throw new Error('model must be haiku, sonnet or opus');
 const out = process.argv[3] ?? fileURLToPath(new URL(`./recorded-${model}.json`, import.meta.url));
 const CLAUDE = process.env.CLAUDE_BIN ?? 'claude';
 
-const { criteria } = await loadCriteria(fileURLToPath(new URL('../../../examples/acme/criteria', import.meta.url)));
+const { criteria } = await loadCriteria(
+  fileURLToPath(new URL('../../../examples/acme/criteria', import.meta.url)),
+);
 const criterion = criteria.find((c) => c.def.name === 'care_redirect')!.def;
 const { labels: byName } = await loadLabels(fileURLToPath(new URL('./labels', import.meta.url)));
 const labels = [...(byName.get('care_redirect') ?? [])];
@@ -30,9 +33,33 @@ function run(args: string[], stdin: string): Promise<string> {
 }
 
 async function judge(block: (typeof labels)[number]) {
-  const request: JudgeRequest = { criterion: { name: criterion.name, rubric: criterion.rubric, pass: criterion.pass, fail: criterion.fail }, transcript: block.transcript };
+  const request: JudgeRequest = {
+    criterion: { name: criterion.name, rubric: criterion.rubric, pass: criterion.pass, fail: criterion.fail },
+    transcript: block.transcript,
+  };
   const prompt = buildPrompt(request);
-  const stdout = await run(['-p', '--output-format', 'json', '--model', model, '--system-prompt', prompt.system, '--tools', '', '--setting-sources', '', '--strict-mcp-config', '--no-session-persistence', '--max-turns', '1', '--max-budget-usd', '0.01'], prompt.user);
+  const stdout = await run(
+    [
+      '-p',
+      '--output-format',
+      'json',
+      '--model',
+      model,
+      '--system-prompt',
+      prompt.system,
+      '--tools',
+      '',
+      '--setting-sources',
+      '',
+      '--strict-mcp-config',
+      '--no-session-persistence',
+      '--max-turns',
+      '1',
+      '--max-budget-usd',
+      '0.01',
+    ],
+    prompt.user,
+  );
   let text = '';
   let cost = 0;
   let isError = true;
@@ -50,14 +77,24 @@ async function judge(block: (typeof labels)[number]) {
 
 const rows: Awaited<ReturnType<typeof judge>>[] = [];
 const queue = [...labels];
-await Promise.all(Array.from({ length: 4 }, async () => {
-  while (queue.length > 0) {
-    const block = queue.shift();
-    if (block) rows.push(await judge(block));
-  }
-}));
+await Promise.all(
+  Array.from({ length: 4 }, async () => {
+    while (queue.length > 0) {
+      const block = queue.shift();
+      if (block) rows.push(await judge(block));
+    }
+  }),
+);
 rows.sort((a, b) => a.id.localeCompare(b.id));
 const costUsd = rows.reduce((sum, r) => sum + r.cost, 0);
 writeFileSync(out, JSON.stringify({ model, calls: rows.length, costUsd, rows }, null, 2));
 const wrong = rows.filter((r) => r.outcome !== 'inconclusive' && r.outcome !== r.label).length;
-console.log(JSON.stringify({ model, calls: rows.length, wrong, inconclusive: rows.filter((r) => r.outcome === 'inconclusive').length, costUsd: Number(costUsd.toFixed(4)) }));
+console.log(
+  JSON.stringify({
+    model,
+    calls: rows.length,
+    wrong,
+    inconclusive: rows.filter((r) => r.outcome === 'inconclusive').length,
+    costUsd: Number(costUsd.toFixed(4)),
+  }),
+);

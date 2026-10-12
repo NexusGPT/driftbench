@@ -5,11 +5,16 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { majority } from '../../../packages/judges/src/council';
-import { weightedPanel, type PanelVote } from '../../../packages/judges/src/weighted-panel';
+import { type PanelVote, weightedPanel } from '../../../packages/judges/src/weighted-panel';
 
 const models = ['haiku', 'sonnet', 'opus'] as const;
 const recorded = Object.fromEntries(
-  models.map((m) => [m, JSON.parse(readFileSync(fileURLToPath(new URL(`./recorded-${m}.json`, import.meta.url)), 'utf8')) as { rows: Array<{ id: string; label: 'pass' | 'fail'; outcome: string }> }]),
+  models.map((m) => [
+    m,
+    JSON.parse(readFileSync(fileURLToPath(new URL(`./recorded-${m}.json`, import.meta.url)), 'utf8')) as {
+      rows: Array<{ id: string; label: 'pass' | 'fail'; outcome: string }>;
+    },
+  ]),
 );
 const kappa = { 'claude-haiku': 0.9475100942126514, 'claude-sonnet': 1, 'claude-opus': 1 };
 const idMap = new Map(models.map((m) => [m, `claude-${m}`]));
@@ -31,7 +36,10 @@ for (const id of ids) {
   const p = majority(votes as never);
   const pv = p === 'pass' || p === 'fail' ? p : 'split';
   const wv = weightedPanel(votes, kappa);
-  for (const [t, v, name] of [[plain, pv, 'plain'], [weighted, wv, 'weighted']] as const) {
+  for (const [t, v, name] of [
+    [plain, pv, 'plain'],
+    [weighted, wv, 'weighted'],
+  ] as const) {
     if (v === 'split') t.split += 1;
     else if (v === label) t.right += 1;
     else {
@@ -47,4 +55,16 @@ for (const id of ids) {
     else t.wrong += 1;
   }
 }
-console.log(JSON.stringify({ blocks: ids.length, plainMajority: plain, weightedAbstain: weighted, singleModel: single, wrongOn: wrongIds }, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      blocks: ids.length,
+      plainMajority: plain,
+      weightedAbstain: weighted,
+      singleModel: single,
+      wrongOn: wrongIds,
+    },
+    null,
+    2,
+  ),
+);

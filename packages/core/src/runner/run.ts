@@ -156,7 +156,11 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   };
 
   const replayed = cache ? await execute(run, replayChannel(cache, run.toolPolicy)) : undefined;
-  const result = replayed ?? (await execute(run, liveChannel(run)));
+  // A run the cache holds only in part resumes: each block it finished is read back, and the first block it did not
+  // finish goes to the adapter, which opens its session from the history the run has built so far.
+  const result =
+    replayed ??
+    (await execute(run, cache ? resumeChannel(cache, liveChannel(run), run.toolPolicy) : liveChannel(run)));
   if (!result) throw new Error('runSpec: a live run always gives a result');
   options.onEvent?.({ type: 'run_end', status: result.status, at: new Date().toISOString() });
   // The run as the store keeps it: written as JSON and read back, so what is returned is what is stored.
@@ -693,6 +697,45 @@ function asJson(value: unknown, block: number): unknown {
 function gateObserved(observed: Observed, toolPolicy: readonly ToolRule[] | undefined): Observed {
   if (!toolPolicy || toolPolicy.length === 0) return observed;
   return { ...observed, toolCalls: gateToolCalls(observed.toolCalls, toolPolicy) };
+}
+
+/**
+ * A run that is partly in the cache: a block the cache holds is read back, and a block it does not hold goes to the live
+ * channel. Once a block goes live, every later block does too, since the live session carries the history.
+ */
+function resumeChannel(
+  cache: ObservedCache,
+  live: Channel,
+  toolPolicy: readonly ToolRule[] | undefined,
+): Channel {
+  // Set at the first block the cache does not hold. From then on the live session carries the run, so no later cached
+  // block is read back: its recorded reply came from a session that no longer exists.
+  let wentLive = false;
+  return {
+    replay: false,
+    restart: () => live.restart(),
+    reseat: (prefix) => live.reseat(prefix),
+    async observe(turn, user, key) {
+      if (!wentLive) {
+        const hit = Observed.safeParse(await cache.cacheGet(key));
+        if (hit.success) return gateObserved(hit.data, toolPolicy);
+        wentLive = true;
+      }
+      return live.observe(turn, user, key);
+    },
+    async endState(sources, key) {
+      if (wentLive) return live.endState(sources, key);
+      const states: unknown[] = [];
+      for (const source of sources) {
+        const hit = await cache.cacheGet(endStateCacheKey(key, source));
+        if (!hit) return live.endState(sources, key);
+        states.push(unwrapEndState(hit));
+      }
+      return { kind: 'read', states };
+    },
+    readArtifact: live.readArtifact,
+    close: () => live.close(),
+  };
 }
 
 function replayChannel(cache: ObservedCache, toolPolicy: readonly ToolRule[] | undefined): Channel {
