@@ -5,6 +5,7 @@ import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, extname, join } from 'node:path';
 import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@driftbench/generate';
+import { reapFolder, trackFolder, trackGroup, untrackFolder, untrackGroup } from '@driftbench/sandbox';
 import { parse as parseYaml } from 'yaml';
 import { guardName } from '../scan/code';
 import type { EstateReader, GuardDecl } from '../scan/reader';
@@ -96,6 +97,8 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
   const notes: string[] = [];
   const raw = await options.reader.read(options.root);
   const work = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-unit-')));
+  // Removed at exit or on a signal if the run never reaches its finally, with what still runs in it.
+  trackFolder(work);
   const copy = join(work, 'estate');
   try {
     await copyListed(options.root, copy, options.reader);
@@ -129,7 +132,11 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
     );
     return { results, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
   } finally {
+    // A guard may start a daemon that leaves its process group (a new session) and outlives the run: what
+    // still names or stands in the run's folder ends before the folder goes.
+    await reapFolder([work]);
     await rm(work, { recursive: true, force: true });
+    untrackFolder(work);
   }
 }
 
@@ -690,17 +697,28 @@ async function execute(
     : argv;
   const started = performance.now();
   return await new Promise<Exec>((resolve) => {
+    // Its own process group, so what it leaves running in the background ends with it.
     const child = spawn(command[0] as string, command.slice(1), {
       cwd,
       env,
+      detached: true,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
+    if (child.pid !== undefined) trackGroup(child.pid);
+    const killGroup = () => {
+      if (child.pid === undefined) return;
+      try {
+        process.kill(-child.pid, 'SIGKILL');
+      } catch {
+        // The group already ended.
+      }
+    };
     let stdout = '';
     let stderr = '';
     let timedOut = false;
     const timer = setTimeout(() => {
       timedOut = true;
-      child.kill('SIGKILL');
+      killGroup();
     }, timeoutMs);
     child.stdout.on('data', (chunk: Buffer) => {
       stdout += chunk.toString('utf8');
@@ -720,8 +738,10 @@ async function execute(
         timedOut,
       });
     });
+    child.on('exit', killGroup);
     child.on('close', (code) => {
       clearTimeout(timer);
+      if (child.pid !== undefined) untrackGroup(child.pid);
       resolve({
         exitCode: code ?? 1,
         stdout: neutral(stdout, runner.work),

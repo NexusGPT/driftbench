@@ -296,24 +296,46 @@ describe('planted faults, one per level', () => {
     }
   });
 
-  it('gives roles only when the system prompt of the extractor asks for them', async () => {
-    expect(contractStatesRole()).toBe(false);
-    expect(contractStatesRole('{"id": "x", "role": "<axis or detail>"}')).toBe(true);
+  it('gives roles only when the system prompt of the extractor asks for them', () => {
+    const template = '{"dimensions": [{"id": "<dimension id>", "kind": "<kind>"}]}';
+    expect(contractStatesRole(template)).toBe(false);
     const spec = hiddenSpec(1);
     const rendered = render(spec, baseOptions(spec));
-    const answers = oracleRecording(spec, rendered, { roles: true }).answers as Record<
-      string,
-      { dimensions: Array<{ id: string; role?: string }> }
-    >;
+    const answers = oracleRecording(spec, rendered, { roles: contractStatesRole(template) })
+      .answers as Record<string, { dimensions: Array<{ id: string; role?: string }> }>;
+    expect(answers.personas?.dimensions.length).toBeGreaterThan(0);
+    for (const dimension of answers.personas?.dimensions ?? []) expect(dimension).not.toHaveProperty('role');
+  });
+
+  it('gives declared roles when the system prompt of the extractor asks for them', () => {
+    const template =
+      '{"dimensions": [{"id": "<dimension id>", "kind": "<kind>", "role": "<axis or detail>"}]}';
+    expect(contractStatesRole(template)).toBe(true);
+    const spec = hiddenSpec(1);
+    const rendered = render(spec, baseOptions(spec));
+    const answers = oracleRecording(spec, rendered, { roles: contractStatesRole(template) })
+      .answers as Record<string, { dimensions: Array<{ id: string; role?: string }> }>;
     const declared = new Map(truthOf(spec).roles.map((entry) => [entry.dimension, entry.role]));
-    for (const dimension of answers.personas?.dimensions ?? [])
+    expect(answers.personas?.dimensions.length).toBeGreaterThan(0);
+    for (const dimension of answers.personas?.dimensions ?? []) {
+      expect(declared.has(dimension.id)).toBe(true);
       expect(dimension.role).toBe(declared.get(dimension.id));
-    // Today's strict answer schema refuses the key, so the default recording leaves it out.
-    const strict = await runPipeline(spec, baseOptions(spec), {
+    }
+  });
+
+  it('accepts or refuses explicit role answers according to the live extractor contract', async () => {
+    const spec = hiddenSpec(1);
+    const run = await runPipeline(spec, baseOptions(spec), {
       answerer: (s, r) => oracleRecording(s, r, { roles: true }),
     });
-    expect(
-      strict.result.ok && strict.result.refusals.some((refusal) => /unknown key role/.test(refusal.reason)),
-    ).toBe(true);
+    expect(run.result.ok).toBe(true);
+    if (!run.result.ok) throw new Error('the extractor refused the rendering');
+    const roleRefused = run.result.refusals.some((refusal) => /unknown key role/.test(refusal.reason));
+    expect(roleRefused).toBe(!contractStatesRole());
+    if (contractStatesRole()) {
+      const declared = new Map(truthOf(spec).roles.map((entry) => [entry.dimension, entry.role]));
+      for (const [id, role] of declared)
+        expect(run.result.proposal.dimensions.find((dimension) => dimension.id === id)?.role).toBe(role);
+    }
   });
 });
