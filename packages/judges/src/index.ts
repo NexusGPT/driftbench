@@ -124,6 +124,7 @@ export {
   parseCriterionFile,
 } from './criteria';
 export { fitPrompt } from './budget';
+export { type ScreenFinding, type ScreenReport, screenData } from './screen';
 export { type Grounding, groundEvidence } from './evidence';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
 export { type LintIssue, lintCriterion } from './lint';
