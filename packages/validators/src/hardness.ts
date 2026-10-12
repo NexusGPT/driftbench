@@ -65,6 +65,10 @@ export type Hardness = {
   /** Reported, not gating: a builder pilot more than 1.5 times slower than the blind one. */
   flags: string[];
   gate: { holds: boolean; reasons: string[] };
+  /** The score ceiling after the pilot: HARDNESS_MAX_SCORE, or the lowered bar of validators/<component>/GATE.md. */
+  maxScore: number;
+  /** True when GATE.md lowered the bar for this validator. */
+  lowered: boolean;
   bankMinimum: { holds: boolean; problems: string[] };
   /** The four verdicts of `audit.md`, or null when the file is absent. */
   audit: AuditVerdict[] | null;
@@ -112,7 +116,20 @@ function measurePilot(
  * builder pilot more than 1.5 times slower is flagged. `audit` is the text of `audit.md`, when present. Throws
  * when the journal has no builder iteration 0 row.
  */
-export function measureHardness(rows: readonly JournalRow[], options: { audit?: string } = {}): Hardness {
+/**
+ * The lowered bar of a validator, from its GATE.md: the line `Max score after the pilot: <n>`. Only a value above
+ * HARDNESS_MAX_SCORE and under 0.5 is a lowered bar; anything else is ignored.
+ */
+export function parseGate(text: string): number | null {
+  const match = /max score after the pilot:\s*([0-9.]+)/i.exec(text);
+  const value = match ? Number(match[1]) : Number.NaN;
+  return value > HARDNESS_MAX_SCORE && value < 0.5 ? value : null;
+}
+
+export function measureHardness(
+  rows: readonly JournalRow[],
+  options: { audit?: string; gate?: string } = {},
+): Hardness {
   const zero = rows.find((row) => executorOf(row) === 'builder' && row.iteration === 0);
   const latest = rows.at(-1);
   if (!zero || !latest)
@@ -136,8 +153,12 @@ export function measureHardness(rows: readonly JournalRow[], options: { audit?: 
   if (forecast !== null && forecast < HARDNESS_MIN_FORECAST) {
     reasons.push(`the forecast ${round(forecast)} is under ${HARDNESS_MIN_FORECAST}: extend the bank (12.2)`);
   }
-  if (end && end.score > HARDNESS_MAX_SCORE) {
-    reasons.push(`the score after ${label} ${round(end.score)} is above ${HARDNESS_MAX_SCORE}`);
+  const lowered = options.gate === undefined ? null : parseGate(options.gate);
+  const maxScore = lowered ?? HARDNESS_MAX_SCORE;
+  if (end && end.score > maxScore) {
+    reasons.push(
+      `the score after ${label} ${round(end.score)} is above ${maxScore}${lowered === null ? '' : ' (the bar GATE.md lowers)'}`,
+    );
   }
   const causes =
     endRow?.failingCauses !== undefined
@@ -183,6 +204,8 @@ export function measureHardness(rows: readonly JournalRow[], options: { audit?: 
     causes,
     flags,
     gate: { holds: reasons.length === 0, reasons },
+    maxScore,
+    lowered: lowered !== null,
     bankMinimum: bankMinimum(latest),
     audit,
   };
@@ -307,7 +330,7 @@ export function formatHardness(component: string, h: Hardness): string {
           : ` (${h.causes.withoutCause} failing items name no cause and count as their own)`
       }.\n`;
   text += h.gate.holds
-    ? `Gate: HOLDS (forecast at least ${HARDNESS_MIN_FORECAST}, score after the pilot at most ${HARDNESS_MAX_SCORE}, at least ${HARDNESS_MIN_CAUSES} distinct failing causes, all four audit checks pass).\n`
+    ? `Gate: HOLDS (forecast at least ${HARDNESS_MIN_FORECAST}, score after the pilot at most ${h.maxScore}${h.lowered ? ', lowered in GATE.md' : ''}, at least ${HARDNESS_MIN_CAUSES} distinct failing causes, all four audit checks pass).\n`
     : `Gate: NOT MET: ${h.gate.reasons.join('; ')}.\n`;
   text += h.bankMinimum.holds
     ? 'Bank minimum at merge (12.1): holds.\n'
