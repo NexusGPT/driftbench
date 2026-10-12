@@ -1,5 +1,6 @@
 import type { ExtractResult, SourceText } from '@driftbench/generate';
 import type { Extract } from '../run';
+import type { CodeEntry } from './facts';
 import type { Planted } from './perfect';
 
 /**
@@ -50,6 +51,8 @@ export type BankItem = {
   check(runs: CaseRun[], seed: number): Outcome;
   /** An item that drives its own runs (the first-version levels) replaces generate and check with this. */
   run?: (seed: number, deps: BankDeps) => Promise<Outcome>;
+  /** The code truth of a single-case item on a seed, for tests of the items themselves. */
+  code?: (seed: number) => CodeEntry[];
 };
 
 /** What the bank runs with. Tests plant a faulty extractor here. */

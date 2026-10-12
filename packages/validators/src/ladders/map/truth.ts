@@ -139,6 +139,18 @@ export function truthOf(spec: HiddenSpec): Truth {
       });
     }
   }
+  // A behaviour a flow lists belongs to that flow: the pre-pass forbids it in every flow that does not list it.
+  for (const behaviour of spec.behaviours) {
+    if (!spec.flows.some((flow) => flow.behaviours.includes(behaviour.id))) continue;
+    for (const flow of spec.flows) {
+      if (flow.behaviours.includes(behaviour.id)) continue;
+      constraints.push({
+        id: `behaviour=${behaviour.id},flow=${flow.id}`,
+        forbid: { behaviour: behaviour.id, flow: flow.id },
+        from: 'inventory',
+      });
+    }
+  }
   for (const constraint of spec.stageConstraints) {
     constraints.push({
       id: constraint.id,
