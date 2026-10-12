@@ -336,6 +336,7 @@ export function outcomeFromProbability(
 ): JudgeOutcome {
   const passAt = bounds.passAt ?? 0.6;
   const failAt = bounds.failAt ?? 0.4;
+  if (!(failAt < passAt)) throw new RangeError(`failAt (${failAt}) must be under passAt (${passAt})`);
   if (!(probability >= 0 && probability <= 1)) return 'inconclusive';
   if (probability >= passAt) return 'pass';
   if (probability <= failAt) return 'fail';

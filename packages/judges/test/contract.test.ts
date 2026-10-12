@@ -171,3 +171,16 @@ describe('a probability outside 0 to 1', () => {
   });
 });
 
+describe('bounds that cross', () => {
+  it('refuses a failAt that is not under passAt, whatever the probability', () => {
+    expect(() => outcomeFromProbability(0.5, { passAt: 0.3, failAt: 0.7 })).toThrow(RangeError);
+    expect(() => outcomeFromProbability(0.5, { passAt: 0.5, failAt: 0.5 })).toThrow(RangeError);
+    expect(() => outcomeFromProbability(7, { passAt: 0.3, failAt: 0.7 })).toThrow(RangeError);
+  });
+
+  it('accepts one bound alone when it keeps failAt under passAt', () => {
+    expect(outcomeFromProbability(0.5, { passAt: 0.45 })).toBe('pass');
+    expect(() => outcomeFromProbability(0.5, { failAt: 0.7 })).toThrow(RangeError);
+  });
+});
+
