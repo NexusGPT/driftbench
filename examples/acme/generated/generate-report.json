@@ -4,11 +4,11 @@
     "path": "../map/approved.yaml",
     "agent": "acme",
     "version": "1",
-    "hash": "7bb7bd4844da",
+    "hash": "d8826d435394",
     "dimensions": 46,
     "values": 178,
     "constraints": 59,
-    "phrases": 51
+    "phrases": 55
   },
   "options": {
     "t": 2,
@@ -16,10 +16,10 @@
     "max": null
   },
   "summary": {
-    "specs": 298,
-    "blocks": 986,
-    "complete": 160,
-    "incomplete": 138
+    "specs": 302,
+    "blocks": 1084,
+    "complete": 189,
+    "incomplete": 113
   },
   "seeders": {
     "graph": {
@@ -32,10 +32,10 @@
     },
     "twise": {
       "specs": 182,
-      "blocks": 711,
-      "complete": 115,
-      "needs_phrase": 28,
-      "needs_then": 67,
+      "blocks": 789,
+      "complete": 138,
+      "needs_phrase": 0,
+      "needs_then": 44,
       "cut": false
     },
     "boundary": {
@@ -48,16 +48,16 @@
     },
     "deviation": {
       "specs": 12,
-      "blocks": 60,
-      "complete": 10,
-      "needs_phrase": 2,
-      "needs_then": 2,
+      "blocks": 64,
+      "complete": 12,
+      "needs_phrase": 0,
+      "needs_then": 0,
       "cut": false
     },
     "metamorphic": {
-      "specs": 12,
-      "blocks": 54,
-      "complete": 10,
+      "specs": 16,
+      "blocks": 70,
+      "complete": 14,
       "needs_phrase": 0,
       "needs_then": 2,
       "cut": false
@@ -157,24 +157,26 @@
       },
       {
         "class": "D11_pii_leak",
-        "stage": null,
+        "stage": "recap",
         "spec": "gen-deviation-011",
-        "phrase": false
+        "phrase": true
       },
       {
         "class": "D12_prompt_extraction",
-        "stage": null,
+        "stage": "offer",
         "spec": "gen-deviation-012",
-        "phrase": false
+        "phrase": true
       }
     ]
   },
   "metamorphic": {
-    "families": 6,
-    "specs": 12,
+    "families": 8,
+    "specs": 16,
     "values": [
       "flow=upgrade",
       "deviation=D4_loose_confirmation",
+      "deviation=D11_pii_leak",
+      "deviation=D12_prompt_extraction",
       "stage_transition=needs-to-identify",
       "stage_transition=needs-to-address",
       "stage_transition=details-to-recap",
@@ -601,50 +603,6 @@
   },
   "no_phrase": [
     {
-      "dimension": "deviation",
-      "value": "D11_pii_leak",
-      "blocks": 15,
-      "specs": [
-        "gen-twise-012",
-        "gen-twise-025",
-        "gen-twise-038",
-        "gen-twise-051",
-        "gen-twise-064",
-        "gen-twise-077",
-        "gen-twise-090",
-        "gen-twise-103",
-        "gen-twise-116",
-        "gen-twise-129",
-        "gen-twise-142",
-        "gen-twise-155",
-        "gen-twise-168",
-        "gen-twise-181",
-        "gen-deviation-011"
-      ]
-    },
-    {
-      "dimension": "deviation",
-      "value": "D12_prompt_extraction",
-      "blocks": 15,
-      "specs": [
-        "gen-twise-013",
-        "gen-twise-026",
-        "gen-twise-039",
-        "gen-twise-052",
-        "gen-twise-065",
-        "gen-twise-078",
-        "gen-twise-091",
-        "gen-twise-104",
-        "gen-twise-117",
-        "gen-twise-130",
-        "gen-twise-143",
-        "gen-twise-156",
-        "gen-twise-169",
-        "gen-twise-182",
-        "gen-deviation-012"
-      ]
-    },
-    {
       "dimension": "catalog.search.in.category",
       "value": "catalog.search.in.category.mobile",
       "blocks": 1,
@@ -1049,46 +1007,6 @@
   ],
   "no_then": [
     {
-      "spec": "gen-twise-012",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path upgrade-plan-not-in-catalog: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-unknown-email: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-order: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-most-data: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-013",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path upgrade-order: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-plan-not-in-catalog: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-unknown-email: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-most-data: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-025",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path upgrade-order: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-most-data: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-plan-not-in-catalog: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-unknown-email: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-026",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path upgrade-order: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-most-data: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-plan-not-in-catalog: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-unknown-email: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
       "spec": "gen-twise-029",
       "blocks": ["b1-open", "b2-D2_goal_shift"],
       "reasons": [
@@ -1119,26 +1037,6 @@
       ]
     },
     {
-      "spec": "gen-twise-038",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
-        "path home-address-not-found: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map"
-      ]
-    },
-    {
-      "spec": "gen-twise-039",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path home-order: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path home-callback: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
       "spec": "gen-twise-042",
       "blocks": ["b1-open", "b2-D2_goal_shift"],
       "reasons": [
@@ -1156,26 +1054,6 @@
         "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
         "path home-no-coverage: no stage of the path takes D3_contradiction: none its recovery allows has an approved phrase",
         "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service"
-      ]
-    },
-    {
-      "spec": "gen-twise-051",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service",
-        "path home-no-coverage: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-052",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path home-callback: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path home-order: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds fiber",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds fiber"
       ]
     },
     {
@@ -1206,82 +1084,6 @@
         "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
         "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
         "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service"
-      ]
-    },
-    {
-      "spec": "gen-twise-064",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-no-coverage: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service"
-      ]
-    },
-    {
-      "spec": "gen-twise-065",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path home-callback: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path home-order: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only"
-      ]
-    },
-    {
-      "spec": "gen-twise-077",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path porting-keep-number: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path porting-locked-number: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-078",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path porting-keep-number: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path porting-locked-number: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-090",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path porting-locked-number: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path porting-keep-number: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-091",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path porting-locked-number: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path porting-keep-number: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-103",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
-        "path porting-locked-number: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds not-in-map",
-        "path porting-keep-number: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds not-in-map",
-        "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer"
-      ]
-    },
-    {
-      "spec": "gen-twise-104",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds 5g-only",
-        "path porting-locked-number: it needs user_type in new-customer; the cell holds existing-customer",
-        "path order-single-plan: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path porting-keep-number: it needs user_type in new-customer; the cell holds existing-customer",
-        "path upgrade-order: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-plan-not-in-catalog: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase"
       ]
     },
     {
@@ -1333,30 +1135,6 @@
       ]
     },
     {
-      "spec": "gen-twise-116",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path upgrade-plan-not-in-catalog: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-order: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-unknown-email: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-most-data: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds 5g-only",
-        "path order-single-plan: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-117",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-most-data: it needs user_type in existing-customer; the cell holds new-customer",
-        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
-        "path order-single-plan: it needs coverage_result in 5g-only; the cell holds fiber",
-        "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds new-customer",
-        "path order-named-plan: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
       "spec": "gen-twise-118",
       "blocks": ["b1-open"],
       "reasons": [
@@ -1405,18 +1183,6 @@
       ]
     },
     {
-      "spec": "gen-twise-129",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path order-named-plan: it needs coverage_result in fiber; the cell holds 5g-only",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds 5g-only",
-        "path home-callback: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path home-order: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds 5g-only",
-        "path order-single-plan: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
       "spec": "gen-twise-130",
       "blocks": ["b1-open", "b2-D12_prompt_extraction"],
       "reasons": [
@@ -1436,46 +1202,6 @@
         "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
         "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
         "path home-address-not-found: no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-142",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path home-no-coverage: it needs coverage_result in no-service; the cell holds not-in-map",
-        "path home-address-not-found: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map",
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds not-in-map"
-      ]
-    },
-    {
-      "spec": "gen-twise-143",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path home-no-coverage: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-        "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service"
-      ]
-    },
-    {
-      "spec": "gen-twise-155",
-      "blocks": ["b1-open", "b2-D11_pii_leak"],
-      "reasons": [
-        "path upgrade-order: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-most-data: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-plan-not-in-catalog: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-unknown-email: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-twise-156",
-      "blocks": ["b1-open", "b2-D12_prompt_extraction"],
-      "reasons": [
-        "path upgrade-order: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-unknown-email: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-most-data: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-plan-not-in-catalog: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase"
       ]
     },
     {
@@ -1659,30 +1385,6 @@
       "reasons": ["no approved path needs callback_phone=not-given"]
     },
     {
-      "spec": "gen-deviation-011",
-      "blocks": ["b4-D11_pii_leak"],
-      "reasons": [
-        "path order-named-plan: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path home-no-coverage: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path porting-locked-number: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path home-order: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path upgrade-most-data: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase",
-        "path order-single-plan: no stage of the path takes D11_pii_leak: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
-      "spec": "gen-deviation-012",
-      "blocks": ["b4-D12_prompt_extraction"],
-      "reasons": [
-        "path order-named-plan: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path home-order: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-order: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-plan-not-in-catalog: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path porting-locked-number: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase",
-        "path upgrade-most-data: no stage of the path takes D12_prompt_extraction: none its recovery allows has an approved phrase"
-      ]
-    },
-    {
       "spec": "gen-metamorphic-001-1",
       "blocks": ["b1-open", "b2-D1_off_topic"],
       "reasons": ["no approved path says flow=upgrade"]
@@ -1698,17 +1400,17 @@
     "allowed": 912,
     "complete": {
       "t": 2,
-      "specs": 160,
+      "specs": 189,
       "allowed": 912,
-      "covered": 605,
-      "share": 0.6633771929824561
+      "covered": 663,
+      "share": 0.7269736842105263
     },
     "all": {
       "t": 2,
-      "specs": 298,
+      "specs": 302,
       "allowed": 912,
-      "covered": 726,
-      "share": 0.7960526315789473
+      "covered": 737,
+      "share": 0.8081140350877193
     },
     "baseline": {
       "label": "examples/acme/specs",

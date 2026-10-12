@@ -30,9 +30,9 @@ describe('the Acme map proposal', () => {
     expect(counts).toMatchObject({
       dimensions: 46,
       constraints: 59,
-      phrases: 51,
-      relations: 63,
-      total: 219,
+      phrases: 55,
+      relations: 65,
+      total: 225,
       approved: 0,
     });
     expect(counts.valuesApproved).toBe(0);
@@ -60,8 +60,8 @@ describe('the Acme map proposal', () => {
     const deviation = dimensions.find((dimension) => dimension.id === 'deviation');
     expect(
       deviation?.values.filter((value) => value.produced_by === 'model').map((value) => value.id),
-    ).toEqual(['D7_silence_or_burst', 'D9_out_of_scope']);
-    expect(axisGrid(loaded.proposal)).toEqual({ cells: 81312, limit: DEFAULT_MAX_CELLS });
+    ).toEqual(['D7_silence_or_burst', 'D9_out_of_scope', 'D11_pii_leak', 'D12_prompt_extraction']);
+    expect(axisGrid(loaded.proposal)).toEqual({ cells: 96096, limit: DEFAULT_MAX_CELLS });
   });
 
   it('is exactly what the extractor writes from the sources and the recorded lane answers', async () => {
@@ -175,7 +175,7 @@ describe('the Acme map proposal', () => {
     const flipped = approveAll(proposal.text);
     if (!flipped.ok) throw new Error('cannot approve');
     expect(approved.text).toBe(flipped.text);
-    expect(countEntries(approved.proposal)).toMatchObject({ total: 219, approved: 219, valuesApproved: 175 });
+    expect(countEntries(approved.proposal)).toMatchObject({ total: 225, approved: 225, valuesApproved: 177 });
   });
 
   it('gives the space commands a map of seven axes they accept, written in space.yaml', async () => {
@@ -183,7 +183,7 @@ describe('the Acme map proposal', () => {
     if (!approved.ok) throw new Error('invalid');
     const map = toSpaceMap(approved.proposal, { approvedOnly: true });
     expect(validateSpaceMap(map).ok).toBe(true);
-    expect(gridSize(map)).toBe(81312);
+    expect(gridSize(map)).toBe(96096);
     expect(gridSize(map)).toBeLessThanOrEqual(DEFAULT_MAX_CELLS);
     const written = await loadSpaceMap(`${ACME}map/space.yaml`);
     if (!written.ok) throw new Error(JSON.stringify(written.errors));

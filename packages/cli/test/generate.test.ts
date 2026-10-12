@@ -111,13 +111,13 @@ describe('driftbench generate', () => {
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
     expect(first.out).toContain('Stage graph: 18 of 23 edges covered in 12 paths from needs.');
-    expect(first.out).toMatch(/twise\s+182\s+711\s+115\s+67/);
+    expect(first.out).toMatch(/twise\s+182\s+789\s+138\s+44/);
     expect(first.out).toContain('Constraints applied: 59.');
     expect(first.out).toContain('  Most frequent reasons:');
     expect(first.out).toContain('13  no approved path belongs to a flow of B-013 (price-sheet)');
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(160);
+    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(189);
 
     const refused = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a'], dir);
     expect(refused.code).toBe(2);
@@ -143,7 +143,7 @@ describe('driftbench generate', () => {
     const result = await run(['generate', '--map', `${ACME}map/proposal.yaml`, '--out', 'out'], dir);
     expect(result.code).toBe(2);
     expect(result.err).toContain('MAP_NOT_APPROVED');
-    expect(result.err).toContain('219 of 219 entries are not approved');
+    expect(result.err).toContain('225 of 225 entries are not approved');
     expect(await readdir(dir)).toEqual([]);
   });
 

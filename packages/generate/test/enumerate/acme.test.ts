@@ -37,10 +37,10 @@ describe('generate on the approved Acme map', () => {
     });
   }, 60_000);
 
-  it('reads the 46 approved dimensions, the 59 constraints, the 51 approved phrases and the relations', () => {
+  it('reads the 46 approved dimensions, the 59 constraints, the 55 approved phrases and the relations', () => {
     expect(prepared.map.dimensions).toHaveLength(46);
     expect(prepared.map.constraints).toHaveLength(59);
-    expect(prepared.phrases).toHaveLength(51);
+    expect(prepared.phrases).toHaveLength(55);
     expect(prepared.relations.paths).toHaveLength(12);
     expect(prepared.relations.usesTools).toHaveLength(14);
     expect(prepared.relations.binds.size).toBe(12);
@@ -117,7 +117,7 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 160, incomplete: 138 });
+    expect(result.report.summary).toMatchObject({ complete: 189, incomplete: 113 });
   });
 
   it('probes all 10 deviation classes, each user turn an approved phrase with its slots filled from the map', () => {
@@ -150,7 +150,7 @@ describe('generate on the approved Acme map', () => {
       const name = family(spec);
       if (name) groups.set(name, [...(groups.get(name) ?? []), spec]);
     }
-    expect([...groups.keys()]).toHaveLength(6);
+    expect([...groups.keys()]).toHaveLength(8);
     const strip = (spec: Spec) => {
       const copy = JSON.parse(JSON.stringify(spec));
       copy.id = '';
@@ -191,16 +191,15 @@ describe('generate on the approved Acme map', () => {
     expect([...gaps].filter((dimension) => !/\.(in|out)\./.test(dimension)).sort()).toEqual([
       'callback_phone',
       'customer_details',
-      'deviation',
       'home_plans',
       'retry_outcome',
       'tool_answer',
     ]);
-    expect(result.report.no_phrase).toHaveLength(69);
+    expect(result.report.no_phrase).toHaveLength(67);
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(160);
+    expect(result.complete).toHaveLength(189);
     for (const spec of result.complete) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;
       expect(
@@ -284,6 +283,6 @@ describe('generate on the approved Acme map', () => {
     expect(loaded.ok).toBe(false);
     if (loaded.ok) return;
     expect(loaded.code).toBe('MAP_NOT_APPROVED');
-    expect(loaded.message).toContain('219 of 219 entries are not approved');
+    expect(loaded.message).toContain('225 of 225 entries are not approved');
   });
 });
