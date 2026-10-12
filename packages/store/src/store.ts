@@ -17,6 +17,7 @@ import { describeCause, describeIssues, StoreError } from './errors';
 import {
   checkName,
   entriesOf,
+  isVersionPath,
   isVersionRecord,
   REGISTRY_KINDS,
   type RegistryFile,
@@ -517,6 +518,15 @@ export class SqliteStore implements Store {
     checkKind(version.kind);
     checkName(version.name);
     const label = `${version.kind} ${version.name}@${version.version}`;
+    const escaping = [...version.files.map((entry) => entry.path), ...files.map((file) => file.path)].find(
+      (path) => !isVersionPath(path),
+    );
+    if (escaping !== undefined) {
+      throw new StoreError(
+        'BUNDLE_INVALID',
+        `${label} names the file path "${escaping}", which leaves the version`,
+      );
+    }
     const held = this.db
       .prepare('SELECT hash FROM versions WHERE kind = ? AND name = ? AND (hash = ? OR version = ?)')
       .all(version.kind, version.name, version.hash, version.version);
