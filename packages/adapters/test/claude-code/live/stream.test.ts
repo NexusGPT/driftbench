@@ -94,6 +94,18 @@ describe('parseStream', () => {
 });
 
 describe('isOverloaded', () => {
+  it('reads a subscription session limit as transient, not as the agent answer', () => {
+    // Seen on the Cue bench: subtype success, the text the limit notice, no tool call after it.
+    const limited = parseStream(
+      result({
+        subtype: 'success',
+        is_error: false,
+        result: "You've hit your session limit \u00b7 resets 11:10am (Europe/Brussels)",
+      }),
+    );
+    expect(isOverloaded(limited, 0, '')).toBe(true);
+  });
+
   it('reads an API the runtime could not reach as transient, even when the result says success', () => {
     // Seen on the Cue bench during a network outage: subtype success, the text an API error, no tool call.
     const unreachable = parseStream(

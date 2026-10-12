@@ -119,6 +119,8 @@ export function isOverloaded(parsed: ParsedStream, exitCode: number, stderr: str
   // the Cue bench in a network outage): the turn never reached the agent.
   const text = parsed.result?.text ?? '';
   if (/^API Error:/.test(text) && (UNREACHABLE.test(text) || OVERLOADED.test(text))) return true;
+  // A subscription limit ends the run the same way: the notice is the text (seen on the Cue bench).
+  if (/^you've hit your (session|usage|weekly|daily) limit/i.test(text)) return true;
   if (parsed.result?.isError)
     return OVERLOADED.test(`${parsed.result.text ?? ''} ${parsed.result.subtype ?? ''}`);
   if (parsed.result === undefined && exitCode !== 0) return OVERLOADED.test(stderr);
