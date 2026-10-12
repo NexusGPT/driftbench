@@ -19,6 +19,7 @@ missed on a real estate. Northwind Traders, its carriers and its checks are inve
 | 12. Path aliases | `.claude/ALIASES.md` maps `REF` to the parcel-claims references; `parcel-claims` names `REF/notes.md`. |
 | 13. More default ignores and the recorded list | a `.trash` skill and the synced copy are skipped by default; `driftbench.estate.yaml` adds `archive`, which the map records for lint. |
 | 14. Paths outside the estate | the last line of `CLAUDE.md` names a workspace file (`companies/`, an external folder of `driftbench.estate.yaml`), `_meta/IDENTITY.md`, `docs/DESIGN.md` and `~/notes/claims.md`: four EXTERNAL paths, counted as information. |
+| 15. Bench defects | a copy of `claim-rules.md` under `guards/tests/fixtures` (a skipped file is never a name candidate, D2); an `env` key and the settings guards (JSON deletes, D5); registry rows naming their adapter by a short name (`claim-window`, `force-push`) and an id cell of backticked ids among words (D9). |
 
 `answers.yaml` holds the model's part, written by the reader lane under the answer contract. `map.yaml` is
 the scan with those answers; `approved.yaml` is that map with every atom approved. Made with:

@@ -743,7 +743,9 @@ function readRegistry(file: EstateFile, estate: RawEstate): void {
       const rowIds = ids.length > 0 ? ids : [cell(guard)].filter((value) => value !== '');
       // The rule columns name rules, not guards: a guard is looked for in the other cells only.
       const others = row.cells.filter((_, index) => ![id, guard, enforces, watches].includes(index));
-      const named = guardNamedIn(guard >= 0 ? [row.cells[guard] ?? '', ...others] : others, known);
+      const named =
+        guardNamedIn(guard >= 0 ? [row.cells[guard] ?? '', ...others] : others, known) ??
+        (guard >= 0 ? guardOfAdapter(row.cells[guard] ?? '', known) : undefined);
       for (const rowId of rowIds) {
         const links = [
           ...(enforces >= 0 ? parseEnforces(row.cells[enforces] ?? '') : []),
@@ -786,7 +788,12 @@ function idsOf(raw: string): string[] {
   const several =
     parts.length > 1 &&
     parts.every((part) => ID_TOKEN.test(part) && (/\d/.test(part) || part === part.toUpperCase()));
-  return several ? [...new Set(parts)] : [whole];
+  if (several) return [...new Set(parts)];
+  // Backticks mark ids in a cell that also holds words: `` `HANDBACK` / `STOP-WAKE` hold `` holds two.
+  const marked = [...raw.matchAll(/`([^`\s]+)`/g)]
+    .map((match) => match[1] ?? '')
+    .filter((id) => ID_TOKEN.test(id));
+  return marked.length > 1 ? [...new Set(marked)] : [whole];
 }
 
 /** The names the estate's guards go by: a script's file name, a check id. */
@@ -806,6 +813,21 @@ function guardNamedIn(cells: readonly string[], known: ReadonlySet<string>): str
     }
   }
   return undefined;
+}
+
+/**
+ * The guard an adapter column names by its short name: `fs-firewall` for `nexus-fs-firewall.py`,
+ * `claim-window` for `claim-window.py`. The cell, as a whole, must equal a guard's file name without its
+ * extension, or be the end of it after a `-` or `_`; it names a guard only when exactly one guard fits.
+ */
+function guardOfAdapter(cell: string, known: ReadonlySet<string>): string | undefined {
+  const name = strip(cell).toLowerCase();
+  if (!/^[a-z0-9][\w.-]*$/.test(name)) return undefined;
+  const fits = [...known].filter((guard) => {
+    const stem = guard.replace(/\.[A-Za-z0-9]+$/, '').toLowerCase();
+    return stem === name || stem.endsWith(`-${name}`) || stem.endsWith(`_${name}`);
+  });
+  return fits.length === 1 ? fits[0] : undefined;
 }
 
 /** The catalogue check of the same id, when the estate has one. */
