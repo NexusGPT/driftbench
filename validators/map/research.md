@@ -444,3 +444,14 @@ Sources read:
 What others do: The server always returns a readOnly value, and a caller always gives a writeOnly one when it sets it.
 
 What to try, and why: a readOnly output and a writeOnly input have no absent case
+
+## Iteration 38
+
+Question: packages/generate/src/extract/tools.ts: objectCases reads no conditional, so an if with then or else gives no case; schema-keywords.if-then-else proves it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-core section 10.2.2 (if, then, else)
+
+What others do: A conditional has two branches; a test takes each.
+
+What to try, and why: the tool pre-pass reads if, then and else

@@ -438,6 +438,16 @@ function objectCases(ctx: Walk, schema: YAMLMap, prefix: string[]): void {
       ],
     ]);
   }
+  if (entry(schema, 'if') && (entry(schema, 'then') || entry(schema, 'else'))) {
+    cases.push([
+      'if',
+      'if',
+      [
+        ['then', 'the condition holds and the then schema applies'],
+        ['else', 'the condition fails and the else schema applies'],
+      ],
+    ]);
+  }
   for (const [keyword, id, values] of cases) {
     const quote = pairText(ctx.text, entry(schema, keyword)) ?? '';
     addDimension(

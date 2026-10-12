@@ -763,4 +763,29 @@ type = "boolean"
     expect(read('input_schema', 'writeOnly')).toEqual([['well-formed', 'malformed']]);
     expect(read('input_schema', 'readOnly')).toEqual([]);
   });
+
+  it('if, then and else give the dimension if with then and else', () => {
+    const schema = {
+      type: 'object',
+      required: ['p'],
+      properties: { p: { type: 'string', enum: ['high', 'low'] }, extra_note: { type: 'string' } },
+      if: { properties: { p: { const: 'high' } } },
+      then: { required: ['extra_note'] },
+      else: {},
+    };
+    const result = toolsPrepass(stringify({ tools: [{ name: 't.x', input_schema: schema }] }), 'tools.yaml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.dimensions.map((d) => [d.id, d.values.map((v) => v.id.slice(d.id.length + 1))])).toEqual([
+      ['t.x.in.p', ['high', 'low']],
+      ['t.x.in.extra_note', ['present', 'absent']],
+      ['t.x.in.if', ['then', 'else']],
+    ]);
+    const { else: _else, ...noElse } = schema;
+    const only = toolsPrepass(stringify({ tools: [{ name: 't.x', input_schema: noElse }] }), 'tools.yaml');
+    if (!only.ok) throw new Error('x');
+    expect(only.dimensions.at(-1)?.values.map((v) => v.id.slice('t.x.in.if.'.length))).toEqual([
+      'then',
+      'else',
+    ]);
+  });
 });
