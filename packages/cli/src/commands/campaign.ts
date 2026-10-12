@@ -470,6 +470,14 @@ export async function campaignPlanCommand(
   const runs = specRuns(loaded, shape.targets, io);
   if (!runs) return 2;
   if (tooManyCells(runs, shape, io)) return 2;
+  // A target no adapter is set up for is bad input here too (docs/running.md, "Exit codes"): the plan
+  // checks it the way run does, so a plan that prints is a plan that can run.
+  const scope = openScope();
+  try {
+    if (!(await adaptersFor(runs, deps, scope, io))) return 2;
+  } finally {
+    await closeScope(scope, io);
+  }
   if (!options.json) io.out(targetNotes(loaded, shape.targets));
 
   let units: CostUnit[] = [];
