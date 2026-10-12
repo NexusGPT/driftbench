@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { contentHash } from '@driftbench/core';
 import { z } from 'zod';
-import { parseJudgeText } from './assessment';
+import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';
 import {
   JudgeClass,
@@ -204,7 +204,13 @@ function replay(entry: CassetteEntry, request: JudgeRequest): JudgeResult {
   };
   if (request.assessment && entry.raw !== undefined)
     return { ...parseJudgeText(entry.raw, request), ...cost };
-  if (entry.answer !== undefined) return { ...parseAnswerValue(entry.answer, entry.raw), ...cost };
+  if (entry.answer !== undefined)
+    return {
+      ...(request.answerContract === 'legacy'
+        ? parseJudgeValue(entry.answer, request, entry.raw)
+        : parseAnswerValue(entry.answer, entry.raw)),
+      ...cost,
+    };
   if (entry.raw !== undefined)
     return {
       ...parseJudgeText(entry.raw, request),

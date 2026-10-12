@@ -116,11 +116,6 @@ export function parseAnswerText(raw: string): JudgeResult {
   return parseText(raw, repairAnswerText);
 }
 
-/** The selectable legacy path freezes the former repair too, so historical abstentions stay reproducible. */
-export function parseLegacyAnswerText(raw: string): JudgeResult {
-  return parseText(raw, legacyRepairAnswerText);
-}
-
 function parseText(raw: string, quoteRepair: (text: string) => string): JudgeResult {
   const candidate = extractObject(raw);
   if (candidate === undefined) {
@@ -158,32 +153,6 @@ function parseText(raw: string, quoteRepair: (text: string) => string): JudgeRes
     if (!repaired.unparsed) return { ...repaired, repaired: true };
   }
   return strict;
-}
-
-function legacyRepairAnswerText(text: string): string {
-  let out = '';
-  let inString = false;
-  let escaped = false;
-  for (let i = 0; i < text.length; i += 1) {
-    const ch = text[i] as string;
-    if (!inString) {
-      if (ch === '"') inString = true;
-      out += ch;
-    } else if (escaped) {
-      escaped = false;
-      out += ch;
-    } else if (ch === '\\') {
-      escaped = true;
-      out += ch;
-    } else if (ch === '"') {
-      const next = text.slice(i + 1).match(/^\s*(.)/)?.[1];
-      if (next === undefined || ',}]:'.includes(next)) {
-        inString = false;
-        out += ch;
-      } else out += '\\"';
-    } else out += ch;
-  }
-  return out;
 }
 
 /**

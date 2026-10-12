@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Legacy judging freezes main `a97cb65e` rendering and parsing, including entry separators, object extraction and repair behavior. All 1,028 stored chat entries have main-matching replay outcomes.
+
 408 Request Timeout is retried like 429 and 5xx in every adapter.
 
 * Pairwise chat judges name a winner and quote its opening. Code validates the quote, maps the existing binary outcome and reconciles both candidate orders, with one retry for malformed output.

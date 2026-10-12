@@ -570,7 +570,7 @@ Ordinary chat checks return one evidence row per atomic requirement: `requiremen
 
 The public `JudgeAnswer` remains `{ outcome, reasoning, evidence?, score? }`. `parseAnswerText` and `parseAnswerValue` retain their binary parsing behavior. Custom chat clients use `parseJudgeText` or `parseJudgeValue` with the request. Probability judges retain their existing binary question and mapping.
 
-Select `answerContract: 'legacy'` on a request to use the previous prompt and parser byte for byte. This keeps existing cassettes and old scores reproducible. Cassette players also accept that option; recordings made before the ledger contract select legacy automatically. A new ledger recording identifies its contract explicitly and cannot silently replay under a different prompt. No existing cassette needs to be re-recorded to keep using legacy.
+Select `answerContract: 'legacy'` on a request to use main `a97cb65e` rendering and parsing byte for byte. This includes literal entry separators, the original data-tag guard, object extraction and the original single syntax repair. This keeps existing cassettes and old scores reproducible. Cassette players also accept that option; recordings made before the ledger contract select legacy automatically. A new ledger recording identifies its contract explicitly and cannot silently replay under a different prompt. No existing cassette needs to be re-recorded to keep using legacy.
 
 Under the new default, an old binary model response is unparseable. Council and calibration paths retry it once with the large budget and then abstain; the single-judge path abstains directly. An unparseable response cannot become a fail or pass from its explanation.
 

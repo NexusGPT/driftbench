@@ -5,13 +5,15 @@ import {
   inconclusive,
   type JudgeRequest,
   type JudgeResult,
-  parseAnswerText,
   parseAnswerValue,
-  parseLegacyAnswerText,
   repairAnswerText,
 } from './contract';
 import { CriterionLedger, parseCriterionLedger } from './criterion-ledger';
 import { FactLedgerAnswer, parseFactLedger } from './fact-audit';
+import {
+  parseAnswerText as parseLegacyAnswerText,
+  parseAnswerValue as parseLegacyAnswerValue,
+} from './legacy-contract';
 
 /** A caller-supplied rubric item. Weights belong to the caller, never to the model. */
 export type RubricItem = {
@@ -145,7 +147,7 @@ export function parseJudgeValue(
   request: JudgeRequest,
   raw = JSON.stringify(value),
 ): JudgeResult {
-  if (request.answerContract === 'legacy') return parseAnswerValue(value, raw);
+  if (request.answerContract === 'legacy') return parseLegacyAnswerValue(value, raw);
   const assessment = request.assessment;
   if (!assessment) return parseCriterionLedger(value, request, raw);
   validateAssessment(assessment);
