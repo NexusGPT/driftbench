@@ -812,6 +812,7 @@ async function executeCampaign(
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
     cells: plan.cells,
+    recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
     driver: (cell, spec) => deps.driver(cell, spec),

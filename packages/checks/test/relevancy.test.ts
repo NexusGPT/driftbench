@@ -35,11 +35,32 @@ describe('relevancy', () => {
       block,
       expect: { relevancy: { terms: ['roaming', 'data'], min: 1 } },
     });
-    expect((await run(relevancy, given))[0]?.outcome).toBe('fail');
+    expect((await run(relevancy, given))[0]).toMatchObject({ outcome: 'inconclusive', gating: false });
     const bare = context(upgrade, 1, observed(answer), {
       block: { ...block, when: { user: 'Yes, ok.' } },
       expect: { relevancy: {} },
     });
     expect((await run(relevancy, bare))[0]).toMatchObject({ outcome: 'inconclusive', gating: false });
+  });
+
+  it('without a judge: one key term of four is inconclusive, not a failure, and does not gate', async () => {
+    const partial = 'The Mobile L is our unlimited tier at thirty-five dollars monthly.';
+    const ctx = context(upgrade, 1, observed(partial), { block, expect: { relevancy: {} } });
+    expect(verdict(await run(relevancy, ctx), 'relevancy.terms')).toMatchObject({
+      outcome: 'inconclusive',
+      gating: false,
+    });
+  });
+
+  it('with a judged relevancy criterion: a low share is advisory and does not gate', async () => {
+    const partial = 'The Mobile L is our unlimited tier at thirty-five dollars monthly.';
+    const ctx = context(upgrade, 1, observed(partial), {
+      block,
+      expect: { relevancy: {}, criteria: ['relevancy'] },
+    });
+    expect(verdict(await run(relevancy, ctx), 'relevancy.terms')).toMatchObject({
+      outcome: 'fail',
+      gating: false,
+    });
   });
 });
