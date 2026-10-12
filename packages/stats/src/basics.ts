@@ -23,7 +23,12 @@ export function quantileSorted(sorted: readonly number[], p: number): number {
   const n = sorted.length;
   if (n === 0) throw new RangeError('quantileSorted: sorted must not be empty');
   assertFiniteValues('quantileSorted', 'sorted', sorted);
-  if (p < 0 || p > 1) throw new RangeError(`quantileSorted: p must lie in [0, 1], got ${p}`);
+  if (!(p >= 0 && p <= 1)) throw new RangeError(`quantileSorted: p must lie in [0, 1], got ${p}`);
+  for (let i = 1; i < n; i += 1) {
+    if ((sorted[i] as number) < (sorted[i - 1] as number)) {
+      throw new RangeError(`quantileSorted: sorted must be in ascending order, sorted[${i}] is below sorted[${i - 1}]`);
+    }
+  }
   const h = (n - 1) * p;
   const lo = Math.floor(h);
   const hi = Math.min(lo + 1, n - 1);
@@ -122,8 +127,14 @@ export function assertProbability(fn: string, name: string, value: number, open 
   }
 }
 
-export function assertSameLength(a: readonly unknown[], b: readonly unknown[], what: string): void {
+export function assertSameLength(
+  a: readonly unknown[],
+  b: readonly unknown[],
+  what: string,
+  names: readonly [string, string] | undefined = undefined,
+): void {
   if (a.length !== b.length) {
-    throw new RangeError(`${what}: both inputs must have the same length, got ${a.length} and ${b.length}`);
+    const who = names ? `${names[0]} and ${names[1]}` : 'both inputs';
+    throw new RangeError(`${what}: ${who} must have the same length, got ${a.length} and ${b.length}`);
   }
 }

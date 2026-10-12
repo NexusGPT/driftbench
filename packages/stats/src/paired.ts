@@ -125,7 +125,7 @@ export function wilcoxonSignedRank(
   y: readonly number[],
   options: WilcoxonOptions = {},
 ): WilcoxonResult {
-  assertSameLength(x, y, 'wilcoxonSignedRank');
+  assertSameLength(x, y, 'wilcoxonSignedRank', ['x', 'y']);
   assertFiniteValues('wilcoxonSignedRank', 'x', x);
   assertFiniteValues('wilcoxonSignedRank', 'y', y);
   const total = x.length;
@@ -219,7 +219,7 @@ export function pairedRateDifference(table: PairedTable, alpha = 0.05): PairedDi
   assertCount('pairedRateDifference', 'bothFail', d);
   assertProbability('pairedRateDifference', 'alpha', alpha, true);
   const n = a + b + c + d;
-  if (n === 0) throw new RangeError('pairedRateDifference: no pairs');
+  if (n === 0) throw new RangeError('pairedRateDifference: table has no pairs');
   const z = normalQuantile(1 - alpha / 2);
   const p1 = (a + b) / n;
   const p2 = (a + c) / n;
@@ -272,7 +272,8 @@ export interface NonInferiorityResult {
  */
 export function nonInferiority(input: NonInferiorityInput): NonInferiorityResult {
   const { baseline, candidate, margin } = input;
-  assertSameLength(baseline, candidate, 'nonInferiority');
+  assertSameLength(baseline, candidate, 'nonInferiority', ['baseline', 'candidate']);
+  if (baseline.length === 0) throw new RangeError('nonInferiority: baseline and candidate must not be empty');
   if (!(margin > 0 && margin < 1))
     throw new RangeError(`nonInferiority: margin must lie in (0, 1), got ${margin}`);
   const names = input.pairs ?? baseline.map((_, i) => String(i));

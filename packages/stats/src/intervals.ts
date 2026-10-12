@@ -185,7 +185,7 @@ export function bootstrapCI(values: readonly number[], options: BootstrapOptions
   assertProbability('bootstrapCI', 'alpha', alpha, true);
   const keys = options.clusters;
   if (keys && keys.length !== values.length) {
-    throw new RangeError(`bootstrapCI: ${keys.length} cluster keys for ${values.length} values`);
+    throw new RangeError(`bootstrapCI: clusters has ${keys.length} keys for ${values.length} values`);
   }
 
   // Group values by cluster, in order of first appearance.

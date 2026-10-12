@@ -191,10 +191,13 @@ export function ksTest(
   b: readonly number[],
   options: { method?: 'auto' | 'exact' | 'asymptotic' } = {},
 ): KsResult {
+  if (options.method !== undefined && !['auto', 'exact', 'asymptotic'].includes(options.method)) {
+    throw new RangeError(`ksTest: method must be auto, exact or asymptotic, got ${options.method}`);
+  }
   const m = a.length;
   const n = b.length;
-  if (m === 0) throw new RangeError('ksTest: a must not be empty');
-  if (n === 0) throw new RangeError('ksTest: b must not be empty');
+  if (m === 0) throw new RangeError("ksTest: 'a' must not be empty");
+  if (n === 0) throw new RangeError("ksTest: 'b' must not be empty");
   assertFiniteValues('ksTest', 'a', a);
   assertFiniteValues('ksTest', 'b', b);
   const x = [...a].sort((p, q) => p - q);

@@ -19,6 +19,10 @@ import {
   quantileSorted,
   sampleVariance,
   unreliability,
+  cohenKappa,
+  krippendorffAlpha,
+  nonInferiority,
+  pairedRateDifference,
   chiSquareSf,
   incompleteBeta,
   logGamma,
@@ -124,7 +128,7 @@ describe('RangeError names the function and the argument', () => {
   });
 
   it('ksTest of an empty first sample names a', () => {
-    expect(() => ksTest([], [1])).toThrow(/^ksTest: a/);
+    expect(() => ksTest([], [1])).toThrow(/^ksTest: 'a'/);
   });
 
   it('cusum of an empty series names series', () => {
@@ -271,5 +275,38 @@ describe('special functions at the edge of their domain give the scipy limit', (
     expect(incompleteBeta(1.5, 2, 3)).toBeNaN();
     expect(incompleteBeta(0, 2, 3)).toBe(0);
     expect(incompleteBeta(1, 2, 3)).toBe(1);
+  });
+});
+
+describe('agreement, paired, drift and cluster refusals name their argument', () => {
+  it('cohenKappa names a, b and weights', () => {
+    expect(() => cohenKappa([], [])).toThrow(/^cohenKappa: 'a'/);
+    expect(() => cohenKappa(['a', 'b'], ['a'])).toThrow(/^cohenKappa: 'a'/);
+    expect(() => cohenKappa([1, 2], [1, 2], { weights: 'cubic' as never })).toThrow(/^cohenKappa: weights/);
+  });
+  it('krippendorffAlpha names matrix and level', () => {
+    expect(() => krippendorffAlpha([])).toThrow(/^krippendorffAlpha: matrix/);
+    expect(() => krippendorffAlpha([[], []])).toThrow(/^krippendorffAlpha: matrix/);
+    expect(() => krippendorffAlpha([[1, 2], [1, 2]], { level: 'cubic' as never })).toThrow(
+      /^krippendorffAlpha: level/,
+    );
+  });
+  it('nonInferiority, pairedRateDifference and wilcoxonSignedRank name their arguments', () => {
+    expect(() => nonInferiority({ baseline: [], candidate: [], margin: 0.05 })).toThrow(
+      /^nonInferiority: baseline/,
+    );
+    expect(() => nonInferiority({ baseline: [true, false], candidate: [true], margin: 0.05 })).toThrow(
+      /^nonInferiority: baseline/,
+    );
+    expect(() => pairedRateDifference({ bothPass: 0, regressed: 0, improved: 0, bothFail: 0 })).toThrow(
+      /^pairedRateDifference: table/,
+    );
+    expect(() => wilcoxonSignedRank([1, 2, 3], [1, 2])).toThrow(/^wilcoxonSignedRank: x/);
+  });
+  it('ksTest, bootstrapCI and quantileSorted name their arguments', () => {
+    expect(() => ksTest([], [1])).toThrow(/^ksTest: 'a'/);
+    expect(() => ksTest([1, 2], [3, 4], { method: 'magic' as never })).toThrow(/^ksTest: method/);
+    expect(() => bootstrapCI([1, 2, 3], { clusters: [1, 2] })).toThrow(/^bootstrapCI: clusters/);
+    expect(() => quantileSorted([3, 1, 2], 0.5)).toThrow(/^quantileSorted: sorted/);
   });
 });
