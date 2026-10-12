@@ -77,11 +77,14 @@ export {
   thenOf,
 } from './then';
 export {
+  CHECK_GAP,
+  checkEvents,
   GuardCase,
   hostileForms,
   matcherTools,
   materialOf,
   payloadOf,
+  scriptCases,
   toolInput,
   UNIT_DIR,
   UNIT_TEST_TYPES,

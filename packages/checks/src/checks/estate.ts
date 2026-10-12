@@ -161,6 +161,24 @@ export const hazardRecovery: CustomCheckFunction = (ctx, options) => {
  * - ask: inconclusive; the trace does not show the prompt.
  */
 export const permission: CustomCheckFunction = (ctx, options) => {
+  // The estate generator writes `{ rules: [{ effect, rule }, ...], block }`: one verdict per rule, the block
+  // applying to all; a repeated effect takes its index (`allow.1`).
+  if (isRecord(options) && Array.isArray(options.rules)) {
+    if (typeof options.block === 'number' && options.block !== ctx.blockIndex) return [];
+    const seen = new Map<string, number>();
+    return options.rules.flatMap((entry) => {
+      const out = permissionRule(ctx, entry);
+      return out.map((verdict) => {
+        const n = seen.get(verdict.id) ?? 0;
+        seen.set(verdict.id, n + 1);
+        return n === 0 ? verdict : { ...verdict, id: `${verdict.id}.${n}` };
+      });
+    });
+  }
+  return permissionRule(ctx, options);
+};
+
+function permissionRule(ctx: Parameters<CustomCheckFunction>[0], options: unknown): Verdict[] {
   if (!isRecord(options) || typeof options.effect !== 'string' || typeof options.rule !== 'string') {
     throw new Error('permission needs { effect, rule }');
   }
@@ -203,7 +221,7 @@ export const permission: CustomCheckFunction = (ctx, options) => {
         : `${plural(covered.length, 'call')} ${rule} covers, ${refused.length} refused for permission`,
     ),
   ];
-};
+}
 
 function ruleMatcher(rule: string): (call: CheckContext['observed']['toolCalls'][number]) => boolean {
   const parsed = /^([A-Za-z][A-Za-z0-9_]*)(?:\((.*)\))?$/.exec(rule.trim());

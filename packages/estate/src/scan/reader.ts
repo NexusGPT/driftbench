@@ -84,6 +84,10 @@ export type CheckDecl = {
   work?: string;
   /** The steps of a step list the check belongs to. */
   steps: string[];
+  /** What sets the check off, as material for a payload: the backticked spans of what it watches. */
+  trigger?: string[];
+  /** The script of a configured guard (a hook) whose source names the check: the hook that runs it. */
+  host?: string;
 };
 
 export type PermissionDecl = {
