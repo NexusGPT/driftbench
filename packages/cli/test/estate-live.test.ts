@@ -291,9 +291,17 @@ describe('driftbench estate run', () => {
 
   it('fails a spec of another map on a pinned copy, and notes an unpinned one', async () => {
     const spec = join(LIVE, PROOF.route_positive ?? '');
-    const to = join(await folder(), 'mutant');
-    await run(['estate', 'mutate', MAP, '--atom', R7, '--invert', '--to', to]);
-    const pinned = await estateRun(to, [spec], '--map', join(to, 'map.yaml'));
+    const base = await folder();
+    const first = join(base, 'mutant');
+    await run(['estate', 'mutate', MAP, '--atom', R7, '--invert', '--to', first]);
+    // A mutant of the mutant answers to the first mutant's map and its own: a spec of the original map is
+    // of another map there.
+    const second = join(base, 'mutant-2');
+    expect(
+      (await run(['estate', 'mutate', join(first, 'map.yaml'), '--atom', R3, '--delete', '--to', second]))
+        .code,
+    ).toBe(0);
+    const pinned = await estateRun(second, [spec], '--map', join(second, 'map.yaml'));
     expect(pinned.code).toBe(1);
     expect(pinned.json?.runs[0]?.status).toBe('failed');
     const unpinned = await estateRun(FIXTURE, [spec]);
@@ -302,6 +310,20 @@ describe('driftbench estate run', () => {
       'the estate copy is not pinned to a map hash; pass --map to pin it',
     );
   });
+});
+
+describe('a mutant run with its own map (bench defect D6)', () => {
+  it('keeps the original map as a pin beside the mutant map, so the original specs run', async () => {
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const to = join(await folder(), 'mutant');
+    await run(['estate', 'mutate', MAP, '--atom', R7, '--invert', '--to', to]);
+    const withMap = await estateRun(to, [spec], '--map', join(to, 'map.yaml'));
+    const without = await estateRun(to, [spec]);
+    expect(withMap.code).toBe(0);
+    expect(withMap.json?.runs[0]?.status).toBe('completed');
+    expect(withMap.json?.pins).toEqual(without.json?.pins);
+    expect(withMap.json?.pins).toHaveLength(2);
+  }, 120_000);
 });
 
 describe('the Northwind proof: 14 live specs on the fake command, and three estate mutants', () => {
