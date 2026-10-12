@@ -1,4 +1,4 @@
-import { cp, mkdtemp, readFile } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,7 +48,31 @@ describe('driftbench estate unit on the Northwind suite', () => {
 
     const again = await run(['estate', 'unit', tests, '--estate', FIXTURE, '--json']);
     expect(again.code).toBe(0);
-    expect(JSON.parse(again.out).counts).toEqual({ pass: 18, fail: 0, inert: 8, unrecorded: 0 });
+    const contract = JSON.parse(again.out);
+    expect(Object.keys(contract)).toEqual(['runs', 'guards', 'scripts']);
+    expect(contract.runs).toHaveLength(26);
+    for (const entry of contract.runs) {
+      expect(Object.keys(entry)).toEqual(['spec', 'pass', 'failing']);
+      expect([entry.pass, entry.failing]).toEqual([true, []]);
+    }
+    for (const entry of contract.guards) {
+      expect(['allow', 'deny', 'ask']).toContain(entry.decision);
+      expect(Number.isInteger(entry.ms)).toBe(true);
+      expect(Object.keys(entry).filter((key) => key !== 'message')).toEqual([
+        'guard',
+        'event',
+        'decision',
+        'ms',
+      ]);
+    }
+    expect(contract.guards).toContainEqual({
+      guard: 'block-force-push.sh',
+      event: 'PreToolUse',
+      decision: 'deny',
+      message: 'Never run git push --force on any branch.',
+      ms: expect.any(Number),
+    });
+    expect(contract.scripts).toEqual([]);
 
     const mutant = join(dir, 'mutant');
     const atom = 'guard.settings.pretooluse-bash-guard-block-force-push';
@@ -68,10 +92,11 @@ describe('driftbench estate unit on the Northwind suite', () => {
     ).toBe(0);
     const killed = await run(['estate', 'unit', tests, '--estate', mutant, '--json']);
     expect(killed.code).toBe(1);
-    const failed = JSON.parse(killed.out).results.filter(
-      (result: { status: string }) => result.status === 'fail',
-    );
-    expect(failed.map((result: { id: string }) => result.id).sort()).toEqual([
+    const failed = JSON.parse(killed.out).runs.filter((entry: { pass: boolean }) => !entry.pass);
+    expect(failed[0].failing).toEqual([
+      'the estate no longer runs the PreToolUse guard block-force-push.sh on Bash',
+    ]);
+    expect(failed.map((entry: { spec: string }) => entry.spec).sort()).toEqual([
       `unit.guard_hostile.${atom}`,
       `unit.guard_negative.${atom}`,
       `unit.guard_positive.${atom}`,
@@ -85,5 +110,33 @@ describe('driftbench estate unit on the Northwind suite', () => {
     expect(
       (await run(['estate', 'unit', join(FIXTURE, 'plan.summary.json'), '--estate', FIXTURE])).code,
     ).toBe(2);
+  });
+
+  it('lists each script fixture run with its exit code and stdout', async () => {
+    const CASES = join(ROOT, 'examples/estates/reader-cases');
+    const dir = await mkdtemp(join(tmpdir(), 'estate-unit-script-'));
+    await writeFile(
+      join(dir, 'track.json'),
+      JSON.stringify({
+        id: 'unit.script_fixture.track',
+        planRow: 'row',
+        testType: 'script_fixture',
+        atom: 'script.shipment-tracker.script-scripts-track-sh',
+        title: 'track.sh',
+        mapHash: 'x',
+        target: { kind: 'script', path: '.claude/skills/shipment-tracker/scripts/track.sh' },
+        cases: [],
+      }),
+    );
+    const result = await run(['estate', 'unit', dir, '--estate', CASES, '--json']);
+    expect(result.code).toBe(0);
+    expect(JSON.parse(result.out)).toEqual({
+      runs: [{ spec: 'unit.script_fixture.track', pass: true, failing: [] }],
+      guards: [],
+      scripts: [
+        { script: '.claude/skills/shipment-tracker/scripts/track.sh', exit: 2, stdout: '' },
+        { script: '.claude/skills/shipment-tracker/scripts/track.sh', exit: 1, stdout: '' },
+      ],
+    });
   });
 });

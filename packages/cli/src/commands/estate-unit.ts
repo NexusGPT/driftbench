@@ -109,18 +109,76 @@ export async function estateUnitCommand(
   for (const result of run.results) counts[result.status] += 1;
   if (options.json) {
     io.out(
-      formatJson({
-        estate: root,
-        record: options.record === true,
-        sandbox: run.sandbox,
-        notes: run.notes,
-        counts,
-        results: run.results,
-      }),
+      formatJson(
+        contractOf(
+          run.results,
+          tests.map((entry) => entry.test),
+        ),
+      ),
     );
   } else io.out(report(run.results, counts, run.sandbox, run.notes, options.record === true));
   if (counts.unrecorded > 0 && !options.record) return 2;
   return counts.fail > 0 ? 1 : 0;
+}
+
+/**
+ * The JSON the estate validator reads (a frozen contract, kept in step with that lane):
+ * `{ runs: [{ spec, pass, failing }], guards: [{ guard, event, decision, message?, ms }], scripts: [{ script,
+ * exit, stdout }] }`. One run per unit test; one guard entry per guard case run, its decision as the runtime
+ * acts on it (a guard that fails with another exit code than 2 does not block: allow, its stderr the
+ * message); one script entry per fixture run. An inert test passes: nothing in it can fail.
+ */
+export type UnitContract = {
+  runs: Array<{ spec: string; pass: boolean; failing: string[] }>;
+  guards: Array<{
+    guard: string;
+    event: string;
+    decision: 'allow' | 'deny' | 'ask';
+    message?: string;
+    ms: number;
+  }>;
+  scripts: Array<{ script: string; exit: number; stdout: string }>;
+};
+
+export function contractOf(results: readonly UnitResult[], tests: readonly UnitTest[]): UnitContract {
+  const contract: UnitContract = { runs: [], guards: [], scripts: [] };
+  results.forEach((result, index) => {
+    const test = tests[index];
+    const failedCases = result.cases.filter((entry) => !entry.pass);
+    const failing =
+      result.status === 'fail'
+        ? failedCases.length > 0
+          ? failedCases.map((entry) => `${entry.case}: ${entry.detail}`)
+          : [result.detail]
+        : result.status === 'unrecorded'
+          ? [result.detail]
+          : [];
+    contract.runs.push({
+      spec: result.id,
+      pass: result.status === 'pass' || result.status === 'inert',
+      failing,
+    });
+    if (!test) return;
+    for (const entry of result.cases) {
+      if (test.target.kind === 'guard') {
+        const decision = entry.outcome.decision === 'error' ? 'allow' : entry.outcome.decision;
+        contract.guards.push({
+          guard: test.target.name,
+          event: test.target.event,
+          decision,
+          ...(entry.outcome.message !== undefined ? { message: entry.outcome.message } : {}),
+          ms: Math.round(entry.ms),
+        });
+      } else {
+        contract.scripts.push({
+          script: test.target.path,
+          exit: entry.outcome.exitCode,
+          stdout: entry.outcome.output ?? '',
+        });
+      }
+    }
+  });
+  return contract;
 }
 
 function report(
