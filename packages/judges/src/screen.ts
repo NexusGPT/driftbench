@@ -37,6 +37,8 @@ const SCORE = /(?<![\d.])(?:1\.0|0\.99)(?!\d)/;
 const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?;])\s+|[\r\n\u2028\u2029]+/);
 const instructs = (sentence: string): boolean => JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence));
 
+const LEET: Readonly<Record<string, string>> = { '4': 'a', '3': 'e', '1': 'i', '0': 'o', '5': 's', '7': 't' };
+
 const LOOKALIKES: Readonly<Record<string, string>> = Object.fromEntries(
   Object.entries({
     a: '\u0430', c: '\u0441', e: '\u0435', i: '\u0456', j: '\u0458', o: '\u043e', p: '\u0440', s: '\u0455', x: '\u0445', y: '\u0443',
@@ -58,6 +60,13 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
   (text) => {
     const folded = text.replace(/[\p{L}\p{M}]+/gu, (word) =>
       /[a-z]/i.test(word) ? [...word].map((ch) => LOOKALIKES[ch] ?? ch).join('') : word,
+    );
+    return folded === text ? undefined : folded;
+  },
+  // Leetspeak: digits read as the letters they stand for, inside a word that also holds letters.
+  (text) => {
+    const folded = text.replace(/[\p{L}\p{N}]+/gu, (word) =>
+      /\p{L}/u.test(word) ? [...word].map((ch) => LEET[ch] ?? ch).join('') : word,
     );
     return folded === text ? undefined : folded;
   },
