@@ -115,6 +115,7 @@ Iteration 100 (cause: majority had no families option. Votes of one family colla
 Iteration 101 (cause: CouncilConfig had no weights. weights pass into majority in every round. Test: council.test.ts council weights. Next: cascade never stops early on a flagged request (screenData), positionBias, swapConsistent, pair prompt tags, label checks, player index.)
 Iteration 102 (cause: swapConsistent missing; added to pairwise.ts and exported. Test: swap-consistent.test.ts (module absent before).)
 Iteration 103 (cause: positionBias missing; added to pairwise.ts and exported. Test: swap-consistent.test.ts positionBias.)
+Iteration 104 (cause: seeds 2 to 9 showed narration after a pool label CONFIRM flagged (verb list held confirm) and fake-rubric unflagged. Removed confirm; NOTE holds pass picture, fail picture, new criterion. Checked all English attack and narration sentences against every pool entry as prefix: 0 misses, 0 false flags.)
 
 ## Next actions
 
