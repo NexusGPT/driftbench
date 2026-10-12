@@ -62,20 +62,9 @@ Four places, each with its evidence. What the other tools do comes from the rows
 
 **The block is the unit.** Every exchange is a unit test with its own Given, When and Then. In teacher-forced mode a block runs from its own Given, so it gets a pass rate of its own, free of the blocks before it. The other tools score a scenario run, a test row, a conversation test case, a sample, a dataset item or a trace (row 1). Proof: [schema.test.ts](../packages/core/test/schema.test.ts), [teacher.test.ts](../packages/core/test/runner/teacher.test.ts).
 
-**driftbench checks its own numbers.** Validator ladders prove that a part of driftbench works before its numbers are trusted, level by level, against a floor CI holds ([validators](validators.md)). Two of the six ladders run today: the judges and the statistics. None of the seven tools shows judge calibration against hand labels in full (row 12).
+**driftbench checks its own numbers.** Validator ladders prove that a part of driftbench works before its numbers are trusted ([validators](validators.md)). Each ladder scores against a planted truth: faults, recoveries and effects put in at known places, so every result has an exact answer. A ladder runs a bank of at least 300 items in families and tiers. A hardness gate holds a bank back until its pilot forecasts at least 100 iterations to clear it, with at least 100 distinct failing causes. An independent audit then checks four things: a blind pilot, a cheater, a review of the causes and planted bugs. No score is quoted here until a ladder of the current version passes its audit. None of the seven tools shows judge calibration against hand labels in full (row 12).
 
-```text
-$ pnpm driftbench validate stats
-Level  Name              Metric                                                                             Threshold  seed 1
-1      reference values  fixture cases matched / fixture cases compared                                     >= 1       1 pass
-2      Wilson coverage   intervals containing the truth / intervals computed, lowest over n of 20, 50, 200  >= 0.93    0.947 pass
-Level of the run: 2 of 2, the minimum over 1 seed.
-
-$ pnpm driftbench validate judges
-Level of the run: 7 of 7, the minimum over 1 seed.
-```
-
-Proof: [stats-ladder.test.ts](../packages/validators/test/stats-ladder.test.ts), [ladder.test.ts](../packages/validators/test/judges/ladder.test.ts).
+Proof: [bank.test.ts](../packages/validators/test/bank.test.ts), [hardness.test.ts](../packages/validators/test/hardness.test.ts), [audit.test.ts](../packages/validators/test/audit.test.ts).
 
 **A code agent is tested as an estate.** Its instructions, skills, subagents, guards, tools and settings are read into atoms, approved by a person and turned into tests; recorded sessions replay offline; a mutant deletes one rule so the tests must notice ([testing an estate](estate.md)). Of the six code-agent benchmarks below, none grades office files in the pages read.
 

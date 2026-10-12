@@ -434,7 +434,7 @@ Each phase has a command that shows it working on the bundled examples, in the [
 | **4** · Statistics, scorecard, CI gate, monitor, viewer | built; the runtime battery is not |
 | **G** · Test generation: map, generate, gate, select, pilot | built |
 | **E** · Estates: scan, plan, generate, replay, live runner, mutants | built; the unit runner is not |
-| **V** · Validators | in progress: judges and statistics, 2 of 6 ladders |
+| **V** · Validators | in progress: version 2 ladders, each merged only after an independent audit |
 | **Release** · SDK adapters, Python package, docs site, 0.1.0 | in progress: built; publishing to npm and PyPI is next |
 
 ---
