@@ -65,6 +65,7 @@ metadata:
       - route.route-planner.an-ask-that-fits-route-planner
       - subagent.route-planner.helper-route-planner
     planRow: route_positive.route.route-planner.an-ask-that-fits-route-planner.3
+    focusVariant: 2
     cell:
       atoms.route: route.route-planner.an-ask-that-fits-route-planner
     seeder: estate

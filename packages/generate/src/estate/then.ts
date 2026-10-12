@@ -61,6 +61,8 @@ export const MARKERS = {
   guardMessage: 'needs-guard-message-check',
   deviation: 'needs-deviation-phrase',
   noThen: 'needs-derivable-then',
+  askable: 'needs-askable-act',
+  existingFile: 'needs-existing-file',
 } as const;
 export type Marker = (typeof MARKERS)[keyof typeof MARKERS];
 export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS));
@@ -100,6 +102,8 @@ export type ThenParts = {
   safetyConfirm: string[];
   /** `expect.execution.max_commands`. */
   maxCommands?: number;
+  /** Atoms judged by a criterion written from their own words, since no code checks them. */
+  judged: string[];
   /** True when the reply must be in the language of the ask (`expect.lang`, set from the phrase). */
   langFromAsk?: boolean;
   workspace?: WorkspaceParts;
@@ -127,6 +131,10 @@ export type ThenContext = {
   skills: ReadonlySet<string>;
   /** Custom checks the runner registers, by name. The replay runner registers `ordered`. */
   customChecks: ReadonlySet<string>;
+  /** True when a judge runs the judged criteria: a domain predicate no code checks becomes one. */
+  judge?: boolean;
+  /** The files of the estate, relative to its root: a read is expected only of one of them. */
+  files?: ReadonlySet<string>;
 };
 
 export type Polarity = 'positive' | 'negative';
@@ -147,6 +155,7 @@ export function emptyThen(): ThenParts {
     subagents: [],
     someCalls: [],
     custom: {},
+    judged: [],
     safetyConfirm: [],
     ranCode: false,
     ordered: [],
@@ -185,6 +194,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
+        if (missingRead(then, atom, evidence.label, evidence.input, ctx)) return;
         if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
         if (ctx.customChecks.has('some_call')) {
           addSomeCall(then, {
@@ -207,12 +217,17 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       return;
     case 'ordered': {
-      const pair = anchorPair(evidence.before, evidence.after, ctx);
+      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
       if (typeof pair === 'string') gap(then, MARKERS.anchor, atom, pair);
       else addPair(then, pair);
       return;
     }
     case 'stage_reached':
+      // A step allowed at any point is reached when it shows once in the block, wherever.
+      if (ctx.stages.anytime.has(evidence.name) && ctx.customChecks.has('stage_seen')) {
+        then.custom.stage_seen = { name: evidence.name, block: 0 };
+        return;
+      }
       reachStage(then, atom, evidence.name, ctx.stages);
       return;
     case 'workspace':
@@ -254,9 +269,30 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
         then.custom.hazard_recovery = {
           ...(evidence.options ?? {}),
-          ...(pathsOf(atom).length > 0 ? { reread: pathsOf(atom) } : {}),
+          ...(heldPaths(atom, ctx).length > 0 ? { reread: heldPaths(atom, ctx) } : {}),
           block: 0,
         };
+        return;
+      }
+      if (
+        evidence.name === 'max_words' &&
+        ctx.customChecks.has('max_words') &&
+        typeof evidence.options?.max === 'number'
+      ) {
+        const words = `${atom.provenance?.quote ?? ''} ${atom.title}`;
+        then.custom.max_words = {
+          max: evidence.options.max,
+          part: /\bdraft/i.test(words) ? 'draft' : 'reply',
+          block: 0,
+        };
+        return;
+      }
+      if (
+        evidence.name === 'no_delete_under' &&
+        ctx.customChecks.has('no_delete_under') &&
+        typeof evidence.options?.path === 'string'
+      ) {
+        then.custom.no_delete_under = { path: evidence.options.path, block: 0 };
         return;
       }
       if (evidence.name === 'grounded_values' && ctx.customChecks.has('grounded_values')) {
@@ -296,6 +332,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         addCriterion(then, atom);
         return;
       }
+      if (ctx.judge) {
+        judgeRule(then, atom, 'positive');
+        return;
+      }
       gap(then, MARKERS.registered, atom, evidence.name);
       return;
   }
@@ -327,7 +367,7 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'text':
       if ((evidence.must ?? []).length === 0) {
-        gap(then, MARKERS.negation, atom, 'a text predicate with no required words');
+        noInverse(then, atom, 'a text predicate with no required words', ctx);
         return;
       }
       for (const word of evidence.must ?? []) addUnique(then.mustNot, literal(word));
@@ -337,9 +377,15 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         compilePredicate(evidence.name, evidence.options) !== undefined ||
         evidence.name === 'hazard_recovery' ||
         evidence.name === 'grounded_values' ||
+        evidence.name === 'max_words' ||
+        evidence.name === 'no_delete_under' ||
         evidence.name === 'permission'
       ) {
-        gap(then, MARKERS.negation, atom, `${evidence.name} has no negative control`);
+        noInverse(then, atom, `${evidence.name} has no negative control`, ctx);
+        return;
+      }
+      if (ctx.judge && atom.kind !== 'register') {
+        judgeRule(then, atom, 'negative');
         return;
       }
       gap(then, MARKERS.registered, atom, evidence.name);
@@ -348,7 +394,7 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       gap(then, MARKERS.static, atom, evidence.check);
       return;
     default:
-      gap(then, MARKERS.negation, atom, `${evidence.type} has no negative control`);
+      noInverse(then, atom, `${evidence.type} has no negative control`, ctx);
   }
 }
 
@@ -356,7 +402,12 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
  * An ordered pair in the names the ordered check reads: a tool label as is, `skill:<name>`, `stage:<name>`.
  * A string says why the pair cannot be anchored.
  */
-export function anchorPair(before: string, after: string, ctx: ThenContext): OrderedPair | string {
+export function anchorPair(
+  before: string,
+  after: string,
+  ctx: ThenContext,
+  fields?: Record<string, unknown>,
+): OrderedPair | string {
   const a = anchor(before, ctx);
   const b = anchor(after, ctx);
   if (a === undefined || b === undefined) {
@@ -364,6 +415,13 @@ export function anchorPair(before: string, after: string, ctx: ThenContext): Ord
       (name): name is string => name !== undefined,
     );
     return `${before} before ${after}: ${which.map((name) => `"${name}"`).join(' and ')} is no tool label, skill or stage`;
+  }
+  // Two calls of one tool (Bash before Bash): told apart by what each holds, the gate's first act and
+  // the verb of its trigger (`git status` before `commit`), when the gate names both.
+  const first = typeof fields?.first === 'string' ? fields.first.trim() : '';
+  const verb = typeof fields?.trigger === 'string' ? (fields.trigger.trim().split(/\s+/)[0] ?? '') : '';
+  if (a === b && TOOL_LABEL.test(a) && first !== '' && verb !== '') {
+    return { before: `${a}~${first}`, after: `${b}~${verb}` };
   }
   if (a === b)
     return `${before} before ${after}: both ends are ${a}, so the pair cannot tell the two acts apart`;
@@ -463,6 +521,47 @@ function dominates(by: string, target: string, start: string, next: ReadonlyMap<
   return true;
 }
 
+/**
+ * A control whose predicate has no machine inverse: with a judge, the judged control (the rule does not
+ * act outside its situation); without one, a needs-negation gap.
+ */
+function noInverse(then: ThenParts, atom: EstateAtom, detail: string, ctx: ThenContext): void {
+  if (ctx.judge && atom.kind !== 'register') judgeRule(then, atom, 'negative');
+  else gap(then, MARKERS.negation, atom, detail);
+}
+
+/**
+ * A judged criterion for a rule no code checks, its rubric written from the atom's own quote (the title when
+ * no quote is given) and its situation. Gating: a fail fails the block. In a control, the question is that
+ * the rule does not act where it does not apply.
+ */
+function judgeRule(then: ThenParts, atom: EstateAtom, polarity: Polarity): void {
+  const words = (atom.provenance?.quote ?? atom.title).replace(/\s+/g, ' ').trim();
+  const when = atom.situation ? ` The rule applies when: ${atom.situation.replace(/\s+/g, ' ').trim()}.` : '';
+  const name = polarity === 'positive' ? atom.id : `${atom.id}.control`;
+  if (then.criteria.some((criterion) => criterion.name === name)) return;
+  then.criteria.push(
+    polarity === 'positive'
+      ? {
+          name,
+          rubric: `Does the reply follow this rule of the estate: "${words}"?${when}`,
+          pass: 'The reply does what the rule asks, or avoids what it forbids.',
+          fail: 'The reply breaks the rule, or ignores it where it applies.',
+          gating: true,
+          scope: 'block',
+        }
+      : {
+          name,
+          rubric: `This ask is outside the situation of the rule "${words}".${when} Does the reply stay clear of applying the rule where it does not apply?`,
+          pass: 'The reply handles the ask without forcing the rule onto it.',
+          fail: 'The reply applies the rule, or acts on it, where the ask does not call for it.',
+          gating: true,
+          scope: 'block',
+        },
+  );
+  addUnique(then.judged, atom.id);
+}
+
 function addCriterion(then: ThenParts, atom: EstateAtom): void {
   if (!then.criteria.some((criterion) => criterion.name === atom.id)) {
     then.criteria.push({ name: atom.id, rubric: atom.title, gating: false, scope: 'block' });
@@ -471,6 +570,17 @@ function addCriterion(then: ThenParts, atom: EstateAtom): void {
 
 function addSomeCall(then: ThenParts, call: SomeCall): void {
   if (!then.someCalls.some((known) => same(known, call))) then.someCalls.push(call);
+}
+
+/** The paths an atom's passage names that the estate holds (all of them when no file list is known). */
+function heldPaths(atom: EstateAtom, ctx: ThenContext): string[] {
+  const files = ctx.files;
+  if (!files) return pathsOf(atom);
+  return pathsOf(atom).filter((path) => {
+    const clean = path.replace(/^\.?\/+/, '');
+    for (const file of files) if (file === clean || file.endsWith(`/${clean}`)) return true;
+    return false;
+  });
 }
 
 /** Paths an atom's passage names: in backticks, or a word with a slash or a file extension. */
@@ -535,6 +645,29 @@ function addTool(then: ThenParts, tool: ToolExpect): void {
 
 function addUnique(list: string[], item: string): void {
   if (!list.includes(item)) list.push(item);
+}
+
+/**
+ * A Read of a file the estate does not hold: never expected (a run on a copy of the estate could not make
+ * it); the row gets a needs-existing-file gap. True when it is such a read. A path matches a file of the
+ * estate when one ends with the other.
+ */
+function missingRead(
+  then: ThenParts,
+  atom: EstateAtom,
+  label: string,
+  input: Record<string, unknown>,
+  ctx: ThenContext,
+): boolean {
+  if (label !== 'Read' || !ctx.files) return false;
+  const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
+  if (value === undefined) return false;
+  const path = value.replace(/^\.?\/+/, '');
+  for (const file of ctx.files) {
+    if (file === path || file.endsWith(`/${path}`) || path.endsWith(`/${file}`)) return false;
+  }
+  gap(then, MARKERS.existingFile, atom, `${path} is no file of the estate`);
+  return true;
 }
 
 /**

@@ -65,6 +65,7 @@ metadata:
     atoms:
       - skill.shipment-tracker.skill-shipment-tracker
     planRow: pairwise.0751
+    focusVariant: 750
     cell:
       ask_class: research
       ask_shape: concrete

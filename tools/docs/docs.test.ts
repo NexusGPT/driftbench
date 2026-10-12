@@ -141,6 +141,7 @@ describe('docs content', () => {
       'judges.md',
       'recovery.md',
       'run-modes.md',
+      'script.md',
       'statistics.md',
     ]);
     for (const page of concepts) {

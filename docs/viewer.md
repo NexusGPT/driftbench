@@ -33,6 +33,20 @@ The command runs until Ctrl+C. Exit 0 after a stop, 2 when the store is missing,
 | `/campaign/<id>/run/<runId>` | one run, every block in full: what the user sent, the reply, the tool calls with their results, every verdict that did not pass and every judged verdict with its evidence and reasoning; a label form under each block |
 | `/compare` | two campaigns picked from the store and a margin; the result is the paired comparison of [`driftbench compare`](concepts/statistics.md#comparing-a-baseline-and-a-candidate) with its verdict |
 
+## Review queue
+
+A review queue is the list of blocks a reviewer still has to label, kept as `<labels>/queue.json` beside the labels. Each item is one block and one criterion, open, assigned to a reviewer, or done.
+
+```text
+driftbench queue create --store driftbench.db --campaign c-acme-x3 --labels labels
+driftbench queue list --labels labels
+driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> --labels labels
+```
+
+`queue create` queues each block of the campaign once per criterion of its spec, skipping blocks already labelled. The viewer's `/queue` page lists the items. "Take" assigns an item to the viewer's reviewer, "Label it" opens its block, and saving the label there marks the item done. Another reviewer cannot take or label an item held by someone else. A label written from the queue is the same label file `judge calibrate` reads.
+
+A second reviewer records a view of a block with `driftbench queue vote`, which does not write the labels file. `driftbench queue agreement` then prints, over the items with two votes, how many agree and Cohen's kappa between the first two reviewers. The queue page shows that agreement line too. On the queue page only, `j` and `k` move focus between the items, and Enter opens or takes the focused one. That one script is allowed by the hash of its exact text in the page's Content-Security-Policy, and nothing else on the viewer runs script. The label form on a block page has the same kind of keys, also by script hash: 1 checks pass, 2 checks fail (not while typing in the note), Cmd or Ctrl+Enter saves. ArrowDown and ArrowUp move between blocks on a block page. Every page links to `/keys`, a plain cheatsheet with no script; `?` opens it too. Every action works without script: each one is a link or a form that posts to the viewer, and the browser journey checks a label saved with script off. The exported HTML scorecard stays script-free.
+
 ## Labelling a block
 
 The form under a block offers the judged criteria of its spec, and any judged criterion that voted on the block. Pick one, choose pass or fail, write why, and save. The page comes back on the same block with "Label saved". The label shows under the block, and the labelling section counts the labels per criterion.

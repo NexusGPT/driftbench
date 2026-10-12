@@ -1,4 +1,4 @@
-import { mkdir, open, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@driftbench/adapters';
 import { type Campaign, contentHash, type RunResult, runSpec, type Store } from '@driftbench/core';
@@ -22,6 +22,9 @@ import type { Io } from '../io';
 import { loadValidSpecs } from './campaign';
 import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
+import { addJudgeOptions, isStandIn, type RunJudgeOptions, runJudgeFrom, STAND_IN_MARKER } from './run-judge';
+
+export { isStandIn, STAND_IN_MARKER };
 
 /** Adds `estate mutate` and `estate run` to `driftbench estate`. */
 export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (code: number) => void): void {
@@ -41,7 +44,7 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     .action(async (map: string, options: EstateMutateOptions) => {
       setExit(await estateMutateCommand(map, options, io));
     });
-  estate
+  const run = estate
     .command('run')
     .description(
       'Run live estate specs through the runtime headless, in a sandbox holding a copy of the estate',
@@ -57,6 +60,17 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     .requiredOption('--store <db>', 'the store the runs are written to')
     .option('--map <file>', "the estate's approved map: pins the copy to its hash and checks its quotes")
     .option('--states <file>', 'the state library: operations by session state and event')
+    .option(
+      '--set-env <pair>',
+      'a variable the runtime and its hooks receive, NAME=VALUE; repeatable (a path, a proxy, a dead URL)',
+      (value: string, previous: string[]) => [...previous, value],
+      [] as string[],
+    )
+    .option('--disallow <rules...>', 'tools the runtime must refuse, passed as --disallowed-tools')
+    .option(
+      '--lock-deny <paths...>',
+      'paths the runtime and its children may neither read nor write (macOS lock; the owner config in ~/.claude is always write-protected)',
+    )
     .option(
       '--pass-env <names...>',
       "names of the evaluator's variables the runtime receives (its credentials)",
@@ -75,15 +89,13 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
       'the config folder: host (the login lives there) or isolated; default host, isolated for a stand-in',
     )
     .option('--allow-billed', 'run a command that is not a stand-in: a billed live run')
-    .option('--json', 'print one JSON document')
-    .action(async (specs: string[], options: EstateRunOptions) => {
-      setExit(await estateRunCommand(specs, options, io));
-    });
+    .option('--json', 'print one JSON document');
+  addJudgeOptions(run).action(async (specs: string[], options: EstateRunOptions) => {
+    setExit(await estateRunCommand(specs, options, io));
+  });
 }
 
 export const DEFAULT_RUNTIME_COMMAND = 'claude';
-/** The line a stand-in command carries in its first lines. Any other command is billed. */
-export const STAND_IN_MARKER = '@driftbench-stand-in';
 
 export type EstateRunOptions = {
   estate: string;
@@ -95,6 +107,9 @@ export type EstateRunOptions = {
   map?: string;
   states?: string;
   passEnv?: string[];
+  setEnv?: string[];
+  disallow?: string[];
+  lockDeny?: string[];
   timeout?: string;
   allowBilled?: boolean;
   model?: string;
@@ -104,7 +119,7 @@ export type EstateRunOptions = {
   trustEstate?: boolean;
   config?: string;
   json?: boolean;
-};
+} & RunJudgeOptions;
 
 type RunLine = {
   spec: string;
@@ -113,6 +128,10 @@ type RunLine = {
   pass: boolean;
   failing: string[];
   costUsd: number | null;
+  /** What the judge spent on this spec, included in costUsd. */
+  judgeCostUsd: number;
+  /** The judge verdicts of the spec: criterion and outcome. */
+  judged: Array<{ criterion: string; outcome: string }>;
   error?: string;
 };
 
@@ -202,6 +221,8 @@ export async function estateRunCommand(
     return 2;
   }
   const config = (options.config ?? (standIn ? 'isolated' : 'host')) as 'host' | 'isolated';
+  const judge = await runJudgeFrom(options, io);
+  if (!judge) return 2;
 
   const notes: string[] = [];
   let pins: string[] = [];
@@ -251,6 +272,14 @@ export async function estateRunCommand(
     }
   }
   const env: Record<string, string> = {};
+  for (const pair of options.setEnv ?? []) {
+    const at = pair.indexOf('=');
+    if (at <= 0 || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(pair.slice(0, at))) {
+      io.err(`--set-env takes NAME=VALUE, got "${pair.split('=')[0]}".\n`);
+      return 2;
+    }
+    env[pair.slice(0, at)] = pair.slice(at + 1);
+  }
   for (const name of options.passEnv ?? []) {
     const value = process.env[name];
     if (value === undefined) notes.push(`${name} is not set; the runtime runs without it`);
@@ -265,8 +294,13 @@ export async function estateRunCommand(
       notes.push(`${entry.spec.id} targets ${adapter}; skipped`);
       return false;
     }
-    if (entry.spec.criteria?.length || entry.spec.blocks.some((block) => block.expect?.criteria?.length)) {
-      notes.push(`${entry.spec.id}: judged criteria are not run`);
+    if (
+      judge.label === 'none' &&
+      (entry.spec.criteria?.length || entry.spec.blocks.some((block) => block.expect?.criteria?.length))
+    ) {
+      notes.push(
+        `${entry.spec.id}: no judge, so its judged criteria are inconclusive (pass --judge claude:<model>)`,
+      );
     }
     return true;
   });
@@ -298,11 +332,14 @@ export async function estateRunCommand(
       modes: ['F'],
       repeats: { T: 0, F: 1, P: 0 },
       budgetUsd: 0,
-      judge: { mode: 'system1', judges: [] },
+      judge: {
+        mode: judge.label === 'none' ? 'system1' : 'llm',
+        judges: judge.label === 'none' ? [] : [judge.label],
+      },
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks();
+    const checks = replayChecks({ judge: judge.check });
     // The files a run copies, listed once for every spec: what the runtime may load, never an ignored folder
     // (node_modules, test runs), which made each spec's copy as large as the whole estate folder.
     const lister = readerFor(options.runtime, { ignore: mapIgnore });
@@ -319,10 +356,15 @@ export async function estateRunCommand(
         args,
         config,
         ...(options.trustEstate ? { trustEstate: true } : {}),
+        ...(options.disallow?.length ? { disallowedTools: options.disallow } : {}),
+        ...(options.lockDeny?.length
+          ? { lock: { deny: options.lockDeny.map((path) => resolve(io.cwd, path)) } }
+          : {}),
         ...(timeoutMs === undefined ? {} : { timeoutMs }),
         ...(standIn ? { retries: { backoffMs: 0 } } : {}),
       });
-      const run = await runSpec(entry.spec, {
+      const spentBefore = judge.spend.usd;
+      const result = await runSpec(entry.spec, {
         adapter,
         driver: createScriptedDriver(),
         checks,
@@ -332,7 +374,7 @@ export async function estateRunCommand(
         store,
         campaignId,
       });
-      lines.push(lineOf(run));
+      lines.push(lineOf(result, judge.spend.usd - spentBefore));
     }
   } catch (cause) {
     io.err(`The live run stopped: ${describe(cause)}\n`);
@@ -346,7 +388,7 @@ export async function estateRunCommand(
   const total = costs.reduce((sum, cost) => sum + cost, 0);
   if (options.json) {
     io.out(
-      `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, runs: lines, passed, failed: lines.length - passed, costUsd: total }, null, 2)}\n`,
+      `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, judge: judge.label, judgeCostUsd: judge.spend.usd, runs: lines, passed, failed: lines.length - passed, costUsd: total }, null, 2)}\n`,
     );
   } else {
     for (const note of notes) io.out(`note: ${note}\n`);
@@ -356,15 +398,16 @@ export async function estateRunCommand(
       io.out(`${mark} ${line.spec}  (${cost})\n`);
       if (line.error) io.out(`    error: ${line.error}\n`);
       if (line.failing.length > 0) io.out(`    failing: ${line.failing.join(', ')}\n`);
+      for (const verdict of line.judged) io.out(`    judged ${verdict.criterion}: ${verdict.outcome}\n`);
     }
     io.out(
-      `${lines.length} spec${lines.length === 1 ? '' : 's'} run live${standIn ? ' on a stand-in' : ''}: ${passed} pass, ${lines.length - passed} fail. Cost ${total.toFixed(4)} USD over ${costs.length} run${costs.length === 1 ? '' : 's'} that report one. Campaign ${campaignId}.\n`,
+      `${lines.length} spec${lines.length === 1 ? '' : 's'} run live${standIn ? ' on a stand-in' : ''}: ${passed} pass, ${lines.length - passed} fail. Cost ${total.toFixed(4)} USD over ${costs.length} run${costs.length === 1 ? '' : 's'} that report one, judge ${judge.label} ${judge.spend.usd.toFixed(4)} USD of it. Campaign ${campaignId}.\n`,
     );
   }
   return passed === lines.length ? 0 : 1;
 }
 
-function lineOf(run: RunResult): RunLine {
+function lineOf(run: RunResult, judgeCostUsd: number): RunLine {
   const failing = run.blocks.flatMap((block) =>
     block.verdicts
       .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
@@ -382,23 +425,17 @@ function lineOf(run: RunResult): RunLine {
       run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false,
     failing,
     costUsd:
-      reported.length === 0 ? null : reported.reduce((sum, block) => sum + (block.observed.cost.usd ?? 0), 0),
+      reported.length === 0 && judgeCostUsd === 0
+        ? null
+        : reported.reduce((sum, block) => sum + (block.observed.cost.usd ?? 0), 0) + judgeCostUsd,
+    judgeCostUsd,
+    judged: run.blocks.flatMap((block) =>
+      block.verdicts
+        .filter((verdict) => verdict.kind === 'judge')
+        .map((verdict) => ({ criterion: verdict.name, outcome: verdict.outcome })),
+    ),
     ...(run.error === undefined ? {} : { error: run.error }),
   };
-}
-
-/** True when the command is a file that names itself a stand-in in its first lines. */
-async function isStandIn(command: string): Promise<boolean> {
-  if (!command.includes('/')) return false;
-  const handle = await open(command, 'r').catch(() => undefined);
-  if (!handle) return false;
-  try {
-    const buffer = Buffer.alloc(2048);
-    const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
-    return buffer.subarray(0, bytesRead).toString('utf8').includes(STAND_IN_MARKER);
-  } finally {
-    await handle.close();
-  }
 }
 
 async function readMutant(root: string): Promise<MutantRecord | undefined> {

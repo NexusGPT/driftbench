@@ -57,6 +57,8 @@ export type JudgeRequest = {
   readonly transcript: readonly TranscriptEntry[];
   /** The text of a produced file, as an artifact reader extracted it. */
   readonly artifact?: string;
+  /** The workspace inputs the criterion names (`inputs`), each with its path: what the output is compared against. */
+  readonly inputs?: readonly { readonly path: string; readonly text: string }[];
   /** A summary of the block's Given: the stage expected and the ledger. */
   readonly given?: { readonly stage?: string; readonly ledger?: Readonly<Record<string, unknown>> };
   readonly budget?: Budget;
@@ -69,6 +71,10 @@ export type JudgeResult = {
   readonly raw: string;
   /** True when the raw answer did not satisfy the contract. The answer is then inconclusive. */
   readonly unparsed?: boolean;
+  /** What the call cost in US dollars, when the provider reports it (the claude command does). */
+  readonly costUsd?: number;
+  /** True when the answer parsed only after the strict repair of unescaped quotes in its string values. */
+  readonly repaired?: boolean;
 };
 
 /** An inconclusive answer that names why. */
@@ -89,10 +95,57 @@ export function parseAnswerText(raw: string): JudgeResult {
   try {
     value = JSON.parse(candidate);
   } catch (cause) {
+    // One strict repair: escape the double quotes inside string values, then read it again. A repaired
+    // answer still meets the whole contract or stays unparsed.
+    try {
+      const repaired = parseAnswerValue(JSON.parse(repairAnswerText(candidate)), raw);
+      if (!repaired.unparsed) return { ...repaired, repaired: true };
+    } catch {
+      // Not JSON after the repair either: the first error explains it.
+    }
     const why = cause instanceof Error ? cause.message : String(cause);
     return { answer: inconclusive(`unparseable answer: ${why}`), raw, unparsed: true };
   }
   return parseAnswerValue(value, raw);
+}
+
+/**
+ * The strict repair of a model's JSON: inside a string, a double quote that is not followed (after spaces)
+ * by `,`, `}`, `]`, `:` or the end of the text cannot close the string, so it is escaped. Nothing else
+ * changes: no key is added, removed or renamed, and no value outside a string is touched.
+ */
+export function repairAnswerText(text: string): string {
+  let out = '';
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i] as string;
+    if (!inString) {
+      if (ch === '"') inString = true;
+      out += ch;
+      continue;
+    }
+    if (escaped) {
+      escaped = false;
+      out += ch;
+      continue;
+    }
+    if (ch === '\\') {
+      escaped = true;
+      out += ch;
+      continue;
+    }
+    if (ch === '"') {
+      const next = text.slice(i + 1).match(/^\s*(.)/)?.[1];
+      if (next === undefined || ',}]:'.includes(next)) {
+        inString = false;
+        out += ch;
+      } else out += '\\"';
+      continue;
+    }
+    out += ch;
+  }
+  return out;
 }
 
 /** Validates an already decoded answer against the contract. */

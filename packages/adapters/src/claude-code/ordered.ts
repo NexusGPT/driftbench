@@ -17,6 +17,9 @@ import type { ReplayRaw } from './session';
  * the runtime accepts an Edit of it, so `before: Read` with `key: file_path` is met by a Write of that file.
  * A Write that failed counts as nothing.
  *
+ * An end written `Label~text` names a call of that tool whose command, file path or skill holds the text:
+ * `Bash~git status` before `Bash~commit` tells two calls of one tool apart.
+ *
  * Options: one pair, or `{ pairs: [...] }`. One verdict per pair, `ordered.<before>.<after>` (a list joined
  * by `_or_`), and none for a pair whose X does not occur in the block.
  */
@@ -35,7 +38,7 @@ export function orderedCheck(ctx: CheckContext, options: unknown): Verdict[] {
     let seen = 0;
     for (let at = start; at < all.length; at += 1) {
       const event = all[at];
-      if (event === undefined || event === 'reset' || !event.names.includes(pair.after)) continue;
+      if (event === undefined || event === 'reset' || !matches(event, pair.after)) continue;
       seen += 1;
       if (!hasBefore(all, at, pair, event)) missing.push(event.describe);
     }
@@ -69,10 +72,23 @@ function hasBefore(
       if (pair.reset === 'compaction') return false;
       continue;
     }
-    if (event === undefined || !pair.before.some((name) => event.names.includes(name))) continue;
+    if (event === undefined || !pair.before.some((name) => matches(event, name))) continue;
     if (pair.key === undefined || sameValue(event.input[pair.key], after.input[pair.key])) return true;
   }
   return false;
+}
+
+/** True when an event is the end a pair names: by name, or `Label~text` for a call holding the text. */
+function matches(event: Exclude<Event, 'reset'>, name: string): boolean {
+  if (event.names.includes(name)) return true;
+  const cut = name.indexOf('~');
+  if (cut <= 0) return false;
+  const label = name.slice(0, cut);
+  const text = name.slice(cut + 1);
+  if (event.names[0] !== label || text === '') return false;
+  const target =
+    event.input.command ?? event.input.file_path ?? event.input.notebook_path ?? event.input.skill;
+  return typeof target === 'string' && target.includes(text);
 }
 
 function sameValue(a: unknown, b: unknown): boolean {

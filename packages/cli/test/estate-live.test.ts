@@ -255,6 +255,53 @@ describe('driftbench estate run', () => {
     ]);
   });
 
+  it('sets variables for the runtime and passes denied tools, and refuses a variable that is no NAME=VALUE', async () => {
+    const dir = await folder();
+    const calls = join(dir, 'calls.jsonl');
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const result = await estateRun(
+      FIXTURE,
+      [spec],
+      '--set-env',
+      `FAKE_CALLS=${calls}`,
+      '--set-env',
+      'NEXUS_BASE_URL=http://127.0.0.1:9',
+      '--disallow',
+      'Read(~/.nexus-secrets/**)',
+      'WebFetch',
+    );
+    expect(result.code).toBe(0);
+    const [call] = (await readFile(calls, 'utf8'))
+      .trim()
+      .split('\n')
+      .map((text) => JSON.parse(text));
+    const argv = call.argv as string[];
+    const at = argv.indexOf('--disallowed-tools');
+    expect(argv.slice(at, at + 3)).toEqual(['--disallowed-tools', 'Read(~/.nexus-secrets/**)', 'WebFetch']);
+    expect(argv.indexOf('-p')).toBeGreaterThan(at);
+    const bad = await estateRun(FIXTURE, [spec], '--set-env', 'NOEQUALS');
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('--set-env');
+  });
+
+  it.runIf(process.platform === 'darwin')(
+    'runs the command under the lock, with the paths --lock-deny names refused',
+    async () => {
+      const spec = join(LIVE, PROOF.route_positive ?? '');
+      const secret = join(await folder(), 'secrets');
+      const result = await estateRun(FIXTURE, [spec], '--lock-deny', secret);
+      expect(result.code).toBe(0);
+      const { openStore } = await import('@driftbench/store');
+      const store = await openStore(result.store);
+      const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
+      await store.close();
+      const agent = stored?.blocks[0]?.observed.executions?.find((record) => record.role === 'agent');
+      expect(agent?.command).toContain('/usr/bin/sandbox-exec -p');
+      expect(agent?.command).toContain('secrets');
+      expect(agent?.command).toContain('.claude/settings.json');
+    },
+  );
+
   it('passes the model, turn and budget limits and the trusted tools to the command, in its own config folder on a stand-in', async () => {
     const calls = join(await folder(), 'calls.jsonl');
     process.env.FAKE_CALLS = calls;
@@ -418,4 +465,70 @@ describe('the Northwind proof: 14 live specs on the fake command, and three esta
       'block 0: forbidden.WebFetch',
     ]);
   }, 120_000);
+});
+
+const FAKE_JUDGE = join(FIXTURE, 'live/fake/judge.cjs');
+const HOLIDAY = join(
+  LIVE,
+  'obligation/estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public.yaml',
+);
+const OTHER = join(LIVE, 'obligation/estate.pairwise.0515.yaml');
+
+type JudgedJson = Omit<RunJson, 'runs'> & {
+  judge: string;
+  judgeCostUsd: number;
+  runs: Array<
+    RunJson['runs'][number] & { judgeCostUsd: number; judged: Array<{ criterion: string; outcome: string }> }
+  >;
+};
+
+describe('judged criteria in estate run', () => {
+  it('asks the judge for each judged criterion, adds its cost to the run, and fails a criterion it fails', async () => {
+    const result = await estateRun(
+      FIXTURE,
+      [HOLIDAY, OTHER],
+      '--judge',
+      'claude:haiku',
+      '--judge-command',
+      FAKE_JUDGE,
+    );
+    expect(result.err).toBe('');
+    const json = result.json as JudgedJson;
+    expect(json.judge).toBe('claude:haiku');
+    const [holiday, other] = json.runs;
+    expect(holiday?.judged).toEqual([
+      { criterion: 'instruction.route-planner.no-delivery-planned-on-a-public', outcome: 'fail' },
+    ]);
+    expect(holiday?.pass).toBe(false);
+    expect(holiday?.failing.some((entry) => entry.includes('judge.instruction.route-planner'))).toBe(true);
+    expect(other?.judged.length).toBeGreaterThan(0);
+    expect(other?.judged.every((verdict) => verdict.outcome === 'pass')).toBe(true);
+    for (const line of json.runs) {
+      expect(line.judgeCostUsd).toBeCloseTo(0.0015 * line.judged.length);
+      expect(line.costUsd ?? 0).toBeGreaterThanOrEqual(line.judgeCostUsd);
+    }
+    const judgedCount = json.runs.reduce((sum, line) => sum + line.judged.length, 0);
+    expect(json.judgeCostUsd).toBeCloseTo(0.0015 * judgedCount);
+  }, 120_000);
+
+  it('without a judge, a judged criterion is inconclusive and the spec cannot pass', async () => {
+    const result = await estateRun(FIXTURE, [OTHER]);
+    const json = result.json as JudgedJson;
+    expect(json.judge).toBe('none');
+    expect(json.judgeCostUsd).toBe(0);
+    expect(json.runs[0]?.judged.every((verdict) => verdict.outcome === 'inconclusive')).toBe(true);
+    expect(json.runs[0]?.pass).toBe(false);
+    expect(json.notes.some((note) => note.includes('no judge'))).toBe(true);
+  }, 120_000);
+
+  it('refuses a billed judge with no budget, and a judge that is not claude:<model>', async () => {
+    const billed = await estateRun(FIXTURE, [OTHER], '--judge', 'claude:haiku');
+    expect(billed.code).toBe(2);
+    expect(billed.err).toContain('--judge-budget');
+    const other = await estateRun(FIXTURE, [OTHER], '--judge', 'gpt:4');
+    expect(other.code).toBe(2);
+    expect(other.err).toContain('claude:<model>');
+    const stray = await estateRun(FIXTURE, [OTHER], '--judge-budget', '1');
+    expect(stray.code).toBe(2);
+  }, 60_000);
 });
