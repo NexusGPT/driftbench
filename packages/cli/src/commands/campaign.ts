@@ -79,6 +79,68 @@ const MODE_HELP =
 const TARGET_HELP =
   'run every spec on this target; repeat for several. Without it, each spec runs on its own target';
 
+const PROCESS_COMMAND_HELP =
+  'the agent command for a process target other than process:acme-ops: a JSON list such as ["python3","agent.py"], or words split on spaces';
+
+/**
+ * `--process-command`: a JSON list of strings, or a command line split on spaces (no quoting). Undefined
+ * when the text is neither.
+ */
+export function parseProcessCommand(text: string): string[] | undefined {
+  const trimmed = text.trim();
+  if (trimmed.startsWith('[')) {
+    try {
+      const parsed: unknown = JSON.parse(trimmed);
+      if (
+        Array.isArray(parsed) &&
+        parsed.length > 0 &&
+        parsed.every((part) => typeof part === 'string' && part !== '')
+      ) {
+        return parsed as string[];
+      }
+    } catch {
+      return undefined;
+    }
+    return undefined;
+  }
+  const words = trimmed.split(/\s+/).filter((word) => word !== '');
+  return words.length > 0 ? words : undefined;
+}
+
+/**
+ * The deps with every process target other than process:acme-ops reaching `command` through the process
+ * adapter, in a local sandbox. Any agent name works: `process:<name>` names the agent, the command runs it.
+ */
+export function withProcessCommand(deps: CampaignDeps, command: readonly string[]): CampaignDeps {
+  const [binary, ...args] = command;
+  return {
+    ...deps,
+    adapterFor: async (target, scope) => {
+      if (target.adapter !== 'process' || target.agent === 'acme-ops' || binary === undefined) {
+        return deps.adapterFor(target, scope);
+      }
+      return processAdapter({
+        command: binary,
+        args,
+        provider: localProvider(scope === undefined ? {} : { dir: await scope.tempDir() }),
+      });
+    },
+  };
+}
+
+/** Applies `--process-command` to the deps; undefined, with the reason printed, when it is malformed. */
+function processDeps(deps: CampaignDeps, text: string | undefined, io: Io): CampaignDeps | undefined {
+  if (text === undefined) return deps;
+  const command = parseProcessCommand(text);
+  if (command === undefined) {
+    io.err(
+      `--process-command takes a JSON list of strings or a command line, not ${JSON.stringify(text)}.\n`,
+    );
+    return undefined;
+  }
+  return withProcessCommand(deps, command);
+}
+
 /** The targets this build reaches, for the message of a target it does not. */
 const KNOWN_TARGETS =
   'The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent.';
@@ -132,6 +194,7 @@ type RunCommandOptions = {
   cache: boolean;
   concurrency: string;
   budgetUsd?: string;
+  processCommand?: string;
   json?: boolean;
 };
 
@@ -140,6 +203,7 @@ type StoredCommandOptions = {
   cache?: boolean;
   concurrency?: string;
   budgetUsd?: string;
+  processCommand?: string;
   json?: boolean;
   detail?: boolean;
 };
@@ -181,6 +245,7 @@ export function registerCampaignCommands(
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', 'a hard stop: no cell starts once the campaign has spent this much')
+    .option('--process-command <command>', PROCESS_COMMAND_HELP)
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: RunCommandOptions) => {
       setExit(await campaignRunCommand(paths, options, io, deps));
@@ -196,6 +261,7 @@ export function registerCampaignCommands(
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', "a hard stop on the campaign's spend; default: the budget it was run with")
+    .option('--process-command <command>', PROCESS_COMMAND_HELP)
     .option('--json', 'print one JSON document')
     .action(async (campaignId: string | undefined, options: StoredCommandOptions) => {
       setExit(await campaignResumeCommand(campaignId, options, io, deps));
@@ -304,7 +370,9 @@ export async function campaignRunCommand(
 ): Promise<number> {
   const shape = parseShape(options, io);
   const pool = parsePool(options, io);
-  if (!shape || !pool) return 2;
+  const withCommand = processDeps(deps, options.processCommand, io);
+  if (!shape || !pool || !withCommand) return 2;
+  deps = withCommand;
   const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
   const runs = specRuns(loaded, shape.targets, io);
@@ -372,7 +440,9 @@ export async function campaignResumeCommand(
   deps: CampaignDeps,
 ): Promise<number> {
   const pool = parsePool({ concurrency: options.concurrency ?? '4', budgetUsd: options.budgetUsd }, io);
-  if (!pool) return 2;
+  const withCommand = processDeps(deps, options.processCommand, io);
+  if (!pool || !withCommand) return 2;
+  deps = withCommand;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   const scope = openScope();
@@ -865,6 +935,20 @@ function report(campaignId: string, outcomes: readonly CellOutcome[], kept: bool
             cacheHit: run.cacheHit,
             cost: run.cost,
             ...(run.error ? { error: run.error } : {}),
+            ...(run.endState ? { endState: run.endState } : {}),
+            blocks: run.blocks.map((block) => ({
+              index: block.index,
+              ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
+              ...(block.injected ? { injected: true } : {}),
+              pass: block.pass,
+              ...(block.stageObserved === undefined ? {} : { stage: block.stageObserved }),
+              verdicts: block.verdicts.map(({ id, outcome, gating, evidence }) => ({
+                id,
+                outcome,
+                gating,
+                evidence,
+              })),
+            })),
           }
         : {}),
     })),
