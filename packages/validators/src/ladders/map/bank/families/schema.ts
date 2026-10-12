@@ -916,6 +916,53 @@ export const SCHEMA_CASES: readonly Case[] = [
       () => ['at-int32-max', 'above-int32-max'],
     ),
   },
+  {
+    slug: 'nested-two-levels',
+    tier: 2,
+    title: 'a property two objects down (<prop>.<child>.<grandchild>) is followed',
+    make: (d, name) => {
+      const list = members(d);
+      return {
+        properties: {
+          [name]: {
+            type: 'object',
+            required: ['inner'],
+            properties: {
+              inner: {
+                type: 'object',
+                required: ['kind'],
+                properties: { kind: { type: 'string', enum: list } },
+              },
+            },
+          },
+        },
+        required: [name],
+        expected: [{ path: [name, 'inner', 'kind'], partitions: list }],
+      };
+    },
+  },
+  {
+    slug: 'empty-slug-member',
+    tier: 3,
+    title: 'an enum member with no letter or digit (such as !!!) gives the value id value',
+    make: one(
+      () => ({ type: 'string', enum: ['open', '!!!'] }),
+      () => ['open', 'value'],
+    ),
+  },
+  {
+    slug: 'long-pattern',
+    tier: 4,
+    title:
+      'a property whose pattern line is longer than a quote may be still gives well-formed and malformed, with a valid proposal',
+    make: one(
+      () => ({
+        type: 'string',
+        pattern: `^(${Array.from({ length: 160 }, (_, i) => `code${i}`).join('|')})$`,
+      }),
+      () => ['well-formed', 'malformed'],
+    ),
+  },
 ];
 
 /** The enum at a path of keys inside a schema object. */

@@ -32,7 +32,7 @@ export function bankLadder(component: string, items: readonly BankItem[], deps: 
               tier: item.tier,
               cause: item.cause,
               pass: outcome.pass,
-              detail: `[${item.family}, tier ${item.tier}, cause ${item.cause}] ${item.title}: ${outcome.detail}`,
+              detail: `[${item.family}, tier ${item.tier}] ${item.title}: ${outcome.detail}. Fix: ${item.cause}`,
             });
           }
           return bankMeasure(entries, component);

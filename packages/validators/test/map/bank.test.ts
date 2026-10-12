@@ -307,7 +307,7 @@ describe('the bank as a ladder', () => {
     expect(run.rows[1]?.pass).toBeNull();
     const ids = run.failing?.items.map((one) => one.id) ?? [];
     expect(ids).toEqual(expect.arrayContaining(['schema-keywords.enum', 'tool-formats.mcp']));
-    expect(run.failing?.items[0]?.detail).toMatch(/^\[[a-z-]+, tier [1-5], cause [a-z]+:[a-z0-9+.-]+\] /);
+    expect(run.failing?.items[0]?.detail).toMatch(/^\[[a-z-]+, tier [1-5]\] .*\. Fix: [a-z]+:[a-z0-9+.-]+$/s);
   });
 });
 
