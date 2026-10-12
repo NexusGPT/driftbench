@@ -384,7 +384,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       );
       const misses: string[] = [];
       if (separated < repeats) misses.push(`separates the fixture pair ${separated} of ${repeats} times`);
-      if (labels.kappa === undefined) misses.push('has no kappa: the criterion has no labelled blocks');
+      if (labels.kappa === undefined) misses.push('has no kappa: the labels hold fewer than two classes');
       else if (labels.kappa < kappaMin) misses.push(`kappa ${fixed(labels.kappa)} is under ${kappaMin}`);
       if (counter.errors > 0) misses.push(`${counter.errors} call(s) gave no answer`);
       rows.push({
@@ -508,7 +508,7 @@ export function agreement(
   const agree = human.filter((label, i) => judged[i] === label).length;
   const interval = n === 0 ? { estimate: 0, lower: 0, upper: 1 } : wilson(agree, n);
   let kappa: number | undefined;
-  if (n > 0) {
+  if (n > 0 && new Set(human).size > 1) {
     kappa = cohenKappa([...judged], [...human], { categories: ['pass', 'fail', 'inconclusive'] }).kappa;
   }
   let tp = 0;

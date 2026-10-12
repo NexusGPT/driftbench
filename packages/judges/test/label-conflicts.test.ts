@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fixtureLeaks, labelConflicts, labelWarnings } from '../src/calibration';
+import { agreement, fixtureLeaks, labelConflicts, labelWarnings } from '../src/calibration';
 
 const block = (id: string, label: 'pass' | 'fail', text: string) => ({
   id,
@@ -39,5 +39,16 @@ describe('labelWarnings', () => {
     expect(labelWarnings([...many('pass', 16), ...many('fail', 4)])).toEqual(['few-labels']);
     expect(labelWarnings([...many('pass', 5), ...many('fail', 5)])).toEqual([]);
     expect(labelWarnings([])).toEqual([]);
+  });
+});
+
+describe('kappa with one class of labels', () => {
+  it('is left out when every label is the same class', () => {
+    const r = agreement(['a', 'b', 'c'], ['pass', 'pass', 'pass'], ['pass', 'pass', 'fail']);
+    expect(r.kappa).toBeUndefined();
+    expect(r.agree).toBe(2);
+  });
+  it('is computed when both classes are labelled', () => {
+    expect(agreement(['a', 'b'], ['pass', 'fail'], ['pass', 'fail']).kappa).toBe(1);
   });
 });
