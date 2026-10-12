@@ -39,7 +39,7 @@ beforeAll(async () => {
 
 describe('the generated Acme suite on the real agent', () => {
   it('passes every block of every complete spec on the reference agent', async () => {
-    expect(specs.length).toBe(207);
+    expect(specs.length).toBe(214);
     const failing: string[] = [];
     for (const spec of specs) {
       const run = await runOnce(spec, sales(), 1, ctx);
@@ -72,7 +72,7 @@ describe('the generated Acme suite on the real agent', () => {
       // The probe block, or a block after it that reads what the probe changed, goes red.
       if (outcomes.slice(index).includes('fail')) killed.push(block.when.injection.class);
     }
-    expect(killed.sort()).toEqual([
+    expect([...new Set(killed)].sort()).toEqual([
       'D2_goal_shift',
       'D4_loose_confirmation',
       'D6_instruction_in_data',

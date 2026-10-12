@@ -732,3 +732,53 @@ describe('pilot iteration 10: a class that needs an earlier turn', () => {
     expect(built.ok).toBe(false);
   });
 });
+
+describe('iteration 14: a class is probed at a second stage', () => {
+  it('adds a probe of the same class at another stage the paths allow', async () => {
+    const { deviationSeeder } = await import('../../src/seed/seeders');
+    const prepared = prepare((draft) => {
+      draft.relations?.push({
+        kind: 'path',
+        id: 'balance-long',
+        flow: 'balance',
+        when: { account_state: ['found'] },
+        stages: ['greet', 'verify', 'help', 'verify'],
+        ...by,
+      });
+      draft.phrases = [
+        ...(draft.phrases ?? []),
+        phrase('stage_transition', 'help-to-verify', 'Check it again.'),
+        phrase('deviation', 'D1_off_topic', 'Is the branch open on Sunday?', { binds: { day: 'Sunday' } }),
+      ];
+    });
+    const { drafts } = deviationSeeder(prepared, { seed: 1, t: 2, max: Number.POSITIVE_INFINITY });
+    const stages = drafts
+      .flatMap((draft) => draft.blocks.filter((block) => block.injection === 'D1_off_topic'))
+      .map((block) => block.stage);
+    expect(stages.length).toBe(2);
+    expect(new Set(stages).size).toBe(2);
+  });
+});
+
+describe('iteration 15: a probe after the last stage', () => {
+  it('closes the walk with a probe whose recovery stays on the last stage', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases = [
+        ...(draft.phrases ?? []),
+        phrase('deviation', 'D1_off_topic', 'Are you open on Sunday?', {
+          when: { stage: ['help'] },
+          binds: { day: 'Sunday' },
+        }),
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D1_off_topic', stage: 'help' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.probe).toEqual({ classId: 'D1_off_topic', stage: 'help' });
+    expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'help', 'help']);
+    expect(built.blocks.at(-1)?.injection).toBe('D1_off_topic');
+  });
+});

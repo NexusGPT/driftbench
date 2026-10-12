@@ -53,7 +53,18 @@ blocks:
       criteria:
         - behaviour.B-011
         - flow.new-home
-  - id: b2-D1_off_topic
+  - id: b2-address-to-address
+    when:
+      user: The address is 21 Willow Court, Acmeville.
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 21 Willow Court, Acmeville
+      lang: EN
+  - id: b3-D1_off_topic
     when:
       injection:
         class: D1_off_topic
@@ -68,17 +79,6 @@ blocks:
       lang: EN
       criteria:
         - deviation.D1_off_topic
-  - id: b3-address-to-address
-    when:
-      user: The address is 21 Willow Court, Acmeville.
-    expect:
-      stage: address
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 21 Willow Court, Acmeville
-      lang: EN
 rules:
   forbidden_tools:
     - catalog.search
@@ -114,16 +114,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D1_off_topic
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: address
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b3-address-to-address
+      - block: b2-address-to-address
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -133,3 +124,12 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-address
+      - block: b3-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: address
+        phrase:
+          dimension: deviation
+          value: D1_off_topic

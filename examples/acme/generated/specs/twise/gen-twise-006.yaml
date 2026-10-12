@@ -4,7 +4,7 @@
 id: gen-twise-006
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 6 of 132: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D5_language_switch at offer"
+title: "t-wise row 6 of 132: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D5_language_switch at recap"
 channel: chat
 lang: EN
 tier: generated
@@ -69,24 +69,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b3-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: offer
-      tools:
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-      criteria:
-        - deviation.D5_language_switch
-  - id: b4-offer-to-recap
+  - id: b3-offer-to-recap
     when:
       user: The unlimited one, please.
     expect:
@@ -97,6 +80,23 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b4-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: recap
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - deviation.D5_language_switch
   - id: b5-recap-to-order_placed
     when:
       user: CONFIRM
@@ -176,16 +176,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-offer
-      - block: b3-D5_language_switch
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: offer
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
-      - block: b4-offer-to-recap
+      - block: b3-offer-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -194,6 +185,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-recap
+      - block: b4-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: recap
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
       - block: b5-recap-to-order_placed
         seeder: twise
         cell:

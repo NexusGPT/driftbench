@@ -172,7 +172,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     if (!recovery) return fail(`the map gives no recovery from ${probe.classId} in the flow ${path.flow}`);
     const allowed = path.stages
       .map((stage, index) => ({ stage, index }))
-      .filter(({ index }) => index <= path.stages.length - 2)
+      .filter(({ index }) => index <= path.stages.length - 2 || lastStageProbe(recovery as Recovery, path))
       .filter(({ index }) => index >= 1 || OPENING_CLASSES.has(probe.classId))
       .filter(({ stage, index }) => index >= 1 || discriminates(recovery as Recovery, stage, path.stages[0]))
       .filter(({ stage }) => (recovery?.at ? recovery.at.includes(stage) : true))
@@ -193,7 +193,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   const blocks: BlockDraft[] = [];
   const lang = relations.replyLanguage;
   let movedAway = false;
-  for (let index = 0; index + 1 < path.stages.length; index += 1) {
+  for (let index = 0; index < path.stages.length; index += 1) {
     if (probeAt === index && probe && deviationKey !== undefined && recovery) {
       const stage = path.stages[index] as string;
       const deviation = dimensions[prepared.deviation ?? -1]?.index.get(probe.classId);
@@ -241,6 +241,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         break;
       }
     }
+    // The last stage has no move after it: a probe there closes the walk.
+    if (index + 1 >= path.stages.length) break;
     const from = path.stages[index] as string;
     const to = path.stages[index + 1] as string;
     const transitionId = `${from}-to-${to}`;
@@ -378,6 +380,16 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     ...(perturbations.length > 0 ? { perturbations } : {}),
     title,
   };
+}
+
+/**
+ * True when a probe may follow the last stage of a path: the recovery stays on the stage (or answers
+ * pending), so the conversation is where the walk left it and the probe's own Then is the whole check.
+ */
+function lastStageProbe(recovery: Recovery, path: PathRelation): boolean {
+  const last = path.stages[path.stages.length - 1] as string;
+  const after = stageAfter(recovery, last);
+  return after === undefined || after === last;
 }
 
 /**

@@ -53,7 +53,19 @@ blocks:
       criteria:
         - behaviour.B-001
         - flow.upgrade
-  - id: b2-D10_return
+  - id: b2-identify-to-identify
+    when:
+      user: It's pat.quinn@example.com.
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 1
+          input:
+            category: mobile
+            customer_email: pat.quinn@example.com
+      lang: EN
+  - id: b3-D10_return
     when:
       injection:
         class: D10_return
@@ -68,18 +80,6 @@ blocks:
       lang: EN
       criteria:
         - deviation.D10_return
-  - id: b3-identify-to-identify
-    when:
-      user: It's pat.quinn@example.com.
-    expect:
-      stage: identify
-      tools:
-        - label: catalog.search
-          count: 1
-          input:
-            category: mobile
-            customer_email: pat.quinn@example.com
-      lang: EN
 rules:
   forbidden_tools:
     - coverage.check
@@ -116,16 +116,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-D10_return
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D10_return
-          stage: identify
-        phrase:
-          dimension: deviation
-          value: D10_return
-      - block: b3-identify-to-identify
+      - block: b2-identify-to-identify
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -135,3 +126,12 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-identify
+      - block: b3-D10_return
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D10_return
+          stage: identify
+        phrase:
+          dimension: deviation
+          value: D10_return

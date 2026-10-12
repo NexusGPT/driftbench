@@ -960,12 +960,32 @@ export function deviationSeeder(
         drafts.push(built.draft);
         const injected = built.draft.blocks.findIndex((block) => block.injection === value.id);
         const path = built.path.stages;
-        probes.push({
-          class: value.id,
-          stage: injected < 0 ? null : (path[injected] ?? null),
-          spec: id,
-          phrase,
-        });
+        const first = injected < 0 ? null : (path[injected] ?? null);
+        probes.push({ class: value.id, stage: first, spec: id, phrase });
+        // The class again at the latest other stage a path allows: a recovery that goes to the goal stage
+        // looks the same as staying when the probe is already at the goal, so one stage proves nothing.
+        const stages = prepared.space.dimensions[prepared.stage ?? -1]?.values.map((entry) => entry.id) ?? [];
+        for (const stage of [...stages].reverse()) {
+          if (stage === first || drafts.length >= context.max) continue;
+          const again = `gen-deviation-${pad(drafts.length + 1)}`;
+          const other = scenarioDraft(
+            prepared,
+            context,
+            again,
+            'deviation',
+            `Deviation probe ${value.id} at ${stage}`,
+            [],
+            {
+              preferred: prepared.relations.paths.filter((path) => required.has(path.flow)),
+              others: prepared.relations.paths.filter((path) => !required.has(path.flow)),
+            },
+            { probe: { classId: value.id, stage } },
+          );
+          if (!('draft' in other)) continue;
+          other.draft.cell.push(deviation);
+          drafts.push(other.draft);
+          break;
+        }
         continue;
       }
       const fallback = probeDraft(prepared, context, id, 'deviation', deviation, anchors);

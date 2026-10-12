@@ -4,7 +4,7 @@
 id: gen-twise-068
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 68 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D1_off_topic at details"
+title: "t-wise row 68 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D1_off_topic at recap"
 channel: chat
 lang: EN
 tier: generated
@@ -87,13 +87,26 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b4-D1_off_topic
+  - id: b4-details-to-recap
+    when:
+      user: Jo Okafor, jo.okafor@example.com
+    expect:
+      stage: recap
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b5-D1_off_topic
     when:
       injection:
         class: D1_off_topic
         user: Are your stores open on Saturday?
     expect:
-      stage: details
+      stage: recap
       tools:
         - label: port.check
           count: 0
@@ -106,19 +119,6 @@ blocks:
       lang: EN
       criteria:
         - deviation.D1_off_topic
-  - id: b5-details-to-recap
-    when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
-    expect:
-      stage: recap
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
   - id: b6-recap-to-order_placed
     when:
       user: Confirm
@@ -221,16 +221,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b4-D1_off_topic
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: details
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b5-details-to-recap
+      - block: b4-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -240,6 +231,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
+      - block: b5-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: recap
+        phrase:
+          dimension: deviation
+          value: D1_off_topic
       - block: b6-recap-to-order_placed
         seeder: twise
         cell:

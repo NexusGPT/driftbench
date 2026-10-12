@@ -4,7 +4,7 @@
 id: gen-deviation-003
 version: badea3d3df7a
 kind: conversation
-title: "Deviation probe D3_contradiction: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D3_contradiction at offer"
+title: "Deviation probe D2_goal_shift: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D2_goal_shift at recap"
 channel: chat
 lang: EN
 tier: generated
@@ -30,8 +30,8 @@ criteria:
     rubric: Recap, explicit confirmation and order placement
     gating: false
     scope: conversation
-  - name: deviation.D3_contradiction
-    rubric: The agent notices and asks which one holds; it never takes the last one silently.
+  - name: deviation.D2_goal_shift
+    rubric: Back to the stage that owns the change, with no question about facts already known.
     gating: false
     scope: block
 blocks:
@@ -68,26 +68,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b3-D3_contradiction
-    when:
-      injection:
-        class: D3_contradiction
-        user: "Acme Fiber 300. No, wait: Acme Fiber 1000."
-    expect:
-      stage: offer
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Which one
-      lang: EN
-      criteria:
-        - deviation.D3_contradiction
-  - id: b4-offer-to-details
+  - id: b3-offer-to-details
     when:
       user: I'll take Acme Fiber 1000.
     expect:
@@ -100,7 +81,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-details-to-recap
+  - id: b4-details-to-recap
     when:
       user: Jo Okafor, jo.okafor@example.com
     expect:
@@ -113,6 +94,25 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b5-D2_goal_shift
+    when:
+      injection:
+        class: D2_goal_shift
+        user: Actually, make it Acme Fiber 300 instead.
+    expect:
+      stage: recap
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Acme Fiber 300
+      lang: EN
+      criteria:
+        - deviation.D2_goal_shift
   - id: b6-recap-to-order_placed
     when:
       user: Confirm
@@ -123,7 +123,7 @@ blocks:
           count: 1
           input:
             type: new
-            plan_id: fiber-1000
+            plan_id: fiber-300
             address_id: addr-101
             customer:
               subset:
@@ -143,7 +143,7 @@ end_state:
   mode: subset
   expect:
     type: new
-    plan_id: fiber-1000
+    plan_id: fiber-300
     address_id: addr-101
     customer:
       subset:
@@ -189,16 +189,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-offer
-      - block: b3-D3_contradiction
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          deviation: D3_contradiction
-          stage: offer
-        phrase:
-          dimension: deviation
-          value: D3_contradiction
-      - block: b4-offer-to-details
+      - block: b3-offer-to-details
         seeder: deviation
         cell:
           spec: metadata.generated.cell
@@ -207,7 +198,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b5-details-to-recap
+      - block: b4-details-to-recap
         seeder: deviation
         cell:
           spec: metadata.generated.cell
@@ -217,6 +208,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
+      - block: b5-D2_goal_shift
+        seeder: deviation
+        cell:
+          spec: metadata.generated.cell
+          deviation: D2_goal_shift
+          stage: recap
+        phrase:
+          dimension: deviation
+          value: D2_goal_shift
       - block: b6-recap-to-order_placed
         seeder: deviation
         cell:

@@ -4,7 +4,7 @@
 id: gen-twise-076
 version: badea3d3df7a
 kind: conversation
-title: "t-wise row 76 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D7_silence_or_burst at recap"
+title: "t-wise row 76 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D7_silence_or_burst at order_placed"
 channel: chat
 lang: EN
 tier: generated
@@ -100,28 +100,9 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-D7_silence_or_burst
+  - id: b5-recap-to-order_placed
     when:
-      injection:
-        class: D7_silence_or_burst
-        user: hello?
-    expect:
-      stage: recap
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I'm here
-      lang: EN
-      criteria:
-        - deviation.D7_silence_or_burst
-  - id: b6-recap-to-order_placed
-    when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
@@ -141,6 +122,25 @@ blocks:
         - label: catalog.search
           count: 0
       lang: EN
+  - id: b6-D7_silence_or_burst
+    when:
+      injection:
+        class: D7_silence_or_burst
+        user: hello?
+    expect:
+      stage: order_placed
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+      criteria:
+        - deviation.D7_silence_or_burst
   - id: b7-order_placed-to-closing
     when:
       user: No, that's all. Thanks!
@@ -232,16 +232,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
-      - block: b5-D7_silence_or_burst
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: recap
-        phrase:
-          dimension: deviation
-          value: D7_silence_or_burst
-      - block: b6-recap-to-order_placed
+      - block: b5-recap-to-order_placed
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -252,6 +243,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
+      - block: b6-D7_silence_or_burst
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: order_placed
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
       - block: b7-order_placed-to-closing
         seeder: twise
         cell:
