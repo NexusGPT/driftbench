@@ -646,11 +646,20 @@ def allocation_cases():
         if (w == 0).all():
             w = np.array(sizes, dtype=float)
         exact = total * w / w.sum()
-        alloc = np.floor(exact).astype(int)
-        left = total - alloc.sum()
-        frac = exact - np.floor(exact)
-        for i in sorted(range(len(sizes)), key=lambda i: (-frac[i], i))[:left]:
-            alloc[i] += 1
+        live = int((w > 0).sum())
+        if any(x > 0 for x in sds) and total >= live:
+            # The best integer allocation of sum w^2 / n: one unit per stratum with spread, then each unit to the
+            # largest drop w^2 / (n (n + 1)). Rounding the exact shares is not always optimal.
+            alloc = np.array([1 if x > 0 else 0 for x in w], dtype=int)
+            for _ in range(total - live):
+                drops = [(-(x * x) / (n * (n + 1)), i) if x > 0 else (float("inf"), i) for i, (x, n) in enumerate(zip(w, alloc))]
+                alloc[min(drops)[1]] += 1
+        else:
+            alloc = np.floor(exact).astype(int)
+            left = total - alloc.sum()
+            frac = exact - np.floor(exact)
+            for i in sorted(range(len(sizes)), key=lambda i: (-frac[i], i))[:left]:
+                alloc[i] += 1
         out.append({"sizes": sizes, "sds": sds, "total": total, "exact": [f(x) for x in exact], "allocated": [int(x) for x in alloc]})
     return out
 

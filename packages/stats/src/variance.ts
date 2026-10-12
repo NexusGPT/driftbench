@@ -302,7 +302,10 @@ export interface NeymanInput {
 export interface NeymanResult {
   /** total N_h S_h / sum(N_h S_h), unrounded. */
   readonly exact: readonly number[];
-  /** Integers summing to total, by largest remainder. */
+  /**
+   * Integers summing to total that minimise the variance sum N_h^2 S_h^2 / n_h: one unit to each stratum with
+   * spread, then one unit at a time to the largest drop. By largest remainder when the total cannot cover them.
+   */
   readonly allocated: readonly number[];
 }
 
@@ -328,6 +331,30 @@ export function neymanAllocation(input: NeymanInput): NeymanResult {
   const sumW = weights.reduce((s, w) => s + w, 0);
   if (sumW === 0) throw new RangeError('neymanAllocation: every stratum has size 0');
   const exact = weights.map((w) => (total * w) / sumW);
+  const spread = sds.some((v) => v > 0);
+  const live = weights.filter((w) => w > 0).length;
+  if (spread && total >= live) {
+    // The variance sum N^2 S^2 / n is separable and convex, so the best integer allocation gives each stratum with
+    // spread one unit, then each further unit to the stratum whose variance drops most. Rounding the exact shares
+    // can leave a stratum with spread at 0 units, which has infinite variance.
+    const allocated = weights.map((w) => (w > 0 ? 1 : 0));
+    for (let left = total - live; left > 0; left -= 1) {
+      let best = -1;
+      let drop = -1;
+      for (let i = 0; i < weights.length; i += 1) {
+        const w = weights[i] as number;
+        if (w === 0) continue;
+        const n = allocated[i] as number;
+        const d = (w * w) / (n * (n + 1));
+        if (d > drop) {
+          drop = d;
+          best = i;
+        }
+      }
+      allocated[best] = (allocated[best] as number) + 1;
+    }
+    return { exact, allocated };
+  }
   const allocated = exact.map(Math.floor);
   let left = total - allocated.reduce((s, v) => s + v, 0);
   const order = exact
