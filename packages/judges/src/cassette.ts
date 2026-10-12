@@ -218,6 +218,9 @@ export async function loadCassette(path: string): Promise<Cassette> {
     if (seen.has(judge.id)) throw new JudgeError('config', `${path}: judge ${judge.id} is listed twice`);
     seen.add(judge.id);
   }
+  for (const entry of parsed.data.entries) {
+    if (!seen.has(entry.judge)) throw new JudgeError('config', `${path}: an entry names judge ${entry.judge}, which the cassette does not list`);
+  }
   return parsed.data;
 }
 

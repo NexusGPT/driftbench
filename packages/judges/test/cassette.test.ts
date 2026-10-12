@@ -198,3 +198,19 @@ describe('loading a cassette that lists a judge twice', () => {
     }
   });
 });
+
+describe('loading a cassette with an entry of an unlisted judge', () => {
+  it('refuses it, naming the judge', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'judges-cassette-'));
+    try {
+      const path = join(dir, 'c.json');
+      const cassette = emptyCassette();
+      await recordingClient(new FakeJudge('j', [{ outcome: 'pass', reasoning: 'r' }]), cassette).judge(REQUEST);
+      const [entry] = cassette.entries as [Cassette['entries'][number]];
+      await saveCassette(path, { ...cassette, entries: [{ ...entry, judge: 'ghost' }] });
+      await expect(loadCassette(path)).rejects.toThrow(/ghost/);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+});
