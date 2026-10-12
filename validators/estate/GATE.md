@@ -1,6 +1,6 @@
 # Estate validator: where the gate stands
 
-Status, 2026-10-12: the owner asked to write more capabilities into the docs and, if the gate still fails, to lower the bar per validator. Five planned capabilities are now in docs/estate.md, each with its user purpose, and the bank holds items for them. The gate of docs/validators.md section 12.4 still fails on the forecast and the score. The lowered bar proposed for this validator is at the end. No item was added to reach a number. Every family names its need in [NEEDS.md](NEEDS.md); none is quarantined.
+Status, 2026-10-12, recorded: the owner ended validator design ("we've done enough work on validator honestly, let's just start building and iterating"). This file records the bar the estate validator stands at. The bank is frozen as it is. The capabilities written into docs/estate.md stay as documented needs, and the `estate stats` and `estate unit` contracts stay in the docs and the CLI reference. The gate of docs/validators.md section 12.4 fails on the forecast and the score; the recorded estate bar is at the end. Every family names its need in [NEEDS.md](NEEDS.md); none is quarantined.
 
 ## What the docs now promise (planned, not built)
 
@@ -51,11 +51,11 @@ Items that the pilot cannot move were measured once and carried to every row; th
 * The pilot took the largest causes first, so its mean (8.6 items per fix) is high. A reader fix moves every form of one shape at once.
 * The cause count (145) is the closer measure of the work left: about 145 changes, one per cause.
 
-## The lowered bar proposed for this validator
+## The recorded estate bar
 
-For the estate validator, and to be confirmed by the owner:
+The bar this validator is held to from now on, unless the owner changes it:
 
-| Term | Section 12.4 bar | Proposed estate bar | Measured |
+| Term | Section 12.4 bar | Estate bar | Measured |
 |---|---|---|---|
 | Forecast | at least 100 | at least 30 | 40.5 |
 | Score after the pilot | at most 0.4 | at most 0.75 | 0.703 |
