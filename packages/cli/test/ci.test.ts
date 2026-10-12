@@ -139,6 +139,28 @@ describe('driftbench ci on the Acme gated suite', () => {
   );
 
   it(
+    'exits 0 with the defaults: margin auto, set by must, with cards and guards underpowered',
+    async () => {
+      const out = join(dir, 'defaults.json');
+      const result = await ci(
+        ['--target', 'fault:control-sales-identity', '--faults', FAULTS, '--store', join(dir, 'defaults.db')],
+        out,
+      );
+      expect(result.err).toBe('');
+      expect(result.code).toBe(0);
+      const summary = await summaryAt(out);
+      expect(summary.verdict).toBe('parity');
+      expect(summary.marginPoints).toBe(6.5);
+      expect(summary.marginAuto).toEqual({ neededPoints: 6.02, limitedBy: 'must' });
+      expect(summary.minGoldens).toBe(30);
+      expect(summary.underpowered.map((entry) => entry.criterion)).toEqual(['cards', 'guards']);
+      expect(result.out).toContain('Margin auto: 6.5 points');
+      expect(result.out).not.toContain('Warning:');
+    },
+    SLOW,
+  );
+
+  it(
     'reads the same agent at a 5 point margin as not shown non-inferior, naming the criteria too thin for it, never as a regression',
     async () => {
       const out = join(dir, 'tight.json');
@@ -153,8 +175,11 @@ describe('driftbench ci on the Acme gated suite', () => {
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('not-shown-non-inferior');
       expect(summary.table.regressed).toBe(0);
-      expect(summary.criteriaNotShown.map((entry) => entry.criterion)).toEqual(['cards', 'guards', 'must']);
-      expect(summary.reasons).toHaveLength(3);
+      expect(summary.criteriaNotShown.map((entry) => entry.criterion)).toEqual(['must']);
+      expect(summary.underpowered).toEqual([
+        { criterion: 'cards', goldens: 11 },
+        { criterion: 'guards', goldens: 26 },
+      ]);
     },
     SLOW,
   );
@@ -259,7 +284,7 @@ describe('driftbench ci on the Acme golden suite: one verdict rule with compare'
     expect(run.code).toBe(0);
   }, SLOW);
 
-  async function ciThenCompare(target: string[], margin: string, name: string) {
+  async function ciThenCompare(target: string[], margin: string, name: string, gate: string[] = []) {
     const out = join(dir, `${name}.json`);
     const result = await cli([
       'ci',
@@ -272,6 +297,7 @@ describe('driftbench ci on the Acme golden suite: one verdict rule with compare'
       store,
       '--margin',
       margin,
+      ...gate,
       '--out',
       out,
     ]);
@@ -286,6 +312,7 @@ describe('driftbench ci on the Acme golden suite: one verdict rule with compare'
       store,
       '--margin',
       margin,
+      ...gate,
       '--json',
     ]);
     return {
@@ -322,17 +349,70 @@ describe('driftbench ci on the Acme golden suite: one verdict rule with compare'
   );
 
   it.each(RED_FAULTS)(
-    'turns red on fault %s at margin 30, with the verdict and exit code compare gives',
+    'turns red on fault %s with the defaults (margin auto), with the verdict and exit code compare gives',
     async (fault) => {
       const { result, summary, compared, compareVerdict } = await ciThenCompare(
         ['--target', `fault:${fault}`, '--faults', FAULTS],
-        '30',
+        'auto',
         `fault-${fault}`,
       );
       expect(result.code).toBe(1);
       expect(summary.verdict).not.toBe('parity');
+      expect(summary.marginPoints).toBe(28);
       expect(AS_COMPARE[summary.verdict]).toBe(compareVerdict);
       expect(compared.code).toBe(1);
+    },
+    SLOW,
+  );
+
+  it(
+    'shows the identity control at parity on the 10-golden suite with the defaults, and says the suite is too small for 15 points',
+    async () => {
+      const { result, summary, compareVerdict } = await ciThenCompare(
+        ['--target', 'fault:control-sales-identity', '--faults', FAULTS],
+        'auto',
+        'defaults-control',
+      );
+      expect(result.code).toBe(0);
+      expect(summary.verdict).toBe('parity');
+      expect(compareVerdict).toBe('non-inferior');
+      expect(summary.marginAuto).toMatchObject({ neededPoints: 27.75, limitedBy: 'the all-pass flag' });
+      expect(summary.marginAuto?.warning).toContain('cannot show parity under 15 points');
+      expect(result.out).toContain('Margin auto: 28 points');
+      expect(result.out).toContain('Warning: this suite cannot show parity under 15 points');
+      expect(summary.underpowered.length).toBeGreaterThan(0);
+    },
+    SLOW,
+  );
+
+  it(
+    '--strict reproduces the rule before the minimum: the identity control at margin 30 is not shown non-inferior, in ci and compare alike',
+    async () => {
+      const { result, summary, compareVerdict } = await ciThenCompare(
+        ['--target', 'fault:control-sales-identity', '--faults', FAULTS],
+        '30',
+        'strict-control',
+        ['--strict'],
+      );
+      expect(result.code).toBe(1);
+      expect(summary.strict).toBe(true);
+      expect(summary.verdict).toBe('not-shown-non-inferior');
+      expect(compareVerdict).toBe('unproven');
+      expect(summary.criteriaNotShown.map((entry) => entry.criterion).sort()).toEqual([
+        'budget',
+        'cards',
+        'guards',
+        'lang',
+        'ledger',
+        'must',
+        'must_not',
+      ]);
+      const loose = await ciThenCompare(
+        ['--target', 'fault:control-sales-identity', '--faults', FAULTS],
+        '30',
+        'loose-control',
+      );
+      expect(loose.summary.verdict).toBe('parity');
     },
     SLOW,
   );
@@ -461,9 +541,9 @@ describe('driftbench ci baselines', () => {
         '--out',
         out,
       ]);
-      expect(result.code).toBe(1);
+      expect(result.code).toBe(0);
       const summary = await summaryAt(out);
-      expect(summary.verdict).toBe('not-shown-non-inferior');
+      expect(summary.verdict).toBe('parity');
       expect(summary.pairs).toBe(10);
       expect(summary.unpaired).toHaveLength(124);
       expect(summary.unpaired.every((entry) => entry.reason === 'baseline only')).toBe(true);
@@ -538,8 +618,16 @@ describe('driftbench ci input', () => {
   it.each(['0', '100', '-3', 'five'])('exits 2 on the margin %s', async (margin) => {
     const result = await ci(['--baseline', base, '--margin', margin]);
     expect(result.code).toBe(2);
-    expect(result.err).toContain(`--margin takes a number of points between 0 and 100, not "${margin}"`);
+    expect(result.err).toContain(
+      `--margin takes a number of points above 0 and below 100, such as 2, not "${margin}"`,
+    );
     expect(existsSync(join(dir, 'never.json'))).toBe(false);
+  });
+
+  it.each(['0', '2.5', 'many'])('exits 2 on --min-goldens %s', async (value) => {
+    const result = await ci(['--baseline', base, '--min-goldens', value]);
+    expect(result.code).toBe(2);
+    expect(result.err).toContain(`--min-goldens takes a whole number of at least 1, not "${value}"`);
   });
 
   it('exits 2 on a baseline that is neither a file nor a campaign of an existing store', async () => {

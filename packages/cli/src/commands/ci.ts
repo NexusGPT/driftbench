@@ -11,11 +11,13 @@ import {
 } from '@driftbench/core';
 import { faultAdapter, importFaultSet } from '@driftbench/generate';
 import {
+  autoMargin,
   type CampaignData,
   type CompareResult,
   compareCampaigns,
   DEFAULT_FLAG_FAMILIES,
   loadCampaign,
+  MIN_GOLDENS,
   unitsOf,
 } from '@driftbench/report';
 import { localProvider } from '@driftbench/sandbox';
@@ -23,6 +25,7 @@ import { pairedRateDifference } from '@driftbench/stats';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { type CampaignDeps, campaignRunCommand, defaultDeps, parseTarget } from './campaign';
+import { parseGate } from './compare';
 
 /**
  * The verdict families whose failing gating verdict is a gating FLAG, as `compare` counts them: an act that
@@ -54,6 +57,8 @@ type CiCommandOptions = {
   baseline: string;
   store: string;
   margin: string;
+  minGoldens: string;
+  strict?: boolean;
   mode: string;
   repeats: string;
   budgetUsd?: string;
@@ -82,8 +87,15 @@ export type CiSummary = {
   exitCode: 0 | 1;
   /** compare's reasons, in its words. */
   reasons: string[];
-  /** The margin in percentage points, as given. */
+  /** The margin in percentage points, as given or as --margin auto chose it. */
   marginPoints: number;
+  /** Set when --margin auto chose the margin: what it had to clear, what set it, and any warning. */
+  marginAuto: { neededPoints: number; limitedBy: string; warning?: string } | null;
+  /** Gating criteria on fewer goldens are underpowered and left out of the parity test unless strict. */
+  minGoldens: number;
+  strict: boolean;
+  /** Underpowered gating criteria, with the goldens that decided them. */
+  underpowered: Array<{ criterion: string; goldens: number }>;
   comparator: string;
   flags: string[];
   baseline: { campaignId: string; store: string };
@@ -136,7 +148,17 @@ export function registerCiCommand(
       'the baseline: a store file (its latest campaign), or a campaign id held in --store',
     )
     .requiredOption('--store <file>', 'the store the candidate campaign is kept in')
-    .requiredOption('--margin <points>', 'the largest drop in pass rate tolerated, in percentage points')
+    .option(
+      '--margin <points|auto>',
+      'the largest drop in pass rate tolerated, in percentage points; auto: the smallest margin at which the baseline compared with itself is non-inferior',
+      'auto',
+    )
+    .option(
+      '--min-goldens <n>',
+      'a gating criterion decided on fewer goldens is underpowered and left out of the parity test',
+      String(MIN_GOLDENS),
+    )
+    .option('--strict', 'underpowered criteria gate too, as compare did before the minimum existed')
     .option('--mode <modes>', 'the run mode: T, F or P, or several separated by commas', 'F')
     .option('--repeats <n>', 'runs per spec and mode', '1')
     .option(
@@ -164,11 +186,8 @@ export function registerCiCommand(
 
 /** `driftbench ci`. Returns the exit code. */
 export async function ciCommand(options: CiCommandOptions, io: Io, deps: CampaignDeps): Promise<number> {
-  const marginPoints = Number(options.margin);
-  if (!Number.isFinite(marginPoints) || marginPoints <= 0 || marginPoints >= 100) {
-    io.err(`--margin takes a number of points between 0 and 100, not "${options.margin}".\n`);
-    return 2;
-  }
+  const gate = parseGate(options, io);
+  if (!gate) return 2;
   const flags = options.flag.length > 0 ? options.flag : [...DEFAULT_FLAGS];
   const storePath = resolve(io.cwd, options.store);
   const outPath = resolve(io.cwd, options.out ?? DEFAULT_SUMMARY);
@@ -185,6 +204,20 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   // campaign is the baseline, not the candidate about to be added.
   const baseline = await readBaseline(options.baseline, storePath, deps, io);
   if (!baseline) return 2;
+  const shared = { flagFamilies: flags, minGoldens: gate.minGoldens, strict: gate.strict };
+  let margin: number;
+  let marginAuto: CiSummary['marginAuto'] = null;
+  if (gate.margin === 'auto') {
+    const auto = autoMargin(baseline.data, shared);
+    margin = auto.margin;
+    marginAuto = {
+      neededPoints: round(auto.needed * 100),
+      limitedBy: auto.limitedBy,
+      ...(auto.warning ? { warning: auto.warning } : {}),
+    };
+  } else {
+    margin = gate.margin;
+  }
 
   let out = '';
   const capture: Io = {
@@ -232,7 +265,7 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
 
   let result: CompareResult;
   try {
-    result = compareCampaigns(baseline.data, candidate, { margin: marginPoints / 100, flagFamilies: flags });
+    result = compareCampaigns(baseline.data, candidate, { ...shared, margin });
   } catch (cause) {
     io.err(
       `The baseline campaign ${baseline.data.campaign.campaignId} and the candidate cannot be compared: ${message(cause)}.\n`,
@@ -243,7 +276,8 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
     result,
     candidateRuns: candidate.runs,
     flags,
-    marginPoints,
+    marginPoints: round(margin * 100),
+    marginAuto,
     baseline: { campaignId: baseline.data.campaign.campaignId, store: baseline.store },
     candidate: {
       campaignId: report.campaignId,
@@ -395,6 +429,7 @@ function summarize(input: {
   candidateRuns: readonly RunResult[];
   flags: string[];
   marginPoints: number;
+  marginAuto: CiSummary['marginAuto'];
   baseline: CiSummary['baseline'];
   candidate: CiSummary['candidate'];
 }): CiSummary {
@@ -440,6 +475,12 @@ function summarize(input: {
     exitCode: verdict === 'parity' ? 0 : 1,
     reasons,
     marginPoints: input.marginPoints,
+    marginAuto: input.marginAuto,
+    minGoldens: result.minGoldens,
+    strict: result.strict,
+    underpowered: result.criteria
+      .filter((entry) => entry.underpowered)
+      .map((entry) => ({ criterion: entry.criterion, goldens: entry.units })),
     comparator: COMPARATOR,
     flags: input.flags,
     baseline: input.baseline,
@@ -453,7 +494,9 @@ function summarize(input: {
     },
     smallestMarginPoints: round(smallest.upper * 100),
     criteriaNotShown: result.criteria
-      .filter((entry) => entry.gating && entry.nonInferior === false)
+      .filter(
+        (entry) => entry.gating && entry.nonInferior === false && (result.strict || !entry.underpowered),
+      )
       .map((entry) => ({
         criterion: entry.criterion,
         goldens: entry.units,
@@ -491,6 +534,12 @@ export function verdictText(summary: CiSummary, outPath: string): string {
   lines.push(
     `driftbench ci: candidate ${summary.candidate.target} (campaign ${summary.candidate.campaignId}) against baseline campaign ${summary.baseline.campaignId}, compared as driftbench compare does (golden by golden, every repeat).`,
   );
+  if (summary.marginAuto) {
+    lines.push(
+      `Margin auto: ${summary.marginPoints} points, the smallest half point at which the baseline compared with itself is non-inferior (set by ${summary.marginAuto.limitedBy}, ${summary.marginAuto.neededPoints} points).`,
+    );
+    if (summary.marginAuto.warning) lines.push(`Warning: ${summary.marginAuto.warning}.`);
+  }
   lines.push(
     ...table([
       ['measure', 'value'],
@@ -505,9 +554,13 @@ export function verdictText(summary: CiSummary, outPath: string): string {
         '95% interval',
         `[${signed(summary.effectPoints.lower)}, ${signed(summary.effectPoints.upper)}] points`,
       ],
-      ['margin', `${summary.marginPoints} points`],
+      ['margin', `${summary.marginPoints} points${summary.marginAuto ? ' (auto)' : ''}`],
       ['smallest margin these pairs can show', `${summary.smallestMarginPoints} points`],
       ['gating criteria not shown within the margin', String(summary.criteriaNotShown.length)],
+      [
+        `underpowered (under ${summary.minGoldens} goldens)`,
+        `${summary.underpowered.length}${summary.strict ? ', gating (--strict)' : ', left out of the parity test'}`,
+      ],
       ['verdict', VERDICT_TEXT[summary.verdict]],
     ]),
   );
@@ -546,7 +599,7 @@ export function verdictText(summary: CiSummary, outPath: string): string {
   lines.push(`Verdict: ${VERDICT_TEXT[summary.verdict]}. Exit ${summary.exitCode}.`);
   if (summary.verdict === 'not-shown-non-inferior') {
     lines.push(
-      'Not shown non-inferior is not a regression: no evidence of a drop, but the intervals are wider than the margin. Add goldens or widen the margin.',
+      'Not shown non-inferior is not a regression: no evidence of a drop, but the intervals are wider than the margin. Add goldens, widen the margin, or let --margin auto choose it.',
     );
   }
   lines.push(`Summary: ${outPath}`);
