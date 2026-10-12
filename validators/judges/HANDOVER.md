@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Levels 1 to 8 pass since iteration 57 (rubric lint complete). Level 9, render (9 items left after 58): `render/closing-tag-*` (6 items) first (fullwidth brackets, small-form brackets, fullwidth name, zero-width and soft-hyphen inside), then the rest of the family. Then budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test last run after iteration 49.
+Levels 1 to 8 pass. Level 9, render (3 items left): the reference answer (`render/reference-in-its-tag`, `reference-tag-guarded-in-reference`, `-in-transcript`: a `<reference_data>` tag in DATA_TAGS and in buildPrompt). Then budget (20 items: `budget/fits-unchanged` first), evidence, injection (102), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test last run at iteration 58 (reproduced level 8).
 
 ## Hypotheses tried
 
@@ -84,11 +84,12 @@ Iteration 55 (cause: no instruction-to-judge rule). Test: lint.test.ts (red prov
 Iteration 56 (cause: no pictures-swapped rule). Test: lint.test.ts (red proved). Bank 321 -> 322 (0.5047).
 Iteration 57 (cause: no block-side scope-mismatch rule): extended the scope-mismatch row. Test: lint.test.ts (red proved). Bank 322 -> 323 (0.5063). Level 7 -> 8.
 Iteration 58 (cause: line breaks forged transcript entries): `renderEntry` shows break characters as a visible marker. Test: prompt.test.ts (red proved). Bank 323 -> 333 (0.5219): ten forged-entry items from one change.
+Iteration 59 (cause: lookalike tags unescaped): escapeData folds NFKC and drops invisible characters before matching. Test: prompt.test.ts (red proved). Bank 333 -> 339 (0.5313).
 
 ## Next actions
 
-1. Level 9 render: read the head comment of packages/validators/src/ladders/judges/v2/families/render*.ts and the item Fix lines; fix packages/judges/src/prompt.ts one cause per iteration.
-2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
+1. Add the reference answer to the prompt (prompt.ts): DATA_TAGS gains `reference_data`, buildPrompt renders request.reference in it after the transcript.
+2. Then level 10 budget, one cause per iteration.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N`, `validate judges --journal row.json`. PR 86 takes every push. At the top level, raise the floor in its own commit.
 
 ## Pitfalls
