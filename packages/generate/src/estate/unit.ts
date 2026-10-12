@@ -75,6 +75,8 @@ export const UnitTest = z.strictObject({
       command: z.string().min(1),
       /** The guard's declared timeout, in seconds. */
       timeout: z.number().positive().optional(),
+      /** A catalogue check this hook runs: the test sends the check's trigger, and looks for its id. */
+      check: z.string().optional(),
     }),
     z.strictObject({ kind: z.literal('script'), path: z.string().min(1), skill: z.string().optional() }),
   ]),
@@ -224,10 +226,9 @@ export function unitTestOf(
     };
   }
   const fields = atom.fields ?? {};
-  // A catalogue check is run by a dispatcher hook; its name is no command a shell can run.
-  if (fields.scope === 'catalogue') {
-    return `${atom.id} is a check that a dispatcher hook runs, not a command of its own; the unit tests of that hook cover it`;
-  }
+  // A catalogue check is run by a hook, not by a command of its own: it is tested by sending its trigger to
+  // that hook. Without a trigger or a host hook it is a counted gap, not a test.
+  if (fields.scope === 'catalogue') return checkTestOf(row, atom, atoms, base);
   const name = fields.name;
   const event = fields.event;
   const command = fields.command;
@@ -287,6 +288,89 @@ export function unitTestOf(
     cases: testType === 'guard_speed' ? spreadOf(cases, SPEED_CASES) : cases,
     ...(testType === 'guard_speed' ? { budgetMs: Math.round((timeout ?? 60) * 1000) } : {}),
   };
+}
+
+/** Reasons a catalogue check gets no unit test; the report counts them as gaps. */
+export const CHECK_GAP = {
+  trigger: 'needs a trigger: the map holds no material that sets the check off',
+  host: 'needs a host: no configured hook on its event names the check',
+} as const;
+
+/** The events and tools a check's event names: `PreToolUse (Bash)`, `Stop, PostToolUse`, `PreToolUse (Task/Agent)`. */
+export function checkEvents(text: string): Array<{ event: string; tools: string[] }> {
+  return text.split(',').flatMap((part) => {
+    const match = /^\s*(\w+)\s*(?:\(([^)]*)\))?/.exec(part);
+    if (!match?.[1]) return [];
+    const tools = (match[2] ?? '')
+      .split('/')
+      .map((tool) => tool.trim())
+      .filter((tool) => tool !== '');
+    return [{ event: match[1], tools }];
+  });
+}
+
+function checkTestOf(
+  row: { testType: string },
+  atom: EstateAtom,
+  atoms: ReadonlyMap<string, EstateAtom>,
+  base: Omit<UnitTest, 'target' | 'cases'>,
+): UnitTest | string {
+  const fields = atom.fields ?? {};
+  if (row.testType !== 'guard_positive') {
+    return `${atom.id} is a check its host hook runs; the host hook tests cover this test type`;
+  }
+  const trigger = Array.isArray(fields.trigger)
+    ? (fields.trigger as unknown[]).filter((item): item is string => typeof item === 'string' && item !== '')
+    : [];
+  if (trigger.length === 0) return `${atom.id} ${CHECK_GAP.trigger}`;
+  const host = fields.host;
+  const check = typeof fields.check === 'string' ? fields.check : String(fields.name ?? atom.id);
+  const wanted = checkEvents(String(fields.event ?? ''));
+  for (const parent of atoms.values()) {
+    const own = parent.fields ?? {};
+    if (
+      parent.kind !== 'guard' ||
+      own.scope === 'catalogue' ||
+      own.script !== host ||
+      typeof host !== 'string'
+    )
+      continue;
+    const name = own.name;
+    const event = own.event;
+    const command = own.command;
+    if (typeof name !== 'string' || typeof event !== 'string' || typeof command !== 'string') continue;
+    const matcher = typeof own.matcher === 'string' ? own.matcher : undefined;
+    const hostTools: string[] = TOOL_EVENTS.has(event) ? matcherTools(matcher) : [];
+    const fit = wanted.find((entry) => entry.event === event);
+    if (!fit) continue;
+    const tools: Array<string | undefined> = TOOL_EVENTS.has(event)
+      ? fit.tools.length > 0
+        ? fit.tools.filter((tool) => hostTools.includes(tool))
+        : hostTools.slice(0, 1)
+      : [undefined];
+    if (tools.length === 0) continue;
+    const tool = tools[0];
+    const cases: GuardCase[] = trigger.map((text, index) => ({
+      id: `case-${String(index + 1).padStart(2, '0')}`,
+      payload: payloadOf(event, tool, text),
+      material: text,
+    }));
+    const timeout = typeof own.timeout === 'number' ? own.timeout : undefined;
+    return {
+      ...base,
+      target: {
+        kind: 'guard' as const,
+        name,
+        event,
+        command,
+        ...(matcher !== undefined ? { matcher } : {}),
+        ...(timeout !== undefined ? { timeout } : {}),
+        check,
+      },
+      cases,
+    };
+  }
+  return `${atom.id} ${CHECK_GAP.host}`;
 }
 
 /**

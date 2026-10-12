@@ -199,6 +199,13 @@ function report(
   const mark = { pass: '✓', fail: '✗', inert: '·', unrecorded: '?' } as const;
   const lines = results.map((result) => `${mark[result.status]} ${result.id}  ${result.detail}`);
   for (const note of notes) lines.push(`note: ${note}`);
+  const checks = results.filter((result) => result.exercised !== undefined);
+  if (checks.length > 0) {
+    const exercised = checks.filter((result) => result.exercised).length;
+    lines.push(
+      `Catalogue checks: ${exercised} of ${checks.length} exercised (the host hook's answer to the trigger names the check).`,
+    );
+  }
   lines.push(
     record
       ? `Recorded ${results.length} unit tests (sandbox: ${sandbox}); ${counts.inert} have no fixture.`

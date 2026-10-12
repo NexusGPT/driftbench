@@ -186,16 +186,67 @@ describe('the speed test of a guard', () => {
 });
 
 describe('a check from a catalogue', () => {
-  it('gets no unit test of its own: the dispatcher hook runs it, and that hook carries the unit tests', () => {
-    const check = guard({
-      name: 'ACCEPTMATCH',
-      command: 'ACCEPTMATCH',
+  const host: EstateAtom = {
+    id: 'guard.settings.pre',
+    kind: 'guard',
+    title: 'pre',
+    approved: true,
+    evidence: [],
+    fields: {
+      name: 'pre.py',
+      event: 'PreToolUse',
+      matcher: 'Bash',
+      command: 'python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/pre.py',
+      script: '.claude/hooks/pre.py',
+      scope: 'estate',
+    },
+  };
+  const atoms = new Map([...ATOMS, [host.id, host]]);
+  const check = (fields: Record<string, unknown>): EstateAtom => ({
+    id: 'guard.registry.k1',
+    kind: 'guard',
+    title: 'K1',
+    approved: true,
+    evidence: [],
+    fields: {
+      name: 'K1',
+      command: 'K1',
       event: 'PreToolUse (Bash)',
       scope: 'catalogue',
+      check: 'K1',
+      ...fields,
+    },
+  });
+
+  it('is tested as a check of its host hook: its trigger material sent to that hook, the check id carried', () => {
+    const test = unitTestOf(
+      row('guard_positive'),
+      check({ trigger: ['2>/dev/null'], host: '.claude/hooks/pre.py' }),
+      atoms,
+      'h',
+      'x',
+    );
+    expect(test).toMatchObject({
+      atom: 'guard.registry.k1',
+      target: { kind: 'guard', name: 'pre.py', event: 'PreToolUse', matcher: 'Bash', check: 'K1' },
+      cases: [
+        { material: '2>/dev/null', payload: { tool_name: 'Bash', tool_input: { command: '2>/dev/null' } } },
+      ],
     });
-    for (const type of ['guard_positive', 'guard_negative', 'guard_hostile', 'guard_speed']) {
-      expect(unitTestOf(row(type), check, ATOMS, 'h', 'x')).toBe(
-        'guard.settings.g is a check that a dispatcher hook runs, not a command of its own; the unit tests of that hook cover it',
+  });
+
+  it('is a counted gap, not a test, without a trigger or a host hook; its other test types are its host hook tests', () => {
+    expect(unitTestOf(row('guard_positive'), check({ host: '.claude/hooks/pre.py' }), atoms, 'h', 'x')).toBe(
+      'guard.registry.k1 needs a trigger: the map holds no material that sets the check off',
+    );
+    const noHost = 'guard.registry.k1 needs a host: no configured hook on its event names the check';
+    expect(unitTestOf(row('guard_positive'), check({ trigger: ['x'] }), atoms, 'h', 'x')).toBe(noHost);
+    const stop = check({ trigger: ['x'], host: '.claude/hooks/pre.py', event: 'Stop' });
+    expect(unitTestOf(row('guard_positive'), stop, atoms, 'h', 'x')).toBe(noHost);
+    for (const type of ['guard_negative', 'guard_hostile', 'guard_speed']) {
+      const hosted = check({ trigger: ['x'], host: '.claude/hooks/pre.py' });
+      expect(unitTestOf(row(type), hosted, atoms, 'h', 'x')).toBe(
+        'guard.registry.k1 is a check its host hook runs; the host hook tests cover this test type',
       );
     }
   });

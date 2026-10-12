@@ -227,6 +227,63 @@ describe('the estate unit runner on a guard', () => {
   });
 });
 
+describe('a catalogue check tested through its host hook', () => {
+  it('counts a check as exercised only when the hook answers its trigger naming the check', async () => {
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/settings.json': SETTINGS({
+        PreToolUse: [
+          {
+            matcher: 'Bash',
+            hooks: [{ type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.claude/hooks/pre.sh' }],
+          },
+        ],
+      }),
+      '.claude/hooks/pre.sh': [
+        '#!/bin/sh',
+        'input=$(cat)',
+        'case "$input" in',
+        '  *2\\u003e/dev/null*|*2\\>/dev/null*|*"2>/dev/null"*) echo "[K1] stderr swallowed" >&2; exit 2 ;;',
+        'esac',
+        'exit 0',
+        '',
+      ].join('\n'),
+    });
+    const check = (id: string, material: string): UnitTest => ({
+      id: `unit.guard_positive.guard.registry.${id}`,
+      planRow: 'row',
+      testType: 'guard_positive',
+      atom: `guard.registry.${id}`,
+      title: id,
+      mapHash: 'x',
+      target: {
+        kind: 'guard',
+        name: 'pre.sh',
+        event: 'PreToolUse',
+        matcher: 'Bash',
+        command: '"$CLAUDE_PROJECT_DIR"/.claude/hooks/pre.sh',
+        check: id,
+      },
+      cases: [
+        {
+          id: 'case-01',
+          material,
+          payload: { tool_name: 'Bash', tool_input: { command: material, description: 'unit test' } },
+        },
+      ],
+    });
+    const run = await runUnitTests([check('K1', 'ls 2>/dev/null'), check('K2', 'echo hi')], {
+      root,
+      reader: new ClaudeCodeReader(),
+      record: true,
+    });
+    expect(run.results.map((result) => [result.atom, result.exercised])).toEqual([
+      ['guard.registry.K1', true],
+      ['guard.registry.K2', false],
+    ]);
+  });
+});
+
 describe('the outcome the runtime reads from a guard', () => {
   it('reads exit 2, a JSON permission decision, a block decision, continue false, and other exits', () => {
     const run = (exitCode: number, stdout = '', stderr = '') =>

@@ -52,6 +52,11 @@
     "guards": 6,
     "scripts": 2,
     "cases": 45,
+    "checks": {
+      "tested": 0,
+      "needsTrigger": 0,
+      "needsHost": 0
+    },
     "skipped": [
       "unit.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh enforces no rule whose quote gives material for a payload",
       "unit.guard_hostile.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh enforces no rule whose quote gives material for a payload",

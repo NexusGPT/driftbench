@@ -55,6 +55,8 @@ export type UnitResult = {
   cases: UnitCaseResult[];
   /** With record: the test with its recorded cases, to write back. */
   recorded?: UnitTest;
+  /** A catalogue check's test: whether the host hook's answer to its trigger names the check. */
+  exercised?: boolean;
 };
 
 export type UnitRunOptions = {
@@ -102,10 +104,17 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
     const runner = { work, copy, sandbox, counter: 0 };
     const config = await readConfig(options.root);
     const results: UnitResult[] = new Array(tests.length);
-    const runOne = (test: UnitTest) =>
-      test.target.kind === 'script'
-        ? runScriptTest(test, config, runner, options.record === true)
-        : runGuardTest(test, raw.guards, options.record === true, runner);
+    const runOne = async (test: UnitTest): Promise<UnitResult> => {
+      if (test.target.kind === 'script') return runScriptTest(test, config, runner, options.record === true);
+      const result = await runGuardTest(test, raw.guards, options.record === true, runner);
+      const check = test.target.check;
+      if (check === undefined) return result;
+      const named = new RegExp(`(^|[^\\w-])${check.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^\\w-])`);
+      const exercised = result.cases.some((entry) =>
+        named.test(`${entry.outcome.message ?? ''}\n${entry.outcome.output ?? ''}`),
+      );
+      return { ...result, exercised };
+    };
     let next = 0;
     const lanes = Math.max(1, Math.min(Math.floor(options.jobs ?? 1), tests.length));
     await Promise.all(

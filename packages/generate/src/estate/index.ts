@@ -77,6 +77,8 @@ export {
   thenOf,
 } from './then';
 export {
+  CHECK_GAP,
+  checkEvents,
   GuardCase,
   hostileForms,
   matcherTools,
