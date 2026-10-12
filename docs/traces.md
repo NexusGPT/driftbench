@@ -26,12 +26,14 @@ The reader follows the GenAI semantic conventions in the two shapes SDKs write t
 
 The span events of the earlier conventions (`gen_ai.user.message`, `gen_ai.choice`) are read too. A tool result comes from its tool span, matched by call id, else by name; else from the tool message a later chat span sent. Times are read in nanoseconds exactly. The conventions define no cost attribute: the reader takes `gen_ai.usage.cost` when an SDK writes it, else computes one from a price table (`--prices`, USD per million tokens by model, `{"example-model-1": {"input": 2, "output": 8}}`). A turn has a cost only when every chat span in it has one.
 
+Every span of the conversation is also kept as an observation on the trace: its id, its parent span id, its kind (chat, tool or other), its name and its start and end as ISO 8601 times. The tree is what the spans said, so a tool span sits under the span that ran it. Nexus and Claude Code traces carry no tree and have no observations.
+
 A conversation with no chat span gives no trace and is named in a note. The fixtures, fictional, are in `packages/adapters/test/traces/fixtures`: `otel-semconv.json` (current conventions, two traces of one conversation) and `otel-flat.jsonl` (flat attributes, one trace per turn joined by session id).
 
 ## Draft specs: `driftbench import traces`
 
 ```
-driftbench import traces <path> --from otel|nexus|claude-code --out <dir> [--prices <file>] [--no-redact] [--force]
+driftbench import traces <path> --from otel|nexus|claude-code --out <dir> [--select <ids>] [--prices <file>] [--no-redact] [--force] [--dataset <name> --store <file>]
 driftbench import approve <path> [--all]
 ```
 
@@ -41,6 +43,10 @@ driftbench import approve <path> [--all]
 * its Given is what production observed before it, as the block's `prefix`: the earlier user messages, the agent's replies, its tool calls with their results;
 * no block has an `expect`. One copied from the observed reply would pass by construction, the self-affirming test this design forbids. A person writes each expect from the agent's spec. What production did (the reply, the tool counts, tokens, cost, latency) is kept in `metadata.imported.observed` for that review;
 * `metadata.imported.approved` is false until the person runs `driftbench import approve <path> --all`, or sets it by hand.
+
+`--select <ids>` drafts only the traces named by a comma-separated list of trace ids. An id that names no trace in the input stops the run with exit 2 and writes nothing.
+
+`--dataset <name> --store <file>` pushes the drafts as the next version of that dataset in the store, the same push as `driftbench dataset push`. Each import with `--dataset` makes a new version, because the drafts carry their import time. `--dataset` without `--store` exits 2.
 
 Personal data is redacted by default with the [intake](generating.md) privacy rules: checksum detectors for emails, phones, IBANs, national ids, card numbers and addresses, then the independent second pass. One value keeps one placeholder across the whole conversation (`[ADDRESS_1]` in the user message and in the tool input). `--no-redact` keeps the data; do not commit such drafts to a public repository.
 

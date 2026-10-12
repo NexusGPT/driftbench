@@ -486,12 +486,43 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1383,
       blocks: 1378,
-      complete: 1045,
-      incomplete: 338,
-      judged: 144,
+      complete: 1309,
+      incomplete: 74,
+      judged: 382,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
+  }, 120_000);
+});
+
+describe('domain predicates judged from the rule own words', () => {
+  it('tags each judged spec, gates its criterion, and leaves the predicate a gap with no judge', async () => {
+    const input = await fixtureInputs(APPROVED_PLAN);
+    const result = generateEstateSuite(input, { paths: PLANNER_PATHS });
+    const all = specs(result);
+    const judged = specRecords(result).filter((record) => record.complete && record.judged.length > 0);
+    expect(judged.length).toBe(result.report.sources.judged);
+    expect(judged.length).toBeGreaterThan(200);
+    for (const record of judged) {
+      const spec = only(all, record.id);
+      expect(spec.tags, record.id).toContain('judged');
+      expect(estate(spec).judged, record.id).toEqual(record.judged);
+      const names = (spec.criteria ?? [])
+        .filter((criterion) => criterion.gating)
+        .map((criterion) => criterion.name);
+      expect(names.length, record.id).toBeGreaterThan(0);
+      for (const name of names) expect(spec.blocks[0]?.expect?.criteria, record.id).toContain(name);
+    }
+    const holiday = judged.find((record) =>
+      record.judged.includes('instruction.route-planner.no-delivery-planned-on-a-public'),
+    );
+    const rubric = only(all, holiday?.id ?? '').criteria?.[0]?.rubric;
+    expect(rubric).toContain('"Never plan a delivery on a public holiday in the receiving country."');
+
+    const strict = generateEstateSuite(input, { paths: PLANNER_PATHS, judge: false });
+    expect(strict.report.sources.judged).toBe(0);
+    const gaps = strict.report.gaps.find((entry) => entry.marker === MARKERS.registered)?.specs ?? 0;
+    expect(gaps).toBeGreaterThan(200);
   }, 120_000);
 });
 

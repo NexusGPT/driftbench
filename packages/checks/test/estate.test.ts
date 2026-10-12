@@ -1,6 +1,14 @@
 import type { CheckContext, Observed, Spec } from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
-import { ESTATE_CHECKS, groundedValues, hazardRecovery, permission, someCall } from '../src/checks/estate';
+import {
+  ESTATE_CHECKS,
+  groundedValues,
+  hazardRecovery,
+  maxWords,
+  noDeleteUnder,
+  permission,
+  someCall,
+} from '../src/checks/estate';
 import { type Call, context, observed } from './support/context';
 
 const SPEC = {
@@ -182,10 +190,12 @@ describe('permission: what a permission rule allows or denies', () => {
     expect(out[0]?.outcome).toBe('inconclusive');
   });
 
-  it('lists the three checks by the names the estate generator writes', () => {
+  it('lists the estate checks by the names the estate generator writes', () => {
     expect(Object.keys(ESTATE_CHECKS).sort()).toEqual([
       'grounded_values',
       'hazard_recovery',
+      'max_words',
+      'no_delete_under',
       'permission',
       'some_call',
     ]);
@@ -264,5 +274,75 @@ describe('grounded_values: every value of the reply was seen during the run', ()
 
   it('passes a reply that states no value', async () => {
     expect((await verdicts(groundedValues, ctx('Done, nothing to report.'), {}))[0]?.outcome).toBe('pass');
+  });
+});
+
+describe('max_words: a word limit on a named part of the reply', () => {
+  const DRAFT = [
+    'Here is the draft:',
+    '',
+    '```',
+    'Subject: PO-2002 missing lids',
+    '',
+    'Hello, the lids are missing.',
+    '```',
+    '',
+    'Shall I send it?',
+  ].join('\n');
+
+  it('counts the words of the fenced draft only, not the text around it', async () => {
+    const pass = await verdicts(maxWords, ctx(DRAFT), { max: 10, part: 'draft' });
+    expect(pass).toEqual([expect.objectContaining({ id: 'max_words.draft', outcome: 'pass' })]);
+    expect(pass[0]?.evidence).toContain('9 words');
+    expect((await verdicts(maxWords, ctx(DRAFT), { max: 8, part: 'draft' }))[0]?.outcome).toBe('fail');
+  });
+
+  it('finds a draft in a block quote, or from a Subject line to the end, and counts the whole reply for part reply', async () => {
+    const quoted = 'Draft below.\n> Subject: late shipment\n> The order is late.\nOK?';
+    expect((await verdicts(maxWords, ctx(quoted), { max: 7, part: 'draft' }))[0]?.evidence).toContain(
+      '7 words',
+    );
+    const subject = 'I wrote this.\nSubject: refund\nPlease refund the order.';
+    expect((await verdicts(maxWords, ctx(subject), { max: 6, part: 'draft' }))[0]?.outcome).toBe('pass');
+    expect((await verdicts(maxWords, ctx('one two three'), { max: 2, part: 'reply' }))[0]?.outcome).toBe(
+      'fail',
+    );
+  });
+
+  it('is inconclusive when the reply holds no draft, and refuses options with no max', async () => {
+    expect((await verdicts(maxWords, ctx('No draft today.'), { max: 5, part: 'draft' }))[0]?.outcome).toBe(
+      'inconclusive',
+    );
+    expect(() => maxWords(ctx('x'), { part: 'draft' })).toThrow(/max/);
+  });
+});
+
+describe('no_delete_under: nothing deleted under a folder', () => {
+  const diff = (deleted: string[]) => ({ workspaceDiff: { created: [], changed: [], deleted } });
+
+  it('fails a deletion under the folder in the workspace diff, and passes one elsewhere', async () => {
+    const under = await verdicts(noDeleteUnder, ctx('ok', [], diff(['ledger/2026-W41.csv'])), {
+      path: 'ledger/',
+    });
+    expect(under[0]).toMatchObject({ id: 'no_delete_under.ledger', outcome: 'fail' });
+    expect(under[0]?.evidence).toContain('ledger/2026-W41.csv');
+    const elsewhere = await verdicts(noDeleteUnder, ctx('ok', [], diff(['tmp/a.txt', 'ledgers.md'])), {
+      path: 'ledger',
+    });
+    expect(elsewhere[0]?.outcome).toBe('pass');
+  });
+
+  it('reads a removal command when there is no diff, and is inconclusive with neither', async () => {
+    expect(
+      (await verdicts(noDeleteUnder, ctx('ok', [bash('rm ledger/old.csv')]), { path: 'ledger/' }))[0]
+        ?.outcome,
+    ).toBe('fail');
+    expect(
+      (
+        await verdicts(noDeleteUnder, ctx('ok', [bash('mv ledger/a ledger/archive/a')]), { path: 'ledger/' })
+      )[0]?.outcome,
+    ).toBe('pass');
+    const blind = await verdicts(noDeleteUnder, ctx('ok'), { path: 'ledger/' });
+    expect(blind[0]?.outcome).toBe('inconclusive');
   });
 });

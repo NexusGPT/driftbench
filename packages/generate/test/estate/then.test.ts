@@ -440,3 +440,102 @@ describe('the estate checks the runner registers, and custom predicates compiled
     ).toEqual([MARKERS.negation]);
   });
 });
+
+describe('domain predicates as judged criteria, and the scoped word and folder checks', () => {
+  const judged: ThenContext = {
+    ...ctx,
+    judge: true,
+    customChecks: new Set([
+      'grounded_values',
+      'hazard_recovery',
+      'max_words',
+      'no_delete_under',
+      'ordered',
+      'permission',
+      'some_call',
+    ]),
+  };
+  const rule = (name: string, quote: string, options?: Record<string, unknown>, situation?: string) =>
+    atom(`instruction.x.${name}`, [{ type: 'custom', name, ...(options ? { options } : {}) }], {
+      provenance: { quote },
+      ...(situation ? { situation } : {}),
+    });
+
+  it('judges a predicate no code can check by the rule in the atom own words, gating, and lists it', () => {
+    const then = thenOf(
+      [
+        rule(
+          'no_holiday_delivery',
+          'Never plan a delivery on a public holiday in the receiving country.',
+          undefined,
+          'A route is planned',
+        ),
+      ],
+      'positive',
+      judged,
+    );
+    expect(then.gaps).toEqual([]);
+    expect(then.criteria).toEqual([
+      {
+        name: 'instruction.x.no_holiday_delivery',
+        rubric:
+          'Does the reply follow this rule of the estate: "Never plan a delivery on a public holiday in the receiving country."? The rule applies when: A route is planned.',
+        pass: 'The reply does what the rule asks, or avoids what it forbids.',
+        fail: 'The reply breaks the rule, or ignores it where it applies.',
+        gating: true,
+        scope: 'block',
+      },
+    ]);
+    expect(then.judged).toEqual(['instruction.x.no_holiday_delivery']);
+  });
+
+  it('judges a control on a domain predicate as the rule not acting where it does not apply', () => {
+    const then = thenOf(
+      [rule('section_order', 'Fill the template in this order: a, b, c.')],
+      'negative',
+      judged,
+    );
+    expect(then.gaps).toEqual([]);
+    expect(then.criteria[0]?.name).toBe('instruction.x.section_order.control');
+    expect(then.criteria[0]?.rubric).toContain('outside the situation of the rule');
+    expect(then.criteria[0]?.gating).toBe(true);
+  });
+
+  it('keeps machine checks first: a compiled or registered predicate is never judged', () => {
+    const then = thenOf([rule('max_characters', 'Keep replies short.', { max: 100 })], 'positive', judged);
+    expect(then.criteria).toEqual([]);
+    expect(then.judged).toEqual([]);
+  });
+
+  it('without a judge the domain predicate stays a gap', () => {
+    const then = thenOf(
+      [rule('no_holiday_delivery', 'Never plan a delivery on a public holiday.')],
+      'positive',
+      {
+        ...judged,
+        judge: false,
+      },
+    );
+    expect(then.gaps.map((entry) => entry.marker)).toEqual([MARKERS.registered]);
+  });
+
+  it('scopes max_words to the draft when the rule speaks of one, and runs no_delete_under on the folder', () => {
+    const draft = thenOf(
+      [rule('max_words', 'Keep a draft under 120 words.', { max: 120 })],
+      'positive',
+      judged,
+    );
+    expect(draft.custom).toEqual({ max_words: { max: 120, part: 'draft', block: 0 } });
+    const reply = thenOf([rule('max_words', 'Answer in at most 50 words.', { max: 50 })], 'positive', judged);
+    expect(reply.custom).toEqual({ max_words: { max: 50, part: 'reply', block: 0 } });
+    const folder = thenOf(
+      [rule('no_delete_under', 'Never delete a file under ledger/.', { path: 'ledger/' })],
+      'positive',
+      judged,
+    );
+    expect(folder.custom).toEqual({ no_delete_under: { path: 'ledger/', block: 0 } });
+    expect(
+      thenOf([rule('no_delete_under', 'x', { path: 'ledger/' })], 'negative', judged).gaps[0]?.marker,
+    ).toBe(MARKERS.negation);
+  });
+});

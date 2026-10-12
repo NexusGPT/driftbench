@@ -32,6 +32,8 @@ export type EstateGenerateOptions = {
   json?: boolean;
   /** False with --no-fallback: no code-written ask, no outcome read from the atoms. */
   fallback?: boolean;
+  /** False with --no-judge: a domain predicate no code checks stays a gap. */
+  judge?: boolean;
   focus?: string;
 };
 
@@ -64,6 +66,7 @@ export function registerEstateGenerateCommand(
       '--no-fallback',
       'write no ask by code and read no outcome from the atoms: a row the bank does not cover stays incomplete',
     )
+    .option('--no-judge', 'judge no domain predicate: one that no code checks stays needs-registered-check')
     .option(
       '--focus <file>',
       `atom ids, one per line, whose complete specs come first in ${ESTATE_ORDER_FILE} (then guards, gates, invariants)`,
@@ -164,6 +167,7 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
       {
         ...(seed === undefined ? {} : { seed }),
         ...(options.fallback === false ? { fallback: false } : {}),
+        ...(options.judge === false ? { judge: false } : {}),
         ...(focus ? { focus } : {}),
         paths: {
           map: portable(relative(outPath, mapPath)),

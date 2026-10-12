@@ -343,8 +343,15 @@ export function tracesFromOtel(
         candidates[0];
       owner?.others.push(span);
     }
-    const trace = traceOf(key, turns, options.prices);
-    traces.push(trace);
+    const observations = ordered.map((span) => ({
+      id: span.spanId,
+      ...(span.parentSpanId === undefined ? {} : { parentId: span.parentSpanId }),
+      kind: isChat(span) ? ('chat' as const) : isTool(span) ? ('tool' as const) : ('other' as const),
+      name: span.name,
+      start: new Date(span.start).toISOString(),
+      end: new Date(span.end).toISOString(),
+    }));
+    traces.push({ ...traceOf(key, turns, options.prices), observations });
   }
   traces.sort((a, b) => (a.startedAt ?? '').localeCompare(b.startedAt ?? '') || a.id.localeCompare(b.id));
   return { traces, issues };

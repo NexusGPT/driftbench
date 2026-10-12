@@ -33,6 +33,18 @@ The command runs until Ctrl+C. Exit 0 after a stop, 2 when the store is missing,
 | `/campaign/<id>/run/<runId>` | one run, every block in full: what the user sent, the reply, the tool calls with their results, every verdict that did not pass and every judged verdict with its evidence and reasoning; a label form under each block |
 | `/compare` | two campaigns picked from the store and a margin; the result is the paired comparison of [`driftbench compare`](concepts/statistics.md#comparing-a-baseline-and-a-candidate) with its verdict |
 
+## Review queue
+
+A review queue is the list of blocks a reviewer still has to label, kept as `<labels>/queue.json` beside the labels. Each item is one block and one criterion, open, assigned to a reviewer, or done.
+
+```text
+driftbench queue create --store driftbench.db --campaign c-acme-x3 --labels labels
+driftbench queue list --labels labels
+driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> --labels labels
+```
+
+`queue create` queues each block of the campaign once per criterion of its spec, skipping blocks already labelled. The viewer's `/queue` page lists the items. "Take" assigns an item to the viewer's reviewer, "Label it" opens its block, and saving the label there marks the item done. Another reviewer cannot take or label an item held by someone else. A label written from the queue is the same label file `judge calibrate` reads.
+
 ## Labelling a block
 
 The form under a block offers the judged criteria of its spec, and any judged criterion that voted on the block. Pick one, choose pass or fail, write why, and save. The page comes back on the same block with "Label saved". The label shows under the block, and the labelling section counts the labels per criterion.

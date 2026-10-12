@@ -2,6 +2,13 @@
 export const packageName = '@driftbench/report';
 
 export {
+  type AggregateCriterion,
+  type AggregateResult,
+  aggregateFromFlag,
+  BUILT_IN_AGGREGATES,
+  evaluateAggregates,
+} from './aggregate';
+export {
   AUTO_MARGIN_WARN,
   type AutoMargin,
   autoMargin,
