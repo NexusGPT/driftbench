@@ -131,7 +131,10 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
       const state = ownState<AnthropicState>(session, id, 'anthropic');
       const names = new WireNames(state.tools.keys(), ANTHROPIC_NAME);
       const history = toAnthropicMessages(session.history, names);
-      const system = [options.system ?? '', ...history.system].filter((part) => part !== '').join('\n\n');
+      // A prompt version from the registry replaces the configured system prompt.
+      const system = [session.target.prompt?.text ?? options.system ?? '', ...history.system]
+        .filter((part) => part !== '')
+        .join('\n\n');
       const messages: AnthropicMessageParam[] = history.messages;
       const tools = [...state.tools.values()].map((tool) => ({
         name: names.wire(tool.name),

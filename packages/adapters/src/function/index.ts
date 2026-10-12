@@ -6,6 +6,7 @@ import type {
   Observed,
   ResolvedGiven,
   Session,
+  TargetRef,
   Turn,
   WorldState,
 } from '@driftbench/core';
@@ -24,12 +25,20 @@ export type { ToolPayload } from '../shared';
 
 export const FUNCTION_ADAPTER_VERSION = '0.1.0';
 
+/** What the agent function is told besides the conversation: its target, and the prompt it runs with. */
+export type AgentContext = {
+  target: TargetRef;
+  /** `target.prompt.text`: the prompt version `campaign run --prompt` restored from the store. */
+  prompt?: string;
+};
+
 /** The agent. `state` is what `create` built for the session, or undefined without `create`. */
 export type AgentFunction<S = undefined> = (
   messages: Message[],
   world: WorldState,
   vars: Record<string, unknown>,
   state: S,
+  context: AgentContext,
 ) => Promise<Observed> | Observed;
 
 export type FunctionAdapterOptions<S = undefined> = {
@@ -100,6 +109,10 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
           structuredClone(turn.given.world),
           structuredClone(turn.given.vars),
           state.agent,
+          {
+            target: structuredClone(session.target),
+            ...(session.target.prompt === undefined ? {} : { prompt: session.target.prompt.text }),
+          },
         );
       } catch (cause) {
         throw asAgentError(cause, `the agent failed on block ${turn.index}`);

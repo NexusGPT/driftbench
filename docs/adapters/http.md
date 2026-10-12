@@ -144,3 +144,5 @@ target:
 ```
 
 `agent` becomes `model` in the request. The endpoint receives the whole target and decides what `variant`, `deployment` and `options` mean.
+
+With a prompt on the target (`campaign run --prompt`), the request's `target.prompt` holds it, and `messages` starts with a system message of its text, for both response shapes. See [datasets](../datasets.md#the-prompt-reaches-the-agent).

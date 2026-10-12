@@ -1,7 +1,8 @@
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { join, relative, resolve } from 'node:path';
-import { Campaign, RunResult } from '@driftbench/core';
+import { dirname, join, relative, resolve } from 'node:path';
+import { Campaign, type LoadedSpec, RunResult, validateSpec } from '@driftbench/core';
 import { describeCause, describeIssues, StoreError } from './errors';
+import { isVersionRecord, type RegistryFile, type RegistryVersion, sha256, versionHash } from './registry';
 import { SCHEMA_VERSION } from './schema';
 
 /** The `format` every campaign bundle manifest carries. */
@@ -10,20 +11,33 @@ export const BUNDLE_FORMAT = 'driftbench-campaign';
 const MANIFEST = 'manifest.json';
 const CAMPAIGN = 'campaign.json';
 const RUNS = 'runs';
+const SPECS = 'specs';
+const SOURCES = 'sources';
+const VERSION = 'version.json';
+const FILES = 'files';
 
 /** The first file a reader opens. It is written last, so a bundle without one did not finish. */
 export type BundleManifest = {
   format: typeof BUNDLE_FORMAT;
   schemaVersion: number;
   campaignId: string;
-  counts: { runs: number; blocks: number };
+  /** `specs` and `sources` are there when the bundle carries any. */
+  counts: { runs: number; blocks: number; specs?: number; sources?: number };
 };
 
-/** One campaign as a bundle holds it. */
+/** A registry version the campaign ran, with the exact bytes of its files. */
+export type BundleSource = { version: RegistryVersion; files: RegistryFile[] };
+
+/**
+ * One campaign as a bundle holds it: with the specs it ran and the registry versions it records, so
+ * another store can run it again.
+ */
 export type CampaignBundle = {
   manifest: BundleManifest;
   campaign: Campaign;
   runs: RunResult[];
+  specs: LoadedSpec[];
+  sources: BundleSource[];
 };
 
 /**
@@ -35,7 +49,10 @@ export async function writeCampaignBundle(
   dir: string,
   campaign: Campaign,
   runs: readonly RunResult[],
+  carried: { specs?: readonly LoadedSpec[]; sources?: readonly BundleSource[] } = {},
 ): Promise<string> {
+  const specs = carried.specs ?? [];
+  const sources = carried.sources ?? [];
   const folder = resolve(dir, fileName(campaign.campaignId));
   const names = new Map<string, string>();
   for (const run of runs) {
@@ -54,11 +71,32 @@ export async function writeCampaignBundle(
   await rm(join(folder, MANIFEST), { force: true });
   await writeJson(join(folder, CAMPAIGN), campaign);
   for (const run of runs) await writeJson(join(folder, RUNS, `${fileName(run.runId)}.json`), run);
+  for (const spec of specs) {
+    await mkdir(join(folder, SPECS), { recursive: true });
+    const record = { id: spec.spec.id, hash: spec.hash, path: spec.path, spec: spec.spec };
+    await writeJson(join(folder, SPECS, `${fileName(spec.spec.id)}@${spec.hash}.json`), record);
+  }
+  for (const { version, files } of sources) {
+    const home = join(folder, SOURCES, version.kind, `${fileName(version.name)}@${version.version}`);
+    await mkdir(home, { recursive: true });
+    await writeJson(join(home, VERSION), version);
+    for (const file of files) {
+      const path = join(home, FILES, ...file.path.split('/'));
+      await mkdir(dirname(path), { recursive: true });
+      await writeFile(path, file.bytes);
+    }
+  }
+  const counts: BundleManifest['counts'] = {
+    runs: runs.length,
+    blocks: runs.reduce((total, run) => total + run.blocks.length, 0),
+  };
+  if (specs.length > 0) counts.specs = specs.length;
+  if (sources.length > 0) counts.sources = sources.length;
   const manifest: BundleManifest = {
     format: BUNDLE_FORMAT,
     schemaVersion: SCHEMA_VERSION,
     campaignId: campaign.campaignId,
-    counts: { runs: runs.length, blocks: runs.reduce((total, run) => total + run.blocks.length, 0) },
+    counts,
   };
   await writeJson(join(folder, MANIFEST), manifest);
   return folder;
@@ -108,7 +146,74 @@ export async function readCampaignBundle(folder: string): Promise<CampaignBundle
       `it holds ${runs.length} runs and ${blocks} blocks, its manifest counts ${manifest.counts.runs} and ${manifest.counts.blocks}; export into an empty folder`,
     );
   }
-  return { manifest, campaign: campaign.data, runs };
+  const specs = await readSpecs(folder);
+  const sources = await readSources(folder);
+  if (specs.length !== (manifest.counts.specs ?? 0) || sources.length !== (manifest.counts.sources ?? 0)) {
+    throw invalid(
+      folder,
+      `it holds ${specs.length} specs and ${sources.length} sources, its manifest counts ${manifest.counts.specs ?? 0} and ${manifest.counts.sources ?? 0}`,
+    );
+  }
+  return { manifest, campaign: campaign.data, runs, specs, sources };
+}
+
+async function readSpecs(folder: string): Promise<LoadedSpec[]> {
+  const specs: LoadedSpec[] = [];
+  for (const file of (await listJsonFiles(join(folder, SPECS))).sort()) {
+    const record = (await readJson(join(folder, SPECS, file), folder)) as Record<string, unknown> | null;
+    const path = typeof record?.path === 'string' ? record.path : '';
+    const loaded = validateSpec(record?.spec, path);
+    if (!loaded.ok || path === '' || loaded.hash !== record?.hash) {
+      throw invalid(folder, `${SPECS}/${file} does not hold a valid spec with its hash`);
+    }
+    specs.push(loaded);
+  }
+  return specs;
+}
+
+async function readSources(folder: string): Promise<BundleSource[]> {
+  const sources: BundleSource[] = [];
+  for (const kind of await listFolders(join(folder, SOURCES))) {
+    for (const name of await listFolders(join(folder, SOURCES, kind))) {
+      const home = join(folder, SOURCES, kind, name);
+      const where = `${SOURCES}/${kind}/${name}`;
+      const version = await readJson(join(home, VERSION), folder);
+      if (!isVersionRecord(version) || version.kind !== kind || versionHash(version.files) !== version.hash) {
+        throw invalid(folder, `${where}/${VERSION} is not a version record that matches its hash`);
+      }
+      const files: RegistryFile[] = [];
+      for (const entry of version.files) {
+        const bytes = new Uint8Array(
+          await readFile(join(home, FILES, ...entry.path.split('/'))).catch((cause: unknown) => {
+            throw invalid(
+              folder,
+              `cannot read ${where}/${FILES}/${entry.path}: ${describeCause(cause)}`,
+              cause,
+            );
+          }),
+        );
+        if (sha256(bytes) !== entry.sha256) {
+          throw invalid(folder, `${where}/${FILES}/${entry.path} does not hash to ${entry.sha256}`);
+        }
+        files.push({ path: entry.path, bytes });
+      }
+      sources.push({ version, files });
+    }
+  }
+  return sources;
+}
+
+async function listFolders(dir: string): Promise<string[]> {
+  try {
+    const entries = await readdir(dir, { withFileTypes: true });
+    return entries
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort();
+  } catch (cause) {
+    if ((cause as NodeJS.ErrnoException).code === 'ENOENT') return [];
+    throw cause;
+  }
 }
 
 function checkManifest(value: unknown, folder: string): BundleManifest {
@@ -135,11 +240,21 @@ function checkManifest(value: unknown, folder: string): BundleManifest {
   ) {
     throw invalid(folder, `${MANIFEST} needs a campaignId and whole counts of runs and blocks`);
   }
+  for (const key of ['specs', 'sources']) {
+    if (counts[key] !== undefined && !isCount(counts[key])) {
+      throw invalid(folder, `${MANIFEST} counts ${key} with something that is not a whole number`);
+    }
+  }
   return {
     format: BUNDLE_FORMAT,
     schemaVersion: version,
     campaignId: manifest.campaignId,
-    counts: { runs: counts.runs, blocks: counts.blocks },
+    counts: {
+      runs: counts.runs,
+      blocks: counts.blocks,
+      ...(isCount(counts.specs) ? { specs: counts.specs } : {}),
+      ...(isCount(counts.sources) ? { sources: counts.sources } : {}),
+    },
   };
 }
 

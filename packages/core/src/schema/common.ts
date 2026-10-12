@@ -69,6 +69,22 @@ export const DriftClass = z
   .describe('The five drift classes a failing block can carry.');
 export type DriftClass = z.infer<typeof DriftClass>;
 
+/** A prompt version from the store's registry, handed to the agent. `campaign run --prompt` sets it. */
+export const TargetPrompt = z
+  .strictObject({
+    name: z.string().min(1).describe('The prompt name in the registry.'),
+    version: z.number().int().min(1).describe('The version number.'),
+    hash: z
+      .string()
+      .regex(/^[0-9a-f]{64}$/)
+      .describe('The version hash: the SHA-256 of its file list.'),
+    text: z.string().describe('The prompt text, restored byte for byte from the store.'),
+  })
+  .describe(
+    'A prompt version from the registry, handed to the agent as its system prompt. campaign run --prompt sets it.',
+  );
+export type TargetPrompt = z.infer<typeof TargetPrompt>;
+
 /** Which agent a spec runs against. The adapter decides what the other fields mean. */
 export const TargetRef = z
   .strictObject({
@@ -83,6 +99,9 @@ export const TargetRef = z
       .record(z.string(), z.unknown())
       .optional()
       .describe('Adapter settings. Each adapter defines their names.'),
+    prompt: TargetPrompt.optional().describe(
+      'The prompt the agent runs with, from the registry. campaign run --prompt sets it; each adapter page says how it reaches the agent.',
+    ),
   })
   .describe('Which agent a spec runs against. The adapter decides what the other fields mean.');
 export type TargetRef = z.infer<typeof TargetRef>;

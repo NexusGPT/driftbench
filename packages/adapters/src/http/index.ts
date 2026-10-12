@@ -18,6 +18,7 @@ import {
   type HttpReply,
   joinText,
   parseObserved,
+  promptMessages,
   sendRequest,
   toolCallsOf,
 } from '../shared';
@@ -270,7 +271,7 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
         session: session.id,
         turn: turn.index,
         ...(session.target.agent === undefined ? {} : { model: session.target.agent }),
-        messages: toChatMessages(session.history),
+        messages: toChatMessages(promptMessages(session.history, session.target)),
         stimulus: turn.stimulus,
         world: turn.given.world,
         vars: turn.given.vars,

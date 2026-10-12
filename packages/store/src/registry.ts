@@ -273,3 +273,27 @@ function asText(bytes: Uint8Array): string | undefined {
     return undefined;
   }
 }
+
+/** True when a value has the shape of a version record. Its hash is checked apart, with `versionHash`. */
+export function isVersionRecord(value: unknown): value is RegistryVersion {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  const files = record.files;
+  return (
+    REGISTRY_KINDS.includes(record.kind as RegistryKind) &&
+    typeof record.name === 'string' &&
+    Number.isInteger(record.version) &&
+    (record.version as number) >= 1 &&
+    typeof record.hash === 'string' &&
+    typeof record.createdAt === 'string' &&
+    Array.isArray(files) &&
+    files.every(
+      (file) =>
+        file !== null &&
+        typeof file === 'object' &&
+        typeof file.path === 'string' &&
+        typeof file.sha256 === 'string' &&
+        Number.isInteger(file.size),
+    )
+  );
+}

@@ -111,3 +111,5 @@ target:
     stubs:
       order.create: <workflow id>
 ```
+
+The adapter does not send prompt text: the platform runs its own prompt variants. A target with a prompt (`campaign run --prompt`) is refused at open, with the message to push that version to the agent as a variant and name it in `target.variant`. See [datasets](../datasets.md#the-prompt-reaches-the-agent).

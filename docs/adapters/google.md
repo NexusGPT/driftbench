@@ -87,3 +87,5 @@ target:
 ```
 
 The adapter reads no field of the target: the model and the instruction are the options you pass. Its id is `google`.
+
+With a prompt on the target (`campaign run --prompt`), its text replaces the `system` option as the system instruction; system messages in the history are still appended. See [datasets](../datasets.md#the-prompt-reaches-the-agent).

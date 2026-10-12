@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { functionAdapter, processAdapter } from '@driftbench/adapters';
 import { defaultReaders } from '@driftbench/artifacts';
@@ -35,6 +35,7 @@ import {
   runsByCell,
   type Spec,
   type Store,
+  type TargetPrompt,
   TargetRef,
   type UserDriver,
 } from '@driftbench/core';
@@ -45,6 +46,7 @@ import {
   openMemoryStore,
   openStore,
   parseVersionRef,
+  readCampaignBundle,
   restoreFiles,
   type SqliteStore,
 } from '@driftbench/store';
@@ -335,6 +337,86 @@ export function registerCampaignCommands(
     .action(async (campaignId: string | undefined, options: StoredCommandOptions) => {
       setExit(await campaignStatusCommand(campaignId, options, io, deps));
     });
+
+  campaign
+    .command('export')
+    .description(
+      'Write a stored campaign as a folder: its runs, the specs it ran and the exact files of its dataset and prompt versions.',
+    )
+    .argument('<campaignId>', 'the campaign id')
+    .requiredOption('--store <file>', 'the store that holds the campaign')
+    .requiredOption('--out <dir>', 'the folder the bundle goes in, as <dir>/<campaignId>')
+    .action(async (campaignId: string, options: { store: string; out: string }) => {
+      setExit(await campaignExportCommand(campaignId, options, io));
+    });
+
+  campaign
+    .command('import')
+    .description('Store a campaign bundle: its runs, specs and registry versions, all or nothing.')
+    .argument('<folder>', 'the bundle folder campaign export wrote')
+    .requiredOption('--store <file>', 'the store to import into; made when missing')
+    .action(async (folder: string, options: { store: string }) => {
+      setExit(await campaignImportCommand(folder, options, io));
+    });
+}
+
+/** `campaign export`: exit 0 written, 2 on an unknown campaign, a store it cannot open or a source it lacks. */
+export async function campaignExportCommand(
+  campaignId: string,
+  options: { store: string; out: string },
+  io: Io,
+): Promise<number> {
+  return withBundleStore(options.store, io, async (store) => {
+    const folder = await store.exportCampaign(campaignId, resolve(io.cwd, options.out));
+    const bundle = await readCampaignBundle(folder);
+    const sources = bundle.sources.map(({ version }) => `${version.kind} ${version.name}@${version.version}`);
+    io.out(
+      `Exported campaign ${campaignId} to ${shown(io, folder)}: ${bundle.runs.length} runs, ${bundle.specs.length} specs, ${sources.length} sources${sources.length === 0 ? '' : ` (${sources.join(', ')})`}.\n`,
+    );
+    return 0;
+  });
+}
+
+/** `campaign import`: exit 0 stored, 2 on a bundle that does not read or a conflict with the store. */
+export async function campaignImportCommand(
+  folder: string,
+  options: { store: string },
+  io: Io,
+): Promise<number> {
+  return withBundleStore(options.store, io, async (store) => {
+    const bundle = await store.importCampaign(resolve(io.cwd, folder));
+    io.out(
+      `Imported campaign ${bundle.campaign.campaignId} into ${options.store}: ${bundle.runs.length} runs, ${bundle.specs.length} specs, ${bundle.sources.length} sources.\n`,
+    );
+    return 0;
+  });
+}
+
+async function withBundleStore(
+  path: string,
+  io: Io,
+  work: (store: SqliteStore) => Promise<number>,
+): Promise<number> {
+  let store: SqliteStore;
+  try {
+    store = openStore(resolve(io.cwd, path));
+  } catch (cause) {
+    io.err(`Cannot open the store at ${path}: ${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return 2;
+  }
+  try {
+    return await work(store);
+  } catch (cause) {
+    io.err(`${(cause instanceof Error ? cause.message : String(cause)).replace(/^store: /, '')}\n`);
+    return 2;
+  } finally {
+    await store.close();
+  }
+}
+
+function shown(io: Io, path: string): string {
+  const rel = relative(io.cwd, path);
+  return rel === '' || rel.startsWith('..') ? path : rel;
 }
 
 /** `campaign plan`: the cells, the projected cost and the minimum detectable effect. Exit 0, or 2 on bad input. */
@@ -432,9 +514,18 @@ export async function campaignRunCommand(
   try {
     const registry = await registrySources(options, scope, io);
     if (!registry) return 2;
-    const loaded = await loadValidSpecs([...paths, ...registry.paths], io);
-    if (!loaded) return 2;
-    const runs = specRuns(loaded, shape.targets, io);
+    const read = await loadValidSpecs([...paths, ...registry.folders.map((folder) => folder.path)], io);
+    if (!read) return 2;
+    // A spec restored from a dataset is stored under its dataset reference, never the temporary folder.
+    const loaded = read.map((entry) => ({ ...entry, path: datasetPath(entry.path, registry.folders) }));
+    const withPrompt = (target: TargetRef): TargetRef =>
+      registry.prompt === undefined ? target : { ...target, prompt: registry.prompt };
+    const targets = shape.targets.map(withPrompt);
+    const runs = specRuns(loaded, targets, io)?.map((each) =>
+      each.pinned === undefined
+        ? each
+        : { ...each, targets: each.targets.map(withPrompt), pinned: withPrompt(each.pinned) },
+    );
     if (!runs) return 2;
     const driven = await driverDeps(options, runs, deps, io);
     if (!driven) return 2;
@@ -454,12 +545,13 @@ export async function campaignRunCommand(
         hash,
         ...(pinned === undefined ? {} : { target: pinned }),
       }));
-      const targets = shape.targets.length > 0 ? shape.targets : pinnedTargets(runs);
+      const campaignTargets = targets.length > 0 ? targets : pinnedTargets(runs);
       const repeats = { T: 0, F: 0, P: 0 };
       for (const mode of shape.modes) repeats[mode] = shape.repeats;
       // One mode keeps the key a single-mode campaign always had, so its id is unchanged.
       const mode = shape.modes.length === 1 ? shape.modes[0] : shape.modes;
-      const campaignId = options.campaign ?? `c-${contentHash({ specs, targets, mode, repeats, createdAt })}`;
+      const campaignId =
+        options.campaign ?? `c-${contentHash({ specs, targets: campaignTargets, mode, repeats, createdAt })}`;
       if (await store.getCampaign(campaignId)) {
         io.err(
           `Campaign ${campaignId} already exists. Resume it with: driftbench campaign resume ${campaignId}\n`,
@@ -470,7 +562,7 @@ export async function campaignRunCommand(
       const campaign: Campaign = {
         campaignId,
         specs,
-        targets,
+        targets: campaignTargets,
         modes: shape.modes,
         repeats,
         // 0 when no budget was given: the schema has no field for "no budget".
@@ -502,9 +594,13 @@ async function registrySources(
   options: RunCommandOptions,
   scope: CampaignScope,
   io: Io,
-): Promise<{ paths: string[]; sources: RegistrySource[] } | undefined> {
+): Promise<RegistryRead | undefined> {
   const prompts = options.prompt ?? [];
-  if (options.dataset === undefined && prompts.length === 0) return { paths: [], sources: [] };
+  if (options.dataset === undefined && prompts.length === 0) return { folders: [], sources: [] };
+  if (prompts.length > 1) {
+    io.err('--prompt names the one prompt the agent runs with: give it once.\n');
+    return undefined;
+  }
   if (options.store === undefined) {
     io.err('--dataset and --prompt read the registry of a store: add --store <file>.\n');
     return undefined;
@@ -519,8 +615,7 @@ async function registrySources(
     return undefined;
   }
   try {
-    const sources: RegistrySource[] = [];
-    const paths: string[] = [];
+    const read: RegistryRead = { folders: [], sources: [] };
     const wanted = [
       ...(options.dataset === undefined ? [] : [{ kind: 'dataset' as const, text: options.dataset }]),
       ...prompts.map((text) => ({ kind: 'prompt' as const, text })),
@@ -534,20 +629,56 @@ async function registrySources(
         );
         return undefined;
       }
-      sources.push({ kind, name: version.name, version: version.version, hash: version.hash });
+      const label = `${version.name}@${version.version}`;
+      read.sources.push({ kind, name: version.name, version: version.version, hash: version.hash });
+      const files = await store.readVersionFiles(version);
       if (kind === 'dataset') {
         const folder = join(await scope.tempDir(), `dataset-${version.name}-${version.version}`);
-        await restoreFiles(await store.readVersionFiles(version), folder, { single: false });
-        paths.push(folder);
+        await restoreFiles(files, folder, { single: false });
+        read.folders.push({ path: folder, label });
+        continue;
       }
+      const [only] = files;
+      if (only === undefined || files.length > 1) {
+        io.err(
+          `prompt ${label} holds ${files.length} files; --prompt hands the agent one text, so push a single prompt file.\n`,
+        );
+        return undefined;
+      }
+      let promptText: string;
+      try {
+        promptText = new TextDecoder('utf-8', { fatal: true }).decode(only.bytes);
+      } catch {
+        io.err(`prompt ${label} is not UTF-8 text: --prompt hands the agent a text.\n`);
+        return undefined;
+      }
+      read.prompt = { name: version.name, version: version.version, hash: version.hash, text: promptText };
     }
-    return { paths, sources };
+    return read;
   } catch (cause) {
     io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
     return undefined;
   } finally {
     await store.close();
   }
+}
+
+/** What `--dataset` and `--prompt` read: the restored dataset folders, the versions, the prompt. */
+type RegistryRead = {
+  folders: { path: string; label: string }[];
+  sources: RegistrySource[];
+  prompt?: TargetPrompt;
+};
+
+/** A spec file inside a restored dataset as `name@version/<path in the dataset>`; others as they are. */
+function datasetPath(path: string, folders: RegistryRead['folders']): string {
+  for (const folder of folders) {
+    const inside = relative(folder.path, path);
+    if (inside !== '' && !inside.startsWith('..') && !isAbsolute(inside)) {
+      return `${folder.label}/${inside.split(sep).join('/')}`;
+    }
+  }
+  return path;
 }
 
 /** `campaign resume`: runs the cells with no completed run, reuses the others. Exits like `campaign run`. */

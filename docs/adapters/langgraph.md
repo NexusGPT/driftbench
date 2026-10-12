@@ -86,3 +86,5 @@ target:
 ```
 
 The adapter reads no field of the target: the graph is the one you pass. Its id is `langgraph`.
+
+With a prompt on the target (`campaign run --prompt`), the messages the graph receives start with a system message of its text; a checkpointed graph receives it once, with the first block. See [datasets](../datasets.md#the-prompt-reaches-the-agent).

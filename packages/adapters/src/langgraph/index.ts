@@ -21,6 +21,7 @@ import {
   ToolLabels,
   vendorError,
 } from '../anthropic/common';
+import { promptMessages } from '../shared/prompt';
 import { type GraphConfigLike, type GraphLike, kindOf, mapMessages, toLangChainMessages } from './messages';
 
 export type { GraphConfigLike, GraphLike, GraphMessageLike, LangChainMessageLike } from './messages';
@@ -103,7 +104,10 @@ export function langgraphAdapter(options: LanggraphAdapterOptions): AgentAdapter
 
     async send(session: Session, turn: Turn) {
       const state = ownState<GraphState>(session, id, 'langgraph');
-      const sent = checkpointed && state.seeded ? trailingUserMessages(session.history) : session.history;
+      const sent =
+        checkpointed && state.seeded
+          ? trailingUserMessages(session.history)
+          : promptMessages(session.history, session.target);
       const started = performance.now();
       let answer: unknown;
       try {
