@@ -224,7 +224,11 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
     }
     case 'stage_reached':
       // A step allowed at any point is reached when it shows once in the block, wherever.
-      if (ctx.stages.anytime.has(evidence.name) && ctx.customChecks.has('stage_seen')) {
+      // So is a stage of a step list with no single closing stage to order it against.
+      if (
+        (ctx.stages.anytime.has(evidence.name) || ctx.stages.closing === undefined) &&
+        ctx.customChecks.has('stage_seen')
+      ) {
         then.custom.stage_seen = { name: evidence.name, block: 0 };
         return;
       }

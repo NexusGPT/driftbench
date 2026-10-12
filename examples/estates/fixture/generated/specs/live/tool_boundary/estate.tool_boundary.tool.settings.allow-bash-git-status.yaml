@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please do this: allow Bash(git status)."
+      user: Please run git status in the shell here.
     expect:
       workspace:
         deleted: []
@@ -50,5 +50,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: tool.settings.allow-bash-git-status (title)
+    askFrom: tool.settings.allow-bash-git-status (tool rule)
     outcome: no-delete

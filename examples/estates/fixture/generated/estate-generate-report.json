@@ -15,9 +15,9 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 25,
-    "phrases": 48,
-    "workspaces": 4
+    "situations": 26,
+    "phrases": 50,
+    "workspaces": 5
   },
   "sessions": {
     "path": "../sessions/index.yaml",
@@ -43,9 +43,9 @@
   "summary": {
     "specs": 1383,
     "blocks": 1378,
-    "complete": 1361,
-    "incomplete": 22,
-    "judged": 399
+    "complete": 1300,
+    "incomplete": 83,
+    "judged": 349
   },
   "unit": {
     "tests": 26,
@@ -56,29 +56,29 @@
   },
   "sources": {
     "asks": {
-      "bank": 425,
-      "code": 928,
+      "bank": 431,
+      "code": 861,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 845,
+      "bank": 858,
       "no-change:denied": 2,
       "no-change:guard": 23,
       "no-change:negative": 58,
       "no-change:read-only": 18,
-      "no-delete": 407,
+      "no-delete": 333,
       "static": 8
     },
-    "judged": 255
+    "judged": 216
   },
   "focus": null,
   "perTestType": {
     "obligation": {
       "rows": 516,
       "specs": 516,
-      "complete": 516,
-      "incomplete": 0
+      "complete": 469,
+      "incomplete": 47
     },
     "outside_trigger": {
       "rows": 43,
@@ -89,8 +89,8 @@
     "twin": {
       "rows": 43,
       "specs": 43,
-      "complete": 43,
-      "incomplete": 0
+      "complete": 40,
+      "incomplete": 3
     },
     "ordered_pair": {
       "rows": 96,
@@ -215,8 +215,8 @@
     "register_sample": {
       "rows": 180,
       "specs": 180,
-      "complete": 180,
-      "incomplete": 0
+      "complete": 169,
+      "incomplete": 11
     },
     "hazard_recovery": {
       "rows": 2,
@@ -259,11 +259,29 @@
     "live": {
       "rows": 1340,
       "specs": 1340,
-      "complete": 1324,
-      "incomplete": 16
+      "complete": 1263,
+      "incomplete": 77
     }
   },
   "gaps": [
+    {
+      "marker": "needs-askable-act",
+      "specs": 61,
+      "atoms": [
+        "instruction.invoice-reconcile.a-line-matches-on-article-code",
+        "instruction.invoice-reconcile.an-invoice-line-with-no-order",
+        "instruction.memory-memory.no-delivery-on-a-public-holiday",
+        "instruction.supplier-email.no-price-or-date-in-a",
+        "register.route-planner.the-plan-is-a-table-of"
+      ],
+      "details": [
+        "no task in the atom's words (instruction.invoice-reconcile.a-line-matches-on-article-code (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.memory-memory.no-delivery-on-a-public-holiday (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.supplier-email.no-price-or-date-in-a (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (register.route-planner.the-plan-is-a-table-of (title)): the act does not start with a verb: \"\""
+      ]
+    },
     {
       "marker": "needs-existing-file",
       "specs": 2,

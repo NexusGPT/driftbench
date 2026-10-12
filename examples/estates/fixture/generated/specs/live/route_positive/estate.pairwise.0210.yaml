@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Next task: sort the shared operations inbox into invoices."
+      user: "Next task: sort the shared operations inbox into invoices, shipment questions and supplier mail."
     expect:
       subagents:
         - name: inbox-triager
