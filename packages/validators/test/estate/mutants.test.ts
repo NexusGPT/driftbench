@@ -37,7 +37,7 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
     const script = of('script')[0];
     expect(script?.killed).toBe(false);
     expect(script?.reason).toMatch(
-      /^no complete test passes on the rule follower to run it on; .* needs-some-call-check/,
+      /^no complete test passes on the rule follower to run it on; its \d+ tests? wait for a fix of their expectation/,
     );
   });
 
@@ -49,7 +49,7 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
     expect(alive).toContain('mutant-alive:gate.standing.read-a-file-before-you-edit');
     expect(alive.some((id) => id.startsWith('mutant-alive:skill.'))).toBe(false);
     const script = measure.items.find((item) => item.id.startsWith('mutant-alive:script.'));
-    expect(script?.component).toBe('packages/checks/src/checks/tools.ts');
+    expect(script?.component).toBe('packages/generate/src/estate/generate.ts');
   });
 
   it('kills nothing when no test is complete', async () => {
