@@ -7,172 +7,292 @@
     {
       "id": "gen-boundary-058",
       "path": "holdout/boundary/gen-boundary-058.yaml",
-      "hash": "94ab091e10fa"
+      "hash": "ac1e42982fe2"
     },
     {
       "id": "gen-boundary-067",
       "path": "holdout/boundary/gen-boundary-067.yaml",
-      "hash": "68c775b19d15"
+      "hash": "fd31f9b2fc8e"
     },
     {
       "id": "gen-boundary-071",
       "path": "holdout/boundary/gen-boundary-071.yaml",
-      "hash": "e86c01a6b626"
+      "hash": "c2c8bd898277"
+    },
+    {
+      "id": "gen-cover-009",
+      "path": "holdout/cover/gen-cover-009.yaml",
+      "hash": "2363f43386b9"
+    },
+    {
+      "id": "gen-cover-010",
+      "path": "holdout/cover/gen-cover-010.yaml",
+      "hash": "e05237d76802"
     },
     {
       "id": "gen-deviation-002",
       "path": "holdout/deviation/gen-deviation-002.yaml",
-      "hash": "cde3d6d31936"
+      "hash": "343fa0c82123"
     },
     {
       "id": "gen-deviation-003",
       "path": "holdout/deviation/gen-deviation-003.yaml",
-      "hash": "e2a55988d367"
+      "hash": "dc04e453869c"
     },
     {
       "id": "gen-deviation-008",
       "path": "holdout/deviation/gen-deviation-008.yaml",
-      "hash": "39e747f6b2e6"
+      "hash": "8566ce2ab679"
     },
     {
       "id": "gen-graph-003",
       "path": "holdout/graph/gen-graph-003.yaml",
-      "hash": "af9d91f0f226"
+      "hash": "205eb393d128"
     },
     {
       "id": "gen-graph-011",
       "path": "holdout/graph/gen-graph-011.yaml",
-      "hash": "203bcbfb0061"
+      "hash": "f06045ca08d3"
+    },
+    {
+      "id": "gen-metamorphic-011-2",
+      "path": "holdout/metamorphic/gen-metamorphic-011-2.yaml",
+      "hash": "723e00ee017c"
+    },
+    {
+      "id": "gen-metamorphic-014-1",
+      "path": "holdout/metamorphic/gen-metamorphic-014-1.yaml",
+      "hash": "2cc0c6ce8e1d"
+    },
+    {
+      "id": "gen-metamorphic-015-2",
+      "path": "holdout/metamorphic/gen-metamorphic-015-2.yaml",
+      "hash": "090322e63fcc"
+    },
+    {
+      "id": "gen-metamorphic-017-1",
+      "path": "holdout/metamorphic/gen-metamorphic-017-1.yaml",
+      "hash": "1d43dd2440e3"
+    },
+    {
+      "id": "gen-metamorphic-019-2",
+      "path": "holdout/metamorphic/gen-metamorphic-019-2.yaml",
+      "hash": "0a7a70831390"
+    },
+    {
+      "id": "gen-metamorphic-020-1",
+      "path": "holdout/metamorphic/gen-metamorphic-020-1.yaml",
+      "hash": "2f94d6f0afe7"
+    },
+    {
+      "id": "acme-price-sheet-i01-base",
+      "path": "holdout/task/acme-price-sheet-i01-base.yaml",
+      "hash": "4d778474ddad"
+    },
+    {
+      "id": "acme-price-sheet-i01-unit-change",
+      "path": "holdout/task/acme-price-sheet-i01-unit-change.yaml",
+      "hash": "6c4f79371c3f"
+    },
+    {
+      "id": "acme-price-sheet-i03-empty-cell",
+      "path": "holdout/task/acme-price-sheet-i03-empty-cell.yaml",
+      "hash": "bbcd44e3ab25"
+    },
+    {
+      "id": "acme-price-sheet-i03-unit-change",
+      "path": "holdout/task/acme-price-sheet-i03-unit-change.yaml",
+      "hash": "d5327e6a7885"
+    },
+    {
+      "id": "acme-price-sheet-i04-header-order",
+      "path": "holdout/task/acme-price-sheet-i04-header-order.yaml",
+      "hash": "6761b9634f55"
+    },
+    {
+      "id": "acme-price-sheet-i04-planted",
+      "path": "holdout/task/acme-price-sheet-i04-planted.yaml",
+      "hash": "9877aa48cba4"
+    },
+    {
+      "id": "acme-price-sheet-i06-unit-change",
+      "path": "holdout/task/acme-price-sheet-i06-unit-change.yaml",
+      "hash": "c9a9cc531435"
+    },
+    {
+      "id": "acme-price-sheet-i07-duplicate-line",
+      "path": "holdout/task/acme-price-sheet-i07-duplicate-line.yaml",
+      "hash": "c103f181b09f"
+    },
+    {
+      "id": "acme-price-sheet-i07-empty-cell",
+      "path": "holdout/task/acme-price-sheet-i07-empty-cell.yaml",
+      "hash": "1035cb8cd14d"
+    },
+    {
+      "id": "acme-price-sheet-i07-unit-change",
+      "path": "holdout/task/acme-price-sheet-i07-unit-change.yaml",
+      "hash": "a42651e2cfa2"
     },
     {
       "id": "gen-twise-006",
       "path": "holdout/twise/gen-twise-006.yaml",
-      "hash": "2b7bf09da673"
+      "hash": "0a06384b1b6c"
     },
     {
       "id": "gen-twise-008",
       "path": "holdout/twise/gen-twise-008.yaml",
-      "hash": "6512d647cbbe"
+      "hash": "39ec4cd46767"
     },
     {
       "id": "gen-twise-009",
       "path": "holdout/twise/gen-twise-009.yaml",
-      "hash": "13dcf500e74a"
+      "hash": "56ad265cb924"
     },
     {
       "id": "gen-twise-011",
       "path": "holdout/twise/gen-twise-011.yaml",
-      "hash": "e210b07aad30"
+      "hash": "ba66c5f840de"
     },
     {
       "id": "gen-twise-013",
       "path": "holdout/twise/gen-twise-013.yaml",
-      "hash": "467c6d183727"
+      "hash": "917d2d830aed"
     },
     {
       "id": "gen-twise-017",
       "path": "holdout/twise/gen-twise-017.yaml",
-      "hash": "9c8fdabfc109"
+      "hash": "596ce0eecc48"
+    },
+    {
+      "id": "gen-twise-025",
+      "path": "holdout/twise/gen-twise-025.yaml",
+      "hash": "16ae7b031bd9"
+    },
+    {
+      "id": "gen-twise-026",
+      "path": "holdout/twise/gen-twise-026.yaml",
+      "hash": "fe2370080307"
     },
     {
       "id": "gen-twise-029",
       "path": "holdout/twise/gen-twise-029.yaml",
-      "hash": "895fd546202d"
+      "hash": "6c0bd3994b5a"
     },
     {
       "id": "gen-twise-031",
       "path": "holdout/twise/gen-twise-031.yaml",
-      "hash": "9e03f72ba219"
+      "hash": "4f3807ff8001"
     },
     {
       "id": "gen-twise-037",
       "path": "holdout/twise/gen-twise-037.yaml",
-      "hash": "5db2fdb81648"
+      "hash": "d832950fc8b1"
     },
     {
       "id": "gen-twise-039",
       "path": "holdout/twise/gen-twise-039.yaml",
-      "hash": "746b53dd357f"
+      "hash": "05516a038760"
+    },
+    {
+      "id": "gen-twise-047",
+      "path": "holdout/twise/gen-twise-047.yaml",
+      "hash": "6d91161b2b0f"
+    },
+    {
+      "id": "gen-twise-048",
+      "path": "holdout/twise/gen-twise-048.yaml",
+      "hash": "4433a8cf2f30"
     },
     {
       "id": "gen-twise-052",
       "path": "holdout/twise/gen-twise-052.yaml",
-      "hash": "f603f26b239c"
+      "hash": "e95a49742038"
     },
     {
       "id": "gen-twise-059",
       "path": "holdout/twise/gen-twise-059.yaml",
-      "hash": "45ba532bcbec"
+      "hash": "6a35a1e80020"
     },
     {
       "id": "gen-twise-060",
       "path": "holdout/twise/gen-twise-060.yaml",
-      "hash": "94cc03130479"
+      "hash": "7452d5d85b6c"
     },
     {
       "id": "gen-twise-069",
       "path": "holdout/twise/gen-twise-069.yaml",
-      "hash": "5d7f77eb8d84"
+      "hash": "4e584cf42086"
     },
     {
       "id": "gen-twise-079",
       "path": "holdout/twise/gen-twise-079.yaml",
-      "hash": "36c7e4640c04"
+      "hash": "8206b20a2906"
     },
     {
       "id": "gen-twise-086",
       "path": "holdout/twise/gen-twise-086.yaml",
-      "hash": "6b05bfdb13db"
+      "hash": "122c095930c1"
     },
     {
       "id": "gen-twise-087",
       "path": "holdout/twise/gen-twise-087.yaml",
-      "hash": "f2b04324fc21"
+      "hash": "66de0bcae357"
     },
     {
       "id": "gen-twise-097",
       "path": "holdout/twise/gen-twise-097.yaml",
-      "hash": "087ab75d5135"
+      "hash": "bdca88ffb822"
+    },
+    {
+      "id": "gen-twise-098",
+      "path": "holdout/twise/gen-twise-098.yaml",
+      "hash": "f4726b9b1953"
     },
     {
       "id": "gen-twise-100",
       "path": "holdout/twise/gen-twise-100.yaml",
-      "hash": "5e982630b808"
+      "hash": "f75cfecc8b58"
     },
     {
       "id": "gen-twise-103",
       "path": "holdout/twise/gen-twise-103.yaml",
-      "hash": "a515f1c80e3d"
+      "hash": "49c3f0c4def4"
+    },
+    {
+      "id": "gen-twise-105",
+      "path": "holdout/twise/gen-twise-105.yaml",
+      "hash": "9751fc360604"
     },
     {
       "id": "gen-twise-111",
       "path": "holdout/twise/gen-twise-111.yaml",
-      "hash": "d1fbb7a3629b"
+      "hash": "abdd4ccf56a6"
     },
     {
       "id": "gen-twise-112",
       "path": "holdout/twise/gen-twise-112.yaml",
-      "hash": "98821e4e8f29"
+      "hash": "d0ec4f141f42"
     },
     {
       "id": "gen-twise-118",
       "path": "holdout/twise/gen-twise-118.yaml",
-      "hash": "5bd525be6712"
+      "hash": "3b5f3af33414"
     },
     {
       "id": "gen-twise-121",
       "path": "holdout/twise/gen-twise-121.yaml",
-      "hash": "ef6cb844728d"
+      "hash": "0051fbe1a64f"
     },
     {
       "id": "gen-twise-123",
       "path": "holdout/twise/gen-twise-123.yaml",
-      "hash": "01d0371af6d3"
+      "hash": "bad1576e01d9"
     },
     {
       "id": "gen-twise-132",
       "path": "holdout/twise/gen-twise-132.yaml",
-      "hash": "ab41ec8965ab"
+      "hash": "ebe711a6a43f"
     }
   ]
 }

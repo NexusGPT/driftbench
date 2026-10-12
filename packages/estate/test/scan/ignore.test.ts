@@ -225,3 +225,34 @@ describe('files an operating system or an editor leaves', () => {
     expect(invariant?.fields?.orphans).toEqual(['.claude/notes~draft.md']);
   });
 });
+
+describe('a bare name with another copy under an ignored folder', () => {
+  const folders = [
+    'node_modules',
+    '.claude/hooks/guards/tests',
+    '.trash',
+    '.claude/skills/synced',
+    '.claude/hooks/__pycache__',
+    'tests/fixtures',
+  ];
+  it.each(folders)(
+    'names the skill own copy, never the one under %s, and is not ambiguous',
+    async (folder) => {
+      const root = await estate({
+        'CLAUDE.md': '# Rules\n\nUse the `alpha` skill for alpha work.\n',
+        '.claude/skills/alpha/SKILL.md':
+          '---\nname: alpha\ndescription: Alpha work.\n---\n\nWhen unsure, open `guide.md`.\n',
+        '.claude/skills/alpha/references/guide.md': '# Guide\n',
+        [`${folder}/alpha-old/references/guide.md`]: '# Old guide\n',
+      });
+      const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      const references = map.atoms.filter((atom) => atom.kind === 'reference');
+      expect(references.map((atom) => atom.fields?.path)).toEqual([
+        '.claude/skills/alpha/references/guide.md',
+      ]);
+      expect(JSON.stringify(references.map((atom) => atom.fields))).not.toContain(folder);
+      const lint = lintEstate(map, raw);
+      expect(lint.findings.filter((finding) => finding.code === 'AMBIGUOUS_REFERENCE')).toEqual([]);
+    },
+  );
+});
