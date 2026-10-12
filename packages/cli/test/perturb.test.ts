@@ -170,10 +170,10 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
 
   it('exits 2 on bad input, naming the fix, and runs nothing', async () => {
     const cases: [string[], string][] = [
-      [[UPGRADE], 'Name the deviation: --class <D1 to D10> and --at <block>, or --perturbation <id>.'],
+      [[UPGRADE], 'Name the deviation: --class <D1 to D12> and --at <block>, or --perturbation <id>.'],
       [
-        [UPGRADE, '--class', 'D11', '--at', '1'],
-        '--class takes D1 to D10, or a full name such as D2_goal_shift, not "D11".',
+        [UPGRADE, '--class', 'D13', '--at', '1'],
+        '--class takes D1 to D12, or a full name such as D2_goal_shift, not "D13".',
       ],
       [[UPGRADE, '--class', 'D1', '--at', 'two'], '--at takes a block number from 0, not "two".'],
       [

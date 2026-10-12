@@ -59,7 +59,7 @@ export function registerPerturbCommand(
     .command('perturb')
     .description('Run one spec in mode P with one deviation injected, and print the recovery')
     .argument('<spec>', 'one spec file')
-    .option('--class <D>', 'the deviation class: D1 to D10, or its full name such as D2_goal_shift')
+    .option('--class <D>', 'the deviation class: D1 to D12, or its full name such as D2_goal_shift')
     .option('--at <n>', 'the block the deviation goes in before, counting from 0')
     .option('--perturbation <id>', 'a perturbation the spec declares, instead of --class and --at')
     .option(
@@ -210,10 +210,10 @@ function usageProblem(options: PerturbOptions): string | undefined {
     return undefined;
   }
   if (options.class === undefined || options.at === undefined) {
-    return 'Name the deviation: --class <D1 to D10> and --at <block>, or --perturbation <id>.';
+    return 'Name the deviation: --class <D1 to D12> and --at <block>, or --perturbation <id>.';
   }
   if (deviationClassOf(options.class) === undefined) {
-    return `--class takes D1 to D10, or a full name such as D2_goal_shift, not "${options.class}".`;
+    return `--class takes D1 to D12, or a full name such as D2_goal_shift, not "${options.class}".`;
   }
   if (!/^\d+$/.test(options.at)) return `--at takes a block number from 0, not "${options.at}".`;
   if (!/^\d+$/.test(options.seed)) return `--seed takes a whole number from 0, not "${options.seed}".`;
