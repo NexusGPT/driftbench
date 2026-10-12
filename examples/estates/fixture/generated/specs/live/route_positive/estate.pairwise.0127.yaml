@@ -73,6 +73,7 @@ metadata:
     atoms:
       - route.weekly-report.an-ask-that-fits-weekly-report
     planRow: pairwise.0127
+    focusVariant: 126
     cell:
       ask_class: build
       ask_shape: problem

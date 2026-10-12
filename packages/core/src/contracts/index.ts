@@ -9,3 +9,4 @@ export * from './driver';
 export * from './embedder';
 export * from './sandbox';
 export * from './store';
+export * from './tool-policy';

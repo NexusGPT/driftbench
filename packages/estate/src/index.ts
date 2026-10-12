@@ -7,3 +7,4 @@ export * from './plan';
 export * from './scan';
 export * from './schema';
 export * from './static';
+export * from './unit';

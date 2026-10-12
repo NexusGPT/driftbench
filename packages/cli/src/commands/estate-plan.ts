@@ -18,7 +18,7 @@ import type { Io } from '../io';
 import { mapCacheOptions } from './map-cache';
 
 export type EstatePlanOptions = { out?: string; t?: string; space?: string; k?: string; force?: boolean };
-export type EstatePlanApproveOptions = { all?: boolean; row?: string[]; strike?: boolean };
+export type EstatePlanApproveOptions = { all?: boolean; row?: string[]; strike?: boolean; out?: string };
 
 /**
  * `driftbench estate plan <map>`: derive the test plan from an approved estate map (design section 4), and
@@ -50,8 +50,11 @@ export function registerEstatePlanCommands(estate: Command, io: Io, setExit: (co
     .option('--all', 'approve every row still proposed')
     .option('--row <id>', 'approve this row; repeat it', collect)
     .option('--strike', 'strike the rows named with --row instead of approving them')
-    .action(async (path: string, options: EstatePlanApproveOptions) => {
-      setExit(await estatePlanApproveCommand(path, options, io));
+    .option('--out <file>', 'write the result here and leave the plan read untouched (default: in place)')
+    .action(async (path: string, options: EstatePlanApproveOptions, command: Command) => {
+      // `plan` declares --out too, and commander gives it to the parent: read both.
+      const out = options.out ?? (command.optsWithGlobals() as { out?: string }).out;
+      setExit(await estatePlanApproveCommand(path, { ...options, ...(out ? { out } : {}) }, io));
     });
 }
 
@@ -203,11 +206,12 @@ export async function estatePlanApproveCommand(
     io.err(`✗ ${show(file, io)}\n${result.errors.map(issueLine).join('')}`);
     return 1;
   }
-  if (!(await writeOut(file, result.text, io))) return 2;
+  const target = options.out ? resolve(io.cwd, options.out) : file;
+  if (!(await writeOut(target, result.text, io))) return 2;
   const verb = options.strike ? 'Struck' : 'Approved';
   const state = options.strike ? 'struck' : 'approved';
   io.out(
-    `${verb} ${result.changed.length} ${result.changed.length === 1 ? 'row' : 'rows'} in ${show(file, io)}; ${result.unchanged} ${result.unchanged === 1 ? 'was' : 'were'} already ${state}.\n`,
+    `${verb} ${result.changed.length} ${result.changed.length === 1 ? 'row' : 'rows'} in ${show(target, io)}; ${result.unchanged} ${result.unchanged === 1 ? 'was' : 'were'} already ${state}.\n`,
   );
   return 0;
 }

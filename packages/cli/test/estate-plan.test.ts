@@ -144,5 +144,45 @@ describe('driftbench estate plan approve', () => {
     const strikeAll = await run(['estate', 'plan', 'approve', 'plan.yaml', '--strike'], root);
     expect(strikeAll.code).toBe(2);
     expect((await run(['estate', 'plan', 'approve', 'missing.yaml', '--all'], root)).code).toBe(2);
+    const unknown = await run(['estate', 'plan', 'approve', 'plan.yaml', '--all', '--frobnicate'], root);
+    expect(unknown.code).toBe(2);
+    expect(unknown.err).toContain('--frobnicate');
+  }, 60_000);
+
+  it('writes the approved plan to --out and leaves the plan it read untouched', async () => {
+    const root = await folder();
+    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
+    const before = await readFile(join(root, 'plan.yaml'), 'utf8');
+    const result = await run(
+      ['estate', 'plan', 'approve', 'plan.yaml', '--all', '--out', 'plan.approved.yaml'],
+      root,
+    );
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    expect(result.out).toContain('Approved 1383 rows in plan.approved.yaml');
+    expect(await readFile(join(root, 'plan.yaml'), 'utf8')).toBe(before);
+    const written = await readFile(join(root, 'plan.approved.yaml'), 'utf8');
+    const rowsApproved = before
+      .split('\n')
+      .map((line) => (line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line))
+      .join('\n');
+    expect(written).toBe(rowsApproved);
+    const strike = await run(
+      [
+        'estate',
+        'plan',
+        'approve',
+        'plan.approved.yaml',
+        '--row',
+        'journey.01',
+        '--strike',
+        '--out',
+        'struck.yaml',
+      ],
+      root,
+    );
+    expect(strike.code).toBe(0);
+    expect(await readFile(join(root, 'struck.yaml'), 'utf8')).toContain('status: struck');
+    expect(await readFile(join(root, 'plan.approved.yaml'), 'utf8')).toBe(written);
   }, 60_000);
 });

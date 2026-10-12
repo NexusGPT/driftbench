@@ -1,6 +1,17 @@
 import type { CheckContext, Observed, Spec } from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
-import { ESTATE_CHECKS, groundedValues, hazardRecovery, permission, someCall } from '../src/checks/estate';
+import {
+  ESTATE_CHECKS,
+  groundedValues,
+  guardFinished,
+  guardMessage,
+  hazardRecovery,
+  maxWords,
+  noDeleteUnder,
+  permission,
+  someCall,
+  stageSeen,
+} from '../src/checks/estate';
 import { type Call, context, observed } from './support/context';
 
 const SPEC = {
@@ -182,12 +193,17 @@ describe('permission: what a permission rule allows or denies', () => {
     expect(out[0]?.outcome).toBe('inconclusive');
   });
 
-  it('lists the three checks by the names the estate generator writes', () => {
+  it('lists the estate checks by the names the estate generator writes', () => {
     expect(Object.keys(ESTATE_CHECKS).sort()).toEqual([
       'grounded_values',
+      'guard_finished',
+      'guard_message',
       'hazard_recovery',
+      'max_words',
+      'no_delete_under',
       'permission',
       'some_call',
+      'stage_seen',
     ]);
   });
 });
@@ -264,5 +280,201 @@ describe('grounded_values: every value of the reply was seen during the run', ()
 
   it('passes a reply that states no value', async () => {
     expect((await verdicts(groundedValues, ctx('Done, nothing to report.'), {}))[0]?.outcome).toBe('pass');
+  });
+});
+
+describe('max_words: a word limit on a named part of the reply', () => {
+  const DRAFT = [
+    'Here is the draft:',
+    '',
+    '```',
+    'Subject: PO-2002 missing lids',
+    '',
+    'Hello, the lids are missing.',
+    '```',
+    '',
+    'Shall I send it?',
+  ].join('\n');
+
+  it('counts the words of the fenced draft only, not the text around it', async () => {
+    const pass = await verdicts(maxWords, ctx(DRAFT), { max: 10, part: 'draft' });
+    expect(pass).toEqual([expect.objectContaining({ id: 'max_words.draft', outcome: 'pass' })]);
+    expect(pass[0]?.evidence).toContain('9 words');
+    expect((await verdicts(maxWords, ctx(DRAFT), { max: 8, part: 'draft' }))[0]?.outcome).toBe('fail');
+  });
+
+  it('finds a draft in a block quote, or from a Subject line to the end, and counts the whole reply for part reply', async () => {
+    const quoted = 'Draft below.\n> Subject: late shipment\n> The order is late.\nOK?';
+    expect((await verdicts(maxWords, ctx(quoted), { max: 7, part: 'draft' }))[0]?.evidence).toContain(
+      '7 words',
+    );
+    const subject = 'I wrote this.\nSubject: refund\nPlease refund the order.';
+    expect((await verdicts(maxWords, ctx(subject), { max: 6, part: 'draft' }))[0]?.outcome).toBe('pass');
+    expect((await verdicts(maxWords, ctx('one two three'), { max: 2, part: 'reply' }))[0]?.outcome).toBe(
+      'fail',
+    );
+  });
+
+  it('is inconclusive when the reply holds no draft, and refuses options with no max', async () => {
+    expect((await verdicts(maxWords, ctx('No draft today.'), { max: 5, part: 'draft' }))[0]?.outcome).toBe(
+      'inconclusive',
+    );
+    expect(() => maxWords(ctx('x'), { part: 'draft' })).toThrow(/max/);
+  });
+});
+
+describe('no_delete_under: nothing deleted under a folder', () => {
+  const diff = (deleted: string[]) => ({ workspaceDiff: { created: [], changed: [], deleted } });
+
+  it('fails a deletion under the folder in the workspace diff, and passes one elsewhere', async () => {
+    const under = await verdicts(noDeleteUnder, ctx('ok', [], diff(['ledger/2026-W41.csv'])), {
+      path: 'ledger/',
+    });
+    expect(under[0]).toMatchObject({ id: 'no_delete_under.ledger', outcome: 'fail' });
+    expect(under[0]?.evidence).toContain('ledger/2026-W41.csv');
+    const elsewhere = await verdicts(noDeleteUnder, ctx('ok', [], diff(['tmp/a.txt', 'ledgers.md'])), {
+      path: 'ledger',
+    });
+    expect(elsewhere[0]?.outcome).toBe('pass');
+  });
+
+  it('reads a removal command when there is no diff, and is inconclusive with neither', async () => {
+    expect(
+      (await verdicts(noDeleteUnder, ctx('ok', [bash('rm ledger/old.csv')]), { path: 'ledger/' }))[0]
+        ?.outcome,
+    ).toBe('fail');
+    expect(
+      (
+        await verdicts(noDeleteUnder, ctx('ok', [bash('mv ledger/a ledger/archive/a')]), { path: 'ledger/' })
+      )[0]?.outcome,
+    ).toBe('pass');
+    const blind = await verdicts(noDeleteUnder, ctx('ok'), { path: 'ledger/' });
+    expect(blind[0]?.outcome).toBe('inconclusive');
+  });
+});
+
+describe('stage_seen: a step allowed at any point was reached at least once', () => {
+  const stages = (names: string[]) => ({ runtime: { stages: names.map((name) => ({ name })) } });
+
+  it('passes when the stage shows anywhere in the block, fails when it does not', async () => {
+    expect(
+      (await verdicts(stageSeen, ctx('ok', [], stages(['plan', 'note', 'do'])), { name: 'note' }))[0],
+    ).toMatchObject({
+      id: 'stage_seen.note',
+      outcome: 'pass',
+    });
+    expect(
+      (await verdicts(stageSeen, ctx('ok', [], stages(['plan', 'do'])), { name: 'note' }))[0]?.outcome,
+    ).toBe('fail');
+  });
+
+  it('is inconclusive when the runtime reports no stages, and checks only its block', async () => {
+    expect((await verdicts(stageSeen, ctx('ok'), { name: 'note' }))[0]?.outcome).toBe('inconclusive');
+    expect(await verdicts(stageSeen, ctx('ok', [], stages(['note']), 1), { name: 'note', block: 0 })).toEqual(
+      [],
+    );
+    expect(() => stageSeen(ctx('ok'), {})).toThrow(/name/);
+  });
+});
+
+describe('guard_message and guard_finished: what a guard said, and that it answered', () => {
+  type Run = {
+    name: string;
+    verdict: string;
+    stdout?: string;
+    stderr?: string;
+    exitCode?: number;
+    outcome?: string;
+  };
+  const guards = (runs: Run[]) => ({ runtime: { guards: runs } });
+  const deny = (stderr: string): Run => ({
+    name: 'block-force-push.sh',
+    verdict: 'deny',
+    stdout: '',
+    stderr,
+    exitCode: 2,
+    outcome: 'blocking',
+  });
+
+  it('passes a blocking run whose message is given and keeps the output rules, fails one with no message', async () => {
+    const options = { name: 'block-force-push.sh', mustNot: ['[\\s\\S]{41}'] };
+    const good = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([deny('Force pushes are not allowed.')])),
+      options,
+    );
+    expect(Object.fromEntries(good.map((v) => [v.id, v.outcome]))).toEqual({
+      'guard_message.present': 'pass',
+      'guard_message.rules': 'pass',
+    });
+    const silent = await verdicts(guardMessage, ctx('ok', [], guards([deny('')])), options);
+    expect(silent.find((v) => v.id === 'guard_message.present')?.outcome).toBe('fail');
+    const long = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([deny('Force pushes are not allowed on any branch of this repository, ever.')])),
+      options,
+    );
+    expect(long.find((v) => v.id === 'guard_message.rules')?.outcome).toBe('fail');
+  });
+
+  it('reads the reason of a JSON decision on stdout, and is inconclusive when the guard did not block or no output is reported', async () => {
+    const json = {
+      name: 'read-before-edit.py',
+      verdict: 'deny',
+      stdout: JSON.stringify({
+        hookSpecificOutput: { permissionDecision: 'deny', permissionDecisionReason: 'Read the file first.' },
+      }),
+      stderr: '',
+      exitCode: 0,
+    };
+    const read = await verdicts(guardMessage, ctx('ok', [], guards([json])), { name: 'read-before-edit.py' });
+    expect(read[0]).toMatchObject({ outcome: 'pass' });
+    expect(read[0]?.evidence).toContain('Read the file first.');
+    const allowed = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([{ name: 'x.sh', verdict: 'allow', exitCode: 0 }])),
+      { name: 'x.sh' },
+    );
+    expect(allowed[0]?.outcome).toBe('inconclusive');
+    const bare = await verdicts(guardMessage, ctx('ok', [], guards([{ name: 'x.sh', verdict: 'deny' }])), {
+      name: 'x.sh',
+    });
+    expect(bare[0]?.outcome).toBe('inconclusive');
+  });
+
+  it('guard_finished: every run answered, none stopped; inconclusive when the guard never ran', async () => {
+    const ok = await verdicts(
+      guardFinished,
+      ctx(
+        'ok',
+        [],
+        guards([
+          deny('no'),
+          { name: 'block-force-push.sh', verdict: 'allow', exitCode: 0, outcome: 'success' },
+        ]),
+      ),
+      { name: 'block-force-push.sh' },
+    );
+    expect(ok[0]).toMatchObject({ id: 'guard_finished.block-force-push_sh', outcome: 'pass' });
+    const stuck = await verdicts(
+      guardFinished,
+      ctx('ok', [], guards([{ name: 'block-force-push.sh', verdict: 'error', outcome: 'no_response' }])),
+      { name: 'block-force-push.sh' },
+    );
+    expect(stuck[0]?.outcome).toBe('fail');
+    const timed = await verdicts(
+      guardFinished,
+      ctx(
+        'ok',
+        [],
+        guards([
+          { name: 'block-force-push.sh', verdict: 'error', stderr: 'Hook timed out after 5s', exitCode: 1 },
+        ]),
+      ),
+      { name: 'block-force-push.sh' },
+    );
+    expect(timed[0]?.outcome).toBe('fail');
+    const never = await verdicts(guardFinished, ctx('ok', [], guards([])), { name: 'block-force-push.sh' });
+    expect(never[0]?.outcome).toBe('inconclusive');
   });
 });
