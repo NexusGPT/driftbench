@@ -22,7 +22,7 @@ const adapter = anthropicAdapter({
 
 | Option | Meaning |
 |---|---|
-| `client` | the client. The adapter calls `client.messages.create(body)` and nothing else. |
+| `client` | the client. The adapter calls `client.messages.create(body, { maxRetries: 0 })` and nothing else. |
 | `model` | the model id |
 | `system` | the system prompt. System messages in the history are appended to it. |
 | `maxTokens` | `max_tokens` of each call. Default 1024. |
@@ -31,6 +31,7 @@ const adapter = anthropicAdapter({
 | `sideEffects` | the spec labels of the tools that change the world. It enables `endState`. |
 | `deterministic` | true when the same input gives the same output. Default false. |
 | `version` | the version the runner's cache key carries. Default the adapter's version with a hash of the model and the system prompt. |
+| `retry`, `sleep` | the adapter's own [retry settings](../retries.md), under the spec target's `retry` and the run's, and how a wait is spent (tests). Each model call runs under the policy, with the client's own retries off (`maxRetries: 0`). |
 
 A tool is an `SdkTool`:
 
@@ -87,7 +88,7 @@ Each call of a `sideEffects` tool that did not fail is a payload, recorded by bl
 
 | Error | Becomes |
 |---|---|
-| a 408, 409, 429 or any 5xx status (529 overloaded included), or a connection, timeout or abort error, in the error or its causes | `AdapterTransportError` |
+| a 429 or any 5xx status (529 overloaded included), or a network error (refused, reset, timed out, `fetch failed`) in the error or its causes, after the [shared retry policy](../retries.md)'s attempts where the adapter retries the model call itself | `AdapterTransportError`, marked exhausted: the runner does not retry the block on top |
 | any other status or error | `AgentFailure` |
 | an answer with no content list | `AgentFailure` |
 | tool calls still asked at the step cap | `AgentFailure` |
@@ -104,3 +105,5 @@ target:
 ```
 
 The adapter reads no field of the target: the model and the prompt are the options you pass. Its id is `anthropic`.
+
+With a prompt on the target (`campaign run --prompt`), its text replaces the `system` option as the system prompt; system messages in the history are still appended. See [datasets](../datasets.md#the-prompt-reaches-the-agent).

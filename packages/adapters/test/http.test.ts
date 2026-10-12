@@ -248,25 +248,32 @@ describe('http adapter', () => {
     );
   });
 
-  it('maps statuses: 5xx and other failures are AgentFailure, 408 and 429 are transport errors', async () => {
-    const send = (path: string) => {
+  it('maps statuses by the shared retry rule: 429 and 5xx are transport errors, 408 and other failures the agent', async () => {
+    const send = (path: string, fetchFn?: typeof fetch) => {
       const adapter = httpAdapter({
         url: `${server.base}${path}`,
         headers: { authorization: 'Bearer secret-value' },
+        ...(fetchFn ? { fetch: fetchFn } : {}),
       });
       return adapter.open(given).then((session) => adapter.send(session, userTurn(0, 'hi', given)));
     };
-    for (const status of [500, 502, 503, 400, 404]) {
+    for (const status of [400, 404, 408, 409]) {
       const error = await send(`/status/${status}`).catch((caught: unknown) => caught);
       expect(error, `status ${status}`).toBeInstanceOf(AgentFailure);
       expect((error as Error).message).toContain(`answered ${status}`);
       expect((error as Error).message).not.toContain('secret-value');
     }
-    for (const status of [408, 429]) {
-      await expect(send(`/status/${status}`), `status ${status}`).rejects.toBeInstanceOf(
-        AdapterTransportError,
-      );
+    for (const status of [429, 500, 502, 503, 529]) {
+      const error = await send(`/status/${status}`).catch((caught: unknown) => caught);
+      expect(error, `status ${status}`).toBeInstanceOf(AdapterTransportError);
+      expect(error).toMatchObject({ status });
+      expect((error as Error).message).not.toContain('secret-value');
     }
+    const limited = await send(
+      '/turn',
+      async () => new Response('{"error":"slow down"}', { status: 429, headers: { 'retry-after': '3' } }),
+    ).catch((caught: unknown) => caught);
+    expect(limited).toMatchObject({ status: 429, retryAfterMs: 3_000 });
     await expect(send('/not-json')).rejects.toThrow(/not a JSON object/);
   });
 

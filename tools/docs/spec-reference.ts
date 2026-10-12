@@ -69,9 +69,9 @@ export const VALUE_LINES: Record<string, Record<string, string>> = {
 /** Text printed under a section heading, for the sections whose values describe behaviour. */
 const SECTION_NOTES: Record<string, string> = {
   DeviationClass:
-    'Used by `when.injection.class` and `perturbations[].class`. Running a perturbation is planned, phase 3. See [recovery](../concepts/recovery.md).',
+    'Used by `when.injection.class` and `perturbations[].class`. Mode P runs them with the perturbing driver, and `driftbench perturb` runs one. See [recovery](../concepts/recovery.md).',
   DriftClass:
-    'Run records, not specs, carry these classes: one or more on each failing block. The drift engine that assigns them is planned, phase 3. See [drift](../concepts/drift.md).',
+    'Run records, not specs, carry these classes: one or more on each failing block. The runner assigns them from the failing gating verdicts of each block. See [drift](../concepts/drift.md).',
   Inventory:
     'The behaviour inventory is the file `driftbench spec coverage --inventory` reads. It lists the behaviours an agent must show and the flows that group them. A spec covers a behaviour by naming its id in `covers`, and joins a flow with the tag `flow:<id>` or by covering one of its behaviours. See [CLI](cli.md#driftbench-spec-coverage).',
 };

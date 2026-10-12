@@ -21,6 +21,8 @@ The loader rewrites these forms before it validates a spec.
 
 * [Spec](#spec)
 * [TargetRef](#targetref)
+* [TargetPrompt](#targetprompt)
+* [RetrySettings](#retrysettings)
 * [GivenDefaults](#givendefaults)
 * [WorldState](#worldstate)
 * [ToolOverride](#tooloverride)
@@ -98,6 +100,31 @@ Which agent a spec runs against. The adapter decides what the other fields mean.
 | `variant` | string, not empty | no |  | A variant of the agent, such as a prompt version. |
 | `deployment` | string, not empty | no |  | A deployment of the agent, as the adapter names it. |
 | `options` | map of string to any value | no |  | Adapter settings. Each adapter defines their names. |
+| `prompt` | [TargetPrompt](#targetprompt) | no |  | The prompt the agent runs with, from the registry. campaign run --prompt sets it; each adapter page says how it reaches the agent. |
+| `retry` | [RetrySettings](#retrysettings) | no |  | How the model calls of this target are retried. |
+
+## TargetPrompt
+
+A prompt version from the registry, handed to the agent as its system prompt. campaign run --prompt sets it.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | string, not empty | yes |  | The prompt name in the registry. |
+| `version` | integer, at least 1 | yes |  | The version number. |
+| `hash` | string matching `^[0-9a-f]{64}$` | yes |  | The version hash: the SHA-256 of its file list. |
+| `text` | string | yes |  | The prompt text, restored byte for byte from the store. |
+
+## RetrySettings
+
+How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `max_attempts` | integer, 1 to 20 | no |  | Attempts per model call, the first included. Default 4. |
+| `base_delay_ms` | integer, at least 0 | no |  | The wait before the first retry; each later retry doubles it. Default 500. |
+| `max_delay_ms` | integer, at least 0 | no |  | The longest wait between two attempts. Default 30000. |
+| `jitter` | boolean | no |  | Draw each wait at random below the backoff (full jitter). Default true. |
+| `retry_after` | boolean | no |  | Wait at least what the server's Retry-After header asks. Default true. |
 
 ## GivenDefaults
 
@@ -188,7 +215,7 @@ Write a mapping with exactly one of these keys.
 
 The ten deviation classes a perturbed run can inject.
 
-Used by `when.injection.class` and `perturbations[].class`. Running a perturbation is planned, phase 3. See [recovery](../concepts/recovery.md).
+Used by `when.injection.class` and `perturbations[].class`. Mode P runs them with the perturbing driver, and `driftbench perturb` runs one. See [recovery](../concepts/recovery.md).
 
 | Value | Meaning |
 |---|---|
@@ -506,7 +533,7 @@ How the agent should come back after an injected deviation.
 
 The five drift classes a failing block can carry.
 
-Run records, not specs, carry these classes: one or more on each failing block. The drift engine that assigns them is planned, phase 3. See [drift](../concepts/drift.md).
+Run records, not specs, carry these classes: one or more on each failing block. The runner assigns them from the failing gating verdicts of each block. See [drift](../concepts/drift.md).
 
 | Value | Meaning |
 |---|---|

@@ -1,9 +1,33 @@
 {
   "name": "@driftbench/artifacts",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "version": "0.1.0",
+  "description": "Readers for the files a code agent produces (xlsx, docx, pptx, pdf, csv, json, text, code), answering artifact checks with evidence.",
+  "keywords": [
+    "driftbench",
+    "ai-agents",
+    "evaluation",
+    "llm",
+    "testing",
+    "artifacts",
+    "xlsx",
+    "docx",
+    "pptx",
+    "pdf"
+  ],
+  "homepage": "https://github.com/achammah/driftbench#readme",
+  "bugs": {
+    "url": "https://github.com/achammah/driftbench/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achammah/driftbench.git",
+    "directory": "packages/artifacts"
+  },
   "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -24,5 +48,9 @@
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",
     "pdf-parse": "^2.4.5"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

@@ -26,6 +26,7 @@
     "@biomejs/biome": "^2.5.15",
     "@types/node": "^26.6.5",
     "exceljs": "^4.4.0",
+    "playwright-core": "1.63.0",
     "tsup": "^8.5.1",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
