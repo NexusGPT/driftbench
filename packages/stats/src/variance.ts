@@ -337,7 +337,7 @@ export function neymanAllocation(input: NeymanInput): NeymanResult {
     // The variance sum N^2 S^2 / n is separable and convex, so the best integer allocation gives each stratum with
     // spread one unit, then each further unit to the stratum whose variance drops most. Rounding the exact shares
     // can leave a stratum with spread at 0 units, which has infinite variance.
-    const allocated: number[] = weights.map((w) => (w > 0 ? 1 : 0));
+    const allocated = weights.map((w) => (w > 0 ? 1 : 0));
     for (let left = total - live; left > 0; left -= 1) {
       let best = -1;
       let drop = -1;
