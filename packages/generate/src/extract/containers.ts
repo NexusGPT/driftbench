@@ -234,6 +234,7 @@ const LANGUAGES: Array<[RegExp, Language]> = [
   ],
   [/\.php$/i, { line: ['//', '#'], block: true, phpSingle: true }],
   [/\.py$/i, { line: ['#'], block: false, templates: true }],
+  [/(\.toml|\.env|(^|\/)\.env\.[\w.]+)$/i, { line: ['#'], block: false }],
   [/\.sql$/i, { line: ['--'], block: true, sql: true }],
 ];
 

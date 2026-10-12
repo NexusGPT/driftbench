@@ -159,3 +159,13 @@ describe('a prompt in HTML or XML', () => {
     expect(html).toContain(quote);
   });
 });
+
+describe('a prompt in a TOML basic string or an environment file', () => {
+  const rule = 'Never say "refund" early.\nAsk for the id.';
+  const toml = `name = "desk"\nprompt = ${JSON.stringify(rule)}\n`;
+  const env = `MODEL=any\nSYSTEM_PROMPT=${JSON.stringify(rule)}\n`;
+  it('decodes double-quoted values with escapes', () => {
+    expect(promptView('agent.toml', toml)?.text).toContain(rule);
+    expect(promptView('.env', env)?.text).toContain(rule);
+  });
+});

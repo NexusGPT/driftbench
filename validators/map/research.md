@@ -585,3 +585,15 @@ Sources read:
 What others do: A reader of a page sees its text: entities decoded, tags gone, a break where a <br> sits.
 
 What to try, and why: markup entities and tags are decoded
+
+## Iteration 50
+
+Question: packages/generate/src/extract/containers.ts: a TOML basic string and a double-quoted environment value are sent with their backslash escapes; prompt-containers.toml-basic and env-file prove it.
+
+Sources read:
+* https://toml.io/en/v1.0.0#string
+* https://12factor.net/config and dotenv quoting rules
+
+What others do: A basic string and a quoted env value use the escapes of JSON strings.
+
+What to try, and why: double-quoted values in TOML and environment files are decoded
