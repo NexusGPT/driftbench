@@ -218,8 +218,10 @@ export function bootstrapCI(values: readonly number[], options: BootstrapOptions
     }
     return s / c;
   };
+  // Equal values have that value as mean exactly; a sum divided by a count can round away from it.
+  const constant = values.every((v) => v === values[0]);
   const evaluate = (drawn: readonly number[]): number => {
-    if (!statistic) return pooled(drawn);
+    if (!statistic) return constant ? (values[0] as number) : pooled(drawn);
     const flat: number[] = [];
     for (const g of drawn) for (const v of groups[g] as number[]) flat.push(v);
     return statistic(flat);
