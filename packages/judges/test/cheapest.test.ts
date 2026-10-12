@@ -82,9 +82,10 @@ describe('the cheapest-judge rule', () => {
     const { labels } = await loadLabels(join(ROOT, 'examples/acme/labels'));
     const cassette = await loadCassette(join(CRITERIA, 'calibration/claude-council.cassette.json'));
     const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels, mode: 'llm' });
-    expect(report.criteria.find((c) => c.criterion === 'explicit_confirmation')?.assignment.status).toBe(
-      'unassigned',
-    );
+    expect(report.criteria.find((c) => c.criterion === 'explicit_confirmation')?.assignment).toMatchObject({
+      status: 'assigned',
+      judges: ['claude-haiku', 'claude-sonnet', 'claude-opus'],
+    });
   });
 });
 

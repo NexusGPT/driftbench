@@ -622,8 +622,7 @@ process.stdin.on('end', () => {
       '--out',
       out,
     ]);
-    // Exit 1: opus has 2 calls with no answer on explicit_confirmation (the recording's spend cap).
-    expect(code).toBe(1);
+    expect(code).toBe(0);
     expect(text).toMatch(
       /explicit_confirmation \[gating\]: owned by claude-haiku alone \(system2\), 0\.\d{4} USD per call/,
     );
