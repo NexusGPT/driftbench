@@ -86,6 +86,34 @@ describe('driftbench report', () => {
     expect(xml).toMatch(/<testsuites name="c-x3" tests="32" failures="[1-9]\d*" errors="0"/);
   });
 
+  it('scores --aggregate criteria over the campaign, prints each, and refuses one it cannot read', async () => {
+    const { code, out, err } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/agg.html',
+      '--aggregate',
+      'pass-rate:>=0.99',
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(out).toContain('aggregate pass-rate >= 0.99: fails');
+    const bad = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/bad.html',
+      '--aggregate',
+      'nope:>=1',
+    ]);
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('unknown aggregate nope');
+  });
+
   it('chooses the margin from the baseline by default, as compare and ci do, and prints it', async () => {
     const { code, out } = await cli([
       'report',

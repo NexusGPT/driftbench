@@ -11,11 +11,15 @@ import {
 } from '@driftbench/core';
 import { faultAdapter, importFaultSet } from '@driftbench/generate';
 import {
+  type AggregateCriterion,
+  type AggregateResult,
+  aggregateFromFlag,
   autoMargin,
   type CampaignData,
   type CompareResult,
   compareCampaigns,
   DEFAULT_FLAG_FAMILIES,
+  evaluateAggregates,
   loadCampaign,
   MIN_GOLDENS,
   unitsOf,
@@ -42,16 +46,23 @@ export const DEFAULT_SUMMARY = 'driftbench-ci.json';
  * (the intervals are wider than the margin: too few goldens, never a regression), `incomplete` is a
  * candidate cell that did not run.
  */
-export type CiVerdict = 'parity' | 'regression' | 'not-shown-non-inferior' | 'incomplete';
+export type CiVerdict =
+  | 'parity'
+  | 'regression'
+  | 'not-shown-non-inferior'
+  | 'incomplete'
+  | 'aggregate-failed';
 
 const VERDICT_TEXT: Record<CiVerdict, string> = {
   parity: 'PARITY',
   regression: 'REGRESSION',
   'not-shown-non-inferior': 'NOT SHOWN NON-INFERIOR',
   incomplete: 'INCOMPLETE',
+  'aggregate-failed': 'AGGREGATE FAILED',
 };
 
 type CiCommandOptions = {
+  aggregate?: string[];
   specs: string;
   target: string;
   baseline: string;
@@ -87,6 +98,8 @@ export type CiSummary = {
   exitCode: 0 | 1;
   /** compare's reasons, in its words. */
   reasons: string[];
+  /** Campaign-level criteria from --aggregate, scored over the candidate. */
+  aggregates: AggregateResult[];
   /** The margin in percentage points, as given or as --margin auto chose it. */
   marginPoints: number;
   /** Set when --margin auto chose the margin: what it had to clear, what set it, and any warning. */
@@ -179,6 +192,12 @@ export function registerCiCommand(
     .option('--cache', 'replay runs from the cache; off by default, so every cell runs the agent')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--json', 'print the JSON summary instead of the table')
+    .option(
+      '--aggregate <spec>',
+      'a campaign-level criterion, name:op threshold, e.g. pass-rate:>=0.8; repeatable; a failing one fails the gate',
+      collect,
+      [] as string[],
+    )
     .action(async (options: CiCommandOptions) => {
       setExit(await ciCommand(options, io, deps));
     });
@@ -186,6 +205,13 @@ export function registerCiCommand(
 
 /** `driftbench ci`. Returns the exit code. */
 export async function ciCommand(options: CiCommandOptions, io: Io, deps: CampaignDeps): Promise<number> {
+  let criteria: AggregateCriterion[];
+  try {
+    criteria = (options.aggregate ?? []).map((text) => aggregateFromFlag(text));
+  } catch (cause) {
+    io.err(`${message(cause)}\n`);
+    return 2;
+  }
   const gate = parseGate(options, io);
   if (!gate) return 2;
   const flags = options.flag.length > 0 ? options.flag : [...DEFAULT_FLAGS];
@@ -273,6 +299,7 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
     return 2;
   }
   const summary = summarize({
+    aggregates: evaluateAggregates(candidate, criteria),
     result,
     candidateRuns: candidate.runs,
     flags,
@@ -403,6 +430,12 @@ function faultModule(path: string): string {
 }
 
 /** The outcome of a stored run, by the rule `campaign status` applies: completed, every block passes, the end state matches. */
+/** The verdict once campaign-level criteria are scored: a failing one turns a non-incomplete verdict into aggregate-failed. */
+export function aggregateVerdict(base: CiVerdict, aggregates: readonly AggregateResult[]): CiVerdict {
+  if (base === 'incomplete') return base;
+  return aggregates.some((entry) => entry.passed === false) ? 'aggregate-failed' : base;
+}
+
 export function outcomeOfRun(run: RunResult): CellOutcome {
   return outcomeOf(
     {
@@ -426,6 +459,7 @@ export function runPasses(run: RunResult): boolean {
 
 function summarize(input: {
   result: CompareResult;
+  aggregates: AggregateResult[];
   candidateRuns: readonly RunResult[];
   flags: string[];
   marginPoints: number;
@@ -455,23 +489,30 @@ function summarize(input: {
     };
   });
   const smallest = pairedRateDifference({ bothPass: rows.length, regressed: 0, improved: 0, bothFail: 0 });
-  const verdict: CiVerdict =
+  const verdict: CiVerdict = aggregateVerdict(
     candidate.incompleteCells > 0
       ? 'incomplete'
       : result.verdict === 'non-inferior'
         ? 'parity'
         : result.verdict === 'regressed'
           ? 'regression'
-          : 'not-shown-non-inferior';
+          : 'not-shown-non-inferior',
+    input.aggregates,
+  );
+  const failingAggregates = input.aggregates.filter((entry) => entry.passed === false);
   const reasons =
     verdict === 'incomplete'
       ? [
           `${count(candidate.incompleteCells, 'cell')} of the candidate did not run (budget or pending): parity cannot be shown on part of the suite`,
           ...result.reasons,
         ]
-      : [...result.reasons];
+      : [
+          ...result.reasons,
+          ...failingAggregates.map((entry) => `aggregate ${entry.name} fails: ${entry.reason}`),
+        ];
   return {
     verdict,
+    aggregates: input.aggregates,
     exitCode: verdict === 'parity' ? 0 : 1,
     reasons,
     marginPoints: input.marginPoints,
