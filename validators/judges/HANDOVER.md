@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 7 (check) passes since iteration 38. Level 8, rubric (14 items left); next code: no-fail-picture. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
+Level 7 (check) passes since iteration 38. Level 8, rubric (13 items left); next code: no-pass-picture. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
 
 ## Hypotheses tried
 
@@ -70,10 +70,11 @@ Iteration 41 (cause: no vague-quantity rule): row in RULES. Test: lint.test.ts (
 Iteration 42 (cause: no double-negative rule): row in RULES counting not, no, never, cannot, without, fail to, n't per sentence. Test: lint.test.ts (red proved by reverting the source). Bank 306 -> 307 (0.4812).
 Iteration 43 (cause: no no-observable rule): row in RULES. Test: lint.test.ts (red proved). Bank 307 -> 308 (0.4828).
 Iteration 44 (cause: no too-long rule): rubric over 400 characters. Test: lint.test.ts (red proved). Bank 308 -> 309 (0.4843).
+Iteration 45 (cause: no no-fail-picture rule): missing or blank FAIL picture. Test: lint.test.ts (red proved). Bank 309 -> 310 (0.4859).
 
 ## Next actions
 
-1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"), next: no-fail-picture. The clean twin of every item must still give no issue.
+1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"), next: no-pass-picture. The clean twin of every item must still give no issue.
 2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`. PR 86 takes every push.
 
