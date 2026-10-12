@@ -845,6 +845,7 @@ export function boundarySeeder(
             stimulus: choosePhrase(prepared, rng, [target]),
             carries: [target],
             ...(tools.length > 0 ? { tools } : {}),
+            ...(prepared.relations.replyLanguage === undefined
               ? {}
               : { lang: prepared.relations.replyLanguage }),
             ...(criteria.length > 0 ? { criteria: criteria.map((criterion) => criterion.name) } : {}),
