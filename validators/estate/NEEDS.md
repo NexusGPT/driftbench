@@ -35,8 +35,8 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | gen.asks | 24 | generation | docs/estate.md section 5, "When" (approved phrases shuffled by the seed; the twin takes the second phrase) |
 | gen.reads | 23 | generation | docs/estate.md section 5 (a Read of a path goes to the references check) and section 1, Reference row |
 | gen.coverage | 25 | generation | docs/estate.md section 5: `--focus` ("names the gaps of the ones with none"), the domain-rule row (a gating judged criterion), and the named gaps that close "as the pieces they name arrive" |
-| unit.runner | 26 | generation | docs/estate.md section 6, "Unit (offline). Guards replayed with synthetic events; scripts on fixtures"; the `estate unit` contract in HANDOVER.md |
-| estate.stats | 28 | generation | docs/estate.md section 7, "Not built yet: coverage lines per atom kind" (tested over atoms, enforced over atoms); the `estate stats` contract in HANDOVER.md |
+| unit.runner | 26 | generation | docs/estate.md section 6, "Unit (offline). Guards replayed with synthetic events; scripts on fixtures"; the command written in docs/estate.md section 6 and docs/reference/cli.md |
+| estate.stats | 28 | generation | docs/estate.md section 7, "Not built yet: coverage lines per atom kind" (tested over atoms, enforced over atoms); the command written in docs/estate.md section 7, "The coverage command: `estate stats`", and docs/reference/cli.md |
 | mutant.agent | 44 | agent mutants | docs/estate.md section 6, estate mutants (adequacy: a deleted atom fails a test) |
 | kill.fake | 31 | agent mutants | `estate mutate` and `estate run` on the fixture's stand-in command (docs/reference/cli.md, "driftbench estate run and driftbench estate mutate") |
 | maintain.impact | 33 | maintenance | docs/estate.md section 8, `estate diff` and `estate impact` |

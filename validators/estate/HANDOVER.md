@@ -39,11 +39,11 @@ The ladder is a bank (docs/validators.md section 12): seven levels, each a sub-b
 
 Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none broken. Failing after the pilot: 310 items, 137 distinct causes. Forecast: 36.0 iterations. validators/estate/NEEDS.md cites the need of every family; gen.task is quarantined. The gate does not hold on the forecast and the score; the cause term holds. No audit.md yet.
 
-## The estate stats contract (proposed to the lead)
+## The estate stats contract (in docs/estate.md section 7 and docs/reference/cli.md, frozen)
 
 `driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json` prints `coverage.kinds: { <kind>: { atoms, tested, enforced } }`, `coverage.cells` and `coverage.edges` as `{ covered, total }`, `reach: [{ atom, reached, followed }]` and `decay: [{ block, runs, passRate }]`; exit 0, or 2 on bad input. The estate.stats items read `coverage.kinds`.
 
-## The unit runner contract (frozen with the lead and the reader lane)
+## The unit runner contract (in docs/estate.md section 6 and docs/reference/cli.md, frozen)
 
 `driftbench estate unit <specs...> --estate <root> --json` runs the unit-mode specs. It prints `{ runs: [{ spec, pass, failing: string[] }], guards: [{ guard, event, decision: "allow"|"deny"|"ask", message?: string, ms: number }], scripts: [{ script, exit: number, stdout: string }] }`. It exits 0 when every spec passes, 1 when a spec fails, and 2 on bad input. The unit.runner items read `runs[].spec` and `runs[].pass`.
 

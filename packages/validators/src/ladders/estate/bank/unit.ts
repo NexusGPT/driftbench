@@ -9,8 +9,8 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 /**
  * unit.runner: the offline unit runner of docs/estate.md section 6 ("guards replayed with synthetic events;
  * scripts on fixtures"), on the Northwind fixture's generated unit specs. The command is
- * `driftbench estate unit <specs...> --estate <root> --json`, printing `{ runs: [{ spec, pass }] }` (the
- * contract this bank assumes; the HANDOVER states it). For every guard of the fixture, the unit specs naming
+ * `driftbench estate unit <specs...> --estate <root> --json`, as docs/estate.md section 6 and
+ * docs/reference/cli.md write it (frozen: a change needs an audit finding). For every guard of the fixture, the unit specs naming
  * it pass on the fixture, and turn red when its script is replaced by one that allows everything, or by one
  * that blocks everything; a guard whose message changes, or that runs past its timeout, turns a spec red; a
  * script run on its fixture passes, and turns red when the script fails. Seed-free, judged once.

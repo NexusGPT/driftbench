@@ -724,6 +724,8 @@ Limits of replay today:
 ### Unit, live and estate mutants
 
 * Unit (offline). Guards replayed with synthetic events; scripts on fixtures; a subagent alone, run headless with its agent file as the system prompt, in a sandbox. Not built yet: the plan marks these rows `unit`, and the generator writes their specs.
+
+  The command (contract, not built yet): `driftbench estate unit <specs...> --estate <root> --json` runs the unit-mode specs against the estate root and prints `{ "runs": [{ "spec": "<id>", "pass": true, "failing": ["<check>"] }], "guards": [{ "guard": "<name>", "event": "<event>", "decision": "allow" | "deny" | "ask", "message": "<text>", "ms": 0 }], "scripts": [{ "script": "<path>", "exit": 0, "stdout": "<text>" }] }`. Exit 0 when every spec passes, 1 when a spec fails, 2 on a usage or input error.
 * Live (online, blind), `driftbench estate run`. The agent runs headless in a sandboxed copy of the estate pinned by hash, on a seeded workspace, from the ask alone: no test word in the prompt or the dispatch description. Teacher-forced resumes from a recorded prefix cut at block k; free running; perturbed injects an estate deviation at block k (a compaction marker, a mid-turn message, a planted file, a dead helper). Repeats give the variance; cost per run is measured. Built: `driftbench estate run`, with session states and hazards planted from the state library `--states`.
 * Estate mutants, `driftbench estate mutate`. Delete or invert one atom in a copy of the estate. The tests derived from that atom must go red in live mode, and the replay suite must flag the corpus as now violating. The mutation score per atom kind is the stop rule. Built: `driftbench estate mutate`. The fixture's proof (`packages/cli/test/estate-live.test.ts`) runs 14 live specs on the stand-in and two mutants, each turning its atom's specs red.
 
@@ -738,6 +740,32 @@ Not built yet:
 * Reach before compliance: did the rule reach the moment (the skill loaded, the reference read, the guard fired), then was it followed, reported apart.
 * Decay over length: the pass rate per block index in long sessions, before and after a compaction.
 * A sealed holdout for estate changes, and drift over time: deny rates per guard from the decision logs, pass rate per atom per estate version.
+
+### The coverage command: `estate stats` (contract, not built yet)
+
+```
+driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json
+```
+
+`--map` is the approved map, `--plan` the plan made from it, `--specs` the folder `estate generate` wrote (its `specs/`, `static/` and `incomplete/` folders), `--sessions` a folder of recorded sessions. It prints one JSON object:
+
+```json
+{
+  "coverage": {
+    "kinds": { "<kind>": { "atoms": 0, "tested": 0, "enforced": 0 } },
+    "cells": { "covered": 0, "total": 0 },
+    "edges": { "covered": 0, "total": 0 }
+  },
+  "reach": [{ "atom": "<id>", "reached": 0, "followed": 0 }],
+  "decay": [{ "block": 0, "runs": 0, "passRate": 0 }]
+}
+```
+
+* `kinds`: one entry per atom kind of the map. `atoms` counts the approved atoms of the kind. `tested` counts those named by at least one complete spec (a spec under `specs/`, or a static test under `static/`). `enforced` counts those whose enforcement lists at least one guard.
+* `cells` and `edges`: the plan's cells and the graph's route, reference, dispatch and next edges, covered when a complete spec covers them.
+* `reach` and `decay` come from `--sessions`; without it, both are empty lists.
+
+Exit codes: 0 when the report is printed; 2 on a usage or input error (a map, plan or folder that does not load, or a plan made from another map), and nothing is printed.
 
 ## 8. Maintenance: keeping the tests true when the estate changes
 

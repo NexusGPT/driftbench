@@ -8,8 +8,8 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 /**
  * estate.stats: the coverage lines of docs/estate.md section 7 ("Not built yet: coverage lines per atom kind:
  * atoms with an approved test over atoms; atoms enforced by a guard over atoms"), on the Northwind fixture.
- * The command is `driftbench estate stats --map <map> --plan <plan> --specs <dir> --json`, printing
- * `coverage.kinds: { <kind>: { atoms, tested, enforced } }` (the contract the handover states). The oracle
+ * The command and its JSON are written in docs/estate.md section 7, "The coverage command: `estate stats`",
+ * and docs/reference/cli.md (frozen: a change needs an audit finding). The oracle
  * counts from the approved map and the generated suite: atoms of the kind; those named by a complete spec;
  * those whose enforcement lists a guard. Seed-free, judged once.
  */
