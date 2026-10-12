@@ -770,6 +770,7 @@ type = "boolean"
       required: ['p'],
       properties: { p: { type: 'string', enum: ['high', 'low'] }, extra_note: { type: 'string' } },
       if: { properties: { p: { const: 'high' } } },
+      // biome-ignore lint/suspicious/noThenProperty: JSON Schema keyword
       then: { required: ['extra_note'] },
       else: {},
     };

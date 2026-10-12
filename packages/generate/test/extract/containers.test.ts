@@ -8,7 +8,7 @@ describe('prompts kept inside JSON files', () => {
     .split('\n')
     .map((line) => JSON.stringify({ role: 'system', content: line }))
     .join('\n')}\n`;
-  const accents = `{\n  "system": ${JSON.stringify('Réponds en français.').replace(/[^\x00-\x7f]/g, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`)}\n}\n`;
+  const accents = `{\n  "system": ${JSON.stringify('Réponds en français.').replace(/[^\p{ASCII}]/gu, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`)}\n}\n`;
 
   it('decodes a chat file, an agent export, JSON lines and \\u escapes, and leaves keys out', () => {
     expect(promptView('prompt.json', chat)?.text).toContain('Never say "refund" before');

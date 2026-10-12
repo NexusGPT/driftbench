@@ -734,13 +734,13 @@ function partitionsOf(
   const types = typesOf(property);
   const members = plain(entry(property, 'enum')?.value);
   if (Array.isArray(members)) {
-    members.forEach((member, index) =>
+    for (const [index, member] of members.entries()) {
       add(
         isStructured(member) ? `member-${index + 1}` : valueSlug(member),
         `${name} is ${show(member)}`,
         'enum',
-      ),
-    );
+      );
+    }
   } else if (entry(property, 'const')) {
     const constant = plain(entry(property, 'const')?.value);
     add(
