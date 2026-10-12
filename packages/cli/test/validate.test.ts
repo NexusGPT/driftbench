@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
-import { journalRow, plantedLadder } from '../../validators/test/support';
+import { bankLadder, journalOf, journalRow, plantedLadder } from '../../validators/test/support';
 import { USAGE_EXIT, type ValidateDeps, validateCommand } from '../src/commands/validate';
 import { main } from '../src/index';
 import type { Io } from '../src/io';
@@ -146,14 +146,26 @@ describe('driftbench validate floors', () => {
     await writeFile(evidencePath, run.output.out);
     const raised = capture(d.root as string);
     expect(
-      await validateCommand('floors', { raise: 'planted', evidence: 'evidence.json' }, raised.io, d, '3'),
+      await validateCommand(
+        'floors',
+        { raise: 'planted', evidence: 'evidence.json', ladderVersion: '1' },
+        raised.io,
+        d,
+        '3',
+      ),
     ).toBe(0);
-    expect(raised.output.out).toContain('rises from 1 to 3');
+    expect(raised.output.out).toContain('for ladder version 1 rises from 1 to 3');
     const file = JSON.parse(await readFile(join(d.root as string, 'validators/floors.json'), 'utf8'));
     expect(file.floors).toEqual({ planted: 3 });
     const lower = capture(d.root as string);
     expect(
-      await validateCommand('floors', { raise: 'planted', evidence: 'evidence.json' }, lower.io, d, '2'),
+      await validateCommand(
+        'floors',
+        { raise: 'planted', evidence: 'evidence.json', ladderVersion: '1' },
+        lower.io,
+        d,
+        '2',
+      ),
     ).toBe(1);
     expect(lower.output.err).toContain('Refused: The floor of planted is 3; it only rises, so 2 is refused.');
     expect(
@@ -168,16 +180,16 @@ describe('driftbench validate loop files', () => {
   it('--journal appends a valid row, writes the handover level table, and refuses a bad row', async () => {
     const d = await deps();
     const root = d.root as string;
-    await writeFile(join(root, 'row1.json'), JSON.stringify(journalRow(1)));
+    await writeFile(join(root, 'row1.json'), JSON.stringify(journalRow(0)));
     const ok = capture(root);
     expect(await validateCommand('planted', { journal: 'row1.json' }, ok.io, d)).toBe(0);
-    expect(ok.output.out).toContain('Appended iteration 1 to validators/planted/journal.jsonl');
+    expect(ok.output.out).toContain('Appended iteration 0 to validators/planted/journal.jsonl');
     const handover = await readFile(join(root, 'validators/planted/HANDOVER.md'), 'utf8');
     expect(handover).toContain('| 1 | 3 |\n| hidden | 3 |');
     expect(await readFile(join(root, 'validators/planted/research.md'), 'utf8')).toContain('# Research');
     const check = capture(root);
     expect(await validateCommand('planted', { checkHandover: true }, check.io, d)).toBe(0);
-    await writeFile(join(root, 'bad.json'), JSON.stringify(journalRow(2, { result: 'lowered' })));
+    await writeFile(join(root, 'bad.json'), JSON.stringify(journalRow(1, { result: 'lowered' })));
     const bad = capture(root);
     expect(await validateCommand('planted', { journal: 'bad.json' }, bad.io, d)).toBe(1);
     expect(bad.output.err).toContain('result: the level moved, so result is raised');
@@ -191,7 +203,7 @@ describe('driftbench validate loop files', () => {
     const missing = capture(root);
     expect(await validateCommand('planted', { checkHandover: true }, missing.io, d)).toBe(1);
     expect(missing.output.err).toContain('validators/planted/HANDOVER.md is missing');
-    await writeFile(join(root, 'row1.json'), JSON.stringify(journalRow(1)));
+    await writeFile(join(root, 'row1.json'), JSON.stringify(journalRow(0)));
     await validateCommand('planted', { journal: 'row1.json' }, capture(root).io, d);
     const path = join(root, 'validators/planted/HANDOVER.md');
     await writeFile(path, (await readFile(path, 'utf8')).replace('| hidden | 3 |', '| hidden | 1 |'));
@@ -208,7 +220,7 @@ describe('driftbench validate loop files', () => {
       join(root, 'validators/EXECUTOR.md'),
       '# Executor instruction\n\nDrive <component> to 100 percent.\n',
     );
-    await writeFile(join(root, 'row1.json'), JSON.stringify(journalRow(1)));
+    await writeFile(join(root, 'row1.json'), JSON.stringify(journalRow(0)));
     await validateCommand('planted', { journal: 'row1.json' }, capture(root).io, d);
     const brief = capture(root);
     const head = 'abcdef0123456789abcdef0123456789abcdef01';
@@ -318,16 +330,99 @@ describe('driftbench validate through main', () => {
       '--raise',
       'stats',
       '1',
+      '--ladder-version',
+      '1',
       '--evidence',
       'validators/stats/HANDOVER.md',
     ]);
     expect(result.code).toBe(64);
     expect(result.err).toContain('Cannot read the evidence');
-    const refused = await run(['validate', 'floors', '--raise', 'nothing', '1', '--evidence', 'x.json']);
+    const refused = await run([
+      'validate',
+      'floors',
+      '--raise',
+      'nothing',
+      '1',
+      '--ladder-version',
+      '1',
+      '--evidence',
+      'x.json',
+    ]);
     expect(refused.code).toBe(64);
     expect(refused.err).toContain('No validator is registered for "nothing"');
     expect((await run(['validate', 'floors'])).out).toMatch(
-      /Floors \(validators\/floors\.json\): (?:[a-z-]+ = \d+, )*stats = \d+[.,]/,
+      /Floors \(validators\/floors\.json\): judges = \d+ \(ladder version 1\), stats = \d+ \(ladder version 1\)\./,
     );
+  });
+});
+
+describe('driftbench validate --items and --hardness', () => {
+  it('--items lists the whole bank per family and tier from the same run, each level once per seed', async () => {
+    const root = await temp();
+    const { ladder, calls } = bankLadder([2]);
+    const d: ValidateDeps = { ladders: () => ({ banked: ladder }), root };
+    const { io, output } = capture(root);
+    expect(await validateCommand('banked', { seeds: '1..2', items: true }, io, d)).toBe(0);
+    expect(calls).toEqual({ core: 2, deep: 2 });
+    expect(output.out).toContain('Level per seed: 1 = 1, 2 = 0');
+    expect(output.out).toContain('Bank of banked: 10 items in 3 families, 8 pass on every seed (score 0.8).');
+    expect(output.out).toContain('Family gamma: 4 items, 1 failing; per tier 2: 1, 3: 2, 5: 1');
+    const json = capture(root);
+    await validateCommand('banked', { seeds: '1..2', items: true, json: true }, json.io, d);
+    const report = JSON.parse(json.output.out);
+    expect(report.ladderVersion).toBe(2);
+    expect(report.bank).toMatchObject({
+      size: 10,
+      passing: 8,
+      failingByFamily: { alpha: 1, beta: 0, gamma: 1 },
+    });
+    const usage = capture(root);
+    expect(await validateCommand('banked', { items: true, brief: true }, usage.io, d)).toBe(USAGE_EXIT);
+  });
+
+  it('--hardness prints the measurement from the journal and exits 0 only when the gate holds', async () => {
+    const root = await temp();
+    const { ladder } = bankLadder();
+    const d: ValidateDeps = { ladders: () => ({ banked: ladder }), root };
+    const missing = capture(root);
+    expect(await validateCommand('banked', { hardness: true }, missing.io, d)).toBe(USAGE_EXIT);
+    expect(missing.output.err).toContain('no iteration 0 row');
+    const write = async (passing: number[]) => {
+      await mkdir(join(root, 'validators/banked'), { recursive: true });
+      await writeFile(
+        join(root, 'validators/banked/journal.jsonl'),
+        `${journalOf(passing, 300, { '1': 100, '2': 80, '3': 60, '4': 40, '5': 20 })
+          .map((row) => JSON.stringify(row))
+          .join('\n')}\n`,
+      );
+    };
+    await write([30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]);
+    const holds = capture(root);
+    expect(await validateCommand('banked', { hardness: true }, holds.io, d)).toBe(0);
+    expect(holds.output.out).toContain('Forecast: 260 iterations to 100 percent');
+    expect(holds.output.out).toContain('Gate: HOLDS');
+    await write([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
+    const fails = capture(root);
+    expect(await validateCommand('banked', { hardness: true, json: true }, fails.io, d)).toBe(1);
+    const measured = JSON.parse(fails.output.out);
+    expect(measured).toMatchObject({ component: 'banked', forecast: 20, fixedPerIteration: 10 });
+    expect(measured.gate.holds).toBe(false);
+    const all = capture(root);
+    expect(await validateCommand('all', { hardness: true }, all.io, d)).toBe(USAGE_EXIT);
+  });
+
+  it('--check-floor enforces the floor of the current ladder version only', async () => {
+    const root = await temp();
+    const { ladder } = bankLadder([1, 2]);
+    await mkdir(join(root, 'validators'));
+    await writeFile(
+      join(root, 'validators/floors.json'),
+      JSON.stringify({ version: 2, ladderVersion: { banked: 1 }, floors: { banked: 2 } }),
+    );
+    const d: ValidateDeps = { ladders: () => ({ banked: ladder }), root };
+    const { io, output } = capture(root);
+    expect(await validateCommand('banked', { checkFloor: true }, io, d)).toBe(0);
+    expect(output.out).toContain('Floor: 0. At or above the floor.');
+    expect(output.out).toContain('The floor 2 belongs to ladder version 1; version 2 has no floor yet.');
   });
 });

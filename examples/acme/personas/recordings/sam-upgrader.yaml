@@ -1,0 +1,11 @@
+# Answers of the sam-upgrader persona for the plan upgrade spec, written by hand and replayed by the
+# recording port instead of a model. One answer per turn, in order. Fictional.
+family: hand-written
+model: written by hand for the users lane proof
+persona: sam-upgrader
+answers:
+  - Hello! I'm already an Acme customer and my phone keeps running out of data before the month ends.
+  - Sure, it's sam.rivera@example.com
+  - I'll take the unlimited one, please.
+  - Confirm
+  - No, that's all. Thanks a lot!
