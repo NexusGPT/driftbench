@@ -110,7 +110,7 @@ export function dataTag(tag: DataTag, text: string): string {
 /** One transcript line: `[role tool] text`. */
 export function renderEntry(entry: TranscriptEntry): string {
   const label = entry.tool ? `${entry.role} ${entry.tool}` : entry.role;
-  return `[${label}] ${entry.text}`;
+  return `[${label}] ${entry.text.replace(/\r\n|[\n\r\u2028\u2029\u0085\v\f]/g, ' \u23ce ')}`;
 }
 
 export function renderTranscript(entries: readonly TranscriptEntry[]): string {
