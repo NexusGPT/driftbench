@@ -5,7 +5,7 @@
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 7 |
+| 1 | 2 |
 <!-- level-table:end -->
 
 Baseline on main a303a3f2 merged into codex/system-v3: bank version 5, 2384 items, 2355 passing, 29 failing, score 0.9878355704697986. Only seed 1 is complete. Do not extrapolate to other seeds. Older journals remain in journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl.
@@ -26,15 +26,15 @@ The current golden suite has nine conversations and one price-sheet task. Its do
 
 The function adapter copies every prior message body on each send, and teacher-forced sessions copy their entire canonical prefix on open. Red-first tests reproduce unread message access and teacher-forced growth, including an 80 times measurement and a seed-2 measurement of 58.1 times.
 
-The pending fix preserves mutable `Message[]` callbacks and `structuredClone`: marked runner-owned prefixes can be borrowed; callbacks receive plain arrays that copy each message on first access. A read-only proxy is an explicit helper, never the callback default. Targeted teacher-forced tests now pass, but free-running and replay growth still fail in one targeted run at 29.4 and 31.2 times. Do not claim the history work complete before measurement.
+The pending fix preserves mutable `Message[]` callbacks and `structuredClone`: marked runner-owned prefixes can be borrowed; callbacks receive plain arrays that copy each message on first access. A read-only proxy is an explicit helper, never the callback default. The copy-only five-seed sweep completes 5 of 21 seeds, with levels 2, 2, 7, 2, 2 and 2351 of 2384 items passing every completed seed (score 0.9861577181208053). All three growth paths still fail at least one seed. A later compatibility test run also fails teacher-forced seed 2 at 29.5 times. Do not claim the history work complete before measurement.
 
 Profiling the remaining free-running growth identifies repeated native hash updates over the whole prefix. The cache-key head changes per block, so the incremental digest cannot reuse that head. A new red-first test verifies the unchanged canonical digest but observes 802 native updates for 800 messages. The next distinct mechanism is bulk canonical-text hashing for a new head.
 
 ## Next actions
 
-1. Check CI for the selection-allocation fix in PR 118, prioritized by the owner because the Node 24 failure blocks PR 74. Its allocation regression is red before and green after; all 36 selection tests pass and ten Node 24 probes have maximum growth 27.94 against 40. Finish the pending five-seed prefix-copy sweep and journal that separate cause. That sweep loaded selection code before this fix.
+1. Check CI for the selection-allocation fix in PR 118, prioritized by the owner because the Node 24 failure blocks PR 74. Its allocation regression is red before and green after; all 36 selection tests pass and ten Node 24 probes have maximum growth 27.94 against 40. The five-seed prefix-copy sweep is journaled as iteration 1, a failed experiment. It loaded selection code before this fix. PR 130 carries the selection-only cherry-pick into main. After PR 131 merges, merge main into both branches and push new heads; never rerun the cancelled jobs.
 2. Fix the native hash-update growth with the existing red-first test; preserve exact canonical cache keys. Measure seed 1 and journal it separately.
-3. Correct the current estate doc/output mismatches and pilot totals with red-first tests. Change only the approved.yaml approval-output line in docs/estate.md to 125; leave historical scan examples alone. Coordinate stale items with the maintainer.
+3. Estate and pilot docs are corrected with red-first tests. Recheck detached-child cleanup after merging main, then fix digit-only hash prefixes: staged seed 4 mistakes hash prefix 456042 for a version. Coordinate all stale expectations with the maintainer.
 
 ## Pitfalls
 

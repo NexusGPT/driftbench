@@ -5,6 +5,8 @@ import {
   cloneJson,
   decideToolRule,
   deniesCall,
+  isImmutableHistorySource,
+  lazyHistoryCopy,
   type Message,
   type Observed,
   type ResolvedGiven,
@@ -62,7 +64,18 @@ export type FunctionAdapterOptions<S = undefined> = {
   version?: string;
 };
 
-type FunctionState<S> = { readonly kind: 'function'; agent: S; closed: boolean };
+type FunctionState<S> = {
+  readonly kind: 'function';
+  agent: S;
+  closed: boolean;
+  prefix: readonly Message[];
+  tail: Message[];
+  legacy?: Message[];
+};
+
+function messagesOf<S>(state: FunctionState<S>): readonly Message[] {
+  return state.legacy ?? [...state.prefix, ...state.tail];
+}
 
 export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S>): AgentAdapter {
   const id = 'function';
@@ -97,15 +110,33 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
       } catch (cause) {
         throw asAgentError(cause, 'the agent failed to start');
       }
-      const state: FunctionState<S> = { kind: 'function', agent, closed: false };
+      const state: FunctionState<S> = {
+        kind: 'function',
+        agent,
+        closed: false,
+        prefix: isImmutableHistorySource(given.prefix) ? given.prefix : cloneJson(given.prefix),
+        tail: [],
+      };
       return {
         id: randomUUID(),
         adapter: id,
         target: given.target,
         given,
-        history: cloneJson(given.prefix),
+        get history() {
+          state.legacy ??= lazyHistoryCopy(messagesOf(state));
+          return state.legacy;
+        },
+        set history(value: Message[]) {
+          state.legacy = value;
+        },
         state,
       };
+    },
+
+    appendHistory(session, messages) {
+      const state = own(session);
+      if (state.legacy) state.legacy.push(...messages);
+      else state.tail.push(...messages);
     },
 
     async send(session, turn: Turn) {
@@ -113,7 +144,9 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
       let observed: Observed;
       try {
         observed = await options.respond(
-          cloneJson(session.history),
+          // Exposed session history remains freely mutable. Snapshot it eagerly so later owner edits
+          // cannot change a callback retained before its first read; the runner-owned fast path is lazy.
+          state.legacy ? cloneJson(state.legacy) : lazyHistoryCopy(messagesOf(state)),
           structuredClone(turn.given.world),
           structuredClone(turn.given.vars),
           state.agent,

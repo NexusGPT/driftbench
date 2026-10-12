@@ -15,6 +15,7 @@ interface AgentAdapter {
   capabilities(): AdapterCapabilities;
   open(given: ResolvedGiven): Promise<Session>;
   send(session: Session, turn: Turn): Promise<Observed>;
+  appendHistory?(session: Session, messages: Message[]): void;
   trace?(session: Session, turn: Turn): Promise<Observed>;
   endState?(session: Session, source: string): Promise<unknown>;
   readArtifact?(session: Session, path: string): Promise<Uint8Array>;
@@ -53,6 +54,14 @@ type Turn = {
 `session.history` holds the messages so far. The runner appends the block's user message, or every message of a burst, before `send`, and the agent's reply after it: the text, and each tool call with its output or error. At send time the history ends with the current user turn. An adapter reads the history and never appends to it.
 
 A session's history starts as a copy of the prefix, whatever the adapter can do with it. The `seedPrefix` capability says whether the agent itself sees the prefix.
+
+Adapters can use `historyView(history)` from `@driftbench/core` for a read-only, point-in-time view. Creating a view captures the length without visiting earlier messages. The owner can append; it must not change messages already in the history. A retained view keeps its original length and content.
+
+The view uses copy-on-write. A legacy array write makes a private shallow copy; a write to a message or its nested JSON makes a private deep copy. Neither changes the owner's history. `copyOnWriteHistory(history)` exposes the same view as `Message[]` for existing mutable callback signatures. Array methods, enumeration and JSON serialization work as before. To pass the view to an API that requires a plain object, such as `structuredClone`, first materialize it with `cloneJson(view)`. Freezing the proxy or changing its prototype is unsupported.
+
+The function adapter keeps existing agent callbacks compatible, including callbacks that call `structuredClone`. It uses `lazyHistoryCopy(history)`, a plain mutable array that copies each message on first access. Existing callbacks keep their `Message[]` signature and isolated writes. Frozen-array reads and sealed-array writes keep their normal behavior. When session history has already been exposed as mutable, `send` takes a full private snapshot automatically, so a later owner edit cannot change a retained callback. An agent that reads only the current user turn no longer copies every earlier message body on each send. Adapter authors that accept the read-only contract can use `historyView` directly.
+
+The optional `appendHistory` method is a fast path for the runner's appends. It must act like `session.history.push(...messages)`. Adapters without it keep the existing path. The function adapter keeps a borrowed prefix and an owned tail until legacy code reads `session.history`; that read materializes a compatible mutable array. The runner marks its owned prefixes with `immutableHistorySource`. Only such marked sources can be borrowed; an ordinary prefix passed to `open` is still copied deeply before it can change. Marking a source is an explicit promise to keep its message bodies unchanged.
 
 ## What `send` returns
 

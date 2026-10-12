@@ -646,6 +646,10 @@ function blockCost(observed: Observed): number {
 
 function liveChannel(run: RunContext): Channel {
   const { adapter } = run;
+  const appendHistory = (current: Session, messages: Message[]) => {
+    if (adapter.appendHistory) adapter.appendHistory(current, messages);
+    else current.history.push(...messages);
+  };
   const notes: string[] = [];
   let session: Session | undefined;
   const call = <T>(what: string, attempt: () => Promise<T>) =>
@@ -682,7 +686,7 @@ function liveChannel(run: RunContext): Channel {
       const { value: answer, retries } = await collectRetries(async () => {
         if (!session) session = await call(`open on block ${turn.index}`, () => adapter.open(turn.given));
         const current = session;
-        current.history.push(...structuredClone(user));
+        appendHistory(current, structuredClone(user));
         let sent: unknown = await call(`send on block ${turn.index}`, () => adapter.send(current, turn));
         const trace = adapter.trace;
         if (run.capabilities.trace && trace) {
@@ -700,7 +704,7 @@ function liveChannel(run: RunContext): Channel {
           `the adapter's Observed for block ${turn.index} does not match the schema as JSON: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
         );
       }
-      current.history.push(assistantMessage(parsed.data));
+      appendHistory(current, [assistantMessage(parsed.data)]);
       // The cache keeps the block without its retries: a replay retries nothing.
       const { retries: _spent, ...kept } = parsed.data;
       await remember(key, kept);

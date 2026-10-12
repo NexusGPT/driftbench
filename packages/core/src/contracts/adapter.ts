@@ -74,6 +74,8 @@ export interface AgentAdapter {
   open(given: ResolvedGiven): Promise<Session>;
   /** Runs one block and returns everything the agent did, every segment and tool call in order. */
   send(session: Session, turn: Turn): Promise<Observed>;
+  /** Optional fast path for runner-owned appends. It must behave like session.history.push(...messages). */
+  appendHistory?(session: Session, messages: Message[]): void;
   /** A richer read of the last turn, when the runtime keeps one (a tracing store). Replaces the view `send` returned. */
   trace?(session: Session, turn: Turn): Promise<Observed>;
   /**

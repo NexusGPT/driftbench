@@ -1,3 +1,4 @@
+import { immutableHistorySource } from '../contracts/history';
 import type { Assertion, Count, Message, TargetRef, WorldState } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
@@ -40,7 +41,7 @@ export function enterBlock(
 /**
  * The resolved Given of one block: what it starts from, and the content hash of all of it. The prefix is a
  * new list of the same message objects: the run owns them and never changes one after it joined the
- * history, so the cost of a block does not grow with the messages before it.
+ * history, so resolving a block does not copy every earlier message body again.
  */
 export function resolveGiven(
   state: RunningGiven,
@@ -48,7 +49,7 @@ export function resolveGiven(
   target: TargetRef,
 ): ResolvedGiven {
   const body = {
-    prefix: [...prefix],
+    prefix: immutableHistorySource([...prefix]),
     ledger: structuredClone(state.ledger),
     world: structuredClone(state.world),
     vars: structuredClone(state.vars),

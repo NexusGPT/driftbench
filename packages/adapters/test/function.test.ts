@@ -58,7 +58,104 @@ const reply = (text: string): Observed => ({
   latencyMs: 0,
 });
 
+it('keeps a retained callback snapshot isolated from later edits to exposed session history', async () => {
+  let retained: Message[] | undefined;
+  const adapter = functionAdapter({
+    respond: (messages) => {
+      retained = messages;
+      return reply('ok');
+    },
+  });
+  const given = acmeGiven(target);
+  given.prefix = [{ role: 'user', content: 'before' }];
+  const session = await adapter.open(given);
+  session.history.push({ role: 'user', content: 'current' });
+  await adapter.send(session, userTurn(0, 'current', given));
+  const ownerMessage = session.history[0] as Message;
+  ownerMessage.content = 'after';
+  expect(retained?.[0]?.content).toBe('before');
+});
+
 describe('function adapter', () => {
+  it('copies an ordinary prefix before the caller changes it, even before the first history read', async () => {
+    const start = acmeGiven(target, {}, [{ role: 'user', content: 'original' }]);
+    const adapter = functionAdapter({ respond: (messages) => reply(messages.at(-1)?.content ?? '') });
+    const session = await adapter.open(start);
+    const message = start.prefix[0] as Message;
+    message.content = 'changed before reading';
+    expect(session.history[0]?.content).toBe('original');
+  });
+
+  it('keeps runner appends visible to mutable legacy history and supports replacing it', async () => {
+    const start = acmeGiven(target);
+    const adapter = functionAdapter({ respond: (messages) => reply(messages.at(-1)?.content ?? '') });
+    const session = await adapter.open(start);
+    adapter.appendHistory?.(session, [{ role: 'user', content: 'one' }]);
+    const legacy = session.history;
+    adapter.appendHistory?.(session, [{ role: 'user', content: 'two' }]);
+    expect(legacy.map((message) => message.content)).toEqual(['one', 'two']);
+    session.history = [{ role: 'user', content: 'replacement' }];
+    expect((await adapter.send(session, userTurn(0, 'replacement', start))).text).toBe('replacement');
+    expect(structuredClone(session.history)).toEqual([{ role: 'user', content: 'replacement' }]);
+  });
+
+  it('reads only the messages the agent asks for on the runner-owned history path', async () => {
+    let earlierReads = 0;
+    const adapter = functionAdapter({ respond: (messages) => reply(messages.at(-1)?.content ?? '') });
+    const start = acmeGiven(target);
+    const session = await adapter.open(start);
+    const earlier: Message = {
+      role: 'user',
+      get content() {
+        earlierReads += 1;
+        return 'earlier';
+      },
+    };
+    if (!adapter.appendHistory) throw new Error('missing runner append path');
+    adapter.appendHistory(session, [earlier, { role: 'user', content: 'current' }]);
+    expect((await adapter.send(session, userTurn(0, 'current', start))).text).toBe('current');
+    expect(earlierReads).toBe(0);
+  });
+
+  it('keeps a retained history view stable and isolates nested legacy writes', async () => {
+    const seen: Message[][] = [];
+    const adapter = functionAdapter({
+      respond: (messages) => {
+        seen.push(messages);
+        return reply('ok');
+      },
+    });
+    const start = acmeGiven(target, {}, [
+      {
+        role: 'assistant',
+        content: 'before',
+        tool_calls: [{ label: 'lookup', input: { nested: { value: 'original' } } }],
+      },
+    ]);
+    const session = await adapter.open(start);
+    await adapter.send(session, userTurn(0, 'one', start));
+    session.history.push({ role: 'user', content: 'later' });
+    await adapter.send(session, userTurn(1, 'later', start));
+    const first = seen[0] as Message[];
+    expect(Array.isArray(first)).toBe(true);
+    expect(first).toHaveLength(1);
+    const input = first[0]?.tool_calls?.[0]?.input as { nested: { value: string } };
+    input.nested.value = 'changed';
+    first.push({ role: 'user', content: 'private' });
+    expect(first).toHaveLength(2);
+    expect(session.history[0]?.tool_calls?.[0]?.input).toEqual({ nested: { value: 'original' } });
+    expect(seen[1]).toEqual(session.history);
+    expect(start.prefix).toHaveLength(1);
+    expect(JSON.parse(JSON.stringify(first))).toEqual([
+      {
+        role: 'assistant',
+        content: 'before',
+        tool_calls: [{ label: 'lookup', input: { nested: { value: 'changed' } } }],
+      },
+      { role: 'user', content: 'private' },
+    ]);
+  });
+
   it('an agent that calls a tool through context.callTool: a denied tool never runs', async () => {
     let ran = 0;
     const adapter = functionAdapter({

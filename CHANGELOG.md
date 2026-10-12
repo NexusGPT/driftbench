@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+Adapters can borrow a read-only history view with copy-on-write. The function adapter avoids copying the whole conversation on every send. Existing mutable agent callbacks keep isolated writes and their `Message[]` signature.
+
 408 Request Timeout is retried like 429 and 5xx in every adapter.
 
 ## [0.1.0] - 2026-10-12
